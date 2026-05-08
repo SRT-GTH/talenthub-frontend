@@ -1,0 +1,6 @@
+/* Minimal global resets. Design tokens live in src/index.css under @theme. */
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}

@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Vercel
+.vercel
+
+# Misc
+*.local
+.cache/
+.eslintcache
+
+# Claude Code local settings (per-developer, not shared)
+.claude/
+
+# Playwright MCP runtime artifacts (console logs, screenshots from agent runs)
+.playwright-mcp/
+
+# Ad-hoc dev screenshots at the project root (use the wiki for kept references)
+/*.png
+/*.jpg
+/*.jpeg

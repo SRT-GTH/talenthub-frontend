@@ -1,0 +1,439 @@
+@import 'tailwindcss';
+
+/*
+ * TalentHub design tokens (Tailwind v4 @theme).
+ * Source: Figma "Gh Design system - onboading" file (Bin8roWL8sloyc36IgFMuT).
+ * Names mirror Figma headers verbatim (typos preserved where noted).
+ *
+ * See wiki/design-tokens.md for the full token table + Figma node IDs per family.
+ */
+
+@theme {
+  /* ============================================================
+   * FONTS
+   * Display / headings (Figma 44:7372): Instrument Serif (Google Font).
+   * Body / paragraphs (Figma 41:228): SF Pro Rounded — Apple system
+   * font, not on Google Fonts. The sans stack tries SF Pro Rounded
+   * locally first (renders natively on Apple devices), then falls
+   * back to Nunito (closest Google Font equivalent — rounded
+   * geometric sans, variable weights), then to system-ui.
+   * ============================================================ */
+  --font-sans: 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Nunito', system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
+
+  /* ============================================================
+   * BRAND COLORS — Figma frame 45:7799 ("Colors -Primary Brand")
+   * State ladder: -light / -light-hover / -light-active /
+   *               (default / Normal) / -hover / -active /
+   *               -dark / -dark-hover / -dark-active / -darker
+   * ============================================================ */
+
+  /* Brand-Green (Figma section 45:7802) */
+  --color-brand-green-light: #ebf1ec;
+  --color-brand-green-light-hover: #e1eae2;
+  --color-brand-green-light-active: #c1d4c4;
+  --color-brand-green: #387440;
+  --color-brand-green-hover: #32683a;
+  --color-brand-green-active: #2d5d33;
+  --color-brand-green-dark: #2a5730;
+  --color-brand-green-dark-hover: #224626;
+  --color-brand-green-dark-active: #19341d;
+  --color-brand-green-darker: #142916;
+
+  /* Accent & Highlights (Figma section 45:7819) */
+  --color-accent-light: #faf4e8;
+  --color-accent-light-hover: #f7efdd;
+  --color-accent-light-active: #eedeb8;
+  --color-accent: #c8951a;
+  --color-accent-hover: #b48617;
+  --color-accent-active: #a07715;
+  --color-accent-dark: #967014;
+  --color-accent-dark-hover: #785910;
+  --color-accent-dark-active: #5a430c;
+  --color-accent-darker: #463409;
+
+  /* Grey-Neutrals (Figma section 45:7836) */
+  --color-neutral-light: #fefefe;
+  --color-neutral-light-hover: #fefefd;
+  --color-neutral-light-active: #fdfdfc;
+  --color-neutral: #f8f8f4;
+  --color-neutral-hover: #dfdfdc;
+  --color-neutral-active: #c6c6c3;
+  --color-neutral-dark: #babab7;
+  --color-neutral-dark-hover: #959592;
+  --color-neutral-dark-active: #70706e;
+  --color-neutral-darker: #575755;
+
+  /* Black (Figma section 45:7853) — overrides Tailwind default `bg-black` */
+  --color-black-light: #e7e7e7;
+  --color-black-light-hover: #dbdbdb;
+  --color-black-light-active: #b5b5b5;
+  --color-black: #111111;
+  --color-black-hover: #0f0f0f;
+  --color-black-active: #0e0e0e;
+  --color-black-dark: #0d0d0d;
+  --color-black-dark-hover: #0a0a0a;
+  --color-black-dark-active: #080808;
+  --color-black-darker: #060606;
+
+  /* Yellow-Background (Figma section 45:7870) */
+  --color-yellow-light: #fffefc;
+  --color-yellow-light-hover: #fefdfa;
+  --color-yellow-light-active: #fefcf5;
+  --color-yellow: #fbf4e0;
+  --color-yellow-hover: #e2dcca;
+  --color-yellow-active: #c9c3b3;
+  --color-yellow-dark: #bcb7a8;
+  --color-yellow-dark-hover: #979286;
+  --color-yellow-dark-active: #716e65;
+  --color-yellow-darker: #58554e;
+
+  /* ============================================================
+   * SEMANTIC COLORS — Figma frame 45:11090 ("Colors -Semantics colors")
+   * ============================================================ */
+
+  /* Informative (blue) — Figma section 45:11357 */
+  --color-informative-light: #eaeffb;
+  --color-informative-light-hover: #e0e7f9;
+  --color-informative-light-active: #bfcef2;
+  --color-informative: #3062d4;
+  --color-informative-hover: #2b58bf;
+  --color-informative-active: #264eaa;
+  --color-informative-dark: #244a9f;
+  --color-informative-dark-hover: #1d3b7f;
+  --color-informative-dark-active: #162c5f;
+  --color-informative-darker: #11224a;
+
+  /* Success / Positive results (green, distinct from brand-green) — Figma section 45:11374 */
+  /* Note: Figma defines only 9 swatches for this family (no Darker). */
+  --color-success-light: #e8f2ed;
+  --color-success-light-hover: #ddebe4;
+  --color-success-light-active: #b9d6c8;
+  --color-success: #1d7c4d;
+  --color-success-hover: #1a7045;
+  --color-success-active: #17633e;
+  --color-success-dark: #165d3a;
+  --color-success-dark-hover: #114a2e;
+  --color-success-dark-active: #0d3823;
+
+  /* Warning (orange) — Figma section header 45:14378 */
+  --color-warning-light: #fef5eb;
+  --color-warning-light-hover: #feefe1;
+  --color-warning-light-active: #fcdec1;
+  --color-warning: #f59638;
+  --color-warning-hover: #dd8732;
+  --color-warning-active: #c4782d;
+  --color-warning-dark: #b8712a;
+  --color-warning-dark-hover: #935a22;
+  --color-warning-dark-active: #6e4419;
+  --color-warning-darker: #563514;
+
+  /* Danger / Destructive (red) — Figma section header 45:14381 */
+  --color-danger-light: #f9ebea;
+  --color-danger-light-hover: #f6e1df;
+  --color-danger-light-active: #ebc2bd;
+  --color-danger: #c0392b;
+  --color-danger-hover: #ad3327;
+  --color-danger-active: #9a2e22;
+  --color-danger-dark: #902b20;
+  --color-danger-dark-hover: #73221a;
+  --color-danger-dark-active: #561a13;
+  --color-danger-darker: #43140f;
+
+  /* ============================================================
+   * SEMANTIC SURFACE / CONTENT / BORDER tokens
+   * Pulled from Figma variable defs (used pervasively in design-system docs)
+   * ============================================================ */
+  --color-content-primary: #272e35; /* Figma `Content/Primary` */
+  --color-content-secondary: #555f6d; /* Figma `Content/Secondary` */
+  --color-content-tertiary: #7e8b99; /* Figma `Content/Tertiary` */
+  --color-background-default: #ffffff; /* Figma `Background/Default` */
+  --color-background-subtle: #f5f7f9; /* Figma `Background/Subtle Neutral` */
+  --color-border-default: #e9ecef; /* Figma `Border/Default` */
+  --color-border-neutral: #555f6d; /* Figma `Border/Neutral` */
+
+  /* ============================================================
+   * SPACING — Figma frame 46:5715 ("Spacing Scale")
+   * Tailwind v4 uses --spacing as a base unit; utilities like p-4
+   * compute as 4 × --spacing. Figma's scale (1, 2, 3, 4, 5, 6, 7,
+   * 8, 10, 12, 16, 20, 24, 32, 40, 48 → 4..192px) is exactly the
+   * default Tailwind 4px-base spacing scale, so no override needed.
+   * Concrete mapping documented in wiki/design-tokens.md.
+   * ============================================================ */
+  --spacing: 0.25rem; /* 4px — explicit for documentation */
+
+  /* ============================================================
+   * BORDER RADIUS — Figma frame 46:6461 ("Border Radius")
+   * ============================================================ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 100px; /* pill / oval / circle */
+
+  /* ============================================================
+   * TYPOGRAPHY — DISPLAY / HEADLINE
+   * Figma frame 44:7368 ("Headline / Text Styles - Default")
+   * All display sizes use Inter SemiBold (weight 600) except the
+   * italic accent which uses Instrument Serif Regular.
+   * ============================================================ */
+
+  /* Display XL — 72/72 */
+  --text-display-xl: 72px;
+  --text-display-xl--line-height: 72px;
+  --text-display-xl--letter-spacing: 0.1px;
+  --text-display-xl--font-weight: 600;
+
+  /* Display Large — 52/52 */
+  --text-display-lg: 52px;
+  --text-display-lg--line-height: 52px;
+  --text-display-lg--letter-spacing: 0.1px;
+  --text-display-lg--font-weight: 600;
+
+  /* Display Medium — 36/40 (Figma "110%") */
+  --text-display-md: 36px;
+  --text-display-md--line-height: 40px;
+  --text-display-md--letter-spacing: 0.1px;
+  --text-display-md--font-weight: 600;
+
+  /* Display Small — 16/19 (Figma "120%") */
+  --text-display-sm: 16px;
+  --text-display-sm--line-height: 19px;
+  --text-display-sm--letter-spacing: 0.1px;
+  --text-display-sm--font-weight: 600;
+
+  /* Italic accent — 22/32, Instrument Serif Regular — apply font-serif-display alongside */
+  --text-display-italic: 22px;
+  --text-display-italic--line-height: 32px;
+  --text-display-italic--letter-spacing: 0.1px;
+  --text-display-italic--font-weight: 400;
+
+  /* ============================================================
+   * TYPOGRAPHY — PARAGRAPH (Inter)
+   * Figma frame 41:224 ("Paragaph"; default) — 27 styles:
+   *   3 weights × 9 sizes
+   * Weights:
+   *   Strong  → 600  (letter-spacing 0.1 px)
+   *   Medium  → 450  (letter-spacing 0.2 px)
+   *   Normal  → 400  (letter-spacing 0.2 px)
+   * Sizes (size / line-height):
+   *   25:10/16  50:12/20  75:14/24  100:16/28  200:18/32
+   *   300:24/36 400:32/44 500:40/56 600:48/64
+   * Underline variants live in Figma frame 41:274; reuse the size
+   * class and add `underline` utility (no separate tokens).
+   * ============================================================ */
+
+  /* Strong (600 weight, 0.1 px letter-spacing) */
+  --text-strong-25: 10px;
+  --text-strong-25--line-height: 16px;
+  --text-strong-25--letter-spacing: 0.1px;
+  --text-strong-25--font-weight: 600;
+
+  --text-strong-50: 12px;
+  --text-strong-50--line-height: 20px;
+  --text-strong-50--letter-spacing: 0.1px;
+  --text-strong-50--font-weight: 600;
+
+  --text-strong-75: 14px;
+  --text-strong-75--line-height: 24px;
+  --text-strong-75--letter-spacing: 0.1px;
+  --text-strong-75--font-weight: 600;
+
+  --text-strong-100: 16px;
+  --text-strong-100--line-height: 28px;
+  --text-strong-100--letter-spacing: 0.1px;
+  --text-strong-100--font-weight: 600;
+
+  --text-strong-200: 18px;
+  --text-strong-200--line-height: 32px;
+  --text-strong-200--letter-spacing: 0.1px;
+  --text-strong-200--font-weight: 600;
+
+  --text-strong-300: 24px;
+  --text-strong-300--line-height: 36px;
+  --text-strong-300--letter-spacing: 0.1px;
+  --text-strong-300--font-weight: 600;
+
+  --text-strong-400: 32px;
+  --text-strong-400--line-height: 44px;
+  --text-strong-400--letter-spacing: 0.1px;
+  --text-strong-400--font-weight: 600;
+
+  --text-strong-500: 40px;
+  --text-strong-500--line-height: 56px;
+  --text-strong-500--letter-spacing: 0.1px;
+  --text-strong-500--font-weight: 600;
+
+  --text-strong-600: 48px;
+  --text-strong-600--line-height: 64px;
+  --text-strong-600--letter-spacing: 0.1px;
+  --text-strong-600--font-weight: 600;
+
+  /* Medium (450 weight, 0.2 px letter-spacing) */
+  --text-medium-25: 10px;
+  --text-medium-25--line-height: 16px;
+  --text-medium-25--letter-spacing: 0.2px;
+  --text-medium-25--font-weight: 450;
+
+  --text-medium-50: 12px;
+  --text-medium-50--line-height: 20px;
+  --text-medium-50--letter-spacing: 0.2px;
+  --text-medium-50--font-weight: 450;
+
+  --text-medium-75: 14px;
+  --text-medium-75--line-height: 24px;
+  --text-medium-75--letter-spacing: 0.2px;
+  --text-medium-75--font-weight: 450;
+
+  --text-medium-100: 16px;
+  --text-medium-100--line-height: 28px;
+  --text-medium-100--letter-spacing: 0.2px;
+  --text-medium-100--font-weight: 450;
+
+  --text-medium-200: 18px;
+  --text-medium-200--line-height: 32px;
+  --text-medium-200--letter-spacing: 0.2px;
+  --text-medium-200--font-weight: 450;
+
+  --text-medium-300: 24px;
+  --text-medium-300--line-height: 36px;
+  --text-medium-300--letter-spacing: 0.2px;
+  --text-medium-300--font-weight: 450;
+
+  --text-medium-400: 32px;
+  --text-medium-400--line-height: 44px;
+  --text-medium-400--letter-spacing: 0.2px;
+  --text-medium-400--font-weight: 450;
+
+  --text-medium-500: 40px;
+  --text-medium-500--line-height: 56px;
+  --text-medium-500--letter-spacing: 0.2px;
+  --text-medium-500--font-weight: 450;
+
+  --text-medium-600: 48px;
+  --text-medium-600--line-height: 64px;
+  --text-medium-600--letter-spacing: 0.2px;
+  --text-medium-600--font-weight: 450;
+
+  /* Normal (400 weight, 0.2 px letter-spacing) */
+  --text-normal-25: 10px;
+  --text-normal-25--line-height: 16px;
+  --text-normal-25--letter-spacing: 0.2px;
+  --text-normal-25--font-weight: 400;
+
+  --text-normal-50: 12px;
+  --text-normal-50--line-height: 20px;
+  --text-normal-50--letter-spacing: 0.2px;
+  --text-normal-50--font-weight: 400;
+
+  --text-normal-75: 14px;
+  --text-normal-75--line-height: 24px;
+  --text-normal-75--letter-spacing: 0.2px;
+  --text-normal-75--font-weight: 400;
+
+  --text-normal-100: 16px;
+  --text-normal-100--line-height: 28px;
+  --text-normal-100--letter-spacing: 0.2px;
+  --text-normal-100--font-weight: 400;
+
+  --text-normal-200: 18px;
+  --text-normal-200--line-height: 32px;
+  --text-normal-200--letter-spacing: 0.2px;
+  --text-normal-200--font-weight: 400;
+
+  --text-normal-300: 24px;
+  --text-normal-300--line-height: 36px;
+  --text-normal-300--letter-spacing: 0.2px;
+  --text-normal-300--font-weight: 400;
+
+  --text-normal-400: 32px;
+  --text-normal-400--line-height: 44px;
+  --text-normal-400--letter-spacing: 0.2px;
+  --text-normal-400--font-weight: 400;
+
+  --text-normal-500: 40px;
+  --text-normal-500--line-height: 56px;
+  --text-normal-500--letter-spacing: 0.2px;
+  --text-normal-500--font-weight: 400;
+
+  --text-normal-600: 48px;
+  --text-normal-600--line-height: 64px;
+  --text-normal-600--letter-spacing: 0.2px;
+  --text-normal-600--font-weight: 400;
+
+  /* ============================================================
+   * SHADOWS / ELEVATION
+   * General shadows: Figma frame 46:6704
+   * Button shelf shadow: Figma frame 50:8233
+   * ============================================================ */
+
+  /* General shadows */
+  --shadow-sm: 0px 2px 8px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0px 4px 25px 0 rgba(27, 36, 44, 0.08);
+  --shadow-lg: 0px 12px 48px -2px rgba(27, 36, 44, 0.1), 0px 2px 2px -1px rgba(27, 35, 44, 0.04);
+  --shadow-green: 0px 8px 28px 0 rgba(56, 116, 64, 0.28); /* primary CTA glow */
+
+  /* Button shelf shadow (Figma 50:8233) */
+  --shadow-button-shelf: 0px 4px 8px 0 rgba(25, 52, 29, 0.8);
+
+  /* Top elevations (negative Y; for elements that float above) */
+  --shadow-top-100: 0px -1px 2px 0 rgba(27, 36, 44, 0.12);
+  --shadow-top-200:
+    0px -2px 8px -1px rgba(27, 36, 44, 0.08), 0px -2px 2px -1px rgba(27, 36, 44, 0.04);
+  --shadow-top-300:
+    0px -8px 16px -2px rgba(27, 36, 44, 0.12), 0px -2px 2px -1px rgba(27, 35, 44, 0.04);
+  --shadow-top-400:
+    0px -16px 24px -6px rgba(27, 36, 44, 0.16), 0px -2px 2px -1px rgba(27, 36, 44, 0.04);
+
+  /* Bottom elevations (positive Y; standard component elevations) */
+  --shadow-bottom-100: 0px 1px 2px 0 rgba(27, 36, 44, 0.12); /* Buttons, pills */
+  --shadow-bottom-200:
+    0px 2px 8px -1px rgba(27, 36, 44, 0.08), 0px 2px 2px -1px rgba(27, 36, 44, 0.04); /* Cards */
+  --shadow-bottom-300:
+    0px 8px 16px -2px rgba(27, 36, 44, 0.12), 0px 2px 2px -1px rgba(27, 35, 44, 0.04); /* Dropdowns, side panels */
+  --shadow-bottom-400:
+    0px 16px 24px -6px rgba(27, 36, 44, 0.16), 0px 2px 2px -1px rgba(27, 36, 44, 0.04); /* Dialogs */
+
+  /* ============================================================
+   * OVERLAYS (legacy from elysium scaffold — pending Figma source)
+   * ============================================================ */
+  --color-overlay-dark: rgba(0, 0, 0, 0.6);
+  --color-overlay-medium: rgba(0, 0, 0, 0.4);
+  --color-overlay-light: rgba(0, 0, 0, 0.5);
+}
+
+/* Base element styles */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: var(--color-content-primary);
+  background-color: var(--color-background-default);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Auto-apply the display font to every text-display-* utility so
+ * `<h1 className="text-display-xl">` automatically uses Instrument Serif.
+ * Override with `font-sans` when a display size in body font is intentional.
+ */
+:is(.text-display-xl, .text-display-lg, .text-display-md, .text-display-sm, .text-display-italic) {
+  font-family: var(--font-display);
+}
+
+/* Italic accent display row uses Instrument Serif Italic */
+.text-display-italic {
+  font-style: italic;
+}
+
+/* Hero trusted-by strip uses an infinite marquee. */
+@keyframes heroMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.333%);
+  }
+}
