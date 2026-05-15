@@ -3,6 +3,39 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-05-15] create | Profile Engagement page (`/profile/engagement`) `✅ VERIFIED`
+
+Implemented the "9 profile stages" Profile Engagement page from Figma frame `3384:81927` ("Gh Design system — engagement side"). This is the candidate-side engagement hub where users build out their profile (avatar, interests, personality, skills, work, portfolio, certs, career goals, talent pitch). It's a self-contained route — mounted outside `MainLayout` because it owns its own top-bar and footer chrome — listing nine non-blocking stages with an AI "Career Buddy" promo and a "How this works" explainer in a right rail.
+
+> Note on naming: the Figma file is titled "Gh Design system - onboading" but these are engagement / profile-build screens, not literal first-time-only onboarding. Files, routes, and exports all use `Engagement*` / `ProfileEngagement*` accordingly.
+
+**Files added:**
+
+- [`src/pages/ProfileEngagementPage.jsx`](../src/pages/ProfileEngagementPage.jsx) — top-level page; derives counts/current-stage from `PROFILE_STAGES` via `useMemo`.
+- [`src/constants/profileStages.js`](../src/constants/profileStages.js) — `PROFILE_STAGES` (9 items, each `{id, emoji, title, subtitle, metaPrimary, durationLabel, status}`), `STAGE_STATUS` enum, `ENGAGEMENT_HERO_TAGS`.
+- [`src/components/sections/engagement/`](../src/components/sections/engagement/) — `EngagementTopBar`, `EngagementHero`, `ProfileStandingCard`, `ProfileStagesList`, `CareerBuddyPromoCard`, `HowItWorksCard`, `EngagementFooter`.
+- [`src/components/cards/ProfileStageCard.jsx`](../src/components/cards/ProfileStageCard.jsx) — repeating stage row (Figma instance 3384:81946).
+- [`src/components/ui/ProgressRing.jsx`](../src/components/ui/ProgressRing.jsx), [`ChatBubble.jsx`](../src/components/ui/ChatBubble.jsx), [`StatusDot.jsx`](../src/components/ui/StatusDot.jsx), [`EngagementProgressIndicator.jsx`](../src/components/ui/EngagementProgressIndicator.jsx) — new design-system primitives reusable beyond the engagement area.
+
+**Files modified:**
+
+- [`src/App.jsx`](../src/App.jsx) — registered `/profile/engagement` route outside `MainLayout`; switched existing routes to use `ROUTES` constants.
+- [`src/constants/routes.js`](../src/constants/routes.js) — added `profileEngagement: '/profile/engagement'`.
+- [`src/components/sections/landing/HeroSection.jsx`](../src/components/sections/landing/HeroSection.jsx) — added a minimal placeholder default export. The file was empty in committed source on `main` (pre-existing scaffold gap), which broke the build and blocked dev-server bundling of every route. The stub is purely a build unblocker; landing hero rebuild remains a separate task.
+
+**Verification:**
+
+- `npm run lint` → clean (no errors, no warnings).
+- Prettier-formatted all new and touched files.
+- Browser smoke via Playwright MCP at `localhost:5173/profile/engagement` → 0 console errors, only React-Router v7 future-flag warnings.
+- Full-page screenshot saved to [`onboarding-hub-full.png`](../onboarding-hub-full.png) — visual parity with Figma frame 3384:81927 confirmed.
+
+**Notes / follow-ups:**
+
+- Penguin mascot in `CareerBuddyPromoCard` is a placeholder "CB" badge — swap in the real illustration when the asset lands.
+- Per-stage routing wiring is a no-op hook today (`onStageSelect` logs); per-stage screens are a follow-up under the same `/profile/engagement/*` umbrella.
+- Production `npm run build` still fails on an unrelated `LandingPage → HeroSection` mismatch from `main`; the dev server (and therefore visual verification of this page) is unblocked by the placeholder stub described above.
+
 ## [2026-05-07] update | Hero rebuilt around composed Figma vectors
 
 Rebuilt [`HeroSection.jsx`](../src/components/sections/landing/HeroSection.jsx) and [`HeroPhotoCard.jsx`](../src/components/sections/landing/HeroPhotoCard.jsx) around a fresh export of hero SVGs in [`src/assets/hero/`](../src/assets/hero/). The old asset set (with hand-extracted sparkle rays, scribble, spirals, and small sub-icons) was replaced by composed full-card SVGs — one vector per floating UI element — so positioning is layout-only rather than per-child reconstruction.

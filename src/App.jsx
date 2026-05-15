@@ -3,6 +3,8 @@ import './App.css';
 import MainLayout from './layout/MainLayout.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
+import ProfileEngagementPage from './pages/ProfileEngagementPage.jsx';
+import { ROUTES } from './constants/routes.js';
 
 function App() {
   return (
@@ -12,10 +14,12 @@ function App() {
             mirroring the elysium pattern. Add it as:
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
         <Route element={<MainLayout />}>
-          <Route path="/" element={<LandingPage />} />
+          <Route path={ROUTES.home} element={<LandingPage />} />
           {/* /components hosts the design-system playground (HomePage). */}
-          <Route path="/components" element={<HomePage />} />
+          <Route path={ROUTES.components} element={<HomePage />} />
         </Route>
+        {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
+        <Route path={ROUTES.profileEngagement} element={<ProfileEngagementPage />} />
       </Routes>
     </BrowserRouter>
   );

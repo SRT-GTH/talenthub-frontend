@@ -5,5 +5,6 @@
 export const ROUTES = {
   home: '/',
   components: '/components',
+  profileEngagement: '/profile/engagement',
   // admin: '/admin', // reserved — populated when the admin subsystem lands
 };
