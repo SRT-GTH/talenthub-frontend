@@ -93,13 +93,7 @@ export const PROFILE_STAGES = [
     title: 'Talent Pitch',
     subtitle: 'show up as you',
     metaPrimary: '—',
-    durationLabel: '~5 min',
+    durationLabel: '~6 min',
     status: STAGE_STATUS.NOT_STARTED,
   },
-];
-
-export const ENGAGEMENT_HERO_TAGS = [
-  { id: 'completion', label: '11% Completed' },
-  { id: 'time', label: '40 Min total · across sittings' },
-  { id: 'autosave', label: 'Auto-Save on every field' },
 ];

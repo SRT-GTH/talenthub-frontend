@@ -1,6 +1,5 @@
 import { classNames } from '../../../utils/classNames.js';
 import ChatBubble from '../../ui/ChatBubble.jsx';
-import Button from '../../ui/Button.jsx';
 
 /*
  * CareerBuddyPromoCard — green AI-buddy promo card (right rail).
@@ -66,21 +65,34 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       </div>
     </header>
 
-    <div className="relative mt-6 max-w-[220px]">
+    <div className="relative mt-6 max-w-[240px]">
       <ChatBubble tail="bottom-right">
-        Don’t want to fill it manually? Don’t worry, Our Ai Career Buddy has you covered.
+        <span className="block font-semibold text-content-primary">
+          Don’t Want To Fill It Manually?
+        </span>
+        <span className="mt-1 block text-neutral-darker">
+          Don’t worry, Our Ai Career Buddy has you covered.
+        </span>
       </ChatBubble>
     </div>
 
     <div className="relative mt-6 flex justify-center">
-      <Button
-        variant="tertiary"
-        size="md"
+      {/* Figma uses a pure white pill (not the design-system shelf button)
+        — full-width, brand-green text, soft 1px shadow, large radius. */}
+      <button
+        type="button"
         onClick={onStart}
-        rightIcon={<ArrowRight className="size-4" />}
+        className={classNames(
+          'inline-flex w-full max-w-[300px] items-center justify-center gap-2',
+          'rounded-pill bg-white py-3 px-5',
+          'font-sans font-semibold text-[15px] leading-6 tracking-[0.1px] text-content-primary',
+          'shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_12px_rgba(0,0,0,0.08)]',
+          'hover:bg-yellow-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
+        )}
       >
         Start with Career Buddy
-      </Button>
+        <ArrowRight className="size-4 text-content-primary" />
+      </button>
     </div>
   </article>
 );

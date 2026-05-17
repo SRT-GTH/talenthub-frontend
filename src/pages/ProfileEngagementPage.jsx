@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
 import EngagementHero from '../components/sections/engagement/EngagementHero.jsx';
 import ProfileStagesList from '../components/sections/engagement/ProfileStagesList.jsx';
@@ -21,7 +22,8 @@ const log = debug('ProfileEngagementPage');
  * Each stage is non-blocking — pick any order, save anytime, come back.
  *
  * Layout (Figma exact, clamp-scaled):
- *   ┌─ EngagementTopBar          (full-bleed, breadcrumbs + step indicator)
+ *   ┌─ EngagementTopNav          (full-bleed, GTH logo + Save & Exit + user)
+ *   ├─ EngagementTopBar          (full-bleed, stage trail + step indicator)
  *   ├─ EngagementHero            (full-bleed, headline + standing card)
  *   ├─ Main grid (two-column on lg+)
  *   │   ├─ left  → ProfileStagesList
@@ -72,8 +74,14 @@ const ProfileEngagementPage = () => {
     log('start with career buddy');
   };
 
+  const handleSaveExit = () => {
+    log('save & exit');
+    navigate(ROUTES.home);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background-default">
+      <EngagementTopNav onSaveExit={handleSaveExit} />
       <EngagementTopBar
         currentStageIndex={counts.currentIndex}
         completionPct={counts.completionPct}

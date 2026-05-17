@@ -55,7 +55,10 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
   const isDone = stage.status === STAGE_STATUS.DONE;
   const isInProgress = stage.status === STAGE_STATUS.IN_PROGRESS;
 
-  const iconTileClasses = isDone || isInProgress ? 'bg-brand-green-light' : 'bg-neutral';
+  // Figma: every stage tile uses the same soft brand-green-light pastel
+  // (#EBF1EC). Status is conveyed by the title-row label and chips, not
+  // by varying the tile colour.
+  const iconTileClasses = 'bg-brand-green-light';
 
   return (
     <button
@@ -84,8 +87,8 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
       </span>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-display text-[20px] leading-[1.15] text-content-primary">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-[18px] leading-[1.15] text-content-primary">
             {stage.title}
           </span>
           <span
@@ -98,6 +101,7 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
                   : 'text-neutral-dark-hover font-medium'
             )}
           >
+            {isDone ? '' : '· '}
             {STATUS_LABEL[stage.status] || STATUS_LABEL[STAGE_STATUS.NOT_STARTED]}
           </span>
         </div>
