@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
@@ -7,6 +7,7 @@ import ProfileStagesList from '../components/sections/engagement/ProfileStagesLi
 import CareerBuddyPromoCard from '../components/sections/engagement/CareerBuddyPromoCard.jsx';
 import HowItWorksCard from '../components/sections/engagement/HowItWorksCard.jsx';
 import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
+import EntryMethodModal from '../components/sections/engagement/EntryMethodModal.jsx';
 import { PROFILE_STAGES, STAGE_STATUS } from '../constants/profileStages.js';
 import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
@@ -41,6 +42,12 @@ const ProfileEngagementPage = () => {
   log('mount');
   const navigate = useNavigate();
 
+  // Entry-method modal: defaults to open on first visit. Caller can also
+  // re-open it later via the Career Buddy promo or any stage card.
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(true);
+  const closeEntryModal = () => setIsEntryModalOpen(false);
+  const openEntryModal = () => setIsEntryModalOpen(true);
+
   const counts = useMemo(() => {
     const done = PROFILE_STAGES.filter((s) => s.status === STAGE_STATUS.DONE).length;
     const inProgress = PROFILE_STAGES.filter((s) => s.status === STAGE_STATUS.IN_PROGRESS).length;
@@ -72,11 +79,27 @@ const ProfileEngagementPage = () => {
 
   const handleStartBuddy = () => {
     log('start with career buddy');
+    openEntryModal();
   };
 
   const handleSaveExit = () => {
     log('save & exit');
     navigate(ROUTES.home);
+  };
+
+  const handleFillManually = () => {
+    log('entry method: fill manually');
+    closeEntryModal();
+  };
+
+  const handleChatWithAi = () => {
+    log('entry method: chat with AI');
+    closeEntryModal();
+  };
+
+  const handleUploadCv = () => {
+    log('entry method: upload CV');
+    closeEntryModal();
   };
 
   return (
@@ -106,6 +129,14 @@ const ProfileEngagementPage = () => {
       </main>
 
       <EngagementFooter onSkip={handleSkipHome} onContinue={handleGetStarted} />
+
+      <EntryMethodModal
+        isOpen={isEntryModalOpen}
+        onClose={closeEntryModal}
+        onFillManually={handleFillManually}
+        onChatWithAi={handleChatWithAi}
+        onUploadCv={handleUploadCv}
+      />
     </div>
   );
 };
