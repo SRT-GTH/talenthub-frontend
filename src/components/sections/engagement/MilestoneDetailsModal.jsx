@@ -10,16 +10,23 @@ import giftImg from '../../../assets/engagement/reward-gift.png';
  * Layout:
  *   ├─ close X (top-right, inherited from Modal)
  *   ├─ small gift / trophy image, centered
- *   ├─ headline ("Profile Discoverable") with italic green accent
+ *   ├─ headline (JSX so callers can mix accent colours)
  *   ├─ description paragraph
  *   ├─ feature rows — each row has an icon (check / arrow / plus),
  *   │  a title (optionally with a small inline badge like "One extra
  *   │  step"), and a one-line description. Rows are separated by a
  *   │  thin divider.
- *   └─ bottom CTA — a full-width green pill ("Keep going, Skills next →")
+ *   └─ bottom CTA — a full-width pill (theme="green" → brand-green,
+ *      theme="gold" → accent/amber). Defaults to green.
  *
- * Generic over content via props so milestones 2 and 3 reuse it.
+ * Generic over content via props so all three milestones reuse it.
  */
+
+const CTA_THEMES = {
+  green:
+    'bg-brand-green hover:bg-brand-green-hover text-white focus-visible:outline-brand-green-dark',
+  gold: 'bg-accent hover:bg-accent-hover text-accent-light focus-visible:outline-accent-dark',
+};
 
 const STATUS_ICONS = {
   // Filled green check circle — for completed features.
@@ -150,6 +157,7 @@ const MilestoneDetailsModal = ({
   description,
   items = [],
   ctaLabel,
+  ctaTheme = 'green',
   onCta,
 }) => (
   <Modal isOpen={isOpen} onClose={onClose} size="md" ariaLabel={ariaLabel}>
@@ -191,10 +199,11 @@ const MilestoneDetailsModal = ({
         onClick={onCta}
         className={classNames(
           'mt-6 inline-flex w-full items-center justify-center gap-2 rounded-pill',
-          'bg-brand-green text-white px-5 py-3.5',
+          'px-5 py-3.5',
           'font-sans font-semibold text-[15px] leading-5 tracking-[0.1px]',
-          'shadow-bottom-300 hover:bg-brand-green-hover',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green-dark'
+          'shadow-bottom-300',
+          'focus-visible:outline-2 focus-visible:outline-offset-2',
+          CTA_THEMES[ctaTheme] || CTA_THEMES.green
         )}
       >
         {ctaLabel}
