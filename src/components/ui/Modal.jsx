@@ -88,23 +88,24 @@ const Modal = ({
   };
 
   return (
-    // Overlay is itself scrollable so a tall modal still scrolls cleanly
-    // on short viewports instead of getting clipped. The inner wrapper
-    // centers the content while letting the page-level scroll do the work.
+    // Scrollable overlay using CSS Grid `place-items-center` rather than
+    // flex centering — grid centers content vertically when content fits,
+    // but lets the modal grow naturally and scroll when it doesn't (flex
+    // `items-center` clips the top when content > viewport).
     <div
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
       onMouseDown={handleOverlayMouseDown}
       className={classNames(
-        'fixed inset-0 z-50 overflow-y-auto',
+        'fixed inset-0 z-50 overflow-y-auto overscroll-contain',
         'bg-black/30 backdrop-blur-[2px]',
         className
       )}
     >
       <div
         onMouseDown={handleOverlayMouseDown}
-        className="min-h-full flex items-start sm:items-center justify-center px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]"
+        className="grid min-h-full place-items-center px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]"
       >
         <div
           className={classNames(

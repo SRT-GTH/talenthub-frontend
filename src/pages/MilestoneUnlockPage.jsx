@@ -35,8 +35,11 @@ const log = debug('MilestoneUnlockPage');
 const DISCOVERABLE_MILESTONE = {
   number: 1,
   totalMilestones: 3,
-  headlinePrefix: 'You’re',
-  headlineAccent: 'discoverable.',
+  headline: (
+    <>
+      You’re <span className="italic text-brand-green">discoverable.</span>
+    </>
+  ),
   description:
     'You’ve completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.',
   stats: [
@@ -68,8 +71,11 @@ const DISCOVERABLE_MILESTONE = {
   // Details modal content — what pops up when the user claims the reward.
   // Source: Figma frame ("Profile Discoverable" details modal).
   details: {
-    headlinePrefix: 'Profile',
-    headlineAccent: 'Discoverable',
+    headline: (
+      <>
+        Profile <span className="italic text-brand-green">Discoverable</span>
+      </>
+    ),
     description:
       'Your profile card is live. Recruiters can find you, view your avatar and personality archetype, and reach out directly.',
     items: [
@@ -153,8 +159,7 @@ const MilestoneUnlockPage = () => {
         <MilestoneHeroPanel
           milestoneNumber={DISCOVERABLE_MILESTONE.number}
           totalMilestones={DISCOVERABLE_MILESTONE.totalMilestones}
-          headlinePrefix={DISCOVERABLE_MILESTONE.headlinePrefix}
-          headlineAccent={DISCOVERABLE_MILESTONE.headlineAccent}
+          headline={DISCOVERABLE_MILESTONE.headline}
           description={DISCOVERABLE_MILESTONE.description}
           stats={DISCOVERABLE_MILESTONE.stats}
           completedStages={DISCOVERABLE_MILESTONE.completedStages}
@@ -170,8 +175,7 @@ const MilestoneUnlockPage = () => {
       <MilestoneDetailsModal
         isOpen={isDetailsOpen}
         onClose={closeDetails}
-        headlinePrefix={DISCOVERABLE_MILESTONE.details.headlinePrefix}
-        headlineAccent={DISCOVERABLE_MILESTONE.details.headlineAccent}
+        headline={DISCOVERABLE_MILESTONE.details.headline}
         description={DISCOVERABLE_MILESTONE.details.description}
         items={DISCOVERABLE_MILESTONE.details.items}
         ctaLabel={DISCOVERABLE_MILESTONE.details.ctaLabel}

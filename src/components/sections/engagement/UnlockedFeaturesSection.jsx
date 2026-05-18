@@ -9,10 +9,24 @@ import UnlockedFeatureCard from '../../cards/UnlockedFeatureCard.jsx';
  * reusable for milestones 2 and 3 once they ship.
  */
 
-const UnlockedFeaturesSection = ({ items = [], kicker = 'What you just unlocked', className }) => (
+const SECTION_BG = {
+  default: 'bg-background-default',
+  // Soft cream wash used on Milestone 2 for visual continuity with the
+  // gold hero panel above.
+  cream: 'bg-accent-light/30',
+};
+
+const UnlockedFeaturesSection = ({
+  items = [],
+  kicker = 'What you just unlocked',
+  accent = 'brand',
+  background = 'default',
+  className,
+}) => (
   <section
     className={classNames(
-      'w-full bg-background-default',
+      'w-full',
+      SECTION_BG[background] || SECTION_BG.default,
       'px-[clamp(16px,4vw,56px)] py-[clamp(32px,4vw,48px)]',
       className
     )}
@@ -28,6 +42,7 @@ const UnlockedFeaturesSection = ({ items = [], kicker = 'What you just unlocked'
             title={item.title}
             description={item.description}
             highlighted={item.highlighted}
+            accent={accent}
           />
         ))}
       </div>

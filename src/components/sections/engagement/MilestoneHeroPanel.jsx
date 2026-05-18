@@ -5,20 +5,23 @@ import giftImg from '../../../assets/engagement/reward-gift.png';
 
 /*
  * MilestoneHeroPanel — centred celebration hero on the milestone unlock screen.
- * Source: Figma frame ("You're discoverable" milestone hero).
+ * Source: Figma frame (milestone celebration hero).
  *
  * Layout (vertical, all centred):
  *   ├─ gift / trophy image (top, ~80×80)
- *   ├─ "MILESTONE n OF 3 · UNLOCKED" small green pill
- *   ├─ headline ("You're discoverable.") with italic green accent
+ *   ├─ "MILESTONE n OF 3 · UNLOCKED" small pill (green or gold per theme)
+ *   ├─ headline — JSX so callers can mix accent colours (e.g. "Top
+ *   │   20%" in gold italic + "profile." in green italic)
  *   ├─ description paragraph
- *   ├─ stat tiles row (3 wide)
- *   ├─ CTA row: primary "🎁 Claim your reward →" + tertiary "Continue Building"
+ *   ├─ stat tiles row (3 or 4 wide, wraps on narrow viewports)
+ *   ├─ CTA row: primary action + tertiary alt action
  *   └─ completed-stages row: "COMPLETED:" label + chips per stage
  *
- * The hero sits on the same soft cream → green-light wash used by the
- * engagement hero so the page feels continuous when crossed from the
- * profile-engagement hub.
+ * Themes:
+ *   green (default) — Milestone 1 "You're discoverable": green pill,
+ *                     brand-green primary CTA, gold completed chips
+ *   gold            — Milestone 2 "Top 20% profile": gold pill, accent
+ *                     (gold) primary CTA, gold completed chips
  */
 
 const ArrowRight = ({ className }) => (
@@ -43,15 +46,31 @@ const GiftEmoji = ({ className }) => (
   </span>
 );
 
+const THEME_CLASSES = {
+  green: {
+    pill: 'bg-brand-green-light border-brand-green-light-active text-brand-green-dark',
+    pillDot: 'bg-brand-green',
+    primaryVariant: 'primary',
+  },
+  gold: {
+    pill: 'bg-accent-light border-accent-light-active text-accent-dark',
+    pillDot: 'bg-accent',
+    primaryVariant: 'secondary',
+  },
+};
+
 const MilestoneHeroPanel = ({
   milestoneNumber = 1,
   totalMilestones = 3,
-  headlinePrefix,
-  headlineAccent,
+  headline,
   description,
   stats = [],
   completedStages = [],
   iconSrc = giftImg,
+  primaryCtaLabel = 'Claim your reward',
+  primaryCtaIcon,
+  secondaryCtaLabel = 'Continue Building',
+  theme = 'green',
   onClaim,
   onContinue,
   className,
@@ -77,18 +96,24 @@ const MilestoneHeroPanel = ({
       {/* Milestone tag */}
       <span
         className={classNames(
-          'mt-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1',
-          'bg-brand-green-light border border-brand-green-light-active',
-          'font-sans font-semibold text-[11px] leading-4 tracking-[1.2px] uppercase text-brand-green-dark'
+          'mt-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1 border',
+          (THEME_CLASSES[theme] || THEME_CLASSES.green).pill,
+          'font-sans font-semibold text-[11px] leading-4 tracking-[1.2px] uppercase'
         )}
       >
-        <span aria-hidden="true" className="inline-block size-1.5 rounded-full bg-brand-green" />
+        <span
+          aria-hidden="true"
+          className={classNames(
+            'inline-block size-1.5 rounded-full',
+            (THEME_CLASSES[theme] || THEME_CLASSES.green).pillDot
+          )}
+        />
         Milestone {milestoneNumber} of {totalMilestones} · Unlocked
       </span>
 
-      {/* Headline */}
+      {/* Headline — JSX, lets callers mix accent colours */}
       <h1 className="mt-4 font-display text-[clamp(36px,5vw,56px)] leading-[1.05] tracking-[-0.5px] text-content-primary">
-        {headlinePrefix} <span className="italic text-brand-green">{headlineAccent}</span>
+        {headline}
       </h1>
 
       {/* Description */}
@@ -106,16 +131,18 @@ const MilestoneHeroPanel = ({
       {/* CTAs */}
       <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
         <Button
-          variant="primary"
+          variant={(THEME_CLASSES[theme] || THEME_CLASSES.green).primaryVariant}
           size="md"
           onClick={onClaim}
-          leftIcon={<GiftEmoji className="text-[18px]" />}
+          leftIcon={
+            primaryCtaIcon !== undefined ? primaryCtaIcon : <GiftEmoji className="text-[18px]" />
+          }
           rightIcon={<ArrowRight className="size-4" />}
         >
-          Claim your reward
+          {primaryCtaLabel}
         </Button>
         <Button variant="tertiary" size="md" onClick={onContinue}>
-          Continue Building
+          {secondaryCtaLabel}
         </Button>
       </div>
     </div>

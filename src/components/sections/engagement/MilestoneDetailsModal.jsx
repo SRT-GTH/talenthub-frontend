@@ -145,19 +145,14 @@ const MilestoneDetailsModal = ({
   isOpen,
   onClose,
   iconSrc = giftImg,
-  headlinePrefix,
-  headlineAccent,
+  headline,
+  ariaLabel,
   description,
   items = [],
   ctaLabel,
   onCta,
 }) => (
-  <Modal
-    isOpen={isOpen}
-    onClose={onClose}
-    size="md"
-    ariaLabel={`${headlinePrefix} ${headlineAccent}`}
-  >
+  <Modal isOpen={isOpen} onClose={onClose} size="md" ariaLabel={ariaLabel}>
     <div className="px-[clamp(20px,3vw,32px)] py-[clamp(24px,3vw,32px)]">
       {/* Hero image */}
       <div className="flex justify-center">
@@ -171,7 +166,7 @@ const MilestoneDetailsModal = ({
 
       {/* Headline + description */}
       <h2 className="mt-3 text-center font-display text-[clamp(26px,2.6vw,32px)] leading-[1.1] tracking-[-0.3px] text-content-primary">
-        {headlinePrefix} <span className="italic text-brand-green">{headlineAccent}</span>
+        {headline}
       </h2>
       <p className="mt-2 mx-auto max-w-[44ch] text-center font-sans text-[13px] leading-[20px] tracking-[0.2px] text-neutral-darker">
         {description}

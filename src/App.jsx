@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage.jsx';
 import ProfileEngagementPage from './pages/ProfileEngagementPage.jsx';
 import IdentityMapPage from './pages/IdentityMapPage.jsx';
 import MilestoneUnlockPage from './pages/MilestoneUnlockPage.jsx';
+import Top20MilestonePage from './pages/Top20MilestonePage.jsx';
 import { ROUTES } from './constants/routes.js';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path={ROUTES.profileEngagement} element={<ProfileEngagementPage />} />
         <Route path={ROUTES.identityMap} element={<IdentityMapPage />} />
         <Route path={ROUTES.milestoneUnlock} element={<MilestoneUnlockPage />} />
+        <Route path={ROUTES.top20Milestone} element={<Top20MilestonePage />} />
       </Routes>
     </BrowserRouter>
   );
