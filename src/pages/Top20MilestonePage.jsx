@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
 import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
 import MilestoneHeroPanel from '../components/sections/engagement/MilestoneHeroPanel.jsx';
 import UnlockedFeaturesSection from '../components/sections/engagement/UnlockedFeaturesSection.jsx';
-import trophyImg from '../assets/engagement/trophy.png';
+import MilestoneDetailsModal from '../components/sections/engagement/MilestoneDetailsModal.jsx';
+import trophyImg from '../assets/engagement/trophy-icon.png';
 import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
 
@@ -49,6 +51,39 @@ const TOP20_MILESTONE = {
     { value: '+100 XP', label: 'Milestone Bonus', accent: 'accent' },
   ],
   completedStages: ['Avatar', 'Interest', 'Personality', 'Skills', 'Work', 'Portfolio'],
+  // Details modal — pops up when the user claims the Top 20% badge.
+  // Source: Figma frame (Top 20% Profile details modal).
+  details: {
+    headline: (
+      <>
+        Top <span className="italic text-accent-dark">20%</span>{' '}
+        <span className="italic">Profile</span>
+      </>
+    ),
+    description:
+      'You’re in the top fifth of all GTH profiles. The badge is now live on your recruiter card — it’s visible to every recruiter who finds you.',
+    items: [
+      {
+        icon: 'check',
+        title: 'Top 20% badge on recruiter card',
+        description:
+          'Visible to every recruiter. Only 20% of GTH profiles earn it. It signals serious commitment.',
+      },
+      {
+        icon: 'arrow',
+        title: '2.8× more profile views',
+        description:
+          'Badge holders rank higher in search results. More views = more opportunities surfacing.',
+      },
+      {
+        icon: 'plus',
+        title: 'Portfolio analytics unlocked',
+        description:
+          'See exactly which projects hold recruiters’ attention longest — and optimise accordingly.',
+      },
+    ],
+    ctaLabel: '3 stages to Top Talent, keep going',
+  },
   features: [
     {
       title: 'Top 20% badge on your card',
@@ -80,6 +115,10 @@ const Top20MilestonePage = () => {
   const trailCurrentIndex = 6; // Certs
   const completionPct = Math.round((6 / 9) * 100); // 67%
 
+  // Details modal — pops up when the user claims the Top 20% badge.
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const closeDetails = () => setIsDetailsOpen(false);
+
   const handleSwitchModes = () => {
     navigate(ROUTES.identityMap);
   };
@@ -99,7 +138,14 @@ const Top20MilestonePage = () => {
   };
 
   const handleClaim = () => {
-    log('claim top 20% badge');
+    log('claim top 20% badge → open details modal');
+    setIsDetailsOpen(true);
+  };
+
+  const handleDetailsCta = () => {
+    log('details modal CTA → continue to next stage');
+    closeDetails();
+    navigate(ROUTES.profileEngagement);
   };
 
   return (
@@ -140,6 +186,18 @@ const Top20MilestonePage = () => {
         onContinue={handleNextCerts}
         skipLabel="Back to map"
         continueLabel="Next: Certs"
+      />
+
+      <MilestoneDetailsModal
+        isOpen={isDetailsOpen}
+        onClose={closeDetails}
+        iconSrc={trophyImg}
+        headline={TOP20_MILESTONE.details.headline}
+        description={TOP20_MILESTONE.details.description}
+        items={TOP20_MILESTONE.details.items}
+        ctaLabel={TOP20_MILESTONE.details.ctaLabel}
+        ctaTheme="gold"
+        onCta={handleDetailsCta}
       />
     </div>
   );

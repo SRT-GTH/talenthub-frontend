@@ -1,24 +1,25 @@
 import { classNames } from '../../../utils/classNames.js';
 import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.jsx';
-import { PROFILE_STAGES } from '../../../constants/profileStages.js';
+import { PROFILE_STAGES, STAGE_STATUS } from '../../../constants/profileStages.js';
 
 /*
  * EngagementTopBar — stage-trail row on the Profile Engagement page.
  * Source: Figma frame 3384:81977 ("Frame 150").
  *
  * Sits directly below `EngagementTopNav`. Two columns:
- *   left:  the 9-stage trail. Each stage is a hollow grey check-circle
- *          followed by the stage label. A small filled grey triangle
- *          (▸) separates stages, matching the Figma stroke. The active
- *          stage label picks up a brand-green underline.
+ *   left:  the 9-stage trail. Each stage shows a check-circle (filled
+ *          green for done stages, hollow grey for pending) followed by
+ *          the stage label. A small filled grey triangle (▸) separates
+ *          stages. The active stage label picks up a brand-green
+ *          underline.
  *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
  *
- * Note: per Figma, every stage in the trail uses the same hollow grey
- * circle glyph regardless of completion status — completion is conveyed
- * by the per-stage cards in the body, not by colouring the trail.
+ * Completion state for the per-stage circle comes from the stage's
+ * `status` field in PROFILE_STAGES — that's the source of truth that
+ * also drives the stage cards below.
  */
 
-// Hollow check-circle in light grey — Figma 3384:81977 trail glyph.
+// Hollow check-circle in light grey — used for pending / not-yet-done stages.
 const HollowCheckCircle = ({ className }) => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
     <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" />
@@ -26,6 +27,20 @@ const HollowCheckCircle = ({ className }) => (
       d="M5.5 8.4l1.8 1.8 3.6-3.8"
       stroke="currentColor"
       strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Filled brand-green check circle — used for done stages.
+const FilledCheckCircle = ({ className }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <circle cx="8" cy="8" r="7.4" fill="currentColor" />
+    <path
+      d="M5.2 8.4l1.8 1.8 3.8-4"
+      stroke="white"
+      strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -59,12 +74,22 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
       >
         {PROFILE_STAGES.map((stage, index) => {
           const isCurrent = index === currentStageIndex;
+          const isDone = stage.status === STAGE_STATUS.DONE;
 
           return (
             <span key={stage.id} className="inline-flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1.5">
-                <span className="inline-flex size-4 shrink-0 text-neutral-dark">
-                  <HollowCheckCircle className="size-full" />
+                <span
+                  className={classNames(
+                    'inline-flex size-4 shrink-0',
+                    isDone ? 'text-brand-green' : 'text-neutral-dark'
+                  )}
+                >
+                  {isDone ? (
+                    <FilledCheckCircle className="size-full" />
+                  ) : (
+                    <HollowCheckCircle className="size-full" />
+                  )}
                 </span>
                 <span
                   aria-current={isCurrent ? 'step' : undefined}
@@ -72,7 +97,9 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                     'font-sans text-[13px] tracking-[0.14px]',
                     isCurrent
                       ? 'font-semibold text-content-primary border-b-2 border-brand-green pb-px'
-                      : 'font-medium text-neutral-dark-hover'
+                      : isDone
+                        ? 'font-medium text-brand-green'
+                        : 'font-medium text-neutral-dark-hover'
                   )}
                 >
                   {stage.trailLabel || stage.title}
