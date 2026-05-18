@@ -60,10 +60,11 @@ const MilestoneHeroPanel = ({
     className={classNames(
       'w-full',
       'bg-[linear-gradient(180deg,var(--color-yellow-light)_0%,#fff_55%,var(--color-accent-light)_100%)]',
-      'px-[clamp(16px,4vw,56px)] py-[clamp(40px,5vw,80px)]',
+      'px-[clamp(16px,4vw,56px)] pt-[clamp(40px,5vw,80px)] pb-0',
       className
     )}
   >
+    {/* Centred celebration content (image, headline, stats, CTAs) */}
     <div className="mx-auto flex max-w-[760px] flex-col items-center text-center">
       {/* Hero image — the reward / trophy badge */}
       <img
@@ -117,28 +118,30 @@ const MilestoneHeroPanel = ({
           Continue Building
         </Button>
       </div>
-
-      {/* Completed stages row */}
-      {completedStages.length > 0 && (
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-          <span className="font-sans font-semibold text-[10px] leading-3 tracking-[1.2px] uppercase text-neutral-darker">
-            Completed:
-          </span>
-          {completedStages.map((stage) => (
-            <span
-              key={stage}
-              className={classNames(
-                'inline-flex items-center rounded-md px-3 py-1.5',
-                'bg-accent text-accent-light',
-                'font-sans font-semibold text-[12px] leading-4 tracking-[0.2px]'
-              )}
-            >
-              {stage}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
+
+    {/* Completed stages row — full-width, left-aligned (Figma exact).
+      Sits below the centred celebration block so it reads as a footer
+      strip rather than a continuation of the headline column. */}
+    {completedStages.length > 0 && (
+      <div className="mx-auto mt-12 flex max-w-[1200px] flex-wrap items-center gap-2 pb-[clamp(24px,3vw,40px)]">
+        <span className="font-sans font-semibold text-[10px] leading-3 tracking-[1.2px] uppercase text-neutral-darker">
+          Completed:
+        </span>
+        {completedStages.map((stage) => (
+          <span
+            key={stage}
+            className={classNames(
+              'inline-flex items-center rounded-md px-3 py-1.5',
+              'bg-accent text-accent-light',
+              'font-sans font-semibold text-[12px] leading-4 tracking-[0.2px]'
+            )}
+          >
+            {stage}
+          </span>
+        ))}
+      </div>
+    )}
   </section>
 );
 

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
 import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
 import MilestoneHeroPanel from '../components/sections/engagement/MilestoneHeroPanel.jsx';
 import UnlockedFeaturesSection from '../components/sections/engagement/UnlockedFeaturesSection.jsx';
+import MilestoneDetailsModal from '../components/sections/engagement/MilestoneDetailsModal.jsx';
 import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
 
@@ -63,6 +65,35 @@ const DISCOVERABLE_MILESTONE = {
       highlighted: false,
     },
   ],
+  // Details modal content — what pops up when the user claims the reward.
+  // Source: Figma frame ("Profile Discoverable" details modal).
+  details: {
+    headlinePrefix: 'Profile',
+    headlineAccent: 'Discoverable',
+    description:
+      'Your profile card is live. Recruiters can find you, view your avatar and personality archetype, and reach out directly.',
+    items: [
+      {
+        icon: 'check',
+        title: 'You appear in recruiter search',
+        description:
+          'Recruiters filtering by interests, location, or archetype will see your card.',
+      },
+      {
+        icon: 'arrow',
+        title: 'Recruiter reach-outs enabled',
+        description:
+          'Average 3.2 reach-outs in the first week for newly discoverable profiles. Check Messages.',
+      },
+      {
+        icon: 'plus',
+        title: 'Parent or guardian contact',
+        description: 'Added to your profile score. 6 more stages to unlock the Top 20% badge.',
+        badge: 'One extra step',
+      },
+    ],
+    ctaLabel: 'Keep going, Skills next',
+  },
 };
 
 const MilestoneUnlockPage = () => {
@@ -75,6 +106,10 @@ const MilestoneUnlockPage = () => {
   // screen appears, regardless of the live PROFILE_STAGES state.
   const trailCurrentIndex = 3; // Skills is the next unstarted stage
   const completionPct = Math.round((3 / 9) * 100); // 33%
+
+  // Details modal — pops up when the user clicks "Claim your reward".
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const closeDetails = () => setIsDetailsOpen(false);
 
   const handleSwitchModes = () => {
     log('switch modes');
@@ -95,7 +130,14 @@ const MilestoneUnlockPage = () => {
   };
 
   const handleClaim = () => {
-    log('claim reward');
+    log('claim reward → open details modal');
+    setIsDetailsOpen(true);
+  };
+
+  const handleDetailsCta = () => {
+    log('details modal CTA → continue building');
+    closeDetails();
+    navigate(ROUTES.profileEngagement);
   };
 
   return (
@@ -124,6 +166,17 @@ const MilestoneUnlockPage = () => {
       </main>
 
       <EngagementFooter onSkip={handleSkipHome} onContinue={handleContinue} />
+
+      <MilestoneDetailsModal
+        isOpen={isDetailsOpen}
+        onClose={closeDetails}
+        headlinePrefix={DISCOVERABLE_MILESTONE.details.headlinePrefix}
+        headlineAccent={DISCOVERABLE_MILESTONE.details.headlineAccent}
+        description={DISCOVERABLE_MILESTONE.details.description}
+        items={DISCOVERABLE_MILESTONE.details.items}
+        ctaLabel={DISCOVERABLE_MILESTONE.details.ctaLabel}
+        onCta={handleDetailsCta}
+      />
     </div>
   );
 };
