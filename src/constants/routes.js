@@ -12,5 +12,7 @@ export const ROUTES = {
   avatarCustomiser: '/profile/engagement/avatar',
   avatarSkinTone: '/profile/engagement/avatar/skin',
   avatarHair: '/profile/engagement/avatar/hair',
+  avatarExtras: '/profile/engagement/avatar/extras',
+  avatarOutfit: '/profile/engagement/avatar/outfit',
   // admin: '/admin', // reserved — populated when the admin subsystem lands
 };
