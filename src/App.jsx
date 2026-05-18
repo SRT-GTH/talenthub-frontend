@@ -8,6 +8,8 @@ import IdentityMapPage from './pages/IdentityMapPage.jsx';
 import MilestoneUnlockPage from './pages/MilestoneUnlockPage.jsx';
 import Top20MilestonePage from './pages/Top20MilestonePage.jsx';
 import AvatarCustomiserPage from './pages/AvatarCustomiserPage.jsx';
+import AvatarSkinTonePage from './pages/AvatarSkinTonePage.jsx';
+import AvatarHairPage from './pages/AvatarHairPage.jsx';
 import { ROUTES } from './constants/routes.js';
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         <Route path={ROUTES.milestoneUnlock} element={<MilestoneUnlockPage />} />
         <Route path={ROUTES.top20Milestone} element={<Top20MilestonePage />} />
         <Route path={ROUTES.avatarCustomiser} element={<AvatarCustomiserPage />} />
+        <Route path={ROUTES.avatarSkinTone} element={<AvatarSkinTonePage />} />
+        <Route path={ROUTES.avatarHair} element={<AvatarHairPage />} />
       </Routes>
     </BrowserRouter>
   );
