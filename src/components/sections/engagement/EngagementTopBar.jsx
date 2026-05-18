@@ -8,8 +8,9 @@ import { PROFILE_STAGES } from '../../../constants/profileStages.js';
  *
  * Sits directly below `EngagementTopNav`. Two columns:
  *   left:  the 9-stage trail. Each stage is a hollow grey check-circle
- *          followed by the stage label. A small grey chevron (▸) separates
- *          stages. The active stage label picks up a brand-green underline.
+ *          followed by the stage label. A small filled grey triangle
+ *          (▸) separates stages, matching the Figma stroke. The active
+ *          stage label picks up a brand-green underline.
  *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
  *
  * Note: per Figma, every stage in the trail uses the same hollow grey
@@ -31,19 +32,12 @@ const HollowCheckCircle = ({ className }) => (
   </svg>
 );
 
-// Small right-pointing chevron between stages.
-const ChevronRight = ({ className }) => (
-  <svg
-    viewBox="0 0 8 12"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className={className}
-  >
-    <path d="M2 2l4 4-4 4" />
+// Small filled right-pointing triangle separator between stages.
+// Figma uses a flat, solid grey triangle (not a stroke chevron) lying on
+// its side. The viewBox is 6×8 so the triangle reads as a compact arrow.
+const TriangleSeparator = ({ className }) => (
+  <svg viewBox="0 0 6 8" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M0 0L6 4L0 8Z" />
   </svg>
 );
 
@@ -85,7 +79,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                 </span>
               </span>
               {index < PROFILE_STAGES.length - 1 && (
-                <ChevronRight className="size-2.5 text-neutral-dark ml-2" />
+                <TriangleSeparator className="ml-2 h-2 w-1.5 text-neutral-dark" />
               )}
             </span>
           );
