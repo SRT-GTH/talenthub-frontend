@@ -7,5 +7,6 @@ export const ROUTES = {
   components: '/components',
   profileEngagement: '/profile/engagement',
   identityMap: '/profile/engagement/identity',
+  milestoneUnlock: '/profile/engagement/milestone',
   // admin: '/admin', // reserved — populated when the admin subsystem lands
 };

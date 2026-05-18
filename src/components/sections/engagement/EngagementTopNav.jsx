@@ -39,11 +39,44 @@ const HelpIcon = ({ className }) => (
   </svg>
 );
 
+// Small gold "Switch Modes" pill button — appears on milestone screens to
+// let the user flip between the list and map views of the engagement flow.
+const SwitchModesButton = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={[
+      'inline-flex items-center gap-2 rounded-md',
+      'bg-accent text-accent-light px-3.5 py-2',
+      'font-sans font-semibold text-[13px] leading-5 tracking-[0.2px]',
+      'shadow-bottom-200 hover:bg-accent-hover',
+      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-dark',
+    ].join(' ')}
+  >
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-4"
+    >
+      <path d="M2 6h8a4 4 0 0 1 0 8H6" />
+      <path d="M5 3L2 6l3 3" />
+    </svg>
+    Switch Modes
+  </button>
+);
+
 const EngagementTopNav = ({
   userName = 'Kofi A.',
   userInitials = 'KA',
   onSaveExit,
   onHelp,
+  showSwitchModes = false,
+  onSwitchModes,
   className,
 }) => (
   <header
@@ -73,6 +106,8 @@ const EngagementTopNav = ({
     </Link>
 
     <div className="flex items-center gap-3 shrink-0">
+      {showSwitchModes && <SwitchModesButton onClick={onSwitchModes} />}
+
       <button
         type="button"
         onClick={onSaveExit}
