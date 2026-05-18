@@ -1,18 +1,20 @@
 import { classNames } from '../../../utils/classNames.js';
 import ChatBubble from '../../ui/ChatBubble.jsx';
+import careerBuddyPenguin from '../../../assets/engagement/career-buddy-penguin.png';
 
 /*
  * CareerBuddyPromoCard — green AI-buddy promo card (right rail).
  * Source: Figma frame 3384:82005 ("week card").
  *
- *   ├─ header: 48×48 avatar tile + "Career Buddy / Your AI guide"
+ *   ├─ header: small round avatar + "Career Buddy / Your AI guide"
  *   ├─ chat bubble: short intro line from the buddy
- *   └─ CTA: "Start with Career Buddy →" pill button
+ *   ├─ penguin mascot: full-body PNG anchored to the right edge
+ *   └─ CTA: white "Start with Career Buddy →" pill button
  *
  * The background is brand-green with two decorative ellipses (deeper green
- * and accent-tinted) to suggest depth. The penguin mascot from Figma is
- * approximated with a placeholder ring/medal; swap in the real asset
- * when art lands.
+ * and accent-tinted) to suggest depth. The penguin sits absolutely-positioned
+ * along the right edge so the chat bubble can overlap the front of its
+ * white belly — matches the Figma layering exactly.
  */
 
 const ArrowRight = ({ className }) => (
@@ -36,7 +38,7 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
     className={classNames(
       'relative overflow-hidden rounded-2xl bg-brand-green text-white',
       'shadow-bottom-300',
-      'p-5 min-h-[248px]',
+      'p-5 min-h-[260px]',
       className
     )}
   >
@@ -50,14 +52,31 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       className="absolute left-10 top-32 size-[250px] rounded-full bg-accent/15 blur-[2px]"
     />
 
-    <header className="relative flex items-center gap-3">
+    {/* Penguin mascot — anchored to the right edge, extends from card top
+      to the CTA row. Sits behind the chat bubble so the bubble can overlap
+      its white belly (Figma layering). */}
+    <img
+      src={careerBuddyPenguin}
+      alt=""
+      aria-hidden="true"
+      className={classNames(
+        'pointer-events-none select-none',
+        'absolute right-0 top-2 z-0',
+        'h-[88%] w-auto object-contain object-right-bottom',
+        'translate-x-2'
+      )}
+    />
+
+    <header className="relative z-10 flex items-center gap-3">
       <span
         aria-hidden="true"
-        className="inline-flex size-12 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/40"
+        className="inline-flex size-12 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/40 overflow-hidden"
       >
-        <span className="inline-flex size-8 items-center justify-center rounded-full bg-accent text-brand-green-dark font-semibold">
-          CB
-        </span>
+        <img
+          src={careerBuddyPenguin}
+          alt=""
+          className="size-12 object-cover object-top scale-150 translate-y-1"
+        />
       </span>
       <div className="leading-tight">
         <p className="font-display text-[18px] tracking-[-0.2px]">Career Buddy</p>
@@ -65,25 +84,25 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       </div>
     </header>
 
-    <div className="relative mt-6 max-w-[240px]">
+    <div className="relative z-10 mt-5 max-w-[230px]">
       <ChatBubble tail="bottom-right">
         <span className="block font-semibold text-content-primary">
-          Don’t Want To Fill It Manually?
+          Don&rsquo;t Want To Fill It Manually?
         </span>
         <span className="mt-1 block text-neutral-darker">
-          Don’t worry, Our Ai Career Buddy has you covered.
+          Don&rsquo;t worry, Our Ai Career Buddy has you covered.
         </span>
       </ChatBubble>
     </div>
 
-    <div className="relative mt-6 flex justify-center">
+    <div className="relative z-10 mt-5 flex justify-center">
       {/* Figma uses a pure white pill (not the design-system shelf button)
-        — full-width, brand-green text, soft 1px shadow, large radius. */}
+        — full-width, dark text, soft 1px shadow, large radius. */}
       <button
         type="button"
         onClick={onStart}
         className={classNames(
-          'inline-flex w-full max-w-[300px] items-center justify-center gap-2',
+          'inline-flex w-full max-w-[260px] items-center justify-center gap-2',
           'rounded-pill bg-white py-3 px-5',
           'font-sans font-semibold text-[15px] leading-6 tracking-[0.1px] text-content-primary',
           'shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_12px_rgba(0,0,0,0.08)]',
