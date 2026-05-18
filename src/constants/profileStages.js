@@ -6,6 +6,12 @@
  *   done         — stage submitted, all required fields collected
  *   in-progress  — at least one field saved but not yet submitted
  *   not-started  — nothing saved yet (the default)
+ *
+ * Each stage carries both a full `title` (used in stage-list cards) and a
+ * short `trailLabel` (used in the compact horizontal trail at the top of
+ * the engagement pages). The trail labels match the Figma frame
+ * (3384:81977) exactly: Avatar › Interests › Personality › Skills › Work
+ * › Portfolio › Certs › Goals › Pitch.
  */
 
 export const STAGE_STATUS = {
@@ -19,6 +25,7 @@ export const PROFILE_STAGES = [
     id: 'avatar',
     emoji: '🎭',
     title: 'Avatar',
+    trailLabel: 'Avatar',
     subtitle: 'show up as you',
     metaPrimary: 'Avatar set',
     durationLabel: '~3 min',
@@ -28,6 +35,7 @@ export const PROFILE_STAGES = [
     id: 'personal-interests',
     emoji: '🧭',
     title: 'Personal Areas of Interest',
+    trailLabel: 'Interests',
     subtitle: 'How you think',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -37,6 +45,7 @@ export const PROFILE_STAGES = [
     id: 'personality',
     emoji: '🧠',
     title: 'Personality',
+    trailLabel: 'Personality',
     subtitle: 'How you think',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -46,6 +55,7 @@ export const PROFILE_STAGES = [
     id: 'skills',
     emoji: '🛠️',
     title: 'Skills (Competencies)',
+    trailLabel: 'Skills',
     subtitle: 'What you can do',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -55,6 +65,7 @@ export const PROFILE_STAGES = [
     id: 'work-experience',
     emoji: '💼',
     title: 'Work Experience',
+    trailLabel: 'Work',
     subtitle: 'What you can do',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -64,6 +75,7 @@ export const PROFILE_STAGES = [
     id: 'project-portfolio',
     emoji: '🗂️',
     title: 'Project Portfolio',
+    trailLabel: 'Portfolio',
     subtitle: 'Where you’ve been',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -73,6 +85,7 @@ export const PROFILE_STAGES = [
     id: 'certifications',
     emoji: '🎓',
     title: 'Certifications',
+    trailLabel: 'Certs',
     subtitle: 'What you’ve shipped',
     metaPrimary: '—',
     durationLabel: '~3 min',
@@ -82,6 +95,7 @@ export const PROFILE_STAGES = [
     id: 'desired-career',
     emoji: '🧗',
     title: 'Desired Career Options',
+    trailLabel: 'Goals',
     subtitle: 'show up as you',
     metaPrimary: '—',
     durationLabel: '~5 min',
@@ -91,15 +105,35 @@ export const PROFILE_STAGES = [
     id: 'talent-pitch',
     emoji: '🎤',
     title: 'Talent Pitch',
+    trailLabel: 'Pitch',
     subtitle: 'show up as you',
     metaPrimary: '—',
-    durationLabel: '~5 min',
+    durationLabel: '~6 min',
     status: STAGE_STATUS.NOT_STARTED,
   },
 ];
 
-export const ENGAGEMENT_HERO_TAGS = [
-  { id: 'completion', label: '11% Completed' },
-  { id: 'time', label: '40 Min total · across sittings' },
-  { id: 'autosave', label: 'Auto-Save on every field' },
+/*
+ * Section grouping (Figma "SECTION 1 · YOUR IDENTITY · 2 OF 9 STAGES DONE"
+ * banner on the Identity Map page). The first five stages are "identity"
+ * stages; the trophy and final pitch stages mark milestones along the
+ * journey. We define the section names + member stage ids here so the
+ * map page can derive its header copy without a separate source of truth.
+ */
+export const PROFILE_SECTIONS = [
+  {
+    id: 'identity',
+    label: 'Your Identity',
+    stageIds: ['avatar', 'personal-interests', 'personality', 'skills', 'work-experience'],
+  },
+  {
+    id: 'showcase',
+    label: 'Your Showcase',
+    stageIds: ['project-portfolio', 'certifications'],
+  },
+  {
+    id: 'direction',
+    label: 'Your Direction',
+    stageIds: ['desired-career', 'talent-pitch'],
+  },
 ];

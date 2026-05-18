@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
 import EngagementHero from '../components/sections/engagement/EngagementHero.jsx';
 import ProfileStagesList from '../components/sections/engagement/ProfileStagesList.jsx';
 import CareerBuddyPromoCard from '../components/sections/engagement/CareerBuddyPromoCard.jsx';
 import HowItWorksCard from '../components/sections/engagement/HowItWorksCard.jsx';
 import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
+import EntryMethodModal from '../components/sections/engagement/EntryMethodModal.jsx';
 import { PROFILE_STAGES, STAGE_STATUS } from '../constants/profileStages.js';
 import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
@@ -21,7 +23,8 @@ const log = debug('ProfileEngagementPage');
  * Each stage is non-blocking — pick any order, save anytime, come back.
  *
  * Layout (Figma exact, clamp-scaled):
- *   ┌─ EngagementTopBar          (full-bleed, breadcrumbs + step indicator)
+ *   ┌─ EngagementTopNav          (full-bleed, GTH logo + Save & Exit + user)
+ *   ├─ EngagementTopBar          (full-bleed, stage trail + step indicator)
  *   ├─ EngagementHero            (full-bleed, headline + standing card)
  *   ├─ Main grid (two-column on lg+)
  *   │   ├─ left  → ProfileStagesList
@@ -38,6 +41,12 @@ const log = debug('ProfileEngagementPage');
 const ProfileEngagementPage = () => {
   log('mount');
   const navigate = useNavigate();
+
+  // Entry-method modal: defaults to open on first visit. Caller can also
+  // re-open it later via the Career Buddy promo or any stage card.
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(true);
+  const closeEntryModal = () => setIsEntryModalOpen(false);
+  const openEntryModal = () => setIsEntryModalOpen(true);
 
   const counts = useMemo(() => {
     const done = PROFILE_STAGES.filter((s) => s.status === STAGE_STATUS.DONE).length;
@@ -70,10 +79,32 @@ const ProfileEngagementPage = () => {
 
   const handleStartBuddy = () => {
     log('start with career buddy');
+    openEntryModal();
+  };
+
+  const handleSaveExit = () => {
+    log('save & exit');
+    navigate(ROUTES.home);
+  };
+
+  const handleFillManually = () => {
+    log('entry method: fill manually');
+    closeEntryModal();
+  };
+
+  const handleChatWithAi = () => {
+    log('entry method: chat with AI');
+    closeEntryModal();
+  };
+
+  const handleUploadCv = () => {
+    log('entry method: upload CV');
+    closeEntryModal();
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-background-default">
+      <EngagementTopNav onSaveExit={handleSaveExit} />
       <EngagementTopBar
         currentStageIndex={counts.currentIndex}
         completionPct={counts.completionPct}
@@ -98,6 +129,14 @@ const ProfileEngagementPage = () => {
       </main>
 
       <EngagementFooter onSkip={handleSkipHome} onContinue={handleGetStarted} />
+
+      <EntryMethodModal
+        isOpen={isEntryModalOpen}
+        onClose={closeEntryModal}
+        onFillManually={handleFillManually}
+        onChatWithAi={handleChatWithAi}
+        onUploadCv={handleUploadCv}
+      />
     </div>
   );
 };

@@ -1,18 +1,29 @@
 import { classNames } from '../../../utils/classNames.js';
 import Tag from '../../ui/Tag.jsx';
 import ProfileStandingCard from './ProfileStandingCard.jsx';
-import { ENGAGEMENT_HERO_TAGS } from '../../../constants/profileStages.js';
 
 /*
  * EngagementHero — top hero section of the Profile Engagement page.
  * Source: Figma frame 3384:81958 ("Section"), composed of:
- *   left  → headline "Your Profile, Your Way." + lede + 3 tags
+ *   left  → headline "Your Profile,Your Way." (no space after comma — Figma exact)
+ *           + lede + 3 mixed-color pill tags
  *   right → ProfileStandingCard
  *
- * Background follows the Figma's faint cream→white gradient. The page
- * container does the full-bleed; this component only owns the inner
- * 1616-wide content shell.
+ * Background follows the Figma's faint cream→peach→green wash. We render
+ * it as one soft horizontal gradient: brand-green-light tint on the left,
+ * yellow-light through the middle, accent-light tint on the right — all
+ * heavily desaturated so the section reads "calm pastel," not coloured.
  */
+
+// Mixed-color pill content: bold green prefix + muted suffix. Used for
+// the three hero tags ("11% Completed", "40 Min total · across sittings",
+// "Auto-Save on every field").
+const HeroTagContent = ({ accent, muted }) => (
+  <span className="inline-flex items-baseline gap-1">
+    <span className="font-semibold text-brand-green">{accent}</span>
+    {muted && <span className="font-medium text-neutral-darker">{muted}</span>}
+  </span>
+);
 
 const EngagementHero = ({
   completionPct,
@@ -23,26 +34,34 @@ const EngagementHero = ({
 }) => (
   <section
     className={classNames(
-      'w-full bg-gradient-to-r from-brand-green-light/50 via-accent-light/40 to-yellow-light',
-      'px-[clamp(16px,4vw,56px)] py-[clamp(24px,3vw,40px)]',
+      'w-full',
+      // Soft horizontal wash — left brand-green-light, middle yellow-light,
+      // right accent-light. Saturation kept low (~30%) so the section
+      // never competes with content.
+      'bg-[linear-gradient(90deg,var(--color-brand-green-light)_0%,var(--color-yellow-light)_45%,var(--color-yellow-light)_60%,var(--color-accent-light)_100%)]',
+      'px-[clamp(16px,3vw,40px)] py-[clamp(24px,2.5vw,40px)]',
       className
     )}
   >
     <div className="mx-auto flex flex-col lg:flex-row gap-8 items-start justify-between max-w-[1620px]">
       <div className="flex-1 min-w-0 max-w-[clamp(320px,40vw,520px)]">
-        <h1 className="font-display text-[clamp(36px,4vw,52px)] leading-[1.0] tracking-[-0.5px] text-content-primary">
-          Your Profile, <span className="italic text-brand-green">Your Way.</span>
+        <h1 className="font-display text-[clamp(34px,3.6vw,52px)] leading-[1.0] tracking-[-0.5px] text-content-primary">
+          Your Profile,<span className="italic text-brand-green">Your Way.</span>
         </h1>
-        <p className="mt-4 font-sans text-[14px] leading-[22px] tracking-[0.2px] text-neutral-darker">
-          Nine stages, no fixed order. Save and bounce anytime — most people finish across a week,
-          not one sitting. Avatar alone makes you searchable. Pitch is when you get matched.
+        <p className="mt-3 font-sans text-[14px] leading-[22px] tracking-[0.2px] text-neutral-darker max-w-[44ch]">
+          Nine stages, no fixed order. Save and bounce anytime &nbsp;most people finish across a
+          week, not one sitting. Avatar alone makes you searchable. Pitch is when you get matched.
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          {ENGAGEMENT_HERO_TAGS.map((tag) => (
-            <Tag key={tag.id} variant="pill" color="brand" size="md">
-              {tag.label}
-            </Tag>
-          ))}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Tag variant="pill" color="brand" size="md">
+            <HeroTagContent accent="11%" muted="Completed" />
+          </Tag>
+          <Tag variant="pill" color="brand" size="md">
+            <HeroTagContent accent="40 Min" muted="total · across sittings" />
+          </Tag>
+          <Tag variant="pill" color="brand" size="md">
+            <HeroTagContent accent="Auto-Save" muted="on every field" />
+          </Tag>
         </div>
       </div>
 
@@ -51,7 +70,6 @@ const EngagementHero = ({
         doneCount={doneCount}
         inProgressCount={inProgressCount}
         remainingCount={remainingCount}
-        className="self-stretch"
       />
     </div>
   </section>

@@ -3,30 +3,47 @@ import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.js
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
 
 /*
- * EngagementTopBar — top navigation row on the Profile Engagement page.
+ * EngagementTopBar — stage-trail row on the Profile Engagement page.
  * Source: Figma frame 3384:81977 ("Frame 150").
  *
- * Layout (Figma exact, scaled with clamp):
- *   left:  horizontal step trail (Avatar › Interests › Personality › …) —
- *          the active step picks up brand-green underline weight.
- *   right: EngagementProgressIndicator (step counter + thin progress bar).
+ * Sits directly below `EngagementTopNav`. Two columns:
+ *   left:  the 9-stage trail. Each stage is a hollow grey check-circle
+ *          followed by the stage label. A small grey chevron (▸) separates
+ *          stages. The active stage label picks up a brand-green underline.
+ *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
  *
- * The trail uses simple right-chevrons between labels; the active label
- * gets a 2-px brand-green underline.
+ * Note: per Figma, every stage in the trail uses the same hollow grey
+ * circle glyph regardless of completion status — completion is conveyed
+ * by the per-stage cards in the body, not by colouring the trail.
  */
 
+// Hollow check-circle in light grey — Figma 3384:81977 trail glyph.
+const HollowCheckCircle = ({ className }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" />
+    <path
+      d="M5.5 8.4l1.8 1.8 3.6-3.8"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Small right-pointing chevron between stages.
 const ChevronRight = ({ className }) => (
   <svg
-    viewBox="0 0 24 24"
+    viewBox="0 0 8 12"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
     aria-hidden="true"
     className={className}
   >
-    <path d="M9 6l6 6-6 6" />
+    <path d="M2 2l4 4-4 4" />
   </svg>
 );
 
@@ -34,50 +51,56 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
   const currentStage = PROFILE_STAGES[currentStageIndex];
 
   return (
-    <header
+    <div
       className={classNames(
         'w-full bg-white border-b border-border-default',
-        'px-[clamp(16px,4vw,56px)] py-[clamp(16px,2vw,28px)]',
-        'flex flex-wrap items-center gap-6',
+        'px-[clamp(16px,3vw,40px)] py-[clamp(10px,1.2vw,14px)]',
+        'flex flex-wrap items-center gap-x-6 gap-y-3',
         className
       )}
     >
       <nav
         aria-label="Profile engagement stages"
-        className="flex-1 min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1"
+        className="flex-1 min-w-0 flex flex-wrap items-center gap-x-1.5 gap-y-2"
       >
         {PROFILE_STAGES.map((stage, index) => {
           const isCurrent = index === currentStageIndex;
+
           return (
-            <div key={stage.id} className="flex items-center gap-2">
-              <span
-                aria-current={isCurrent ? 'step' : undefined}
-                className={classNames(
-                  'font-sans text-[14px] tracking-[0.14px] capitalize',
-                  isCurrent
-                    ? 'font-semibold text-content-primary border-b-2 border-brand-green pb-0.5'
-                    : 'font-medium text-neutral-dark-hover'
-                )}
-              >
-                {stage.title.split(' ')[0]}
+            <span key={stage.id} className="inline-flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex size-4 shrink-0 text-neutral-dark">
+                  <HollowCheckCircle className="size-full" />
+                </span>
+                <span
+                  aria-current={isCurrent ? 'step' : undefined}
+                  className={classNames(
+                    'font-sans text-[13px] tracking-[0.14px]',
+                    isCurrent
+                      ? 'font-semibold text-content-primary border-b-2 border-brand-green pb-px'
+                      : 'font-medium text-neutral-dark-hover'
+                  )}
+                >
+                  {stage.trailLabel || stage.title}
+                </span>
               </span>
               {index < PROFILE_STAGES.length - 1 && (
-                <ChevronRight className="size-4 text-neutral-dark" />
+                <ChevronRight className="size-2.5 text-neutral-dark ml-2" />
               )}
-            </div>
+            </span>
           );
         })}
       </nav>
 
-      <div className="w-[clamp(260px,24vw,340px)]">
+      <div className="w-[clamp(280px,24vw,360px)] shrink-0">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={PROFILE_STAGES.length}
-          currentStepLabel={currentStage?.title}
+          currentStepLabel={currentStage?.trailLabel || currentStage?.title}
           completionPct={completionPct}
         />
       </div>
-    </header>
+    </div>
   );
 };
 
