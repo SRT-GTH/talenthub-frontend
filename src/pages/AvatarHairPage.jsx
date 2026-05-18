@@ -16,8 +16,7 @@ const log = debug('AvatarHairPage');
  * hairstyle customiser panel on the right (12 hairstyle tiles, 9-colour
  * swatch row, volume slider, helper tip).
  *
- * Continue button advances to the next avatar step (Extras / Outfit
- * when those frames land — routes to the engagement hub for now).
+ * Continue advances to the Extras step.
  */
 
 const AvatarHairPage = () => {
@@ -30,8 +29,8 @@ const AvatarHairPage = () => {
   };
 
   const handleNext = () => {
-    log('save tone, next → engagement hub (Extras step pending)');
-    navigate(ROUTES.profileEngagement);
+    log('save tone, next → extras step');
+    navigate(ROUTES.avatarExtras);
   };
 
   return (

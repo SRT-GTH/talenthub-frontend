@@ -10,6 +10,8 @@ import Top20MilestonePage from './pages/Top20MilestonePage.jsx';
 import AvatarCustomiserPage from './pages/AvatarCustomiserPage.jsx';
 import AvatarSkinTonePage from './pages/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/AvatarHairPage.jsx';
+import AvatarExtrasPage from './pages/AvatarExtrasPage.jsx';
+import AvatarOutfitPage from './pages/AvatarOutfitPage.jsx';
 import { ROUTES } from './constants/routes.js';
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
         <Route path={ROUTES.avatarCustomiser} element={<AvatarCustomiserPage />} />
         <Route path={ROUTES.avatarSkinTone} element={<AvatarSkinTonePage />} />
         <Route path={ROUTES.avatarHair} element={<AvatarHairPage />} />
+        <Route path={ROUTES.avatarExtras} element={<AvatarExtrasPage />} />
+        <Route path={ROUTES.avatarOutfit} element={<AvatarOutfitPage />} />
       </Routes>
     </BrowserRouter>
   );
