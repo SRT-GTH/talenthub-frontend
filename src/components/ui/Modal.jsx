@@ -88,42 +88,48 @@ const Modal = ({
   };
 
   return (
+    // Overlay is itself scrollable so a tall modal still scrolls cleanly
+    // on short viewports instead of getting clipped. The inner wrapper
+    // centers the content while letting the page-level scroll do the work.
     <div
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
       onMouseDown={handleOverlayMouseDown}
       className={classNames(
-        'fixed inset-0 z-50 flex items-center justify-center',
+        'fixed inset-0 z-50 overflow-y-auto',
         'bg-black/30 backdrop-blur-[2px]',
-        'px-[clamp(12px,2vw,32px)] py-[clamp(12px,2vw,32px)]',
         className
       )}
     >
       <div
-        className={classNames(
-          'relative w-full bg-white rounded-2xl shadow-bottom-400',
-          'max-h-[90vh] overflow-y-auto',
-          SIZE_CLASSES[size] || SIZE_CLASSES.lg,
-          contentClassName
-        )}
+        onMouseDown={handleOverlayMouseDown}
+        className="min-h-full flex items-start sm:items-center justify-center px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]"
       >
-        {showClose && (
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className={classNames(
-              'absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full',
-              'border border-border-default bg-white text-content-primary',
-              'hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
-            )}
-          >
-            <CloseIcon className="size-4" />
-          </button>
-        )}
-        {children}
+        <div
+          className={classNames(
+            'relative w-full bg-white rounded-2xl shadow-bottom-400',
+            SIZE_CLASSES[size] || SIZE_CLASSES.lg,
+            contentClassName
+          )}
+        >
+          {showClose && (
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className={classNames(
+                'absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full',
+                'border border-border-default bg-white text-content-primary',
+                'hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
+              )}
+            >
+              <CloseIcon className="size-4" />
+            </button>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );

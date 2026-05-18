@@ -22,24 +22,36 @@ const EngagementProgressIndicator = ({
   const trackPct = ((safeIndex + (completionPct ? completionPct / 100 : 0)) / totalSteps) * 100;
 
   return (
-    <div className={classNames('w-full flex flex-col gap-3', className)}>
-      <div className="flex items-center gap-2 font-sans text-[12px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
+    <div className={classNames('w-full flex flex-col gap-2', className)}>
+      <div
+        className={classNames(
+          'flex items-center gap-1.5 whitespace-nowrap',
+          'font-sans text-[12px] leading-5 tracking-[0.2px] text-neutral-dark-hover',
+          'overflow-hidden text-ellipsis'
+        )}
+      >
         <StatusDot color="brand" />
-        <span className="font-semibold text-content-primary">
+        <span className="font-semibold text-content-primary shrink-0">
           Step {safeIndex + 1} of {totalSteps}
         </span>
         {currentStepLabel && (
           <>
-            <span aria-hidden="true">·</span>
-            <span className="font-semibold text-content-primary">{currentStepLabel}</span>
+            <span aria-hidden="true" className="shrink-0">
+              ·
+            </span>
+            <span className="font-semibold text-content-primary truncate">{currentStepLabel}</span>
           </>
         )}
-        <span aria-hidden="true">·</span>
-        <span>{Math.round(completionPct)}% profile complete</span>
+        <span aria-hidden="true" className="shrink-0">
+          ·
+        </span>
+        <span className="shrink-0">{Math.round(completionPct)}% profile complete</span>
         {autoSaved && (
           <>
-            <span aria-hidden="true">·</span>
-            <span>auto-saved</span>
+            <span aria-hidden="true" className="shrink-0">
+              ·
+            </span>
+            <span className="shrink-0">auto-saved</span>
           </>
         )}
       </div>

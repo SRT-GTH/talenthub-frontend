@@ -81,7 +81,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                       : 'font-medium text-neutral-dark-hover'
                   )}
                 >
-                  {stage.title.split(' ')[0]}
+                  {stage.trailLabel || stage.title}
                 </span>
               </span>
               {index < PROFILE_STAGES.length - 1 && (
@@ -92,11 +92,11 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
         })}
       </nav>
 
-      <div className="w-[clamp(260px,22vw,330px)] shrink-0">
+      <div className="w-[clamp(280px,24vw,360px)] shrink-0">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={PROFILE_STAGES.length}
-          currentStepLabel={currentStage?.title}
+          currentStepLabel={currentStage?.trailLabel || currentStage?.title}
           completionPct={completionPct}
         />
       </div>

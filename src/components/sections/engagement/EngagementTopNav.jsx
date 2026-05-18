@@ -49,7 +49,10 @@ const EngagementTopNav = ({
   <header
     className={classNames(
       'w-full bg-white border-b border-border-default',
-      'px-[clamp(16px,3vw,40px)] py-[clamp(10px,1.5vw,16px)]',
+      // Slightly tighter horizontal padding + a generous gap so the
+      // user chip never butts up against the viewport edge on smaller
+      // desktop widths.
+      'px-[clamp(16px,2vw,32px)] py-[clamp(10px,1.5vw,16px)]',
       'flex items-center justify-between gap-4',
       className
     )}
@@ -69,7 +72,7 @@ const EngagementTopNav = ({
       </span>
     </Link>
 
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3 shrink-0">
       <button
         type="button"
         onClick={onSaveExit}

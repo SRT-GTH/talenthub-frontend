@@ -4,6 +4,7 @@ import MainLayout from './layout/MainLayout.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ProfileEngagementPage from './pages/ProfileEngagementPage.jsx';
+import IdentityMapPage from './pages/IdentityMapPage.jsx';
 import { ROUTES } from './constants/routes.js';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         </Route>
         {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
         <Route path={ROUTES.profileEngagement} element={<ProfileEngagementPage />} />
+        <Route path={ROUTES.identityMap} element={<IdentityMapPage />} />
       </Routes>
     </BrowserRouter>
   );

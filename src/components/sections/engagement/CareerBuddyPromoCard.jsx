@@ -52,18 +52,18 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       className="absolute left-10 top-32 size-[250px] rounded-full bg-accent/15 blur-[2px]"
     />
 
-    {/* Penguin mascot — anchored to the right edge, extends from card top
-      to the CTA row. Sits behind the chat bubble so the bubble can overlap
-      its white belly (Figma layering). */}
+    {/* Penguin mascot — sits in the right portion of the card with a small
+      gutter so the raised hand isn't clipped by the card edge. Layered
+      behind the chat bubble so the bubble can overlap his white belly
+      (Figma layering). */}
     <img
       src={careerBuddyPenguin}
       alt=""
       aria-hidden="true"
       className={classNames(
         'pointer-events-none select-none',
-        'absolute right-0 top-2 z-0',
-        'h-[88%] w-auto object-contain object-right-bottom',
-        'translate-x-2'
+        'absolute right-3 top-3 z-0',
+        'h-[82%] w-auto object-contain object-bottom'
       )}
     />
 
