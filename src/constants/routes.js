@@ -10,5 +10,7 @@ export const ROUTES = {
   milestoneUnlock: '/profile/engagement/milestone',
   top20Milestone: '/profile/engagement/milestone/top-20',
   avatarCustomiser: '/profile/engagement/avatar',
+  avatarSkinTone: '/profile/engagement/avatar/skin',
+  avatarHair: '/profile/engagement/avatar/hair',
   // admin: '/admin', // reserved — populated when the admin subsystem lands
 };
