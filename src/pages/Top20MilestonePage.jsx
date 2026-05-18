@@ -1,0 +1,148 @@
+import { useNavigate } from 'react-router-dom';
+import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
+import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
+import MilestoneHeroPanel from '../components/sections/engagement/MilestoneHeroPanel.jsx';
+import UnlockedFeaturesSection from '../components/sections/engagement/UnlockedFeaturesSection.jsx';
+import trophyImg from '../assets/engagement/trophy.png';
+import { ROUTES } from '../constants/routes.js';
+import { debug } from '../utils/debug.js';
+
+const log = debug('Top20MilestonePage');
+
+/*
+ * Top20MilestonePage — celebration screen for Milestone 2 of 3.
+ * Source: Figma frame ("Top 20% profile" milestone celebration).
+ *
+ * Same layout pattern as MilestoneUnlockPage (Milestone 1) but with the
+ * gold/amber accent theme and the milestone-2-specific copy:
+ *   ├─ EngagementTopNav         (with Switch Modes pill)
+ *   ├─ EngagementTopBar         (Step 7 of 9 · Certs is the next stage)
+ *   ├─ MilestoneHeroPanel       (trophy + gold pill + "Top 20% profile."
+ *   │                            headline with 20% in gold italic and
+ *   │                            "profile." in green italic + 4 stat
+ *   │                            tiles + gold primary CTA + 6 completed
+ *   │                            chips)
+ *   ├─ UnlockedFeaturesSection  (gold-accented 3-card grid on a cream wash)
+ *   └─ EngagementFooter         (← Back to map / Next: Certs →)
+ *
+ * The milestone payload sits in TOP20_MILESTONE — when Milestone 3 lands
+ * we'll lift this and the discoverable payload into a shared constants
+ * module keyed by milestone id.
+ */
+
+const TOP20_MILESTONE = {
+  number: 2,
+  totalMilestones: 3,
+  headline: (
+    <>
+      Top <span className="italic text-accent-dark">20%</span>{' '}
+      <span className="italic text-brand-green">profile.</span>
+    </>
+  ),
+  description:
+    'You’ve completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.',
+  stats: [
+    { value: '6/9', label: 'Stages Done', accent: 'brand' },
+    { value: '66%', label: 'Profile Strength', accent: 'accent' },
+    { value: 'Top 20%', label: 'Ghana Ranking', accent: 'brand' },
+    { value: '+100 XP', label: 'Milestone Bonus', accent: 'accent' },
+  ],
+  completedStages: ['Avatar', 'Interest', 'Personality', 'Skills', 'Work', 'Portfolio'],
+  features: [
+    {
+      title: 'Top 20% badge on your card',
+      description:
+        'A visible badge on your recruiter card marking you as a serious candidate. Only profiles with 6+ stages completed earn it.',
+      highlighted: true,
+    },
+    {
+      title: 'Boosted search ranking',
+      description:
+        'Your card ranks higher in recruiter search results. Profiles with this badge receive 2.8× more views than those without.',
+      highlighted: true,
+    },
+    {
+      title: 'Portfolio analytics unlocked',
+      description:
+        'See which of your projects recruiters spend the most time on, and how long they viewed your profile.',
+      highlighted: true,
+    },
+  ],
+};
+
+const Top20MilestonePage = () => {
+  log('mount');
+  const navigate = useNavigate();
+
+  // Trail "frozen" state for this milestone — 6 stages just completed,
+  // Certs is the next stage to start.
+  const trailCurrentIndex = 6; // Certs
+  const completionPct = Math.round((6 / 9) * 100); // 67%
+
+  const handleSwitchModes = () => {
+    navigate(ROUTES.identityMap);
+  };
+
+  const handleSaveExit = () => {
+    navigate(ROUTES.home);
+  };
+
+  const handleBackToMap = () => {
+    log('back to map');
+    navigate(ROUTES.identityMap);
+  };
+
+  const handleNextCerts = () => {
+    log('next: certs');
+    navigate(ROUTES.profileEngagement);
+  };
+
+  const handleClaim = () => {
+    log('claim top 20% badge');
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background-default">
+      <EngagementTopNav
+        onSaveExit={handleSaveExit}
+        showSwitchModes
+        onSwitchModes={handleSwitchModes}
+      />
+      <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
+
+      <main className="flex-1">
+        <MilestoneHeroPanel
+          theme="gold"
+          iconSrc={trophyImg}
+          milestoneNumber={TOP20_MILESTONE.number}
+          totalMilestones={TOP20_MILESTONE.totalMilestones}
+          headline={TOP20_MILESTONE.headline}
+          description={TOP20_MILESTONE.description}
+          stats={TOP20_MILESTONE.stats}
+          completedStages={TOP20_MILESTONE.completedStages}
+          primaryCtaLabel="Claim Top 20% badge"
+          primaryCtaIcon={null}
+          secondaryCtaLabel="Continue, 3 stages left"
+          onClaim={handleClaim}
+          onContinue={handleNextCerts}
+        />
+
+        <UnlockedFeaturesSection
+          items={TOP20_MILESTONE.features}
+          accent="accent"
+          background="cream"
+        />
+      </main>
+
+      <EngagementFooter
+        onSkip={handleBackToMap}
+        onContinue={handleNextCerts}
+        skipLabel="Back to map"
+        continueLabel="Next: Certs"
+      />
+    </div>
+  );
+};
+
+export default Top20MilestonePage;

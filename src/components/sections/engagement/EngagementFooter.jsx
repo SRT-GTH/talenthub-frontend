@@ -7,7 +7,12 @@ import StatusDot from '../../ui/StatusDot.jsx';
  * Source: Figma frame 3384:81928 ("Background+HorizontalBorder").
  *
  *   left  → "• Auto-Saved · Everything is Reversible · Finish Later" status
- *   right → secondary "← Skip to Home" + primary "Get Started →"
+ *   right → secondary skip button + primary continue button
+ *
+ * The button labels and arrow direction default to "← Skip to Home" /
+ * "Get Started →" (matches the engagement-hub Figma) but can be
+ * overridden per-page — e.g. the Top 20% milestone uses "← Back to map"
+ * and "Next: Certs →".
  */
 
 const ArrowLeft = ({ className }) => (
@@ -42,7 +47,13 @@ const ArrowRight = ({ className }) => (
   </svg>
 );
 
-const EngagementFooter = ({ onSkip, onContinue, className }) => (
+const EngagementFooter = ({
+  onSkip,
+  onContinue,
+  skipLabel = 'Skip To Home',
+  continueLabel = 'Get Started',
+  className,
+}) => (
   <footer
     className={classNames(
       'w-full border-t border-border-default bg-background-default',
@@ -67,7 +78,7 @@ const EngagementFooter = ({ onSkip, onContinue, className }) => (
         onClick={onSkip}
         leftIcon={<ArrowLeft className="size-4" />}
       >
-        Skip To Home
+        {skipLabel}
       </Button>
       <Button
         variant="primary"
@@ -75,7 +86,7 @@ const EngagementFooter = ({ onSkip, onContinue, className }) => (
         onClick={onContinue}
         rightIcon={<ArrowRight className="size-4" />}
       >
-        Get Started
+        {continueLabel}
       </Button>
     </div>
   </footer>
