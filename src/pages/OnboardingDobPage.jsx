@@ -12,6 +12,7 @@ import {
   UsersGroupIcon,
 } from '../components/shared/assets.jsx';
 import { ROUTES } from '../constants/routes.js';
+import { useOnboarding } from '../hooks/useOnboarding.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('OnboardingDobPage');
@@ -293,6 +294,7 @@ const LoadingOverlay = () => (
 const OnboardingDobPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const { setDateOfBirth } = useOnboarding();
   const [dob, setDob] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -306,7 +308,11 @@ const OnboardingDobPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!isVerified || isSubmitting) return;
-    log('submit', { dob, age });
+    log('submit', { dob, age, isMinor: age < 18 });
+    // Persist DOB to the onboarding context so downstream pages (Header
+    // breadcrumb, Education page's next-route branch, ParentInfo gate)
+    // can read `isMinor` without re-asking.
+    setDateOfBirth({ dob, age });
     setIsSubmitting(true);
     // Brief inline loading before the overlay takes over — gives the
     // CTA's pressed state a moment to read before the modal mounts.

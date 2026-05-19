@@ -3,6 +3,107 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-05-19] create | Below-18 onboarding branch + route namespace refactor
+
+User asked to extend the existing above-18 talent onboarding flow with the below-18 variant. Below-18 Figma frames were extracted from the Figma plugin and dropped in [`below 18 onboarding raw code/`](../below%2018%20onboarding%20raw%20code/). The user also asked for a route reorganisation to accommodate future entity types (recruiter, parent-as-user, school) and made two structural picks via the AskUserQuestion flow:
+
+- **Routes**: namespace by entity type (`/onboarding/talent/*`); other types live alongside (`/onboarding/recruiter/*` etc.) when they ship.
+- **State carrier**: lightweight `OnboardingContext` (no Redux slice yet — the flow tears down once the user lands on the dashboard, so persistent store buys nothing).
+
+**Discovery — what changes between above- and below-18 talent flows**
+
+Working from the Figma URL list + the raw HTML dumps:
+
+| Screen                | Below-18 delta                                                                                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `/get-started` (role) | No change — age branching is on DOB, not role                                                                                       |
+| Welcome               | Identical (breadcrumb gains an extra "Parent" step)                                                                                 |
+| DOB                   | Already detects `isUnder18` and shows the amber consent banner ✅ — only addition was persisting DOB to context                     |
+| Personal Info         | Same fields; breadcrumb adds "Parent"                                                                                               |
+| Contact               | Same; breadcrumb adds "Parent"                                                                                                      |
+| Address               | Same; breadcrumb adds "Parent"                                                                                                      |
+| Education             | Same form; submit routes to `/parent-info` for minors instead of `/review`                                                          |
+| **Parent Info (NEW)** | Guardian Name + Relationship + Phone + Email; blue legal disclosure banner; "06b" amber eyebrow (Figma `2858:28725` / `2858:28726`) |
+| Review                | Adds a parent-section summary; terms modal already has the "Under 18?" callout ✅                                                   |
+
+The "Parent details popup" frames (`2849:58523`, `2858:32819`) reference a modal that introduces the parent step. Deferred — implementing it sensibly needs the surrounding success-modal copy resolved with product first.
+
+**Changes**
+
+- [`src/providers/OnboardingProvider.jsx`](../src/providers/OnboardingProvider.jsx) — new ephemeral context holding `dob`, `age`, `isMinor` (derived). `setDateOfBirth({dob, age})` is the only public setter; downstream pages call `useOnboarding()` to read.
+- [`src/providers/OnboardingContext.js`](../src/providers/OnboardingContext.js) — split-out context object (kept separate from the provider component so `react-refresh/only-export-components` stays happy).
+- [`src/hooks/useOnboarding.js`](../src/hooks/useOnboarding.js) — hook with a defensive throw when used outside the provider.
+- [`src/components/shared/onboardingSteps.js`](../src/components/shared/onboardingSteps.js) — added `getTalentOnboardingSteps({ isMinor })`. Inserts the `parent` step between `education` and `review` when `isMinor` is true. Legacy `ONBOARDING_STEPS` export retained — same as the adult flow.
+- [`src/components/shared/OnboardingHeader.jsx`](../src/components/shared/OnboardingHeader.jsx) — defaults its `steps` prop to whatever the talent context implies. Callers pass nothing → header auto-extends for minors. Recruiter/parent-as-user flows can still override with an explicit `steps` prop when they ship.
+- [`src/constants/routes.js`](../src/constants/routes.js) — onboarding paths re-anchored under `/onboarding/talent/*`. Constant names kept short (`onboardingWelcome`, `onboardingDob`, …) to minimise churn; rename to `talentOnboarding*` only when a second entity type lands and the ambiguity actually bites.
+- [`src/App.jsx`](../src/App.jsx) — talent flow now lives inside a nested `<Routes>` wrapped in `<OnboardingProvider>`. Added 7 legacy redirects from the old flat `/onboarding/*` paths to the new namespace so in-progress sessions / external links keep working.
+- [`src/pages/OnboardingDobPage.jsx`](../src/pages/OnboardingDobPage.jsx) — captures DOB + age into the context on submit.
+- [`src/pages/OnboardingEducationPage.jsx`](../src/pages/OnboardingEducationPage.jsx) — branches the success-modal continue handler to `/parent-info` for minors, `/review` for adults.
+- [`src/pages/OnboardingParentInfoPage.jsx`](../src/pages/OnboardingParentInfoPage.jsx) — new page. Mirrors the contact-step structure: composite Ghana-prefix phone input, Field-wrapped relationship select with Father/Mother/Stepfather/.../Other-relative options, email input, blue legal disclosure banner. Defensive `useEffect` redirect: if a non-minor lands here via direct URL, it bounces to `/review` via `Navigate replace`. Amber eyebrow + cream-amber right-panel summary card mirror Figma `2858:28741` and the floating guardian preview at `2858:28903`.
+
+**Validation rule subtlety**
+
+The Figma banner reads "phone OR email" — the page enforces _at least one_ contact method. Both can be filled. When the user starts filling one channel, the other field's trailing label flips from "SMS/Email verification" to "Optional". After a submit attempt with neither filled, both phone and email get the same `"Phone OR email is required"` error so the eye can't miss it.
+
+**Verification** ✅ VERIFIED (lint + build + route smoke); 🔶 LIKELY (visual fidelity not Playwright-confirmed this session)
+
+- `npm run lint` — clean.
+- `npx vite build` — clean (86 modules, no warnings, +1 page → 564.97 kB → 564.97 kB index bundle).
+- Vite dev server probed for all 11 onboarding paths → 200 across the board (talent namespace + legacy redirects + `/get-started`).
+- E2E suite: `tests/e2e/home.spec.js`'s `/components` test passes; the `/` (landing hero) test failure is pre-existing — the hero was removed in commit `06b553c chore(landing): drop HeroSection while it's being rebuilt` and the test wasn't updated.
+- Playwright MCP visual check was attempted but the MCP's chrome profile was locked by an in-flight session (7 chrome.exe processes — likely overlapping with the user's own browser, so the lockfile wasn't force-removed). Pixel-level fidelity vs Figma `2858:28725` family will be confirmed in the next session once the profile clears.
+
+**Route-shape decision rationale**
+
+Picked entity-type namespacing over flat-with-in-page-branching because:
+
+- Future flows (recruiter, school, parent-as-user) will diverge in layout shells, not just copy. Forcing them into a single `/onboarding/welcome` page would push role detection into every primitive.
+- Each entity's route subtree can own its own provider + step catalogue without leaking into talent state.
+- The legacy redirects mean nothing breaks today.
+
+If/when a second entity type lands, the next step is to rename the constants to `talentOnboarding*` and add a sibling `recruiterOnboarding*` block; this session deliberately deferred the rename to keep the diff focused.
+
+**Known follow-ups**
+
+- "Parent details popup" frames (`2849:58523`, `2858:32819`) — not yet built. Likely an introductory/confirmation modal for the parent step; needs product copy resolution.
+- The legacy redirects in `App.jsx` should sunset on a defined timeline (probably ~90 days after this lands in production); add a removal TODO once analytics shows zero traffic to the flat paths.
+- The Education-step `EditChip` in `OnboardingReviewPage.jsx` still falls back to `ROUTES.onboardingAddress` instead of pointing at `/education` — pre-existing, unrelated to this session's scope.
+- Pixel-perfect verification of the new Parent Info page against Figma `2858:28725` family needs a follow-up Playwright pass.
+
+## [2026-05-19] fix | Wire role-selection + onboarding routes end-to-end
+
+User provided 11 Figma frame URLs for the "Gth Role Selection — Onboarding student (18+) edge case states" along with `above 18 onboarding raw code/raw Gth Role Selection- Onbaording student (student 18 years and above code.html`, asking to follow the same workflow as the prior "Build contact us form" / "Build onboarding form" sessions but skip steps already performed.
+
+**Discovery:** every frame was already implemented in earlier sessions. The page-level docblocks cite the exact node IDs the user supplied:
+
+- [`OnboardingWelcomePage.jsx:13`](../src/pages/OnboardingWelcomePage.jsx#L13) covers `2858:23640 / 2858:23867 / 2858:24094` (Student-Selected flow + 3s toast + Loader).
+- [`OnboardingDobPage.jsx:23`](../src/pages/OnboardingDobPage.jsx#L23) covers `2236:830 / 2282:7563 / 8435 / 8944 / 9846 / 9302 / 10259 / 10628` (default / 4 age-verified filled variants / 2 loader overlays / under-18 parental-consent notice). The `isVerified` and `isUnder18` branches in the page already render every age-state variant in the Figma list.
+
+So no extraction or page-build work was redone. What had been left undone in those earlier sessions was the route wiring — [`src/constants/routes.js`](../src/constants/routes.js) only exported `home / components / onboardingAddress`, and [`src/App.jsx`](../src/App.jsx) only registered `/` + `/onboarding/address` + `/components`. Every `navigate(ROUTES.onboardingWelcome)` / `navigate(ROUTES.onboardingDob)` / etc. in the existing pages was navigating to `undefined`, and `/get-started`, `/login`, `/onboarding/welcome`, `/onboarding/dob`, `/onboarding/personal-info`, `/onboarding/contact`, `/onboarding/education`, `/onboarding/review` all 404'd.
+
+**Changes**
+
+- [`src/constants/routes.js`](../src/constants/routes.js) — added 8 missing constants (`login`, `getStarted`, `onboardingWelcome`, `onboardingDob`, `onboardingPersonalInfo`, `onboardingContact`, `onboardingEducation`, `onboardingReview`). Each carries a one-line `// Maps to US-1.1.1-NN` comment so the user-story mapping stays discoverable.
+- [`src/App.jsx`](../src/App.jsx) — imported the 7 pages that weren't already imported and registered 8 new `<Route>` entries inside the existing `MainLayout` shell. Order mirrors `ONBOARDING_STEPS` from [`onboardingSteps.js`](../src/components/shared/onboardingSteps.js) so the route file reads like the user flow.
+- [`temp-outputs/role-selection/FRAME_COVERAGE.md`](../temp-outputs/role-selection/FRAME_COVERAGE.md) — new archival map from each of the user's 11 Figma frame URLs → the existing page that already implements it, plus a "why no new EXTRACTION_PROTOCOL was written" note so future sessions don't redo the extraction.
+
+**Verification** ✅ VERIFIED
+
+- `npx eslint src/App.jsx src/constants/routes.js` — clean.
+- `npx vite build` — clean (82 modules, 8.82s).
+- Playwright MCP @ 1440×900, 0 console errors across all four screens:
+  - `/get-started` — 3 role cards (Talent / Parent-Guardian / Company-Recruiter), CTA disabled until selection.
+  - `/onboarding/welcome` — two-column layout, toast auto-hides at 3s, right-panel cards render.
+  - `/onboarding/dob` with DOB=15-03-2003 → "23 years old" badge, Continue CTA active, no consent banner.
+  - `/onboarding/dob` with DOB=15-03-2010 → "16 years old" badge, amber "Parent or guardian contact needed" banner appears.
+
+Screenshots saved at repo root: `role-1-get-started.png`, `role-2-welcome.png`, `role-3-dob-default.png`, `role-4-dob-above-18-verified.png`, `role-5-dob-under-18-consent.png`.
+
+**Known follow-ups** (not in this session's scope)
+
+- `OnboardingWelcomePage` renders behind the floating Navbar pill — the headline is partially overlapped by the navbar shelf at 1440 width. Pre-existing; the welcome screen pre-dated this routing fix.
+- No commit was created — pages were already on `main` from prior sessions; only the route wiring is new on the working tree. Hand off to the user for the conventional commit.
+
 ## [2026-05-07] update | Hero rebuilt around composed Figma vectors
 
 Rebuilt [`HeroSection.jsx`](../src/components/sections/landing/HeroSection.jsx) and [`HeroPhotoCard.jsx`](../src/components/sections/landing/HeroPhotoCard.jsx) around a fresh export of hero SVGs in [`src/assets/hero/`](../src/assets/hero/). The old asset set (with hand-extracted sparkle rays, scribble, spirals, and small sub-icons) was replaced by composed full-card SVGs — one vector per floating UI element — so positioning is layout-only rather than per-child reconstruction.

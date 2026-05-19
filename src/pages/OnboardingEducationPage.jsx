@@ -20,6 +20,7 @@ import {
   WarningIcon,
 } from '../components/shared/assets.jsx';
 import { ROUTES } from '../constants/routes.js';
+import { useOnboarding } from '../hooks/useOnboarding.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('OnboardingEducationPage');
@@ -29,22 +30,28 @@ const log = debug('OnboardingEducationPage');
  * Maps to user story US-1.1.1-05 ("Capture Talent Education"). Route:
  * /onboarding/education.
  *
- * Figma sources:
- *   2709:12641 — default empty state (the canonical spec)
+ * Figma sources (page-level):
+ *   2709:12641 — default empty state
  *   2709:14806 — filled state (all 4 fields populated, CTA active)
  *   2709:18846 — loader A (button-inline spinner; pressed dark-green CTA)
  *   2709:25638 — loader B (post-success summary modal)
  *   2739:15931 — level-not-jhs (gating warning modal for sub-JHS picks)
  *
- * Layout: 4 fields in 2x2 with progressive disclosure
- *   ┌────────────────────────────────────────────────┐
- *   │ Education level*  │ Grade / Year*  (disabled)  │
- *   │ Institution*      │ Expected graduation* (disabled) │
- *   └────────────────────────────────────────────────┘
+ * Figma sources (field-level edge-cases — see temp-outputs/education-edge-cases/):
+ *   2709:15270 — empty default (cascade: Grade disabled until Level)
+ *   2709:15480 / 2709:15690 — progressive fill (Level → Grade verified)
+ *   2709:15900 — Grade picked; Graduation STILL disabled until Institution
+ *   2709:16110 / 2709:16320 — Institution + Graduation verified states
+ *   2709:37471 / 2717:38189 — error states (frame 8 adds the callout banner)
+ *
+ * Cascade gate (per frame 2709:15900):
+ *   Level → Grade → Institution → Graduation
  *
  * Submit behaviour:
  *   - On submit with sub-JHS level → show LevelNotEligibleModal
  *     (amber-themed gating modal — single CTA resets the level)
+ *   - On submit with 2+ invalid fields → show EducationErrorCallout banner
+ *     above the form + per-field error chrome.
  *   - On submit with eligible level → 900ms button-inline loader,
  *     then EducationConfirmedModal (green-themed summary modal)
  *     → navigates to /onboarding/review on continue.
@@ -106,6 +113,70 @@ const GRADUATION_YEARS = Array.from({ length: 7 }, (_, i) => {
   const y = String(CURRENT_YEAR + i);
   return { value: y, label: y };
 });
+
+// ---- error callout banner --------------------------------------------
+
+// Surfaces above the form when the user clicks Continue with 2+ empty
+// required fields. Matches Figma frame 2717:38189 — 430×75 box, asymmetric
+// 3px-left red border, alert + close glyphs. Dismissable; re-shows on the
+// next failed submit attempt.
+const EducationErrorCallout = ({ title, body, onClose }) => {
+  log('render error callout');
+  return (
+    <div
+      role="alert"
+      className="relative flex w-full max-w-[430px] items-start gap-3 rounded-[10px] bg-danger-light px-4 py-3 shadow-[0_2px_2px_-1px_rgba(27,36,44,0.04),0_16px_24px_-6px_rgba(27,36,44,0.16)]"
+      style={{
+        borderTop: '1px solid #C0392B',
+        borderRight: '1px solid #C0392B',
+        borderBottom: '1px solid #C0392B',
+        borderLeft: '3px solid #C0392B',
+      }}
+    >
+      <svg
+        viewBox="0 0 20 20"
+        width="20"
+        height="20"
+        fill="none"
+        aria-hidden="true"
+        className="mt-0.5 shrink-0"
+      >
+        <circle cx="10" cy="10" r="8.25" stroke="#C0392B" strokeWidth="1.5" />
+        <path d="M10 5.75v4.75" stroke="#C0392B" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="10" cy="13.75" r="1" fill="#C0392B" />
+      </svg>
+      <div className="flex flex-1 flex-col gap-0.5 pr-6">
+        <p
+          className="font-sans font-semibold text-[14px] leading-6 text-danger"
+          style={{ letterSpacing: '0.1px' }}
+        >
+          {title}
+        </p>
+        <p
+          className="font-sans text-[12px] leading-[18px] text-danger"
+          style={{ letterSpacing: '0.2px' }}
+        >
+          {body}
+        </p>
+      </div>
+      <button
+        type="button"
+        aria-label="Dismiss"
+        onClick={onClose}
+        className="absolute right-3 top-3 inline-flex size-4 items-center justify-center text-danger"
+      >
+        <svg viewBox="0 0 15 15" width="15" height="15" fill="none" aria-hidden="true">
+          <path
+            d="m4 4 7 7M11 4l-7 7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+};
 
 // ---- success modal ----------------------------------------------------
 
@@ -504,6 +575,7 @@ const EducationRightPanel = () => (
 const OnboardingEducationPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const { isMinor } = useOnboarding();
   const [level, setLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [institution, setInstitution] = useState('');
@@ -512,9 +584,10 @@ const OnboardingEducationPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLevelGate, setShowLevelGate] = useState(false);
+  const [showErrorBanner, setShowErrorBanner] = useState(false);
 
   // Cascading: Grade depends on Level. Reset child value when parent changes.
-  // Also kill the sub-JHS gate if the user picks something valid.
+  // Institution + Graduation also cleared so the cascade gate is consistent.
   const handleLevelChange = (value) => {
     log('level change:', value);
     setLevel(value);
@@ -528,24 +601,66 @@ const OnboardingEducationPage = () => {
   const handleGradeChange = (value) => {
     log('grade change:', value);
     setGrade(value);
-    // Expected graduation depends on grade — clearing parent clears child.
     setGraduation('');
+  };
+
+  const handleInstitutionChange = (event) => {
+    setInstitution(event.target.value);
+    // Clearing or editing the institution invalidates the downstream
+    // graduation field, matching Figma frame 2709:15900.
+    if (graduation) setGraduation('');
   };
 
   const availableGrades = GRADES_BY_LEVEL[level] || [];
 
-  // Inline errors only appear once the user has tried to submit at least
-  // once, so the form doesn't yell on first paint.
-  const levelError = hasSubmittedOnce && !level ? 'Education level is required' : undefined;
-  const gradeError = hasSubmittedOnce && level && !grade ? 'Grade is required' : undefined;
+  // Per-field validity. We use these to flip both the box chrome (state)
+  // and the helper-vs-error message presentation.
+  const isLevelMissing = level === '';
+  const isGradeMissing = grade === '';
+  const isInstitutionMissing = institution.trim().length === 0;
+  const isGraduationMissing = graduation === '';
+
+  // Field-level error chrome / copy — only after the first submit attempt
+  // and only for fields whose cascade is satisfied (so cascade-disabled
+  // fields keep their grey prompt instead of yelling).
+  const levelError = hasSubmittedOnce && isLevelMissing ? 'Please select your level' : undefined;
+  const gradeError =
+    hasSubmittedOnce && !isLevelMissing && isGradeMissing ? 'Please select your grade' : undefined;
   const institutionError =
-    hasSubmittedOnce && institution.trim().length === 0 ? 'Institution is required' : undefined;
+    hasSubmittedOnce && !isLevelMissing && isInstitutionMissing
+      ? 'Search and select your institution'
+      : undefined;
   const graduationError =
-    hasSubmittedOnce && !graduation ? 'Expected graduation is required' : undefined;
+    hasSubmittedOnce &&
+    !isLevelMissing &&
+    !isGradeMissing &&
+    !isInstitutionMissing &&
+    isGraduationMissing
+      ? 'Please select your expected graduation'
+      : undefined;
+
+  // For cascade-blocked fields after submit we still want the red border
+  // (per frames 7+8) but a NEUTRAL helper. Drive the box via `state="error"`
+  // and leave `error` undefined so the helper colour stays grey.
+  const gradeBoxState = hasSubmittedOnce && isGradeMissing && isLevelMissing ? 'error' : undefined;
+  const institutionBoxState =
+    hasSubmittedOnce && isInstitutionMissing && isLevelMissing ? 'error' : undefined;
+  const graduationBoxState =
+    hasSubmittedOnce &&
+    isGraduationMissing &&
+    (isLevelMissing || isGradeMissing || isInstitutionMissing)
+      ? 'error'
+      : undefined;
+
+  const invalidCount =
+    Number(isLevelMissing) +
+    Number(isGradeMissing) +
+    Number(isInstitutionMissing) +
+    Number(isGraduationMissing);
 
   const isValid = useMemo(
-    () => level !== '' && grade !== '' && institution.trim().length > 0 && graduation !== '',
-    [level, grade, institution, graduation]
+    () => !isLevelMissing && !isGradeMissing && !isInstitutionMissing && !isGraduationMissing,
+    [isLevelMissing, isGradeMissing, isInstitutionMissing, isGraduationMissing]
   );
 
   const handleSubmit = (event) => {
@@ -562,11 +677,20 @@ const OnboardingEducationPage = () => {
     }
 
     if (!isValid || isSubmitting) {
-      log('submit blocked', { isValid, isSubmitting });
+      // 2+ missing fields surfaces the aggregated banner (Figma frame
+      // 2717:38189). Single missing field stays inline-only.
+      const missingCount =
+        Number(isLevelMissing) +
+        Number(isGradeMissing) +
+        Number(isInstitutionMissing) +
+        Number(isGraduationMissing);
+      if (missingCount >= 2) setShowErrorBanner(true);
+      log('submit blocked', { isValid, isSubmitting, missingCount });
       return;
     }
 
     log('submit', { level, grade, institution, graduation });
+    setShowErrorBanner(false);
     setIsSubmitting(true);
     // Fake round-trip — real wiring lands when the education-save service
     // is built. 900ms keeps the loader visible without being annoying.
@@ -577,9 +701,12 @@ const OnboardingEducationPage = () => {
   };
 
   const handleContinue = () => {
-    log('continue → /onboarding/review');
+    // Below-18 talents collect a parent/guardian contact before the
+    // review/terms step; adults skip straight to review.
+    const nextRoute = isMinor ? ROUTES.onboardingParentInfo : ROUTES.onboardingReview;
+    log('continue →', nextRoute, '(isMinor:', isMinor, ')');
     setShowSuccess(false);
-    navigate(ROUTES.onboardingReview);
+    navigate(nextRoute);
   };
 
   const handleChangeLevel = () => {
@@ -617,10 +744,14 @@ const OnboardingEducationPage = () => {
   ];
 
   // Helper-row text mirrors Figma copy and flips between cascade prompts
-  // when the parent field hasn't been chosen yet.
+  // when the parent field hasn't been chosen yet. Institution + Graduation
+  // both cascade-block to match frame 2709:15900.
   const gradeHelper = level ? 'Pick your current grade' : 'Select your level first';
+  const institutionHelper = level ? 'Type to search your school' : 'Select your level first';
   const graduationHelper =
-    level && grade ? 'When do you expect to graduate?' : 'Select level and grade first';
+    level && grade && !isInstitutionMissing
+      ? 'When do you expect to graduate?'
+      : 'Select level, grade and institution first';
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-[1728px] flex-col bg-white">
@@ -676,10 +807,22 @@ const OnboardingEducationPage = () => {
 
             <WavyDivider />
 
+            {showErrorBanner && (
+              <EducationErrorCallout
+                title="A few fields need attention"
+                body={
+                  invalidCount >= 3
+                    ? 'Please complete all required fields before continuing.'
+                    : 'Please select your grade and add your institution before continuing.'
+                }
+                onClose={() => setShowErrorBanner(false)}
+              />
+            )}
+
             {/* Form grid — 4 fields in 2x2 (collapses to single column on
-                narrow viewports). Progressive disclosure: Grade unlocks when
-                Level is picked; Graduation unlocks when both Level and Grade
-                are set. */}
+                narrow viewports). Progressive disclosure: Level → Grade →
+                Institution → Graduation. Each unlocks the next; clearing a
+                parent clears its descendants. */}
             <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
               <Select
                 label="Education level"
@@ -689,8 +832,10 @@ const OnboardingEducationPage = () => {
                 value={level}
                 onChange={handleLevelChange}
                 leftIcon={<TrendUpIcon />}
+                leftIconClassName="text-brand-green"
                 helperText="Choose the level you're currently studying at"
                 error={levelError}
+                verified={Boolean(level)}
                 searchable
               />
               <Select
@@ -701,19 +846,28 @@ const OnboardingEducationPage = () => {
                 value={grade}
                 onChange={handleGradeChange}
                 leftIcon={<MapIcon />}
+                leftIconClassName="text-brand-green"
                 disabled={!level}
                 helperText={gradeHelper}
                 error={gradeError}
+                state={gradeBoxState}
+                verified={Boolean(grade)}
               />
               <TextInput
                 label="Institution"
                 required
                 placeholder="Search school or university"
                 value={institution}
-                onChange={(e) => setInstitution(e.target.value)}
+                onChange={handleInstitutionChange}
                 leftIcon={<SearchIcon />}
-                helperText="Type to search your school"
+                leftIconClassName="text-brand-green"
+                helperIcon={<SearchIcon />}
+                helperIconClassName="text-brand-green"
+                disabled={!level}
+                helperText={institutionHelper}
                 error={institutionError}
+                state={institutionBoxState}
+                verified={!isInstitutionMissing}
                 autoComplete="off"
               />
               <Select
@@ -724,17 +878,24 @@ const OnboardingEducationPage = () => {
                 value={graduation}
                 onChange={setGraduation}
                 leftIcon={<CalendarIcon />}
-                disabled={!level || !grade}
+                leftIconClassName="text-brand-green"
+                disabled={!level || !grade || isInstitutionMissing}
                 helperText={graduationHelper}
                 error={graduationError}
+                state={graduationBoxState}
+                verified={Boolean(graduation)}
               />
             </div>
 
+            {/* Continue stays clickable even when the form is invalid — the
+                submit handler short-circuits and surfaces the per-field error
+                chrome + aggregated banner (Figma frames 2709:37471 /
+                2717:38189). Only disabled mid-submit. */}
             <Button
               type="submit"
               variant="primary"
               size="lg"
-              disabled={(!isValid && !SUB_JHS_LEVELS.has(level)) || isSubmitting}
+              disabled={isSubmitting}
               state={isSubmitting ? 'active' : undefined}
               leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
               rightIcon={<ArrowRightIcon />}

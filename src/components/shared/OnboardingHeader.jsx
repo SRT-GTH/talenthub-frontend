@@ -15,7 +15,8 @@
  * are muted grey/500.
  */
 
-import { ONBOARDING_STEPS } from './onboardingSteps.js';
+import { getTalentOnboardingSteps } from './onboardingSteps.js';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const ChevronRight = () => (
   <svg
@@ -59,7 +60,13 @@ const CompletedCheck = () => (
   </svg>
 );
 
-const OnboardingHeader = ({ steps = ONBOARDING_STEPS, currentKey, percent = 0 }) => {
+const OnboardingHeader = ({ steps: stepsProp, currentKey, percent = 0 }) => {
+  // Steps list defaults to whatever the talent context implies (the
+  // Parent step appears automatically for under-18 users). Callers can
+  // still override with an explicit `steps` prop — e.g. parent/recruiter
+  // flows will pass their own catalogue once those land.
+  const { isMinor } = useOnboarding();
+  const steps = stepsProp ?? getTalentOnboardingSteps({ isMinor: Boolean(isMinor) });
   const clamped = Math.max(0, Math.min(100, percent));
   const currentIndex = steps.findIndex((s) => s.key === currentKey);
 
