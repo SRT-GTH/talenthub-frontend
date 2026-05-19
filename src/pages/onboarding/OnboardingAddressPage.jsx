@@ -519,7 +519,7 @@ const OnboardingAddressPage = () => {
   ];
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-[1728px] flex-col bg-white">
+    <div className="mx-auto flex min-h-[calc(100vh-160px)] flex-col bg-white">
       <OnboardingHeader currentKey="address" percent={78} />
 
       <section className="flex flex-1">

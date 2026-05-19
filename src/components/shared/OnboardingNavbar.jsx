@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Logo from './Logo.jsx';
+import gthLogoStacked from '../../assets/brand/gth-logo-stacked.png';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingNavbar');
@@ -33,9 +33,13 @@ const OnboardingNavbar = () => {
         boxShadow: '0 1px 2px rgba(27,36,44,0.12)',
       }}
     >
-      <div className="mx-auto flex w-full max-w-[1728px] items-center justify-between px-6 py-3 md:px-16">
+      <div className="flex items-center justify-between px-6 py-3 md:px-16">
         <Link to={'/'} aria-label="Ghana Talent Hub home">
-          <Logo size="md" showWordmark={false} />
+          {/* Single composed 71×66 PNG per Figma node 3052:74371 — mark sits
+              tight above the two-line "GHANA / TALENT HUB" wordmark with no
+              separator gap. Pulled fresh from the Figma Dev Mode MCP rather
+              than reusing the horizontal-wordmark gth-wordmark.png. */}
+          <img src={gthLogoStacked} alt="Ghana Talent Hub" className="h-[66px] w-[71px]" />
         </Link>
 
         <Link

@@ -532,7 +532,7 @@ const OnboardingParentInfoPage = () => {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-[1728px] flex-col bg-white">
+    <div className="mx-auto flex min-h-[calc(100vh-160px)] flex-col bg-white">
       <OnboardingHeader currentKey="parent" percent={88} />
 
       <section className="flex flex-1">

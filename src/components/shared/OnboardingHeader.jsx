@@ -72,7 +72,7 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent = 0 }) => {
 
   return (
     <div className="relative h-[58px] w-full border-b border-[#F1F1EF] bg-white">
-      <div className="mx-auto flex h-full max-w-[1728px] items-center justify-between px-[54px]">
+      <div className="mx-auto flex h-full items-center justify-between px-[54px]">
         {/* Breadcrumbs */}
         <nav
           aria-label="Onboarding progress"

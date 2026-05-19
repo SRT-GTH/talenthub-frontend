@@ -382,7 +382,7 @@ const LoginPage = () => {
     // Outer width is pinned to the Figma frame (1728×1117, node 2849-52564)
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
-    <section className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-[1728px] bg-white">
+    <section className="mx-auto flex min-h-[calc(100vh-160px)] bg-white">
       <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
         <LoginForm
           onAuthFailure={() => setAuthError(true)}
