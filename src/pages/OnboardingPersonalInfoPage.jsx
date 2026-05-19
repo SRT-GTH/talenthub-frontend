@@ -141,9 +141,9 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
     aria-modal="true"
     aria-labelledby="identity-captured-title"
     className="fixed inset-0 z-50 flex items-center justify-center px-4"
-    style={{ background: 'rgba(17, 17, 17, 0.55)' }}
+    style={{ background: 'rgba(17, 17, 17, 0.70)' }}
   >
-    <div className="relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)]">
+    <div className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-brand-green-light-active bg-white px-8 py-8 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)]">
       <button
         type="button"
         onClick={onClose}
@@ -154,7 +154,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
       </button>
 
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-green-light">
+        <span className="flex size-14 items-center justify-center rounded-[10px] bg-brand-green-light-hover">
           <SuccessCheckIcon />
         </span>
         <span
@@ -176,7 +176,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         >
           Identity <span className="italic text-brand-green">captured.</span>
         </h2>
-        <p className="text-[14px] leading-5 text-[#70706E]" style={{ letterSpacing: '0.2px' }}>
+        <p className="text-[12px] leading-[18px] text-[#959592]" style={{ letterSpacing: '0.2px' }}>
           Your personal information is saved and encrypted. Here&apos;s a summary of what we stored.
         </p>
       </div>
@@ -426,6 +426,12 @@ const OnboardingPersonalInfoPage = () => {
   const passwordsMatch = password.length > 0 && password === retypePassword;
   const passwordMismatch =
     hasSubmittedOnce && retypePassword.length > 0 && password !== retypePassword;
+  // Retype-password success helper surfaces "Passwords match" in green
+  // (Figma node 2353:16374 helper-row #387440). Only show once the user
+  // has actually typed something into Retype Password — keeps the field
+  // quiet on first render.
+  const passwordMatchHint =
+    retypePassword.length > 0 && passwordsMatch ? 'Passwords match' : undefined;
 
   const isValid = useMemo(
     () =>
@@ -440,11 +446,10 @@ const OnboardingPersonalInfoPage = () => {
     [profilePhoto, firstName, lastName, gender, nationality, ghanaCardId, password, passwordsMatch]
   );
 
-  const ctaLabel = isSubmitting
-    ? 'Setting Things Up'
-    : isValid
-      ? 'Fill In Your Details'
-      : 'Fill In Your Details';
+  // Figma frame 2374:14410 keeps the CTA label constant once the user
+  // can act on the form ("Save & Continue"). The empty-form copy
+  // ("Fill In Your Details") is the nudge while the user is still typing.
+  const ctaLabel = isValid || isSubmitting ? 'Save & Continue' : 'Fill In Your Details';
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -632,6 +637,7 @@ const OnboardingPersonalInfoPage = () => {
                 value={retypePassword}
                 onChange={(e) => setRetypePassword(e.target.value)}
                 error={passwordMismatch ? "Passwords don't match" : undefined}
+                successText={passwordMatchHint}
                 leftIcon={<LockIcon />}
                 rightIcon={
                   <button

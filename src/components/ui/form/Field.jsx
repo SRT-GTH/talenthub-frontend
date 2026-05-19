@@ -28,6 +28,19 @@ const AlertIcon = ({ className }) => (
   </svg>
 );
 
+const CheckIcon = ({ className }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4" />
+    <path
+      d="m5 8.2 2.2 2.2L11 6.4"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 const Field = ({
   label,
   htmlFor,
@@ -41,14 +54,36 @@ const Field = ({
   labelTrailingClassName = 'text-brand-green',
   helperText,
   error,
+  // successText surfaces a positive helper line in brand-green with a
+  // check glyph — used by personal-info to confirm "Passwords match"
+  // (Figma node 2353:16374 helper row #387440). When `error` is also
+  // supplied, `error` wins since the field is still invalid.
+  successText,
+  // Helper-row composition slots. Default rendering keeps the legacy circle
+  // AlertIcon + danger/neutral text. Pages with non-default tones (e.g. the
+  // brand-green "Email verification" hint or the success-green "Verrifed
+  // input" message on the Contact step) override individually.
+  helperIcon,
+  helperIconClassName,
+  helperTextClassName,
   className,
   children,
   ...rest
 }) => {
-  log('render', { label, required, optional, hasError: !!error });
+  log('render', { label, required, optional, hasError: !!error, hasSuccess: !!successText });
 
-  const message = error || helperText;
-  const messageColourClass = error ? 'text-danger' : 'text-neutral-darker';
+  const isSuccess = !error && Boolean(successText);
+  const message = error || successText || helperText;
+  const defaultToneClass = error
+    ? 'text-danger'
+    : isSuccess
+      ? 'text-brand-green'
+      : 'text-neutral-darker';
+  const defaultIcon = isSuccess ? (
+    <CheckIcon className="size-4 shrink-0" />
+  ) : (
+    <AlertIcon className="size-4 shrink-0" />
+  );
   const showLabelRow = Boolean(label) || optional || Boolean(labelTrailing);
 
   return (
@@ -94,11 +129,23 @@ const Field = ({
 
       {message && (
         <div
-          className={classNames('flex items-center gap-2 px-2', messageColourClass)}
+          className={classNames('flex items-center gap-2 px-2', defaultToneClass)}
           role={error ? 'alert' : undefined}
         >
-          <AlertIcon className="size-4 shrink-0" />
-          <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px]">{message}</p>
+          <span
+            className={classNames('inline-flex size-4 shrink-0', helperIconClassName)}
+            aria-hidden="true"
+          >
+            {helperIcon ?? defaultIcon}
+          </span>
+          <p
+            className={classNames(
+              'font-sans text-[12px] leading-[18px] tracking-[0.2px]',
+              helperTextClassName
+            )}
+          >
+            {message}
+          </p>
         </div>
       )}
     </div>

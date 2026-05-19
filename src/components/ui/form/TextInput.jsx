@@ -32,8 +32,13 @@ const STATE_CLASSES = {
     'bg-yellow-light border-2 border-brand-green-light-active shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]',
   verified:
     'bg-white border-[1.5px] border-brand-green-light-active shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]',
+  // On error, placeholder text flips to danger red (`#C0392B`) per Figma
+  // frames 07-error-a / 08-error-b — the unfilled error cells render their
+  // placeholders in red. The filled-value color stays `#111` (covered by
+  // INPUT_BASE).
   error:
-    'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)]',
+    'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)] ' +
+    '[&_input]:placeholder:text-danger',
   disabled: 'bg-brand-green-light border-2 border-[#cccccc] opacity-55 shadow-none',
 };
 
@@ -49,10 +54,13 @@ const WRAPPER_BASE =
   'flex h-[51px] items-center gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
   'transition-colors duration-100';
 
+// Filled-value typography mirrors Figma node 2353:14649 — SF Pro Rounded
+// Medium 14/24, color #111. Placeholder stays 400 / #595959 via the
+// `placeholder:` modifiers so the empty state is unchanged.
 const INPUT_BASE =
   'flex-1 min-w-0 bg-transparent outline-none border-none ' +
-  'font-sans text-[14px] leading-[20px] tracking-[0.2px] ' +
-  'text-content-primary ' +
+  'font-sans font-medium text-[14px] leading-[24px] tracking-[0.2px] ' +
+  'text-[#111111] ' +
   'placeholder:text-[#595959] placeholder:font-normal ' +
   'disabled:cursor-not-allowed';
 
@@ -61,12 +69,24 @@ const TextInput = ({
   required,
   optional,
   helperText,
+  successText,
   error,
   state,
   verified = false,
   disabled = false,
   leftIcon,
+  // Optional override for the leading-icon color wrapper. Defaults to
+  // `text-content-tertiary` (the legacy neutral). The Contact step's
+  // Email field flips this to `text-brand-green` once the user has
+  // typed a value, and to `text-success` in the "Verrifed input" state.
+  leftIconClassName,
   rightIcon,
+  labelTrailing,
+  labelTrailingClassName,
+  // Helper-row slots forwarded straight to Field — see Field.jsx.
+  helperIcon,
+  helperIconClassName,
+  helperTextClassName,
   type = 'text',
   id,
   className,
@@ -97,12 +117,24 @@ const TextInput = ({
       required={required}
       optional={optional}
       helperText={helperText}
+      successText={successText}
       error={error}
+      labelTrailing={labelTrailing}
+      labelTrailingClassName={labelTrailingClassName}
+      helperIcon={helperIcon}
+      helperIconClassName={helperIconClassName}
+      helperTextClassName={helperTextClassName}
       className={className}
     >
       <div className={classNames(WRAPPER_BASE, wrapperStateClasses)}>
         {leftIcon && (
-          <span className="inline-flex shrink-0 size-4 text-content-tertiary" aria-hidden="true">
+          <span
+            className={classNames(
+              'inline-flex shrink-0 size-4',
+              leftIconClassName ?? 'text-content-tertiary'
+            )}
+            aria-hidden="true"
+          >
             {leftIcon}
           </span>
         )}
