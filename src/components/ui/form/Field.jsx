@@ -33,6 +33,12 @@ const Field = ({
   htmlFor,
   required = false,
   optional = false,
+  // labelTrailing renders an arbitrary string on the right side of the label
+  // row (replaces the "optional" literal when set). Used by the contact-info
+  // page to surface "SMS verification" / "Optional" / "Email verification"
+  // adornments in different colors.
+  labelTrailing,
+  labelTrailingClassName = 'text-brand-green',
   helperText,
   error,
   className,
@@ -43,7 +49,7 @@ const Field = ({
 
   const message = error || helperText;
   const messageColourClass = error ? 'text-danger' : 'text-neutral-darker';
-  const showLabelRow = Boolean(label) || optional;
+  const showLabelRow = Boolean(label) || optional || Boolean(labelTrailing);
 
   return (
     <div className={classNames('flex flex-col gap-2 w-full', className)} {...rest}>
@@ -67,11 +73,20 @@ const Field = ({
           ) : (
             <span aria-hidden="true" />
           )}
-          {optional && (
+          {labelTrailing ? (
+            <span
+              className={classNames(
+                'font-sans text-[12px] leading-[18px] tracking-[0.2px]',
+                labelTrailingClassName
+              )}
+            >
+              {labelTrailing}
+            </span>
+          ) : optional ? (
             <span className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#595959]">
               optional
             </span>
-          )}
+          ) : null}
         </div>
       )}
 

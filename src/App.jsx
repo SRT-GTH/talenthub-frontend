@@ -3,6 +3,7 @@ import './App.css';
 import MainLayout from './layout/MainLayout.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
+import OnboardingAddressPage from './pages/OnboardingAddressPage.jsx';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/onboarding/address" element={<OnboardingAddressPage />} />
           {/* /components hosts the design-system playground (HomePage). */}
           <Route path="/components" element={<HomePage />} />
         </Route>
