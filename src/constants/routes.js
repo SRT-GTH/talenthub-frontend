@@ -40,5 +40,17 @@ export const ROUTES = {
   // Maps to US-1.1.1-07 ("Review onboarding data and accept terms").
   onboardingReview: '/onboarding/talent/review',
 
+  // Profile engagement flow (post-onboarding). Each subroute owns its own
+  // top/bottom chrome and is mounted outside MainLayout in App.jsx.
+  profileEngagement: '/profile/engagement',
+  identityMap: '/profile/engagement/identity',
+  milestoneUnlock: '/profile/engagement/milestone',
+  top20Milestone: '/profile/engagement/milestone/top-20',
+  avatarCustomiser: '/profile/engagement/avatar',
+  avatarSkinTone: '/profile/engagement/avatar/skin',
+  avatarHair: '/profile/engagement/avatar/hair',
+  avatarExtras: '/profile/engagement/avatar/extras',
+  avatarOutfit: '/profile/engagement/avatar/outfit',
+
   // admin: '/admin', // reserved — populated when the admin subsystem lands
 };

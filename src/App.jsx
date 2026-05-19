@@ -13,7 +13,17 @@ import OnboardingAddressPage from './pages/OnboardingAddressPage.jsx';
 import OnboardingEducationPage from './pages/OnboardingEducationPage.jsx';
 import OnboardingParentInfoPage from './pages/OnboardingParentInfoPage.jsx';
 import OnboardingReviewPage from './pages/OnboardingReviewPage.jsx';
+import ProfileEngagementPage from './pages/ProfileEngagementPage.jsx';
+import IdentityMapPage from './pages/IdentityMapPage.jsx';
+import MilestoneUnlockPage from './pages/MilestoneUnlockPage.jsx';
+import Top20MilestonePage from './pages/Top20MilestonePage.jsx';
+import AvatarCustomiserPage from './pages/AvatarCustomiserPage.jsx';
+import AvatarSkinTonePage from './pages/AvatarSkinTonePage.jsx';
+import AvatarHairPage from './pages/AvatarHairPage.jsx';
+import AvatarExtrasPage from './pages/AvatarExtrasPage.jsx';
+import AvatarOutfitPage from './pages/AvatarOutfitPage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import { ROUTES } from './constants/routes.js';
 
 function App() {
   return (
@@ -23,9 +33,9 @@ function App() {
             mirroring the elysium pattern. Add it as:
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
         <Route element={<MainLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/get-started" element={<GetStartedPage />} />
+          <Route path={ROUTES.home} element={<LandingPage />} />
+          <Route path={ROUTES.login} element={<LoginPage />} />
+          <Route path={ROUTES.getStarted} element={<GetStartedPage />} />
 
           {/* Talent onboarding flow. Wrapped in OnboardingProvider so DOB
               captured on step 01 propagates to every downstream page (drives
@@ -81,8 +91,19 @@ function App() {
           />
 
           {/* /components hosts the design-system playground (HomePage). */}
-          <Route path="/components" element={<HomePage />} />
+          <Route path={ROUTES.components} element={<HomePage />} />
         </Route>
+
+        {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
+        <Route path={ROUTES.profileEngagement} element={<ProfileEngagementPage />} />
+        <Route path={ROUTES.identityMap} element={<IdentityMapPage />} />
+        <Route path={ROUTES.milestoneUnlock} element={<MilestoneUnlockPage />} />
+        <Route path={ROUTES.top20Milestone} element={<Top20MilestonePage />} />
+        <Route path={ROUTES.avatarCustomiser} element={<AvatarCustomiserPage />} />
+        <Route path={ROUTES.avatarSkinTone} element={<AvatarSkinTonePage />} />
+        <Route path={ROUTES.avatarHair} element={<AvatarHairPage />} />
+        <Route path={ROUTES.avatarExtras} element={<AvatarExtrasPage />} />
+        <Route path={ROUTES.avatarOutfit} element={<AvatarOutfitPage />} />
       </Routes>
     </BrowserRouter>
   );
