@@ -1,35 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
-import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
-import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
-import MilestoneHeroPanel from '../components/sections/engagement/MilestoneHeroPanel.jsx';
-import UnlockedFeaturesSection from '../components/sections/engagement/UnlockedFeaturesSection.jsx';
-import MilestoneDetailsModal from '../components/sections/engagement/MilestoneDetailsModal.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
+import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
+import MilestoneHeroPanel from '../../components/sections/engagement/MilestoneHeroPanel.jsx';
+import UnlockedFeaturesSection from '../../components/sections/engagement/UnlockedFeaturesSection.jsx';
+import MilestoneDetailsModal from '../../components/sections/engagement/MilestoneDetailsModal.jsx';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('MilestoneUnlockPage');
 
 /*
- * MilestoneUnlockPage — celebration screen after completing a milestone.
- * Source: Figma frame ("You're discoverable" — Milestone 1 of 3).
+ * MilestoneUnlockPage â€” celebration screen after completing a milestone.
+ * Source: Figma frame ("You're discoverable" â€” Milestone 1 of 3).
  *
  * The flow surfaces three named milestones along the engagement journey:
- *   1. "You're discoverable" — after Avatar + Interests + Personality
- *   2. (future) "You're matchable" — after Skills + Work + Portfolio
- *   3. (future) "You're hireable" — after Certs + Goals + Pitch
+ *   1. "You're discoverable" â€” after Avatar + Interests + Personality
+ *   2. (future) "You're matchable" â€” after Skills + Work + Portfolio
+ *   3. (future) "You're hireable" â€” after Certs + Goals + Pitch
  *
  * Today we hardcode the discoverable milestone's copy and data here. Once
  * milestones 2 and 3 land we'll lift the per-milestone payload into a
  * shared constants module keyed by milestone id.
  *
  * Layout:
- *   ┌─ EngagementTopNav        (with the gold "Switch Modes" pill enabled)
- *   ├─ EngagementTopBar        (stage trail)
- *   ├─ MilestoneHeroPanel      (gift + headline + stats + CTAs + completed)
- *   ├─ UnlockedFeaturesSection ("what you just unlocked" 3-card grid)
- *   └─ EngagementFooter
+ *   â”Œâ”€ EngagementTopNav        (with the gold "Switch Modes" pill enabled)
+ *   â”œâ”€ EngagementTopBar        (stage trail)
+ *   â”œâ”€ MilestoneHeroPanel      (gift + headline + stats + CTAs + completed)
+ *   â”œâ”€ UnlockedFeaturesSection ("what you just unlocked" 3-card grid)
+ *   â””â”€ EngagementFooter
  */
 
 const DISCOVERABLE_MILESTONE = {
@@ -37,11 +36,11 @@ const DISCOVERABLE_MILESTONE = {
   totalMilestones: 3,
   headline: (
     <>
-      You’re <span className="italic text-brand-green">discoverable.</span>
+      Youâ€™re <span className="italic text-brand-green">discoverable.</span>
     </>
   ),
   description:
-    'You’ve completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.',
+    'Youâ€™ve completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.',
   stats: [
     { value: '3/9', label: 'Stages Done', accent: 'brand' },
     { value: '33%', label: 'Profile Strength', accent: 'accent' },
@@ -68,7 +67,7 @@ const DISCOVERABLE_MILESTONE = {
       highlighted: false,
     },
   ],
-  // Details modal content — what pops up when the user claims the reward.
+  // Details modal content â€” what pops up when the user claims the reward.
   // Source: Figma frame ("Profile Discoverable" details modal).
   details: {
     headline: (
@@ -107,43 +106,43 @@ const MilestoneUnlockPage = () => {
   const navigate = useNavigate();
 
   // For the milestone hero we lock the trail to its visual "just finished
-  // stage 3" state — i.e. Personality completed (index 3 is the next stage
+  // stage 3" state â€” i.e. Personality completed (index 3 is the next stage
   // to start, which is Skills). This is the data shown when the celebration
   // screen appears, regardless of the live PROFILE_STAGES state.
   const trailCurrentIndex = 3; // Skills is the next unstarted stage
   const completionPct = Math.round((3 / 9) * 100); // 33%
 
-  // Details modal — pops up when the user clicks "Claim your reward".
+  // Details modal â€” pops up when the user clicks "Claim your reward".
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const closeDetails = () => setIsDetailsOpen(false);
 
   const handleSwitchModes = () => {
     log('switch modes');
-    navigate(ROUTES.identityMap);
+    navigate('/profile/engagement/identity');
   };
 
   const handleSaveExit = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleSkipHome = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleContinue = () => {
     log('continue building');
-    navigate(ROUTES.profileEngagement);
+    navigate('/profile/engagement');
   };
 
   const handleClaim = () => {
-    log('claim reward → open details modal');
+    log('claim reward â†’ open details modal');
     setIsDetailsOpen(true);
   };
 
   const handleDetailsCta = () => {
-    log('details modal CTA → continue building');
+    log('details modal CTA â†’ continue building');
     closeDetails();
-    navigate(ROUTES.profileEngagement);
+    navigate('/profile/engagement');
   };
 
   return (

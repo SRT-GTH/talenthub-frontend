@@ -1,34 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
-import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
-import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
-import MilestoneHeroPanel from '../components/sections/engagement/MilestoneHeroPanel.jsx';
-import UnlockedFeaturesSection from '../components/sections/engagement/UnlockedFeaturesSection.jsx';
-import MilestoneDetailsModal from '../components/sections/engagement/MilestoneDetailsModal.jsx';
-import trophyImg from '../assets/engagement/trophy-icon.png';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
+import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
+import MilestoneHeroPanel from '../../components/sections/engagement/MilestoneHeroPanel.jsx';
+import UnlockedFeaturesSection from '../../components/sections/engagement/UnlockedFeaturesSection.jsx';
+import MilestoneDetailsModal from '../../components/sections/engagement/MilestoneDetailsModal.jsx';
+import trophyImg from '../../assets/engagement/trophy-icon.png';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('Top20MilestonePage');
 
 /*
- * Top20MilestonePage — celebration screen for Milestone 2 of 3.
+ * Top20MilestonePage â€” celebration screen for Milestone 2 of 3.
  * Source: Figma frame ("Top 20% profile" milestone celebration).
  *
  * Same layout pattern as MilestoneUnlockPage (Milestone 1) but with the
  * gold/amber accent theme and the milestone-2-specific copy:
- *   ├─ EngagementTopNav         (with Switch Modes pill)
- *   ├─ EngagementTopBar         (Step 7 of 9 · Certs is the next stage)
- *   ├─ MilestoneHeroPanel       (trophy + gold pill + "Top 20% profile."
- *   │                            headline with 20% in gold italic and
- *   │                            "profile." in green italic + 4 stat
- *   │                            tiles + gold primary CTA + 6 completed
- *   │                            chips)
- *   ├─ UnlockedFeaturesSection  (gold-accented 3-card grid on a cream wash)
- *   └─ EngagementFooter         (← Back to map / Next: Certs →)
+ *   â”œâ”€ EngagementTopNav         (with Switch Modes pill)
+ *   â”œâ”€ EngagementTopBar         (Step 7 of 9 Â· Certs is the next stage)
+ *   â”œâ”€ MilestoneHeroPanel       (trophy + gold pill + "Top 20% profile."
+ *   â”‚                            headline with 20% in gold italic and
+ *   â”‚                            "profile." in green italic + 4 stat
+ *   â”‚                            tiles + gold primary CTA + 6 completed
+ *   â”‚                            chips)
+ *   â”œâ”€ UnlockedFeaturesSection  (gold-accented 3-card grid on a cream wash)
+ *   â””â”€ EngagementFooter         (â† Back to map / Next: Certs â†’)
  *
- * The milestone payload sits in TOP20_MILESTONE — when Milestone 3 lands
+ * The milestone payload sits in TOP20_MILESTONE â€” when Milestone 3 lands
  * we'll lift this and the discoverable payload into a shared constants
  * module keyed by milestone id.
  */
@@ -43,7 +42,7 @@ const TOP20_MILESTONE = {
     </>
   ),
   description:
-    'You’ve completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.',
+    'Youâ€™ve completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.',
   stats: [
     { value: '6/9', label: 'Stages Done', accent: 'brand' },
     { value: '66%', label: 'Profile Strength', accent: 'accent' },
@@ -51,7 +50,7 @@ const TOP20_MILESTONE = {
     { value: '+100 XP', label: 'Milestone Bonus', accent: 'accent' },
   ],
   completedStages: ['Avatar', 'Interest', 'Personality', 'Skills', 'Work', 'Portfolio'],
-  // Details modal — pops up when the user claims the Top 20% badge.
+  // Details modal â€” pops up when the user claims the Top 20% badge.
   // Source: Figma frame (Top 20% Profile details modal).
   details: {
     headline: (
@@ -61,7 +60,7 @@ const TOP20_MILESTONE = {
       </>
     ),
     description:
-      'You’re in the top fifth of all GTH profiles. The badge is now live on your recruiter card — it’s visible to every recruiter who finds you.',
+      'Youâ€™re in the top fifth of all GTH profiles. The badge is now live on your recruiter card â€” itâ€™s visible to every recruiter who finds you.',
     items: [
       {
         icon: 'check',
@@ -71,7 +70,7 @@ const TOP20_MILESTONE = {
       },
       {
         icon: 'arrow',
-        title: '2.8× more profile views',
+        title: '2.8Ã— more profile views',
         description:
           'Badge holders rank higher in search results. More views = more opportunities surfacing.',
       },
@@ -79,7 +78,7 @@ const TOP20_MILESTONE = {
         icon: 'plus',
         title: 'Portfolio analytics unlocked',
         description:
-          'See exactly which projects hold recruiters’ attention longest — and optimise accordingly.',
+          'See exactly which projects hold recruitersâ€™ attention longest â€” and optimise accordingly.',
       },
     ],
     ctaLabel: '3 stages to Top Talent, keep going',
@@ -94,7 +93,7 @@ const TOP20_MILESTONE = {
     {
       title: 'Boosted search ranking',
       description:
-        'Your card ranks higher in recruiter search results. Profiles with this badge receive 2.8× more views than those without.',
+        'Your card ranks higher in recruiter search results. Profiles with this badge receive 2.8Ã— more views than those without.',
       highlighted: true,
     },
     {
@@ -110,42 +109,42 @@ const Top20MilestonePage = () => {
   log('mount');
   const navigate = useNavigate();
 
-  // Trail "frozen" state for this milestone — 6 stages just completed,
+  // Trail "frozen" state for this milestone â€” 6 stages just completed,
   // Certs is the next stage to start.
   const trailCurrentIndex = 6; // Certs
   const completionPct = Math.round((6 / 9) * 100); // 67%
 
-  // Details modal — pops up when the user claims the Top 20% badge.
+  // Details modal â€” pops up when the user claims the Top 20% badge.
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const closeDetails = () => setIsDetailsOpen(false);
 
   const handleSwitchModes = () => {
-    navigate(ROUTES.identityMap);
+    navigate('/profile/engagement/identity');
   };
 
   const handleSaveExit = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleBackToMap = () => {
     log('back to map');
-    navigate(ROUTES.identityMap);
+    navigate('/profile/engagement/identity');
   };
 
   const handleNextCerts = () => {
     log('next: certs');
-    navigate(ROUTES.profileEngagement);
+    navigate('/profile/engagement');
   };
 
   const handleClaim = () => {
-    log('claim top 20% badge → open details modal');
+    log('claim top 20% badge â†’ open details modal');
     setIsDetailsOpen(true);
   };
 
   const handleDetailsCta = () => {
-    log('details modal CTA → continue to next stage');
+    log('details modal CTA â†’ continue to next stage');
     closeDetails();
-    navigate(ROUTES.profileEngagement);
+    navigate('/profile/engagement');
   };
 
   return (

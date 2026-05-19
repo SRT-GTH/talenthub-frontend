@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from './EngagementTopNav.jsx';
 import EngagementTopBar from './EngagementTopBar.jsx';
 import EngagementFooter from './EngagementFooter.jsx';
-import { ROUTES } from '../../../constants/routes.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('AvatarStepLayout');
@@ -45,16 +44,16 @@ const AvatarStepLayout = ({
   const navigate = useNavigate();
 
   const handleSwitchModes = () => {
-    navigate(ROUTES.identityMap);
+    navigate('/profile/engagement/identity');
   };
 
   const handleSaveExit = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleGoBackDefault = () => {
     log('go back');
-    navigate(ROUTES.profileEngagement);
+    navigate('/profile/engagement');
   };
 
   const handleContinueDefault = () => {

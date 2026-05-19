@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import Logo from './Logo.jsx';
-import { ROUTES } from '../../constants/routes.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingNavbar');
@@ -35,12 +34,12 @@ const OnboardingNavbar = () => {
       }}
     >
       <div className="mx-auto flex w-full max-w-[1728px] items-center justify-between px-6 py-3 md:px-16">
-        <Link to={ROUTES.home} aria-label="Ghana Talent Hub home">
+        <Link to={'/'} aria-label="Ghana Talent Hub home">
           <Logo size="md" showWordmark={false} />
         </Link>
 
         <Link
-          to={ROUTES.login}
+          to={'/login'}
           className="inline-flex items-center justify-center rounded-[2px] px-2 text-[14px] font-semibold leading-6 text-brand-green"
           style={{
             borderBottom: '1px solid #142916',

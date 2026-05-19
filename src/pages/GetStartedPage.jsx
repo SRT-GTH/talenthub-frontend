@@ -10,7 +10,6 @@ import {
   ArrowRightIcon,
   LoadingSpinner,
 } from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
 import gridBg from '../assets/getStarted/grid.jpg';
 
@@ -146,7 +145,7 @@ const GetStartedPage = () => {
     setIsLoading(true);
     // Short delay so the loading state is visible before navigation;
     // replace with the real /role POST when the endpoint lands.
-    setTimeout(() => navigate(ROUTES.onboardingWelcome), 700);
+    setTimeout(() => navigate('/onboarding/talent/welcome'), 700);
   };
 
   return (

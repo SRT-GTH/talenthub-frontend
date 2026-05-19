@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button.jsx';
-import { TextInput, Select } from '../components/ui/form';
-import Field from '../components/ui/form/Field.jsx';
-import WavyDivider from '../components/shared/WavyDivider.jsx';
-import OnboardingHeader from '../components/shared/OnboardingHeader.jsx';
+import Button from '../../components/ui/Button.jsx';
+import { TextInput, Select } from '../../components/ui/form';
+import Field from '../../components/ui/form/Field.jsx';
+import WavyDivider from '../../components/shared/WavyDivider.jsx';
+import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
   ChevronDownIcon,
@@ -16,16 +16,15 @@ import {
   ShieldCheckIcon,
   UserIcon,
   UsersGroupIcon,
-} from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { useOnboarding } from '../hooks/useOnboarding.js';
-import { classNames } from '../utils/classNames.js';
-import { debug } from '../utils/debug.js';
+} from '../../components/shared/assets.jsx';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
+import { classNames } from '../../utils/classNames.js';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingParentInfoPage');
 
 /*
- * OnboardingParentInfoPage — Step 06 of the talent onboarding flow, but
+ * OnboardingParentInfoPage â€” Step 06 of the talent onboarding flow, but
  * only for below-18 talents. Adult talents skip from Education straight
  * to Review (handled in OnboardingEducationPage.handleContinue).
  *
@@ -33,21 +32,21 @@ const log = debug('OnboardingParentInfoPage');
  * Route: /onboarding/talent/parent-info.
  *
  * Figma source (file Bin8roWL8sloyc36IgFMuT):
- *   2858:28725 / 2858:28726 — default empty state ("Parents Info")
- *   2865:38068 — filled state (all 4 fields populated)
- *   2865:38635 — loader (button-inline submit spinner)
- *   2865:42649 — success popup ("Guardian saved")
- *   2865:39074 / 2865:39075 — error state (frame 8 family)
- *   2865:39313 / 2865:39551 / 2865:40056 / 2865:40323 — input edge cases
- *   2865:40590 — loader 2 (full-screen)
+ *   2858:28725 / 2858:28726 â€” default empty state ("Parents Info")
+ *   2865:38068 â€” filled state (all 4 fields populated)
+ *   2865:38635 â€” loader (button-inline submit spinner)
+ *   2865:42649 â€” success popup ("Guardian saved")
+ *   2865:39074 / 2865:39075 â€” error state (frame 8 family)
+ *   2865:39313 / 2865:39551 / 2865:40056 / 2865:40323 â€” input edge cases
+ *   2865:40590 â€” loader 2 (full-screen)
  *
  * Layout:
- *   ┌──────────────────────────────────────────────┐
- *   │ Guardian Name*    │ Relationship To You*    │
- *   │ Phone Number*     │ Email Address* (one-of) │
- *   ├──────────────────────────────────────────────┤
- *   │ Blue legal disclosure banner (one card)      │
- *   └──────────────────────────────────────────────┘
+ *   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+ *   â”‚ Guardian Name*    â”‚ Relationship To You*    â”‚
+ *   â”‚ Phone Number*     â”‚ Email Address* (one-of) â”‚
+ *   â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+ *   â”‚ Blue legal disclosure banner (one card)      â”‚
+ *   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
  *
  * Validation rule (per the disclosure banner copy):
  *   - Guardian name + relationship are always required.
@@ -56,9 +55,9 @@ const log = debug('OnboardingParentInfoPage');
  *     be filled if the user wants belt-and-braces coverage.
  *
  * Submit flow:
- *   - Disabled CTA → "Fill In Your Guardian Details"
- *   - Valid CTA → "Save And Continue" (Figma 2865:38068 footer)
- *   - On submit: 900ms button-inline spinner → navigate to /review
+ *   - Disabled CTA â†’ "Fill In Your Guardian Details"
+ *   - Valid CTA â†’ "Save And Continue" (Figma 2865:38068 footer)
+ *   - On submit: 900ms button-inline spinner â†’ navigate to /review
  *   - Defensive redirect: if the user lands here as an adult (age >= 18)
  *     we send them straight to /review since the page doesn't apply.
  */
@@ -80,7 +79,7 @@ const AlertDiamondIcon = ({ className }) => (
 // Mirrors OnboardingContactPage's PhoneNumberInput. We re-declare it
 // here rather than extracting to /components because the chrome carries
 // brand-green focus styles that don't make sense outside the onboarding
-// step pages — TextInput is the right shape for everywhere else.
+// step pages â€” TextInput is the right shape for everywhere else.
 const PhoneNumberInput = ({
   id,
   label,
@@ -184,7 +183,7 @@ const RELATIONSHIP_OPTIONS = [
 // ---- eyebrow ----------------------------------------------------------
 
 const ParentEyebrow = () => (
-  // Figma 2858:28741 family — cream-amber pill with leading dot, italic
+  // Figma 2858:28741 family â€” cream-amber pill with leading dot, italic
   // "06b" ordinal + "Parent / Guardian" label. Amber palette
   // distinguishes this step from the green-eyebrowed talent-side steps.
   <span
@@ -244,8 +243,8 @@ const LegalDisclosureBanner = () => (
       style={{ letterSpacing: '0.2px' }}
     >
       The notification tells your parent/guardian about GTH and their right to opt you out within 7
-      days if they have concerns. You only need to provide one contact method — phone OR email. Your
-      account opens immediately regardless.
+      days if they have concerns. You only need to provide one contact method â€” phone OR email.
+      Your account opens immediately regardless.
     </p>
   </div>
 );
@@ -272,7 +271,7 @@ const ParentRightPanel = () => (
       style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
     />
 
-    {/* Top-right tilted photo (+5°, cream border) */}
+    {/* Top-right tilted photo (+5Â°, cream border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -287,7 +286,7 @@ const ParentRightPanel = () => (
         outlineOffset: '-10px',
       }}
     />
-    {/* Top-left tilted photo (-8.5°, rose border) */}
+    {/* Top-left tilted photo (-8.5Â°, rose border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -302,7 +301,7 @@ const ParentRightPanel = () => (
         outlineOffset: '-10px',
       }}
     />
-    {/* Bottom tilted photo (-18°, cream border) */}
+    {/* Bottom tilted photo (-18Â°, cream border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -318,7 +317,7 @@ const ParentRightPanel = () => (
       }}
     />
 
-    {/* "Parental consent required" badge — amber tinted, top-left */}
+    {/* "Parental consent required" badge â€” amber tinted, top-left */}
     <div
       className="absolute rounded-[13px] p-3 shadow-[0_2px_1px_rgba(27,36,44,0.04),0_16px_12px_rgba(27,36,44,0.16)]"
       style={{
@@ -350,7 +349,7 @@ const ParentRightPanel = () => (
       </div>
     </div>
 
-    {/* Compliance pill — top right */}
+    {/* Compliance pill â€” top right */}
     <div
       className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
       style={{ right: 24, top: 200 }}
@@ -372,7 +371,7 @@ const ParentRightPanel = () => (
       </span>
     </div>
 
-    {/* Guardian summary card — cream tilted card showing what data is
+    {/* Guardian summary card â€” cream tilted card showing what data is
         collected. Mirrors Figma 2858:28903 floating preview. */}
     <div
       className="absolute rounded-[12px] p-3"
@@ -417,7 +416,7 @@ const ParentRightPanel = () => (
       </div>
     </div>
 
-    {/* Watch tutorial — collapsed play badge */}
+    {/* Watch tutorial â€” collapsed play badge */}
     <button
       type="button"
       aria-label="Watch tutorial for Parent step"
@@ -436,15 +435,15 @@ const OnboardingParentInfoPage = () => {
   const navigate = useNavigate();
   const { isMinor } = useOnboarding();
 
-  // Defensive redirect — adults shouldn't see this page (Education
+  // Defensive redirect â€” adults shouldn't see this page (Education
   // page already short-circuits them past it). If they land here via
   // direct URL, bounce them to /review so the flow stays coherent.
-  // `isMinor === null` means DOB hasn't been captured yet — also send
+  // `isMinor === null` means DOB hasn't been captured yet â€” also send
   // them back rather than block the page on incomplete state.
   useEffect(() => {
     if (isMinor === false) {
-      log('not a minor — redirecting to /review');
-      navigate(ROUTES.onboardingReview, { replace: true });
+      log('not a minor â€” redirecting to /review');
+      navigate('/onboarding/talent/review', { replace: true });
     }
   }, [isMinor, navigate]);
 
@@ -463,7 +462,7 @@ const OnboardingParentInfoPage = () => {
 
   const markTouched = (key) => () => setTouched((prev) => ({ ...prev, [key]: true }));
 
-  // Per-field validation — name + relationship always required; at
+  // Per-field validation â€” name + relationship always required; at
   // least one of phone OR email must be present (banner copy).
   const phoneDigits = phone.replace(/\D/g, '');
   const isPhoneFilled = phone !== '';
@@ -503,7 +502,7 @@ const OnboardingParentInfoPage = () => {
     [guardianName, relationship, hasContactMethod, isPhoneValid, isEmailValid]
   );
 
-  // CTA copy mirrors Figma 2858:28741 (disabled prompt) → 2865:38068
+  // CTA copy mirrors Figma 2858:28741 (disabled prompt) â†’ 2865:38068
   // (filled "Save And Continue"). The submitting label re-uses the
   // disabled string so the spinner reads cleanly against it.
   const ctaLabel = isValid ? 'Save And Continue' : 'Fill In Your Guardian Details';
@@ -513,7 +512,7 @@ const OnboardingParentInfoPage = () => {
     if (isSubmitting) return;
     setSubmitAttempted(true);
     if (!isValid) {
-      log('submit blocked — invalid', {
+      log('submit blocked â€” invalid', {
         guardianName: !!guardianName,
         relationship: !!relationship,
         hasContactMethod,
@@ -528,7 +527,7 @@ const OnboardingParentInfoPage = () => {
     // built. 900ms keeps the loader visible without being annoying.
     setTimeout(() => {
       setIsSubmitting(false);
-      navigate(ROUTES.onboardingReview);
+      navigate('/onboarding/talent/review');
     }, 900);
   };
 
@@ -558,8 +557,8 @@ const OnboardingParentInfoPage = () => {
               className="max-w-[520px] text-[16px] leading-6 text-[#737373]"
               style={{ letterSpacing: '0.2px' }}
             >
-              We need a parent or guardian contact. Required for students under 18 by Ghanaian law —
-              we&apos;ll notify them after registration, not now.
+              We need a parent or guardian contact. Required for students under 18 by Ghanaian law
+              â€” we&apos;ll notify them after registration, not now.
             </p>
 
             <WavyDivider />
@@ -648,7 +647,7 @@ const OnboardingParentInfoPage = () => {
               style={{ letterSpacing: '0.2px' }}
             >
               <ShieldCheckIcon className="text-[#959592]" />
-              Data encrypted at rest · Ghana Data Protection Act compliant
+              Data encrypted at rest Â· Ghana Data Protection Act compliant
             </p>
 
             <div className="flex items-center gap-2 text-[14px] leading-6">
@@ -656,7 +655,7 @@ const OnboardingParentInfoPage = () => {
                 Already Have an account?
               </span>
               <Link
-                to={ROUTES.login}
+                to={'/login'}
                 className="font-semibold text-brand-green underline-offset-2 hover:underline"
                 style={{ letterSpacing: '0.1px' }}
               >

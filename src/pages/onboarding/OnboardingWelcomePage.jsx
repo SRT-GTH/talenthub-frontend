@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button.jsx';
-import WavyDivider from '../components/shared/WavyDivider.jsx';
-import { ArrowRightIcon, LoadingSpinner } from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import Button from '../../components/ui/Button.jsx';
+import WavyDivider from '../../components/shared/WavyDivider.jsx';
+import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingWelcomePage');
 
 /*
- * OnboardingWelcomePage — post-role-selection landing.
+ * OnboardingWelcomePage â€” post-role-selection landing.
  * Figma source: nodes 2858:23640 / 2858:23867 / 2858:24094 (Welcome
  * "Here's what happens next" screen). Two-column layout: left rail
  * carries the welcome message + 3-step preview list + "Let's Begin"
@@ -17,15 +16,15 @@ const log = debug('OnboardingWelcomePage');
  * student photo and four floating overlay cards.
  *
  * Visible states:
- *   loading — first paint shows the spinner CTA until next-tick mount
- *   idle    — default; toast appears for ~3s then auto-hides
- *   submitting — user clicked CTA, briefly loading before navigation
+ *   loading â€” first paint shows the spinner CTA until next-tick mount
+ *   idle    â€” default; toast appears for ~3s then auto-hides
+ *   submitting â€” user clicked CTA, briefly loading before navigation
  */
 
 // ---- left column primitives -------------------------------------------
 
 const TalentTag = () => (
-  // "Talent" eyebrow pill — Figma node 2858:24046 family.
+  // "Talent" eyebrow pill â€” Figma node 2858:24046 family.
   // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
   <span
     className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
@@ -41,7 +40,7 @@ const TalentTag = () => (
 );
 
 const StepNumberBadge = ({ n }) => (
-  // 32×32 circle badge — Figma spec: bg #EBF1EC, 1px #C1D4C4 inset
+  // 32Ã—32 circle badge â€” Figma spec: bg #EBF1EC, 1px #C1D4C4 inset
   // outline, italic Instrument Serif numeral in dark green.
   <span
     aria-hidden="true"
@@ -74,7 +73,7 @@ const STEPS = [
 // ---- right panel: floating cards --------------------------------------
 
 const JobsAvailableCard = () => (
-  // "1,580 Jobs Available" — Figma node 2858:23717. Soft white card with
+  // "1,580 Jobs Available" â€” Figma node 2858:23717. Soft white card with
   // big serif number and a small body label.
   <div
     className="absolute rounded-[14px] bg-white px-5 py-4 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
@@ -93,7 +92,7 @@ const JobsAvailableCard = () => (
 );
 
 const SavedPill = () => (
-  // "Saved" floating badge — Figma node 2858:23720. Green pill with
+  // "Saved" floating badge â€” Figma node 2858:23720. Green pill with
   // bookmark glyph + "Saved" label, sits below the Jobs Available card.
   <div
     className="absolute inline-flex items-center gap-2 rounded-[10px] bg-brand-green px-3 py-2 shadow-[0_8px_16px_-2px_rgba(27,36,44,0.18)]"
@@ -112,7 +111,7 @@ const SavedPill = () => (
 );
 
 const VerifiedProfilePill = () => (
-  // "Verified profile" — Figma node 2858:23725. White rounded pill with
+  // "Verified profile" â€” Figma node 2858:23725. White rounded pill with
   // a check glyph + green label. Sits in the lower-left of the panel.
   <div
     className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-3 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
@@ -137,7 +136,7 @@ const VerifiedProfilePill = () => (
 );
 
 const MyExperienceCard = () => (
-  // "My Experience" widget — Figma node 2858:23731. White card with
+  // "My Experience" widget â€” Figma node 2858:23731. White card with
   // heading + 3 stacked grey placeholder rows + green Submit button.
   <div
     className="absolute rounded-[12px] bg-white p-4 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
@@ -159,7 +158,7 @@ const MyExperienceCard = () => (
 );
 
 const InstitutionCard = () => (
-  // "Accra Girls Senior High" institution card — Figma 2858:23740.
+  // "Accra Girls Senior High" institution card â€” Figma 2858:23740.
   // Dark green card with a verified-institution pill, school name,
   // region line and a row of 3 student avatars.
   <div
@@ -174,7 +173,7 @@ const InstitutionCard = () => (
   >
     <div className="p-4 text-white">
       <span className="inline-flex items-center rounded-[6px] bg-white/15 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.3px] text-white backdrop-blur-sm">
-        ✓ Verified Institution
+        âœ“ Verified Institution
       </span>
       <p
         className="mt-2 font-display font-normal leading-tight text-white"
@@ -183,7 +182,7 @@ const InstitutionCard = () => (
         Accra Girls Senior High
       </p>
       <p className="mt-1 text-[10px] font-normal leading-tight text-white/60">
-        Greater Accra · GES-Accredited
+        Greater Accra Â· GES-Accredited
       </p>
       <div className="mt-3 flex -space-x-2">
         {['#EAB69A', '#B59F88', '#7E6852'].map((c) => (
@@ -200,7 +199,7 @@ const InstitutionCard = () => (
 );
 
 const WelcomeRightPanel = ({ showToast }) => (
-  // Right showcase panel — Figma Frame 141 (2858:23709). 42% width to
+  // Right showcase panel â€” Figma Frame 141 (2858:23709). 42% width to
   // mirror the rest of the marketing-style screens. Brand-green base
   // with two big blurred orbs, a single tilted student photo (rendered
   // as a styled placeholder until a real asset lands), and the four
@@ -209,12 +208,12 @@ const WelcomeRightPanel = ({ showToast }) => (
     aria-hidden="true"
     className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
   >
-    {/* Soft cream orb — top-right */}
+    {/* Soft cream orb â€” top-right */}
     <div
       className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
       style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
     />
-    {/* Soft pink orb — bottom-left */}
+    {/* Soft pink orb â€” bottom-left */}
     <div
       className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
       style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
@@ -242,7 +241,7 @@ const WelcomeRightPanel = ({ showToast }) => (
     <MyExperienceCard />
     <InstitutionCard />
 
-    {/* Welcome toast — Figma node 2858:23758. Floats top-center while
+    {/* Welcome toast â€” Figma node 2858:23758. Floats top-center while
         visible; auto-hides after 3s on first paint. */}
     {showToast && (
       <div
@@ -297,7 +296,7 @@ const OnboardingWelcomePage = () => {
     setIsSubmitting(true);
     // Short delay so the loading state is visible before nav; replace
     // with a real network/persist call when wired in.
-    setTimeout(() => navigate(ROUTES.onboardingDob), 600);
+    setTimeout(() => navigate('/onboarding/talent/dob'), 600);
   };
 
   return (
@@ -325,13 +324,13 @@ const OnboardingWelcomePage = () => {
             you.
           </p>
 
-          {/* Wavy Ghana-flag divider — Figma vector 2858:24050.
+          {/* Wavy Ghana-flag divider â€” Figma vector 2858:24050.
               Sits between the headline block and the "About 4 minutes"
               meta pill on the welcome screen. */}
           <WavyDivider />
 
-          {/* "About 4 minutes" meta pill — Figma node 2858:23824.
-              The dot is a 16×16 SVG (filter id 2858:23829): a soft
+          {/* "About 4 minutes" meta pill â€” Figma node 2858:23824.
+              The dot is a 16Ã—16 SVG (filter id 2858:23829): a soft
               #E1EAE2 fill with a 1.5px #1D7C4D ring and a green-glow
               drop shadow rather than a plain bg pill. */}
           <div className="inline-flex items-center gap-2 rounded-[10px] border border-[#E7E7E7] bg-white px-3 py-1.5">
@@ -415,7 +414,7 @@ const OnboardingWelcomePage = () => {
             })}
           </ol>
 
-          {/* Primary CTA — "Let's Begin" */}
+          {/* Primary CTA â€” "Let's Begin" */}
           <Button
             type="button"
             variant="primary"
@@ -437,7 +436,7 @@ const OnboardingWelcomePage = () => {
               Already Have an account?
             </span>
             <Link
-              to={ROUTES.login}
+              to={'/login'}
               className="font-semibold text-brand-green underline-offset-2 hover:underline"
               style={{ letterSpacing: '0.1px' }}
             >

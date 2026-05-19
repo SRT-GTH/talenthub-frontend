@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import Logo from './Logo.jsx';
-import { ROUTES } from '../../constants/routes.js';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -23,26 +22,26 @@ const log = debug('Footer');
  */
 
 const PLATFORM_LINKS = [
-  { label: 'For Talents', to: ROUTES.home },
-  { label: 'For Schools', to: ROUTES.home },
-  { label: 'For Recruiters', to: ROUTES.home },
-  { label: 'Assessments', to: ROUTES.home },
-  { label: 'Opportunities', to: ROUTES.home },
+  { label: 'For Talents', to: '/' },
+  { label: 'For Schools', to: '/' },
+  { label: 'For Recruiters', to: '/' },
+  { label: 'Assessments', to: '/' },
+  { label: 'Opportunities', to: '/' },
 ];
 
 const COMPANY_LINKS = [
-  { label: 'About Us', to: ROUTES.home },
-  { label: 'Blog', to: ROUTES.home },
-  { label: 'Careers', to: ROUTES.home },
-  { label: 'Press', to: ROUTES.home },
-  { label: 'Contact', to: ROUTES.home },
+  { label: 'About Us', to: '/' },
+  { label: 'Blog', to: '/' },
+  { label: 'Careers', to: '/' },
+  { label: 'Press', to: '/' },
+  { label: 'Contact', to: '/' },
 ];
 
 const LEGAL_LINKS = [
-  { label: 'Privacy Policy', to: ROUTES.home },
-  { label: 'Terms of Service', to: ROUTES.home },
-  { label: 'Cookie Policy', to: ROUTES.home },
-  { label: 'Child Safety', to: ROUTES.home },
+  { label: 'Privacy Policy', to: '/' },
+  { label: 'Terms of Service', to: '/' },
+  { label: 'Cookie Policy', to: '/' },
+  { label: 'Child Safety', to: '/' },
 ];
 
 const FooterColumn = ({ heading, links }) => (
@@ -112,7 +111,7 @@ const Footer = () => {
             {/* Brand block — fixed 215px wide per Figma 2638:4805 */}
             <div className="flex flex-col gap-4 w-full lg:w-[215px] shrink-0">
               <div className="flex items-center gap-4">
-                <Link to={ROUTES.home} className="inline-flex">
+                <Link to={'/'} className="inline-flex">
                   <Logo size="md" />
                 </Link>
                 <span aria-hidden="true" className="w-px h-[30px] bg-white/10" />

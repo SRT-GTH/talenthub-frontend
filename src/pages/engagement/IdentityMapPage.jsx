@@ -1,33 +1,32 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
-import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
-import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
-import IdentityStageMap from '../components/sections/engagement/IdentityStageMap.jsx';
-import CareerBuddyPromoCard from '../components/sections/engagement/CareerBuddyPromoCard.jsx';
-import HowItWorksCard from '../components/sections/engagement/HowItWorksCard.jsx';
-import LeaderboardsLockedCard from '../components/cards/LeaderboardsLockedCard.jsx';
-import { PROFILE_STAGES, STAGE_STATUS } from '../constants/profileStages.js';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
+import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
+import IdentityStageMap from '../../components/sections/engagement/IdentityStageMap.jsx';
+import CareerBuddyPromoCard from '../../components/sections/engagement/CareerBuddyPromoCard.jsx';
+import HowItWorksCard from '../../components/sections/engagement/HowItWorksCard.jsx';
+import LeaderboardsLockedCard from '../../components/cards/LeaderboardsLockedCard.jsx';
+import { PROFILE_STAGES, STAGE_STATUS } from '../../constants/profileStages.js';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('IdentityMapPage');
 
 /*
- * IdentityMapPage — game-map view of the "Section 1 · Your Identity" flow.
- * Source: Figma frame (Section 1 · Your Identity · 2 of 9 stages done).
+ * IdentityMapPage â€” game-map view of the "Section 1 Â· Your Identity" flow.
+ * Source: Figma frame (Section 1 Â· Your Identity Â· 2 of 9 stages done).
  *
  * A more playful alternative to the list-based ProfileEngagementPage: the
  * same 9 profile stages are arranged along a vertical green map, with two
  * milestone nodes (Reward, Trophy) marking progress checkpoints.
  *
  * Layout:
- *   ┌─ EngagementTopNav          (logo + Save & Exit + user)
- *   ├─ EngagementTopBar          (stage trail + step indicator)
- *   ├─ Main grid (two-column on lg+)
- *   │   ├─ left   → IdentityStageMap (green map column)
- *   │   └─ right  → Career Buddy + How it works + Leaderboards locked
- *   └─ EngagementFooter          (status + actions)
+ *   â”Œâ”€ EngagementTopNav          (logo + Save & Exit + user)
+ *   â”œâ”€ EngagementTopBar          (stage trail + step indicator)
+ *   â”œâ”€ Main grid (two-column on lg+)
+ *   â”‚   â”œâ”€ left   â†’ IdentityStageMap (green map column)
+ *   â”‚   â””â”€ right  â†’ Career Buddy + How it works + Leaderboards locked
+ *   â””â”€ EngagementFooter          (status + actions)
  */
 
 const IdentityMapPage = () => {
@@ -51,7 +50,7 @@ const IdentityMapPage = () => {
   };
 
   const handleSkipHome = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleGetStarted = () => {
@@ -64,7 +63,7 @@ const IdentityMapPage = () => {
   };
 
   const handleSaveExit = () => {
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   return (

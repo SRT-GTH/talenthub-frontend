@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import gthMark from '../../../assets/brand/gth-mark.png';
 import gthWordmark from '../../../assets/brand/gth-wordmark.png';
-import { ROUTES } from '../../../constants/routes.js';
-
 /*
  * EngagementTopNav — top-of-page header on the Profile Engagement screens.
  * Source: Figma frame 3384:81927 (Gh Design system — engagement side).
@@ -91,7 +89,7 @@ const EngagementTopNav = ({
     )}
   >
     <Link
-      to={ROUTES.home}
+      to={'/'}
       aria-label="Ghana Talent Hub home"
       className="inline-flex flex-col items-center gap-0.5 shrink-0"
     >

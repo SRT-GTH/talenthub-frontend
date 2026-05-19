@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button.jsx';
-import { TextInput, Select } from '../components/ui/form';
-import WavyDivider from '../components/shared/WavyDivider.jsx';
-import OnboardingHeader from '../components/shared/OnboardingHeader.jsx';
+import Button from '../../components/ui/Button.jsx';
+import { TextInput, Select } from '../../components/ui/form';
+import WavyDivider from '../../components/shared/WavyDivider.jsx';
+import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
   CloseIcon,
@@ -21,14 +21,13 @@ import {
   SummaryPhotoIcon,
   SummaryUserIcon,
   UserIcon,
-} from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+} from '../../components/shared/assets.jsx';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingPersonalInfoPage');
 
 /*
- * OnboardingPersonalInfoPage — Step 2 of the talent onboarding flow.
+ * OnboardingPersonalInfoPage â€” Step 2 of the talent onboarding flow.
  * Maps to user story US-1.1.1-02 ("Capture Talent Personal Information").
  * Breadcrumb label is "Build Your Profile" per Figma; the URL and
  * component name follow the user-story terminology for clarity.
@@ -40,19 +39,19 @@ const log = debug('OnboardingPersonalInfoPage');
  * modal "Identity captured").
  *
  * Left column collects 8 fields in a 2-column grid:
- *   ┌─────────────────────────────────────────┐
- *   │ Profile Photo (full-width upload row)   │
- *   ├─────────────────────────────────────────┤
- *   │ First Name*       │ Middle Name (opt.)  │
- *   │ Last Name*        │ Gender              │
- *   │ Nationality       │ Ghana Card / ID*    │
- *   │ Password*         │ Retype Password*    │
- *   └─────────────────────────────────────────┘
+ *   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+ *   â”‚ Profile Photo (full-width upload row)   â”‚
+ *   â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+ *   â”‚ First Name*       â”‚ Middle Name (opt.)  â”‚
+ *   â”‚ Last Name*        â”‚ Gender              â”‚
+ *   â”‚ Nationality       â”‚ Ghana Card / ID*    â”‚
+ *   â”‚ Password*         â”‚ Retype Password*    â”‚
+ *   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
  *
  * On submit, the page briefly shows the active CTA state and then
  * mounts the Identity-Captured confirmation modal. Dismissing the
  * modal navigates to the next onboarding step (/contact, scaffolded
- * but not yet built — falls back to /welcome until that ships).
+ * but not yet built â€” falls back to /welcome until that ships).
  */
 
 // ---- profile photo upload --------------------------------------------
@@ -80,7 +79,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
       </label>
 
       <div className="flex items-center gap-4">
-        {/* Round preview slot — Figma node 2329:3903 family. Cream-grey
+        {/* Round preview slot â€” Figma node 2329:3903 family. Cream-grey
             placeholder with the avatar glyph; flips to the uploaded
             image once a file is selected. */}
         <span
@@ -116,7 +115,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
               {file.name} ({Math.round(file.size / 1024)}KB)
             </span>
           ) : (
-            <span className="text-[10px] leading-tight text-[#BABAB7]">JPG or PNG · Max 5MB</span>
+            <span className="text-[10px] leading-tight text-[#BABAB7]">JPG or PNG Â· Max 5MB</span>
           )}
         </div>
       </div>
@@ -224,7 +223,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         className="mt-3 text-center text-[10px] leading-4 text-[#959592]"
         style={{ letterSpacing: '0.2px' }}
       >
-        <span aria-hidden="true">·</span> Data encrypted at rest <span aria-hidden="true">·</span>{' '}
+        <span aria-hidden="true">Â·</span> Data encrypted at rest <span aria-hidden="true">Â·</span>{' '}
         Ghana Data Protection Act compliant
       </p>
     </div>
@@ -234,7 +233,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
 // ---- right panel ------------------------------------------------------
 
 const ProfileRightPanel = () => (
-  // Mirrors the basics-step right panel (Figma Frame 141 family) — same
+  // Mirrors the basics-step right panel (Figma Frame 141 family) â€” same
   // brand-green bg + orbs + Data Protected + compliance pill +
   // Adult/Youth experience selector + Watch tutorial button. Photos are
   // stubbed as a gradient placeholder until a final composed JPG lands.
@@ -299,7 +298,7 @@ const ProfileRightPanel = () => (
         <div className="flex flex-col gap-0.5">
           <p className="text-[12px] font-bold leading-[15px] text-[#595959]">Data Protected</p>
           <p className="text-[10px] leading-[14px] text-[#595959] opacity-[0.72]">
-            Encrypted · Never shared without consent
+            Encrypted Â· Never shared without consent
           </p>
         </div>
       </div>
@@ -346,7 +345,7 @@ const ProfileRightPanel = () => (
       </div>
     </div>
 
-    {/* Watch tutorial — Figma node 2282:9059 */}
+    {/* Watch tutorial â€” Figma node 2282:9059 */}
     <button
       type="button"
       className="absolute inline-flex items-center gap-3 rounded-[12px] border border-black/5 bg-white px-4 py-3 shadow-[0_8px_16px_-4px_rgba(27,36,44,0.16)]"
@@ -381,7 +380,7 @@ const GENDER_OPTIONS = [
   { value: 'prefer-not', label: 'Prefer not to say' },
 ];
 
-// Short list to start — expand to ECOWAS / full ISO list when localised
+// Short list to start â€” expand to ECOWAS / full ISO list when localised
 // copy lands.
 const NATIONALITY_OPTIONS = [
   { value: 'ghanaian', label: 'Ghanaian' },
@@ -389,7 +388,7 @@ const NATIONALITY_OPTIONS = [
   { value: 'ivorian', label: 'Ivorian' },
   { value: 'togolese', label: 'Togolese' },
   { value: 'beninese', label: 'Beninese' },
-  { value: 'burkinabe', label: 'Burkinabé' },
+  { value: 'burkinabe', label: 'BurkinabÃ©' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -428,7 +427,7 @@ const OnboardingPersonalInfoPage = () => {
     hasSubmittedOnce && retypePassword.length > 0 && password !== retypePassword;
   // Retype-password success helper surfaces "Passwords match" in green
   // (Figma node 2353:16374 helper-row #387440). Only show once the user
-  // has actually typed something into Retype Password — keeps the field
+  // has actually typed something into Retype Password â€” keeps the field
   // quiet on first render.
   const passwordMatchHint =
     retypePassword.length > 0 && passwordsMatch ? 'Passwords match' : undefined;
@@ -465,14 +464,14 @@ const OnboardingPersonalInfoPage = () => {
 
   const handleContinue = () => {
     setShowSuccess(false);
-    navigate(ROUTES.onboardingContact);
+    navigate('/onboarding/talent/contact');
   };
 
-  const getGenderLabel = (v) => GENDER_OPTIONS.find((o) => o.value === v)?.label || '—';
-  const getNationalityLabel = (v) => NATIONALITY_OPTIONS.find((o) => o.value === v)?.label || '—';
+  const getGenderLabel = (v) => GENDER_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
+  const getNationalityLabel = (v) => NATIONALITY_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
   const maskedId = ghanaCardId
-    ? `${ghanaCardId.slice(0, 4)}-${'•'.repeat(Math.max(0, ghanaCardId.length - 4))}`
-    : '—';
+    ? `${ghanaCardId.slice(0, 4)}-${'â€¢'.repeat(Math.max(0, ghanaCardId.length - 4))}`
+    : 'â€”';
 
   const summary = [
     {
@@ -514,7 +513,7 @@ const OnboardingPersonalInfoPage = () => {
             className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
             noValidate
           >
-            {/* Eyebrow — pencil glyph + "Build Your Profile" label
+            {/* Eyebrow â€” pencil glyph + "Build Your Profile" label
                 inside a cream-green pill with green outline. */}
             <span
               className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
@@ -546,8 +545,8 @@ const OnboardingPersonalInfoPage = () => {
 
             <WavyDivider />
 
-            {/* Form grid — Profile Photo row spans both columns; the
-                remaining 4 rows place inputs left↔right. */}
+            {/* Form grid â€” Profile Photo row spans both columns; the
+                remaining 4 rows place inputs leftâ†”right. */}
             <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2">
               <div className="md:col-span-2">
                 <ProfilePhotoField
@@ -671,7 +670,7 @@ const OnboardingPersonalInfoPage = () => {
                 Already Have an account?
               </span>
               <Link
-                to={ROUTES.login}
+                to={'/login'}
                 className="font-semibold text-brand-green underline-offset-2 hover:underline"
                 style={{ letterSpacing: '0.1px' }}
               >

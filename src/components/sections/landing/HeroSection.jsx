@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
-import { ROUTES } from '../../../constants/routes.js';
-
 /*
  * HeroSection — landing hero stub.
  *
@@ -47,12 +45,12 @@ const HeroSection = () => (
     </p>
 
     <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <Link to={ROUTES.profileEngagement} className="inline-flex">
+      <Link to={'/profile/engagement'} className="inline-flex">
         <Button variant="primary" size="md">
           Profile Engagement Hub
         </Button>
       </Link>
-      <Link to={ROUTES.identityMap} className="inline-flex">
+      <Link to={'/profile/engagement/identity'} className="inline-flex">
         <Button variant="tertiary" size="md">
           Identity Map (Section 1)
         </Button>

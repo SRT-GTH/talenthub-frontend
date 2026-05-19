@@ -9,8 +9,9 @@ import {
   EyeIcon,
   ArrowRightIcon,
   LoadingSpinner,
+  CloseIcon,
 } from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
+import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
 import rightPanelImage from '../assets/login/login page right panel.jpg';
 
@@ -18,16 +19,18 @@ const log = debug('LoginPage');
 
 /*
  * LoginPage — public log-in screen.
- * Figma source: node 2849-52564 ("Gth Log In Default flow"). Two-column
- * layout — left side hosts the form (phone + password + remember-me +
- * CTA + create-account callout); right side is the brand-green
- * decorative panel with the trust badges.
+ * Figma sources:
+ *   2849-52564  default ("Gth Log In Default flow")
+ *   2849-54692  inline error state (phone + password)
+ *   2849-54908  hidden-password / filled state
+ *   2849-55124  loading state ("Logging You In")
+ *   2849-55855  auth-failure error state (inline errors + toast)
  *
- * Decorative photo cards on the right panel are deferred — the panel
- * ships with the brand-green fill, the soft orb gradients, the "Data
- * Protected" badge and the "Ghana Data Protection Act compliant" pill,
- * which carry the trust messaging. The 3 rotated photo cards and the
- * Abena Mensah profile card will land in a follow-up.
+ * Two-column layout — left side hosts the form (phone + password +
+ * remember-me + CTA + create-account callout); right side is the
+ * brand-green decorative panel with the trust badges. On a failed log-in
+ * the right panel anchors a danger toast ("Incorrect Phone Number Or
+ * Password"), Figma node 2849:55870.
  */
 
 // ---- local icons ------------------------------------------------------
@@ -47,15 +50,65 @@ const GhanaFlagIcon = () => (
   </span>
 );
 
+// 16px circle-+-bang glyph used at the start of inline field-error rows
+// and on the auth-failure toast. Mirrors Field.jsx's AlertIcon but is
+// re-declared here so the toast doesn't have to reach into form/Field.
+const DangerAlertIcon = ({ className }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M8 4.5v4.25" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="8" cy="11.4" r="0.85" fill="currentColor" />
+  </svg>
+);
+
+// ---- error toast ------------------------------------------------------
+
+// Figma node 2849:55870 — danger toast anchored on the right panel after a
+// failed log-in. Light danger fill, soft danger outline, danger-tone title
+// + body, "Forget Password" inline link, dismiss-X. Sits absolutely so it
+// can hover over the brand-green panel without disturbing its layout.
+const AuthErrorToast = ({ onClose }) => (
+  <div
+    role="alert"
+    className="absolute right-4 top-4 z-10 hidden w-[360px] items-start gap-3 rounded-[14px] border border-danger-light-active bg-danger-light px-4 py-3 shadow-[0_16px_24px_-6px_rgba(146,43,33,0.18),0_2px_2px_-1px_rgba(146,43,33,0.06)] lg:flex"
+  >
+    <span className="mt-[2px] inline-flex shrink-0 text-danger">
+      <DangerAlertIcon className="size-4" />
+    </span>
+    <div className="flex flex-1 flex-col gap-1">
+      <p className="text-[14px] font-semibold leading-5 tracking-[0.1px] text-danger-dark">
+        Incorrect Phone Number Or Password
+      </p>
+      <p className="text-[12px] leading-[18px] tracking-[0.2px] text-danger">
+        Please check your details and try again.{' '}
+        <Link
+          to="/forgot-password"
+          className="font-semibold text-danger underline underline-offset-2 hover:text-danger-hover"
+        >
+          Forget Password
+        </Link>
+      </p>
+    </div>
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label="Dismiss error"
+      className="inline-flex shrink-0 size-5 items-center justify-center rounded-full text-danger transition-colors hover:bg-danger-light-hover"
+    >
+      <CloseIcon />
+    </button>
+  </div>
+);
+
 // ---- right panel ------------------------------------------------------
 
 // Right panel — single composed JPG from Figma node 2849:52632. The
 // previous piecemeal implementation (rotated photo cards + Data Protected
 // badge + compliance pill + sparkle doodles + Abena Mensah card) is
 // collapsed into one image so the panel always matches the design exactly.
-const RightPanel = () => (
+const RightPanel = ({ toast }) => (
   <aside
-    aria-hidden="true"
+    aria-hidden={toast ? undefined : true}
     className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
   >
     <img
@@ -65,27 +118,85 @@ const RightPanel = () => (
       loading="lazy"
       decoding="async"
     />
+    {toast}
   </aside>
 );
 
 // ---- left panel: form -------------------------------------------------
 
-const LoginForm = () => {
+// Wrapper classes for the custom phone-row composition. The default
+// border/shadow pair matches TextInput's resting state; the error pair
+// mirrors TextInput's `error` STATE_CLASSES so the two controls read as
+// one design family. The interactive focus-within rules stay live except
+// in the error state (red border wins until the user starts typing again).
+const PHONE_WRAPPER_BASE =
+  'flex h-[51px] w-full items-center gap-2 rounded-md pr-4 transition-colors';
+const PHONE_WRAPPER_DEFAULT =
+  'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] ' +
+  'focus-within:border-brand-green-light-active focus-within:bg-yellow-light focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
+const PHONE_WRAPPER_ERROR =
+  'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)]';
+
+const PHONE_ERROR_COPY = 'Enter a valid Ghanaian mobile number (e.g. 020 000 0000)';
+const PASSWORD_ERROR_COPY = 'Please enter your password';
+
+// Rough Ghana mobile heuristic — keeps the demo-state contract simple:
+// at least 9 digits after stripping non-digit characters. Real validation
+// (network code + local-number rules) lands when the /login API does.
+const isPhoneShapeValid = (raw) => raw.replace(/\D/g, '').length >= 9;
+
+const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
 
   const hasValues = phone.trim().length > 0 && password.length > 0;
+
+  const handlePhoneChange = (event) => {
+    setPhone(event.target.value);
+    if (phoneError) setPhoneError(null);
+    onClearAuthFailure();
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    if (passwordError) setPasswordError(null);
+    onClearAuthFailure();
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (isLoading) return;
+
+    const nextPhoneError = !phone.trim()
+      ? PHONE_ERROR_COPY
+      : !isPhoneShapeValid(phone)
+        ? PHONE_ERROR_COPY
+        : null;
+    const nextPasswordError = password.length === 0 ? PASSWORD_ERROR_COPY : null;
+
+    setPhoneError(nextPhoneError);
+    setPasswordError(nextPasswordError);
+
+    if (nextPhoneError || nextPasswordError) {
+      log('submit blocked — field errors', { phone: nextPhoneError, password: nextPasswordError });
+      return;
+    }
+
     log('submit', { phone, keepLoggedIn });
     setIsLoading(true);
-    // Placeholder transition until /login API is wired in.
-    setTimeout(() => setIsLoading(false), 1500);
+    // Placeholder transition until /login API is wired in. The simulated
+    // failure surfaces the auth-failure toast so the design-system error
+    // state is reachable in development; remove once a real auth call
+    // returns its own success / error branch.
+    setTimeout(() => {
+      setIsLoading(false);
+      onAuthFailure();
+    }, 1500);
   };
 
   return (
@@ -130,7 +241,12 @@ const LoginForm = () => {
               *
             </span>
           </label>
-          <div className="flex h-[51px] w-full items-center gap-2 rounded-md border border-[#cccccc] bg-white pr-4 shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] transition-colors focus-within:border-brand-green-light-active focus-within:bg-yellow-light focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]">
+          <div
+            className={classNames(
+              PHONE_WRAPPER_BASE,
+              phoneError ? PHONE_WRAPPER_ERROR : PHONE_WRAPPER_DEFAULT
+            )}
+          >
             <button
               type="button"
               className="flex h-full items-center gap-2 border-r border-[#e7e7e7] pl-4 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
@@ -147,10 +263,22 @@ const LoginForm = () => {
               autoComplete="tel-national"
               placeholder="23 533 45"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
+              aria-invalid={Boolean(phoneError) || undefined}
+              aria-describedby={phoneError ? 'login-phone-error' : undefined}
               className="flex-1 min-w-0 border-none bg-transparent text-[14px] leading-5 tracking-[0.2px] text-content-primary placeholder:text-[#595959] outline-none"
             />
           </div>
+          {phoneError && (
+            <div
+              id="login-phone-error"
+              role="alert"
+              className="flex items-center gap-2 px-2 text-danger"
+            >
+              <DangerAlertIcon className="size-4 shrink-0" />
+              <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px]">{phoneError}</p>
+            </div>
+          )}
         </div>
 
         {/* Password with Forget Password link + eye toggle */}
@@ -178,7 +306,8 @@ const LoginForm = () => {
             placeholder="Enter Your Password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
+            error={passwordError || undefined}
             leftIcon={<LockIcon />}
             rightIcon={
               <button
@@ -233,7 +362,7 @@ const LoginForm = () => {
         <p className="text-[14px] leading-5 tracking-[0.2px] text-[#737373]">
           Create your free talent profile in under 5 minutes.
         </p>
-        <Link to={ROUTES.getStarted}>
+        <Link to={'/get-started'}>
           <Button variant="tertiary" size="md" rightIcon={<ArrowRightIcon />}>
             Create an account — it&apos;s free
           </Button>
@@ -247,15 +376,22 @@ const LoginForm = () => {
 
 const LoginPage = () => {
   log('mount');
+  const [authError, setAuthError] = useState(false);
+
   return (
     // Outer width is pinned to the Figma frame (1728×1117, node 2849-52564)
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
     <section className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-[1728px] bg-white">
       <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
-        <LoginForm />
+        <LoginForm
+          onAuthFailure={() => setAuthError(true)}
+          onClearAuthFailure={() => authError && setAuthError(false)}
+        />
       </div>
-      <RightPanel />
+      <RightPanel
+        toast={authError ? <AuthErrorToast onClose={() => setAuthError(false)} /> : null}
+      />
     </section>
   );
 };

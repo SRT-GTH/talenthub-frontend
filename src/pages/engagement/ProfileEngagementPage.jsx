@@ -1,38 +1,37 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EngagementTopNav from '../components/sections/engagement/EngagementTopNav.jsx';
-import EngagementTopBar from '../components/sections/engagement/EngagementTopBar.jsx';
-import EngagementHero from '../components/sections/engagement/EngagementHero.jsx';
-import ProfileStagesList from '../components/sections/engagement/ProfileStagesList.jsx';
-import CareerBuddyPromoCard from '../components/sections/engagement/CareerBuddyPromoCard.jsx';
-import HowItWorksCard from '../components/sections/engagement/HowItWorksCard.jsx';
-import EngagementFooter from '../components/sections/engagement/EngagementFooter.jsx';
-import EntryMethodModal from '../components/sections/engagement/EntryMethodModal.jsx';
-import { PROFILE_STAGES, STAGE_STATUS } from '../constants/profileStages.js';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
+import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementHero from '../../components/sections/engagement/EngagementHero.jsx';
+import ProfileStagesList from '../../components/sections/engagement/ProfileStagesList.jsx';
+import CareerBuddyPromoCard from '../../components/sections/engagement/CareerBuddyPromoCard.jsx';
+import HowItWorksCard from '../../components/sections/engagement/HowItWorksCard.jsx';
+import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
+import EntryMethodModal from '../../components/sections/engagement/EntryMethodModal.jsx';
+import { PROFILE_STAGES, STAGE_STATUS } from '../../constants/profileStages.js';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('ProfileEngagementPage');
 
 /*
- * ProfileEngagementPage — the "9 profile stages" engagement hub.
- * Source: Figma frame 3384:81927 (Gh Design system — engagement side).
+ * ProfileEngagementPage â€” the "9 profile stages" engagement hub.
+ * Source: Figma frame 3384:81927 (Gh Design system â€” engagement side).
  *
  * Candidates land here to build out their profile (avatar, interests,
  * personality, skills, work, portfolio, certs, career goals, talent pitch).
- * Each stage is non-blocking — pick any order, save anytime, come back.
+ * Each stage is non-blocking â€” pick any order, save anytime, come back.
  *
  * Layout (Figma exact, clamp-scaled):
- *   ┌─ EngagementTopNav          (full-bleed, GTH logo + Save & Exit + user)
- *   ├─ EngagementTopBar          (full-bleed, stage trail + step indicator)
- *   ├─ EngagementHero            (full-bleed, headline + standing card)
- *   ├─ Main grid (two-column on lg+)
- *   │   ├─ left  → ProfileStagesList
- *   │   └─ right → CareerBuddyPromoCard + HowItWorksCard
- *   └─ EngagementFooter          (full-bleed, status + actions)
+ *   â”Œâ”€ EngagementTopNav          (full-bleed, GTH logo + Save & Exit + user)
+ *   â”œâ”€ EngagementTopBar          (full-bleed, stage trail + step indicator)
+ *   â”œâ”€ EngagementHero            (full-bleed, headline + standing card)
+ *   â”œâ”€ Main grid (two-column on lg+)
+ *   â”‚   â”œâ”€ left  â†’ ProfileStagesList
+ *   â”‚   â””â”€ right â†’ CareerBuddyPromoCard + HowItWorksCard
+ *   â””â”€ EngagementFooter          (full-bleed, status + actions)
  *
  * The active stage / completion data is derived directly from
- * PROFILE_STAGES — when those statuses are eventually wired to the store
+ * PROFILE_STAGES â€” when those statuses are eventually wired to the store
  * the only change needed here is swapping the constants import for a
  * selector. Everything else (counts, percentages, current-step label)
  * recomputes automatically via useMemo.
@@ -68,7 +67,7 @@ const ProfileEngagementPage = () => {
 
   const handleSkipHome = () => {
     log('skip to home');
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleGetStarted = () => {
@@ -84,7 +83,7 @@ const ProfileEngagementPage = () => {
 
   const handleSaveExit = () => {
     log('save & exit');
-    navigate(ROUTES.home);
+    navigate('/');
   };
 
   const handleFillManually = () => {

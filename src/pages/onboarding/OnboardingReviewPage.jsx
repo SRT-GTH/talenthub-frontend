@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button.jsx';
-import OnboardingHeader from '../components/shared/OnboardingHeader.jsx';
+import Button from '../../components/ui/Button.jsx';
+import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
   IdCardIcon,
@@ -12,31 +12,30 @@ import {
   ShieldCheckIcon,
   SummaryPhotoIcon,
   UserIcon,
-} from '../components/shared/assets.jsx';
-import TermsModal from '../components/shared/TermsModal.jsx';
-import PrivacyPolicyModal from '../components/shared/PrivacyPolicyModal.jsx';
-import DataProcessingConsentModal from '../components/shared/DataProcessingConsentModal.jsx';
-import TermsAcceptedModal from '../components/shared/TermsAcceptedModal.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+} from '../../components/shared/assets.jsx';
+import TermsModal from '../../components/shared/TermsModal.jsx';
+import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
+import DataProcessingConsentModal from '../../components/shared/DataProcessingConsentModal.jsx';
+import TermsAcceptedModal from '../../components/shared/TermsAcceptedModal.jsx';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingReviewPage');
 
 /*
- * OnboardingReviewPage — Step 07 of the talent onboarding flow.
+ * OnboardingReviewPage â€” Step 07 of the talent onboarding flow.
  * Maps to user story US-1.1.1-07 ("Review onboarding data and accept terms").
  * Route: /onboarding/review.
  *
  * Figma sources (file Bin8roWL8sloyc36IgFMuT):
- *   2788:14548 — default (disabled CTA, no checkboxes ticked)
- *   2837:28039 — variant A (both checkboxes ticked, CTA still disabled)
- *   2837:28481 — variant B (pressed/active CTA after all 3 accepted)
- *   2837:27365 — overlay "Terms Accepted" success modal
- *   2837:28954 — Terms & Conditions modal
- *   2846:29512 — Privacy Policy modal
- *   2846:30205 — Data Processing Consent modal
+ *   2788:14548 â€” default (disabled CTA, no checkboxes ticked)
+ *   2837:28039 â€” variant A (both checkboxes ticked, CTA still disabled)
+ *   2837:28481 â€” variant B (pressed/active CTA after all 3 accepted)
+ *   2837:27365 â€” overlay "Terms Accepted" success modal
+ *   2837:28954 â€” Terms & Conditions modal
+ *   2846:29512 â€” Privacy Policy modal
+ *   2846:30205 â€” Data Processing Consent modal
  *
- * Single-column page (no right panel) — differs from contact/address.
+ * Single-column page (no right panel) â€” differs from contact/address.
  * Decoration is the same 4 green corner orbs as those screens.
  *
  * Acceptance state machine:
@@ -63,18 +62,18 @@ const MOCK_PROFILE = {
   tier: 'Gold Tier',
   personal: {
     firstName: 'Abena',
-    middleName: '—',
+    middleName: 'â€”',
     lastName: 'Mensah',
     dob: '12 March 2003',
     gender: 'Female',
-    nationality: '🇬🇭 Ghanaian',
+    nationality: 'ðŸ‡¬ðŸ‡­ Ghanaian',
   },
   identity: {
-    ghanaCardMasked: 'GHA-●●●●●●●●●-●',
+    ghanaCardMasked: 'GHA-â—â—â—â—â—â—â—â—â—-â—',
     photoConfirmed: true,
   },
   contact: {
-    phoneMasked: '+233 20 ••• ••• ••2',
+    phoneMasked: '+233 20 â€¢â€¢â€¢ â€¢â€¢â€¢ â€¢â€¢2',
     phoneVerified: true,
     whatsapp: 'Same as phone',
     email: 'a.mensah@gmail.com',
@@ -93,7 +92,7 @@ const MOCK_PROFILE = {
     grade: 'Year 2',
     curriculum: 'National Accreditation Board',
     graduation: 'Class of 2028',
-    institution: 'KNUST — Kwame Nkrumah University of Science and Technology',
+    institution: 'KNUST â€” Kwame Nkrumah University of Science and Technology',
     confirmed: true,
   },
 };
@@ -111,9 +110,9 @@ const CellLabel = ({ children }) => (
   </span>
 );
 
-// Value cell — light cream fill with the label up top and the value
+// Value cell â€” light cream fill with the label up top and the value
 // below. `muted` reduces weight to Regular and dims the text (used for
-// "—" empty values and soft optional rows like "Same as phone").
+// "â€”" empty values and soft optional rows like "Same as phone").
 const Cell = ({ label, value, muted = false, className = '', children }) => (
   <div className={`flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-3 ${className}`}>
     <CellLabel>{label}</CellLabel>
@@ -148,10 +147,10 @@ const EditChip = ({ to }) => (
   </Link>
 );
 
-// Reusable section header strip — icon + uppercase title + EDIT chip +
+// Reusable section header strip â€” icon + uppercase title + EDIT chip +
 // 1px hairline filling the remaining width. The icon is a stroke SVG
 // from `assets.jsx` sized down via `text-[#BABAB7]` so we don't need
-// new 11×11 variants.
+// new 11Ã—11 variants.
 const SectionHeader = ({ icon, title, editTo }) => (
   <div className="flex items-center gap-3">
     <span className="inline-flex size-[14px] shrink-0 items-center justify-center text-[#BABAB7]">
@@ -168,8 +167,8 @@ const SectionHeader = ({ icon, title, editTo }) => (
   </div>
 );
 
-// Verified / OTP verified / Confirmed badge — small light-green pill
-// with a 8×8 check glyph. Re-used in three sections.
+// Verified / OTP verified / Confirmed badge â€” small light-green pill
+// with a 8Ã—8 check glyph. Re-used in three sections.
 const VerifiedBadge = ({ label }) => (
   <span
     className="inline-flex h-[16px] items-center gap-1 rounded-[4px] px-1.5"
@@ -204,7 +203,7 @@ const CardHeaderStrip = ({ profile, onEditProfile }) => (
     }}
   >
     <div className="flex items-center gap-4">
-      {/* Avatar — 72×72 circle, cream border, drop-shadow. Falls back
+      {/* Avatar â€” 72Ã—72 circle, cream border, drop-shadow. Falls back
           to user-glyph until the talent's photo loads. */}
       <span
         className="flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F2F2EE]"
@@ -301,7 +300,7 @@ const PersonalSection = ({ data }) => (
     <SectionHeader
       icon={<UserIcon />}
       title="Personal Information"
-      editTo={ROUTES.onboardingPersonalInfo}
+      editTo={'/onboarding/talent/personal-info'}
     />
     {/* Two rows of three cells each. Stack vertically on narrow viewports. */}
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -320,10 +319,10 @@ const IdentitySection = ({ data }) => (
     <SectionHeader
       icon={<IdCardIcon />}
       title="Identity & Verification"
-      editTo={ROUTES.onboardingPersonalInfo}
+      editTo={'/onboarding/talent/personal-info'}
     />
 
-    {/* Row A — Ghana Card masked + Verified badge */}
+    {/* Row A â€” Ghana Card masked + Verified badge */}
     <div
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
       style={{ minHeight: 52 }}
@@ -348,7 +347,7 @@ const IdentitySection = ({ data }) => (
       <VerifiedBadge label="Verified" />
     </div>
 
-    {/* Row B — Profile photo confirmed */}
+    {/* Row B â€” Profile photo confirmed */}
     <div
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
       style={{ minHeight: 52 }}
@@ -385,10 +384,14 @@ const IdentitySection = ({ data }) => (
 
 const ContactSection = ({ data }) => (
   <div className="mx-6 mt-6 flex flex-col gap-3">
-    <SectionHeader icon={<PhoneIcon />} title="Contact Details" editTo={ROUTES.onboardingContact} />
+    <SectionHeader
+      icon={<PhoneIcon />}
+      title="Contact Details"
+      editTo={'/onboarding/talent/contact'}
+    />
 
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {/* Phone — masked value with OTP-verified badge underneath the value */}
+      {/* Phone â€” masked value with OTP-verified badge underneath the value */}
       <div
         className="flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
         style={{ minHeight: 65 }}
@@ -419,7 +422,7 @@ const AddressSection = ({ data }) => (
     className="mx-6 mt-6 flex flex-col gap-3 pb-6"
     style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
   >
-    <SectionHeader icon={<MapPinIcon />} title="Address" editTo={ROUTES.onboardingAddress} />
+    <SectionHeader icon={<MapPinIcon />} title="Address" editTo={'/onboarding/talent/address'} />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <Cell label="Region" value={data.region} />
       <Cell label="District" value={data.district} />
@@ -436,9 +439,9 @@ const EducationSection = ({ data }) => (
     <SectionHeader
       icon={<MortarboardIcon />}
       title="Education"
-      // Education step not yet built — fall back to the address step
+      // Education step not yet built â€” fall back to the address step
       // (last completed page) so the Edit chip never 404s.
-      editTo={ROUTES.onboardingAddress}
+      editTo={'/onboarding/talent/address'}
     />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <Cell label="Education level" value={data.level} />
@@ -447,7 +450,7 @@ const EducationSection = ({ data }) => (
       <Cell label="Expected graduation" value={data.graduation} />
     </div>
 
-    {/* Institution — full-width row with a "Confirmed" badge on the right */}
+    {/* Institution â€” full-width row with a "Confirmed" badge on the right */}
     <div
       className="flex items-start justify-between gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
       style={{ minHeight: 50 }}
@@ -473,7 +476,7 @@ const EducationSection = ({ data }) => (
 // ---- consent block ----------------------------------------------------
 
 const ConsentCheckbox = ({ checked, onToggle, children }) => {
-  // Visual box mirrors the design-system Checkbox at 20×20 with the
+  // Visual box mirrors the design-system Checkbox at 20Ã—20 with the
   // shelf-collapse press animation. We don't use the form/Checkbox here
   // because the row's label contains inline links that open modals,
   // and the native `<input>` inside Checkbox would steal click focus
@@ -561,7 +564,7 @@ const ConsentBlock = ({
           className="font-bold uppercase text-[#BABAB7]"
           style={{ fontSize: 10, letterSpacing: '1px', lineHeight: 'normal' }}
         >
-          Required agreements — all 3 must be accepted
+          Required agreements â€” all 3 must be accepted
         </span>
         <div className="h-px flex-1" style={{ background: 'rgba(0,0,0,0.07)' }} />
         <span aria-hidden="true" className="font-bold" style={{ fontSize: 10, color: '#C0392B' }}>
@@ -580,7 +583,7 @@ const ConsentBlock = ({
         <InlineLink onClick={onOpenConsent}>Learn more about data processing</InlineLink>.
       </ConsentCheckbox>
 
-      {/* DPA disclosure callout — blue tint, two-line copy from Figma. */}
+      {/* DPA disclosure callout â€” blue tint, two-line copy from Figma. */}
       <div
         className="rounded-[12px] px-5 py-3"
         style={{
@@ -599,7 +602,7 @@ const ConsentBlock = ({
           style={{ fontSize: 12, lineHeight: '18px', letterSpacing: '0.2px' }}
         >
           Ghana Talent Hub complies with the Data Protection Act (Act 843, 2012). You can withdraw
-          consent, request access to your data, or request deletion at any time from Settings →
+          consent, request access to your data, or request deletion at any time from Settings â†’
           Privacy.
         </p>
       </div>
@@ -610,7 +613,7 @@ const ConsentBlock = ({
 // ---- background decoration -------------------------------------------
 
 // Same green-orb corner motif used on the Address / Contact backgrounds,
-// minus the right-side panel + tilted-photo column. Decorative only —
+// minus the right-side panel + tilted-photo column. Decorative only â€”
 // hidden from assistive tech.
 const ReviewBackgroundOrbs = () => (
   <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -653,7 +656,7 @@ const OnboardingReviewPage = () => {
 
   // First checkbox label folds two links (Terms + Privacy). Tapping
   // the checkbox itself opens whichever link is still un-accepted so
-  // the user is never stuck — accepting both flips the row visually.
+  // the user is never stuck â€” accepting both flips the row visually.
   const handleToggleTermsRow = (event) => {
     event?.preventDefault?.();
     log('checkbox 1 toggle; terms=', termsAccepted, 'privacy=', privacyAccepted);
@@ -690,19 +693,19 @@ const OnboardingReviewPage = () => {
 
   const handleSubmit = () => {
     if (!allAccepted) {
-      log('submit blocked — not all accepted');
+      log('submit blocked â€” not all accepted');
       return;
     }
-    log('submit — opening success modal');
+    log('submit â€” opening success modal');
     setShowSuccessModal(true);
   };
 
   const handleContinueAfterSuccess = () => {
     setShowSuccessModal(false);
-    // /onboarding/done isn't built yet — fall back to /welcome so the
+    // /onboarding/done isn't built yet â€” fall back to /welcome so the
     // user doesn't hit a 404. Same pattern as OnboardingAddressPage.
-    log('continue after success → /welcome (fallback)');
-    navigate(ROUTES.onboardingWelcome);
+    log('continue after success â†’ /welcome (fallback)');
+    navigate('/onboarding/talent/welcome');
   };
 
   return (
@@ -774,7 +777,7 @@ const OnboardingReviewPage = () => {
           >
             <CardHeaderStrip
               profile={MOCK_PROFILE}
-              onEditProfile={() => navigate(ROUTES.onboardingPersonalInfo)}
+              onEditProfile={() => navigate('/onboarding/talent/personal-info')}
             />
             <TalentScoreStrip score={MOCK_PROFILE.score} tier={MOCK_PROFILE.tier} />
             <PersonalSection data={MOCK_PROFILE.personal} />
@@ -816,14 +819,14 @@ const OnboardingReviewPage = () => {
               style={{ letterSpacing: '0.2px' }}
             >
               <ShieldCheckIcon className="text-[#959592]" />
-              Data encrypted at rest · Ghana Data Protection Act compliant
+              Data encrypted at rest Â· Ghana Data Protection Act compliant
             </p>
             <div className="flex items-center gap-2 text-[14px] leading-6">
               <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                 Already Have an account?
               </span>
               <Link
-                to={ROUTES.login}
+                to={'/login'}
                 className="font-semibold text-brand-green underline-offset-2 hover:underline"
                 style={{ letterSpacing: '0.1px' }}
               >

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button.jsx';
-import { TextInput, Select } from '../components/ui/form';
-import WavyDivider from '../components/shared/WavyDivider.jsx';
-import OnboardingHeader from '../components/shared/OnboardingHeader.jsx';
+import Button from '../../components/ui/Button.jsx';
+import { TextInput, Select } from '../../components/ui/form';
+import WavyDivider from '../../components/shared/WavyDivider.jsx';
+import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
   CloseIcon,
@@ -13,23 +13,22 @@ import {
   PlayCircleIcon,
   ShieldCheckIcon,
   SuccessCheckIcon,
-} from '../components/shared/assets.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+} from '../../components/shared/assets.jsx';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingAddressPage');
 
 /*
- * OnboardingAddressPage — Step 04 of the talent onboarding flow.
+ * OnboardingAddressPage â€” Step 04 of the talent onboarding flow.
  * Maps to user story US-1.1.1-04 ("Capture Talent Address"). Route:
  * /onboarding/address.
  *
  * Figma sources:
- *   2403:27731 — default empty state (4 fields in v1)
- *   2418:41754 — error state (6 fields in v2)
- *   2424:42470 — filled state (6 fields)
- *   2426:43114 — loader A (button-inline submit spinner)
- *   2426:43585 — loader B (post-success modal)
+ *   2403:27731 â€” default empty state (4 fields in v1)
+ *   2418:41754 â€” error state (6 fields in v2)
+ *   2424:42470 â€” filled state (6 fields)
+ *   2426:43114 â€” loader A (button-inline submit spinner)
+ *   2426:43585 â€” loader B (post-success modal)
  *
  * Frame discrepancy: the default (v1) frame shows 4 fields in 2x2;
  * the error/filled/loader frames (v2) show 6 fields in 2x3. We build
@@ -37,16 +36,16 @@ const log = debug('OnboardingAddressPage');
  * rows and is the more recent design.
  *
  * Layout:
- *   ┌────────────────────────────────────────────┐
- *   │ Region*           │ District*              │ (disabled until Region)
- *   │ Town/City*        │ Digital Address* (GH-) │
- *   │ Community / Area  │ Nearby Landmark        │ (both optional)
- *   └────────────────────────────────────────────┘
+ *   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+ *   â”‚ Region*           â”‚ District*              â”‚ (disabled until Region)
+ *   â”‚ Town/City*        â”‚ Digital Address* (GH-) â”‚
+ *   â”‚ Community / Area  â”‚ Nearby Landmark        â”‚ (both optional)
+ *   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
  *
  * On submit, the page briefly shows the button-inline LoadingSpinner,
  * then mounts the "Address confirmed" modal. Dismissing the modal
  * navigates to the next onboarding step (/education, scaffolded but
- * not yet built — falls back to /welcome until that ships).
+ * not yet built â€” falls back to /welcome until that ships).
  */
 
 // ---- option data ------------------------------------------------------
@@ -110,11 +109,11 @@ const TOWNS_BY_DISTRICT = {
 // at entry but we upper-case on input change for display consistency.
 const DIGITAL_ADDRESS_PATTERN = /^[A-Z]{2}-\d{3}-\d{4}$/;
 
-// Mask a GhanaPost code (e.g. "GA-123-4567") to "GHA-•••••••••• ".
+// Mask a GhanaPost code (e.g. "GA-123-4567") to "GHA-â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢ ".
 // Used in the success-modal summary row for Digital Address.
 const maskDigitalAddress = (raw) => {
-  if (!raw) return '—';
-  return `GHA-${'•'.repeat(Math.max(0, raw.length - 3))}`;
+  if (!raw) return 'â€”';
+  return `GHA-${'â€¢'.repeat(Math.max(0, raw.length - 3))}`;
 };
 
 // ---- success modal ----------------------------------------------------
@@ -243,7 +242,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
           style={{ letterSpacing: '0.2px' }}
         >
           <ShieldCheckIcon className="text-[#959592]" />
-          Data encrypted at rest · Ghana Data Protection Act compliant
+          Data encrypted at rest Â· Ghana Data Protection Act compliant
         </p>
       </div>
     </div>
@@ -252,7 +251,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
 
 // ---- right panel ------------------------------------------------------
 
-// Mirrors the basics-step right panel — same brand-green bg + gradient
+// Mirrors the basics-step right panel â€” same brand-green bg + gradient
 // orbs + 3 tilted photo placeholders + OTP-style badge + compliance pill
 // + watch-tutorial button. Photos are gradient stubs until composed JPGs
 // land; same approach as ProfileRightPanel.
@@ -271,7 +270,7 @@ const AddressRightPanel = () => (
       style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
     />
 
-    {/* Top-right tilted photo (+5°, cream border) */}
+    {/* Top-right tilted photo (+5Â°, cream border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -287,7 +286,7 @@ const AddressRightPanel = () => (
       }}
     />
 
-    {/* Top-left tilted photo (-8.5°, rose border) */}
+    {/* Top-left tilted photo (-8.5Â°, rose border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -303,7 +302,7 @@ const AddressRightPanel = () => (
       }}
     />
 
-    {/* Bottom tilted photo (-18°, sage border) */}
+    {/* Bottom tilted photo (-18Â°, sage border) */}
     <div
       className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
       style={{
@@ -319,7 +318,7 @@ const AddressRightPanel = () => (
       }}
     />
 
-    {/* OTP badge — overlaps the top-left photo's lower-left corner. */}
+    {/* OTP badge â€” overlaps the top-left photo's lower-left corner. */}
     <div
       className="absolute rounded-[13px] p-3 shadow-[0_2px_1px_rgba(27,36,44,0.04),0_16px_12px_rgba(27,36,44,0.16)]"
       style={{
@@ -341,13 +340,13 @@ const AddressRightPanel = () => (
             OTP sent after this step
           </p>
           <p className="text-[10px] leading-[14px] text-[#FEFEFE]" style={{ opacity: 0.72 }}>
-            SMS + Email · expires in 10 min
+            SMS + Email Â· expires in 10 min
           </p>
         </div>
       </div>
     </div>
 
-    {/* Compliance pill — top right of panel */}
+    {/* Compliance pill â€” top right of panel */}
     <div
       className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
       style={{ right: 24, top: 200 }}
@@ -369,7 +368,7 @@ const AddressRightPanel = () => (
       </span>
     </div>
 
-    {/* Phone-preview pill — over bottom photo, rotated +2° */}
+    {/* Phone-preview pill â€” over bottom photo, rotated +2Â° */}
     <div
       className="absolute inline-flex items-center gap-2 rounded-[10px] px-2 py-2"
       style={{
@@ -399,7 +398,7 @@ const AddressRightPanel = () => (
       </div>
     </div>
 
-    {/* Watch tutorial — collapsed (just the play badge). */}
+    {/* Watch tutorial â€” collapsed (just the play badge). */}
     <button
       type="button"
       aria-label="Watch tutorial"
@@ -487,13 +486,13 @@ const OnboardingAddressPage = () => {
 
   const handleContinue = () => {
     setShowSuccess(false);
-    log('continue → /onboarding/education');
-    navigate(ROUTES.onboardingEducation);
+    log('continue â†’ /onboarding/education');
+    navigate('/onboarding/talent/education');
   };
 
-  const getRegionLabel = (v) => REGION_OPTIONS.find((o) => o.value === v)?.label || '—';
-  const getDistrictLabel = (v) => availableDistricts.find((o) => o.value === v)?.label || '—';
-  const getTownLabel = (v) => availableTowns.find((o) => o.value === v)?.label || '—';
+  const getRegionLabel = (v) => REGION_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
+  const getDistrictLabel = (v) => availableDistricts.find((o) => o.value === v)?.label || 'â€”';
+  const getTownLabel = (v) => availableTowns.find((o) => o.value === v)?.label || 'â€”';
 
   const summary = [
     {
@@ -532,7 +531,7 @@ const OnboardingAddressPage = () => {
             noValidate
             aria-busy={isSubmitting}
           >
-            {/* Eyebrow — "04 Your Address" — leading dot, italic numeral. */}
+            {/* Eyebrow â€” "04 Your Address" â€” leading dot, italic numeral. */}
             <span
               className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
               style={{
@@ -579,7 +578,7 @@ const OnboardingAddressPage = () => {
 
             <WavyDivider />
 
-            {/* Form grid — 6 fields in 2x3 layout (collapses to single column
+            {/* Form grid â€” 6 fields in 2x3 layout (collapses to single column
                 on narrow viewports). Optional fields drop their asterisk. */}
             <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
               <Select
@@ -636,7 +635,7 @@ const OnboardingAddressPage = () => {
                 value={community}
                 onChange={(e) => setCommunity(e.target.value)}
                 leftIcon={<MapPinIcon />}
-                helperText="Optional — helps us localise opportunities"
+                helperText="Optional â€” helps us localise opportunities"
               />
               <TextInput
                 label="Nearby Landmark"
@@ -668,7 +667,7 @@ const OnboardingAddressPage = () => {
                 Already Have an account?
               </span>
               <Link
-                to={ROUTES.login}
+                to={'/login'}
                 className="font-semibold text-brand-green underline-offset-2 hover:underline"
                 style={{ letterSpacing: '0.1px' }}
               >

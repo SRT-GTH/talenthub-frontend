@@ -1,7 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import Button from '../ui/Button.jsx';
 import Logo from './Logo.jsx';
-import { ROUTES } from '../../constants/routes.js';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -29,10 +28,10 @@ const log = debug('Navbar');
  */
 
 const NAV_ITEMS = [
-  { label: 'For Talents', to: ROUTES.home },
-  { label: 'Recruiters', to: ROUTES.home },
-  { label: 'Schools', to: ROUTES.home },
-  { label: 'How It Works', to: ROUTES.home },
+  { label: 'For Talents', to: '/' },
+  { label: 'Recruiters', to: '/' },
+  { label: 'Schools', to: '/' },
+  { label: 'How It Works', to: '/' },
 ];
 
 // 20-arrow-right — pulled directly from Figma node 41:1545.
@@ -73,7 +72,7 @@ const Navbar = () => {
         aria-label="Primary"
       >
         <div className="flex items-center gap-4 shrink-0">
-          <Link to={ROUTES.home} className="inline-flex">
+          <Link to={'/'} className="inline-flex">
             <Logo size="md" />
           </Link>
           <Divider />
@@ -101,7 +100,7 @@ const Navbar = () => {
         <div className="flex items-center gap-4 shrink-0">
           <Divider />
           <Link
-            to={ROUTES.home}
+            to={'/'}
             className={classNames(
               'inline-flex items-center justify-center w-[102px] h-12 rounded-md',
               'border-2 border-[rgba(193,212,196,0.7)]',
