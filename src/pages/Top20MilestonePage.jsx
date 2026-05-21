@@ -43,7 +43,7 @@ const TOP20_MILESTONE = {
     </>
   ),
   description:
-    'You’ve completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.',
+    "You've completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.",
   stats: [
     { value: '6/9', label: 'Stages Done', accent: 'brand' },
     { value: '66%', label: 'Profile Strength', accent: 'accent' },
@@ -61,7 +61,7 @@ const TOP20_MILESTONE = {
       </>
     ),
     description:
-      'You’re in the top fifth of all GTH profiles. The badge is now live on your recruiter card — it’s visible to every recruiter who finds you.',
+      "You're in the top fifth of all GTH profiles. The badge is now live on your recruiter card — it's visible to every recruiter who finds you.",
     items: [
       {
         icon: 'check',
@@ -79,7 +79,7 @@ const TOP20_MILESTONE = {
         icon: 'plus',
         title: 'Portfolio analytics unlocked',
         description:
-          'See exactly which projects hold recruiters’ attention longest — and optimise accordingly.',
+          "See exactly which projects hold recruiters' attention longest — and optimise accordingly.",
       },
     ],
     ctaLabel: '3 stages to Top Talent, keep going',

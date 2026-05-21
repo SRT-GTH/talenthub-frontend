@@ -37,11 +37,11 @@ const DISCOVERABLE_MILESTONE = {
   totalMilestones: 3,
   headline: (
     <>
-      You’re <span className="italic text-brand-green">discoverable.</span>
+      You're <span className="italic text-brand-green">discoverable.</span>
     </>
   ),
   description:
-    'You’ve completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.',
+    "You've completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.",
   stats: [
     { value: '3/9', label: 'Stages Done', accent: 'brand' },
     { value: '33%', label: 'Profile Strength', accent: 'accent' },
