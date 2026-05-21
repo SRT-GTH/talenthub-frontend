@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AvatarStepLayout from '../components/sections/engagement/AvatarStepLayout.jsx';
-import AvatarStylePanel from '../components/sections/engagement/avatar/AvatarStylePanel.jsx';
-import EntryMethodModal from '../components/sections/engagement/EntryMethodModal.jsx';
-import { AvatarSelectionProvider } from '../providers/AvatarSelectionProvider.jsx';
-import avatarHeroStage from '../assets/engagement/avatar-hero-stage.png';
-import { ROUTES } from '../constants/routes.js';
-import { debug } from '../utils/debug.js';
+import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
+import AvatarStylePanel from '../../components/sections/engagement/avatar/AvatarStylePanel.jsx';
+import EntryMethodModal from '../../components/sections/engagement/EntryMethodModal.jsx';
+import { AvatarSelectionProvider } from '../../providers/AvatarSelectionProvider.jsx';
+import avatarHeroStage from '../../assets/engagement/avatar-hero-stage.png';
+import { ROUTES } from '../../constants/routes.js';
+import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarCustomiserPage');
 
