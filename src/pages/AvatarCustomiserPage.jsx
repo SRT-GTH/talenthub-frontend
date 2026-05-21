@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../components/sections/engagement/AvatarStepLayout.jsx';
+import AvatarStylePanel from '../components/sections/engagement/avatar/AvatarStylePanel.jsx';
 import EntryMethodModal from '../components/sections/engagement/EntryMethodModal.jsx';
+import { AvatarSelectionProvider } from '../providers/AvatarSelectionProvider.jsx';
 import avatarHeroStage from '../assets/engagement/avatar-hero-stage.png';
-import avatarCustomiserPanel from '../assets/engagement/avatar-customiser-panel.png';
 import { ROUTES } from '../constants/routes.js';
 import { debug } from '../utils/debug.js';
 
@@ -13,19 +14,31 @@ const log = debug('AvatarCustomiserPage');
  * AvatarCustomiserPage — Step 1 of 9 (Avatar — Style tab).
  * Source: Figma frame (Avatar — Pick your vibe).
  *
- * The page itself is a thin wrapper around AvatarStepLayout, plus the
- * EntryMethodModal which pops up on first mount (matches the
- * Profile Engagement hub behaviour — gives the user three quick ways
- * to populate their profile).
+ * The page wraps everything in `AvatarSelectionProvider` so selections
+ * made here persist across the Skin / Hair / Extras / Outfit steps.
  *
- * Continue button advances to the next avatar step (Skin Tone).
+ * The LEFT side still uses the flat hero PNG (Phase 2 — wire a layered
+ * avatar preview that morphs with selections — needs per-part art).
+ * The RIGHT side is now the real React `AvatarStylePanel`, replacing
+ * the previous PNG: clicking a base style tile or a skin-tone swatch
+ * fires state updates that show as the selected-ring on the tile/swatch
+ * and stay set when the user navigates between steps.
+ *
+ * EntryMethodModal pops on first mount (matches the engagement hub).
+ *
+ * Continue button advances to Skin Tone.
  */
 
-const AvatarCustomiserPage = () => {
-  log('mount');
-  const navigate = useNavigate();
+const TAB_TO_ROUTE = {
+  style: ROUTES.avatarCustomiser,
+  skin: ROUTES.avatarSkinTone,
+  hair: ROUTES.avatarHair,
+  extras: ROUTES.avatarExtras,
+  outfit: ROUTES.avatarOutfit,
+};
 
-  // Entry-method modal: open on first visit; closes on any selection.
+const AvatarCustomiserPageInner = () => {
+  const navigate = useNavigate();
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(true);
   const closeEntryModal = () => setIsEntryModalOpen(false);
 
@@ -33,15 +46,21 @@ const AvatarCustomiserPage = () => {
     log('entry method: fill manually');
     closeEntryModal();
   };
-
   const handleChatWithAi = () => {
     log('entry method: chat with AI');
     closeEntryModal();
   };
-
   const handleUploadCv = () => {
     log('entry method: upload CV');
     closeEntryModal();
+  };
+
+  const handleTabSelect = (tabId) => {
+    const route = TAB_TO_ROUTE[tabId];
+    if (route && route !== ROUTES.avatarCustomiser) {
+      log('tab → navigate', tabId, route);
+      navigate(route);
+    }
   };
 
   const handleNext = () => {
@@ -53,8 +72,7 @@ const AvatarCustomiserPage = () => {
     <AvatarStepLayout
       heroSrc={avatarHeroStage}
       heroAlt="Your avatar preview on the customiser stage — pick your vibe"
-      panelSrc={avatarCustomiserPanel}
-      panelAlt="Avatar customiser panel: style, skin, hair, extras, outfit"
+      panel={<AvatarStylePanel activeTab="style" onTabSelect={handleTabSelect} />}
       continueLabel="Looks good, next"
       onContinue={handleNext}
     >
@@ -66,6 +84,15 @@ const AvatarCustomiserPage = () => {
         onUploadCv={handleUploadCv}
       />
     </AvatarStepLayout>
+  );
+};
+
+const AvatarCustomiserPage = () => {
+  log('mount');
+  return (
+    <AvatarSelectionProvider>
+      <AvatarCustomiserPageInner />
+    </AvatarSelectionProvider>
   );
 };
 

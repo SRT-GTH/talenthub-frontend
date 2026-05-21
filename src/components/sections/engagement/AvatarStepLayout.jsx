@@ -18,22 +18,24 @@ const log = debug('AvatarStepLayout');
  *   ├─ main 2-column grid
  *   │    ├─ LEFT  → full-bleed designer hero stage PNG (the avatar
  *   │    │         preview with sparkles + the step's title + sub-tag)
- *   │    └─ RIGHT → full-bleed designer customiser panel PNG (header,
- *   │              category tabs, option grid, swatches, etc.)
+ *   │    └─ RIGHT → either a real React `panel` (interactive) or a
+ *   │              full-bleed designer panel PNG (placeholder).
  *   └─ EngagementFooter (← Go back / [step-specific continue label] →)
  *
- * Individual step pages just pass in the two image sources and the
- * "continue" button label — everything else is identical.
+ * Step pages pass:
+ *   - `heroSrc` + `heroAlt`  — the LEFT image (still a flat PNG; the
+ *                              avatar preview is Phase 2 work)
+ *   - `panel` (JSX)          — the RIGHT-side interactive panel, OR
+ *   - `panelSrc` + `panelAlt` — a flat PNG fallback (legacy)
  *
- * Interactive wiring for the panel (clickable tiles, swatch selection,
- * username edit, shuffle, sliders) is deferred. The flat PNGs preserve
- * exact hit-area positions so transparent button overlays can be
- * layered in a follow-up without changing the layout.
+ * Steps mid-migration from PNG to real React just swap `panelSrc` for
+ * `panel` when their interactive panel is ready.
  */
 
 const AvatarStepLayout = ({
   heroSrc,
   heroAlt,
+  panel,
   panelSrc,
   panelAlt,
   continueLabel = 'Looks good, next',
@@ -82,14 +84,19 @@ const AvatarStepLayout = ({
             />
           </div>
 
-          {/* RIGHT — customiser panel (controls for the current step) */}
+          {/* RIGHT — customiser panel (interactive when `panel` is passed,
+            flat PNG fallback otherwise) */}
           <aside className="relative bg-white border-l border-border-default px-[clamp(16px,2vw,32px)] py-[clamp(16px,2vw,32px)]">
-            <img
-              src={panelSrc}
-              alt={panelAlt}
-              className="block w-full h-auto select-none"
-              draggable="false"
-            />
+            {panel ? (
+              panel
+            ) : (
+              <img
+                src={panelSrc}
+                alt={panelAlt}
+                className="block w-full h-auto select-none"
+                draggable="false"
+              />
+            )}
           </aside>
         </div>
       </main>
