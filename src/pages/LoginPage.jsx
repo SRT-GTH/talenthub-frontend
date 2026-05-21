@@ -13,7 +13,8 @@ import {
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
-import rightPanelImage from '../assets/login/login page right panel.jpg';
+import rightPanelImage from '../assets/onboarding/right panel img.svg';
+import leftPanelBg from '../assets/onboarding/left panel bg.jpg';
 
 const log = debug('LoginPage');
 
@@ -109,7 +110,7 @@ const AuthErrorToast = ({ onClose }) => (
 const RightPanel = ({ toast }) => (
   <aside
     aria-hidden={toast ? undefined : true}
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
+    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] lg:block"
   >
     <img
       src={rightPanelImage}
@@ -383,11 +384,26 @@ const LoginPage = () => {
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
     <section className="mx-auto flex min-h-[calc(100vh-160px)] bg-white">
-      <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
-        <LoginForm
-          onAuthFailure={() => setAuthError(true)}
-          onClearAuthFailure={() => authError && setAuthError(false)}
+      {/* Left column hosts the form on top of a soft green-orb ambient
+          decoration (Figma node 2849:52564). The orb sits in the top-left
+          and fades to white toward the form's center — the asset's aspect
+          ratio matches the ~58% column width left by the right panel, so
+          object-cover from top-left anchors the glow correctly. */}
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-6 py-12 md:py-20">
+        <img
+          src={leftPanelBg}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 size-full object-cover object-left-top select-none"
+          loading="lazy"
+          decoding="async"
         />
+        <div className="relative z-10 flex w-full items-center justify-center">
+          <LoginForm
+            onAuthFailure={() => setAuthError(true)}
+            onClearAuthFailure={() => authError && setAuthError(false)}
+          />
+        </div>
       </div>
       <RightPanel
         toast={authError ? <AuthErrorToast onClose={() => setAuthError(false)} /> : null}
