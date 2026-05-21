@@ -13,8 +13,8 @@ export const AVATAR_SELECTION_DEFAULTS = {
   // Identity
   username: 'KofiA_23',
 
-  // Style step
-  baseStyle: 'style-1',
+  // Style step (matches the first entry in AvatarStylePanel's BASE_STYLES)
+  baseStyle: 'style-greenboy',
 
   // Skin step
   skinTone: 'cocoa',

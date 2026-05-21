@@ -5,7 +5,6 @@ import AvatarStylePanel from '../../components/sections/engagement/avatar/Avatar
 import EntryMethodModal from '../../components/sections/engagement/EntryMethodModal.jsx';
 import { AvatarSelectionProvider } from '../../providers/AvatarSelectionProvider.jsx';
 import avatarHeroStage from '../../assets/engagement/avatar-hero-stage.png';
-import { ROUTES } from '../../constants/routes.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarCustomiserPage');
@@ -30,11 +29,11 @@ const log = debug('AvatarCustomiserPage');
  */
 
 const TAB_TO_ROUTE = {
-  style: ROUTES.avatarCustomiser,
-  skin: ROUTES.avatarSkinTone,
-  hair: ROUTES.avatarHair,
-  extras: ROUTES.avatarExtras,
-  outfit: ROUTES.avatarOutfit,
+  style: '/profile/engagement/avatar',
+  skin: '/profile/engagement/avatar/skin',
+  hair: '/profile/engagement/avatar/hair',
+  extras: '/profile/engagement/avatar/extras',
+  outfit: '/profile/engagement/avatar/outfit',
 };
 
 const AvatarCustomiserPageInner = () => {
@@ -57,7 +56,7 @@ const AvatarCustomiserPageInner = () => {
 
   const handleTabSelect = (tabId) => {
     const route = TAB_TO_ROUTE[tabId];
-    if (route && route !== ROUTES.avatarCustomiser) {
+    if (route && route !== '/profile/engagement/avatar') {
       log('tab → navigate', tabId, route);
       navigate(route);
     }

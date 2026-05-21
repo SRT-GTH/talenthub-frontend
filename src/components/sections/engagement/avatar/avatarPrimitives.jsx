@@ -136,7 +136,7 @@ export const AvatarCategoryTab = ({ active = false, icon, label, onClick, classN
     )}
   >
     {icon && (
-      <span className="inline-flex size-4 shrink-0" aria-hidden="true">
+      <span className="inline-flex size-6 shrink-0 items-center justify-center" aria-hidden="true">
         {icon}
       </span>
     )}

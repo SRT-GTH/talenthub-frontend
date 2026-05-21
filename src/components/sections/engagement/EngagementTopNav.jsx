@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
-import gthMark from '../../../assets/brand/gth-mark.png';
-import gthWordmark from '../../../assets/brand/gth-wordmark.png';
+import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 /*
  * EngagementTopNav — top-of-page header on the Profile Engagement screens.
  * Source: Figma frame 3384:81927 (Gh Design system — engagement side).
@@ -88,19 +87,14 @@ const EngagementTopNav = ({
       className
     )}
   >
-    <Link
-      to={'/'}
-      aria-label="Ghana Talent Hub home"
-      className="inline-flex flex-col items-center gap-0.5 shrink-0"
-    >
-      {/* Stacked GTH logo (Figma frame 3384:81977): figure on top, "GHANA
-        TALENT HUB" wordmark centered below in two small lines. */}
-      <span aria-hidden="true" className="block size-9 overflow-hidden">
-        <img src={gthMark} alt="" className="block size-full object-contain" />
-      </span>
-      <span aria-hidden="true" className="block h-3 w-12 overflow-hidden invert">
-        <img src={gthWordmark} alt="" className="block size-full object-contain" />
-      </span>
+    <Link to={'/'} aria-label="Ghana Talent Hub home" className="inline-flex items-center shrink-0">
+      {/* Designer-provided combined GTH logo (mark + stacked wordmark) */}
+      <img
+        src={gthLogo}
+        alt="Ghana Talent Hub"
+        className="block h-[clamp(40px,4vw,56px)] w-auto select-none"
+        draggable="false"
+      />
     </Link>
 
     <div className="flex items-center gap-3 shrink-0">
