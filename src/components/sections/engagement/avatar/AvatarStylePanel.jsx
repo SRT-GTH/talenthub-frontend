@@ -2,7 +2,6 @@ import { classNames } from '../../../../utils/classNames.js';
 import {
   AvatarOptionTile,
   AvatarColorSwatch,
-  AvatarCategoryTab,
   AvatarStatPill,
   AvatarSectionHeader,
 } from './avatarPrimitives.jsx';
@@ -72,32 +71,53 @@ const SKIN_TONES = [
   { id: 'mahogany', color: '#54392A', label: 'Mahogany' },
 ];
 
-// Helper: render a category-tab icon from a PNG file.
-const TabIcon = ({ src, alt }) => (
-  <img
-    src={src}
-    alt={alt}
-    aria-hidden="true"
-    className="size-full object-contain"
-    draggable="false"
-  />
-);
-
+// Each category tab is rendered as a single image — the PNGs from the
+// designer already contain the icon + label baked in. Clicking the
+// image wraps it in a button so it's keyboard-accessible.
 const CATEGORY_TABS = [
-  { id: 'style', label: 'Style', icon: <TabIcon src={styleIcon} alt="" /> },
-  { id: 'skin', label: 'Skin', icon: <TabIcon src={skinIcon} alt="" /> },
-  { id: 'hair', label: 'Hair', icon: <TabIcon src={hairIcon} alt="" /> },
-  { id: 'extras', label: 'Extras', icon: <TabIcon src={extrasIcon} alt="" /> },
-  { id: 'outfit', label: 'Outfit', icon: <TabIcon src={outfitIcon} alt="" /> },
+  { id: 'style', label: 'Style', image: styleIcon },
+  { id: 'skin', label: 'Skin', image: skinIcon },
+  { id: 'hair', label: 'Hair', image: hairIcon },
+  { id: 'extras', label: 'Extras', image: extrasIcon },
+  { id: 'outfit', label: 'Outfit', image: outfitIcon },
 ];
 
-// Tile body: render the designer character SVG so it fills the tile
-// edge-to-edge. Each character SVG has its figure roughly centred in a
-// 64×63 viewBox; using object-cover lets the head + body fill the
-// square tile without the surrounding neutral background showing through.
+const CategoryTabButton = ({ image, label, active, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-pressed={active}
+    aria-label={label}
+    className={classNames(
+      'inline-flex items-center justify-center rounded-pill bg-transparent border-0 p-0',
+      'transition-[transform,opacity] duration-150',
+      'hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      active ? 'opacity-100' : 'opacity-80 hover:opacity-100'
+    )}
+  >
+    <img
+      src={image}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="block h-[clamp(34px,3vw,42px)] w-auto select-none"
+    />
+  </button>
+);
+
+// Tile body: render the designer character SVG so the figure fills the
+// tile edge-to-edge. The characters sit centred in a 64×63 viewBox with
+// ~25% transparent padding, so we scale up ~140% and use object-cover
+// to crop the excess. The tile's neutral background no longer shows
+// through because the scaled figure overflows past the corners.
 const StyleCharacter = ({ image, alt }) => (
-  <span aria-hidden="true" className="absolute inset-0 block">
-    <img src={image} alt={alt} className="block size-full object-cover" draggable="false" />
+  <span aria-hidden="true" className="absolute inset-0 block overflow-hidden">
+    <img
+      src={image}
+      alt={alt}
+      className="block size-full object-cover scale-[1.4] origin-center"
+      draggable="false"
+    />
   </span>
 );
 
@@ -125,14 +145,15 @@ const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
         <AvatarStatPill count="14" label="Extras" />
       </div>
 
-      {/* Category tabs */}
+      {/* Category tabs — each tab is the designer-provided PNG, no
+        additional border / text added in code. */}
       <nav aria-label="Customisation categories" className="flex flex-wrap items-center gap-2">
         {CATEGORY_TABS.map((tab) => (
-          <AvatarCategoryTab
+          <CategoryTabButton
             key={tab.id}
-            active={tab.id === activeTab}
-            icon={tab.icon}
+            image={tab.image}
             label={tab.label}
+            active={tab.id === activeTab}
             onClick={() => onTabSelect?.(tab.id)}
           />
         ))}

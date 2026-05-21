@@ -21,22 +21,11 @@ import { classNames } from '../../../../utils/classNames.js';
 
 // ---------------------------------------------------------------------------
 // AvatarOptionTile
+//
+// Selected state = brand-green border around the tile (no overlay
+// check icon / no badge). The tile body itself is the entire visual —
+// children fill the inner rounded box edge-to-edge.
 // ---------------------------------------------------------------------------
-
-const CheckMark = ({ className }) => (
-  <svg
-    viewBox="0 0 12 12"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className={className}
-  >
-    <path d="M2.5 6.5l2.2 2.2L9.5 3.8" />
-  </svg>
-);
 
 export const AvatarOptionTile = ({
   selected = false,
@@ -53,8 +42,8 @@ export const AvatarOptionTile = ({
     aria-label={ariaLabel || label}
     className={classNames(
       'group relative inline-flex flex-col items-stretch text-left',
-      'rounded-xl bg-white p-2',
-      'transition-[border-color,box-shadow,transform] duration-150 ease-out',
+      'rounded-xl bg-white p-1.5',
+      'transition-[border-color,box-shadow] duration-150 ease-out',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       selected
         ? 'border-[1.5px] border-brand-green shadow-[0_2px_6px_-1px_rgba(56,116,64,0.18)]'
@@ -62,23 +51,12 @@ export const AvatarOptionTile = ({
       className
     )}
   >
-    {/* Body */}
+    {/* Body — children own the entire inner area */}
     <span className="relative block aspect-square w-full overflow-hidden rounded-[10px] bg-neutral">
       {children}
-      {selected && (
-        <span
-          aria-hidden="true"
-          className={classNames(
-            'absolute right-1.5 top-1.5 inline-flex size-5 items-center justify-center rounded-full',
-            'bg-brand-green text-white shadow-bottom-100'
-          )}
-        >
-          <CheckMark className="size-3" />
-        </span>
-      )}
     </span>
 
-    {/* Label */}
+    {/* Optional caption below the tile */}
     {label && (
       <span
         className={classNames(
