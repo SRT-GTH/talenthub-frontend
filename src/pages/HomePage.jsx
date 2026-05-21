@@ -1603,7 +1603,7 @@ const InteractiveForm = () => {
           onChange={(e) => setEmail(e.target.value)}
           error={error}
           verified={verified}
-          helperText={!error && !verified ? 'We’ll never share this' : undefined}
+          helperText={!error && !verified ? "We'll never share this" : undefined}
         />
         <Button type="submit" variant="primary" size="md" rightIcon={<ArrowRight />}>
           Submit
