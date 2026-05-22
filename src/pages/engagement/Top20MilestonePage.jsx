@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementHero from '../../components/sections/engagement/EngagementHero.jsx';
 import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
 import MilestoneHeroPanel from '../../components/sections/engagement/MilestoneHeroPanel.jsx';
 import UnlockedFeaturesSection from '../../components/sections/engagement/UnlockedFeaturesSection.jsx';
@@ -155,6 +156,8 @@ const Top20MilestonePage = () => {
         onSwitchModes={handleSwitchModes}
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
+
+      <EngagementHero completionPct={67} doneCount={6} inProgressCount={0} remainingCount={3} />
 
       <main className="flex-1">
         <MilestoneHeroPanel
