@@ -105,19 +105,12 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
   </button>
 );
 
-// Tile body: render the designer character SVG so the figure fills the
-// tile edge-to-edge. The characters sit centred in a 64×63 viewBox with
-// ~25% transparent padding, so we scale up ~140% and use object-cover
-// to crop the excess. The tile's neutral background no longer shows
-// through because the scaled figure overflows past the corners.
+// Tile body: render the designer character SVG centred inside the tile
+// with a little breathing room. `object-contain` preserves the figure's
+// aspect so heads don't get cropped at the top.
 const StyleCharacter = ({ image, alt }) => (
-  <span aria-hidden="true" className="absolute inset-0 block overflow-hidden">
-    <img
-      src={image}
-      alt={alt}
-      className="block size-full object-cover scale-[1.4] origin-center"
-      draggable="false"
-    />
+  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center p-1">
+    <img src={image} alt={alt} className="block size-full object-contain" draggable="false" />
   </span>
 );
 

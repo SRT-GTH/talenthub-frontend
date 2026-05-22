@@ -133,8 +133,8 @@ const Top20MilestonePage = () => {
   };
 
   const handleNextCerts = () => {
-    log('next: certs');
-    navigate('/profile/engagement');
+    log('next: certs → top talent milestone');
+    navigate('/profile/engagement/milestone/top-talent');
   };
 
   const handleClaim = () => {
@@ -143,9 +143,9 @@ const Top20MilestonePage = () => {
   };
 
   const handleDetailsCta = () => {
-    log('details modal CTA â†’ continue to next stage');
+    log('details modal CTA → top talent milestone');
     closeDetails();
-    navigate('/profile/engagement');
+    navigate('/profile/engagement/milestone/top-talent');
   };
 
   return (

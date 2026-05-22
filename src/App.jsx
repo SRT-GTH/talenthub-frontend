@@ -17,6 +17,7 @@ import ProfileEngagementPage from './pages/engagement/ProfileEngagementPage.jsx'
 import IdentityMapPage from './pages/engagement/IdentityMapPage.jsx';
 import MilestoneUnlockPage from './pages/engagement/MilestoneUnlockPage.jsx';
 import Top20MilestonePage from './pages/engagement/Top20MilestonePage.jsx';
+import TopTalentMilestonePage from './pages/engagement/TopTalentMilestonePage.jsx';
 import AvatarCustomiserPage from './pages/engagement/AvatarCustomiserPage.jsx';
 import AvatarSkinTonePage from './pages/engagement/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
@@ -66,6 +67,10 @@ function App() {
         <Route path={'/profile/engagement/identity'} element={<IdentityMapPage />} />
         <Route path={'/profile/engagement/milestone'} element={<MilestoneUnlockPage />} />
         <Route path={'/profile/engagement/milestone/top-20'} element={<Top20MilestonePage />} />
+        <Route
+          path={'/profile/engagement/milestone/top-talent'}
+          element={<TopTalentMilestonePage />}
+        />
         <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
         <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
         <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />

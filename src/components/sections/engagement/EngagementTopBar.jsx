@@ -82,7 +82,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                 <img
                   src={breadcrumb.src}
                   alt=""
-                  className="block h-[clamp(16px,1.2vw,20px)] w-auto select-none"
+                  className="block h-[clamp(12px,1.4vw,15px)] w-auto select-none"
                   draggable="false"
                 />
               </Link>
@@ -91,7 +91,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                   src={arrowhead}
                   alt=""
                   aria-hidden="true"
-                  className="block h-4 w-4 select-none opacity-70"
+                  className="block h-5 w-5 select-none opacity-70"
                   draggable="false"
                 />
               )}
@@ -100,7 +100,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
         })}
       </nav>
 
-      <div className="w-[clamp(280px,24vw,360px)] shrink-0">
+      <div className="w-[clamp(320px,28vw,420px)] shrink-0">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={PROFILE_STAGES.length}
