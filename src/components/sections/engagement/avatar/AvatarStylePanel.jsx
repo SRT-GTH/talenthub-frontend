@@ -8,12 +8,14 @@ import {
 import { useAvatarSelection } from '../../../../hooks/useAvatarSelection.js';
 import { debug } from '../../../../utils/debug.js';
 
-// Category tab icons — designer PNGs (style / skin / hair / extras / outfit).
-import styleIcon from '../../../../assets/engagement/style.png';
-import skinIcon from '../../../../assets/engagement/skin.png';
-import hairIcon from '../../../../assets/engagement/hair.png';
-import extrasIcon from '../../../../assets/engagement/extras.png';
-import outfitIcon from '../../../../assets/engagement/outfit.png';
+// Category tab icons — designer-exported icon PNGs (no labels baked in).
+// The text label is rendered next to each icon in code so we can also
+// switch background + text color when the tab is active.
+import styleIcon from '../../../../assets/engagement/light_styler.png';
+import skinIcon from '../../../../assets/engagement/dark-skin-tone.png';
+import hairIcon from '../../../../assets/engagement/Vector.png';
+import extrasIcon from '../../../../assets/engagement/glasses-linear.png';
+import outfitIcon from '../../../../assets/engagement/clothes-hanger.png';
 
 // 10 base-style character SVGs, in the exact order requested.
 import greenBoy from '../../../../assets/engagement/greenboy character.svg';
@@ -82,6 +84,11 @@ const CATEGORY_TABS = [
   { id: 'outfit', label: 'Outfit', image: outfitIcon },
 ];
 
+// Tab pill: small icon (designer PNG) + text label, rendered in code so we
+// can flip the pill colour on active. Active = solid brand-green pill with
+// white icon + label; inactive = white pill with border + dark text. We
+// apply `invert` on the icon when active so the dark line-art reads as
+// white on the green background.
 const CategoryTabButton = ({ image, label, active, onClick }) => (
   <button
     type="button"
@@ -89,10 +96,13 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
     aria-pressed={active}
     aria-label={label}
     className={classNames(
-      'inline-flex items-center justify-center rounded-pill bg-transparent border-0 p-0',
-      'transition-[transform,opacity] duration-150',
-      'hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-      active ? 'opacity-100' : 'opacity-80 hover:opacity-100'
+      'inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5',
+      'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
+      'border transition-[background-color,border-color,color] duration-150',
+      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      active
+        ? 'bg-brand-green border-brand-green text-white'
+        : 'bg-white border-border-default text-content-primary hover:border-brand-green-light-active'
     )}
   >
     <img
@@ -100,8 +110,13 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
       alt=""
       aria-hidden="true"
       draggable="false"
-      className="block h-[clamp(34px,3vw,42px)] w-auto select-none"
+      className={classNames(
+        'block size-4 select-none',
+        // Flip the dark line-art to white when the pill is green.
+        active ? 'invert brightness-0' : ''
+      )}
     />
+    <span>{label}</span>
   </button>
 );
 

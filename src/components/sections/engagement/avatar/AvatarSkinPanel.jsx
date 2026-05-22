@@ -9,12 +9,14 @@ import {
 import { useAvatarSelection } from '../../../../hooks/useAvatarSelection.js';
 import { debug } from '../../../../utils/debug.js';
 
-// Category tab icons — same PNG set used on the Style panel.
-import styleIcon from '../../../../assets/engagement/style.png';
-import skinIcon from '../../../../assets/engagement/skin.png';
-import hairIcon from '../../../../assets/engagement/hair.png';
-import extrasIcon from '../../../../assets/engagement/extras.png';
-import outfitIcon from '../../../../assets/engagement/outfit.png';
+// Category tab icons — same designer-exported icon PNGs as the Style panel.
+// Label text + pill background are added in code so we can flip the pill
+// colour when the tab is active.
+import styleIcon from '../../../../assets/engagement/light_styler.png';
+import skinIcon from '../../../../assets/engagement/dark-skin-tone.png';
+import hairIcon from '../../../../assets/engagement/Vector.png';
+import extrasIcon from '../../../../assets/engagement/glasses-linear.png';
+import outfitIcon from '../../../../assets/engagement/clothes-hanger.png';
 
 const log = debug('AvatarSkinPanel');
 
@@ -76,9 +78,9 @@ const LIGHTING_PRESETS = [
   },
 ];
 
-// PNG tab buttons — same shape as on the Style panel. The Skin PNG is
-// the active variant; clicking another tab updates state but the PNG
-// itself doesn't change (no per-tab active variants in the asset set).
+// Category tabs — icon PNG + text label. Active state is driven by the
+// pill's background colour (see CategoryTabButton below), so we don't
+// need per-state asset variants.
 const CATEGORY_TABS = [
   { id: 'style', label: 'Style', image: styleIcon },
   { id: 'skin', label: 'Skin', image: skinIcon },
@@ -87,6 +89,9 @@ const CATEGORY_TABS = [
   { id: 'outfit', label: 'Outfit', image: outfitIcon },
 ];
 
+// Tab pill: small icon (designer PNG) + text label. Active = solid
+// brand-green pill with white icon + label; inactive = white pill with
+// border + dark text. See AvatarStylePanel for the same component.
 const CategoryTabButton = ({ image, label, active, onClick }) => (
   <button
     type="button"
@@ -94,10 +99,13 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
     aria-pressed={active}
     aria-label={label}
     className={classNames(
-      'inline-flex items-center justify-center rounded-pill bg-transparent border-0 p-0',
-      'transition-[transform,opacity] duration-150',
-      'hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-      active ? 'opacity-100' : 'opacity-80 hover:opacity-100'
+      'inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5',
+      'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
+      'border transition-[background-color,border-color,color] duration-150',
+      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      active
+        ? 'bg-brand-green border-brand-green text-white'
+        : 'bg-white border-border-default text-content-primary hover:border-brand-green-light-active'
     )}
   >
     <img
@@ -105,8 +113,13 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
       alt=""
       aria-hidden="true"
       draggable="false"
-      className="block h-[clamp(34px,3vw,42px)] w-auto select-none"
+      className={classNames(
+        'block size-4 select-none',
+        // Flip the dark line-art to white on the green pill.
+        active ? 'invert brightness-0' : ''
+      )}
     />
+    <span>{label}</span>
   </button>
 );
 

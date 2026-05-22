@@ -42,17 +42,23 @@ export const AvatarOptionTile = ({
     aria-label={ariaLabel || label}
     className={classNames(
       'group relative inline-flex flex-col items-stretch text-left',
-      'rounded-xl bg-white p-1.5',
+      'rounded-xl p-1.5',
       'transition-[border-color,box-shadow] duration-150 ease-out',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      // Selected: brand-green boundary + soft shadow.
+      // Unselected: transparent border (no visible boundary) — the image's
+      // own background is the only thing showing. Hover surfaces a faint
+      // green-tinted border so the tile still reads as interactive.
       selected
         ? 'border-[1.5px] border-brand-green shadow-[0_2px_6px_-1px_rgba(56,116,64,0.18)]'
-        : 'border border-border-default hover:border-brand-green-light-active',
+        : 'border-[1.5px] border-transparent hover:border-brand-green-light-active',
       className
     )}
   >
-    {/* Body — children own the entire inner area */}
-    <span className="relative block aspect-square w-full overflow-hidden rounded-[10px] bg-neutral">
+    {/* Body — children own the entire inner area. No bg-neutral so the
+      image's own background (transparent/white edges of the SVG) is what
+      shows around the figure. */}
+    <span className="relative block aspect-square w-full overflow-hidden rounded-[10px]">
       {children}
     </span>
 

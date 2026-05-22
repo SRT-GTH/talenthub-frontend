@@ -74,9 +74,14 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                 aria-current={isCurrent ? 'step' : undefined}
                 className={classNames(
                   'inline-flex items-center rounded',
-                  'transition-opacity duration-150',
-                  'hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  isCurrent ? 'opacity-100' : 'opacity-70 hover:opacity-90'
+                  'transition-[filter,opacity] duration-150',
+                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                  // Active breadcrumb: full brand-green (no filter).
+                  // Inactive: grayscale + dimmed; hover restores colour
+                  // so the user gets a preview before clicking.
+                  isCurrent
+                    ? 'opacity-100'
+                    : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'
                 )}
               >
                 <img
