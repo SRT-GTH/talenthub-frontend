@@ -35,6 +35,26 @@ export const TalentIcon = () => (
   </svg>
 );
 
+export const PersonIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none" />
+    <path
+      fill="#387440"
+      d="M12 4.75a2.25 2.25 0 1 0 0 4.5a2.25 2.25 0 0 0 0-4.5M8.25 7a3.75 3.75 0 1 1 7.5 0a3.75 3.75 0 0 1-7.5 0m1.064 5.819c.132.098.302.213.505.327c.513.29 1.265.59 2.18.59s1.668-.3 2.181-.59c.203-.114.373-.229.505-.327q.282.075.559.166l.96.315c.72.237 1.264.812 1.458 1.523l.397 2.864c.075.544-.21.939-.606 1.033c-1.047.25-2.812.53-5.453.53s-4.407-.28-5.454-.53c-.395-.094-.68-.489-.606-1.033l.397-2.864A2.23 2.23 0 0 1 7.796 13.3l.96-.315q.276-.09.558-.166m.71-1.355l-.291-.287l-.402.092q-.526.12-1.044.291l-.96.315a3.72 3.72 0 0 0-2.454 2.616l-.01.04l-.408 2.95c-.161 1.164.462 2.393 1.744 2.698c1.17.279 3.052.571 5.8.571c2.749 0 4.631-.292 5.801-.57c1.282-.306 1.906-1.535 1.745-2.698l-.409-2.95l-.01-.04a3.72 3.72 0 0 0-2.455-2.617l-.959-.315q-.517-.17-1.044-.29l-.402-.093l-.29.286l-.001.001a2 2 0 0 1-.12.101a3 3 0 0 1-.41.274a2.96 2.96 0 0 1-1.445.397a2.96 2.96 0 0 1-1.445-.397a3.2 3.2 0 0 1-.53-.375"
+    />
+  </svg>
+);
+
+export const LocationIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none" />
+    <g fill="none" stroke="#387440" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+      <circle cx="12" cy="10" r="3" />
+      <path d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8" />
+    </g>
+  </svg>
+);
+
 export const ParentIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true">
     <path
@@ -565,6 +585,29 @@ export const MapPinIcon = ({ className = '' }) => (
   </svg>
 );
 
+export const MapPinIconTwo = ({ className = '' }) => (
+  // 16px outline marker pin — Figma `20-marker-pin` (node 41:1235). Used
+  // on Region / Town/City / Community / Nearby Landmark fields.
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 32 32"
+  >
+    <path d="M0 0h32v32H0z" fill="none" />
+    <path
+      fill="currentColor"
+      d="m16 24l-6.09-8.6A8.14 8.14 0 0 1 16 2a8.08 8.08 0 0 1 8 8.13a8.2 8.2 0 0 1-1.8 5.13Zm0-20a6.07 6.07 0 0 0-6 6.13a6.2 6.2 0 0 0 1.49 4L16 20.52L20.63 14A6.24 6.24 0 0 0 22 10.13A6.07 6.07 0 0 0 16 4"
+    />
+    <circle cx="16" cy="9" r="2" fill="currentColor" />
+    <path
+      fill="currentColor"
+      d="M28 12h-2v2h2v14H4V14h2v-2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V14a2 2 0 0 0-2-2"
+    />
+  </svg>
+);
+
 export const MapIcon = ({ className = '' }) => (
   // 16px outline folded-map glyph — Figma `20-map` (node 41:1237). Left
   // icon on the District field (disabled until Region is picked).
@@ -603,6 +646,25 @@ export const GhanaFlagRoundIcon = () => (
         fill="#111111"
       />
     </g>
+  </svg>
+);
+
+export const ShieldIcon = ({ className = '' }) => (
+  // 20px circular Ghana flag used inside the country-code prefix of the
+  // phone-number inputs. Three horizontal stripes (red / yellow / green)
+  // with a centred black star, clipped to a circle.
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
+  >
+    <path d="M0 0h24v24H0z" fill="none" />
+    <path
+      fill="currentColor"
+      d="M12 22q-3.475-.875-5.738-3.988T4 11.1V5l8-3l8 3v6.1q0 3.8-2.262 6.913T12 22m0-2.1q2.6-.825 4.3-3.3t1.7-5.5V6.375l-6-2.25l-6 2.25V11.1q0 3.025 1.7 5.5t4.3 3.3m0-7.9"
+    />
   </svg>
 );
 
@@ -697,5 +759,43 @@ export const ArrowLeftIcon = ({ className = '' }) => (
       strokeLinecap="round"
       strokeLinejoin="round"
     />
+  </svg>
+);
+
+// ---- Institution-contact-step glyphs --------------------------------
+// Used by ContactInfoSection and ContactVerificationModal.
+
+export const BriefcaseIcon = ({ className = '' }) => (
+  // 16px outline briefcase — left icon on Role / Title field.
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1.5" y="5.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+    <path
+      d="M5.5 5.5V4A1.5 1.5 0 0 1 7 2.5h2A1.5 1.5 0 0 1 10.5 4v1.5"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+    <path d="M1.5 9.5h13" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+);
+
+export const DiamondIcon = ({ className = '' }) => (
+  // 8×8 filled diamond bullet — used beside "Email verification" helper text.
+  <svg
+    width="8"
+    height="8"
+    viewBox="0 0 8 8"
+    fill="currentColor"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M4 0.6L7.4 4L4 7.4L0.6 4L4 0.6Z" />
   </svg>
 );

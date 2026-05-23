@@ -30,9 +30,9 @@ const MainLayout = () => {
     // nav component repeating `mx-auto max-w-[1728px]` internally. On viewports
     // wider than 1728px, the column centres and the surrounding area falls
     // back to the body background.
-    <div className="min-h-screen mx-auto flex w-full max-w-[1728px] flex-col">
+    <div className="min-h-screen mx-auto flex w-full  flex-col">
       {onboarding ? <OnboardingNavbar /> : <Navbar />}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         <Outlet />
       </main>
       {/* Onboarding pages have no footer per Figma node 2849:66712 family —
