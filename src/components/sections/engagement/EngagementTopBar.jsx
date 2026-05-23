@@ -3,15 +3,6 @@ import { classNames } from '../../../utils/classNames.js';
 import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.jsx';
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
 
-import avatarBreadcrumb from '../../../assets/engagement/avatarbreadcrumb.svg';
-import interestBreadcrumb from '../../../assets/engagement/interestbreadcrumb.svg';
-import personalityBreadcrumb from '../../../assets/engagement/personalitybreadcrumb.svg';
-import skillsBreadcrumb from '../../../assets/engagement/skillsbreadcrumb.svg';
-import workBreadcrumb from '../../../assets/engagement/workbreadcrumb.svg';
-import portfolioBreadcrumb from '../../../assets/engagement/portfoliobreadcrumb.svg';
-import certsBreadcrumb from '../../../assets/engagement/certsbreadcrumb.svg';
-import goalsBreadcrumb from '../../../assets/engagement/goalsbreadcrumb.svg';
-import pitchBreadcrumb from '../../../assets/engagement/pitchbreadcrumb.svg';
 import arrowhead from '../../../assets/engagement/arrowhead.svg';
 
 /*
@@ -19,30 +10,50 @@ import arrowhead from '../../../assets/engagement/arrowhead.svg';
  * Source: Figma frame 3384:81977.
  *
  * Layout (two columns):
- *   left:  the 9-stage trail. Each stage is rendered from a per-stage
- *          designer SVG breadcrumb (check-circle + label baked in) and
- *          arrowhead.svg is the separator between them. Each breadcrumb
- *          is wrapped in a <Link> so users can jump to that stage.
+ *   left:  the 9-stage trail. Each stage is rendered as a check-circle
+ *          icon + text label, both colour-controlled so the active stage
+ *          reads brand-green and the rest read neutral-grey. arrowhead.svg
+ *          is the separator between them. Each row is wrapped in a <Link>
+ *          so users can jump to that stage.
  *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
  *
- * Visual states (done / in-progress / pending) are not differentiated by
- * these SVGs — they all share the same brand-green palette by design.
- * The active stage picks up a subtle ring + bottom-margin lift so it
- * still reads as "current" within the row.
+ * Earlier iteration used 9 per-stage SVG breadcrumbs (icon + label baked
+ * into one image). We've switched to one shared check icon + a text
+ * label so the active/inactive colour swap can happen in code
+ * (text-brand-green vs text-neutral-dark-hover), matching the Figma
+ * states. The shared icon is inlined as a React component so its fill
+ * follows `currentColor` from the parent — the source SVG had a
+ * hard-coded grey fill that blocked state-based recolouring.
  */
 
-// Per-stage breadcrumb SVG + its destination route. The order here mirrors
-// PROFILE_STAGES so the trail stays in sync with the rest of the flow.
-const STAGE_BREADCRUMBS = {
-  avatar: { src: avatarBreadcrumb, route: '/profile/engagement/avatar' },
-  'personal-interests': { src: interestBreadcrumb, route: '/profile/engagement' },
-  personality: { src: personalityBreadcrumb, route: '/profile/engagement' },
-  skills: { src: skillsBreadcrumb, route: '/profile/engagement' },
-  'work-experience': { src: workBreadcrumb, route: '/profile/engagement' },
-  'project-portfolio': { src: portfolioBreadcrumb, route: '/profile/engagement' },
-  certifications: { src: certsBreadcrumb, route: '/profile/engagement' },
-  'desired-career': { src: goalsBreadcrumb, route: '/profile/engagement' },
-  'talent-pitch': { src: pitchBreadcrumb, route: '/profile/engagement' },
+const CheckCircleIcon = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    aria-hidden="true"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M7.9998 0.799805C4.02335 0.799805 0.799805 4.02335 0.799805 7.9998C0.799805 11.9763 4.02335 15.1998 7.9998 15.1998C11.9763 15.1998 15.1998 11.9763 15.1998 7.9998C15.1998 4.02335 11.9763 0.799805 7.9998 0.799805ZM11.0746 6.16667C11.2772 5.90446 11.2289 5.52765 10.9667 5.32503C10.7045 5.12242 10.3277 5.17073 10.125 5.43294L7.16473 9.26392L5.84578 7.79842C5.62411 7.55212 5.24473 7.53215 4.99843 7.75383C4.75212 7.9755 4.73215 8.35488 4.95383 8.60118L6.75383 10.6012C6.87286 10.7334 7.04446 10.806 7.22228 10.7994C7.40009 10.7927 7.56577 10.7075 7.67457 10.5667L11.0746 6.16667Z"
+    />
+  </svg>
+);
+
+// Per-stage destination route. Order mirrors PROFILE_STAGES so the trail
+// stays in sync with the rest of the flow.
+const STAGE_ROUTES = {
+  avatar: '/profile/engagement/avatar',
+  'personal-interests': '/profile/engagement',
+  personality: '/profile/engagement',
+  skills: '/profile/engagement',
+  'work-experience': '/profile/engagement',
+  'project-portfolio': '/profile/engagement',
+  certifications: '/profile/engagement',
+  'desired-career': '/profile/engagement',
+  'talent-pitch': '/profile/engagement',
 };
 
 const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className }) => {
@@ -59,44 +70,46 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
     >
       <nav
         aria-label="Profile engagement stages"
-        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-0.5 overflow-hidden"
+        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-1 overflow-hidden"
       >
         {PROFILE_STAGES.map((stage, index) => {
           const isCurrent = index === currentStageIndex;
-          const breadcrumb = STAGE_BREADCRUMBS[stage.id];
-          if (!breadcrumb) return null;
+          const route = STAGE_ROUTES[stage.id];
+          if (!route) return null;
+          const label = stage.trailLabel || stage.title;
 
           return (
-            <span key={stage.id} className="inline-flex items-center gap-0.5 shrink-0">
+            <span key={stage.id} className="inline-flex items-center gap-1 shrink-0">
               <Link
-                to={breadcrumb.route}
-                aria-label={stage.trailLabel || stage.title}
+                to={route}
+                aria-label={label}
                 aria-current={isCurrent ? 'step' : undefined}
                 className={classNames(
-                  'inline-flex items-center rounded',
-                  'transition-[filter,opacity] duration-150',
+                  'inline-flex items-center gap-1 rounded px-1 py-0.5',
+                  'transition-colors duration-150',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  // Active breadcrumb: full brand-green (no filter).
-                  // Inactive: grayscale + dimmed; hover restores colour
-                  // so the user gets a preview before clicking.
-                  isCurrent
-                    ? 'opacity-100'
-                    : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'
+                  // Active stage: brand-green check + label.
+                  // Inactive: neutral grey; hover restores brand-green so
+                  // users get a preview before clicking.
+                  isCurrent ? 'text-brand-green' : 'text-neutral-dark-hover hover:text-brand-green'
                 )}
               >
-                <img
-                  src={breadcrumb.src}
-                  alt=""
-                  className="block h-[clamp(12px,1.4vw,15px)] w-auto select-none"
-                  draggable="false"
-                />
+                <CheckCircleIcon className="size-[clamp(14px,1.2vw,16px)] shrink-0" />
+                <span
+                  className={classNames(
+                    'font-sans text-[clamp(11px,1vw,13px)] leading-4 tracking-[0.1px]',
+                    isCurrent ? 'font-semibold' : 'font-medium'
+                  )}
+                >
+                  {label}
+                </span>
               </Link>
               {index < PROFILE_STAGES.length - 1 && (
                 <img
                   src={arrowhead}
                   alt=""
                   aria-hidden="true"
-                  className="block h-5 w-5 select-none opacity-70"
+                  className="block size-5 select-none opacity-70 shrink-0"
                   draggable="false"
                 />
               )}

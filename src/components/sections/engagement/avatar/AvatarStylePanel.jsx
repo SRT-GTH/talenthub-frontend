@@ -5,29 +5,22 @@ import {
   AvatarStatPill,
   AvatarSectionHeader,
 } from './avatarPrimitives.jsx';
+import AvatarCategoryTabs from './AvatarCategoryTabs.jsx';
 import { useAvatarSelection } from '../../../../hooks/useAvatarSelection.js';
 import { debug } from '../../../../utils/debug.js';
 
-// Category tab icons — designer-exported icon PNGs (no labels baked in).
-// The text label is rendered next to each icon in code so we can also
-// switch background + text color when the tab is active.
-import styleIcon from '../../../../assets/engagement/light_styler.png';
-import skinIcon from '../../../../assets/engagement/dark-skin-tone.png';
-import hairIcon from '../../../../assets/engagement/Vector.png';
-import extrasIcon from '../../../../assets/engagement/glasses-linear.png';
-import outfitIcon from '../../../../assets/engagement/clothes-hanger.png';
-
-// 10 base-style character SVGs, in the exact order requested.
-import greenBoy from '../../../../assets/engagement/greenboy character.svg';
-import pinkBoyDreads from '../../../../assets/engagement/pinkboy with dreads.svg';
-import hatchback from '../../../../assets/engagement/hatchback.svg';
-import lightGreenBoy from '../../../../assets/engagement/lightgreenboy.svg';
-import yellowBoy from '../../../../assets/engagement/yellowboy.svg';
-import lightBlue from '../../../../assets/engagement/lightblue.svg';
-import pinkBoy from '../../../../assets/engagement/pinkboy.svg';
-import purpleBoy from '../../../../assets/engagement/purpleboy.svg';
-import redBoy from '../../../../assets/engagement/redboy.svg';
-import blueBoy from '../../../../assets/engagement/blueboy.svg';
+// 10 base-style character SVGs (Figma export names: firstavatar.svg
+// through tenthavatar.svg, in design order).
+import avatar1 from '../../../../assets/engagement/firstavatar.svg';
+import avatar2 from '../../../../assets/engagement/secondavatar.svg';
+import avatar3 from '../../../../assets/engagement/thirdavatar.svg';
+import avatar4 from '../../../../assets/engagement/fourthavatar.svg';
+import avatar5 from '../../../../assets/engagement/fifthavatar.svg';
+import avatar6 from '../../../../assets/engagement/sixthavatar.svg';
+import avatar7 from '../../../../assets/engagement/seventhavatar.svg';
+import avatar8 from '../../../../assets/engagement/eigthavatar.svg';
+import avatar9 from '../../../../assets/engagement/ninethavatar.svg';
+import avatar10 from '../../../../assets/engagement/tenthavatar.svg';
 
 const log = debug('AvatarStylePanel');
 
@@ -47,18 +40,20 @@ const log = debug('AvatarStylePanel');
  * AvatarSelectionProvider so they persist across step pages.
  */
 
-// 10 base style options. Order matches the user-supplied asset list.
+// 10 base style options. Order matches the Figma export order
+// (firstavatar → tenthavatar). Labels are generic for now — tile body is
+// the avatar SVG itself; the label only shows in aria-label / tooltip.
 const BASE_STYLES = [
-  { id: 'style-greenboy', label: 'Green Sweater', image: greenBoy },
-  { id: 'style-pinkboy-dreads', label: 'Pink + Dreads', image: pinkBoyDreads },
-  { id: 'style-hatchback', label: 'Hatchback', image: hatchback },
-  { id: 'style-lightgreenboy', label: 'Light Green', image: lightGreenBoy },
-  { id: 'style-yellowboy', label: 'Yellow', image: yellowBoy },
-  { id: 'style-lightblue', label: 'Light Blue', image: lightBlue },
-  { id: 'style-pinkboy', label: 'Pink', image: pinkBoy },
-  { id: 'style-purpleboy', label: 'Purple', image: purpleBoy },
-  { id: 'style-redboy', label: 'Red', image: redBoy },
-  { id: 'style-blueboy', label: 'Blue', image: blueBoy },
+  { id: 'style-1', label: 'Style 1', image: avatar1 },
+  { id: 'style-2', label: 'Style 2', image: avatar2 },
+  { id: 'style-3', label: 'Style 3', image: avatar3 },
+  { id: 'style-4', label: 'Style 4', image: avatar4 },
+  { id: 'style-5', label: 'Style 5', image: avatar5 },
+  { id: 'style-6', label: 'Style 6', image: avatar6 },
+  { id: 'style-7', label: 'Style 7', image: avatar7 },
+  { id: 'style-8', label: 'Style 8', image: avatar8 },
+  { id: 'style-9', label: 'Style 9', image: avatar9 },
+  { id: 'style-10', label: 'Style 10', image: avatar10 },
 ];
 
 // 8 skin tones — round swatches under the style grid.
@@ -73,59 +68,13 @@ const SKIN_TONES = [
   { id: 'mahogany', color: '#54392A', label: 'Mahogany' },
 ];
 
-// Each category tab is rendered as a single image — the PNGs from the
-// designer already contain the icon + label baked in. Clicking the
-// image wraps it in a button so it's keyboard-accessible.
-const CATEGORY_TABS = [
-  { id: 'style', label: 'Style', image: styleIcon },
-  { id: 'skin', label: 'Skin', image: skinIcon },
-  { id: 'hair', label: 'Hair', image: hairIcon },
-  { id: 'extras', label: 'Extras', image: extrasIcon },
-  { id: 'outfit', label: 'Outfit', image: outfitIcon },
-];
-
-// Tab pill: small icon (designer PNG) + text label, rendered in code so we
-// can flip the pill colour on active. Active = solid brand-green pill with
-// white icon + label; inactive = white pill with border + dark text. We
-// apply `invert` on the icon when active so the dark line-art reads as
-// white on the green background.
-const CategoryTabButton = ({ image, label, active, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-pressed={active}
-    aria-label={label}
-    className={classNames(
-      'inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5',
-      'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
-      'border transition-[background-color,border-color,color] duration-150',
-      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-      active
-        ? 'bg-brand-green border-brand-green text-white'
-        : 'bg-white border-border-default text-content-primary hover:border-brand-green-light-active'
-    )}
-  >
-    <img
-      src={image}
-      alt=""
-      aria-hidden="true"
-      draggable="false"
-      className={classNames(
-        'block size-4 select-none',
-        // Flip the dark line-art to white when the pill is green.
-        active ? 'invert brightness-0' : ''
-      )}
-    />
-    <span>{label}</span>
-  </button>
-);
-
 // Tile body: render the designer character SVG centred inside the tile
-// with a little breathing room. `object-contain` preserves the figure's
-// aspect so heads don't get cropped at the top.
+// at a fixed visible size (size-12 = 48px square) so every tile shows
+// the character at the same on-screen size regardless of the source
+// SVG's intrinsic dimensions. `object-contain` preserves aspect.
 const StyleCharacter = ({ image, alt }) => (
-  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center p-1">
-    <img src={image} alt={alt} className="block size-full object-contain" draggable="false" />
+  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+    <img src={image} alt={alt} className="block size-12 object-contain" draggable="false" />
   </span>
 );
 
@@ -153,19 +102,9 @@ const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
         <AvatarStatPill count="14" label="Extras" />
       </div>
 
-      {/* Category tabs — each tab is the designer-provided PNG, no
-        additional border / text added in code. */}
-      <nav aria-label="Customisation categories" className="flex flex-wrap items-center gap-2">
-        {CATEGORY_TABS.map((tab) => (
-          <CategoryTabButton
-            key={tab.id}
-            image={tab.image}
-            label={tab.label}
-            active={tab.id === activeTab}
-            onClick={() => onTabSelect?.(tab.id)}
-          />
-        ))}
-      </nav>
+      {/* Category tabs — shared 5-pill row (Style / Skin / Hair / Extras
+        / Outfit). Active pill is solid brand-green. */}
+      <AvatarCategoryTabs activeTab={activeTab} onTabSelect={onTabSelect} />
 
       {/* Base style grid */}
       <section className="flex flex-col gap-3">

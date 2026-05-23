@@ -14,28 +14,33 @@ export const AVATAR_SELECTION_DEFAULTS = {
   username: 'KofiA_23',
 
   // Style step (matches the first entry in AvatarStylePanel's BASE_STYLES)
-  baseStyle: 'style-greenboy',
+  baseStyle: 'style-1',
 
   // Skin step
   skinTone: 'cocoa',
   lightness: 0,
   lighting: 'daylight',
 
-  // Hair step
-  hairStyle: 'locs',
+  // Hair step — ids match the tiles in AvatarHairPanel. Default is "no
+  // pick yet" for hairStyle/hairColor so a fresh user has to choose.
+  hairStyle: null,
   hairColor: 'black',
-  hairVolume: 'medium',
+  hairVolumeLevel: 0,
 
-  // Extras step
-  eyewear: 'locs',
-  facialHair: 'full-beard',
-  earring: 'stud',
-  details: ['blush'],
+  // Extras step — pick-one groups default to the group's "None" sentinel
+  // so the Selected count doesn't pre-inflate before the user touches
+  // anything. Details is a multi-select array (starts empty).
+  eyewear: 'eyewear-none',
+  facialHair: 'facial-none',
+  earring: 'earring-none',
+  details: [],
   tintColor: 'black',
 
-  // Outfit step
+  // Outfit step — apparel is null until the user picks; fit defaults to
+  // Regular and apparelColor to brand-green so the avatar isn't naked /
+  // grey on first paint of the Outfit step.
   careerPreset: null,
-  apparel: 'suit',
+  apparel: null,
   fit: 'regular',
   apparelColor: 'brand-green',
 };

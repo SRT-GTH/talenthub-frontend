@@ -23,6 +23,7 @@ import AvatarSkinTonePage from './pages/engagement/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
 import AvatarExtrasPage from './pages/engagement/AvatarExtrasPage.jsx';
 import AvatarOutfitPage from './pages/engagement/AvatarOutfitPage.jsx';
+import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 function App() {
   return (
@@ -71,11 +72,17 @@ function App() {
           path={'/profile/engagement/milestone/top-talent'}
           element={<TopTalentMilestonePage />}
         />
-        <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
-        <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
-        <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
-        <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
-        <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
+        {/* All 5 avatar steps share one AvatarSelectionProvider so the
+            user's picks survive navigation between Style → Skin → Hair →
+            Extras → Outfit. Without this layout, the provider would
+            re-mount per page and selections would reset. */}
+        <Route element={<AvatarFlowLayout />}>
+          <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
+          <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
+          <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
+          <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
+          <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -42,15 +42,19 @@ export const AvatarOptionTile = ({
     aria-label={ariaLabel || label}
     className={classNames(
       'group relative inline-flex flex-col items-stretch text-left',
-      'rounded-xl p-1.5',
+      // Cap each tile's max-width so the boxes stay snug around their
+      // icons instead of stretching to fill the grid column. `mx-auto`
+      // centres the capped tile within its (wider) grid cell.
+      'w-full max-w-[clamp(60px,7vw,84px)] mx-auto',
+      'rounded-xl p-1',
       'transition-[border-color,box-shadow] duration-150 ease-out',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-      // Selected: brand-green boundary + soft shadow.
+      // Selected: thin brand-green boundary, no shadow (cleaner look).
       // Unselected: transparent border (no visible boundary) — the image's
       // own background is the only thing showing. Hover surfaces a faint
       // green-tinted border so the tile still reads as interactive.
       selected
-        ? 'border-[1.5px] border-brand-green shadow-[0_2px_6px_-1px_rgba(56,116,64,0.18)]'
+        ? 'border-[1.5px] border-brand-green'
         : 'border-[1.5px] border-transparent hover:border-brand-green-light-active',
       className
     )}
@@ -61,6 +65,34 @@ export const AvatarOptionTile = ({
     <span className="relative block aspect-square w-full overflow-hidden rounded-[10px]">
       {children}
     </span>
+
+    {/* Selected-tile badge — small brand-green check-circle inset
+      ~6px inside the top-right corner of the tile so it sits comfortably
+      ON the tile, well clear of the rounded border. */}
+    {selected && (
+      <span
+        aria-hidden="true"
+        className={classNames(
+          'absolute top-1.5 right-1.5 z-10 inline-flex size-3.5 items-center justify-center',
+          'rounded-full bg-brand-green text-white'
+        )}
+      >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="size-2.5"
+        >
+          <path
+            d="M3.5 8.5L6.5 11.5L12.5 4.5"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    )}
 
     {/* Optional caption below the tile */}
     {label && (
@@ -80,22 +112,54 @@ export const AvatarOptionTile = ({
 // AvatarColorSwatch — round colour chip with optional selected ring
 // ---------------------------------------------------------------------------
 
-export const AvatarColorSwatch = ({ color, selected = false, onClick, ariaLabel, className }) => (
+/*
+ * AvatarColorSwatch supports two render modes:
+ *   - colour mode (default): pass `color` (CSS colour string). Renders
+ *     as a small solid round swatch. Default size: 24px (size-6).
+ *   - image mode: pass `image` (imported asset URL). Renders the SVG/PNG
+ *     inside a slightly larger round button. Used for the "fashion"
+ *     hair tones (bluetone / pinktone / greentone) where the swatch is
+ *     a designer ring SVG instead of a flat colour.
+ *
+ * Default sizes match the Figma reference: colour swatches read as
+ * "extra small" dots; image swatches read just a touch larger so the
+ * SVG content is legible.
+ */
+export const AvatarColorSwatch = ({
+  color,
+  image,
+  selected = false,
+  onClick,
+  ariaLabel,
+  className,
+}) => (
   <button
     type="button"
     onClick={onClick}
     aria-pressed={selected}
     aria-label={ariaLabel}
     className={classNames(
-      'group relative inline-flex size-9 items-center justify-center rounded-full',
+      'group relative inline-flex items-center justify-center rounded-full',
+      // Image-based swatches render a touch bigger than flat-colour ones.
+      image ? 'size-7' : 'size-6',
       'transition-transform duration-150 ease-out hover:scale-105',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       selected ? 'ring-2 ring-brand-green ring-offset-2 ring-offset-white' : '',
       className
     )}
-    style={{ backgroundColor: color }}
+    style={image ? undefined : { backgroundColor: color }}
   >
-    <span className="sr-only">{ariaLabel}</span>
+    {image ? (
+      <img
+        src={image}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        className="block size-full select-none"
+      />
+    ) : (
+      <span className="sr-only">{ariaLabel}</span>
+    )}
   </button>
 );
 

@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarSkinPanel from '../../components/sections/engagement/avatar/AvatarSkinPanel.jsx';
-import { AvatarSelectionProvider } from '../../providers/AvatarSelectionProvider.jsx';
 import skinHeroStage from '../../assets/engagement/avatar-skin-hero-stage.png';
 import { debug } from '../../utils/debug.js';
 
@@ -12,9 +11,10 @@ const log = debug('AvatarSkinTonePage');
  * Source: Figma frame (Avatar Skin Tone — Your shade, your way).
  *
  * LEFT side keeps the designer hero PNG (avatar preview baked in).
- * RIGHT side is now the real React AvatarSkinPanel — 12 tone tiles,
+ * RIGHT side is the real React AvatarSkinPanel — 12 tone tiles,
  * Lightness slider, 3-look lighting preview, and a brand-green helper
- * tip. Selections persist via AvatarSelectionContext.
+ * tip. Selections persist via AvatarSelectionContext provided by
+ * AvatarFlowLayout one route level up.
  *
  * Continue advances to the Hair step.
  */
@@ -27,7 +27,8 @@ const TAB_TO_ROUTE = {
   outfit: '/profile/engagement/avatar/outfit',
 };
 
-const AvatarSkinTonePageInner = () => {
+const AvatarSkinTonePage = () => {
+  log('mount');
   const navigate = useNavigate();
 
   const handleTabSelect = (tabId) => {
@@ -57,15 +58,6 @@ const AvatarSkinTonePageInner = () => {
       onGoBack={handleGoBack}
       onContinue={handleNext}
     />
-  );
-};
-
-const AvatarSkinTonePage = () => {
-  log('mount');
-  return (
-    <AvatarSelectionProvider>
-      <AvatarSkinTonePageInner />
-    </AvatarSelectionProvider>
   );
 };
 

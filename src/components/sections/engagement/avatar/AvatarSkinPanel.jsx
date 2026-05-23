@@ -6,17 +6,9 @@ import {
   AvatarRangeSlider,
   AvatarHelperTip,
 } from './avatarPrimitives.jsx';
+import AvatarCategoryTabs from './AvatarCategoryTabs.jsx';
 import { useAvatarSelection } from '../../../../hooks/useAvatarSelection.js';
 import { debug } from '../../../../utils/debug.js';
-
-// Category tab icons — same designer-exported icon PNGs as the Style panel.
-// Label text + pill background are added in code so we can flip the pill
-// colour when the tab is active.
-import styleIcon from '../../../../assets/engagement/light_styler.png';
-import skinIcon from '../../../../assets/engagement/dark-skin-tone.png';
-import hairIcon from '../../../../assets/engagement/Vector.png';
-import extrasIcon from '../../../../assets/engagement/glasses-linear.png';
-import outfitIcon from '../../../../assets/engagement/clothes-hanger.png';
 
 const log = debug('AvatarSkinPanel');
 
@@ -78,56 +70,12 @@ const LIGHTING_PRESETS = [
   },
 ];
 
-// Category tabs — icon PNG + text label. Active state is driven by the
-// pill's background colour (see CategoryTabButton below), so we don't
-// need per-state asset variants.
-const CATEGORY_TABS = [
-  { id: 'style', label: 'Style', image: styleIcon },
-  { id: 'skin', label: 'Skin', image: skinIcon },
-  { id: 'hair', label: 'Hair', image: hairIcon },
-  { id: 'extras', label: 'Extras', image: extrasIcon },
-  { id: 'outfit', label: 'Outfit', image: outfitIcon },
-];
-
-// Tab pill: small icon (designer PNG) + text label. Active = solid
-// brand-green pill with white icon + label; inactive = white pill with
-// border + dark text. See AvatarStylePanel for the same component.
-const CategoryTabButton = ({ image, label, active, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-pressed={active}
-    aria-label={label}
-    className={classNames(
-      'inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5',
-      'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
-      'border transition-[background-color,border-color,color] duration-150',
-      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-      active
-        ? 'bg-brand-green border-brand-green text-white'
-        : 'bg-white border-border-default text-content-primary hover:border-brand-green-light-active'
-    )}
-  >
-    <img
-      src={image}
-      alt=""
-      aria-hidden="true"
-      draggable="false"
-      className={classNames(
-        'block size-4 select-none',
-        // Flip the dark line-art to white on the green pill.
-        active ? 'invert brightness-0' : ''
-      )}
-    />
-    <span>{label}</span>
-  </button>
-);
-
-// Coloured circle that fills a tile — used inside AvatarOptionTile for
-// each of the 12 tones.
+// Coloured circle inside a tile — used for each of the 12 tones. Fixed
+// 32px diameter so the circle reads as a small, natural-looking dot in
+// the centre of the tile (rather than filling it edge-to-edge).
 const ToneSwatchInTile = ({ color }) => (
-  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center p-2">
-    <span className="block size-full rounded-full" style={{ backgroundColor: color }} />
+  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+    <span className="block size-8 rounded-full" style={{ backgroundColor: color }} />
   </span>
 );
 
@@ -185,18 +133,8 @@ const AvatarSkinPanel = ({ activeTab = 'skin', onTabSelect, className }) => {
         <AvatarStatPill count="14" label="Extras" />
       </div>
 
-      {/* Category tabs */}
-      <nav aria-label="Customisation categories" className="flex flex-wrap items-center gap-2">
-        {CATEGORY_TABS.map((tab) => (
-          <CategoryTabButton
-            key={tab.id}
-            image={tab.image}
-            label={tab.label}
-            active={tab.id === activeTab}
-            onClick={() => onTabSelect?.(tab.id)}
-          />
-        ))}
-      </nav>
+      {/* Category tabs — shared 5-pill row. */}
+      <AvatarCategoryTabs activeTab={activeTab} onTabSelect={onTabSelect} />
 
       {/* 12 base-tone tiles in a 6×2 grid */}
       <section className="flex flex-col gap-3">
