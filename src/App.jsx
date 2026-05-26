@@ -22,6 +22,17 @@ import AvatarSkinTonePage from './pages/engagement/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
 import AvatarExtrasPage from './pages/engagement/AvatarExtrasPage.jsx';
 import AvatarOutfitPage from './pages/engagement/AvatarOutfitPage.jsx';
+import InstitutionGuidelinesPage from './pages/onboarding/institution/InstitutionGuidelinesPage.jsx';
+import InstitutionYourInstitutionPage from './pages/onboarding/institution/InstitutionYourInstitutionPage.jsx';
+import InstitutionContactPage from './pages/onboarding/institution/InstitutionContactPage.jsx';
+import InstitutionActivatePage from './pages/onboarding/institution/InstitutionActivatePage.jsx';
+import InstitutionTemplatePage from './pages/onboarding/institution/InstitutionTemplatePage.jsx';
+import InstitutionTemplateGuidePage from './pages/onboarding/institution/InstitutionTemplateGuidePage.jsx';
+import InstitutionUploadPage from './pages/onboarding/institution/InstitutionUploadPage.jsx';
+import InstitutionValidatePage from './pages/onboarding/institution/InstitutionValidatePage.jsx';
+import InstitutionConfirmPage from './pages/onboarding/institution/InstitutionConfirmPage.jsx';
+import InstitutionReportPage from './pages/onboarding/institution/InstitutionReportPage.jsx';
+import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 function App() {
   return (
@@ -56,6 +67,37 @@ function App() {
               </OnboardingProvider>
             }
           />
+
+          {/* Institution bulk-onboarding flow.
+              All steps share InstitutionOnboardingLayout which renders the
+              page bg ellipses, the shared right panel, and (for non-guidelines
+              routes) the 8-step breadcrumb at the top. */}
+          <Route element={<InstitutionOnboardingLayout />}>
+            <Route
+              path="/onboarding/institution/guidelines"
+              element={<InstitutionGuidelinesPage />}
+            />
+            <Route
+              path="/onboarding/institution/your-institution"
+              element={<InstitutionYourInstitutionPage />}
+            />
+            <Route path="/onboarding/institution/contact" element={<InstitutionContactPage />} />
+            <Route path="/onboarding/institution/activate" element={<InstitutionActivatePage />} />
+            {/* Template Guide — part of Phase 4 "Bulk Upload".
+                Comes BEFORE /template in the flow: activate → template-guide → template → upload.
+                Has right panel (does not end with '/activate' or '/template').
+                Automatically gets breadcrumb step 3 "Template" via startsWith match
+                against STEP_PATHS[3] = '/onboarding/institution/template'. */}
+            <Route
+              path="/onboarding/institution/template-guide"
+              element={<InstitutionTemplateGuidePage />}
+            />
+            <Route path="/onboarding/institution/template" element={<InstitutionTemplatePage />} />
+            <Route path="/onboarding/institution/upload" element={<InstitutionUploadPage />} />
+            <Route path="/onboarding/institution/validate" element={<InstitutionValidatePage />} />
+            <Route path="/onboarding/institution/confirm" element={<InstitutionConfirmPage />} />
+            <Route path="/onboarding/institution/report" element={<InstitutionReportPage />} />
+          </Route>
 
           {/* /components hosts the design-system playground (HomePage). */}
           <Route path={'/components'} element={<HomePage />} />

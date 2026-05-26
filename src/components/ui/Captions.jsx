@@ -22,9 +22,23 @@ const log = debug('Captions');
  * The leading dot is a small (8px) glowing brand-green-light-active circle
  * with a 1.5px success border + a subtle green glow shadow — the visual
  * "you are here" anchor.
+ *
+ * ── Item shape (backward-compatible) ────────────────────────────────────
+ * items can be either plain strings OR objects:
+ *   { index: '01', label: 'Institution Setup' }
+ *
+ * When `index` is provided it renders as a bold brand-green monospace badge
+ * immediately before the label text inside the same step span, e.g.:
+ *   ● 01 Institution Setup
+ *
+ * Plain strings are normalised to { label: item } automatically, so all
+ * existing usages continue to work without change.
  */
 
-const Captions = ({ items = [], currentIndex = 0, className, ...rest }) => {
+/** Normalise a Captions item to { index?, label }. */
+const normalise = (item) => (typeof item === 'string' ? { label: item } : item);
+
+const Captions = ({ items = [], currentIndex = 0, className, labelClassName, ...rest }) => {
   log('render', { itemCount: items.length, currentIndex });
 
   return (
@@ -48,13 +62,15 @@ const Captions = ({ items = [], currentIndex = 0, className, ...rest }) => {
             'shadow-[0_0_4px_var(--color-brand-green)]'
           )}
         />
-        {items.map((item, index) => {
+        {items.map((rawItem, index) => {
+          const item = normalise(rawItem);
           const isLast = index === items.length - 1;
           const isActive = index === currentIndex;
           return (
-            <span key={item} className="inline-flex items-center gap-1.5">
+            <span key={item.label} className="inline-flex items-center gap-1.5">
               <span
                 className={classNames(
+                  'inline-flex items-center gap-1',
                   'font-sans text-[12px] tracking-[0.2px] whitespace-nowrap',
                   isActive
                     ? 'font-medium text-brand-green leading-5'
@@ -62,7 +78,19 @@ const Captions = ({ items = [], currentIndex = 0, className, ...rest }) => {
                 )}
                 aria-current={isActive ? 'step' : undefined}
               >
-                {item}
+                {/* Numeric index badge — only rendered when explicitly provided */}
+                {item.index && (
+                  <span
+                    aria-hidden="true"
+                    className={classNames(
+                      ' font-normal  font-serif italic tracking-[0%]   text-[16px] leading-none',
+                      isActive ? 'text-[#B5B5B5]' : 'text-[#B5B5B5]'
+                    )}
+                  >
+                    {item.index}
+                  </span>
+                )}
+                <span className={`font-sans ${labelClassName}`}>{item.label}</span>
               </span>
               {!isLast && (
                 <span

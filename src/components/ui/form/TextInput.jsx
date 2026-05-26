@@ -51,7 +51,7 @@ const INTERACTIVE_CLASSES =
   'focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
 
 const WRAPPER_BASE =
-  'flex h-[51px] items-center gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
+  'flex  items-center  gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
   'transition-colors duration-100';
 
 // Filled-value typography mirrors Figma node 2353:14649 — SF Pro Rounded
@@ -81,6 +81,10 @@ const TextInput = ({
   // typed a value, and to `text-success` in the "Verrifed input" state.
   leftIconClassName,
   rightIcon,
+  // Set true when rightIcon contains an interactive element (e.g. a
+  // show/hide toggle button). Removes aria-hidden from the wrapper span
+  // so the button remains reachable by assistive technology.
+  rightIconInteractive = false,
   labelTrailing,
   labelTrailingClassName,
   // Helper-row slots forwarded straight to Field — see Field.jsx.
@@ -130,7 +134,8 @@ const TextInput = ({
         {leftIcon && (
           <span
             className={classNames(
-              'inline-flex shrink-0 size-4',
+              'flex items-center justify-center shrink-0 size-4',
+              '[&>svg]:w-full [&>svg]:h-full [&>img]:w-full [&>img]:h-full',
               leftIconClassName ?? 'text-content-tertiary'
             )}
             aria-hidden="true"
@@ -149,7 +154,10 @@ const TextInput = ({
           {...inputProps}
         />
         {rightIcon && (
-          <span className="inline-flex shrink-0 size-5 text-content-tertiary" aria-hidden="true">
+          <span
+            className="flex items-center justify-center shrink-0 size-5 text-content-tertiary [&>svg]:w-full [&>svg]:h-full [&>img]:w-full [&>img]:h-full"
+            aria-hidden={rightIconInteractive ? undefined : 'true'}
+          >
             {rightIcon}
           </span>
         )}

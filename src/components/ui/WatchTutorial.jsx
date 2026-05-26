@@ -70,8 +70,7 @@ const WatchTutorial = ({
         className={classNames(
           // Circular brand-green play button — same shelf DNA as Button.
           'relative inline-flex items-center justify-center shrink-0 size-[72px] rounded-pill',
-          'bg-brand-green border-t border-r-2 border-b-2 border-l-2 border-brand-green-dark',
-          'shadow-[0_4px_0_var(--color-brand-green-dark-hover)]',
+          'bg-[#EBF1EC]/30 hover:bg-[#EBF1EC]/60 active:bg-[#EBF1EC]/100 ',
           'text-brand-green-light',
           'transition-transform duration-100',
           'hover:translate-y-0',

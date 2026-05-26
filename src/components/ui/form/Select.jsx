@@ -209,7 +209,10 @@ const Select = ({
           {...rest}
         >
           {leftIcon && (
-            <span className="inline-flex shrink-0 size-4 text-content-tertiary" aria-hidden="true">
+            <span
+              className="flex items-center justify-center shrink-0 size-4 text-content-tertiary [&>svg]:w-full [&>svg]:h-full [&>img]:w-full [&>img]:h-full"
+              aria-hidden="true"
+            >
               {leftIcon}
             </span>
           )}
