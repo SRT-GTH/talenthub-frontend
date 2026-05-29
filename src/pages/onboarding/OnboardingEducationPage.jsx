@@ -753,7 +753,7 @@ const OnboardingEducationPage = () => {
       : 'Select level, grade and institution first';
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-160px)] flex-col bg-white">
+    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
       <OnboardingHeader currentKey="education" percent={85} />
 
       <section className="flex flex-1">

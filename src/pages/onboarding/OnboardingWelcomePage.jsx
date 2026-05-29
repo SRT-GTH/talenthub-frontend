@@ -300,7 +300,7 @@ const OnboardingWelcomePage = () => {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-160px)] bg-white">
+    <section className="mx-auto flex w-full min-h-[calc(100vh-160px)] bg-white">
       {/* Left content column. Centered within the available space. */}
       <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
         <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center">

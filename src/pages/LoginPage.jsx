@@ -110,7 +110,7 @@ const AuthErrorToast = ({ onClose }) => (
 const RightPanel = ({ toast }) => (
   <aside
     aria-hidden={toast ? undefined : true}
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] lg:block"
+    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden lg:block"
   >
     <img
       src={rightPanelImage}
@@ -383,7 +383,7 @@ const LoginPage = () => {
     // Outer width is pinned to the Figma frame (1728×1117, node 2849-52564)
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
-    <section className="mx-auto flex min-h-[calc(100vh-160px)] bg-white">
+    <section className="mx-auto flex w-full min-h-[calc(100vh-160px)] bg-white">
       {/* Left column hosts the form on top of a soft green-orb ambient
           decoration (Figma node 2849:52564). The orb sits in the top-left
           and fades to white toward the form's center — the asset's aspect

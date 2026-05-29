@@ -709,7 +709,7 @@ const OnboardingReviewPage = () => {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-[calc(100vh-160px)] flex-col bg-white">
+    <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
       <OnboardingHeader currentKey="review" percent={78} />
 
       <ReviewBackgroundOrbs />
