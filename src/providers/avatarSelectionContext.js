@@ -13,8 +13,13 @@ export const AVATAR_SELECTION_DEFAULTS = {
   // Identity
   username: 'KofiA_23',
 
-  // Style step (matches the first entry in AvatarStylePanel's BASE_STYLES)
-  baseStyle: 'style-1',
+  // Style step. Default is null so no tile is pre-selected on first
+  // landing — the user picks a style themselves, which then fires the
+  // preset (skinTone + hairStyle + apparel + …) for the avatar preview.
+  // Previously this defaulted to 'style-1', which highlighted the first
+  // tile but didn't fire its preset, so the avatar (just body-base)
+  // didn't match the highlighted tile.
+  baseStyle: null,
 
   // Skin step
   skinTone: 'cocoa',

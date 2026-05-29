@@ -243,19 +243,35 @@ const WRAP_AROUND_HAIR = new Set(['hair-3', 'hair-8', 'hair-9']);
 // from each raw SVG so we know what colour to find-and-replace at runtime.
 // ---------------------------------------------------------------------------
 
-// body-base.svg uses *five* brown shades for different skin regions —
-// the head, the dark inside-neck, the lighter outer-neck/shoulder, and
-// two lip shades. They all need to track the picked skin tone, otherwise
-// the neck stays dark while the head goes pale. Each shade carries a
-// fixed lightness offset from the head colour so they keep their
-// relative relationship when the head colour changes.
-const BODY_BASE_SKIN_HEX = '#8B5A3C'; // head — the main reference
+// body-base.svg uses brown shades for different skin regions — the head,
+// the dark inside-neck, and the lighter outer-neck/shoulder. They all
+// need to track the picked skin tone, otherwise the neck stays dark
+// while the head goes pale. Each shade carries a fixed lightness offset
+// from the head colour so they keep their relative relationship when
+// the head colour changes.
+//
+// IMPORTANT: we deliberately do NOT recolour the NOSE shades (#824B25
+// and #B38164, which sit at y≈341–352 between the eyes and mouth). On
+// dark skin tones they'd shift to nearly the same shade as the head and
+// the nose would disappear — which was the "no face on Style 2 (mahogany)"
+// bug. Keeping them at their drawn brown lets the nose read on every
+// skin tone (slightly darker than light skin, slightly lighter than
+// very dark skin — visible either way).
+//
+// Auto-detect the head colour from the actual SVG file at module load
+// (it's the fill on the first <path>, which is the head ellipse). This
+// way if Figma re-exports the head with a different hex, the recolour
+// still works without a code change. If detection fails for any reason
+// we fall back to the known-good hex.
+const detectHeadFill = (svgText) => {
+  const match = svgText.match(/<path[^>]*fill="(#[0-9A-Fa-f]+)"/i);
+  return match ? match[1] : '#8B5A3C';
+};
+const BODY_BASE_SKIN_HEX = detectHeadFill(bodyBaseRaw);
 const BODY_BASE_SKIN_OFFSETS = {
-  '#8B5A3C': 0, // head (main)
+  [BODY_BASE_SKIN_HEX]: 0, // head (main) — auto-detected from the SVG
   '#5B2F14': -50, // inner neck (deep shadow)
   '#986546': 12, // outer neck / shoulder (lighter)
-  '#824B25': -20, // lip dark
-  '#B38164': 45, // lip highlight
 };
 
 const HAIR_RAW_PRIMARY = Object.fromEntries(
@@ -269,15 +285,18 @@ const OUTFIT_RAW_PRIMARY = Object.fromEntries(
 // Layer rendering helper
 // ---------------------------------------------------------------------------
 
-const Layer = ({ src, alt = '' }) => (
-  <img
-    src={src}
-    alt={alt}
-    aria-hidden={alt ? undefined : 'true'}
-    draggable="false"
-    className="absolute inset-0 h-full w-full select-none"
-  />
-);
+// Each layer becomes an <image> element inside the wrapper SVG below.
+// The wrapper's viewBox crops every layer's full 1024×1024 canvas down
+// to the character area (LAYER_VIEWBOX). All layers share the same
+// coordinate space so they automatically register/align.
+const LAYER_VIEWBOX = '350 180 400 400';
+
+// `key={src}` forces React to unmount + remount the <image> element
+// whenever the data URL changes. Without this, some browsers don't
+// reliably reload an SVG <image> when only its `href` attribute is
+// patched in place — the recoloured SVG would be in the prop tree but
+// the rendered DOM would still show the previous version.
+const Layer = ({ src }) => <image key={src} href={src} x="0" y="0" width="1024" height="1024" />;
 
 // ---------------------------------------------------------------------------
 // AvatarPreview
@@ -306,14 +325,6 @@ const Layer = ({ src, alt = '' }) => (
 
 const AvatarPreview = ({ className }) => {
   const { selection, reset } = useAvatarSelection();
-  log('render', {
-    skinTone: selection.skinTone,
-    lightness: selection.lightness,
-    hairStyle: selection.hairStyle,
-    hairColor: selection.hairColor,
-    apparel: selection.apparel,
-    apparelColor: selection.apparelColor,
-  });
 
   // ── body-base: skin tone + lightness ────────────────────────────────
   // Apply the picked skin tone (+ lightness slider) to the main head
@@ -329,6 +340,21 @@ const AvatarPreview = ({ className }) => {
     recoloredBody = recolor(recoloredBody, originalHex, newHex);
   }
   const bodySrc = svgToDataUrl(recoloredBody);
+
+  // Full debug snapshot — useful when diagnosing "why didn't this colour
+  // change?". Logs the selection state plus the resolved hexes that get
+  // applied to the body-base. Cleared in prod by debug().
+  log('render', {
+    skinTone: selection.skinTone,
+    lightness: selection.lightness,
+    skinHex,
+    adjustedSkin,
+    headDetectedAs: BODY_BASE_SKIN_HEX,
+    hairStyle: selection.hairStyle,
+    hairColor: selection.hairColor,
+    apparel: selection.apparel,
+    apparelColor: selection.apparelColor,
+  });
 
   // ── hair: pick layer (raw or static) and recolour if applicable ─────
   const hairId = selection.hairStyle;
@@ -369,36 +395,50 @@ const AvatarPreview = ({ className }) => {
     // button's width and the avatar rendered tiny. Setting width on the
     // outer wrapper instead of relying on `w-full` on the inner stack
     // fixes that.
-    <div className={classNames('w-full max-w-[min(85vh,880px)] mx-auto', className)}>
-      <div
-        className={classNames(
-          // The actual layer stack — square, fills the wrapper's width.
-          'relative aspect-square w-full'
-        )}
-      >
-        {/* Layer 1: wrap-around hair (Afro, Hijab, Kente Wrap) — BEHIND body */}
-        {hairSrc && isWrapAround && <Layer src={hairSrc} />}
+    <div className={classNames('w-full max-w-[min(68vh,680px)] mx-auto', className)}>
+      <div className="relative aspect-square w-full">
+        {/* Single wrapper SVG with a tight viewBox that crops every layer
+          to the character area. Replaces the earlier CSS-scale approach:
+          • Cropping via viewBox keeps the character centred horizontally
+            (no more rightward drift from a non-centre transform-origin).
+          • The crop dimensions (LAYER_VIEWBOX = "350 180 400 400") cover
+            the full character — hair top, face, neck, and outfit bottom
+            — so nothing gets truncated at the canvas edges.
+          • All layers ride on the same coordinate space (0–1024 source,
+            same viewBox crop) so they register perfectly without per-layer
+            alignment. */}
+        <svg
+          viewBox={LAYER_VIEWBOX}
+          preserveAspectRatio="xMidYMid meet"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Avatar preview"
+          className="absolute inset-0 h-full w-full"
+        >
+          {/* Layer 1: wrap-around hair (Afro, Hijab, Kente Wrap) — BEHIND body */}
+          {hairSrc && isWrapAround && <Layer src={hairSrc} />}
 
-        {/* Layer 2: body base — head + face + neck */}
-        <Layer src={bodySrc} alt="Avatar preview" />
+          {/* Layer 2: body base — head + face + neck */}
+          <Layer src={bodySrc} />
 
-        {/* Layer 3: outfit (chest blob) */}
-        {outfitSrc && <Layer src={outfitSrc} />}
+          {/* Layer 3: outfit (chest blob) */}
+          {outfitSrc && <Layer src={outfitSrc} />}
 
-        {/* Layer 4: facial hair */}
-        {facialHairSrc && <Layer src={facialHairSrc} />}
+          {/* Layer 4: facial hair */}
+          {facialHairSrc && <Layer src={facialHairSrc} />}
 
-        {/* Layer 5: details (single-select) */}
-        {detailSrc && <Layer src={detailSrc} />}
+          {/* Layer 5: details (single-select) */}
+          {detailSrc && <Layer src={detailSrc} />}
 
-        {/* Layer 6: earrings */}
-        {earringSrc && <Layer src={earringSrc} />}
+          {/* Layer 6: earrings */}
+          {earringSrc && <Layer src={earringSrc} />}
 
-        {/* Layer 7: normal hair — ON TOP of head */}
-        {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
+          {/* Layer 7: normal hair — ON TOP of head */}
+          {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
 
-        {/* Layer 8: eyewear — always on top */}
-        {eyewearSrc && <Layer src={eyewearSrc} />}
+          {/* Layer 8: eyewear — always on top */}
+          {eyewearSrc && <Layer src={eyewearSrc} />}
+        </svg>
       </div>
 
       {/* Reset avatar — small pill button beneath the preview, centred.

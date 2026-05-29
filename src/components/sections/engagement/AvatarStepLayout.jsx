@@ -7,6 +7,51 @@ import { debug } from '../../../utils/debug.js';
 
 const log = debug('AvatarStepLayout');
 
+// Small four-point sparkle, used as a decorative element around the
+// avatar stage. Renders in `currentColor` so the wrapper can tint it.
+const SparkleIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M12 0 L13.6 9.4 L24 12 L13.6 14.6 L12 24 L10.4 14.6 L0 12 L10.4 9.4 Z" />
+  </svg>
+);
+
+/*
+ * AvatarStage — decorative backdrop behind the avatar preview. Matches
+ * the Figma reference: concentric soft halo rings around the avatar
+ * plus a handful of sparkles scattered across the stage. All
+ * decorations sit BEHIND the avatar (z-0) with `pointer-events-none`
+ * so they never block interaction with the AvatarPreview.
+ */
+const AvatarStage = () => (
+  <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    {/* Concentric halo rings centred on the avatar.
+
+       Sizing rule: the outer ring is capped by viewport HEIGHT (65vh)
+       so on shorter screens it can never grow taller than the column —
+       previous version used vw and could overflow the top of the
+       column on standard-aspect viewports, clipping the upper arc of
+       every ring. The wrapper is a fixed square box and the 4 rings
+       nest inside it via percentage insets. */}
+    <div className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 size-[clamp(360px,80vh,720px)]">
+      <div className="absolute inset-0 rounded-full border border-white/40" />
+      <div className="absolute inset-[8%] rounded-full border border-white/50" />
+      <div className="absolute inset-[18%] rounded-full bg-white/15" />
+      <div className="absolute inset-[28%] rounded-full bg-white/10" />
+    </div>
+
+    {/* Sparkles — scattered around the stage */}
+    <SparkleIcon className="absolute top-[8%] left-[12%] size-7 text-white/70" />
+    <SparkleIcon className="absolute top-[14%] right-[14%] size-5 text-white/60" />
+    <SparkleIcon className="absolute bottom-[28%] left-[8%] size-8 text-white/70" />
+    <SparkleIcon className="absolute bottom-[18%] right-[10%] size-4 text-white/60" />
+    <SparkleIcon className="absolute top-[30%] right-[22%] size-3 text-white/50" />
+
+    {/* Small golden accent dots — echo the Figma decorations */}
+    <span className="absolute top-[18%] right-[8%] size-3 rounded-full bg-[#E5B448]/70" />
+    <span className="absolute bottom-[36%] right-[28%] size-2 rounded-full bg-[#E5B448]/60" />
+  </div>
+);
+
 /*
  * AvatarStepLayout — shared page shell for each avatar customisation step
  * (Style, Skin, Hair, Extras, Outfit). Source: Figma frames in the
@@ -90,13 +135,29 @@ const AvatarStepLayout = ({
             flat-green canvas — lighter at the top, slightly deeper at
             the edges — so the stage doesn't feel empty around the
             avatar. */}
+          {/*
+            Note: NO `overflow-hidden` on this column — the AvatarStage
+            inside has its own `overflow-hidden` to clip the halo +
+            sparkles, but we don't want the column itself to clip the
+            reset button (which used to get cut off the bottom of the
+            viewport on shorter screens).
+          */}
           <div
-            className="relative overflow-hidden lg:sticky lg:top-0 lg:self-start lg:h-screen flex items-start justify-center px-[clamp(16px,3vw,48px)] pt-[clamp(32px,5vw,72px)] pb-[clamp(16px,3vw,40px)]"
+            className="relative lg:sticky lg:top-0 lg:self-start lg:h-screen flex items-start justify-center px-[clamp(16px,3vw,48px)] pt-[clamp(32px,5vw,72px)] pb-[clamp(16px,3vw,40px)]"
             style={{
               background: 'radial-gradient(ellipse at top, #e3f0db 0%, #cfe0c8 55%, #b8cfb0 100%)',
             }}
           >
-            <AvatarPreview />
+            {/* Decorative stage backdrop — halo rings, sparkles, accent
+              dots. Lives behind the avatar (pointer-events-none + behind
+              the AvatarPreview in the DOM). */}
+            <AvatarStage />
+
+            {/* The avatar itself — sits ON TOP of the decorations via
+              z-index so the halo rings frame it nicely. */}
+            <div className="relative z-10 w-full">
+              <AvatarPreview />
+            </div>
           </div>
 
           {/* RIGHT — customiser panel (interactive when `panel` is passed,
