@@ -24,10 +24,14 @@ import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
 import AvatarExtrasPage from './pages/engagement/AvatarExtrasPage.jsx';
 import AvatarOutfitPage from './pages/engagement/AvatarOutfitPage.jsx';
 import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
+import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 function App() {
   return (
     <BrowserRouter>
+      {/* Reset window scroll on every route change so each new page
+          starts at the top instead of inheriting the previous scroll. */}
+      <ScrollToTop />
       <Routes>
         {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
             mirroring the elysium pattern. Add it as:

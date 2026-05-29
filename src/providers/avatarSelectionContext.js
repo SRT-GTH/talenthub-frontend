@@ -33,7 +33,7 @@ export const AVATAR_SELECTION_DEFAULTS = {
   eyewear: 'eyewear-none',
   facialHair: 'facial-none',
   earring: 'earring-none',
-  details: [],
+  details: null,
   tintColor: 'black',
 
   // Outfit step — apparel is null until the user picks; fit defaults to
@@ -49,4 +49,5 @@ export const AvatarSelectionContext = createContext({
   selection: AVATAR_SELECTION_DEFAULTS,
   setField: () => {},
   toggleMulti: () => {},
+  reset: () => {},
 });

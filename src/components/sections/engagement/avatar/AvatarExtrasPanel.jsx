@@ -173,7 +173,7 @@ const PickOneGroup = ({ title, options, value, onChange }) => (
 
 const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => {
   log('render');
-  const { selection, setField, toggleMulti } = useAvatarSelection();
+  const { selection, setField } = useAvatarSelection();
 
   // Count how many extras are currently picked (excluding the "None"
   // sentinels). Echoes the "3 SELECTED" pill on the Figma reference.
@@ -181,7 +181,7 @@ const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => 
     selection.eyewear && !selection.eyewear.endsWith('-none') ? 1 : 0,
     selection.facialHair && !selection.facialHair.endsWith('-none') ? 1 : 0,
     selection.earring && !selection.earring.endsWith('-none') ? 1 : 0,
-    selection.details?.length ?? 0,
+    selection.details ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -227,15 +227,15 @@ const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => 
         onChange={(id) => setField('earring', id)}
       />
 
-      {/* Multi-select details */}
+      {/* Details — single-select, matches the other pick-one groups */}
       <section className="flex flex-col gap-3">
-        <AvatarSectionHeader title="Details · multi-select" meta="Pick any" />
+        <AvatarSectionHeader title="Details" meta="Pick one" />
         <div className="grid grid-cols-5 gap-2">
           {DETAIL_OPTIONS.map((opt) => (
             <AvatarOptionTile
               key={opt.id}
-              selected={selection.details?.includes(opt.id)}
-              onClick={() => toggleMulti('details', opt.id)}
+              selected={selection.details === opt.id}
+              onClick={() => setField('details', opt.id)}
               ariaLabel={opt.label}
               label={opt.label}
             >

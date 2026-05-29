@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AvatarSelectionContext, AVATAR_SELECTION_DEFAULTS } from './avatarSelectionContext.js';
 import { debug } from '../utils/debug.js';
 
@@ -18,6 +18,11 @@ const log = debug('AvatarSelectionProvider');
 
 const AvatarSelectionProvider = ({ initial, children }) => {
   const [selection, setSelection] = useState({ ...AVATAR_SELECTION_DEFAULTS, ...initial });
+  // Snapshot the initial overrides in a ref so `reset()` works regardless
+  // of whether `initial` is provided as a stable object or rebuilt on every
+  // render. The defaults always apply; per-page initial overrides (if any)
+  // are layered on top.
+  const initialRef = useRef(initial);
 
   const value = useMemo(() => {
     // Set a single field by key.
@@ -38,7 +43,14 @@ const AvatarSelectionProvider = ({ initial, children }) => {
       });
     };
 
-    return { selection, setField, toggleMulti };
+    // Reset every field to its default. Wired to the "Reset avatar"
+    // button on the preview so users can roll back to a clean slate.
+    const reset = () => {
+      log('reset — restoring defaults');
+      setSelection({ ...AVATAR_SELECTION_DEFAULTS, ...(initialRef.current || {}) });
+    };
+
+    return { selection, setField, toggleMulti, reset };
   }, [selection]);
 
   return (

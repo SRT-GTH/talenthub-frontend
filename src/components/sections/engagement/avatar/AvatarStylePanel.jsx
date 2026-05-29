@@ -56,6 +56,149 @@ const BASE_STYLES = [
   { id: 'style-10', label: 'Style 10', image: avatar10 },
 ];
 
+// Each base style is a quick-pick PRESET — clicking a tile pre-fills
+// every other panel with a coherent look (skin tone, hair, outfit,
+// extras, colours). Users can then tweak from there. This is what the
+// 10 Style tiles do now in the layered avatar world; previously they
+// only set `baseStyle` and the live preview ignored them.
+//
+// Combinations are designed to span the variation space — different
+// hair shapes, different outfits, different skin tones, different
+// colour palettes — so there's a tile that lands close to "you" for
+// most users to start from.
+const STYLE_PRESETS = {
+  'style-1': {
+    skinTone: 'cocoa',
+    lightness: 0,
+    hairStyle: 'hair-1', // Box Braids
+    hairColor: 'black',
+    apparel: 'outfit-tee',
+    apparelColor: 'brand-green',
+    fit: 'regular',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-none',
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-2': {
+    skinTone: 'mahogany',
+    lightness: 0,
+    hairStyle: 'hair-2', // Cornrows
+    hairColor: 'dark-brown',
+    apparel: 'outfit-hoodie',
+    apparelColor: 'charcoal',
+    fit: 'relaxed',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-7', // Stubble
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-3': {
+    skinTone: 'cocoa-light',
+    lightness: 0,
+    hairStyle: 'hair-3', // Afro
+    hairColor: 'black',
+    apparel: 'outfit-polo',
+    apparelColor: 'ocean',
+    fit: 'regular',
+    eyewear: 'eyewear-2',
+    facialHair: 'facial-none',
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-4': {
+    skinTone: 'bronze',
+    lightness: 0,
+    hairStyle: 'hair-4', // Buzz Cut
+    hairColor: 'black',
+    apparel: 'outfit-suit',
+    apparelColor: 'charcoal',
+    fit: 'slim',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-8', // Full Beard
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-5': {
+    skinTone: 'caramel',
+    lightness: 0,
+    hairStyle: 'hair-5', // Fade
+    hairColor: 'auburn',
+    apparel: 'outfit-button-down',
+    apparelColor: 'kente-gold',
+    fit: 'regular',
+    eyewear: 'eyewear-3',
+    facialHair: 'facial-6', // Goatee
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-6': {
+    skinTone: 'cocoa',
+    lightness: 0,
+    hairStyle: 'hair-6', // Twists
+    hairColor: 'chestnut',
+    apparel: 'outfit-kente-top',
+    apparelColor: 'sunset-orange',
+    fit: 'regular',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-none',
+    earring: 'earring-10', // Stud
+    details: 'detail-13', // Freckles
+  },
+  'style-7': {
+    skinTone: 'mahogany',
+    lightness: 0,
+    hairStyle: 'hair-7', // Locs
+    hairColor: 'black',
+    apparel: 'outfit-dashiki',
+    apparelColor: 'kente-gold',
+    fit: 'relaxed',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-none',
+    earring: 'earring-12', // Drop
+    details: null,
+  },
+  'style-8': {
+    skinTone: 'cocoa',
+    lightness: 0,
+    hairStyle: 'hair-8', // Hijab
+    hairColor: 'black',
+    apparel: 'outfit-hijab-fit',
+    apparelColor: 'violet',
+    fit: 'regular',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-none',
+    earring: 'earring-none',
+    details: 'detail-15', // Beauty mark
+  },
+  'style-9': {
+    skinTone: 'bronze',
+    lightness: 0,
+    hairStyle: 'hair-10', // Long Curly
+    hairColor: 'brown',
+    apparel: 'outfit-lab-coat',
+    apparelColor: 'cream',
+    fit: 'regular',
+    eyewear: 'eyewear-2',
+    facialHair: 'facial-none',
+    earring: 'earring-none',
+    details: null,
+  },
+  'style-10': {
+    skinTone: 'cocoa',
+    lightness: 0,
+    hairStyle: 'hair-12', // Onyx
+    hairColor: 'black',
+    apparel: 'outfit-athletic',
+    apparelColor: 'rose',
+    fit: 'regular',
+    eyewear: 'eyewear-none',
+    facialHair: 'facial-none',
+    earring: 'earring-11', // Hoop
+    details: 'detail-16', // Blush
+  },
+};
+
 // 8 skin tones — round swatches under the style grid.
 const SKIN_TONES = [
   { id: 'soft-almond', color: '#F2D7B6', label: 'Soft Almond' },
@@ -81,6 +224,18 @@ const StyleCharacter = ({ image, alt }) => (
 const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
   log('render');
   const { selection, setField } = useAvatarSelection();
+
+  // Apply a preset — sets baseStyle plus every field defined for that
+  // style. Subsequent clicks on other panels override individual fields.
+  const applyPreset = (styleId) => {
+    log('apply preset', styleId);
+    setField('baseStyle', styleId);
+    const preset = STYLE_PRESETS[styleId];
+    if (!preset) return;
+    Object.entries(preset).forEach(([key, value]) => {
+      setField(key, value);
+    });
+  };
 
   return (
     <div className={classNames('flex flex-col gap-6', className)}>
@@ -114,7 +269,7 @@ const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
             <AvatarOptionTile
               key={style.id}
               selected={selection.baseStyle === style.id}
-              onClick={() => setField('baseStyle', style.id)}
+              onClick={() => applyPreset(style.id)}
               ariaLabel={style.label}
             >
               <StyleCharacter image={style.image} alt={style.label} />
