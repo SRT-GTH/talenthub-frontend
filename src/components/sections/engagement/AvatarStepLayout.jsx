@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from './EngagementTopNav.jsx';
 import EngagementTopBar from './EngagementTopBar.jsx';
 import EngagementFooter from './EngagementFooter.jsx';
+import AvatarPreview from './avatar/AvatarPreview.jsx';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('AvatarStepLayout');
@@ -32,8 +33,9 @@ const log = debug('AvatarStepLayout');
  */
 
 const AvatarStepLayout = ({
-  heroSrc,
-  heroAlt,
+  // heroSrc / heroAlt accepted for backwards compatibility from the pages
+  // but ignored — the LEFT side now renders <AvatarPreview /> (the
+  // layered, live-updating avatar) instead of a static hero PNG.
   panel,
   panelSrc,
   panelAlt,
@@ -73,14 +75,14 @@ const AvatarStepLayout = ({
 
       <main className="flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_clamp(420px,42vw,720px)]">
-          {/* LEFT — hero stage (avatar preview + step title) */}
-          <div className="relative overflow-hidden bg-[#cfe0c8]">
-            <img
-              src={heroSrc}
-              alt={heroAlt}
-              className="block w-full h-auto select-none"
-              draggable="false"
-            />
+          {/* LEFT — live avatar stage. AvatarPreview stacks the layered
+            SVGs (body + hair + outfit + extras) and updates as the user
+            clicks tiles on the right. The green background remains the
+            "stage" backdrop behind the avatar. `heroSrc` / `heroAlt`
+            props are kept for backwards compatibility but no longer
+            rendered — the layered preview replaces the static PNG. */}
+          <div className="relative overflow-hidden bg-[#cfe0c8] flex items-center justify-center p-[clamp(16px,3vw,40px)]">
+            <AvatarPreview />
           </div>
 
           {/* RIGHT — customiser panel (interactive when `panel` is passed,
