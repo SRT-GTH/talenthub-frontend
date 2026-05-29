@@ -81,6 +81,11 @@ const Select = ({
   verified = false,
   disabled = false,
   leftIcon,
+  // Optional override for the leading-icon color wrapper. Defaults to
+  // `text-content-tertiary` — symmetric with `TextInput.leftIconClassName`.
+  // The Education step flips this to `text-brand-green` so the trend-up /
+  // mortarboard / calendar glyphs read in the brand colour.
+  leftIconClassName,
   className,
   name,
   id,
@@ -209,7 +214,13 @@ const Select = ({
           {...rest}
         >
           {leftIcon && (
-            <span className="inline-flex shrink-0 size-4 text-content-tertiary" aria-hidden="true">
+            <span
+              className={classNames(
+                'inline-flex shrink-0 size-4',
+                leftIconClassName ?? 'text-content-tertiary'
+              )}
+              aria-hidden="true"
+            >
               {leftIcon}
             </span>
           )}
