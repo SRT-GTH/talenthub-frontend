@@ -147,6 +147,7 @@
   --color-content-primary: #272e35; /* Figma `Content/Primary` */
   --color-content-secondary: #555f6d; /* Figma `Content/Secondary` */
   --color-content-tertiary: #7e8b99; /* Figma `Content/Tertiary` */
+  --color-content-helper: #737373; /* Figma "Neutrals/White/Dark :active" — muted/placeholder text (node 2971:65523) */
   --color-background-default: #ffffff; /* Figma `Background/Default` */
   --color-background-subtle: #f5f7f9; /* Figma `Background/Subtle Neutral` */
   --color-border-default: #e9ecef; /* Figma `Border/Default` */

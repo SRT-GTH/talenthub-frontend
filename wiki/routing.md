@@ -6,9 +6,30 @@ Config-based routing in `src/App.jsx` using React Router v6 `<BrowserRouter>` + 
 
 ## Current Route Map `✅ VERIFIED`
 
-| Path | Element    | Layout       |
-| ---- | ---------- | ------------ |
-| `/`  | `HomePage` | `MainLayout` |
+| Path                                   | Element                               | Layout                                 |
+| -------------------------------------- | ------------------------------------- | -------------------------------------- |
+| `/`                                    | `LandingPage`                         | `MainLayout`                           |
+| `/login`                               | `LoginPage`                           | `MainLayout` — OnboardingNavbar chrome |
+| `/get-started`                         | `GetStartedPage`                      | `MainLayout` — OnboardingNavbar chrome |
+| `/components`                          | `HomePage` (design-system playground) | `MainLayout`                           |
+| `/onboarding/talent/welcome`           | `OnboardingWelcomePage`               | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/dob`               | `OnboardingDobPage`                   | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/personal-info`     | `OnboardingPersonalInfoPage`          | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/contact`           | `OnboardingContactPage`               | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/address`           | `OnboardingAddressPage`               | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/education`         | `OnboardingEducationPage`             | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/parent-info`       | `OnboardingParentInfoPage`            | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/talent/review`            | `OnboardingReviewPage`                | `MainLayout` — OnboardingNavbar chrome |
+| `/onboarding/institution/guidelines`   | `InstitutionGuidelinesPage`           | `MainLayout` — OnboardingNavbar chrome |
+| `/profile/engagement`                  | `ProfileEngagementPage`               | own chrome (outside MainLayout)        |
+| `/profile/engagement/identity`         | `IdentityMapPage`                     | own chrome                             |
+| `/profile/engagement/milestone`        | `MilestoneUnlockPage`                 | own chrome                             |
+| `/profile/engagement/milestone/top-20` | `Top20MilestonePage`                  | own chrome                             |
+| `/profile/engagement/avatar`           | `AvatarCustomiserPage`                | own chrome                             |
+| `/profile/engagement/avatar/skin`      | `AvatarSkinTonePage`                  | own chrome                             |
+| `/profile/engagement/avatar/hair`      | `AvatarHairPage`                      | own chrome                             |
+| `/profile/engagement/avatar/extras`    | `AvatarExtrasPage`                    | own chrome                             |
+| `/profile/engagement/avatar/outfit`    | `AvatarOutfitPage`                    | own chrome                             |
 
 ## Reserved `❓ NEEDS-CLARIFICATION`
 

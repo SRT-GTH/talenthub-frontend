@@ -216,7 +216,8 @@ const Select = ({
           {leftIcon && (
             <span
               className={classNames(
-                'inline-flex shrink-0 size-4',
+                'flex items-center justify-center shrink-0 size-4',
+                '[&>svg]:w-full [&>svg]:h-full [&>img]:w-full [&>img]:h-full',
                 leftIconClassName ?? 'text-content-tertiary'
               )}
               aria-hidden="true"

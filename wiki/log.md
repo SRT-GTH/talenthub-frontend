@@ -3,6 +3,401 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-05-22] create | Institution Confirm step (step 7 of 8)
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/ConfirmSection.jsx` — step-7 pre-submission review; `ConfirmStatCard` sub-component (stacked value+sub-label in inner box, colour-coded outer fills: green/neutral/blue/amber per card); `ChecklistItem` sub-component (numbered green circle 20×20 + text, h=42px); `ExclamWarningIcon` (10×10 exclamation for warning box); bordered checklist box (stroke #000000@1 r=16, gray header strip "What happens when you click Submit"); amber warning box (rgba(200,149,26,0.1) bg, stroke #eedeb8 r=10, 22×22 amber circle icon); CTAs: Back (128×56 white) + Submit (flex-1 green "Submit And Create N Accounts"); footer link
+- `src/pages/onboarding/institution/InstitutionConfirmPage.jsx` — thin route wrapper
+
+**Modified files:**
+
+- `src/App.jsx` — added `InstitutionConfirmPage` import + route `/onboarding/institution/confirm` inside `InstitutionOnboardingLayout` group
+- `src/layout/InstitutionOnboardingLayout.jsx` — added `/confirm` to `showRightPanel` exclusion (was: activate / template / validate)
+
+**ConfirmStatCard design tokens (Figma 3040:71928–3040:71940):**
+Outer container: 194×98 py-[9px] gap-[4px] r=10 border-black — same shell as ValidateSection StatCard
+Inner box: 177×60 bg-white border-black/40 r=10 — now contains Frame 376 (stacked):
+Value: fs=32 fw=400 lh=22 — colour varies per card
+Sub-label: fs=10 fw=400 lh=16 — colour varies per card
+Outer label: fs=10 fw=500 lh=16 — colour varies per card
+Card configs:
+Accounts To Create: outer rgba(235,241,236,0.5) value #387440 sub+label #2a5730
+Rows Skipped: outer #f8f8f4 value #387440 sub+label #2a5730
+Opt-Out SMS Will Be Sent: outer rgba(234,239,251,0.5) value #3062d3 sub+label #244a9f
+Minors No Parent Contact: outer #faf4e8 value #967014 sub+label #967014
+
+**Checklist box (Figma 3046:73914):** stroke #000000@1 r=16; header bg=#f8f8f4 h=35px; 4 items h=42px circle+text; no inter-row dividers
+**Warning box (Figma 3046:73933):** rgba(200,149,26,0.1) bg; stroke #eedeb8; circle 22×22 #c8951a; text fs=12 fw=400 #967014
+**Headline styleOverrides:** "submit?" (indices 9–15) → italic #387440 (styleTable key 73 verified via REST API)
+
+**Build:** ✅ 0 errors (`npm run build`)
+**Visual:** ✅ Playwright verified — confirm page renders at `/onboarding/institution/confirm`; no right panel; breadcrumb shows "Confirm" active at 75%; all 4 stat cards correct colour-coding; checklist box + warning box correct; both CTAs render; 0 console errors
+
+---
+
+## [2026-05-22] update | Institution Validate step — collapsible cards, download banner, error stat cards
+
+**Modified files:**
+
+- `src/components/sections/institutionOnboarding/ValidationCheckCard.jsx` — added expand/collapse behaviour; `rows` + `howToFix` props; row count pill badge on right (variant-tinted bg, r=100, fs=10 fw=700); ChevronIcon (12×12, stroke #babab7@1.3) rotates 180° when expanded; `TableHeader` (col headers: Row/Name/DOB/Reason, fs=10 fw=700 #70706e ls=0.5); `TableRow` (hover: rgba(235,241,236,0.5), default: transparent, h=34); `MoreRowsRow` ("+ N more rows in download file", fs=11 fw=400 #babab7); `HowToFixRow` (fill=#fefcf5, top border, fs=10 info icon + tip text); grid-template-columns: 60px 1fr 110px 1fr; PREVIEW_ROWS=10; VARIANT config extended with `badgeBg`, `badgeText`, `tableBorder`, `reasonColor`
+- `src/components/sections/institutionOnboarding/ValidateSection.jsx` — download banner (3034:71143: 897×63, rgba(249,235,234,0.5) bg, #ebc2bd border, r=10; red download icon 18×18; heading fs=14 fw=600 #922b21; body fs=12 fw=400 #c0392b; "Download .csv" button: fill #c0392b stroke #902b20@2px r=10 h=36 px-18); failed-tab stat cards (Total Failed/Missing Contact/Duplicates/Format Errors — all value+label #c0392b; Figma 3028:67662/67669/67668/67670/67674); `visibleStats` derived from `activeTab`; `StatCard` accepts `labelColor` prop (default #2a5730); mock data extended with `rows[]` + `howToFix` per failed/warning check; `rows`+`howToFix` forwarded to `ValidationCheckCard`; `missingContact`/`duplicates`/`formatErrors` added to MOCK
+
+**Download banner tokens (Figma 3034:71143):**
+Container: 897×63 rgba(249,235,234,0.5) border #ebc2bd r=10
+Icon SVG: 18×18 two vectors (arrow 8×12 + base 14×0) stroke #c0392b@1.5
+Heading: fs=14 fw=600 #922b21
+Subtext: fs=12 fw=400 #c0392b
+Button: h=36 r=10 fill #c0392b stroke #902b20@2px pad L18R18 gap=8
+Text: "Download .csv" fs=12 fw=700 #ffffff
+
+**Failed-tab stat cards (Figma 3028:67662/67669/67670/67674):**
+Total Failed: 26 | Missing Contact: 14 | Duplicates: 8 | Format Errors: 4
+All: valueColor=#c0392b labelColor=#c0392b (both red vs green on normal tab)
+
+**Build:** ✅ 0 errors (`npm run build`)
+**Visual:** ✅ Playwright verified — collapsed cards show row count badge + chevron; clicking failed card expands row table (columns: Row/Name/DOB/Reason, How to fix row, + N more); failed rows tab shows download banner + all-red stat cards; 0 console errors
+
+---
+
+## [2026-05-22] create | Institution Report step (step 8 of 8)
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/ReportSection.jsx` — step-8 two-phase report; sub-components: `LoadingStatCard` (flex-1 colored bg, inner white box with pulsing progress bar), `ReportStatCard` (194×98, stacked value+sub-label in inner box), `ProcessingLog` (scrollable 130px log box, 6px colored dots, 900ms per-entry animation), `InfoBanner` (blue #eaeffb banner with `InfoCircleIcon`), `DownloadButton` (40px, r=10, colored text+border), `ReportCheckCard` (expandable, dark badge for created / red badge for failed, grid table with status pills, footer variants), `ReportTableRow`, `ReportTableFooter`, `ConcentricRings` (decorative 80×80 three-ring motif with inner spinning arc); hand-crafted SVG icons: `DownloadArrowIcon`, `CheckCardUsersIcon`, `ChevronIcon`, `InfoCircleIcon`
+- `src/pages/onboarding/institution/InstitutionReportPage.jsx` — thin route wrapper
+
+**Modified files:**
+
+- `src/App.jsx` — added `InstitutionReportPage` import + route `/onboarding/institution/report` inside `InstitutionOnboardingLayout` group
+- `src/layout/InstitutionOnboardingLayout.jsx` — added `/report` to `showRightPanel` exclusion (now: activate / template / validate / confirm / report)
+
+**Two-phase state machine:**
+`phase: 'loading'` → animated counters (3 LoadingStatCards) + ProcessingLog (5 entries, 900ms each) + InfoBanner + disabled "View Upload Report" CTA → activates after animation
+`phase: 'complete'` → 4 ReportStatCards + download buttons + 2 ReportCheckCards (expandable) + active CTAs
+
+**Loading stat cards (Figma 3052:74433 / 75000 / 75007):**
+Outer: flex-1 h=98 colored bg border-black r=10 py=9
+Inner: h=60 bg=#fefefe border-black/0.4 r=10; relative for absolute pulsing progress bar (h=4 animate-pulse)
+Cards: 821 Accounts To Create (#ebf1ec/0.5, green), 198 SMS Queued (#faf4e8, amber), 26 Skipped (#f8f8f4, neutral)
+
+**Report stat cards (Figma 3065:7371 frame, 194×98 each, gap=35):**
+Identical shell to ConfirmStatCard but with a sub-label inside the 177×60 inner box
+847 Accounts To Create (green), 26 Failed rows (green), 198 Parent SMS sent (blue), 114 Minors — no parent (amber)
+
+**ProcessingLog (Figma 3061:75343):** h=130 bg=#f8f8f4 border-black r=10 pad=12×16; 5 entries; amber dot #c8951a (first+last), green dot #1d7c4d (rows 1-50, 51-100, 651-821)
+
+**ReportCheckCard:** w-full r=16 border-black overflow-hidden; header bg=#f8f8f4 minH=44 px=16; created badge bg=#000000 white text; failed badge bg=#f9ebea text=#c0392b; grid-template-columns: 48px 1fr 90px 1fr 90px; status pills: "✓ Created" (bg rgba(235,241,236,0.5) text #387440) / "Skipped" (bg #f9ebea text #c0392b); footer info: bg=#fefcf5 border-top-black fs=10 fw=600 #70706e; footer more: bg=white fs=11 fw=400 #babab7
+
+**Headlines (characterStyleOverrides verified via REST API):**
+Loading: "Creating " + italic #387440 "accounts.." (styleTable key 73, chars 9–18)
+Complete: "821 students are " + italic #387440 "live" (styleTable key 75, chars 17–20)
+
+**Build:** ✅ 0 errors (`npm run build`, 1m 36s)
+**Visual:** ✅ Playwright verified — loading phase: caption "Processing Report", headline "Creating accounts.." with italic green span, 3 stat cards (821/198/26), all 5 log entries animate in, blue InfoBanner, CTA transitions to green after animation; complete phase: caption "Upload Complete", headline "821 students are live" with italic green span, 4 report stat cards (847/26/198/114), 2 download buttons, 2 expandable check cards (821 rows dark badge / 4 rows red badge), CTAs "Upload another batch" + "Go to Institution Dashboard"; no right panel; breadcrumb step 8 "Report" active at 88%; 0 console errors
+
+---
+
+## [2026-05-22] create | Institution Validate step (step 6 of 8)
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/ValidationCheckCard.jsx` — reusable check result card with 3 variants: `passed` (green, checkmark), `failed` (red, X cross), `warning` (amber, exclamation bar); icon circle 26×26 rounded-full; hand-crafted SVG icons in 12×12 viewBox matching Figma vector bounding boxes (check 8×5, X 6×6, exclamation 0×6); title fs=13 fw=700 lh=15.5; body fs=12 fw=400 lh=15.9
+- `src/components/sections/institutionOnboarding/ValidateSection.jsx` — step-6 validation report page; no right panel; caption "06 | Validate File" via `Captions` component; headline "File scanned N issues found." (italic green "N issues found."); WavyDivider; 4 stat cards (Valid/Failed/Minors/Adults) in HORIZONTAL gap-[38px]; tab switcher (Validation checks / N failed rows) with useState; 7 ValidationCheckCard rows; two CTAs (Re-Upload File + Proceed With N Valid Rows); mock data via MOCK constant (replace with API)
+- `src/pages/onboarding/institution/InstitutionValidatePage.jsx` — thin route wrapper for `/onboarding/institution/validate`
+
+**Modified files:**
+
+- `src/App.jsx` — added `InstitutionValidatePage` import + route `/onboarding/institution/validate` inside `InstitutionOnboardingLayout` group
+- `src/layout/InstitutionOnboardingLayout.jsx` — added `/validate` to `showRightPanel` exclusion condition (was only `/activate` and `/template`)
+
+**ValidationCheckCard variants:**
+passed: bg-[#ebf1ec] border-[#c1d4c4] circle-[#387440] title-[#2a5730] body-[#70706e]
+failed: bg-[#f9ebea] border-[#ebc2bd] circle-[#c0392b] title-[#c0392b] body-[#c0392b]
+warning: bg-[#fef3c7] border-[#eedeb8] circle-[#a07715] title-[#a07715] body-[#a07715]
+
+**Headline italic portion:** "N issues found." (indices 14–29) — verified via Figma REST API `characterStyleOverrides` styleOverrideTable key 71 → italic #387440
+
+**Stat card design tokens (all verified):**
+Outer: 194×98 bg-[#f8f8f4] border-black r=10 py-[9px] gap-[4px]
+Inner: 177×60 bg-white border-black/40 r=10
+Numbers: green(#387440)/red(#c0392b)/amber(#c8951a)/grey(#595959) fs=32 fw=400 lh=22
+Labels: #2a5730 fs=10 fw=500 lh=16
+
+**Tab switcher:** second tab shows `failedChecks` (filtered variant==='failed'||'warning')
+
+**CTAs:** Re-Upload → `/onboarding/institution/upload`; Proceed → `/onboarding/institution/confirm`
+
+**Build:** ✅ 0 errors (`npm run build`, 209 modules)
+**Visual:** ✅ Playwright verified — validate page renders at `/onboarding/institution/validate`; no right panel; all 7 check cards render with correct colour coding (3 green / 3 red / 1 amber); stat cards correct; tab switcher works; CTAs render correctly; 0 console errors
+
+---
+
+## [2026-05-22] create | Institution Upload step (step 5 of 8) + TemplateSection revert to read-only
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/UploadSection.jsx` — step-5 file-upload page; 3 visual states for the upload drop zone (default / hover / uploaded); drag-and-drop via `dragCounter` ref pattern (prevents false exits on nested children); FilePill component shown after file selected; InfoSmallIcon row; CTA "Run Pre-Fight Check" (disabled until file selected); footer "Already Have an account?" + "Log in Instead" → `/login`; navigates to `/onboarding/institution/validate`; Figma main frame 3010:42286
+- `src/pages/onboarding/institution/InstitutionUploadPage.jsx` — thin route wrapper for `/onboarding/institution/upload`
+
+**Modified files:**
+
+- `src/App.jsx` — added `InstitutionUploadPage` import + route `/onboarding/institution/upload` inside `InstitutionOnboardingLayout` group (after `/template`)
+- `src/components/sections/institutionOnboarding/TemplateSection.jsx` — **reverted to read-only static display** (was incorrectly made editable in a previous session); removed `useState`, `<input>` cells, Add Row button, Delete Row column; `DataCell` (with `<input>`) → `ReadCell` (plain `<td>` + `<span>`); uses `INITIAL_ROWS` directly (no state); TABLE_W no longer includes `DEL_COL_W`
+
+**Navigation flow:**
+template → **upload** (new, right panel visible) → validate (pending)
+
+**Caption badge — non-standard (Figma 3010:43788):**
+Combined single pill with amber "Coming soon" indicator + green "05 | Bulk Upload" step label. Does NOT use the `Captions` component (different structure / mixed colour scheme). Built inline in UploadSection.
+
+**Upload zone states:**
+default: fill `#fefef3`, stroke `#c1d4c4`, white icon box, upload-arrow icon, file-type pills (.csv/.xlsx/.xls)
+hover: fill `#ebf1ec`, stroke `#387440`, white icon box, upload-arrow icon (isDragging && !file)
+uploaded: fill `#ebf1ec`, stroke `#387440`, **green** icon box, check-large icon, "File Received" + filename
+
+**Headline italic portion:**
+"student file." (indices 12–24) — verified via Figma REST API `characterStyleOverrides`, styleOverrideTable key 69 → italic + #387440
+
+**Design tokens (all verified via Figma REST API with PAT):**
+Upload zone: 698×173 cornerRadius:16 border:2
+FilePill: 698×63 fill:#ebf1ec stroke:#ddebe4 r:6; green circle 32×32 r:8
+InfoSmallIcon: 11×11 stroke #387440 1.1px
+Info text: Instrument Sans 400 11px #70706e lh:13.42
+File type pills: rounded-full border:#e6e6e6 bg-white h-[21px]; Bold 10px #70706e
+
+**Build:** ✅ 0 errors (`npm run build`, 207 modules)
+**Visual:** ✅ Playwright verified — upload page renders at `/onboarding/institution/upload` with right panel visible; caption badge, headline (italic green "student file."), upload zone default state (cream bg, "Drag Your File Here", .csv/.xlsx/.xls pills), CTA gray/disabled (correct — no file selected); 0 console errors (2 pre-existing React Router v6 future-flag warnings, unrelated)
+
+---
+
+## [2026-05-22] create | Template Guide section (Phase 4) + breadcrumb progress bar fix
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/TemplateGuideSection.jsx` — column reference guide for GTH_Bulk_Upload_Template.csv; shows a 2×2 grid of four sections (Student identity, Contact, Education, Parent/Guardian); required (green dot) vs optional (grey dot) field indicators; download button + primary CTA navigating to /template; Figma frame 3007:39760
+- `src/pages/onboarding/institution/InstitutionTemplateGuidePage.jsx` — thin route wrapper for `/onboarding/institution/template-guide`
+
+**Modified files:**
+
+- `src/App.jsx` — added `InstitutionTemplateGuidePage` import + route `/onboarding/institution/template-guide` (between activate and template)
+- `src/components/sections/institutionOnboarding/ActivateSection.jsx` — `handleModalConfirm` now navigates to `/onboarding/institution/template-guide` (was `/template`)
+- `src/components/shared/InstitutionOnboardingBreadcrumb.jsx` — **fixed progress bar layout**: changed from a single horizontal row (COMPLETE + % + bar side by side) to the correct Figma two-row stacked layout (Row 1: "COMPLETE" left / "XX%" right; Row 2: full-width progress bar); container now `flex-col w-[clamp(120px,14vw,180px)]`
+
+**Navigation flow:**
+activate → **template-guide** (new, right panel visible) → template (editable, no right panel) → upload
+
+**Breadcrumb step mapping:**
+Both `/template-guide` and `/template` map to step 3 "Template" via `STEP_PATHS.findIndex(p => pathname.startsWith(p))` — `/template-guide` starts with `/template` so no STEP_PATHS change was needed.
+
+**No right-panel override needed:**
+`showRightPanel = !pathname.endsWith('/activate') && !pathname.endsWith('/template')` — `/template-guide` ends with `-guide` so right panel remains visible automatically.
+
+**⚠️ ASSUMPTION — button labels (Figma MCP rate-limited):**
+Download button: "Download GTH_Bulk_Upload_Template.csv" (matching header file name)
+Primary CTA: "I'm ready to fill the template" — verify against Figma node 3007:40296
+
+**Build:** ✅ 0 errors (`npm run build`)
+**Visual:** ✅ Playwright verified — template-guide shows right panel, currentStep=3, 38%; template page unchanged (full-width, no right panel)
+
+---
+
+## [2026-05-22] update | Template step editable spreadsheet + Activate step legal document modals
+
+**Modified files:**
+
+- `src/layout/InstitutionOnboardingLayout.jsx` — added `/template` to no-right-panel condition (alongside `/activate`)
+- `src/components/sections/institutionOnboarding/TemplateSection.jsx` — converted read-only mock to editable spreadsheet; `DataCell` now renders `<input>`; rows managed with `useState`; Add Row button + per-row hover-delete column added
+- `src/components/sections/institutionOnboarding/ActivateSection.jsx` — imported `LegalDocModal`; moved checkbox label JSX inside component to close over modal state setters; wired "Terms & Conditions" → TC modal, "Privacy Policy." → PP modal, "Learn more about data processing." → DP modal; each modal's `onAccept` auto-checks the corresponding checkbox; uncommented third checkbox with authorisation confirmation label
+- `src/components/sections/institutionOnboarding/LegalDocModal.jsx` (**new**) — shared shell for three legal document overlays (`variant`: `'tc'` | `'privacy'` | `'data-processing'`); desktop: centered card, max-w-680, max-h-80vh, scrollable body; mobile: bottom-sheet 80vh, drag-handle pill, pointer drag-to-close (threshold 120px); all copy verbatim from Figma MCP; `onAccept` prop auto-checks caller's checkbox
+
+**Build:** ✅ 203 modules, 0 errors (`npm run build`)
+**Visual:** ✅ Playwright verified — template page full-width + editable cells; T&C + Data Consent modals open correctly; accept auto-checks checkbox
+
+## [2026-05-21] create | Institution onboarding shared layout + YourInstitution form (step 1)
+
+Extracted the shared chrome into a new route layout and built the first form step:
+
+**New files:**
+
+- `src/constants/ghanaDistricts.js` — 16 Ghana regions + all MMDAS as `GHANA_REGIONS` array and `DISTRICTS_BY_REGION` record for cascading selects
+- `src/components/sections/institutionOnboarding/InstitutionRightPanel.jsx` — extracted from GuidelinesSection; fixed `PhotoCard` (removed outer `overflow-hidden`, CSS rgba corner ellipses); added `showWatchTutorial` prop (Figma 2972:70224)
+- `src/components/shared/InstitutionOnboardingBreadcrumb.jsx` — 8-step horizontal progress bar (Figma 2968:24850); `currentStep` + `completionPercent` props; uses `ProgressBar` primitive
+- `src/layout/InstitutionOnboardingLayout.jsx` — shared shell for all `/onboarding/institution/*` routes; renders bg ellipses + `<Outlet>` + `InstitutionRightPanel`; `useLocation` gates breadcrumb on non-guidelines routes
+- `src/components/sections/institutionOnboarding/YourInstitutionSection.jsx` — step-1 form (react-hook-form + zod); 5 fields (legal name, trading name, institution type, region, district); cascading district select; triggers `IdentityCapturedModal` on success
+- `src/components/sections/institutionOnboarding/IdentityCapturedModal.jsx` — success modal showing captured identity data; navigates to `/onboarding/institution/contact`
+- `src/pages/onboarding/institution/InstitutionYourInstitutionPage.jsx` — thin page wrapper
+
+**Modified files:**
+
+- `src/components/sections/institutionOnboarding/GuidelinesSection.jsx` — refactored to left-content-only (no section wrapper, no right panel, no bg ellipses, removed all unused imports)
+- `src/App.jsx` — institution routes now nested under `<InstitutionOnboardingLayout>`
+
+## [2026-05-21] fix | GuidelinesSection card ellipses + page background ellipses
+
+Added two previously missing decoration layers to `src/components/sections/institutionOnboarding/GuidelinesSection.jsx`:
+
+**Card corner ellipses (2971:68895 medium / 2971:68898 small):**
+
+- Both nodes export as `<circle fill="none"/>` (Figma fill effect not exported to SVG); recreated with CSS `rgba(255,255,255,0.3)` rounded-full div
+- Restructured `PhotoCard`: outer wrapper has no `overflow-hidden`; inner wrapper (new) is `absolute inset-0 overflow-hidden` for photo clipping; ellipse sits on outer wrapper at `left:-86.4px, top:-103.42px` (photo-container offset factored in)
+- `showEllipse` prop defaults false; passed as true only to small + medium cards
+- Assets downloaded: `card-ellipse.svg` (223px `fill="none"` circle, for reference)
+
+**Page background glow ellipses (2971:65357 TL / 2971:65356 BR / 2971:65358 center):**
+
+- SVGs have real blurred gradient content (green, red, gold-orange) with `feGaussianBlur stdDeviation="100"`
+- Downloaded to `src/assets/hero/`: `page-ellipse-tl.svg`, `page-ellipse-br.svg`, `page-ellipse-center.svg`
+- Added `relative` to `<section>`; each ellipse uses `zIndex:-1` to sit behind in-flow content
+- Container sizes: TL+BR 571×571 (inset -35.03%), Center 473×473 (inset -42.28%) — inner img at native SVG resolution via negative inset trick
+- Positions (Figma frame 2971:65353, section-relative): TL `left:-95px, top:-178px`; BR `left:calc(83.33%-16px), top:610px`; Center `left:calc(33.33%+100px), top:calc(50%-200px) translateY(-50%)`
+
+## [2026-05-21] fix | GuidelinesSection complete correction (fresh start)
+
+Full rewrite of `src/components/sections/institutionOnboarding/GuidelinesSection.jsx` from Figma MCP re-extraction (node `2971:68519`):
+
+- **Sub-copy text:** corrected to "Just a few questions. We'll use your answers to build a profile that works hard for you."
+- **Time badge:** replaced SVG glow icon with 8px div dot (`#e1eae2`, border `#1d7c4d`, shadow `#006b3f`); text corrected to "About 4 minutes to complete"
+- **Right panel BG decorations:** replaced `background grid.svg` placeholder with 4 real assets downloaded from Figma MCP: `institution-panel-ellipse-tr.svg`, `institution-panel-ellipse-bl.svg`, `institution-panel-bg-grid.png`, `institution-panel-bg-lines.svg` (opacity-30)
+- **Photo cards — positions:** converted to center-based % (`left/top` = card center) + `translate(-50%,-50%)` so cards scale with panel without drifting
+- **Photo cards — rotations corrected:** Small was `-6deg` → `-167deg scaleY(-1)`; Medium was `-3deg` → `-13deg`
+- **Photo cards — sizes:** all via `clamp(min, pct%, max)` so they scale at every viewport
+- **Two distinct photos:** Large card = `Students using GTH on phone.jpg` (group); Medium+Small = `institution-solo-student.png` (downloaded from Figma MCP)
+- **Card ellipse decorations:** `institution-card-ellipse-lg.svg` / `institution-card-ellipse-sm.svg` positioned correctly inside each card
+- **Wiki updated:** `figma-node-map.md` right panel section fully corrected (rotation angles, center positions, asset paths, two-photo note)
+
+## [2026-05-21] fix | GuidelinesSection right panel + step list
+
+Corrected `src/components/sections/institutionOnboarding/GuidelinesSection.jsx`:
+
+- **Right panel bg:** changed `bg-neutral` (#f8f8f4) → `backgroundColor: '#387440'` (brand-green). Removed `border-l` divider (green bg provides natural separation).
+- **Panel width:** changed `style={{ width: 739 }}` (hardcoded px) → `clamp(360px, 42vw, 739px)` (responsive).
+- **BG grid texture:** added `background grid.svg` at `opacity-[0.08]` as placeholder for Figma nodes `2971:68528–68888` (pending Figma MCP extraction).
+- **Photo cards:** all `top`/`left` values converted to percentages (px / panel dimension); all widths changed to `clamp()`; added `aspect-ratio: 1/1`; border width and radius converted to `clamp()`.
+- **Step list:** removed `h-[70px]` fixed height + absolute positioning → `flex items-start gap-4 py-4`; replaced conditional `border-b` per item → `divide-y divide-[#E6E6E6]` on `<ol>`.
+- **Wiki updated:** `figma-node-map.md` (right panel section with % positions and clamp notes).
+
+## [2026-05-21] create | Institution bulk-onboarding guidelines screen
+
+Built the "Bulk Onboarding Sign Up Guidelines Screen for Institutions/Schools" (Figma main frame `2971:65353`).
+
+**Files created:**
+
+- `src/components/sections/institutionOnboarding/GuidelinesSection.jsx` — full two-column section with InstitutionTag, headline, WavyDivider, sub-copy, time badge, 3-step list, primary CTA, and three rotated photo-card right panel.
+- `src/pages/onboarding/institution/InstitutionGuidelinesPage.jsx` — thin page wrapper.
+
+**Files modified:**
+
+- `src/index.css` — added `--color-content-helper: #737373` (Figma "Neutrals/White/Dark :active").
+- `src/App.jsx` — registered route `/onboarding/institution/guidelines`.
+
+**Wiki updated:** `components.md`, `figma-node-map.md`, `routing.md`, this log.
+
+**Notes:**
+
+- Headline copy and sub-copy are ⚠️ ASSUMPTION — not captured in Figma MCP session. Verify against node `2971:65523` before shipping.
+- Photo card rotation angles (4deg / -6deg / -3deg) are ⚠️ ASSUMPTION — estimated from screenshot. Verify with Playwright visual check.
+- `Let's Begin` CTA navigates to `/onboarding/institution/your-institution` (placeholder — update when institution step pages are built).
+
+## [2026-05-22] create | Institution onboarding Template step (step 4 of 8)
+
+Built the Template section (step 4 of 8 in the institution bulk-onboarding wizard).
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/TemplateSection.jsx` — step-4 page; right panel visible; Captions "04 / Bulk Upload"; Instrument Serif headline "Start with the _template._"; SF Pro Rounded subtitle (verbatim Figma copy); WavyDivider; legend row (Required/Optional/Minors only/★ Must fill at least one); full spreadsheet mock (title bar, ribbon, formula bar, 12-column header row, 5 sample data rows + 2 empty rows, sheet tabs, tips row); download link row; primary CTA "I have my file ready →" → `/onboarding/institution/upload`; footer login link
+- `src/pages/onboarding/institution/InstitutionTemplatePage.jsx` — thin page wrapper
+
+**Modified files:**
+
+- `src/App.jsx` — added `import InstitutionTemplatePage`; added route `/onboarding/institution/template` inside `InstitutionOnboardingLayout` group
+- `src/components/sections/institutionOnboarding/ActivateSection.jsx` — updated `handleModalConfirm` navigation target from `/onboarding/institution/programme` → `/onboarding/institution/template`
+
+**Figma nodes:**
+
+- Main frame: `2977:85777`
+- Headline: `3002:39084` (Instrument Serif 64px tracking -0.64px)
+- Subtitle: `3002:39086` (SF Pro Rounded Regular 16px #737373 tracking 0.2px)
+- Legend: `3003:39103`
+- Title bar: `3003:39106` (bg-[#387440], SF Pro Rounded Semibold 12px white)
+- Download link: `3010:40860` (border-b #387440, rounded-[8px], shadow)
+- CTA: `3002:39051` (bg-[#387440], rounded-[14px], drop-shadow)
+
+**Spreadsheet column types (12 cols):**
+
+- Required (green bg-[#ebf1ec]): First Name ★, Last Name ★, Date of Birth ★, Gender ★, Email ★ (or Phone), Level ★, Grade ★
+- Optional (light bg-[#f9f9f9]): Phone (or Email), Relationship
+- Minors only (amber bg-[#fff8e6]): Parent First Name, Parent Last Name, Parent Email/Phone
+
+**Verified (Playwright):**
+
+- ✅ Page renders at `/onboarding/institution/template` — 0 console errors
+- ✅ Right panel visible (InstitutionRightPanel)
+- ✅ Headline, subtitle, WavyDivider, legend all render correctly
+- ✅ Spreadsheet mock: title bar, ribbon, formula bar, all 12 columns with correct header colors + star/sub-tag overlays, 5 data rows (Kofi/Ama/Kwame/Adwoa/Yaw), 2 empty rows, sheet tabs, tips row
+- ✅ Adwoa's "leave blank if unknown" parent cells render as italic gray hints
+- ✅ Download link and CTA button render correctly
+- ✅ Production build passes (202 modules, 0 errors)
+
+## [2026-05-22] create | Institution onboarding Activate Account step (step 3 of 8)
+
+Built the Activate Account section including the TermsAcceptedModal and layout changes to hide the right panel.
+
+**New files:**
+
+- `src/components/sections/institutionOnboarding/ActivateSection.jsx` — step-3 full-width page; no right panel; Captions 03/Activate Account; Instrument Serif headline "Review, accept & _go live._"; WavyDivider; review card with two sections (Institution Setup 3+2-col fields / Contact Details 2-col fields with dash placeholders); 3 agreement checkboxes with inline ReactNode labels (T&C/Privacy links, Learn More link, red asterisks); info notice; disabled `DisabledCTA` when not all agreed, brand-green Button when all agreed; opens `TermsAcceptedModal` on click; navigates to `/onboarding/institution/programme` on confirm
+- `src/components/sections/institutionOnboarding/TermsAcceptedModal.jsx` — post-agreement confirmation modal; ✕ close button absolutely positioned top-right (28×28, bg-[#ebf1ec], rounded-[20px]); Instrument Serif "Terms Accepted" title; consent record table (3 rows: T&C / Privacy Policy / Data Consent & Use Policy); green progress divider; "I'm Ready →" CTA; trust badge; ESC + backdrop dismiss supported
+- `src/pages/onboarding/institution/InstitutionActivatePage.jsx` — thin page wrapper
+
+**Modified files:**
+
+- `src/layout/InstitutionOnboardingLayout.jsx` — added `showRightPanel` toggle (`!pathname.endsWith('/activate')`); `InstitutionRightPanel` now conditionally rendered
+- `src/components/sections/institutionOnboarding/ContactVerificationModal.jsx` — fixed navigation: changed `navigate('/onboarding/institution/programme')` → `navigate('/onboarding/institution/activate')`; changed button label "Continue to Programme Setup" → "Continue to Activate Account"
+- `src/App.jsx` — added `/onboarding/institution/activate` route inside `InstitutionOnboardingLayout` group
+
+**Verified (Playwright):**
+
+- ✅ Page renders at `/onboarding/institution/activate` — 0 console errors
+- ✅ No right panel — full-width layout confirmed
+- ✅ Breadcrumb shows step 3 "Activate" active, 25% completion
+- ✅ Review card: Institution Setup (3-col + 2-col) and Contact Details (2-col) sections with EDIT links
+- ✅ CTA is grey/disabled when checkboxes unchecked
+- ✅ All 3 checkboxes checked → CTA switches to brand-green "Activate Institution →"
+- ✅ CTA click → TermsAcceptedModal opens with ✕ top-right close button
+- ✅ Modal ✕ button dismisses modal (checkboxes + CTA stay in checked/enabled state)
+- ✅ Modal "I'm Ready →" navigates to `/onboarding/institution/programme`
+- ✅ ESLint: 0 errors
+
+## [2026-05-22] create | Institution onboarding Contact Details step (step 2 of 8)
+
+Built the full Contact Information section including dual-channel OTP verification modal.
+
+**New files:**
+
+- `src/components/ui/form/PhoneInput.jsx` — Ghana +233 prefix phone input; read-only flag+code prefix, hairline divider, numeric input; Field-compatible (label, required, labelTrailing, error); mirrors TextInput shelf-shadow states (default/focus-within/error/disabled)
+- `src/components/ui/form/PasswordInput.jsx` — TextInput wrapper with LockIcon leftIcon (brand-green) and EyeIcon/EyeOffIcon toggle button as rightIcon; controlled show/hide state; uses `rightIconInteractive` prop to keep toggle accessible
+- `src/components/sections/institutionOnboarding/ContactInfoSection.jsx` — step-2 form (react-hook-form + zod); 6 fields in 3 two-column rows (Full Name, Role/Title, Phone, Email, Password, Confirm Password); email field shows DiamondIcon green helper text when no error; "Passwords match" successText on confirm field; 600ms submit delay → ContactVerificationModal
+- `src/components/sections/institutionOnboarding/ContactVerificationModal.jsx` — dual-channel OTP modal; stages: 'otp' → 'success'; SMS/Email tab switcher with per-tab verified checkmarks; 10-min countdown + 59s resend delay; auto-switches to email tab after SMS verified; any 6-digit code accepted (mock); success stage shows masked data summary; navigates to `/onboarding/institution/programme`
+- `src/pages/onboarding/institution/InstitutionContactPage.jsx` — thin page wrapper
+
+**Modified files:**
+
+- `src/components/shared/assets.jsx` — added `BriefcaseIcon` (16px briefcase, Role/Title field), `DiamondIcon` (8px filled diamond, email helper bullet)
+- `src/components/ui/form/TextInput.jsx` — added `rightIconInteractive` prop; when true, removes `aria-hidden` from the rightIcon wrapper span so interactive children (toggle buttons) remain in the accessibility tree
+- `src/App.jsx` — added `/onboarding/institution/contact` route inside `InstitutionOnboardingLayout` group
+
+**Verified (Playwright):**
+
+- ✅ Page renders at `/onboarding/institution/contact` — 0 console errors
+- ✅ Ghana +233 prefix visible, phone input fills correctly
+- ✅ Email diamond-icon helper text shows; hides on validation error
+- ✅ Passwords match successText appears on Confirm field
+- ✅ Submit → loading state → OTP modal opens (masked phone target)
+- ✅ Entering SMS code → Verify → SMS tab gets ✓, auto-switches to Email tab
+- ✅ Entering email code → Verify Email & Complete → success stage
+- ✅ Success stage: masked contact data, "Continue to Programme Setup" CTA
+- ✅ Production build passes (197 modules, 0 errors)
+
 ## [2026-05-19] create | Below-18 onboarding branch + route namespace refactor
 
 User asked to extend the existing above-18 talent onboarding flow with the below-18 variant. Below-18 Figma frames were extracted from the Figma plugin and dropped in [`below 18 onboarding raw code/`](../below%2018%20onboarding%20raw%20code/). The user also asked for a route reorganisation to accommodate future entity types (recruiter, parent-as-user, school) and made two structural picks via the AskUserQuestion flow:
