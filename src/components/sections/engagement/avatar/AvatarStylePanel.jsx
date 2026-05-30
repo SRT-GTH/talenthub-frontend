@@ -73,7 +73,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-1', // Box Braids
     hairColor: 'black',
     apparel: 'outfit-tee',
-    apparelColor: 'brand-green',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
@@ -86,7 +86,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-2', // Cornrows
     hairColor: 'dark-brown',
     apparel: 'outfit-hoodie',
-    apparelColor: 'charcoal',
+    apparelColor: null,
     fit: 'relaxed',
     eyewear: 'eyewear-none',
     facialHair: 'facial-7', // Stubble
@@ -99,7 +99,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-3', // Afro
     hairColor: 'black',
     apparel: 'outfit-polo',
-    apparelColor: 'ocean',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-2',
     facialHair: 'facial-none',
@@ -112,7 +112,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-4', // Buzz Cut
     hairColor: 'black',
     apparel: 'outfit-suit',
-    apparelColor: 'charcoal',
+    apparelColor: null,
     fit: 'slim',
     eyewear: 'eyewear-none',
     facialHair: 'facial-8', // Full Beard
@@ -125,7 +125,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-5', // Fade
     hairColor: 'auburn',
     apparel: 'outfit-button-down',
-    apparelColor: 'kente-gold',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-3',
     facialHair: 'facial-6', // Goatee
@@ -138,7 +138,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-6', // Twists
     hairColor: 'chestnut',
     apparel: 'outfit-kente-top',
-    apparelColor: 'sunset-orange',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
@@ -151,7 +151,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-7', // Locs
     hairColor: 'black',
     apparel: 'outfit-dashiki',
-    apparelColor: 'kente-gold',
+    apparelColor: null,
     fit: 'relaxed',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
@@ -164,7 +164,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-8', // Hijab
     hairColor: 'black',
     apparel: 'outfit-hijab-fit',
-    apparelColor: 'violet',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
@@ -177,7 +177,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-10', // Long Curly
     hairColor: 'brown',
     apparel: 'outfit-lab-coat',
-    apparelColor: 'cream',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-2',
     facialHair: 'facial-none',
@@ -190,7 +190,7 @@ const STYLE_PRESETS = {
     hairStyle: 'hair-12', // Onyx
     hairColor: 'black',
     apparel: 'outfit-athletic',
-    apparelColor: 'rose',
+    apparelColor: null,
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',

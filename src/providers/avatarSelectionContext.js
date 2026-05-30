@@ -41,13 +41,15 @@ export const AVATAR_SELECTION_DEFAULTS = {
   details: null,
   tintColor: 'black',
 
-  // Outfit step — apparel is null until the user picks; fit defaults to
-  // Regular and apparelColor to brand-green so the avatar isn't naked /
-  // grey on first paint of the Outfit step.
+  // Outfit step — apparel + apparelColor default to null. With
+  // apparelColor null the recolour pipeline is skipped and each outfit
+  // renders in its designer-chosen Figma colour (purple Tee, navy
+  // Hoodie, blue Polo, etc.). Picking an apparel-colour swatch then
+  // recolours over that.
   careerPreset: null,
   apparel: null,
   fit: 'regular',
-  apparelColor: 'brand-green',
+  apparelColor: null,
 };
 
 export const AvatarSelectionContext = createContext({
