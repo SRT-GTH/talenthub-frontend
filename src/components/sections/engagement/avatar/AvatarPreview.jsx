@@ -289,7 +289,12 @@ const OUTFIT_RAW_PRIMARY = Object.fromEntries(
 // The wrapper's viewBox crops every layer's full 1024×1024 canvas down
 // to the character area (LAYER_VIEWBOX). All layers share the same
 // coordinate space so they automatically register/align.
-const LAYER_VIEWBOX = '350 180 400 400';
+//
+// y-offset = 210 (was 180): shifts the entire avatar UP in the rendered
+// canvas, which gives the outfit more vertical room inside the clip
+// circle — head sits higher, outfit body extends further into the
+// middle/lower area of the clip.
+const LAYER_VIEWBOX = '350 210 400 400';
 
 // `key={src}` forces React to unmount + remount the <image> element
 // whenever the data URL changes. Without this, some browsers don't
@@ -396,7 +401,16 @@ const AvatarPreview = ({ className }) => {
     // outer wrapper instead of relying on `w-full` on the inner stack
     // fixes that.
     <div className={classNames('w-full max-w-[min(68vh,680px)] mx-auto', className)}>
-      <div className="relative aspect-square w-full">
+      {/* clip-path: circle frames the avatar inside the THIRD halo ring
+        (the white-tinted disc behind the avatar). The bottom of the
+        outfit naturally curves along the circle edge; anything outside
+        the circle is clipped. The reset button sits outside this
+        container so it's never clipped.
+
+        Radius 38% gives a circle slightly larger than the third halo
+        ring on typical viewports — fits the avatar inside that visible
+        tinted disc. */}
+      <div className="relative aspect-square w-full" style={{ clipPath: 'circle(38% at 50% 50%)' }}>
         {/* Single wrapper SVG with a tight viewBox that crops every layer
           to the character area. Replaces the earlier CSS-scale approach:
           • Cropping via viewBox keeps the character centred horizontally
@@ -415,29 +429,56 @@ const AvatarPreview = ({ className }) => {
           aria-label="Avatar preview"
           className="absolute inset-0 h-full w-full"
         >
+          {/*
+            HEAD-AREA SCALE TRANSFORM
+            Every face-area layer (body-base, hair, glasses, facial hair,
+            earrings, details) is wrapped in <g transform="…"> so they
+            all shrink together at the same scale (0.85× ≈ 15% smaller)
+            without distortion.
+
+            Fixed point chosen so the head's BOTTOM (originally y=423)
+            lands at y=443 after scaling — exactly where outfit
+            necklines start. This eliminates the visible neck gap that
+            appeared when the head was shrunk while the (full-size)
+            outfit stayed put.
+
+            Resulting transform: translate(82.95 83.45) scale(0.85).
+            The outfit layer is OUTSIDE this <g> so the chest stays
+            full-size.
+          */}
+
           {/* Layer 1: wrap-around hair (Afro, Hijab, Kente Wrap) — BEHIND body */}
-          {hairSrc && isWrapAround && <Layer src={hairSrc} />}
+          {hairSrc && isWrapAround && (
+            <g transform="translate(82.95 83.45) scale(0.85)">
+              <Layer src={hairSrc} />
+            </g>
+          )}
 
-          {/* Layer 2: body base — head + face + neck */}
-          <Layer src={bodySrc} />
+          {/* Layer 2: body base — head + face + neck (scaled) */}
+          <g transform="translate(82.95 83.45) scale(0.85)">
+            <Layer src={bodySrc} />
+          </g>
 
-          {/* Layer 3: outfit (chest blob) */}
+          {/* Layer 3: outfit (chest blob) — NOT scaled, stays full size */}
           {outfitSrc && <Layer src={outfitSrc} />}
 
-          {/* Layer 4: facial hair */}
-          {facialHairSrc && <Layer src={facialHairSrc} />}
+          {/* Layers 4–8: face decorations (all share the head scale) */}
+          <g transform="translate(82.95 83.45) scale(0.85)">
+            {/* Layer 4: facial hair */}
+            {facialHairSrc && <Layer src={facialHairSrc} />}
 
-          {/* Layer 5: details (single-select) */}
-          {detailSrc && <Layer src={detailSrc} />}
+            {/* Layer 5: details (single-select) */}
+            {detailSrc && <Layer src={detailSrc} />}
 
-          {/* Layer 6: earrings */}
-          {earringSrc && <Layer src={earringSrc} />}
+            {/* Layer 6: earrings */}
+            {earringSrc && <Layer src={earringSrc} />}
 
-          {/* Layer 7: normal hair — ON TOP of head */}
-          {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
+            {/* Layer 7: normal hair — ON TOP of head */}
+            {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
 
-          {/* Layer 8: eyewear — always on top */}
-          {eyewearSrc && <Layer src={eyewearSrc} />}
+            {/* Layer 8: eyewear — always on top */}
+            {eyewearSrc && <Layer src={eyewearSrc} />}
+          </g>
         </svg>
       </div>
 
