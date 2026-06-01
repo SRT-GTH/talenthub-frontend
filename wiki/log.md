@@ -3,6 +3,164 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-05-31] feat | OnboardingPersonalInfoPage — Figma fidelity pass (2329:3893)
+
+Complete rewrite of `ProfileRightPanel` + added `Ellipse 2` background orb.
+
+**Right panel (`ProfileRightPanel`) — complete rewrite:**
+
+- **3 photo cards** at exact Figma positions/rotations/borders (rot ≈ 0.1°, NOT the old 5°):
+  - Card 1 (large, top-left): pink border `#ebc2bd` @10px, 374×374, panel(36,27)
+  - Card 2 (standalone, middle-right): gold border `#eedeb8` @10px, 338×338, panel(344,271)
+  - Card 3 (bottom-left): green border `#c1d4c4` @10px, 357×357, panel(45,504)
+- **Background orbs**: gold `#f7efdd` blur=200 at panel(618,-210); pink `#f9ebea` blur=300 at panel(-170,666)
+- **Background grid** (institution-panel-bg-grid.png) at panel(383,572) rot=3.1°
+- **Sparkle stars** (panel-sparkle-0..4.svg) at panel(579,22) via `PanelSparkle` component
+- **Snow ring dots** (panel-snow-0..20.svg) at panel(-388,-31) via `PanelSnowDots` component
+- **Data Protected card** (2329:3979): fill=#ebf1ec, r=13, panel(25,335) — shield icon + "Data Protected" + "Encrypted · Never shared without consent"
+- **Compliance pill** (2329:3986 parent): fill=#ffffff, r=10, panel(410,209) — check icon + "Ghana Data Protection Act compliant"
+- **Verified profile card** (2329:3986): fill=#ffffff, r=10, panel(24,586) — check icon + "Verified profile" (fw=600, #387440)
+- **Adult/Youth experience card**: fill=#ffffff/0.92 + backdrop-blur(16px), r=16, panel(446,643)
+- **Decorative arrows** at panel(88,420) rot=1.7° and panel(623,598) rot=-1.5°
+- **Watch Tutorial** (`WatchTutorial` component) at panel-right=57, panel-bottom=38
+- **Removed**: single gradient placeholder, wrong-color orbs, wrong positions for all floating UI cards
+
+**Ellipse 2 (2329:3899)** added to left form column:
+
+- 571×571, fill=#000000, opacity=0.60, LAYER_BLUR r=200
+- Canvas pos (14224,12857); section-relative: left=-110px, top=-378px
+- Creates a subtle dark depth-gradient vignette at the top-left corner of the left form
+
+Build: ✓ `built in 5.97s`. Console: 0 errors. Playwright: ✅ 3 photo cards, floating cards, Ellipse 2 vignette all visible.
+
+## [2026-05-30] fix | OnboardingReviewPage — institution row layout correction (2808:24053/55/56)
+
+Corrected the institution row in `EducationSection` to match Figma nodes 2808:24053, 2808:24055, 2808:24056:
+
+**Root cause:** Row used `flex items-start justify-between` which pushed the "Confirmed" badge to the far right edge (x≈782px). Figma shows badge at x=427px — immediately after the 405px value text with a 10px gap.
+
+**Fix:**
+
+- Outer div changed from `flex items-start justify-between gap-3` to `flex flex-col` with `gap: 3` in style
+- Label (`CellLabel`) is now a direct child of the outer flex-col
+- Value text (2808:24055) + badge (2808:24056) moved into a `flex items-center gap-2.5` inner row
+- `gap-2.5` = 10px matches Figma's 10px gap between value text right edge (14787+405=15192) and badge left edge (15202)
+- Removed `mt-0.5 shrink-0` wrapper that was incorrectly vertically offsetting the badge
+
+Badge (2808:24056) styling from previous session remains correct: `h-4 px-2 gap-[3px] font-bold text-success`.
+
+Build: ✓ `built in 5.50s`. Console: 0 errors. Playwright: ✅ badge visually inline after KNUST text.
+
+## [2026-05-30] feat | OnboardingReviewPage — 5 Figma nodes (2788:14551/52, 2833:27192/93, 2808:24056)
+
+Implemented 5 Figma nodes into `src/pages/onboarding/OnboardingReviewPage.jsx`:
+
+**4 background orbs (all LAYER_BLUR radius=200, blur=200px):**
+
+- `2788:14552` Ellipse 2 — brand-green linear gradient (`#387440 → rgba(56,116,64,0.27) 51% → #69da78`), opacity 0.60. Position: section left=0, top=-201px (peeks in from top-left corner).
+- `2788:14551` Ellipse 1 — solid #c0392b (danger-red), opacity 0.15. Position: left=1534px, top=587px (right-center glow, bleeds off right edge).
+- `2833:27193` Ellipse 4 — solid #c0392b (danger-red), opacity 0.15. Position: left=-168px, top=2035px (bottom-left glow, bleeds off left edge).
+- `2833:27192` Ellipse 3 — gold linear gradient (`#f5c451 → rgba(150,112,20,0.30) 51% → #f5c451`), opacity 0.40. Position: left=1417px, top=2098px (bottom-right glow, bleeds off right edge).
+- Implemented as `ReviewBackgroundOrbs` component. Added `overflow-hidden` to section to clip edge bleed.
+
+**VerifiedBadge corrected (2808:24056 "Background+Border" 74×16):**
+
+- `px-1.5` (6px) → `px-2` (8px): matches Figma 8px left/right padding
+- `gap-1` (4px) → `gap-[3px]`: matches Figma 3px SVG-to-text gap
+- `font-semibold` (600) → `font-bold` (700): matches Figma fw=700
+- Fill color `#E8F2ED` → `var(--color-success-light)` (design token, same hex)
+- Text color `#1D7C4D` → `text-success` (design token ≈ same hex #1d7c4d vs Figma #1d7b4c)
+
+Build: ✓ `built in 5.51s` 0 errors. Console: 0 errors. Playwright: ✅ green glow visible top-left.
+
+## [2026-05-30] fix | OnboardingReviewPage — Figma fidelity pass (2788:14548)
+
+Structural and visual corrections to `src/pages/onboarding/OnboardingReviewPage.jsx` to match Figma frame `2788:14548`:
+
+**Layout gaps corrected** (Figma Frame 265 nested structure):
+
+- Outer content wrapper: `gap-8` (32px) → `gap-16` (64px) between main group and CTA block
+- Main content group: inner `gap-10` (40px) between card-group and consent block
+- Header↔card subgroup: `gap-4` (16px) between hero header and summary card
+- Consent block: `gap-4` → `gap-2` (8px) throughout
+- CTA block: `gap-2` (8px)
+
+**Component-level fixes:**
+
+- Cell padding: `py-3` (12px) → `py-2.25` (9px) to match Figma 49px cell height; internal gap `gap-1` → `gap-[3px]` (Figma `gap=3`)
+- Card section margins: `mx-6` (24px) → `mx-5` (20px) to produce ~857px content width matching Figma Frame 286 (856px)
+- Score strip: `mx-6 px-4` → `mx-5 px-5.5` (22px) to match 812.7px inner content frame
+- Score strip layout: added `gap-1.75` (7px) and `gap-1` (4px) matching Figma Frame 262/245 gap structure
+- `Gold Tier` badge height: explicit `h-1.25` (5px) for track, badge height 15px
+- Address section: removed stale `borderBottom` (no dividers between sections in Figma Frame 286)
+- `EducationSection`: `editTo` updated from `/address` fallback to `/education`
+
+**Replaced / removed:**
+
+- Straight `<div className="h-px">` divider → `<WavyDivider />` (consistent with other onboarding pages)
+- `ReviewBackgroundOrbs` (custom CSS blurs) → removed; Figma page bg is plain white (`fill=#ffffff`)
+- `ShieldCheckIcon` trust text row → removed (not present in Figma CTA block `2837:27350`)
+- Consent header asterisk `*` → removed (not in Figma `Frame 289`)
+
+**Canonical class cleanup (IDE warnings):** all arbitrary values replaced with equivalent Tailwind tokens (`gap-[8px]→gap-2`, `py-[9px]→py-2.25`, `rounded-[10px]→rounded-md`, `text-[#737373]→text-content-helper`, etc.)
+
+Build: ✓ `built in 5.28s` 0 errors. Console: 0 errors (2 pre-existing React Router v6→v7 warnings). Playwright: ✅ full page screenshot verified against Figma.
+
+## [2026-05-30] fix | OnboardingReviewPage — encoding corruption + card shadow (2788:14548)
+
+Fixed 54 mojibake (Windows-1252 double-encoding) sequences throughout `src/pages/onboarding/OnboardingReviewPage.jsx`:
+
+- **28× em dash** `â€"` → `—` (MOCK_PROFILE, consent header, comments, log strings)
+- **10× black circle** `â—` → `●` (Ghana Card masked value)
+- **8× bullet** `â€¢` → `•` (phone number masked dots)
+- **4× multiplication sign** `Ã—` → `×` (icon-size comments)
+- **2× right arrow** `â†'` → `→` (DPA box + log message)
+- **1× Ghana flag emoji** `ðŸ‡¬ðŸ‡­` → `🇬🇭` (nationality field)
+- **1× middle dot** `Â·` → `·` (footer trust line)
+
+Also updated card box-shadow from soft elevation (`0 2px 8px -1px rgba(27,36,44,0.08)`) to Figma shelf shadow (`0px 4px 0px 0px rgba(0,0,0,0.13)`) and border from `rgba(0,0,0,0.04)` → `rgba(0,0,0,0.08)`.
+
+Build: ✓ `built in 8.32s` 0 errors. Playwright: ✅ all fields render clean, 0 console errors.
+
+## [2026-05-30] fix | OnboardingWelcomePage — panel ellipse assets (2858:23710 / 23711)
+
+Replaced incorrect `institution-panel-ellipse-tr/bl.svg` (designed for the dark-green institution panel) with the correct Figma-exported assets for the cream welcome panel:
+
+- **2858:23710 TR ellipse**: `welcome-panel-ellipse-tr.svg` — soft cream/golden gradient SVG from Figma MCP (`inset:-42.28%` confirmed by MCP design context). Removed `overflow-hidden` from the 473×473 container div and adopted the Figma-recommended nested-inset pattern (wrapper div with `inset:-42.28%` + img `size-full`).
+- **2858:23711 BL ellipse**: `welcome-panel-ellipse-bl.png` — 2146×2146 @2x PNG (1073×1073 @1x) from Figma REST API. Same nested-inset pattern; `inset:-63.42%` calculated from image dimensions and confirmed correct.
+- Root cause: both `institution-panel-ellipse-*.svg` assets carry the wrong colour profile for the cream panel — the BL one caused a visible pink/salmon gradient bleed.
+- Build: lint clean, Playwright visual: ✅ no console errors, toast auto-dismiss at 3s verified.
+
+## [2026-05-26] fix | OnboardingWelcomePage — 4 node mismatches (2858:23723 / 23752 / 23753 / 23754)
+
+Targeted fixes for 4 Figma nodes the user identified as mismatched:
+
+- **2858:23723 Saved pill icon**: replaced hand-crafted bookmark SVG with the correct heart Vector asset downloaded from Figma MCP (`saved-pill-heart.svg` → `src/assets/hero/`).
+- **2858:23752 / 23753 / 23754 Institution card avatars**: replaced colored `<span>` placeholders with real Unsplash photos (56×56 JPEG, downloaded from Figma MCP as `institution-card-avatar-1/2/3.png` → `src/assets/hero/`). Overlap changed from `flex gap-1` to `flex -space-x-1.5` matching Figma's 22px step (6px overlap) between 28px-wide avatars.
+- Build: `✓ 4.93s`, lint: clean, Playwright visual: ✅
+
+## [2026-05-26] update | OnboardingWelcomePage — Figma fidelity pass (node 2858:23640)
+
+Modified `src/pages/onboarding/OnboardingWelcomePage.jsx` to match Figma exactly.
+
+**Key changes:**
+
+- Right panel bg: `bg-brand-green` → `bg-yellow-light` (`#fffefc`) — biggest visual fix
+- Photo: replaced CSS gradient placeholder with real `Students using GTH on phone.png`, `aspect-ratio:533/599`, `border clamp(5px,0.9vw,10px) solid #eedeb8`, `rotate(4deg)`, centred at `calc(50%-23.32px)`/`calc(50%+0.39px)` with `translate(-50%,-50%)`
+- Corner ellipse (2858:23716): `card-ellipse.svg` 223px `rotate(-4deg)` at `left:-75.84px top:-85.44px` inside photo
+- Panel ellipses: replaced CSS blurred orbs with `institution-panel-ellipse-tr.svg` / `institution-panel-ellipse-bl.svg` at exact Figma positions
+- Panel bg grid: inverted `institution-panel-bg-grid.png` at `right:-2px, top:58.8%`
+- Page background: added 3 page-level glow SVGs (TL green, BR red, centre gold) + `background grid.svg` css bg at `opacity-70`
+- Floating cards: added `rotate(4.71deg)` to Jobs Available, `rotate(6.59deg)` to My Experience, updated Saved pill shadow to exact Figma spec (`box-shadow: 0px 4px 0px 0px #2a5730, 0px 8px 28px 0px rgba(56,116,64,0.25)`)
+- Verified profile pill: centre-point positioning (`left:calc(50%-279.07px), top:calc(50%+182.58px)`) with `translate(-50%,-50%)`
+- Institution card: `rounded-[20px]`, `top:61.89% bottom:24.14% right:57.61px w:222px`, fixed encoding issue `✓ Verified Institution`
+- Step badge numeral: `text-[#2A5730]` → `text-brand-green-darker` (#142916)
+- "About 4 minutes" pill: `bg-white` → `bg-yellow-light`
+- All arbitrary colour classes replaced with canonical design tokens (lint warnings resolved)
+- Build: `✓ 11.51s`, lint: clean, Playwright visual: ✅
+
+Wiki updated: `figma-node-map.md` (new "Talent Onboarding — Welcome screen" section).
+
 ## [2026-05-22] create | Institution Confirm step (step 7 of 8)
 
 **New files:**

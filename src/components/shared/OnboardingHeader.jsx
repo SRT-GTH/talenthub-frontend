@@ -38,9 +38,6 @@ const ChevronRight = () => (
 );
 
 const CompletedCheck = () => (
-  // Small filled green check that prefixes completed step labels.
-  // Figma swaps in this badge in place of the chevron's leading dot
-  // once a step is past — keeps the trail readable in one glance.
   <svg
     width="16"
     height="16"
@@ -50,6 +47,26 @@ const CompletedCheck = () => (
     className="shrink-0"
   >
     <circle cx="8" cy="8" r="8" fill="#387440" />
+    <path
+      d="M5 8.4l2 2 4-4.4"
+      stroke="white"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const UpcomingCheck = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className="shrink-0"
+  >
+    <circle cx="8" cy="8" r="8" fill="#BABAB7" />
     <path
       d="M5 8.4l2 2 4-4.4"
       stroke="white"
@@ -82,26 +99,24 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent = 0 }) => {
           {steps.map((step, index) => {
             const isActive = step.key === currentKey;
             const isCompleted = currentIndex >= 0 && index < currentIndex;
-            const isUpcoming = currentIndex >= 0 && index > currentIndex;
             return (
               <div key={step.key} className="flex shrink-0 items-center gap-2">
                 {index > 0 && <ChevronRight />}
-                {isCompleted && <CompletedCheck />}
-                <span
-                  className={
-                    isActive
-                      ? 'font-semibold text-brand-green'
-                      : isCompleted
-                        ? 'font-medium text-[#575755]'
-                        : 'font-medium text-[#BABAB7]'
-                  }
-                  aria-current={isActive ? 'step' : undefined}
-                >
-                  {step.label}
-                </span>
-                {/* Reserved width when step is upcoming so widths stay
-                    stable as a user advances through the trail. */}
-                {isUpcoming && null}
+                <div className="flex items-center gap-3">
+                  {isCompleted || isActive ? <CompletedCheck /> : <UpcomingCheck />}
+                  <span
+                    className={
+                      isActive
+                        ? 'font-semibold text-brand-green'
+                        : isCompleted
+                          ? 'font-medium text-[#575755]'
+                          : 'font-medium text-[#BABAB7]'
+                    }
+                    aria-current={isActive ? 'step' : undefined}
+                  >
+                    {step.label}
+                  </span>
+                </div>
               </div>
             );
           })}

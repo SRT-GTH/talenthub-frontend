@@ -254,6 +254,151 @@ Each floating card is a composed Figma vector exported as a single SVG. The SVG 
 
 The file is named "onboading" (sic). Frames catalogued as implemented.
 
+### Talent Onboarding — Welcome screen (frame `2858:23640`) `✅ VERIFIED`
+
+Main frame: 1728 × 1079. Route: `/onboarding/talent/welcome`.
+Implemented in `src/pages/onboarding/OnboardingWelcomePage.jsx`.
+Figma title: "Gth Role Selection – Student Selected flow toast message-3seconds".
+
+**Top-level layout**
+
+| Column      | Width (Figma) | Notes                                                              |
+| ----------- | ------------- | ------------------------------------------------------------------ |
+| Left col    | ~989px        | copy + steps + CTA; `flex-1` in code                               |
+| Right panel | 739px         | `clamp(360px, 42vw, 739px)` in code; `bg-yellow-light` (`#fffefc`) |
+
+**Left column tokens**
+
+| Element                | Node ID      | Key values                                                                                           |
+| ---------------------- | ------------ | ---------------------------------------------------------------------------------------------------- |
+| "Talent" eyebrow pill  | `2858:24046` | bg brand-green-light, border brand-green, 10px medium, rounded-[5px]                                 |
+| Headline               | –            | Instrument Serif `clamp(2rem,4.4vw,4rem)`, leading-[1.1], "next." italic brand-green                 |
+| Sub-copy               | –            | SF Pro Rounded 16px/24px, text-content-helper (#737373), max-w 120.5 (482px)                         |
+| WavyDivider            | `2858:24050` | Ghana-flag wavy SVG divider between copy and time pill                                               |
+| "About 4 minutes" pill | `2858:23824` | bg-yellow-light, border #E7E7E7, rounded-md, status-dot glow filter SVG                              |
+| Step badge numeral     | –            | bg-brand-green-light, border #C1D4C4, italic Instrument Serif, **text-brand-green-darker** (#142916) |
+| Step title             | –            | 16px semibold, text-brand-green                                                                      |
+| Step description       | –            | 14px regular, text #575755                                                                           |
+| "Let's Begin" CTA      | –            | Button variant=primary size=lg full-width max-w 420px                                                |
+
+**Right panel — `2858:23709`** `✅ VERIFIED` (2026-05-26 — Figma MCP extracted)
+
+Background: `bg-yellow-light` (#fffefc), `border-l border-black-light`.
+Panel width: `clamp(360px, 42vw, 739px)`. `overflow-hidden`.
+
+**BG decoration layers (back → front)**
+
+| Layer           | Node ID      | Asset / technique                                          | Position / size                                              |
+| --------------- | ------------ | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| Ellipse blob TR | `2858:23710` | `welcome-panel-ellipse-tr.svg` ✅ VERIFIED                 | `left: 83.5%, top: -21.5%`, 473×473, inner `inset:-42.28%`   |
+| Ellipse blob BL | `2858:23711` | `welcome-panel-ellipse-bl.png` (1073×1073 @1x) ✅ VERIFIED | `left:-171px, bottom:-238px`, 473×473, inner `inset:-63.42%` |
+| Inverted grid   | `2858:23712` | `institution-panel-bg-grid.png` (rotated 180°)             | `right:-2px, top:58.8%, w:48.4%, h:41.6%`                    |
+
+**Photo card — `2858:23714`**
+
+| Property       | Value                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| Asset          | `Students using GTH on phone.png`                                                          |
+| Size (Figma)   | 533×599px → code: `clamp(260px,72.1%,533px)` width, `aspect-ratio: 533/599`                |
+| Border         | `clamp(5px,0.9vw,10px) solid #eedeb8` (accent-light-active token)                          |
+| Border-radius  | `clamp(14px,2vw,26px)`                                                                     |
+| Rotation       | `rotate(4deg)` on inner wrapper                                                            |
+| Centre point   | `left: calc(50% - 23.32px), top: calc(50% + 0.39px)`, `transform: translate(-50%,-50%)`    |
+| Corner ellipse | `2858:23716` — `card-ellipse.svg`, 223px, `rotate(-4deg)`, at `left:-75.84px top:-85.44px` |
+
+**Floating UI cards (all % relative to 739×976px Figma panel)**
+
+| Card             | Node ID      | Positioning                                                               | Key styles                                                |
+| ---------------- | ------------ | ------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Jobs Available   | `2858:23717` | `inset: 28.13% 77.67% 61.85% 4.19%`                                       | white, `rounded-[18px]`, `rotate(4.71deg)`, serif "1,580" |
+| Saved pill       | `2858:23720` | `inset: 51.07% 80.67% 44.67% 6.5%`                                        | bg-brand-green, border #2a5730, shelf shadow              |
+| Verified profile | `2858:23725` | `left: calc(50%-279.07px), top: calc(50%+182.58px)`, translate(-50%,-50%) | white, `rounded-md`, w=133px, check glyph `rotate(8deg)`  |
+| My Experience    | `2858:23731` | `inset: 18.82% 7.12% 65.94% 67.81%`                                       | white, `rounded-[18px]`, `rotate(6.59deg)`, pencil icon   |
+| Institution card | `2858:23740` | `top:61.89%, bottom:24.14%, right:57.61px, w:222px`                       | bg-brand-green, `rounded-[20px]`, overflow-hidden         |
+
+**Toast — `2858:23758`**
+
+Auto-shows on mount, auto-hides after 3 s (`setTimeout`). White card, `w-77.25` (309px),
+`rounded-[14px]`, `left:1/2 top-6 z-10`, `shadow-[0_16px_24px_-6px_rgba(27,36,44,0.18)]`.
+Content: green check icon + "Welcome to GTH, Student!" headline + body copy.
+
+**Page-level background (full section)**
+
+Same 3-ellipse pattern as `InstitutionOnboardingLayout`:
+
+- TL green: `page-ellipse-tl.svg` at `left:-95px, top:-178px`, 571×571
+- BR red/pink: `page-ellipse-br.svg` at `left:calc(83.33%-16px), top:610px`, 571×571
+- Centre gold: `page-ellipse-center.svg` at `left:calc(33.33%+100px), top:calc(50%-200px)`, 473×473
+- Full grid: `background grid.svg` as CSS `background-image: url(...)`, `backgroundSize: cover`, `opacity-70`
+
+---
+
+### Talent Onboarding — Review & Terms (frame `2788:14548`) `✅ VERIFIED`
+
+Main frame: 1728 × 2284. Route: `/onboarding/talent/review`.
+Implemented in `src/pages/onboarding/OnboardingReviewPage.jsx`.
+Step 07 of talent onboarding. Single-column layout (no right panel), white background.
+
+**Layout structure (Figma Frame 265, 897×1905)**
+
+| Frame                  | Figma ID                   | CSS gap         | Purpose                              |
+| ---------------------- | -------------------------- | --------------- | ------------------------------------ |
+| Outer content wrapper  | `Frame 265`                | `gap-16` (64px) | Between main group and CTA block     |
+| Main content group     | `Frame 314`                | `gap-10` (40px) | Between card-group and consent       |
+| Header + card subgroup | `Frame 287`                | `gap-4` (16px)  | Between hero header and summary card |
+| Consent block          | `Frame 289`                | `gap-2` (8px)   | Header + 2 checkboxes + DPA notice   |
+| CTA block              | `Frame 148` (`2837:27350`) | `gap-2` (8px)   | Button + "Already have account"      |
+
+**Background orbs (2026-05-30, all LAYER_BLUR radius=200)**
+
+| Node ID      | Name      | Fill                                                      | Opacity | Position (section-relative) |
+| ------------ | --------- | --------------------------------------------------------- | ------- | --------------------------- |
+| `2788:14552` | Ellipse 2 | GRADIENT_LINEAR: #387440→rgba(56,116,64,0.27)51%→#69da78  | 0.60    | left=0, top=-201px          |
+| `2788:14551` | Ellipse 1 | SOLID #c0392b                                             | 0.15    | left=1534px, top=587px      |
+| `2833:27193` | Ellipse 4 | SOLID #c0392b                                             | 0.15    | left=-168px, top=2035px     |
+| `2833:27192` | Ellipse 3 | GRADIENT_LINEAR: #f5c451→rgba(150,112,20,0.30)51%→#f5c451 | 0.40    | left=1417px, top=2098px     |
+
+Section positions derived: frame origin (14224, 30795); section starts at frame y=201 (toolbar 52 + nav 90 + breadcrumb 59).
+
+**Confirmed badge**
+
+| Node ID      | Name              | Size       | Fill                    | Border                   | Text                                                                     |
+| ------------ | ----------------- | ---------- | ----------------------- | ------------------------ | ------------------------------------------------------------------------ |
+| `2808:24056` | Background+Border | 74×16, r=4 | #e8f2ed (success-light) | 1px rgba(29,124,77,0.20) | "Confirmed" fs=9 fw=700 fill=#1d7b4c; padding L8 R8; gap SVG-to-text=3px |
+
+**Key sub-frames accessed (2026-05-30 fidelity pass)**
+
+| Sub-frame                 | Node ID      | Purpose                                                          |
+| ------------------------- | ------------ | ---------------------------------------------------------------- |
+| Main default frame        | `2788:14548` | Full page — disabled CTA, no checkboxes ticked                   |
+| Card header strip         | `2788:14685` | Avatar + name + role badge + Edit profile button                 |
+| Talent score strip (full) | `2808:23921` | 856×60, fill=#ebf1ec/50%, inner Frame 263/262 layout             |
+| Score inner frame         | `2819:27162` | Frame 263 (812.7×42): italic=True confirmed, fs=32 fw=400 ls=-2  |
+| Personal cell             | `2808:23936` | 272×49, fill=#f8f8f4, r=10, label fs=9, value fs=14 fill=#595959 |
+| CTA block                 | `2837:27350` | 897×108: button 897×56 + "Already Have an account?" row only     |
+| Institution row           | `2808:24053` | 856×50, value fill=#575755 (neutral-darker), "Confirmed" badge   |
+| Personal section          | `2788:14664` | 6-cell grid (first/middle/last/dob/gender/nationality)           |
+| Identity section          | `2819:27162` | Ghana Card masked + Profile photo confirmed                      |
+| Contact section (row)     | `2808:23936` | Phone + WhatsApp + email + preferred contact cells               |
+| Address section           | `2808:24053` | Region/district/town/digital/community/landmark                  |
+| Education section         | `2837:27339` | Level/grade/curriculum/graduation + institution row              |
+
+**Design tokens**
+
+| Property       | Value                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| Content column | `max-w-[897px]`, centered                                                                    |
+| Card           | `rounded-[24px]`, `box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.13)`, `border: rgba(0,0,0,0.08)` |
+| Card header    | `h-[102px]`, `border-b rgba(0,0,0,0.07)`                                                     |
+| Avatar         | `size-[72px]`, `rounded-full`, `border-2 #C1D4C4`                                            |
+| Score strip    | `h-[60px]`, `rounded-[8px]`, bg `rgba(235,241,236,0.5)`, border `#C1D4C4`                    |
+| Cell tiles     | `h-[49px]`, `rounded-[10px]`, bg `#F8F8F4`                                                   |
+| CTA button     | `py-[16px] px-[40px]`, `rounded-[14px]`, full-width                                          |
+| Checkbox       | `size-[20px]`, `rounded-[6px]`, border `#ccc 1.5px`, shadow `0px 2px 0px 0px #ccc`           |
+| DPA notice box | `rounded-[12px] px-5 py-3`, bg `rgba(234,239,251,0.4)`, border `#E0E7F9`                     |
+
+---
+
 ### Institution Bulk-Onboarding — Guidelines screen (frame `2971:65353`) `✅ VERIFIED`
 
 Main frame: 1728 × 1084. Route: `/onboarding/institution/guidelines`.
