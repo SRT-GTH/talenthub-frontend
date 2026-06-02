@@ -883,7 +883,7 @@ const OnboardingPersonalInfoPage = () => {
   ];
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-160px)] flex-col bg-white">
+    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
       <OnboardingHeader currentKey="profile" percent={78} />
 
       <section className="flex flex-1">
