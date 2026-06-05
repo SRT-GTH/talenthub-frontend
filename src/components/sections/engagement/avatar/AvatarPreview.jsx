@@ -43,16 +43,20 @@ import outfitLabCoatRaw from '../../../../assets/engagement/nineth-outfit.svg?ra
 import outfitChefWhitesRaw from '../../../../assets/engagement/tenth-outfit.svg?raw';
 import outfitAthleticRaw from '../../../../assets/engagement/eleventh-outfit.svg?raw';
 
-// Extras — not recolourable, keep their designed colours.
-import eyewear2 from '../../../../assets/engagement/second-extras.svg';
-import eyewear3 from '../../../../assets/engagement/third-extras.svg';
-import eyewear4 from '../../../../assets/engagement/fourth-extras.svg';
+// Eyewear + earrings — imported as raw so they can be recoloured by the
+// Tint colour swatch on the Extras panel (changes glasses/earring metal
+// to gold / silver / rose-gold / etc).
+import eyewear2Raw from '../../../../assets/engagement/second-extras.svg?raw';
+import eyewear3Raw from '../../../../assets/engagement/third-extras.svg?raw';
+import eyewear4Raw from '../../../../assets/engagement/fourth-extras.svg?raw';
+import earring10Raw from '../../../../assets/engagement/tenth-extras.svg?raw';
+import earring11Raw from '../../../../assets/engagement/eleventh-extras.svg?raw';
+import earring12Raw from '../../../../assets/engagement/twelveth-extras.svg?raw';
+
+// Facial hair + details — keep their designed colours, no recolouring.
 import facial6 from '../../../../assets/engagement/sixth-extras.svg';
 import facial7 from '../../../../assets/engagement/seventh-extras.svg';
 import facial8 from '../../../../assets/engagement/eigth-extras.svg';
-import earring10 from '../../../../assets/engagement/tenth-extras.svg';
-import earring11 from '../../../../assets/engagement/eleventh-extras.svg';
-import earring12 from '../../../../assets/engagement/twelveth-extras.svg';
 import detail13 from '../../../../assets/engagement/thirteenth-extras.svg';
 import detail14 from '../../../../assets/engagement/fourteenth-extras.svg';
 import detail15 from '../../../../assets/engagement/fifteenth-extras.svg';
@@ -162,10 +166,22 @@ const HAIR_COLOR_HEX = {
   'green-tone': '#10B981',
 };
 
+// Tint colours — applied to eyewear + earring layers when the user
+// picks a swatch in the Extras panel's Tint row.
+const TINT_COLOR_HEX = {
+  black: '#0F0F0F',
+  gold: '#D4A23F',
+  silver: '#C7C7C7',
+  'rose-gold': '#D9846F',
+  brown: '#6B3F23',
+  clear: '#E9F0F3',
+};
+
 const APPAREL_COLOR_HEX = {
   'brand-green': '#387440',
   'kente-gold': '#D4A23F',
   'sunset-orange': '#E58B3A',
+  red: '#DC2626',
   rose: '#C95E7C',
   violet: '#6B4D9E',
   ocean: '#2F6B8C',
@@ -208,22 +224,24 @@ const OUTFIT_RAW_LAYERS = {
   'outfit-athletic': outfitAthleticRaw,
 };
 
-const EYEWEAR_LAYERS = {
-  'eyewear-2': eyewear2,
-  'eyewear-3': eyewear3,
-  'eyewear-4': eyewear4,
+// Eyewear + earring layers are raw SVG text so they can be tinted by
+// the user's Tint colour choice on the Extras panel.
+const EYEWEAR_RAW_LAYERS = {
+  'eyewear-2': eyewear2Raw,
+  'eyewear-3': eyewear3Raw,
+  'eyewear-4': eyewear4Raw,
+};
+
+const EARRING_RAW_LAYERS = {
+  'earring-10': earring10Raw,
+  'earring-11': earring11Raw,
+  'earring-12': earring12Raw,
 };
 
 const FACIAL_HAIR_LAYERS = {
   'facial-6': facial6,
   'facial-7': facial7,
   'facial-8': facial8,
-};
-
-const EARRING_LAYERS = {
-  'earring-10': earring10,
-  'earring-11': earring11,
-  'earring-12': earring12,
 };
 
 const DETAIL_LAYERS = {
@@ -280,6 +298,12 @@ const HAIR_RAW_PRIMARY = Object.fromEntries(
 const OUTFIT_RAW_PRIMARY = Object.fromEntries(
   Object.entries(OUTFIT_RAW_LAYERS).map(([id, raw]) => [id, findPrimaryFill(raw)])
 );
+const EYEWEAR_RAW_PRIMARY = Object.fromEntries(
+  Object.entries(EYEWEAR_RAW_LAYERS).map(([id, raw]) => [id, findPrimaryFill(raw)])
+);
+const EARRING_RAW_PRIMARY = Object.fromEntries(
+  Object.entries(EARRING_RAW_LAYERS).map(([id, raw]) => [id, findPrimaryFill(raw)])
+);
 
 // ---------------------------------------------------------------------------
 // Layer rendering helper
@@ -290,11 +314,14 @@ const OUTFIT_RAW_PRIMARY = Object.fromEntries(
 // to the character area (LAYER_VIEWBOX). All layers share the same
 // coordinate space so they automatically register/align.
 //
-// y-offset = 210 (was 180): shifts the entire avatar UP in the rendered
-// canvas, which gives the outfit more vertical room inside the clip
-// circle — head sits higher, outfit body extends further into the
-// middle/lower area of the clip.
-const LAYER_VIEWBOX = '350 210 400 400';
+// Tightened viewBox from 400×400 → 340×340 (centred on the avatar's
+// natural centre at x≈550, y≈390). The smaller viewBox means the
+// rendered avatar fills MORE of the wrapper — visible head+body
+// scale up by ~17.6% without growing the ring around them. Top of
+// head and outfit bottom both go a few units outside the viewBox,
+// but the translateY shift below brings the head into view and the
+// disc clip naturally trims the outfit's bottom edge.
+const LAYER_VIEWBOX = '380 220 340 340';
 
 // `key={src}` forces React to unmount + remount the <image> element
 // whenever the data URL changes. Without this, some browsers don't
@@ -329,7 +356,7 @@ const Layer = ({ src }) => <image key={src} href={src} x="0" y="0" width="1024" 
  */
 
 const AvatarPreview = ({ className }) => {
-  const { selection, reset } = useAvatarSelection();
+  const { selection } = useAvatarSelection();
 
   // ── body-base: skin tone + lightness ────────────────────────────────
   // Apply the picked skin tone (+ lightness slider) to the main head
@@ -384,9 +411,24 @@ const AvatarPreview = ({ className }) => {
   }
 
   // ── extras: no recolouring ──────────────────────────────────────────
-  const eyewearSrc = selection.eyewear ? EYEWEAR_LAYERS[selection.eyewear] : null;
+  // Eyewear + earring layers each get their OWN tint colour so the user
+  // can have, e.g., gold glasses + silver earrings. If a tint is null
+  // the layer renders in its designed Figma colour.
+  const eyewearTintHex = TINT_COLOR_HEX[selection.eyewearTintColor];
+  const earringTintHex = TINT_COLOR_HEX[selection.earringTintColor];
+  let eyewearSrc = null;
+  if (selection.eyewear && EYEWEAR_RAW_LAYERS[selection.eyewear]) {
+    const raw = EYEWEAR_RAW_LAYERS[selection.eyewear];
+    const original = EYEWEAR_RAW_PRIMARY[selection.eyewear];
+    eyewearSrc = svgToDataUrl(eyewearTintHex ? recolor(raw, original, eyewearTintHex) : raw);
+  }
+  let earringSrc = null;
+  if (selection.earring && EARRING_RAW_LAYERS[selection.earring]) {
+    const raw = EARRING_RAW_LAYERS[selection.earring];
+    const original = EARRING_RAW_PRIMARY[selection.earring];
+    earringSrc = svgToDataUrl(earringTintHex ? recolor(raw, original, earringTintHex) : raw);
+  }
   const facialHairSrc = selection.facialHair ? FACIAL_HAIR_LAYERS[selection.facialHair] : null;
-  const earringSrc = selection.earring ? EARRING_LAYERS[selection.earring] : null;
   const detailSrc = selection.details ? DETAIL_LAYERS[selection.details] : null;
 
   return (
@@ -400,17 +442,40 @@ const AvatarPreview = ({ className }) => {
     // button's width and the avatar rendered tiny. Setting width on the
     // outer wrapper instead of relying on `w-full` on the inner stack
     // fixes that.
-    <div className={classNames('w-full max-w-[min(68vh,680px)] mx-auto', className)}>
-      {/* clip-path: circle frames the avatar inside the THIRD halo ring
-        (the white-tinted disc behind the avatar). The bottom of the
-        outfit naturally curves along the circle edge; anything outside
-        the circle is clipped. The reset button sits outside this
-        container so it's never clipped.
-
-        Radius 38% gives a circle slightly larger than the third halo
-        ring on typical viewports — fits the avatar inside that visible
-        tinted disc. */}
-      <div className="relative aspect-square w-full" style={{ clipPath: 'circle(38% at 50% 50%)' }}>
+    <div className={classNames('w-full max-w-[min(62vh,620px)] mx-auto', className)}>
+      {/* clip-path: circle frames the avatar inside the white inner
+        disc that sits behind it. Radius bumped to 50% so the disc
+        spans the FULL wrapper — clamped to the avatar's bounding box,
+        with the outfit-bottom landing on the disc's bottom curve when
+        a preset is selected. Anything outside the disc is clipped. */}
+      <div
+        className="relative aspect-square w-full"
+        style={{
+          clipPath: 'circle(50% at 50% 50%)',
+          // Faint white tint on top of the green stage. Alpha lowered
+          // from 0.55 → 0.22 — the disc reads as a subtle lift over
+          // the background instead of an over-bright white wash.
+          backgroundColor: 'rgba(255, 255, 255, 0.22)',
+        }}
+      >
+        {/* INNER GREEN DISC behind the head.
+          • Size: 48.72% (1.5% bigger than the original 48%).
+          • Top: 47% → 50% — another small downward nudge so the disc
+            centre lands closer to the head's mid-face area instead
+            of riding up over the forehead.
+          Colour stays at the soft #b8d3ad halo green. */}
+        <div
+          aria-hidden="true"
+          className="absolute rounded-full"
+          style={{
+            left: '50%',
+            top: '50%',
+            width: '48.72%',
+            height: '48.72%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#b8d3ad',
+          }}
+        />
         {/* Single wrapper SVG with a tight viewBox that crops every layer
           to the character area. Replaces the earlier CSS-scale approach:
           • Cropping via viewBox keeps the character centred horizontally
@@ -428,6 +493,12 @@ const AvatarPreview = ({ className }) => {
           role="img"
           aria-label="Avatar preview"
           className="absolute inset-0 h-full w-full"
+          // Avatar shifted UP — translateY dropped 24% → 6% — so the
+          // outfit isn't pushed past the disc's bottom curve and
+          // hidden by the clip. At 6% the head sits cleanly inside
+          // the disc and the outfit reads as a full, visible band
+          // rather than a thin sliver at the bottom.
+          style={{ transform: 'translateY(6%)' }}
         >
           {/*
             HEAD-AREA SCALE TRANSFORM
@@ -459,8 +530,24 @@ const AvatarPreview = ({ className }) => {
             <Layer src={bodySrc} />
           </g>
 
-          {/* Layer 3: outfit (chest blob) — NOT scaled, stays full size */}
-          {outfitSrc && <Layer src={outfitSrc} />}
+          {/* Layer 3: outfit (chest blob).
+            Wrapped in a matrix transform that:
+              • scales X to 0.85 (slimmer),
+              • scales Y to 0.85 (taller — bumped from 0.78 so the
+                outfit body reads as a full top instead of cropped),
+              • SHIFTS RIGHT (tx 66.8 → 82.95) so the outfit's centre
+                lands at x'=518.15 — exactly the same x as the
+                head's centre after the head-area transform. Outfit
+                now sits directly under the neck instead of drifting
+                left of it.
+            Math: x' = 0.85·x + 82.95  → x=512 → 518.15 (head centre);
+                  y' = 0.85·y + 66.45  → fixes y=443 → 443 (neck).
+            matrix(a b c d e f) = (0.85, 0, 0, 0.85, 82.95, 66.45). */}
+          {outfitSrc && (
+            <g transform="matrix(0.85 0 0 0.85 82.95 66.45)">
+              <Layer src={outfitSrc} />
+            </g>
+          )}
 
           {/* Layers 4–8: face decorations (all share the head scale) */}
           <g transform="translate(82.95 83.45) scale(0.85)">
@@ -482,23 +569,9 @@ const AvatarPreview = ({ className }) => {
         </svg>
       </div>
 
-      {/* Reset avatar — small pill button beneath the preview, centred.
-        Restores every selection field to its default. */}
-      <div className="mt-4 flex justify-center">
-        <button
-          type="button"
-          onClick={reset}
-          className={classNames(
-            'inline-flex items-center gap-1 rounded-pill px-3 py-1.5',
-            'font-sans text-[12px] leading-4 tracking-[0.2px] font-medium',
-            'bg-white/70 border border-border-default text-content-primary',
-            'transition-colors duration-150 hover:border-brand-green hover:text-brand-green',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
-          )}
-        >
-          ↺ Reset avatar
-        </button>
-      </div>
+      {/* Undo lives on the stage overlay bar (rendered by
+        AvatarStepLayout), not here — keeps the layout matching the
+        Figma reference where undo/username/shuffle share one row. */}
     </div>
   );
 };

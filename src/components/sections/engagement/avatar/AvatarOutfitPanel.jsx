@@ -81,6 +81,7 @@ const APPAREL_COLORS = [
   { id: 'brand-green', color: '#387440', label: 'Brand Green' },
   { id: 'kente-gold', color: '#D4A23F', label: 'Kente Gold' },
   { id: 'sunset-orange', color: '#E58B3A', label: 'Sunset Orange' },
+  { id: 'red', color: '#DC2626', label: 'Red' },
   { id: 'rose', color: '#C95E7C', label: 'Rose' },
   { id: 'violet', color: '#6B4D9E', label: 'Violet' },
   { id: 'ocean', color: '#2F6B8C', label: 'Ocean' },
@@ -123,7 +124,7 @@ const AvatarOutfitPanel = ({ activeTab = 'outfit', onTabSelect, className }) => 
   const { selection, setField } = useAvatarSelection();
 
   return (
-    <div className={classNames('flex flex-col gap-6', className)}>
+    <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
         <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">

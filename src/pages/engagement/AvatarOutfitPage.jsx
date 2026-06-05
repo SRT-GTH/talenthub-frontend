@@ -49,6 +49,14 @@ const AvatarOutfitPage = () => {
       continueLabel="Save outfit, finish avatar"
       onGoBack={handleGoBack}
       onContinue={handleFinish}
+      stageTag="Avatar · Outfit · Last one!"
+      stageHeading={
+        <>
+          Dress how you
+          <br />
+          show up.
+        </>
+      }
     />
   );
 };

@@ -42,10 +42,13 @@ export const AvatarOptionTile = ({
     aria-label={ariaLabel || label}
     className={classNames(
       'group relative inline-flex flex-col items-stretch text-left',
-      // Cap each tile's max-width so the boxes stay snug around their
-      // icons instead of stretching to fill the grid column. `mx-auto`
-      // centres the capped tile within its (wider) grid cell.
-      'w-full max-w-[clamp(60px,7vw,84px)] mx-auto',
+      // Cap each tile's max-width per Figma: 96.72px at the 1728-wide
+      // design frame (5.6vw of 1728 ≈ 96.77). Scales DOWN on smaller
+      // viewports so the panel stays non-scrollable on smaller laptops
+      // (e.g. 1366-wide → ~76px tiles). Floor 56px keeps tiles tappable
+      // on very small screens. `mx-auto` centres the capped tile
+      // within its (wider) grid cell.
+      'w-full max-w-[clamp(56px,5.6vw,97px)] mx-auto',
       'rounded-xl p-1',
       'transition-[border-color,box-shadow] duration-150 ease-out',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',

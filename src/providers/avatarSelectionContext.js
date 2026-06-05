@@ -39,7 +39,12 @@ export const AVATAR_SELECTION_DEFAULTS = {
   facialHair: 'facial-none',
   earring: 'earring-none',
   details: null,
-  tintColor: 'black',
+  // Separate tint per row so eyewear and earring can have different
+  // colours (e.g., gold glasses + silver earrings). Both default to
+  // null so the items render in their designed Figma colours on first
+  // load — only changes when the user picks a tint swatch.
+  eyewearTintColor: null,
+  earringTintColor: null,
 
   // Outfit step — apparel + apparelColor default to null. With
   // apparelColor null the recolour pipeline is skipped and each outfit
@@ -56,5 +61,6 @@ export const AvatarSelectionContext = createContext({
   selection: AVATAR_SELECTION_DEFAULTS,
   setField: () => {},
   toggleMulti: () => {},
+  undo: () => {},
   reset: () => {},
 });

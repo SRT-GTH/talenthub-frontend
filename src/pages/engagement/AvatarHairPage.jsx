@@ -47,6 +47,8 @@ const AvatarHairPage = () => {
       continueLabel="Save tone, Next"
       onGoBack={handleGoBack}
       onContinue={handleNext}
+      stageTag="Avatar · Hair"
+      stageHeading="Crown Energy"
     />
   );
 };

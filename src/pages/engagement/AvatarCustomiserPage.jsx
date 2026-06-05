@@ -58,6 +58,12 @@ const AvatarCustomiserPage = () => {
       panel={<AvatarStylePanel activeTab="style" onTabSelect={handleTabSelect} />}
       continueLabel="Looks good, next"
       onContinue={handleNext}
+      stageTag="Step 1 of 9 · Your Avatar"
+      stageHeading={
+        <>
+          Pick your <em className="italic">vibe.</em>
+        </>
+      }
     />
   );
 };

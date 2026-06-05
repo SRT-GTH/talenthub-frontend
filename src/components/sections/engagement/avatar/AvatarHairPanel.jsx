@@ -99,7 +99,7 @@ const AvatarHairPanel = ({ activeTab = 'hair', onTabSelect, className }) => {
   const { selection, setField } = useAvatarSelection();
 
   return (
-    <div className={classNames('flex flex-col gap-6', className)}>
+    <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
         <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">

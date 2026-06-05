@@ -185,7 +185,7 @@ const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => 
   ].reduce((a, b) => a + b, 0);
 
   return (
-    <div className={classNames('flex flex-col gap-6', className)}>
+    <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
         <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
@@ -245,17 +245,34 @@ const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => 
         </div>
       </section>
 
-      {/* Tint colour swatches */}
+      {/* Two independent tint rows — eyewear and earrings each have
+        their OWN colour selection, so the user can have e.g. gold
+        glasses + silver earrings without one overriding the other. */}
       <section className="flex flex-col gap-3">
-        <AvatarSectionHeader title="Tint" meta="Earrings, glasses tint" />
+        <AvatarSectionHeader title="Glasses tint" meta="Applies to eyewear" />
         <div className="flex flex-wrap items-center gap-2.5">
           {TINT_COLORS.map((shade) => (
             <AvatarColorSwatch
-              key={shade.id}
+              key={`eyewear-${shade.id}`}
               color={shade.color}
-              selected={selection.tintColor === shade.id}
-              onClick={() => setField('tintColor', shade.id)}
-              ariaLabel={shade.label}
+              selected={selection.eyewearTintColor === shade.id}
+              onClick={() => setField('eyewearTintColor', shade.id)}
+              ariaLabel={`Eyewear ${shade.label}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <AvatarSectionHeader title="Earrings tint" meta="Applies to earrings" />
+        <div className="flex flex-wrap items-center gap-2.5">
+          {TINT_COLORS.map((shade) => (
+            <AvatarColorSwatch
+              key={`earring-${shade.id}`}
+              color={shade.color}
+              selected={selection.earringTintColor === shade.id}
+              onClick={() => setField('earringTintColor', shade.id)}
+              ariaLabel={`Earring ${shade.label}`}
             />
           ))}
         </div>

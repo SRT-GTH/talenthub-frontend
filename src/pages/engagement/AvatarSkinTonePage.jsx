@@ -57,6 +57,14 @@ const AvatarSkinTonePage = () => {
       continueLabel="Save tone, Next"
       onGoBack={handleGoBack}
       onContinue={handleNext}
+      stageTag="Avatar · Skin Tone"
+      stageHeading={
+        <>
+          Your shade,
+          <br />
+          <em className="italic">your way.</em>
+        </>
+      }
     />
   );
 };

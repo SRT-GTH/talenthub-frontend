@@ -70,10 +70,10 @@ const STYLE_PRESETS = {
   'style-1': {
     skinTone: 'cocoa',
     lightness: 0,
-    hairStyle: 'hair-1', // Box Braids
+    hairStyle: 'hair-1',
     hairColor: 'black',
     apparel: 'outfit-tee',
-    apparelColor: null,
+    apparelColor: 'brand-green', // matches the green Tee in the Style 1 tile
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
@@ -83,23 +83,23 @@ const STYLE_PRESETS = {
   'style-2': {
     skinTone: 'mahogany',
     lightness: 0,
-    hairStyle: 'hair-2', // Cornrows
+    hairStyle: 'hair-2',
     hairColor: 'dark-brown',
     apparel: 'outfit-hoodie',
-    apparelColor: null,
+    apparelColor: 'rose', // pink hoodie + dreads tile
     fit: 'relaxed',
     eyewear: 'eyewear-none',
-    facialHair: 'facial-7', // Stubble
+    facialHair: 'facial-7',
     earring: 'earring-none',
     details: null,
   },
   'style-3': {
     skinTone: 'cocoa-light',
     lightness: 0,
-    hairStyle: 'hair-3', // Afro
+    hairStyle: 'hair-3',
     hairColor: 'black',
     apparel: 'outfit-polo',
-    apparelColor: null,
+    apparelColor: 'violet', // purple hijab in the Style 3 tile
     fit: 'regular',
     eyewear: 'eyewear-2',
     facialHair: 'facial-none',
@@ -109,75 +109,75 @@ const STYLE_PRESETS = {
   'style-4': {
     skinTone: 'bronze',
     lightness: 0,
-    hairStyle: 'hair-4', // Buzz Cut
+    hairStyle: 'hair-4',
     hairColor: 'black',
     apparel: 'outfit-suit',
-    apparelColor: null,
+    apparelColor: 'brand-green', // light-green outfit in the Style 4 tile
     fit: 'slim',
     eyewear: 'eyewear-none',
-    facialHair: 'facial-8', // Full Beard
+    facialHair: 'facial-8',
     earring: 'earring-none',
     details: null,
   },
   'style-5': {
     skinTone: 'caramel',
     lightness: 0,
-    hairStyle: 'hair-5', // Fade
+    hairStyle: 'hair-5',
     hairColor: 'auburn',
     apparel: 'outfit-button-down',
-    apparelColor: null,
+    apparelColor: 'kente-gold', // yellow outfit
     fit: 'regular',
     eyewear: 'eyewear-3',
-    facialHair: 'facial-6', // Goatee
+    facialHair: 'facial-6',
     earring: 'earring-none',
     details: null,
   },
   'style-6': {
     skinTone: 'cocoa',
     lightness: 0,
-    hairStyle: 'hair-6', // Twists
+    hairStyle: 'hair-6',
     hairColor: 'chestnut',
     apparel: 'outfit-kente-top',
-    apparelColor: null,
+    apparelColor: 'kente-gold', // kente-pattern shirt
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
-    earring: 'earring-10', // Stud
-    details: 'detail-13', // Freckles
+    earring: 'earring-10',
+    details: 'detail-13',
   },
   'style-7': {
     skinTone: 'mahogany',
     lightness: 0,
-    hairStyle: 'hair-7', // Locs
+    hairStyle: 'hair-7',
     hairColor: 'black',
     apparel: 'outfit-dashiki',
-    apparelColor: null,
+    apparelColor: 'rose', // pink outfit
     fit: 'relaxed',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
-    earring: 'earring-12', // Drop
+    earring: 'earring-12',
     details: null,
   },
   'style-8': {
     skinTone: 'cocoa',
     lightness: 0,
-    hairStyle: 'hair-8', // Hijab
+    hairStyle: 'hair-8',
     hairColor: 'black',
     apparel: 'outfit-hijab-fit',
-    apparelColor: null,
+    apparelColor: 'violet', // purple
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
     earring: 'earring-none',
-    details: 'detail-15', // Beauty mark
+    details: 'detail-15',
   },
   'style-9': {
     skinTone: 'bronze',
     lightness: 0,
-    hairStyle: 'hair-10', // Long Curly
+    hairStyle: 'hair-10',
     hairColor: 'brown',
     apparel: 'outfit-lab-coat',
-    apparelColor: null,
+    apparelColor: 'red', // red outfit in the Style 9 tile
     fit: 'regular',
     eyewear: 'eyewear-2',
     facialHair: 'facial-none',
@@ -187,15 +187,15 @@ const STYLE_PRESETS = {
   'style-10': {
     skinTone: 'cocoa',
     lightness: 0,
-    hairStyle: 'hair-12', // Onyx
+    hairStyle: 'hair-12',
     hairColor: 'black',
     apparel: 'outfit-athletic',
-    apparelColor: null,
+    apparelColor: 'ocean', // blue outfit
     fit: 'regular',
     eyewear: 'eyewear-none',
     facialHair: 'facial-none',
-    earring: 'earring-11', // Hoop
-    details: 'detail-16', // Blush
+    earring: 'earring-11',
+    details: 'detail-16',
   },
 };
 
@@ -211,13 +211,19 @@ const SKIN_TONES = [
   { id: 'mahogany', color: '#54392A', label: 'Mahogany' },
 ];
 
-// Tile body: render the designer character SVG centred inside the tile
-// at a fixed visible size (size-12 = 48px square) so every tile shows
-// the character at the same on-screen size regardless of the source
-// SVG's intrinsic dimensions. `object-contain` preserves aspect.
+// Tile body: render the designer character SVG centred inside the tile.
+// Image scales with viewport so it stays proportional to the tile (which
+// is itself clamped 56–97px). At 1728-wide design frame the image is
+// ~80px (~82% of a 97-tile); on smaller viewports both shrink together.
+// `object-contain` preserves aspect ratio.
 const StyleCharacter = ({ image, alt }) => (
   <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
-    <img src={image} alt={alt} className="block size-12 object-contain" draggable="false" />
+    <img
+      src={image}
+      alt={alt}
+      className="block w-[clamp(40px,4.6vw,80px)] h-[clamp(40px,4.6vw,80px)] object-contain"
+      draggable="false"
+    />
   </span>
 );
 
@@ -238,7 +244,9 @@ const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
   };
 
   return (
-    <div className={classNames('flex flex-col gap-6', className)}>
+    // gap shrinks with viewport so the panel fits non-scrollably on
+    // smaller laptops. 24px at the 1728-wide design frame; floor 12px.
+    <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
         <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">

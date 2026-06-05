@@ -49,6 +49,8 @@ const AvatarExtrasPage = () => {
       continueLabel="Save extras, Next"
       onGoBack={handleGoBack}
       onContinue={handleNext}
+      stageTag="Avatar · Extras"
+      stageHeading="Crown Energy"
     />
   );
 };
