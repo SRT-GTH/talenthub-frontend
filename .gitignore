@@ -63,3 +63,13 @@ Thumbs.db
 /*.png
 /*.jpg
 /*.jpeg
+
+# Claude-agent scratch outputs (Figma context dumps, report drafts,
+# per-session extraction work). Reference material, not source.
+temp-outputs/
+
+# Raw onboarding code dumps (reference material, not source)
+above 18 onboarding raw code/
+below 18 onboarding raw code/
+
+.vercel
