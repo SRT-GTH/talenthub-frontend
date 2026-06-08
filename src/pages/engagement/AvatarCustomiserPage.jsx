@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarStylePanel from '../../components/sections/engagement/avatar/AvatarStylePanel.jsx';
 import avatarHeroStage from '../../assets/engagement/avatar-hero-stage.png';
+import { useAvatarSelection } from '../../hooks/useAvatarSelection.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarCustomiserPage');
@@ -37,18 +38,33 @@ const TAB_TO_ROUTE = {
 const AvatarCustomiserPage = () => {
   log('mount');
   const navigate = useNavigate();
+  // `reset()` from the selection provider clears every field back to its
+  // default — so leaving the Style step strips off whichever preset the
+  // user previewed here and starts the build-your-own flow with just the
+  // bare body-base on the next step.
+  const { reset } = useAvatarSelection();
+
+  // Leaving the Style step resets the avatar to base body — the user
+  // can preview style presets here, but switching to Skin/Hair/Extras/
+  // Outfit drops those presets so the user builds their own avatar
+  // piece-by-piece from a clean slate.
+  const leaveStyleStep = (route) => {
+    log('leaving Style step → reset preset, navigate to', route);
+    reset();
+    navigate(route);
+  };
 
   const handleTabSelect = (tabId) => {
     const route = TAB_TO_ROUTE[tabId];
     if (route && route !== '/profile/engagement/avatar') {
       log('tab → navigate', tabId, route);
-      navigate(route);
+      leaveStyleStep(route);
     }
   };
 
   const handleNext = () => {
     log('looks good, next → skin tone');
-    navigate('/profile/engagement/avatar/skin');
+    leaveStyleStep('/profile/engagement/avatar/skin');
   };
 
   return (

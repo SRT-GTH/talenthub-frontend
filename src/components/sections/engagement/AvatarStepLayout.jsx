@@ -504,17 +504,16 @@ const AvatarStepLayout = ({
             footer is pinned at the bottom of the column. */}
           {/* Aside itself is the scroll container — `overflow-y-auto`
             on the column means the WHOLE right side scrolls as one
-            unit (panel + footer together), not just the panel above
-            a pinned footer. The inner div uses `min-h-full` so the
-            footer is pushed to the column bottom when content fits,
-            and travels with the panel when content overflows.
+            unit (panel + footer together). The inner div uses
+            `min-h-full` so the footer is pushed to the column bottom
+            when content fits, and travels with the panel when
+            content overflows.
 
             Scrollbar is HIDDEN but scrolling still works:
               • [scrollbar-width:none]              → Firefox
               • [-ms-overflow-style:none]           → IE/legacy Edge
               • [&::-webkit-scrollbar]:hidden       → Chrome / Safari /
-                                                       modern Edge
-            All three are required for full cross-browser coverage. */}
+                                                       modern Edge */}
           <aside
             data-scroll-container
             className="relative h-full bg-white border-l border-border-default overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"

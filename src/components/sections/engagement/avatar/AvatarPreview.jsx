@@ -71,17 +71,26 @@ const log = debug('AvatarPreview');
 
 /*
  * findPrimaryFill — guesses the main recolourable colour of an SVG.
- * Strategy: return the fill attribute of the first <path> element. Figma
- * exports the largest/topmost shape first, which for our layers is the
- * shape we want to recolour (hair body, outfit blob, body skin, etc.).
- * If nothing's found, returns null and the layer renders un-recoloured.
+ * Strategy: look at the FIRST <path> element. Figma exports the
+ * largest/topmost shape first, which for our layers is the shape we
+ * want to recolour (hair body, outfit blob, body skin, etc.). Try its
+ * `fill=` attribute first; fall back to `stroke=` for line-based icons
+ * (e.g. glasses outlines, hoop earrings) that have no fill at all.
+ * If neither is found or both are `none`, returns null and the layer
+ * renders un-recoloured.
  */
 const findPrimaryFill = (svgText) => {
-  const match = svgText.match(/<path[^>]*fill="(#[0-9A-Fa-f]+|[a-z]+)"/i);
-  if (!match) return null;
-  const fill = match[1];
-  if (fill === 'none' || fill === 'transparent') return null;
-  return fill;
+  const fillMatch = svgText.match(/<path[^>]*\bfill="(#[0-9A-Fa-f]+|[a-z]+)"/i);
+  if (fillMatch) {
+    const fill = fillMatch[1];
+    if (fill !== 'none' && fill !== 'transparent') return fill;
+  }
+  const strokeMatch = svgText.match(/<path[^>]*\bstroke="(#[0-9A-Fa-f]+|[a-z]+)"/i);
+  if (strokeMatch) {
+    const stroke = strokeMatch[1];
+    if (stroke !== 'none' && stroke !== 'transparent') return stroke;
+  }
+  return null;
 };
 
 /*
@@ -301,8 +310,22 @@ const OUTFIT_RAW_PRIMARY = Object.fromEntries(
 const EYEWEAR_RAW_PRIMARY = Object.fromEntries(
   Object.entries(EYEWEAR_RAW_LAYERS).map(([id, raw]) => [id, findPrimaryFill(raw)])
 );
+// Each earring SVG starts with two ear-shape paths in skin colour
+// (#8B5A3C) before the actual earring metal/accent shapes. Without
+// this override, findPrimaryFill would pick up the SKIN colour and
+// the tint would recolour the ears, not the earrings. The hex values
+// below are the actual earring colour in each SVG (extracted by
+// reading the source).
+const EARRING_RAW_PRIMARY_OVERRIDE = {
+  'earring-10': '#F59E0B', // Stud — small gold dot
+  'earring-11': '#FBBF24', // Hoop — gold ring (stroke)
+  'earring-12': '#FBBF24', // Drop — gold connecting line + top stud
+};
 const EARRING_RAW_PRIMARY = Object.fromEntries(
-  Object.entries(EARRING_RAW_LAYERS).map(([id, raw]) => [id, findPrimaryFill(raw)])
+  Object.entries(EARRING_RAW_LAYERS).map(([id, raw]) => [
+    id,
+    EARRING_RAW_PRIMARY_OVERRIDE[id] || findPrimaryFill(raw),
+  ])
 );
 
 // ---------------------------------------------------------------------------
