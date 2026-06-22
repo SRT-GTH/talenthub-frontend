@@ -126,7 +126,7 @@ const EntryMethodModal = ({ isOpen, onClose, onFillManually, onChatWithAi, onUpl
           icon={<UploadIcon className="size-6" />}
           duration="~30 sec to confirm"
           title="Upload my CV"
-          description="Drop your CV; we’ll extract roles, dates, education, and skills for your review."
+          description="Drop your CV; we'll extract roles, dates, education, and skills for your review."
           actionLabel="Drop File"
           onClick={onUploadCv}
         />
@@ -140,7 +140,7 @@ const EntryMethodModal = ({ isOpen, onClose, onFillManually, onChatWithAi, onUpl
           'font-sans text-[13px] leading-[20px] tracking-[0.2px] text-brand-green-dark'
         )}
       >
-        Don’t worry you can mix and match. Upload a CV, then add freelance gigs by chat, then edit a
+        Don't worry you can mix and match. Upload a CV, then add freelance gigs by chat, then edit a
         date manually.
       </div>
     </div>

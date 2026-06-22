@@ -1,32 +1,32 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementHero from '../../components/sections/engagement/EngagementHero.jsx';
 import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
 import IdentityStageMap from '../../components/sections/engagement/IdentityStageMap.jsx';
 import CareerBuddyPromoCard from '../../components/sections/engagement/CareerBuddyPromoCard.jsx';
 import HowItWorksCard from '../../components/sections/engagement/HowItWorksCard.jsx';
 import LeaderboardsLockedCard from '../../components/cards/LeaderboardsLockedCard.jsx';
+import EntryMethodModal from '../../components/sections/engagement/EntryMethodModal.jsx';
 import { PROFILE_STAGES, STAGE_STATUS } from '../../constants/profileStages.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('IdentityMapPage');
 
 /*
- * IdentityMapPage â€” game-map view of the "Section 1 Â· Your Identity" flow.
- * Source: Figma frame (Section 1 Â· Your Identity Â· 2 of 9 stages done).
- *
- * A more playful alternative to the list-based ProfileEngagementPage: the
- * same 9 profile stages are arranged along a vertical green map, with two
- * milestone nodes (Reward, Trophy) marking progress checkpoints.
+ * IdentityMapPage — game-map view of the "Section 1 · Your Identity" flow.
+ * Source: Figma frame (Section 1 · Your Identity · 2 of 9 stages done).
  *
  * Layout:
- *   â”Œâ”€ EngagementTopNav          (logo + Save & Exit + user)
- *   â”œâ”€ EngagementTopBar          (stage trail + step indicator)
- *   â”œâ”€ Main grid (two-column on lg+)
- *   â”‚   â”œâ”€ left   â†’ IdentityStageMap (green map column)
- *   â”‚   â””â”€ right  â†’ Career Buddy + How it works + Leaderboards locked
- *   â””â”€ EngagementFooter          (status + actions)
+ *   ┌─ EngagementTopNav          (logo + Save & Exit + user)
+ *   ├─ EngagementTopBar          (stage trail + step indicator)
+ *   ├─ EngagementHero            (Your Profile, Your Way + Where You Stand)
+ *   ├─ Main grid (two-column on lg+)
+ *   │   ├─ left   → IdentityStageMap (green map column)
+ *   │   └─ right  → Career Buddy + How it works + Leaderboards locked
+ *   ├─ EngagementFooter          (status + actions)
+ *   └─ EntryMethodModal          (auto-opens on first mount)
  */
 
 const IdentityMapPage = () => {
@@ -44,6 +44,12 @@ const IdentityMapPage = () => {
     );
     return { done, inProgress, remaining, completionPct, currentIndex };
   }, []);
+
+  // Entry-method modal opens on first mount (matches the engagement-hub
+  // behaviour — gives the user the three quick ways to add profile data
+  // even from the map view).
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(true);
+  const closeEntryModal = () => setIsEntryModalOpen(false);
 
   const handleStageSelect = (stage) => {
     log('stage selected', stage.id);
@@ -66,12 +72,32 @@ const IdentityMapPage = () => {
     navigate('/');
   };
 
+  const handleFillManually = () => {
+    log('entry method: fill manually');
+    closeEntryModal();
+  };
+  const handleChatWithAi = () => {
+    log('entry method: chat with AI');
+    closeEntryModal();
+  };
+  const handleUploadCv = () => {
+    log('entry method: upload CV');
+    closeEntryModal();
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background-default">
       <EngagementTopNav onSaveExit={handleSaveExit} />
       <EngagementTopBar
         currentStageIndex={counts.currentIndex}
         completionPct={counts.completionPct}
+      />
+
+      <EngagementHero
+        completionPct={counts.completionPct}
+        doneCount={counts.done}
+        inProgressCount={counts.inProgress}
+        remainingCount={counts.remaining}
       />
 
       <main className="flex-1">
@@ -87,6 +113,14 @@ const IdentityMapPage = () => {
       </main>
 
       <EngagementFooter onSkip={handleSkipHome} onContinue={handleGetStarted} />
+
+      <EntryMethodModal
+        isOpen={isEntryModalOpen}
+        onClose={closeEntryModal}
+        onFillManually={handleFillManually}
+        onChatWithAi={handleChatWithAi}
+        onUploadCv={handleUploadCv}
+      />
     </div>
   );
 };

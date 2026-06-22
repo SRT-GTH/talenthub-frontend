@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementHero from '../../components/sections/engagement/EngagementHero.jsx';
 import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
 import MilestoneHeroPanel from '../../components/sections/engagement/MilestoneHeroPanel.jsx';
 import UnlockedFeaturesSection from '../../components/sections/engagement/UnlockedFeaturesSection.jsx';
@@ -42,7 +43,7 @@ const TOP20_MILESTONE = {
     </>
   ),
   description:
-    'Youâ€™ve completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.',
+    "You've completed six stages and earned the Top 20% badge. Your profile now ranks higher in recruiter search and gets richer analytics.",
   stats: [
     { value: '6/9', label: 'Stages Done', accent: 'brand' },
     { value: '66%', label: 'Profile Strength', accent: 'accent' },
@@ -60,7 +61,7 @@ const TOP20_MILESTONE = {
       </>
     ),
     description:
-      'Youâ€™re in the top fifth of all GTH profiles. The badge is now live on your recruiter card â€” itâ€™s visible to every recruiter who finds you.',
+      "You're in the top fifth of all GTH profiles. The badge is now live on your recruiter card — it's visible to every recruiter who finds you.",
     items: [
       {
         icon: 'check',
@@ -78,7 +79,7 @@ const TOP20_MILESTONE = {
         icon: 'plus',
         title: 'Portfolio analytics unlocked',
         description:
-          'See exactly which projects hold recruitersâ€™ attention longest â€” and optimise accordingly.',
+          "See exactly which projects hold recruiters' attention longest — and optimise accordingly.",
       },
     ],
     ctaLabel: '3 stages to Top Talent, keep going',
@@ -132,8 +133,8 @@ const Top20MilestonePage = () => {
   };
 
   const handleNextCerts = () => {
-    log('next: certs');
-    navigate('/profile/engagement');
+    log('next: certs → top talent milestone');
+    navigate('/profile/engagement/milestone/top-talent');
   };
 
   const handleClaim = () => {
@@ -142,9 +143,9 @@ const Top20MilestonePage = () => {
   };
 
   const handleDetailsCta = () => {
-    log('details modal CTA â†’ continue to next stage');
+    log('details modal CTA → top talent milestone');
     closeDetails();
-    navigate('/profile/engagement');
+    navigate('/profile/engagement/milestone/top-talent');
   };
 
   return (
@@ -155,6 +156,8 @@ const Top20MilestonePage = () => {
         onSwitchModes={handleSwitchModes}
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
+
+      <EngagementHero completionPct={67} doneCount={6} inProgressCount={0} remainingCount={3} />
 
       <main className="flex-1">
         <MilestoneHeroPanel
