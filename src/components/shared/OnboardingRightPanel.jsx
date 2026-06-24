@@ -4,7 +4,7 @@ export default function OnboardingRightPanel({ toast }) {
   return (
     <aside
       aria-hidden={toast ? undefined : true}
-      className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden lg:block"
+      className="relative hidden min-h-screen w-[42%] shrink-0 self-stretch overflow-hidden lg:block"
     >
       <img
         src={rightPanelImage}
