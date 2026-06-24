@@ -13,6 +13,7 @@ import {
 } from '../../components/shared/assets.jsx';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { debug } from '../../utils/debug.js';
+import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
 
 const log = debug('OnboardingDobPage');
 
@@ -69,167 +70,6 @@ const yearsBetween = (date) => {
   if (!hasHadBirthday) years -= 1;
   return years;
 };
-
-// ---- right panel ------------------------------------------------------
-
-const DataProtectedCard = () => (
-  // Trust banner sitting in the upper-left of the right panel â€” Figma
-  // node 2282:9030. Cream tint, hairline white outline, MTN-like square
-  // icon plus two lines of copy.
-  <div
-    className="absolute rounded-[13px] bg-[#EBF1EC] p-[14px] shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
-    style={{
-      left: 24,
-      top: 320,
-      width: 268,
-      outline: '1px solid #FFFEFC',
-      outlineOffset: '-1px',
-    }}
-  >
-    <div className="flex items-center gap-[9px]">
-      <span className="flex size-9 items-center justify-center rounded-[9px] bg-brand-green text-white">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-          <path
-            d="M9 1.5l6.5 2.5v4c0 4-2.5 6.5-6.5 8-4-1.5-6.5-4-6.5-8V4L9 1.5z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6.5 9l1.7 1.7L11.5 7.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-      <div className="flex flex-col gap-0.5">
-        <p className="text-[12px] font-bold leading-[15px] text-[#595959]">Data Protected</p>
-        <p className="text-[10px] leading-[14px] text-[#595959] opacity-[0.72]">
-          Encrypted Â· Never shared without consent
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const CompliancePill = () => (
-  // Top-right pill â€” Figma node 2282:9043. White rounded pill with
-  // green check + Ghana Data Protection Act compliance copy.
-  <div
-    className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
-    style={{ right: 24, top: 200 }}
-  >
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <circle cx="7" cy="7" r="5.5" stroke="#387440" />
-      <path
-        d="M4.5 7l1.7 2 3.3-3.2"
-        stroke="#387440"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-    <span
-      className="text-[14px] font-semibold leading-6 text-brand-green"
-      style={{ letterSpacing: '0.1px' }}
-    >
-      Ghana Data Protection Act compliant
-    </span>
-  </div>
-);
-
-const ExperiencePickerCard = () => (
-  // "Adult experience / Youth experience" floating selector â€” Figma
-  // node 2282:9050. The Adult row is the active option (green/600);
-  // Youth is muted grey. Each row carries a 6Ã—6 dot indicator.
-  <div
-    className="absolute rounded-[12px] bg-white p-4 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
-    style={{ right: 24, top: 500, width: 235 }}
-  >
-    <div className="flex items-center gap-3">
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
-      <span className="text-[12px] font-semibold leading-tight text-brand-green">
-        Adult experience
-      </span>
-    </div>
-    <div className="mt-3 flex items-center gap-3">
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-[#D6D6D2]" />
-      <span className="text-[12px] font-normal leading-tight text-[#959592]">Youth experience</span>
-    </div>
-  </div>
-);
-
-const WatchTutorialCard = () => (
-  // "Watch tutorial" instance â€” Figma 2282:9059. Small card with a
-  // play glyph and a short copy block describing the current step.
-  <button
-    type="button"
-    className="absolute inline-flex items-center gap-3 rounded-[12px] border border-black/5 bg-white px-4 py-3 shadow-[0_8px_16px_-4px_rgba(27,36,44,0.16)]"
-    style={{ right: 24, bottom: 30, width: 211 }}
-  >
-    <span className="flex size-9 items-center justify-center rounded-full bg-brand-green-light text-brand-green">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <path d="M5 4l5 3-5 3V4z" fill="currentColor" />
-      </svg>
-    </span>
-    <div className="flex flex-col text-left">
-      <span className="text-[10px] font-medium uppercase tracking-wider text-[#959592]">
-        Watch tutorial
-      </span>
-      <span
-        className="text-[14px] font-semibold capitalize leading-tight text-brand-green"
-        style={{ letterSpacing: '0.14px' }}
-      >
-        Start (Date of Birth)
-      </span>
-    </div>
-  </button>
-);
-
-const BasicsRightPanel = () => (
-  // Right showcase panel â€” Figma Frame 141 (2282:9014). 42% of the
-  // outer width to match the rest of the marketing screens. We keep
-  // the brand-green base + the cream/pink orbs + a single rotated
-  // photo placeholder, with the trust badges and pickers stacked on
-  // top. The full 3-photo composition is deferred â€” once a final
-  // panel image lands we can swap this for a single `<img>` the way
-  // we did on LoginPage.
-  <aside
-    aria-hidden="true"
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
-  >
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
-      style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
-    />
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
-      style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
-    />
-
-    {/* Big tilted photo placeholder */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '14%',
-        top: '8%',
-        width: '60%',
-        height: '38%',
-        transform: 'rotate(5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '6px solid rgba(255,255,255,0.18)',
-        outlineOffset: '-6px',
-      }}
-    />
-
-    <DataProtectedCard />
-    <CompliancePill />
-    <ExperiencePickerCard />
-    <WatchTutorialCard />
-  </aside>
-);
 
 // ---- loading overlay --------------------------------------------------
 
@@ -457,7 +297,7 @@ const OnboardingDobPage = () => {
           </form>
         </div>
 
-        <BasicsRightPanel />
+        <OnboardingRightPanel />
       </section>
 
       {showOverlay && <LoadingOverlay />}
