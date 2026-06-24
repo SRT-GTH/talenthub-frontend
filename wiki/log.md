@@ -3,6 +3,78 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-06-22] create | Parent Identity Step (Step 1 of parent sign-up wizard)
+
+**New files:**
+
+- `src/components/shared/ParentOnboardingBreadcrumb.jsx` — 8-step amber progress bar (mirrors InstitutionOnboardingBreadcrumb). Steps: Parent Identity / Verification / Contact / Security / Link Ward / Review & Consent / Consent / Done. Active/done color #b48617, pending #babab7. Inline amber progress div (cannot reuse ProgressBar which hardcodes bg-brand-green). Exports `PARENT_STEPS` array for layout step-count reference.
+- `src/components/sections/parentLogin/ParentIdentitySection.jsx` — Form section (Figma 2901:81269). Caption badge "03 · Parent Identity" (amber dot, italic grey "03", amber label). Headline "Tell us about yourself." (italic #c8951a). 7 fields: First Name, Middle Name, Last Name (TextInput), Relationship, Gender, Nationality (Select), Date of Birth (TextInput, DD-MM-YYYY pattern). Layout: 3× 2-col rows + 1 full-width row. zod schema with onTouched mode. On submit → navigate to /onboarding/parent-verification. Footer link → /onboarding/parent-login.
+- `src/pages/parentLogin/ParentIdentityPage.jsx` — thin route wrapper for /onboarding/parent-identity.
+
+**Updated files:**
+
+- `src/components/sections/parentLogin/ParentWelcomePanelContent.jsx` — added `SignupActiveBadge` (Figma 2901:85237: green #387440 pill, "Active" text, status circle icon, top-[7%] left-[9%] in panel) and `SignupOverlayCards` (SignupActiveBadge + WardStatusCard + FlagCorrectionsOverlay).
+- `src/layout/ParentOnboardingLayout.jsx` — added breadcrumb (shown on all sign-up steps, not login/welcome), `PARENT_STEP_PATHS` for step index calculation, and `SignupOverlayCards` for sign-up panel content. Panel switching: login → LoginOverlayCards, welcome → WelcomeOverlayCards, sign-up → SignupOverlayCards.
+- `src/App.jsx` — added import for `ParentIdentityPage` and route `/onboarding/parent-identity` inside `<Route element={<ParentOnboardingLayout />}>`.
+
+## [2026-06-22] create | Parent Welcome Screen + Toast component
+
+**New files:**
+
+- `src/components/ui/Toast.jsx` — React Portal toast system. `ToastItem` (forwardRef, auto-dismiss, enter/exit animation). `Toast` (single via portal, position prop). `ToastContainer` (queued queue via portal). `success` variant matches Figma 2900:76816 (#ebf1ec bg, 3px green left border, checkmark icon box #387440). Stubs for `warning`, `error`, `info`. Portal target: `#toast-root` (already in index.html).
+- `src/components/sections/parentLogin/ParentWelcomeRightPanel.jsx` — welcome-screen gold right panel (Figma 2894:72002). Same BG decorations as ParentLoginRightPanel. Key differences: ONE large photo card (`Students using GTH on phone.png`, center 63.4%/53%, 88% width, #ddebe4 green border, `Ellipse 5.svg` corner bleed top-left); Ward Status card (white, right-anchored at top:54.4%, 181×88); Active badge (top:14.4%); Verified profile badge (left:8.5%, top:76.9%); Flag corrections overlay (same as login). No ErrorCallout. No second photo card. BL element repositioned (5.3%, 85.1%).
+- `src/components/sections/parentLogin/ParentWelcomeSection.jsx` — left content column. WelcomeBackBadge + Instrument Serif headline (italic gold "on the platform.") + subtitle + WavyDivider + HowThisWorksBadge + 3-step list (amber number badges, #c8951a titles) + primary green CTA + secondary cream CTA + "Log in Instead" footer. Auto-shows success Toast (8 s) on mount.
+- `src/pages/parentLogin/ParentWelcomePage.jsx` — thin route wrapper for /onboarding/parent-welcome.
+
+**Modified files:**
+
+- `src/layout/ParentOnboardingLayout.jsx` — now uses `useLocation` to switch between `ParentLoginRightPanel` (default) and `ParentWelcomeRightPanel` (when pathname includes "parent-welcome").
+- `src/App.jsx` — added `ParentWelcomePage` import + route `/onboarding/parent-welcome` inside `<ParentOnboardingLayout>`.
+
+**Figma nodes:** `2865:44066` (main frame), `2894:72002` (right panel), `2900:76816` (toast), `2865:44194` (left column).
+
+---
+
+## [2026-06-16] fix | Parent Login right panel — Figma fidelity fixes
+
+**Modified file:** `src/components/sections/parentLogin/ParentLoginRightPanel.jsx`
+
+**Fixes applied:**
+
+- TR ellipse (2884:64827): replaced CSS solid color with `institution-panel-ellipse-tr.svg` (Gaussian blur, same #f7efdd color — identical SVG as institution panel)
+- BL ellipse (2884:64828): replaced CSS solid color with `institution-panel-ellipse-bl.svg` (Gaussian blur, same #f9ebea color — identical SVG)
+- Large photo card (2884:64836): now uses `parent-panel-photo-large.png` (Figma export) instead of students group photo
+- Small photo card (2884:67288): now uses `parent-panel-photo-small.png` (Figma export, separate distinct image)
+- Photo rotation: corrected from ±3°/5° to near-flat (0.12°/0.16° per Figma — imperceptible tilt)
+- Error callout added (2894:71740): 498×71 card, fill=#ebf1ec, r=10, stroke=#c1d4c4; red shadow 24×24 (#c0392b) behind green icon 26×26 (#387440); positioned at panel-relative left=24.9%, top=7.7%
+- BL abstract element added (2884:67308): renders `PATENT_ONBOARDING _PANEL_BL_ELEMENT.svg` (201×144, fill=#e2dcca, op=0.2 baked in) at panel-relative left=-8.5%, top=85.1%
+- Route corrected to `/onboarding/parent-login` (OnboardingNavbar, no Footer)
+
+**New assets added:**
+
+- `src/assets/hero/parent-panel-photo-large.png` — Figma S3 export of node 2884:64837
+- `src/assets/hero/parent-panel-photo-small.png` — Figma S3 export of node 2884:67289
+- `src/assets/svg/PATENT_ONBOARDING _PANEL_BL_ELEMENT.svg` — provided by user (shapes-04 abstract)
+
+---
+
+## [2026-06-16] create | Parent Login Screen (/onboarding/parent-login)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentLoginRightPanel.jsx` — gold (#967014) decorative right panel. TR/BL blobs: Gaussian blur SVGs reused from institution panel (same colors). Photos: separate Figma-exported PNGs. Error callout + shapes-04 BL element + Verified profile badge + Flag corrections overlay. BG lines at 10% opacity.
+- `src/components/sections/parentLogin/ParentLoginSection.jsx` — self-contained 2-column login form. "WELCOME BACK" amber badge. Headline: italic #c8951a "Ghana Talent Hub." Form: email/phone + PasswordInput + Checkbox. Gold TL radial-gradient ellipse. BR ellipse reuses page-ellipse-br.svg.
+- `src/pages/parentLogin/ParentLoginPage.jsx` — thin route wrapper for /onboarding/parent-login.
+
+**Modified files:**
+
+- `src/App.jsx` — added `ParentLoginPage` import + route `/onboarding/parent-login`.
+- `wiki/figma-node-map.md` — added Parent Login Screen section with all Figma node IDs.
+
+**Figma node map:** `wiki/figma-node-map.md` → "Parent Login Screen" section.
+
+---
+
 ## [2026-05-22] create | Institution Confirm step (step 7 of 8)
 
 **New files:**

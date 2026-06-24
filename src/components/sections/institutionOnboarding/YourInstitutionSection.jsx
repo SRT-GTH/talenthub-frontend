@@ -163,7 +163,7 @@ const YourInstitutionSection = () => {
           {/* Row 1: Legal Name + Trading Name — 2-col grid */}
           <div className="grid  w-full grid-cols-1 gap-4 sm:grid-cols-2">
             <TextInput
-              leftIcon={<PersonIcon />}
+              leftIcon={<PersonIcon className="text-brand-green" />}
               label="Legal / Official Name"
               required
               placeholder="e.g. Accra Technical College"
@@ -171,7 +171,7 @@ const YourInstitutionSection = () => {
               {...register('legalName')}
             />
             <TextInput
-              leftIcon={<PersonIcon />}
+              leftIcon={<PersonIcon className="text-brand-green" />}
               label="Trading / Commercial Name"
               optional
               placeholder="e.g. ATC (if different)"
@@ -188,7 +188,7 @@ const YourInstitutionSection = () => {
               log('institutionType field render, value:', field.value);
               return (
                 <Select
-                  leftIcon={<PersonIcon />}
+                  leftIcon={<PersonIcon className="text-brand-green" />}
                   label="Institution Type"
                   required
                   placeholder="Select institution type"

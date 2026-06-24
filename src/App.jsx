@@ -33,6 +33,10 @@ import InstitutionValidatePage from './pages/onboarding/institution/InstitutionV
 import InstitutionConfirmPage from './pages/onboarding/institution/InstitutionConfirmPage.jsx';
 import InstitutionReportPage from './pages/onboarding/institution/InstitutionReportPage.jsx';
 import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
+import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
+import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
+import ParentWelcomePage from './pages/parentLogin/ParentWelcomePage.jsx';
+import ParentIdentityPage from './pages/parentLogin/ParentIdentityPage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 function App() {
   return (
@@ -97,6 +101,16 @@ function App() {
             <Route path="/onboarding/institution/validate" element={<InstitutionValidatePage />} />
             <Route path="/onboarding/institution/confirm" element={<InstitutionConfirmPage />} />
             <Route path="/onboarding/institution/report" element={<InstitutionReportPage />} />
+          </Route>
+
+          {/* Parent portal onboarding — shared layout provides BG ellipses + gold right panel.
+              Layout swaps the right panel based on the active route:
+                parent-welcome → ParentWelcomeRightPanel (single large photo + Ward Status overlay)
+                parent-login   → ParentLoginRightPanel   (two photo cards + Error callout) */}
+          <Route element={<ParentOnboardingLayout />}>
+            <Route path={'/onboarding/parent-welcome'} element={<ParentWelcomePage />} />
+            <Route path={'/onboarding/parent-login'} element={<ParentLoginPage />} />
+            <Route path={'/onboarding/parent-identity'} element={<ParentIdentityPage />} />
           </Route>
 
           {/* /components hosts the design-system playground (HomePage). */}

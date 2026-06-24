@@ -779,6 +779,115 @@ Design tokens extracted via Figma REST API (MCP rate-limited on this session).
 
 ---
 
+---
+
+## Parent Login Screen `✅ VERIFIED` (2026-06-16)
+
+Main frame: `2884:64759` — 1728×1117, fill=#ffffff.
+
+| Element                   | Node ID      | Notes                                                         |
+| ------------------------- | ------------ | ------------------------------------------------------------- |
+| Main frame                | `2884:64759` | 1728×1117                                                     |
+| Navbar                    | `2884:64810` | 1728×90, full marketing Navbar (#f8f8f4 bg)                   |
+| Left content frame        | `2884:64893` | 989×972                                                       |
+| Right panel               | `2884:64826` | 739×973, fill=#967014 (accent-dark gold)                      |
+| TL gold ellipse           | `2884:64763` | 571×571, GRADIENT_LINEAR #f5c451→#d6a243→#f5bd4f, op=0.6      |
+| BR red ellipse            | `2884:64762` | 571×571, fill=#c0392b, op=0.15                                |
+| "WELCOME BACK" badge      | `2884:64938` | fill=#f7efdd, stroke=#eedeb8, r=8, text #c8951a               |
+| Headline                  | `2884:64946` | Instrument Serif 64px; chars 10–26 italic #c8951a             |
+| Subtitle                  | `2884:64948` | SF Pro Rounded 16px #737373; "Create your account" in #387440 |
+| WavyDivider               | `2884:64949` | LINE, op=0.5                                                  |
+| Email/Phone field         | `2884:64952` | 698×80, label "Email or Phone Number", UserIcon left          |
+| Password field            | `2884:64953` | 698×80, label "Password", "Forget Password" trailing link     |
+| Checkbox row              | `2884:64954` | "Keep me logged in" 12px #70706e                              |
+| CTA disabled              | `2884:64958` | 698×56, fill=#bfbfbf, r=14, "Enter Your Details To Continue"  |
+| CTA active                | `2891:69513` | fill=#387440, stroke=#2a5730@2                                |
+| CTA loading               | `2894:71597` | fill=#2d5d33, "Logging You In"                                |
+| Divider area              | `2884:64959` | "New to Ghana Talent Hub?" text + two divider lines           |
+| Register card             | `2884:64965` | 698×99, fill=#fefefd, r=16, "Your ward registered..."         |
+| "Set up your account" btn | `2884:64968` | 203×38, fill=#ffffff, r=10, stroke=#c6c6c3, UserIcon + arrow  |
+
+### Right panel sub-nodes
+
+| Element                  | Node ID      | Notes                                                   |
+| ------------------------ | ------------ | ------------------------------------------------------- |
+| Cream ellipse TR         | `2884:64827` | 473×473, fill=#f7efdd, op=0.5, CSS-only                 |
+| Pink ellipse BL          | `2884:64828` | 473×473, fill=#f9ebea, op=0.5, CSS-only                 |
+| BG grid rect             | `2884:64829` | 414×473, IMAGE fill, rot=3.1°                           |
+| BG lines overlay         | `2884:67315` | 739×973, fill=#ffffff op=0.10 (10%, not 30%)            |
+| Sparkle composite        | `2884:64833` | 100×102 at rel=(579,22) — reuses panel-sparkle-\* SVGs  |
+| Snow dots composite      | `2884:64834` | 447×359 at rel=(-388,-31) — reuses panel-snow-\* SVGs   |
+| Photo group              | `2884:64835` | Group 670×876 at rel=(21,48), r=40                      |
+| Large photo card         | `2884:64836` | 498×566, stroke=#ddebe4@10, IMAGE fill                  |
+| Small photo card         | `2884:67288` | 425×478 at group rel=(246,398), stroke=#eedeb8@10       |
+| Verified profile badge   | `2884:64849` | 133×40, white, r=10, stroke=#000000, green checkmark    |
+| shapes-04 abstract       | `2884:67308` | 264×264 at rel=(-63,828), op=0.20 — SKIPPED (no export) |
+| Flag corrections overlay | `2891:68611` | 242×71 at rel=(77,787), fill=#ebf1ec, r=10              |
+| WatchTutorial            | `2884:64892` | 211×76 at rel=(471,872) — bottom-right                  |
+
+### Subframes dived during build
+
+`2884:64826`, `2884:64835`, `2884:64763`, `2891:68611`, `2884:64893`, `2884:64937`, `2884:64938`, `2884:64946`, `2884:64950`, `2884:64957`, `2884:64965`
+
+---
+
+## Parent Welcome Screen (frame `2865:44066`) `✅ VERIFIED`
+
+Main frame: 1728×1117px. Route: `/onboarding/parent-welcome`.
+Layout shell: `ParentOnboardingLayout` (same as login — path-aware panel switch added 2026-06-22).
+
+### Left content column (`2865:44194`)
+
+| Element                | Node ID      | Key tokens                                                                                                        |
+| ---------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Welcome Back badge     | `2900:76717` | bg #f7efdd, border #eedeb8, r=8, dot #eedeb8/#c8951a/glow #f5c451                                                 |
+| Headline               | `2865:44246` | Instrument Serif 64px/-0.64px; "on the platform." italic #c8951a                                                  |
+| Subtitle               | `2865:44248` | SF Pro Rounded 16px/24px #737373, max-w 482px                                                                     |
+| WavyDivider            | `2865:44249` | standard WavyDivider component                                                                                    |
+| "How This Works" badge | `2865:44250` | bg rgba(250,244,232,0.6), border #eedeb8, r=8, dot #faf4e8/#c8951a/glow #d6a243, text 12px semibold #967014       |
+| 3-step list            | `2865:44258` | 514px, divide-y #e6e6e6; num badge 32×32 bg #ebf1ec border #eedeb8 r=30; num Instrument Serif italic 16px #c8951a |
+| Step 1                 | `2865:44260` | title #c8951a semibold; desc #575755 14px                                                                         |
+| Step 2                 | `2865:44268` | same structure                                                                                                    |
+| Step 3                 | `2865:44276` | same structure                                                                                                    |
+| CTA block              | `2865:44284` | max-w 542px, flex-col gap-4                                                                                       |
+| Primary CTA            | `2865:44285` | bg #387440, border #2a5730, shelf #224626, gradient text (peach→mint)                                             |
+| Secondary CTA          | `2900:76829` | bg #faf4e8, border rgba(17,17,17,0.3), shelf rgba(0,0,0,0.15), text #575755                                       |
+| Footer link            | `2865:44286` | "Already Have an account?" #737373 + "Log in Instead" #387440 semibold                                            |
+
+### Toast notification (`2900:76816`) `✅ VERIFIED`
+
+Auto-shown on page mount (8 s duration). Implemented in `src/components/ui/Toast.jsx`.
+
+| Property         | Value                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| Container        | bg #ebf1ec, border 1px #c1d4c4, border-left 3px #387440, r=10                              |
+| Shadow           | `0px 16px 24px -6px rgba(27,36,44,0.16), 0px 2px 2px -1px rgba(27,36,44,0.04)`             |
+| Icon box         | 26×26 bg #387440 r=6, checkmark SVG, inner shadow                                          |
+| Title            | "Your ward registered on Ghana Talent Hub" — 14px semibold #387440                         |
+| Body (bold part) | "Kofi Mensah (16)" — 14px semibold #2a5730                                                 |
+| Body (rest)      | "provided your contact. Your details have been pre-filled below..." — 12px regular #575755 |
+| Close icon       | 20×20 X                                                                                    |
+
+### Right panel (`2894:72002`) `✅ VERIFIED`
+
+Same gold (#967014) background and BG decorations as `ParentLoginRightPanel`.
+Implemented in `src/components/sections/parentLogin/ParentWelcomeRightPanel.jsx`.
+
+**Key differences from login panel:**
+
+| Element                 | Node ID      | Position in 739×973 panel       | Notes                                                                                                 |
+| ----------------------- | ------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Main photo card (frame) | `2894:72733` | center 63.4%/53.0%, w=88%       | `Students using GTH on phone.png`; border #ddebe4@10px; r=40px                                        |
+| Corner ellipse bleed    | —            | top=-85px, left=-76px from card | `Ellipse 5.svg`, 223×223, rotate(-4deg)                                                               |
+| Active badge            | `2894:72793` | left=13.4%, top=14.4%           | small pill, bg #ebf1ec, "Active"                                                                      |
+| Verified profile badge  | `2894:72739` | left=8.5%, top=76.9%            | 133×40, bg #f7efdd, border #eedeb8, amber star + "Verified profile"                                   |
+| Ward Status card        | `2894:72783` | right≈7%, top=54.4%, 181×88     | bg white, r=12, shadow; amber icon; "WARD STATUS" 9px uppercase + "Active : Kofi Mensah" 12px #967014 |
+| Flag corrections        | `2894:72748` | left=10.7%, top=80.9%           | identical to login panel overlay                                                                      |
+| BL element (shapes-04)  | `2894:72747` | left=5.3%, top=85.1%, 264×264   | uses `PATENT_ONBOARDING _PANEL_BL_ELEMENT.svg`                                                        |
+| WatchTutorial           | `2894:72746` | bottom-right                    | identical to login panel                                                                              |
+
+---
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)
