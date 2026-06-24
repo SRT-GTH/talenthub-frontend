@@ -17,6 +17,7 @@ import ProfileEngagementPage from './pages/engagement/ProfileEngagementPage.jsx'
 import IdentityMapPage from './pages/engagement/IdentityMapPage.jsx';
 import MilestoneUnlockPage from './pages/engagement/MilestoneUnlockPage.jsx';
 import Top20MilestonePage from './pages/engagement/Top20MilestonePage.jsx';
+import TopTalentMilestonePage from './pages/engagement/TopTalentMilestonePage.jsx';
 import AvatarCustomiserPage from './pages/engagement/AvatarCustomiserPage.jsx';
 import AvatarSkinTonePage from './pages/engagement/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
@@ -33,14 +34,21 @@ import InstitutionValidatePage from './pages/onboarding/institution/InstitutionV
 import InstitutionConfirmPage from './pages/onboarding/institution/InstitutionConfirmPage.jsx';
 import InstitutionReportPage from './pages/onboarding/institution/InstitutionReportPage.jsx';
 import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
+import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
+import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
 import ParentWelcomePage from './pages/parentLogin/ParentWelcomePage.jsx';
 import ParentIdentityPage from './pages/parentLogin/ParentIdentityPage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import DemoNavigator from './components/shared/DemoNavigator.jsx';
 function App() {
   return (
     <BrowserRouter>
+      {/* Reset window scroll on every route change so each new page
+          starts at the top instead of inheriting the previous scroll. */}
+      <ScrollToTop />
+      <DemoNavigator />
       <Routes>
         {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
             mirroring the elysium pattern. Add it as:
@@ -122,11 +130,21 @@ function App() {
         <Route path={'/profile/engagement/identity'} element={<IdentityMapPage />} />
         <Route path={'/profile/engagement/milestone'} element={<MilestoneUnlockPage />} />
         <Route path={'/profile/engagement/milestone/top-20'} element={<Top20MilestonePage />} />
-        <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
-        <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
-        <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
-        <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
-        <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
+        <Route
+          path={'/profile/engagement/milestone/top-talent'}
+          element={<TopTalentMilestonePage />}
+        />
+        {/* All 5 avatar steps share one AvatarSelectionProvider so the
+            user's picks survive navigation between Style → Skin → Hair →
+            Extras → Outfit. Without this layout, the provider would
+            re-mount per page and selections would reset. */}
+        <Route element={<AvatarFlowLayout />}>
+          <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
+          <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
+          <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
+          <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
+          <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

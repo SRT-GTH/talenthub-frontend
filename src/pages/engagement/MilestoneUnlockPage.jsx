@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../../components/sections/engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../../components/sections/engagement/EngagementTopBar.jsx';
+import EngagementHero from '../../components/sections/engagement/EngagementHero.jsx';
 import EngagementFooter from '../../components/sections/engagement/EngagementFooter.jsx';
 import MilestoneHeroPanel from '../../components/sections/engagement/MilestoneHeroPanel.jsx';
 import UnlockedFeaturesSection from '../../components/sections/engagement/UnlockedFeaturesSection.jsx';
@@ -36,11 +37,11 @@ const DISCOVERABLE_MILESTONE = {
   totalMilestones: 3,
   headline: (
     <>
-      Youâ€™re <span className="italic text-brand-green">discoverable.</span>
+      You're <span className="italic text-brand-green">discoverable.</span>
     </>
   ),
   description:
-    'Youâ€™ve completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.',
+    "You've completed the first three stages. Your profile card is now live in recruiter search. Thousands of employers in Ghana can find you right now.",
   stats: [
     { value: '3/9', label: 'Stages Done', accent: 'brand' },
     { value: '33%', label: 'Profile Strength', accent: 'accent' },
@@ -153,6 +154,8 @@ const MilestoneUnlockPage = () => {
         onSwitchModes={handleSwitchModes}
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
+
+      <EngagementHero completionPct={33} doneCount={3} inProgressCount={0} remainingCount={6} />
 
       <main className="flex-1">
         <MilestoneHeroPanel

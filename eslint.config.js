@@ -8,7 +8,17 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 // Mirrors elysium's flat config + adds prettier compatibility and node globals
 // for config files (vite.config.js, playwright.config.js, etc.).
 export default defineConfig([
-  globalIgnores(['dist', 'playwright-report', 'test-results', 'node_modules']),
+  globalIgnores([
+    'dist',
+    'playwright-report',
+    'test-results',
+    'node_modules',
+    // Claude-agent scratch dirs (reference material, not source) — kept out
+    // of git and out of lint. Mirrors .gitignore.
+    'temp-outputs',
+    'above 18 onboarding raw code',
+    'below 18 onboarding raw code',
+  ]),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

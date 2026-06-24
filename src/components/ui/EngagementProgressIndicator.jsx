@@ -19,7 +19,10 @@ const EngagementProgressIndicator = ({
   className,
 }) => {
   const safeIndex = Math.max(0, Math.min(currentIndex, totalSteps - 1));
-  const trackPct = ((safeIndex + (completionPct ? completionPct / 100 : 0)) / totalSteps) * 100;
+  // Bar reflects "you've reached step N of total" → fill = N/total.
+  // Step 1 → 11%, Step 5 → 56%, Step 9 → 100%. The `completionPct`
+  // shown in the label is a separate metric (profile-strength %).
+  const trackPct = Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
 
   return (
     <div className={classNames('w-full flex flex-col gap-2', className)}>

@@ -1,46 +1,70 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
+import AvatarSkinPanel from '../../components/sections/engagement/avatar/AvatarSkinPanel.jsx';
 import skinHeroStage from '../../assets/engagement/avatar-skin-hero-stage.png';
-import skinCustomiserPanel from '../../assets/engagement/avatar-skin-customiser-panel.png';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarSkinTonePage');
 
 /*
- * AvatarSkinTonePage â€” Step 1 (Avatar â€” Skin Tone tab).
- * Source: Figma frame (Avatar Skin Tone â€” Your shade, your way).
+ * AvatarSkinTonePage — Avatar customiser Skin Tone step.
+ * Source: Figma frame (Avatar Skin Tone — Your shade, your way).
  *
- * Renders the shared AvatarStepLayout with the skin-tone hero stage on
- * the left ("Avatar Â· Skin Tone" tag, "Your shade, your way." headline)
- * and the skin-tone customiser panel on the right (12 tone tiles,
- * fine-tune slider, lighting preview, helper tip).
+ * LEFT side keeps the designer hero PNG (avatar preview baked in).
+ * RIGHT side is the real React AvatarSkinPanel — 12 tone tiles,
+ * Lightness slider, 3-look lighting preview, and a brand-green helper
+ * tip. Selections persist via AvatarSelectionContext provided by
+ * AvatarFlowLayout one route level up.
  *
- * Continue button label is "Save tone, Next" â€” advances to the Hair step.
+ * Continue advances to the Hair step.
  */
+
+const TAB_TO_ROUTE = {
+  style: '/profile/engagement/avatar',
+  skin: '/profile/engagement/avatar/skin',
+  hair: '/profile/engagement/avatar/hair',
+  extras: '/profile/engagement/avatar/extras',
+  outfit: '/profile/engagement/avatar/outfit',
+};
 
 const AvatarSkinTonePage = () => {
   log('mount');
   const navigate = useNavigate();
 
+  const handleTabSelect = (tabId) => {
+    const route = TAB_TO_ROUTE[tabId];
+    if (route && route !== '/profile/engagement/avatar/skin') {
+      log('tab → navigate', tabId, route);
+      navigate(route);
+    }
+  };
+
   const handleGoBack = () => {
-    log('go back â†’ style step');
+    log('go back → style step');
     navigate('/profile/engagement/avatar');
   };
 
   const handleNext = () => {
-    log('save tone, next â†’ hair step');
+    log('save tone, next → hair step');
     navigate('/profile/engagement/avatar/hair');
   };
 
   return (
     <AvatarStepLayout
       heroSrc={skinHeroStage}
-      heroAlt="Skin tone preview on the customiser stage â€” your shade, your way"
-      panelSrc={skinCustomiserPanel}
-      panelAlt="Skin tone customiser panel: base tones, fine-tune, lighting preview"
+      heroAlt="Skin tone preview on the customiser stage — your shade, your way"
+      panel={<AvatarSkinPanel activeTab="skin" onTabSelect={handleTabSelect} />}
       continueLabel="Save tone, Next"
       onGoBack={handleGoBack}
       onContinue={handleNext}
+      stageTag="Avatar · Skin Tone"
+      stageHeading={
+        <>
+          Your shade,
+          <br />
+          <em className="italic">your way.</em>
+        </>
+      }
     />
   );
 };

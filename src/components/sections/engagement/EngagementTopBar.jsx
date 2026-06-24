@@ -1,60 +1,60 @@
+import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.jsx';
-import { PROFILE_STAGES, STAGE_STATUS } from '../../../constants/profileStages.js';
+import { PROFILE_STAGES } from '../../../constants/profileStages.js';
+
+import arrowhead from '../../../assets/engagement/arrowhead.svg';
 
 /*
  * EngagementTopBar — stage-trail row on the Profile Engagement page.
- * Source: Figma frame 3384:81977 ("Frame 150").
+ * Source: Figma frame 3384:81977.
  *
- * Sits directly below `EngagementTopNav`. Two columns:
- *   left:  the 9-stage trail. Each stage shows a check-circle (filled
- *          green for done stages, hollow grey for pending) followed by
- *          the stage label. A small filled grey triangle (▸) separates
- *          stages. The active stage label picks up a brand-green
- *          underline.
+ * Layout (two columns):
+ *   left:  the 9-stage trail. Each stage is rendered as a check-circle
+ *          icon + text label, both colour-controlled so the active stage
+ *          reads brand-green and the rest read neutral-grey. arrowhead.svg
+ *          is the separator between them. Each row is wrapped in a <Link>
+ *          so users can jump to that stage.
  *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
  *
- * Completion state for the per-stage circle comes from the stage's
- * `status` field in PROFILE_STAGES — that's the source of truth that
- * also drives the stage cards below.
+ * Earlier iteration used 9 per-stage SVG breadcrumbs (icon + label baked
+ * into one image). We've switched to one shared check icon + a text
+ * label so the active/inactive colour swap can happen in code
+ * (text-brand-green vs text-neutral-dark-hover), matching the Figma
+ * states. The shared icon is inlined as a React component so its fill
+ * follows `currentColor` from the parent — the source SVG had a
+ * hard-coded grey fill that blocked state-based recolouring.
  */
 
-// Hollow check-circle in light grey — used for pending / not-yet-done stages.
-const HollowCheckCircle = ({ className }) => (
-  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" />
+const CheckCircleIcon = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    aria-hidden="true"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
-      d="M5.5 8.4l1.8 1.8 3.6-3.8"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M7.9998 0.799805C4.02335 0.799805 0.799805 4.02335 0.799805 7.9998C0.799805 11.9763 4.02335 15.1998 7.9998 15.1998C11.9763 15.1998 15.1998 11.9763 15.1998 7.9998C15.1998 4.02335 11.9763 0.799805 7.9998 0.799805ZM11.0746 6.16667C11.2772 5.90446 11.2289 5.52765 10.9667 5.32503C10.7045 5.12242 10.3277 5.17073 10.125 5.43294L7.16473 9.26392L5.84578 7.79842C5.62411 7.55212 5.24473 7.53215 4.99843 7.75383C4.75212 7.9755 4.73215 8.35488 4.95383 8.60118L6.75383 10.6012C6.87286 10.7334 7.04446 10.806 7.22228 10.7994C7.40009 10.7927 7.56577 10.7075 7.67457 10.5667L11.0746 6.16667Z"
     />
   </svg>
 );
 
-// Filled brand-green check circle — used for done stages.
-const FilledCheckCircle = ({ className }) => (
-  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-    <circle cx="8" cy="8" r="7.4" fill="currentColor" />
-    <path
-      d="M5.2 8.4l1.8 1.8 3.8-4"
-      stroke="white"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-// Small filled right-pointing triangle separator between stages.
-// Figma uses a flat, solid grey triangle (not a stroke chevron) lying on
-// its side. The viewBox is 6×8 so the triangle reads as a compact arrow.
-const TriangleSeparator = ({ className }) => (
-  <svg viewBox="0 0 6 8" fill="currentColor" aria-hidden="true" className={className}>
-    <path d="M0 0L6 4L0 8Z" />
-  </svg>
-);
+// Per-stage destination route. Order mirrors PROFILE_STAGES so the trail
+// stays in sync with the rest of the flow.
+const STAGE_ROUTES = {
+  avatar: '/profile/engagement/avatar',
+  'personal-interests': '/profile/engagement',
+  personality: '/profile/engagement',
+  skills: '/profile/engagement',
+  'work-experience': '/profile/engagement',
+  'project-portfolio': '/profile/engagement',
+  certifications: '/profile/engagement',
+  'desired-career': '/profile/engagement',
+  'talent-pitch': '/profile/engagement',
+};
 
 const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className }) => {
   const currentStage = PROFILE_STAGES[currentStageIndex];
@@ -70,50 +70,55 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
     >
       <nav
         aria-label="Profile engagement stages"
-        className="flex-1 min-w-0 flex flex-wrap items-center gap-x-1.5 gap-y-2"
+        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-1 overflow-hidden"
       >
         {PROFILE_STAGES.map((stage, index) => {
           const isCurrent = index === currentStageIndex;
-          const isDone = stage.status === STAGE_STATUS.DONE;
+          const route = STAGE_ROUTES[stage.id];
+          if (!route) return null;
+          const label = stage.trailLabel || stage.title;
 
           return (
-            <span key={stage.id} className="inline-flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1.5">
+            <span key={stage.id} className="inline-flex items-center gap-1 shrink-0">
+              <Link
+                to={route}
+                aria-label={label}
+                aria-current={isCurrent ? 'step' : undefined}
+                className={classNames(
+                  'inline-flex items-center gap-1 rounded px-1 py-0.5',
+                  'transition-colors duration-150',
+                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                  // Active stage: brand-green check + label.
+                  // Inactive: neutral grey; hover restores brand-green so
+                  // users get a preview before clicking.
+                  isCurrent ? 'text-brand-green' : 'text-neutral-dark-hover hover:text-brand-green'
+                )}
+              >
+                <CheckCircleIcon className="size-[clamp(14px,1.2vw,16px)] shrink-0" />
                 <span
                   className={classNames(
-                    'inline-flex size-4 shrink-0',
-                    isDone ? 'text-brand-green' : 'text-neutral-dark'
+                    'font-sans text-[clamp(11px,1vw,13px)] leading-4 tracking-[0.1px]',
+                    isCurrent ? 'font-semibold' : 'font-medium'
                   )}
                 >
-                  {isDone ? (
-                    <FilledCheckCircle className="size-full" />
-                  ) : (
-                    <HollowCheckCircle className="size-full" />
-                  )}
+                  {label}
                 </span>
-                <span
-                  aria-current={isCurrent ? 'step' : undefined}
-                  className={classNames(
-                    'font-sans text-[13px] tracking-[0.14px]',
-                    isCurrent
-                      ? 'font-semibold text-content-primary border-b-2 border-brand-green pb-px'
-                      : isDone
-                        ? 'font-medium text-brand-green'
-                        : 'font-medium text-neutral-dark-hover'
-                  )}
-                >
-                  {stage.trailLabel || stage.title}
-                </span>
-              </span>
+              </Link>
               {index < PROFILE_STAGES.length - 1 && (
-                <TriangleSeparator className="ml-2 h-2 w-1.5 text-neutral-dark" />
+                <img
+                  src={arrowhead}
+                  alt=""
+                  aria-hidden="true"
+                  className="block size-5 select-none opacity-70 shrink-0"
+                  draggable="false"
+                />
               )}
             </span>
           );
         })}
       </nav>
 
-      <div className="w-[clamp(280px,24vw,360px)] shrink-0">
+      <div className="w-[clamp(320px,28vw,420px)] shrink-0">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={PROFILE_STAGES.length}

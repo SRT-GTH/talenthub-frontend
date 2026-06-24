@@ -13,8 +13,8 @@ import {
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
-import rightPanelImage from '../assets/onboarding/right panel img.svg';
 import leftPanelBg from '../assets/onboarding/left panel bg.jpg';
+import OnboardingRightPanel from '../components/shared/OnboardingRightPanel.jsx';
 
 const log = debug('LoginPage');
 
@@ -99,28 +99,6 @@ const AuthErrorToast = ({ onClose }) => (
       <CloseIcon />
     </button>
   </div>
-);
-
-// ---- right panel ------------------------------------------------------
-
-// Right panel — single composed JPG from Figma node 2849:52632. The
-// previous piecemeal implementation (rotated photo cards + Data Protected
-// badge + compliance pill + sparkle doodles + Abena Mensah card) is
-// collapsed into one image so the panel always matches the design exactly.
-const RightPanel = ({ toast }) => (
-  <aside
-    aria-hidden={toast ? undefined : true}
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden lg:block"
-  >
-    <img
-      src={rightPanelImage}
-      alt=""
-      className="absolute inset-0 size-full object-contain"
-      loading="lazy"
-      decoding="async"
-    />
-    {toast}
-  </aside>
 );
 
 // ---- left panel: form -------------------------------------------------
@@ -405,7 +383,7 @@ const LoginPage = () => {
           />
         </div>
       </div>
-      <RightPanel
+      <OnboardingRightPanel
         toast={authError ? <AuthErrorToast onClose={() => setAuthError(false)} /> : null}
       />
     </section>
