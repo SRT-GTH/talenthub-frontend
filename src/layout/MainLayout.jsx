@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar.jsx';
 import OnboardingNavbar from '../components/shared/OnboardingNavbar.jsx';
 import Footer from '../components/shared/Footer.jsx';
+import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('MainLayout');
@@ -19,20 +20,33 @@ const isOnboardingChromePath = (pathname) =>
     (path) => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`)
   );
 
+// Two-column auth flows that lock to the viewport: the shell is exactly screen
+// height and never scrolls, so the navbar (and the decorative right panel) stay
+// fixed while only the form column scrolls internally. Other onboarding-chrome
+// pages (/login, /get-started, talent steps) keep the normal page-scroll model
+// with a sticky navbar.
+const isFixedShellPath = (pathname) =>
+  pathname.startsWith('/onboarding/institution') || pathname.startsWith('/onboarding/parent');
+
 const MainLayout = () => {
   const { pathname } = useLocation();
   const onboarding = isOnboardingChromePath(pathname);
-  log('mount; pathname:', pathname, 'onboarding:', onboarding);
+  const fixedShell = isFixedShellPath(pathname);
+  log('mount; pathname:', pathname, 'onboarding:', onboarding, 'fixedShell:', fixedShell);
 
   return (
-    // Layout-wide max-width cap (matches the 1728-px Figma frame). Nav, main,
-    // and footer all sit inside this centered column instead of each page or
-    // nav component repeating `mx-auto max-w-[1728px]` internally. On viewports
-    // wider than 1728px, the column centres and the surrounding area falls
-    // back to the body background.
-    <div className="min-h-screen mx-auto flex w-full  flex-col">
+    // Layout-wide column. Fixed-shell auth flows lock to `h-screen` + overflow-
+    // hidden so the page itself never scrolls (navbar + right panel stay put,
+    // content column scrolls internally). Everything else uses `min-h-screen`
+    // with normal page scroll (sticky navbar keeps the header visible).
+    <div
+      className={classNames(
+        'mx-auto flex w-full flex-col',
+        fixedShell ? 'h-screen overflow-hidden' : 'min-h-screen'
+      )}
+    >
       {onboarding ? <OnboardingNavbar /> : <Navbar />}
-      <main className="flex-1 flex flex-col">
+      <main className={classNames('flex flex-1 flex-col', fixedShell && 'min-h-0')}>
         <Outlet />
       </main>
       {/* Onboarding pages have no footer per Figma node 2849:66712 family —

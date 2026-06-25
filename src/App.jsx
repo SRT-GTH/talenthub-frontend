@@ -40,6 +40,12 @@ import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
 import ParentWelcomePage from './pages/parentLogin/ParentWelcomePage.jsx';
 import ParentIdentityPage from './pages/parentLogin/ParentIdentityPage.jsx';
+import ParentVerificationPage from './pages/parentLogin/ParentVerificationPage.jsx';
+import ParentContactPage from './pages/parentLogin/ParentContactPage.jsx';
+import ParentSecurityPage from './pages/parentLogin/ParentSecurityPage.jsx';
+import ParentLinkWardPage from './pages/parentLogin/ParentLinkWardPage.jsx';
+import ParentReviewPage from './pages/parentLogin/ParentReviewPage.jsx';
+import ParentDonePage from './pages/parentLogin/ParentDonePage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
 function App() {
@@ -119,6 +125,12 @@ function App() {
             <Route path={'/onboarding/parent-welcome'} element={<ParentWelcomePage />} />
             <Route path={'/onboarding/parent-login'} element={<ParentLoginPage />} />
             <Route path={'/onboarding/parent-identity'} element={<ParentIdentityPage />} />
+            <Route path={'/onboarding/parent-verification'} element={<ParentVerificationPage />} />
+            <Route path={'/onboarding/parent-contact'} element={<ParentContactPage />} />
+            <Route path={'/onboarding/parent-security'} element={<ParentSecurityPage />} />
+            <Route path={'/onboarding/parent-link-ward'} element={<ParentLinkWardPage />} />
+            <Route path={'/onboarding/parent-review'} element={<ParentReviewPage />} />
+            <Route path={'/onboarding/parent-done'} element={<ParentDonePage />} />
           </Route>
 
           {/* /components hosts the design-system playground (HomePage). */}

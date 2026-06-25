@@ -29,11 +29,11 @@ const log = debug('Toast');
 // ── variant configs ─────────────────────────────────────────────────────────
 
 const CheckIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
     <path
-      d="M2 6.5l3 3 5-6"
+      d="M3.5 9.5l4 4 7-8.5"
       stroke="#ebf1ec"
-      strokeWidth="1.5"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -103,7 +103,7 @@ const ToastItem = React.forwardRef(function ToastItem(
       ref={ref}
       role="alert"
       aria-live="assertive"
-      className={`flex items-start gap-3 rounded-[10px] px-4 py-3 transition-all duration-300 ease-in ${
+      className={`flex items-start gap-3 rounded-[10px] px-6 py-5 transition-all duration-300 ease-in ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       } ${className}`}
       style={{
@@ -111,17 +111,17 @@ const ToastItem = React.forwardRef(function ToastItem(
         border: `1px solid ${cfg.containerBorder}`,
         borderLeft: `3px solid ${cfg.leftAccentColor}`,
         boxShadow: '0px 16px 24px -6px rgba(27,36,44,0.16), 0px 2px 2px -1px rgba(27,36,44,0.04)',
-        maxWidth: 420,
+        maxWidth: 729, // Figma frame 2943:52577 width
         minWidth: 300,
       }}
       {...props}
     >
-      {/* Icon box */}
+      {/* Icon box — Figma 2943:52591 (36×36, r-6) */}
       <span
-        className="flex shrink-0 items-center justify-center rounded-[6px] mt-[1px]"
+        className="flex shrink-0 items-center justify-center rounded-[6px]"
         style={{
-          width: 26,
-          height: 26,
+          width: 36,
+          height: 36,
           backgroundColor: cfg.iconBg,
           boxShadow: '0 2px 2px rgba(27,35,44,0.04), 0 8px 16px rgba(27,36,44,0.12)',
         }}
@@ -130,19 +130,19 @@ const ToastItem = React.forwardRef(function ToastItem(
       </span>
 
       {/* Body content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col gap-[8px] pt-[2px]">
         {title && (
           <p
             className="font-sans font-semibold"
-            style={{ fontSize: 14, lineHeight: '20px', color: '#387440' }}
+            style={{ fontSize: 14, lineHeight: '24px', letterSpacing: '0.1px', color: '#387440' }}
           >
             {title}
           </p>
         )}
         {body && (
           <div
-            className="font-sans mt-[2px]"
-            style={{ fontSize: 12, lineHeight: '18px', letterSpacing: '0.2px', color: '#575755' }}
+            className="font-sans"
+            style={{ fontSize: 14, lineHeight: '20px', letterSpacing: '0.2px', color: '#575755' }}
           >
             {body}
           </div>

@@ -202,16 +202,10 @@ const ParentLoginSection = () => {
             {...register('password')}
           />
 
-          {/* "Keep me logged in" checkbox — Figma 2884:64954 */}
+          {/* "Keep me logged in" checkbox — Figma 2884:64954, 12px compact label */}
           <Checkbox
-            label={
-              <span
-                className="font-sans font-medium text-neutral-dark-active"
-                style={{ fontSize: 12, lineHeight: '18px', letterSpacing: '0.2px' }}
-              >
-                Keep me logged in
-              </span>
-            }
+            label="Keep me logged in"
+            labelClassName="font-medium text-neutral-dark-active !text-[12px] !leading-[18px]"
             {...register('keepMeLoggedIn')}
           />
 

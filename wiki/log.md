@@ -3,6 +3,174 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-06-25] feat | Fixed onboarding shell (nav + right panel) + context-aware nav auth CTA
+
+**Fixed navbar + fixed full-height right panel (institution & parent flows):**
+
+- `src/layout/MainLayout.jsx` — added `isFixedShellPath` (institution + parent routes). Those flows now use `h-screen overflow-hidden` (page never scrolls) with `main` `flex-1 min-h-0`; everything else keeps `min-h-screen` page-scroll.
+- `src/components/shared/OnboardingNavbar.jsx` — header is now `sticky top-0 z-50 shrink-0` (stays pinned).
+- `src/layout/InstitutionOnboardingLayout.jsx` + `src/layout/ParentOnboardingLayout.jsx` — outer `flex flex-1 min-h-0 flex-col`; section `flex flex-1 min-h-0`; `<Outlet />` wrapped in `flex-1 min-h-0 overflow-y-auto no-scrollbar` so ONLY the content column scrolls while the `self-stretch` right panel stays full-height and fixed. Scrollbar hidden so no bar shows between columns.
+- `src/index.css` — added `.no-scrollbar` utility (Firefox `scrollbar-width:none` + WebKit `::-webkit-scrollbar{display:none}`).
+- Verified via Playwright: on parent-link-ward `pageScrollable:false`, `.no-scrollbar` wrapper scrollable; after scrolling, navbar + breadcrumb + gold panel stay put, only the column moves, no visible scrollbar.
+
+**Context-aware nav auth CTA (role + mode):**
+
+- `src/constants/authRoutes.js` (new) — `AUTH_ROUTES` map (talent / institution / parent → `signIn` / `signUp` entries) + `getAuthRole`, `getAuthMode`, `getNavAuthCta` helpers. Role derived from pathname; sign-in surfaces = `/login`, `/onboarding/parent-login`.
+- `OnboardingNavbar` uses `getNavAuthCta(pathname)`: on a sign-in page → "Create Account" pill → that role's sign-up; on a sign-up page → "Log In" link → that role's sign-in.
+- Verified: parent step → Log In → `/onboarding/parent-login`; parent-login → Create Account → `/onboarding/parent-welcome`; institution step → Log In → `/login`; `/login` → Create Account → `/onboarding/talent/welcome`.
+- NOTE: institution has no dedicated sign-in page yet → `institution.signIn` falls back to `/login`. Point it at an institution login route once built (single edit in `authRoutes.js`).
+
+Build ✓ (5.31s), lint ✓ (also removed a now-dangling `pageEllipseBr` import in ParentOnboardingLayout), console clean.
+
+## [2026-06-25] fix | Simple panel = plain gold + removed empty parent-consent step
+
+- `src/components/sections/parentLogin/ParentLoginRightPanel.jsx` — the `simple` variant is now **plain gold only**: layers 1/2 (ellipse blobs) and layer 6 (bg-lines) made default-only; removed the decorative sparkle chars (and the unused `SparkleChar` helper). Simple = gold bg + centered content, nothing else.
+- Removed the empty **`parent-consent`** step from the parent auth flow: `src/layout/ParentOnboardingLayout.jsx` (PARENT_STEP_PATHS), `src/components/shared/ParentOnboardingBreadcrumb.jsx` (PARENT_STEPS), `src/components/shared/DemoNavigator.jsx`. Flow is now 7 steps: Identity → Verification → Contact → Security → Link Ward → Review & Consent → Done.
+
+Verified via Playwright: simple panel shows only gold + trophy/heading/stat cards; breadcrumb shows 7 steps with no "Consent" and 100% on Done. Build ✓, console clean.
+
+## [2026-06-25] create | Parent Sign-up Success/Done step + ParentLoginRightPanel simple variant
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentSuccessSection.jsx` — final "Done" step (Figma `2952:96777` / left `2952:96779`): amber success icon, "Registration complete" caption, "Your parent account is _activated._" headline, 2 audit-event chips, confirmed ward card (Kofi Mensah + green Linked badge), "What you can do now" 3 next-step cards (amber/green/grey-dimmed), opt-out escape hatch, amber "Go to Parent Dashboard" CTA → `/`. Body text verbatim from Figma.
+- `src/components/sections/parentLogin/ParentSuccessPanelContent.jsx` — `SuccessPanelContent`: trophy badge + "You're officially _part of the journey._" + subtitle + 3 translucent stat cards (7 Steps done / 1 Ward linked / 100% Complete). Figma `2952:96846`.
+- `src/pages/parentLogin/ParentDonePage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/components/sections/parentLogin/ParentLoginRightPanel.jsx` — added `variant` prop (`'default'` | `'simple'`) + `centerContent`. Per session request, the success panel is a VARIANT of the existing panel: `simple` keeps the gold bg + ellipse blobs + bg-lines, drops photo cards / overlay / grid / snow / BL element / watch-tutorial, adds 2 sparkle ✦ and renders `centerContent` centered. Default variant byte-unchanged.
+- `src/layout/ParentOnboardingLayout.jsx` — `parent-done` renders `<ParentLoginRightPanel variant="simple" centerContent={<SuccessPanelContent />} />` and forces breadcrumb completion to 100% (`isDone`).
+- `src/App.jsx` — registered `/onboarding/parent-done`.
+- `src/components/sections/parentLogin/ParentReviewSection.jsx` — CTA now navigates to `/onboarding/parent-done` (the designed flow has no separate `parent-consent` screen; consent lives on Review & Consent).
+- `wiki/figma-node-map.md` — documented the success step + simple panel variant.
+
+**Verification:** `npm run build` ✓ (5.39s). Playwright at 1440×1024: left success content (icon, headline, audit chips, ward card, 3 next-step cards, amber CTA) + simple gold panel (trophy, heading, 3 stat cards) match Figma; breadcrumb shows 100%. Console clean (0 errors). DemoNavigator already listed `parent-done`.
+
+## [2026-06-25] create | Parent Review & Consent pop-ups (3 consent modals)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ConsentModal.jsx` — shared bottom-sheet modal shell (Figma `2947:79682`): drag handle, SUMMARY badge + italic-accent serif title + close, optional green intro banner, scrollable body, footer (note + "Read full document" no-op + green "I understand and Accept" CTA). Exports `ConsentListItem` (numbered circle + bold title + desc, `highlight` green variant) and `NoticeBox` (`blue`/`amber`). ESC + backdrop close.
+- `src/components/sections/parentLogin/ConsentModals.jsx` — the 3 concrete modals, data-driven: `OptOutModal` (`2947:79682`, 4 items + blue Under-18), `ParentRightsModal` (`2951:80104`, 6 items + blue Under-18), `DataProcessingModal` (`2951:80262`, 7 items + amber + blue notices). All text verbatim from Figma.
+
+**Updated files:**
+
+- `src/components/sections/parentLogin/ParentReviewSection.jsx` — the 3 consent checkbox links now open their modals (`activeModal` state); each modal's "I understand and Accept" ticks the matching checkbox and closes (`acceptConsent`). Return wrapped in a fragment to render the modals.
+- `wiki/figma-node-map.md` — documented the 3 modals + the ConsentModal shell tokens. (ConsentModal is section-scoped, so it's not added to components.md, which tracks `ui/` primitives.)
+
+**Verification:** `npm run build` ✓ (7.02s). Playwright: opened all 3 modals (opt-out, parent rights, data processing) — headers, intro banners, numbered lists (green-highlighted items), blue/amber notices, footer CTA all match Figma; "I understand and Accept" correctly ticked the matching checkbox and closed the modal; gating preserved (CTA stays grey until all 3). Console clean (one transient HMR 500 during a concurrent file edit cleared on reload).
+
+## [2026-06-25] create | Parent Review & Consent step (step 6 of 8) + shared PreviewField
+
+**New files:**
+
+- `src/components/ui/PreviewField.jsx` — shared read-only summary field (pale `#f8f8f4` box, uppercase micro-label + value; props `label`/`value`/`valueColor`/`muted`/`leftIcon`/`trailing`/`height`/`className`). Extracted per session feedback — previously inlined in ParentLinkWardSection and institution activate.
+- `src/components/sections/parentLogin/ParentReviewSection.jsx` — Step 6, full-width, from Figma `2943:57781`. Header (Captions amber "06 Review & Consent" + "Review your _details_" + subtitle + WavyDivider), preview card with 5 sections (Your Identity / Identity & verification / Contact details / Account Security / Linked Ward) all built from `PreviewField`, 3 required consent checkboxes (shared `Checkbox`), blue data-protection notice, gated CTA (grey → green when all 3 accepted) → `/onboarding/parent-consent`, footer.
+- `src/pages/parentLogin/ParentReviewPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — registered `/onboarding/parent-review`.
+- `src/layout/ParentOnboardingLayout.jsx` — `showRightPanel = !pathname.includes('parent-review')`; right panel now conditionally rendered (full-width review step).
+- `src/components/sections/parentLogin/ParentLinkWardSection.jsx` — refactored its in-file `DetailField` to the shared `PreviewField` (reuse feedback).
+- `wiki/components.md`, `wiki/figma-node-map.md` — documented PreviewField + the Review & Consent step.
+
+**Decisions / notes:**
+
+- CTA gating is real here (3 consents) — disabled grey matches Figma; enabling flips to the green primary Button. Verified via Playwright: ticking all 3 boxes turns the CTA green.
+- Account Security section's 2nd field repeats "Preferred contact / Phone & WhatsApp" — a Figma copy artifact, rendered verbatim.
+- Ward avatar reuses the `parent-welcome-panel-photo.png` placeholder (no per-ward asset yet).
+- PreviewField renders values semibold (review spec); Link Ward values were medium in Figma — negligible weight difference accepted for the shared primitive.
+
+**Verification:** `npm run build` ✓ (6.15s, only pre-existing chunk-size warning). Playwright at 1440×1024: full-width (no right panel), all 5 card sections, consent checkboxes, blue notice, footer all match; CTA correctly gates grey→green. Console clean (0 errors; 2 pre-existing Router warnings). DemoNavigator already listed the route.
+
+## [2026-06-25] refactor | Captions amber variant — reuse shared badge + MailIcon in Link Ward
+
+**Updated files:**
+
+- `src/components/ui/Captions.jsx` — added a `variant` prop (`'green'` default | `'amber'`). Colour/padding/radius tokens moved into a `VARIANTS` map; `green` output is byte-identical to before (verified visually on `/onboarding/institution/your-institution`). `amber` renders the parent-onboarding look (white pill, #eedeb8 border, amber dot, #c8951a active label). Reason: `classNames` is a plain join (no tailwind-merge) so per-theme overrides can't be passed via `className`.
+- `src/components/sections/parentLogin/ParentLinkWardSection.jsx` — replaced the in-file `LinkWardCaptionBadge` with `<Captions variant="amber" … />`, and replaced the hand-crafted `DetailsIcon` with the shared `MailIcon` (sized 11px, coloured #babab7 via currentColor) to match Figma node `2943:52526`.
+- `wiki/components.md`, `wiki/figma-node-map.md` — documented the `variant` prop and the badge/details-icon reuse.
+
+Per session feedback: prefer restyling existing components (Captions) over re-creating per-section in-file badges. (Sibling parent steps still carry their own in-file badges — candidates for the same swap in a follow-up.)
+
+## [2026-06-25] create | Parent Link Ward step (step 5 of 8) + Toast width fix
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentLinkWardSection.jsx` — Step 5 of the parent sign-up wizard, built from Figma frame `2939:48804`. Left content column: caption badge ("05 · Link Ward"), headline "Your ward is _linked_", subtitle, WavyDivider, ward summary card (avatar + "Abena Mensah" + meta tag + green "Active"), DETAILS grid (School/Curriculum, Account created/Account status), amber opt-out notice, green "Confirm & Continue →" CTA → `/onboarding/parent-review`, and "Log in Instead" footer. Auto-link success Toast ("Ward automatically linked Path A") shown on mount via the shared `Toast` portal.
+- `src/pages/parentLogin/ParentLinkWardPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — registered `/onboarding/parent-link-ward` route inside the `ParentOnboardingLayout` group.
+- `src/components/ui/Toast.jsx` — widened the toast to match Figma frame `2943:52577`: maxWidth 420→729px, icon box 26→36px, check icon 12→18px, padding px-4 py-3 → px-6 py-5, title lh 20→24px + tracking 0.1px, body 12/18 → 14/20px, title↔body gap 8px.
+
+**Decisions / deviations:**
+
+- Figma renders the CTA in its grey disabled state (#bfbfbf). Implemented as the standard **enabled green** primary `Button` because the screen has nothing to gate on and the demo must advance. Documented in the section header comment.
+- Ward avatar uses `parent-welcome-panel-photo.png` as a documented placeholder (no per-ward photo asset exists yet; intended final path `src/assets/parent/ward-avatar.png`).
+- Breadcrumb shows 78% in Figma vs 50% computed by `ParentOnboardingLayout` (step 4/8). Left the shared `ParentOnboardingBreadcrumb` unchanged to avoid affecting other parent steps.
+
+**Verification:** `npm run build` ✓ (6.63s, only the pre-existing chunk-size warning). Playwright visual check at 1440×1024 vs Figma — header, badge, ward card, details grid, notice, CTA, footer, and wide success toast all match. Console clean (0 errors; 2 pre-existing React Router v7 future-flag warnings). DemoNavigator already listed the route — no change needed.
+
+## [2026-06-25] fix | OTP modal + Success modal in ParentContactSection — Figma-faithful rewrite
+
+**Updated files:**
+
+- `src/components/sections/parentLogin/ParentContactSection.jsx` — Full rewrite of `OtpModal` and `SuccessModal` to match Figma exactly (nodes 2938:27930–2938:27992 and 2938:31765–2938:31797).
+
+OTP modal changes: top `OtpHeaderIcon` (document+checkmark badge, amber #b48617, on #faf4e8 rounded-[10px] bg); dual channel pills SMS + Email (each with `EnvelopeSmIcon` 12px amber); "Change contact details" amber underline link; two separate countdown timers — expiry 600 s displayed as `MM:SS` via `ClockSmIcon` row, resend 60 s cooldown shown as `Resend code (Xs)` turning green when expired; CTA text changed from "Verify Code" to "Enter all 6 digits to continue"; "3 attempts remaining" always visible (was error-only); amber `ShieldSmIcon` + privacy footer added.
+
+Success modal changes: added close button (×); amber `bg-[#faf4e8]` rounded-[10px] check icon at top; subtitle text added ("Your phone and email have been confirmed…"); summary card changed from green `#ebf1ec` to amber `rgba(250,244,232,0.3)` bg with `#f7efdd` border; row order corrected to Phone-first (with `PhoneRowIcon`) then Email (with `MailRowIcon`); progress bar added (bg-[#ebf1ec], 37.5% green fill); CTA gradient text wrapped in `<span>` for correct clip rendering; footer moved below CTA; shield changed to green `#387440`.
+
+`useCountdown` now also returns raw `seconds` (used for resend countdown display).
+
+✅ VERIFIED — Playwright visual check passed.
+
+---
+
+## [2026-06-25] create | Parent Security Step (Step 4 of parent sign-up wizard)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentSecuritySection.jsx` — Security section (Figma 2938:31842). Caption badge "04 · Security". Headline "Create a strong _password_" (italic amber "password"). Two `PasswordInput` fields: "Password" and "Retype Password" (both required, placeholder "Create a password"). zod schema validates min 8 chars + passwords match. CTA "Create a New Password" disabled until valid. On submit → "Password Captured" success modal: amber check icon, "Contact verified" Captions badge, "Password _Captured_" Instrument Serif 32px headline, subtitle, summary card with two masked password rows + lock icons, progress bar, "Continue to Next Step" CTA → `/onboarding/parent-link-ward`.
+- `src/pages/parentLogin/ParentSecurityPage.jsx` — thin route wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — added `ParentSecurityPage` import and `/onboarding/parent-security` route inside `ParentOnboardingLayout`.
+- `src/components/shared/DemoNavigator.jsx` — Security step was already present in `PARENT_STEPS` (no change needed).
+
+---
+
+## [2026-06-24] create | Parent Contact Step (Step 3 of parent sign-up wizard)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentContactSection.jsx` — Contact section (Figma 2938:19867). Caption badge "03 · Contact Information". Headline "Tell us about yourself." (italic amber "yourself."). Three fields: Phone Number (split picker + input, Ghana flag + +233 + chevron, required, SMS verification hint), WhatsApp Number (same split pattern, optional, leave-blank helper), Email Address (full-width, mail icon prefix, required, email verification hint). Button "Send Verification Code" — grey/disabled until phone+email valid, amber when ready. OTP modal: 6-box code entry, countdown timer, masked contact display, error state with attempts counter. Success modal: "You're Verified" headline, verified contact rows, shield icon, "Continue To Security" green CTA → /onboarding/parent-security. Demo code: 123456.
+- `src/pages/parentLogin/ParentContactPage.jsx` — thin route wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — added `ParentContactPage` import and `/onboarding/parent-contact` route inside `ParentOnboardingLayout`.
+
+---
+
+## [2026-06-24] create | Parent Verification Step (Step 2 of parent sign-up wizard)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentVerificationSection.jsx` — Verification section (Figma 2926:90739). Caption badge "02 · Parent Verification". Headline "Verify your Identity" (italic amber "Identity", SOT[68]=#c8951a+ITALIC). Subtitle verbatim from Figma. Two `UploadCard` components: Ghana Card ID (hand-crafted card SVG icon, 18×18) and Profile Photo (PersonIcon). Empty state: `#fdfdfc` bg, `#eedeb8` border, amber icons. Filled state: `#ebf1ec` bg, `#c1d4c4` border, green icon box, "ADDED" badge. Skip row: "Prefer to skip for now? Continue without verification" → /onboarding/parent-contact. CTA: "Fill In Your Details" → /onboarding/parent-contact. Footer: "Already Have an account? Log in Instead" → /onboarding/parent-login. No form validation (both fields optional).
+- `src/pages/parentLogin/ParentVerificationPage.jsx` — thin route wrapper for /onboarding/parent-verification.
+
+**Updated files:**
+
+- `src/App.jsx` — added `ParentVerificationPage` import and `/onboarding/parent-verification` route inside `ParentOnboardingLayout` group.
+
+---
+
 ## [2026-06-22] create | Parent Identity Step (Step 1 of parent sign-up wizard)
 
 **New files:**

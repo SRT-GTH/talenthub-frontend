@@ -81,6 +81,9 @@ const Checkbox = ({
   disabled = false,
   id,
   name,
+  // Optional className applied to the label text <span> — lets callers
+  // override font size / color without wrapping label in their own element.
+  labelClassName,
   className,
   ref,
   ...inputProps
@@ -172,7 +175,12 @@ const Checkbox = ({
           {showTick && <TickIcon className="size-[14px] text-white" />}
         </span>
         {label !== undefined && (
-          <span className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-content-primary">
+          <span
+            className={classNames(
+              'font-sans text-[14px] leading-[20px] tracking-[0.2px] text-content-primary',
+              labelClassName
+            )}
+          >
             {label}
             {required && (
               <span

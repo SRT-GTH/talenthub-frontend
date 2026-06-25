@@ -6,6 +6,8 @@
 
 export { default as Field } from './Field.jsx';
 export { default as TextInput } from './TextInput.jsx';
+export { default as PasswordInput } from './PasswordInput.jsx';
+export { default as PhoneInput } from './PhoneInput.jsx';
 export { default as Textarea } from './Textarea.jsx';
 export { default as Select } from './Select.jsx';
 export { default as Checkbox } from './Checkbox.jsx';

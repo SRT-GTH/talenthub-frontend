@@ -33,6 +33,18 @@ const INSTITUTION_STEPS = [
   { label: 'Report', path: '/onboarding/institution/report' },
 ];
 
+const PARENT_STEPS = [
+  { label: 'Login', path: '/onboarding/parent-login' },
+  { label: 'Welcome', path: '/onboarding/parent-welcome' },
+  { label: 'Identity', path: '/onboarding/parent-identity' },
+  { label: 'Verification', path: '/onboarding/parent-verification' },
+  { label: 'Contact', path: '/onboarding/parent-contact' },
+  { label: 'Security', path: '/onboarding/parent-security' },
+  { label: 'Link Ward', path: '/onboarding/parent-link-ward' },
+  { label: 'Review', path: '/onboarding/parent-review' },
+  { label: 'Done', path: '/onboarding/parent-done' },
+];
+
 export default function DemoNavigator() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,9 +57,11 @@ export default function DemoNavigator() {
   const steps =
     activeFlow === 'institution'
       ? INSTITUTION_STEPS
-      : isMinor
-        ? TALENT_MINOR_STEPS
-        : TALENT_ADULT_STEPS;
+      : activeFlow === 'parent'
+        ? PARENT_STEPS
+        : isMinor
+          ? TALENT_MINOR_STEPS
+          : TALENT_ADULT_STEPS;
 
   const foundIndex = steps.findIndex((s) => s.path === location.pathname);
   const currentIndex = foundIndex === -1 ? 0 : foundIndex;
@@ -57,9 +71,11 @@ export default function DemoNavigator() {
     const nextSteps =
       flow === 'institution'
         ? INSTITUTION_STEPS
-        : isMinor
-          ? TALENT_MINOR_STEPS
-          : TALENT_ADULT_STEPS;
+        : flow === 'parent'
+          ? PARENT_STEPS
+          : isMinor
+            ? TALENT_MINOR_STEPS
+            : TALENT_ADULT_STEPS;
     log('flow switch:', flow, '→', nextSteps[0].path);
     setActiveFlow(flow);
     navigate(nextSteps[0].path);
@@ -90,7 +106,7 @@ export default function DemoNavigator() {
     <div className="fixed bottom-6 left-1/2 z-[9999] flex -translate-x-1/2 items-center gap-3 rounded-full bg-gray-900/90 px-4 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
       {/* Flow switcher */}
       <div className="flex items-center gap-1">
-        {['talent', 'institution'].map((flow) => (
+        {['talent', 'institution', 'parent'].map((flow) => (
           <button
             key={flow}
             onClick={() => handleFlowSwitch(flow)}

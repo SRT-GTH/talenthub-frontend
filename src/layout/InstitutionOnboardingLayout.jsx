@@ -74,7 +74,7 @@ const InstitutionOnboardingLayout = () => {
   return (
     // flex-1 + flex-col: fills <main> (which is itself flex-1 flex-col in MainLayout),
     // so the section below can use flex-1 to fill whatever space remains after the breadcrumb.
-    <div className="flex-1 flex flex-col">
+    <div className="flex flex-1 min-h-0 flex-col">
       {/* Breadcrumb — fixed height above the section */}
       {showBreadcrumb && (
         <InstitutionOnboardingBreadcrumb
@@ -89,7 +89,7 @@ const InstitutionOnboardingLayout = () => {
           which was fragile because it depended on the navbar's rendered height.
           left  = <Outlet /> (flex-1 content column from child route)
           right = InstitutionRightPanel (fixed-width decorative panel)  */}
-      <section className="relative flex flex-1 overflow-hidden">
+      <section className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* ── Page background glow ellipses (behind all in-flow content) ── */}
 
         {/* 2971:65357 — green gradient glow, top-left corner, bleeds off-screen */}
@@ -168,10 +168,15 @@ const InstitutionOnboardingLayout = () => {
           />
         </div>
 
-        {/* ── Left content — rendered by the child route via Outlet ── */}
-        <Outlet />
+        {/* ── Left content — rendered by the child route via Outlet.
+            Viewport-bounded scroll container: only the form column scrolls
+            (navbar + right panel stay fixed); scrollbar hidden via no-scrollbar
+            so no bar shows between the columns. ── */}
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <Outlet />
+        </div>
 
-        {/* ── Right decorative panel — hidden on /activate (full-width layout) ── */}
+        {/* ── Right decorative panel — hidden on full-width steps ── */}
         {showRightPanel && <InstitutionRightPanel showWatchTutorial={showBreadcrumb} />}
       </section>
     </div>

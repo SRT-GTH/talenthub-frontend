@@ -38,14 +38,44 @@ const log = debug('Captions');
 /** Normalise a Captions item to { index?, label }. */
 const normalise = (item) => (typeof item === 'string' ? { label: item } : item);
 
-const Captions = ({ items = [], currentIndex = 0, className, labelClassName, ...rest }) => {
-  log('render', { itemCount: items.length, currentIndex });
+/*
+ * Theme variants. `green` (default) is the original institution look and is
+ * byte-identical to the previous hardcoded classes. `amber` is the parent
+ * onboarding look (white pill, amber border + dot + active label) — replaces
+ * the per-section in-file badges in the parent sign-up wizard.
+ *
+ * `classNames` is a plain join (no tailwind-merge), so colour/padding tokens
+ * that differ per theme live here rather than being passed as overrides.
+ */
+const VARIANTS = {
+  green: {
+    container: 'px-8 py-2.5 rounded-md bg-[rgba(235,241,236,0.5)] border-brand-green-light-active',
+    dot: 'bg-brand-green-light-active border-success shadow-[0_0_4px_var(--color-brand-green)]',
+    activeLabel: 'font-medium text-brand-green leading-5',
+  },
+  amber: {
+    container: 'px-4 py-1 rounded-[8px] bg-white border-[#eedeb8]',
+    dot: 'bg-[#eedeb8] border-[#c8951a] shadow-[0_0_4px_#f5c451]',
+    activeLabel: 'font-normal text-[#c8951a] leading-[18px]',
+  },
+};
+
+const Captions = ({
+  items = [],
+  currentIndex = 0,
+  variant = 'green',
+  className,
+  labelClassName,
+  ...rest
+}) => {
+  log('render', { itemCount: items.length, currentIndex, variant });
+  const theme = VARIANTS[variant] ?? VARIANTS.green;
 
   return (
     <div
       className={classNames(
-        'inline-flex items-center justify-center px-8 py-2.5 gap-1 rounded-md',
-        'bg-[rgba(235,241,236,0.5)] border border-brand-green-light-active',
+        'inline-flex items-center justify-center gap-1 border',
+        theme.container,
         className
       )}
       role="navigation"
@@ -53,14 +83,10 @@ const Captions = ({ items = [], currentIndex = 0, className, labelClassName, ...
       {...rest}
     >
       <div className="flex items-center gap-1.5">
-        {/* Leading active dot — 8×8 brand-green-light-active w/ success-darker border + green glow */}
+        {/* Leading active dot — 8×8 themed fill + border + glow */}
         <span
           aria-hidden="true"
-          className={classNames(
-            'block size-2 rounded-pill shrink-0',
-            'bg-brand-green-light-active border-[1.5px] border-success',
-            'shadow-[0_0_4px_var(--color-brand-green)]'
-          )}
+          className={classNames('block size-2 rounded-pill shrink-0 border-[1.5px]', theme.dot)}
         />
         {items.map((rawItem, index) => {
           const item = normalise(rawItem);
@@ -72,9 +98,7 @@ const Captions = ({ items = [], currentIndex = 0, className, labelClassName, ...
                 className={classNames(
                   'inline-flex items-center gap-1',
                   'font-sans text-[12px] tracking-[0.2px] whitespace-nowrap',
-                  isActive
-                    ? 'font-medium text-brand-green leading-5'
-                    : 'font-normal text-[#999] leading-[18px]'
+                  isActive ? theme.activeLabel : 'font-normal text-[#999] leading-[18px]'
                 )}
                 aria-current={isActive ? 'step' : undefined}
               >

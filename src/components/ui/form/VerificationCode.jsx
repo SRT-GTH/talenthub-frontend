@@ -41,8 +41,10 @@ const BOX_STATE_CLASSES = {
   disabled: 'bg-brand-green-light border-2 border-[#cccccc] shadow-none cursor-not-allowed',
 };
 
+// size is omitted here — applied via the `boxSize` prop so callers can
+// override the 62px default without breaking the Tailwind class chain.
 const BOX_BASE =
-  'flex items-center justify-center size-[62px] rounded-md ' +
+  'flex items-center justify-center rounded-md ' +
   'font-sans font-semibold text-[16px] leading-[24px] tracking-[0.2px] text-center ' +
   'transition-[border-color,box-shadow,background-color] duration-100 ' +
   'focus:outline-none disabled:cursor-not-allowed';
@@ -71,6 +73,10 @@ const VerificationCode = ({
   // Showcase / forced state
   state,
   disabled = false,
+  // Optional box size override (pixels). Defaults to 62 — the Figma spec for
+  // the general OTP input. Pass a smaller value (e.g. 52) for compact modals
+  // without breaking any existing usage.
+  boxSize = 62,
   className,
   name,
   id,
@@ -266,6 +272,7 @@ const VerificationCode = ({
                   handleFocus(e);
                 }}
                 onBlur={() => setFocusedIndex((prev) => (prev === index ? null : prev))}
+                style={{ width: boxSize, height: boxSize }}
                 className={classNames(BOX_BASE, stateClasses, textClass)}
               />
               {splitAfter && index + 1 === splitAfter && index < length - 1 && (

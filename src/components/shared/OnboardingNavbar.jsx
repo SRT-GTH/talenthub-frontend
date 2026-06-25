@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import gthLogoStacked from '../../assets/brand/gth-logo-stacked.png';
 import { classNames } from '../../utils/classNames.js';
+import { getNavAuthCta } from '../../constants/authRoutes.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingNavbar');
@@ -19,13 +20,16 @@ const log = debug('OnboardingNavbar');
  *   - Horizontal padding 64px (matches the GH onboarding 1728-wide frame).
  *   - 12px vertical padding.
  *   - Left: brand mark only (no wordmark per Figma).
- *   - Right CTA is context-aware:
- *       - On `/login`: primary "Create an account" pill (Figma node
- *         2849:52615) — brand-green fill, peach→mint gradient text, 4px
- *         dark-green shelf. Routes to `/get-started`.
- *       - Everywhere else (onboarding steps, /get-started): a "Log In"
- *         text link in brand-green with a `#142916` underline.
- *     Onboarding intentionally has no other nav escape hatch.
+ *   - Right CTA is context-aware (role + mode), resolved by getNavAuthCta:
+ *       - On a SIGN-IN surface (e.g. /login, /onboarding/parent-login):
+ *         primary "Create Account" pill → that role's sign-up entry.
+ *       - On a SIGN-UP surface (onboarding steps): a "Log In" text link →
+ *         that role's sign-in entry (parent → /onboarding/parent-login,
+ *         talent/institution → /login).
+ *     Role + entry routes live in src/constants/authRoutes.js.
+ *
+ *   - The header is `sticky top-0` so it stays pinned while the page (or the
+ *     scrollable content column) scrolls beneath it.
  */
 
 // Primary CTA text gradient — Figma 188.377deg peach→mint, stops 0% / 20.192%.
@@ -49,12 +53,13 @@ const CREATE_ACCOUNT_CLASSES = classNames(
 
 const OnboardingNavbar = () => {
   const { pathname } = useLocation();
-  const isLoginPage = pathname === '/login';
-  log('render; pathname:', pathname, 'isLoginPage:', isLoginPage);
+  const cta = getNavAuthCta(pathname);
+  const showCreate = cta.mode === 'signin';
+  log('render; pathname:', pathname, 'cta:', cta);
 
   return (
     <header
-      className="w-full bg-[#F8F8F4]"
+      className="sticky top-0 z-50 w-full shrink-0 bg-[#F8F8F4]"
       style={{
         borderBottom: '1px solid #E7E7E7',
         boxShadow: '0 1px 2px rgba(27,36,44,0.12)',
@@ -69,22 +74,22 @@ const OnboardingNavbar = () => {
           <img src={gthLogoStacked} alt="Ghana Talent Hub" className="h-[66px] w-[71px]" />
         </Link>
 
-        {isLoginPage ? (
-          <Link to={'/get-started'} className={CREATE_ACCOUNT_CLASSES}>
+        {showCreate ? (
+          <Link to={cta.to} className={CREATE_ACCOUNT_CLASSES}>
             <span className="bg-clip-text text-transparent" style={PRIMARY_GRADIENT}>
-              Create Account
+              {cta.label}
             </span>
           </Link>
         ) : (
           <Link
-            to={'/login'}
+            to={cta.to}
             className="inline-flex items-center justify-center rounded-[2px] px-2 text-[14px] font-semibold leading-6 text-brand-green"
             style={{
               borderBottom: '1px solid #142916',
               letterSpacing: '0.1px',
             }}
           >
-            Log In
+            {cta.label}
           </Link>
         )}
       </div>

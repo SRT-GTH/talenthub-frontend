@@ -10,6 +10,7 @@ import {
   ArrowRightIcon,
   LoadingSpinner,
 } from '../components/shared/assets.jsx';
+import { AUTH_ROUTES } from '../constants/authRoutes.js';
 import { debug } from '../utils/debug.js';
 import gridBg from '../assets/getStarted/grid.jpg';
 
@@ -46,6 +47,8 @@ const ROLES = [
     ctaLabel: 'Continue as a Talent',
     benefits: TALENT_BENEFITS,
     icon: <TalentIcon />,
+    // Destination = the role's sign-up entry (single source of truth).
+    route: AUTH_ROUTES.talent.signUp,
   },
   {
     id: 'parent',
@@ -56,6 +59,7 @@ const ROLES = [
     ctaLabel: 'Continue as a Parent',
     benefits: TALENT_BENEFITS,
     icon: <ParentIcon />,
+    route: AUTH_ROUTES.parent.signUp,
   },
   {
     id: 'recruiter',
@@ -65,6 +69,9 @@ const ROLES = [
     ctaLabel: 'Continue as a Recruiter',
     benefits: TALENT_BENEFITS,
     icon: <RecruiterIcon />,
+    // No dedicated recruiter flow yet — routes to the institution onboarding
+    // (the only org-side flow). Repoint here when a recruiter flow exists.
+    route: AUTH_ROUTES.institution.signUp,
   },
 ];
 
@@ -140,12 +147,13 @@ const GetStartedPage = () => {
   const selectedRoleData = ROLES.find((r) => r.id === selectedRole);
 
   const handleContinue = () => {
-    if (isLoading) return;
-    log('continue with role:', selectedRole);
+    if (isLoading || !selectedRoleData) return;
+    const dest = selectedRoleData.route;
+    log('continue with role:', selectedRole, '→', dest);
     setIsLoading(true);
     // Short delay so the loading state is visible before navigation;
     // replace with the real /role POST when the endpoint lands.
-    setTimeout(() => navigate('/onboarding/talent/welcome'), 700);
+    setTimeout(() => navigate(dest), 700);
   };
 
   return (

@@ -45,8 +45,13 @@ const log = debug('ParentLoginRightPanel');
  *   ParentWelcomePanelContent.jsx → WELCOME_PHOTO_CARDS, WelcomeOverlayCards
  *
  * Props:
+ *   variant           {'default'|'simple'} — 'simple' (Figma 2952:96846) drops
+ *                       the photo cards / overlay / grid / snow / watch-tutorial
+ *                       and renders `centerContent` centered over the gold bg.
+ *                       Used by the success/done screen; reusable elsewhere.
  *   photoCards        {PhotoCardConfig[]} — spread onto <PhotoCard> per entry.
  *   overlayContent    {ReactNode}         — pre-positioned overlay cards.
+ *   centerContent     {ReactNode}         — centered content for the simple variant.
  *   showWatchTutorial {boolean}           — renders WatchTutorial bottom-right.
  *
  * PhotoCardConfig shape:
@@ -202,110 +207,121 @@ const PhotoCard = ({
 // ── main component ────────────────────────────────────────────────────────
 
 const ParentLoginRightPanel = ({
+  variant = 'default',
   photoCards = [],
   overlayContent = null,
+  centerContent = null,
   showWatchTutorial = true,
 }) => {
-  log('mount', { photoCardsCount: photoCards.length });
+  const isSimple = variant === 'simple';
+  log('mount', { variant, photoCardsCount: photoCards.length });
 
   return (
     <aside
-      aria-hidden="true"
+      aria-hidden={isSimple ? undefined : 'true'}
       className="relative hidden shrink-0 self-stretch overflow-hidden lg:block"
       style={{
         width: 'clamp(360px, 42vw, 739px)',
         backgroundColor: '#967014',
       }}
     >
-      {/* ── Layer 1: Cream ellipse top-right (2884:64827) ── */}
-      <div
-        className="pointer-events-none bg-[#F9EBEA]/15 blur-sm absolute rounded-full overflow-hidden"
-        style={{
-          left: '83.5%',
-          top: '-21.6%',
-          width: 'clamp(200px, 64%, 473px)',
-          height: 'clamp(200px, 64%, 473px)',
-        }}
-      />
+      {/* ── Layer 1: Cream ellipse top-right (2884:64827) — default only ── */}
+      {!isSimple && (
+        <div
+          className="pointer-events-none bg-[#F9EBEA]/15 blur-sm absolute rounded-full overflow-hidden"
+          style={{
+            left: '83.5%',
+            top: '-21.6%',
+            width: 'clamp(200px, 64%, 473px)',
+            height: 'clamp(200px, 64%, 473px)',
+          }}
+        />
+      )}
 
-      {/* ── Layer 2: Pink ellipse bottom-left (2884:64828) ── */}
-      <div
-        className="pointer-events-none bg-[#F9EBEA]/15 blur-sm rounded-full absolute overflow-hidden"
-        style={{
-          left: '-23.1%',
-          bottom: '-22.9%',
-          width: 'clamp(200px, 64%, 473px)',
-          height: 'clamp(200px, 64%, 473px)',
-        }}
-      />
+      {/* ── Layer 2: Pink ellipse bottom-left (2884:64828) — default only ── */}
+      {!isSimple && (
+        <div
+          className="pointer-events-none bg-[#F9EBEA]/15 blur-sm rounded-full absolute overflow-hidden"
+          style={{
+            left: '-23.1%',
+            bottom: '-22.9%',
+            width: 'clamp(200px, 64%, 473px)',
+            height: 'clamp(200px, 64%, 473px)',
+          }}
+        />
+      )}
 
-      {/* ── Layer 3: BG grid rectangle (2884:64829) ── */}
-      <div
-        className="pointer-events-none absolute overflow-hidden"
-        style={{ left: '44.2%', top: '51.8%', width: '56%', height: '48.6%' }}
-      >
+      {/* ── Layer 3: BG grid rectangle (2884:64829) — default only ── */}
+      {!isSimple && (
+        <div
+          className="pointer-events-none absolute overflow-hidden"
+          style={{ left: '44.2%', top: '51.8%', width: '56%', height: '48.6%' }}
+        >
+          <img
+            src={bgGrid}
+            alt=""
+            aria-hidden="true"
+            className="absolute block max-w-none"
+            style={{
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: 'rotate(3.1deg)',
+            }}
+            draggable={false}
+          />
+        </div>
+      )}
+
+      {/* ── Layer 4: Sparkle stars (2884:64833) — default only ── */}
+      {!isSimple && <PanelSparkle />}
+
+      {/* ── Layer 5: Snow ring dots (2884:64834) — default only ── */}
+      {!isSimple && <PanelSnowDots />}
+
+      {/* ── Layer 6: BG lines overlay (2884:67315) — 10% opacity, default only ── */}
+      {!isSimple && (
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          style={{ opacity: 0.1 }}
+        >
+          <img
+            src={bgLines}
+            alt=""
+            aria-hidden="true"
+            className="absolute block max-w-none"
+            style={{
+              inset: '0.05% -43.79% -9.64% 0.03%',
+              width: 'calc(100% + 43.82%)',
+              height: 'calc(100% + 9.69%)',
+            }}
+            draggable={false}
+          />
+        </div>
+      )}
+
+      {/* ── Layer 7: Photo cards from caller — default only ── */}
+      {!isSimple && photoCards.map((card, i) => <PhotoCard key={i} {...card} />)}
+
+      {/* ── Layer 8: BL abstract element (2884:67308) — default only ── */}
+      {!isSimple && (
         <img
-          src={bgGrid}
+          src={blElement}
           alt=""
           aria-hidden="true"
-          className="absolute block max-w-none"
-          style={{
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transform: 'rotate(3.1deg)',
-          }}
+          className="pointer-events-none absolute block max-w-none"
+          style={{ left: '-8.5%', top: '85.1%', width: 201, height: 144 }}
           draggable={false}
         />
-      </div>
+      )}
 
-      {/* ── Layer 4: Sparkle stars (2884:64833) ── */}
-      <PanelSparkle />
+      {/* ── Layer 9: Overlay content (text/info cards) from caller — default only ── */}
+      {!isSimple && overlayContent}
 
-      {/* ── Layer 5: Snow ring dots (2884:64834) ── */}
-      <PanelSnowDots />
-
-      {/* ── Layer 6: BG lines overlay (2884:67315) — 10% opacity ── */}
-      <div
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-        style={{ opacity: 0.1 }}
-      >
-        <img
-          src={bgLines}
-          alt=""
-          aria-hidden="true"
-          className="absolute block max-w-none"
-          style={{
-            inset: '0.05% -43.79% -9.64% 0.03%',
-            width: 'calc(100% + 43.82%)',
-            height: 'calc(100% + 9.69%)',
-          }}
-          draggable={false}
-        />
-      </div>
-
-      {/* ── Layer 7: Photo cards from caller ── */}
-      {photoCards.map((card, i) => (
-        <PhotoCard key={i} {...card} />
-      ))}
-
-      {/* ── Layer 8: BL abstract element (2884:67308) — same position all screens ── */}
-      <img
-        src={blElement}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute block max-w-none"
-        style={{ left: '-8.5%', top: '85.1%', width: 201, height: 144 }}
-        draggable={false}
-      />
-
-      {/* ── Layer 9: Overlay content (text/info cards) from caller ── */}
-      {overlayContent}
-
-      {/* ── Layer 10: WatchTutorial (2884:64892) — bottom-right ── */}
-      {showWatchTutorial && (
+      {/* ── Layer 10: WatchTutorial (2884:64892) — default only, bottom-right ── */}
+      {!isSimple && showWatchTutorial && (
         <div className="absolute bottom-8 right-8 z-10">
           <WatchTutorial
             label="Watch Tutorial"
@@ -313,6 +329,13 @@ const ParentLoginRightPanel = ({
             onClick={() => log('watch tutorial clicked')}
             aria-label="Watch parent onboarding tutorial"
           />
+        </div>
+      )}
+
+      {/* ── Simple variant: plain gold bg + centered content (2952:96846) ── */}
+      {isSimple && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-10">
+          {centerContent}
         </div>
       )}
     </aside>

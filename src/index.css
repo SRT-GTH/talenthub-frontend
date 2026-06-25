@@ -429,6 +429,21 @@ body {
   font-style: italic;
 }
 
+/*
+ * Hide scrollbars while keeping scroll behaviour. Used on the onboarding
+ * content columns so the inner scroll doesn't show a bar between the form
+ * column and the fixed decorative right panel.
+ */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome/Safari */
+}
+
 /* Hero trusted-by strip uses an infinite marquee. */
 @keyframes heroMarquee {
   from {

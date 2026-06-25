@@ -888,6 +888,145 @@ Implemented in `src/components/sections/parentLogin/ParentWelcomeRightPanel.jsx`
 
 ---
 
+## Parent Link Ward step (step 5 of 8) `✅ VERIFIED` (2026-06-25)
+
+Main frame: **2939:48804** ("Link Ward "), 1728×1117. Route: `/onboarding/parent-link-ward`.
+Left content column only — breadcrumb, BG glows, and gold right panel come from `ParentOnboardingLayout`.
+Implemented in `src/components/sections/parentLogin/ParentLinkWardSection.jsx` (page wrapper `src/pages/parentLogin/ParentLinkWardPage.jsx`).
+
+The ward was auto-linked because the child supplied this parent's contact details during their own
+registration ("Path A"). A success Toast announces it on mount; the parent reviews and confirms.
+
+### Left content column (Frame 148 `2939:49664` → Frame 22, width 702px)
+
+| Element             | Node ID      | Key tokens / values                                                                                                                                    |
+| ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Caption badge       | `2939:49709` | shared `<Captions variant="amber" items={[{index:'05',label:'Link Ward'}]} />` — white pill, border #eedeb8, amber dot + grey "05" + amber "Link Ward" |
+| Headline            | `2939:49718` | Instrument Serif 64px #111 tracking -0.64px lh-70, w-554 center; "Your ward is " + italic #c8951a "linked"                                             |
+| Subtitle            | `2939:49720` | SF Pro Rounded Regular 16px #737373 tracking 0.2px lh-24, w-482 center                                                                                 |
+| WavyDivider         | `2939:49721` | 200px line — `<WavyDivider />`                                                                                                                         |
+| Ward header card    | `2941:52472` | bg-white border #c1d4c4 h-76 r-16; avatar 50px (border-2 #c1d4c4) + name + meta tag; right: green dot + "Active"                                       |
+| — Name              | `2947:68508` | SF Pro Rounded Semibold 16px #575755 lh-24: "Abena Mensah"                                                                                             |
+| — Meta tag          | `2947:68509` | bg #ebf1ec border #c1d4c4 px-10 py-3 r-4; 10px semibold #2a5730: "Age 16 · JHS 3 · Achimota School · Ghanaian"                                         |
+| — Active status     | `2941:52488` | 7px #1d7c4d dot + "Active" bold 11px #1d7c4d                                                                                                           |
+| Details header      | `2943:52523` | shared `MailIcon` (11px, #babab7 via currentColor) + "DETAILS" 9px bold #babab7 uppercase tracking-1px + 1px divider rgba(0,0,0,0.06)                  |
+| Detail field box    | `2943:52553` | bg #f8f8f4 h-48 r-10; label 9px bold #babab7 uppercase tracking-0.6px; value 14px medium #111 lh-16.9                                                  |
+| — Fields (verbatim) | —            | School=Achimota School · Curriculum=GES · Account created=Today, 09:42 AM · Account status=Active (#387440)                                            |
+| Opt-out notice      | `2943:52571` | bg rgba(250,244,232,0.4) border #eedeb8 r-12; title 12px bold #b48617 lh-20 + body 12px regular #b48617 lh-18                                          |
+| CTA                 | `2939:49726` | Figma shows grey disabled (#bfbfbf); implemented as enabled green primary `Button` "Confirm & Continue →" → `/onboarding/parent-review`                |
+| Footer              | `2939:49727` | "Already Have an account?" #737373 + "Log in Instead" semibold #387440 → `/onboarding/parent-login`                                                    |
+
+### Auto-link Toast (`2943:52577`)
+
+Success variant, top-right. Width 729px (Figma frame), 36px icon box, 14px title (lh-24) + 14px body (lh-20).
+Verbatim — title: "Ward automatically linked Path A"; body: "Your contact matched the details Kofi provided. No further action is needed to establish the link."
+Shared component `src/components/ui/Toast.jsx` (widened from 420→729px to match this frame).
+
+> Note: breadcrumb shows 78% in Figma but `ParentOnboardingLayout` computes 50% (step 4/8). The breadcrumb
+> is the shared `ParentOnboardingBreadcrumb` — left unchanged to avoid affecting other parent steps.
+
+---
+
+## Parent Review & Consent step (step 6 of 8) `✅ VERIFIED` (2026-06-25)
+
+Main frame: **2943:57781** ("Review & consent"); content nodes `2944:680xx` (header/consent/CTA) + `2973:80xxx` (preview card). Route: `/onboarding/parent-review`.
+**FULL-WIDTH** — `ParentOnboardingLayout` hides the gold right panel (`showRightPanel = !pathname.includes('parent-review')`).
+Implemented in `src/components/sections/parentLogin/ParentReviewSection.jsx` (page `src/pages/parentLogin/ParentReviewPage.jsx`).
+
+### Layout (content column, max-w-[897px], gap-6)
+
+| Element       | Node ID      | Key tokens / values                                                                            |
+| ------------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| Caption badge | `2947:75882` | shared `<Captions variant="amber" items={[{index:'06',label:'Review & Consent'}]} />`          |
+| Headline      | `2944:68077` | Instrument Serif 64px #111 tracking -0.64px; "Review your " + italic #c8951a "details"         |
+| Subtitle      | `2944:68079` | SF Pro Rounded Regular 16px #737373; "Take a moment to check your details before signing off…" |
+| WavyDivider   | `2944:68080` | 200px line                                                                                     |
+| Preview card  | `2973:80541` | bg-white border rgba(0,0,0,0.08) r-24 shadow `0 4px 0 rgba(0,0,0,0.13)`; 5 sections            |
+
+### Preview card sections (all fields = shared `PreviewField`, bg #f8f8f4 r-10)
+
+| Section                 | Node ID      | Fields (verbatim values)                                                                                                                               |
+| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Your Identity           | `2973:80555` | First name=Abena · Middle name=— · Last name=Mensah · Date of birth=12 March 2003 · Gender=Female · Relationship to ward=Mother                        |
+| Identity & verification | `2973:80592` | Ghana Card Number=GHA-●●●●●●●●●-● (+Verified badge, id-card icon) · Profile photo=✓ Uploaded & confirmed (user icon) · EDIT                            |
+| Contact details         | `2973:80627` | Phone number=+233 20 ••• ••• ••2 (+OTP verified badge) · WhatsApp=Same as phone · Email=a.mensah@gmail.com · Preferred contact=Phone & WhatsApp · EDIT |
+| Account Security        | `2973:80658` | Password=•••••••• (8 dots) · Preferred contact=Phone & WhatsApp · EDIT                                                                                 |
+| Linked Ward             | `2973:80685` | Ward card (72px avatar + Abena Mensah + meta tag + green "Linked" badge) · EDIT                                                                        |
+
+> Section header: 11px grey icon + 9px bold uppercase label + amber EDIT pill (border #faf4e8, #c8951a) + divider.
+> EDIT links navigate to the matching prior step (verification / contact / security / link-ward).
+> Note: the "Account Security" second field repeats "Preferred contact / Phone & WhatsApp" — a Figma copy artifact, rendered verbatim per the text-is-sacred rule.
+
+### Consent block (`2944:68279`)
+
+| Element     | Node ID      | Detail                                                                                                           |
+| ----------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Header      | `2944:68280` | "Required agreements — all 3 must be accepted" 10px bold #babab7 uppercase + divider                             |
+| Checkbox 1  | `2944:68287` | "I understand my ward has immediate platform access." + link "How the opt-out model works"                       |
+| Checkbox 2  | `2944:68288` | "I have read and accept the Parent Rights Policy." + link "Read Parent Rights Policy"                            |
+| Checkbox 3  | `2944:68381` | "I consent to Ghana Talent Hub processing my data." + link "Learn more about data processing"                    |
+| Data notice | `2944:68289` | bg rgba(234,239,251,0.4) border #e0e7f9 r-12; #3062d4 (informative) "Your data is protected under Ghanaian law…" |
+
+Checkboxes use the shared `Checkbox` component (ReactNode label with green underline links).
+
+### CTA (`2944:68294`) + footer
+
+Gated: grey disabled (#bfbfbf, shadow `0 4px 0 rgba(191,191,191,0.8)`) "Accept All Three To Continue →" until all 3 consents accepted → enabled green primary `Button` → `/onboarding/parent-consent`.
+Footer: "Already Have an account?" + "Log in Instead" → `/onboarding/parent-login`.
+
+---
+
+## Parent Review & Consent — pop-ups (3 consent modals) `✅ VERIFIED` (2026-06-25)
+
+Bottom-sheet dialogs opened from the 3 consent checkbox links on `/onboarding/parent-review`.
+Shared shell: `src/components/sections/parentLogin/ConsentModal.jsx` (drag handle, SUMMARY badge + italic-accent serif title, optional green intro banner, scrollable numbered list, footer note + "Read full document" + green "I understand and Accept"). Content (data-driven): `src/components/sections/parentLogin/ConsentModals.jsx`.
+Each modal's "I understand and Accept" ticks the matching consent checkbox and closes (wired in ParentReviewSection). "Read full document" is a no-op (no Figma target).
+
+| Modal               | Frame        | Title (serif + amber accent)       | Intro banner                                                | List                  | Notices                                                                                         |
+| ------------------- | ------------ | ---------------------------------- | ----------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------- |
+| OptOutModal         | `2947:79682` | "Immediate access _what it means_" | "Kofi's account is already live" / "He registered himself…" | 4 (item 3 green)      | Blue "Under 18?"                                                                                |
+| ParentRightsModal   | `2951:80104` | "Your rights as a _parent_"        | "Six rights you have as Kofi's parent on GTH"               | 6 (item 3 green)      | Blue "Under 18?"                                                                                |
+| DataProcessingModal | `2951:80262` | "Data Processing _Consent_"        | "What you are explicitly consenting to"                     | 7 (items 1 & 6 green) | Amber "Important if you are under 18" + Blue "Withdrawing consent does not delete your account" |
+
+Shell tokens (from `2947:79682`): card max-w-[666px], rounded-t-[24px], shadow `0 -16px 24px rgba(0,0,0,0.22)`; drag handle 36×4 #c6c6c3; header border-b rgba(0,0,0,0.07); title Instrument Serif 24px tracking -1px + italic #c8951a accent; intro banner bg rgba(235,241,236,0.6) border-b #c1d4c4, green icon box 34px (#387440 shadow `0 3px 0 #2a5730`); list item: 26px numbered circle (default #f8f8f4/#c6c6c3/#70706e, green #ebf1ec/#c1d4c4/#2a5730) + bold 13px title (#111 / green #387440) + 12px #737373 desc; notice boxes — blue bg rgba(234,239,251,0.4) border #bdd7f0 #3062d4, amber bg rgba(250,244,232,0.5) border #eedeb8 #b48617; CTA = green primary `Button` with check + "I understand and Accept".
+
+---
+
+## Parent Sign-up Success / Done step (step 8 of 8) `✅ VERIFIED` (2026-06-25)
+
+Main frame: **2952:96777** (1920×1200). Route: `/onboarding/parent-done`. Two-column: left success content (`2952:96779`) + **simple right-panel variant** (`2952:96846`).
+Implemented: `src/components/sections/parentLogin/ParentSuccessSection.jsx` (page `src/pages/parentLogin/ParentDonePage.jsx`) + `src/components/sections/parentLogin/ParentSuccessPanelContent.jsx` (panel content).
+
+### Left content (`2952:96779`)
+
+| Element          | Node ID                  | Key tokens / values                                                                                                                                                                                    |
+| ---------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Success icon     | `2952:96782`             | 80px circle bg #c8951a, layered ring shadow `0 0 0 12px #faf4e8, 0 0 0 16px #eedeb8, 0 3px 0 #967014`, 36px white check                                                                                |
+| Caption          | `2952:96786`             | "Registration complete" 10px bold #c8951a uppercase tracking 1.3px                                                                                                                                     |
+| Headline         | `2952:96787`             | Instrument Serif 44px #111 tracking -2px; "Your parent account is " + italic #967014 "activated."                                                                                                      |
+| Subtitle         | `2952:96788`             | 13px #70706e; "You're now connected to Kofi's journey…"                                                                                                                                                |
+| Audit chips      | `2952:96789`             | 2 pills bg #ebf1ec border #c1d4c4 rounded-full; green check + "PARENT_ACCOUNT_CREATED" / "WARD_AUTO_LINKED"                                                                                            |
+| Ward card        | `2952:96798`             | white border-2 #c1d4c4 r-16 shadow `0 3px 0 #c1d4c4, 0 8px 24px rgba(56,116,64,0.07)`; green 52px check avatar + "Kofi Mensah" + meta (Age 16 · 🇬🇭 Ghanaian · JHS 3 · Achimota) + green "Linked" badge |
+| Next-steps label | `2952:96814`             | "What you can do now" 11px bold #babab7 uppercase                                                                                                                                                      |
+| Next-step cards  | `2952:96815/96822/96828` | bg #f8f8f4 r-10; 32px icon box (amber/green/grey-dimmed) + bold 13px title + 11px #70706e desc. 3rd card opacity-60                                                                                    |
+| Opt-out hatch    | `2952:96835`             | undo icon + "Changed your mind?" #70706e + red "Opt-out Kofi instead" (#c0392b, underline)                                                                                                             |
+| Primary CTA      | `2952:96842`             | **amber** bg #c8951a border-2 #967014 shadow `0 3px 0 #967014` r-10; "Go to Parent Dashboard" white bold 15px + ArrowRightIcon → `/`                                                                   |
+
+### Simple right-panel variant (`2952:96846`)
+
+`ParentLoginRightPanel variant="simple" centerContent={<SuccessPanelContent />}` — **plain** gold (#967014) bg only (no ellipse blobs, no bg-lines, no grid/snow/sparkles/BL element/photo cards/overlay/watch-tutorial) + centered content:
+
+| Element    | Node ID                  | Key tokens / values                                                                                                           |
+| ---------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Trophy box | `2952:96855`             | 72px rounded-24 bg rgba(255,255,255,0.15), ring shadow `0 0 0 12px rgba(255,255,255,0.06)`, 36px trophy                       |
+| Heading    | `2952:96861`             | Instrument Serif 34px white tracking -0.8px; "You're officially " + italic "part of the journey."                             |
+| Subtitle   | `2952:96862`             | 13px rgba(255,255,255,0.62); "Kofi's talent story is unfolding…"                                                              |
+| Stat cards | `2952:96863/96866/96869` | bg rgba(255,255,255,0.1) r-10; serif 24px value + 10px bold uppercase label: "7 Steps done", "1 Ward linked", "100% Complete" |
+
+> Layout: `parent-done` keeps the right panel (simple variant) and forces breadcrumb to **100%** (`isDone` override). Review step's CTA navigates straight to `parent-done`. The empty `parent-consent` step was **removed** from the flow (PARENT_STEP_PATHS, breadcrumb PARENT_STEPS, and DemoNavigator) — the parent flow is now 7 steps: Identity → Verification → Contact → Security → Link Ward → Review & Consent → Done.
+
+---
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

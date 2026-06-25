@@ -67,6 +67,10 @@ const STATE_CLASSES = {
   disabled: 'bg-[#fefefd] border-2 border-dashed border-[#cccccc] opacity-55 cursor-not-allowed',
 };
 
+// Amber variant overrides only the empty-state border/bg — received/hover/loading
+// remain green (they share the same palette across both variants).
+const AMBER_DEFAULT_CLASS = 'bg-[#fdfdfc] border-2 border-dashed border-[#eedeb8]';
+
 const Upload = ({
   // File-input props
   accept,
@@ -87,6 +91,19 @@ const Upload = ({
   disabled = false,
   // Layout
   height = 173,
+  // Custom content slots (all optional, defaults preserve existing behaviour):
+  // `variant='amber'` switches the empty-state border from green to amber gold,
+  // matching the parent verification step. Received/hover states stay green.
+  variant = 'green',
+  // Custom icon rendered inside the icon box in the non-received state.
+  // Null falls back to the default UploadIcon.
+  icon = null,
+  // Override the title text inside the card.
+  title = null,
+  receivedTitle = null,
+  // Optional top-right badge (e.g. "Optional" / "ADDED"). Not shown when null.
+  badge = null,
+  receivedBadge = null,
   className,
   id,
   ...rest
@@ -125,7 +142,10 @@ const Upload = ({
     hasError: Boolean(error),
   });
 
-  const stateClasses = STATE_CLASSES[resolvedState] || STATE_CLASSES.default;
+  const stateClasses =
+    resolvedState === 'default' && variant === 'amber'
+      ? AMBER_DEFAULT_CLASS
+      : STATE_CLASSES[resolvedState] || STATE_CLASSES.default;
   const isReceived = resolvedState === 'received';
 
   const openFilePicker = () => {
@@ -194,11 +214,19 @@ const Upload = ({
             'inline-flex items-center justify-center size-10 rounded-md',
             isReceived
               ? 'bg-brand-green text-white'
-              : 'bg-white text-content-primary shadow-bottom-200'
+              : variant === 'amber'
+                ? 'bg-white text-[#b48617] shadow-bottom-200'
+                : 'bg-white text-content-primary shadow-bottom-200'
           )}
           aria-hidden="true"
         >
-          {isReceived ? <CheckIcon className="size-5" /> : <UploadIcon className="size-4" />}
+          {isReceived ? (
+            <CheckIcon className="size-5" />
+          ) : icon ? (
+            icon
+          ) : (
+            <UploadIcon className="size-4" />
+          )}
         </span>
 
         {/* Headline + sub-label */}
@@ -209,7 +237,7 @@ const Upload = ({
           )}
         >
           <p className="font-sans font-bold text-[14px] leading-tight">
-            {isReceived ? 'File Received' : 'Drag Your File Here'}
+            {isReceived ? (receivedTitle ?? 'File Received') : (title ?? 'Drag Your File Here')}
           </p>
           {isReceived ? (
             <p className="font-sans text-[12px] leading-4 text-brand-green">{filename}</p>
@@ -254,6 +282,24 @@ const Upload = ({
               aria-valuemax={100}
             />
           </div>
+        )}
+
+        {/* Top-right badge — rendered when badge/receivedBadge prop is set */}
+        {(badge || receivedBadge) && (
+          <span
+            className="absolute right-[10px] top-[10px] font-sans font-semibold uppercase tracking-[0.5px]"
+            style={{
+              fontSize: 9,
+              lineHeight: '10.7px',
+              padding: '3px 8px',
+              borderRadius: 4,
+              backgroundColor: isReceived ? '#e1eae2' : '#faf4e8',
+              color: isReceived ? '#387440' : '#575755',
+            }}
+            aria-hidden="true"
+          >
+            {isReceived ? receivedBadge : badge}
+          </span>
         )}
 
         {/* Native file input — visually hidden but accessible */}

@@ -21,7 +21,6 @@ const PARENT_STEPS = [
   'Security',
   'Link Ward',
   'Review & Consent',
-  'Consent',
   'Done',
 ];
 
