@@ -28,6 +28,17 @@ const isOnboardingChromePath = (pathname) =>
 const isFixedShellPath = (pathname) =>
   pathname.startsWith('/onboarding/institution') || pathname.startsWith('/onboarding/parent');
 
+// Returns a stable key for the current layout family. Using the full pathname as
+// the key would force-remount layouts (and destroy OnboardingProvider state) on
+// every talent step. Grouping by family keeps each sub-layout mounted for the
+// full flow; only cross-family transitions trigger the entry animation here.
+const getLayoutFamily = (pathname) => {
+  if (pathname.startsWith('/onboarding/institution')) return 'institution';
+  if (pathname.startsWith('/onboarding/parent')) return 'parent';
+  if (pathname.startsWith('/onboarding/talent')) return 'talent';
+  return pathname;
+};
+
 const MainLayout = () => {
   const { pathname } = useLocation();
   const onboarding = isOnboardingChromePath(pathname);
@@ -47,7 +58,12 @@ const MainLayout = () => {
     >
       {onboarding ? <OnboardingNavbar /> : <Navbar />}
       <main className={classNames('flex flex-1 flex-col', fixedShell && 'min-h-0')}>
-        <Outlet />
+        <div
+          key={getLayoutFamily(pathname)}
+          className={classNames('page-fade-in flex flex-1 flex-col', fixedShell && 'min-h-0')}
+        >
+          <Outlet />
+        </div>
       </main>
       {/* Onboarding pages have no footer per Figma node 2849:66712 family —
           the auth flow stands alone on the page so the footer's marketing

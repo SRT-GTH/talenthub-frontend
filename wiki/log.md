@@ -3,6 +3,134 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-06-26] feat | Parent Flow B — Consent step (custom capability panel)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteConsentSection.jsx` — Flow B consent (Figma `2864:37752`): "Step 6 of 7", "Understand your _parent rights._", 3 required consent checkbox cards (bordered, with green policy links — all text verbatim), green compliance note, sticky Back / "Activate Parent Account" (gated on all 3) → `/onboarding/parent-invited-done`.
+- `src/components/sections/parentLogin/ParentInviteConsentPanelContent.jsx` — `WardConsentPanelContent`: simple-panel capability list (Figma `2864:37795`) — "Almost _there._" + 4 checked items.
+- `src/pages/parentLogin/ParentInviteConsentPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/constants/parentFlows.js` — added `parent-invited-consent` (step 5 / 88%, `panel: 'consent'`).
+- `src/layout/ParentOnboardingLayout.jsx` — panel branch now handles `panel: 'consent'` → `WardConsentPanelContent`.
+- `src/App.jsx` — registered `/onboarding/parent-invited-consent`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Consent".
+- `wiki/figma-node-map.md` — documented the step.
+
+Verified via Playwright: breadcrumb "Consent" active at 88%, 3 consent cards (check + gate Activate amber when all 3 ticked), compliance note, and the "Almost there." capability panel all match Figma. Build ✓ (5.56s), lint ✓, console clean.
+
+## [2026-06-26] feat | Parent Flow B — Link Ward step (custom link panel)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteLinkWardSection.jsx` — Flow B link-ward (Figma `2864:37620`): "Step 5 of 7", "Your ward is _already linked._", green "Ward automatically linked — Path A" banner, ward card (Kofi Mensah + Active), detail grid (shared `PreviewField` ×4), amber opt-out reminder, sticky Back / "Confirm & Continue" → `/onboarding/parent-invited-consent`.
+- `src/components/sections/parentLogin/ParentInviteLinkPanelContent.jsx` — `WardLinkPanelContent`: custom simple-panel link diagram (Figma `2864:37681`) — "Ward _linked_ automatically." + You (amber) → connector → Kofi Mensah (green) avatars.
+- `src/pages/parentLogin/ParentInviteLinkWardPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/constants/parentFlows.js` — added `parent-invited-link-ward` (step 4 / 78%, `panel: 'link'` flag).
+- `src/layout/ParentOnboardingLayout.jsx` — invited-step panel now branches on `invitedPanel.panel === 'link'` → `WardLinkPanelContent`, else the step-list panel.
+- `src/App.jsx` — registered `/onboarding/parent-invited-link-ward`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Link Ward".
+- `wiki/figma-node-map.md` — documented the step.
+
+Verified via Playwright: breadcrumb "Link Ward" active at 78%, auto-link banner, ward card, PreviewField grid, opt-out notice, sticky Confirm & Continue, and the custom "You → Kofi" link panel all match Figma. Build ✓ (6.36s), lint ✓, console clean.
+
+## [2026-06-26] feat | Parent Flow B — Security step + breadcrumb restyle
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteSecuritySection.jsx` — Flow B security (Figma `2864:37481`): "Step 4 of 7", "Create a strong _password._", Password (`TextInput` + eye toggle, no lock) with live 4-segment strength meter + 4 rule checklist, Confirm Password (match validation), sticky Back/Continue (gated on rules + match) → `/onboarding/parent-invited-link-ward`.
+- `src/pages/parentLogin/ParentInviteSecurityPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/components/shared/ParentOnboardingBreadcrumb.jsx` — **restyled to the Flow B step-indicator** (Figma `2864:37569`) per request: completed = amber circle + white check (#967014 label); active = **black circle + white dot** (#111 label); upcoming = grey-45 circle (#babab7 label); amber % + progress bar on #eedeb8. Labels → Identity/Verification/Contact/Security/Link Ward/Consent/Done. Affects both parent flows (shared component).
+- `src/constants/parentFlows.js` — added `parent-invited-security` to `WARD_INVITE_STEP_PANELS` (step 3 / 50%, "Lock your account down." panel copy).
+- `src/App.jsx` — registered `/onboarding/parent-invited-security`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Security".
+- `wiki/figma-node-map.md` — documented the Security step + breadcrumb restyle.
+
+Verified via Playwright: breadcrumb now shows amber-check completed / black-dot active / grey upcoming at 50%; password rules + 4-segment meter go green live ("Strong"), confirm matches, Continue enables (amber). Build ✓ (7.24s), lint ✓, console clean.
+
+## [2026-06-26] feat | Parent Flow B — Contact step
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteContactSection.jsx` — Flow B contact (Figma `2864:37344`): "Step 3 of 7" caption, "How do we _reach you?_", Phone (reused `PhoneInput`, required, "SMS verification" hint), WhatsApp (`PhoneInput`, optional + helper), Email (reused `TextInput` + MailIcon, required, "Email verification" hint), sticky Back / "Send Verification Code" (gated) → `/onboarding/parent-invited-security`. react-hook-form + zod.
+- `src/pages/parentLogin/ParentInviteContactPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/constants/parentFlows.js` — added `parent-invited-contact` to `WARD_INVITE_STEP_PANELS` (step 2 / 34%, "Secure contact details." panel copy).
+- `src/App.jsx` — registered `/onboarding/parent-invited-contact`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Contact".
+- `wiki/figma-node-map.md` — documented the Flow B contact step.
+
+Verified via Playwright: breadcrumb "Contact" active at 34%, phone/WhatsApp/email fields with verification hints, sticky gated footer, and the panel ("Secure contact details", steps 1–2 checked / step 3 active) all match Figma. Build ✓ (5.96s), lint ✓, console clean.
+
+## [2026-06-26] feat | Parent Flow B — Verification step (optional uploads)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteVerificationSection.jsx` — Flow B verification (Figma `2864:37219`): "Step 2 of 7" caption, "Verify your _identity._", amber "optional for parents" note banner, two reused `Upload` (amber) cards (Ghana Card ID + Profile Photo, both Optional), "Continue without verification" skip, sticky Back/Continue (enabled — uploads optional) → `/onboarding/parent-invited-contact`.
+- `src/pages/parentLogin/ParentInviteVerificationPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/constants/parentFlows.js` — added `WARD_INVITE_STEP_PANELS` (per-Flow-B-step breadcrumb step/percent + panel copy), moved here so the panel component stays component-only (react-refresh lint).
+- `src/components/sections/parentLogin/ParentInviteStepsPanelContent.jsx` — step list now renders a check for completed steps, highlights the active one, numbers the rest.
+- `src/layout/ParentOnboardingLayout.jsx` — invited-step breadcrumb step/percent + panel copy now sourced from `WARD_INVITE_STEP_PANELS` by route slug.
+- `src/App.jsx` — registered `/onboarding/parent-invited-verification`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Verification".
+- `wiki/figma-node-map.md` — documented the Flow B verification step.
+
+Verified via Playwright: breadcrumb "Verification" active at 20%, note banner, both optional upload cards, skip row, sticky footer, and the panel (step 1 checked / step 2 active) all match Figma. Build ✓ (14.31s), lint ✓, console clean.
+
+## [2026-06-26] feat | Parent Flow B — Identity step (card form + step-list panel)
+
+**New files:**
+
+- `src/components/sections/parentLogin/ParentInviteIdentitySection.jsx` — Flow B identity (Figma `2864:37043`): "Step 1 of 7" caption, "Tell us about _yourself._", First/Last/Middle (reused `TextInput`), Relationship chips, Gender radio pills, Day/Month(`Select`)/Year DOB, Nationality chips, sticky Back/Continue footer (Continue gated grey→amber → `/onboarding/parent-invited-verification`). react-hook-form + zod; inline `ChipGroup` + `RadioGroup`.
+- `src/components/sections/parentLogin/ParentInviteStepsPanelContent.jsx` — `WardInviteStepsPanelContent`: simple step-list panel (Figma `2864:37143`) — "Your identity _builds trust._" + 6-step numbered list, `currentStep` highlights the active one. Reusable across Flow B steps.
+- `src/pages/parentLogin/ParentInviteIdentityPage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — registered `/onboarding/parent-invited-identity`.
+- `src/layout/ParentOnboardingLayout.jsx` — split `isInvited` into `isInvitedWelcome` (bare welcome → no breadcrumb + ward-invite panel) and `isInvitedStep` (parent-invited-\* → breadcrumb + step-list panel).
+- `src/constants/parentFlows.js` — added `firstStep` per flow; Flow B welcome CTA now → `PARENT_FLOWS.wardInvited.firstStep`.
+- `src/components/sections/parentLogin/ParentInviteWelcomeSection.jsx` — CTA → Flow B first step.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited · Identity".
+- `wiki/figma-node-map.md` — documented the Flow B identity step + step-list panel.
+
+**Decision:** Flow B is a parallel route namespace (`parent-invited-*`) with its own card-form layout + step-list simple panel, distinct from Flow A's centered/photo-panel steps.
+
+Verified via Playwright: header, name fields, relationship chips, gender radios (amber selected states), split DOB, nationality chips, sticky footer (gated Continue), and the gold step-list panel (step 1 active) all match Figma; breadcrumb shown, console clean. Build ✓ (6.76s), lint ✓.
+
+## [2026-06-26] feat | Parent Flow B (ward-invited) welcome + two-flow structure
+
+**New files:**
+
+- `src/constants/parentFlows.js` — `PARENT_FLOWS` (A self-serve `/onboarding/parent-welcome`, B ward-invited `/onboarding/parent-invited`) + `PARENT_FIRST_STEP`. Makes the two parent entry flows explicit; both converge on the shared steps.
+- `src/components/sections/parentLogin/ParentInviteWelcomeSection.jsx` — Flow B welcome (Figma `2864:36856`): pre-fill green banner, "Parent / Guardian Onboarding" caption, "Your ward is already _on the platform._" headline, opt-out subtitle, amber "HOW THIS WORKS" 3-item checklist, amber "Create my parent account" CTA → `/onboarding/parent-identity`, "I have concerns — opt-out instead" + "Log in" footer. Text verbatim.
+- `src/components/sections/parentLogin/ParentInvitePanelContent.jsx` — `WardInvitePanelContent`: simple-panel content (Figma `2864:36896`) — "Supporting _Ghanaian talent_ starts with you." + 2 rotated info cards (Account type / Ward status).
+- `src/pages/parentLogin/ParentInvitePage.jsx` — page wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — registered `/onboarding/parent-invited`.
+- `src/layout/ParentOnboardingLayout.jsx` — `isInvited` flag: excludes the route from the breadcrumb and selects `variant="simple"` with `WardInvitePanelContent`.
+- `src/components/shared/DemoNavigator.jsx` — added "Invited" to the parent steps.
+- `wiki/figma-node-map.md` — documented both flows + the Flow B welcome/panel.
+
+**Decision:** per user choice, the two flows use **distinct routes** (Flow A stays `/onboarding/parent-welcome`; Flow B is the new `/onboarding/parent-invited`) rather than replacing or flag-switching.
+
+Verified via Playwright: banner, caption, headline (italic gold), how-it-works checklist, amber CTA, opt-out button, footer, and the plain-gold simple panel with the two rotated cards all match Figma; navbar fixed, no breadcrumb. Build ✓ (8.29s), lint ✓, console clean.
+
 ## [2026-06-25] feat | Fixed onboarding shell (nav + right panel) + context-aware nav auth CTA
 
 **Fixed navbar + fixed full-height right panel (institution & parent flows):**

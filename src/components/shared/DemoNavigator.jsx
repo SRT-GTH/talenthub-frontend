@@ -33,7 +33,8 @@ const INSTITUTION_STEPS = [
   { label: 'Report', path: '/onboarding/institution/report' },
 ];
 
-const PARENT_STEPS = [
+// Parent Flow A — self-serve (parent signs up on their own).
+const PARENT_A_STEPS = [
   { label: 'Login', path: '/onboarding/parent-login' },
   { label: 'Welcome', path: '/onboarding/parent-welcome' },
   { label: 'Identity', path: '/onboarding/parent-identity' },
@@ -45,11 +46,26 @@ const PARENT_STEPS = [
   { label: 'Done', path: '/onboarding/parent-done' },
 ];
 
+// Parent Flow B — ward-invited (details pre-filled by the ward). Shares the
+// Flow A "Done" screen at the end.
+const PARENT_B_STEPS = [
+  { label: 'Welcome', path: '/onboarding/parent-invited' },
+  { label: 'Identity', path: '/onboarding/parent-invited-identity' },
+  { label: 'Verification', path: '/onboarding/parent-invited-verification' },
+  { label: 'Contact', path: '/onboarding/parent-invited-contact' },
+  { label: 'Security', path: '/onboarding/parent-invited-security' },
+  { label: 'Link Ward', path: '/onboarding/parent-invited-link-ward' },
+  { label: 'Consent', path: '/onboarding/parent-invited-consent' },
+  { label: 'Done', path: '/onboarding/parent-done' },
+];
+
 export default function DemoNavigator() {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeFlow, setActiveFlow] = useState('talent');
   const [isMinor, setIsMinor] = useState(false);
+  // Parent flow B (ward-invited) toggle — mirrors the talent "Minor" toggle.
+  const [isPathB, setIsPathB] = useState(false);
 
   if (!import.meta.env.DEV) return null;
   if (!location.pathname.startsWith('/onboarding/')) return null;
@@ -58,7 +74,9 @@ export default function DemoNavigator() {
     activeFlow === 'institution'
       ? INSTITUTION_STEPS
       : activeFlow === 'parent'
-        ? PARENT_STEPS
+        ? isPathB
+          ? PARENT_B_STEPS
+          : PARENT_A_STEPS
         : isMinor
           ? TALENT_MINOR_STEPS
           : TALENT_ADULT_STEPS;
@@ -72,7 +90,9 @@ export default function DemoNavigator() {
       flow === 'institution'
         ? INSTITUTION_STEPS
         : flow === 'parent'
-          ? PARENT_STEPS
+          ? isPathB
+            ? PARENT_B_STEPS
+            : PARENT_A_STEPS
           : isMinor
             ? TALENT_MINOR_STEPS
             : TALENT_ADULT_STEPS;
@@ -88,6 +108,14 @@ export default function DemoNavigator() {
     log('minor toggle:', next, stillValid ? 'stay' : 'clamp to last');
     setIsMinor(next);
     if (!stillValid) navigate(nextSteps[nextSteps.length - 1].path);
+  }
+
+  function handlePathBToggle() {
+    const next = !isPathB;
+    const nextSteps = next ? PARENT_B_STEPS : PARENT_A_STEPS;
+    log('parent path toggle:', next ? 'B (invited)' : 'A (self-serve)', '→', nextSteps[0].path);
+    setIsPathB(next);
+    navigate(nextSteps[0].path);
   }
 
   function handlePrev() {
@@ -129,6 +157,19 @@ export default function DemoNavigator() {
             className="accent-white"
           />
           Minor
+        </label>
+      )}
+
+      {/* Path B (ward-invited) toggle — parent only */}
+      {activeFlow === 'parent' && (
+        <label className="flex cursor-pointer items-center gap-1.5 select-none">
+          <input
+            type="checkbox"
+            checked={isPathB}
+            onChange={handlePathBToggle}
+            className="accent-white"
+          />
+          Ward-invited
         </label>
       )}
 

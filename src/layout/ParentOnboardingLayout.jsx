@@ -11,6 +11,11 @@ import {
   SignupOverlayCards,
 } from '../components/sections/parentLogin/ParentWelcomePanelContent.jsx';
 import SuccessPanelContent from '../components/sections/parentLogin/ParentSuccessPanelContent.jsx';
+import WardInvitePanelContent from '../components/sections/parentLogin/ParentInvitePanelContent.jsx';
+import WardInviteStepsPanelContent from '../components/sections/parentLogin/ParentInviteStepsPanelContent.jsx';
+import WardLinkPanelContent from '../components/sections/parentLogin/ParentInviteLinkPanelContent.jsx';
+import WardConsentPanelContent from '../components/sections/parentLogin/ParentInviteConsentPanelContent.jsx';
+import { WARD_INVITE_STEP_PANELS } from '../constants/parentFlows.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('ParentOnboardingLayout');
@@ -45,20 +50,33 @@ const PARENT_STEP_PATHS = [
 ];
 
 const ParentOnboardingLayout = () => {
-  const { pathname } = useLocation();
+  const { pathname, key: locationKey } = useLocation();
   const isLogin = pathname.includes('parent-login');
   const isWelcome = pathname.includes('parent-welcome');
-  const isSignupStep = !isLogin && !isWelcome;
+  // Flow B (ward-invited): the bare welcome has no breadcrumb + ward-invite
+  // panel; its step screens (parent-invited-*) show the breadcrumb + the
+  // step-list panel.
+  const isInvited = pathname.includes('parent-invited');
+  const isInvitedWelcome = pathname.endsWith('parent-invited');
+  const isInvitedStep = isInvited && !isInvitedWelcome;
+  const isSignupStep = !isLogin && !isWelcome && !isInvited;
   const isDone = pathname.includes('parent-done');
   // Full-width steps that render no right panel (mirrors institution layout).
   const showRightPanel = !pathname.includes('parent-review');
 
+  // Flow B step screens drive the breadcrumb from their per-step config; Flow A
+  // steps derive it from PARENT_STEP_PATHS.
+  const invitedPanel = isInvitedStep
+    ? WARD_INVITE_STEP_PANELS[pathname.replace('/onboarding/', '')]
+    : null;
   const stepIndex = PARENT_STEP_PATHS.findIndex((p) => pathname.startsWith(p));
-  const currentStep = stepIndex >= 0 ? stepIndex : 0;
+  const currentStep = invitedPanel ? invitedPanel.currentStep : stepIndex >= 0 ? stepIndex : 0;
   // Terminal "done" step reads as fully complete (100%); others scale by index.
   const completionPercent = isDone
     ? 100
-    : Math.round((currentStep / PARENT_STEP_PATHS.length) * 100);
+    : invitedPanel
+      ? invitedPanel.percent
+      : Math.round((currentStep / PARENT_STEP_PATHS.length) * 100);
 
   log('mount', { pathname, isLogin, isWelcome, isSignupStep, currentStep, completionPercent });
 
@@ -73,8 +91,9 @@ const ParentOnboardingLayout = () => {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
-      {/* Breadcrumb — sign-up steps only, not login or welcome (fixed height) */}
-      {isSignupStep && (
+      {/* Breadcrumb — on Flow A sign-up steps and Flow B step screens (not the
+          login / welcome / invited-welcome entries; fixed height). */}
+      {(isSignupStep || isInvitedStep) && (
         <ParentOnboardingBreadcrumb
           currentStep={currentStep}
           completionPercent={completionPercent}
@@ -121,16 +140,32 @@ const ParentOnboardingLayout = () => {
             Wrapped in a viewport-bounded scroll container so only the form
             column scrolls (navbar + right panel stay fixed); scrollbar hidden
             via no-scrollbar so no bar shows between the columns. ── */}
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+        <div key={locationKey} className="page-fade-in flex-1 min-h-0 overflow-y-auto no-scrollbar">
           <Outlet />
         </div>
 
         {/* ── Right decorative panel — single component, props per route.
-            Hidden on full-width steps (e.g. parent-review); simple variant
-            (trophy + stat cards) on the success/done step. ── */}
+            Hidden on full-width steps (e.g. parent-review); simple variant on
+            the success/done step (trophy + stat cards) and the ward-invited
+            Flow B welcome (ward-invite cards); photo panel everywhere else. ── */}
         {showRightPanel &&
           (isDone ? (
             <ParentLoginRightPanel variant="simple" centerContent={<SuccessPanelContent />} />
+          ) : isInvitedStep ? (
+            <ParentLoginRightPanel
+              variant="simple"
+              centerContent={
+                invitedPanel?.panel === 'link' ? (
+                  <WardLinkPanelContent />
+                ) : invitedPanel?.panel === 'consent' ? (
+                  <WardConsentPanelContent />
+                ) : (
+                  <WardInviteStepsPanelContent {...(invitedPanel ?? {})} />
+                )
+              }
+            />
+          ) : isInvitedWelcome ? (
+            <ParentLoginRightPanel variant="simple" centerContent={<WardInvitePanelContent />} />
           ) : (
             <ParentLoginRightPanel photoCards={photoCards} overlayContent={overlayContent} />
           ))}

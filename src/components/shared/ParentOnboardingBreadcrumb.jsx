@@ -3,10 +3,17 @@ import { debug } from '../../utils/debug.js';
 const log = debug('ParentOnboardingBreadcrumb');
 
 /*
- * ParentOnboardingBreadcrumb — horizontal progress bar for the parent sign-up wizard.
- * Figma node: 2901:81385. Mirrors InstitutionOnboardingBreadcrumb in structure but uses
- * amber (#b48617) instead of brand-green, and an inline progress bar div instead of
- * <ProgressBar /> (which hardcodes bg-brand-green and cannot be reused for amber fill).
+ * ParentOnboardingBreadcrumb — horizontal progress bar for the parent sign-up
+ * wizard. Figma node 2864:37569 (Flow B style).
+ *
+ * Step indicator style:
+ *   completed (index < currentStep) → amber #c8951a circle + white check,
+ *                                     label #967014 semibold
+ *   active    (index === currentStep) → black #111 circle + white dot,
+ *                                       label #111 semibold
+ *   upcoming  (index > currentStep)  → grey #babab7 @45% circle (empty),
+ *                                      label #babab7 medium
+ * Right: "COMPLETE" + amber percentage + amber progress bar on #eedeb8 track.
  *
  * Props:
  *   currentStep       {number}  0-based index of the active step. Default 0.
@@ -15,35 +22,64 @@ const log = debug('ParentOnboardingBreadcrumb');
  */
 
 const PARENT_STEPS = [
-  'Parent Identity',
+  'Identity',
   'Verification',
   'Contact',
   'Security',
   'Link Ward',
-  'Review & Consent',
+  'Consent',
   'Done',
 ];
 
-const CheckCircleIcon = ({ className }) => (
-  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+const StepCheck = () => (
+  <svg viewBox="0 0 8 8" fill="none" aria-hidden="true" className="size-2">
     <path
-      d="M5 8.3l2 2L11 5.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
+      d="M1.5 4.2l1.6 1.6L6.6 2.2"
+      stroke="#ffffff"
+      strokeWidth="1.2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
 );
 
+// Step status circle — 15px filled, per-status fill + glyph.
+const StepCircle = ({ completed, active }) => {
+  if (completed) {
+    return (
+      <span
+        className="flex size-[15px] shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: '#c8951a' }}
+      >
+        <StepCheck />
+      </span>
+    );
+  }
+  if (active) {
+    return (
+      <span
+        className="flex size-[15px] shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: '#111111' }}
+      >
+        <span className="size-[4px] rounded-full" style={{ backgroundColor: '#ffffff' }} />
+      </span>
+    );
+  }
+  return (
+    <span
+      className="size-[15px] shrink-0 rounded-full"
+      style={{ backgroundColor: '#babab7', opacity: 0.45 }}
+    />
+  );
+};
+
 const StepSeparator = () => (
   <span aria-hidden="true" className="inline-flex w-6 shrink-0 items-center justify-center">
-    <svg viewBox="0 0 4 6" fill="none" className="text-[#babab7]" style={{ width: 4, height: 6 }}>
+    <svg viewBox="0 0 4 7" fill="none" style={{ width: 4, height: 7 }}>
       <path
-        d="M1 1l2 2-2 2"
-        stroke="currentColor"
-        strokeWidth="1.5"
+        d="M1 1l2 2.5-2 2.5"
+        stroke="#babab7"
+        strokeWidth="1.3"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -63,8 +99,8 @@ const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
   return (
     <nav
       aria-label="Parent onboarding steps"
-      className="flex h-12 items-center gap-0 bg-white px-6"
-      style={{ borderBottom: '1px solid #e7e7e7' }}
+      className="flex h-[52px] shrink-0 items-center gap-0 bg-white px-6"
+      style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}
     >
       {/* ── Steps list — scrollable on narrow viewports ── */}
       <ol
@@ -74,28 +110,21 @@ const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
         {PARENT_STEPS.map((step, index) => {
           const isActive = index === currentStep;
           const isDone = index < currentStep;
-          log('step render:', step, { isActive, isDone });
 
           return (
             <li key={step} className="inline-flex shrink-0 items-center">
               {index > 0 && <StepSeparator />}
               <span
-                className="inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-2"
                 aria-current={isActive ? 'step' : undefined}
               >
-                <CheckCircleIcon
-                  className={[
-                    'size-4 shrink-0',
-                    isActive || isDone ? 'text-[#b48617]' : 'text-[#babab7]',
-                  ].join(' ')}
-                />
+                <StepCircle completed={isDone} active={isActive} />
                 <span
-                  className="font-sans text-[14px]"
+                  className="font-sans text-[12px]"
                   style={{
-                    letterSpacing: '0.14px',
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#b48617' : '#babab7',
-                    lineHeight: '20px',
+                    fontWeight: isActive || isDone ? 600 : 500,
+                    color: isDone ? '#967014' : isActive ? '#111111' : '#babab7',
+                    lineHeight: 'normal',
                   }}
                 >
                   {step}
@@ -106,39 +135,37 @@ const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
         })}
       </ol>
 
-      {/* ── Right: progress readout — amber instead of green ── */}
+      {/* ── Right: completion readout — amber ── */}
       <div
-        className="ml-4 flex shrink-0 flex-col gap-[4px]"
-        style={{ width: 'clamp(120px, 14vw, 180px)' }}
+        className="ml-4 flex shrink-0 flex-col items-end gap-[3px]"
         aria-label={`${pct}% complete`}
       >
-        <div className="flex items-center justify-between">
+        <span
+          className="hidden font-sans text-[10px] font-bold uppercase sm:block"
+          style={{ letterSpacing: '0.6px', color: '#babab7', lineHeight: 'normal' }}
+        >
+          Complete
+        </span>
+        <div className="flex items-center gap-[8px]">
           <span
-            className="hidden font-sans text-[12px] uppercase sm:block"
-            style={{ letterSpacing: '0.5px', color: '#bfbfbf', lineHeight: '16px' }}
-          >
-            COMPLETE
-          </span>
-          <span
-            className="font-sans text-[14px] font-semibold"
-            style={{ color: '#b48617', lineHeight: '24px' }}
+            className="font-sans text-[13px] font-bold"
+            style={{ color: '#c8951a', lineHeight: 'normal' }}
           >
             {pct}%
           </span>
-        </div>
-        {/* Inline amber fill — ProgressBar.jsx hardcodes bg-brand-green, cannot reuse */}
-        <div
-          className="h-[6px] w-full overflow-hidden rounded-full"
-          style={{ backgroundColor: '#f5e9c8' }}
-          role="progressbar"
-          aria-valuenow={pct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
           <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${pct}%`, backgroundColor: '#b48617' }}
-          />
+            className="h-[5px] w-[100px] overflow-hidden rounded-full"
+            style={{ backgroundColor: '#eedeb8' }}
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${pct}%`, backgroundColor: '#c8951a' }}
+            />
+          </div>
         </div>
       </div>
     </nav>

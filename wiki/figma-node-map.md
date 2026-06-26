@@ -1027,6 +1027,162 @@ Implemented: `src/components/sections/parentLogin/ParentSuccessSection.jsx` (pag
 
 ---
 
+## Parent onboarding — two flows + Flow B ward-invited welcome `✅ VERIFIED` (2026-06-26)
+
+The parent flow has **two entry flows** (config: `src/constants/parentFlows.js`):
+
+| Flow                          | Who                                                                 | Welcome route                | Right panel           |
+| ----------------------------- | ------------------------------------------------------------------- | ---------------------------- | --------------------- |
+| A — self-serve                | parent signs up on their own, links ward manually                   | `/onboarding/parent-welcome` | photo panel (default) |
+| B — ward-invited (pre-filled) | child registered first, pre-filled parent contact, ward auto-linked | `/onboarding/parent-invited` | **simple** panel      |
+
+Both converge on the shared steps (identity → verification → contact → security → link-ward → review → done). `PARENT_FIRST_STEP = /onboarding/parent-identity`.
+
+### Flow B welcome (frame **2864:36856**, route `/onboarding/parent-invited`)
+
+Left content `2864:36858` — `src/components/sections/parentLogin/ParentInviteWelcomeSection.jsx` (page `ParentInvitePage.jsx`). Left-aligned column, no breadcrumb.
+
+| Element            | Node         | Tokens / verbatim                                                                                                                                                          |
+| ------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pre-fill banner    | `2864:36861` | bg #ebf1ec border #c1d4c4 r-16; green 32px icon box + "Your ward registered on Ghana Talent Hub" (bold #2a5730 13px) + "Kofi Mensah (16)" bold #387440 + rest #70706e 12px |
+| Caption            | `2864:36867` | "Parent / Guardian Onboarding" 10px bold #c8951a uppercase tracking 1.3px                                                                                                  |
+| Headline           | `2864:36868` | Instrument Serif 52px #111 tracking -2px; "Your ward is already " + italic #967014 "on the platform."                                                                      |
+| Subtitle           | `2864:36869` | 14px #70706e; "Ghana Talent Hub uses an opt-out model — …"                                                                                                                 |
+| How-this-works box | `2864:36870` | bg #faf4e8 border #eedeb8 r-16; info glyph + "HOW THIS WORKS" 12px bold #967014; 3 rows: 20px #c8951a check-pill + bold #111 lead-in + #575755 rest                        |
+| Primary CTA        | `2864:36887` | amber bg #c8951a border-2 #967014 shadow `0 3px 0 #967014` r-10; "Create my parent account" + arrow → `/onboarding/parent-identity`                                        |
+| Secondary CTA      | `2864:36891` | border #c6c6c3 r-10; "I have concerns — opt-out instead" #70706e semibold                                                                                                  |
+| Footer             | `2864:36893` | "Already have an account?" #babab7 + "Log in" #387440 → `/onboarding/parent-login`                                                                                         |
+
+### Flow B simple-panel content (frame **2864:36896**)
+
+`ParentLoginRightPanel variant="simple" centerContent={<WardInvitePanelContent />}` — `src/components/sections/parentLogin/ParentInvitePanelContent.jsx`. Plain gold + centered:
+
+| Element    | Node                   | Tokens / verbatim                                                                                                                                                                                                                  |
+| ---------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Heading    | `2864:36902`           | Instrument Serif 34px white tracking -0.8px; "Supporting " + italic "Ghanaian talent" + " starts with you."                                                                                                                        |
+| Subtitle   | `2864:36903`           | 13px rgba(255,255,255,0.6); "Your ward has already taken the first step. …"                                                                                                                                                        |
+| Info cards | `2864:36904` / `36910` | white r-16 shadow `0 16px 20px rgba(0,0,0,0.18)`, rotated -3.5° / +3° (overlap); 26px amber icon box + 9px bold #70706e label + 12px semibold #111 value: "Account type / Parent / Guardian", "Ward status / Active — Kofi Mensah" |
+
+> Layout: `isInvitedWelcome` (exact `/onboarding/parent-invited`) excludes it from the breadcrumb + selects the simple panel with `WardInvitePanelContent`. DemoNavigator lists it as "Invited".
+
+### Flow B Identity step (frame **2864:37043**, route `/onboarding/parent-invited-identity`)
+
+Card form (left `2864:37048`) — `src/components/sections/parentLogin/ParentInviteIdentitySection.jsx` (page `ParentInviteIdentityPage.jsx`). Two-column: scrollable form + sticky Back/Continue footer; simple step-list panel right. Shows the breadcrumb.
+
+| Element               | Node                   | Tokens / verbatim                                                                                                                                                                                           |
+| --------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Caption               | `2864:37049`           | "Step 1 of 7 — Parent Identity" 10px bold #c8951a uppercase                                                                                                                                                 |
+| Heading               | `2864:37050`           | Instrument Serif; "Tell us about " + italic #c8951a "yourself."                                                                                                                                             |
+| Subtitle              | `2864:37051`           | 14px #70706e centred                                                                                                                                                                                        |
+| First / Last / Middle | `2864:37052` / `37065` | reused `TextInput`; labels bold 13px + red `*` / grey "(optional)"                                                                                                                                          |
+| Relationship chips    | `2864:37071`           | single-select pills: Mother, Father, Aunt, Uncle, Nephew, Niece, Older Sibling, Grandparent, Legal Guardian. Selected = bg #faf4e8 border #c8951a text #b48617; default = bg #f8f8f4 border #c6c6c3 #575755 |
+| Gender radios         | `2864:37094`           | pill radios Male / Female; selected = amber border + amber dot                                                                                                                                              |
+| Date of Birth         | `2864:37105`           | Day (TextInput) · Month (`Select` Jan–Dec) · Year (TextInput)                                                                                                                                               |
+| Nationality chips     | `2864:37121`           | 🇬🇭 Ghanaian · 🇳🇬 Nigerian · 🇨🇮 Ivorian · Other                                                                                                                                                              |
+| Footer                | `2864:37134`           | sticky `bottom-0` white bar; Back (bordered + chevron) + Continue (gated grey→amber, → `/onboarding/parent-invited-verification`)                                                                           |
+
+Simple step-list panel (right `2864:37143`) — `ParentInviteStepsPanelContent` (`currentStep`/`title`/`titleAccent`/`subtitle`): "Your identity _builds trust._" + 6-item numbered list (Your identity / Verification / Contact details / Security / Link your ward / Consent), active item highlighted. Reusable for future Flow B steps.
+
+### Flow B Verification step (frame **2864:37219**, route `/onboarding/parent-invited-verification`)
+
+Card layout (left `2864:37224`) — `src/components/sections/parentLogin/ParentInviteVerificationSection.jsx` (page `ParentInviteVerificationPage.jsx`). Breadcrumb step 2 / 20%.
+
+| Element      | Node                   | Tokens / verbatim                                                                                                         |
+| ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Caption      | `2864:37225`           | "Step 2 of 7 — Verification"                                                                                              |
+| Heading      | `2864:37226`           | "Verify your " + italic #c8951a "identity."                                                                               |
+| Subtitle     | `2864:37227`           | "Both fields are optional — you can skip this step and verify later. …"                                                   |
+| Note banner  | `2864:37228`           | amber box; "Both fields are optional for parents" (bold) + "Unlike talent accounts, parent verification is not required…" |
+| Upload cards | `2864:37235` / `37245` | reused `Upload` (amber): Ghana Card ID + Profile Photo, "Optional" badge, accept-label pills (Figma hint lines)           |
+| Skip row     | `2864:37254`           | "Prefer to skip for now?" + "Continue without verification" → next step                                                   |
+| Footer       | `2864:37257`           | sticky Back + Continue (amber, enabled — uploads optional) → `/onboarding/parent-invited-contact`                         |
+
+Panel (`2864:37266`): "Optional for _parents._" + "Verification builds trust but isn't required…" + step list with step 1 **checked** (completed) and step 2 active.
+
+### Flow B Security step (frame **2864:37481**, route `/onboarding/parent-invited-security`)
+
+Card layout (left `2864:37486`) — `src/components/sections/parentLogin/ParentInviteSecuritySection.jsx` (page `ParentInviteSecurityPage.jsx`). Breadcrumb step 4 / 50%.
+
+| Element          | Node         | Tokens / verbatim                                                                                                                                                                      |
+| ---------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Caption          | `2864:37487` | "Step 4 of 7 — Account Security"                                                                                                                                                       |
+| Heading          | `2864:37488` | "Create a strong " + italic #c8951a "password."                                                                                                                                        |
+| Subtitle         | `2864:37489` | "This password protects your parent account. Use something only you would know."                                                                                                       |
+| Password         | `2864:37490` | `TextInput` type=password + eye toggle (no lock icon) + 4-segment strength meter + 4 live rules: "At least 8 characters", "One uppercase letter", "One lowercase letter", "One number" |
+| Confirm Password | `2864:37519` | `TextInput` + eye toggle; "Passwords do not match" error                                                                                                                               |
+| Footer           | `2864:37527` | sticky Back + Continue (gated on all rules met + match) → `/onboarding/parent-invited-link-ward`                                                                                       |
+
+Panel (`2864:37536`): "Lock your account _down._" + "A strong password protects your ward's data and your ability to manage their access." + step list (steps 1–3 checked, step 4 active).
+
+> Strength label: "Enter a password" (empty) → Weak/Fair/Good/Strong (1–4 rules met) — only "Enter a password" is in Figma; the strength words are added states.
+
+### Flow B Link Ward step (frame **2864:37620**, route `/onboarding/parent-invited-link-ward`)
+
+Card layout (left `2864:37625`) — `src/components/sections/parentLogin/ParentInviteLinkWardSection.jsx` (page `ParentInviteLinkWardPage.jsx`). Breadcrumb step 5 / 78%.
+
+| Element          | Node         | Tokens / verbatim                                                                                                                                          |
+| ---------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Caption          | `2864:37626` | "Step 5 of 7 — Link Ward"                                                                                                                                  |
+| Heading          | `2864:37627` | "Your ward is " + italic #c8951a "already linked."                                                                                                         |
+| Subtitle         | `2864:37628` | "Because your ward provided your contact details during their registration, …"                                                                             |
+| Auto-link banner | `2864:37629` | bg rgba(235,241,236,0.6) border #c1d4c4; green 36px check box + "Ward automatically linked — Path A" + "Your contact matched the details Kofi provided. …" |
+| Ward card        | `2864:37635` | white border #c1d4c4; green 52px check avatar + "Kofi Mensah" + meta (Age 16 · JHS 3 · 🇬🇭 Ghanaian) + green "Active" dot                                   |
+| Detail grid      | `2864:37652` | shared `PreviewField` ×4: School=Achimota School · Curriculum=GES · Account created=Today, 09:42 AM · Account status=Active (#387440)                      |
+| Opt-out reminder | `2864:37665` | amber box; "You can opt-out at any time from your dashboard" + "If you have concerns about Kofi's participation…"                                          |
+| Footer           | `2864:37672` | sticky Back + "Confirm & Continue" → `/onboarding/parent-invited-consent`                                                                                  |
+
+Panel (`2864:37681`): **custom link diagram** (`WardLinkPanelContent`) — "Ward _linked_ automatically." + "Because Kofi provided your contact during registration, the link is already confirmed." + You (amber 52px avatar) → connector → Kofi Mensah (green 52px avatar). Config entry uses `panel: 'link'` so the layout renders this instead of the step list.
+
+### Flow B Consent step (frame **2864:37752**, route `/onboarding/parent-invited-consent`)
+
+Card layout (left `2864:37757`) — `src/components/sections/parentLogin/ParentInviteConsentSection.jsx` (page `ParentInviteConsentPage.jsx`). Breadcrumb step 6 / 88%.
+
+| Element         | Node         | Tokens / verbatim                                                                                                                          |
+| --------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Caption         | `2864:37758` | "Step 6 of 7 — Consent & Rights"                                                                                                           |
+| Heading         | `2864:37759` | "Understand your " + italic #967014 "parent rights."                                                                                       |
+| Subtitle        | `2864:37760` | "Please read and confirm each statement below. All three are required to activate your parent account."                                    |
+| Consent card 1  | `2864:37761` | bordered card + 22px checkbox; bold "I understand my ward has immediate platform access." + muted desc                                     |
+| Consent card 2  | `2864:37766` | bold "I have read and accept the Parent Rights Policy." + muted desc + green link "Read policy"                                            |
+| Consent card 3  | `2864:37773` | bold "I consent to Ghana Talent Hub processing my data." + muted + green link "Ghana Data Protection Act (Act 843)" + muted                |
+| Compliance note | `2864:37782` | bg #ebf1ec border #c1d4c4; shield + "Data encrypted at rest · Ghana Data Protection Act compliant · No third-party data sharing" (#142916) |
+| Footer          | `2864:37786` | sticky Back + "Activate Parent Account" (gated on all 3) → `/onboarding/parent-invited-done`                                               |
+
+Panel (`2864:37795`): **custom capability list** (`WardConsentPanelContent`, `panel: 'consent'`) — "Almost _there._" + "Understanding your rights and responsibilities…" + 4 checked items: Review ward profile · Flag corrections · Opt-out at any time · Cannot edit directly — only flag.
+
+### Breadcrumb restyle (Flow B style, frame **2864:37569**) `✅ VERIFIED`
+
+`ParentOnboardingBreadcrumb` updated to match Figma (affects BOTH parent flows):
+
+- **completed** (index < current): amber #c8951a circle + white check; label #967014 semibold
+- **active** (index === current): **black #111** circle + white dot; label #111 semibold
+- **upcoming**: #babab7 @45% circle (empty); label #babab7 medium
+- right: "COMPLETE" 10px bold #babab7 + amber % + amber fill on #eedeb8 track
+- labels updated to: Identity · Verification · Contact · Security · Link Ward · Consent · Done
+
+### Flow B Contact step (frame **2864:37344**, route `/onboarding/parent-invited-contact`)
+
+Card layout (left `2864:37349`) — `src/components/sections/parentLogin/ParentInviteContactSection.jsx` (page `ParentInviteContactPage.jsx`). Breadcrumb step 3 / 34%.
+
+| Element  | Node         | Tokens / verbatim                                                                                                                   |
+| -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Caption  | `2864:37350` | "Step 3 of 7 — Contact Information"                                                                                                 |
+| Heading  | `2864:37351` | "How do we " + italic #c8951a "reach you?"                                                                                          |
+| Subtitle | `2864:37352` | "We'll send a quick code to confirm it's really you — …"                                                                            |
+| Phone    | `2864:37353` | reused `PhoneInput` (🇬🇭 +233), label + "SMS verification" trailing hint, placeholder "24 123 4567" — required                       |
+| WhatsApp | `2864:37365` | reused `PhoneInput`, optional, placeholder "Leave blank if same as above" + helper "Leave blank if same as your phone number above" |
+| Email    | `2864:37380` | reused `TextInput` (MailIcon), label + "Email verification" hint, placeholder "you@example.com" — required                          |
+| Footer   | `2864:37391` | sticky Back + "Send Verification Code" (gated grey→amber) → `/onboarding/parent-invited-security`                                   |
+
+Panel (`2864:37400`): "Secure contact _details._" + "Your contact details are encrypted and protected under Ghana's Data Protection Act." + step list (steps 1–2 checked, step 3 active).
+
+> Per-step Flow B panel copy + breadcrumb step/percent live in `WARD_INVITE_STEP_PANELS` (`src/constants/parentFlows.js`); the layout looks it up by route slug. The step-list panel renders a check for completed steps, highlights the active one, numbers the rest.
+
+> Layout: `isInvitedStep` (parent-invited-\* with a suffix) shows the breadcrumb + the step-list panel. Flow B first step wired from the invited welcome via `PARENT_FLOWS.wardInvited.firstStep`.
+> Note: the shared `ParentOnboardingBreadcrumb` shows Flow A labels ("Parent Identity" / "Review & Consent"); Figma Flow B uses "Identity" / "Consent" — minor label diff, breadcrumb left shared.
+
+---
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

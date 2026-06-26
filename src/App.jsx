@@ -46,6 +46,13 @@ import ParentSecurityPage from './pages/parentLogin/ParentSecurityPage.jsx';
 import ParentLinkWardPage from './pages/parentLogin/ParentLinkWardPage.jsx';
 import ParentReviewPage from './pages/parentLogin/ParentReviewPage.jsx';
 import ParentDonePage from './pages/parentLogin/ParentDonePage.jsx';
+import ParentInvitePage from './pages/parentLogin/ParentInvitePage.jsx';
+import ParentInviteIdentityPage from './pages/parentLogin/ParentInviteIdentityPage.jsx';
+import ParentInviteVerificationPage from './pages/parentLogin/ParentInviteVerificationPage.jsx';
+import ParentInviteContactPage from './pages/parentLogin/ParentInviteContactPage.jsx';
+import ParentInviteSecurityPage from './pages/parentLogin/ParentInviteSecurityPage.jsx';
+import ParentInviteLinkWardPage from './pages/parentLogin/ParentInviteLinkWardPage.jsx';
+import ParentInviteConsentPage from './pages/parentLogin/ParentInviteConsentPage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
 function App() {
@@ -123,6 +130,31 @@ function App() {
                 parent-login   → ParentLoginRightPanel   (two photo cards + Error callout) */}
           <Route element={<ParentOnboardingLayout />}>
             <Route path={'/onboarding/parent-welcome'} element={<ParentWelcomePage />} />
+            <Route path={'/onboarding/parent-invited'} element={<ParentInvitePage />} />
+            <Route
+              path={'/onboarding/parent-invited-identity'}
+              element={<ParentInviteIdentityPage />}
+            />
+            <Route
+              path={'/onboarding/parent-invited-verification'}
+              element={<ParentInviteVerificationPage />}
+            />
+            <Route
+              path={'/onboarding/parent-invited-contact'}
+              element={<ParentInviteContactPage />}
+            />
+            <Route
+              path={'/onboarding/parent-invited-security'}
+              element={<ParentInviteSecurityPage />}
+            />
+            <Route
+              path={'/onboarding/parent-invited-link-ward'}
+              element={<ParentInviteLinkWardPage />}
+            />
+            <Route
+              path={'/onboarding/parent-invited-consent'}
+              element={<ParentInviteConsentPage />}
+            />
             <Route path={'/onboarding/parent-login'} element={<ParentLoginPage />} />
             <Route path={'/onboarding/parent-identity'} element={<ParentIdentityPage />} />
             <Route path={'/onboarding/parent-verification'} element={<ParentVerificationPage />} />
