@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarOutfitPanel from '../../components/sections/engagement/avatar/AvatarOutfitPanel.jsx';
 import outfitHeroStage from '../../assets/engagement/avatar-outfit-hero-stage.png';
+import { useEngagementProgress } from '../../hooks/useEngagementProgress.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarOutfitPage');
@@ -22,6 +23,11 @@ const log = debug('AvatarOutfitPage');
 const AvatarOutfitPage = () => {
   log('mount');
   const navigate = useNavigate();
+  // Avatar is the FIRST stage of Section 1. Finishing the outfit step
+  // = completing the whole Avatar stage, so we mark it done here. That
+  // flip auto-unlocks the next stage (Personal Interests) in the
+  // progress hook + persists to localStorage.
+  const { markStageComplete } = useEngagementProgress();
 
   const handleGoBack = () => {
     log('go back → extras step');
@@ -29,8 +35,9 @@ const AvatarOutfitPage = () => {
   };
 
   const handleFinish = () => {
-    log('save outfit, finish avatar → engagement hub');
-    navigate('/profile/engagement');
+    log('save outfit, finish avatar → mark complete + back to identity map');
+    markStageComplete('avatar');
+    navigate('/profile/engagement/identity');
   };
 
   const handleTabSelect = (tabId) => {

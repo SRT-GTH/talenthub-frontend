@@ -23,6 +23,7 @@ import AvatarSkinTonePage from './pages/engagement/AvatarSkinTonePage.jsx';
 import AvatarHairPage from './pages/engagement/AvatarHairPage.jsx';
 import AvatarExtrasPage from './pages/engagement/AvatarExtrasPage.jsx';
 import AvatarOutfitPage from './pages/engagement/AvatarOutfitPage.jsx';
+import StageComingSoonPage from './pages/engagement/StageComingSoonPage.jsx';
 import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
@@ -87,6 +88,19 @@ function App() {
           <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
           <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
         </Route>
+        {/* Stub "Coming soon" routes for stages that don't have real
+            pages yet. Each landing point renders a StageComingSoonPage
+            that reads the URL to show which stage was clicked — proof
+            of clickability + navigation. Remove each entry as the
+            corresponding real page gets built. */}
+        <Route path={'/profile/engagement/interests'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/personality'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/skills'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/work'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/portfolio'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/certifications'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/goals'} element={<StageComingSoonPage />} />
+        <Route path={'/profile/engagement/pitch'} element={<StageComingSoonPage />} />
       </Routes>
     </BrowserRouter>
   );

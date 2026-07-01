@@ -65,7 +65,8 @@ const IdentityMapPage = () => {
   };
 
   const handleStartBuddy = () => {
-    log('start with career buddy');
+    log('start with career buddy → open entry method modal');
+    setIsEntryModalOpen(true);
   };
 
   const handleSaveExit = () => {

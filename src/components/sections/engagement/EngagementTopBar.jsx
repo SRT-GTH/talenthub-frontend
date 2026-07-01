@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.jsx';
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
+import { useEngagementProgress } from '../../../hooks/useEngagementProgress.js';
 
 import arrowhead from '../../../assets/engagement/arrowhead.svg';
 
@@ -42,22 +43,29 @@ const CheckCircleIcon = ({ className }) => (
   </svg>
 );
 
-// Per-stage destination route. Order mirrors PROFILE_STAGES so the trail
-// stays in sync with the rest of the flow.
+// Per-stage destination route. Each stage now has its OWN route — no
+// more dumping every non-Avatar breadcrumb back at /profile/engagement
+// (which auto-opens the entry-method modal and confuses the UX).
+// Routes that don't yet have a built page will 404 until they're
+// implemented, which is more honest than silently rerouting.
 const STAGE_ROUTES = {
   avatar: '/profile/engagement/avatar',
-  'personal-interests': '/profile/engagement',
-  personality: '/profile/engagement',
-  skills: '/profile/engagement',
-  'work-experience': '/profile/engagement',
-  'project-portfolio': '/profile/engagement',
-  certifications: '/profile/engagement',
-  'desired-career': '/profile/engagement',
-  'talent-pitch': '/profile/engagement',
+  'personal-interests': '/profile/engagement/interests',
+  personality: '/profile/engagement/personality',
+  skills: '/profile/engagement/skills',
+  'work-experience': '/profile/engagement/work',
+  'project-portfolio': '/profile/engagement/portfolio',
+  certifications: '/profile/engagement/certifications',
+  'desired-career': '/profile/engagement/goals',
+  'talent-pitch': '/profile/engagement/pitch',
 };
 
 const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className }) => {
   const currentStage = PROFILE_STAGES[currentStageIndex];
+  // Lock state pulled from the shared progress hook so the breadcrumb
+  // greys out + becomes unclickable for stages the user hasn't
+  // unlocked yet — matching the identity-map's gating.
+  const { getStageStatus } = useEngagementProgress();
 
   return (
     <div
@@ -77,33 +85,57 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
           const route = STAGE_ROUTES[stage.id];
           if (!route) return null;
           const label = stage.trailLabel || stage.title;
+          const status = getStageStatus(stage.id);
+          const isLocked = status === 'locked';
+
+          // Locked stages render as a non-link span (not a <Link>), so
+          // clicks/hovers don't navigate anywhere. Visually faded.
+          const breadcrumbContent = (
+            <>
+              <CheckCircleIcon className="size-[clamp(14px,1.2vw,16px)] shrink-0" />
+              <span
+                className={classNames(
+                  'font-sans text-[clamp(11px,1vw,13px)] leading-4 tracking-[0.1px]',
+                  isCurrent ? 'font-semibold' : 'font-medium'
+                )}
+              >
+                {label}
+              </span>
+            </>
+          );
 
           return (
             <span key={stage.id} className="inline-flex items-center gap-1 shrink-0">
-              <Link
-                to={route}
-                aria-label={label}
-                aria-current={isCurrent ? 'step' : undefined}
-                className={classNames(
-                  'inline-flex items-center gap-1 rounded px-1 py-0.5',
-                  'transition-colors duration-150',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  // Active stage: brand-green check + label.
-                  // Inactive: neutral grey; hover restores brand-green so
-                  // users get a preview before clicking.
-                  isCurrent ? 'text-brand-green' : 'text-neutral-dark-hover hover:text-brand-green'
-                )}
-              >
-                <CheckCircleIcon className="size-[clamp(14px,1.2vw,16px)] shrink-0" />
+              {isLocked ? (
                 <span
+                  aria-label={`${label} — locked`}
                   className={classNames(
-                    'font-sans text-[clamp(11px,1vw,13px)] leading-4 tracking-[0.1px]',
-                    isCurrent ? 'font-semibold' : 'font-medium'
+                    'inline-flex items-center gap-1 rounded px-1 py-0.5',
+                    'cursor-not-allowed text-neutral-dark-hover opacity-50'
                   )}
                 >
-                  {label}
+                  {breadcrumbContent}
                 </span>
-              </Link>
+              ) : (
+                <Link
+                  to={route}
+                  aria-label={label}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  className={classNames(
+                    'inline-flex items-center gap-1 rounded px-1 py-0.5',
+                    'transition-colors duration-150',
+                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                    // Active stage: brand-green check + label.
+                    // Inactive (but unlocked): neutral grey, hover restores
+                    // brand-green so users see it's clickable.
+                    isCurrent
+                      ? 'text-brand-green'
+                      : 'text-neutral-dark-hover hover:text-brand-green'
+                  )}
+                >
+                  {breadcrumbContent}
+                </Link>
+              )}
               {index < PROFILE_STAGES.length - 1 && (
                 <img
                   src={arrowhead}
