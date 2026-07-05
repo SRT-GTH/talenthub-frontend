@@ -411,8 +411,8 @@ const AvatarStepLayout = ({
           className="w-full h-full"
         />
       </div>
-      {/* Stage trail — 81px tall per Figma */}
-      <div className="shrink-0 h-[clamp(58px,4.7vw,81px)] flex items-stretch">
+      {/* Stage trail — 77px tall per Figma 3530:36666 (was 81px, corrected 2026-07-04) */}
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
         <EngagementTopBar currentStageIndex={0} completionPct={0} className="w-full h-full" />
       </div>
 

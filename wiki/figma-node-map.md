@@ -1183,6 +1183,72 @@ Panel (`2864:37400`): "Secure contact _details._" + "Your contact details are en
 
 ---
 
+## Profile Filling — Interests Intro page `✅ VERIFIED` (2026-07-04)
+
+Route: `/profile/filling/interests` — `InterestsIntroPage` → `InterestsIntroSection`.
+
+| Node           | ID           | Description                                                                            |
+| -------------- | ------------ | -------------------------------------------------------------------------------------- |
+| Main frame     | `3530:35614` | `interests(intro page(optional))`, 1728×1079                                           |
+| Nav bar        | `3530:35666` | `bg-[#f8f8f4]`, `px-64`, logo 66px, Switch Modes shelf btn, user chip                  |
+| Content wrap   | `3530:35694` | `absolute h-[1016px] top-[143px] w-[1728px] overflow-clip`                             |
+| Step trail bar | `3530:36666` | `h-[77px] px-[54px] py-[10px] flex justify-between`                                    |
+| Progress bar   | `3530:36684` | `w-[323px] flex-col gap-[4px]`; track `bg-[#e1eae2]`                                   |
+| Header section | `3531:47134` | `h-[240px] left-0 right-[329px] top-[77px]`; TL green radial + BR pink radial gradient |
+| Section label  | `3531:47156` | "WHAT THIS STAGE COVERS", 10px bold #888, + 1px divider                                |
+| Step cards     | `3531:47225` | 5 cards, `flex-col gap-[8px]`, `h-84/85px`, `rounded-[12px]`, drop-shadow              |
+| Footer         | `3530:36694` | `h-[142px] left-0 right-[329px]`; Go back + Open Interests shelf btns                  |
+| Right panel    | `3531:46485` | `w-[329px] top-[81px]`; `linear-gradient(109.386deg, #142916, #2a5730)`                |
+| Icon showcase  | `3531:47066` | `top-[10px] h-[152px]`; 56×56 glass box + InterestsIcon + labels                       |
+| Stat cards     | `3531:47069` | `top-[174px] flex-col gap-[14px]`; recruiter impact + time cards                       |
+| Journey card   | `3531:47044` | `top-[435px] h-[398px]`; 9-step progress list                                          |
+
+**Corrections applied to shared components:**
+
+| Component                     | Node corrected | Change                                                                                                                              |
+| ----------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `EngagementTopBar`            | `3530:36666`   | px 40→54px, icon 14→16px, label 11→14px, separator 20→24px, right w clamp→323px                                                     |
+| `EngagementProgressIndicator` | `3530:36684`   | track bg neutral→brand-green-light-hover; StatusDot→5×5 square; single row→justify-between                                          |
+| `EngagementTopNav`            | `3530:35666`   | px 32→64px, logo 56→66px, Switch Modes padding/border, Save&Exit gradient text, help btn radius/bg, user chip border/radius/padding |
+| `AvatarStepLayout`            | —              | Step trail wrapper height 81→77px (clamp corrected)                                                                                 |
+
+---
+
+## Profile Filling — Interests Stage 2 (category selection) `✅ VERIFIED` (2026-07-04)
+
+Route: `/profile/filling/interests/categories` — `InterestsStage2Page` → `InterestsStage2Section`.
+
+| Node                      | ID           | Description                                                                  |
+| ------------------------- | ------------ | ---------------------------------------------------------------------------- |
+| Main frame                | `3531:46209` | Interests step stage 2, 1728×1084                                            |
+| Header section            | `3531:46294` | `"What pulls you in?"` (italic green `you in?`) + subtitle + tag pills       |
+| Section heading           | `3531:46331` | "WHAT THIS STAGE COVERS" label + `"Broad areas first."` (italic green)       |
+| Category card (collapsed) | `3550:47566` | Creative Arts — `h-84px`, gradient icon bg, `✓ Done` badge, 2 action buttons |
+| Category card (collapsed) | `3550:47605` | Business and Finance — same structure                                        |
+| Live role matches         | `3547:47351` | `bg-[#fffefc] border-[#eedeb8]`; 3 role rows with `%match` pills             |
+| Right panel               | `3531:46491` | `bg-[#f8f8f4]` light panel; 5 scrollable info cards                          |
+
+**Category card token summary (Figma 3550:47566 / 3550:47605):**
+
+- Container: `bg-white border border-[#e8e8e4] rounded-[16px] shadow-[0px_4px_0px_0px_rgba(0,0,0,0.06)] h-[84px]`
+- Icon bg: `linear-gradient(216deg, rgb(254,241,231) 0%, rgb(232,242,237) 100%)`, `38×38 rounded-[10px]`
+- Title: SF Pro Rounded Bold, 13px, `#111`; status: `✓ Done` Bold, 10px, `#1d7c4d`
+- Subtitle (specifics): SF Pro Rounded Regular, 11px, `#70706e`
+- Specifics pill: `bg-[#ebf1ec] border border-[#c1d4c4] rounded-full h-[19px] px-[8px]`, SemiBold 10px `#2a5730`
+- Action buttons: two `28×28 bg-white border border-[#e8e8e4] rounded-[6px]` (chevron + trash)
+
+**Right panel info cards:**
+
+| Card                 | Background              | Border    | Radius |
+| -------------------- | ----------------------- | --------- | ------ |
+| Why Interests Matter | `bg-white`              | `#e8e8e4` | `16px` |
+| What Counts?         | `rgba(235,241,236,0.5)` | `#c1d4c4` | `10px` |
+| Popular in Ghana     | `bg-white`              | `#e8e8e4` | `10px` |
+| The Sweet Spot       | `bg-white`              | `#e8e8e4` | `10px` |
+| Mentor Matching      | `rgba(235,241,236,0.5)` | `#c1d4c4` | `10px` |
+
+---
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

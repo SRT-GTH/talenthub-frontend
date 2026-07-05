@@ -32,6 +32,54 @@
 | `Breadcrumbs`   | `src/components/ui/Breadcrumbs.jsx`   | frame `2263:8179`  | Vertical step list (despite the Figma name — it's a wizard sidebar, not horizontal site breadcrumbs). Each item shows a check-circle + label; status is auto-derived from `currentIndex` or overridden per item.                                                   |
 | `Captions`      | `src/components/ui/Captions.jsx`      | node `2374:15129`  | Horizontal "you are here" indicator. Soft green-tinted pill with an active-status dot + chevron-separated step labels. `variant='green'` (default, institution) or `'amber'` (parent onboarding). Used as a header strip on onboarding screens.                    |
 | `PreviewField`  | `src/components/ui/PreviewField.jsx`  | node `2973:80567`  | Read-only summary field for review/confirmation screens: pale `#f8f8f4` box, 9px uppercase micro-label, value below. Props: `label`, `value` (ReactNode), `valueColor`, `muted`, `leftIcon`, `trailing`, `height`, `className`. Used by Parent Review & Link Ward. |
+| `Modal`         | `src/components/ui/Modal.jsx`         | —                  | **Mandatory modal primitive.** Portal + overlay + centered content box. Handles ESC, body-scroll lock, overlay click-to-close, and built-in X button. Use for every dialog/popup — never reach for `createPortal` directly. See "Modal details" below.             |
+
+### Modal details `✅ VERIFIED`
+
+**Rule: every modal in this codebase must use this component.** Do not call `createPortal` or wire up ESC/scroll-lock manually in a modal component — Modal already handles all of that.
+
+**Props**
+
+| Prop               | Type                           | Default | Notes                                                                                                                                                                                                                |
+| ------------------ | ------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isOpen`           | `boolean`                      | —       | Required. Renders nothing when `false`.                                                                                                                                                                              |
+| `onClose`          | `() => void`                   | —       | Called on ESC, overlay click, or X button.                                                                                                                                                                           |
+| `size`             | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'lg'`  | Max-width preset: sm → 420px, md → 640px, lg → 920px, xl → 1100px.                                                                                                                                                   |
+| `ariaLabel`        | `string`                       | —       | `aria-label` on the `role="dialog"` wrapper. Required for accessibility.                                                                                                                                             |
+| `showClose`        | `boolean`                      | `true`  | Renders the built-in X button (top-right, `size-9 rounded-full`).                                                                                                                                                    |
+| `className`        | `string`                       | —       | Appended to the overlay `<div>` — use for overlay-level tweaks (rare).                                                                                                                                               |
+| `contentClassName` | `string`                       | —       | Appended to the content box. Use to override the default `rounded-2xl` and `shadow-bottom-400` for Figma-specific shapes. Prefix overrides with `!` to beat the base classes (e.g. `!rounded-[24px] !shadow-[...]`). |
+| `children`         | `ReactNode`                    | —       | Modal body rendered directly inside the content box.                                                                                                                                                                 |
+
+**Minimal usage**
+
+```jsx
+import Modal from '../ui/Modal.jsx';
+
+<Modal isOpen={isOpen} onClose={onClose} size="md" ariaLabel="Confirm deletion">
+  <div className="p-8">
+    <h2>Delete this item?</h2>
+    <button onClick={onClose}>Cancel</button>
+    <button onClick={handleConfirm}>Delete</button>
+  </div>
+</Modal>;
+```
+
+**Custom shadow / border-radius (Figma-specific override)**
+
+When Figma specifies a non-standard card shape, override via `contentClassName` with `!` to beat the base `rounded-2xl` / `shadow-bottom-400`:
+
+```jsx
+<Modal
+  size="sm"
+  ariaLabel="Interests complete"
+  isOpen={isOpen}
+  onClose={onClose}
+  contentClassName="!rounded-[24px] !shadow-[0px_24px_64px_0px_rgba(0,0,0,0.12),0px_4px_0px_0px_rgba(0,0,0,0.07),0px_0px_0px_1px_rgba(0,0,0,0.04)] overflow-hidden"
+>
+  {/* children */}
+</Modal>
+```
 
 ### Card details `✅ VERIFIED`
 
