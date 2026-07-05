@@ -3,6 +3,70 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-07-05] create | Skills Stage 2 page (/profile/filling/skills/categories)
+
+**New files:**
+
+- `src/components/sections/profileFilling/SkillsStage2Section.jsx` — main section. Hero header (Figma 3670:29134), "Stack Your Skills" sub-header (3669:28758), skill card list (3676:29446 / 29415 / 29384 / 3677:29774), "Add Another Skill" dashed button (3669:28769), right guidance panel, footer. Skill cards show brand SVG icons (JS yellow bg, Java/Python on light green), verified/self-reported badge variants, proficiency dots, endorser avatars, progress bar, inline edit panel.
+- `src/pages/profileFilling/SkillsStage2Page.jsx` — page wrapper.
+
+**Modified:**
+
+- `src/App.jsx` — added route `/profile/filling/skills/categories`.
+- `src/components/shared/assets.jsx` — added `SkillIconJs` (Simple Icons JS path, fills `#323330` letter paths against yellow container), `SkillIconPython` (Simple Icons Python path, fill `#3776AB`), `SkillIconJava` (OpenJDK path, fill `#ED8B00`).
+
+---
+
+## [2026-07-05] refactor | Move InterestsCompleteModal icons to assets.jsx; refactor modal to use Modal primitive; document Modal in wiki
+
+**Updated files:**
+
+- `src/components/shared/assets.jsx` — appended 4 new shared icons: `CheckIcon` (18×18 stroke check), `ArrowRightSmIcon` (18×18 stroke arrow, distinct from existing 20×20 fill `ArrowRightIcon`), `PlusIcon` (16×16 stroke plus), `SparkleIcon` (20×20 fill sparkle).
+- `src/components/sections/profileFilling/InterestsCompleteModal.jsx` — removed `createPortal` + manual ESC/scroll-lock; replaced with `Modal` primitive (`size="sm"`, `contentClassName` override for Figma-specific `rounded-[24px]` and multi-layer shadow). Removed inline icon defs; now imports from `assets.jsx`.
+- `wiki/components.md` — added `Modal` to UI Primitives table and added "Modal details" section (mandatory-use rule, props table, usage examples, contentClassName override pattern).
+
+---
+
+## [2026-07-04] feat | Profile Filling — Interests Stage 2 (category selection page)
+
+**New files (Figma 3531:46209 — Interests step stage 2):**
+
+- `src/components/sections/profileFilling/InterestsStage2Section.jsx`
+  — Full page shell: `EngagementTopNav` + `EngagementTopBar` (stageIndex 1) + scrollable left column (header "What pulls _you in?_" + "Broad areas _first._" section heading + 3 expandable accordion category cards + dashed "Add Another Interest Category" button + live role matches panel) + `h-142px` footer (`← Avatar` / `Next: Personality →` shelf buttons) + light `bg-[#f8f8f4]` right panel (5 info cards: Why Interests Matter / What Counts? / Popular in Ghana / The Sweet Spot / Mentor Matching).
+- `src/pages/profileFilling/InterestsStage2Page.jsx` — thin route wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — imported `InterestsStage2Page`; registered `/profile/filling/interests/categories` route alongside the intro page route.
+- `src/components/sections/profileFilling/InterestsIntroSection.jsx` — wired `handleOpenInterests` to navigate to `/profile/filling/interests/categories`.
+- `wiki/figma-node-map.md` — documented stage-2 nodes.
+
+---
+
+## [2026-07-04] fix + feat | Profile Filling — Interests intro page + EngagementTopBar/Nav/ProgressIndicator Figma corrections
+
+**Figma corrections (node 3530:36666 / 3530:35666 / 3530:36684):**
+
+- `src/components/sections/engagement/EngagementTopBar.jsx`
+  — Fixed padding (clamp → `px-[clamp(20px,3.125vw,54px)] py-[10px]`); icon size → `size-4` (16px); label text → `text-[14px] tracking-[0.14px]`; inner breadcrumb gap → `gap-[12px]`; separator → `size-6` (24px); right container → `w-[323px]`; added `EmptyCircleIcon` for future stages; split icon colour (green for completed/active, neutral-dark for future) from text colour (green semibold for active, neutral-dark medium for others); updated `STAGE_ROUTES['personal-interests']` → `/profile/filling/interests`.
+- `src/components/ui/EngagementProgressIndicator.jsx`
+  — Track background: `bg-neutral` → `bg-brand-green-light-hover`; replaced `StatusDot` circle with 5×5 green square (`rounded-[2.5px]`); restructured label to `justify-between` (step info left, % complete + auto-saved right); gap `gap-2` → `gap-[4px]`.
+- `src/components/sections/engagement/EngagementTopNav.jsx`
+  — Added `bgClass` prop (default `bg-white`); padding → `clamp(20px,3.7vw,64px)`; logo height → `clamp(40px,3.82vw,66px)`; `SwitchModesButton` → `px-[28px] py-[10px] rounded-[10px]` shelf border + drop-shadow; Save & Exit → gradient dark-green text + explicit underline; Help button → `rounded-[18px] bg-[#f8fafc] border-[#e2e8f0]`; User chip → `rounded-[10px] px-[16px] py-[8px] gap-[7px] border-[#c1d4c4]`; User avatar → `size-[24px] rounded-[12px]` gradient background.
+- `src/components/sections/engagement/AvatarStepLayout.jsx`
+  — Stage trail wrapper height: `clamp(58px,4.7vw,81px)` → `clamp(60px,4.46vw,77px)` (77px is Figma-exact at 1728px).
+
+**New files (Figma 3530:35614 — Interests intro page):**
+
+- `src/components/sections/profileFilling/InterestsIntroSection.jsx`
+  — Full page shell: `EngagementTopNav` (`bg-neutral`) + `EngagementTopBar` (stage index 1) + gradient header section (Instrument Serif mixed-style headline + subtitle + status tags) + scrollable content (section label + 5 step cards with green numbered badges) + footer (`Go back` / `Open Interests` shelf buttons + auto-saved notice) + `ProfileFillingRightPanel` (dark-green gradient, sparkle decorators, icon showcase, recruiter-impact + time stat cards, 9-step journey progress card).
+- `src/pages/profileFilling/InterestsIntroPage.jsx` — thin route wrapper.
+
+**Updated files:**
+
+- `src/App.jsx` — registered `/profile/filling/interests` element `<InterestsIntroPage />` (outside MainLayout, alongside other profile engagement routes).
+- `wiki/figma-node-map.md` — documented profile-filling nodes.
+
 ## [2026-06-26] feat | Parent Flow B — Consent step (custom capability panel)
 
 **New files:**
