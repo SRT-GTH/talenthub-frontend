@@ -4,6 +4,8 @@
 
 Tailwind v4 reads tokens from the `@theme` block in [src/index.css](../src/index.css). The `tailwind.config.js` is informational only.
 
+> `🔶 LIKELY` **Token drift (observed 2026-07-06):** components frequently inline raw hex in arbitrary Tailwind values (`#387440` ×~146, `#c8951a` ×~95, `#eedeb8`, `#faf4e8`, `#c0392b`, …) instead of referencing these tokens (`bg-brand-green` etc.), plus recurring rgba "shelf" shadows (`rgba(191,191,191,0.8)` grey / `rgba(34,70,38,0.8)` green / `rgba(146,43,33,0.8)` red). Values match the tokens, so this is a consistency/cleanup opportunity, not a visual bug.
+
 All values were extracted on **2026-05-04** from the Figma file **"Gh Design system - onboading"** (`Bin8roWL8sloyc36IgFMuT`). See [figma-node-map.md](figma-node-map.md) for per-section node IDs.
 
 ## Naming convention `✅ VERIFIED`

@@ -20,9 +20,9 @@ Every claim in this wiki carries a tag:
 
 ### Architecture
 
-- [architecture.md](architecture.md) — Stack, directory tree, entry points
-- [routing.md](routing.md) — Route map, layout shells, auth guards
-- [api.md](api.md) — axios client, interceptors, env vars
+- [architecture.md](architecture.md) — Stack, directory tree, entry points, state conventions (NB: Redux store is unwired scaffold; state lives in route-level contexts)
+- [routing.md](routing.md) — Full route map (talent / institution / parent A+B / engagement / avatar), 4 layout shells, auth-CTA helpers
+- [api.md](api.md) — axios client, interceptors, env vars (no endpoints wired yet)
 
 ### Components & Styling
 
@@ -45,4 +45,4 @@ Every claim in this wiki carries a tag:
 
 ---
 
-_Last updated: 2026-05-04_
+_Last updated: 2026-07-06 (full lint/verify pass against source)_

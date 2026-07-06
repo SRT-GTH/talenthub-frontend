@@ -16,6 +16,8 @@
 
 ## 2. Wiki is the source of truth
 
+**Session-start ritual (mandatory):** at the start of EVERY new Claude Code session — before answering questions about the codebase or touching any code — read [`wiki/INDEX.md`](wiki/INDEX.md) in full, then read the wiki page(s) relevant to the task at hand (e.g. [`wiki/routing.md`](wiki/routing.md) for route work, [`wiki/components.md`](wiki/components.md) for UI work). This is how a fresh session assimilates the codebase efficiently instead of re-exploring `src/` from scratch. Skim the top of [`wiki/log.md`](wiki/log.md) for what changed recently.
+
 Before changing non-trivial code:
 
 1. **Read** [`wiki/INDEX.md`](wiki/INDEX.md) and the relevant page.
