@@ -6,24 +6,28 @@ import { PROFILE_STAGES } from '../../../constants/profileStages.js';
 import arrowhead from '../../../assets/engagement/arrowhead.svg';
 
 /*
- * EngagementTopBar — stage-trail row on the Profile Engagement page.
- * Source: Figma frame 3384:81977.
+ * EngagementTopBar — stage-trail row on Profile Engagement screens.
+ * Source: Figma frame 3530:36666 (profile-filling step nav bar).
  *
- * Layout (two columns):
- *   left:  the 9-stage trail. Each stage is rendered as a check-circle
- *          icon + text label, both colour-controlled so the active stage
- *          reads brand-green and the rest read neutral-grey. arrowhead.svg
- *          is the separator between them. Each row is wrapped in a <Link>
- *          so users can jump to that stage.
- *   right: `EngagementProgressIndicator` (step counter + thin progress bar).
+ * Layout (two columns, justify-between):
+ *   left:  9-stage breadcrumb trail. Completed stages show a green
+ *          check-circle + neutral-grey text. The active stage shows a
+ *          green check-circle + brand-green semibold text. Future stages
+ *          show a grey outline circle + neutral-grey text. Each stage is
+ *          a <Link> for keyboard/pointer navigation. arrowhead.svg
+ *          separates each pair.
+ *   right: EngagementProgressIndicator (step counter + 6px progress bar)
+ *          in a fixed-width 323px container, right-aligned.
  *
- * Earlier iteration used 9 per-stage SVG breadcrumbs (icon + label baked
- * into one image). We've switched to one shared check icon + a text
- * label so the active/inactive colour swap can happen in code
- * (text-brand-green vs text-neutral-dark-hover), matching the Figma
- * states. The shared icon is inlined as a React component so its fill
- * follows `currentColor` from the parent — the source SVG had a
- * hard-coded grey fill that blocked state-based recolouring.
+ * Figma corrections applied 2026-07-04 (node 3530:36666):
+ *   - Padding:   clamp(16px,3vw,40px) → clamp(20px,3.125vw,54px) horizontal; 10px fixed vertical
+ *   - Stage icon: clamp(14px,1.2vw,16px) → size-4 (16px fixed)
+ *   - Stage text: clamp(11px,1vw,13px) → text-[14px] tracking-[0.14px]
+ *   - Inner gap:  gap-1 (4px) → gap-[12px] between icon and label within each breadcrumb
+ *   - Outer gap:  gap-x-1 (4px) → gap-x-2 (8px) between breadcrumb units
+ *   - Separator:  size-5 (20px) → size-6 (24px)
+ *   - Right container: clamp(320px,28vw,420px) → w-[323px] items-end
+ *   - Icon/text colour split: completed=green icon/grey text; active=green icon/green text; future=grey icon/grey text
  */
 
 const CheckCircleIcon = ({ className }) => (
@@ -42,11 +46,24 @@ const CheckCircleIcon = ({ className }) => (
   </svg>
 );
 
-// Per-stage destination route. Order mirrors PROFILE_STAGES so the trail
-// stays in sync with the rest of the flow.
+// Outline-only circle used for stages the user hasn't reached yet.
+const EmptyCircleIcon = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.4"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="8" cy="8" r="6.4" />
+  </svg>
+);
+
+// Per-stage destination route — order mirrors PROFILE_STAGES.
 const STAGE_ROUTES = {
   avatar: '/profile/engagement/avatar',
-  'personal-interests': '/profile/engagement',
+  'personal-interests': '/profile/filling/interests',
   personality: '/profile/engagement',
   skills: '/profile/engagement',
   'work-experience': '/profile/engagement',
@@ -63,42 +80,50 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
     <div
       className={classNames(
         'w-full bg-white border-b border-border-default',
-        'px-[clamp(16px,3vw,40px)] py-[clamp(10px,1.2vw,14px)]',
-        'flex flex-wrap items-center gap-x-6 gap-y-3',
+        'px-[clamp(20px,3.125vw,54px)] py-[10px]',
+        'flex items-center justify-between',
         className
       )}
     >
       <nav
         aria-label="Profile engagement stages"
-        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-1 overflow-hidden"
+        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-2 overflow-hidden"
       >
         {PROFILE_STAGES.map((stage, index) => {
           const isCurrent = index === currentStageIndex;
+          const isCompleted = index < currentStageIndex;
+          const isFuture = index > currentStageIndex;
           const route = STAGE_ROUTES[stage.id];
           if (!route) return null;
           const label = stage.trailLabel || stage.title;
 
+          // Completed and active stages share a green check-circle; future
+          // stages use a grey outline circle to signal they're not yet reached.
+          const StageIcon = isFuture ? EmptyCircleIcon : CheckCircleIcon;
+
           return (
-            <span key={stage.id} className="inline-flex items-center gap-1 shrink-0">
+            <span key={stage.id} className="inline-flex items-center gap-2 shrink-0">
               <Link
                 to={route}
                 aria-label={label}
                 aria-current={isCurrent ? 'step' : undefined}
                 className={classNames(
-                  'inline-flex items-center gap-1 rounded px-1 py-0.5',
+                  'inline-flex items-center gap-[12px] rounded px-1 py-0.5',
                   'transition-colors duration-150',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  // Active stage: brand-green check + label.
-                  // Inactive: neutral grey; hover restores brand-green so
-                  // users get a preview before clicking.
-                  isCurrent ? 'text-brand-green' : 'text-neutral-dark-hover hover:text-brand-green'
+                  // Icon colour: green for completed/active, neutral-dark for future.
+                  isCompleted || isCurrent ? 'text-brand-green' : 'text-neutral-dark',
+                  // Hover brings all stages to brand-green as a preview affordance.
+                  'hover:text-brand-green'
                 )}
               >
-                <CheckCircleIcon className="size-[clamp(14px,1.2vw,16px)] shrink-0" />
+                <StageIcon className="size-4 shrink-0" />
                 <span
                   className={classNames(
-                    'font-sans text-[clamp(11px,1vw,13px)] leading-4 tracking-[0.1px]',
-                    isCurrent ? 'font-semibold' : 'font-medium'
+                    'font-sans text-[14px] leading-[24px] tracking-[0.14px]',
+                    // Text colour is independent of icon: only the active step
+                    // reads brand-green; completed + future both read neutral-dark.
+                    isCurrent ? 'font-semibold text-brand-green' : 'font-medium text-neutral-dark'
                   )}
                 >
                   {label}
@@ -109,7 +134,7 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                   src={arrowhead}
                   alt=""
                   aria-hidden="true"
-                  className="block size-5 select-none opacity-70 shrink-0"
+                  className="block size-6 select-none opacity-70 shrink-0"
                   draggable="false"
                 />
               )}
@@ -118,7 +143,8 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
         })}
       </nav>
 
-      <div className="w-[clamp(320px,28vw,420px)] shrink-0">
+      {/* Right: step counter + progress bar, right-aligned (items-end in flex-col) */}
+      <div className="w-[323px] shrink-0 flex flex-col gap-[4px] items-end justify-center">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={PROFILE_STAGES.length}

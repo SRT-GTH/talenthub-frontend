@@ -805,3 +805,622 @@ export const DiamondIcon = ({ className = '' }) => (
     <path d="M4 0.6L7.4 4L4 7.4L0.6 4L4 0.6Z" />
   </svg>
 );
+
+// ---- Interest category icons (profile filling / interests step) -----------
+// Figma nodes 3576:89195–89210, pen-tool from 3550:71944.
+// Energy & Startups use inline SVG (Figma reused the food icon for both slots).
+// All strokes use currentColor — parent chip controls the tint.
+
+export const CatCourtIcon = ({ className = '' }) => (
+  // Tech, Law, Health — house-with-cross from court-law Figma component
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M1.56759 8.47599C1.33225 6.94446 1.21457 6.17875 1.50411 5.49991C1.79365 4.82107 2.43602 4.35661 3.72076 3.4277L4.68066 2.73366C6.27886 1.57811 7.07793 1.00033 8 1.00033C8.92207 1.00033 9.72113 1.57811 11.3193 2.73366L12.2793 3.4277C13.564 4.35661 14.2063 4.82107 14.4959 5.49991C14.7854 6.17875 14.6677 6.94446 14.4324 8.47599L14.2317 9.78193C13.8981 11.9529 13.7313 13.0385 12.9527 13.6861C12.1741 14.3337 11.0358 14.3337 8.7592 14.3337H7.2408C4.96422 14.3337 3.82594 14.3337 3.04733 13.6861C2.26873 13.0385 2.10191 11.9529 1.76829 9.78193L1.56759 8.47599Z"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.5 8.50033C8.2912 9.29153 9.33333 10.0956 9.33333 10.0956L10.7619 8.66699C10.7619 8.66699 9.95787 7.62486 9.16667 6.83366C8.37547 6.04245 7.33333 5.23842 7.33333 5.23842L5.90476 6.66699C5.90476 6.66699 6.7088 7.70913 7.5 8.50033ZM7.5 8.50033L5 11.0003M11 8.42893L9.09527 10.3337M7.5714 5.00033L5.66667 6.90506"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatPenToolIcon = ({ className = '' }) => (
+  // Creative Arts & Design — pen-tool-03 (Figma 3550:71944)
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M11.071 16.1372L4.85203 17.2922C3.65919 17.5137 3.06278 17.6244 2.71919 17.2808C2.3756 16.9372 2.48635 16.3408 2.70786 15.1478L3.86269 8.92858C4.04788 7.93135 4.14047 7.43271 4.46918 7.13142C4.79791 6.83013 5.39908 6.77133 6.60142 6.65373C7.76023 6.54039 8.85692 6.14314 10 5L15 10.0004C13.8569 11.1436 13.4594 12.2395 13.3459 13.3984C13.2282 14.6009 13.1692 15.2022 12.868 15.5308C12.5667 15.8595 12.0682 15.9521 11.071 16.1372Z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.32521 10.833C7.4009 11.2993 7.60372 11.7256 7.93925 12.0611C8.27478 12.3966 8.70107 12.5994 9.16732 12.6751M7.93925 12.0611L3.33398 16.6663"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+    <path
+      d="M10 5C10.5936 4.12425 11.3976 2.651 12.5887 2.50915C13.4018 2.41233 14.0755 3.08593 15.4227 4.43315L15.5668 4.57731C16.9141 5.92453 17.5877 6.59814 17.4908 7.41125C17.349 8.60242 15.8757 9.40642 15 10"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatBusinessIcon = ({ className = '' }) => (
+  // Business & Finance — briefcase-with-dollar (Figma 3576:89197)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M1.33333 9.33333C1.33333 6.9956 1.33333 5.82669 1.93864 5.03995C2.04945 4.89592 2.17326 4.76386 2.30829 4.64566C3.04585 4 4.14168 4 6.33333 4H9.66667C11.8583 4 12.9541 4 13.6917 4.64566C13.8267 4.76386 13.9505 4.89592 14.0613 5.03995C14.6667 5.82669 14.6667 6.9956 14.6667 9.33333C14.6667 11.6711 14.6667 12.84 14.0613 13.6267C13.9505 13.7707 13.8267 13.9028 13.6917 14.021C12.9541 14.6667 11.8583 14.6667 9.66667 14.6667H6.33333C4.14168 14.6667 3.04585 14.6667 2.30829 14.021C2.17326 13.9028 2.04945 13.7707 1.93864 13.6267C1.33333 12.84 1.33333 11.6711 1.33333 9.33333Z"
+      stroke="currentColor"
+    />
+    <path
+      d="M10.6667 4C10.6667 2.74292 10.6667 2.11438 10.2761 1.72386C9.8856 1.33333 9.25707 1.33333 8 1.33333C6.74293 1.33333 6.11438 1.33333 5.72386 1.72386C5.33333 2.11438 5.33333 2.74292 5.33333 4"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 7.33333C7.2636 7.33333 6.66667 7.78107 6.66667 8.33333C6.66667 8.8856 7.2636 9.33333 8 9.33333C8.7364 9.33333 9.33333 9.78107 9.33333 10.3333C9.33333 10.8856 8.7364 11.3333 8 11.3333M8 7.33333C8.58053 7.33333 9.0744 7.6116 9.25747 8M8 7.33333V6.66667M8 11.3333C7.41947 11.3333 6.9256 11.0551 6.74253 10.6667M8 11.3333V12"
+      stroke="currentColor"
+      strokeLinecap="round"
+    />
+    <path d="M4 8H1.33333" stroke="currentColor" strokeLinecap="round" />
+    <path d="M14.6667 8H12" stroke="currentColor" strokeLinecap="round" />
+  </svg>
+);
+
+export const CatEducationIcon = ({ className = '' }) => (
+  // Education & Teaching — document with sidebar lines (Figma 3576:89199)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M14.6667 9.33333V6.66667C14.6667 4.15251 14.6667 2.89543 13.8856 2.11438C13.1046 1.33333 11.8475 1.33333 9.33333 1.33333H8C5.48584 1.33333 4.22877 1.33333 3.44771 2.11438C2.66667 2.89543 2.66667 4.15251 2.66667 6.66667V9.33333C2.66667 11.8475 2.66667 13.1046 3.44771 13.8856C4.22877 14.6667 5.48584 14.6667 8 14.6667H9.33333C11.8475 14.6667 13.1046 14.6667 13.8856 13.8856C14.6667 13.1046 14.6667 11.8475 14.6667 9.33333Z"
+      stroke="currentColor"
+    />
+    <path
+      d="M3.33333 4H1.33333M3.33333 8H1.33333M3.33333 12H1.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M11.6667 4.66667H9M10.3333 7.33333H9"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6 14.6667V1.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatArchitectureIcon = ({ className = '' }) => (
+  // Architecture & Built Env. — curved building doc (Figma 3576:89200)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path d="M2.66667 14.6667H13.3333" stroke="currentColor" strokeLinecap="round" />
+    <path
+      d="M11.3333 6H9.33333M12 8.66667H9.33333M12 11.3333H9.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+    />
+    <path
+      d="M4 14.6667V2.13333C4 1.6159 4.31399 1.33333 4.8 1.33333C5.91481 1.33333 6.47221 1.33333 6.9386 1.4072C9.50593 1.81383 11.5195 3.82737 11.9261 6.39473C12 6.86113 12 7.41853 12 8.53333V14.6667"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatMediaIcon = ({ className = '' }) => (
+  // Media & Communications — lines + music note (Figma 3576:89201)
+  <svg viewBox="0 0 17.0001 17" fill="none" aria-hidden="true" className={className}>
+    <path d="M0.5 0.5H14.8996" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M0.5 6.39422H10.8997"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M0.5 12.2909H6.09986"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M13.5001 13.9736C13.5001 15.3689 12.3808 16.5 11.0001 16.5C9.61945 16.5 8.5002 15.3689 8.5002 13.9736C8.5002 12.5782 9.61945 11.4471 11.0001 11.4471C12.3808 11.4471 13.5001 12.5782 13.5001 13.9736ZM13.5001 13.9736V6.39422C13.8334 6.89951 14.1001 9.02172 16.5 9.42595"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatAgricultureIcon = ({ className = '' }) => (
+  // Agriculture & Food — leaf/plant (Figma 3576:89203)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3.37238 7.82807C4.65141 7.9854 5.82075 7.03567 5.98419 5.70679C6.14761 4.37793 4.6259 3.09723 5.17868 1.33333C2.44318 1.72966 1.50037 3.93409 1.35241 5.13715C1.18899 6.46601 2.09335 7.6708 3.37238 7.82807Z"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4.66667 13.3333C3.38357 10.2161 3.17995 7.46273 3.42183 5.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6.33857 11.7787C7.12187 13.3735 9.01373 13.8133 10.5642 12.761C12.1147 11.7087 12.3585 8.7932 14.6667 7.77673C12.2036 5.04831 9.1314 6.03332 7.72773 6.98593C6.17725 8.0382 5.55531 10.184 6.33857 11.7787Z"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4 14.6667C5.58519 11.9363 7.5096 10.2867 9.33333 9.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatDevelopmentIcon = ({ className = '' }) => (
+  // Development & NGO — wave + rounded rect + circle (Figma 3576:89204)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8.66667 10C7.13887 14 2.86111 10 1.33333 14"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.3333 10H11.3342C12.9055 10 13.6912 10 14.1794 9.51187C14.6675 9.02367 14.6675 8.238 14.6675 6.66667V5.33333C14.6675 3.76199 14.6675 2.97631 14.1794 2.48815C13.6912 2 12.9055 2 11.3342 2H8.66753C7.0962 2 6.31051 2 5.82235 2.48815C5.40875 2.90176 5.34559 3.52896 5.33594 4.66667"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M5 10C5.92047 10 6.66667 9.25381 6.66667 8.33333C6.66667 7.41286 5.92047 6.66667 5 6.66667C4.07953 6.66667 3.33333 7.41286 3.33333 8.33333C3.33333 9.25381 4.07953 10 5 10Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8 4.66667H12M12 7.33333H10"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatEntertainmentIcon = ({ className = '' }) => (
+  // Arts & Entertainment — globe with colour dots (Figma 3576:89206)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M14.6667 8C14.6667 4.3181 11.6819 1.33333 8 1.33333C4.3181 1.33333 1.33333 4.3181 1.33333 8C1.33333 11.6819 4.3181 14.6667 8 14.6667C8.56113 14.6667 9.33333 14.7442 9.33333 14C9.33333 13.594 9.12213 13.2808 8.9124 12.9696C8.60547 12.5143 8.30153 12.0635 8.66667 11.3333C9.11113 10.4445 9.85187 10.4445 10.9877 10.4445C11.5556 10.4445 12.2223 10.4445 13 10.3333C14.4007 10.1333 14.6667 9.27227 14.6667 8Z"
+      stroke="currentColor"
+    />
+    <path
+      d="M6.33333 6.66667C6.88562 6.66667 7.33333 6.21895 7.33333 5.66667C7.33333 5.11438 6.88562 4.66667 6.33333 4.66667C5.78105 4.66667 5.33333 5.11438 5.33333 5.66667C5.33333 6.21895 5.78105 6.66667 6.33333 6.66667Z"
+      stroke="currentColor"
+    />
+    <path
+      d="M11 7.33333C11.5523 7.33333 12 6.88562 12 6.33333C12 5.78105 11.5523 5.33333 11 5.33333C10.4477 5.33333 10 5.78105 10 6.33333C10 6.88562 10.4477 7.33333 11 7.33333Z"
+      stroke="currentColor"
+    />
+    <path
+      d="M4.75 10H4.66667M4.83333 10C4.83333 10.0921 4.75871 10.1667 4.66667 10.1667C4.57462 10.1667 4.5 10.0921 4.5 10C4.5 9.90793 4.57462 9.83333 4.66667 9.83333C4.75871 9.83333 4.83333 9.90793 4.83333 10Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatBankingIcon = ({ className = '' }) => (
+  // Banking & Insurance — columns under peaked roof (Figma 3576:89208)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8.08333 3.83333H8M8.16667 3.83333C8.16667 3.92538 8.09207 4 8 4C7.90793 4 7.83333 3.92538 7.83333 3.83333C7.83333 3.74129 7.90793 3.66667 8 3.66667C8.09207 3.66667 8.16667 3.74129 8.16667 3.83333Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.33333 6V12.6667M6 6V12.6667"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 6V12.6667M12.6667 6V12.6667"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M14.2345 6H1.76548C1.52681 6 1.33333 5.80434 1.33333 5.56298C1.33333 5.41506 1.40733 5.27718 1.52997 5.19657L5.82005 2.37657C6.87807 1.68108 7.40713 1.33333 8 1.33333C8.59287 1.33333 9.12193 1.68108 10.1799 2.37657L14.4701 5.19657C14.5927 5.27718 14.6667 5.41506 14.6667 5.56298C14.6667 5.80434 14.4732 6 14.2345 6Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M14.0265 13.5286L13.5679 13.0572C13.3805 12.8645 13.2867 12.7681 13.1676 12.7174C13.0484 12.6667 12.9159 12.6667 12.6508 12.6667H3.34921C3.08414 12.6667 2.9516 12.6667 2.83242 12.7174C2.71325 12.7681 2.61953 12.8645 2.43209 13.0572L1.97353 13.5286C1.50237 14.0129 1.2668 14.2551 1.34971 14.4609C1.43262 14.6667 1.76578 14.6667 2.43209 14.6667H13.5679C14.2342 14.6667 14.5674 14.6667 14.6503 14.4609C14.7332 14.2551 14.4976 14.0129 14.0265 13.5286Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatResearchIcon = ({ className = '' }) => (
+  // Research & Science — flask/beaker (Figma 3576:89209)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M5.33333 1.33333H10.6667"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.8125 8.6696L10.6614 9.07673C10.3479 9.76667 9.40767 10.4959 7.8406 9.54547C6.8314 8.9334 5.95775 8.44207 5.33313 8.77333L4.81261 9.02747"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M9.6882 1.33333V5.71068C9.6882 6.18553 9.6882 6.42295 9.7536 6.64815C9.819 6.87333 9.94647 7.07467 10.2014 7.47733L11.5241 9.56667C12.9517 11.8217 13.6655 12.9492 13.1834 13.8079C12.7013 14.6667 11.3545 14.6667 8.66093 14.6667H7.33907C4.6455 14.6667 3.29871 14.6667 2.81663 13.8079C2.33455 12.9492 3.04834 11.8217 4.47593 9.56667L5.79861 7.47733C6.05353 7.07467 6.18099 6.87333 6.24641 6.64815C6.31182 6.42295 6.31182 6.18553 6.31182 5.71068V1.33333"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.0833 12.6667H10M10.1667 12.6667C10.1667 12.7587 10.0921 12.8333 10 12.8333C9.90793 12.8333 9.83333 12.7587 9.83333 12.6667C9.83333 12.5746 9.90793 12.5 10 12.5C10.0921 12.5 10.1667 12.5746 10.1667 12.6667Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6.75 11.3333H6.66667M6.83333 11.3333C6.83333 11.4254 6.75873 11.5 6.66667 11.5C6.57462 11.5 6.5 11.4254 6.5 11.3333C6.5 11.2413 6.57462 11.1667 6.66667 11.1667C6.75873 11.1667 6.83333 11.2413 6.83333 11.3333Z"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CatTourismIcon = ({ className = '' }) => (
+  // Tourism & Hospitality — headphones/bag shape (Figma 3576:89210)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3.33333 8C3.33333 5.42267 5.42267 3.33333 8 3.33333C10.5773 3.33333 12.6667 5.42267 12.6667 8V10.8889C12.6667 11.9231 12.6667 12.4403 12.5251 12.8572C12.2587 13.6422 11.6422 14.2587 10.8572 14.5251C10.4403 14.6667 9.92313 14.6667 8.88887 14.6667H7.11113C6.07686 14.6667 5.55973 14.6667 5.14283 14.5251C4.35779 14.2587 3.74134 13.6422 3.47485 12.8572C3.33333 12.4403 3.33333 11.9231 3.33333 10.8889V8Z"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.33333 11.3333C4.43331 10.1133 6.11515 9.33333 8 9.33333C9.88487 9.33333 11.5667 10.1133 12.6667 11.3333"
+      stroke="currentColor"
+      strokeLinejoin="round"
+    />
+    <path d="M7.33333 6.66667H8.66667" stroke="currentColor" strokeLinecap="round" />
+    <path
+      d="M6 4V3.33333C6 2.71208 6 2.40145 6.10149 2.15642C6.23682 1.82972 6.49639 1.57015 6.82307 1.43483C7.06813 1.33333 7.37873 1.33333 8 1.33333C8.62127 1.33333 8.93187 1.33333 9.17693 1.43483C9.5036 1.57015 9.7632 1.82972 9.89853 2.15642C10 2.40145 10 2.71208 10 3.33333V4"
+      stroke="currentColor"
+    />
+    <path
+      d="M3.33333 12.6667H2.47619C1.84501 12.6667 1.33333 12.155 1.33333 11.5238V10.6667C1.33333 9.56207 2.22877 8.66667 3.33333 8.66667"
+      stroke="currentColor"
+    />
+    <path
+      d="M12.6667 12.6667H13.5238C14.155 12.6667 14.6667 12.155 14.6667 11.5238V10.6667C14.6667 9.56207 13.7713 8.66667 12.6667 8.66667"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const CatEnergyIcon = ({ className = '' }) => (
+  // Energy & Environment — leaf (inline; Figma reused food icon for this slot)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M13 2.5C9 2.5 5.5 5.5 4.5 10C4 12 4.2 13.5 4.5 14.5C5.5 12 8 9.5 10.5 8C8 10.5 6.5 13 6 14.5C7.5 14.5 10 14 12 12C14 10 14.5 7 14.5 3.5L13 2.5Z"
+      fill="currentColor"
+    />
+    <path
+      d="M4.5 14.5C5 11.5 7 8.5 10 7"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const CatStartupsIcon = ({ className = '' }) => (
+  // Startups & VC — rocket (inline; Figma reused food icon for this slot)
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M10 1.5C7.5 1.5 5 3.5 4 6.5L2 9L4.5 11.5C5 10.5 6 9.5 7 9C6.5 10 6 11 6 12L8 14L10.5 12.5C13 11 14.5 8.5 14.5 6C14.5 3.5 12.5 1.5 10 1.5Z"
+      fill="currentColor"
+    />
+    <circle cx="9.5" cy="6.5" r="1.3" fill="white" />
+    <path d="M2 9C1 9.5 0.5 11.5 2 13C2.5 11 3 9.5 2 9Z" fill="currentColor" />
+  </svg>
+);
+
+// ---- InterestsCompleteModal stat-row + CTA glyphs --------------------
+// Used by InterestsCompleteModal. All strokes/fills use currentColor so
+// the parent controls tint via Tailwind text-* class.
+
+export const CheckIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3.5 9.5l4 4 7-8"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Stroke-based 18×18 arrow — distinct from ArrowRightIcon (20×20 fill, CTA button).
+export const ArrowRightSmIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3 9h12M10 5l5 4-5 4"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const PlusIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+export const SparkleIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M10 2l1.9 5.6L17.5 9l-5.6 1.9L10 17l-1.9-5.6L3 9l5.6-1.9L10 2Z" />
+  </svg>
+);
+
+// ---- Profile-filling journey step icons ----------------------------------------
+// Used in the right panel "Your journey" step list on every profile-filling intro
+// page. All use 16×16 viewBox + stroke="currentColor" so the parent text-color
+// class controls the tint. Hand-crafted to match the visual identity of the icon
+// libraries used in Figma (user, material-symbols:interests-outline,
+// arcticons:habit-builder, game-icons:skills, hugeicons:work, dashicons:portfolio,
+// ph:certificate, mage:goals, mynaui:video).
+
+export const AvatarStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.4"
+    strokeLinecap="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="8" cy="5.5" r="2.5" />
+    <path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" />
+  </svg>
+);
+
+export const InterestsStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.4"
+    strokeLinecap="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="5.8" cy="8" r="4" />
+    <circle cx="10.2" cy="8" r="4" />
+  </svg>
+);
+
+export const PersonalityStepIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="40"
+    height="40"
+    viewBox="0 0 40 40"
+    fill="none"
+    className={className}
+  >
+    <path
+      d="M20.0007 37.9193C29.8958 37.9193 37.9173 29.8977 37.9173 20.0026C37.9173 10.1075 29.8958 2.08594 20.0007 2.08594C10.1055 2.08594 2.08398 10.1075 2.08398 20.0026C2.08398 29.8977 10.1055 37.9193 20.0007 37.9193Z"
+      stroke="currentColor"
+      stroke-width="0.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M20.0007 30.4193C25.7536 30.4193 30.4173 25.7556 30.4173 20.0026C30.4173 14.2496 25.7536 9.58594 20.0007 9.58594C14.2477 9.58594 9.58398 14.2496 9.58398 20.0026C9.58398 25.7556 14.2477 30.4193 20.0007 30.4193Z"
+      stroke="currentColor"
+      stroke-width="0.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M20 25C22.7614 25 25 22.7614 25 20C25 17.2386 22.7614 15 20 15C17.2386 15 15 17.2386 15 20C15 22.7614 17.2386 25 20 25Z"
+      stroke="currentColor"
+      stroke-width="0.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M19.9993 34.5807C28.0535 34.5807 34.5827 28.0515 34.5827 19.9974C34.5827 11.9432 28.0535 5.41406 19.9993 5.41406C11.9452 5.41406 5.41602 11.9432 5.41602 19.9974C5.41602 28.0515 11.9452 34.5807 19.9993 34.5807Z"
+      stroke="currentColor"
+      stroke-width="0.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+);
+
+export const SkillsStepIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M9.5 1.5 4 9h5.5L7 14.5 14 6h-5.5z" />
+  </svg>
+);
+
+export const WorkStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1.5" y="5.5" width="13" height="9" rx="1.5" />
+    <path d="M5.5 5.5V4a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1.5" />
+    <path d="M1.5 9.5h13" />
+  </svg>
+);
+
+export const PortfolioStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="2.5" y="4.5" width="9" height="10" rx="1" />
+    <path d="M5 4.5V3a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-1.5" />
+    <path d="M5 7.5h4.5M5 10h3" />
+  </svg>
+);
+
+export const CertsStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M9 10.5V14l1.5-1 1.5 1v-3.5" />
+    <path d="M9 10.5H2.5a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1V7" />
+    <circle cx="10.5" cy="8.5" r="2.5" />
+    <path d="M4.5 5h4.5M4.5 7h3" />
+  </svg>
+);
+
+export const GoalsStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.3"
+    strokeLinecap="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="8" cy="8" r="6.5" />
+    <circle cx="8" cy="8" r="3.5" />
+    <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+export const PitchStepIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1" y="4.5" width="9" height="7" rx="1.5" />
+    <path d="M10 7l5-2v6l-5-2" />
+  </svg>
+);
+
+// ---- Skill card brand icons --------------------------------------------------
+// Used in SkillsStage2Section skill cards. Real brand SVG paths sourced from
+// Simple Icons (https://github.com/simple-icons/simple-icons) and OpenJDK.
+// Each component renders the logo in its official brand color so it works on
+// any background — the card container bg is set separately per skill.
+
+// JavaScript — Simple Icons path (CC0). Letter paths only; background rect is
+// omitted so the yellow card container (bg-[#F7DF1E]) provides the brand colour.
+export const SkillIconJs = ({ className = '' }) => (
+  <svg
+    width="800px"
+    height="800px"
+    viewBox="0 0 256 256"
+    xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="xMinYMin meet"
+    className={className}
+  >
+    <path d="M0 0h256v256H0V0z" fill="#F7DF1E" />
+    <path d="M67.312 213.932l19.59-11.856c3.78 6.701 7.218 12.371 15.465 12.371 7.905 0 12.89-3.092 12.89-15.12v-81.798h24.057v82.138c0 24.917-14.606 36.259-35.916 36.259-19.245 0-30.416-9.967-36.087-21.996M152.381 211.354l19.588-11.341c5.157 8.421 11.859 14.607 23.715 14.607 9.969 0 16.325-4.984 16.325-11.858 0-8.248-6.53-11.17-17.528-15.98l-6.013-2.58c-17.357-7.387-28.87-16.667-28.87-36.257 0-18.044 13.747-31.792 35.228-31.792 15.294 0 26.292 5.328 34.196 19.247L210.29 147.43c-4.125-7.389-8.591-10.31-15.465-10.31-7.046 0-11.514 4.468-11.514 10.31 0 7.217 4.468 10.14 14.778 14.608l6.014 2.577c20.45 8.765 31.963 17.7 31.963 37.804 0 21.654-17.012 33.51-39.867 33.51-22.339 0-36.774-10.654-43.819-24.574" />
+  </svg>
+);
+
+// Python — Simple Icons path (CC0). Rendered in Python blue (#3776AB).
+export const SkillIconPython = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="Python"
+    className={className}
+  >
+    <path
+      fill="#3776AB"
+      d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"
+    />
+  </svg>
+);
+
+// Java — OpenJDK logo path. Rendered in Java/OpenJDK orange (#ED8B00).
+export const SkillIconJava = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="Java"
+    role="img"
+    viewBox="0 0 512 512"
+    fill="none"
+    className={className}
+  >
+    <rect width="512" height="512" rx="15%" fill="#ffffff" />
+    <path
+      d="M274 235c18 21-5 40-5 40s47-24 25-54-35-42 48-90C342 130 211 163 274 235M294 53s40 40-38 100c-62 49-14 77 0 109-36-33-63-61-45-88C238 134 310 115 294 53"
+      fill="#f8981d"
+    />
+    <path
+      d="M206 347s-15 8 10 11 46 3 79-3a137 137 0 0 0 21 10C242 397 147 364 206 347m-9-42s-16 12 9 15 58 4 102-5a45 45 0 0 0 16 10C233 351 132 327 197 305m175 73s11 9-12 16c-43 13-179 17-217 1-14-6 15-17 33-17-17-10-98 21-42 30C287 432 412 396 372 378M213 262s-69 16-25 22c19 3 57 2 92-1s57-8 57-8a122 122 0 0 0-17 9c-70 18-206 10-167-9S213 262 213 262m124 69c73-37 39-80 7-66 36-30 101 36-9 68v-2M220 432c69 4 174-2 176-35 0 0-5 12-57 22s-131 10-174 3C166 422 175 429 220 432"
+      fill="#5382a1"
+    />
+  </svg>
+);

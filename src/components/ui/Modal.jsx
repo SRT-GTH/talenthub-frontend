@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect, useRef } from 'react';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
@@ -87,7 +88,7 @@ const Modal = ({
     if (e.target === e.currentTarget) onClose?.();
   };
 
-  return (
+  return createPortal(
     // Scrollable overlay using CSS Grid `place-items-center` rather than
     // flex centering — grid centers content vertically when content fits,
     // but lets the modal grow naturally and scroll when it doesn't (flex
@@ -132,7 +133,8 @@ const Modal = ({
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

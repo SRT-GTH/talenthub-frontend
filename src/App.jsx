@@ -35,6 +35,10 @@ import InstitutionConfirmPage from './pages/onboarding/institution/InstitutionCo
 import InstitutionReportPage from './pages/onboarding/institution/InstitutionReportPage.jsx';
 import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
 import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
+import InterestsIntroPage from './pages/profileFilling/InterestsIntroPage.jsx';
+import InterestsStage2Page from './pages/profileFilling/InterestsStage2Page.jsx';
+import SkillsIntroPage from './pages/profileFilling/SkillsIntroPage.jsx';
+import SkillsStage2Page from './pages/profileFilling/SkillsStage2Page.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
@@ -178,6 +182,12 @@ function App() {
           path={'/profile/engagement/milestone/top-talent'}
           element={<TopTalentMilestonePage />}
         />
+        {/* Profile filling — each step owns its own full-bleed chrome (no shared layout). */}
+        <Route path={'/profile/filling/interests'} element={<InterestsIntroPage />} />
+        <Route path={'/profile/filling/interests/categories'} element={<InterestsStage2Page />} />
+        <Route path={'/profile/filling/skills'} element={<SkillsIntroPage />} />
+        <Route path={'/profile/filling/skills/categories'} element={<SkillsStage2Page />} />
+
         {/* All 5 avatar steps share one AvatarSelectionProvider so the
             user's picks survive navigation between Style → Skin → Hair →
             Extras → Outfit. Without this layout, the provider would
