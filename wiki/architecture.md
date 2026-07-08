@@ -65,19 +65,19 @@ talenthub-frontend/
 
 ## Entry Points `✅ VERIFIED`
 
-| Order | File                        | Responsibility                                         |
-| ----- | --------------------------- | ------------------------------------------------------ |
-| 1     | `index.html`                | mounts `#root`, loads `/src/main.jsx`                  |
-| 2     | `src/main.jsx`              | StrictMode + createRoot, imports `index.css`           |
-| 3     | `src/App.jsx`               | BrowserRouter + Routes (config-based, mirrors elysium) |
-| 4     | `src/layout/MainLayout.jsx` | Navbar + `<Outlet/>` + Footer shell                    |
-| 5     | `src/pages/HomePage.jsx`    | placeholder home page                                  |
+| Order | File                        | Responsibility                                                                                                |
+| ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1     | `index.html`                | mounts `#root`, loads `/src/main.jsx`                                                                         |
+| 2     | `src/main.jsx`              | StrictMode + createRoot, imports `index.css`                                                                  |
+| 3     | `src/App.jsx`               | BrowserRouter + Routes (config-based, mirrors elysium)                                                        |
+| 4     | `src/layout/MainLayout.jsx` | Chrome switcher: landing Navbar+Footer vs OnboardingNavbar; fixed-viewport shell for institution/parent flows |
+| 5     | `src/pages/LandingPage.jsx` | landing page at `/` (`HomePage` is the design-system playground at `/components`)                             |
 
 ## Key Conventions `✅ VERIFIED`
 
 - **Routing**: config-based in `App.jsx` (not file-based). `/admin/*` slot reserved for lazy-loaded admin (see [routing.md](routing.md)).
 - **Styling**: Tailwind v4 utility classes + design tokens defined in `src/index.css` `@theme` block.
-- **State**: Redux Toolkit store in `src/store/index.js`. Slices live under `src/store/slices/`.
+- **State**: `✅ VERIFIED` (2026-07-06) the Redux store in `src/store/index.js` is **dead scaffold** — empty reducer map, no slices, and `<Provider>` is NOT mounted in `main.jsx`. Actual state lives in route-level React contexts: `OnboardingProvider` (talent DOB/age/isMinor) and `AvatarSelectionProvider` (avatar picks), plus per-section `useState`. Wire the store via `<Provider>` + redux-persist when auth ships.
 - **API**: single axios instance in `src/services/api.js` reading `VITE_API_BASE_URL`. Auth-token interceptor reads from `localStorage` via `STORAGE_KEYS`.
 - **Debug**: `debug(scope)` helper in `src/utils/debug.js` — dev-only, prefixed. See [debugging-workflow.md](debugging-workflow.md).
 - **File naming**: PascalCase components/pages, camelCase utilities, UPPER_SNAKE constant exports. See CLAUDE.md §8.

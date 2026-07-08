@@ -4,10 +4,12 @@
 
 ## Layout `✅ VERIFIED`
 
-| Component                     | Path                                         | Purpose                                                                                                                                                                                                                                                                                                                         |
-| ----------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MainLayout`                  | `src/layout/MainLayout.jsx`                  | Shell: Navbar + `<Outlet/>` + Footer. Used by all routes that aren't admin.                                                                                                                                                                                                                                                     |
-| `InstitutionOnboardingLayout` | `src/layout/InstitutionOnboardingLayout.jsx` | Shell for all `/onboarding/institution/*` routes. Renders bg glow ellipses, `<Outlet>` (left content), and `InstitutionRightPanel`. Conditionally shows `InstitutionOnboardingBreadcrumb` on non-guidelines routes. `showRightPanel` hides the panel for the `/activate` route (full-width step). Props: none (reads pathname). |
+| Component                     | Path                                         | Purpose                                                                                                                                                                                                                                                                       |
+| ----------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MainLayout`                  | `src/layout/MainLayout.jsx`                  | Chrome switcher (landing Navbar+Footer vs OnboardingNavbar via `ONBOARDING_CHROME_PATHS`); fixed viewport shell (`h-screen overflow-hidden`) for institution + parent flows. See [routing.md](routing.md#layout-shells).                                                      |
+| `InstitutionOnboardingLayout` | `src/layout/InstitutionOnboardingLayout.jsx` | Shell for all `/onboarding/institution/*` routes. Bg glow ellipses, scrollable `<Outlet>` column, `InstitutionRightPanel`. Breadcrumb hidden on guidelines; right panel hidden on activate/template/validate/confirm/report (full-width steps). Props: none (reads pathname). |
+| `ParentOnboardingLayout`      | `src/layout/ParentOnboardingLayout.jsx`      | Shell for all parent routes. `ParentOnboardingBreadcrumb` on step routes; `ParentLoginRightPanel` content switched per route (login / welcome / signup / done-simple / invited variants, `WARD_INVITE_STEP_PANELS`); panel hidden on parent-review.                           |
+| `AvatarFlowLayout`            | `src/layout/AvatarFlowLayout.jsx`            | Thin shell wrapping `<Outlet />` in `AvatarSelectionProvider` for the 5-step avatar customiser.                                                                                                                                                                               |
 
 ## Shared `✅ VERIFIED`
 
@@ -703,9 +705,41 @@ Showcase: see [src/pages/HomePage.jsx](../src/pages/HomePage.jsx) — renders al
 | `TemplateSection`          | `src/components/sections/institutionOnboarding/TemplateSection.jsx`          | `2977:85777`                                  | Step-4 template preview page (right panel visible). `Captions` badge (04 · Bulk Upload) + Instrument Serif headline "Start with the _template._" + SF Pro Rounded 16px subtitle (verbatim Figma copy, `whitespace-pre-wrap`) + `WavyDivider` + legend row (Required/Optional/Minors only/★ Must fill at least one) + full spreadsheet mock (dark-green title bar, ribbon, formula bar, 12-column header row all bg-[#387440], 5 sample data rows colour-coded by type, 2 empty rows, sheet tabs, tips row with bold/regular mixed typography) + download link row (border-b #387440, shadow) + "I have my file ready →" primary CTA → `/onboarding/institution/upload` + footer login link. Route: `/onboarding/institution/template`. `✅ VERIFIED`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `ReportSection`            | `src/components/sections/institutionOnboarding/ReportSection.jsx`            | `3052:74319` (loading) `3065:7371` (complete) | Step-8 two-phase upload feedback (no right panel). **Loading phase:** `Captions` (08 · Processing Report) + headline "Creating _accounts.._" + subtitle + `WavyDivider` + `ConcentricRings` (80×80 decorative rings with inner spinning arc) + 3 `LoadingStatCard`s (flex-1, colored bg, inner white box with pulsing progress bar, gap=28: 821 Accounts To Create / 198 SMS Queued / 26 Skipped) + `ProcessingLog` (scrollable h=130, 5 entries at 900ms each, 6px colored dots) + `InfoBanner` (blue #eaeffb, `InfoCircleIcon` 22×22) + CTAs: Back (128×56) + "View Upload Report" (flex-1, disabled→gray / active→green after animation). **Complete phase:** `Captions` (08 · Upload Complete) + headline "821 students are _live_" + 4 `ReportStatCard`s (194×98, stacked value+sub-label in 177×60 inner box, gap=35: 847/26/198/114) + 2 `DownloadButton`s (40px h) + 2 `ReportCheckCard`s (expandable: "In-file duplicates" 821 rows dark badge / "Invalid phone format" 4 rows red badge; grid table 48px 1fr 90px 1fr 90px; "✓ Created"/"Skipped" status pills; info/more footer variants) + CTAs: "Upload another batch" (220×56) + "Go to Institution Dashboard" (flex-1 green, loading state). Route: `/onboarding/institution/report`. `✅ VERIFIED` |
 
-## Cards
+## Cards `✅ VERIFIED` (2026-07-06)
 
-_Empty._ Reusable card components live under `src/components/cards/`.
+| Component                | Path                                              | Purpose                                                                                   |
+| ------------------------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `EntryMethodCard`        | `src/components/cards/EntryMethodCard.jsx`        | Option card in the "How would you like to add your details?" modal; `highlighted` variant |
+| `LeaderboardsLockedCard` | `src/components/cards/LeaderboardsLockedCard.jsx` | Locked leaderboards teaser (engagement right rail)                                        |
+| `MilestoneStatTile`      | `src/components/cards/MilestoneStatTile.jsx`      | Stat box on milestone unlock screen (e.g. "3/9 STAGES DONE")                              |
+| `ProfileStageCard`       | `src/components/cards/ProfileStageCard.jsx`       | Row in the Profile Engagement stage list                                                  |
+| `StageMapNode`           | `src/components/cards/StageMapNode.jsx`           | Circular badge node on the Identity Map (done/active/locked variants)                     |
+| `UnlockedFeatureCard`    | `src/components/cards/UnlockedFeatureCard.jsx`    | Card in the "What you just unlocked" grid                                                 |
+
+## Later UI primitives (catalog stubs) `✅ VERIFIED` (2026-07-06)
+
+Added after the initial DS build-out; full prop docs live in the source files.
+
+| Component                     | Path                                                | Purpose                                                                              |
+| ----------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `Modal`                       | `src/components/ui/Modal.jsx`                       | Generic centered modal (X/Esc/overlay close, body-scroll lock, sizes sm–xl)          |
+| `Toast`                       | `src/components/ui/Toast.jsx`                       | Portal notification system (`Toast`, `ToastItem`, `ToastContainer`; success variant) |
+| `ChatBubble`                  | `src/components/ui/ChatBubble.jsx`                  | Rounded speech bubble (AI Career Buddy), `tail` positions                            |
+| `ProgressRing`                | `src/components/ui/ProgressRing.jsx`                | Circular SVG percentage badge                                                        |
+| `StatusDot`                   | `src/components/ui/StatusDot.jsx`                   | Small indicator dot (brand/neutral/warning/danger)                                   |
+| `EngagementProgressIndicator` | `src/components/ui/EngagementProgressIndicator.jsx` | "Step N of M · X% complete" label + track (engagement top bar)                       |
+| `ScrollToTop`                 | `src/components/ui/ScrollToTop.jsx`                 | Route-change scroll reset (window + `[data-scroll-container]`); renders nothing      |
+
+## Section directories `✅ VERIFIED` (2026-07-06)
+
+Section components are feature-scoped and documented via [figma-node-map.md](figma-node-map.md) + [log.md](log.md) rather than individually here.
+
+| Directory                           | Files | Summary                                                                                                                                          |
+| ----------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sections/landing/`                 | 2     | Landing hero composition                                                                                                                         |
+| `sections/engagement/` (+`avatar/`) | 16+   | Profile-engagement experience: hero, top bar/nav, identity stage map, stage list, milestone panels/modals, Career-Buddy promo, avatar customiser |
+| `sections/institutionOnboarding/`   | 16    | Institution bulk-onboarding wizard steps + right panel + modals                                                                                  |
+| `sections/parentLogin/`             | 27    | Parent Flow A + Flow B step sections, matching `*PanelContent` right-panel components, consent modals                                            |
 
 ---
 

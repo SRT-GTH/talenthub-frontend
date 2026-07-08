@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -25,6 +25,8 @@ const log = debug('OnboardingWelcomePage');
 // ---- left column primitives -------------------------------------------
 
 const TalentTag = () => (
+  // "Talent" eyebrow pill â€" Figma node 2858:24046 family.
+  // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
   <span
     className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
     style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}

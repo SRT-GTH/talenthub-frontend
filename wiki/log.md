@@ -3,6 +3,20 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-07-06] verify | Full wiki lint pass (Karpathy pattern re-applied)
+
+Re-read Karpathy's LLM-wiki gist and ran its "lint" operation: verified every wiki page against current source via parallel code surveys.
+
+- `routing.md` — **rewritten**: was missing all parent routes (Flow A + Flow B), institution steps 2–10, engagement/avatar routes, and 3 of 4 layout shells. Now carries the full verified route map + layout-shell table + authRoutes CTA helpers.
+- `architecture.md` — corrected entry-points table (`LandingPage` at `/`, `HomePage` is the `/components` playground) and the State convention: **Redux store is unwired scaffold** (empty reducers, no `<Provider>` in main.jsx); real state = `OnboardingProvider` + `AvatarSelectionProvider` route-level contexts.
+- `components.md` — updated Layout table (4 shells), filled the empty Cards section (6 cards), added catalog stubs for later UI primitives (Modal, Toast, ChatBubble, ProgressRing, StatusDot, EngagementProgressIndicator, ScrollToTop), added section-directory summary table.
+- `design-tokens.md` — added token-drift note (raw hex inlined ~146×/#387440 etc. instead of token utilities — cleanup opportunity).
+- `api.md`, `debugging-workflow.md`, `figma-fidelity.md`, `pre-commit-workflow.md` — verified still accurate, unchanged.
+- `INDEX.md` — refreshed descriptions + last-updated stamp.
+- `CLAUDE.md` — strengthened session-start rule: every new session must read `wiki/INDEX.md` (+ relevant pages) before touching code.
+
+---
+
 ## [2026-07-08] fix | arrowDown placement in TalentContactPanelContent — moved to photo3 children
 
 **Changed:**
