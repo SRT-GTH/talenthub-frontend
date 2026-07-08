@@ -30,6 +30,44 @@ This applies to ALL of:
 
 - `border-radius`, `border`, `background`, `opacity`, `box-shadow`
 
+## Decorative ellipse / glow fade-out rule `✅ VERIFIED`
+
+**Whenever a decorative ellipse or glow orb is implemented with a radial fade-out effect, NEVER put `overflow-hidden` or `rounded-full` on the container div.**
+
+### Why this matters
+
+The SVG asset (or CSS `radial-gradient`) handles its own fade — the gradient stops reach `transparent 70%` (or wherever the designer ends it). If you clip the container with `overflow-hidden` or round it with `rounded-full`, the clip boundary (50% radius for `rounded-full`) cuts through the gradient before it reaches transparency, leaving a **visible hard circular edge** instead of a smooth glow.
+
+### Correct pattern
+
+```jsx
+{/* ✅ Correct — no overflow-hidden, no rounded-full */}
+<div
+  className="pointer-events-none absolute"
+  style={{ left: '83.5%', top: '-21.6%', width: '64%', aspectRatio: '1' }}
+>
+  <div className="absolute inset-[-42.28%]">
+    <img src={ellipseTR} alt="" className="block max-w-none size-full" />
+  </div>
+</div>
+
+{/* ❌ Wrong — rounded-full clips gradient at 50% radius before it fades out */}
+<div className="pointer-events-none absolute rounded-full overflow-hidden" ...>
+  <img src={ellipseTR} alt="" ... />
+</div>
+```
+
+### CSS radial-gradient variant
+
+Same rule applies when using CSS `radial-gradient` directly (e.g. ParentOnboardingLayout). The `transparent 70%` stop needs space past the 50% radius to fade — `rounded-full` cuts it off at exactly 50%.
+
+### Where this is applied
+
+- `TalentOnboardingLayout.jsx` — TR/BL page ellipses (verified)
+- `InstitutionOnboardingLayout.jsx` — all 3 page ellipses (fixed 2026-07-05)
+- `ParentOnboardingLayout.jsx` — 2 CSS gradient page ellipses (fixed 2026-07-05)
+- `OnboardingRightPanel.jsx` — TR/BL panel ellipses (rule embedded in code comments)
+
 ## Responsive — CSS `clamp()` (mandatory)
 
 **All scalable properties MUST use `clamp()`** to fluidly interpolate between mobile and desktop values. Do NOT use static `px` with media-query breakpoints — use `clamp()` so values scale smoothly across all viewport widths.

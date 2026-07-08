@@ -106,7 +106,7 @@ const ParentOnboardingLayout = () => {
         {/* CSS radial-gradient approximation — no SVG asset for this node */}
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed rounded-full"
+          className="pointer-events-none fixed"
           style={{
             left: '-110px',
             top: '-178px',
@@ -123,7 +123,7 @@ const ParentOnboardingLayout = () => {
         {/* page-ellipse-br.svg — opacity 0.15 baked in the SVG */}
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed blur-lg  rounded-full"
+          className="pointer-events-none fixed blur-lg"
           style={{
             left: 'calc(83.33% - 16px)',
             top: '610px',

@@ -24,6 +24,7 @@ import {
 } from '../../components/shared/assets.jsx';
 import { debug } from '../../utils/debug.js';
 import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
+import TalentPersonalInfoPanelContent from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
 
 const log = debug('OnboardingPersonalInfoPage');
 
@@ -362,187 +363,187 @@ const OnboardingPersonalInfoPage = () => {
   ];
 
   return (
-    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
       <OnboardingHeader currentKey="profile" percent={78} />
-
-      <section className="flex flex-1">
-        {/* Left form column */}
-        <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14">
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
-            noValidate
-          >
-            {/* Eyebrow â€” pencil glyph + "Build Your Profile" label
-                inside a cream-green pill with green outline. */}
-            <span
-              className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
-              style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
+      {/* Two-column area — left scrolls, right panel stays fixed */}
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14">
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              noValidate
             >
-              <PencilEditIcon />
+              {/* Eyebrow â€” pencil glyph + "Build Your Profile" label
+                inside a cream-green pill with green outline. */}
               <span
-                className="text-[12px] leading-[18px] text-brand-green"
+                className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
+                style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
+              >
+                <PencilEditIcon />
+                <span
+                  className="text-[12px] leading-[18px] text-brand-green"
+                  style={{ letterSpacing: '0.2px' }}
+                >
+                  Build Your Profile
+                </span>
+              </span>
+
+              <h1
+                className="font-display font-normal text-black"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+              >
+                Tell us about <span className="italic text-brand-green">yourself.</span>
+              </h1>
+
+              <p
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
                 style={{ letterSpacing: '0.2px' }}
               >
-                Build Your Profile
-              </span>
-            </span>
+                This builds your trusted identity on GTH seen by schools, companies, and
+                opportunities matched to you. All fields marked with * are required.
+              </p>
 
-            <h1
-              className="font-display font-normal text-black"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
-            >
-              Tell us about <span className="italic text-brand-green">yourself.</span>
-            </h1>
+              <WavyDivider />
 
-            <p
-              className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              This builds your trusted identity on GTH seen by schools, companies, and opportunities
-              matched to you. All fields marked with * are required.
-            </p>
-
-            <WavyDivider />
-
-            {/* Form grid â€” Profile Photo row spans both columns; the
+              {/* Form grid â€” Profile Photo row spans both columns; the
                 remaining 4 rows place inputs leftâ†”right. */}
-            <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2">
-              <div className="md:col-span-2">
-                <ProfilePhotoField
-                  file={profilePhoto}
-                  previewUrl={photoPreview}
-                  onChange={handlePhotoSelect}
+              <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <ProfilePhotoField
+                    file={profilePhoto}
+                    previewUrl={photoPreview}
+                    onChange={handlePhotoSelect}
+                  />
+                </div>
+
+                <TextInput
+                  label="First Name"
+                  required
+                  placeholder="Enter your first name"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  leftIcon={<UserIcon />}
+                />
+                <TextInput
+                  label="Middle Name"
+                  optional
+                  placeholder="Enter your middle name"
+                  autoComplete="additional-name"
+                  value={middleName}
+                  onChange={(e) => setMiddleName(e.target.value)}
+                  leftIcon={<UserIcon />}
+                />
+                <TextInput
+                  label="Last Name"
+                  required
+                  placeholder="Enter your last name"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  leftIcon={<UserIcon />}
+                />
+                <Select
+                  label="Gender"
+                  placeholder="Select your gender"
+                  options={GENDER_OPTIONS}
+                  value={gender}
+                  onChange={setGender}
+                />
+                <Select
+                  label="Nationality"
+                  placeholder="Select your Nationality"
+                  options={NATIONALITY_OPTIONS}
+                  value={nationality}
+                  onChange={setNationality}
+                  leftIcon={<GlobeIcon />}
+                  searchable
+                />
+                <TextInput
+                  label="Ghana Card / Student ID"
+                  required
+                  placeholder="GHA- 0000-000-000"
+                  value={ghanaCardId}
+                  onChange={(e) => setGhanaCardId(e.target.value)}
+                  leftIcon={<IdCardIcon />}
+                />
+                <TextInput
+                  label="Password"
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Create a password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  leftIcon={<LockIcon />}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      className="text-content-tertiary"
+                    >
+                      {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                    </button>
+                  }
+                />
+                <TextInput
+                  label="Retype Password"
+                  required
+                  type={showRetypePassword ? 'text' : 'password'}
+                  placeholder="Create a password"
+                  autoComplete="new-password"
+                  value={retypePassword}
+                  onChange={(e) => setRetypePassword(e.target.value)}
+                  error={passwordMismatch ? "Passwords don't match" : undefined}
+                  successText={passwordMatchHint}
+                  leftIcon={<LockIcon />}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowRetypePassword((s) => !s)}
+                      aria-label={showRetypePassword ? 'Hide password' : 'Show password'}
+                      className="text-content-tertiary"
+                    >
+                      {showRetypePassword ? <EyeIcon /> : <EyeOffIcon />}
+                    </button>
+                  }
                 />
               </div>
 
-              <TextInput
-                label="First Name"
-                required
-                placeholder="Enter your first name"
-                autoComplete="given-name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                leftIcon={<UserIcon />}
-              />
-              <TextInput
-                label="Middle Name"
-                optional
-                placeholder="Enter your middle name"
-                autoComplete="additional-name"
-                value={middleName}
-                onChange={(e) => setMiddleName(e.target.value)}
-                leftIcon={<UserIcon />}
-              />
-              <TextInput
-                label="Last Name"
-                required
-                placeholder="Enter your last name"
-                autoComplete="family-name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                leftIcon={<UserIcon />}
-              />
-              <Select
-                label="Gender"
-                placeholder="Select your gender"
-                options={GENDER_OPTIONS}
-                value={gender}
-                onChange={setGender}
-              />
-              <Select
-                label="Nationality"
-                placeholder="Select your Nationality"
-                options={NATIONALITY_OPTIONS}
-                value={nationality}
-                onChange={setNationality}
-                leftIcon={<GlobeIcon />}
-                searchable
-              />
-              <TextInput
-                label="Ghana Card / Student ID"
-                required
-                placeholder="GHA- 0000-000-000"
-                value={ghanaCardId}
-                onChange={(e) => setGhanaCardId(e.target.value)}
-                leftIcon={<IdCardIcon />}
-              />
-              <TextInput
-                label="Password"
-                required
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Create a password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<LockIcon />}
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="text-content-tertiary"
-                  >
-                    {showPassword ? <EyeIcon /> : <EyeOffIcon />}
-                  </button>
-                }
-              />
-              <TextInput
-                label="Retype Password"
-                required
-                type={showRetypePassword ? 'text' : 'password'}
-                placeholder="Create a password"
-                autoComplete="new-password"
-                value={retypePassword}
-                onChange={(e) => setRetypePassword(e.target.value)}
-                error={passwordMismatch ? "Passwords don't match" : undefined}
-                successText={passwordMatchHint}
-                leftIcon={<LockIcon />}
-                rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowRetypePassword((s) => !s)}
-                    aria-label={showRetypePassword ? 'Hide password' : 'Show password'}
-                    className="text-content-tertiary"
-                  >
-                    {showRetypePassword ? <EyeIcon /> : <EyeOffIcon />}
-                  </button>
-                }
-              />
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={!isValid || isSubmitting}
-              state={isSubmitting ? 'active' : undefined}
-              leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-              rightIcon={<ArrowRightIcon />}
-              className="mt-2 w-full max-w-[420px]"
-              aria-busy={isSubmitting}
-            >
-              {ctaLabel}
-            </Button>
-
-            <div className="flex items-center gap-2 text-[14px] leading-6">
-              <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
-                Already Have an account?
-              </span>
-              <Link
-                to={'/login'}
-                className="font-semibold text-brand-green underline-offset-2 hover:underline"
-                style={{ letterSpacing: '0.1px' }}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={!isValid || isSubmitting}
+                state={isSubmitting ? 'active' : undefined}
+                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                rightIcon={<ArrowRightIcon />}
+                className="mt-2 w-full max-w-[420px]"
+                aria-busy={isSubmitting}
               >
-                Log in Instead
-              </Link>
-            </div>
-          </form>
+                {ctaLabel}
+              </Button>
+
+              <div className="flex items-center gap-2 text-[14px] leading-6">
+                <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
+                  Already Have an account?
+                </span>
+                <Link
+                  to={'/login'}
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  style={{ letterSpacing: '0.1px' }}
+                >
+                  Log in Instead
+                </Link>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <OnboardingRightPanel />
-      </section>
-
+        <OnboardingRightPanel panelContent={<TalentPersonalInfoPanelContent />} />
+      </div>
       {showSuccess && (
         <IdentityCapturedModal
           summary={summary}
@@ -550,7 +551,7 @@ const OnboardingPersonalInfoPage = () => {
           onContinue={handleContinue}
         />
       )}
-    </div>
+    </section>
   );
 };
 

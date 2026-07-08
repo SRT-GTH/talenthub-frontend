@@ -3,6 +3,92 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-07-08] fix | arrowDown placement in TalentContactPanelContent — moved to photo3 children
+
+**Changed:**
+
+- `src/components/sections/talentAuth/TalentContactPanelContent.jsx` — moved arrowDown (Figma 2353:13941) from panel-level absolute div to `children` prop of photo3 (bottom-left green card, -18°). Panel-relative coords (74.7px, 408.33px) converted to card-group-relative percentages: `left: 4.91%, top: -32.91%`. Added flex-center wrapper (36.1%×36.0% of cardWidth) matching Figma's 119.71×119.344px container so the 95.1×96px SVG centres within it — this reproduces the Y-axis offset the user observed. Removed the old panel-level arrow div. Also renamed arrowDown and arrowScribble asset references from `.png` to `.svg` in earlier session.
+- `wiki/figma-node-map.md` — updated Arrow down row to reflect children placement and `.svg` extension.
+
+## [2026-07-08] create + update | TalentContactPanelContent; right panel reuse for Contact, Address, Education steps
+
+**Created:**
+
+- `src/components/sections/talentAuth/TalentContactPanelContent.jsx` — foreground composition for talent onboarding step 3 (Contact Information), Figma node 2385:38867, panel 739×916 px. Three photo cards (gold top-right +5°, pink top-left -8.51°, green bottom-left -18°). Panel-level elements: sparkle-26 at top-centre (-17px, peeking bleed), amber "OTP sent after this step" chip, white GDPA compliance chip, cream "Phone" preview card (+2°, hard gold shelf shadow). Hand-drawn arrowDown (left 10.11%, top 44.57%) and arrowScribble (left 84.17%, top 65.28%) decorations. WatchTutorial at bottom-right.
+
+**Updated:**
+
+- `src/pages/onboarding/OnboardingContactPage.jsx` — removed inline `ContactRightPanel` (gradient placeholder), fixed layout shell to canonical fixed-shell pattern (`section.relative.flex.flex-1.min-h-0.flex-col` / two-column row / no-scrollbar left / `OnboardingRightPanel`). Now passes `panelContent={<TalentContactPanelContent />}`.
+- `src/pages/onboarding/OnboardingAddressPage.jsx` — same treatment: removed `AddressRightPanel` inline component, fixed layout shell, passes `TalentContactPanelContent`. Imported `OnboardingRightPanel` + `TalentContactPanelContent`, removed `PlayCircleIcon`.
+- `src/pages/onboarding/OnboardingEducationPage.jsx` — same treatment: removed `EducationRightPanel` inline component, fixed layout shell. Imported `OnboardingRightPanel` + `TalentContactPanelContent`, removed `PlayCircleIcon`.
+
+## [2026-07-08] create | TalentPersonalInfoPanelContent; wired into OnboardingPersonalInfoPage
+
+**Created:**
+
+- `src/components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx` — foreground for the "Build Your Profile" right panel (talent onboarding step 2, Figma 2329:3963, 739×916 px). Same shell as DOB panel (`OnboardingRightPanel` with default green bg/ellipses/grid/snow/sparkle-stars). Differences from DOB panel: centre card is 312 px (CARD1_W = clamp(125px,17.7vw,312px)), top-left rotates -8°, bottom-left rotates +4.74°. Two new hand-drawn arrow decorations (Figma 2353:13937, 2353:13941) downloaded to `src/assets/hero/`. Sparkle-26 at panel top-centre (not corner decoration). All overlays grouped inside their card.
+
+**Updated:**
+
+- `src/pages/onboarding/OnboardingPersonalInfoPage.jsx` — added `import TalentPersonalInfoPanelContent` and passed `panelContent={<TalentPersonalInfoPanelContent />}` to `<OnboardingRightPanel />`.
+- `wiki/components.md` — added `TalentPersonalInfoPanelContent` row.
+
+## [2026-07-08] refactor + create | PhotoCard shared component; TalentDobPanelContent rewrite; TalentLoginPanelContent updated
+
+**Created:**
+
+- `src/components/sections/talentAuth/PhotoCard.jsx` — shared photo card component extracted from TalentLoginPanelContent. Corner ellipse is now defined once here, not re-declared in every panel content file. Outer group has `overflow: visible` so overlay badges (passed as `children`) and sparkle (passed as `cornerDecoration`) can extend beyond the card border. Rule: `children` = badges positioned as % of `cardWidth` so they scale with the card; `cornerDecoration` = element inside the rotation wrapper (rotates with card, e.g. sparkle at corner).
+
+**Updated:**
+
+- `src/components/sections/talentAuth/TalentLoginPanelContent.jsx` — removed inline `PhotoCard` function + `CARD_SHADOW` const; now imports from `./PhotoCard.jsx`.
+- `src/components/sections/talentAuth/TalentDobPanelContent.jsx` — complete rewrite:
+  1. Uses shared `PhotoCard` (no local re-declaration of corner ellipse)
+  2. Overlay grouping — Data Protected chip is a `children` of the top-left card; GDPA badge and Adult/Youth card are `children` of the centre card. Each overlay uses `left/top` as % of `cardWidth` so it scales with the card on resize.
+  3. Sparkle remains at panel level (Figma 2253-1336 is a direct child of the panel frame, not nested in a card).
+  4. `WatchTutorial` component replaces the inline play-circle SVG (same pattern as InstitutionRightPanel).
+- `wiki/components.md` — added `PhotoCard`, updated `TalentLoginPanelContent`, added `TalentDobPanelContent`.
+
+---
+
+## [2026-07-08] fix | OnboardingRightPanel — welcome panel bg, dynamic ellipse colors, CSS blur ellipses
+
+**Modified:**
+
+- `src/components/shared/OnboardingRightPanel.jsx` — added `ellipseTRColor` (default `#F7EFDD`), `ellipseBLColor` (default `#F9EBEA`), `showGrid`, `showSparkleStars`, `showSnow` props. Converted TR/BL ellipses from SVG `<img>` (where CSS vars can't reach) to CSS `rounded-full` divs with `filter: blur(80px/100px)` and `backgroundColor` from prop — color prop now actually works. Removed `talent-panel-ellipse-tr.svg` and `talent-panel-ellipse-bl.svg` imports.
+- `src/pages/onboarding/OnboardingWelcomePage.jsx` — passes `bgColor="#FFFEFC"` to `OnboardingRightPanel` (was defaulting to green `#387440`).
+- `src/components/sections/talentAuth/TalentWelcomePanelContent.jsx` — institution card: changed bg from CSS gradient to solid `#387440` (matches Figma); replaced colour-circle avatar placeholders with real 56×56 JPEG photos (`talent-panel-institution-avatar-1/2/3.jpg`).
+- `wiki/components.md` — updated `OnboardingRightPanel` entry with new props.
+
+**Root cause of ellipse invisibility:** `CSS custom properties set on a parent DOM element do not propagate into SVGs loaded via <img>`. The `--fill-0` var set on the container div was silently ignored; the SVG always used its hardcoded fallback. Switching to CSS div+blur makes the color prop actually functional.
+
+---
+
+## [2026-07-05] refactor | OnboardingRightPanel → shell+content; build TalentWelcomePanelContent
+
+**Refactored:**
+
+- `src/components/shared/OnboardingRightPanel.jsx` — converted from hardcoded login panel to generic shell. Removed all foreground content (photo cards, chip, GDPR badge, welcome-back card). Kept BG layers (TR/BL ellipses, grid, sparkle stars, snow pattern). Added `bgColor`, `panelContent`, `toast` props. Ellipse containers explicitly have no `overflow-hidden`/`rounded-full` (rule documented in code comments and wiki).
+
+**New files:**
+
+- `src/components/sections/talentAuth/TalentLoginPanelContent.jsx` — login foreground extracted from old OnboardingRightPanel. All 3 photo cards + Data Protected chip + GDPR badge + Welcome Back stats card inside ONE `absolute inset-0` container.
+- `src/components/sections/talentAuth/TalentWelcomePanelContent.jsx` — welcome panel foreground from Figma node `2858:23709`. Main photo card + 5 overlay cards (Jobs Available, Saved pill, Verified profile, My Experience, Institution card) inside ONE `absolute inset-0` container. Conditional welcome toast via `showToast` prop.
+
+**Modified:**
+
+- `src/pages/LoginPage.jsx` — imports `TalentLoginPanelContent`; passes it as `panelContent` to `OnboardingRightPanel`.
+- `src/pages/onboarding/OnboardingWelcomePage.jsx` — replaced local `WelcomeRightPanel` with `OnboardingRightPanel` + `TalentWelcomePanelContent`. Layout changed to `flex-1 min-h-0` to match fixed-shell pattern. `showToast` state and 3s auto-dismiss remain in page.
+- `wiki/figma-fidelity.md` — added "Decorative ellipse / glow fade-out rule" section documenting the NO `overflow-hidden`/`rounded-full` rule with correct/wrong pattern examples.
+- `wiki/components.md` — added 3 entries: `OnboardingRightPanel`, `TalentLoginPanelContent`, `TalentWelcomePanelContent`.
+- `wiki/figma-node-map.md` — added Talent Login Screen (`4704:50608`) and Talent Welcome Screen (`2858:23709`) sections.
+
+**Also fixed (prior task):**
+
+- `src/layout/InstitutionOnboardingLayout.jsx` and `src/layout/ParentOnboardingLayout.jsx` — removed `overflow-hidden`/`rounded-full` from BG ellipse containers (same glow-clipping fix as TalentOnboardingLayout).
+
+---
+
 ## [2026-07-05] create | Skills Stage 2 page (/profile/filling/skills/categories)
 
 **New files:**

@@ -95,7 +95,7 @@ const InstitutionOnboardingLayout = () => {
         {/* 2971:65357 — green gradient glow, top-left corner, bleeds off-screen */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute overflow-hidden rounded-full"
+          className="pointer-events-none absolute"
           style={{
             left: '-95px' /* px — Figma 2971:65353 frame-relative */,
             top: '-178px' /* px */,
@@ -120,7 +120,7 @@ const InstitutionOnboardingLayout = () => {
         {/* 2971:65356 — red glow, bottom-right area (opacity 0.15 in the SVG) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute overflow-hidden rounded-full"
+          className="pointer-events-none absolute"
           style={{
             left: 'calc(83.33% - 16px)' /* % — Figma 2971:65353 */,
             top: '610px' /* px */,
@@ -145,7 +145,7 @@ const InstitutionOnboardingLayout = () => {
         {/* 2971:65358 — gold/orange glow, centre-left (opacity 0.1 in the SVG) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute overflow-hidden rounded-full"
+          className="pointer-events-none absolute"
           style={{
             left: 'calc(33.33% + 100px)' /* % + px — Figma 2971:65353 */,
             top: 'calc(50% - 200px)' /* % + px — vertical centre offset */,

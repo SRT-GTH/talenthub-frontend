@@ -26,7 +26,10 @@ const isOnboardingChromePath = (pathname) =>
 // pages (/login, /get-started, talent steps) keep the normal page-scroll model
 // with a sticky navbar.
 const isFixedShellPath = (pathname) =>
-  pathname.startsWith('/onboarding/institution') || pathname.startsWith('/onboarding/parent');
+  pathname.startsWith('/onboarding/institution') ||
+  pathname.startsWith('/onboarding/parent') ||
+  pathname.startsWith('/onboarding/talent') ||
+  pathname === '/login';
 
 // Returns a stable key for the current layout family. Using the full pathname as
 // the key would force-remount layouts (and destroy OnboardingProvider state) on

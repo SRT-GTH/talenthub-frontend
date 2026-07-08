@@ -1027,6 +1027,113 @@ Implemented: `src/components/sections/parentLogin/ParentSuccessSection.jsx` (pag
 
 ---
 
+## Talent Login Screen `✅ VERIFIED` (2026-07-05)
+
+Main frame: `4704:50608` — 739×973px right panel. Route: `/login`.
+Shell: `src/components/shared/OnboardingRightPanel.jsx`
+Content: `src/components/sections/talentAuth/TalentLoginPanelContent.jsx`
+
+### BG decoration layers (identical across login + welcome panels)
+
+| Layer         | Position                                      | Notes                                                       |
+| ------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| TR ellipse    | left 83.5%, top -21.6%, width 64%             | inner div `inset[-42.28%]`; NO overflow-hidden/rounded-full |
+| BL ellipse    | bottom -22.9%, left -23.1%, width 64%         | inner div `inset[-63.42%]`; NO overflow-hidden/rounded-full |
+| Grid          | right 0, top 58.8%, width 48.4%, height 41.6% | `rotate(180deg) scaleY(-1)`                                 |
+| Sparkle stars | left 78.2%, top 2.3%, 13.5%×10.5%             | `talent-panel-sparkle-stars.svg`                            |
+| Snow pattern  | left -52.6%, top -3.2%, 60.5%×36.9%           | `talent-panel-snow-pattern.svg`                             |
+
+### Foreground — photo cards (3 total, ONE container `absolute inset-0`)
+
+Reference frame: 739×973px. Width formula: `card_px / 739 × 42vw`.
+
+| Card    | Asset                      | Position (% of panel)     | Width (clamp/vw)             | Border                          | Rotation |
+| ------- | -------------------------- | ------------------------- | ---------------------------- | ------------------------------- | -------- |
+| Photo 1 | `talent-panel-photo-1.png` | left 72.15%, top 52.81%   | `clamp(56px, 7.44vw, 131px)` | 4px solid #eedeb8, ellipseCard1 | 5deg     |
+| Photo 2 | `talent-panel-photo-2.png` | left 56.97%, bottom 8.32% | `clamp(59px, 8.25vw, 145px)` | 3px solid #eedeb8               | -7deg    |
+| Photo 3 | `talent-panel-photo-3.png` | left 69.15%, top 10.52%   | `clamp(57px, 7.85vw, 138px)` | 3px solid #eedeb8, sparkle26    | -6deg    |
+
+### Foreground — overlay cards (login)
+
+| Card                | Position                | Key tokens                                                                                                 |
+| ------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Data Protected chip | left 50.61%, top 34.64% | bg white, border #e7e7e7, shield icon #387440, "Data Protected" 10px #575755                               |
+| GDPR badge          | left 56.97%, top 57.35% | bg white, border #e7e7e7, 14px bold #111, "GDPR Compliant"                                                 |
+| Welcome Back stats  | left 35.18%, top 55.19% | bg white r-12, shadow; "Welcome Back" 10px bold #387440; "1,580 Jobs Available" serif italic; progress bar |
+
+---
+
+## Talent Welcome Screen `✅ VERIFIED` (2026-07-05)
+
+Main frame: `2858:23709` — 739×973px right panel. Route: `/onboarding/talent/welcome`.
+Shell: `src/components/shared/OnboardingRightPanel.jsx`
+Content: `src/components/sections/talentAuth/TalentWelcomePanelContent.jsx`
+
+BG decoration layers are identical to the login panel (same shell, same assets — see table above).
+
+### ONE CONTAINER rule (mandatory)
+
+The main photo card + ALL 5 overlay cards are placed inside a single `<div className="absolute inset-0">` relative to the aside. All positions are `%` of the 739×973 reference frame. Widths use the vw-based clamp formula: `px / 739 × 42vw`. This ensures all cards scale together proportionally and stay in formation with each other.
+
+### Foreground — main photo card (`2858:23713`)
+
+| Property       | Value                                                                                                             |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Asset          | `Students using GTH on phone.jpg`                                                                                 |
+| Center point   | left 46.84%, top 50%, transform `translate(-50%, -50%)`                                                           |
+| Rotation       | 4deg                                                                                                              |
+| Width          | `clamp(240px, 32.5vw, 573px)`, aspect ratio 573/635                                                               |
+| Border         | `clamp(5px, 0.57vw, 10px)` solid #eedeb8                                                                          |
+| Border-radius  | `clamp(14px, 1.48vw, 26px)`                                                                                       |
+| Corner ellipse | `talent-panel-card-ellipse-1.svg`, 238px outer / 223px inner, rotate(-4deg), left -75.84px top -85.44px from card |
+
+### Foreground — 5 overlay cards (same container as photo)
+
+| Card             | Position in 739×973 panel                     | Key tokens                                                                                                 |
+| ---------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Jobs Available   | left 4.19%, top 28.13%, rotate(4.71deg)       | width `clamp(64px, 7.61vw, 134px)`; "1,580" Instrument Serif italic; "Jobs Available" 12px                 |
+| Saved pill       | left 6.5%, top 51.07%                         | bg #387440, border #2a5730; boxShadow `0px 4px 0 #2a5730, 0px 8px 28px rgba(56,116,64,0.25)`               |
+| Verified profile | left 12.24%, top 68.76%, translate(-50%,-50%) | `talent-panel-gth-icon.svg` + "Verified profile" #387440, bg white                                         |
+| My Experience    | left 67.81%, top 18.82%, rotate(6.59deg)      | width `clamp(76px, 10.51vw, 185px)`; 3 skeleton bars + green Submit button                                 |
+| Institution card | right 7.79%, top 61.89%                       | width `clamp(94px, 12.61vw, 222px)`; bg gradient green; "Accra Girls Senior High"; 3 colour-circle avatars |
+
+### Welcome toast (conditional, `showToast` prop)
+
+Auto-shown on mount, auto-dismissed after 3s in `OnboardingWelcomePage`.
+Position: `absolute`, left 50%, top 24px, `transform: translateX(-50%)`.
+Content: "Welcome to GTH, Student! / Your profile is live."
+
+---
+
+## Talent onboarding — step 3 Contact Information right panel `✅ VERIFIED` (2026-07-08)
+
+Main frame: `2385:38867` — 739×916 px right panel.
+Shell: `src/components/shared/OnboardingRightPanel.jsx` (default green bg, ellipses, grid, sparkle-stars, snow).
+Content: `src/components/sections/talentAuth/TalentContactPanelContent.jsx`
+Used on routes: `/onboarding/talent/contact`, `/onboarding/talent/address`, `/onboarding/talent/education`.
+
+### Photo cards (ONE container `absolute inset-0`)
+
+| Card        | Position                                   | Width (clamp)               | Border    | Rotation |
+| ----------- | ------------------------------------------ | --------------------------- | --------- | -------- |
+| Top-right   | left calc(50%+21.53%), top calc(50%-2.93%) | `clamp(140px,15.7vw,277px)` | `#EEDEB8` | +5°      |
+| Top-left    | left calc(50%-21.42%), top calc(50%-24.0%) | `clamp(142px,16.1vw,284px)` | `#EBC2BD` | -8.51°   |
+| Bottom-left | left calc(50%-19.66%), bottom 7.31%        | `clamp(166px,18.8vw,332px)` | `#C1D4C4` | -18°     |
+
+### Panel-level overlays
+
+| Element            | Node         | Position                                                            | Notes                                                                                                     |
+| ------------------ | ------------ | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Sparkle-26         | `2385:38902` | left calc(50%+3.27px), top -17px                                    | rotate(21.55deg); peeking bleed from aside overflow-hidden                                                |
+| OTP chip (amber)   | `2385:38883` | left 3.38%, top 36.56%, right 60.4%                                 | bg `#C8951A`, border `#FAF4E8`; "OTP sent after this step"                                                |
+| GDPA chip (white)  | `2385:38896` | left 55.54%, top 22.81%, right 7.04%                                | bg white, gthIcon rotate(8deg); "Ghana Data Protection Act compliant"                                     |
+| Phone preview card | `2396:19979` | left 60.38%, top 70.20%                                             | bg `#FAF4E8`, border `#EEDEB8`, shadow `0 3px 0 #967014`, rotate(2deg)                                    |
+| Arrow down         | `2353:13941` | photo3 children: left 4.91%, top -32.91% (= panel 74.7px, 408.33px) | `talent-panel-arrow-down.svg`; flex-center wrapper 36.1%×36.0% of cardWidth, img 79.45%×80.44% of wrapper |
+| Arrow scribble     | `2353:13937` | left 84.17%, top 65.28%                                             | `talent-panel-arrow-scribble.svg`                                                                         |
+| WatchTutorial      | `2385:38903` | bottom 38px, right 58px                                             | `WatchTutorial` component, `showLabel` + `label="Watch Tutorial"`                                         |
+
+---
+
 ## Parent onboarding — two flows + Flow B ward-invited welcome `✅ VERIFIED` (2026-06-26)
 
 The parent flow has **two entry flows** (config: `src/constants/parentFlows.js`):

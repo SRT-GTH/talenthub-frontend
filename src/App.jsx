@@ -34,6 +34,7 @@ import InstitutionValidatePage from './pages/onboarding/institution/InstitutionV
 import InstitutionConfirmPage from './pages/onboarding/institution/InstitutionConfirmPage.jsx';
 import InstitutionReportPage from './pages/onboarding/institution/InstitutionReportPage.jsx';
 import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
+import TalentOnboardingLayout from './layout/TalentOnboardingLayout.jsx';
 import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
 import InterestsIntroPage from './pages/profileFilling/InterestsIntroPage.jsx';
 import InterestsStage2Page from './pages/profileFilling/InterestsStage2Page.jsx';
@@ -72,30 +73,38 @@ function App() {
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
         <Route element={<MainLayout />}>
           <Route path={'/'} element={<LandingPage />} />
-          <Route path={'/login'} element={<LoginPage />} />
           <Route path={'/get-started'} element={<GetStartedPage />} />
 
-          {/* Talent onboarding flow. Wrapped in OnboardingProvider so DOB
-              captured on step 01 propagates to every downstream page (drives
-              the Parent step in the breadcrumb + the under-18 branch out of
-              the Education page). */}
-          <Route
-            path="/onboarding/talent/*"
-            element={
-              <OnboardingProvider>
-                <Routes>
-                  <Route path="welcome" element={<OnboardingWelcomePage />} />
-                  <Route path="dob" element={<OnboardingDobPage />} />
-                  <Route path="personal-info" element={<OnboardingPersonalInfoPage />} />
-                  <Route path="contact" element={<OnboardingContactPage />} />
-                  <Route path="address" element={<OnboardingAddressPage />} />
-                  <Route path="education" element={<OnboardingEducationPage />} />
-                  <Route path="parent-info" element={<OnboardingParentInfoPage />} />
-                  <Route path="review" element={<OnboardingReviewPage />} />
-                </Routes>
-              </OnboardingProvider>
-            }
-          />
+          {/* Talent auth + onboarding flow.
+              TalentOnboardingLayout provides the two page-level background
+              glow ellipses (TL green + BR pink) that persist across all talent
+              screens and the login page, outside the scrollable content area.
+              Mirrors the InstitutionOnboardingLayout / ParentOnboardingLayout
+              pattern. */}
+          <Route element={<TalentOnboardingLayout />}>
+            <Route path={'/login'} element={<LoginPage />} />
+
+            {/* Wrapped in OnboardingProvider so DOB captured on step 01
+                propagates to every downstream page (drives the Parent step
+                in the breadcrumb + the under-18 branch out of Education). */}
+            <Route
+              path="/onboarding/talent/*"
+              element={
+                <OnboardingProvider>
+                  <Routes>
+                    <Route path="welcome" element={<OnboardingWelcomePage />} />
+                    <Route path="dob" element={<OnboardingDobPage />} />
+                    <Route path="personal-info" element={<OnboardingPersonalInfoPage />} />
+                    <Route path="contact" element={<OnboardingContactPage />} />
+                    <Route path="address" element={<OnboardingAddressPage />} />
+                    <Route path="education" element={<OnboardingEducationPage />} />
+                    <Route path="parent-info" element={<OnboardingParentInfoPage />} />
+                    <Route path="review" element={<OnboardingReviewPage />} />
+                  </Routes>
+                </OnboardingProvider>
+              }
+            />
+          </Route>
 
           {/* Institution bulk-onboarding flow.
               All steps share InstitutionOnboardingLayout which renders the

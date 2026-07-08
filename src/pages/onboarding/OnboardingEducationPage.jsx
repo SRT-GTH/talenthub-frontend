@@ -4,6 +4,8 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
+import TalentContactPanelContent from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -13,7 +15,6 @@ import {
   MapIcon,
   MapPinIcon,
   MortarboardIcon,
-  PlayCircleIcon,
   SearchIcon,
   SuccessCheckIcon,
   TrendUpIcon,
@@ -403,172 +404,6 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
   );
 };
 
-// ---- right panel ------------------------------------------------------
-
-// Byte-identical to AddressRightPanel / ContactRightPanel â€” same brand-green
-// bg + gradient orbs + 3 tilted photo placeholders + OTP badge + compliance
-// pill + phone-preview pill + watch-tutorial badge. Recommend extracting
-// into a shared <OnboardingBrandPanel/> once a 4th frame reuses it; for
-// now keep inline so this page stays self-contained.
-const EducationRightPanel = () => (
-  <aside
-    aria-hidden="true"
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
-  >
-    {/* Background gradient orbs */}
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
-      style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
-    />
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
-      style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
-    />
-
-    {/* Top-right tilted photo (+5Â°, cream border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        right: '8%',
-        top: '12%',
-        width: '52%',
-        height: '38%',
-        transform: 'rotate(5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #EEDEB8',
-        outlineOffset: '-10px',
-      }}
-    />
-
-    {/* Top-left tilted photo (-8.5Â°, rose border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '8%',
-        top: '6%',
-        width: '54%',
-        height: '40%',
-        transform: 'rotate(-8.5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #EBC2BD',
-        outlineOffset: '-10px',
-      }}
-    />
-
-    {/* Bottom tilted photo (-18Â°, sage border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '12%',
-        bottom: '8%',
-        width: '70%',
-        height: '46%',
-        transform: 'rotate(-18deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #C1D4C4',
-        outlineOffset: '-10px',
-      }}
-    />
-
-    {/* OTP badge */}
-    <div
-      className="absolute rounded-[13px] p-3 shadow-[0_2px_1px_rgba(27,36,44,0.04),0_16px_12px_rgba(27,36,44,0.16)]"
-      style={{
-        left: 24,
-        top: 240,
-        width: 268,
-        background: '#C8951A',
-        border: '1px solid #FAF4E8',
-      }}
-    >
-      <div className="flex items-center gap-[9px]">
-        <span
-          className="size-9 shrink-0 rounded-[9px]"
-          style={{ background: '#EEDEB8' }}
-          aria-hidden="true"
-        />
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[12px] font-bold leading-[15px] text-[#FEFEFE]">
-            OTP sent after this step
-          </p>
-          <p className="text-[10px] leading-[14px] text-[#FEFEFE]" style={{ opacity: 0.72 }}>
-            SMS + Email Â· expires in 10 min
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Compliance pill */}
-    <div
-      className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
-      style={{ right: 24, top: 200 }}
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="5.5" stroke="#387440" />
-        <path
-          d="M4.5 7l1.7 2 3.3-3.2"
-          stroke="#387440"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span
-        className="text-[14px] font-semibold leading-6 text-brand-green"
-        style={{ letterSpacing: '0.1px' }}
-      >
-        Ghana Data Protection Act compliant
-      </span>
-    </div>
-
-    {/* Phone-preview pill */}
-    <div
-      className="absolute inline-flex items-center gap-2 rounded-[10px] px-2 py-2"
-      style={{
-        left: '40%',
-        bottom: 150,
-        width: 230,
-        background: '#FAF4E8',
-        border: '1px solid #EEDEB8',
-        transform: 'rotate(2deg)',
-        boxShadow: '0 3px 0 #967014, 0 8px 28px rgba(200,149,26,0.14)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <span
-        aria-hidden="true"
-        className="size-7 shrink-0 rounded-[5px]"
-        style={{ background: '#EEDEB8', transform: 'rotate(2.78deg)' }}
-      />
-      <div className="flex flex-col">
-        <span className="text-[12px] font-bold leading-tight text-[#111111]">Phone</span>
-        <span
-          className="text-[11px] leading-[15px] text-[#70706E]"
-          style={{ letterSpacing: '0.2px' }}
-        >
-          +233 24 123 4567
-        </span>
-      </div>
-    </div>
-
-    {/* Watch-tutorial collapsed play badge */}
-    <button
-      type="button"
-      aria-label="Watch tutorial"
-      className="absolute inline-flex size-[72px] items-center justify-center rounded-full text-white"
-      style={{
-        right: 32,
-        bottom: 30,
-        background: 'rgba(235,241,236,0.3)',
-      }}
-    >
-      <PlayCircleIcon />
-    </button>
-  </aside>
-);
-
 // ---- page -------------------------------------------------------------
 
 const OnboardingEducationPage = () => {
@@ -753,174 +588,176 @@ const OnboardingEducationPage = () => {
       : 'Select level, grade and institution first';
 
   return (
-    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
       <OnboardingHeader currentKey="education" percent={85} />
 
-      <section className="flex flex-1">
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
-        <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14">
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
-            noValidate
-            aria-busy={isSubmitting}
-          >
-            {/* Eyebrow â€” "05 Education" â€” trend-up glyph + italic numeral */}
-            <span
-              className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
-              style={{
-                background: '#FFFEFC',
-                borderColor: '#C1D4C4',
-              }}
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              noValidate
+              aria-busy={isSubmitting}
             >
-              <span className="text-brand-green" aria-hidden="true">
-                <TrendUpIcon className="size-3" />
-              </span>
+              {/* Eyebrow â€” "05 Education" â€” trend-up glyph + italic numeral */}
               <span
-                className="font-display italic text-[#B5B5B5]"
-                style={{ fontSize: 16, lineHeight: 'normal' }}
+                className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
+                style={{
+                  background: '#FFFEFC',
+                  borderColor: '#C1D4C4',
+                }}
               >
-                05
+                <span className="text-brand-green" aria-hidden="true">
+                  <TrendUpIcon className="size-3" />
+                </span>
+                <span
+                  className="font-display italic text-[#B5B5B5]"
+                  style={{ fontSize: 16, lineHeight: 'normal' }}
+                >
+                  05
+                </span>
+                <span
+                  className="text-[12px] leading-[18px] text-brand-green"
+                  style={{ letterSpacing: '0.2px' }}
+                >
+                  Education
+                </span>
               </span>
-              <span
-                className="text-[12px] leading-[18px] text-brand-green"
+
+              <h1
+                className="font-display font-normal text-black"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+              >
+                Your <span className="italic text-brand-green">Educational</span> Level
+              </h1>
+
+              <p
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
                 style={{ letterSpacing: '0.2px' }}
               >
-                Education
-              </span>
-            </span>
+                Select your level â€” everything else fills in automatically.
+              </p>
 
-            <h1
-              className="font-display font-normal text-black"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
-            >
-              Your <span className="italic text-brand-green">Educational</span> Level
-            </h1>
+              <WavyDivider />
 
-            <p
-              className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              Select your level â€” everything else fills in automatically.
-            </p>
+              {showErrorBanner && (
+                <EducationErrorCallout
+                  title="A few fields need attention"
+                  body={
+                    invalidCount >= 3
+                      ? 'Please complete all required fields before continuing.'
+                      : 'Please select your grade and add your institution before continuing.'
+                  }
+                  onClose={() => setShowErrorBanner(false)}
+                />
+              )}
 
-            <WavyDivider />
-
-            {showErrorBanner && (
-              <EducationErrorCallout
-                title="A few fields need attention"
-                body={
-                  invalidCount >= 3
-                    ? 'Please complete all required fields before continuing.'
-                    : 'Please select your grade and add your institution before continuing.'
-                }
-                onClose={() => setShowErrorBanner(false)}
-              />
-            )}
-
-            {/* Form grid â€” 4 fields in 2x2 (collapses to single column on
+              {/* Form grid â€” 4 fields in 2x2 (collapses to single column on
                 narrow viewports). Progressive disclosure: Level â†’ Grade â†’
                 Institution â†’ Graduation. Each unlocks the next; clearing a
                 parent clears its descendants. */}
-            <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
-              <Select
-                label="Education level"
-                required
-                placeholder="Select your level"
-                options={LEVEL_OPTIONS}
-                value={level}
-                onChange={handleLevelChange}
-                leftIcon={<TrendUpIcon />}
-                leftIconClassName="text-brand-green"
-                helperText="Choose the level you're currently studying at"
-                error={levelError}
-                verified={Boolean(level)}
-                searchable
-              />
-              <Select
-                label="Grade/Year"
-                required
-                placeholder="Select grade"
-                options={availableGrades}
-                value={grade}
-                onChange={handleGradeChange}
-                leftIcon={<MapIcon />}
-                leftIconClassName="text-brand-green"
-                disabled={!level}
-                helperText={gradeHelper}
-                error={gradeError}
-                state={gradeBoxState}
-                verified={Boolean(grade)}
-              />
-              <TextInput
-                label="Institution"
-                required
-                placeholder="Search school or university"
-                value={institution}
-                onChange={handleInstitutionChange}
-                leftIcon={<SearchIcon />}
-                leftIconClassName="text-brand-green"
-                helperIcon={<SearchIcon />}
-                helperIconClassName="text-brand-green"
-                disabled={!level}
-                helperText={institutionHelper}
-                error={institutionError}
-                state={institutionBoxState}
-                verified={!isInstitutionMissing}
-                autoComplete="off"
-              />
-              <Select
-                label="Expected graduation"
-                required
-                placeholder="yyyy"
-                options={GRADUATION_YEARS}
-                value={graduation}
-                onChange={setGraduation}
-                leftIcon={<CalendarIcon />}
-                leftIconClassName="text-brand-green"
-                disabled={!level || !grade || isInstitutionMissing}
-                helperText={graduationHelper}
-                error={graduationError}
-                state={graduationBoxState}
-                verified={Boolean(graduation)}
-              />
-            </div>
+              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
+                <Select
+                  label="Education level"
+                  required
+                  placeholder="Select your level"
+                  options={LEVEL_OPTIONS}
+                  value={level}
+                  onChange={handleLevelChange}
+                  leftIcon={<TrendUpIcon />}
+                  leftIconClassName="text-brand-green"
+                  helperText="Choose the level you're currently studying at"
+                  error={levelError}
+                  verified={Boolean(level)}
+                  searchable
+                />
+                <Select
+                  label="Grade/Year"
+                  required
+                  placeholder="Select grade"
+                  options={availableGrades}
+                  value={grade}
+                  onChange={handleGradeChange}
+                  leftIcon={<MapIcon />}
+                  leftIconClassName="text-brand-green"
+                  disabled={!level}
+                  helperText={gradeHelper}
+                  error={gradeError}
+                  state={gradeBoxState}
+                  verified={Boolean(grade)}
+                />
+                <TextInput
+                  label="Institution"
+                  required
+                  placeholder="Search school or university"
+                  value={institution}
+                  onChange={handleInstitutionChange}
+                  leftIcon={<SearchIcon />}
+                  leftIconClassName="text-brand-green"
+                  helperIcon={<SearchIcon />}
+                  helperIconClassName="text-brand-green"
+                  disabled={!level}
+                  helperText={institutionHelper}
+                  error={institutionError}
+                  state={institutionBoxState}
+                  verified={!isInstitutionMissing}
+                  autoComplete="off"
+                />
+                <Select
+                  label="Expected graduation"
+                  required
+                  placeholder="yyyy"
+                  options={GRADUATION_YEARS}
+                  value={graduation}
+                  onChange={setGraduation}
+                  leftIcon={<CalendarIcon />}
+                  leftIconClassName="text-brand-green"
+                  disabled={!level || !grade || isInstitutionMissing}
+                  helperText={graduationHelper}
+                  error={graduationError}
+                  state={graduationBoxState}
+                  verified={Boolean(graduation)}
+                />
+              </div>
 
-            {/* Continue stays clickable even when the form is invalid â€” the
+              {/* Continue stays clickable even when the form is invalid â€” the
                 submit handler short-circuits and surfaces the per-field error
                 chrome + aggregated banner (Figma frames 2709:37471 /
                 2717:38189). Only disabled mid-submit. */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={isSubmitting}
-              state={isSubmitting ? 'active' : undefined}
-              leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-              rightIcon={<ArrowRightIcon />}
-              className="mt-2 w-full"
-              aria-busy={isSubmitting}
-            >
-              Continue
-            </Button>
-
-            <div className="flex items-center gap-2 text-[14px] leading-6">
-              <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
-                Already Have an account?
-              </span>
-              <Link
-                to={'/login'}
-                className="font-semibold text-brand-green underline-offset-2 hover:underline"
-                style={{ letterSpacing: '0.1px' }}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={isSubmitting}
+                state={isSubmitting ? 'active' : undefined}
+                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                rightIcon={<ArrowRightIcon />}
+                className="mt-2 w-full"
+                aria-busy={isSubmitting}
               >
-                Log in Instead
-              </Link>
-            </div>
-          </form>
+                Continue
+              </Button>
+
+              <div className="flex items-center gap-2 text-[14px] leading-6">
+                <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
+                  Already Have an account?
+                </span>
+                <Link
+                  to={'/login'}
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  style={{ letterSpacing: '0.1px' }}
+                >
+                  Log in Instead
+                </Link>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <EducationRightPanel />
-      </section>
+        <OnboardingRightPanel panelContent={<TalentContactPanelContent />} />
+      </div>
 
       {showSuccess && (
         <EducationConfirmedModal
@@ -936,7 +773,7 @@ const OnboardingEducationPage = () => {
           onChangeLevel={handleChangeLevel}
         />
       )}
-    </div>
+    </section>
   );
 };
 

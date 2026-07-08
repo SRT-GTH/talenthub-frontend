@@ -3,29 +3,28 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
+import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
+import TalentWelcomePanelContent from '../../components/sections/talentAuth/TalentWelcomePanelContent.jsx';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingWelcomePage');
 
 /*
- * OnboardingWelcomePage â€” post-role-selection landing.
+ * OnboardingWelcomePage — post-role-selection landing.
  * Figma source: nodes 2858:23640 / 2858:23867 / 2858:24094 (Welcome
  * "Here's what happens next" screen). Two-column layout: left rail
  * carries the welcome message + 3-step preview list + "Let's Begin"
- * CTA; right panel is the brand-green showcase with the big tilted
- * student photo and four floating overlay cards.
+ * CTA; right panel is OnboardingRightPanel with TalentWelcomePanelContent
+ * (big tilted student photo + 5 floating overlay cards).
  *
  * Visible states:
- *   loading â€” first paint shows the spinner CTA until next-tick mount
- *   idle    â€” default; toast appears for ~3s then auto-hides
- *   submitting â€” user clicked CTA, briefly loading before navigation
+ *   idle      — default; welcome toast appears for ~3s then auto-hides
+ *   submitting — user clicked CTA, briefly loading before navigation
  */
 
 // ---- left column primitives -------------------------------------------
 
 const TalentTag = () => (
-  // "Talent" eyebrow pill â€” Figma node 2858:24046 family.
-  // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
   <span
     className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
     style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
@@ -40,8 +39,6 @@ const TalentTag = () => (
 );
 
 const StepNumberBadge = ({ n }) => (
-  // 32Ã—32 circle badge â€” Figma spec: bg #EBF1EC, 1px #C1D4C4 inset
-  // outline, italic Instrument Serif numeral in dark green.
   <span
     aria-hidden="true"
     className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-green-light font-display italic text-[#2A5730]"
@@ -70,211 +67,6 @@ const STEPS = [
   },
 ];
 
-// ---- right panel: floating cards --------------------------------------
-
-const JobsAvailableCard = () => (
-  // "1,580 Jobs Available" â€” Figma node 2858:23717. Soft white card with
-  // big serif number and a small body label.
-  <div
-    className="absolute rounded-[14px] bg-white px-5 py-4 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
-    style={{ left: 24, top: 168, width: 144 }}
-  >
-    <p className="font-display font-normal leading-none text-[#111111]" style={{ fontSize: 36 }}>
-      1,580
-    </p>
-    <p
-      className="mt-1 text-[12px] font-medium leading-5 text-[#70706E]"
-      style={{ letterSpacing: '0.2px' }}
-    >
-      Jobs Available
-    </p>
-  </div>
-);
-
-const SavedPill = () => (
-  // "Saved" floating badge â€” Figma node 2858:23720. Green pill with
-  // bookmark glyph + "Saved" label, sits below the Jobs Available card.
-  <div
-    className="absolute inline-flex items-center gap-2 rounded-[10px] bg-brand-green px-3 py-2 shadow-[0_8px_16px_-2px_rgba(27,36,44,0.18)]"
-    style={{ left: 36, top: 372, height: 42 }}
-  >
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M3 1.5h8a1 1 0 0 1 1 1V12l-5-3-5 3V2.5a1 1 0 0 1 1-1z" fill="white" />
-    </svg>
-    <span
-      className="text-[16px] font-medium leading-7 text-white"
-      style={{ letterSpacing: '0.2px' }}
-    >
-      Saved
-    </span>
-  </div>
-);
-
-const VerifiedProfilePill = () => (
-  // "Verified profile" â€” Figma node 2858:23725. White rounded pill with
-  // a check glyph + green label. Sits in the lower-left of the panel.
-  <div
-    className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-3 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
-    style={{ left: 24, top: 525, height: 40 }}
-  >
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <circle cx="7" cy="7" r="5.5" stroke="#387440" />
-      <path
-        d="M4.5 7l1.7 2 3.3-3.2"
-        stroke="#387440"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-    <span
-      className="text-[14px] font-semibold leading-6 text-brand-green"
-      style={{ letterSpacing: '0.1px' }}
-    >
-      Verified profile
-    </span>
-  </div>
-);
-
-const MyExperienceCard = () => (
-  // "My Experience" widget â€” Figma node 2858:23731. White card with
-  // heading + 3 stacked grey placeholder rows + green Submit button.
-  <div
-    className="absolute rounded-[12px] bg-white p-4 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
-    style={{ right: 24, top: 60, width: 186 }}
-  >
-    <p className="text-[14px] font-bold leading-tight text-[#111111]">My Experience</p>
-    <div className="mt-3 flex flex-col gap-2">
-      <span className="h-[10px] w-[132px] rounded-full bg-[#EEE7DA]" aria-hidden="true" />
-      <span className="h-[10px] w-[111px] rounded-full bg-[#EEE7DA]" aria-hidden="true" />
-      <span className="h-[10px] w-[79px] rounded-full bg-[#EEE7DA]" aria-hidden="true" />
-    </div>
-    <button
-      type="button"
-      className="mt-3 inline-flex h-[36px] w-full items-center justify-center rounded-[8px] bg-brand-green text-[12px] font-bold text-white shadow-[0_3px_0_#224626]"
-    >
-      Submit
-    </button>
-  </div>
-);
-
-const InstitutionCard = () => (
-  // "Accra Girls Senior High" institution card â€” Figma 2858:23740.
-  // Dark green card with a verified-institution pill, school name,
-  // region line and a row of 3 student avatars.
-  <div
-    className="absolute overflow-hidden rounded-[14px] shadow-[0_16px_24px_-6px_rgba(27,36,44,0.20),0_2px_2px_-1px_rgba(27,36,44,0.06)]"
-    style={{
-      right: 24,
-      bottom: 30,
-      width: 220,
-      height: 144,
-      backgroundImage: 'linear-gradient(160deg, rgba(56,116,64,0.92) 0%, rgba(27,52,29,0.92) 100%)',
-    }}
-  >
-    <div className="p-4 text-white">
-      <span className="inline-flex items-center rounded-[6px] bg-white/15 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.3px] text-white backdrop-blur-sm">
-        âœ“ Verified Institution
-      </span>
-      <p
-        className="mt-2 font-display font-normal leading-tight text-white"
-        style={{ fontSize: 21, lineHeight: '23.1px' }}
-      >
-        Accra Girls Senior High
-      </p>
-      <p className="mt-1 text-[10px] font-normal leading-tight text-white/60">
-        Greater Accra Â· GES-Accredited
-      </p>
-      <div className="mt-3 flex -space-x-2">
-        {['#EAB69A', '#B59F88', '#7E6852'].map((c) => (
-          <span
-            key={c}
-            aria-hidden="true"
-            className="size-7 rounded-full border-2 border-white/30"
-            style={{ background: c }}
-          />
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const WelcomeRightPanel = ({ showToast }) => (
-  // Right showcase panel â€” Figma Frame 141 (2858:23709). 42% width to
-  // mirror the rest of the marketing-style screens. Brand-green base
-  // with two big blurred orbs, a single tilted student photo (rendered
-  // as a styled placeholder until a real asset lands), and the four
-  // floating cards layered on top.
-  <aside
-    aria-hidden="true"
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
-  >
-    {/* Soft cream orb â€” top-right */}
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
-      style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
-    />
-    {/* Soft pink orb â€” bottom-left */}
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
-      style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
-    />
-
-    {/* Big tilted "Students using GTH on phone" placeholder */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '14%',
-        top: '12%',
-        width: '60%',
-        height: '70%',
-        transform: 'rotate(4deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '6px solid rgba(255,255,255,0.18)',
-        outlineOffset: '-6px',
-      }}
-    />
-
-    <JobsAvailableCard />
-    <SavedPill />
-    <VerifiedProfilePill />
-    <MyExperienceCard />
-    <InstitutionCard />
-
-    {/* Welcome toast â€” Figma node 2858:23758. Floats top-center while
-        visible; auto-hides after 3s on first paint. */}
-    {showToast && (
-      <div
-        role="status"
-        aria-live="polite"
-        className="absolute left-1/2 top-6 w-[309px] -translate-x-1/2 rounded-[14px] border border-black/5 bg-white p-3 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.18)]"
-      >
-        <div className="flex items-start gap-3">
-          <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-green-light text-brand-green">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="5.5" stroke="currentColor" />
-              <path
-                d="M4.5 7l1.7 2 3.3-3.2"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold leading-tight text-[#111111]">
-              Welcome to GTH, Student!
-            </p>
-            <p className="mt-1 text-[12px] leading-4 text-[#70706E]">
-              Your profile is live. Start exploring opportunities.
-            </p>
-          </div>
-        </div>
-      </div>
-    )}
-  </aside>
-);
-
 // ---- page -------------------------------------------------------------
 
 const OnboardingWelcomePage = () => {
@@ -300,9 +92,9 @@ const OnboardingWelcomePage = () => {
   };
 
   return (
-    <section className="mx-auto flex w-full min-h-[calc(100vh-160px)] bg-white">
-      {/* Left content column. Centered within the available space. */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
+    <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
+      {/* Left content column — scrolls independently within the fixed shell */}
+      <div className="flex flex-1 min-h-0 items-center justify-center overflow-y-auto no-scrollbar px-6 py-12 md:py-20">
         <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center">
           <TalentTag />
 
@@ -324,15 +116,10 @@ const OnboardingWelcomePage = () => {
             you.
           </p>
 
-          {/* Wavy Ghana-flag divider â€” Figma vector 2858:24050.
-              Sits between the headline block and the "About 4 minutes"
-              meta pill on the welcome screen. */}
+          {/* Wavy Ghana-flag divider — Figma vector 2858:24050 */}
           <WavyDivider />
 
-          {/* "About 4 minutes" meta pill â€” Figma node 2858:23824.
-              The dot is a 16Ã—16 SVG (filter id 2858:23829): a soft
-              #E1EAE2 fill with a 1.5px #1D7C4D ring and a green-glow
-              drop shadow rather than a plain bg pill. */}
+          {/* "About 4 minutes" meta pill — Figma node 2858:23824 */}
           <div className="inline-flex items-center gap-2 rounded-[10px] border border-[#E7E7E7] bg-white px-3 py-1.5">
             <svg
               width="16"
@@ -388,10 +175,7 @@ const OnboardingWelcomePage = () => {
             </span>
           </div>
 
-          {/* 3-step preview list. Each row is the 70px Figma row
-              (Frame 145 children): badge on the left, two-line copy on
-              the right, separated by a hairline #E6E6E6 divider that
-              drops on the last item. */}
+          {/* 3-step preview list */}
           <ol className="mt-2 flex w-full max-w-[511px] flex-col text-left">
             {STEPS.map((step, idx) => {
               const isLast = idx === STEPS.length - 1;
@@ -414,7 +198,7 @@ const OnboardingWelcomePage = () => {
             })}
           </ol>
 
-          {/* Primary CTA â€” "Let's Begin" */}
+          {/* Primary CTA — "Let's Begin" */}
           <Button
             type="button"
             variant="primary"
@@ -446,7 +230,13 @@ const OnboardingWelcomePage = () => {
         </div>
       </div>
 
-      <WelcomeRightPanel showToast={showToast} />
+      {/* Right panel — shared shell with welcome-specific foreground content.
+          Photo + all 5 overlay cards live inside one container in
+          TalentWelcomePanelContent so they stay in formation together. */}
+      <OnboardingRightPanel
+        bgColor="#FFFEFC"
+        panelContent={<TalentWelcomePanelContent showToast={showToast} />}
+      />
     </section>
   );
 };

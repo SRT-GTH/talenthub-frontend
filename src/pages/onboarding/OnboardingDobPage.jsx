@@ -14,6 +14,7 @@ import {
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { debug } from '../../utils/debug.js';
 import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
+import TalentDobPanelContent from '../../components/sections/talentAuth/TalentDobPanelContent.jsx';
 
 const log = debug('OnboardingDobPage');
 
@@ -168,140 +169,140 @@ const OnboardingDobPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
       <OnboardingHeader currentKey="start" percent={78} />
+      {/* Two-column area — left scrolls, right panel stays fixed */}
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center"
+              noValidate
+            >
+              {/* Eyebrow â€” "01" italic ordinal + "The Basics" label */}
+              <div className="flex items-center gap-2">
+                <span aria-hidden="true" className="size-2 rounded-full bg-brand-green" />
+                <span
+                  className="font-display italic text-[#B5B5B5]"
+                  style={{ fontSize: 16, fontStyle: 'italic' }}
+                >
+                  01
+                </span>
+                <span
+                  className="text-[12px] leading-[18px] text-brand-green"
+                  style={{ letterSpacing: '0.2px' }}
+                >
+                  The Basics
+                </span>
+              </div>
 
-      <section className="flex flex-1">
-        {/* Left form column */}
-        <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center"
-            noValidate
-          >
-            {/* Eyebrow â€” "01" italic ordinal + "The Basics" label */}
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="size-2 rounded-full bg-brand-green" />
-              <span
-                className="font-display italic text-[#B5B5B5]"
-                style={{ fontSize: 16, fontStyle: 'italic' }}
+              <h1
+                className="font-display font-normal text-black"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
               >
-                01
-              </span>
-              <span
-                className="text-[12px] leading-[18px] text-brand-green"
+                When were you <span className="italic text-brand-green">born?</span>
+              </h1>
+
+              <p
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
                 style={{ letterSpacing: '0.2px' }}
               >
-                The Basics
-              </span>
-            </div>
+                Your age shapes your entire GTH experience. We use it once to make sure everything
+                we show you is built for you.
+              </p>
 
-            <h1
-              className="font-display font-normal text-black"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
-            >
-              When were you <span className="italic text-brand-green">born?</span>
-            </h1>
+              <WavyDivider />
 
-            <p
-              className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              Your age shapes your entire GTH experience. We use it once to make sure everything we
-              show you is built for you.
-            </p>
-
-            <WavyDivider />
-
-            {/* DOB input + dynamic age badge in the label row */}
-            <div className="w-full">
-              <div className="mb-2 flex items-center justify-between">
-                <label
-                  htmlFor="onboarding-dob"
-                  className="text-[14px] font-medium leading-6 text-[#111111]"
-                  style={{ letterSpacing: '0.2px' }}
-                >
-                  Date of Birth
-                </label>
-                {isVerified && (
-                  <span
-                    className="text-[12px] font-bold leading-5 text-brand-green"
-                    style={{ letterSpacing: '0.1px' }}
+              {/* DOB input + dynamic age badge in the label row */}
+              <div className="w-full">
+                <div className="mb-2 flex items-center justify-between">
+                  <label
+                    htmlFor="onboarding-dob"
+                    className="text-[14px] font-medium leading-6 text-[#111111]"
+                    style={{ letterSpacing: '0.2px' }}
                   >
-                    {age} years old
-                  </span>
-                )}
+                    Date of Birth
+                  </label>
+                  {isVerified && (
+                    <span
+                      className="text-[12px] font-bold leading-5 text-brand-green"
+                      style={{ letterSpacing: '0.1px' }}
+                    >
+                      {age} years old
+                    </span>
+                  )}
+                </div>
+                <TextInput
+                  id="onboarding-dob"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD-MM-YYYY"
+                  autoComplete="bday"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  verified={isVerified}
+                  leftIcon={<CalendarIcon />}
+                  helperText="Enter your day, month, then year â€” we'll route you to the right experience."
+                />
               </div>
-              <TextInput
-                id="onboarding-dob"
-                type="text"
-                inputMode="numeric"
-                placeholder="DD-MM-YYYY"
-                autoComplete="bday"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                verified={isVerified}
-                leftIcon={<CalendarIcon />}
-                helperText="Enter your day, month, then year â€” we'll route you to the right experience."
-              />
-            </div>
 
-            {/* Under-18 notice â€” Figma node 2282:23881 (notes symbol).
+              {/* Under-18 notice â€” Figma node 2282:23881 (notes symbol).
                 Translucent cream bg with a 1px gold-light outline. */}
-            {isUnder18 && (
-              <div
-                role="status"
-                className="flex w-full items-center justify-center gap-[10px] rounded-[10px] px-[10px] py-3"
-                style={{
-                  background: 'rgba(250, 244, 232, 0.50)',
-                  outline: '1px solid #EEDEB8',
-                  outlineOffset: '-1px',
-                }}
-              >
-                <UsersGroupIcon />
-                <p
-                  className="text-[12px] leading-[18px] text-[#B48617]"
-                  style={{ letterSpacing: '0.2px' }}
+              {isUnder18 && (
+                <div
+                  role="status"
+                  className="flex w-full items-center justify-center gap-[10px] rounded-[10px] px-[10px] py-3"
+                  style={{
+                    background: 'rgba(250, 244, 232, 0.50)',
+                    outline: '1px solid #EEDEB8',
+                    outlineOffset: '-1px',
+                  }}
                 >
-                  Parent or guardian contact needed. Your account is activated straight after.
-                </p>
-              </div>
-            )}
+                  <UsersGroupIcon />
+                  <p
+                    className="text-[12px] leading-[18px] text-[#B48617]"
+                    style={{ letterSpacing: '0.2px' }}
+                  >
+                    Parent or guardian contact needed. Your account is activated straight after.
+                  </p>
+                </div>
+              )}
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={!isVerified || isSubmitting}
-              state={isSubmitting ? 'active' : undefined}
-              leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-              rightIcon={<ArrowRightIcon />}
-              className="mt-1 w-full max-w-[420px]"
-              aria-busy={isSubmitting}
-            >
-              {isSubmitting ? 'Setting Things Up' : 'Continue'}
-            </Button>
-
-            <div className="flex items-center gap-2 text-[14px] leading-6">
-              <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
-                Already Have an account?
-              </span>
-              <Link
-                to={'/login'}
-                className="font-semibold text-brand-green underline-offset-2 hover:underline"
-                style={{ letterSpacing: '0.1px' }}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={!isVerified || isSubmitting}
+                state={isSubmitting ? 'active' : undefined}
+                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                rightIcon={<ArrowRightIcon />}
+                className="mt-1 w-full max-w-[420px]"
+                aria-busy={isSubmitting}
               >
-                Log in Instead
-              </Link>
-            </div>
-          </form>
+                {isSubmitting ? 'Setting Things Up' : 'Continue'}
+              </Button>
+
+              <div className="flex items-center gap-2 text-[14px] leading-6">
+                <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
+                  Already Have an account?
+                </span>
+                <Link
+                  to={'/login'}
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  style={{ letterSpacing: '0.1px' }}
+                >
+                  Log in Instead
+                </Link>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <OnboardingRightPanel />
-      </section>
-
+        <OnboardingRightPanel panelContent={<TalentDobPanelContent />} />
+      </div>
       {showOverlay && <LoadingOverlay />}
-    </div>
+    </section>
   );
 };
 

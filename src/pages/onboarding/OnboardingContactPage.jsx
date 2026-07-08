@@ -5,6 +5,8 @@ import { TextInput, VerificationCode } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
+import TalentContactPanelContent from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
 import {
   ArrowRightIcon,
   ChevronDownIcon,
@@ -15,7 +17,6 @@ import {
   MailIcon,
   MessageBubbleIcon,
   PhoneIcon,
-  PlayCircleIcon,
   ShieldCheckIcon,
   SuccessCheckIcon,
 } from '../../components/shared/assets.jsx';
@@ -230,160 +231,6 @@ const ContactEyebrow = () => (
       Contact Information
     </span>
   </span>
-);
-
-// ---- Right panel -----------------------------------------------------
-
-const ContactRightPanel = () => (
-  // Brand-green showcase column. Same composition language as the basics
-  // and profile steps (orbs + 3 tilted photo placeholders + floating
-  // trust badges). Photos use the gradient-placeholder pattern until
-  // production-ready imagery lands. Decorative ornaments (sparkles +
-  // scribble arrows) are deferred to v2 â€” they are pure decoration that
-  // can be added without changing layout.
-  <aside
-    aria-hidden="true"
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block"
-  >
-    {/* Background orbs */}
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
-      style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
-    />
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
-      style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
-    />
-
-    {/* Top-right tilted photo placeholder */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        right: '6%',
-        top: '6%',
-        width: '46%',
-        height: '32%',
-        transform: 'rotate(5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '6px solid #EEDEB8',
-        outlineOffset: '-6px',
-      }}
-    />
-    {/* Top-left tilted photo placeholder */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '6%',
-        top: '12%',
-        width: '50%',
-        height: '34%',
-        transform: 'rotate(-8.5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '6px solid #EBC2BD',
-        outlineOffset: '-6px',
-      }}
-    />
-    {/* Bottom photo placeholder */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '4%',
-        bottom: '8%',
-        width: '60%',
-        height: '40%',
-        transform: 'rotate(-18deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '6px solid #C1D4C4',
-        outlineOffset: '-6px',
-      }}
-    />
-
-    {/* "OTP sent after this step" badge â€” Figma 2385:38883. Yellow card
-        overlaying the top-left photo. */}
-    <div
-      className="absolute rounded-[13px] border border-accent-light bg-accent shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
-      style={{ left: 24, top: 296, width: 267, padding: 12 }}
-    >
-      <div className="flex items-center gap-[9px]">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-accent-light-active text-accent-darker">
-          <span className="text-[10px] font-bold">MTN</span>
-        </span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[12px] font-bold leading-[15px] text-white">
-            OTP sent after this step
-          </p>
-          <p className="text-[10px] leading-[14px] text-white opacity-[0.72]">
-            SMS + Email Â· expires in 10 min
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Compliance pill â€” Figma 2385:38896. Lifted from ProfileRightPanel. */}
-    <div
-      className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
-      style={{ right: 24, top: 200 }}
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="5.5" stroke="#387440" />
-        <path
-          d="M4.5 7l1.7 2 3.3-3.2"
-          stroke="#387440"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span
-        className="text-[14px] font-semibold leading-6 text-brand-green"
-        style={{ letterSpacing: '0.1px' }}
-      >
-        Ghana Data Protection Act compliant
-      </span>
-    </div>
-
-    {/* Phone preview badge â€” Figma 2396:19978. Cream rotated card mimicking
-        an SMS arriving on the user's phone. */}
-    <div
-      className="absolute rounded-[10px] border border-accent-light-active bg-accent-light p-2"
-      style={{
-        right: 36,
-        bottom: 140,
-        width: 230,
-        transform: 'rotate(2deg)',
-        backdropFilter: 'blur(8px)',
-        boxShadow: '0 3px 0 #967014, 0 8px 28px rgba(200, 149, 26, 0.14)',
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-[5px] bg-accent-light-active text-accent-darker">
-          <span className="text-[9px] font-bold">MTN</span>
-        </span>
-        <div className="flex flex-col gap-1">
-          <p className="text-[12px] font-bold leading-tight text-[#111111]">Phone</p>
-          <p
-            className="text-[11px] leading-[15px] text-[#70706E]"
-            style={{ letterSpacing: '0.1px' }}
-          >
-            +233 24 123 4567
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Watch-tutorial badge (collapsed variant) â€” Figma 2385:38903.
-        Only the circular play button is shown on this step. */}
-    <button
-      type="button"
-      aria-label="Watch tutorial for Contact step"
-      className="absolute flex size-[72px] items-center justify-center rounded-full text-white"
-      style={{ right: 36, bottom: 30, background: 'rgba(235,241,236,0.30)' }}
-    >
-      <PlayCircleIcon className="size-6" />
-    </button>
-  </aside>
 );
 
 // ---- OTP modal -------------------------------------------------------
@@ -1183,144 +1030,149 @@ const OnboardingContactPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
+    <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
       <OnboardingHeader currentKey="contact" percent={78} />
-
-      <section className="flex flex-1">
-        {/* Left form column */}
-        <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14">
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
-            noValidate
-          >
-            <ContactEyebrow />
-
-            <h1
-              className="font-display font-normal text-black"
-              style={{
-                fontSize: 'clamp(2.25rem, 5vw, 4rem)',
-                lineHeight: 1.1,
-                letterSpacing: '-0.64px',
-              }}
+      {/* Two-column area — left scrolls, right panel stays fixed */}
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              noValidate
             >
-              How do we <span className="italic text-brand-green">reach you?</span>
-            </h1>
+              <ContactEyebrow />
 
-            <p
-              className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              We&apos;ll send a quick verification code to confirm it&apos;s really you. Keeping
-              your profile secure and your opportunities real.
-            </p>
+              <h1
+                className="font-display font-normal text-black"
+                style={{
+                  fontSize: 'clamp(2.25rem, 5vw, 4rem)',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.64px',
+                }}
+              >
+                How do we <span className="italic text-brand-green">reach you?</span>
+              </h1>
 
-            <WavyDivider />
+              <p
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                style={{ letterSpacing: '0.2px' }}
+              >
+                We&apos;ll send a quick verification code to confirm it&apos;s really you. Keeping
+                your profile secure and your opportunities real.
+              </p>
 
-            <div className="flex w-full flex-col gap-4 text-left">
-              <div className="grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2">
-                <PhoneNumberInput
-                  id="contact-phone"
-                  label="Phone Number"
+              <WavyDivider />
+
+              <div className="flex w-full flex-col gap-4 text-left">
+                <div className="grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2">
+                  <PhoneNumberInput
+                    id="contact-phone"
+                    label="Phone Number"
+                    required
+                    trailingLabel="SMS verification"
+                    value={phone}
+                    onChange={setPhone}
+                    onBlur={markTouched('phone')}
+                    error={phoneError}
+                  />
+                  <PhoneNumberInput
+                    id="contact-whatsapp"
+                    label="Whatsapp Number"
+                    trailingLabel="Optional"
+                    value={whatsapp}
+                    onChange={setWhatsapp}
+                    onBlur={markTouched('whatsapp')}
+                    error={whatsappError}
+                    helperText={
+                      whatsappError ? undefined : 'Leave blank if same as your phone number above'
+                    }
+                  />
+                </div>
+
+                <TextInput
+                  id="contact-email"
+                  label="Email Address"
                   required
-                  trailingLabel="SMS verification"
-                  value={phone}
-                  onChange={setPhone}
-                  onBlur={markTouched('phone')}
-                  error={phoneError}
-                />
-                <PhoneNumberInput
-                  id="contact-whatsapp"
-                  label="Whatsapp Number"
-                  trailingLabel="Optional"
-                  value={whatsapp}
-                  onChange={setWhatsapp}
-                  onBlur={markTouched('whatsapp')}
-                  error={whatsappError}
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={markTouched('email')}
+                  error={emailError}
+                  verified={isEmailVerified}
+                  leftIcon={<MailIcon />}
+                  leftIconClassName={
+                    isEmailVerified
+                      ? 'text-success'
+                      : email
+                        ? 'text-brand-green'
+                        : 'text-content-tertiary'
+                  }
+                  labelTrailing="Email verification"
+                  labelTrailingClassName={
+                    emailError
+                      ? 'text-danger'
+                      : isEmailVerified
+                        ? 'text-success'
+                        : email
+                          ? 'text-[#595959]'
+                          : 'text-brand-green'
+                  }
                   helperText={
-                    whatsappError ? undefined : 'Leave blank if same as your phone number above'
+                    emailError
+                      ? undefined
+                      : isEmailVerified
+                        ? 'Email format verified'
+                        : 'Important updates, job matches, and your verification code will be sent here'
+                  }
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
+                  helperIconClassName={
+                    emailError ? undefined : isEmailVerified ? 'text-success' : 'text-brand-green'
+                  }
+                  helperTextClassName={
+                    emailError
+                      ? undefined
+                      : isEmailVerified
+                        ? 'text-success'
+                        : 'text-neutral-darker'
                   }
                 />
               </div>
 
-              <TextInput
-                id="contact-email"
-                label="Email Address"
-                required
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={markTouched('email')}
-                error={emailError}
-                verified={isEmailVerified}
-                leftIcon={<MailIcon />}
-                leftIconClassName={
-                  isEmailVerified
-                    ? 'text-success'
-                    : email
-                      ? 'text-brand-green'
-                      : 'text-content-tertiary'
-                }
-                labelTrailing="Email verification"
-                labelTrailingClassName={
-                  emailError
-                    ? 'text-danger'
-                    : isEmailVerified
-                      ? 'text-success'
-                      : email
-                        ? 'text-[#595959]'
-                        : 'text-brand-green'
-                }
-                helperText={
-                  emailError
-                    ? undefined
-                    : isEmailVerified
-                      ? 'Email format verified'
-                      : 'Important updates, job matches, and your verification code will be sent here'
-                }
-                helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
-                helperIconClassName={
-                  emailError ? undefined : isEmailVerified ? 'text-success' : 'text-brand-green'
-                }
-                helperTextClassName={
-                  emailError ? undefined : isEmailVerified ? 'text-success' : 'text-neutral-darker'
-                }
-              />
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={!isValid || isSubmitting}
-              state={isSubmitting ? 'active' : undefined}
-              leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-              rightIcon={<ArrowRightIcon />}
-              className="mt-2 w-full max-w-[420px]"
-              aria-busy={isSubmitting}
-            >
-              Send Verification Code
-            </Button>
-
-            <div className="flex items-center gap-2 text-[14px] leading-6">
-              <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
-                Already Have an account?
-              </span>
-              <Link
-                to={'/login'}
-                className="font-semibold text-brand-green underline-offset-2 hover:underline"
-                style={{ letterSpacing: '0.1px' }}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={!isValid || isSubmitting}
+                state={isSubmitting ? 'active' : undefined}
+                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                rightIcon={<ArrowRightIcon />}
+                className="mt-2 w-full max-w-[420px]"
+                aria-busy={isSubmitting}
               >
-                Log in Instead
-              </Link>
-            </div>
-          </form>
+                Send Verification Code
+              </Button>
+
+              <div className="flex items-center gap-2 text-[14px] leading-6">
+                <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
+                  Already Have an account?
+                </span>
+                <Link
+                  to={'/login'}
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  style={{ letterSpacing: '0.1px' }}
+                >
+                  Log in Instead
+                </Link>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <ContactRightPanel />
-      </section>
+        <OnboardingRightPanel panelContent={<TalentContactPanelContent />} />
+      </div>
 
       {showOtp && (
         <OtpModal
@@ -1362,7 +1214,7 @@ const OnboardingContactPage = () => {
           }}
         />
       )}
-    </div>
+    </section>
   );
 };
 

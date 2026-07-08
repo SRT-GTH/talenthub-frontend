@@ -13,8 +13,8 @@ import {
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
-import leftPanelBg from '../assets/onboarding/left panel bg.jpg';
 import OnboardingRightPanel from '../components/shared/OnboardingRightPanel.jsx';
+import TalentLoginPanelContent from '../components/sections/talentAuth/TalentLoginPanelContent.jsx';
 
 const log = debug('LoginPage');
 
@@ -179,7 +179,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-[440px] flex-col gap-6" noValidate>
+    <form onSubmit={handleSubmit} className="flex w-full max-w-[700px] flex-col gap-6" noValidate>
       {/* eyebrow + heading + sub-copy */}
       <header className="flex flex-col items-center gap-3 text-center">
         <span className="inline-flex items-center gap-1.5 rounded-[10px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5">
@@ -361,21 +361,13 @@ const LoginPage = () => {
     // Outer width is pinned to the Figma frame (1728×1117, node 2849-52564)
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
-    <section className="mx-auto flex w-full min-h-[calc(100vh-160px)] bg-white">
-      {/* Left column hosts the form on top of a soft green-orb ambient
-          decoration (Figma node 2849:52564). The orb sits in the top-left
-          and fades to white toward the form's center — the asset's aspect
-          ratio matches the ~58% column width left by the right panel, so
-          object-cover from top-left anchors the glow correctly. */}
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-6 py-12 md:py-20">
-        <img
-          src={leftPanelBg}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 size-full object-cover object-left-top select-none"
-          loading="lazy"
-          decoding="async"
-        />
+    <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
+      {/* Left column — TalentOnboardingLayout provides the TL green ellipse
+          behind this transparent section; no local orb asset needed.
+          overflow-y-auto + hidden scrollbar: left col scrolls while the
+          right panel stays fixed at screen height (fixed-shell via MainLayout
+          isFixedShellPath + TalentOnboardingLayout). */}
+      <div className="relative flex flex-1 items-center justify-center overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20">
         <div className="relative z-10 flex w-full items-center justify-center">
           <LoginForm
             onAuthFailure={() => setAuthError(true)}
@@ -384,6 +376,7 @@ const LoginPage = () => {
         </div>
       </div>
       <OnboardingRightPanel
+        panelContent={<TalentLoginPanelContent />}
         toast={authError ? <AuthErrorToast onClose={() => setAuthError(false)} /> : null}
       />
     </section>
