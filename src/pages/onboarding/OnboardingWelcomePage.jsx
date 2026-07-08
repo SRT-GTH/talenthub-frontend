@@ -26,6 +26,7 @@ const log = debug('OnboardingWelcomePage');
 
 const TalentTag = () => (
   // "Talent" eyebrow pill â€" Figma node 2858:24046 family.
+  // "Talent" eyebrow pill â€" Figma node 2858:24046 family.
   // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
   <span
     className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
