@@ -40,6 +40,7 @@ const SIZE_CLASSES = {
   lg: 'px-[34px] py-[16px] rounded-[14px]',
   md: 'px-[28px] py-[14px] rounded-[10px]',
   sm: 'px-[18px] py-[12px] rounded-[10px]',
+  xs: 'px-[14px] py-[6px] rounded-[8px]',
 };
 
 // Tailwind v4 JIT requires literal class names in source — no runtime

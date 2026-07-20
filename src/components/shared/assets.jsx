@@ -1403,6 +1403,259 @@ export const SkillIconPython = ({ className = '' }) => (
   </svg>
 );
 
+// ---- Skills Lab glyphs ------------------------------------------------
+// Icons used across the Skills Lab quiz hub screens. Prefixed SL* when a
+// same-concept icon already exists in this file at a different size or colour.
+
+export const SLCloseIcon = ({ className = '' }) => (
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 10 10"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+export const SLClockIcon = ({ className = '' }) => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
+    <path
+      d="M6 3.5V6L7.5 7.5"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SLStarIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M8 1.333l1.884 3.817 4.216.614-3.05 2.972.72 4.197L8 10.847l-3.77 1.986.72-4.197-3.05-2.972 4.216-.614L8 1.333z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SLArrowRightIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4.167 10h11.666M10.833 5l5 5-5 5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SLArrowRightSmIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3 7h8M8 4l3 3-3 3"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const LightbulbIcon = ({ className = '' }) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M5.25 11.083h3.5M5.833 12.25h2.334M7 1.167a4.083 4.083 0 0 0-2.625 7c.292.438.583.875.583 1.458h4.084c0-.583.291-1.02.583-1.458A4.083 4.083 0 0 0 7 1.167Z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const GameControllerIcon = ({ className = '' }) => (
+  <svg
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M2.00825 15.8092C2.23114 12.3161 2.88737 9.7599 3.44345 8.27511C3.72419 7.5255 4.32818 6.96728 5.10145 6.78021C9.40147 5.73993 14.5986 5.73993 18.8986 6.78021C19.6719 6.96728 20.2759 7.5255 20.5566 8.27511C21.1127 9.7599 21.7689 12.3161 21.9918 15.8092C22.1251 17.8989 20.6148 19.0503 18.9429 19.8925C17.878 20.4289 17.0591 18.8457 16.5155 17.6203C16.2185 16.9508 15.5667 16.5356 14.8281 16.5356H9.17196C8.43331 16.5356 7.78158 16.9508 7.48456 17.6203C6.94089 18.8457 6.122 20.4289 5.05711 19.8925C3.40215 19.0588 1.87384 17.9157 2.00825 15.8092Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M5 4.5L6.96285 4M19 4.5L17 4"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M9 13L7.5 11.5M7.5 11.5L6 10M7.5 11.5L6 13M7.5 11.5L9 10"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M16.5 10V13M15 11.5H18"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const SwitchModesIcon = ({ className = '' }) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M1.75 5.25L4.08333 2.91667M4.08333 2.91667L6.41667 5.25M4.08333 2.91667V11.0833M12.25 8.75L9.91667 11.0833M9.91667 11.0833L7.58333 8.75M9.91667 11.0833V2.91667"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const NotificationIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M6 13.3333C6.35958 13.7325 6.87852 14 7.46667 14C8.05481 14 8.57375 13.7325 8.93333 13.3333M11.3333 5.33333C11.3333 4.27247 10.912 3.25505 10.1618 2.50491C9.41167 1.75476 8.39424 1.33333 7.33333 1.33333C6.27247 1.33333 5.25505 1.75476 4.50491 2.50491C3.75476 3.25505 3.33333 4.27247 3.33333 5.33333C3.33333 7.96812 2.66639 9.72464 2.04894 10.7538C1.53315 11.6135 1.27525 12.0434 1.28461 12.1636C1.29504 12.2971 1.32117 12.3421 1.42932 12.4241C1.52686 12.4979 1.96266 12.4979 2.83427 12.4979H11.8324C12.704 12.4979 13.1398 12.4979 13.2374 12.4241C13.3455 12.3421 13.3717 12.2971 13.382 12.1636C13.3914 12.0434 13.1335 11.6135 12.6177 10.7538C12.0003 9.72464 11.3333 7.96812 11.3333 5.33333Z"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SLChevronLeftIcon = ({ className = '' }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M11.25 13.5L6.75 9L11.25 4.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const ChessCrownIcon = ({ className = '' }) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M3 15H17V17H3V15ZM4 8L6 13H14L16 8L12.5 10L10 5L7.5 10L4 8Z" fill="currentColor" />
+  </svg>
+);
+
+export const ChessFlagIcon = ({ className = '' }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M3.75 2.25V15.75"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.75 3H14.25L11.25 6.75L14.25 10.5H3.75"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const ChessHintIcon = ({ className = '' }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M9 1.5C6.1 1.5 3.75 3.85 3.75 6.75C3.75 8.55 4.65 10.12 6 11.02V13.5H12V11.02C13.35 10.12 14.25 8.55 14.25 6.75C14.25 3.85 11.9 1.5 9 1.5Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M6.75 15.75H11.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
 // Java — OpenJDK logo path. Rendered in Java/OpenJDK orange (#ED8B00).
 export const SkillIconJava = ({ className = '' }) => (
   <svg
@@ -1422,5 +1675,85 @@ export const SkillIconJava = ({ className = '' }) => (
       d="M206 347s-15 8 10 11 46 3 79-3a137 137 0 0 0 21 10C242 397 147 364 206 347m-9-42s-16 12 9 15 58 4 102-5a45 45 0 0 0 16 10C233 351 132 327 197 305m175 73s11 9-12 16c-43 13-179 17-217 1-14-6 15-17 33-17-17-10-98 21-42 30C287 432 412 396 372 378M213 262s-69 16-25 22c19 3 57 2 92-1s57-8 57-8a122 122 0 0 0-17 9c-70 18-206 10-167-9S213 262 213 262m124 69c73-37 39-80 7-66 36-30 101 36-9 68v-2M220 432c69 4 174-2 176-35 0 0-5 12-57 22s-131 10-174 3C166 422 175 429 220 432"
       fill="#5382a1"
     />
+  </svg>
+);
+
+// ---- Skills Lab — new skill icons ----------------------------------------
+
+export const SkillIconDataAnalysis = ({ className = '' }) => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 22 22"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="2" y="12" width="3" height="8" rx="1" fill="#387440" />
+    <rect x="7" y="8" width="3" height="12" rx="1" fill="#387440" />
+    <rect x="12" y="4" width="3" height="16" rx="1" fill="#387440" />
+    <rect x="17" y="10" width="3" height="10" rx="1" fill="#c0392b" />
+    <path
+      d="M2 6L7 4L12 2L17 7"
+      stroke="#c8951a"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SkillIconCreativeDesign = ({ className = '' }) => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 22 22"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="8" cy="8" r="5" fill="#3062d4" opacity="0.7" />
+    <circle cx="14" cy="8" r="5" fill="#c0392b" opacity="0.7" />
+    <circle cx="11" cy="13" r="5" fill="#c8951a" opacity="0.7" />
+  </svg>
+);
+
+export const SkillIconProjectMgmt = ({ className = '' }) => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 22 22"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1" y="3" width="20" height="16" rx="2" stroke="#387440" strokeWidth="1.5" />
+    <rect x="3" y="7" width="8" height="2" rx="1" fill="#387440" />
+    <rect x="3" y="11" width="12" height="2" rx="1" fill="#c8951a" />
+    <rect x="3" y="15" width="6" height="2" rx="1" fill="#3062d4" />
+    <line x1="9" y1="3" x2="9" y2="19" stroke="#e8e8e4" strokeWidth="0.5" />
+    <line x1="15" y1="3" x2="15" y2="19" stroke="#e8e8e4" strokeWidth="0.5" />
+  </svg>
+);
+
+export const SkillIconPublicSpeaking = ({ className = '' }) => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 22 22"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M11 2C7.13 2 4 4.69 4 8C4 9.8 4.94 11.4 6.44 12.42L5 20L11 17L17 20L15.56 12.42C17.06 11.4 18 9.8 18 8C18 4.69 14.87 2 11 2Z"
+      stroke="#c8951a"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="8" cy="8" r="1" fill="#c8951a" />
+    <circle cx="11" cy="8" r="1" fill="#c8951a" />
+    <circle cx="14" cy="8" r="1" fill="#c8951a" />
   </svg>
 );

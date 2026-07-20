@@ -3,6 +3,28 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-07-16] create | Skills Lab Game & Quiz Hub
+
+**Created:**
+
+- `src/constants/skillLabQuizzes.js` — mock quiz data (8 Python challenges with syntax tokens, options, hints)
+- `src/hooks/useQuizEngine.js` — state machine hook (playing → selected → correct/wrong → results) with lives, streak, XP, hints
+- `src/components/sections/skillsLab/` — 7 components:
+  - `SkillsLabNav.jsx` — top nav bar (logo, switch modes, save & exit, avatar pill)
+  - `SkillsLabHeader.jsx` — dark green gradient header with game controller icon + score pill
+  - `SkillsLabProgressBar.jsx` — progress bar with hearts/streak/XP gamification stats
+  - `AnswerDots.jsx` — 8-dot progress indicator (correct/wrong/active/unanswered states)
+  - `CodeSnippet.jsx` — syntax-highlighted code block with token color map
+  - `AnswerCard.jsx` — answer option card (A/B/C/D) with default/selected/correct/wrong states
+  - `QuizQuestion.jsx` — question area composing topic, code snippet, answer cards, action bar
+  - `HintModal.jsx` — step-by-step hint breakdown using existing Modal component
+  - `QuizResults.jsx` — pass (trophy + badge unlocked) / fail (try again) result screens
+- `src/pages/skillsLab/SkillsLabPage.jsx` — page component composing all sections via useQuizEngine
+- Route registered in `src/App.jsx`: `/skills-lab/:skillSlug` (outside MainLayout)
+- `wiki/routing.md` — added Skills Lab + Profile Filling route tables
+
+---
+
 ## [2026-07-06] verify | Full wiki lint pass (Karpathy pattern re-applied)
 
 Re-read Karpathy's LLM-wiki gist and ran its "lint" operation: verified every wiki page against current source via parallel code surveys.

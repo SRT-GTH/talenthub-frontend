@@ -1356,6 +1356,22 @@ Route: `/profile/filling/interests/categories` — `InterestsStage2Page` → `In
 
 ---
 
+## Skills Lab (Engagement page) `✅ VERIFIED`
+
+Figma page: Engagement (`3125:10352`). Skills Lab screens live within this page.
+
+| Frame name                       | Node ID       | Viewport | Notes                                           |
+| -------------------------------- | ------------- | -------- | ----------------------------------------------- |
+| Quiz question (default)          | `4150:15459`  | Desktop  | Main quiz layout — nav, header, progress, cards |
+| Answer selected state            | `4140:37230`  | Desktop  | B highlighted green (selected)                  |
+| Wrong answer state               | `4576:16658`  | Desktop  | B highlighted red, correct shown                |
+| Hint modal                       | `4432:15109`  | Desktop  | Step-by-step breakdown overlay                  |
+| Results — pass (Skill Verified!) | `4441:18688`  | Desktop  | Trophy + badge unlocked                         |
+| Results — fail (try again)       | `4441:20171`  | Desktop  | Sad icon + retry CTA                            |
+| Skills complete page             | `3625:150744` | Desktop  | Post-verification landing                       |
+
+---
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

@@ -519,7 +519,7 @@ const InterestsIntroSection = () => {
                   variant="tertiary"
                   size="md"
                   onClick={handleGoBack}
-                  leftIcon={<ArrowLeftIcon className="size-3.5" />}
+                  leftIcon={<ArrowLeftIcon className="size-full" />}
                 >
                   Go back
                 </Button>
@@ -528,7 +528,7 @@ const InterestsIntroSection = () => {
                   variant="primary"
                   size="md"
                   onClick={handleOpenInterests}
-                  rightIcon={<ArrowRightIcon className="size-3.5" />}
+                  rightIcon={<ArrowRightIcon className="size-full" />}
                 >
                   Open Interests
                 </Button>

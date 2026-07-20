@@ -40,6 +40,7 @@ import InterestsIntroPage from './pages/profileFilling/InterestsIntroPage.jsx';
 import InterestsStage2Page from './pages/profileFilling/InterestsStage2Page.jsx';
 import SkillsIntroPage from './pages/profileFilling/SkillsIntroPage.jsx';
 import SkillsStage2Page from './pages/profileFilling/SkillsStage2Page.jsx';
+import SkillsLabPage from './pages/skillsLab/SkillsLabPage.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
@@ -196,6 +197,9 @@ function App() {
         <Route path={'/profile/filling/interests/categories'} element={<InterestsStage2Page />} />
         <Route path={'/profile/filling/skills'} element={<SkillsIntroPage />} />
         <Route path={'/profile/filling/skills/categories'} element={<SkillsStage2Page />} />
+
+        {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
+        <Route path={'/skills-lab/:skillSlug'} element={<SkillsLabPage />} />
 
         {/* All 5 avatar steps share one AvatarSelectionProvider so the
             user's picks survive navigation between Style → Skin → Hair →

@@ -83,6 +83,23 @@ Two entry flows defined in `src/constants/parentFlows.js`:
 | `/profile/engagement/milestone/top-20`     | `Top20MilestonePage`     |
 | `/profile/engagement/milestone/top-talent` | `TopTalentMilestonePage` |
 
+### Profile filling — no layout wrapper (own chrome)
+
+| Path                                    | Element               |
+| --------------------------------------- | --------------------- |
+| `/profile/filling/interests`            | `InterestsIntroPage`  |
+| `/profile/filling/interests/categories` | `InterestsStage2Page` |
+| `/profile/filling/skills`               | `SkillsIntroPage`     |
+| `/profile/filling/skills/categories`    | `SkillsStage2Page`    |
+
+### Skills Lab — no layout wrapper (standalone game shell)
+
+Single-page state machine quiz for skill verification. Route param `:skillSlug` selects the quiz config from `src/constants/skillLabQuizzes.js`. Currently mocked with Python.
+
+| Path                     | Element         |
+| ------------------------ | --------------- |
+| `/skills-lab/:skillSlug` | `SkillsLabPage` |
+
 ### Avatar customiser — `AvatarFlowLayout` (outside `MainLayout`)
 
 Wrapped in `AvatarSelectionProvider` so picks survive navigation.

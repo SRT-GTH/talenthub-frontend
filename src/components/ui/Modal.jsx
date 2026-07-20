@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -46,6 +46,21 @@ const CloseIcon = ({ className }) => (
   </svg>
 );
 
+const ScrollDownChevron = ({ className }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <polyline points="4 6 8 10 12 6" />
+  </svg>
+);
+
 const Modal = ({
   isOpen,
   onClose,
@@ -54,9 +69,24 @@ const Modal = ({
   showClose = true,
   className,
   contentClassName,
+  footer,
   children,
 }) => {
   const closeButtonRef = useRef(null);
+  const scrollRef = useRef(null);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const hasMore = el.scrollHeight - el.scrollTop - el.clientHeight > 8;
+    setCanScrollDown(hasMore);
+  }, []);
+
+  const handleScrollClick = () => {
+    const el = scrollRef.current;
+    if (el) el.scrollBy({ top: 120, behavior: 'smooth' });
+  };
 
   // ESC to close + body-scroll lock while open.
   useEffect(() => {
@@ -73,12 +103,14 @@ const Modal = ({
 
     closeButtonRef.current?.focus?.();
 
+    requestAnimationFrame(checkScroll);
+
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previousOverflow;
       log('close');
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, checkScroll]);
 
   if (!isOpen) return null;
 
@@ -110,7 +142,7 @@ const Modal = ({
       >
         <div
           className={classNames(
-            'relative w-full bg-white rounded-2xl shadow-bottom-400',
+            'relative w-full max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-bottom-400',
             SIZE_CLASSES[size] || SIZE_CLASSES.lg,
             contentClassName
           )}
@@ -130,7 +162,40 @@ const Modal = ({
               <CloseIcon className="size-4" />
             </button>
           )}
-          {children}
+          <div
+            ref={scrollRef}
+            onScroll={checkScroll}
+            className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden"
+          >
+            {children}
+          </div>
+          {footer && (
+            <div className="relative">
+              {canScrollDown && (
+                <button
+                  type="button"
+                  onClick={handleScrollClick}
+                  aria-label="Scroll down for more"
+                  className="absolute left-1/2 -translate-x-1/2 -top-[16px] z-10 size-[32px] rounded-full bg-white border border-[#e0e0e0] shadow-[0px_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-opacity hover:bg-[#f5f5f5]"
+                >
+                  <ScrollDownChevron className="size-[14px] text-[#575755]" />
+                </button>
+              )}
+              {footer}
+            </div>
+          )}
+          {!footer && canScrollDown && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={handleScrollClick}
+                aria-label="Scroll down for more"
+                className="absolute left-1/2 -translate-x-1/2 -top-[16px] z-10 size-[32px] rounded-full bg-white border border-[#e0e0e0] shadow-[0px_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-opacity hover:bg-[#f5f5f5]"
+              >
+                <ScrollDownChevron className="size-[14px] text-[#575755]" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>,

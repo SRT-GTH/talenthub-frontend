@@ -3,7 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
 import { debug } from '../../../utils/debug.js';
-import { SkillIconJs, SkillIconPython, SkillIconJava } from '../../shared/assets.jsx';
+import {
+  SkillIconJs,
+  SkillIconPython,
+  SkillIconJava,
+  SkillIconDataAnalysis,
+  SkillIconCreativeDesign,
+  SkillIconProjectMgmt,
+  SkillIconPublicSpeaking,
+} from '../../shared/assets.jsx';
 import AddSkillModal from './AddSkillModal.jsx';
 import Button from '../../ui/Button.jsx';
 
@@ -76,7 +84,6 @@ const CheckBadgeIcon = ({ className }) => (
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const PROFICIENCY_LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 const PROFICIENCY_BAR = { Beginner: 25, Intermediate: 50, Advanced: 75, Expert: 100 };
 
 // Three overlapping avatar circles shown per card
@@ -116,13 +123,13 @@ const INITIAL_SKILLS = [
     IconComponent: SkillIconPython,
     iconBg: 'bg-[#f7fee7]',
     name: 'Python',
-    status: 'verified',
+    status: 'self-reported',
     proficiency: 'Advanced',
     endorsements: 18,
     endorserSet: 2,
   },
   {
-    id: 'leadership',
+    id: 'team-leadership',
     emoji: '🤝',
     iconBg: 'bg-[#f7fee7]',
     name: 'Team Leadership',
@@ -131,16 +138,56 @@ const INITIAL_SKILLS = [
     endorsements: 3,
     endorserSet: 0,
   },
+  {
+    id: 'data-analysis',
+    IconComponent: SkillIconDataAnalysis,
+    iconBg: 'bg-[#f0f7f1]',
+    name: 'Data Analysis',
+    status: 'self-reported',
+    proficiency: 'Intermediate',
+    endorsements: 7,
+    endorserSet: 1,
+  },
+  {
+    id: 'creative-design',
+    IconComponent: SkillIconCreativeDesign,
+    iconBg: 'bg-[#fef3f2]',
+    name: 'Creative Design',
+    status: 'self-reported',
+    proficiency: 'Beginner',
+    endorsements: 2,
+    endorserSet: 2,
+  },
+  {
+    id: 'project-management',
+    IconComponent: SkillIconProjectMgmt,
+    iconBg: 'bg-[#eff6ff]',
+    name: 'Project Management',
+    status: 'self-reported',
+    proficiency: 'Advanced',
+    endorsements: 14,
+    endorserSet: 0,
+  },
+  {
+    id: 'public-speaking',
+    IconComponent: SkillIconPublicSpeaking,
+    iconBg: 'bg-[#fff8e1]',
+    name: 'Public Speaking',
+    status: 'self-reported',
+    proficiency: 'Intermediate',
+    endorsements: 5,
+    endorserSet: 1,
+  },
 ];
 
 // ─── SkillCard ────────────────────────────────────────────────────────────────
 /*
- * Fixed-height row card.  Clicking "✎ Edit" reveals a proficiency selector below.
+ * Fixed-height row card.  Clicking "✎ Edit" opens the AddSkillModal in edit mode.
  * Verified cards:      bg-[rgba(235,241,236,0.5)] — Figma 3676:29446
  * Self-reported cards: bg-white                   — Figma 3677:29774
  * "Verify in Lab" button visible only for self-reported skills.
  */
-const SkillCard = ({ skill, isEditing, onToggleEdit, onChangeProficiency }) => {
+const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
   const isVerified = skill.status === 'verified';
   const barPct = PROFICIENCY_BAR[skill.proficiency] ?? 50;
   const endorsers = MOCK_ENDORSER_SETS[skill.endorserSet % MOCK_ENDORSER_SETS.length];
@@ -203,9 +250,16 @@ const SkillCard = ({ skill, isEditing, onToggleEdit, onChangeProficiency }) => {
           {/* Proficiency dots + label — Figma 3673:29199: 4 × 7px squares, gap-[10px] */}
           <div className="flex items-center gap-[13px]">
             <div className="flex items-center gap-[10px]">
-              {[0, 1, 2, 3].map((i) => (
-                <span key={i} className="size-[7px] bg-[#387440] rounded-[3.5px] shrink-0" />
-              ))}
+              {[0, 1, 2, 3].map((i) => {
+                const filledCount =
+                  { Beginner: 1, Intermediate: 2, Advanced: 3, Expert: 4 }[skill.proficiency] ?? 0;
+                return (
+                  <span
+                    key={i}
+                    className={`size-[7px] rounded-[3.5px] shrink-0 ${i < filledCount ? 'bg-[#387440]' : 'bg-[#e8e8e4]'}`}
+                  />
+                );
+              })}
             </div>
             <span className="font-sans font-medium text-[10px] text-[#70706e]">
               {skill.proficiency}
@@ -246,7 +300,7 @@ const SkillCard = ({ skill, isEditing, onToggleEdit, onChangeProficiency }) => {
           </div>
 
           {/* Progress bar — Figma 3670:29187 / 29188 */}
-          <div className="h-[4px] max-w-[200px] bg-[#f8f8f4] border border-[#e8e8e4] rounded-[2px] overflow-hidden">
+          <div className="h-[4px] max-w-[810px] bg-neutral border border-[#e8e8e4] rounded-[2px] overflow-hidden">
             <div
               className="h-full bg-[#387440] rounded-[2px] transition-all duration-300"
               style={{ width: `${barPct}%` }}
@@ -255,145 +309,106 @@ const SkillCard = ({ skill, isEditing, onToggleEdit, onChangeProficiency }) => {
         </div>
 
         {/* Action buttons — Figma 3677:29572 */}
-        <div className="flex items-center gap-[8px] shrink-0 self-center ml-[8px]">
+        <div className="flex items-center gap-[8px]  shrink-0 self-center ml-[8px]">
           {!isVerified && (
             <Button
               variant="tertiary-subtle"
-              size="sm"
-              leftIcon={<CheckBadgeIcon className="size-[11px]" />}
+              className="drop-shadow-none text-[10px]! font-medium"
+              size="xs"
+              leftIcon={<CheckBadgeIcon className="size-full" />}
+              onClick={onVerifyInLab}
             >
               Verify in Lab
             </Button>
           )}
-          <Button variant="tertiary" size="sm" onClick={onToggleEdit}>
+          <Button
+            variant="tertiary"
+            className="drop-shadow-none border-[#DBDBDB]! text-[10px]!"
+            size="xs"
+            onClick={onEdit}
+          >
             ✎&#8194;Edit
           </Button>
         </div>
       </div>
-
-      {/* Edit panel — shown when isEditing */}
-      {isEditing && (
-        <div
-          className="border-t px-[15px] pb-[14px] pt-[12px]"
-          style={{ background: 'rgba(235,241,236,0.5)', borderTopColor: 'rgba(0,0,0,0.06)' }}
-        >
-          <p className="font-bold text-[10px] text-[#387440] tracking-[0.6px] uppercase mb-[10px]">
-            Proficiency level
-          </p>
-          <div className="flex items-center gap-[6px] flex-wrap">
-            {PROFICIENCY_LEVELS.map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => onChangeProficiency(level)}
-                className={`h-[28px] px-[14px] rounded-full border font-semibold text-[11px] transition-colors duration-150 ${
-                  skill.proficiency === level
-                    ? 'bg-[#387440] border-[#2a5730] text-white'
-                    : 'bg-white border-[#e8e8e4] text-[#555] hover:border-[#387440] hover:text-[#387440]'
-                }`}
-              >
-                {level}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 // ─── Right panel ──────────────────────────────────────────────────────────────
-const SkillsStage2RightPanel = ({ skillCount, verifiedCount }) => (
+const SkillsStage2RightPanel = () => (
   <aside
     className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[#e8e8e4] overflow-y-auto [&::-webkit-scrollbar]:hidden"
     aria-label="Skills guidance"
     style={{ scrollbarWidth: 'none' }}
   >
     <div className="flex flex-col gap-[10px] p-[clamp(12px,1.16vw,20px)]">
-      {/* PROFILE STRENGTH */}
-      <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
-          Profile Strength
+      {/* MENTOR MATCHING — Figma 3676:29362 */}
+      <div
+        className="border border-[#c1d4c4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
+        style={{ background: 'rgba(235,241,236,0.5)', boxShadow: '0px 1px 3px rgba(0,0,0,0.06)' }}
+      >
+        <p className="font-bold text-[12px] uppercase tracking-[0.6px] text-[#2a5730] mb-[8px]">
+          Mentor matching
         </p>
-        <div className="flex items-center gap-[10px] bg-[#f4f4f0] rounded-[10px] p-[10px] mb-[10px]">
-          <span className="font-display not-italic text-[22px] leading-none text-[#111] shrink-0">
-            36%
-          </span>
-          <div>
-            <p className="font-sans font-semibold text-[11px] text-[#111] leading-tight">
-              Profile strength
-            </p>
-            <p className="font-sans text-[10px] text-[#70706e] leading-tight mt-[2px]">
-              Three stages done. Skills unlocks recruiter visibility.
-            </p>
-          </div>
-        </div>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
-          {verifiedCount} of {skillCount} skill{skillCount !== 1 ? 's' : ''} verified. Verified
-          skills appear first on your recruiter card and get 4× more clicks.
+        <p className="font-sans text-[12px] text-[#2a5730] leading-[19.2px]">
+          Verified ✓ skills are clicked 4× more by recruiters than self-reported. Your top 3–5 are
+          worth verifying. The rest can stay self-reported.
         </p>
       </div>
 
-      {/* VERIFIED SKILLS */}
+      {/* PEER ENDORSEMENTS — Figma 3669:28748 */}
       <div
-        className="border border-[#c1d4c4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
-        style={{ background: 'rgba(235,241,236,0.5)' }}
+        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
+        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
       >
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
-          Verified Skills
+        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+          Peer endorsements
         </p>
-        <ul className="flex flex-col gap-[5px]">
+        <p className="font-sans text-[12px] text-[#999] leading-[19.2px]">
+          Anyone on GTH who&apos;s worked with you can endorse a skill. Each endorsement adds social
+          proof — shown as faces + count beside the skill.
+        </p>
+      </div>
+
+      {/* THE SWEET SPOT — Skills Lab (Figma 3669:28751) */}
+      <div
+        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
+        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+      >
+        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+          The sweet spot
+        </p>
+        <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px]">
+          A mini-game assessment area. Pass a skill challenge = green ✓. Retake with no penalty.
+          Currently supports: Python, SQL, Excel, Figma, Data Analysis and 12 more.
+        </p>
+      </div>
+
+      {/* THE SWEET SPOT — proficiency levels (Figma 3676:29366) */}
+      <div
+        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
+        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+      >
+        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+          The sweet spot
+        </p>
+        <ul className="flex flex-col gap-[0px]">
           {[
-            'Go to Skills Lab — complete a 5–10 min mini-game',
-            'Pass = green ✓ badge on your profile',
-            'Recruiters click verified skills 4× more',
-            'Retake any time — no penalty for trying',
+            'Beginner : learning the basics',
+            'Intermediate : use it regularly',
+            'Advanced : independently skilled',
+            'Expert : can teach it',
           ].map((item) => (
             <li
               key={item}
-              className="flex items-start gap-[6px] font-sans text-[11px] text-[#70706e] leading-[1.5]"
+              className="flex items-start gap-[7px] font-sans text-[12px] text-[#70706e] leading-[26px]"
             >
-              <span className="font-bold text-[#387440] shrink-0 mt-px">✓</span>
+              <span className="font-black text-[#387440] shrink-0">✓</span>
               {item}
             </li>
           ))}
         </ul>
-      </div>
-
-      {/* PEER ENDORSEMENTS — Figma 3669:28749 */}
-      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
-          Peer Endorsements
-        </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
-          Anyone on GTH who&apos;s worked with you can endorse a skill. Endorsement count shows next
-          to each skill — social proof that builds trust with recruiters.
-        </p>
-      </div>
-
-      {/* SKILLS LAB */}
-      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
-          Skills Lab
-        </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
-          A separate mini-game area accessible from any skill card. Each challenge takes 5–10
-          minutes. Retake any skill if you don&apos;t pass first time — no penalty.
-        </p>
-      </div>
-
-      {/* THE SWEET SPOT */}
-      <div
-        className="border border-[#c1d4c4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
-        style={{ background: 'rgba(235,241,236,0.5)' }}
-      >
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
-          The Sweet Spot
-        </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
-          6–10 skills total. At least 3 verified. Too few = sparse profile. Too many unverified =
-          noise. Quality beats quantity here.
-        </p>
       </div>
     </div>
   </aside>
@@ -406,8 +421,8 @@ const SkillsStage2Section = () => {
   const navigate = useNavigate();
 
   const [skills, setSkills] = useState(INITIAL_SKILLS);
-  const [editingId, setEditingId] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSkill, setEditingSkill] = useState(null);
 
   const handleSaveExit = () => {
     log('save & exit → /');
@@ -424,35 +439,47 @@ const SkillsStage2Section = () => {
     navigate('/profile/filling/work');
   };
 
-  const toggleEdit = (id) => {
-    log('toggle edit', { id });
-    setEditingId((prev) => (prev === id ? null : id));
+  const openAddModal = () => {
+    log('open add skill modal');
+    setEditingSkill(null);
+    setIsModalOpen(true);
   };
 
-  const changeProficiency = (id, level) => {
-    log('change proficiency', { id, level });
-    setSkills((prev) => prev.map((s) => (s.id === id ? { ...s, proficiency: level } : s)));
+  const openEditModal = (skill) => {
+    log('open edit skill modal', { id: skill.id, name: skill.name });
+    setEditingSkill(skill);
+    setIsModalOpen(true);
   };
 
-  const addSkill = ({ name, proficiency }) => {
-    const id = `skill-${skills.length}-${name.toLowerCase().replace(/\s+/g, '-')}`;
-    log('add skill', { id, name, proficiency });
-    setSkills((prev) => [
-      ...prev,
-      {
-        id,
-        emoji: '💡',
-        iconBg: 'bg-[#f7fee7]',
-        name,
-        status: 'self-reported',
-        proficiency,
-        endorsements: 0,
-        endorserSet: prev.length % MOCK_ENDORSER_SETS.length,
-      },
-    ]);
+  const closeModal = () => {
+    log('close skill modal');
+    setIsModalOpen(false);
+    setEditingSkill(null);
   };
 
-  const verifiedCount = skills.filter((s) => s.status === 'verified').length;
+  const handleSkillSubmit = ({ id, name, proficiency }) => {
+    if (id && skills.some((s) => s.id === id)) {
+      log('update existing skill', { id, name, proficiency });
+      setSkills((prev) => prev.map((s) => (s.id === id ? { ...s, name, proficiency } : s)));
+    } else {
+      const newId = `skill-${skills.length}-${name.toLowerCase().replace(/\s+/g, '-')}`;
+      log('add new skill', { id: newId, name, proficiency });
+      setSkills((prev) => [
+        ...prev,
+        {
+          id: newId,
+          emoji: '💡',
+          iconBg: 'bg-[#f7fee7]',
+          name,
+          status: 'self-reported',
+          proficiency,
+          endorsements: 0,
+          endorserSet: prev.length % MOCK_ENDORSER_SETS.length,
+        },
+      ]);
+    }
+  };
+
   const totalEndorsements = skills.reduce((sum, s) => sum + s.endorsements, 0);
 
   return (
@@ -538,9 +565,8 @@ const SkillsStage2Section = () => {
                 <SkillCard
                   key={skill.id}
                   skill={skill}
-                  isEditing={editingId === skill.id}
-                  onToggleEdit={() => toggleEdit(skill.id)}
-                  onChangeProficiency={(level) => changeProficiency(skill.id, level)}
+                  onEdit={() => openEditModal(skill)}
+                  onVerifyInLab={() => navigate(`/skills-lab/${skill.id}`)}
                 />
               ))}
             </div>
@@ -549,10 +575,7 @@ const SkillsStage2Section = () => {
             <div className="px-[clamp(20px,3.24vw,56px)] pt-[8px] pb-[clamp(16px,1.85vw,32px)]">
               <button
                 type="button"
-                onClick={() => {
-                  log('open add skill modal');
-                  setIsAddModalOpen(true);
-                }}
+                onClick={openAddModal}
                 className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-[#387440] transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                 style={{
                   background: 'rgba(235,241,236,0.5)',
@@ -595,7 +618,7 @@ const SkillsStage2Section = () => {
                   variant="tertiary"
                   size="md"
                   onClick={handleGoBack}
-                  leftIcon={<ArrowLeftIcon className="size-3.5" />}
+                  leftIcon={<ArrowLeftIcon className="size-full" />}
                 >
                   Skills
                 </Button>
@@ -604,7 +627,7 @@ const SkillsStage2Section = () => {
                   variant="primary"
                   size="md"
                   onClick={handleNext}
-                  rightIcon={<ArrowRightIcon className="size-3.5" />}
+                  rightIcon={<ArrowRightIcon className="size-full" />}
                 >
                   Next: Work
                 </Button>
@@ -614,17 +637,15 @@ const SkillsStage2Section = () => {
         </div>
 
         {/* Right panel */}
-        <SkillsStage2RightPanel skillCount={skills.length} verifiedCount={verifiedCount} />
+        <SkillsStage2RightPanel />
       </main>
 
-      {/* Add Skill modal — portal-rendered, Figma 3721:22423 */}
+      {/* Skill modal — add or edit mode, portal-rendered, Figma 3721:22423 */}
       <AddSkillModal
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          log('close add skill modal');
-          setIsAddModalOpen(false);
-        }}
-        onAdd={addSkill}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onAdd={handleSkillSubmit}
+        editSkill={editingSkill}
       />
     </div>
   );

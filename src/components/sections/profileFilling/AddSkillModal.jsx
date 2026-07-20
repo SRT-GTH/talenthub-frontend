@@ -153,28 +153,35 @@ const CategoryChip = ({ label, isSelected, onToggle }) => (
  * Source: Figma frame 3721:22423.
  *
  * Props:
- *   isOpen   {boolean}
- *   onClose  {() => void}
- *   onAdd    {({ name, proficiency, categories, usedAt }) => void}
+ *   isOpen     {boolean}
+ *   onClose    {() => void}
+ *   onAdd      {({ name, proficiency, categories, usedAt }) => void}
+ *   editSkill  {object|null} — when provided, modal opens in edit mode with prefilled data
  */
-const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
+const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
+  const isEditMode = Boolean(editSkill);
   const [skillName, setSkillName] = useState('');
   const [proficiency, setProficiency] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [usedAt, setUsedAt] = useState('');
 
-  log('mount', { isOpen });
+  log('mount', { isOpen, isEditMode, editSkillId: editSkill?.id });
 
-  // Reset form when modal opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && editSkill) {
+      log('modal opened in edit mode — prefilling', { id: editSkill.id });
+      setSkillName(editSkill.name ?? '');
+      setProficiency(editSkill.proficiency ?? null);
+      setSelectedCategories(editSkill.categories ?? []);
+      setUsedAt(editSkill.usedAt ?? '');
+    } else if (isOpen) {
       log('modal opened — resetting form');
       setSkillName('');
       setProficiency(null);
       setSelectedCategories([]);
       setUsedAt('');
     }
-  }, [isOpen]);
+  }, [isOpen, editSkill]);
 
   const toggleCategory = (cat) => {
     log('toggle category', { cat });
@@ -183,11 +190,17 @@ const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
     );
   };
 
-  const handleAdd = () => {
+  const handleSubmit = () => {
     const trimmed = skillName.trim();
     if (!trimmed) return;
-    log('add skill', { name: trimmed, proficiency, selectedCategories, usedAt });
+    log(isEditMode ? 'save skill edit' : 'add skill', {
+      name: trimmed,
+      proficiency,
+      selectedCategories,
+      usedAt,
+    });
     onAdd({
+      ...(isEditMode && editSkill ? { id: editSkill.id } : {}),
       name: trimmed,
       proficiency: proficiency ?? 'Intermediate',
       categories: selectedCategories,
@@ -196,16 +209,15 @@ const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
     onClose();
   };
 
-  // Dynamic callout: shows skill name if typed, else generic text
   const calloutSkillName = skillName.trim() || 'Your skill';
-  const canAdd = skillName.trim().length > 0;
+  const canSubmit = skillName.trim().length > 0;
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
-      ariaLabel="Add a skill"
+      ariaLabel={isEditMode ? 'Edit skill' : 'Add a skill'}
       showClose={false}
       contentClassName="!rounded-[24px] !border-[3px] !border-[#c1d4c4] overflow-hidden"
     >
@@ -239,19 +251,29 @@ const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
                 }}
               />
               <span className="font-sans text-[12px] text-[#999] tracking-[0.2px] whitespace-nowrap leading-[18px]">
-                Add A skill
+                {isEditMode ? 'Edit skill' : 'Add A skill'}
               </span>
             </div>
 
             {/* Heading + subtitle */}
             <div className="flex flex-col items-center gap-[4px] text-center">
               <h2 className="font-display text-[clamp(24px,2.31vw,40px)] tracking-[-1.2px] leading-[1.1]">
-                <span className="not-italic text-[#111]">What are y</span>
-                <span className="italic text-[#387440]">ou adding?</span>
+                {isEditMode ? (
+                  <>
+                    <span className="not-italic text-[#111]">Edit y</span>
+                    <span className="italic text-[#387440]">our skill.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="not-italic text-[#111]">What are y</span>
+                    <span className="italic text-[#387440]">ou adding?</span>
+                  </>
+                )}
               </h2>
               <p className="font-sans text-[12px] text-[#959592] tracking-[0.2px] leading-[18px] max-w-[520px]">
-                Fill in the name, set your proficiency honestly, and tag it to a category.
-                That&apos;s it — you can verify it later.
+                {isEditMode
+                  ? 'Update the details below and save when you’re done.'
+                  : 'Fill in the name, set your proficiency honestly, and tag it to a category. That’s it — you can verify it later.'}
               </p>
             </div>
           </div>
@@ -276,7 +298,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
                   setSkillName(e.target.value);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && canAdd) handleAdd();
+                  if (e.key === 'Enter' && canSubmit) handleSubmit();
                 }}
                 placeholder="e.g. React, Tableau, Public Speaking…"
                 className="w-full h-full bg-white border border-[#ccc] rounded-[10px] pl-[20px] pr-[16px] font-sans text-[14px] text-[#111] placeholder:text-[#959592] tracking-[0.2px] leading-[20px] outline-none transition-colors duration-150 focus:border-[#387440]"
@@ -392,8 +414,8 @@ const AddSkillModal = ({ isOpen, onClose, onAdd }) => {
             </div>
 
             {/* Add skill CTA — Figma 4140:23391 */}
-            <Button variant="primary" size="md" onClick={handleAdd} disabled={!canAdd}>
-              Add skill →
+            <Button variant="primary" size="md" onClick={handleSubmit} disabled={!canSubmit}>
+              {isEditMode ? 'Save skill →' : 'Add skill →'}
             </Button>
           </div>
         </div>
