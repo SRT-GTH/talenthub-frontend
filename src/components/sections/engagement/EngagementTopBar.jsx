@@ -1,9 +1,23 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
+import { debug } from '../../../utils/debug.js';
 import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.jsx';
+import Button from '../../ui/Button.jsx';
+import { SLChevronLeftIcon } from '../../shared/assets.jsx';
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
 
 import arrowhead from '../../../assets/engagement/arrowhead.svg';
+
+const log = debug('EngagementTopBar');
+
+// How far one chevron click scrolls the trail — roughly 2 stage units at
+// the default gap/width, matching a natural "next page of steps" jump.
+const TRAIL_SCROLL_STEP_PX = 240;
+
+// Width of the fade-out zone at each overflowing edge (Figma 5132:44983
+// scroll-chevron container, 58px wide — the fade is scoped to that same span).
+const TRAIL_FADE_WIDTH_PX = 58;
 
 /*
  * EngagementTopBar — stage-trail row on Profile Engagement screens.
@@ -18,6 +32,14 @@ import arrowhead from '../../../assets/engagement/arrowhead.svg';
  *          separates each pair.
  *   right: EngagementProgressIndicator (step counter + 6px progress bar)
  *          in a fixed-width 323px container, right-aligned.
+ *
+ * Overflow affordance (Figma 5132:44983, added 2026-07-28): the trail
+ * scrolls natively (overflow-x-auto) instead of clipping. A ghost-icon
+ * chevron Button appears on whichever edge currently has hidden content
+ * (tracked via scroll position + ResizeObserver), and that same edge gets a
+ * CSS mask-image fade so the cut-off stage doesn't look abruptly truncated.
+ * Both chevrons render the same SLChevronLeftIcon, mirrored with rotate-180
+ * for the right direction rather than shipping a duplicate glyph.
  *
  * Figma corrections applied 2026-07-04 (node 3530:36666):
  *   - Padding:   clamp(16px,3vw,40px) → clamp(20px,3.125vw,54px) horizontal; 10px fixed vertical
@@ -73,8 +95,47 @@ const STAGE_ROUTES = {
   'talent-pitch': '/profile/engagement',
 };
 
-const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className }) => {
-  const currentStage = PROFILE_STAGES[currentStageIndex];
+const EngagementTopBar = ({
+  currentStageIndex = 0,
+  completionPct = 0,
+  stages = PROFILE_STAGES,
+  interactive = true,
+  className,
+}) => {
+  const currentStage = stages[currentStageIndex];
+  const trailRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = trailRef.current;
+    if (!el) return;
+    const nextCanScrollLeft = el.scrollLeft > 1;
+    const nextCanScrollRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    log('branch', { trailOverflow: true, nextCanScrollLeft, nextCanScrollRight });
+    setCanScrollLeft(nextCanScrollLeft);
+    setCanScrollRight(nextCanScrollRight);
+  }, []);
+
+  useEffect(() => {
+    const el = trailRef.current;
+    if (!el) return undefined;
+    updateScrollState();
+    el.addEventListener('scroll', updateScrollState, { passive: true });
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(el);
+    window.addEventListener('resize', updateScrollState);
+    return () => {
+      el.removeEventListener('scroll', updateScrollState);
+      observer.disconnect();
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState, stages]);
+
+  const scrollTrail = (direction) => {
+    log('branch', { scrollTrail: direction });
+    trailRef.current?.scrollBy({ left: direction * TRAIL_SCROLL_STEP_PX, behavior: 'smooth' });
+  };
 
   return (
     <div
@@ -85,38 +146,51 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
         className
       )}
     >
-      <nav
-        aria-label="Profile engagement stages"
-        className="flex-1 min-w-0 flex flex-nowrap items-center gap-x-2 overflow-hidden"
-      >
-        {PROFILE_STAGES.map((stage, index) => {
-          const isCurrent = index === currentStageIndex;
-          const isCompleted = index < currentStageIndex;
-          const isFuture = index > currentStageIndex;
-          const route = STAGE_ROUTES[stage.id];
-          if (!route) return null;
-          const label = stage.trailLabel || stage.title;
+      {/* relative wrapper hosts the two overlay chevron buttons — the <nav>
+          itself only needs to scroll + fade, not know about its siblings. */}
+      <div className="relative flex-1 min-w-0">
+        <nav
+          ref={trailRef}
+          aria-label="Profile engagement stages"
+          className="flex flex-nowrap items-center gap-x-2 overflow-x-auto no-scrollbar scroll-smooth"
+          style={{
+            // Fade-out at whichever edge currently has hidden overflow (Figma
+            // 5132:44983 scroll-chevron affordance) — mask width matches the
+            // chevron button's own 58px span so the glyph sits inside the fade
+            // rather than on top of fully-opaque content. No mask at all when
+            // that side has nothing hidden, so the trail's edges stay crisp.
+            WebkitMaskImage: `linear-gradient(to right, transparent 0, black ${canScrollLeft ? `${TRAIL_FADE_WIDTH_PX}px` : '0px'}, black calc(100% - ${canScrollRight ? `${TRAIL_FADE_WIDTH_PX}px` : '0px'}), transparent 100%)`,
+            maskImage: `linear-gradient(to right, transparent 0, black ${canScrollLeft ? `${TRAIL_FADE_WIDTH_PX}px` : '0px'}, black calc(100% - ${canScrollRight ? `${TRAIL_FADE_WIDTH_PX}px` : '0px'}), transparent 100%)`,
+          }}
+        >
+          {stages.map((stage, index) => {
+            const isCurrent = index === currentStageIndex;
+            const isCompleted = index < currentStageIndex;
+            const isFuture = index > currentStageIndex;
+            const route = STAGE_ROUTES[stage.id];
+            // In interactive mode (the default, used by the multi-page profile-
+            // filling wizard) a stage without a registered route is skipped.
+            // In non-interactive mode (single-page conversational flows like
+            // Career Buddy) every supplied stage renders regardless of route.
+            if (interactive && !route) return null;
+            const label = stage.trailLabel || stage.title;
 
-          // Completed and active stages share a green check-circle; future
-          // stages use a grey outline circle to signal they're not yet reached.
-          const StageIcon = isFuture ? EmptyCircleIcon : CheckCircleIcon;
+            // Completed and active stages share a green check-circle; future
+            // stages use a grey outline circle to signal they're not yet reached.
+            const StageIcon = isFuture ? EmptyCircleIcon : CheckCircleIcon;
 
-          return (
-            <span key={stage.id} className="inline-flex items-center gap-2 shrink-0">
-              <Link
-                to={route}
-                aria-label={label}
-                aria-current={isCurrent ? 'step' : undefined}
-                className={classNames(
-                  'inline-flex items-center gap-[12px] rounded px-1 py-0.5',
-                  'transition-colors duration-150',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-                  // Icon colour: green for completed/active, neutral-dark for future.
-                  isCompleted || isCurrent ? 'text-brand-green' : 'text-neutral-dark',
-                  // Hover brings all stages to brand-green as a preview affordance.
-                  'hover:text-brand-green'
-                )}
-              >
+            const stageClassName = classNames(
+              'inline-flex items-center gap-[12px] rounded px-1 py-0.5',
+              'transition-colors duration-150',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+              // Icon colour: green for completed/active, neutral-dark for future.
+              isCompleted || isCurrent ? 'text-brand-green' : 'text-neutral-dark',
+              // Hover brings all stages to brand-green as a preview affordance.
+              interactive && 'hover:text-brand-green'
+            );
+
+            const stageContent = (
+              <>
                 <StageIcon className="size-4 shrink-0" />
                 <span
                   className={classNames(
@@ -128,26 +202,78 @@ const EngagementTopBar = ({ currentStageIndex = 0, completionPct = 0, className 
                 >
                   {label}
                 </span>
-              </Link>
-              {index < PROFILE_STAGES.length - 1 && (
-                <img
-                  src={arrowhead}
-                  alt=""
-                  aria-hidden="true"
-                  className="block size-6 select-none opacity-70 shrink-0"
-                  draggable="false"
-                />
-              )}
-            </span>
-          );
-        })}
-      </nav>
+              </>
+            );
+
+            return (
+              <span key={stage.id} className="inline-flex items-center gap-2 shrink-0">
+                {interactive ? (
+                  <Link
+                    to={route}
+                    aria-label={label}
+                    aria-current={isCurrent ? 'step' : undefined}
+                    className={stageClassName}
+                  >
+                    {stageContent}
+                  </Link>
+                ) : (
+                  <span
+                    aria-label={label}
+                    aria-current={isCurrent ? 'step' : undefined}
+                    className={stageClassName}
+                  >
+                    {stageContent}
+                  </span>
+                )}
+                {index < stages.length - 1 && (
+                  <img
+                    src={arrowhead}
+                    alt=""
+                    aria-hidden="true"
+                    className="block size-6 select-none opacity-70 shrink-0"
+                    draggable="false"
+                  />
+                )}
+              </span>
+            );
+          })}
+        </nav>
+
+        {/* Overflow chevrons — only rendered on the side that actually has
+            hidden content (Figma 5132:44983: "row scrolls horizontally when
+            the [chevron] is clicked"). Left chevron mirrors the same glyph
+            via rotate-180 rather than shipping a second near-duplicate icon. */}
+        {canScrollLeft && (
+          <Button
+            type="button"
+            variant="ghost-icon"
+            size="sm"
+            aria-label="Scroll to previous steps"
+            onClick={() => scrollTrail(-1)}
+            className="absolute left-0 top-1/2 -translate-y-1/2"
+          >
+            <SLChevronLeftIcon className="size-4" />
+          </Button>
+        )}
+        {canScrollRight && (
+          <Button
+            type="button"
+            variant="ghost-icon"
+            size="sm"
+            aria-label="Scroll to next steps"
+            onClick={() => scrollTrail(1)}
+            className="absolute right-0 top-1/2 -translate-y-1/2"
+          >
+            <SLChevronLeftIcon className="size-4 rotate-180" />
+          </Button>
+        )}
+      </div>
 
       {/* Right: step counter + progress bar, right-aligned (items-end in flex-col) */}
       <div className="w-[323px] shrink-0 flex flex-col gap-[4px] items-end justify-center">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
-          totalSteps={PROFILE_STAGES.length}
+          totalSteps={stages.length}
           currentStepLabel={currentStage?.trailLabel || currentStage?.title}
           completionPct={completionPct}
         />

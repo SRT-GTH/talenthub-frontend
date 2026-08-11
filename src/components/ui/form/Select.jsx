@@ -32,6 +32,17 @@ const TRIGGER_BASE =
   'transition-colors duration-100 cursor-pointer text-left ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
 
+const TRIGGER_SM_BASE =
+  'flex h-[46px] items-center gap-2 px-3 rounded-lg w-full ' +
+  'transition-colors duration-100 cursor-pointer text-left ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
+
+const TRIGGER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
+
+const INSCRIPTION_CLASSES =
+  'pointer-events-none absolute left-[16px] top-[6px] z-[1] ' +
+  'font-sans text-[8px] font-medium leading-[11px] text-[#32683a]';
+
 const TRIGGER_STATE_CLASSES = {
   default: 'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)]',
   open: 'bg-white border border-brand-green-light-active shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]',
@@ -41,6 +52,15 @@ const TRIGGER_STATE_CLASSES = {
     'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)]',
   disabled:
     'bg-brand-green-light border-2 border-[#cccccc] opacity-55 shadow-none cursor-not-allowed',
+};
+
+const TRIGGER_SM_STATE_CLASSES = {
+  default: 'bg-white border border-[#e6e6e6]',
+  open: 'bg-white border border-brand-green-light-active',
+  verified: 'bg-white border border-brand-green-light-active',
+  error: 'bg-white border border-danger-light-active',
+  disabled:
+    'bg-brand-green-light border border-[#cccccc] opacity-55 shadow-none cursor-not-allowed',
 };
 
 const ChevronDown = ({ className }) => (
@@ -80,6 +100,12 @@ const Select = ({
   searchable = false,
   verified = false,
   disabled = false,
+  // `md` = default dropdown. `sm` = compact deadline month chip (Figma 5132:68248).
+  size = 'md',
+  // Optional in-field top caption (Figma 5132:67856 / 67872 — Currency / Frequency).
+  inscription,
+  // Swap the default stroke chevron (e.g. filled ArrowheadDownIcon on salary selects).
+  chevronIcon,
   leftIcon,
   // Optional override for the leading-icon color wrapper. Defaults to
   // `text-content-tertiary` — symmetric with `TextInput.leftIconClassName`.
@@ -108,8 +134,10 @@ const Select = ({
   const isForced = Boolean(state);
   const effectiveOpen = isForced ? state === 'open' : open;
   const effectiveDisabled = disabled || state === 'disabled';
+  const isSm = size === 'sm';
+  const hasInscription = Boolean(inscription) && !isSm;
 
-  log('render', { label, state, open: effectiveOpen, value: currentValue });
+  log('render', { label, inscription, size, state, open: effectiveOpen, value: currentValue });
 
   // Resolve trigger visual state — earliest match wins.
   const triggerState = isForced
@@ -123,6 +151,8 @@ const Select = ({
           : verified
             ? 'verified'
             : 'default';
+
+  const triggerStateClasses = isSm ? TRIGGER_SM_STATE_CLASSES : TRIGGER_STATE_CLASSES;
 
   const normalisedOptions = options.map(normaliseOption);
   const selected = normalisedOptions.find((opt) => opt.value === currentValue);
@@ -210,9 +240,14 @@ const Select = ({
           disabled={effectiveDisabled}
           onClick={handleTriggerClick}
           onKeyDown={handleTriggerKey}
-          className={classNames(TRIGGER_BASE, TRIGGER_STATE_CLASSES[triggerState])}
+          className={classNames(
+            isSm ? TRIGGER_SM_BASE : TRIGGER_BASE,
+            hasInscription && TRIGGER_INSCRIPTION_CLASSES,
+            triggerStateClasses[triggerState]
+          )}
           {...rest}
         >
+          {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}
           {leftIcon && (
             <span
               className={classNames(
@@ -227,18 +262,28 @@ const Select = ({
           )}
           <span
             className={classNames(
-              'flex-1 min-w-0 font-sans text-[14px] leading-[20px] tracking-[0.2px] truncate',
-              selected ? 'text-content-primary font-medium' : 'text-[#595959] font-normal'
+              'flex-1 min-w-0 font-sans tracking-[0.2px] truncate',
+              isSm ? 'text-[16px] leading-[22px]' : 'text-[14px] leading-[20px]',
+              selected
+                ? isSm
+                  ? 'text-[#737373] font-normal'
+                  : 'text-content-primary font-medium'
+                : 'text-[#595959] font-normal'
             )}
           >
             {selected?.label || placeholder}
           </span>
-          <ChevronDown
+          <span
+            aria-hidden="true"
             className={classNames(
-              'size-5 shrink-0 text-content-tertiary transition-transform duration-150',
-              effectiveOpen && 'rotate-180'
+              'inline-flex shrink-0 items-center justify-center transition-transform duration-150 [&>svg]:size-full',
+              isSm ? 'size-[14px]' : 'size-5',
+              effectiveOpen && 'rotate-180',
+              !chevronIcon && 'text-content-tertiary'
             )}
-          />
+          >
+            {chevronIcon ?? <ChevronDown />}
+          </span>
         </button>
 
         {effectiveOpen && !effectiveDisabled && (

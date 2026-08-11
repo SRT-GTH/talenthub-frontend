@@ -59,6 +59,9 @@ const Field = ({
   // (Figma node 2353:16374 helper row #387440). When `error` is also
   // supplied, `error` wins since the field is still invalid.
   successText,
+  // Optional-badge colour override. Default is neutral grey; job-post
+  // Additional Perks uses brand-green (Figma accents).
+  optionalClassName = 'text-[#595959]',
   // Helper-row composition slots. Default rendering keeps the legacy circle
   // AlertIcon + danger/neutral text. Pages with non-default tones (e.g. the
   // brand-green "Email verification" hint or the success-green "Verrifed
@@ -118,7 +121,12 @@ const Field = ({
               {labelTrailing}
             </span>
           ) : optional ? (
-            <span className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#595959]">
+            <span
+              className={classNames(
+                'font-sans text-[12px] leading-[18px] tracking-[0.2px]',
+                optionalClassName
+              )}
+            >
               optional
             </span>
           ) : null}

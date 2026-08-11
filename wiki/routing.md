@@ -83,6 +83,16 @@ Two entry flows defined in `src/constants/parentFlows.js`:
 | `/profile/engagement/milestone/top-20`     | `Top20MilestonePage`     |
 | `/profile/engagement/milestone/top-talent` | `TopTalentMilestonePage` |
 
+### Profile filling — no layout wrapper, each step owns its own full-bleed chrome `✅ VERIFIED` (2026-07-22)
+
+| Path                                    | Element                                                                                                                                                   |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/profile/filling/interests`            | `InterestsIntroPage`                                                                                                                                      |
+| `/profile/filling/interests/categories` | `InterestsStage2Page`                                                                                                                                     |
+| `/profile/filling/skills`               | `SkillsIntroPage`                                                                                                                                         |
+| `/profile/filling/skills/categories`    | `SkillsStage2Page`                                                                                                                                        |
+| `/profile/filling/career-buddy`         | `CareerBuddyPage` — talent + recruiter via `CareerBuddyRoleProvider` (`?cb=` jumps). Legacy `/recruiter-buddy` redirects here. `✅ VERIFIED` (2026-08-10) |
+
 ### Profile filling — no layout wrapper (own chrome)
 
 | Path                                    | Element               |

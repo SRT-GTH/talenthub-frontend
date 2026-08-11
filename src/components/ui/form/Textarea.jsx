@@ -57,6 +57,7 @@ const Textarea = ({
   label,
   required,
   optional,
+  optionalClassName,
   helperText,
   error,
   state,
@@ -123,6 +124,7 @@ const Textarea = ({
       htmlFor={inputId}
       required={required}
       optional={optional}
+      optionalClassName={optionalClassName}
       helperText={helperText}
       error={error}
       className={className}

@@ -51,8 +51,31 @@ const INTERACTIVE_CLASSES =
   'focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
 
 const WRAPPER_BASE =
-  'flex  items-center  gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
+  'flex items-center gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
   'transition-colors duration-100';
+
+// Compact deadline chips (Figma 5132:68248 day/year) — 46px, r=8, #e6e6e6, no shelf.
+const WRAPPER_SM_BASE =
+  'flex h-[46px] items-center gap-2 px-4 rounded-lg w-full transition-colors duration-100';
+
+const SM_STATE_CLASSES = {
+  default: 'bg-white border border-[#e6e6e6]',
+  focus: 'bg-white border border-brand-green-light-active',
+  verified: 'bg-white border border-brand-green-light-active',
+  error: 'bg-white border border-danger-light-active',
+  disabled: 'bg-brand-green-light border border-[#cccccc] opacity-55',
+};
+
+const SM_INTERACTIVE_CLASSES =
+  'bg-white border border-[#e6e6e6] focus-within:border-brand-green-light-active';
+
+// Compact in-field caption (Figma salary GTHInput "Currency" / "Min" / …) —
+// 8px Raleway medium #32683a parked at the top-left inside the 51px box.
+const INSCRIPTION_CLASSES =
+  'pointer-events-none absolute left-[16px] top-[6px] z-[1] ' +
+  'font-sans text-[8px] font-medium leading-[11px] text-[#32683a]';
+
+const WRAPPER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
 
 // Filled-value typography mirrors Figma node 2353:14649 — SF Pro Rounded
 // Medium 14/24, color #111. Placeholder stays 400 / #595959 via the
@@ -64,16 +87,28 @@ const INPUT_BASE =
   'placeholder:text-[#595959] placeholder:font-normal ' +
   'disabled:cursor-not-allowed';
 
+const INPUT_SM_BASE =
+  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'font-sans text-[16px] leading-[22px] tracking-[0.2px] text-[#737373] ' +
+  'placeholder:text-[#999999] placeholder:font-normal ' +
+  'disabled:cursor-not-allowed';
+
 const TextInput = ({
   label,
   required,
   optional,
+  optionalClassName,
   helperText,
   successText,
   error,
   state,
   verified = false,
   disabled = false,
+  // `md` = default GTHInput (51px shelf). `sm` = compact deadline chip (46px, r=8).
+  size = 'md',
+  // Optional in-field top caption (Figma 5132:67856/67862/67867). When set,
+  // renders inside the input box; external Field `label` still works if passed.
+  inscription,
   leftIcon,
   // Optional override for the leading-icon color wrapper. Defaults to
   // `text-content-tertiary` (the legacy neutral). The Contact step's
@@ -99,8 +134,9 @@ const TextInput = ({
 }) => {
   const generatedId = useId();
   const inputId = id || generatedId;
+  const isSm = size === 'sm';
 
-  log('render', { label, state, verified, disabled, hasError: Boolean(error) });
+  log('render', { label, inscription, size, state, verified, disabled, hasError: Boolean(error) });
 
   // Resolve which visual state applies. Highest-priority wins; null means
   // "no override — let :focus-within drive it interactively".
@@ -110,9 +146,12 @@ const TextInput = ({
     (error ? 'error' : null) ||
     (verified ? 'verified' : null);
 
-  const wrapperStateClasses = resolvedState ? STATE_CLASSES[resolvedState] : INTERACTIVE_CLASSES;
+  const stateMap = isSm ? SM_STATE_CLASSES : STATE_CLASSES;
+  const interactive = isSm ? SM_INTERACTIVE_CLASSES : INTERACTIVE_CLASSES;
+  const wrapperStateClasses = resolvedState ? stateMap[resolvedState] : interactive;
 
   const isHtmlDisabled = disabled || state === 'disabled';
+  const hasInscription = Boolean(inscription) && !isSm;
 
   return (
     <Field
@@ -120,6 +159,7 @@ const TextInput = ({
       htmlFor={inputId}
       required={required}
       optional={optional}
+      optionalClassName={optionalClassName}
       helperText={helperText}
       successText={successText}
       error={error}
@@ -130,7 +170,14 @@ const TextInput = ({
       helperTextClassName={helperTextClassName}
       className={className}
     >
-      <div className={classNames(WRAPPER_BASE, wrapperStateClasses)}>
+      <div
+        className={classNames(
+          isSm ? WRAPPER_SM_BASE : WRAPPER_BASE,
+          hasInscription && WRAPPER_INSCRIPTION_CLASSES,
+          wrapperStateClasses
+        )}
+      >
+        {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}
         {leftIcon && (
           <span
             className={classNames(
@@ -150,12 +197,12 @@ const TextInput = ({
           disabled={isHtmlDisabled}
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error || helperText ? `${inputId}-msg` : undefined}
-          className={INPUT_BASE}
+          className={isSm ? INPUT_SM_BASE : INPUT_BASE}
           {...inputProps}
         />
         {rightIcon && (
           <span
-            className="flex items-center justify-center shrink-0 size-5 text-content-tertiary [&>svg]:w-full [&>svg]:h-full [&>img]:w-full [&>img]:h-full"
+            className="flex items-center justify-center shrink-0 text-content-tertiary [&>svg]:size-5"
             aria-hidden={rightIconInteractive ? undefined : 'true'}
           >
             {rightIcon}

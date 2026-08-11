@@ -13,14 +13,18 @@ const log = debug('Modal');
  *   - the Escape key
  *   - click on the overlay (anywhere outside the content box)
  *
- * The component does not handle focus-trapping or scroll-locking via a
- * library — body scroll is locked while open via `document.body.style.overflow`,
- * and the close button is auto-focused on open so keyboard users land
- * somewhere sensible. Drop in a focus-trap helper later if we adopt one.
+ * Body + <html> scroll are locked while open. The overlay itself does NOT
+ * scroll (overflow-hidden) — tall content scrolls inside the content box
+ * so the page never gains a viewport scrollbar behind the dialog.
  *
- * Sizing: a `size` prop drives the max-width. The content box is
- * vertically capped to ~90vh and scrolls internally if its body
- * overflows, so the modal never spills off-screen on small viewports.
+ * Layout (flex column, max-h = available padded viewport):
+ *   [optional header]  — pinned, does not scroll
+ *   [children]         — flex-1 overflow-y-auto
+ *   [optional footer]  — pinned, does not scroll
+ *
+ * `overflow-hidden` on the content box clips children/footer to
+ * `rounded-2xl` so opaque footers don't square off the bottom corners.
+ * Callers that need a fixed height (Game Store) pass it via contentClassName.
  */
 
 const SIZE_CLASSES = {
@@ -69,6 +73,7 @@ const Modal = ({
   showClose = true,
   className,
   contentClassName,
+  header,
   footer,
   children,
 }) => {
@@ -88,7 +93,7 @@ const Modal = ({
     if (el) el.scrollBy({ top: 120, behavior: 'smooth' });
   };
 
-  // ESC to close + body-scroll lock while open.
+  // ESC to close + document scroll lock while open.
   useEffect(() => {
     if (!isOpen) return undefined;
     log('open');
@@ -98,8 +103,10 @@ const Modal = ({
     };
     document.addEventListener('keydown', onKey);
 
-    const previousOverflow = document.body.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 
     closeButtonRef.current?.focus?.();
 
@@ -107,7 +114,8 @@ const Modal = ({
 
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       log('close');
     };
   }, [isOpen, onClose, checkScroll]);
@@ -121,71 +129,58 @@ const Modal = ({
   };
 
   return createPortal(
-    // Scrollable overlay using CSS Grid `place-items-center` rather than
-    // flex centering — grid centers content vertically when content fits,
-    // but lets the modal grow naturally and scroll when it doesn't (flex
-    // `items-center` clips the top when content > viewport).
+    // Flex centering + overflow-hidden: the dialog is capped to the padded
+    // viewport (`max-h-full`), so the overlay never grows a page scrollbar.
+    // Internal scroll lives on the children region below.
     <div
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
       onMouseDown={handleOverlayMouseDown}
       className={classNames(
-        'fixed inset-0 z-50 overflow-y-auto overscroll-contain',
+        'fixed inset-0 z-50 flex items-center justify-center overflow-hidden',
+        'px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]',
         'bg-black/30 backdrop-blur-[2px]',
         className
       )}
     >
       <div
-        onMouseDown={handleOverlayMouseDown}
-        className="grid min-h-full place-items-center px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]"
+        className={classNames(
+          'relative flex w-full max-h-full flex-col overflow-hidden rounded-2xl bg-white shadow-bottom-400',
+          SIZE_CLASSES[size] || SIZE_CLASSES.lg,
+          contentClassName
+        )}
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        <div
-          className={classNames(
-            'relative w-full max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-bottom-400',
-            SIZE_CLASSES[size] || SIZE_CLASSES.lg,
-            contentClassName
-          )}
-        >
-          {showClose && (
-            <button
-              ref={closeButtonRef}
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className={classNames(
-                'absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full',
-                'border border-border-default bg-white text-content-primary',
-                'hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
-              )}
-            >
-              <CloseIcon className="size-4" />
-            </button>
-          )}
-          <div
-            ref={scrollRef}
-            onScroll={checkScroll}
-            className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden"
+        {showClose && (
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className={classNames(
+              'absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full',
+              'border border-border-default bg-white text-content-primary',
+              'hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
+            )}
           >
-            {children}
-          </div>
-          {footer && (
-            <div className="relative">
-              {canScrollDown && (
-                <button
-                  type="button"
-                  onClick={handleScrollClick}
-                  aria-label="Scroll down for more"
-                  className="absolute left-1/2 -translate-x-1/2 -top-[16px] z-10 size-[32px] rounded-full bg-white border border-[#e0e0e0] shadow-[0px_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-opacity hover:bg-[#f5f5f5]"
-                >
-                  <ScrollDownChevron className="size-[14px] text-[#575755]" />
-                </button>
-              )}
-              {footer}
-            </div>
-          )}
-          {!footer && canScrollDown && (
-            <div className="relative">
+            <CloseIcon className="size-4" />
+          </button>
+        )}
+
+        {header && <div className="shrink-0">{header}</div>}
+
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden"
+        >
+          {children}
+        </div>
+
+        {footer && (
+          <div className="relative shrink-0">
+            {canScrollDown && (
               <button
                 type="button"
                 onClick={handleScrollClick}
@@ -194,9 +189,22 @@ const Modal = ({
               >
                 <ScrollDownChevron className="size-[14px] text-[#575755]" />
               </button>
-            </div>
-          )}
-        </div>
+            )}
+            {footer}
+          </div>
+        )}
+        {!footer && canScrollDown && (
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={handleScrollClick}
+              aria-label="Scroll down for more"
+              className="absolute left-1/2 -translate-x-1/2 -top-[16px] z-10 size-[32px] rounded-full bg-white border border-[#e0e0e0] shadow-[0px_2px_8px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer transition-opacity hover:bg-[#f5f5f5]"
+            >
+              <ScrollDownChevron className="size-[14px] text-[#575755]" />
+            </button>
+          </div>
+        )}
       </div>
     </div>,
     document.body

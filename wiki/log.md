@@ -3,6 +3,230 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-08-11] fix | Chat linkButton matches Figma 5166:48026
+
+ChatThread link CTAs: `#e1eae2` fill, `#387440` 1px border/text, 13.5px regular, `px-8 py-5`, `gap-3`, `rounded-[100px]`, plus official 16px arrow-up-right (`ChatLinkArrowIcon`). Labels no longer bake in `↗`/`→`.
+
+## [2026-08-11] create | Post-a-Job File Upload + mode headers + toast icons
+
+File Upload job flow (Figma `5132:75172` / `75224` → `75538` → `75730`):
+
+- `job-file-upload` / `job-file-extracted` FSM; attach works anytime (even mid Conversation); KYB still owns `kyb-prompt`
+- Extract seeds `seedJobPostFromUpload()` into shared draft + live Jobs panel; **Review & Post Job** opens `JobPostFormModal` (`mode=upload`) → reuse `ConfirmJobPostModal`
+- Form headlines switch by mode: manual / upload / conversation
+- Toast success/error/warning icons use official 22×22 SVGs
+- Demo: `post-job-upload`, `post-job-upload-review`
+
+## [2026-08-11] fix | Jobs panel % only during add; 100% after post
+
+Jobs row: no percent while idle ("Not started"); live % while adding; locked **100%** after successful post (panel stays expanded). Starting another conversation/form after a post begins a new add cycle.
+
+## [2026-08-11] update | Job conversation covers all form fields; hide View full form after review
+
+Conversation AI now asks for every `JobPostFormModal` field (company, industry, department, experience, description, perks, etc.). After chat completes (`awaiting-review`), Jobs panel shows Modify + Confirm only — no View full form.
+
+## [2026-08-11] create | Recruiter Conversation-with-AI Post-a-Job + Jobs panel
+
+Figma `5132:73294` / `73460` (panel UI still talent placeholder in file — product reuses RecruiterPanel chrome):
+
+- `jobConversationData.js` — verbatim Q&A copy + `applyJobConvAnswer` / `buildJobsPanelFields`
+- `recruiterBuddyScript.js` — `job-conv-*` FSM; mode card → conversation; demo seeds `post-job-chat` / `post-job-chat-review`
+- `RecruiterPanel` — Company Info. + Jobs; Jobs preview + View full form / Modify → form; Confirm → ConfirmJobPostModal
+- `CareerBuddySection` — shared `jobPostDraft` drives chat → panel → `JobPostFormModal` (controlled)
+- Editing only in form (no Jobs inline edit). Unmapped form fields stay empty for polish.
+
+## [2026-08-11] fix | Job-post confirm replaces form; draft preserved
+
+Confirm step no longer stacks on top of the form modal. `Post Job` closes the form UI and opens confirm only; draft stays in `JobPostFormModal` until `resetKey` bumps (dismiss / success / fresh Fill Form). `Go back and edit` reopens the same draft.
+
+## [2026-08-11] fix | Job-post list rows, publishing flex, green optional
+
+Figma 5132:67702–67742 / 68248:
+
+- DynamicList — Instrument Serif 26px brand-green indexes; green **Remove** as `TextInput` `rightIcon` (inside the field)
+- Publishing — `justify-between` row; compact `size="sm"` DD/Month/YYYY + `ArrowheadDownIcon`
+- `Field.optionalClassName` — Additional Perks optional badge in brand-green
+- `TextInput`/`Select` `size="sm"` for deadline chips (46px, r=8, `#e6e6e6`)
+
+## [2026-08-11] fix | Salary inscriptions, Select chevron prop, Checkbox modal scroll-jump
+
+- `TextInput` / `Select` — optional `inscription` (Figma 5132:67856–67872, 8px `#32683a` in-field caption)
+- `Select` — optional `chevronIcon` (salary uses filled `ArrowheadDownIcon`)
+- `Checkbox` — replace `sr-only` with opacity-0 overlay (was scrollIntoView-jumping Modal body to blank white)
+- Job post salary row wired with Currency/Min/Max/Frequency inscriptions + GH₵ label
+
+## [2026-08-11] fix | Primary Button CTA arrow size/color
+
+Recurring miss: primary CTAs got stroke `ArrowRightSmIcon` + `size-[14px]`. Primary label colour is a gradient on the text span only, so `currentColor` icons stay dark/tiny.
+
+- Job post / confirm modals → shared fill `ArrowRightIcon` (Figma 41:1545, `#FEFEFE`)
+- `Button` icon slots: always 20×20, `[&>svg]:size-full`, primary slots pin `text-[#FEFEFE]`
+
+## [2026-08-11] fix | Modal scroll-lock, rounded corners, pinned header
+
+Job post form exposed three Modal misuse/gaps vs Game Store:
+
+1. Overlay used `overflow-y-auto` → viewport scrollbar while open
+2. Content box lacked `overflow-hidden` → opaque footer squared off bottom radii
+3. Form title lived inside the scroll region → header scrolled away
+
+Fixes in `ui/Modal.jsx`: overlay `overflow-hidden` + flex center; content `overflow-hidden` clips radii; optional `header` slot pinned above the scroll body; lock `html` + `body` overflow. `JobPostFormModal` now uses Modal `header`/`footer` like Game Store, shared form controls (`Radio` added to `ui/form`).
+
+## [2026-08-10] create | Recruiter Manual Post-a-Job form flow
+
+Figma-accurate manual job post modals wired into shared Career Buddy (recruiter role):
+
+- `jobPostFormData.js` — form constants/copy (Benefits / Perks label, 500-char description, demo industry placeholders)
+- `JobPostFormModal.jsx` / `ConfirmJobPostModal.jsx` — fill form → confirm → success
+- `CareerBuddySection` — “Fill Form →” opens modal; Post Job → confirm; Confirm → success toast + `job-posted-success` bot message + unfinished Company/KYB chips
+- `recruiterBuddyScript.js` — `job-manual-prompt` / `job-posted-success`; `seedRecruiterJump` for `post-job-form` / `post-job-confirm` / `post-job-success`
+- `DemoNavigator` — recruiter demo jumps for those three `?cb=` hints
+
+`npm run build` ✅. Industry dropdown list not in Figma — demo placeholders until product supplies official set.
+
+## [2026-08-10] fix | Restore New Chat + transparent chat chrome
+
+After the shared-shell restore, recruiter was gated out of `+ New Chat`, and ChatThread's New Chat / History row had fallen back to in-flow layout (opaque band). Restored: New Chat for talent + recruiter once past first-time hero; chrome floats `absolute` with transparent bar so messages scroll underneath.
+
+## [2026-08-10] fix | Restore recruiter welcome toast + Company Info icon
+
+During the shared-shell restore, two user-supplied assets were overwritten with stand-ins:
+
+- Toast `welcome` variant (green→gold gradient border + `ToastWelcomeIcon` waving hand) fell back to green `success`
+- `RecruiterCompanyInfoIcon` was replaced with a hand-crafted building glyph
+
+Restored both from the prior session (Figma `5132:66245` / `66247` / `66001`).
+
+## [2026-08-10] fix | Career Buddy shared shell — remove split recruiter page
+
+Restored single-route Career Buddy for talent + recruiter after a temporary `/recruiter-buddy` split caused `RECRUITER_HERO` import crashes.
+
+- Deleted `RecruiterBuddySection.jsx` / `RecruiterBuddyPage.jsx`
+- `App.jsx` — wrap with `CareerBuddyRoleProvider`; legacy `/profile/filling/recruiter-buddy` redirects to `/profile/filling/career-buddy?cb=welcome` and sets recruiter role
+- `DemoNavigator` — Talent | Recruiter calls `setRole()` on the shared route; recruiter demo jumps via `?cb=`
+- Welcome toast only on `cb=welcome`; company-review/confirmed seeds show KYB Verified
+
+## [2026-08-08] fix | Career Buddy toast dim overlay (Figma 5132:54581)
+
+Compact Career Buddy save toasts were missing the full-viewport scrim. Re-extracted `5132:54057` (CAREER OPTIONS SAVED) / `5132:54581` (Frame 14574): solid black fill at **5% opacity** (`rgba(0,0,0,0.05)`), full 1728×1117 frame under the toast banner.
+
+- `src/components/ui/Toast.jsx` — portal now renders `fixed inset-0 z-[99] bg-black/[0.05]` when `overlay` is true; defaults to on for `compact` toasts (Career Buddy). Non-compact callers unchanged.
+
+## [2026-08-08] fix | Toast full-viewport dim overlay (Figma 5132:54581)
+
+All toasts were missing the screen dim. Re-extracted `5132:54057` / `5132:54581` (Frame 14574): solid black @ **5%** (`bg-black/[0.05]`), full viewport under the banner.
+
+- `src/components/ui/Toast.jsx` — `Toast` and `ToastContainer` portals always mount the scrim (not Career-Buddy-only / not an opt-in prop).
+
+## [2026-08-08] create | Career Buddy guidance flow (Career Exposure → Career Options)
+
+Replaced the `stub-post-personality-guidance` / `stub-guidance` / `stub-career-options-section` stubs with the Figma **Career Buddy AI Provides Guidance** flow (`5132:52485`–`54589`, conversation strip `5132:64380`).
+
+- **Entry points (existing structure):** post-Personality `"I think I need some guidance"` → `guidance-intro`; returning `"Give me career guidance"` → `guidance-intro-returning`; section-picker **Career Options** card → `guidance-intro-section`. All three share the same 7 area chips.
+- **Career Exposure** (`exposure-q1`…`exposure-wrap` → `exposure-confirm-continue` / `exposure-confirm-return`) fills **Career Options** (`desired-career`) on the Talent Profile Panel. Other 6 areas stubbed as coming soon (no Figma Q&A).
+- **Save paths:** continue-exploring stays on confirm node (next-area chips remain); return-to-profile → `section-picker-from-guidance` via `guidanceResumeNodeIdRef`. Toast: `Success, Career options saved`; auto: `Career Options confirmed ✅`.
+- Verbatim: keep "That's alright brother", "Entrepreneurial Guidance" (double space); correct "Pannel" → "Panel". Mentoring user bubble in Figma re-echoed the prior bot question — replaced with a short answer that matches the next bot line.
+- `npm run build` clean (`✓ built in 12.61s`).
+
+## [2026-08-07] fix | Career Buddy Work Experience panel layout overflow (5132:50598)
+
+Re-extracted Figma `5132:50284` / `5132:50598` via REST API (MCP rate-limited) and fixed the Talent Profile Panel Work Experience expanded row to match Figma + the provided screenshots.
+
+- `src/components/sections/profileFilling/TalentProfilePanel.jsx` — Work Experience `stage.entries` branch:
+  - Removed `truncate` on entry titles (Figma title is FILL + HEIGHT auto-resize; was cutting "Software Dev Intern" / "Teaching Assistant" mid-word).
+  - Replaced `PlusMinusIcon` on entry headers with `ExperienceChevronIcon` (`bytesize:chevron-bottom`, 16×16, `#111`, rotate-180 when expanded) — Experience 2 also shows the chevron for visual fidelity even though it has no expandable fields.
+  - Detail card: `border-[#e8e8e8]`, `bg-[#f8f8f8]`, `rounded-[8px]`, `gap-[18px]`, `px-4 py-3` (was gradient + `#e9e9e9` + cramped `max-w-[280px]` values).
+  - Field rows: `gap-4` (16px); label HUG `text-[15px] #0a0a0a`; value `flex-1 min-w-0 break-words text-right text-[16px] #616161` — removes the `max-w-[280px]` that forced Skills/Supervisor to wrap early and crowd the right padding.
+  - Entry stack spacing: title→card `gap-[14px]`, entries `gap-[18px]`, before Modify/Confirm `mb-[48px]` (was 16/12/24).
+- Flat `fields` / preview branches untouched — only the Work Experience entries path changed.
+
+## [2026-08-03] create | Career Buddy Work Experience flow + post-Personality section-picker
+
+Built the Work Experience chat flow — the hand-off point deliberately left disconnected after Personality (`STAGE_SAVE_META.personality.nextNodeId` was `null` pending verified content) is now wired all the way through.
+
+- `src/components/sections/profileFilling/careerBuddyScript.js` — `post-personality-prompt` (Figma 5132:64061, verbatim: "Now would you like to continue populating your profile or you want some guidance...") → `section-picker-prompt` (6 modeCards, ids matching `CAREER_BUDDY_STAGES` exactly: skills/work-experience/project-portfolio/certifications/talent-pitch/desired-career — Figma 5132:49680's "3×2 grid", no description text exists for these cards in Figma so none was invented) → `work-q1..q6` + `work-q4-clarify` + `work-confirm` (the full CodeBase Ghana internship Q&A, verbatim). 5 of the 6 section-picker cards get "coming soon" stubs (`stub-skills-section` etc.) matching the existing stub-skills/stub-guidance convention — only Work Experience has a built flow this pass. `WORK_EXPERIENCE_PREVIEW_FIELDS` replaced with `WORK_EXPERIENCE_ENTRIES` — a genuinely different shape (a list of 2 collapsible job sub-cards, not flat fields), since Figma 5132:50598 shows Work Experience supports **multiple entries**, unlike every other stage built so far.
+  - Two verbatim-fidelity calls made explicit in code comments: "Andrew" (appears twice in the Figma source, everywhere else in this conversation and the rest of the app is "Emma") normalised to `TALENT_NAME`, same reasoning as the pre-existing Educational Background NAMING NOTE; "Talent Profile Pannel" (double-n) corrected to "Panel" — a plain spelling typo, not a content decision, since the real component is genuinely named "Talent Profile Panel" everywhere else in this app.
+- `src/components/ui/ChatThread.jsx` — modeCards container changed from a hardcoded 3-wide `flex` row to `grid grid-cols-3` — 3 cards (Personality's picker) still fill one row identically, but 6 cards (this new section-picker) now wrap into 2 rows instead of squeezing 6 into one line.
+- `src/components/sections/profileFilling/TalentProfilePanel.jsx` — new `stage.entries` render branch (checked before the existing flat `fields` branch, which every other stage still uses untouched): each entry is its own collapsible sub-card (accordion — only one open at a time), entries with no `fields` (Experience 2) render as a plain non-interactive title only. Modify/Confirm ↔ Update button swap matches Figma exactly; "+ Add Experience" (5132:50994) is rendered for visual fidelity but its click just logs — a real "add a second entry" flow would need its own Q&A sub-flow this session's single conversation never covers, so it's not fabricated.
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — `STAGE_FIELD_DATA['work-experience']` now `{ entries: WORK_EXPERIENCE_ENTRIES, confirmed: true }`; `handleConfirmStage`'s second param renamed `fieldsOrEntries` and branches on `STAGE_FIELD_DATA[stageId]?.entries` to store it under the right key; `MODE_CARD_ICONS` extended with the 6 section-picker ids, reusing the exact same Icon components as those stages' own panel rows (no new icons needed); `STAGE_QA_NODE_PREFIX['work-q'] = 'work-experience'`; `STAGE_TRAIL_INDEX['work-experience'] = 6`.
+- Verified end-to-end in browser: Personality confirm → "Continue populating profile" → 3×2 section-picker grid renders correctly (2 rows of 3, confirmed via `getBoundingClientRect`) → "Work Experience" card → panel flips to "In Progress" → 7 free-text submits through the full Q&A (including the dates clarification nudge) → panel auto-expands showing Experience 1's complete 6-field card + Experience 2 as a static title + Modify/Confirm → Confirm (error toast, then retry-success) → "[Auto] Work Experience confirmed ✅" + panel shows 100%. `npm run lint` / `npm run build` both clean throughout.
+- **Deferred, not built**: the other 5 section-picker topics (Skills/Portfolio/Certifications/Career Pitch/Career Options) beyond their stub message, and a real "+ Add Experience" second-entry flow.
+
+## [2026-07-30] create | Career Buddy Game Store + Game Details modal (Games mode shell)
+
+Built the first slice of the previously-deferred Games mode: a browsable Game Store catalog and per-game Details view, triggered from the personality mode-picker's "Games" card. Actual gameplay (the 4-stage Escape Room interaction) is still stubbed — Store + Details shell first, per explicit user sequencing decision (options: "Store+Details first, stub gameplay" vs "Escape Room engine first" vs "full scope in one pass" — user picked the first).
+
+- **Figma recon** (`5132:60231`-`64829`, `61144`-`61729`, `62057`-`62082`, ~90 nodes total): confirmed 4 distinct pieces — a chat trigger (`5132:64829`), the Game Store modal (`5132:60815`, 7 games not 6 — "The Pitch" is a 7th card cut off in the reference screenshot), a Game Details modal (`5132:61301`, nested inside the same flow), and the actual Escape Room gameplay (`5132:61730`→`62092`→`62454`→`62816`, 4 branching-narrative stages with illustrated scenes, timer, and lettered choices) — deferred.
+- `src/components/sections/profileFilling/gameStoreData.js` (new) — the 7 games verbatim from Figma (`5132:61175`-`61299`): title, category badge, description, difficulty (+ exact per-difficulty colour), duration. Only "The Escape Room" has real extracted "Game Details" copy (About/traits/how-to-play tips, from `5132:61301`'s children) — the other 6 only have card-level fields; deliberately not fabricated. Also documents a genuine Figma inconsistency reproduced as-is: Desert Island's badge says "Decision Making", which isn't one of the 6 filter chips (All/Strategy/Creativity/Social/Logic/Speed) — it only ever matches "All".
+- `src/components/sections/profileFilling/GameStoreModal.jsx` (new) — reuses the existing generic `ui/Modal.jsx` primitive (portal/backdrop/ESC-close/scroll-lock) rather than building another one; internal `view` state ('grid' | 'details') switches between the search+filter+7-card grid and a selected game's detail page, matching Figma's "← Back to Game Store" in-modal navigation rather than two separate modals. Category filter chips are a small hand-written implementation (not the shared `Button` `chip` variant) since Figma specifies a different gradient angle/padding for this specific chip than the chat's suggested-reply chips already documented under that variant. "Let's Play →" calls an `onPlayGame` prop instead of owning its own toast, so the stub message reuses the app's existing Toast system.
+  - Per-game art: Figma's real thumbnails are illustrated PNGs (one per game) not yet available — a plain initial-letter-on-colour-circle placeholder stands in for now (`GameArt`), swappable later without layout changes.
+- `src/components/sections/profileFilling/careerBuddyScript.js` — `stub-games` replaced with `games-intro` (Figma `5132:64829`, verbatim): "Play Games" `[Auto]` echo → bot "All good! Check out the Game Store and choose whatever looks fun to you." with a `linkButton` ("Open Game Store ↗"). Terminal node (no `next`) — the Personality stage's own confirm/save flow (same `STAGE_SAVE_META` mechanism as MCQ/Open Chat) is what eventually posts "Personality confirmed ✅", not more chat nodes.
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — `STAGE_QA_NODE_PREFIX` gained `'games-intro': 'personality'` (flips the panel row to "In Progress" the moment Games is picked, same as MCQ/Open Chat's first question does). `enrichedMessages` (renamed from `messagesWithModeCardIcons`, now doing double duty) merges in the `games-intro` message's `linkButton.onClick` (opens `GameStoreModal`) alongside the existing modeCards `Icon` resolution. New `handlePlayGameStub` shows a `warning` toast ("{game title}'s full gameplay isn't built yet") without closing the modal.
+- Verified end-to-end in browser: mode-picker → Games card → panel flips to "In Progress" → "Open Game Store ↗" opens the modal → category filter and search both narrow the grid correctly → card click opens Details with full Escape Room copy → "Let's Play →" surfaces the stub toast, modal stays open → "← Back to Game Store" returns to the grid preserving filters → Close removes the modal and releases the body scroll lock. `npm run lint` / `npm run build` both clean.
+- **Deferred, not built**: the actual 4-stage Escape Room gameplay screens and the illustrated room/character art. The user supplied 5 real illustration PNGs (4 composited stage scenes + 1 standalone character sprite) mid-session, but no discoverable file path existed to pull them into the repo — need the user to drop them into a specific assets path before the gameplay pass can use them instead of placeholders.
+
+## [2026-07-30] update | Career Buddy Personal Area of Interest flow + Personality mode-picker/Open Chat/MCQ
+
+Generalized the Educational Background save FSM (`STAGE_SAVE_META`/`STAGE_QA_NODE_PREFIX`/`STAGE_TRAIL_INDEX` maps in `CareerBuddySection.jsx`) to drive two more stages end-to-end, and built the Personality topic's mode-picker (Games/MCQs/Open Chat) per Figma `5132:57368` — with a mid-build layout correction after the first pass got the cards' box wrong.
+
+- `src/components/sections/profileFilling/careerBuddyScript.js` — added `interests-prompt`/`interests-q1..q3`/`interests-confirm` (3-field flow, same `edu-q*` freeText pattern), `personality-prompt` (Figma `5132:55364` "STARTED" — corrects an earlier pass that wrongly attributed a "Sure bro" reply to this hand-off; that text belongs one stage later and has no verified destination yet, so it isn't reused), `personality-mode-picker` (bot message carries `modeCards: [{id,title,description}]` for Games/MCQs/Open Chat, `next: {games:'stub-games', mcq:'mcq-q1', 'open-chat':'open-chat-q1'}`), `stub-games` (Games mode deferred — see below), `open-chat-q1..q3`+`confirm` and `mcq-q1..q4`+`confirm` (verbatim Figma text; MCQ bot messages carry `options: [{id,label}]` for the lettered-answer grid). `PERSONALITY_PREVIEW_FIELDS` renamed `PERSONALITY_FIELDS` and expanded from 2 to 6 fields (Personality type, Key Traits, Confidence/Adaptability/Risk Tolerance/Emotional Stability percentages) sourced from a user-supplied personality-report screenshot — the report's bespoke widgets (progress bars, collapsible insight, comment box) are out of scope; the generic panel row list is reused instead.
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — `STAGE_SAVE_META` extended with `educational-background`→`interests-prompt`, `personal-interests`→`personality-prompt`, and `personality`→`null` (deliberately not chained further — no verified Figma content exists past Personality yet, per "don't assume"). New `MODE_CARD_ICONS` map + `messagesWithModeCardIcons` (`useMemo`) resolve each mode-card's icon component at render time (script data stays icon-free). `handleSelectModeCard`/`handleSelectMcqOption` wired to `ChatThread`'s new `onSelectModeCard`/`onSelectOption` props.
+- `src/components/ui/ChatThread.jsx` — added `options` (MCQ 2-col answer grid, renders inside the bot bubble) and `modeCards` (Games/MCQs/Open Chat picker) message fields. **Mid-build correction**: the first pass rendered `modeCards` inside the bot's own text bubble as `flex-1` full-width cards — user flagged this from a screenshot ("cards are to be spanned to take the entire width of the message box and merged with the message box"). Re-checking Figma's metadata (not just the screenshot) showed the text bubble and the cards frame are actually separate sibling nodes ~200px apart in the design, and the cards' real merge target is the **input bar**, not the message text — Figma node `5132:57368` is one shared `bg-white rounded-[16px] p-[20px] gap-[20px]` box wrapping the 3 cards row AND the `GTHInput` together (input placeholder swaps to "Curious about any of these?" in this state, its border becomes a `border-t` instead of a full box border). Rebuilt accordingly: `modeCards` now renders in `ChatThread`'s own bottom section (reading the trailing message's `modeCards`, mirroring how `suggestedReplies` only ever applies to the active turn) sharing one wrapper with the input bar; the shared `inputBar` JSX is used in both the normal and mode-picker layouts so the interactive logic (attach/mic/wave/send/recording) isn't duplicated.
+- `src/components/shared/assets.jsx` — `PersonalityGamesIcon`/`PersonalityMcqIcon` replaced with the real production SVGs the user supplied directly (previously hand-crafted placeholders per CLAUDE.md Rule 3, no longer needed now that real assets exist); added `PersonalityOpenChatIcon` (also user-supplied) rather than reusing the generic `MessageBubbleIcon`.
+- Verified in browser: full click-through Welcome → Education (5 Q&A, confirm w/ error+retry, 100%) → Interests (3 Q&A, confirm, 100%, auto-chains to Personality prompt) → mode-picker (cards+input confirmed merged into one `getBoundingClientRect`-measured box, real SVG icons rendering, `bg-white`/`rounded-[16px]`/`p-[20px]`/`gap-[20px]` exact) → MCQ mode (4 lettered questions → confirm w/ error+retry → 100%, personality panel shows all 6 fields). `npm run lint` / `npm run build` both clean.
+- **Deferred, not built**: Games mode (Figma Game Store modal — search/filter, 6 games; a game detail page; at least one playable illustrated mini-game). Scoped by the user's own explicit sequencing decision as a separate future NEW SECTION — `stub-games` node shows a "coming soon" message in the meantime, same convention as `stub-skills`/`stub-guidance`.
+
+## [2026-07-29] update | Career Buddy Educational Background full state machine (NOT STARTED → CONFIRMED) + toast fidelity + background-decoration fixes
+
+Built out the complete Educational Background save flow per Figma's own state names (`5132:46553` NOT STARTED → `46736` IN PROGRESS → `46916` AWAITING REVIEW AND CONFIRMATION → `47096` USER CHOOSES TO EDIT → `47276` EDUCATIONAL BACKGROUND SAVED → `47551` CONFIRMED), replacing the earlier build's shortcut where reaching the script's last message faked a `'done'`+success-toast immediately.
+
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — `applyStageConfirmations` now sets stage status to `'awaiting-review'` (data collected, not saved) instead of `'done'`; new `submit()` logic flips `'not-started'` → `'in-progress'` the moment the `edu-q*` flow starts (Figma shows "Completion: In Progress" from that point, not just at final review). `handleConfirmStage` simulates one async save per stage: first attempt always errors (`Error, No internet connection` toast, Figma `5132:46267`), retry always succeeds (`Success, Educational background saved` toast, `5132:45989`, + appends an auto-confirmation chat message). `panelStages` memo updated so `stage.fields ?? fieldData.fields` preserves a real user edit through to the final save instead of resetting to the static script default.
+- `src/components/sections/profileFilling/TalentProfilePanel.jsx` — row text re-verified against Figma `5132:47002` (was `text-[12px]`, corrected to `text-[16px]`/`text-[17px]`, `gap-[18px]`, `px-[40px] py-[29px]` wrapper). Added a real **edit-details** mode (Figma `5132:47182`, entered via Modify): editable bordered `<input>` boxes for every non-verified field, single "Update" button, local `fieldOverrides` state. Fixed a Figma data-entry slip in that same edit-details node (the 6th field is literally re-labelled "Field of Study" a second time where the value "Second Class Upper" and the read-only sibling both clearly mean "Grade") — not reproduced, since this build maps from `EDUCATIONAL_BACKGROUND_FIELDS` (already correctly labelled) rather than hand-copying Figma JSX. New `confirming` prop drives a spinner + disabled buttons during the simulated save.
+- `src/components/ui/ChatThread.jsx` — new `message.auto` flag renders the system-generated "Educational background confirmed ✅" bubble (Figma `5132:47342`/`47617`): right-aligned like a user message (Emma persona), a small `[Auto]` label line inside the bubble, copy+edit actions only (no thumbs/retry, no fabricated version-pagination count). Also restyled the New Chat / Chat History buttons to exact Figma (`5132:47988`/`47992`) — `bg-black/[0.21]` (was `bg-black/10`), `rounded-[12px]` (was `rounded-full`), white 15px text, 20px icon (was 12–16px).
+- `src/components/ui/Toast.jsx` — re-verified the `compact` variant's exact colours/icons against Figma (`5132:45989` success / `46267` error / `46545` warning): correct per-variant bg/border-bottom/drop-shadow, title+body both `#404040` (not accent-tinted as the earlier stub had it), 24px filled-circle icon that IS the circle (not a smaller glyph inside a separate bg wrapper).
+- `src/components/shared/assets.jsx` — added `ChatCopyIcon` (auto-message actions), `ToastSuccessIcon`/`ToastErrorIcon`/`ToastWarningIcon` (hand-crafted filled circles per CLAUDE.md Rule 3 — bounding box + fill colour only).
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — fixed a real CSS stacking-context bug hiding the 3 page-level background glow ellipses: the chat pane's own `background:` was set directly on the pane wrapper, painting at the wrapper's own (auto/0) level — _above_ the ellipses' `z-index:-1` — fully covering them. Split the gradient into its own `z-index:-2` layer instead, with the wrapper left without its own stacking context, so paint order is now gradient (-2) → ellipses (-1) → real content (auto). Also relocated the "grid" background texture from a position that Figma's own metadata places entirely behind the opaque right panel (confirmed invisible in the reference `get_screenshot` too) to the pane's own bottom-right corner, since the user explicitly wants it as a visible chat-pane decoration.
+- `src/components/sections/engagement/EngagementTopBar.jsx` — added overflow chevrons + fade (Figma `5132:44983`): stage trail now scrolls (`overflow-x-auto`) instead of clipping; a new `ghost-icon` Button variant renders a bare chevron only on the edge with real hidden content (tracked via scroll position + `ResizeObserver`), paired with a `mask-image` fade on that same edge.
+- Verified end-to-end live in the browser: full click-through of the Education Q&A → AWAITING REVIEW panel state (all 7 fields + Modify/Confirm) → first Confirm click (error) → second Confirm click (success) → auto-message appended to chat + panel shows "Completion: 100%". `npm run lint` / `npm run build` both clean.
+
+## [2026-07-24] update | Button `icon` variant + Career Buddy fixes (right panel fidelity, message-area fidelity, shared icon extraction)
+
+- `src/components/ui/Button.jsx` — added a new `variant="icon"` (Figma `5132:43389` default / `5132:45079` hover) for circular icon-only buttons: `#f0f0f0` bg default → dark-green diagonal gradient + white icon on hover, sizes `md` (40px) / `sm` (32px). Implemented as an early-return branch with its own `ICON_BASE_CLASSES`/`ICON_SIZE_CLASSES`/`ICON_VARIANT_CLASSES` constants so no existing variant's classes changed — verified all other `<Button>` call sites (HomePage showcase, institution/talent onboarding CTAs) still pass `variant="primary\|secondary\|tertiary\|..."` and hit the untouched code path.
+- `src/components/ui/ChatThread.jsx` — attach/mic/voice-notes buttons in the input bar now render via `<Button variant="icon" size="md">` instead of raw `<button>` markup (the attach button additionally gained the missing 40px circular hit-target it was quietly missing). Also: moved all 13 previously-inline icon components out to `src/components/shared/assets.jsx` (prefixed `Chat*Icon`) per user request — `ChatThread.jsx` is back to pure presentation with zero icon markup of its own.
+- `src/components/sections/profileFilling/TalentProfilePanel.jsx` — re-extracted exact Figma values via `get_design_context` on `5132:43660` (previously built from screenshots only): panel `px-[54px] py-[24px]` (was `px-6 py-8`), row `gap-[20px]` icon/text + `py-[40px] pr-[20px]`, icon `size-10` (was `size-6`), row title `20px` (was `14px`), completion text `14px #595959` (was `12px` tertiary), "+" button `size-9` with a 20px glyph (was `size-7`/`size-3.5`). Also corrected 4 hand-crafted icons that didn't match their real Figma glyphs (Personal Info had a spurious edit-pencil badge; Personal Interests was a 2-shape approximation instead of the real 4-shape grid; Personality was a blocky approximation instead of a real puzzle-piece outline; Career Options was reusing the wrong icon family entirely — a bullseye instead of the circular-arrow "target" glyph, now `PanelCareerOptionsIcon`).
+- `src/components/ui/ChatThread.jsx` — re-extracted the message-row/chips/input-bar block via `get_design_context` on `5132:43389` (previously screenshot-only): avatar is now the real `career-buddy-penguin.png` mascot (was a hand-drawn placeholder person icon) in a 48px radial-gradient circle with the "Career Buddy"/persona label directly underneath it (was incorrectly attached to the message bubble instead of the avatar); message bubble is `bg-white rounded-[12px] px-[16px] py-[14px]` 15px/26px text (was a bare transparent 13px bubble); suggested-reply chips are `rounded-[16px]` 16px text (was `rounded-full` 12px); input bar is a fixed `h-[72px]` with 40px circular `#f0f0f0` icon buttons (was an auto-height bar with bare icons). Also fixed a layout bug where the input bar was a separately-pinned footer instead of living in the same scrollable flex column directly after the chips (Figma has one 16px-gapped column, no separate footer) — added `justify-end` so short conversations bottom-anchor like a normal chat UI, plus a scroll-to-bottom effect as messages accumulate.
+- Bug fixed en route: `TalentProfilePanel`'s root had a hardcoded `w-full` fighting the caller's `w-[clamp(...)]` — Tailwind's cascade let `w-full` win, collapsing the chat column to 0 width (this is why the chat looked entirely missing in an earlier screenshot). Removed the hardcoded width; width is now caller-controlled only.
+
+## [2026-07-22] create | Career Buddy chat shell (AI Engagement — Welcome Phase + Educational Background)
+
+Built `/profile/filling/career-buddy` — the AI-driven conversational profile-building screen. Source: Figma file `Bin8roWL8sloyc36IgFMuT`, node ranges `4830:169704-194488` (Talent Profile Panel reference) and `5132:43308-46274` + `5132:40348` ("AI Engagement Screens — Welcome Phase and Miscellaneous Screens, Talent Flow"). Implements Engagement Epic 2.3.1 (US-2.3.1-02 multi-modal profile entry, chat mode) and Epic 2.3.9 (Career Buddy Chat) as a scripted demo — no `careerBuddy.service.js` exists yet, so the conversation is a deterministic FSM (`careerBuddyScript.js`), not real NLP.
+
+**New files:**
+
+- `src/components/ui/ChatThread.jsx` — reusable chat primitive (bot/user bubbles, suggested-reply chips, message actions, edit/version pagination, file-attachment bubbles, mic→recording→send input morph, New Chat/History chrome row).
+- `src/components/sections/profileFilling/careerBuddyScript.js` — the FSM script data (welcome, 3 FAQ branches, ready-prompt, 5-step Educational Background Q&A, returning-user prompt) + Talent Profile Panel field data (Educational Background live-collected; Personal Info/Career Options/Personality/Work Experience/Personal Interests as static reference-sheet previews).
+- `src/components/sections/profileFilling/TalentProfilePanel.jsx` — right-panel checklist, expand/Modify/Confirm interaction, distinguishes confirmed `fields` (Modify/Confirm shown) from unconfirmed `previewFields` (dimmed, no actions).
+- `src/components/sections/profileFilling/CareerBuddyHistoryDrawer.jsx` — slide-in chat history panel, grouped by date.
+- `src/components/sections/profileFilling/CareerBuddySection.jsx` — page composition + state machine.
+- `src/pages/profileFilling/CareerBuddyPage.jsx` — thin page wrapper.
+
+**Modified (verified all existing usages preserved):**
+
+- `src/components/sections/engagement/EngagementTopBar.jsx` — added optional `stages` (default `PROFILE_STAGES`) and `interactive` (default `true`) props so a caller can supply its own stage list and render non-navigating spans instead of `Link`s. All 4 existing callers (Skills/Interests Intro + Stage2 sections) pass neither prop, so behaviour is byte-for-byte unchanged.
+- `src/components/ui/Toast.jsx` — added a `compact` boolean prop rendering a single-line pill (icon + text + dismiss) for the top-center "Success/Error/Warning" banners this flow uses; added the missing warning/error compact icon. Rich-card usage (the 7 existing call sites, none in profileFilling) is unaffected since `compact` defaults to `false`.
+- `src/components/shared/assets.jsx` — added 6 new icons (`PanelPersonInfoIcon`, `PanelEducationIcon`, `PanelInterestsIcon`, `PanelPersonalityIcon`, `PanelSkillsIcon`, `PanelMicrophoneIcon`) matching the Talent Profile Panel's own Figma icon set (distinct from the older StepIcon family used by the engagement trail).
+- `src/App.jsx` — registered `/profile/filling/career-buddy`.
+
+**Bug found + fixed during Playwright verification:** `TalentProfilePanel`'s root `<aside>` had a hardcoded `w-full` in its base classes that conflicted with the caller's `w-[clamp(300px,26vw,420px)]` — Tailwind's cascade let `w-full` win, collapsing the chat column to 0 width (panel filled the entire viewport, chat invisible). Fixed by removing the hardcoded width from the component; width is caller-controlled only, matching the existing `SkillsRightPanel` convention.
+
+**Known Figma discrepancies, flagged not silently resolved:**
+
+- Demo persona named "Emma" in 7 of 8 source frames but "Andrew" in one line of the Educational Background exchange — standardised on "Emma" in live chat dialogue. The Personal Info panel preview card (a static reference sheet, not spoken dialogue) still reads "Elliot Whitmore" verbatim from its own source frame.
+- Breadcrumb renders 11 chips (Avatar→Pitch) but the source screenshots' step-counter text reads "Step 1 of 9" throughout — this build computes the denominator from the real stage count (11), so it reads "Step N of 11" instead of reproducing the mismatched "9".
+- "X% profile complete" is pinned at 0 per every captured screenshot (even once Educational Background reaches 100%, and while Personal Info/Skills are already non-zero) — treated as a static demo label, not a computed weighted average, since Figma never demonstrates it changing.
+
+**Deferred (out of scope for this slice, not fabricated):** Personality game-store/MCQ sub-flows, the parent "My Profile / Ward's Profile" toggle variant, real chat persistence, and Error/Warning toast triggers (nothing real exists yet to fail against).
+
 ## [2026-07-16] create | Skills Lab Game & Quiz Hub
 
 **Created:**

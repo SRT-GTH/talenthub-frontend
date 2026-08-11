@@ -67,6 +67,8 @@ Thumbs.db
 # Claude-agent scratch outputs (Figma context dumps, report drafts,
 # per-session extraction work). Reference material, not source.
 temp-outputs/
+_tmp_*
+_tmp_*/
 
 # Raw onboarding code dumps (reference material, not source)
 above 18 onboarding raw code/

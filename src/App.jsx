@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import './App.css';
 import MainLayout from './layout/MainLayout.jsx';
 import LandingPage from './pages/LandingPage.jsx';
@@ -40,6 +41,7 @@ import InterestsIntroPage from './pages/profileFilling/InterestsIntroPage.jsx';
 import InterestsStage2Page from './pages/profileFilling/InterestsStage2Page.jsx';
 import SkillsIntroPage from './pages/profileFilling/SkillsIntroPage.jsx';
 import SkillsStage2Page from './pages/profileFilling/SkillsStage2Page.jsx';
+import CareerBuddyPage from './pages/profileFilling/CareerBuddyPage.jsx';
 import SkillsLabPage from './pages/skillsLab/SkillsLabPage.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
@@ -60,159 +62,192 @@ import ParentInviteSecurityPage from './pages/parentLogin/ParentInviteSecurityPa
 import ParentInviteLinkWardPage from './pages/parentLogin/ParentInviteLinkWardPage.jsx';
 import ParentInviteConsentPage from './pages/parentLogin/ParentInviteConsentPage.jsx';
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import CareerBuddyRoleProvider from './providers/CareerBuddyRoleProvider.jsx';
+import { useCareerBuddyRole } from './hooks/useCareerBuddyRole.js';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
+
+/** Old split route → shared shell + force recruiter demo role. */
+function LegacyRecruiterBuddyRedirect() {
+  const { setRole } = useCareerBuddyRole();
+  useEffect(() => {
+    setRole('recruiter');
+  }, [setRole]);
+  return <Navigate to="/profile/filling/career-buddy?cb=welcome" replace />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       {/* Reset window scroll on every route change so each new page
           starts at the top instead of inheriting the previous scroll. */}
       <ScrollToTop />
-      <DemoNavigator />
-      <Routes>
-        {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
+      <CareerBuddyRoleProvider>
+        <DemoNavigator />
+        <Routes>
+          {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
             mirroring the elysium pattern. Add it as:
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
-        <Route element={<MainLayout />}>
-          <Route path={'/'} element={<LandingPage />} />
-          <Route path={'/get-started'} element={<GetStartedPage />} />
+          <Route element={<MainLayout />}>
+            <Route path={'/'} element={<LandingPage />} />
+            <Route path={'/get-started'} element={<GetStartedPage />} />
 
-          {/* Talent auth + onboarding flow.
+            {/* Talent auth + onboarding flow.
               TalentOnboardingLayout provides the two page-level background
               glow ellipses (TL green + BR pink) that persist across all talent
               screens and the login page, outside the scrollable content area.
               Mirrors the InstitutionOnboardingLayout / ParentOnboardingLayout
               pattern. */}
-          <Route element={<TalentOnboardingLayout />}>
-            <Route path={'/login'} element={<LoginPage />} />
+            <Route element={<TalentOnboardingLayout />}>
+              <Route path={'/login'} element={<LoginPage />} />
 
-            {/* Wrapped in OnboardingProvider so DOB captured on step 01
+              {/* Wrapped in OnboardingProvider so DOB captured on step 01
                 propagates to every downstream page (drives the Parent step
                 in the breadcrumb + the under-18 branch out of Education). */}
-            <Route
-              path="/onboarding/talent/*"
-              element={
-                <OnboardingProvider>
-                  <Routes>
-                    <Route path="welcome" element={<OnboardingWelcomePage />} />
-                    <Route path="dob" element={<OnboardingDobPage />} />
-                    <Route path="personal-info" element={<OnboardingPersonalInfoPage />} />
-                    <Route path="contact" element={<OnboardingContactPage />} />
-                    <Route path="address" element={<OnboardingAddressPage />} />
-                    <Route path="education" element={<OnboardingEducationPage />} />
-                    <Route path="parent-info" element={<OnboardingParentInfoPage />} />
-                    <Route path="review" element={<OnboardingReviewPage />} />
-                  </Routes>
-                </OnboardingProvider>
-              }
-            />
-          </Route>
+              <Route
+                path="/onboarding/talent/*"
+                element={
+                  <OnboardingProvider>
+                    <Routes>
+                      <Route path="welcome" element={<OnboardingWelcomePage />} />
+                      <Route path="dob" element={<OnboardingDobPage />} />
+                      <Route path="personal-info" element={<OnboardingPersonalInfoPage />} />
+                      <Route path="contact" element={<OnboardingContactPage />} />
+                      <Route path="address" element={<OnboardingAddressPage />} />
+                      <Route path="education" element={<OnboardingEducationPage />} />
+                      <Route path="parent-info" element={<OnboardingParentInfoPage />} />
+                      <Route path="review" element={<OnboardingReviewPage />} />
+                    </Routes>
+                  </OnboardingProvider>
+                }
+              />
+            </Route>
 
-          {/* Institution bulk-onboarding flow.
+            {/* Institution bulk-onboarding flow.
               All steps share InstitutionOnboardingLayout which renders the
               page bg ellipses, the shared right panel, and (for non-guidelines
               routes) the 8-step breadcrumb at the top. */}
-          <Route element={<InstitutionOnboardingLayout />}>
-            <Route
-              path="/onboarding/institution/guidelines"
-              element={<InstitutionGuidelinesPage />}
-            />
-            <Route
-              path="/onboarding/institution/your-institution"
-              element={<InstitutionYourInstitutionPage />}
-            />
-            <Route path="/onboarding/institution/contact" element={<InstitutionContactPage />} />
-            <Route path="/onboarding/institution/activate" element={<InstitutionActivatePage />} />
-            {/* Template Guide — part of Phase 4 "Bulk Upload".
+            <Route element={<InstitutionOnboardingLayout />}>
+              <Route
+                path="/onboarding/institution/guidelines"
+                element={<InstitutionGuidelinesPage />}
+              />
+              <Route
+                path="/onboarding/institution/your-institution"
+                element={<InstitutionYourInstitutionPage />}
+              />
+              <Route path="/onboarding/institution/contact" element={<InstitutionContactPage />} />
+              <Route
+                path="/onboarding/institution/activate"
+                element={<InstitutionActivatePage />}
+              />
+              {/* Template Guide — part of Phase 4 "Bulk Upload".
                 Comes BEFORE /template in the flow: activate → template-guide → template → upload.
                 Has right panel (does not end with '/activate' or '/template').
                 Automatically gets breadcrumb step 3 "Template" via startsWith match
                 against STEP_PATHS[3] = '/onboarding/institution/template'. */}
-            <Route
-              path="/onboarding/institution/template-guide"
-              element={<InstitutionTemplateGuidePage />}
-            />
-            <Route path="/onboarding/institution/template" element={<InstitutionTemplatePage />} />
-            <Route path="/onboarding/institution/upload" element={<InstitutionUploadPage />} />
-            <Route path="/onboarding/institution/validate" element={<InstitutionValidatePage />} />
-            <Route path="/onboarding/institution/confirm" element={<InstitutionConfirmPage />} />
-            <Route path="/onboarding/institution/report" element={<InstitutionReportPage />} />
-          </Route>
+              <Route
+                path="/onboarding/institution/template-guide"
+                element={<InstitutionTemplateGuidePage />}
+              />
+              <Route
+                path="/onboarding/institution/template"
+                element={<InstitutionTemplatePage />}
+              />
+              <Route path="/onboarding/institution/upload" element={<InstitutionUploadPage />} />
+              <Route
+                path="/onboarding/institution/validate"
+                element={<InstitutionValidatePage />}
+              />
+              <Route path="/onboarding/institution/confirm" element={<InstitutionConfirmPage />} />
+              <Route path="/onboarding/institution/report" element={<InstitutionReportPage />} />
+            </Route>
 
-          {/* Parent portal onboarding — shared layout provides BG ellipses + gold right panel.
+            {/* Parent portal onboarding — shared layout provides BG ellipses + gold right panel.
               Layout swaps the right panel based on the active route:
                 parent-welcome → ParentWelcomeRightPanel (single large photo + Ward Status overlay)
                 parent-login   → ParentLoginRightPanel   (two photo cards + Error callout) */}
-          <Route element={<ParentOnboardingLayout />}>
-            <Route path={'/onboarding/parent-welcome'} element={<ParentWelcomePage />} />
-            <Route path={'/onboarding/parent-invited'} element={<ParentInvitePage />} />
-            <Route
-              path={'/onboarding/parent-invited-identity'}
-              element={<ParentInviteIdentityPage />}
-            />
-            <Route
-              path={'/onboarding/parent-invited-verification'}
-              element={<ParentInviteVerificationPage />}
-            />
-            <Route
-              path={'/onboarding/parent-invited-contact'}
-              element={<ParentInviteContactPage />}
-            />
-            <Route
-              path={'/onboarding/parent-invited-security'}
-              element={<ParentInviteSecurityPage />}
-            />
-            <Route
-              path={'/onboarding/parent-invited-link-ward'}
-              element={<ParentInviteLinkWardPage />}
-            />
-            <Route
-              path={'/onboarding/parent-invited-consent'}
-              element={<ParentInviteConsentPage />}
-            />
-            <Route path={'/onboarding/parent-login'} element={<ParentLoginPage />} />
-            <Route path={'/onboarding/parent-identity'} element={<ParentIdentityPage />} />
-            <Route path={'/onboarding/parent-verification'} element={<ParentVerificationPage />} />
-            <Route path={'/onboarding/parent-contact'} element={<ParentContactPage />} />
-            <Route path={'/onboarding/parent-security'} element={<ParentSecurityPage />} />
-            <Route path={'/onboarding/parent-link-ward'} element={<ParentLinkWardPage />} />
-            <Route path={'/onboarding/parent-review'} element={<ParentReviewPage />} />
-            <Route path={'/onboarding/parent-done'} element={<ParentDonePage />} />
+            <Route element={<ParentOnboardingLayout />}>
+              <Route path={'/onboarding/parent-welcome'} element={<ParentWelcomePage />} />
+              <Route path={'/onboarding/parent-invited'} element={<ParentInvitePage />} />
+              <Route
+                path={'/onboarding/parent-invited-identity'}
+                element={<ParentInviteIdentityPage />}
+              />
+              <Route
+                path={'/onboarding/parent-invited-verification'}
+                element={<ParentInviteVerificationPage />}
+              />
+              <Route
+                path={'/onboarding/parent-invited-contact'}
+                element={<ParentInviteContactPage />}
+              />
+              <Route
+                path={'/onboarding/parent-invited-security'}
+                element={<ParentInviteSecurityPage />}
+              />
+              <Route
+                path={'/onboarding/parent-invited-link-ward'}
+                element={<ParentInviteLinkWardPage />}
+              />
+              <Route
+                path={'/onboarding/parent-invited-consent'}
+                element={<ParentInviteConsentPage />}
+              />
+              <Route path={'/onboarding/parent-login'} element={<ParentLoginPage />} />
+              <Route path={'/onboarding/parent-identity'} element={<ParentIdentityPage />} />
+              <Route
+                path={'/onboarding/parent-verification'}
+                element={<ParentVerificationPage />}
+              />
+              <Route path={'/onboarding/parent-contact'} element={<ParentContactPage />} />
+              <Route path={'/onboarding/parent-security'} element={<ParentSecurityPage />} />
+              <Route path={'/onboarding/parent-link-ward'} element={<ParentLinkWardPage />} />
+              <Route path={'/onboarding/parent-review'} element={<ParentReviewPage />} />
+              <Route path={'/onboarding/parent-done'} element={<ParentDonePage />} />
+            </Route>
+
+            {/* /components hosts the design-system playground (HomePage). */}
+            <Route path={'/components'} element={<HomePage />} />
           </Route>
 
-          {/* /components hosts the design-system playground (HomePage). */}
-          <Route path={'/components'} element={<HomePage />} />
-        </Route>
+          {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
+          <Route path={'/profile/engagement'} element={<ProfileEngagementPage />} />
+          <Route path={'/profile/engagement/identity'} element={<IdentityMapPage />} />
+          <Route path={'/profile/engagement/milestone'} element={<MilestoneUnlockPage />} />
+          <Route path={'/profile/engagement/milestone/top-20'} element={<Top20MilestonePage />} />
+          <Route
+            path={'/profile/engagement/milestone/top-talent'}
+            element={<TopTalentMilestonePage />}
+          />
+          {/* Profile filling — each step owns its own full-bleed chrome (no shared layout). */}
+          <Route path={'/profile/filling/interests'} element={<InterestsIntroPage />} />
+          <Route path={'/profile/filling/interests/categories'} element={<InterestsStage2Page />} />
+          <Route path={'/profile/filling/skills'} element={<SkillsIntroPage />} />
+          <Route path={'/profile/filling/skills/categories'} element={<SkillsStage2Page />} />
+          {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
+          <Route path={'/profile/filling/career-buddy'} element={<CareerBuddyPage />} />
+          {/* Legacy split route → shared shell + recruiter role. */}
+          <Route
+            path={'/profile/filling/recruiter-buddy'}
+            element={<LegacyRecruiterBuddyRedirect />}
+          />
 
-        {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
-        <Route path={'/profile/engagement'} element={<ProfileEngagementPage />} />
-        <Route path={'/profile/engagement/identity'} element={<IdentityMapPage />} />
-        <Route path={'/profile/engagement/milestone'} element={<MilestoneUnlockPage />} />
-        <Route path={'/profile/engagement/milestone/top-20'} element={<Top20MilestonePage />} />
-        <Route
-          path={'/profile/engagement/milestone/top-talent'}
-          element={<TopTalentMilestonePage />}
-        />
-        {/* Profile filling — each step owns its own full-bleed chrome (no shared layout). */}
-        <Route path={'/profile/filling/interests'} element={<InterestsIntroPage />} />
-        <Route path={'/profile/filling/interests/categories'} element={<InterestsStage2Page />} />
-        <Route path={'/profile/filling/skills'} element={<SkillsIntroPage />} />
-        <Route path={'/profile/filling/skills/categories'} element={<SkillsStage2Page />} />
+          {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
+          <Route path={'/skills-lab/:skillSlug'} element={<SkillsLabPage />} />
 
-        {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
-        <Route path={'/skills-lab/:skillSlug'} element={<SkillsLabPage />} />
-
-        {/* All 5 avatar steps share one AvatarSelectionProvider so the
+          {/* All 5 avatar steps share one AvatarSelectionProvider so the
             user's picks survive navigation between Style → Skin → Hair →
             Extras → Outfit. Without this layout, the provider would
             re-mount per page and selections would reset. */}
-        <Route element={<AvatarFlowLayout />}>
-          <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
-          <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
-          <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
-          <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
-          <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
-        </Route>
-      </Routes>
+          <Route element={<AvatarFlowLayout />}>
+            <Route path={'/profile/engagement/avatar'} element={<AvatarCustomiserPage />} />
+            <Route path={'/profile/engagement/avatar/skin'} element={<AvatarSkinTonePage />} />
+            <Route path={'/profile/engagement/avatar/hair'} element={<AvatarHairPage />} />
+            <Route path={'/profile/engagement/avatar/extras'} element={<AvatarExtrasPage />} />
+            <Route path={'/profile/engagement/avatar/outfit'} element={<AvatarOutfitPage />} />
+          </Route>
+        </Routes>
+      </CareerBuddyRoleProvider>
     </BrowserRouter>
   );
 }

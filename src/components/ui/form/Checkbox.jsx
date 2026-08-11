@@ -142,37 +142,37 @@ const Checkbox = ({
           disabled ? 'cursor-not-allowed' : 'cursor-pointer'
         )}
       >
-        <input
-          ref={ref}
-          id={inputId}
-          name={name}
-          type="checkbox"
-          checked={isControlled ? checked : undefined}
-          defaultChecked={!isControlled ? defaultChecked : undefined}
-          disabled={disabled || state === 'disabled' || state === 'disabled-checked'}
-          onChange={handleChange}
-          aria-invalid={Boolean(error) || undefined}
-          aria-describedby={message ? messageId : undefined}
-          className="sr-only peer"
-          {...inputProps}
-        />
         {/*
-         * Visual proxy. The native input is visually hidden but receives
-         * focus / clicks via the wrapping <label>. The peer:focus-visible
-         * ring keeps keyboard navigation visible.
+         * Native input overlays the 20×20 visual box (opacity-0) instead of
+         * `sr-only`. Screen-reader-only clipping parks the focus target at a
+         * 1×1 off-flow rect; inside Modal/overflow scrollers that triggers
+         * scrollIntoView and jumps the pane to blank white. Same pattern as Radio.
          */}
-        <span
-          aria-hidden="true"
-          className={classNames(
-            BOX_BASE,
-            boxClasses,
-            'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2',
-            // Keep the box vertically aligned with the first line of label
-            // text (which is 20px tall — see <span> below) without offsets.
-            'mt-px'
-          )}
-        >
-          {showTick && <TickIcon className="size-[14px] text-white" />}
+        <span className="relative mt-px inline-flex size-5 shrink-0 items-center justify-center">
+          <input
+            ref={ref}
+            id={inputId}
+            name={name}
+            type="checkbox"
+            checked={isControlled ? checked : undefined}
+            defaultChecked={!isControlled ? defaultChecked : undefined}
+            disabled={disabled || state === 'disabled' || state === 'disabled-checked'}
+            onChange={handleChange}
+            aria-invalid={Boolean(error) || undefined}
+            aria-describedby={message ? messageId : undefined}
+            className="peer absolute inset-0 z-10 m-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+            {...inputProps}
+          />
+          <span
+            aria-hidden="true"
+            className={classNames(
+              BOX_BASE,
+              boxClasses,
+              'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2'
+            )}
+          >
+            {showTick && <TickIcon className="size-[14px] text-white" />}
+          </span>
         </span>
         {label !== undefined && (
           <span
