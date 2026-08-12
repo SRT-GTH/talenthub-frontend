@@ -63,10 +63,52 @@ const PARENT_B_STEPS = [
 // Shared Career Buddy route — role flips content; ?cb= seeds recruiter mid-flow.
 const CAREER_BUDDY_PATH = '/profile/filling/career-buddy';
 
-const CAREER_BUDDY_TALENT_STEPS = [{ label: 'Landing', path: CAREER_BUDDY_PATH }];
+const CAREER_BUDDY_TALENT_STEPS = [
+  { label: 'Landing', path: CAREER_BUDDY_PATH },
+  { label: 'New Chat', path: `${CAREER_BUDDY_PATH}?cb=new-chat` },
+  { label: 'Voice call', path: `${CAREER_BUDDY_PATH}?cb=voice-call` },
+  { label: 'Voice settings', path: `${CAREER_BUDDY_PATH}?cb=voice-settings` },
+  { label: 'Voice dictation', path: `${CAREER_BUDDY_PATH}?cb=voice-dictation` },
+  { label: 'Opt out', path: `${CAREER_BUDDY_PATH}?cb=opt-out` },
+  { label: 'Opt out sorry', path: `${CAREER_BUDDY_PATH}?cb=opt-out-sorry` },
+  { label: 'Opt out schedule', path: `${CAREER_BUDDY_PATH}?cb=opt-out-schedule` },
+  { label: 'Switch Modes', path: `${CAREER_BUDDY_PATH}?cb=switch-modes` },
+];
+
+const CAREER_BUDDY_PARENT_STEPS = [
+  { label: 'Landing', path: `${CAREER_BUDDY_PATH}?cb=welcome` },
+  { label: 'New Chat', path: `${CAREER_BUDDY_PATH}?cb=new-chat` },
+  { label: 'Voice call', path: `${CAREER_BUDDY_PATH}?cb=voice-call` },
+  { label: 'Voice settings', path: `${CAREER_BUDDY_PATH}?cb=voice-settings` },
+  { label: 'Voice dictation', path: `${CAREER_BUDDY_PATH}?cb=voice-dictation` },
+  { label: 'Opt out', path: `${CAREER_BUDDY_PATH}?cb=opt-out` },
+  { label: 'Opt out sorry', path: `${CAREER_BUDDY_PATH}?cb=opt-out-sorry` },
+  { label: 'Opt out schedule', path: `${CAREER_BUDDY_PATH}?cb=opt-out-schedule` },
+  { label: 'Switch Modes', path: `${CAREER_BUDDY_PATH}?cb=switch-modes` },
+  { label: 'Ward not init', path: `${CAREER_BUDDY_PATH}?cb=ward-uninitiated` },
+  { label: 'Ward setup', path: `${CAREER_BUDDY_PATH}?cb=ward-setup` },
+  { label: 'Ward password', path: `${CAREER_BUDDY_PATH}?cb=ward-password` },
+  { label: 'Ward success', path: `${CAREER_BUDDY_PATH}?cb=ward-success` },
+  { label: 'Build own', path: `${CAREER_BUDDY_PATH}?cb=parent-own` },
+  { label: 'Build own progress', path: `${CAREER_BUDDY_PATH}?cb=parent-own-progress` },
+  { label: 'Build own review', path: `${CAREER_BUDDY_PATH}?cb=parent-own-review` },
+  { label: 'Guide ward', path: `${CAREER_BUDDY_PATH}?cb=parent-guide` },
+  { label: 'Guide progress', path: `${CAREER_BUDDY_PATH}?cb=parent-guide-progress` },
+  { label: 'Guide review', path: `${CAREER_BUDDY_PATH}?cb=parent-guide-review` },
+  { label: 'Resume upload', path: `${CAREER_BUDDY_PATH}?cb=parent-resume` },
+  { label: 'Resume filled', path: `${CAREER_BUDDY_PATH}?cb=parent-resume-filled` },
+];
 
 const CAREER_BUDDY_RECRUITER_STEPS = [
   { label: 'Landing', path: `${CAREER_BUDDY_PATH}?cb=welcome` },
+  { label: 'New Chat', path: `${CAREER_BUDDY_PATH}?cb=new-chat` },
+  { label: 'Voice call', path: `${CAREER_BUDDY_PATH}?cb=voice-call` },
+  { label: 'Voice settings', path: `${CAREER_BUDDY_PATH}?cb=voice-settings` },
+  { label: 'Voice dictation', path: `${CAREER_BUDDY_PATH}?cb=voice-dictation` },
+  { label: 'Opt out', path: `${CAREER_BUDDY_PATH}?cb=opt-out` },
+  { label: 'Opt out sorry', path: `${CAREER_BUDDY_PATH}?cb=opt-out-sorry` },
+  { label: 'Opt out schedule', path: `${CAREER_BUDDY_PATH}?cb=opt-out-schedule` },
+  { label: 'Switch Modes', path: `${CAREER_BUDDY_PATH}?cb=switch-modes` },
   { label: 'KYB Upload', path: `${CAREER_BUDDY_PATH}?cb=kyb-prompt` },
   { label: 'KYB Verified', path: `${CAREER_BUDDY_PATH}?cb=kyb-verified` },
   { label: 'Company Start', path: `${CAREER_BUDDY_PATH}?cb=company-start` },
@@ -101,6 +143,8 @@ export default function DemoNavigator() {
   const onCareerBuddy = location.pathname.startsWith(CAREER_BUDDY_PREFIX);
   const onOnboarding = location.pathname.startsWith(ONBOARDING_PREFIX);
   const recruiterActive = role === 'recruiter';
+  const parentActive = role === 'parent';
+  const buddyRoleActive = recruiterActive || parentActive;
 
   const [surface, setSurface] = useState(() => (onCareerBuddy ? 'career-buddy' : 'onboarding'));
   const [activeFlow, setActiveFlow] = useState('talent');
@@ -116,7 +160,11 @@ export default function DemoNavigator() {
       ? 'onboarding'
       : surface;
 
-  const buddySteps = recruiterActive ? CAREER_BUDDY_RECRUITER_STEPS : CAREER_BUDDY_TALENT_STEPS;
+  const buddySteps = recruiterActive
+    ? CAREER_BUDDY_RECRUITER_STEPS
+    : parentActive
+      ? CAREER_BUDDY_PARENT_STEPS
+      : CAREER_BUDDY_TALENT_STEPS;
 
   const onboardingSteps =
     activeFlow === 'institution'
@@ -132,9 +180,9 @@ export default function DemoNavigator() {
   const steps = effectiveSurface === 'career-buddy' ? buddySteps : onboardingSteps;
   const locationKey = buddyLocationKey(location.pathname, location.search);
   const foundIndex = steps.findIndex((s) => s.path === locationKey);
-  // Bare /career-buddy with recruiter role maps to Landing (?cb=welcome).
+  // Bare /career-buddy with recruiter/parent role maps to Landing (?cb=welcome).
   const currentIndex =
-    foundIndex === -1 && recruiterActive && locationKey === CAREER_BUDDY_PATH
+    foundIndex === -1 && buddyRoleActive && locationKey === CAREER_BUDDY_PATH
       ? 0
       : foundIndex === -1
         ? 0
@@ -145,7 +193,11 @@ export default function DemoNavigator() {
     log('surface switch:', next);
     setSurface(next);
     if (next === 'career-buddy') {
-      navigate(role === 'recruiter' ? `${CAREER_BUDDY_PATH}?cb=welcome` : CAREER_BUDDY_PATH);
+      navigate(
+        role === 'recruiter' || role === 'parent'
+          ? `${CAREER_BUDDY_PATH}?cb=welcome`
+          : CAREER_BUDDY_PATH
+      );
       return;
     }
     const dest =
@@ -162,7 +214,11 @@ export default function DemoNavigator() {
   function handleBuddyRole(nextRole) {
     log('career-buddy role:', nextRole);
     setRole(nextRole);
-    navigate(nextRole === 'recruiter' ? `${CAREER_BUDDY_PATH}?cb=welcome` : CAREER_BUDDY_PATH);
+    navigate(
+      nextRole === 'recruiter' || nextRole === 'parent'
+        ? `${CAREER_BUDDY_PATH}?cb=welcome`
+        : CAREER_BUDDY_PATH
+    );
   }
 
   function handleFlowSwitch(flow) {
@@ -238,15 +294,13 @@ export default function DemoNavigator() {
       {effectiveSurface === 'career-buddy' ? (
         <>
           <div className="flex items-center gap-1">
-            {['talent', 'recruiter'].map((r) => (
+            {['talent', 'recruiter', 'parent'].map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => handleBuddyRole(r)}
                 className={`rounded-full px-3 py-0.5 capitalize transition-colors ${
-                  (r === 'recruiter') === recruiterActive
-                    ? 'bg-white text-gray-900'
-                    : 'hover:bg-white/10'
+                  role === r ? 'bg-white text-gray-900' : 'hover:bg-white/10'
                 }`}
               >
                 {r}
@@ -257,7 +311,7 @@ export default function DemoNavigator() {
           <span className="text-white/80">
             {currentIndex + 1}&thinsp;/&thinsp;{steps.length}&ensp;·&ensp;{currentStep?.label}
           </span>
-          {recruiterActive && (
+          {buddyRoleActive && (
             <div className="flex items-center gap-1">
               <button
                 type="button"

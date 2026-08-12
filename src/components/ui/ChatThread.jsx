@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
+import useVoiceCapture from '../../hooks/useVoiceCapture.js';
 import Button from './Button.jsx';
+import AudioLevelWaveform from './AudioLevelWaveform.jsx';
 import CareerBuddyAvatar from '../shared/CareerBuddyAvatar.jsx';
+import AvatarPreview from '../sections/engagement/avatar/AvatarPreview.jsx';
 import {
   PlusIcon,
   CheckIcon,
@@ -17,7 +20,8 @@ import {
   ChatMicIcon,
   ChatWaveIcon,
   ChatSendArrowIcon,
-  ChatCancelIcon,
+  ChatVoiceCloseIcon,
+  ChatSettingsSlidersIcon,
   ChatCopyIcon,
   ChatLinkArrowIcon,
 } from '../shared/assets.jsx';
@@ -102,6 +106,9 @@ const log = debug('ChatThread');
  *   disabled         boolean       — disables the whole input bar
  *   onNewChat        () => void    — renders the "+ New Chat" pill top-left when provided
  *   onOpenHistory    () => void    — renders the clock/history icon top-right when provided
+ *   onOpenVoiceSettings () => void — settings (sliders) control; New Chat / chrome
+ *   onOpenVoiceCall  () => void    — far-right wave button opens dual-avatar voice call
+ *   startDictation   boolean       — demo seed: enter voice-to-text recording on mount
  *   enableAttach     boolean       — when true, attach icon triggers a hidden file input
  *                    (recruiter KYB / job JD upload); default false (decorative only)
  *   onAttach         ({name,size,sizeLabel}) => void — called with selected file metadata
@@ -119,12 +126,8 @@ const UserAvatar = ({ src }) =>
       draggable="false"
     />
   ) : (
-    <span
-      aria-hidden="true"
-      className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-neutral-dark text-white font-sans text-[15px] font-semibold"
-    >
-      U
-    </span>
+    // Shared layered avatar from the customiser (AvatarPreview).
+    <AvatarPreview size={48} />
   );
 
 const MessageBubble = ({ message, onRetry, onSelectOption }) => {
@@ -329,6 +332,9 @@ const ChatThread = ({
   disabled = false,
   onNewChat,
   onOpenHistory,
+  onOpenVoiceSettings,
+  onOpenVoiceCall,
+  startDictation = false,
   enableAttach = false,
   onAttach,
   onAttachRejected,
@@ -338,6 +344,33 @@ const ChatThread = ({
   const [recording, setRecording] = useState(false);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
+  const dictationSeededRef = useRef(false);
+
+  const {
+    level,
+    transcript,
+    error: micError,
+  } = useVoiceCapture({
+    enabled: recording,
+    listen: true,
+  });
+
+  // Live interim transcript into the recording buffer (confirm copies to draft).
+  const [dictationBuffer, setDictationBuffer] = useState('');
+  useEffect(() => {
+    if (recording && transcript) {
+      setDictationBuffer(transcript);
+      log('async', { dictationLen: transcript.length });
+    }
+  }, [recording, transcript]);
+
+  useEffect(() => {
+    if (startDictation && !dictationSeededRef.current) {
+      dictationSeededRef.current = true;
+      log('branch', { startDictationSeed: true });
+      setRecording(true);
+    }
+  }, [startDictation]);
 
   const handleAttachClick = () => {
     if (enableAttach) {
@@ -385,6 +418,7 @@ const ChatThread = ({
     onSend?.(trimmed);
     setDraft('');
     setRecording(false);
+    setDictationBuffer('');
   };
 
   const handleSubmitForm = (e) => {
@@ -393,8 +427,30 @@ const ChatThread = ({
   };
 
   const handleMicClick = () => {
-    log('branch', { recording: !recording });
-    setRecording((r) => !r);
+    log('branch', { voiceToTextStart: true });
+    setDictationBuffer('');
+    setRecording(true);
+  };
+
+  const handleCancelDictation = () => {
+    log('branch', { voiceToTextCancel: true });
+    setRecording(false);
+    setDictationBuffer('');
+  };
+
+  const handleConfirmDictation = () => {
+    // Confirm fills the draft only — does not send (product 2026-08-12).
+    log('branch', { voiceToTextConfirm: true, len: dictationBuffer.length });
+    if (dictationBuffer.trim()) {
+      setDraft((prev) => {
+        const next = prev.trim()
+          ? `${prev.trim()} ${dictationBuffer.trim()}`
+          : dictationBuffer.trim();
+        return next;
+      });
+    }
+    setRecording(false);
+    setDictationBuffer('');
   };
 
   // Mode-picker cards (Figma 5132:57368: "Games"/"MCQs (Assessment)"/"Open
@@ -443,8 +499,12 @@ const ChatThread = ({
           </Button>
 
           {recording ? (
-            <div className="flex flex-1 items-center gap-2 text-brand-green">
-              <span className="font-sans text-[16px]">Listening…</span>
+            <div className="flex flex-1 min-w-0 items-center gap-2">
+              {/* Voice-to-text — live waveform (Figma 5146:76424 / 76547) */}
+              <AudioLevelWaveform level={level} className="shrink-0 text-[#595959]" />
+              <span className="truncate font-sans text-[16px] tracking-[0.2px] text-content-primary">
+                {dictationBuffer || (micError ? 'Mic unavailable' : '')}
+              </span>
             </div>
           ) : (
             <input
@@ -462,21 +522,22 @@ const ChatThread = ({
 
         {recording ? (
           <>
+            {/* Confirm ✓ then Cancel X — Figma 5146:76555 / 76558 order is tick then X */}
             <button
               type="button"
-              aria-label="Cancel recording"
-              onClick={() => setRecording(false)}
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-content-tertiary hover:text-danger"
+              aria-label="Confirm dictation"
+              onClick={handleConfirmDictation}
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755]"
             >
-              <ChatCancelIcon className="size-4" />
+              <CheckIcon className="size-[18px]" />
             </button>
             <button
               type="button"
-              aria-label="Confirm recording"
-              onClick={() => setRecording(false)}
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-brand-green"
+              aria-label="Cancel dictation"
+              onClick={handleCancelDictation}
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755]"
             >
-              <CheckIcon className="size-4" />
+              <ChatVoiceCloseIcon className="size-[12px]" />
             </button>
           </>
         ) : draft.trim() ? (
@@ -494,7 +555,7 @@ const ChatThread = ({
               type="button"
               variant="icon"
               size="md"
-              aria-label="Record voice message"
+              aria-label="Dictate with microphone"
               onClick={handleMicClick}
               disabled={disabled}
             >
@@ -504,9 +565,12 @@ const ChatThread = ({
               type="button"
               variant="icon"
               size="md"
-              aria-label="Voice notes"
-              disabled={disabled}
-              onClick={() => log('branch', { voiceNotesClicked: true })}
+              aria-label="Start voice call"
+              disabled={disabled || !onOpenVoiceCall}
+              onClick={() => {
+                log('branch', { openVoiceCall: true });
+                onOpenVoiceCall?.();
+              }}
             >
               <ChatWaveIcon className="size-[18.5px]" />
             </Button>
@@ -518,11 +582,8 @@ const ChatThread = ({
 
   return (
     <div className={classNames('relative flex flex-1 min-h-0 flex-col', className)}>
-      {/* New Chat + History — float over the chat (transparent chrome, no
-          bar fill). Figma 5132:47988 / 47992 are just the pills themselves;
-          messages scroll underneath. pointer-events-none on the row so the
-          empty mid-span doesn't block bubble clicks; re-enabled on buttons. */}
-      {(onNewChat || onOpenHistory) && (
+      {/* New Chat + History / Settings — float over the chat (transparent chrome). */}
+      {(onNewChat || onOpenHistory || onOpenVoiceSettings) && (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-[54px] pt-6">
           {onNewChat ? (
             <button
@@ -535,16 +596,28 @@ const ChatThread = ({
           ) : (
             <span />
           )}
-          {onOpenHistory && (
-            <button
-              type="button"
-              onClick={onOpenHistory}
-              aria-label="Chat history"
-              className="pointer-events-auto inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30"
-            >
-              <ChatHistoryIcon className="size-[20px]" />
-            </button>
-          )}
+          <div className="pointer-events-auto flex items-center gap-2">
+            {onOpenHistory && (
+              <button
+                type="button"
+                onClick={onOpenHistory}
+                aria-label="Chat history"
+                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30"
+              >
+                <ChatHistoryIcon className="size-[20px]" />
+              </button>
+            )}
+            {onOpenVoiceSettings && (
+              <button
+                type="button"
+                onClick={onOpenVoiceSettings}
+                aria-label="Voice settings"
+                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30"
+              >
+                <ChatSettingsSlidersIcon className="size-[18px] text-[#fefefe]" />
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -569,7 +642,7 @@ const ChatThread = ({
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6">
         <div
           className={`flex flex-col gap-[16px] mt-auto ${
-            onNewChat || onOpenHistory ? 'pt-[52px]' : ''
+            onNewChat || onOpenHistory || onOpenVoiceSettings ? 'pt-[52px]' : ''
           }`}
         >
           {messages.map((message) => (

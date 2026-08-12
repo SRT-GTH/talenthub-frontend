@@ -280,7 +280,11 @@ const TalentProfilePanel = ({
                 aria-expanded={isExpanded}
               >
                 <span className="flex items-center gap-[20px] min-w-0">
-                  <Icon className="size-10 text-brand-green shrink-0" />
+                  {Icon ? (
+                    <Icon className="size-10 text-brand-green shrink-0" />
+                  ) : (
+                    <span className="size-10 shrink-0" aria-hidden="true" />
+                  )}
                   <span className="flex flex-col gap-[6px] min-w-0">
                     <span className="font-sans font-medium text-[20px] text-[#111] truncate">
                       {stage.panelLabel}

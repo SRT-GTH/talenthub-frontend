@@ -11,8 +11,13 @@ import GameStoreModal from './GameStoreModal.jsx';
 import EscapeRoomGame from './EscapeRoomGame.jsx';
 import JobPostFormModal from './JobPostFormModal.jsx';
 import ConfirmJobPostModal from './ConfirmJobPostModal.jsx';
+import WardAccountSetupModal from './WardAccountSetupModal.jsx';
 import CareerBuddyAvatar from '../../shared/CareerBuddyAvatar.jsx';
 import CareerBuddyHero from './CareerBuddyHero.jsx';
+import VoiceCallOverlay from './VoiceCallOverlay.jsx';
+import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
+import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
+import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import {
   CAREER_BUDDY_NODES,
   FIRST_TIME_HERO,
@@ -29,7 +34,6 @@ import {
   RECRUITER_BUDDY_NODES,
   RECRUITER_BUDDY_STAGES,
   RECRUITER_FIRST_TIME_HERO,
-  RECRUITER_WELCOME_TOAST,
   RECRUITER_NAME,
   COMPANY_INFO_FIELDS,
   COMPANY_PANEL_PROGRESS,
@@ -40,6 +44,23 @@ import {
   applyJobConvAnswer,
   buildJobsPanelFields,
 } from './recruiterBuddyScript.js';
+import {
+  PARENT_BUDDY_NODES,
+  PARENT_FIRST_TIME_HERO,
+  PARENT_MY_PROFILE_STAGES,
+  PARENT_WARD_PROFILE_STAGES,
+  PARENT_EMPTY_WARD_STAGES,
+  PARENT_GUIDE_START_STAGES,
+  PARENT_WARD_EDU_FIELDS,
+  PARENT_WARD_INTERESTS_FIELDS,
+  PARENT_STAGE_SAVE_META,
+  PARENT_PANEL_TABS,
+  PARENT_PANEL_SUBTITLE,
+  PARENT_NAME,
+  CAREER_BUDDY_WELCOME_TOAST,
+  seedParentJump,
+} from './parentBuddyScript.js';
+import { WARD_SETUP_SUCCESS_TOAST } from './wardAccountSetupData.js';
 import {
   JOB_POSTED_SUCCESS_TOAST,
   emptyJobPostForm,
@@ -226,6 +247,14 @@ const CAREER_BUDDY_STAGES = [
   },
 ];
 
+/** Stage icons shared by talent + parent panels (parent scripts are data-only). */
+const PARENT_STAGE_ICONS = Object.fromEntries(
+  CAREER_BUDDY_STAGES.filter((s) => s.Icon).map((s) => [s.id, s.Icon])
+);
+
+const withParentStageIcons = (list) =>
+  list.map((stage) => ({ ...stage, Icon: PARENT_STAGE_ICONS[stage.id] ?? PanelPersonInfoIcon }));
+
 // Educational Background + Personal Area of Interest fields are collected
 // live through this build's chat (`confirmed: true` — Modify/Confirm
 // actions apply). The rest carry Figma's reference-sheet data as a
@@ -247,6 +276,13 @@ const STAGE_FIELD_DATA = {
   // once the chat reaches exposure-confirm-*.
   'desired-career': { fields: CAREER_OPTIONS_PREVIEW_FIELDS, confirmed: true },
 };
+
+/** Demo skills extract when parent resume fills Elliot's panel. */
+const WARD_RESUME_SKILLS_FIELDS = [
+  { label: 'Technical Skills', value: 'JavaScript, React, Python, SQL' },
+  { label: 'Soft Skills', value: 'Teamwork, Communication, Time Management' },
+  { label: 'Tools', value: 'Git, Figma, VS Code' },
+];
 
 // Icon lookup for the personality mode-picker + post-personality
 // section-picker cards — kept out of careerBuddyScript.js (data-only, no
@@ -270,6 +306,14 @@ const MODE_CARD_ICONS = {
   'manual-creation': JobManualCreationIcon,
 };
 
+// Nodes that render mode-card grids — Switch Modes returns here.
+const MODE_LISTING_NODE_IDS = new Set([
+  'personality-mode-picker',
+  'section-picker-prompt',
+  'section-picker-from-guidance',
+  'post-a-job-options',
+]);
+
 // Per-stage metadata for the real async save round-trip (handleConfirmStage
 // below) — generalises what was previously hardcoded to
 // 'educational-background' only. Each entry:
@@ -278,6 +322,11 @@ const MODE_CARD_ICONS = {
 //   nextNodeId       — script node to transition into after success (the
 //                      next stage's transition prompt), or null to stay put
 const STAGE_SAVE_META = {
+  'personal-info': {
+    autoMessageText: 'Personal Info confirmed ✅',
+    toastLabel: 'Personal info saved',
+    nextNodeId: null,
+  },
   'educational-background': {
     autoMessageText: 'Educational background confirmed ✅',
     toastLabel: 'Educational background saved',
@@ -295,6 +344,11 @@ const STAGE_SAVE_META = {
     autoMessageText: 'Personality confirmed ✅',
     toastLabel: 'Personality saved',
     nextNodeId: 'post-personality-prompt',
+  },
+  skills: {
+    autoMessageText: 'Skills confirmed ✅',
+    toastLabel: 'Skills saved',
+    nextNodeId: null,
   },
   // nextNodeId stays null — the section-picker's other 5 cards are all
   // stubs (no built flow to hand off into), and picking a DIFFERENT card
@@ -336,6 +390,10 @@ const buildCompanyInfoFields = (kybVerified) =>
 const STAGE_QA_NODE_PREFIX = {
   'edu-q': 'educational-background',
   'interests-q': 'personal-interests',
+  // Parent Guide ward — Elliot's Educational Background / Interests Q&A.
+  'parent-guide-edu': 'educational-background',
+  'parent-interests-q': 'personal-interests',
+  'parent-interests-confirm': 'personal-interests',
   'open-chat-q': 'personality',
   'mcq-q': 'personality',
   // Games mode has no Q&A nodes (the actual game is a separate React
@@ -363,13 +421,25 @@ const STAGE_QA_NODE_PREFIX = {
 // so the recruiter flow can render the identical hero with its own copy.
 const FirstTimeHero = ({ hero }) => <CareerBuddyHero hero={hero} />;
 
-const ReturningHero = () => (
-  <div className="flex flex-col items-center text-center px-10 pt-20 pb-4 gap-2 shrink-0">
-    <h1 className="font-display text-[26px] leading-tight">
-      <span className="italic text-brand-green">{RETURNING_HERO.headlineQuestion}</span>{' '}
-      <span className="font-semibold text-content-primary">{RETURNING_HERO.headlineName}</span>
+const ReturningHero = ({ name }) => (
+  <div className="flex flex-col items-center text-center px-10 pt-[clamp(3rem,8vh,5rem)] pb-4 gap-[14px] shrink-0">
+    {/* Figma 5146:75802 — mixed styles: green Instrument Serif question, SF Pro Medium name */}
+    <h1
+      className="text-center leading-[1.3] tracking-[0.1px]"
+      style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)' }}
+    >
+      <span className="font-display font-normal text-brand-green">
+        {RETURNING_HERO.headlineQuestion.replace(/\?$/, '')}
+      </span>
+      <span className="font-display font-normal text-[#404040]">?</span>{' '}
+      <span className="font-sans font-medium text-[#404040]">{name}</span>
     </h1>
-    <p className="font-sans text-[13px] text-content-secondary">{RETURNING_HERO.subtitle}</p>
+    <p
+      className="font-sans font-normal text-content-secondary max-w-[40rem]"
+      style={{ fontSize: 'clamp(0.9375rem, 1.4vw, 1.125rem)' }}
+    >
+      {RETURNING_HERO.subtitle}
+    </p>
   </div>
 );
 
@@ -378,7 +448,8 @@ const CareerBuddySection = () => {
   const [searchParams] = useSearchParams();
   const { role } = useCareerBuddyRole();
   const isRecruiter = role === 'recruiter';
-  // ?cb= query param lets DemoNavigator jump into mid-flow recruiter states.
+  const isParent = role === 'parent';
+  // ?cb= query param lets DemoNavigator jump into mid-flow recruiter/parent states.
   const demoHint = searchParams.get('cb') || 'welcome';
 
   const [nodeId, setNodeId] = useState('welcome');
@@ -388,6 +459,8 @@ const CareerBuddySection = () => {
   const [expandedPanelId, setExpandedPanelId] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  // Parent panel: My Profile vs Elliot's Profile (Figma 5132:77628).
+  const [parentProfileTab, setParentProfileTab] = useState('mine');
   // Stage id currently mid-save (drives the Confirm button's spinner + a
   // simulated async round-trip) — see handleConfirmStage below.
   const [confirmingStageId, setConfirmingStageId] = useState(null);
@@ -398,6 +471,16 @@ const CareerBuddySection = () => {
   const [retriedStages, setRetriedStages] = useState({});
   const [gameStoreOpen, setGameStoreOpen] = useState(false);
   const [playingEscapeRoom, setPlayingEscapeRoom] = useState(false);
+  // Voice flow — Figma 5146:75750 / 75913 / 76230 / 76424
+  const [voiceCallOpen, setVoiceCallOpen] = useState(false);
+  const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
+  const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
+  const [startDictation, setStartDictation] = useState(false);
+  // Opt-out flow — Figma 5146:74705 / 75029 / 75353 (Save & Exit)
+  const [optOutOpen, setOptOutOpen] = useState(false);
+  const [optOutStep, setOptOutStep] = useState('journey');
+  // Last mode-cards listing visited — Switch Modes / "Choose different mode"
+  const [modeListingNodeId, setModeListingNodeId] = useState(null);
   const [jobPostFormOpen, setJobPostFormOpen] = useState(false);
   const [confirmJobPostOpen, setConfirmJobPostOpen] = useState(false);
   // Shared draft for Manual / Conversation AI / File Upload → form / Jobs panel.
@@ -407,6 +490,13 @@ const CareerBuddySection = () => {
   // Bump only when clearing the draft (dismiss / success / fresh Fill Form).
   // Confirm step closes the form UI but must NOT clear the draft.
   const [jobPostFormResetKey, setJobPostFormResetKey] = useState(0);
+  // Parent: ward account initiated? Demo + create flow (Figma 5132:80134).
+  const [wardAccountReady, setWardAccountReady] = useState(true);
+  // Landing (initialized) shows demo ward %; new create stays empty-not-started.
+  const [wardHasDemoProgress, setWardHasDemoProgress] = useState(true);
+  const [wardSetupOpen, setWardSetupOpen] = useState(false);
+  const [wardSetupStep, setWardSetupStep] = useState('details');
+  const [wardSetupResetKey, setWardSetupResetKey] = useState(0);
   // Tracks whether the recruiter has uploaded a KYB doc this session — used
   // to update the KYB/KYC Status field in RecruiterPanel's view-details.
   const [kybVerified, setKybVerified] = useState(false);
@@ -416,6 +506,9 @@ const CareerBuddySection = () => {
   // Ref (not state) so the simulated-save setTimeout always reads the
   // value set at wrap-up choice time, not a stale render closure.
   const guidanceResumeNodeIdRef = useRef(null);
+  // Parent My/Ward tab swap replaces `stages` — keep the live ward snapshot
+  // here so resume-filled Modify/Confirm data survives tab flips.
+  const parentWardStagesRef = useRef(null);
 
   log('mount', { nodeId, stageCount: stages.length, role });
 
@@ -431,11 +524,182 @@ const CareerBuddySection = () => {
     []
   );
 
+  const parentMyStagesWithIcons = useMemo(() => withParentStageIcons(PARENT_MY_PROFILE_STAGES), []);
+  const parentWardStagesWithIcons = useMemo(
+    () => withParentStageIcons(PARENT_WARD_PROFILE_STAGES),
+    []
+  );
+  const parentEmptyWardStagesWithIcons = useMemo(
+    () => withParentStageIcons(PARENT_EMPTY_WARD_STAGES),
+    []
+  );
+  const parentGuideStartStagesWithIcons = useMemo(
+    () => withParentStageIcons(PARENT_GUIDE_START_STAGES),
+    []
+  );
+
+  const wardPanelStages =
+    wardAccountReady && wardHasDemoProgress
+      ? parentWardStagesWithIcons
+      : parentEmptyWardStagesWithIcons;
+
   // Script + trail selection — single source of truth for role.
-  const scriptNodes = isRecruiter ? RECRUITER_BUDDY_NODES : CAREER_BUDDY_NODES;
-  const trailStages = isRecruiter ? RECRUITER_BUDDY_STAGES : CAREER_BUDDY_STAGES;
-  const firstTimeHero = isRecruiter ? RECRUITER_FIRST_TIME_HERO : FIRST_TIME_HERO;
-  const personaName = isRecruiter ? RECRUITER_NAME : TALENT_NAME;
+  // Parent welcome/guide/resume live in PARENT_BUDDY_NODES; "Build my own"
+  // continues through talent CAREER_BUDDY_NODES (edu → interests → …). Parent
+  // keys override talent where both define the same id (welcome / FAQ).
+  const scriptNodes = isRecruiter
+    ? RECRUITER_BUDDY_NODES
+    : isParent
+      ? { ...CAREER_BUDDY_NODES, ...PARENT_BUDDY_NODES }
+      : CAREER_BUDDY_NODES;
+  const trailStages = isRecruiter
+    ? RECRUITER_BUDDY_STAGES
+    : isParent
+      ? parentMyStagesWithIcons
+      : CAREER_BUDDY_STAGES;
+  const firstTimeHero = isRecruiter
+    ? RECRUITER_FIRST_TIME_HERO
+    : isParent
+      ? PARENT_FIRST_TIME_HERO
+      : FIRST_TIME_HERO;
+  const personaName = isRecruiter ? RECRUITER_NAME : isParent ? PARENT_NAME : TALENT_NAME;
+
+  const selectParentProfileTab = (tabId) => {
+    log('branch', { parentProfileTab: tabId, wardAccountReady });
+    setParentProfileTab(tabId);
+    if (tabId === 'mine') {
+      // Snapshot current ward stages before leaving (preserves resume fill / edits).
+      if (parentProfileTab === 'ward') {
+        parentWardStagesRef.current = stages;
+      }
+      setStages(parentMyStagesWithIcons);
+    } else {
+      setStages(parentWardStagesRef.current ?? wardPanelStages);
+    }
+    setExpandedPanelId(null);
+  };
+
+  /** Parent resume → Elliot panel (awaiting-review so Modify/Confirm work like talent). */
+  const applyWardResumeFill = () => {
+    log('branch', { fillWardFromResume: true });
+    setWardAccountReady(true);
+    setWardHasDemoProgress(false);
+    setParentProfileTab('ward');
+    const next = parentEmptyWardStagesWithIcons.map((stage) => {
+      if (stage.id === 'personal-info') {
+        return {
+          ...stage,
+          status: 'awaiting-review',
+          completionPct: 80,
+          fields: PERSONAL_INFO_PREVIEW_FIELDS.map((f) => ({ ...f })),
+        };
+      }
+      if (stage.id === 'educational-background') {
+        return {
+          ...stage,
+          status: 'awaiting-review',
+          completionPct: 100,
+          fields: EDUCATIONAL_BACKGROUND_FIELDS.map((f) => ({ ...f })),
+        };
+      }
+      if (stage.id === 'personal-interests') {
+        return {
+          ...stage,
+          status: 'awaiting-review',
+          completionPct: 40,
+          fields: PERSONAL_INTERESTS_PREVIEW_FIELDS.map((f) => ({ ...f })),
+        };
+      }
+      if (stage.id === 'skills') {
+        return {
+          ...stage,
+          status: 'awaiting-review',
+          completionPct: 48,
+          fields: WARD_RESUME_SKILLS_FIELDS.map((f) => ({ ...f })),
+        };
+      }
+      if (stage.id === 'work-experience') {
+        return {
+          ...stage,
+          status: 'awaiting-review',
+          completionPct: 60,
+          entries: WORK_EXPERIENCE_ENTRIES.map((entry) => ({
+            ...entry,
+            fields: entry.fields ? entry.fields.map((f) => ({ ...f })) : null,
+          })),
+        };
+      }
+      return stage;
+    });
+    parentWardStagesRef.current = next;
+    setStages(next);
+    setExpandedPanelId('personal-info');
+  };
+
+  /**
+   * Parent Guide ward start — Elliot tab + Personal Info done, Educational
+   * Background not-started (Figma 5132:78578 NOT STARTED).
+   */
+  const applyWardGuideStart = (guideSeed = 'start') => {
+    log('branch', { startWardGuide: true, guideSeed });
+    setWardAccountReady(true);
+    setWardHasDemoProgress(false);
+    setParentProfileTab('ward');
+    let next = parentGuideStartStagesWithIcons.map((stage) => ({ ...stage }));
+    if (guideSeed === 'progress') {
+      next = next.map((stage) =>
+        stage.id === 'educational-background'
+          ? { ...stage, status: 'in-progress', completionPct: 40 }
+          : stage
+      );
+    }
+    if (guideSeed === 'review') {
+      next = next.map((stage) =>
+        stage.id === 'educational-background'
+          ? {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 100,
+              fields: PARENT_WARD_EDU_FIELDS.map((f) => ({ ...f })),
+            }
+          : stage
+      );
+    }
+    parentWardStagesRef.current = next;
+    setStages(next);
+    setExpandedPanelId(guideSeed === 'review' ? 'educational-background' : null);
+  };
+
+  /**
+   * Parent Build-own — My Profile tab; talent-style stage baseline.
+   * optional seed marks Educational Background in-progress / awaiting-review.
+   */
+  const applyOwnProfileStart = (ownSeed = 'start') => {
+    log('branch', { startOwnProfile: true, ownSeed });
+    setParentProfileTab('mine');
+    let next = parentMyStagesWithIcons.map((stage) => ({ ...stage }));
+    if (ownSeed === 'progress') {
+      next = next.map((stage) =>
+        stage.id === 'educational-background'
+          ? { ...stage, status: 'in-progress', completionPct: 40 }
+          : stage
+      );
+    }
+    if (ownSeed === 'review') {
+      next = next.map((stage) =>
+        stage.id === 'educational-background'
+          ? {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 100,
+              fields: EDUCATIONAL_BACKGROUND_FIELDS.map((f) => ({ ...f })),
+            }
+          : stage
+      );
+    }
+    setStages(next);
+    setExpandedPanelId(ownSeed === 'review' ? 'educational-background' : null);
+  };
 
   // Reset conversation + panel state whenever role or DemoNavigator hint changes.
   useEffect(() => {
@@ -502,8 +766,8 @@ const CareerBuddySection = () => {
         setToast({
           id: `recruiter-welcome-${Date.now()}`,
           variant: 'welcome',
-          title: RECRUITER_WELCOME_TOAST.title,
-          body: RECRUITER_WELCOME_TOAST.body,
+          title: CAREER_BUDDY_WELCOME_TOAST.title,
+          body: CAREER_BUDDY_WELCOME_TOAST.body,
         });
       } else {
         setToast(null);
@@ -630,6 +894,142 @@ const CareerBuddySection = () => {
         setJobPostFormOpen(false);
         setConfirmJobPostOpen(false);
       }
+    } else if (isParent) {
+      const {
+        nodeId: seedId,
+        messages: seedMsgs,
+        wardReady,
+        wardSetupStep: seedSetupStep,
+        panelTab: seedPanelTab,
+        fillWardFromResume: seedFillWard,
+        startWardGuide: seedStartGuide,
+        guideSeed,
+        startOwnProfile: seedStartOwn,
+        ownProfileSeed,
+      } = seedParentJump(demoHint);
+      setNodeId(seedId);
+      setMessages(seedMsgs);
+      setWardAccountReady(wardReady);
+      setWardHasDemoProgress(
+        wardReady &&
+          seedSetupStep !== 'success' &&
+          !seedFillWard &&
+          !seedStartGuide &&
+          !seedStartOwn
+      );
+      setTrailStageIndex(0);
+      setExpandedPanelId(null);
+      setConfirmingStageId(null);
+      setRetriedStages({});
+      setKybVerified(false);
+      setJobPostFormOpen(false);
+      setConfirmJobPostOpen(false);
+      setWardSetupResetKey((k) => k + 1);
+      guidanceResumeNodeIdRef.current = null;
+
+      if (seedFillWard) {
+        // Defer to same fill helper as chip path (sets ward tab + stages).
+        setParentProfileTab('ward');
+        const filled = parentEmptyWardStagesWithIcons.map((stage) => {
+          if (stage.id === 'personal-info') {
+            return {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 80,
+              fields: PERSONAL_INFO_PREVIEW_FIELDS.map((f) => ({ ...f })),
+            };
+          }
+          if (stage.id === 'educational-background') {
+            return {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 100,
+              fields: EDUCATIONAL_BACKGROUND_FIELDS.map((f) => ({ ...f })),
+            };
+          }
+          if (stage.id === 'personal-interests') {
+            return {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 40,
+              fields: PERSONAL_INTERESTS_PREVIEW_FIELDS.map((f) => ({ ...f })),
+            };
+          }
+          if (stage.id === 'skills') {
+            return {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 48,
+              fields: WARD_RESUME_SKILLS_FIELDS.map((f) => ({ ...f })),
+            };
+          }
+          if (stage.id === 'work-experience') {
+            return {
+              ...stage,
+              status: 'awaiting-review',
+              completionPct: 60,
+              entries: WORK_EXPERIENCE_ENTRIES.map((entry) => ({
+                ...entry,
+                fields: entry.fields ? entry.fields.map((f) => ({ ...f })) : null,
+              })),
+            };
+          }
+          return stage;
+        });
+        parentWardStagesRef.current = filled;
+        setStages(filled);
+        setExpandedPanelId('personal-info');
+        setToast(null);
+        log('branch', { parentResumeFilledSeed: true });
+      } else if (seedStartOwn) {
+        applyOwnProfileStart(ownProfileSeed || 'start');
+        setToast(null);
+        log('branch', { parentOwnProfileSeed: ownProfileSeed || 'start' });
+      } else if (seedStartGuide) {
+        applyWardGuideStart(guideSeed || 'start');
+        setToast(null);
+        log('branch', { parentGuideSeed: guideSeed || 'start' });
+      } else if (seedPanelTab === 'ward') {
+        setParentProfileTab('ward');
+        parentWardStagesRef.current = parentEmptyWardStagesWithIcons;
+        setStages(parentEmptyWardStagesWithIcons);
+        setToast(null);
+        log('branch', { parentResumeSeed: true });
+      } else {
+        setParentProfileTab('mine');
+        parentWardStagesRef.current = wardReady
+          ? parentWardStagesWithIcons
+          : parentEmptyWardStagesWithIcons;
+        setStages(parentMyStagesWithIcons);
+      }
+
+      if (seedSetupStep === 'details' || seedSetupStep === 'password') {
+        setWardSetupStep(seedSetupStep);
+        setWardSetupOpen(true);
+        setToast(null);
+        log('branch', { parentWardSetupOpen: seedSetupStep });
+      } else if (seedSetupStep === 'success') {
+        setWardSetupOpen(false);
+        setToast({
+          id: `parent-ward-success-${Date.now()}`,
+          variant: 'success',
+          title: WARD_SETUP_SUCCESS_TOAST.title,
+        });
+        log('branch', { parentWardSuccessSeed: true });
+      } else if (demoHint === 'welcome' || demoHint === 'ward-uninitiated') {
+        setWardSetupOpen(false);
+        setToast({
+          id: `parent-welcome-${Date.now()}`,
+          variant: 'welcome',
+          title: CAREER_BUDDY_WELCOME_TOAST.title,
+          body: CAREER_BUDDY_WELCOME_TOAST.body,
+        });
+      } else if (!seedFillWard && seedPanelTab !== 'ward') {
+        setWardSetupOpen(false);
+        setToast(null);
+      } else {
+        setWardSetupOpen(false);
+      }
     } else {
       // Talent reset
       setNodeId('welcome');
@@ -641,21 +1041,112 @@ const CareerBuddySection = () => {
       setRetriedStages({});
       setKybVerified(false);
       guidanceResumeNodeIdRef.current = null;
+      setToast(null);
     }
-    // demoHint and recruiterStagesWithIcons are stable across renders;
-    // role drives the reset, demoHint drives the recruiter jump target.
+
+    // Voice-flow demo seeds (all roles) — Figma 5146:75750 / 75913 / 76230 / 76424
+    setVoiceCallOpen(false);
+    setVoiceSettingsOpen(false);
+    setStartDictation(false);
+    if (demoHint === 'new-chat') {
+      setNodeId('returning-prompt');
+      setMessages(
+        isRecruiter || isParent ? [] : CAREER_BUDDY_NODES['returning-prompt'].seedMessages()
+      );
+      setToast(null);
+      log('branch', { demoVoice: 'new-chat' });
+    } else if (demoHint === 'voice-call') {
+      setNodeId('returning-prompt');
+      setMessages([
+        {
+          id: 'voice-demo-user',
+          sender: 'user',
+          personaLabel: isRecruiter ? RECRUITER_NAME : isParent ? PARENT_NAME : TALENT_NAME,
+          text: 'Upload resume to automatically populate profile',
+          auto: true,
+          autoLabel: '[Auto]',
+        },
+        {
+          id: 'voice-demo-bot',
+          sender: 'bot',
+          text: 'Awesome, Go ahead and upload your resume then.',
+          linkButton: { label: 'Visit our About page' },
+          options: [
+            { id: 'a', label: 'A. I choose option A' },
+            { id: 'b', label: 'B. I choose option B' },
+            { id: 'c', label: 'C. I choose option C' },
+            { id: 'd', label: 'D. I choose option D' },
+          ],
+        },
+      ]);
+      setVoiceCallOpen(true);
+      setToast(null);
+      log('branch', { demoVoice: 'voice-call' });
+    } else if (demoHint === 'voice-settings') {
+      setNodeId('returning-prompt');
+      setMessages([]);
+      setVoiceSettingsOpen(true);
+      setToast(null);
+      log('branch', { demoVoice: 'voice-settings' });
+    } else if (demoHint === 'voice-dictation') {
+      setNodeId('returning-prompt');
+      setMessages([]);
+      setStartDictation(true);
+      setToast(null);
+      log('branch', { demoVoice: 'voice-dictation' });
+    }
+
+    // Opt-out + Switch Modes demo seeds (all roles) — Figma 5146:74705 / 75029 / 75353
+    setOptOutOpen(false);
+    setOptOutStep('journey');
+    setModeListingNodeId(null);
+    if (demoHint === 'opt-out' || demoHint === 'opt-out-sorry' || demoHint === 'opt-out-schedule') {
+      setNodeId('returning-prompt');
+      setMessages(
+        isRecruiter || isParent ? [] : CAREER_BUDDY_NODES['returning-prompt'].seedMessages()
+      );
+      setOptOutStep(
+        demoHint === 'opt-out-schedule'
+          ? 'schedule'
+          : demoHint === 'opt-out-sorry'
+            ? 'sorry'
+            : 'journey'
+      );
+      setOptOutOpen(true);
+      setToast(null);
+      log('branch', { demoOptOut: demoHint });
+    } else if (demoHint === 'switch-modes') {
+      if (isRecruiter) {
+        setNodeId('job-manual-prompt');
+        setMessages([
+          ...(RECRUITER_BUDDY_NODES['post-a-job-options'].reply?.() ?? []),
+          ...(RECRUITER_BUDDY_NODES['job-manual-prompt'].reply?.() ?? []),
+        ]);
+        setModeListingNodeId('post-a-job-options');
+      } else {
+        setNodeId('games-intro');
+        setMessages([
+          ...(CAREER_BUDDY_NODES['personality-mode-picker'].reply?.() ?? []),
+          ...(CAREER_BUDDY_NODES['games-intro'].reply?.() ?? []),
+        ]);
+        setModeListingNodeId('personality-mode-picker');
+      }
+      setToast(null);
+      log('branch', { demoSwitchModes: true, role });
+    }
+    // demoHint and stage icon memos are stable across renders;
+    // role drives the reset, demoHint drives the recruiter/parent jump target.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, recruiterStagesWithIcons, demoHint]);
+  }, [role, recruiterStagesWithIcons, parentMyStagesWithIcons, demoHint]);
 
   const currentNode = scriptNodes[nodeId];
   const heroMode = currentNode?.hero ?? null;
   const showChrome = heroMode !== 'first-time';
-  // New Chat + History once past the first-time hero (talent + recruiter).
+  // New Chat + History once past the first-time hero (talent + recruiter + parent).
   // Returning-talent hero keeps History but hides New Chat (already a fresh chat).
   const showNewChat = showChrome && heroMode !== 'returning';
-  // Attach is always available for recruiters past the first-time hero
-  // (KYB prompt OR job JD anytime — even mid Conversation mode).
-  const enableAttach = Boolean(isRecruiter && showChrome);
+  // Attach: recruiters anytime past first-time hero; parents anytime (resume → ward).
+  const enableAttach = Boolean((isRecruiter && showChrome) || isParent);
 
   // Live Jobs panel preview whenever the shared draft changes (form edits,
   // conversation answers, and file-upload extract all share this path).
@@ -749,9 +1240,23 @@ const CareerBuddySection = () => {
             },
           };
         }
+        // Parent Build-own reuses talent script nodes (Emma) — show parent persona
+        // and swap the talent demo name in spoken copy while on My Profile.
+        if (isParent && parentProfileTab === 'mine') {
+          const remapped = {};
+          if (next.sender === 'user' || next.auto) {
+            remapped.personaLabel = personaName;
+          }
+          if (typeof next.text === 'string' && next.text.includes(TALENT_NAME)) {
+            remapped.text = next.text.split(TALENT_NAME).join(PARENT_NAME);
+          }
+          if (Object.keys(remapped).length > 0) {
+            next = { ...next, ...remapped };
+          }
+        }
         return next;
       }),
-    [messages]
+    [messages, isParent, parentProfileTab, personaName]
   );
 
   // After a successful job post, surface unfinished setup chips (Company / KYB).
@@ -773,6 +1278,14 @@ const CareerBuddySection = () => {
         .filter((stage) => stage.id !== 'avatar')
         .map((stage) => {
           const fieldData = STAGE_FIELD_DATA[stage.id];
+          // Live-collected fields (chat Q&A or parent resume fill) win when
+          // the stage is awaiting review / done — enables Modify + Confirm.
+          if (
+            (stage.status === 'done' || stage.status === 'awaiting-review') &&
+            (stage.fields || stage.entries)
+          ) {
+            return stage;
+          }
           if (!fieldData) return stage;
           // Educational Background's real `fields` populate once the chat
           // has walked the questions (renders with Modify/Confirm) — first
@@ -798,8 +1311,79 @@ const CareerBuddySection = () => {
     [stages]
   );
 
+  // Track the last mode-cards listing so Switch Modes can return there.
+  useEffect(() => {
+    if (MODE_LISTING_NODE_IDS.has(nodeId)) {
+      setModeListingNodeId(nodeId);
+    }
+  }, [nodeId]);
+
+  const closeTransientOverlays = () => {
+    setVoiceCallOpen(false);
+    setVoiceSettingsOpen(false);
+    setStartDictation(false);
+    setGameStoreOpen(false);
+    setPlayingEscapeRoom(false);
+    setJobPostFormOpen(false);
+    setConfirmJobPostOpen(false);
+    setWardSetupOpen(false);
+  };
+
+  const handleReturnToModeListing = () => {
+    const listingId = modeListingNodeId;
+    if (!listingId || !scriptNodes[listingId]) {
+      log('branch', { switchModes: 'no-listing' });
+      setOptOutOpen(false);
+      return;
+    }
+    closeTransientOverlays();
+    setOptOutOpen(false);
+    const listingNode = scriptNodes[listingId];
+    const listingMessages = listingNode.reply
+      ? listingNode.reply()
+      : (listingNode.seedMessages?.() ?? []);
+    log('branch', { switchModes: listingId });
+    setNodeId(listingId);
+    setMessages((prev) => [...prev, ...listingMessages]);
+  };
+
   const handleSaveExit = () => {
-    log('save & exit → /');
+    log('branch', { openOptOut: true });
+    closeTransientOverlays();
+    setOptOutStep('journey');
+    setOptOutOpen(true);
+  };
+
+  const handleSwitchModes = () => {
+    log('branch', { navSwitchModes: true });
+    handleReturnToModeListing();
+  };
+
+  const handleOptOutClose = () => {
+    log('branch', { optOutClose: true });
+    setOptOutOpen(false);
+    setOptOutStep('journey');
+  };
+
+  const handleGoToDashboard = () => {
+    // No dedicated dashboard route yet — home is the interim exit.
+    log('branch', { goToDashboard: 'interim-/', dashboardBuilt: false });
+    setOptOutOpen(false);
+    navigate('/');
+  };
+
+  const handleConfirmSchedule = (date) => {
+    const iso = date.toISOString();
+    try {
+      sessionStorage.setItem(
+        'careerBuddyReturnSchedule',
+        JSON.stringify({ iso, savedAt: new Date().toISOString(), role })
+      );
+    } catch {
+      /* ignore quota / private mode */
+    }
+    log('branch', { confirmSchedule: iso, persist: 'sessionStorage' });
+    setOptOutOpen(false);
     navigate('/');
   };
 
@@ -836,6 +1420,23 @@ const CareerBuddySection = () => {
             fields: buildJobsPanelFields(draftForJobs),
           };
         }
+        // Parent Guide ward — pin ward-specific field sets when chat confirms.
+        if (isParent && parentProfileTab === 'ward' && stage.id === 'educational-background') {
+          return {
+            ...stage,
+            status: 'awaiting-review',
+            completionPct: 100,
+            fields: stage.fields ?? PARENT_WARD_EDU_FIELDS.map((f) => ({ ...f })),
+          };
+        }
+        if (isParent && parentProfileTab === 'ward' && stage.id === 'personal-interests') {
+          return {
+            ...stage,
+            status: 'awaiting-review',
+            completionPct: 100,
+            fields: stage.fields ?? PARENT_WARD_INTERESTS_FIELDS.map((f) => ({ ...f })),
+          };
+        }
         return { ...stage, status: 'awaiting-review' };
       })
     );
@@ -859,7 +1460,15 @@ const CareerBuddySection = () => {
   const submit = (text) => {
     const node = scriptNodes[nodeId];
     if (!node) return;
-    const nextId = node.next?.[text] ?? node.next?.['*'] ?? node.freeTextNext;
+    let nextId = node.next?.[text] ?? node.next?.['*'] ?? node.freeTextNext;
+    // Ward not initiated: Guide chip always opens setup (any FAQ return path).
+    if (isParent && !wardAccountReady && nextId === 'parent-guide-ward') {
+      nextId = 'parent-guide-ward-setup';
+    }
+    // After create: Guide uses the initialized path even if still on uninitiated node.
+    if (isParent && wardAccountReady && nextId === 'parent-guide-ward-setup') {
+      nextId = 'parent-guide-ward';
+    }
     log('branch', { fromNode: nodeId, input: text, nextNode: nextId ?? '(terminal)' });
     if (!nextId) return;
 
@@ -936,6 +1545,33 @@ const CareerBuddySection = () => {
     }
 
     applyStageConfirmations(newMessages, nextJobDraft);
+
+    // Parent: Build own / Guide ward chips flip the profile panel tab.
+    if (isParent && nextNode?.panelTab) {
+      selectParentProfileTab(nextNode.panelTab);
+    }
+
+    // Parent: Guide ward while uninitiated → open setup modal (Figma 5132:80134).
+    if (isParent && nextNode?.openWardSetup) {
+      setWardSetupStep('details');
+      setWardSetupOpen(true);
+      log('branch', { openWardSetup: true });
+    }
+
+    // Parent: "Of course" after resume → fill Elliot's panel (modifiable/saveable).
+    if (isParent && nextNode?.fillWardFromResume) {
+      applyWardResumeFill();
+    }
+
+    // Parent: Guide ward → Elliot tab + guide-start panel (edu not started).
+    if (isParent && nextNode?.startWardGuide) {
+      applyWardGuideStart('start');
+    }
+
+    // Parent: Build own → My Profile + talent edu FSM.
+    if (isParent && nextNode?.startOwnProfile) {
+      applyOwnProfileStart('start');
+    }
 
     // Career Options confirm has two post-save destinations depending on
     // the wrap-up chip (continue exploring vs return to profile setup).
@@ -1023,6 +1659,18 @@ const CareerBuddySection = () => {
           return stage;
         })
       );
+      return;
+    }
+
+    // Parent resume upload anytime → ward evaluate prompt (Figma 5132:79750).
+    if (isParent) {
+      log('branch', { attachFile: name, fromNode: nodeId, kind: 'parent-resume' });
+      const nextId = 'parent-upload-received';
+      const nextNode = scriptNodes[nextId];
+      const nextMessages = nextNode?.reply ? nextNode.reply() : [];
+      setMessages((prev) => [...prev, fileMsg, ...nextMessages]);
+      setNodeId(nextId);
+      selectParentProfileTab('ward');
       return;
     }
 
@@ -1134,24 +1782,26 @@ const CareerBuddySection = () => {
 
   const handleNewChat = () => {
     log('branch', { newChat: true, role });
+    setVoiceCallOpen(false);
+    setVoiceSettingsOpen(false);
+    setStartDictation(false);
+    // All roles: New Chat → returning hero (Figma 5146:75750), not first-time welcome.
     if (isRecruiter) {
-      const { nodeId: seedId, messages: seedMsgs } = seedRecruiterJump('welcome');
-      setNodeId(seedId);
-      setMessages(seedMsgs);
-      setStages(recruiterStagesWithIcons);
+      setNodeId('returning-prompt');
+      setMessages([]);
       setExpandedPanelId(null);
-      setKybVerified(false);
       setJobPostFormOpen(false);
       setConfirmJobPostOpen(false);
-      setJobPostDraft(emptyJobPostForm());
-      setJobPostFormMode('manual');
-      setJobPostFormResetKey((k) => k + 1);
-      setToast({
-        id: `recruiter-welcome-${Date.now()}`,
-        variant: 'welcome',
-        title: RECRUITER_WELCOME_TOAST.title,
-        body: RECRUITER_WELCOME_TOAST.body,
-      });
+      setToast(null);
+      return;
+    }
+    if (isParent) {
+      setNodeId('returning-prompt');
+      setMessages([]);
+      setParentProfileTab('mine');
+      setWardSetupOpen(false);
+      setExpandedPanelId(null);
+      setToast(null);
       return;
     }
     setNodeId('returning-prompt');
@@ -1180,11 +1830,22 @@ const CareerBuddySection = () => {
       hasRetried: Boolean(retriedStages[stageId]),
     });
     setConfirmingStageId(stageId);
-    // company-info never uses entries; for talent, check STAGE_FIELD_DATA.
+    // company-info never uses entries; for talent/parent, check STAGE_FIELD_DATA
+    // or live stage.entries (parent resume fill on work-experience).
     const usesEntries =
-      stageId === 'company-info' ? false : Boolean(STAGE_FIELD_DATA[stageId]?.entries);
-    // Recruiter company-info uses COMPANY_SAVE_META; talent stages use STAGE_SAVE_META.
-    const saveMeta = stageId === 'company-info' ? COMPANY_SAVE_META : STAGE_SAVE_META[stageId];
+      stageId === 'company-info'
+        ? false
+        : Boolean(
+            STAGE_FIELD_DATA[stageId]?.entries || stages.find((s) => s.id === stageId)?.entries
+          );
+    // Recruiter company-info uses COMPANY_SAVE_META; talent/parent stages use STAGE_SAVE_META.
+    // Parent ward Confirm chains via PARENT_STAGE_SAVE_META (ward-specific next nodes).
+    const saveMeta =
+      stageId === 'company-info'
+        ? COMPANY_SAVE_META
+        : isParent && parentProfileTab === 'ward' && PARENT_STAGE_SAVE_META[stageId]
+          ? PARENT_STAGE_SAVE_META[stageId]
+          : STAGE_SAVE_META[stageId];
 
     setTimeout(() => {
       if (!retriedStages[stageId]) {
@@ -1203,8 +1864,8 @@ const CareerBuddySection = () => {
       log('branch', { saveResult: 'success', stageId });
       setConfirmingStageId(null);
       setExpandedPanelId(null);
-      setStages((prev) =>
-        prev.map((stage) =>
+      setStages((prev) => {
+        const next = prev.map((stage) =>
           stage.id === stageId
             ? {
                 ...stage,
@@ -1213,8 +1874,12 @@ const CareerBuddySection = () => {
                 ...(usesEntries ? { entries: fieldsOrEntries } : { fields: fieldsOrEntries }),
               }
             : stage
-        )
-      );
+        );
+        if (isParent && parentProfileTab === 'ward') {
+          parentWardStagesRef.current = next;
+        }
+        return next;
+      });
       setToast({
         id: `${stageId}-saved`,
         variant: 'success',
@@ -1247,19 +1912,31 @@ const CareerBuddySection = () => {
         // picker; continue → null so chips on exposure-confirm-continue stay).
         const nextNodeId =
           stageId === 'desired-career' ? guidanceResumeNodeIdRef.current : saveMeta.nextNodeId;
+        // Parent: ward Confirm uses PARENT_BUDDY_NODES; My Profile fill reuses
+        // talent CAREER_BUDDY_NODES (merged into scriptNodes). Prefer scriptNodes.
         if (nextNodeId) {
-          // Recruiter company-info hands off via RECRUITER_BUDDY_NODES;
-          // all talent stages use CAREER_BUDDY_NODES.
-          const nodeSet = stageId === 'company-info' ? RECRUITER_BUDDY_NODES : CAREER_BUDDY_NODES;
-          const nextNode = nodeSet[nextNodeId];
-          const transitionMessages = nextNode?.reply
-            ? nextNode.reply()
-            : (nextNode?.seedMessages?.() ?? []);
-          setMessages((prev) => [...prev, ...transitionMessages]);
-          setNodeId(nextNodeId);
-          if (stageId === 'desired-career') {
-            guidanceResumeNodeIdRef.current = null;
-            log('branch', { guidanceResumedTo: nextNodeId });
+          if (isParent) {
+            const nextNode = scriptNodes[nextNodeId] ?? PARENT_BUDDY_NODES[nextNodeId];
+            const transitionMessages = nextNode?.reply
+              ? nextNode.reply()
+              : (nextNode?.seedMessages?.() ?? []);
+            setMessages((prev) => [...prev, ...transitionMessages]);
+            setNodeId(nextNodeId);
+            log('branch', { parentSaveChainedTo: nextNodeId });
+          } else {
+            // Recruiter company-info hands off via RECRUITER_BUDDY_NODES;
+            // all talent stages use CAREER_BUDDY_NODES.
+            const nodeSet = stageId === 'company-info' ? RECRUITER_BUDDY_NODES : CAREER_BUDDY_NODES;
+            const nextNode = nodeSet[nextNodeId];
+            const transitionMessages = nextNode?.reply
+              ? nextNode.reply()
+              : (nextNode?.seedMessages?.() ?? []);
+            setMessages((prev) => [...prev, ...transitionMessages]);
+            setNodeId(nextNodeId);
+            if (stageId === 'desired-career') {
+              guidanceResumeNodeIdRef.current = null;
+              log('branch', { guidanceResumedTo: nextNodeId });
+            }
           }
         }
       }
@@ -1338,7 +2015,8 @@ const CareerBuddySection = () => {
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
-          showSwitchModes={false}
+          showSwitchModes={Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId)}
+          onSwitchModes={handleSwitchModes}
           className="w-full h-full"
         />
       </div>
@@ -1603,22 +2281,112 @@ const CareerBuddySection = () => {
             onClose={handleGoBackEditJobPost}
             onConfirm={handleConfirmJobPost}
           />
+          <WardAccountSetupModal
+            open={wardSetupOpen}
+            step={wardSetupStep}
+            resetKey={wardSetupResetKey}
+            onStepChange={(nextStep) => {
+              log('branch', { wardSetupStep: nextStep });
+              setWardSetupStep(nextStep);
+            }}
+            onClose={() => {
+              log('branch', { wardSetupClose: true, step: wardSetupStep });
+              setWardSetupOpen(false);
+              setWardSetupStep('details');
+            }}
+            onLater={() => {
+              // Stay on Career Buddy with incomplete ward (Figma "I'll do this later").
+              log('branch', { wardSetupLater: true });
+              setWardSetupOpen(false);
+              setWardSetupStep('details');
+            }}
+            onCreate={() => {
+              log('branch', { wardAccountCreated: true });
+              setWardAccountReady(true);
+              setWardHasDemoProgress(false);
+              setWardSetupOpen(false);
+              setWardSetupStep('details');
+              setParentProfileTab('ward');
+              setStages(parentEmptyWardStagesWithIcons);
+              setToast({
+                id: `parent-ward-success-${Date.now()}`,
+                variant: 'success',
+                title: WARD_SETUP_SUCCESS_TOAST.title,
+              });
+            }}
+          />
+
+          <CareerBuddyOptOutModal
+            open={optOutOpen}
+            initialStep={optOutStep}
+            onClose={handleOptOutClose}
+            onChooseDifferentMode={handleReturnToModeListing}
+            onGoToDashboard={handleGoToDashboard}
+            onConfirmSchedule={handleConfirmSchedule}
+          />
 
           {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} />}
-          {heroMode === 'returning' && !isRecruiter && <ReturningHero />}
+          {heroMode === 'returning' && <ReturningHero name={personaName} />}
 
-          <ChatThread
-            messages={enrichedMessages}
-            onSend={submit}
-            suggestedReplies={activeSuggestedReplies}
-            onSelectOption={handleSelectMcqOption}
-            onSelectModeCard={handleSelectModeCard}
-            onNewChat={showNewChat ? handleNewChat : undefined}
-            onOpenHistory={showChrome ? () => setHistoryOpen(true) : undefined}
-            enableAttach={enableAttach}
-            onAttach={handleAttach}
-            onAttachRejected={handleAttachRejected}
-          />
+          <div className="relative flex flex-1 min-h-0 flex-col">
+            <ChatThread
+              messages={enrichedMessages}
+              onSend={submit}
+              suggestedReplies={activeSuggestedReplies}
+              onSelectOption={handleSelectMcqOption}
+              onSelectModeCard={handleSelectModeCard}
+              onNewChat={showNewChat ? handleNewChat : undefined}
+              onOpenHistory={showChrome ? () => setHistoryOpen(true) : undefined}
+              onOpenVoiceSettings={
+                showChrome
+                  ? () => {
+                      log('branch', { openVoiceSettings: true });
+                      setVoiceSettingsOpen(true);
+                    }
+                  : undefined
+              }
+              onOpenVoiceCall={
+                showChrome
+                  ? () => {
+                      log('branch', { openVoiceCall: true });
+                      setVoiceCallOpen(true);
+                    }
+                  : undefined
+              }
+              startDictation={startDictation}
+              enableAttach={enableAttach}
+              onAttach={handleAttach}
+              onAttachRejected={handleAttachRejected}
+            />
+
+            <VoiceCallOverlay
+              open={voiceCallOpen && !voiceSettingsOpen}
+              voiceId={voiceId}
+              userName={personaName}
+              onHangUp={() => {
+                log('branch', { hangUpVoiceCall: true });
+                setVoiceCallOpen(false);
+              }}
+              onOpenSettings={() => {
+                log('branch', { voiceSettingsFromCall: true });
+                setVoiceSettingsOpen(true);
+              }}
+            />
+
+            <VoiceSettingsOverlay
+              open={voiceSettingsOpen}
+              voiceId={voiceId}
+              onDone={(id) => {
+                log('branch', { voiceSettingsDone: id });
+                setVoiceId(id);
+                setVoiceSettingsOpen(false);
+              }}
+              onCancel={() => {
+                log('branch', { voiceSettingsCancel: true });
+                setVoiceSettingsOpen(false);
+              }}
+            />
+          </div>
         </div>
 
         {/* RIGHT — role-specific panel */}
@@ -1642,6 +2410,12 @@ const CareerBuddySection = () => {
             onConfirm={handleConfirmStage}
             onModify={handleModifyStage}
             confirming={confirmingStageId}
+            title={isParent ? 'Talent Profile Panel' : undefined}
+            subtitle={isParent ? PARENT_PANEL_SUBTITLE : undefined}
+            ariaLabel={isParent ? 'Parent talent profile panel' : undefined}
+            tabs={isParent ? PARENT_PANEL_TABS : undefined}
+            activeTabId={isParent ? parentProfileTab : undefined}
+            onSelectTab={isParent ? selectParentProfileTab : undefined}
           />
         )}
       </main>

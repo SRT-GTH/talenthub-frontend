@@ -4,9 +4,11 @@ import { CAREER_BUDDY_ROLE_STORAGE_KEY, CareerBuddyRoleContext } from './CareerB
 
 const log = debug('CareerBuddyRole');
 
+const VALID_ROLES = new Set(['talent', 'recruiter', 'parent']);
+
 /**
  * CareerBuddyRoleProvider — demo stand-in for the DB-tagged user role that
- * will eventually drive which Career Buddy experience mounts at the shared
+ * drives which Career Buddy experience mounts at the shared
  * `/profile/filling/career-buddy` route. Persists to localStorage so a
  * DemoNavigator role flip survives refresh.
  */
@@ -16,7 +18,7 @@ export default function CareerBuddyRoleProvider({ children }) {
       typeof window !== 'undefined'
         ? window.localStorage.getItem(CAREER_BUDDY_ROLE_STORAGE_KEY)
         : null;
-    return stored === 'recruiter' ? 'recruiter' : 'talent';
+    return VALID_ROLES.has(stored) ? stored : 'talent';
   });
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function CareerBuddyRoleProvider({ children }) {
   }, [role]);
 
   const setRole = (next) => {
-    const resolved = next === 'recruiter' ? 'recruiter' : 'talent';
+    const resolved = VALID_ROLES.has(next) ? next : 'talent';
     log('dispatch', { role: resolved });
     window.localStorage.setItem(CAREER_BUDDY_ROLE_STORAGE_KEY, resolved);
     setRoleState(resolved);

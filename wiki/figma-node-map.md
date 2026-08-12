@@ -1443,6 +1443,66 @@ Games mode's Store + Details shell, triggered from the personality mode-picker's
 
 ---
 
+## Career Buddy — Parent welcome (My / Elliot panel) `✅ VERIFIED` (2026-08-11)
+
+Route: same `/profile/filling/career-buddy` with `CareerBuddyRoleProvider` role `parent`. DemoNavigator: Talent | Recruiter | Parent → `?cb=welcome`.
+
+| Piece                       | Node / source                                  | Notes                                                                             |
+| --------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| NOT STARTED / welcome toast | `5132:77628`, `5132:77862`, toast `5624:67780` | TALI welcome + ward initialized; CTAs Build own / Guide ward / Upload + FAQ chips |
+| Script                      | `parentBuddyScript.js`                         | `PARENT_BUDDY_NODES`; My vs Ward stage %; `CAREER_BUDDY_WELCOME_TOAST`            |
+| Panel tabs                  | `TalentProfilePanel` `tabs`                    | My Profile \| Elliot's Profile (curly apostrophe)                                 |
+| Resume upload               | `parent-upload-prompt` `awaitFile`             | Demo ack only (no parse)                                                          |
+
+## Career Buddy — Parent ward account setup (not initiated) `✅ VERIFIED` (2026-08-11)
+
+When the ward account is not initiated, **Guide my ward's profile** opens the setup modal (details → password → success toast).
+
+| Piece            | Node / source                                                            | Notes                                                                                 |
+| ---------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Details modal    | `5132:80134` / form `5132:80373`                                         | `WardAccountSetupModal` step `details`; required fields + Ghana Card front/back (5MB) |
+| Password modal   | `5132:80489` / `5132:80722`                                              | step `password`; Create / I'll do this later (stay, incomplete)                       |
+| Success toast    | `5132:80762` / `5132:81004`                                              | compact success: "Congratulations, your ward's account has been created successfully" |
+| Empty ward panel | `PARENT_EMPTY_WARD_STAGES`                                               | all Not Started while uninitiated (and after fresh create)                            |
+| Demo seeds       | `?cb=ward-uninitiated` / `ward-setup` / `ward-password` / `ward-success` | DemoNavigator Parent Career Buddy steps                                               |
+| Data             | `wardAccountSetupData.js`                                                | copy + defaults + validators                                                          |
+
+## Career Buddy — Parent resume → Elliot panel `✅ VERIFIED` (2026-08-11)
+
+| Piece              | Node / source                                | Notes                                                                                              |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Welcome chip strip | `5132:79545`                                 | Upload resume chip on parent welcome                                                               |
+| Upload mid-flow    | `5132:79750`                                 | Awesome upload → Resume.pdf → evaluate wards profile → **Of course**                               |
+| Attach             | anytime (parent)                             | Same as recruiter; always resumes → ward evaluate path                                             |
+| Fill               | `parent-resume-fill`                         | Elliot tab; Personal Info / Education / Interests / Skills / Work awaiting-review + Modify/Confirm |
+| Demo               | `?cb=parent-resume` / `parent-resume-filled` |                                                                                                    |
+
+## Career Buddy — Parent Guide ward profile `✅ VERIFIED` (2026-08-11)
+
+Route: `/profile/filling/career-buddy` (parent role). After ward account is ready, **Guide my ward's profile** runs Elliot's Educational Background (+ Interests) like talent edu/interests.
+
+| Piece         | Node / source                                                                        | Notes                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Welcome entry | `5132:78344`                                                                         | Guide chip on parent welcome                                                                                 |
+| Guide opening | `5132:78578` / bot `5132:78734`                                                      | Normal user bubble + opening question; trailing `"` stripped                                                 |
+| Level chips   | `5132:78740`–`78743`                                                                 | ✅ VERIFIED: Junior High School (JHS) / Senior High School (SHS) / University/Tertiary / Completed education |
+| Status frames | `5132:78873` IN PROGRESS · `5132:79168` COMPLETED                                    | Panel status mirrors talent (not-started → in-progress → awaiting-review → done)                             |
+| Script        | `parent-guide-ward` → `parent-guide-edu-q*` → `parent-guide-edu-confirm` → interests | `PARENT_STAGE_SAVE_META` chains Confirm → interests → wrap                                                   |
+| Panel         | `PARENT_GUIDE_START_STAGES` + `PARENT_WARD_EDU_FIELDS`                               | Elliot tab; Personal Info done; edu Modify/Confirm                                                           |
+| Uninitiated   | `parent-guide-ward-setup`                                                            | Still opens `WardAccountSetupModal`                                                                          |
+| Demo          | `?cb=parent-guide` / `parent-guide-progress` / `parent-guide-review`                 |                                                                                                              |
+
+## Career Buddy — Parent Build own profile `✅ VERIFIED` (2026-08-12)
+
+Same talent profile-fill FSM on **My Profile** after **Build my own talent profile**.
+
+| Piece  | Source                                                         | Notes                                                          |
+| ------ | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| Entry  | `parent-build-own`                                             | Bridges to talent `edu-q1` (ready-prompt equivalent)           |
+| Script | `{ ...CAREER_BUDDY_NODES, ...PARENT_BUDDY_NODES }`             | Parent welcome/guide/FAQ override; edu/interests/… from talent |
+| Panel  | My Profile (`PARENT_MY_PROFILE_STAGES`)                        | Modify/Confirm + `STAGE_SAVE_META` chain                       |
+| Demo   | `?cb=parent-own` / `parent-own-progress` / `parent-own-review` |                                                                |
+
 ## Career Buddy — Guidance flow (Career Exposure → Career Options) `✅ VERIFIED` (2026-08-08)
 
 Route: same `/profile/filling/career-buddy`. Figma frames `5132:52485` (IN PROGRESS), `5132:52061` (NOT STARTED), `5132:53009`–`54589` (awaiting review / saved / confirmed), conversation strip `5132:64380`, toast overlay `5132:54581`/`54582`.
@@ -1473,6 +1533,17 @@ The hand-off Personality previously left disconnected (`STAGE_SAVE_META.personal
 **Verbatim-fidelity calls made** (documented in `wiki/log.md`): "Andrew" (2 of the Work Experience Q&A's ~17 lines) normalised to `TALENT_NAME` ("Emma", consistent everywhere else in this app and conversation — same reasoning as the pre-existing Educational Background NAMING NOTE); "Talent Profile Pannel" (double-n, a plain spelling typo in the Figma source) corrected to "Panel".
 
 **Layout overflow fix (2026-08-07):** earlier `TalentProfilePanel` entries branch used `truncate` on titles + `max-w-[280px]` on values + `PlusMinusIcon` — caused mid-word ellipsis and Supervisor/Skills crowding the card edge. Corrected against `5132:50598` REST extract + user screenshots.
+
+---
+
+## Career Buddy — Voice flow + New Chat `✅ VERIFIED` (2026-08-12)
+
+| Element         | Node ID(s)                         | Notes                                                                                                                                      |
+| --------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| New Chat screen | `5146:75750`, hero `75789`/`75800` | "What are we working on today? Emma" mixed styles (green Instrument Serif + SF Pro Medium name); chips under input; not first-time welcome |
+| Voice call      | `5146:75913`, overlay `75964`      | Dual avatars + call label (TALI) + 75px mic/X; settings `76111`; opened via input wave button                                              |
+| Voice settings  | `5146:76230`, `76269`              | "Choose a voice"; Sol / Bruce / Tali; Done `#387440` / Cancel; Sol tagline corrected "ad"→"and"                                            |
+| Voice-to-text   | `5146:76424`, input `76547`        | Live waveform in input; ✓ fills draft; X discards; real mic via `useVoiceCapture`                                                          |
 
 ---
 

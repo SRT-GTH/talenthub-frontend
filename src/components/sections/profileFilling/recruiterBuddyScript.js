@@ -292,6 +292,18 @@ export const RECRUITER_BUDDY_NODES = {
     },
   },
 
+  // New Chat (Figma 5146:75750) — empty thread + returning hero; chips reuse setup CTAs.
+  'returning-prompt': {
+    hero: 'returning',
+    seedMessages: () => [],
+    suggestedReplies: [...SETUP_CHIPS],
+    next: {
+      'Post Your First Job': 'post-a-job-options',
+      'Complete Company Profile': 'company-profile-start',
+      [KYB_UPLOAD_CTA]: 'kyb-prompt',
+    },
+  },
+
   'faq-about': {
     reply: () => [
       user('Tell me more about GTH'),
@@ -882,10 +894,10 @@ export function seedRecruiterJump(hint) {
   };
 }
 
-/** Figma 5132:66245 / 66251 — welcome toast copy (comma + double space in Toast). */
+/** Figma 5624:67780 toast=general — shared welcome banner (all Career Buddy roles). */
 export const RECRUITER_WELCOME_TOAST = {
   title: 'Welcome Back',
-  body: 'Mr.Whitmore',
+  body: 'Good to see you again, Mr. Whitmore.',
 };
 
 /** Panel Confirm success — product wording (Figma toast was job-post copy). */

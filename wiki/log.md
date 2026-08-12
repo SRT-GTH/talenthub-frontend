@@ -3,6 +3,64 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-08-12] update | Voice mode uses robot mascot asset
+
+AI side of voice call + Choose-a-voice uses `career-buddy-voice-robot.png` via `CareerBuddyVoiceAvatar` (Figma Frame 14220). Chat bubbles keep the penguin `CareerBuddyAvatar`.
+
+## [2026-08-12] create | Career Buddy voice flow (call / settings / VTT / New Chat)
+
+Figma `5146:75750` (New Chat), `75913` (voice call), `76230` (Choose a voice), `76424` (voice-to-text):
+
+- Mic → real dictation (`useVoiceCapture` + live `AudioLevelWaveform`); ✓ fills draft only; X discards
+- Wave button → dual-avatar `VoiceCallOverlay` (mute / hang up); settings → `VoiceSettingsOverlay` (Sol / Bruce / Tali)
+- New Chat hero restyled to `5146:75789` mixed-style headline; New Chat for all roles → `returning-prompt`
+- Demo: `?cb=new-chat` / `voice-call` / `voice-settings` / `voice-dictation`
+
+## [2026-08-12] create | Parent Build-own profile (= talent FSM)
+
+**Build my own talent profile** on Parent Career Buddy reuses talent `CAREER_BUDDY_NODES` (edu → interests → personality → …):
+
+- `parent-build-own` bridges into `edu-q1` (same chip as talent ready-prompt)
+- Script merge: `{ ...CAREER_BUDDY_NODES, ...PARENT_BUDDY_NODES }` so parent welcome/guide win on id clashes
+- My Profile tab; Confirm save-chains via talent `STAGE_SAVE_META` / `interests-prompt`
+- Demo: `?cb=parent-own` / `parent-own-progress` / `parent-own-review`
+
+## [2026-08-11] create | Parent Guide ward profile (edu + interests)
+
+Figma `5132:78344` → `5132:78578` (NOT STARTED) / `78873` (IN PROGRESS) / `79168` (COMPLETED):
+
+- Guide chip (ward ready) → opening bot copy `5132:78734` (trailing `"` stripped) + education-level chips → talent-mirrored edu Q&A for Elliot → panel awaiting-review / Modify / Confirm
+- Confirm chains to ward interests Q&A then wrap chips; uninitiated Guide still opens setup modal
+- Demo: `?cb=parent-guide` / `parent-guide-progress` / `parent-guide-review`
+- Chip labels ✅ VERIFIED via REST: Junior High School (JHS) / Senior High School (SHS) / University/Tertiary / Completed education
+
+## [2026-08-11] create | Parent resume upload → fill Elliot panel
+
+Figma `5132:79545` (welcome chip) + `5132:79750` (upload mid-flow):
+
+- Upload chip / attach anytime → “Awesome, Go ahead…” → file + “This is my resume” → evaluate prompt → **Of course**
+- Of course fills Elliot’s Profile (awaiting-review fields; Modify/Confirm like talent)
+- Demo: `?cb=parent-resume` / `parent-resume-filled`
+
+## [2026-08-11] create | Parent ward account setup (not initiated)
+
+Figma `5132:80134` / `5132:80489` / `5132:80762` on Parent Career Buddy:
+
+- `WardAccountSetupModal` + `wardAccountSetupData.js` — details form → password → success toast
+- Guide chip opens setup when ward not initiated; empty ward panel (`PARENT_EMPTY_WARD_STAGES`)
+- "I'll do this later" stays on Career Buddy (incomplete); Create marks ward ready + success toast
+- DemoNavigator: Ward not init / setup / password / success (`?cb=ward-*`)
+
+## [2026-08-11] create | Parent Career Buddy welcome + green welcome toast
+
+Parent role on shared `/profile/filling/career-buddy` (Figma `5132:77628` / `5132:77862`):
+
+- `parentBuddyScript.js` — welcome FSM (build own / guide ward / upload / FAQ); My vs Elliot stage %; `seedParentJump`
+- `CareerBuddyRoleProvider` — `parent` role; DemoNavigator Talent | Recruiter | Parent
+- `CareerBuddySection` — parent script/panel tabs (`My Profile` / `Elliot's Profile`), resume attach stub
+- Welcome toast globally restyled to Figma `5624:67780` (`#f4faf5` / `#2e7d32`, person-available icon)
+- `CareerBuddyPage` remounts on `role` so DemoNavigator flips never crash `TalentProfilePanel` on undefined stage icons
+
 ## [2026-08-11] fix | Chat linkButton matches Figma 5166:48026
 
 ChatThread link CTAs: `#e1eae2` fill, `#387440` 1px border/text, 13.5px regular, `px-8 py-5`, `gap-3`, `rounded-[100px]`, plus official 16px arrow-up-right (`ChatLinkArrowIcon`). Labels no longer bake in `↗`/`→`.

@@ -378,7 +378,7 @@ const Layer = ({ src }) => <image key={src} href={src} x="0" y="0" width="1024" 
  *   8. Eyewear (always on top)
  */
 
-const AvatarPreview = ({ className }) => {
+const AvatarPreview = ({ className, size, badgeBg = 'plain' }) => {
   const { selection } = useAvatarSelection();
 
   // ── body-base: skin tone + lightness ────────────────────────────────
@@ -400,6 +400,8 @@ const AvatarPreview = ({ className }) => {
   // change?". Logs the selection state plus the resolved hexes that get
   // applied to the body-base. Cleared in prod by debug().
   log('render', {
+    size: size ?? 'stage',
+    badgeBg,
     skinTone: selection.skinTone,
     lightness: selection.lightness,
     skinHex,
@@ -453,6 +455,114 @@ const AvatarPreview = ({ className }) => {
   }
   const facialHairSrc = selection.facialHair ? FACIAL_HAIR_LAYERS[selection.facialHair] : null;
   const detailSrc = selection.details ? DETAIL_LAYERS[selection.details] : null;
+
+  const layeredSvg = (
+    <svg
+      viewBox={LAYER_VIEWBOX}
+      preserveAspectRatio="xMidYMid meet"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Avatar preview"
+      className="absolute inset-0 h-full w-full"
+      // Avatar shifted UP — translateY dropped 24% → 6% — so the
+      // outfit isn't pushed past the disc's bottom curve and
+      // hidden by the clip. At 6% the head sits cleanly inside
+      // the disc and the outfit reads as a full, visible band
+      // rather than a thin sliver at the bottom.
+      style={{ transform: 'translateY(6%)' }}
+    >
+      {/* Layer 1: wrap-around hair (Afro, Hijab, Kente Wrap) — BEHIND body */}
+      {hairSrc && isWrapAround && (
+        <g transform="translate(82.95 83.45) scale(0.85)">
+          <Layer src={hairSrc} />
+        </g>
+      )}
+
+      {/* Layer 2: body base — head + face + neck (scaled) */}
+      <g transform="translate(82.95 83.45) scale(0.85)">
+        <Layer src={bodySrc} />
+      </g>
+
+      {/* Layer 3: outfit (chest blob). */}
+      {outfitSrc && (
+        <g transform="matrix(0.85 0 0 0.85 82.95 66.45)">
+          <Layer src={outfitSrc} />
+        </g>
+      )}
+
+      {/* Layers 4–8: face decorations (all share the head scale) */}
+      <g transform="translate(82.95 83.45) scale(0.85)">
+        {facialHairSrc && <Layer src={facialHairSrc} />}
+        {detailSrc && <Layer src={detailSrc} />}
+        {earringSrc && <Layer src={earringSrc} />}
+        {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
+        {eyewearSrc && <Layer src={eyewearSrc} />}
+      </g>
+    </svg>
+  );
+
+  // Compact circle — Career Buddy chat bubbles / voice-call dual avatars.
+  // Same layered SVG as the customiser stage, clipped to `size` px.
+  //
+  // `badgeBg`:
+  //   - 'plain' (default) — white circle (chat bubbles)
+  //   - 'voice' — Figma 5146:76040 avatar showcase: radial #387440 → transparent
+  //     at 80%, plus 6% green wash overlay. No solid fill behind Tali's sibling.
+  if (size) {
+    const isVoiceBadge = badgeBg === 'voice';
+    return (
+      <div
+        className={classNames(
+          'relative shrink-0 overflow-hidden rounded-full',
+          !isVoiceBadge && 'bg-white',
+          className
+        )}
+        style={{
+          width: size,
+          height: size,
+          // Figma GRADIENT_RADIAL on avatar showcase (5146:76040):
+          // stop0 #387440 → stop0.8 transparent white; center handles.
+          ...(isVoiceBadge
+            ? {
+                background:
+                  'radial-gradient(circle at 50% 50%, rgba(56,116,64,1) 0%, rgba(255,255,255,0) 80%)',
+              }
+            : null),
+        }}
+      >
+        {isVoiceBadge && (
+          // Extra 6% brand-green wash — Figma VECTOR fill #387440 @ 0.06
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full bg-brand-green/[0.06]"
+          />
+        )}
+        <div
+          className="absolute inset-0"
+          style={{
+            clipPath: 'circle(50% at 50% 50%)',
+            ...(!isVoiceBadge ? { backgroundColor: 'rgba(255, 255, 255, 0.22)' } : null),
+          }}
+        >
+          {!isVoiceBadge && (
+            <div
+              aria-hidden="true"
+              className="absolute rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                width: '48.72%',
+                height: '48.72%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: '#b8d3ad',
+              }}
+            />
+          )}
+          {layeredSvg}
+        </div>
+      </div>
+    );
+  }
 
   return (
     // OUTER wrapper carries the explicit width — w-full fills its grid
@@ -509,87 +619,7 @@ const AvatarPreview = ({ className }) => {
           • All layers ride on the same coordinate space (0–1024 source,
             same viewBox crop) so they register perfectly without per-layer
             alignment. */}
-        <svg
-          viewBox={LAYER_VIEWBOX}
-          preserveAspectRatio="xMidYMid meet"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Avatar preview"
-          className="absolute inset-0 h-full w-full"
-          // Avatar shifted UP — translateY dropped 24% → 6% — so the
-          // outfit isn't pushed past the disc's bottom curve and
-          // hidden by the clip. At 6% the head sits cleanly inside
-          // the disc and the outfit reads as a full, visible band
-          // rather than a thin sliver at the bottom.
-          style={{ transform: 'translateY(6%)' }}
-        >
-          {/*
-            HEAD-AREA SCALE TRANSFORM
-            Every face-area layer (body-base, hair, glasses, facial hair,
-            earrings, details) is wrapped in <g transform="…"> so they
-            all shrink together at the same scale (0.85× ≈ 15% smaller)
-            without distortion.
-
-            Fixed point chosen so the head's BOTTOM (originally y=423)
-            lands at y=443 after scaling — exactly where outfit
-            necklines start. This eliminates the visible neck gap that
-            appeared when the head was shrunk while the (full-size)
-            outfit stayed put.
-
-            Resulting transform: translate(82.95 83.45) scale(0.85).
-            The outfit layer is OUTSIDE this <g> so the chest stays
-            full-size.
-          */}
-
-          {/* Layer 1: wrap-around hair (Afro, Hijab, Kente Wrap) — BEHIND body */}
-          {hairSrc && isWrapAround && (
-            <g transform="translate(82.95 83.45) scale(0.85)">
-              <Layer src={hairSrc} />
-            </g>
-          )}
-
-          {/* Layer 2: body base — head + face + neck (scaled) */}
-          <g transform="translate(82.95 83.45) scale(0.85)">
-            <Layer src={bodySrc} />
-          </g>
-
-          {/* Layer 3: outfit (chest blob).
-            Wrapped in a matrix transform that:
-              • scales X to 0.85 (slimmer),
-              • scales Y to 0.85 (taller — bumped from 0.78 so the
-                outfit body reads as a full top instead of cropped),
-              • SHIFTS RIGHT (tx 66.8 → 82.95) so the outfit's centre
-                lands at x'=518.15 — exactly the same x as the
-                head's centre after the head-area transform. Outfit
-                now sits directly under the neck instead of drifting
-                left of it.
-            Math: x' = 0.85·x + 82.95  → x=512 → 518.15 (head centre);
-                  y' = 0.85·y + 66.45  → fixes y=443 → 443 (neck).
-            matrix(a b c d e f) = (0.85, 0, 0, 0.85, 82.95, 66.45). */}
-          {outfitSrc && (
-            <g transform="matrix(0.85 0 0 0.85 82.95 66.45)">
-              <Layer src={outfitSrc} />
-            </g>
-          )}
-
-          {/* Layers 4–8: face decorations (all share the head scale) */}
-          <g transform="translate(82.95 83.45) scale(0.85)">
-            {/* Layer 4: facial hair */}
-            {facialHairSrc && <Layer src={facialHairSrc} />}
-
-            {/* Layer 5: details (single-select) */}
-            {detailSrc && <Layer src={detailSrc} />}
-
-            {/* Layer 6: earrings */}
-            {earringSrc && <Layer src={earringSrc} />}
-
-            {/* Layer 7: normal hair — ON TOP of head */}
-            {hairSrc && !isWrapAround && <Layer src={hairSrc} />}
-
-            {/* Layer 8: eyewear — always on top */}
-            {eyewearSrc && <Layer src={eyewearSrc} />}
-          </g>
-        </svg>
+        {layeredSvg}
       </div>
 
       {/* Undo lives on the stage overlay bar (rendered by

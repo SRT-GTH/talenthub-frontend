@@ -64,6 +64,8 @@ const ICON_BASE_CLASSES =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
 
 const ICON_SIZE_CLASSES = {
+  // Voice-call mic / hang-up — Figma 5146:76107 / 76109 (75×75, pad 12)
+  lg: 'size-[75px] p-3',
   md: 'size-10 p-[10px]',
   sm: 'size-8 p-2',
 };
