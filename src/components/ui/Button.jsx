@@ -24,6 +24,12 @@ const log = debug('Button');
  *                     distinct, brighter gold than `secondary`'s muted
  *                     accent-amber token, so it's its own variant rather
  *                     than reusing `secondary` and getting the color wrong)
+ *   danger            red shelf, gradient (peach→mint) text — same gradient
+ *                     treatment as `primary`, just recoloured (Figma
+ *                     5178:35393, DeleteWorkModal's "Permanently delete this
+ *                     role" button). Hover/active shelf behaviour mirrors
+ *                     `primary`'s pattern (Figma only specced the default
+ *                     state for this button).
  *   icon              circular icon-only button (Figma 5132:43389/45079,
  *                     ChatThread input bar — attach/mic/voice buttons).
  *                     No border, no shelf, no text — bypasses BASE_CLASSES
@@ -254,6 +260,22 @@ const VARIANT_CLASSES = {
       disabled: 'bg-[#bfbfbf] border-[#cccccc] drop-shadow-[0_4px_0_rgba(191,191,191,0.8)]',
     },
   },
+  danger: {
+    interactive:
+      'bg-[#c0392b] border-[#ad3327] drop-shadow-[0_4px_0_#ad3327] ' +
+      'hover:border-[#8f2a1c] hover:drop-shadow-[0_5px_0_#ad3327] ' +
+      'active:bg-[#a83526] active:border-[#8f2a1c] active:translate-y-1 active:drop-shadow-none ' +
+      'disabled:bg-[#bfbfbf] disabled:border-[#cccccc] disabled:drop-shadow-[0_4px_0_rgba(191,191,191,0.8)] ' +
+      'disabled:hover:drop-shadow-[0_4px_0_rgba(191,191,191,0.8)] ' +
+      'disabled:active:translate-y-0 disabled:active:bg-[#bfbfbf] disabled:active:border-[#cccccc] ' +
+      'disabled:active:drop-shadow-[0_4px_0_rgba(191,191,191,0.8)]',
+    forced: {
+      default: 'bg-[#c0392b] border-[#ad3327] drop-shadow-[0_4px_0_#ad3327]',
+      hover: 'bg-[#c0392b] border-[#8f2a1c] drop-shadow-[0_5px_0_#ad3327]',
+      active: 'bg-[#a83526] border-[#8f2a1c] translate-y-1',
+      disabled: 'bg-[#bfbfbf] border-[#cccccc] drop-shadow-[0_4px_0_rgba(191,191,191,0.8)]',
+    },
+  },
 };
 
 // Text colour per variant. Primary uses a gradient (handled inline below)
@@ -265,6 +287,7 @@ const VARIANT_TEXT_CLASSES = {
   'tertiary-subtle': 'text-success-dark',
   'tertiary-cream': 'text-neutral-darker',
   gold: 'text-white',
+  danger: 'text-white',
 };
 
 const BASE_CLASSES =
@@ -371,8 +394,9 @@ const Button = ({
   const variantConfig = VARIANT_CLASSES[variant];
   const variantClasses = isForcedState ? variantConfig.forced[state] : variantConfig.interactive;
 
-  // Primary uses a gradient text fill except when disabled (falls back to white).
-  const usePrimaryGradient = variant === 'primary' && !effectiveDisabled;
+  // Primary and danger both use the same gradient text fill, except when
+  // disabled (falls back to plain white).
+  const usePrimaryGradient = (variant === 'primary' || variant === 'danger') && !effectiveDisabled;
   const textColourClass = usePrimaryGradient ? null : VARIANT_TEXT_CLASSES[variant];
 
   return (

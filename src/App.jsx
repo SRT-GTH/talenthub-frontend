@@ -41,6 +41,16 @@ import InterestsIntroPage from './pages/profileFilling/InterestsIntroPage.jsx';
 import InterestsStage2Page from './pages/profileFilling/InterestsStage2Page.jsx';
 import SkillsIntroPage from './pages/profileFilling/SkillsIntroPage.jsx';
 import SkillsStage2Page from './pages/profileFilling/SkillsStage2Page.jsx';
+import WorkIntroPage from './pages/profileFilling/WorkIntroPage.jsx';
+import WorkStage2Page from './pages/profileFilling/WorkStage2Page.jsx';
+import PortfolioIntroPage from './pages/profileFilling/PortfolioIntroPage.jsx';
+import PortfolioStage2Page from './pages/profileFilling/PortfolioStage2Page.jsx';
+import CertsIntroPage from './pages/profileFilling/CertsIntroPage.jsx';
+import CertsStage2Page from './pages/profileFilling/CertsStage2Page.jsx';
+import GoalsIntroPage from './pages/profileFilling/GoalsIntroPage.jsx';
+import GoalsStage2Page from './pages/profileFilling/GoalsStage2Page.jsx';
+import PitchIntroPage from './pages/profileFilling/PitchIntroPage.jsx';
+import PitchStage2Page from './pages/profileFilling/PitchStage2Page.jsx';
 import CareerBuddyPage from './pages/profileFilling/CareerBuddyPage.jsx';
 import SkillsLabPage from './pages/skillsLab/SkillsLabPage.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
@@ -254,6 +264,16 @@ function App() {
             />
             <Route path={'/profile/filling/skills'} element={<SkillsIntroPage />} />
             <Route path={'/profile/filling/skills/categories'} element={<SkillsStage2Page />} />
+            <Route path={'/profile/filling/work'} element={<WorkIntroPage />} />
+            <Route path={'/profile/filling/work/history'} element={<WorkStage2Page />} />
+            <Route path={'/profile/filling/portfolio'} element={<PortfolioIntroPage />} />
+            <Route path={'/profile/filling/portfolio/projects'} element={<PortfolioStage2Page />} />
+            <Route path={'/profile/filling/certs'} element={<CertsIntroPage />} />
+            <Route path={'/profile/filling/certs/list'} element={<CertsStage2Page />} />
+            <Route path={'/profile/filling/goals'} element={<GoalsIntroPage />} />
+            <Route path={'/profile/filling/goals/list'} element={<GoalsStage2Page />} />
+            <Route path={'/profile/filling/pitch'} element={<PitchIntroPage />} />
+            <Route path={'/profile/filling/pitch/record'} element={<PitchStage2Page />} />
             {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
             <Route path={'/profile/filling/career-buddy'} element={<CareerBuddyPage />} />
             {/* Legacy split route → shared shell + recruiter role. */}

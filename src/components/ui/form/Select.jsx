@@ -37,6 +37,15 @@ const TRIGGER_SM_BASE =
   'transition-colors duration-100 cursor-pointer text-left ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
 
+// Compact modal-form field (Figma 5114:124365, AddEditWorkModal's Employment
+// type select) — 38px, r=10, #e8e8e4. Mirrors TextInput's `xs` size so a
+// field row can mix TextInput/Select at the same height. Added as a variant
+// per the "extend, don't duplicate" rule — `md`/`sm` are untouched.
+const TRIGGER_XS_BASE =
+  'flex h-[38px] items-center gap-2 px-[14px] rounded-[10px] w-full ' +
+  'transition-colors duration-100 cursor-pointer text-left ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
+
 const TRIGGER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
 
 const INSCRIPTION_CLASSES =
@@ -61,6 +70,14 @@ const TRIGGER_SM_STATE_CLASSES = {
   error: 'bg-white border border-danger-light-active',
   disabled:
     'bg-brand-green-light border border-[#cccccc] opacity-55 shadow-none cursor-not-allowed',
+};
+
+const TRIGGER_XS_STATE_CLASSES = {
+  default: 'bg-white border border-[#e8e8e4]',
+  open: 'bg-white border border-brand-green',
+  verified: 'bg-white border border-brand-green',
+  error: 'bg-white border border-danger-light-active',
+  disabled: 'bg-[#f8f8f4] border border-[#e8e8e4] opacity-60 cursor-not-allowed',
 };
 
 const ChevronDown = ({ className }) => (
@@ -100,7 +117,8 @@ const Select = ({
   searchable = false,
   verified = false,
   disabled = false,
-  // `md` = default dropdown. `sm` = compact deadline month chip (Figma 5132:68248).
+  // `md` = default dropdown. `sm` = compact deadline month chip (Figma
+  // 5132:68248). `xs` = compact modal-form field (38px, r=10).
   size = 'md',
   // Optional in-field top caption (Figma 5132:67856 / 67872 — Currency / Frequency).
   inscription,
@@ -135,7 +153,8 @@ const Select = ({
   const effectiveOpen = isForced ? state === 'open' : open;
   const effectiveDisabled = disabled || state === 'disabled';
   const isSm = size === 'sm';
-  const hasInscription = Boolean(inscription) && !isSm;
+  const isXs = size === 'xs';
+  const hasInscription = Boolean(inscription) && !isSm && !isXs;
 
   log('render', { label, inscription, size, state, open: effectiveOpen, value: currentValue });
 
@@ -152,7 +171,11 @@ const Select = ({
             ? 'verified'
             : 'default';
 
-  const triggerStateClasses = isSm ? TRIGGER_SM_STATE_CLASSES : TRIGGER_STATE_CLASSES;
+  const triggerStateClasses = isXs
+    ? TRIGGER_XS_STATE_CLASSES
+    : isSm
+      ? TRIGGER_SM_STATE_CLASSES
+      : TRIGGER_STATE_CLASSES;
 
   const normalisedOptions = options.map(normaliseOption);
   const selected = normalisedOptions.find((opt) => opt.value === currentValue);
@@ -241,7 +264,7 @@ const Select = ({
           onClick={handleTriggerClick}
           onKeyDown={handleTriggerKey}
           className={classNames(
-            isSm ? TRIGGER_SM_BASE : TRIGGER_BASE,
+            isXs ? TRIGGER_XS_BASE : isSm ? TRIGGER_SM_BASE : TRIGGER_BASE,
             hasInscription && TRIGGER_INSCRIPTION_CLASSES,
             triggerStateClasses[triggerState]
           )}
@@ -263,12 +286,20 @@ const Select = ({
           <span
             className={classNames(
               'flex-1 min-w-0 font-sans tracking-[0.2px] truncate',
-              isSm ? 'text-[16px] leading-[22px]' : 'text-[14px] leading-[20px]',
+              isXs
+                ? 'text-[13px] leading-[20px]'
+                : isSm
+                  ? 'text-[16px] leading-[22px]'
+                  : 'text-[14px] leading-[20px]',
               selected
-                ? isSm
-                  ? 'text-[#737373] font-normal'
-                  : 'text-content-primary font-medium'
-                : 'text-[#595959] font-normal'
+                ? isXs
+                  ? 'text-[#111] font-normal'
+                  : isSm
+                    ? 'text-[#737373] font-normal'
+                    : 'text-content-primary font-medium'
+                : isXs
+                  ? 'text-[#757575] font-normal'
+                  : 'text-[#595959] font-normal'
             )}
           >
             {selected?.label || placeholder}
@@ -277,7 +308,7 @@ const Select = ({
             aria-hidden="true"
             className={classNames(
               'inline-flex shrink-0 items-center justify-center transition-transform duration-150 [&>svg]:size-full',
-              isSm ? 'size-[14px]' : 'size-5',
+              isXs ? 'size-4' : isSm ? 'size-[14px]' : 'size-5',
               effectiveOpen && 'rotate-180',
               !chevronIcon && 'text-content-tertiary'
             )}

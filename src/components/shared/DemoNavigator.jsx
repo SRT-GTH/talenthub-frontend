@@ -123,8 +123,24 @@ const CAREER_BUDDY_RECRUITER_STEPS = [
   { label: 'Post Job Success', path: `${CAREER_BUDDY_PATH}?cb=post-job-success` },
 ];
 
+// Profile Filling — the 5 CRUD-style stages built this session, each an
+// Intro page + a Stage-2 page. Real routes confirmed in App.jsx (2026-09-09).
+const PROFILE_FILLING_STEPS = [
+  { label: 'Certs Intro', path: '/profile/filling/certs' },
+  { label: 'Certs List', path: '/profile/filling/certs/list' },
+  { label: 'Work Intro', path: '/profile/filling/work' },
+  { label: 'Work History', path: '/profile/filling/work/history' },
+  { label: 'Portfolio Intro', path: '/profile/filling/portfolio' },
+  { label: 'Portfolio Projects', path: '/profile/filling/portfolio/projects' },
+  { label: 'Goals Intro', path: '/profile/filling/goals' },
+  { label: 'Goals List', path: '/profile/filling/goals/list' },
+  { label: 'Pitch Intro', path: '/profile/filling/pitch' },
+  { label: 'Pitch Record', path: '/profile/filling/pitch/record' },
+];
+
 const ONBOARDING_PREFIX = '/onboarding/';
 const CAREER_BUDDY_PREFIX = '/profile/filling/career-buddy';
+const PROFILE_FILLING_PREFIX = '/profile/filling/';
 
 function buddyLocationKey(pathname, search) {
   const params = new URLSearchParams(search);
@@ -142,23 +158,30 @@ export default function DemoNavigator() {
 
   const onCareerBuddy = location.pathname.startsWith(CAREER_BUDDY_PREFIX);
   const onOnboarding = location.pathname.startsWith(ONBOARDING_PREFIX);
+  const onProfileFilling = location.pathname.startsWith(PROFILE_FILLING_PREFIX) && !onCareerBuddy;
   const recruiterActive = role === 'recruiter';
   const parentActive = role === 'parent';
   const buddyRoleActive = recruiterActive || parentActive;
 
-  const [surface, setSurface] = useState(() => (onCareerBuddy ? 'career-buddy' : 'onboarding'));
+  const [surface, setSurface] = useState(() =>
+    onCareerBuddy ? 'career-buddy' : onProfileFilling ? 'profile-filling' : 'onboarding'
+  );
   const [activeFlow, setActiveFlow] = useState('talent');
   const [isMinor, setIsMinor] = useState(false);
   const [isPathB, setIsPathB] = useState(false);
 
   if (!import.meta.env.DEV) return null;
-  if (!onOnboarding && !onCareerBuddy) return null;
+  if (!onOnboarding && !onCareerBuddy && !onProfileFilling) return null;
 
+  // The current URL always wins over a stale toggle click (e.g. the back
+  // button landing somewhere the switcher wasn't used to reach).
   const effectiveSurface = onCareerBuddy
     ? 'career-buddy'
-    : surface === 'career-buddy' && onOnboarding
-      ? 'onboarding'
-      : surface;
+    : onProfileFilling
+      ? 'profile-filling'
+      : onOnboarding
+        ? 'onboarding'
+        : surface;
 
   const buddySteps = recruiterActive
     ? CAREER_BUDDY_RECRUITER_STEPS
@@ -177,7 +200,12 @@ export default function DemoNavigator() {
           ? TALENT_MINOR_STEPS
           : TALENT_ADULT_STEPS;
 
-  const steps = effectiveSurface === 'career-buddy' ? buddySteps : onboardingSteps;
+  const steps =
+    effectiveSurface === 'career-buddy'
+      ? buddySteps
+      : effectiveSurface === 'profile-filling'
+        ? PROFILE_FILLING_STEPS
+        : onboardingSteps;
   const locationKey = buddyLocationKey(location.pathname, location.search);
   const foundIndex = steps.findIndex((s) => s.path === locationKey);
   // Bare /career-buddy with recruiter/parent role maps to Landing (?cb=welcome).
@@ -198,6 +226,10 @@ export default function DemoNavigator() {
           ? `${CAREER_BUDDY_PATH}?cb=welcome`
           : CAREER_BUDDY_PATH
       );
+      return;
+    }
+    if (next === 'profile-filling') {
+      navigate(PROFILE_FILLING_STEPS[0].path);
       return;
     }
     const dest =
@@ -274,6 +306,7 @@ export default function DemoNavigator() {
       <div className="flex items-center gap-1">
         {[
           { id: 'onboarding', label: 'Onboarding' },
+          { id: 'profile-filling', label: 'Profile Filling' },
           { id: 'career-buddy', label: 'Career Buddy' },
         ].map((item) => (
           <button
@@ -333,6 +366,32 @@ export default function DemoNavigator() {
               </button>
             </div>
           )}
+        </>
+      ) : effectiveSurface === 'profile-filling' ? (
+        <>
+          <span className="text-white/80">
+            {currentIndex + 1}&thinsp;/&thinsp;{steps.length}&ensp;·&ensp;{currentStep?.label}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handlePrev}
+              disabled={currentIndex === 0}
+              className="rounded px-2 py-0.5 transition-opacity hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous step"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={currentIndex === steps.length - 1}
+              className="rounded px-2 py-0.5 transition-opacity hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next step"
+            >
+              →
+            </button>
+          </div>
         </>
       ) : (
         <>

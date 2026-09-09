@@ -125,6 +125,14 @@ const Modal = ({
   const handleOverlayMouseDown = (e) => {
     // Only close when the click originated on the overlay itself —
     // a drag that ends here from inside the content shouldn't dismiss.
+    // This check alone is sufficient (a click starting on real content
+    // never has target === currentTarget), so the content box does NOT
+    // need its own stopPropagation to guard against it — a previous
+    // version added one defensively, but that also silently ate the
+    // native mousedown for any nested outside-click-to-close component
+    // (Select's dropdown, DatePicker's popup) rendered inside a Modal,
+    // since React's synthetic stopPropagation calls the underlying
+    // native Event.stopPropagation() too. Removed 2026-09-06.
     if (e.target === e.currentTarget) onClose?.();
   };
 
@@ -150,7 +158,6 @@ const Modal = ({
           SIZE_CLASSES[size] || SIZE_CLASSES.lg,
           contentClassName
         )}
-        onMouseDown={(e) => e.stopPropagation()}
       >
         {showClose && (
           <button

@@ -4,17 +4,7 @@ import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
-import {
-  AvatarStepIcon,
-  InterestsStepIcon,
-  PersonalityStepIcon,
-  SkillsStepIcon,
-  WorkStepIcon,
-  PortfolioStepIcon,
-  CertsStepIcon,
-  GoalsStepIcon,
-  PitchStepIcon,
-} from '../../shared/assets.jsx';
+import ProfileFillingJourneyPanel from './ProfileFillingJourneyPanel.jsx';
 
 const log = debug('SkillsIntroSection');
 
@@ -39,29 +29,6 @@ const log = debug('SkillsIntroSection');
  */
 
 // ─── Local icon helpers ───────────────────────────────────────────────────────
-
-// Completed step indicator (right side of journey row).
-const CheckMark = ({ className }) => (
-  <svg
-    viewBox="0 0 14 14"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className={className}
-  >
-    <path d="M2.5 7l3.5 3.5L11.5 3.5" />
-  </svg>
-);
-
-// Active step indicator (right side of journey row).
-const PlayMark = ({ className }) => (
-  <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true" className={className}>
-    <path d="M3.5 2.5L11.5 7 3.5 11.5V2.5z" />
-  </svg>
-);
 
 // Footer "Go back" left arrow.
 const ArrowLeftIcon = ({ className }) => (
@@ -120,209 +87,6 @@ const STAGE_CARDS = [
     body: "A separate mini-game area accessible from this stage. Retake any skill assessment if you don't pass first time — no penalty for retrying.",
   },
 ];
-
-// Figma 3625:138810 — journey progress step list (right panel).
-// Avatar, Interests, Personality are done; Skills is active; rest are future.
-const JOURNEY_STEPS = [
-  { label: 'Avatar', status: 'done', Icon: AvatarStepIcon },
-  { label: 'Interests', status: 'done', Icon: InterestsStepIcon },
-  { label: 'Personality', status: 'done', Icon: PersonalityStepIcon },
-  { label: 'Skills', status: 'active', Icon: SkillsStepIcon },
-  { label: 'Work', status: 'future', Icon: WorkStepIcon },
-  { label: 'Portfolio', status: 'future', Icon: PortfolioStepIcon },
-  { label: 'Certs', status: 'future', Icon: CertsStepIcon },
-  { label: 'Goals', status: 'future', Icon: GoalsStepIcon },
-  { label: 'Pitch', status: 'future', Icon: PitchStepIcon },
-];
-
-// ─── Glass card helper ────────────────────────────────────────────────────────
-const GlassCard = ({ className, children }) => (
-  <div
-    className={`rounded-[14px] border border-[rgba(255,255,255,0.18)] ${className ?? ''}`}
-    style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(2px)' }}
-  >
-    {children}
-  </div>
-);
-
-// ─── Right panel ─────────────────────────────────────────────────────────────
-// Figma 3625:138787 — dark green gradient panel (329px wide).
-// Top showcase displays the Personality stage (previous completed stage) as
-// a motivational "look what you just unlocked" card.
-// Stats: recruiter impact (3+) + time to complete (~8 min).
-// Journey list: Avatar/Interests/Personality done, Skills active, rest future.
-const SkillsRightPanel = () => (
-  <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 relative overflow-hidden"
-    aria-label="Profile journey progress"
-    style={{ background: 'linear-gradient(109.386deg, #142916 0%, #2a5730 100%)' }}
-  >
-    {/* Grid line overlay */}
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0"
-      style={{
-        backgroundImage: [
-          'repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 48px)',
-          'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 48px)',
-        ].join(', '),
-      }}
-    />
-
-    {/* Radial glow — top-right corner */}
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute"
-      style={{
-        top: '-60px',
-        right: '-60px',
-        width: '280px',
-        height: '280px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%)',
-      }}
-    />
-
-    {/* Sparkle decorators */}
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute select-none font-sans leading-none text-[rgba(255,255,255,0.2)]"
-      style={{ fontSize: '20px', top: '12px', right: '20px' }}
-    >
-      ✦
-    </span>
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute select-none font-sans leading-none text-[rgba(255,255,255,0.2)]"
-      style={{ fontSize: '11px', top: '33px', right: '44px' }}
-    >
-      ✦
-    </span>
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute select-none font-sans leading-none text-[rgba(255,255,255,0.2)]"
-      style={{ fontSize: '13px', bottom: '193px', left: '24px' }}
-    >
-      ✦
-    </span>
-
-    {/* Scrollable content — Figma 3625:138793 */}
-    <div
-      className="absolute inset-0 overflow-y-auto [&::-webkit-scrollbar]:hidden"
-      style={{ scrollbarWidth: 'none' }}
-    >
-      <div className="relative" style={{ minHeight: '853px', paddingBottom: '58px' }}>
-        {/* Icon showcase — Figma 3625:138794
-            Shows Personality (the stage just completed) as motivational context. */}
-        <div className="absolute inset-x-0 top-[10px] h-[152px] flex flex-col items-center pt-[20px] gap-[10px]">
-          <div
-            className="size-[56px] rounded-[16px] flex items-center justify-center border-2 border-[rgba(255,255,255,0.3)] shrink-0"
-            style={{ background: 'rgba(255,255,255,0.15)' }}
-          >
-            <SkillsStepIcon className="size-[28px] text-white" />
-          </div>
-          <p className="font-display not-italic text-[22px] leading-tight text-white text-center tracking-[-0.4px]">
-            Skills
-          </p>
-          <p
-            className="font-sans text-[10px] leading-4 text-center"
-            style={{ color: 'rgba(255,255,255,0.6)' }}
-          >
-            What actually pulls you in.
-          </p>
-        </div>
-
-        {/* Stat cards — Figma 3625:138801 */}
-        <div className="absolute left-[28px] right-[28px] top-[174px] flex flex-col gap-[14px]">
-          {/* Recruiter impact */}
-          <GlassCard className=" flex flex-col items-center justify-center gap-[6px] px-[14px] py-[12px] text-center">
-            <p
-              className="font-sans font-semibold text-[10px] leading-4"
-              style={{ color: 'rgba(255,255,255,0.7)' }}
-            >
-              Recruiter impact
-            </p>
-            <p className="font-display not-italic text-[42px] leading-none text-white">3+</p>
-            <p
-              className="font-sans text-[10px] leading-4"
-              style={{ color: 'rgba(255,255,255,0.7)' }}
-            >
-              role matches unlocked from interests alone
-            </p>
-          </GlassCard>
-
-          {/* Time to complete */}
-          <GlassCard className=" flex flex-col items-center justify-center gap-[6px] px-[14px] py-[12px] text-center">
-            <p
-              className="font-sans font-semibold text-[10px] leading-4"
-              style={{ color: 'rgba(255,255,255,0.7)' }}
-            >
-              Time to complete
-            </p>
-            <p className="font-display not-italic text-[30px] leading-none text-white">~5 min</p>
-            <p
-              className="font-sans text-[10px] leading-4"
-              style={{ color: 'rgba(255,255,255,0.65)' }}
-            >
-              Auto-saves · do it across sittings
-            </p>
-          </GlassCard>
-        </div>
-
-        {/* Journey progress card — Figma 3625:138810 */}
-        <GlassCard className="absolute left-[28px] right-[28px] top-[435px] overflow-hidden flex flex-col">
-          <p
-            className="font-sans font-semibold text-[10px] leading-4 uppercase tracking-[0.08em] px-[16px] pt-[16px] pb-[10px] shrink-0"
-            style={{ color: 'rgba(255,255,255,0.7)' }}
-          >
-            Your journey
-          </p>
-
-          <div className="flex flex-col flex-1 overflow-hidden">
-            {JOURNEY_STEPS.map((step, index) => {
-              const { label, status, Icon } = step;
-              const isDone = status === 'done';
-              const isActive = status === 'active';
-              const isLast = index === JOURNEY_STEPS.length - 1;
-              log('step render', { label, status });
-
-              return (
-                <div
-                  key={label}
-                  className={`flex items-center justify-between gap-[12px] px-[16px] py-[9px] ${!isLast ? 'border-b border-b-[rgba(255,255,255,0.1)]' : ''}`}
-                  style={{
-                    ...(isActive
-                      ? { background: 'rgba(255,255,255,0.28)', border: '1px solid #fef1e7' }
-                      : {}),
-                    ...(isDone ? { opacity: 0.5 } : {}),
-                    ...(!isDone && !isActive ? { opacity: 0.45 } : {}),
-                  }}
-                >
-                  <div className="flex items-center gap-[8px] min-w-0">
-                    <Icon
-                      className={`size-4 shrink-0 ${isActive ? 'text-white' : 'text-[rgba(255,255,255,0.7)]'}`}
-                    />
-                    <span
-                      className={`font-sans text-[12px] leading-5 text-white min-w-0 ${isDone ? 'line-through decoration-white/50' : ''} ${isActive ? 'font-semibold' : 'font-normal'}`}
-                    >
-                      {label}
-                    </span>
-                  </div>
-                  {isDone && (
-                    <CheckMark className="size-[14px] shrink-0 text-[rgba(255,255,255,0.8)]" />
-                  )}
-                  {isActive && (
-                    <PlayMark className="size-[14px] shrink-0 text-[rgba(255,255,255,0.8)]" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </GlassCard>
-      </div>
-    </div>
-  </aside>
-);
 
 // ─── Main section ─────────────────────────────────────────────────────────────
 const SkillsIntroSection = () => {
@@ -480,7 +244,14 @@ const SkillsIntroSection = () => {
         </div>
 
         {/* ── Right panel */}
-        <SkillsRightPanel />
+        <ProfileFillingJourneyPanel
+          activeStageId="skills"
+          showcaseTitle="Skills"
+          showcaseSubtitle="What actually pulls you in."
+          impactValue="3+"
+          impactLabel="role matches unlocked from interests alone"
+          timeValue="~5 min"
+        />
       </main>
     </div>
   );

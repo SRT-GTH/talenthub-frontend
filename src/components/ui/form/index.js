@@ -10,6 +10,7 @@ export { default as PasswordInput } from './PasswordInput.jsx';
 export { default as PhoneInput } from './PhoneInput.jsx';
 export { default as Textarea } from './Textarea.jsx';
 export { default as Select } from './Select.jsx';
+export { default as DatePicker } from './DatePicker.jsx';
 export { default as Checkbox } from './Checkbox.jsx';
 export { default as Radio } from './Radio.jsx';
 export { default as VerificationCode } from './VerificationCode.jsx';

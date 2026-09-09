@@ -69,6 +69,25 @@ const SM_STATE_CLASSES = {
 const SM_INTERACTIVE_CLASSES =
   'bg-white border border-[#e6e6e6] focus-within:border-brand-green-light-active';
 
+// Compact modal-form field (Figma 5114:124348, AddEditWorkModal's Add/Edit
+// Work Experience form) — 38px, r=10, #e8e8e4. Lighter than `sm`: no shelf,
+// no colour-shift on focus (just the border going brand-green), matching a
+// denser modal form rather than the full-page GTHInput. Added as a variant
+// per the "extend, don't duplicate" rule instead of a modal-local hand-rolled
+// input — `md`/`sm` are untouched.
+const WRAPPER_XS_BASE =
+  'flex h-[38px] items-center gap-2 px-[14px] rounded-[10px] w-full transition-colors duration-100';
+
+const XS_STATE_CLASSES = {
+  default: 'bg-white border border-[#e8e8e4]',
+  focus: 'bg-white border border-brand-green',
+  verified: 'bg-white border border-brand-green',
+  error: 'bg-white border border-danger-light-active',
+  disabled: 'bg-[#f8f8f4] border border-[#e8e8e4] opacity-60',
+};
+
+const XS_INTERACTIVE_CLASSES = 'bg-white border border-[#e8e8e4] focus-within:border-brand-green';
+
 // Compact in-field caption (Figma salary GTHInput "Currency" / "Min" / …) —
 // 8px Raleway medium #32683a parked at the top-left inside the 51px box.
 const INSCRIPTION_CLASSES =
@@ -93,6 +112,12 @@ const INPUT_SM_BASE =
   'placeholder:text-[#999999] placeholder:font-normal ' +
   'disabled:cursor-not-allowed';
 
+const INPUT_XS_BASE =
+  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'font-sans text-[13px] leading-[20px] text-[#111] ' +
+  'placeholder:text-[#757575] placeholder:opacity-50 ' +
+  'disabled:cursor-not-allowed';
+
 const TextInput = ({
   label,
   required,
@@ -104,7 +129,8 @@ const TextInput = ({
   state,
   verified = false,
   disabled = false,
-  // `md` = default GTHInput (51px shelf). `sm` = compact deadline chip (46px, r=8).
+  // `md` = default GTHInput (51px shelf). `sm` = compact deadline chip (46px,
+  // r=8). `xs` = compact modal-form field (38px, r=10, no shelf).
   size = 'md',
   // Optional in-field top caption (Figma 5132:67856/67862/67867). When set,
   // renders inside the input box; external Field `label` still works if passed.
@@ -129,12 +155,19 @@ const TextInput = ({
   type = 'text',
   id,
   className,
+  // Extra classes applied directly to the native <input> (the outer
+  // `className` above lands on Field's wrapper div, not the input itself).
+  // Added for `type="date"` fields that need to hide the browser's native
+  // calendar-picker indicator in favour of a custom rightIcon button — see
+  // AddEditWorkModal.jsx. Optional; omitting it changes nothing.
+  inputClassName,
   ref,
   ...inputProps
 }) => {
   const generatedId = useId();
   const inputId = id || generatedId;
   const isSm = size === 'sm';
+  const isXs = size === 'xs';
 
   log('render', { label, inscription, size, state, verified, disabled, hasError: Boolean(error) });
 
@@ -146,12 +179,16 @@ const TextInput = ({
     (error ? 'error' : null) ||
     (verified ? 'verified' : null);
 
-  const stateMap = isSm ? SM_STATE_CLASSES : STATE_CLASSES;
-  const interactive = isSm ? SM_INTERACTIVE_CLASSES : INTERACTIVE_CLASSES;
+  const stateMap = isXs ? XS_STATE_CLASSES : isSm ? SM_STATE_CLASSES : STATE_CLASSES;
+  const interactive = isXs
+    ? XS_INTERACTIVE_CLASSES
+    : isSm
+      ? SM_INTERACTIVE_CLASSES
+      : INTERACTIVE_CLASSES;
   const wrapperStateClasses = resolvedState ? stateMap[resolvedState] : interactive;
 
   const isHtmlDisabled = disabled || state === 'disabled';
-  const hasInscription = Boolean(inscription) && !isSm;
+  const hasInscription = Boolean(inscription) && !isSm && !isXs;
 
   return (
     <Field
@@ -172,7 +209,7 @@ const TextInput = ({
     >
       <div
         className={classNames(
-          isSm ? WRAPPER_SM_BASE : WRAPPER_BASE,
+          isXs ? WRAPPER_XS_BASE : isSm ? WRAPPER_SM_BASE : WRAPPER_BASE,
           hasInscription && WRAPPER_INSCRIPTION_CLASSES,
           wrapperStateClasses
         )}
@@ -197,12 +234,18 @@ const TextInput = ({
           disabled={isHtmlDisabled}
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error || helperText ? `${inputId}-msg` : undefined}
-          className={isSm ? INPUT_SM_BASE : INPUT_BASE}
+          className={classNames(
+            isXs ? INPUT_XS_BASE : isSm ? INPUT_SM_BASE : INPUT_BASE,
+            inputClassName
+          )}
           {...inputProps}
         />
         {rightIcon && (
           <span
-            className="flex items-center justify-center shrink-0 text-content-tertiary [&>svg]:size-5"
+            className={classNames(
+              'flex items-center justify-center shrink-0 text-content-tertiary',
+              isXs ? '[&>svg]:size-4' : '[&>svg]:size-5'
+            )}
             aria-hidden={rightIconInteractive ? undefined : 'true'}
           >
             {rightIcon}

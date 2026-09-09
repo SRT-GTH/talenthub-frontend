@@ -88,11 +88,11 @@ const STAGE_ROUTES = {
   'personal-interests': '/profile/filling/interests',
   personality: '/profile/engagement',
   skills: '/profile/engagement',
-  'work-experience': '/profile/engagement',
-  'project-portfolio': '/profile/engagement',
-  certifications: '/profile/engagement',
-  'desired-career': '/profile/engagement',
-  'talent-pitch': '/profile/engagement',
+  'work-experience': '/profile/filling/work',
+  'project-portfolio': '/profile/filling/portfolio',
+  certifications: '/profile/filling/certs',
+  'desired-career': '/profile/filling/goals',
+  'talent-pitch': '/profile/filling/pitch',
 };
 
 const EngagementTopBar = ({

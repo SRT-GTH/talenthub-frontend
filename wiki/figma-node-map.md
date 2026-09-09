@@ -1477,6 +1477,102 @@ When the ward account is not initiated, **Guide my ward's profile** opens the se
 | Fill               | `parent-resume-fill`                         | Elliot tab; Personal Info / Education / Interests / Skills / Work awaiting-review + Modify/Confirm |
 | Demo               | `?cb=parent-resume` / `parent-resume-filled` |                                                                                                    |
 
+---
+
+## Work Experience — profile filling page flow `✅ VERIFIED` (2026-09-06)
+
+Standalone page-based flow at `/profile/filling/work` (+ `/profile/filling/work/history`), structurally mirroring Interests/Skills' own intro+stage2 page pattern — **distinct** from the Career Buddy conversational Work Experience flow documented above (that one lives in `careerBuddyScript.js`/`CareerBuddySection.jsx`, node range `5132:xxxxx`). This flow uses file key `Bin8roWL8sloyc36IgFMuT` ("Gh-Design-system--onboading"), node range `5112`/`5113`/`5114`/`5178`/`5200`/`5249`/`6686`/`6286`.
+
+| Screen                      | Node ID                               | Notes                                                                                                                                                                                                                                                                                                    |
+| --------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intro page                  | `5112:32344`                          | "work" frame. Mirrors `InterestsIntroSection.jsx` exactly: nav/breadcrumb ("Step 5 of 9 · Work · 44% profile complete"), icon showcase, Impact-stat + Time cards, "Your journey" 9-stage panel, 4 numbered "What this stage covers" info cards.                                                          |
+| List page — empty state     | `5112:106198`                         | "WORK" frame. "No work history yet." + "+ Add your first role" + "Skip this stage" link.                                                                                                                                                                                                                 |
+| List page — populated state | `5113:107408`                         | "work added" frame. 4 example role cards (Junior Frontend/Backend Developer, Software Engineering Intern, ICT Instructor), each with laptop icon, status tag, description, tag row, edit/delete icon buttons.                                                                                            |
+| Add-role modal              | `5113:121160` (overlay `5114:124039`) | "new work-upload". 3-section form: Role & organisation, Dates & duration, What you did & achieved (+ "Strong description patterns" tips).                                                                                                                                                                |
+| Success modal               | `5113:122447` (overlay `5113:122832`) | "success". Trophy + role-count/years summary, "Senior role matching unlocked" checklist, mini role-list preview, profile-strength bar. Wired to fire on every 4th role saved (mirrors the frame's own "4 roles" framing) rather than every save, since there's no backend milestone signal in this mock. |
+| Delete-confirm modal        | `5178:34742` (overlay `5178:35347`)   | "Delete work experience ". Role preview, two warning banners, "Edit instead?" nudge linking back to the Edit modal.                                                                                                                                                                                      |
+| Edit-role modal             | `5178:36163` (overlay `5178:36457`)   | "Edit Work". Same form as Add, pre-filled, plus a "Delete this role" footer link and a dirty-state "Unsaved changes" bar. The Figma "Editing banner" node (`5178:100857`) is marked `hidden` in Figma itself and is intentionally NOT rendered here (visibility wins over mere tree presence).           |
+
+**Verbatim-fidelity calls made:**
+
+- The intro page's 3rd "What this stage covers" info card reads "Education tab" / "Schools, programmes and dates..." in Figma's actual `characters` field — an unmistakable copy-paste leftover from the Educational Background stage. Kept verbatim per this session's "flag, don't silently fix" rule for nonsensical source copy — visible live at `/profile/filling/work`.
+- The list page's header tag row in Figma literally reads "3 categories / 4 specific interests / 4 min" (another Interests-stage-2 copy-paste leftover). Since reproducing it verbatim would display nonsense on a Work page, `WorkStage2Section.jsx` computes real tags from live state instead (`"N roles"` / `"Not started"` or `"In progress"` / `"~5 min"`) — the one deliberate exception to verbatim-text in this section, documented in a code comment.
+- The Add-modal headline was suspected (pre-build) to be a Figma copy-paste artifact reading "Identity captured." — re-verified via a real `get_design_context` dive and confirmed the actual text is "New role. Tell your story" / "Update your role." (Add/Edit respectively). The suspicion did not hold up once actually dived into.
+
+**Known gap (flagged, not fixed in this pass):** the Add/Edit form has no input for the extra skill/context tags shown on cards (e.g. "React", "TypeScript", "Teaching") — Figma's own modal doesn't have a field for them either. `buildRole()` in `WorkStage2Section.jsx` preserves any such tags across an edit (swapping only the employment-type entry) rather than losing them, but there is still no way to add or remove one through the UI — a real second-entry/tag-editing flow would need a form field Figma doesn't currently spec.
+
+---
+
+## Project Portfolio — profile filling page flow `✅ VERIFIED` (2026-09-07)
+
+Standalone page-based flow at `/profile/filling/portfolio` (+ `/profile/filling/portfolio/projects`) — the 6th of 9 profile-filling stages, structurally mirroring the Work Experience flow above (same file key `Bin8roWL8sloyc36IgFMuT`, node range `5178`/`5180`/`5200`/`5204`/`5209`/`5211`/`5215`/`5217`/`6286`).
+
+| Screen                        | Node ID                                                       | Notes                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intro page                    | `5178:101277`                                                 | "Portfolio start screen". Nav/breadcrumb ("Step 6 of 9 · Portfolio · 56% profile complete"), headline "Portfolio _Show, don't just tell._", 3 tags ("Not Started" / "3.4× attention" / "~7 min"), 4 numbered info cards (Project cards / Links / Pinned project / Cover images), shared `ProfileFillingJourneyPanel` right panel.                                         |
+| List page — empty + populated | `5178:101512`                                                 | "Portfolio 1". Headline "Portfolio. _Things you've shipped._", tags ("2–6 projects" / "Pin your best" / "~6 min"), empty state ("No projects yet." + "+ Add your first project" + "Nothing built yet? Skip this stage"), example card ("Accra Bus Tracker" — verbatim description/tags), right aside ("What counts?" / "Popular in Ghana" / "Recruiter views this week"). |
+| Add-project modal             | `5178:102292` (+ `5209:112732`, `5204:112463`, `5204:112595`) | "Overlay centred card". 4-section form: Cover image (shared `Upload` component), Project basics (title/type/year/role), What it is & what you built (description + "Strong description patterns" tips), Technologies & links (tech input + live/GitHub/Figma links) + pinned-project toggle.                                                                              |
+| Edit-project modal            | `5215:114592`                                                 | Same form as Add, pre-filled (e.g. "Accra Bus Tracker" example values), footer swaps to `[Delete this Project]` + `[Save Changes]` (no separate Cancel — verified via a real dive, not assumed symmetric with Add). The Figma "Editing banner" node (`5217:122714`) is `hidden` in Figma itself and intentionally NOT rendered here.                                      |
+| Success modal                 | `5217:122490`                                                 | "div.succ-card:shadow". Trophy + live project/pinned-count summary, "Portfolio filter unlocked in recruiter search" checklist, mini project-list preview (up to 3), static profile-strength bar ("52% : 4 stages done"), CTA "Continue to Certs stage" (secondary/amber variant). Opens on every successful save (add AND edit), not an invented milestone gate.          |
+| Delete-confirm modal          | `5211:114088`                                                 | "failed". Project preview card (type-colour strip + icon, same visual language as the list's `ProjectCard`), two reason rows ("Project removed from your portfolio immediately" / "Portfolio strength may decrease"), "Edit instead?" nudge, footer `[Cancel]` + `[Permanently delete this project]` (danger variant).                                                    |
+
+**Verbatim-fidelity calls made** (this modal's Figma frames were evidently cloned from the Skills "Add a skill" modal and only partially re-copy-edited for Portfolio — all reproduced verbatim per this session's "never silently fix Figma copy" rule, same as Work's own Education-tab card):
+
+- The small status badge above the Add/Edit-modal headline (`5178:102300` / `5215:114600`) literally reads "Add A skill" in BOTH modes.
+- The subtitle under the headline (`5178:102303` / `5215:114603`) reads "Fill in the name, set your proficiency honestly, and tag it to a category. That's it — you can verify it later." in BOTH modes — Skills-flow concepts ("proficiency", "verify it later") with no Portfolio equivalent. A hidden node in the same tree (`5178:102386` / `5215:114711`, node name "Skills Lab — verify Excel & SQL next", `hidden="true"` in Figma's own layer tree) further confirms the clone — respected by NOT rendering it, same treatment as Work's hidden "Editing banner".
+- The "Figma / design file link" field's helper text (`5204:112623` / `5215:114649` area) is word-for-word identical to the "Your specific role" field's own helper a few rows up (`5209:112760` / `5215:114649`) — kept verbatim on both fields.
+- The Delete-modal's description (`5211:114115`) reads "This will permanently remove the role from your work history..." — verbatim Work-flow copy (word-for-word matches `DeleteWorkModal.jsx`'s own description apart from that phrase). The two reason rows below it ARE correctly Portfolio-specific, so only this one sentence is the artifact.
+- The headline itself, the section titles/descriptions, and the Edit-modal headline ("Editing project. Update the details.") were all independently verified NOT to have this problem via their own `get_design_context` dives.
+
+**Business-logic calls (not blind copies, documented inline in code):**
+
+- Figma's own section-numbering badges show "2" on BOTH the Cover-image section (`5178:102307`) AND the Project-basics section (`5209:112738`) — a numbering slip, renumbered sequentially 1-4 in code for UX clarity.
+- The "Required Indicator" asterisk nodes on the Technologies & links section are positioned via absolute offsets landing off-frame (e.g. `left: -495.83px`) — not reliable evidence of which fields are required. All three link fields (Live link, GitHub, Figma) are optional at the code level rather than literally requiring both Live-link and Figma-link as a naive asterisk count would suggest, since that would make "GitHub-only" projects impossible to save (contradicts the intro page's own "Multiple links per project" framing).
+- "Project Type" renders as a `Select` (fixed option list in `portfolioProjectTypeStyles.js`) rather than the plain-text `TextInput` Figma's own instance for that slot literally shows (placeholder "writing field", a generic unswapped component — an authoring gap, not a deliberate choice) — the surrounding copy about "a colour is set automatically from your project type" only makes sense against a fixed option set.
+- "Only one can be pinned" (evidenced by the pin-toggle's own copy in both Add and Edit modes) is enforced in `PortfolioStage2Section.jsx`: saving a project with `isPinned: true` un-pins every other project in the same update.
+
+**Known gap (flagged, not fixed in this pass):** the two small icon-only buttons next to the Add-modal's pinned-project toggle (`5204:112691`, an external-link icon + a plain icon button) resolve to a live Figma-prototype-server URL (`http://127.0.0.1:28345/...`) in the dived code — identified as Figma prototyping/dev-mode artifacts, not real design elements, and skipped.
+
+---
+
+## Goals (Desired Career Options) — profile filling page flow `✅ VERIFIED` (2026-09-09)
+
+Standalone page-based flow at `/profile/filling/goals` (+ `/profile/filling/goals/list`) — the 8th of 9 profile-filling stages (`PROFILE_STAGES` id `desired-career`, trail label "Goals"), structurally mirroring the Certs / Portfolio / Work flows above. Same file key `Bin8roWL8sloyc36IgFMuT`, node range `5619`/`5622`/`5625`/`5659`/`6286`/`6668`/`6686`.
+
+**MCP note:** unlike the Certs build (where `get_design_context` timed out and `get_metadata` layer names were substituted), `get_design_context` worked for every node in this dive. Everything in this section is read from real design context, not from layer names. `get_metadata` was used only for cheap structure discovery before diving.
+
+| Screen                       | Node ID                                                    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Intro page                   | `5619:80997` ("Goals start screen")                        | Breadcrumb bar `5619:81078` ("Step 8 of 9 · Goals" / "· 78% profile complete · auto-saved"). Header `5619:81195`: headline `81198` ("Goals" + italic green "Where you're actually heading."), subtext `81199`, tags `81201/81202/81203` ("Not Started" / "3.4× attention" / "~7 min"). Section label `81205` ("What this stage covers"). 4 numbered cards `81208/81214/81220/81226`. Footer `81106` ("Go back" / "Open Goals"). Right panel `81115`/`81121`. |
+| List page — empty state      | `5619:81232` ("Goals empty state")                         | Header `5619:81341` (headline `81342` "Your goals. " + italic green "Where do you want to go?"; subtext `81343`; "Why goals matter" stat card `81344`; tags `81352/81353/81354` = "3 career goals" / "Primary drives match" / green "~3 min"). Empty state `5659:81360` (NB: the `5659` page prefix is real, not a typo — it resolved cleanly). Example card `81402`. Aside `81355`. Footer `81434` ("Goals" ← / "Next: Pitch →").                           |
+| List page — populated        | `5619:81443`                                               | **Canonical** populated artboard. Same header (`5622:89365` tree) and aside (`5619:81566`). Section label `81596` "Your Goals", 5 goal cards `5622:89437/89473/89509/89545/89581`, "Add another Goal" dashed button `5619:81757`, footer `6686:91416`. Each card = 44px "laptop" tile + `role — industry` title + 12px "money-03" glyph + "GHS 3,000 – 6,000/mo" + blue opportunity-type chip + grey location/timeline chips + green quoted description.     |
+| List page — stale duplicates | `5622:89666` ("goals"), the list inside `5619:82728`       | ⚠️ **Do not implement from these.** Older artboards wearing the marketing-site nav (How it works / About / For Students…), a "What pulls you in?" section header, "📊 Popular in Ghana" / "🌱 Why interests matter" asides, and Work-stage card fields ("Jan 2024 – Present", "1yr 7mo", "● Active", SQL/R chips, "↕ Re-order"). Superseded by `5619:81443`.                                                                                                 |
+| Add-goal modal               | `5622:90104` ("Overlay centred card", inside `5622:89666`) | Badge `90112` "Add A Goal"; headline `90114` "New Goals. " + italic green "Where do you want to go?"; subtitle `90115`. **Four** numbered sections: 1 `90142` "Role & opportunity type", 2 `90203` "Location & timeline", 3 `90220` "Salary / compensation range" (+ "Why add a salary range?" note `90239`), 4 `5625:90547` "Notes for recruiters". Footer `90254` = `[Cancel]` + `[Save Goals]`.                                                           |
+| Edit-goal modal              | `5625:90924` (inside frame `5625:90578` "Edits Goals")     | Same 4-section body. Header `5625:90930` re-dived: Figma reuses the Add-mode badge AND headline verbatim ("Add A Goal" / "New Goals…") — a clone leftover, reproduced as designed since there is no second source. Footer `5625:91327` differs for real: destructive "Delete this Goal" pill (`91329`-`91332`, #f9ebea / #ebc2bd / #c0392b, 20-delete glyph) + `[Save Changes]` (`91333`).                                                                   |
+| Success modal                | `5619:83053` (inside frame `5619:82728` "Goals-Success")   | 🏆 `83060`; headline `83062` "Goals " + italic green "complete."; stat line `83063`; checklist row `83065`/`83071`/`83072` ("Goal-matched search active"); mini goal-list `83074`/`83075`/`83087`/`83099`; profile-strength bar `83111` ("78% : 8 stages done"); flat #ebf1ec bar `83117`; gold CTA `83120` "Continue to Pitch stage".                                                                                                                       |
+| Delete-confirm modal         | `5625:92747` ("failed", inside frame `5625:92217`)         | Header `92769` (56px delete glyph, "Delete this Goal?" `92773`, description `92774`); preview card `92793` (pink #f9ebea/#ebc2bd, laptop tile, summary line `92799`, "● Active" pill `92804`, amber "Primary goal · drives your headline match" `92806`, "★ Primary" blue chip `92808` + grey chips); reason rows `92823`/`92828`; "Edit instead" nudge `92844`; footer `92748` = `[Cancel ]` + danger `[Permanently delete this goal]`.                     |
+
+**Copy-fidelity calls (all reproduced verbatim, flagged inline in code for design review):**
+
+- Intro stage card #4's title is literally "Cover images" (`5619:81230`) while its body (`81231`) is about impact-driven organisations / NGOs — a Portfolio clone. Kept verbatim per `WorkIntroSection.jsx`'s single-mismatched-card precedent (Certs only substituted because all four of its titles were wrong).
+- Intro page contradicts itself on duration: header tag says "~7 min" (`81203`), right panel's Time card says "~4 min" (`81136`). Both kept.
+- Add/Edit modal placeholders carry three cross-stage leftovers: "Role or opportunity" → a Certs placeholder (`90152`), "Skills or subjects covered" → a Work/Portfolio placeholder (`90170`), "Maximum per month" → "https://…" (`90237`).
+- Empty state uses Figma node "certificate-01" (`5659:81364`) as its glyph and its skip line reads "No certs yet?? Skip this stage" (`5659:81375`) — both Certs leftovers, both reproduced.
+- Delete modal's "Edit instead" body (`5625:92848`) is word-for-word Certs copy ("Wrong date, wrong org name, missing credential ID?").
+- Stage-2 footer's back button is literally labelled "Goals" (`81438`), and its Next label bakes an arrow into the string ("Next: Pitch →", `81439`) rather than using an icon node.
+
+**❓ Open questions carried into code as `NEEDS-CLARIFICATION` comments:**
+
+1. **Section 2's second select** (`5622:90415`/`90420`/`90424`) is labelled "Opportunity type" with default "Any type" — the same label as Section 1's own select, inside a section called "Location & timeline" — while every populated card renders a timeline chip ("Within 6 months" etc.) that no modal field produces. Wired to the timeline chip; label + placeholder kept Figma-verbatim; options are exactly the five timeline strings Figma's own cards contain.
+2. **No edit/delete affordance** exists on any card in the canonical populated frame, yet a full Edit modal and Delete modal ship. The 28px icon-button pair is carried over from the Certs/Work/Portfolio card pattern, not read from a Goals node.
+3. **Drag-to-reorder** is described in copy twice and appears as a "↕ Re-order" chip on the stale artboards, but has no UI in the canonical frame. Not implemented; the first list entry is simply treated as the primary goal.
+4. **Success-modal mini-list badges** are "✓ Verified" / "Self-reported" (`83086`/`83098`/`83110`) — verbatim Certs badges with no Goals-side concept, field, or rule behind them. Replaced with the Goals-native "★ Primary" chip (a real, verified badge from the delete modal) on the primary row only.
+5. **Salary required-markers**: Figma puts genuine green (#2e8b57) required asterisks on six fields including both salary inputs, yet the intro page's own stage card #2 (`81218`/`81219`) says compensation range is "Optional but high-value". Asterisks are rendered exactly as designed; `canSubmit` gates only on role / skills / location / description. (Every section frame also carries two pink `#fb7185` "\*" nodes at off-frame absolute offsets — e.g. `90143` at `left:-495.83px` — file artifacts, not required-markers, and not reproduced. Same class of artifact the Portfolio flow flagged.)
+
+**Links checked and deliberately skipped:** `5132:51577` turned out to be "CONFIRMED", a Career-Buddy chat / Talent-Profile-Panel screen, and `5132:64061` ("Frame 14602") a chat-transcript frame — both entirely unrelated to Goals, both left out. `5625:92217` was covered via its own child (`5625:92747`).
+
+---
+
 ## Career Buddy — Parent Guide ward profile `✅ VERIFIED` (2026-08-11)
 
 Route: `/profile/filling/career-buddy` (parent role). After ward account is ready, **Guide my ward's profile** runs Elliot's Educational Background (+ Interests) like talent edu/interests.
@@ -1544,6 +1640,163 @@ The hand-off Personality previously left disconnected (`STAGE_SAVE_META.personal
 | Voice call      | `5146:75913`, overlay `75964`      | Dual avatars + call label (TALI) + 75px mic/X; settings `76111`; opened via input wave button                                              |
 | Voice settings  | `5146:76230`, `76269`              | "Choose a voice"; Sol / Bruce / Tali; Done `#387440` / Cancel; Sol tagline corrected "ad"→"and"                                            |
 | Voice-to-text   | `5146:76424`, input `76547`        | Live waveform in input; ✓ fills draft; X discards; real mic via `useVoiceCapture`                                                          |
+
+---
+
+---
+
+## Talent Pitch — profile filling page flow `✅ VERIFIED` (2026-09-09)
+
+File key `Bin8roWL8sloyc36IgFMuT`. The 9th and FINAL profile-filling stage (`PROFILE_STAGES` id `talent-pitch`, trail label "Pitch"). Every node below was read with `mcp__figma__get_design_context` — **nothing in this flow is derived from `get_metadata` layer names** (`get_metadata` was used only to discover which child frames to dive into, and the success screen's underlying page carries stale Interests-era layer names that would have been actively misleading).
+
+### Screen frames
+
+| Screen                          | Node ID       | Implemented in                                 |
+| ------------------------------- | ------------- | ---------------------------------------------- |
+| Pitch start screen (intro)      | `5625:92953`  | `PitchIntroSection.jsx`                        |
+| 09e Pitch — Empty state         | `5890:2`      | `PitchStage2Section.jsx` (mode `null`)         |
+| Pitch — Record (camera access)  | `6083:46594`  | `PitchStage2Section.jsx` + `PitchRecorder.jsx` |
+| Pitch — Recorded                | `5890:1732`   | `PitchStage2Section.jsx` (record + recorded)   |
+| Pitch — Upload (empty)          | `5890:694`    | `PitchStage2Section.jsx` (upload, no file)     |
+| Pitch — Upload (loaded)         | `5890:1040`   | `PitchStage2Section.jsx` (upload + file)       |
+| Pitch — Written                 | `5890:1386`   | `PitchStage2Section.jsx` (written)             |
+| 09f Pitch — Published (Success) | `6107:122172` | `PitchPublishedModal.jsx`                      |
+| Pitch — Delete                  | `6107:122671` | `DeletePitchModal.jsx`                         |
+
+### Intro page (`5625:92953`)
+
+| Element              | Node ID(s)                                 | Notes                                                                                                                        |
+| -------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Header section       | `5625:93157`                               | Two radial gradients over flat white                                                                                         |
+| Headline             | `5625:93160`                               | **Mixed style**: plain `#111` "Pitch" + italic `#387440` "Your 60-second story."                                             |
+| Subtext              | `5625:93161`                               | 3 lines, 14px `#959592`                                                                                                      |
+| Tags                 | `5625:93163` / `93164` / `93165`           | "Not Started" · "3.4× attention" · **"~7 min"** — the flow's duration source of truth                                        |
+| Section label        | `5625:93167`                               | "What this stage covers"                                                                                                     |
+| Four info cards      | `5625:93170` / `93176` / `93182` / `93188` | 60-second video / Multiple takes / AI-drafted bio / How both are shown — all Pitch-specific, no clone leftovers              |
+| Footer               | `5625:93066` → `93073` / `93074`           | "Go back" / "Open Pitch"                                                                                                     |
+| Top bar              | `5625:93152` / `93153` / `93154`           | "Step 9 of 9 ·" / "Pitch" / "· 90% profile complete · auto-saved"                                                            |
+| Right panel showcase | `5625:93087` / `93088`                     | "Pitch" / "Your 60-second story." — genuinely Pitch-specific                                                                 |
+| Right panel impact   | `5625:93092` / `93093`                     | "60%" ✅ over the label "more recruiter focus on **portfolio**" — ⚠️ Portfolio clone leftover, trailing noun swapped in code |
+| Right panel time     | `5625:93096`                               | "~4 min" — ⚠️ contradicts this page's own "~7 min" tag; the tag wins (duration sweep)                                        |
+
+### Stage-2 shared chrome (identical on all five stage-2 frames)
+
+| Element                  | Node ID(s) (empty-state instance)          | Notes                                                                                                                            |
+| ------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Header section           | `5978:29454`                               | Same gradient stack as the intro                                                                                                 |
+| Headline                 | `5978:29455`                               | **NOT mixed style** — one plain `#111` Instrument-Serif node, two lines "Your Pitch" / "The Final Piece" (verified per-headline) |
+| Subtext                  | `5978:29456`                               | Two lines                                                                                                                        |
+| "Why pitch matters" card | `5978:29457`–`29463`                       | 90% ring + "Eight stages done. Pitch is the final piece."                                                                        |
+| Tags                     | `5978:29465` / `29466` / `29467`           | "3 ways to pitch" · "60 seconds" · **"2 min"** (green) — 🔧 rendered as "~7 min" per the duration sweep                          |
+| Right aside              | `5890:131` / `133` / `148` / `151`         | Three cards; copy varies per mode/state (see `pitchModeStyles.js` `ASIDE_CONTENT`)                                               |
+| Footer (shared)          | `6686:91434` / `91453` / `91472` / `91510` | "Goals" ← / "Review & publish" — pasted over every frame, painted last, so it is what shows                                      |
+| Footer (older)           | `5890:2068` / `5924:22162`                 | ⚠️ The recorded frame's own older footer says "Publish & go live"; it sits _under_ the shared one                                |
+
+### Mode tab row
+
+| Element         | Node ID(s)                                     | Notes                                                                                                                                                               |
+| --------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Upload frame    | `6120:134569` → `134570` / `134578` / `134584` | Record / **Upload** / Written Pitch                                                                                                                                 |
+| Upload-loaded   | `6107:134149` → `134150` / `134158` / `134228` | same                                                                                                                                                                |
+| Written frame   | `6120:134598` → `134599` / `134613` / `134607` | ⚠️ `134613` ("Upload") holds **two** icons — `edit-01` (`134614`) _and_ `upload-05` (`134627`); an authoring slip, only the upload glyph is rendered                |
+| ❓ Not drawn on | `5890:2`, `6083:46594`, `5890:1732`            | Rendered in Record mode anyway, else there is no way back to Upload/Written once you start recording. Pill spec: px-16 py-6 rounded-999, active `#eff4f0`/`#387440` |
+
+### Empty state (`5890:2`)
+
+| Element         | Node ID(s)                                                                   | Notes                                                            |
+| --------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Section label   | `5895:2`                                                                     | Flat `#387440` 13px "Your Pitch" (NOT gradient-filled)           |
+| Dashed panel    | `6083:34043`                                                                 | 381px, 2px dashed `#387440`, bg `rgba(235,241,236,0.5)`          |
+| Glyph           | `6083:34047`                                                                 | ⚠️ Figma node name "certificate-01" — Certs leftover, reproduced |
+| Headline / body | `6083:34052` / `34053`                                                       | "No pitch yet." + the 3-way body                                 |
+| CTAs            | `6083:34055` / `34057`                                                       | "Add your pitch " / "Write a pitch"                              |
+| Skip line       | `6083:34058`                                                                 | "No pitch yet? Skip this stage"                                  |
+| Three ways      | label `6105:57915`; cards `5895:19` / `23` / `27`                            | Record in-browser / Upload a video / Write a pitch               |
+| 4-sentence card | label `6083:34063`; card `5895:32` (rows `34`–`44`, rule `45`, example `46`) | bold green lead + grey tail per row                              |
+
+### Camera viewfinder (`PitchRecorder.jsx`)
+
+| Element            | Node ID(s)                                                                      | Notes                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Container          | `6083:46917` (access) / `6107:57918` (recorded) / `6083:47113` (upload preview) | bg `#121211`, rounded-16, h-416                                                                                                                                      |
+| Overlays           | `6093:21784` / `6107:57919` / `6083:47114`                                      | identical on all three                                                                                                                                               |
+| Grid lines         | `6093:21785`–`21793`                                                            | 4 verticals @320px, 4 horizontals @220px, `rgba(255,255,255,0.08)`                                                                                                   |
+| Crosshair          | `6093:21794` / `21795`                                                          | 80px, `rgba(255,255,255,0.2)`                                                                                                                                        |
+| Focus brackets     | `6093:21796` / `21805` / `21814` / `21823`                                      | 56px, eight 2×12 rounded bars at `rgba(255,255,255,0.8)`                                                                                                             |
+| Badges             | `6093:21833` / `21835`                                                          | "4K" / "24fps"                                                                                                                                                       |
+| Battery            | `6093:21838` / `21862` / `21840`                                                | glyph + "82%"                                                                                                                                                        |
+| REC indicator      | `6093:21841` / `21842` / `21843`                                                | 44px pill, 12px dot, "REC"                                                                                                                                           |
+| Timer              | `6093:21844`                                                                    | "00:00", bottom-39px, centred                                                                                                                                        |
+| Camera-access card | `6093:21845`–`21852`                                                            | blurred glass, 44px icon tile, "Camera access needed"                                                                                                                |
+| Bottom controls    | `6093:21853` / `21854` / `21857` / `21859`                                      | "Allow camera" pill / 72px shutter / 44px settings                                                                                                                   |
+| Preview card       | `6107:57981` / `57982` / `57986`                                                | 72px white play button + "Click to preview"                                                                                                                          |
+| ⚠️ Not in Figma    | —                                                                               | The permission-granted **idle** and actively-**recording** states are not drawn; both are minimal deltas from the verified frames (see `PitchRecorder.jsx`'s header) |
+
+### Recorded state extras (`5890:1732`)
+
+| Element               | Node ID(s)                                                      | Notes                                                                                           |
+| --------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Playback scrubber     | `5906:7` / `8` / `9` / `10`                                     | DM-Mono "0:00" · flat `#e8e8e4` track · "0:58"                                                  |
+| Label                 | `5906:11`                                                       | "Quick self-check"                                                                              |
+| Re-record action bar  | `5906:29` / `6156:17915` / `6152:120229`                        | green gradient rounded-22 h-56 + white "Re-Record"                                              |
+| Checklist rows        | `5906:12` / `15` / `18` / `21` (text `14` / `17` / `20` / `23`) | ⚠️ `5906:17` has a doubled space: "The audio is clear I can hear myself…" — reproduced verbatim |
+| Profile strength card | `5906:24` / `26` / `27` / `28` + medal `6107:57999`             | "Profile strength after publishing pitch" / "100% "                                             |
+| Footnote              | `5906:34` / `35`                                                | two lines about publishing / editing later                                                      |
+
+### Upload mode (`5890:694` empty, `5890:1040` loaded)
+
+| Element              | Node ID(s)                                                   | Notes                                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Drop zone            | `6083:46977` (instance of design-system Upload `3014:50687`) | "Drop your pitch video here" / ⚠️ "Or **browser** to choose a file" (Figma typo) / Mp4·Mov·WebM pills. 1.2px dashed `#387440` on `rgba(235,241,236,0.5)` |
+| Phone-transfer label | `5900:17`                                                    | "How to get a video from your phone"                                                                                                                     |
+| Phone-transfer cards | `5900:19` / `22` / `26` / `29`                               | 4th ("EASIEST OPTION") is tinted `rgba(235,241,236,0.5)`                                                                                                 |
+| Skip line            | `5900:32` / `33` / `34`                                      | "Not ready? Skip pitch"                                                                                                                                  |
+| File row             | `5903:19`–`28`                                               | film-slate tile + name + "18.4 MB · MP4 ·" + green "✓ 0:54 — within 60s" + "Replace"                                                                     |
+| File-checks card     | `5903:29`–`47`                                               | "File passed all checks" + 2×2 grid, **colon** separator (the aside states the same facts with an em dash)                                               |
+| Pre-publish label    | `5903:48`                                                    | "Before you publish : quick check"                                                                                                                       |
+| Checklist card       | `5903:49`–`64`                                               | tinted rows = checked; ⚠️ `5903:53` has a space before its comma                                                                                         |
+| Bottom links         | `5903:67`–`71`                                               | "Not happy with it? Upload a different file or record in-browser instead"                                                                                |
+
+### Written mode (`5890:1386`)
+
+| Element          | Node ID(s)                                     | Notes                                                                                                                             |
+| ---------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Field + label    | `6120:134675` / `134677` / `134679`            | "Written Pitch" with a **genuine** green required asterisk (`134680` / `134681`, `#2e8b57`) — a real marker, not a stray artifact |
+| Input box        | `6120:134685` (design-system GTHInput)         | 113px tall; placeholder `134696`                                                                                                  |
+| Counters         | `5905:42` / `43` / `44`                        | "0 words" (left) / DM-Mono "0 / 600" (right)                                                                                      |
+| Tips card        | `5905:10` / `11`                               | "💡 THE 4-SENTENCE FORMULA", bg `rgba(239,244,240,0.2)`, border `rgba(56,116,64,0.4)`                                             |
+| Numbered rows    | `5905:12`–`35`                                 | green pill + short title + a LONGER sentence than the compact list uses                                                           |
+| Complete example | `5905:37` / `38` / `39`                        | italic Instrument Serif + "4 sentences · 78 words · ~18 seconds to read"                                                          |
+| Upsell banner    | `5905:45` / `47` / `48` / `49` / `6120:134706` | "Want 6× more recruiter messages?" + "Record Instead"                                                                             |
+| Skip line        | `5905:52` / `53` / `54`                        | "Not ready? Skip pitch"                                                                                                           |
+
+### Success modal (`6107:122561`)
+
+| Element              | Node ID(s)                          | Notes                                                                                                                                                          |
+| -------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Card                 | `6107:122561`                       | rounded-24, 3px `#c1d4c4`; amber glow `6107:122562`                                                                                                            |
+| Trophy               | `6107:122568`                       | 🏆 48px                                                                                                                                                        |
+| Headline             | `6107:122570`                       | **Mixed style**: plain "Pitch " + italic green "published."                                                                                                    |
+| Subtext              | `6107:122571`                       | ⚠️ verbatim, including Figma's own missing em dash ("hear you not just read about you.")                                                                       |
+| Checklist row        | `6107:122573` / `122579` / `122580` | "Your profile is 100% complete"                                                                                                                                |
+| Mini-list rows       | `6107:122583` / `122595` / `122607` | the pitch (✓ Published) / "Replace or edit any time" (Anytime) / "Quality checks passed" (✓ Passed)                                                            |
+| Profile strength bar | `6107:122619` / `122621`            | "100% : 9 stages done" — the only sibling success modal whose bar geometry and label agree                                                                     |
+| Thin bar             | `6107:122625`                       | track and fill both `#ebf1ec`, so it renders as one flat pale bar                                                                                              |
+| CTA                  | `6107:122628`                       | gold "View your live profile"; ⚠️ its left "loader" icon slot resolves to the same asset hash as the DELETE glyph — an unset default forwardicon, not rendered |
+
+### Delete modal (`6107:123168`)
+
+| Element       | Node ID(s)                                     | Notes                                                                                                                                                                                    |
+| ------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header        | `6107:123191` / `123194` / `123195`            | 56px delete glyph + "Delete this Pitch?" + body                                                                                                                                          |
+| Preview card  | `6107:123214`–`123240`                         | `#f9ebea` / `#ebc2bd`, laptop tile, title `123219`, file line `123220`, "● Live" `123225`, amber `123227`, chips `123229` (blue "Preview ↗") / `123231` / `123233` / `123235` / `123237` |
+| Reason rows   | `6107:123244` / `123249`                       | "Removed from your card immediately" / "You lose the 6× recruiter engagement boost" — both genuinely Pitch-specific (no clone leftovers, unlike Goals')                                  |
+| Replace nudge | `6107:123265` / `123268` / `123269` / `123273` | "Want to replace it instead of deleting?" + "Replace Instead"                                                                                                                            |
+| Footer        | `6107:123169` / `123172` / `123178`            | "Cancel " + destructive "Permanently delete this pitch" (`#c0392b` / `#ad3327`)                                                                                                          |
+
+### Nodes deliberately skipped
+
+`5132:51577` (unrelated Career-Buddy chat screen, already confirmed in the Goals build) and `5622:90104` / `90112` / `90114` / `90115` / `90142` / `90203` / `90220` / `90254` / `5625:90547` / `5132:64061` (the already-built **Certs** Add/Edit modal nodes — stale copy-paste in the source prompt, irrelevant to Pitch). The success screen's own underlying page (`6107:122287`–`122461`) was also not re-implemented: it is a stale clone whose layer names still read "What pulls you in?" / "🌱 Why interests matter" / "📊 Popular in Ghana"; only the overlay card (`6107:122561`) is real Pitch content.
 
 ---
 
