@@ -53,6 +53,8 @@ import PitchIntroPage from './pages/profileFilling/PitchIntroPage.jsx';
 import PitchStage2Page from './pages/profileFilling/PitchStage2Page.jsx';
 import CareerBuddyPage from './pages/profileFilling/CareerBuddyPage.jsx';
 import SkillsLabPage from './pages/skillsLab/SkillsLabPage.jsx';
+import CommunityHomePage from './pages/community/CommunityHomePage.jsx';
+import CommunityDetailPage from './pages/community/CommunityDetailPage.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
@@ -284,6 +286,24 @@ function App() {
 
             {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
             <Route path={'/skills-lab/:skillSlug'} element={<SkillsLabPage />} />
+
+            {/* Talent Community Engagement — the community/feed area.
+            Mounted outside MainLayout (same as /profile/engagement/*) because
+            Figma's frames carry their own dashboard chrome: a top nav with
+            global search + notification cluster and a collapsible left rail,
+            both provided by CommunityShell rather than by a shared layout.
+
+            ONE route pair, not a talent/recruiter split: Figma ships a single
+            set of screens ("Recruiter Home") whose feed content is identical
+            regardless of viewer, so CommunityShell reads the app-root
+            CareerBuddyRoleContext for the (currently recruiter-only) sidebar
+            dataset instead of the routes forking by role.
+
+            NB deliberately NOT under /profile/engagement/* or
+            src/components/sections/engagement/ — that namespace is the
+            unrelated 9-stage profile-completion feature. */}
+            <Route path={'/community'} element={<CommunityHomePage />} />
+            <Route path={'/community/:communityId'} element={<CommunityDetailPage />} />
 
             {/* Avatar customiser steps. Selection state is on the app-root
             AvatarSelectionProvider so Career Buddy can reuse the same avatar. */}

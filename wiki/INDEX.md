@@ -45,4 +45,4 @@ Every claim in this wiki carries a tag:
 
 ---
 
-_Last updated: 2026-07-06 (full lint/verify pass against source)_
+_Last updated: 2026-09-17 (Talent Community Engagement — `/community` + `/community/:communityId`)_

@@ -47,6 +47,12 @@ const log = debug('Button');
  *                     overflow scroll chevrons). Distinct from "icon"
  *                     (filled #f0f0f0 circle): this is for glyphs that sit
  *                     directly on whatever background is behind them.
+ *   text-danger       bare text-only button, NO background/border/shelf at
+ *                     all — just red text (Figma 7025:85557, the "Leave"
+ *                     option inside CommunityCard's confirm popup). Same
+ *                     isolation reasoning as "icon"/"chip"/"ghost-icon":
+ *                     none of BASE_CLASSES' shelf/bold-border assumptions
+ *                     apply to a plain inline text action.
  *
  * Sizes (Lg / Md / Sm) per Figma:
  *   lg  px-34 py-16 rounded-14
@@ -149,6 +155,25 @@ const GHOST_ICON_VARIANT_CLASSES = {
     hover: 'text-[#737373]',
     active: 'text-[#737373]',
     disabled: 'text-neutral-dark opacity-50',
+  },
+};
+
+// "text-danger" variant — Figma 7025:85557 ("Leave"): #c0392b text, medium
+// weight, no fill/border/shelf at all.
+const TEXT_DANGER_BASE_CLASSES =
+  'inline-flex items-center justify-center bg-transparent cursor-pointer select-none ' +
+  'font-sans font-medium text-[14px] tracking-[0.1036px] whitespace-nowrap ' +
+  'transition-colors duration-150 ' +
+  'disabled:cursor-not-allowed disabled:opacity-50 ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
+
+const TEXT_DANGER_VARIANT_CLASSES = {
+  interactive: 'text-[#c0392b] hover:text-[#a83526] disabled:hover:text-[#c0392b]',
+  forced: {
+    default: 'text-[#c0392b]',
+    hover: 'text-[#a83526]',
+    active: 'text-[#a83526]',
+    disabled: 'text-[#c0392b] opacity-50',
   },
 };
 
@@ -384,6 +409,25 @@ const Button = ({
           chipVariantClasses,
           className
         )}
+        {...rest}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  // "text-danger" is the barest variant of all — no fill, no border, no
+  // shelf, just coloured text — same isolation strategy as "ghost-icon".
+  if (variant === 'text-danger') {
+    const textDangerVariantClasses = isForcedState
+      ? TEXT_DANGER_VARIANT_CLASSES.forced[state]
+      : TEXT_DANGER_VARIANT_CLASSES.interactive;
+    return (
+      <button
+        ref={ref}
+        type={type}
+        disabled={effectiveDisabled}
+        className={classNames(TEXT_DANGER_BASE_CLASSES, textDangerVariantClasses, className)}
         {...rest}
       >
         {children}

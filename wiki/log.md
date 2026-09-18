@@ -3,6 +3,81 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-09-17] create | Talent Community Engagement — community index + community detail feed, 3 modals, dashboard chrome
+
+Built the community/feed area at `/community` and `/community/:communityId`. Same file key `Bin8roWL8sloyc36IgFMuT`; ten main frames in the `7025:85167`–`7025:89962` range plus one out-of-range shared component `7062:54239`. Full node inventory in `wiki/figma-node-map.md` § "Talent Community Engagement".
+
+**NAMING — this is NOT "engagement".** `src/components/sections/engagement/` and `src/pages/engagement/` are the unrelated 9-stage profile-completion feature. This area lives in `src/components/sections/community/` and `src/pages/community/` and nothing in it is named "engagement". `✅ VERIFIED`
+
+**Ten frames → two screens.** Diffing the frames' subtrees (not assuming from thumbnails) shows they are states, not separate screens:
+
+| Frame        | What it actually is                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `7025:85167` | Community index, default ("All" selected, 10 cards, page heading visible)                |
+| `7025:85477` | Community index, category selected → results line + narrowed grid                        |
+| `7025:85782` | Community index, scrolled → heading gone, sticky filter row + search only, 15-card grid  |
+| `7025:86093` | Community detail, first visit → Guidelines toast shown, not joined                       |
+| `7025:86728` | Community detail, toast dismissed                                                        |
+| `7025:87352` | Community detail, scrolled + joined → compact sticky header, "Joined" + "Invite Friends" |
+| `7025:87985` | Community detail, same, with the post Comments/Share hover states visible                |
+| `7025:88607` | Create Post modal                                                                        |
+| `7025:89274` | "Milestone unlocked!" share modal (drawn over the Career Buddy / Talent Profile screen)  |
+| `7025:89962` | Report Post modal                                                                        |
+
+**ROUTING / ROLE-GATING DECISION — one route pair, not a talent/recruiter split.** `❓ NEEDS-CLARIFICATION`
+Every frame is titled "Recruiter Home-Existing user" and the only role-specific surface is the left sidebar (HR Lead chip, Talent Search / Job Postings / Application Pipeline nav, Active Jobs / Applicants stats, `gth.com/recruiter/kofi-agyekum`, "Preview as talent"). The feed, hero, rails and modals are identical regardless of viewer, and **Figma ships no talent-side or parent-side variant of this screen at all**. So: two routes for the two _screens_ (`/community`, `/community/:communityId`), and `CommunityShell` reads the existing app-root `CareerBuddyRoleContext` — the same provider that gates Career Buddy — for the sidebar dataset rather than the routes forking by role. Only the `recruiter` dataset exists; any other role renders it and emits `log.warn` instead of inventing copy. A talent sidebar needs its own Figma frame before this can be finished.
+
+**Mounted outside `MainLayout`**, mirroring `/profile/engagement/*`: Figma's frames carry their own dashboard chrome (top nav with global search + ⌘K + notification cluster, and a collapsible left rail), not the landing Navbar/Footer and not the onboarding nav. `CommunityShell` is a fixed viewport shell (`h-screen overflow-hidden`, nav + rail fixed, content column the only scroller) — same pattern as `MainLayout`, and required by the two "remains fixed on scroll" annotations.
+
+**Six Figma annotations found and implemented** (all via `get_design_context`'s `data-annotations`, none guessed):
+
+| Node         | Annotation text (verbatim)                                                                                                                       | Implementation                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `7025:85211` | "This remains fixed on scroll"                                                                                                                   | `CategoryFilterBar` is `sticky top-0` with a translucent backdrop                       |
+| `7025:87493` | "This appears on scroll and remains fixed"                                                                                                       | `CommunityStickyHeader`, swapped in via an IntersectionObserver sentinel below the hero |
+| `7025:88313` | "Hover state for comments cta"                                                                                                                   | real `hover:bg-[#f1f1f1] rounded-[9.66px]` on the Comments control                      |
+| `7025:88317` | "Hover state for share button"                                                                                                                   | same treatment on Share                                                                 |
+| `7025:87865` | "Appears when link Icon is hovered or clicked."                                                                                                  | collapsed-rail public-profile popover, opened by hover **or** pinned by click           |
+| `7025:86565` | "Related communitites are shown based on the common category the communities are in. In this case is 'Software engineering'" _(typo is Figma's)_ | surfaced as the card's `title`, recorded as `RELATED_COMMUNITY_CATEGORY`                |
+
+**Interactive states implemented (all extracted, none invented):** community card Join ⇄ Joined; category chip default ⇄ active; post-type chip default ⇄ active; feed tab active ⇄ inactive; hero Join ⇄ Joined + Invite Friends; sidebar expanded (`7025:85256`, 339px) ⇄ collapsed (`7025:86125`, 126px) with mirrored chevron; Guidelines toast shown ⇄ dismissed; post comments collapsed ⇄ expanded; comment reply composer closed ⇄ open; replies expander collapsed ⇄ expanded; Comments/Share hover; report-reason radio selected ⇄ unselected; share-audience chip selected ⇄ unselected; post reaction up/down/none.
+
+**Verbatim-fidelity calls (reproduced as designed, flagged inline):**
+
+- The index headline is literally **"Find you People"** (`7025:85202`) — "Find you " plain Instrument Serif `#111` + "People" in Instrument Serif **Italic** `#387440`. Almost certainly meant to be "Find your People"; reproduced exactly, flagged in `communityData.js` and on the page.
+- **Layer names lie, again.** That same headline node is _named_ "Heading 2 → Opportunities that match you." and the detail hero's title node (`7025:87509`) is _named_ "Heading 1 → Interests / What actually pulls you in." Both are stale clone leftovers; the real `characters` are "Find you People" and "#Frontend Devs Ghana". Nothing in this build is styled or worded from a layer name.
+- Trailing spaces inside Figma strings kept as-is: `"2,400 members "`, `"Trades & Vocational Skills "`, `"Well done Yaa "`, `"Congrats sis "`.
+- The feed filter chips are plural ("Achievements", "Questions") while the Create Post type chips are singular ("Achievement", "Question") — two different nodes, both reproduced rather than unified.
+- The chip row writes "Software engineering" (lowercase e) but the results line writes "Software Engineering" (title case). Both kept.
+- `CommunityTabs`' shell sets `border-right` only (no full border) in Figma — reproduced, not "corrected".
+- Post reaction buttons: the like button has a 1px bottom border, the dislike button 2px (`7025:86414` vs `:86419`). Reproduced.
+
+**Judgment calls:**
+
+- **`7062:54239` resolved.** Flagged as a suspicious id (different first segment from every `7025:xxxxx` neighbour) — it is a genuine shared component ("Component 31", the Guidelines toast) parented under `Group 14139` = `7062:54227`, which floats above frame `7025:86093`. Not a typo, used as-is.
+- **Category assignments.** Only "Software engineering" membership is `✅ VERIFIED` — frame `7025:85477` renders exactly `7025:85246`, `:85249`, `:85252`, `:85253` under "Showing 4 communities in Software Engineering". Every other category assignment in `COMMUNITIES` is `⚠️ ASSUMPTION` inferred from the community name. **"Cybersecurity" is deliberately left with zero communities** because no frame ever shows one.
+- **Frame `7025:85782`'s last three cards are placeholder instances** ("Community Name" / "Number of Members" / lorem ipsum, grey image tile — `7025:85869`). Not treated as data; the dataset holds only the 10 real communities.
+- **The expanded sidebar leaves the "Messages" and "Profile" icon slots EMPTY** in Figma (`7025:85344`, `7025:85353`). The collapsed frame supplies both glyphs, so those are reused rather than shipping two blank squares. `⚠️ ASSUMPTION`
+- **Only the Feed tab is designed.** About / Members switch and render an explicit "no Figma design yet" card rather than an invented layout.
+- **No open post-overflow menu in Figma** — only the meatball glyph and a Report Post modal. The menu therefore holds exactly one item, "Report Post".
+- **No community picker drawn** for the milestone modal's "Select Community" chip (only its caret). A native `<select>` over the real `COMMUNITIES` dataset stands in; `⚠️ ASSUMPTION` on its appearance only.
+- **No empty state designed** for a zero-result filter. The results line pattern is reused ("Showing 0 communities in X") rather than inventing an empty-state illustration.
+- **Post/Reply/Post-comment buttons are not visually dimmed when empty** — Figma draws them at full brand-green over empty fields (`7025:86488`, `:86539`, `:89246`). The empty case is guarded in the handler and announced with `aria-disabled`.
+
+**Mock data layer, no backend.** `communityData.js` is a plain local dataset the pages seed component state from — no fake API call, matching Certs/Work/Portfolio/Goals/Pitch. Join state, comments, replies, likes, filters and newly created posts are all local `useState`.
+
+**Assets.** 96 files downloaded from Figma's Dev-Mode asset server into `src/assets/community/` (10 community covers, hero photo stack, 10 avatars, 5 post photos, page grid + 3 background ellipses, and the full icon set). Icons are the exact Figma SVGs, kept as files rather than hand-redrawn; where a glyph needs two colours Figma ships two files (Join vs Joined, active vs inactive nav) and both are used. **The raw exports totalled 40.8MB** (one 4096×2731 tile alone was 16.9MB) — downscaled to 2× their rendered size, **40.8MB → 9.0MB**, no visible quality loss at render size. The GTH logo is the already-committed `assets/engagement/GTHLogo 1.svg`, not a re-download.
+
+**`CommunityIcon` needs `object-contain`.** Figma exports these SVGs with `preserveAspectRatio="none"` and several are not square (the meatball menu is 20.64×4.07, the thumbs 16.88×18.6). Forcing a square box rendered the menu icon as three vertical bars; `object-contain` letterboxes each glyph inside its Figma bounding box instead. Caught in browser verification.
+
+**New files** — `src/components/sections/community/`: `communityData.js`, `communityIcons.js`, `CommunityIcon.jsx`, `CommunityShell.jsx`, `CommunityTopNav.jsx`, `CommunitySidebar.jsx`, `CategoryFilterBar.jsx`, `CommunityCard.jsx`, `CommunityHero.jsx`, `CommunityStickyHeader.jsx`, `CommunityTabs.jsx`, `GuidelinesToast.jsx`, `PostFilterBar.jsx`, `PostCard.jsx`, `CommentThread.jsx`, `CommunityLeftRail.jsx`, `CommunityRightRail.jsx`, `CreatePostModal.jsx`, `ReportPostModal.jsx`, `ShareMilestoneModal.jsx`; `src/pages/community/`: `CommunityHomePage.jsx`, `CommunityDetailPage.jsx`; plus `src/assets/community/` (96 files).
+
+**Modified files:** `src/App.jsx` (registered both routes outside `MainLayout`).
+
+**Reused rather than re-drawn:** `ui/Modal.jsx` for all three dialogs (with `showClose={false}` because each Figma card supplies its own `#ebf1ec` close puck), `utils/classNames.js`, `utils/debug.js`, `hooks/useCareerBuddyRole.js`, `assets/engagement/GTHLogo 1.svg`. **`EngagementTopNav.jsx` was read and deliberately not reused** — it is the profile-filling header (Save & Exit + help + user chip, no search, no notification cluster); Figma's community header shares only the logo, so bending it with flags would have been worse than a sibling component.
+
+**Verification:** `npm run lint` → `✖ 1 problem (0 errors, 1 warning)`, the pre-existing `OnboardingRightPanel.jsx` exhaustive-deps warning only. `npm run build` → `✓ built in 9.54s`. Browser pass at 1600×1000 over both routes: index default + category-filtered (confirmed the exact 4 Figma cards), detail first-visit with toast, scrolled/sticky header, expanded comment thread with the reply composer open, all three modals, both sidebar states, and the public-profile popover. Console after a clean tab reopen: zero errors; debug logs fire in the expected mount order; the only warnings are the two pre-existing React Router v7 future-flag notices plus this build's intentional role-fallback warning.
+
 ## [2026-09-09] create | Talent Pitch profile-filling page flow (intro + record/upload/written stage-2 + Published/Delete modals) + cross-flow duration sweep
 
 Built `/profile/filling/pitch` (+ `/profile/filling/pitch/record`) — the **9th and FINAL** profile-filling stage (Avatar → Interests → Personality → Skills → Work → Portfolio → Certs → Goals → **Pitch**), `PROFILE_STAGES` id `talent-pitch`, trail label "Pitch". Same file key `Bin8roWL8sloyc36IgFMuT`, node range `5625`/`5890`/`5895`/`5900`/`5903`/`5905`/`5906`/`5978`/`6083`/`6093`/`6105`/`6107`/`6120`/`6152`/`6156`/`6686` — full node inventory in `wiki/figma-node-map.md` § "Talent Pitch — profile filling page flow".

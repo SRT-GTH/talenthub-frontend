@@ -17,6 +17,7 @@ import CareerBuddyHero from './CareerBuddyHero.jsx';
 import VoiceCallOverlay from './VoiceCallOverlay.jsx';
 import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
+import ShareMilestoneModal from '../community/ShareMilestoneModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import {
   CAREER_BUDDY_NODES,
@@ -369,6 +370,25 @@ const STAGE_SAVE_META = {
   },
 };
 
+// Milestone-share labels — feeds ShareMilestoneModal's `stageLabel` prop
+// after a talent stage is confirmed (see handleConfirmStage). Only
+// Personality's wording is `✅ VERIFIED` (Figma 7025:89865 says "Personality
+// Assessment" specifically, not just "Personality"); every other label here
+// is `⚠️ ASSUMPTION` — Figma never designed a milestone screen for these
+// stages, so these follow the one real example's naming style. Recruiter
+// and parent-on-behalf-of-ward stages are deliberately excluded — sharing a
+// ward's or a company's milestone into the TALENT community feed under the
+// signed-in persona's name doesn't match what this feature is for.
+const STAGE_MILESTONE_LABELS = {
+  'personal-info': 'Personal Info',
+  'educational-background': 'Educational Background',
+  'personal-interests': 'Personal Area of Interest',
+  personality: 'Personality Assessment',
+  skills: 'Skills Assessment',
+  'work-experience': 'Work Experience',
+  'desired-career': 'Career Options',
+};
+
 // Overwrite the KYB/KYC Status field with session-time verification state
 // so RecruiterPanel renders "Verified" / green once the user uploads a doc.
 const buildCompanyInfoFields = (kybVerified) =>
@@ -476,6 +496,10 @@ const CareerBuddySection = () => {
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
   const [startDictation, setStartDictation] = useState(false);
+  // Milestone-share — Figma 7025:89274, opened from handleConfirmStage on
+  // any talent stage in STAGE_MILESTONE_LABELS. Null when closed; the
+  // stage id when open, so ShareMilestoneModal knows which label to show.
+  const [milestoneStageId, setMilestoneStageId] = useState(null);
   // Opt-out flow — Figma 5146:74705 / 75029 / 75353 (Save & Exit)
   const [optOutOpen, setOptOutOpen] = useState(false);
   const [optOutStep, setOptOutStep] = useState('journey');
@@ -1327,6 +1351,7 @@ const CareerBuddySection = () => {
     setJobPostFormOpen(false);
     setConfirmJobPostOpen(false);
     setWardSetupOpen(false);
+    setMilestoneStageId(null);
   };
 
   const handleReturnToModeListing = () => {
@@ -1887,6 +1912,15 @@ const CareerBuddySection = () => {
         body: saveMeta?.toastLabel ?? 'Saved',
       });
 
+      // Milestone-share — Figma 7025:89274 shows this firing right after a
+      // stage's Confirm succeeds, on the plain talent flow only (see
+      // STAGE_MILESTONE_LABELS' comment for why recruiter/parent-ward are
+      // excluded).
+      if (!isRecruiter && !isParent && STAGE_MILESTONE_LABELS[stageId]) {
+        log('branch', { milestoneShareOpened: stageId });
+        setMilestoneStageId(stageId);
+      }
+
       if (saveMeta) {
         // System-generated confirmation bubble (Figma 5132:47342/47617 for
         // Educational Background, 5132:63972 for Personal Area of Interest)
@@ -2323,6 +2357,16 @@ const CareerBuddySection = () => {
             onChooseDifferentMode={handleReturnToModeListing}
             onGoToDashboard={handleGoToDashboard}
             onConfirmSchedule={handleConfirmSchedule}
+          />
+
+          <ShareMilestoneModal
+            isOpen={Boolean(milestoneStageId)}
+            stageLabel={milestoneStageId ? STAGE_MILESTONE_LABELS[milestoneStageId] : undefined}
+            authorName={personaName}
+            authorInitials={personaName.slice(0, 2).toUpperCase()}
+            onClose={() => setMilestoneStageId(null)}
+            onShare={(payload) => log('milestone share acknowledged (no backend):', payload)}
+            onDecline={() => log('milestone share declined')}
           />
 
           {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} />}

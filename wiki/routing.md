@@ -110,6 +110,21 @@ Single-page state machine quiz for skill verification. Route param `:skillSlug` 
 | ------------------------ | --------------- |
 | `/skills-lab/:skillSlug` | `SkillsLabPage` |
 
+### Talent Community Engagement — no layout wrapper (own dashboard chrome) `✅ VERIFIED` (2026-09-17)
+
+Community/feed area. `CommunityShell` supplies the chrome (top nav with global search + notification cluster, collapsible left rail, grid/ellipse page background) as a **fixed viewport shell** — only the content column scrolls, which the two Figma "remains fixed on scroll" annotations require. Mounted outside `MainLayout` for the same reason `/profile/engagement/*` is.
+
+**One route pair, not a talent/recruiter split.** Figma ships a single set of screens whose feed content is identical regardless of viewer; only the sidebar is recruiter-specific. `CommunityShell` reads the app-root `CareerBuddyRoleContext` for that dataset instead of the routes forking by role. See [components.md](components.md#role-gating--needs-clarification).
+
+**NB** — deliberately _not_ under `/profile/engagement/*`; that namespace is the unrelated profile-completion feature.
+
+| Path                      | Element               | Notes                                                                              |
+| ------------------------- | --------------------- | ---------------------------------------------------------------------------------- |
+| `/community`              | `CommunityHomePage`   | Community index — grid of community cards, sticky category filter, search          |
+| `/community/:communityId` | `CommunityDetailPage` | Community detail — hero ⇄ sticky header, feed, 3 rails, Create/Report/Share modals |
+
+Only `frontend-devs-ghana` has a designed detail screen; other ids render the same layout with that community's own identity swapped in from the index dataset.
+
 ### Avatar customiser — `AvatarFlowLayout` (outside `MainLayout`)
 
 Wrapped in `AvatarSelectionProvider` so picks survive navigation.

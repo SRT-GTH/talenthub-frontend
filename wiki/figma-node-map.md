@@ -1800,6 +1800,95 @@ File key `Bin8roWL8sloyc36IgFMuT`. The 9th and FINAL profile-filling stage (`PRO
 
 ---
 
+## Talent Community Engagement — community index + community detail feed `✅ VERIFIED` (2026-09-17)
+
+File key `Bin8roWL8sloyc36IgFMuT`. Implemented in `src/components/sections/community/` + `src/pages/community/`.
+**Not to be confused with `src/{components/sections,pages}/engagement/`**, which is the unrelated 9-stage profile-completion feature.
+
+### Main frames — ten frames, two screens
+
+Each row was confirmed by diffing subtrees, not inferred from thumbnails.
+
+| Node         | Screen           | State                                                                             |
+| ------------ | ---------------- | --------------------------------------------------------------------------------- |
+| `7025:85167` | Community index  | Default — "All" chip active, 10 cards, page heading visible                       |
+| `7025:85477` | Community index  | Category selected — results line + 4 matching cards                               |
+| `7025:85782` | Community index  | Scrolled — heading gone, sticky filter row + search, 15-card grid                 |
+| `7025:86093` | Community detail | First visit — Guidelines toast shown, not joined                                  |
+| `7025:86728` | Community detail | Toast dismissed                                                                   |
+| `7025:87352` | Community detail | Scrolled + joined — compact sticky header, "Joined" + "Invite Friends"            |
+| `7025:87985` | Community detail | Same, with the post Comments / Share hover states visible                         |
+| `7025:88607` | Modal            | Create Post                                                                       |
+| `7025:89274` | Modal            | "Milestone unlocked!" share (drawn over the Career Buddy / Talent Profile screen) |
+| `7025:89962` | Modal            | Report Post                                                                       |
+
+### Region → node map
+
+| Region                                   | Node                                | Implemented in                                |
+| ---------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| Page background — grid texture @70%      | `7025:85168`                        | `CommunityShell.jsx`                          |
+| Page background — ellipses 1 / 2 / 3     | `7025:85170` / `:85171` / `:85172`  | `CommunityShell.jsx`                          |
+| Top nav (logo, search, ⌘K, utilities)    | `7025:85392`                        | `CommunityTopNav.jsx`                         |
+| Sidebar — expanded (339px)               | `7025:85256`                        | `CommunitySidebar.jsx`                        |
+| Sidebar — collapsed rail (126px)         | `7025:86125`                        | `CommunitySidebar.jsx`                        |
+| Sidebar — public-profile popover         | `7025:87865`                        | `CommunitySidebar.jsx`                        |
+| Index page header + category chips       | `7025:85199` (chips `7025:85211`)   | `CommunityHomePage` / `CategoryFilterBar.jsx` |
+| Category chip — active state             | `7025:85526`                        | `CategoryFilterBar.jsx`                       |
+| Results line                             | `7025:85555`                        | `CommunityHomePage.jsx`                       |
+| Community card grid (10 real cards)      | `7025:85245` (`:85246`–`:85255`)    | `CommunityCard.jsx`                           |
+| Community card — Joined / Join states    | `7025:85246` / `7025:85247`         | `CommunityCard.jsx`                           |
+| Community card — placeholder instance    | `7025:85869`                        | _not used — lorem placeholder_                |
+| Detail hero (chip, title, photo stack)   | `7025:86234`                        | `CommunityHero.jsx`                           |
+| Detail compact sticky header             | `7025:87493` (actions `7025:87528`) | `CommunityStickyHeader.jsx`                   |
+| Feed / About / Members tabs              | `7025:86265` (active `7025:88146`)  | `CommunityTabs.jsx`                           |
+| Guidelines toast ("Component 31")        | `7062:54239`                        | `GuidelinesToast.jsx`                         |
+| Post filter chips + search + Create Post | `7025:86283` (button `7070:61986`)  | `PostFilterBar.jsx`                           |
+| Post card — comments collapsed           | `7025:86386`                        | `PostCard.jsx`                                |
+| Post card — comments expanded            | `7025:86431` (thread `7025:86471`)  | `PostCard.jsx` / `CommentThread.jsx`          |
+| Post — Comments hover state              | `7025:88313`                        | `PostCard.jsx`                                |
+| Post — Share hover state                 | `7025:88317`                        | `PostCard.jsx`                                |
+| Inline reply composer                    | `7025:86530`                        | `CommentThread.jsx`                           |
+| Left rail — Community Info               | `7025:86317`                        | `CommunityLeftRail.jsx`                       |
+| Left rail — Top Contributors             | `7025:86328`                        | `CommunityLeftRail.jsx`                       |
+| Right rail — Trending Topics             | `7025:86544`                        | `CommunityRightRail.jsx`                      |
+| Right rail — Related Communities         | `7025:86565`                        | `CommunityRightRail.jsx`                      |
+| Create Post modal card                   | `7025:89210`                        | `CreatePostModal.jsx`                         |
+| Milestone share modal card               | `7025:89865`                        | `ShareMilestoneModal.jsx`                     |
+| Report Post modal card                   | `7025:90562`                        | `ReportPostModal.jsx`                         |
+
+### Annotations found in this range `✅ VERIFIED`
+
+| Node         | Annotation text (verbatim)                                                                                                                     |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `7025:85211` | This remains fixed on scroll                                                                                                                   |
+| `7025:87493` | This appears on scroll and remains fixed                                                                                                       |
+| `7025:88313` | Hover state for comments cta                                                                                                                   |
+| `7025:88317` | Hover state for share button                                                                                                                   |
+| `7025:87865` | Appears when link Icon is hovered or clicked.                                                                                                  |
+| `7025:86565` | Related communitites are shown based on the common category the communities are in. In this case is 'Software engineering' _(typo is Figma's)_ |
+
+### Node-id oddity — resolved `✅ VERIFIED`
+
+`7062:54239` has a different first segment from every neighbouring `7025:xxxxx` id. It is **not** a typo: it is a genuine shared component definition ("Component 31" = the Guidelines toast) parented under `Group 14139` = `7062:54227`, which floats above frame `7025:86093`. Used as-is.
+
+### Stale layer names in this range `🪦 STALE` — do not implement from these
+
+| Node         | Layer **name** (stale)                               | Actual `characters`    |
+| ------------ | ---------------------------------------------------- | ---------------------- |
+| `7025:85202` | "Heading 2 → Opportunities that match you."          | `Find you People`      |
+| `7025:87509` | "Heading 1 → Interests\nWhat actually pulls you in." | `#Frontend Devs Ghana` |
+| `7025:86250` | same Interests-era leftover                          | `#Frontend Devs Ghana` |
+
+### Open items `❓ NEEDS-CLARIFICATION`
+
+- **No talent-side or parent-side variant of either screen exists.** All ten frames are titled "Recruiter Home-Existing user" and the sidebar copy is recruiter-only. A talent sidebar frame is needed before `CommunityShell`'s role branch can be finished.
+- **Only the Feed tab is designed.** About and Members have no frame.
+- **No open post-overflow menu** is drawn — only the meatball glyph (`7025:86397`) and the Report Post modal.
+- **No community picker** is drawn for the milestone modal's "Select Community" chip — only its caret (`7025:89885`).
+- **No empty state** is drawn for a zero-result category filter.
+- **Category membership is only verified for "Software engineering"** (frame `7025:85477` → `7025:85246`, `:85249`, `:85252`, `:85253`). All other assignments in `COMMUNITIES` are `⚠️ ASSUMPTION`; "Cybersecurity" has no community in any frame.
+- **The expanded sidebar's "Messages" and "Profile" icon slots are empty** in Figma (`7025:85344`, `7025:85353`); the collapsed frame's glyphs are reused. `⚠️ ASSUMPTION`
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

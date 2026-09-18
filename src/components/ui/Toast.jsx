@@ -25,7 +25,23 @@ const log = debug('Toast');
  *   duration  {number}     — ms until auto-dismiss (0 = no auto-dismiss)
  *   onDismiss {Function}   — called with `id` after dismiss animation
  *   position  {string}     — Toast/ToastContainer only: see POSITIONS map
+ *   offsetClassName {string} — Toast only: extra classes appended after the
+ *                            position preset, for nudging clear of fixed
+ *                            page chrome the preset alone doesn't know about
+ *                            (e.g. GuidelinesToast clearing CommunityTopNav)
  *   compact   {boolean}    — single-line Career Buddy banner (Figma 5132:45989)
+ *   icon      {ReactNode}  — compact-only: overrides the variant's default
+ *                            compact icon (e.g. GuidelinesToast keeps its own
+ *                            clipboard-check glyph instead of ToastSuccessIcon)
+ *   stacked   {boolean}    — compact-only: two-line title/body layout instead
+ *                            of the default one-line "Title, body" — defaults
+ *                            to true for variant="welcome", forceable on any
+ *                            other variant (e.g. GuidelinesToast + success)
+ *   gapClassName {string}  — compact-only: Tailwind gap class between the
+ *                            icon+text group and the close button, default
+ *                            'gap-[48px]' (Figma's fixed value) — override
+ *                            for a caller whose own frame uses a responsive
+ *                            gap instead (e.g. GuidelinesToast's clamp())
  *   exitSignal {number}    — bump to request animated exit (overlay / Escape)
  *
  * Motion: rAF slide-in from above + fade; after `duration` (or dismiss) slide
@@ -173,6 +189,9 @@ const ToastItem = React.forwardRef(function ToastItem(
     onDismiss,
     className = '',
     compact = false,
+    icon,
+    stacked,
+    gapClassName = 'gap-[48px]',
     exitSignal = 0,
     onPhaseChange,
     ...props
@@ -277,6 +296,11 @@ const ToastItem = React.forwardRef(function ToastItem(
 
   if (compact || variant === 'welcome') {
     const isWelcome = variant === 'welcome';
+    // Whether title/body stack as two lines (Career Buddy welcome banner,
+    // GuidelinesToast) vs render as one "Title, body" line (the plain
+    // Success/Error confirmations elsewhere) — defaults to the welcome
+    // variant's own shape, but any compact toast can force it explicitly.
+    const useStackedLayout = stacked ?? isWelcome;
     const bannerStyle = {
       backgroundColor: cfg.compactBg,
       borderBottom: `1px solid ${cfg.compactBorder}`,
@@ -288,21 +312,21 @@ const ToastItem = React.forwardRef(function ToastItem(
         ref={setRefs}
         role="alert"
         aria-live="assertive"
-        className={`inline-flex items-center gap-[48px] rounded-[12px] pl-[16px] pr-[14px] py-[12px] ${className}`}
+        className={`inline-flex items-center ${gapClassName} rounded-[12px] pl-[16px] pr-[14px] py-[12px] ${className}`}
         style={bannerStyle}
         {...props}
       >
         <span className="inline-flex min-w-0 flex-1 items-center gap-[11px]">
-          {cfg.compactIcon && (
+          {(icon ?? cfg.compactIcon) && (
             <span
               aria-hidden="true"
               className="flex shrink-0"
               style={{ width: isWelcome ? 24 : 22, height: isWelcome ? 24 : 22 }}
             >
-              {cfg.compactIcon}
+              {icon ?? cfg.compactIcon}
             </span>
           )}
-          {isWelcome ? (
+          {useStackedLayout ? (
             <span className="flex min-w-0 flex-col items-start gap-[4px] font-sans leading-normal">
               <span className="font-semibold text-[14px] text-[#2a5730]">{title}</span>
               {body && <span className="font-normal text-[13px] text-[#595959]">{body}</span>}
@@ -416,7 +440,7 @@ const POSITIONS = {
 
 const TOAST_OVERLAY_CLASS = 'fixed inset-0 z-[99] bg-black/[0.05]';
 
-const Toast = ({ position = 'top-right', onDismiss, ...props }) => {
+const Toast = ({ position = 'top-right', offsetClassName, onDismiss, ...props }) => {
   log('portal', { position, variant: props.variant, compact: props.compact });
 
   const [exitSignal, setExitSignal] = useState(0);
@@ -462,7 +486,7 @@ const Toast = ({ position = 'top-right', onDismiss, ...props }) => {
         aria-hidden="true"
       />
       <div
-        className={`fixed z-[100] ${POSITIONS[position] ?? POSITIONS['top-right']}`}
+        className={`fixed z-[100] ${POSITIONS[position] ?? POSITIONS['top-right']} ${offsetClassName ?? ''}`}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >
