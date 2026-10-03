@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
+import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
 import { CriteriaChevronIcon } from '../jobScreening/jobScreeningIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -243,6 +244,10 @@ const MeetingCard = ({ card, onAction }) => {
 };
 
 const ApplicationPipelineSection = () => {
+  // Figma 7249:80368 et al. open from the Shortlisted card's "Schedule
+  // Interview" CTA and from the Interview card's "Reschedule".
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+
   useEffect(() => {
     log('mount', {
       route: '/recruiter/application-pipeline',
@@ -251,8 +256,14 @@ const ApplicationPipelineSection = () => {
     });
   }, []);
 
-  const handleAction = (cardId, action) =>
+  const handleAction = (cardId, action) => {
+    if (action === 'Schedule Interview' || action === 'Reschedule') {
+      log('branch', { cardId, action, opens: 'ScheduleInterviewModal' });
+      setScheduleOpen(true);
+      return;
+    }
     log('branch', { cardId, action, destination: 'none-in-figma' });
+  };
 
   return (
     <DashboardShell>
@@ -310,6 +321,12 @@ const ApplicationPipelineSection = () => {
           ))}
         </div>
       </div>
+
+      <ScheduleInterviewModal
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        onScheduled={(payload) => log('branch', { scheduled: payload })}
+      />
     </DashboardShell>
   );
 };

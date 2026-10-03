@@ -3,6 +3,60 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-03] create | Schedule Interview modals (Application Pipeline)
+
+Built the seven Schedule Interview frames from the RECRUITER - APPLICATION
+PIPELINE section:
+
+    7249:80368  empty state                      1219x695
+    7249:80974  empty + interviewer input open   1219x721
+    7249:81591  filled — Online format           1219x797
+    7249:83784  filled — Phone format            1219x797
+    7249:83147  filled — In person format        1219x797
+    7249:82225  Cancel this Interview?            528x303
+    7249:82686  Schedule this Interview?          528x303
+
+The five large frames are ONE modal in different states — the three "filled"
+ones differ only in which Interview Format is selected and therefore which
+field row is revealed — so they ship as a single component driven by local
+state, with the two confirmations as a second shared component.
+
+New files:
+`scheduleInterviewData.js` verbatim copy + measured states
+`scheduleInterviewIcons.jsx` nine hand-drawn glyphs (bbox + colour only)
+`ScheduleInterviewModal.jsx` the 1219-wide modal
+`InterviewConfirmModal.jsx` the 528x303 confirmation, both tones
+
+Extraction ran through an upgraded walker that now always prints stroke PAINT
+opacity, `individualStrokeWeights`, fill opacity, `textAlignHorizontal` and
+`textCase` — the five properties that caused every earlier defect on this
+project. States taken from the node tree rather than inferred:
+
+- SUN 04 / MON 05 are NODE opacity 0.50 (unavailable days).
+- 10:00 AM, 11:30 AM and 09:00 AM are NODE opacity 0.40 (unavailable slots).
+  Figma's own grid order does put 09:00 AM last; kept verbatim.
+- Selected day fills #f3f8f4; selected time fills #387440 with white text.
+- Cancel button outline is #111111 at opacity 0.30 with a 4px #111111 @0.25
+  shelf; the danger confirm is #c0392b on #73221a.
+- The confirmation body is textAlignHorizontal CENTER at 432 wide.
+- "Aug 04, 2024" in the Tentative Selection contradicts the August/2026
+  selects above it — a Figma demo-data inconsistency, kept verbatim.
+
+Wired to the Shortlisted card's "Schedule Interview" CTA and the Interview
+card's "Reschedule".
+
+Two scrollbars reported and fixed: the day row (Figma pages it with the arrow
+buttons, so the native bar is hidden via the project's `.no-scrollbar` while
+the row stays scrollable) and the notes textarea (Figma's 86px box has 14/52
+padding, leaving ~20px of text area, so a two-line placeholder overflowed
+immediately). Both now consume 0px of gutter.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 10.65s. Verified in the
+DOM: format switch reveals Google Meet + the meeting link, disabled day/time
+sets match Figma exactly, selection fills resolve to rgb(243,248,244) and
+rgb(56,116,64), and the Tentative Selection badge reads
+"Aug 04, 2024 at 03:30 PM (GMT)".
+
 ## [2026-10-03] fix | Translucent strokes everywhere, proposal card, two menus, DemoNavigator recruiter surface
 
 **Stroke PAINT opacity — swept the whole file set rather than fixing one at a
