@@ -104,6 +104,21 @@
   --color-informative-dark-active: #162c5f;
   --color-informative-darker: #11224a;
 
+  /* Purple-Secondary — Figma "Neutrals/Purple-Secondary" (variables on frame
+     7249:73913). Only the Light + Dark swatches exist in the Figma variable
+     set; the rest of the 10-step ladder is not defined there, so the family is
+     added partially rather than inventing the missing steps. Used by the
+     recruiter home "Post A Job" quick-action card (tint + icon stroke). */
+  --color-purple-secondary-light: #f5f3ff;
+  --color-purple-secondary-dark: #6d28d9;
+
+  /* Recruiter Talent Search surfaces — Figma 7249:74283. Each recurs across
+     every card on that screen rather than being a one-off, so they are tokens
+     instead of arbitrary values. */
+  --color-border-card: #e6e2d6; /* candidate + analytics card outline */
+  --color-border-pill: #e8e8e4; /* tag + skill pill outline */
+  --color-content-muted: #9a988f; /* filter labels, role line, stat captions */
+
   /* Success / Positive results (green, distinct from brand-green) — Figma section 45:11374 */
   /* Note: Figma defines only 9 swatches for this family (no Darker). */
   --color-success-light: #e8f2ed;
@@ -388,6 +403,12 @@
 
   /* Bottom elevations (positive Y; standard component elevations) */
   --shadow-bottom-100: 0px 1px 2px 0 rgba(27, 36, 44, 0.12); /* Buttons, pills */
+
+  /* Figma "Elevation/Card" (#0F0F0A0D 0,1,2 + #0F0F0A12 0,6,16,-4) — the
+     two-layer raised-card elevation used by the recruiter home welcome hero
+     and all four quick-action cards. Distinct from shadow-bottom-100, which is
+     the flatter single-layer pill/button shadow. */
+  --shadow-card: 0px 1px 2px 0 rgba(15, 15, 10, 0.05), 0px 6px 16px -4px rgba(15, 15, 10, 0.07);
   --shadow-bottom-200:
     0px 2px 8px -1px rgba(27, 36, 44, 0.08), 0px 2px 2px -1px rgba(27, 36, 44, 0.04); /* Cards */
   --shadow-bottom-300:

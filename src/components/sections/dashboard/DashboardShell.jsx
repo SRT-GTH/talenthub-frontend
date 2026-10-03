@@ -1,20 +1,19 @@
 import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { useCareerBuddyRole } from '../../../hooks/useCareerBuddyRole.js';
-import CommunityTopNav from './CommunityTopNav.jsx';
-import CommunitySidebar from './CommunitySidebar.jsx';
-import CommunityPageBackground from './CommunityPageBackground.jsx';
-import CareerBuddyFloatingButton from './CareerBuddyFloatingButton.jsx';
+import DashboardTopNav from './DashboardTopNav.jsx';
+import DashboardSidebar from './DashboardSidebar.jsx';
+import DashboardPageBackground from './DashboardPageBackground.jsx';
+import CareerBuddyFloatingButton from '../community/CareerBuddyFloatingButton.jsx';
 
-const log = debug('CommunityShell');
+const log = debug('DashboardShell');
 
 /*
- * CommunityShell — page chrome shared by both community routes.
+ * DashboardShell — page chrome shared by both community routes.
  *
  *   [ page background: grid texture @70% + three blurred ellipses ]
- *   [ CommunityTopNav                                             ]
- *   [ CommunitySidebar | children                                 ]
+ *   [ DashboardTopNav                                             ]
+ *   [ DashboardSidebar | children                                 ]
  *   [ CareerBuddyFloatingButton — fixed bottom-right, every screen ]
  *
  * Mounted OUTSIDE MainLayout (same as /profile/engagement/*) because Figma's
@@ -24,37 +23,34 @@ const log = debug('CommunityShell');
  * Background geometry is expressed as % of Figma's 1728x1117 frame so it
  * scales with the viewport, and is `fixed` so it does not scroll away.
  *
- * ROLE GATING
- * -----------
- * Figma provides ONE role's screens: the frames are named "Recruiter Home",
- * the sidebar is recruiter-specific, and the feed/community content itself is
- * identical regardless of who is viewing. So this is a SINGLE route pair
- * (/community and /community/:communityId), not two role-split routes.
+ * ROLE
+ * ----
+ * Every frame in this set is titled "Recruiter …" — Recruiter Home, Recruiter
+ * Talent Search, and the ten community frames — and the rail is recruiter
+ * content throughout (HR Lead chip, Talent Search / Job Postings / Application
+ * Pipeline, Active Jobs / Applicants, gth.com/recruiter/…, "Preview as
+ * talent"). Figma ships no talent or parent variant of this chrome.
  *
- * The shell still reads the app-root CareerBuddyRoleContext — the same
- * provider that gates Career Buddy — so that when talent/parent sidebar
- * frames land, only the dataset lookup needs to change here. Until then a
- * non-recruiter role renders the recruiter dataset and logs a warning rather
- * than inventing copy that Figma never specified. `❓ NEEDS-CLARIFICATION`
+ * This used to read the app-root CareerBuddyRoleContext and warn whenever that
+ * context said "talent" — which it does by default, so every dashboard screen
+ * logged a spurious warning while still rendering the recruiter rail. That
+ * context governs which Career Buddy experience mounts at
+ * /profile/filling/career-buddy; it was never about this chrome. The coupling
+ * is removed: per Figma, this shell IS the recruiter dashboard. When a talent
+ * or parent rail is designed, give it its own dataset here.
  */
 
-const CommunityShell = ({
+const DashboardShell = ({
   children,
   defaultSidebarCollapsed = false,
   contentClassName,
   mainClassName,
 }) => {
-  const { role } = useCareerBuddyRole();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
 
   useEffect(() => {
-    log('mount', { role, defaultSidebarCollapsed });
-    if (role !== 'recruiter') {
-      log.warn(
-        `role "${role}" has no dedicated community sidebar in Figma — falling back to the recruiter dataset (see communityData.js role note)`
-      );
-    }
-  }, [role, defaultSidebarCollapsed]);
+    log('mount', { role: 'recruiter', defaultSidebarCollapsed });
+  }, [defaultSidebarCollapsed]);
 
   return (
     /* Fixed viewport shell — nav + rail are chrome, only the content column
@@ -63,13 +59,13 @@ const CommunityShell = ({
        annotations describe headers that "remain fixed on scroll". */
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-white">
       {/* --- page background (Figma 7025:85168 grid + 7025:85170-172 ellipses) --- */}
-      <CommunityPageBackground className="z-0" />
+      <DashboardPageBackground className="z-0" />
 
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
-        <CommunityTopNav className="shrink-0" />
+        <DashboardTopNav className="shrink-0" />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
-          <CommunitySidebar
+          <DashboardSidebar
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
             /* No overflow clipping on the rail itself — the collapsed rail's
@@ -101,4 +97,4 @@ const CommunityShell = ({
   );
 };
 
-export default CommunityShell;
+export default DashboardShell;

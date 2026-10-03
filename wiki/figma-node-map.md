@@ -1889,6 +1889,70 @@ Each row was confirmed by diffing subtrees, not inferred from thumbnails.
 - **Category membership is only verified for "Software engineering"** (frame `7025:85477` → `7025:85246`, `:85249`, `:85252`, `:85253`). All other assignments in `COMMUNITIES` are `⚠️ ASSUMPTION`; "Cybersecurity" has no community in any frame.
 - **The expanded sidebar's "Messages" and "Profile" icon slots are empty** in Figma (`7025:85344`, `7025:85353`); the collapsed frame's glyphs are reused. `⚠️ ASSUMPTION`
 
+## Recruiter dashboard home
+
+File key `Bin8roWL8sloyc36IgFMuT`. Frame `7249:73882` "Recruiter Home-Existing user" (1728×1120). Implemented in `src/components/sections/recruiterHome/`, route `/recruiter/home`.
+
+| Node                                          | Element                                                                  | Implemented in                    |
+| --------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------- |
+| `7249:73882`                                  | Frame root                                                               | — (chrome from `CommunityShell`)  |
+| `7249:73913`                                  | Content column — VERTICAL, gap 30, pad T28/B28, w1329                    | `RecruiterHomeSection.jsx`        |
+| `7249:73914`                                  | Welcome hero — gradient, r16, 1.5px `#fefefe`, Elevation/Card            | `RecruiterWelcomeHero.jsx`        |
+| `7249:73918` / `:73919`                       | Headline (Instrument Serif 26/31.2, ls −0.13) / subtitle (14/20)         | `RecruiterWelcomeHero.jsx`        |
+| `7249:73920`                                  | "Customize" pill — 114×38, r12, pad L12/R14/T7/B7                        | `RecruiterWelcomeHero.jsx`        |
+| `7249:73932`                                  | Quick actions strip — HORIZONTAL gap 16                                  | `RecruiterQuickActions.jsx`       |
+| `7249:73933` / `:73941` / `:73949` / `:73958` | Action cards — fills `#ebf1ec` / `#eaeffb` / `#ebf1ec` / `#f5f3ff`       | `RecruiterQuickActions.jsx`       |
+| `7249:73965`                                  | "Get ready" card — white, r16, bottom.100 shadow                         | `RecruiterGetReadyCard.jsx`       |
+| `7249:73971`                                  | "1 of 5 · nice start!" badge — `#ebf1ec` at 50% **fill** opacity         | `RecruiterGetReadyCard.jsx`       |
+| `7249:73973`                                  | Progress track 1295×8, fill 80px → 6.18%                                 | `RecruiterGetReadyCard.jsx`       |
+| `7249:73976`                                  | Completed row — `styleOverrideTable["1"].textDecoration = STRIKETHROUGH` | `RecruiterGetReadyCard.jsx`       |
+| `7249:73983` / `:73993` / `:73999`            | Pending rows (60/60/78px)                                                | `RecruiterGetReadyCard.jsx`       |
+| `7249:73988`                                  | "Add skills" CTA — r9, solid 3px `#2a5730` shelf (no blur)               | `RecruiterGetReadyCard.jsx`       |
+| `7249:74005`                                  | "Coming up" block — VERTICAL gap 12                                      | `RecruiterUnlockCards.jsx`        |
+| `7249:74010` / `:74029` / `:74049`            | Unlock cards — 1px `#387440` dashed `[7,5]`, r16, node opacity 0.92      | `RecruiterUnlockCards.jsx`        |
+| `7249:74069`                                  | Sidebar                                                                  | `CommunitySidebar.jsx` (existing) |
+| `7249:74197`                                  | Top nav                                                                  | `CommunityTopNav.jsx` (existing)  |
+
+### Not implemented (deliberate)
+
+- `7249:73888` trust/ratings bar — `visible: false` in Figma.
+- `7249:73910` "Ask Buddy" FAB — `visible: false`; `CommunityShell` already renders `CareerBuddyFloatingButton`.
+- `7249:74173` Safari toolbar — browser-chrome mockup, not app UI.
+- `7249:74279` "avatar showcase" — stray element outside the layout.
+
+### Notes
+
+- **Figma `textCase: TITLE`** on `7249:73939`, `:73947`, `:73956`, `:73963`, `:73969`, `:73986`, `:73996`, `:74002`, `:74007`, `:74022`. Characters are stored sentence-case and render capitalised, so data stays verbatim and `capitalize` is applied at render. ✅ VERIFIED
+- **Deliberate double spaces** in `7249:73970` ("job matches␣␣in any order") and `7249:74008` ("turns these on␣␣no pressure"). Preserved with `whitespace-pre-wrap`. ✅ VERIFIED
+- **Trailing newline** on `7249:74003` is what makes that row 78px rather than 60px; HTML collapses it, so the height is pinned explicitly. ✅ VERIFIED
+- **Hero gradient** `7249:73914`: stops `#387440`→`#84cc16`, handles `(0.146,0.146)`→`(0.853,0.853)` over a 1329×176 box → ≈97.54deg. Same two stops as `CommunitySidebar`'s `GREEN_GRADIENT`/`BADGE_GRADIENT`, different angle. ✅ VERIFIED
+- **`get_design_context` was unusable** this session (300s timeout on every node, including a single 320×88 card). All values above came from `get_metadata` + `get_variable_defs` + the REST `/v1/files/.../nodes` payload. `🔗 EXTERNAL`
+
+## Recruiter dashboard - "Job - Prospecting screens" page
+
+Page `5566:50658`. Sections and their base frames (variant frames are hover/modal states of the same screen):
+
+| Section                          | Base frame   | Variants                                                                                 | Route                             |
+| -------------------------------- | ------------ | ---------------------------------------------------------------------------------------- | --------------------------------- |
+| RECRUITER - HOME                 | `7249:73882` | -                                                                                        | `/recruiter/home`                 |
+| RECRUITER - TALENT SEARCH        | `7249:74283` | -                                                                                        | `/recruiter/talent-search`        |
+| RECRUITER - JOB TEMPLATES        | `7249:75046` | `7249:75464` filter-pill selected                                                        | `/recruiter/job-templates`        |
+| RECRUITER - JOB POSTINGS         | `7249:75818` | `:76277` Draft tab, `:76638` card menu, `:77110` menu hover, `:77582` close confirmation | `/recruiter/job-postings`         |
+| RECRUITER - JOB SCREENING        | `7249:78066` | `:78533` dropdown hover                                                                  | `/recruiter/job-screening`        |
+| RECRUITER - APPLICATION PIPELINE | `7249:79017` | `:79474`, `:79940`, `:80546`, `:81163`, `:81797`, `:82258`, `:82719`, `:83356`           | `/recruiter/application-pipeline` |
+| RECRUITER - MESSAGES             | `7249:83993` | `:84379`, `:84775`, `:85147`, `:85536`                                                   | `/recruiter/messages`             |
+
+Content canvases: `7249:74314` (talent search), `:75078` (templates), `:75849` (postings), `:78213` (screening), `:79048` (pipeline), `:84024` (messages). Each is 1329 wide inside a 1728 frame, 40px from the rail and 56px from the screen edge.
+
+### Extraction notes
+
+- **`get_design_context` was unusable** across this delivery - it timed out at 300s on every node, including a single 320x88 card. Everything was extracted with `get_metadata` + `get_screenshot` + `get_variable_defs` and the REST `/v1/files/.../nodes` payload. The original PAT returned `403 Token expired` and was replaced mid-session. EXTERNAL
+- **Mixed-style headings** carry `characterStyleOverrides` splitting the string into a #111111 run and an italic #387440 run: Talent Search `7249:74317` (index 7), Job Templates `:75082` (index 4), Job Screening, Application Pipeline. **Job Postings `:75853` has an EMPTY overrides array** and renders single-tone despite carrying a vestigial override table. VERIFIED
+- **Talent Search has only 3 unique candidates** (`7249:74364` / `:74437` / `:74509`); the second grid `:74602` repeats them byte-for-byte.
+- **Playfair Display** on `7249:74595` is the only use of that family in the file; rendered in Instrument Serif instead. NEEDS-CLARIFICATION
+- **Sticky annotation** on the Talent Search filter row (`7249:74327`): "This section becomes fixed on scroll". VERIFIED
+- **Avatar images are Figma-embedded fills** with no project assets - placeholders from `assets/community/` stand in on Talent Search and Messages.
+
 ## Cross-references
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)

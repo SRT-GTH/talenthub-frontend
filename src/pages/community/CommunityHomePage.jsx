@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../utils/debug.js';
-import CommunityShell from '../../components/sections/community/CommunityShell.jsx';
+import DashboardShell from '../../components/sections/dashboard/DashboardShell.jsx';
 import CategoryFilterBar from '../../components/sections/community/CategoryFilterBar.jsx';
 import CommunityCard from '../../components/sections/community/CommunityCard.jsx';
 import CommunityIcon from '../../components/sections/community/CommunityIcon.jsx';
@@ -121,10 +121,10 @@ const CommunityHomePage = () => {
   const resultsLine = showResultsLine ? buildResultsLine(visible.length, category) : null;
 
   return (
-    <CommunityShell>
+    <DashboardShell>
       {/* Page header (title + full-size search) — non-sticky, so its own
           padding is fine here: `<main>` itself carries none (see
-          CommunityShell.jsx), precisely so CategoryFilterBar below can be a
+          DashboardShell.jsx), precisely so CategoryFilterBar below can be a
           true full-width, full-bleed sticky child instead of being trapped
           inside this same padded column.
           Side padding is NOT centered via `mx-auto`/`max-w` — see
@@ -200,7 +200,7 @@ const CommunityHomePage = () => {
           ))}
         </div>
       </div>
-    </CommunityShell>
+    </DashboardShell>
   );
 };
 

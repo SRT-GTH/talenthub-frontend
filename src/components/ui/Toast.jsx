@@ -28,7 +28,7 @@ const log = debug('Toast');
  *   offsetClassName {string} — Toast only: extra classes appended after the
  *                            position preset, for nudging clear of fixed
  *                            page chrome the preset alone doesn't know about
- *                            (e.g. GuidelinesToast clearing CommunityTopNav)
+ *                            (e.g. GuidelinesToast clearing DashboardTopNav)
  *   compact   {boolean}    — single-line Career Buddy banner (Figma 5132:45989)
  *   icon      {ReactNode}  — compact-only: overrides the variant's default
  *                            compact icon (e.g. GuidelinesToast keeps its own

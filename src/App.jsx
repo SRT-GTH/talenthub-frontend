@@ -55,6 +55,13 @@ import CareerBuddyPage from './pages/profileFilling/CareerBuddyPage.jsx';
 import SkillsLabPage from './pages/skillsLab/SkillsLabPage.jsx';
 import CommunityHomePage from './pages/community/CommunityHomePage.jsx';
 import CommunityDetailPage from './pages/community/CommunityDetailPage.jsx';
+import RecruiterHomePage from './pages/recruiterHome/RecruiterHomePage.jsx';
+import TalentSearchPage from './pages/talentSearch/TalentSearchPage.jsx';
+import JobTemplatesPage from './pages/jobTemplates/JobTemplatesPage.jsx';
+import JobPostingsPage from './pages/jobPostings/JobPostingsPage.jsx';
+import JobScreeningPage from './pages/jobScreening/JobScreeningPage.jsx';
+import ApplicationPipelinePage from './pages/applicationPipeline/ApplicationPipelinePage.jsx';
+import RecruiterMessagesPage from './pages/recruiterMessages/RecruiterMessagesPage.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 import ParentLoginPage from './pages/parentLogin/ParentLoginPage.jsx';
@@ -291,11 +298,11 @@ function App() {
             Mounted outside MainLayout (same as /profile/engagement/*) because
             Figma's frames carry their own dashboard chrome: a top nav with
             global search + notification cluster and a collapsible left rail,
-            both provided by CommunityShell rather than by a shared layout.
+            both provided by DashboardShell rather than by a shared layout.
 
             ONE route pair, not a talent/recruiter split: Figma ships a single
             set of screens ("Recruiter Home") whose feed content is identical
-            regardless of viewer, so CommunityShell reads the app-root
+            regardless of viewer, so DashboardShell reads the app-root
             CareerBuddyRoleContext for the (currently recruiter-only) sidebar
             dataset instead of the routes forking by role.
 
@@ -304,6 +311,27 @@ function App() {
             unrelated 9-stage profile-completion feature. */}
             <Route path={'/community'} element={<CommunityHomePage />} />
             <Route path={'/community/:communityId'} element={<CommunityDetailPage />} />
+
+            {/* Recruiter dashboard home — Figma 7249:73882 "Recruiter Home-
+            Existing user". Mounts outside MainLayout and reuses DashboardShell
+            (same top nav, sidebar and background, all built from this same
+            Figma frame set), contributing only its own content column. The
+            sidebar's Home item points here. */}
+            <Route path={'/recruiter/home'} element={<RecruiterHomePage />} />
+
+            {/* Recruiter talent search — Figma 7249:74283 "Recruiter Talent
+            Search". Same DashboardShell chrome as the recruiter home; the
+            sidebar's Talent Search item points here. */}
+            <Route path={'/recruiter/talent-search'} element={<TalentSearchPage />} />
+
+            {/* Remaining recruiter dashboard screens — Figma page "Job -
+            Prospecting screens" (5566:50658), sections 7249:75045 / :75817 /
+            :78065 / :79016 / :83992. All share DashboardShell chrome. */}
+            <Route path={'/recruiter/job-templates'} element={<JobTemplatesPage />} />
+            <Route path={'/recruiter/job-postings'} element={<JobPostingsPage />} />
+            <Route path={'/recruiter/job-screening'} element={<JobScreeningPage />} />
+            <Route path={'/recruiter/application-pipeline'} element={<ApplicationPipelinePage />} />
+            <Route path={'/recruiter/messages'} element={<RecruiterMessagesPage />} />
 
             {/* Avatar customiser steps. Selection state is on the app-root
             AvatarSelectionProvider so Career Buddy can reuse the same avatar. */}

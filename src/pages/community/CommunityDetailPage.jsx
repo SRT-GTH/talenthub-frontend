@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
-import CommunityShell from '../../components/sections/community/CommunityShell.jsx';
-import CommunityPageBackground from '../../components/sections/community/CommunityPageBackground.jsx';
+import DashboardShell from '../../components/sections/dashboard/DashboardShell.jsx';
+import DashboardPageBackground from '../../components/sections/dashboard/DashboardPageBackground.jsx';
 import CommunityHero from '../../components/sections/community/CommunityHero.jsx';
 import CommunityStickyHeader from '../../components/sections/community/CommunityStickyHeader.jsx';
 import CommunityTabs from '../../components/sections/community/CommunityTabs.jsx';
@@ -228,9 +228,9 @@ const CommunityDetailPage = () => {
   }, []);
 
   return (
-    <CommunityShell defaultSidebarCollapsed>
+    <DashboardShell defaultSidebarCollapsed>
       {/* Non-sticky lead content — `<main>` itself carries no padding (see
-          CommunityShell.jsx), precisely so the sticky block below can be a
+          DashboardShell.jsx), precisely so the sticky block below can be a
           true full-width, full-bleed child instead of being trapped inside
           this same padded column. This wrapper supplies its own top +
           horizontal padding since it's ordinary scrolling content.
@@ -275,14 +275,14 @@ const CommunityDetailPage = () => {
       {/* Full-bleed sticky block: compact header (on scroll) + post filter
           row. A direct child of `<main>` — NOT nested inside the padded
           column above — so it can reach `<main>`'s true top and side edges
-          (see CommunityShell.jsx / CategoryFilterBar.jsx for the full history
+          (see DashboardShell.jsx / CategoryFilterBar.jsx for the full history
           of why that matters: `position: sticky; top: 0` sticks to a
           scrolling ancestor's *padding* edge, so any padding on `<main>`
           becomes a permanent gap scrolled content bleeds through). Its own
           inner content uses the same margins, no `max-w` cap (see lead
           content's comment above for why). */}
       <div className="sticky top-0 z-20 w-full overflow-hidden py-[12px]">
-        <CommunityPageBackground className="z-0" />
+        <DashboardPageBackground className="z-0" />
         <div className="relative z-10 flex w-full flex-col gap-[16px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)]">
           {scrolled && (
             <CommunityStickyHeader
@@ -362,7 +362,7 @@ const CommunityDetailPage = () => {
         onClose={() => setReportTarget(null)}
         onSubmit={(payload) => log('report acknowledged (no backend):', payload)}
       />
-    </CommunityShell>
+    </DashboardShell>
   );
 };
 

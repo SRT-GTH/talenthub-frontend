@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import CommunityIcon from './CommunityIcon.jsx';
-import { icons } from './communityIcons.js';
-import { SIDEBAR_PROFILE, SIDEBAR_PUBLIC_PROFILE } from './communityData.js';
+import CommunityIcon from '../community/CommunityIcon.jsx';
+import { icons } from '../community/communityIcons.js';
+import { SIDEBAR_PROFILE, SIDEBAR_PUBLIC_PROFILE } from './dashboardData.js';
 import avatarLarge from '../../../assets/community/avatar-recruiter-large.svg';
 
-const log = debug('CommunitySidebar');
+const log = debug('DashboardSidebar');
 
 /*
- * CommunitySidebar — the left rail, in BOTH states Figma ships:
+ * DashboardSidebar — the left rail, in BOTH states Figma ships:
  *
  *   expanded  (339px) → Figma 7025:85256  — used on the community index
  *   collapsed (126px) → Figma 7025:86125  — used on the community detail
@@ -30,12 +30,19 @@ const log = debug('CommunitySidebar');
  */
 
 const NAV_ITEMS = [
-  { id: 'home', label: 'Home', icon: icons.navHome, collapsedIcon: icons.navHomeCollapsed },
+  {
+    id: 'home',
+    label: 'Home',
+    icon: icons.navHome,
+    collapsedIcon: icons.navHomeCollapsed,
+    to: '/recruiter/home',
+  },
   {
     id: 'talent-search',
     label: 'Talent Search',
     icon: icons.navTalentSearch,
     collapsedIcon: icons.navTalentSearchCollapsed,
+    to: '/recruiter/talent-search',
   },
   {
     id: 'job-postings',
@@ -43,6 +50,7 @@ const NAV_ITEMS = [
     icon: icons.navJobPostings,
     collapsedIcon: icons.navJobPostingsCollapsed,
     badge: '5',
+    to: '/recruiter/job-postings',
   },
   {
     id: 'community',
@@ -50,7 +58,6 @@ const NAV_ITEMS = [
     icon: icons.navCommunityActive,
     collapsedIcon: icons.navCommunityActiveCollapsed,
     to: '/community',
-    active: true,
   },
   {
     id: 'messages',
@@ -58,12 +65,14 @@ const NAV_ITEMS = [
     icon: icons.navMessages,
     collapsedIcon: icons.navMessages,
     badge: '3',
+    to: '/recruiter/messages',
   },
   {
     id: 'application-pipeline',
     label: 'Application Pipeline',
     icon: icons.navApplicationPipeline,
     collapsedIcon: icons.navApplicationPipelineCollapsed,
+    to: '/recruiter/application-pipeline',
   },
 ];
 
@@ -90,12 +99,28 @@ const ExpandedNavItem = ({ item, onNavigate }) => {
   const content = (
     <>
       <span className="flex w-[20px] shrink-0 items-center justify-center">
-        <CommunityIcon src={item.icon} size={18} />
+        {/* These glyphs are <img> assets with Figma's fills baked in, so they
+            cannot be recoloured with a text class.
+            `brightness-0` flattens any glyph to solid black (alpha, and so the
+            shape, survives); `invert(n)` then lifts that black to a flat tone:
+            invert(1) = #ffffff for the active item on the green gradient, and
+            invert(.6) = #999999 for inactive — the exact grey nav-home.svg and
+            the rest are already stroked with.
+            `grayscale` is NOT enough here: the only Community asset Figma ships
+            is nav-community-active.svg, stroked #EBF1EC for the green pill, and
+            desaturating near-white leaves it near-white, i.e. invisible on the
+            white rail. Normalising through black fixes every icon regardless of
+            its baked colour. */}
+        <CommunityIcon
+          src={item.icon}
+          size={18}
+          className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
+        />
       </span>
       <span
         className={classNames(
           'min-w-0 flex-1 text-left font-sans text-[14px] leading-6 tracking-[0.2px]',
-          item.active ? 'text-brand-green-light' : 'text-neutral-dark-active'
+          item.active ? 'text-white' : 'text-neutral-dark-active'
         )}
       >
         {item.label}
@@ -134,7 +159,11 @@ const ExpandedNavItem = ({ item, onNavigate }) => {
 const CollapsedNavItem = ({ item, onNavigate }) => {
   const content = (
     <>
-      <CommunityIcon src={item.collapsedIcon} size={item.active ? 18 : 20} />
+      <CommunityIcon
+        src={item.collapsedIcon}
+        size={item.active ? 18 : 20}
+        className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
+      />
       {item.badge && (
         <NavBadge count={item.badge} className="absolute right-[10px] top-[10px] !text-[12px]" />
       )}
@@ -214,7 +243,24 @@ const PublicProfileCard = ({ className, style }) => (
   </div>
 );
 
-const CommunitySidebar = ({ collapsed, onToggle, className }) => {
+const DashboardSidebar = ({ collapsed, onToggle, className }) => {
+  const { pathname } = useLocation();
+
+  /* `active` used to be hardcoded on the Community item, which left it lit
+     up on every screen that mounts this rail. Now that Home has a real
+     destination (/recruiter/home, added with the recruiter dashboard home)
+     the active item is derived from the route instead. Behaviour on the
+     community routes is unchanged: /community and /community/:id both still
+     resolve to the Community item. Items with no `to` stay inactive, exactly
+     as before. */
+  const withActive = (items) =>
+    items.map((item) => ({
+      ...item,
+      active: Boolean(item.to) && (pathname === item.to || pathname.startsWith(`${item.to}/`)),
+    }));
+  const navItems = withActive(NAV_ITEMS);
+  const secondaryNavItems = withActive(SECONDARY_NAV_ITEMS);
+
   /* Figma annotation (7025:87865): "Appears when link Icon is hovered or
      clicked." Hover and click are tracked separately so a click that follows
      the pointer entering the trigger PINS the popover instead of immediately
@@ -302,12 +348,12 @@ const CommunitySidebar = ({ collapsed, onToggle, className }) => {
 
           <nav className="flex flex-col items-start gap-[12px] overflow-hidden pt-[6px]">
             <div className="flex flex-col items-start gap-[4px]">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <CollapsedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
               ))}
             </div>
             <div className="h-px w-full rounded-[30px] bg-brand-green-light-hover" />
-            {SECONDARY_NAV_ITEMS.map((item) => (
+            {secondaryNavItems.map((item) => (
               <CollapsedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
             ))}
           </nav>
@@ -454,13 +500,13 @@ const CommunitySidebar = ({ collapsed, onToggle, className }) => {
           instead of silently clipping either card. */}
       <nav className="flex min-h-0 w-full flex-col items-start gap-[12px] overflow-y-auto pt-[6px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex w-full flex-col items-start gap-[4px]">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
           ))}
         </div>
         <div className="h-px w-full rounded-[30px] bg-brand-green-light-hover" />
         <div className="flex w-full flex-col items-start gap-[4px]">
-          {SECONDARY_NAV_ITEMS.map((item) => (
+          {secondaryNavItems.map((item) => (
             <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
           ))}
         </div>
@@ -471,4 +517,4 @@ const CommunitySidebar = ({ collapsed, onToggle, className }) => {
   );
 };
 
-export default CommunitySidebar;
+export default DashboardSidebar;

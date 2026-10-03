@@ -1,16 +1,16 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import CommunityIcon from './CommunityIcon.jsx';
-import { icons } from './communityIcons.js';
-import { TOP_NAV } from './communityData.js';
+import CommunityIcon from '../community/CommunityIcon.jsx';
+import { icons } from '../community/communityIcons.js';
+import { TOP_NAV } from './dashboardData.js';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import avatarNav from '../../../assets/community/avatar-recruiter-nav.svg';
 
-const log = debug('CommunityTopNav');
+const log = debug('DashboardTopNav');
 
 /*
- * CommunityTopNav — the dashboard-style top bar on every community screen.
+ * DashboardTopNav — the dashboard-style top bar on every community screen.
  * Source: Figma `7025:85392` (identical instance on all ten frames).
  *
  * Layout: logo + global search (⌘K badge) on the left; streak pill, help /
@@ -43,7 +43,7 @@ const NavIconButton = ({ src, label, badge, onClick }) => (
   </button>
 );
 
-const CommunityTopNav = ({ className }) => {
+const DashboardTopNav = ({ className }) => {
   const handleAction = (action) => {
     // Every control here is presentational in this build — no destination
     // screens exist yet — so log the intent instead of silently doing nothing.
@@ -165,4 +165,4 @@ const CommunityTopNav = ({ className }) => {
   );
 };
 
-export default CommunityTopNav;
+export default DashboardTopNav;

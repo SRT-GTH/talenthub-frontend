@@ -156,6 +156,32 @@ Wrapped in `AvatarSelectionProvider` so picks survive navigation.
 
 `src/constants/authRoutes.js` — `AUTH_ROUTES` map (talent/institution/parent → signIn/signUp) + `getNavAuthCta(pathname)`. `OnboardingNavbar` shows "Create Account" on sign-in pages and "Log In" on sign-up pages, per role. `⚠️ ASSUMPTION` institution has no dedicated sign-in page yet — `institution.signIn` falls back to `/login`.
 
+## Recruiter dashboard home
+
+| Path              | Page                                        | Chrome                                  |
+| ----------------- | ------------------------------------------- | --------------------------------------- |
+| `/recruiter/home` | `pages/recruiterHome/RecruiterHomePage.jsx` | `CommunityShell` (outside `MainLayout`) |
+
+Figma `7249:73882`. Reuses the community chrome rather than a dedicated layout — `CommunityTopNav`, `CommunitySidebar` and `CommunityPageBackground` were all built from this same "Recruiter Home-Existing user" frame set. ✅ VERIFIED
+
+`CommunitySidebar`'s active item is now derived from `useLocation().pathname` instead of the hardcoded `active: true` that used to sit on the Community entry; `/community` and `/community/:id` behave exactly as before, and the Home entry (previously destination-less) now points here. ✅ VERIFIED
+
+## Recruiter dashboard screens
+
+All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
+
+| Path                              | Page                                                    | Figma        |
+| --------------------------------- | ------------------------------------------------------- | ------------ |
+| `/recruiter/home`                 | `pages/recruiterHome/RecruiterHomePage.jsx`             | `7249:73882` |
+| `/recruiter/talent-search`        | `pages/talentSearch/TalentSearchPage.jsx`               | `7249:74283` |
+| `/recruiter/job-templates`        | `pages/jobTemplates/JobTemplatesPage.jsx`               | `7249:75046` |
+| `/recruiter/job-postings`         | `pages/jobPostings/JobPostingsPage.jsx`                 | `7249:75818` |
+| `/recruiter/job-screening`        | `pages/jobScreening/JobScreeningPage.jsx`               | `7249:78066` |
+| `/recruiter/application-pipeline` | `pages/applicationPipeline/ApplicationPipelinePage.jsx` | `7249:79017` |
+| `/recruiter/messages`             | `pages/recruiterMessages/RecruiterMessagesPage.jsx`     | `7249:83993` |
+
+`DashboardSidebar` derives its active item from `useLocation().pathname`; Home, Talent Search, Job Postings, Messages and Application Pipeline all resolve to the routes above. Community remains `/community` and `/community/:communityId`. ✅ VERIFIED
+
 ## Adding a route
 
 1. Create the page in `src/pages/<flow>/<Name>Page.jsx` (thin wrapper around a section component).

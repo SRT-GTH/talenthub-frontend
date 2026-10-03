@@ -4,7 +4,7 @@ import { debug } from '../../../utils/debug.js';
 import { COMMUNITY_CATEGORIES, COMMUNITY_SEARCH_PLACEHOLDER } from './communityData.js';
 import CommunityIcon from './CommunityIcon.jsx';
 import { icons } from './communityIcons.js';
-import CommunityPageBackground from './CommunityPageBackground.jsx';
+import DashboardPageBackground from '../dashboard/DashboardPageBackground.jsx';
 
 const log = debug('CategoryFilterBar');
 
@@ -56,7 +56,7 @@ const ScrollRightChevron = ({ className }) => (
  *   wash that didn't match the page's own grid+ellipse background at all.
  *   2nd pass removed it entirely, which then let scrolled-past cards bleed
  *   through unreadably, since the row still needs to be fully opaque.
- *   3rd pass restored opacity via a clipped `CommunityPageBackground` copy,
+ *   3rd pass restored opacity via a clipped `DashboardPageBackground` copy,
  *   but still only escaped `<main>`'s own horizontal padding via a negative
  *   margin — it never reached `<main>`'s true edges (flush with the sidebar,
  *   flush with the screen edge) because it was still nested inside the
@@ -68,7 +68,7 @@ const ScrollRightChevron = ({ className }) => (
  *   own background was styled.
  *
  * Fixed for real this time: `<main>` no longer carries any padding (see
- * `CommunityShell.jsx`), so THIS component is now the thing that owns full
+ * `DashboardShell.jsx`), so THIS component is now the thing that owns full
  * `w-full` width — genuinely flush with `<main>`'s real edges, top included,
  * with zero gap and zero horizontal inset. The chip row itself realigns to
  * the page's own content column via an inner wrapper.
@@ -134,7 +134,7 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
         className
       )}
     >
-      <CommunityPageBackground className="z-0" />
+      <DashboardPageBackground className="z-0" />
       <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-[16px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)]">
         <div className="relative min-w-0 flex-1">
           <div

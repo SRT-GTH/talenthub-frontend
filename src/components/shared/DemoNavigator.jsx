@@ -138,9 +138,23 @@ const PROFILE_FILLING_STEPS = [
   { label: 'Pitch Record', path: '/profile/filling/pitch/record' },
 ];
 
+// Recruiter dashboard — the seven screens built from the Figma page
+// "Job - Prospecting screens" (5566:50658). All share DashboardShell, so this
+// is a straight walk through the routes in build order.
+const RECRUITER_STEPS = [
+  { label: 'Home', path: '/recruiter/home' },
+  { label: 'Talent Search', path: '/recruiter/talent-search' },
+  { label: 'Job Templates', path: '/recruiter/job-templates' },
+  { label: 'Job Postings', path: '/recruiter/job-postings' },
+  { label: 'Job Screening', path: '/recruiter/job-screening' },
+  { label: 'Application Pipeline', path: '/recruiter/application-pipeline' },
+  { label: 'Messages', path: '/recruiter/messages' },
+];
+
 const ONBOARDING_PREFIX = '/onboarding/';
 const CAREER_BUDDY_PREFIX = '/profile/filling/career-buddy';
 const PROFILE_FILLING_PREFIX = '/profile/filling/';
+const RECRUITER_PREFIX = '/recruiter/';
 
 function buddyLocationKey(pathname, search) {
   const params = new URLSearchParams(search);
@@ -159,29 +173,38 @@ export default function DemoNavigator() {
   const onCareerBuddy = location.pathname.startsWith(CAREER_BUDDY_PREFIX);
   const onOnboarding = location.pathname.startsWith(ONBOARDING_PREFIX);
   const onProfileFilling = location.pathname.startsWith(PROFILE_FILLING_PREFIX) && !onCareerBuddy;
+  const onRecruiter = location.pathname.startsWith(RECRUITER_PREFIX);
   const recruiterActive = role === 'recruiter';
   const parentActive = role === 'parent';
   const buddyRoleActive = recruiterActive || parentActive;
 
   const [surface, setSurface] = useState(() =>
-    onCareerBuddy ? 'career-buddy' : onProfileFilling ? 'profile-filling' : 'onboarding'
+    onCareerBuddy
+      ? 'career-buddy'
+      : onRecruiter
+        ? 'recruiter'
+        : onProfileFilling
+          ? 'profile-filling'
+          : 'onboarding'
   );
   const [activeFlow, setActiveFlow] = useState('talent');
   const [isMinor, setIsMinor] = useState(false);
   const [isPathB, setIsPathB] = useState(false);
 
   if (!import.meta.env.DEV) return null;
-  if (!onOnboarding && !onCareerBuddy && !onProfileFilling) return null;
+  if (!onOnboarding && !onCareerBuddy && !onProfileFilling && !onRecruiter) return null;
 
   // The current URL always wins over a stale toggle click (e.g. the back
   // button landing somewhere the switcher wasn't used to reach).
   const effectiveSurface = onCareerBuddy
     ? 'career-buddy'
-    : onProfileFilling
-      ? 'profile-filling'
-      : onOnboarding
-        ? 'onboarding'
-        : surface;
+    : onRecruiter
+      ? 'recruiter'
+      : onProfileFilling
+        ? 'profile-filling'
+        : onOnboarding
+          ? 'onboarding'
+          : surface;
 
   const buddySteps = recruiterActive
     ? CAREER_BUDDY_RECRUITER_STEPS
@@ -203,9 +226,11 @@ export default function DemoNavigator() {
   const steps =
     effectiveSurface === 'career-buddy'
       ? buddySteps
-      : effectiveSurface === 'profile-filling'
-        ? PROFILE_FILLING_STEPS
-        : onboardingSteps;
+      : effectiveSurface === 'recruiter'
+        ? RECRUITER_STEPS
+        : effectiveSurface === 'profile-filling'
+          ? PROFILE_FILLING_STEPS
+          : onboardingSteps;
   const locationKey = buddyLocationKey(location.pathname, location.search);
   const foundIndex = steps.findIndex((s) => s.path === locationKey);
   // Bare /career-buddy with recruiter/parent role maps to Landing (?cb=welcome).
@@ -226,6 +251,10 @@ export default function DemoNavigator() {
           ? `${CAREER_BUDDY_PATH}?cb=welcome`
           : CAREER_BUDDY_PATH
       );
+      return;
+    }
+    if (next === 'recruiter') {
+      navigate(RECRUITER_STEPS[0].path);
       return;
     }
     if (next === 'profile-filling') {
@@ -308,6 +337,7 @@ export default function DemoNavigator() {
           { id: 'onboarding', label: 'Onboarding' },
           { id: 'profile-filling', label: 'Profile Filling' },
           { id: 'career-buddy', label: 'Career Buddy' },
+          { id: 'recruiter', label: 'Recruiter' },
         ].map((item) => (
           <button
             key={item.id}
@@ -367,7 +397,7 @@ export default function DemoNavigator() {
             </div>
           )}
         </>
-      ) : effectiveSurface === 'profile-filling' ? (
+      ) : effectiveSurface === 'profile-filling' || effectiveSurface === 'recruiter' ? (
         <>
           <span className="text-white/80">
             {currentIndex + 1}&thinsp;/&thinsp;{steps.length}&ensp;·&ensp;{currentStep?.label}

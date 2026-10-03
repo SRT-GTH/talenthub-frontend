@@ -48,7 +48,7 @@ const GuidelinesToast = ({ open, onDismiss, className }) => {
     <Toast
       id="community-guidelines"
       position="top-center"
-      // CommunityTopNav is a fixed ~68-90px-tall bar; the default top-center
+      // DashboardTopNav is a fixed ~68-90px-tall bar; the default top-center
       // offset (24px) sat underneath/overlapping it, so this clears it.
       offsetClassName="!top-[100px]"
       variant="success"

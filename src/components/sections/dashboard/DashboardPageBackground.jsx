@@ -5,7 +5,7 @@ import bgEllipse2 from '../../../assets/community/bg-ellipse-2.svg';
 import bgEllipse3 from '../../../assets/community/bg-ellipse-3.svg';
 
 /*
- * CommunityPageBackground — the grid texture + 3 blurred ellipses shared by
+ * DashboardPageBackground — the grid texture + 3 blurred ellipses shared by
  * every community screen (Figma 7025:85168 grid + 7025:85170-172 ellipses).
  *
  * Uses `background-attachment: fixed` (raw CSS via inline `style` — Tailwind
@@ -37,7 +37,7 @@ import bgEllipse3 from '../../../assets/community/bg-ellipse-3.svg';
  *        hatch: it's a paint-time positioning rule for the background image,
  *        the element itself stays a completely normal, clippable box.
  */
-const CommunityPageBackground = ({ className }) => (
+const DashboardPageBackground = ({ className }) => (
   <div
     aria-hidden="true"
     className={classNames(
@@ -82,4 +82,4 @@ const CommunityPageBackground = ({ className }) => (
   </div>
 );
 
-export default CommunityPageBackground;
+export default DashboardPageBackground;

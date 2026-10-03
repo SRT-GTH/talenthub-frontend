@@ -857,6 +857,69 @@ All ten Figma frames are titled "Recruiter Home-Existing user", and the only rol
 
 ---
 
+## Recruiter dashboard home
+
+Lives in `src/components/sections/recruiterHome/`. Route `/recruiter/home`, mounted outside `MainLayout` inside `CommunityShell` (the chrome is shared with `/community` — see the note below). Node map: [figma-node-map.md](figma-node-map.md) § "Recruiter dashboard home".
+
+| Component                | Path                                               | Figma source      | Purpose                                                                                                                                                                                                                                               |
+| ------------------------ | -------------------------------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RecruiterHomeSection`   | `sections/recruiterHome/RecruiterHomeSection.jsx`  | `7249:73913`      | Composes the four blocks inside `CommunityShell`. Content column: `flex-col`, gap 30, py 28, left pad clamped to 40px (Figma gap from rail), right pad clamped to 56px. Debug scope `RecruiterHomeSection`. No props.                                 |
+| `RecruiterWelcomeHero`   | `sections/recruiterHome/RecruiterWelcomeHero.jsx`  | `7249:73914`      | Green-gradient greeting banner. h176, r16, 1.5px `neutral-light` border, `shadow-card`. Headline is the only Instrument Serif text on the screen (26/31.2, ls −0.13). Props: `onCustomize`, `className`.                                              |
+| `RecruiterQuickActions`  | `sections/recruiterHome/RecruiterQuickActions.jsx` | `7249:73932`      | Four tinted shortcut cards (h88, r16, `shadow-card`, 44×44 white icon tile). Tint + icon colour per card from `recruiterHomeData.js`. Props: `onSelect`, `className`.                                                                                 |
+| `RecruiterGetReadyCard`  | `sections/recruiterHome/RecruiterGetReadyCard.jsx` | `7249:73965`      | Onboarding checklist. Uses `shadow-bottom-100` (NOT `shadow-card` — Figma gives this card the flatter single-layer shadow). Row 1 is the completed state: filled green circle + strikethrough title + "Done". Props: `onItemAction`, `className`.     |
+| `RecruiterUnlockCards`   | `sections/recruiterHome/RecruiterUnlockCards.jsx`  | `7249:74005`      | Three locked feature cards. Node-level `opacity-[0.92]`. Dashed outline drawn as an inline SVG `rect` with `stroke-dasharray="7 5"` — Tailwind cannot express a dash array, so this is a justified raw-SVG case. Props: `className`.                  |
+| `recruiterHomeData.js`   | `sections/recruiterHome/recruiterHomeData.js`      | `7249:73913`      | Verbatim `characters` for every string, `titleCase` flags for Figma `textCase: TITLE`, derived progress percentages, and `HERO_GRADIENT`.                                                                                                             |
+| `recruiterHomeIcons.jsx` | `sections/recruiterHome/recruiterHomeIcons.jsx`    | `7249:73935` etc. | Seven hand-drawn glyphs (bounding box + stroke colour/weight only, no Figma path data). Local rather than in `shared/assets.jsx` because the nearest shared equivalents (`LockIcon`, `EyeIcon`) hardcode size/fill and have 9 and 8 other call sites. |
+
+**Navigation.** Figma ships no destination frames for any control on this screen, so only controls with a real counterpart in the app navigate: "Complete profile" → `/profile/filling/career-buddy`, "Post a job" → `/profile/filling/recruiter-buddy`, and the "Add skills" CTA → `/profile/filling/skills`. Those render as `<Link>`; "Search Talents" and "Review Pipeline" have no screens anywhere yet and stay `<button>`s that log their intent (SOP §17 — `<a>` for navigation, `<button>` for actions). The "3 min" / "10 min" row labels are static text in Figma, not buttons, and were left non-interactive. ✅ VERIFIED
+
+**Reuse.** `SearchIcon` and `BriefcaseIcon` come from `shared/assets.jsx` (both already `className` + `currentColor`). `SearchIcon`'s 1.3 stroke on a 16 viewBox scales to ≈1.79 at 22px, matching Figma's 1.8 exactly. ✅ VERIFIED
+
+**Chrome is shared, not duplicated.** `CommunityShell` is named for the screens that first used it but is really the recruiter dashboard shell — all ten community frames are themselves titled "Recruiter Home-Existing user". Renaming it to `DashboardShell` would touch both shipped community pages and was deliberately not done. `⚠️ ASSUMPTION` that the name should eventually change.
+
+**Sidebar deltas vs this frame.** `7249:74069` shows three stats; `SIDEBAR_PROFILE.stats` has four (adds `80% Profile`). The frame reads `Accra, GH` where the existing data reads `Accra, Ghana`. Both left as-is — the existing component was built from the `7025:*` frames. `❓ NEEDS-CLARIFICATION`
+
+## Recruiter dashboard chrome (`sections/dashboard/`)
+
+Renamed 2026-10-01 from `Community*`. The shell was built from frames titled "Recruiter Home-Existing user" and is used by the community routes **and** all seven recruiter routes, so the community-specific naming was wrong. VERIFIED
+
+| Component                 | Path                                             | Figma                      | Notes                                                                                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DashboardShell`          | `sections/dashboard/DashboardShell.jsx`          | `7025:85167`, `7249:73882` | Background + top nav + rail + scrolling `<main>`. `<main>` deliberately carries NO padding so `sticky` children can be full-bleed. Props: `defaultSidebarCollapsed`, `contentClassName`, `mainClassName`. No longer reads `CareerBuddyRoleContext` - this chrome is the recruiter dashboard per Figma. |
+| `DashboardTopNav`         | `sections/dashboard/DashboardTopNav.jsx`         | `7025:85392`               | Logo, search, streak, notification/message badges, profile chip.                                                                                                                                                                                                                                       |
+| `DashboardSidebar`        | `sections/dashboard/DashboardSidebar.jsx`        | `7025:85256`, `7249:74821` | Expanded 339 / collapsed 126. `active` derived from `useLocation()`. Stats trimmed to 3 (see `dashboardData.js`).                                                                                                                                                                                      |
+| `DashboardPageBackground` | `sections/dashboard/DashboardPageBackground.jsx` | `7025:85168-172`           | Grid + 3 ellipses via `background-attachment: fixed`, so sticky bars stay aligned with the page.                                                                                                                                                                                                       |
+| `dashboardData.js`        | `sections/dashboard/dashboardData.js`            | -                          | `SIDEBAR_PROFILE`, `SIDEBAR_PUBLIC_PROFILE`, `TOP_NAV`, `NAV_SEARCH_PLACEHOLDER`.                                                                                                                                                                                                                      |
+
+The icon registry (`community/communityIcons.js` + `community/CommunityIcon.jsx`) intentionally stayed in `community/` - 18 files import it. ASSUMPTION that it should eventually move to a neutral location.
+
+## Recruiter dashboard screens
+
+| Component                    | Path                                                          | Figma             | Purpose                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RecruiterPageHeading`       | `sections/recruiterShared/RecruiterPageHeading.jsx`           | `7249:74317` etc. | Two-tone Instrument Serif page title (lead #111111 + italic accent #387440) from Figma `characterStyleOverrides`. `accent` omitted renders a single-tone title (Job Postings, Messages). |
+| `RecruiterJobTabs`           | `sections/recruiterShared/RecruiterJobTabs.jsx`               | `7249:75085`      | Your Postings / Templates / Screening Criteria; links, active from route.                                                                                                                |
+| `TalentSearchSection`        | `sections/talentSearch/TalentSearchSection.jsx`               | `7249:74283`      | Results screen: header, sticky filter bar, two 3-card grids split by the insight banner.                                                                                                 |
+| `TalentSearchFilterBar`      | `sections/talentSearch/TalentSearchFilterBar.jsx`             | `7249:74327`      | **Sticky** - Figma annotates "This section becomes fixed on scroll". Full-bleed with its own `DashboardPageBackground`.                                                                  |
+| `CandidateCard`              | `sections/talentSearch/CandidateCard.jsx`                     | `7249:74364`      | Avatar + match badge, progress bar, tags, Match Explanation, Top Skills, Availability, 2 CTAs.                                                                                           |
+| `TalentPoolInsightBanner`    | `sections/talentSearch/TalentPoolInsightBanner.jsx`           | `7249:74582`      | 427px stat tile + 878px green insight panel.                                                                                                                                             |
+| `JobTemplatesSection`        | `sections/jobTemplates/JobTemplatesSection.jsx`               | `7249:75046`      | Category pills, search, 4-col template grid + dashed blank tile.                                                                                                                         |
+| `JobPostingsSection`         | `sections/jobPostings/JobPostingsSection.jsx`                 | `7249:75818`      | Status pills (filtering), posting cards with stat strip and overflow menu.                                                                                                               |
+| `JobScreeningSection`        | `sections/jobScreening/JobScreeningSection.jsx`               | `7249:78066`      | Criteria list + Talent Funnel Preview + Performance/Context + Market Insights.                                                                                                           |
+| `ApplicationPipelineSection` | `sections/applicationPipeline/ApplicationPipelineSection.jsx` | `7249:79017`      | 7-column kanban, horizontally scrollable (2056px of columns in a 1329px canvas).                                                                                                         |
+| `RecruiterMessagesSection`   | `sections/recruiterMessages/RecruiterMessagesSection.jsx`     | `7249:83993`      | 371px conversation list + 948px thread with an inline job-proposal card.                                                                                                                 |
+
+**Not yet built** - modal overlays Figma draws as separate frames over these screens: Close Post confirmation (`7249:77582`), Schedule Interview panels (`7249:79940` / `:80546` / `:81163` / `:82719` / `:83356`), Cancel Interview (`7249:81797`) and Schedule Interview (`7249:82258`) confirmations.
+
+**Rebuilt 2026-10-01 from full-depth walks.** The five screens below were
+first built from text-only dumps, which produced correct copy but inferred
+layout. Every one was re-extracted node by node — see the `fix` entry in
+log.md for the specific defects. Notably the Job Postings overflow menu items
+had been invented; they are now the real Figma strings and the close
+confirmation modal ships with them.
+
+**Figma quirks reproduced, not corrected:** "Job Postings" has an EMPTY `characterStyleOverrides` so it renders single-tone unlike its siblings; pipeline columns are labelled "ACCEPTED" and "rejected" in inconsistent casing; several subtitles carry double spaces; Godfred Ansah match bar is drawn at 66.7% while labelled 76% (bars are driven from the label). Banner heading uses Playfair Display in Figma - not loaded in this project and used on that one node only, so it renders in `font-display` (Instrument Serif). All recorded in `figma-node-map.md`.
+
 ## Conventions
 
 - One component per file, named export default.

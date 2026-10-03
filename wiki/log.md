@@ -3,6 +3,268 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-03] fix | Translucent strokes everywhere, proposal card, two menus, DemoNavigator recruiter surface
+
+**Stroke PAINT opacity — swept the whole file set rather than fixing one at a
+time.** A script over every cached node dump found ten strokes with
+`opacity < 1` that had all been rendered at full strength:
+
+    job_screening  7249:78298 "+ Add Skill"        #00522b @ 0.10
+                   7249:78318 Talent Funnel card   #00522b @ 0.10
+                   7249:78356 "Save as Template"   #111111 @ 0.30
+    talent_search  7249:74398 Match Explanation    #00522b @ 0.10  (already fixed)
+                   7249:74428 "View Profile"       #111111 @ 0.30
+    messages       7249:84031 conversation list    #00522b @ 0.10
+                   7249:84052 selected row         #00522b @ 0.10
+                   7249:84101 thread pane          #00522b @ 0.10
+                   7249:84103 header pill          #00522b @ 0.10
+                   7249:84124 job proposal card    #00522b @ 0.10
+                   7249:84073                      #00522b @ 0.10
+
+The funnel card's FILL was already correct at #f3f8f4 — only its stroke was
+wrong, which is what made it read as a hard-outlined box.
+
+Also in this pass:
+
+- **Job proposal card** (7249:84124): gradient handles run (1,0) -> (0,1), i.e.
+  top-right to bottom-left = **225deg**, not the 135deg first shipped. Added the
+  `ep:opportunity` watermark (7249:84133) that had been omitted entirely —
+  72.5x72.5 at node opacity 0.59, anchored 27.3px past the right edge and 14.8px
+  above the top so the card's overflow clips it.
+- **Send button** (7249:84150) now uses the node's own path and its
+  #FEF1E7 -> #E8F2ED gradient instead of a hand-drawn triangle.
+- **Thread header menu** (7249:84533) added: 265x255, white, 0.7px #e5e5e5,
+  r24, 49px rows, "Delete Conversation" destructive (#902b20). Closes on
+  outside click.
+- **Screening experience dropdown** (7249:78785) added: 115x174, r10, 41px rows,
+  real options `0 - 2` / `2 - 5` / `5 - 10` / `10+`.
+- **Hover/active states unified.** All three menus in this file set highlight
+  one row at **#f6f6f6** to indicate hover; the Job Postings menu had been
+  using #f8f8f4. The screening select also marks the currently-selected option
+  with that same fill as its active row. `active:bg-[#ededed]` is a pressed
+  affordance Figma does not specify. `⚠️ ASSUMPTION`
+
+**DemoNavigator** gained a `recruiter` surface: a RECRUITER_STEPS walk through
+all seven routes (Home -> Talent Search -> Job Templates -> Job Postings ->
+Job Screening -> Application Pipeline -> Messages), a `/recruiter/` prefix in
+the visibility guard and effective-surface resolution, and a "Recruiter" tab.
+It reuses the profile-filling stepper branch, so the onboarding flow toggles
+(Talent / Institution / Parent / Minor) correctly do not appear. Stepping was
+verified end to end: all seven labels and URLs advance in order.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 12.01s.
+
+## [2026-10-03] fix | Screening dropdown + Talent Funnel centring + Application Pipeline borders
+
+**Stroke PAINT opacity is the recurring trap.** Three separate defects in this
+delivery all came from reading a stroke's colour but not its `opacity`:
+
+    match explanation 7249:74470 -> #00522b @ 0.10
+    pipeline columns  7249:79070 etc -> #00522b @ 0.10
+    pipeline cards    7249:79076 etc -> #00522b @ 0.10
+
+All three had been rendered at full strength, which is why the pipeline columns
+carried a hard green outline that Figma does not have. Alongside the earlier
+`individualStrokeWeights` lesson on the tab bar, the rule is now: before
+rendering any Figma stroke, check BOTH the paint's opacity AND its per-side
+weights, and confirm the `strokes` array is non-empty.
+
+Fixed in this pass:
+
+- **Screening experience dropdown** (Figma 7249:78785) now exists: 115x174,
+  white, 0.7px #e5e5e5, r10, 4px vertical padding, 41px rows split by 0.6px
+  #e5e5e5 rules, hover #f6f6f6, labels 14/400 #737373. Options are the real
+  Figma strings — `0 - 2`, `2 - 5`, `5 - 10`, `10+`. Closes on outside click.
+  Only the Education select and the "Applying to" select remain inert: Figma's
+  variant frame (7249:78533) opens ONE menu and ships no option list for them,
+  so inventing items would be fabrication. `❓ NEEDS-CLARIFICATION`
+- **Talent Funnel Preview is centred.** Figma 7249:78802 and :78819 are both
+  `counterAxisAlignItems: CENTER`, and every text node in the card is
+  `textAlignHorizontal: CENTER` — the title, "Estimated Quality", the star row
+  and the note. It had been built left-aligned. The stat rows stay full-width
+  SPACE_BETWEEN inside that centred column.
+- **Pipeline count badge** (7249:79147) is 29x29 #f8f8f4 on a 1.21px #e8e8e4
+  outline, not white on #00522b.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 13.28s.
+
+## [2026-10-03] fix | Job Templates / Job Postings: underline tab bar, pills, search row, status-driven card icons
+
+**The tab switcher is an UNDERLINE bar, not an outlined pill group.** This was
+the root error and it is worth recording how it was missed: the REST payload
+reports a flat `strokeWeight` of 1.0-1.2157 on the group and on every tab, which
+reads like a full border. `individualStrokeWeights` is what actually decides it:
+
+    group  7249:75085 -> { top: 0, right: 0, bottom: 1,   left: 0 }  #e6e2d6
+    active 7249:75090 -> { top: 0, right: 0, bottom: 1.3, left: 0 }  #387440
+    others 7249:75086 / :75094 -> a bottom weight but an EMPTY `strokes` array,
+                                  so nothing paints
+
+That also explains the `cornerRadius: None` on the group and all three tabs,
+which had been overridden with `rounded-[8px]` to match a misread of the frame.
+**Always check `individualStrokeWeights` before rendering a Figma stroke as a
+full border.**
+
+Other corrections in the same pass:
+
+- **Search + CTA were stacking.** Figma 7249:75126 is a 547.73x49 HORIZONTAL
+  group (gap 19.29) holding a fixed 362px input and a fixed 166.4px button. The
+  build had `flex-wrap` on the row plus `w-full max-w-[362px]` on the label, so
+  the button dropped onto its own line. Now `flex-nowrap` with both children
+  fixed and `shrink-0`; verified at inputW 362 / gap 19 / sameRow true.
+- **Category pills**: active is 14.59/600, inactive 14/500, both at 0.243
+  letter-spacing (was a flat 14px).
+- **Job Postings card icon tiles track STATUS, not role.** Figma 7249:75907 /
+  :75957 / :76007 ship three different tile fills and only the Active card's
+  glyph is green: Active #f3f8f4 + #2a5730, Draft #faf4e8 + #999999, Closed
+  #eae8e2 + #999999. The build hardcoded the Active pairing on all three. Added
+  `STATUS_ICON_STYLES`.
+- **No rule above the stat strip.** 7249:75934 / :76034 carry
+  `individualStrokeWeights { top: 1 }` but an EMPTY `strokes` array, so nothing
+  paints — the existing borderless rendering was correct and was left alone.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 14.20s. Tab rule, underline
+colour, the three status tiles and the search-row geometry all confirmed in the
+DOM.
+
+## [2026-10-02] fix | Talent Search review corrections + sidebar icon states
+
+Seven corrections from a design review of /recruiter/talent-search:
+
+1. **Bento order reversed.** Figma places the green insight panel at x=2526
+   (LEFT, 878 wide) and the white "Average Match" tile at x=3428 (RIGHT, 427).
+   Figma's child ORDER lists the tile first, which is what the first build
+   followed — the x coordinates are what actually position them.
+2. **Insight watermark** replaced with the arrow path from 7249:74594, placed
+   at left 794 / top 144 inside the 878x188 panel (100x60, 10% node opacity)
+   so it bleeds off the bottom-right corner and clips, as drawn. The supplied
+   snippet declared viewBox "0 0 84 44" while its path spans 0-100 x 0-60 — the
+   Figma node size — so the viewBox is set to 0 0 100 60 to avoid cropping it
+   twice.
+3. **Match Explanation** (7249:74470): fill is #ebf1ec, not #f3f8f4, and its
+   1px #00522b stroke carries **opacity 0.10** — which is why it reads as
+   having no border. Was rendering a solid border. Icon swapped to the real
+   hugeicons:bulb path.
+4. **Filter chips** end in a 7x7 remove (x), not a caret.
+5. **More Filters** uses the 10.5px filter glyph from 7249:74352.
+6. **Result tabs** (7249:74355) are a FIXED 300x44 track of three FIXED 93.33px
+   tabs. Their 24px side padding plus 66/91/77px labels overflows, so Figma
+   clips the last one; the build was using `flex-1`, which let the group
+   stretch past its track.
+7. **Sidebar icon states.** Active icon + label are now white; inactive are
+   #999999. These glyphs are <img> assets with baked fills, so they are
+   normalised with `brightness-0` (flatten to black, keeping alpha) plus
+   `invert(1)` / `invert(.6)`.
+
+   `grayscale` was the first attempt and broke Community: the only asset Figma
+   ships is nav-community-active.svg, stroked **#EBF1EC** for the green pill,
+   and desaturating near-white leaves it near-white — invisible on the white
+   rail. It had never shown before because `active: true` used to be hardcoded
+   on that item, so it only ever rendered on the gradient. Routing the active
+   state through useLocation() exposed it. `⚠️ ASSUMPTION` that a dedicated
+   grey Community asset should eventually be exported.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 19.44s; filters, fill,
+border opacity, tab widths and track overflow all verified in the DOM.
+
+## [2026-10-01] fix | Rebuilt Job Templates, Job Postings, Job Screening, Application Pipeline and Messages from full-depth Figma walks
+
+The first pass on these five screens was extracted from TEXT-ONLY dumps, so the
+copy was right but the structure was inferred rather than measured. Rebuilt
+each from a full recursive walk of every subtree. What was wrong:
+
+**Job Templates (7249:75141)** — missing the 48x48 #f3f8f4 icon tile on every
+card and its per-card glyph; the category chip was a rounded rect instead of a
+pill (r120.5); the footer had no 1px #e6e2d6 top rule and no 24px #2a5730
+arrow; title letter-spacing -1.6 was absent. The blank tile was missing its
+64x64 #f0eee8 circle glyph.
+
+**Job Postings (7249:75903)** — missing the icon tile; the status pill belongs
+inline with the title in a SPACE_BETWEEN row, not under it; the location line
+needs an 18px pin; stat values are Instrument Serif 25/30 with the FIRST in
+#00522b and the others #43664d; the footer is plain #999999 text plus an arrow,
+not a green button; the overflow trigger is a 40.75x24.25 white PILL, not a
+32px circle. **The overflow menu items were invented** — Figma 7249:76889 says
+"Edit Posting" / "Duplicate" / "Close posting" (destructive, #902b20), and the
+"Close posting" confirmation modal (7249:78032) was never built. Both now ship.
+
+**Job Screening (7249:78255)** — every criteria row ends in a 44x24 toggle that
+was missing entirely, and the Assessment/Location cards carry a smaller
+39.6x21.6 one. The funnel card is #f3f8f4 on a 1px #00522b border, not white.
+Layout is 862 + 32 + 435, not a 1fr/380px split, and Performance & Context is a
+607px row of two 300px cards, not full width. The funnel's progress bar, its
+five-star rating (four #eab308, one #d6d1c2) and the Assessment progress bar
+were all absent. Criteria copy is 16px #999999, not 14px #737373.
+
+**Application Pipeline (7249:79069)** — column labels carry Figma
+`textCase: UPPER`, which also explains the apparent "ACCEPTED"/"rejected"
+casing inconsistency: everything renders upper case. Profile cards were missing
+their 40px avatar ring and the 1px #e5e5e5 footer rule with clock + #f59e0b
+rating. Interview cards are a different shape altogether — no avatar, a tinted
+status box (#faf4e8 upcoming / #f9ebea past / #ebf1ec completed) with a video
+glyph, and a 24px round state badge (hourglass #967014, "!" #b23b3b,
+circle-check). Elliot Whitmore's card is the 254x232 two-action variant.
+
+**Messages (7249:84031 / :84101)** — the selected conversation is a white row
+with a #00522b outline and green glow, not a filled highlight. The thread
+header and composer are PILLS (r100) outlined in #00522b. Bubble colours were
+inverted: the TALENT's messages are #32683a with white text on the LEFT, the
+RECRUITER's are #e5e5e5 at 50% with #595959 text on the RIGHT. The job-proposal
+card is a #faf5f1 -> #f1f7f4 gradient on a #00522b border, and the inbox has a
+refresh control that was missing.
+
+New icon modules: `jobTemplatesIcons.jsx`, `jobPostingsIcons.jsx`,
+`jobScreeningIcons.jsx` (plus the `CriteriaToggle`). All hand-drawn from
+bounding box + colour only, per the project rule.
+
+`npm run lint` 0 errors, `npm run build` ✓ built in 8.95s, console clean on all
+five routes.
+
+## [2026-10-01] create | Recruiter dashboard — Talent Search, Job Templates, Job Postings, Job Screening, Application Pipeline, Messages
+
+Built the remaining six screens of the Figma page "Job - Prospecting screens" (`5566:50658`), all sharing `DashboardShell`:
+
+| Route                             | Figma frame  |
+| --------------------------------- | ------------ |
+| `/recruiter/talent-search`        | `7249:74283` |
+| `/recruiter/job-templates`        | `7249:75046` |
+| `/recruiter/job-postings`         | `7249:75818` |
+| `/recruiter/job-screening`        | `7249:78066` |
+| `/recruiter/application-pipeline` | `7249:79017` |
+| `/recruiter/messages`             | `7249:83993` |
+
+The page's 23 frames collapse to these 6 base screens plus hover/modal variants (filter-pill selected, draft tab, post-card menu, close-post confirmation, screening dropdown, pipeline schedule-interview panels and confirmations, message dropdowns). Pill/tab/menu states are implemented; the modal overlays are **not yet built** and are listed as such.
+
+Shared extractions: `RecruiterPageHeading` (the mixed-serif two-tone page title every screen uses) and `RecruiterJobTabs` (Your Postings / Templates / Screening Criteria, active derived from the route).
+
+Also in this delivery, resolving three items flagged on the recruiter home:
+
+1. **Chrome renamed.** `CommunityShell` / `CommunityTopNav` / `CommunitySidebar` / `CommunityPageBackground` → `Dashboard*` under `sections/dashboard/`, with their content moved to `dashboard/dashboardData.js`. The shell was never community-specific — every frame it was built from is titled "Recruiter …". The shared icon registry (`communityIcons.js`, `CommunityIcon.jsx`) stayed put: 18 community files import it, so moving it would be churn for no gain. Both community routes re-verified after the move.
+2. **Sidebar deltas resolved.** Dropped the 4th stat (`80% Profile`) to match both newer `7249` frames — it duplicated the "Getting started 1 of 5" bar directly above it. Kept `Accra, Ghana` over `7249`'s `Accra, GH`: the full country name is unambiguous and avoids a regression on the shipped community screens.
+3. **Role mismatch resolved per Figma.** `DashboardShell` no longer reads `CareerBuddyRoleContext`. That context governs which Career Buddy mounts at `/profile/filling/career-buddy`; it was never about this chrome, and borrowing it made every dashboard screen log a spurious "role talent" warning while still rendering the recruiter rail. Figma ships only recruiter frames here, so the shell is simply the recruiter dashboard now.
+
+Sidebar nav items Home, Talent Search, Job Postings, Messages and Application Pipeline now have real destinations; `active` is derived from `useLocation()` instead of being hardcoded on Community.
+
+Tokens added: `--color-border-card` `#e6e2d6`, `--color-border-pill` `#e8e8e4`, `--color-content-muted` `#9a988f`.
+
+`npm run lint` 0 errors, `npm run build` ✓, console clean in a fresh tab on every new route and on `/community`.
+
+## [2026-10-01] create | Recruiter dashboard home (`/recruiter/home`) — welcome hero, quick actions, Get-ready checklist, unlock cards
+
+Built the recruiter dashboard home from frame `7249:73882` ("Recruiter Home-Existing user"), content column `7249:73913`. Same file key `Bin8roWL8sloyc36IgFMuT`.
+
+The screen's chrome was **not** rebuilt. `CommunityShell` / `CommunityTopNav` / `CommunitySidebar` / `CommunityPageBackground` were already built from frames with this exact title, so this delivery contributes only the content column and mounts it inside `CommunityShell`. Four new presentational components plus a verbatim data module and a local icon set.
+
+`CommunitySidebar` changed: the `home` nav item previously had no `to`, and `active: true` was hardcoded on `community` (so Community lit up on every screen mounting the rail). `active` is now derived from `useLocation().pathname`; `/community` and `/community/:id` still resolve to Community exactly as before, and `/recruiter/home` now lights Home.
+
+Two theme tokens added: `--color-purple-secondary-{light,dark}` (Figma "Neutrals/Purple-Secondary", only Light+Dark exist in the variable set) and `--shadow-card` (Figma "Elevation/Card", the two-layer raised-card elevation — distinct from the flatter `--shadow-bottom-100`).
+
+Figma access note: `get_design_context` hung (300s) on every node this session and the previous PAT returned `403 Token expired`. Extraction ran through `get_metadata` + `get_screenshot` + `get_variable_defs` and a refreshed PAT against the REST API; all values below are from the REST payload, not eyeballed.
+
+Controls were wired into the existing profile-filling flow on request: "Complete profile" → `/profile/filling/career-buddy`, "Post a job" → `/profile/filling/recruiter-buddy`, "Add skills" → `/profile/filling/skills`. The two shortcuts with no screen anywhere in the app ("Search Talents", "Review Pipeline") stay inert rather than pointing somewhere wrong.
+
+Open: the route renders under `CareerBuddyRoleContext` role `talent`, so `CommunityShell` emits its documented recruiter-dataset fallback warning on a recruiter screen. Role assignment is a product decision (likely at login) and was left alone. `❓ NEEDS-CLARIFICATION`
+
 ## [2026-09-17] create | Talent Community Engagement — community index + community detail feed, 3 modals, dashboard chrome
 
 Built the community/feed area at `/community` and `/community/:communityId`. Same file key `Bin8roWL8sloyc36IgFMuT`; ten main frames in the `7025:85167`–`7025:89962` range plus one out-of-range shared component `7062:54239`. Full node inventory in `wiki/figma-node-map.md` § "Talent Community Engagement".

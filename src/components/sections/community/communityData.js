@@ -304,7 +304,6 @@ export const COMMUNITY_POSTS = [
 export const COMMENT_PLACEHOLDER = 'Add a comment...';
 export const POST_SEARCH_PLACEHOLDER = 'Search anything...';
 export const COMMUNITY_SEARCH_PLACEHOLDER = 'Search communities...';
-export const NAV_SEARCH_PLACEHOLDER = 'Search opportunities, skills, communities...';
 
 /* Left rail — Top Contributors. `✅ VERIFIED` (7025:86331). */
 export const TOP_CONTRIBUTORS = [
@@ -403,53 +402,6 @@ export const RELATED_COMMUNITIES = [
     image: tileDataSciencePlaceholder,
   },
 ];
-
-/* ------------------------------------------------------------------ *
- * Left sidebar. `✅ VERIFIED` (7025:85256 expanded · 7025:86125 collapsed).
- *
- * ROLE NOTE — every sidebar string Figma provides is recruiter-specific
- * (HR Lead chip, Talent Search / Job Postings / Application Pipeline nav,
- * Active Jobs / Applicants stats, gth.com/recruiter/... URL, "Preview as
- * talent"). Figma ships NO talent or parent variant of this screen, so only
- * the `recruiter` dataset exists here. `CommunityShell` reads the app-root
- * CareerBuddyRoleContext and falls back to this dataset for other roles
- * with a debug warning rather than inventing copy. `❓ NEEDS-CLARIFICATION`
- * — a talent-side sidebar needs its own Figma frame.
- * ------------------------------------------------------------------ */
-export const SIDEBAR_PROFILE = {
-  name: 'Joel Adade Kofie',
-  badge: 'New',
-  meta: 'HR Lead · Silver Rock Technology · Accra, Ghana',
-  progressNote: '1 of 5 steps complete',
-  gettingStartedLabel: 'Getting started',
-  gettingStartedCount: '1 of 5',
-  // Figma draws a 48px fill on a 250px track → 19.2%.
-  gettingStartedPercent: 19.2,
-  continueLabel: 'Continue setup →',
-  stats: [
-    { id: 'active-jobs', value: '47', label: 'Active Jobs' },
-    { id: 'applicants', value: '128', label: 'Applicants' },
-    { id: 'messages', value: '12', label: 'Messages' },
-    { id: 'profile', value: '80%', label: 'Profile' },
-  ],
-};
-
-export const SIDEBAR_PUBLIC_PROFILE = {
-  heading: 'Your public profile',
-  url: 'gth.com/recruiter/kofi-agyekum',
-  action: 'Preview as talent',
-};
-
-/* Top nav. `✅ VERIFIED` (7025:85392). */
-export const TOP_NAV = {
-  searchPlaceholder: NAV_SEARCH_PLACEHOLDER,
-  shortcut: '⌘K',
-  streakCount: '12',
-  notificationCount: '5',
-  messageCount: '5',
-  language: 'EN',
-  profileName: 'Kofi A.',
-};
 
 /* Index page header. `✅ VERIFIED` (7025:85202 / 7025:85204).
  *
