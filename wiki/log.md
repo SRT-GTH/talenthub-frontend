@@ -3,6 +3,40 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-03] fix | Recruiter Messages — thread didn't swap per conversation, style corrections
+
+`RecruiterMessagesSection` tracked `activeConversationId` on click but the
+thread pane always rendered the single hardcoded `ACTIVE_THREAD` constant
+(and the header always showed Kofi's avatar/name) — selecting a different
+inbox row highlighted the row but never changed what was shown. Restructured
+`recruiterMessagesData.js`: `ACTIVE_THREAD` → `THREADS` (keyed by
+conversation id, each a list of `dayGroups` instead of one flat
+`messages` + single `dayDivider`), looked up by `activeConversationId` in
+the component; `CONVERSATIONS` entries gained a `meta` field for the thread
+header's subtitle line.
+
+Only Kofi Agyekum has a real Figma-designed thread (`7249:84859` recruiter
+view, `7249:85253`/`7249:85642` talent-view mirrors); the other three
+conversations never had an opened-thread frame in Figma, so their threads
+are `⚠️ ASSUMPTION` — written to be consistent with their existing
+preview/unread state, not sourced from any frame.
+
+Re-diving Kofi's thread against those three frames also caught two existing
+errors and one gap:
+
+- talent's bubble is `#737373` grey (white text), not brand-green
+  `#32683a` — the two mirrored frames agree, the current code didn't.
+- proposal card padding is `pt-25/px-19/pb-19` (was `24/18/18`) and its
+  gradient is `linear-gradient(200.2415deg, ...)` (was hardcoded `225deg`).
+- both talent-view frames have a second "Today" day-group with a follow-up
+  talent message ("Hi Sir, Sorry haven't heard from you", Delivered) that
+  the recruiter-view frame is simply missing — added since 2 of 3 frames
+  agree it's the more complete version of the conversation.
+
+Verified via Playwright: clicking each inbox row now swaps the header
+avatar/name/meta and the full thread content, confirmed via console log
+(`active conversation changed`) and screenshots.
+
 ## [2026-10-03] create | Schedule Interview modals (Application Pipeline)
 
 Built the seven Schedule Interview frames from the RECRUITER - APPLICATION

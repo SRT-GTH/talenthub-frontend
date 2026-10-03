@@ -12,7 +12,7 @@ import {
   COMPOSER_PLACEHOLDER,
   INBOX_TABS,
   CONVERSATIONS,
-  ACTIVE_THREAD,
+  THREADS,
   THREAD_MENU_ITEMS,
 } from './recruiterMessagesData.js';
 // Three correspondents already have committed portraits under the same names;
@@ -50,8 +50,10 @@ const AVATARS = {
  *  • The thread header and the composer are both PILLS (r100) outlined in
  *    #00522b, not rectangles.
  *  • Bubble colours are the reverse of the usual convention: the TALENT's
- *    messages are #32683a with white text and sit LEFT, while the RECRUITER's
- *    are #e5e5e5 at 50% with #595959 text and sit RIGHT. Reproduced as drawn.
+ *    messages are #737373 with white text and sit LEFT, while the RECRUITER's
+ *    are #e5e5e5 at 50% with #595959 text and sit RIGHT. Reproduced as drawn
+ *    (corrected 2026-10-03 — an earlier pass had the talent bubble as brand
+ *    green #32683a; re-measured against 7249:84859, it's #737373 grey).
  *  • "Read" receipts are #349643; timestamps are #babab7 on both sides.
  *  • "JOB PROPOSAL" carries Figma textCase SMALL_CAPS_FORCED.
  */
@@ -139,6 +141,19 @@ const RecruiterMessagesSection = () => {
   const [threadMenuOpen, setThreadMenuOpen] = useState(false);
   const threadMenuRef = useRef(null);
 
+  // The tabs only ever toggled their own highlight before — the list below
+  // always rendered all of CONVERSATIONS regardless of activeTabId. This is
+  // the actual filter.
+  const visibleConversations =
+    activeTabId === 'unread'
+      ? CONVERSATIONS.filter((conversation) => conversation.unread)
+      : CONVERSATIONS;
+
+  const activeConversation =
+    CONVERSATIONS.find((conversation) => conversation.id === activeConversationId) ??
+    CONVERSATIONS[0];
+  const activeThread = THREADS[activeConversationId];
+
   // Dismiss the header menu on any click outside it.
   useEffect(() => {
     if (!threadMenuOpen) return undefined;
@@ -152,21 +167,29 @@ const RecruiterMessagesSection = () => {
   }, [threadMenuOpen]);
 
   useEffect(() => {
-    log('mount', {
-      route: '/recruiter/messages',
-      conversationCount: CONVERSATIONS.length,
+    log('active conversation changed', {
       activeConversationId,
+      name: activeConversation.name,
+      dayGroupCount: activeThread?.dayGroups.length ?? 0,
     });
-  }, [activeConversationId]);
+    if (!activeThread) {
+      log.error('no THREADS entry for conversation', activeConversationId);
+    }
+  }, [activeConversationId, activeConversation, activeThread]);
 
   return (
     <DashboardShell>
-      <div className="flex w-full flex-col gap-[24px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+      {/* `h-full` so this fills DashboardShell's `<main>` box exactly instead of
+          growing past it — the list and thread panels below then scroll
+          INTERNALLY (each own `overflow-y-auto`) instead of the whole page
+          scrolling, so the conversation list and the thread's header/composer
+          stay fully visible at all times. */}
+      <div className="flex h-full w-full flex-col gap-[24px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
         <RecruiterPageHeading lead={PAGE_HEADING.lead} subtitle={PAGE_SUBHEADING} />
 
-        <div className="flex flex-col gap-[10px] pb-[32px] lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col gap-[10px] lg:flex-row">
           {/* ── Conversation list — Figma 7249:84031 ── */}
-          <aside className="flex w-full shrink-0 flex-col gap-[16px] rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] py-[28px] shadow-[0_2px_1px_0_#8d8a8a] lg:w-[371px]">
+          <aside className="flex h-full w-full shrink-0 flex-col gap-[16px] rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] py-[28px] shadow-[0_2px_1px_0_#8d8a8a] lg:w-[371px]">
             <label className="flex h-[45px] items-center gap-[9.73px] rounded-[12px] border-[1.22px] border-[#cccccc] bg-white px-[16px] shadow-[0_3.04px_0_0_#bfbfbf] focus-within:border-brand-green">
               <span className="sr-only">{SEARCH_PLACEHOLDER}</span>
               <SearchIcon className="size-[16px] shrink-0 text-[#595959]" />
@@ -189,6 +212,20 @@ const RecruiterMessagesSection = () => {
                       onClick={() => {
                         log('branch', { inboxTab: tab.id });
                         setActiveTabId(tab.id);
+                        // If the currently open thread isn't in the new
+                        // filter (e.g. switching to Unread while a read
+                        // conversation is open), fall back to the first
+                        // conversation the filter still shows instead of
+                        // leaving the thread pane on a now-hidden row.
+                        const nextVisible =
+                          tab.id === 'unread'
+                            ? CONVERSATIONS.filter((c) => c.unread)
+                            : CONVERSATIONS;
+                        if (!nextVisible.some((c) => c.id === activeConversationId)) {
+                          const fallbackId = nextVisible[0]?.id ?? null;
+                          log('branch', { autoSelectAfterFilter: fallbackId });
+                          setActiveConversationId(fallbackId);
+                        }
                       }}
                       className={classNames(
                         'inline-flex h-[33px] items-center gap-[4.86px] rounded-pill border-[1.22px] border-brand-green-light-hover px-[14px]',
@@ -214,8 +251,8 @@ const RecruiterMessagesSection = () => {
               </button>
             </div>
 
-            <ul className="flex flex-col gap-[7.23px] overflow-y-auto">
-              {CONVERSATIONS.map((conversation) => {
+            <ul className="flex min-h-0 flex-1 flex-col gap-[7.23px] overflow-y-auto">
+              {visibleConversations.map((conversation) => {
                 const isActive = conversation.id === activeConversationId;
                 return (
                   <li key={conversation.id}>
@@ -265,165 +302,170 @@ const RecruiterMessagesSection = () => {
           </aside>
 
           {/* ── Thread — Figma 7249:84101 ── */}
-          <section className="flex min-w-0 flex-1 flex-col justify-between rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] pb-[14px] pt-[18px]">
-            <div className="flex flex-col gap-[32px]">
-              {/* Header pill — Figma 7249:84103, r100, 1.21px #00522b */}
-              <header className="flex items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 px-[12px] py-[8px]">
-                <span className="flex items-center gap-[14px]">
-                  <img
-                    src={AVATARS['kofi-agyekum']}
-                    alt={ACTIVE_THREAD.name}
-                    className="size-[53px] rounded-full object-cover"
-                  />
-                  <span className="flex flex-col gap-[6px]">
-                    <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black">
-                      {ACTIVE_THREAD.name}
-                    </span>
-                    <span className="font-sans text-[14px] leading-[16.71px] text-content-helper">
-                      {ACTIVE_THREAD.meta}
-                    </span>
+          <section className="flex h-full min-w-0 flex-1 flex-col rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] pb-[14px] pt-[18px]">
+            {/* Header pill — Figma 7249:84103, r100, 1.21px #00522b. `shrink-0`
+                so it stays pinned above the scrolling messages below it. */}
+            <header className="flex shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 px-[12px] py-[8px]">
+              <span className="flex items-center gap-[14px]">
+                <img
+                  src={AVATARS[activeConversation.id]}
+                  alt={activeConversation.name}
+                  className="size-[53px] rounded-full object-cover"
+                />
+                <span className="flex flex-col gap-[6px]">
+                  <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black">
+                    {activeConversation.name}
+                  </span>
+                  <span className="font-sans text-[14px] leading-[16.71px] text-content-helper">
+                    {activeConversation.meta}
                   </span>
                 </span>
-                <div ref={threadMenuRef} className="relative shrink-0">
-                  <button
-                    type="button"
-                    aria-label="Conversation options"
-                    aria-haspopup="menu"
-                    aria-expanded={threadMenuOpen}
-                    onClick={() => {
-                      log('branch', { action: 'thread-menu', open: !threadMenuOpen });
-                      setThreadMenuOpen((prev) => !prev);
-                    }}
-                    className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill transition-colors hover:bg-neutral"
+              </span>
+              <div ref={threadMenuRef} className="relative shrink-0">
+                <button
+                  type="button"
+                  aria-label="Conversation options"
+                  aria-haspopup="menu"
+                  aria-expanded={threadMenuOpen}
+                  onClick={() => {
+                    log('branch', { action: 'thread-menu', open: !threadMenuOpen });
+                    setThreadMenuOpen((prev) => !prev);
+                  }}
+                  className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill transition-colors hover:bg-neutral"
+                >
+                  <MeatballMenuIcon className="w-[18.75px] text-[#999999]" />
+                </button>
+
+                {threadMenuOpen && (
+                  /* Figma 7249:84533 — 265 wide, r24, 0.7px #e5e5e5, 49px rows */
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-[34px] z-30 w-[265px] overflow-hidden rounded-[24px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
                   >
-                    <MeatballMenuIcon className="w-[18.75px] text-[#999999]" />
-                  </button>
-
-                  {threadMenuOpen && (
-                    /* Figma 7249:84533 — 265 wide, r24, 0.7px #e5e5e5, 49px rows */
-                    <div
-                      role="menu"
-                      className="absolute right-0 top-[34px] z-30 w-[265px] overflow-hidden rounded-[24px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
-                    >
-                      {THREAD_MENU_ITEMS.map((item, index) => (
-                        <div key={item.id}>
-                          {index > 0 && <div className="h-[0.6px] w-full bg-[#e5e5e5]" />}
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              log('branch', { threadMenuItem: item.id, wired: false });
-                              setThreadMenuOpen(false);
-                            }}
-                            className={classNames(
-                              'flex h-[49px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] transition-colors',
-                              'hover:bg-[#f6f6f6] active:bg-[#ededed]',
-                              item.destructive ? 'text-[#902b20]' : 'text-content-helper'
-                            )}
-                          >
-                            {item.label}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </header>
-
-              <div className="flex flex-col items-center gap-[15px]">
-                {/* Day pill — Figma 7249:84116, #e5e5e5 at 50% FILL alpha */}
-                <span className="inline-flex items-center rounded-pill bg-[#e5e5e5]/50 px-[14px] py-[6px] font-sans text-[13px] leading-[15.51px] text-[#595959]">
-                  {ACTIVE_THREAD.dayDivider}
-                </span>
-
-                <div className="flex w-full flex-col gap-[14px]">
-                  {ACTIVE_THREAD.messages.map((message) => {
-                    if (message.proposal) {
-                      return (
-                        /* Figma 7249:84124 — 299 wide, #faf5f1→#f1f7f4 gradient,
-                           1px #00522b, r10, pad 18/24/18, right-aligned */
-                        <div
-                          key={message.id}
-                          /* Figma 7249:84124 — 299x151, r10, 1px #00522b @ 0.10.
-                             Gradient handles run (1,0) -> (0,1), i.e. top-right
-                             to bottom-left = 225deg in CSS (was 135deg). */
-                          className="relative w-full max-w-[299px] self-end overflow-hidden rounded-[10px] border border-[#00522b]/10 px-[18px] pb-[18px] pt-[24px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]"
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(225deg, #faf5f1 6.74%, #f1f7f4 17.33%)',
+                    {THREAD_MENU_ITEMS.map((item, index) => (
+                      <div key={item.id}>
+                        {index > 0 && <div className="h-[0.6px] w-full bg-[#e5e5e5]" />}
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            log('branch', { threadMenuItem: item.id, wired: false });
+                            setThreadMenuOpen(false);
                           }}
+                          className={classNames(
+                            'flex h-[49px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] transition-colors',
+                            'hover:bg-[#f6f6f6] active:bg-[#ededed]',
+                            item.destructive ? 'text-[#902b20]' : 'text-content-helper'
+                          )}
                         >
-                          {/* Figma 7249:84133 — 72.5x72.5 at left 253.8 / top -14.8 of a
-                              299x151 card, i.e. 27.3px past the RIGHT edge and 14.8px
-                              above the top. Anchored from the right so it stays put if
-                              the card renders narrower than 299. */}
-                          <ProposalWatermark className="pointer-events-none absolute -top-[14.8px] -right-[27.3px] size-[72.5px]" />
-                          <div className="relative flex flex-col gap-[2px]">
-                            <span className="font-sans text-[12px] font-medium uppercase leading-[14.32px] tracking-[0.5px] text-brand-green">
-                              {message.proposal.label}
-                            </span>
-                            <div className="flex flex-col gap-[6px]">
-                              <div className="flex flex-col gap-[2px]">
-                                <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black">
-                                  {message.proposal.title}
-                                </span>
-                                <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-[#999999]">
-                                  {message.proposal.company}
+                          {item.label}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </header>
+
+            {/* Scrolls internally — header above and composer below stay
+                  pinned in place regardless of thread length. */}
+            <div className="mt-[32px] flex min-h-0 flex-1 flex-col items-center gap-[15px] overflow-y-auto">
+              {activeThread?.dayGroups.map((group) => (
+                <div key={group.day} className="flex w-full flex-col items-center gap-[15px]">
+                  {/* Day pill — Figma 7249:84116, #e5e5e5 at 50% FILL alpha */}
+                  <span className="inline-flex items-center rounded-pill bg-[#e5e5e5]/50 px-[14px] py-[6px] font-sans text-[13px] leading-[15.51px] text-[#595959]">
+                    {group.day}
+                  </span>
+
+                  <div className="flex w-full flex-col gap-[14px]">
+                    {group.messages.map((message) => {
+                      if (message.proposal) {
+                        return (
+                          /* Figma 7249:84124 — 299 wide, #faf5f1→#f1f7f4 gradient,
+                               1px #00522b, r10, pad 19/25/19, right-aligned */
+                          <div
+                            key={message.id}
+                            className="relative w-full max-w-[299px] self-end overflow-hidden rounded-[10px] border border-[#00522b]/10 px-[19px] pb-[19px] pt-[25px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]"
+                            style={{
+                              // Figma 7249:84882's own style attribute, verbatim.
+                              backgroundImage:
+                                'linear-gradient(200.2415deg, #faf5f1 6.74%, #f1f7f4 17.33%)',
+                            }}
+                          >
+                            {/* Figma 7249:84133 — 72.5x72.5 at left 253.8 / top -14.8 of a
+                                  299x151 card, i.e. 27.3px past the RIGHT edge and 14.8px
+                                  above the top. Anchored from the right so it stays put if
+                                  the card renders narrower than 299. */}
+                            <ProposalWatermark className="pointer-events-none absolute -top-[14.8px] -right-[27.3px] size-[72.5px]" />
+                            <div className="relative flex flex-col gap-[2px]">
+                              <span className="font-sans text-[12px] font-medium uppercase leading-[14.32px] tracking-[0.5px] text-brand-green">
+                                {message.proposal.label}
+                              </span>
+                              <div className="flex flex-col gap-[6px]">
+                                <div className="flex flex-col gap-[2px]">
+                                  <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black">
+                                    {message.proposal.title}
+                                  </span>
+                                  <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-[#999999]">
+                                    {message.proposal.company}
+                                  </span>
+                                </div>
+                                <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-success">
+                                  {message.proposal.match}
                                 </span>
                               </div>
-                              <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-success">
-                                {message.proposal.match}
-                              </span>
                             </div>
+                            <span className="relative mt-[10px] block font-sans text-[12px] leading-[14.32px] tracking-[0.2px] text-neutral-dark-hover">
+                              {message.proposal.status}
+                            </span>
                           </div>
-                          <span className="relative mt-[10px] block font-sans text-[12px] leading-[14.32px] tracking-[0.2px] text-neutral-dark-hover">
-                            {message.proposal.status}
+                        );
+                      }
+
+                      const fromRecruiter = message.from === 'recruiter';
+                      return (
+                        <div
+                          key={message.id}
+                          className={classNames(
+                            'flex w-full max-w-[537px] flex-col gap-[6px] rounded-[12px] px-[16px] pb-[8px] pt-[14px]',
+                            fromRecruiter ? 'self-end bg-[#e5e5e5]/50' : 'self-start bg-[#737373]'
+                          )}
+                        >
+                          <span
+                            className={classNames(
+                              'font-sans text-[14px] leading-[19.6px]',
+                              fromRecruiter ? 'text-[#595959]' : 'text-white'
+                            )}
+                          >
+                            {message.text}
+                          </span>
+                          <span className="flex items-center gap-[4px] self-end">
+                            <span className="font-sans text-[12px] leading-[14.32px] text-neutral-dark">
+                              {message.time}
+                            </span>
+                            {message.receipt && (
+                              <span className="font-sans text-[12px] font-medium leading-[14.32px] text-[#349643]">
+                                {message.receipt}
+                              </span>
+                            )}
                           </span>
                         </div>
                       );
-                    }
-
-                    const fromRecruiter = message.from === 'recruiter';
-                    return (
-                      <div
-                        key={message.id}
-                        className={classNames(
-                          'flex w-full max-w-[537px] flex-col gap-[6px] rounded-[12px] px-[16px] pb-[8px] pt-[14px]',
-                          fromRecruiter ? 'self-end bg-[#e5e5e5]/50' : 'self-start bg-[#32683a]'
-                        )}
-                      >
-                        <span
-                          className={classNames(
-                            'font-sans text-[14px] leading-[19.6px]',
-                            fromRecruiter ? 'text-[#595959]' : 'text-white'
-                          )}
-                        >
-                          {message.text}
-                        </span>
-                        <span className="flex items-center gap-[4px] self-end">
-                          <span className="font-sans text-[12px] leading-[14.32px] text-neutral-dark">
-                            {message.time}
-                          </span>
-                          {message.receipt && (
-                            <span className="font-sans text-[12px] font-medium leading-[14.32px] text-[#349643]">
-                              {message.receipt}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    );
-                  })}
+                    })}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
 
-            {/* Composer pill — Figma 7249:84147, r100, 1.21px #00522b, h60 */}
+            {/* Composer pill — Figma 7249:84147, r100, 1.21px #00522b, h60.
+                `shrink-0` so it stays pinned below the scrolling messages
+                above it instead of being pushed off by a long thread. */}
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 log('branch', { action: 'send-message', wired: false });
               }}
-              className="mt-[24px] flex h-[60px] items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 py-[12px] pl-[20px] pr-[12px]"
+              className="mt-[24px] flex h-[60px] shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 py-[12px] pl-[20px] pr-[12px]"
             >
               <input
                 type="text"
