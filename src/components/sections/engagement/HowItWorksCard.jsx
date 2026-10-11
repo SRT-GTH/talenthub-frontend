@@ -22,18 +22,18 @@ const HowItWorksCard = ({ items = ENGAGEMENT_HOW_IT_WORKS, className }) => (
   <aside
     className={classNames(
       'rounded-2xl bg-white border border-border-default shadow-bottom-200',
-      'p-4',
+      'p-4 max-sm:p-3',
       className
     )}
   >
     <p className="font-sans font-semibold text-[12px] leading-4 tracking-[0.2px] uppercase text-neutral-dark-hover">
       💡 How this works
     </p>
-    <ul className="mt-3 flex flex-col gap-2" role="list">
+    <ul className="mt-3 max-sm:mt-2 flex flex-col gap-2 max-sm:gap-1.5" role="list">
       {items.map((text) => (
         <li
           key={text}
-          className="flex items-start gap-2 font-sans text-[14px] leading-[20px] tracking-[0.2px] text-content-primary"
+          className="flex items-start gap-2 font-sans text-[14px] max-sm:text-[13px] leading-[20px] max-sm:leading-[18px] tracking-[0.2px] text-content-primary"
         >
           <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center text-brand-green font-semibold">
             ✓

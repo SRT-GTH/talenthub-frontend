@@ -26,6 +26,9 @@ const log = debug('CareerBuddyFloatingButton');
  * ellipse behind the mascot that isn't reproduced here, since neither
  * existing avatar component models that extra ring and it isn't essential
  * to the launcher reading correctly.
+ *
+ * RESPONSIVE: 56px on phones (sits above the 64px bottom tab bar + safe area),
+ * 72px on tablets, the Figma 100px / 17px / 56px placement from lg up.
  */
 
 const CareerBuddyFloatingButton = () => {
@@ -39,9 +42,9 @@ const CareerBuddyFloatingButton = () => {
         navigate('/profile/filling/career-buddy');
       }}
       aria-label="Open Career Buddy"
-      className="fixed bottom-[17px] right-[56px] z-30 flex size-[100px] items-center justify-center rounded-full border border-[#e1eae2] bg-white shadow-[0px_3px_12px_0px_rgba(56,115,64,0.12)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+      className="fixed bottom-[calc(68px+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full md:bottom-6 md:right-6 md:size-[72px] lg:bottom-[17px] lg:right-[56px] lg:size-[100px] border border-[#e1eae2] bg-white shadow-[0px_3px_12px_0px_rgba(56,115,64,0.12)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
     >
-      <CareerBuddyVoiceAvatar size={90} />
+      <CareerBuddyVoiceAvatar size={null} className="size-11 md:size-14 lg:size-[90px]" />
     </button>
   );
 };

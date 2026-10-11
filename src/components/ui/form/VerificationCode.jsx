@@ -234,7 +234,7 @@ const VerificationCode = ({
       error={error}
       className={className}
     >
-      <div className="flex items-center gap-2.5" {...rest}>
+      <div className="flex items-center gap-2.5 max-md:gap-1.5" {...rest}>
         {Array.from({ length }, (_, index) => {
           const isFocused = focusedIndex === index && !isForced;
           const boxState = resolveBoxState(index, isFocused);
@@ -273,7 +273,13 @@ const VerificationCode = ({
                 }}
                 onBlur={() => setFocusedIndex((prev) => (prev === index ? null : prev))}
                 style={{ width: boxSize, height: boxSize }}
-                className={classNames(BOX_BASE, stateClasses, textClass)}
+                className={classNames(
+                  BOX_BASE,
+                  stateClasses,
+                  textClass,
+                  // Phones: boxes shrink to fit the row (6 × 62px cannot fit 320) and stay square.
+                  'max-md:h-auto! max-md:min-w-0 max-md:aspect-square max-md:shadow-none!'
+                )}
               />
               {splitAfter && index + 1 === splitAfter && index < length - 1 && (
                 <span

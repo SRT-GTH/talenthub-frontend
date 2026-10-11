@@ -172,7 +172,10 @@ const InstitutionOnboardingLayout = () => {
             Viewport-bounded scroll container: only the form column scrolls
             (navbar + right panel stay fixed); scrollbar hidden via no-scrollbar
             so no bar shows between the columns. ── */}
-        <div key={locationKey} className="page-fade-in flex-1 min-h-0 overflow-y-auto no-scrollbar">
+        <div
+          key={locationKey}
+          className="page-fade-in flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:[animation-fill-mode:backwards]! max-lg:relative max-lg:z-10"
+        >
           <Outlet />
         </div>
 

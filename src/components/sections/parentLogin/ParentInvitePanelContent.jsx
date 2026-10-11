@@ -50,7 +50,12 @@ const InfoCard = ({ icon, label, value, rotate, className = '' }) => (
     </span>
     <p
       className="mt-[12px] font-sans font-bold uppercase"
-      style={{ fontSize: 9, color: '#70706e', letterSpacing: '0.6px', lineHeight: 'normal' }}
+      style={{
+        fontSize: 'var(--fs-9)',
+        color: '#70706e',
+        letterSpacing: '0.6px',
+        lineHeight: 'normal',
+      }}
     >
       {label}
     </p>

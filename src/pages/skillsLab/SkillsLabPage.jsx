@@ -37,7 +37,7 @@ export default function SkillsLabPage() {
   if (!quiz) {
     log.error('quiz not found for slug:', skillSlug);
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f8f8f4]">
+      <div className="flex items-center justify-center min-h-dvh bg-[#f8f8f4]">
         <p className="text-[#70706e] text-[16px] font-sans">
           Quiz not found for &ldquo;{skillSlug}&rdquo;
         </p>
@@ -82,7 +82,7 @@ export default function SkillsLabPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fdfdfc]">
+    <div className="flex flex-col min-h-dvh bg-[#fdfdfc]">
       <SkillsLabNav />
       <SkillsLabHeader
         title={quiz.title}

@@ -19,24 +19,27 @@ const ProfileStagesList = ({ onStageSelect, className }) => {
   log('render', { stageCount: PROFILE_STAGES.length });
 
   return (
-    <section className={classNames('flex flex-col gap-6', className)}>
+    <section className={classNames('flex flex-col gap-6 max-lg:gap-3', className)}>
       <div className="flex items-center gap-3">
-        <p className="font-sans font-semibold text-[10px] leading-3 tracking-[1px] uppercase text-neutral-darker shrink-0">
+        <p className="font-sans font-semibold text-[10px] max-lg:text-[12px] leading-3 tracking-[1px] uppercase text-neutral-darker shrink-0">
           Your 9 profile stages
         </p>
         <span className="flex-1 h-px bg-border-default" aria-hidden="true" />
       </div>
 
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-[clamp(28px,3vw,36px)] leading-[1.05] tracking-[-0.5px] text-content-primary">
+        <h2 className="font-display text-[clamp(28px,3vw,36px)] max-md:text-[20px] leading-[1.05] tracking-[-0.5px] text-content-primary">
           Nine moves. Pick any order.
         </h2>
-        <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-neutral-dark-hover">
+        <p className="font-sans text-[12px] max-lg:text-[13px] leading-[18px] max-lg:leading-[18px] tracking-[0.2px] text-neutral-dark-hover">
           Most people knock out 2–3, save, and come back. The data flows together at the end.
         </p>
       </div>
 
-      <ul className="flex flex-col gap-4" role="list">
+      <ul
+        className="flex flex-col gap-4 max-lg:gap-0 max-lg:divide-y max-lg:divide-border-default max-lg:border-y max-lg:border-border-default"
+        role="list"
+      >
         {PROFILE_STAGES.map((stage) => (
           <li key={stage.id}>
             <ProfileStageCard stage={stage} onSelect={onStageSelect} />

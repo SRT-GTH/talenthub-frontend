@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import { TextInput, Select } from '../../components/ui/form';
+import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
@@ -29,7 +29,7 @@ import TalentPersonalInfoPanelContent from '../../components/sections/talentAuth
 const log = debug('OnboardingPersonalInfoPage');
 
 /*
- * OnboardingPersonalInfoPage â€” Step 2 of the talent onboarding flow.
+ * OnboardingPersonalInfoPage — Step 2 of the talent onboarding flow.
  * Maps to user story US-1.1.1-02 ("Capture Talent Personal Information").
  * Breadcrumb label is "Build Your Profile" per Figma; the URL and
  * component name follow the user-story terminology for clarity.
@@ -41,19 +41,19 @@ const log = debug('OnboardingPersonalInfoPage');
  * modal "Identity captured").
  *
  * Left column collects 8 fields in a 2-column grid:
- *   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
- *   â”‚ Profile Photo (full-width upload row)   â”‚
- *   â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
- *   â”‚ First Name*       â”‚ Middle Name (opt.)  â”‚
- *   â”‚ Last Name*        â”‚ Gender              â”‚
- *   â”‚ Nationality       â”‚ Ghana Card / ID*    â”‚
- *   â”‚ Password*         â”‚ Retype Password*    â”‚
- *   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+ *   ┌─────────────────────────────────────────┐
+ *   │ Profile Photo (full-width upload row)   │
+ *   ├─────────────────────────────────────────┤
+ *   │ First Name*       │ Middle Name (opt.)  │
+ *   │ Last Name*        │ Gender              │
+ *   │ Nationality       │ Ghana Card / ID*    │
+ *   │ Password*         │ Retype Password*    │
+ *   └─────────────────────────────────────────┘
  *
  * On submit, the page briefly shows the active CTA state and then
  * mounts the Identity-Captured confirmation modal. Dismissing the
  * modal navigates to the next onboarding step (/contact, scaffolded
- * but not yet built â€” falls back to /welcome until that ships).
+ * but not yet built — falls back to /welcome until that ships).
  */
 
 // ---- profile photo upload --------------------------------------------
@@ -81,7 +81,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
       </label>
 
       <div className="flex items-center gap-4">
-        {/* Round preview slot â€” Figma node 2329:3903 family. Cream-grey
+        {/* Round preview slot — Figma node 2329:3903 family. Cream-grey
             placeholder with the avatar glyph; flips to the uploaded
             image once a file is selected. */}
         <span
@@ -99,7 +99,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
           <button
             type="button"
             onClick={handleClick}
-            className="inline-flex h-[34px] items-center gap-1.5 self-start rounded-[8px] border border-[#E6E6E6] bg-white px-3 text-[11px] font-semibold text-[#575755] shadow-[0_2px_0_rgba(0,0,0,0.04)] transition-colors hover:bg-[#FAFAF8]"
+            className="inline-flex h-[34px] items-center gap-1.5 self-start rounded-[8px] border border-[#E6E6E6] bg-white px-3 text-[11px] max-lg:text-[12px] font-semibold text-[#575755] shadow-[0_2px_0_rgba(0,0,0,0.04)] transition-colors hover:bg-[#FAFAF8]"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path
@@ -113,11 +113,13 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
             Upload photo
           </button>
           {file ? (
-            <span className="text-[10px] leading-tight text-brand-green">
+            <span className="text-[10px] max-lg:text-[12px] leading-tight text-brand-green">
               {file.name} ({Math.round(file.size / 1024)}KB)
             </span>
           ) : (
-            <span className="text-[10px] leading-tight text-[#BABAB7]">JPG or PNG Â· Max 5MB</span>
+            <span className="text-[10px] max-lg:text-[12px] leading-tight text-[#BABAB7]">
+              JPG or PNG · Max 5MB
+            </span>
           )}
         </div>
       </div>
@@ -141,10 +143,10 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
     role="dialog"
     aria-modal="true"
     aria-labelledby="identity-captured-title"
-    className="fixed inset-0 z-50 flex items-center justify-center px-4"
+    className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
     style={{ background: 'rgba(17, 17, 17, 0.70)' }}
   >
-    <div className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-brand-green-light-active bg-white px-8 py-8 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)]">
+    <div className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-brand-green-light-active bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_40px_-6px_rgba(27,36,44,0.30),0_4px_4px_-2px_rgba(27,36,44,0.06)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <button
         type="button"
         onClick={onClose}
@@ -164,7 +166,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         >
           <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
           <span
-            className="text-[11px] font-medium leading-4 text-brand-green"
+            className="text-[11px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
             style={{ letterSpacing: '0.2px' }}
           >
             Profile section complete
@@ -172,7 +174,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         </span>
         <h2
           id="identity-captured-title"
-          className="font-display font-normal text-[#111111]"
+          className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
           style={{ fontSize: 32, lineHeight: '34px' }}
         >
           Identity <span className="italic text-brand-green">captured.</span>
@@ -222,10 +224,10 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
       </Button>
 
       <p
-        className="mt-3 text-center text-[10px] leading-4 text-[#959592]"
+        className="mt-3 text-center text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
         style={{ letterSpacing: '0.2px' }}
       >
-        <span aria-hidden="true">Â·</span> Data encrypted at rest <span aria-hidden="true">Â·</span>{' '}
+        <span aria-hidden="true">·</span> Data encrypted at rest <span aria-hidden="true">·</span>{' '}
         Ghana Data Protection Act compliant
       </p>
     </div>
@@ -241,7 +243,7 @@ const GENDER_OPTIONS = [
   { value: 'prefer-not', label: 'Prefer not to say' },
 ];
 
-// Short list to start â€” expand to ECOWAS / full ISO list when localised
+// Short list to start — expand to ECOWAS / full ISO list when localised
 // copy lands.
 const NATIONALITY_OPTIONS = [
   { value: 'ghanaian', label: 'Ghanaian' },
@@ -249,7 +251,7 @@ const NATIONALITY_OPTIONS = [
   { value: 'ivorian', label: 'Ivorian' },
   { value: 'togolese', label: 'Togolese' },
   { value: 'beninese', label: 'Beninese' },
-  { value: 'burkinabe', label: 'BurkinabÃ©' },
+  { value: 'burkinabe', label: 'Burkinabé' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -288,7 +290,7 @@ const OnboardingPersonalInfoPage = () => {
     hasSubmittedOnce && retypePassword.length > 0 && password !== retypePassword;
   // Retype-password success helper surfaces "Passwords match" in green
   // (Figma node 2353:16374 helper-row #387440). Only show once the user
-  // has actually typed something into Retype Password â€” keeps the field
+  // has actually typed something into Retype Password — keeps the field
   // quiet on first render.
   const passwordMatchHint =
     retypePassword.length > 0 && passwordsMatch ? 'Passwords match' : undefined;
@@ -328,11 +330,11 @@ const OnboardingPersonalInfoPage = () => {
     navigate('/onboarding/talent/contact');
   };
 
-  const getGenderLabel = (v) => GENDER_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
-  const getNationalityLabel = (v) => NATIONALITY_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
+  const getGenderLabel = (v) => GENDER_OPTIONS.find((o) => o.value === v)?.label || '—';
+  const getNationalityLabel = (v) => NATIONALITY_OPTIONS.find((o) => o.value === v)?.label || '—';
   const maskedId = ghanaCardId
-    ? `${ghanaCardId.slice(0, 4)}-${'â€¢'.repeat(Math.max(0, ghanaCardId.length - 4))}`
-    : 'â€”';
+    ? `${ghanaCardId.slice(0, 4)}-${'•'.repeat(Math.max(0, ghanaCardId.length - 4))}`
+    : '—';
 
   const summary = [
     {
@@ -367,17 +369,17 @@ const OnboardingPersonalInfoPage = () => {
       <OnboardingHeader currentKey="profile" percent={78} />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
-        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-14 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
-              {/* Eyebrow â€” pencil glyph + "Build Your Profile" label
+              {/* Eyebrow — pencil glyph + "Build Your Profile" label
                 inside a cream-green pill with green outline. */}
               <span
-                className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
+                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
                 style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
               >
                 <PencilEditIcon />
@@ -390,14 +392,14 @@ const OnboardingPersonalInfoPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black"
+                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
               >
                 Tell us about <span className="italic text-brand-green">yourself.</span>
               </h1>
 
               <p
-                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
                 style={{ letterSpacing: '0.2px' }}
               >
                 This builds your trusted identity on GTH seen by schools, companies, and
@@ -406,9 +408,9 @@ const OnboardingPersonalInfoPage = () => {
 
               <WavyDivider />
 
-              {/* Form grid â€” Profile Photo row spans both columns; the
-                remaining 4 rows place inputs leftâ†”right. */}
-              <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2">
+              {/* Form grid — Profile Photo row spans both columns; the
+                remaining 4 rows place inputs left↔right. */}
+              <div className="grid w-full grid-cols-1 gap-x-5 gap-y-5 text-left md:grid-cols-2 max-md:gap-y-3">
                 <div className="md:col-span-2">
                   <ProfilePhotoField
                     file={profilePhoto}
@@ -512,27 +514,29 @@ const OnboardingPersonalInfoPage = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={!isValid || isSubmitting}
-                state={isSubmitting ? 'active' : undefined}
-                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-                rightIcon={<ArrowRightIcon />}
-                className="mt-2 w-full max-w-[420px]"
-                aria-busy={isSubmitting}
-              >
-                {ctaLabel}
-              </Button>
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={!isValid || isSubmitting}
+                  state={isSubmitting ? 'active' : undefined}
+                  leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                  rightIcon={<ArrowRightIcon />}
+                  className="mt-2 w-full max-w-[420px]"
+                  aria-busy={isSubmitting}
+                >
+                  {ctaLabel}
+                </Button>
+              </StickyActionBar>
 
-              <div className="flex items-center gap-2 text-[14px] leading-6">
+              <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
                 <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                   Already Have an account?
                 </span>
                 <Link
                   to={'/login'}
-                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                   style={{ letterSpacing: '0.1px' }}
                 >
                   Log in Instead

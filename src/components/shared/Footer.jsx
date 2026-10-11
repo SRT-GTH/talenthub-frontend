@@ -46,7 +46,7 @@ const LEGAL_LINKS = [
 
 const FooterColumn = ({ heading, links }) => (
   <div className="flex flex-col gap-4">
-    <h3 className="font-sans font-bold text-[10px] leading-none tracking-[1px] uppercase text-white">
+    <h3 className="font-sans font-bold text-[10px] max-lg:text-[12px] leading-none tracking-[1px] uppercase text-white">
       {heading}
     </h3>
     <ul className="flex flex-col gap-4">
@@ -120,7 +120,7 @@ const Footer = () => {
                 Connecting every Ghanaian student with the opportunities they deserve. Built in
                 Accra.
               </p>
-              <p className="font-sans text-[11px] leading-none text-yellow tracking-wide italic">
+              <p className="font-sans text-[11px] max-lg:text-[12px] leading-none text-yellow tracking-wide italic">
                 Made with pride in Ghana <span aria-hidden="true">🇬🇭</span>
               </p>
             </div>

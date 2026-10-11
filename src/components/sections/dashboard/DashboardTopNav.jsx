@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
 import { icons } from '../community/communityIcons.js';
 import { TOP_NAV } from './dashboardData.js';
+import DashboardSearchSheet from './DashboardSearchSheet.jsx';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import avatarNav from '../../../assets/community/avatar-recruiter-nav.svg';
 
@@ -27,16 +29,19 @@ const log = debug('DashboardTopNav');
  * Horizontal padding + logo height are clamped so the bar scales down.
  */
 
-const NavIconButton = ({ src, label, badge, onClick }) => (
+const NavIconButton = ({ src, label, badge, onClick, className }) => (
   <button
     type="button"
     onClick={onClick}
     aria-label={label}
-    className="relative inline-flex size-[36px] shrink-0 items-center justify-center rounded-[18px] bg-[#f8fafc] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+    className={classNames(
+      'relative inline-flex size-[36px] max-lg:size-[40px] shrink-0 items-center justify-center rounded-[18px] max-lg:rounded-[20px] bg-[#f8fafc] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      className
+    )}
   >
     <CommunityIcon src={src} size={src === icons.navMessage ? 18 : 16} />
     {badge && (
-      <span className="absolute -top-[1.5px] left-[22.67px] inline-flex size-[16px] items-center justify-center overflow-hidden rounded-[100px] border-[1.5px] border-white bg-danger font-sans text-[10px] font-semibold leading-5 tracking-[0.2px] text-white">
+      <span className="absolute -top-[1.5px] left-[22.67px] max-lg:left-[26px] max-lg:top-[2px] inline-flex size-[16px] max-lg:size-auto max-lg:h-[18px] max-lg:min-w-[18px] max-lg:px-[4px] max-lg:leading-none items-center justify-center overflow-hidden rounded-[100px] border-[1.5px] border-white bg-danger font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-white">
         {badge}
       </span>
     )}
@@ -44,6 +49,10 @@ const NavIconButton = ({ src, label, badge, onClick }) => (
 );
 
 const DashboardTopNav = ({ className }) => {
+  // Phone-only: the inline search field is `md:flex`, so < md gets an icon
+  // button that opens DashboardSearchSheet instead.
+  const [searchOpen, setSearchOpen] = useState(false);
+
   const handleAction = (action) => {
     // Every control here is presentational in this build — no destination
     // screens exist yet — so log the intent instead of silently doing nothing.
@@ -54,7 +63,7 @@ const DashboardTopNav = ({ className }) => {
     <header
       className={classNames(
         'relative z-30 flex w-full items-center justify-between gap-4 border-b border-[#e7e7e7] bg-white shadow-bottom-100',
-        'px-[clamp(16px,3.24vw,56px)] py-[12px]',
+        'px-[clamp(16px,3.24vw,56px)] py-[12px] max-md:py-[8px]',
         className
       )}
     >
@@ -69,7 +78,7 @@ const DashboardTopNav = ({ className }) => {
             src={gthLogo}
             alt="Ghana Talent Hub"
             draggable="false"
-            className="block h-[clamp(44px,3.82vw,66px)] w-auto select-none"
+            className="block h-[clamp(44px,3.82vw,66px)] max-md:h-[36px] w-auto select-none"
           />
         </Link>
 
@@ -92,16 +101,37 @@ const DashboardTopNav = ({ className }) => {
 
       {/* Right: streak, utility icons, language, accessibility, profile chip */}
       <div className="flex shrink-0 items-center gap-[clamp(10px,1.39vw,24px)]">
-        <div className="flex items-center gap-[12px]">
-          <span className="inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] bg-accent-light px-[12px] py-[8px]">
+        <div className="flex items-center gap-[12px] max-md:gap-[8px]">
+          {/* Phone only — opens the full-width search sheet (the inline field is md+). */}
+          <button
+            type="button"
+            aria-label="Search"
+            aria-haspopup="dialog"
+            onClick={() => {
+              log('search sheet: open');
+              setSearchOpen(true);
+            }}
+            className="relative inline-flex size-[36px] shrink-0 items-center justify-center rounded-[18px] bg-[#f8fafc] transition-colors after:absolute after:-inset-1 hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green md:hidden"
+          >
+            <CommunityIcon src={icons.navSearch} size={20} />
+          </button>
+
+          <span className="inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] bg-accent-light px-[12px] py-[8px] max-md:py-[2px]">
             <CommunityIcon src={icons.streakFire} size={20} />
             <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-accent">
               {TOP_NAV.streakCount}
             </span>
           </span>
 
-          <div className="hidden items-center gap-[8px] lg:flex">
-            <NavIconButton src={icons.navHelp} label="Help" onClick={() => handleAction('help')} />
+          {/* md–lg keeps only notifications + messages (help / language / accessibility
+              stay lg+); phones reach them through the tab bar's More sheet. */}
+          <div className="hidden items-center gap-[8px] md:flex">
+            <NavIconButton
+              src={icons.navHelp}
+              label="Help"
+              className="max-lg:hidden"
+              onClick={() => handleAction('help')}
+            />
             <NavIconButton
               src={icons.navNotification}
               label={`Notifications, ${TOP_NAV.notificationCount} unread`}
@@ -118,7 +148,7 @@ const DashboardTopNav = ({ className }) => {
             <button
               type="button"
               onClick={() => handleAction('language')}
-              className="inline-flex h-[36px] items-center gap-[7px] overflow-hidden rounded-[99px] bg-[#f8fafc] py-[8px] pl-[12px] pr-[10px] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="inline-flex h-[36px] items-center gap-[7px] overflow-hidden rounded-[99px] bg-[#f8fafc] py-[8px] pl-[12px] pr-[10px] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <CommunityIcon src={icons.navGlobe} size={16} />
               <span className="font-sans text-[13px] font-semibold text-neutral-dark">
@@ -131,7 +161,7 @@ const DashboardTopNav = ({ className }) => {
               type="button"
               onClick={() => handleAction('accessibility')}
               aria-label="Accessibility mode"
-              className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <CommunityIcon src={icons.navAccessibility} size={20} />
             </button>
@@ -141,7 +171,10 @@ const DashboardTopNav = ({ className }) => {
         <button
           type="button"
           onClick={() => handleAction('profile-menu')}
-          className="inline-flex shrink-0 items-center gap-[7px] rounded-[10px] border border-brand-green-light-active bg-[#fffefc] px-[16px] py-[8px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          aria-label={`Profile menu, ${TOP_NAV.profileName}`}
+          /* Phones: collapse to a 44px avatar-only button (the name + caret
+             don't fit beside the logo, search and streak at 320). */
+          className="inline-flex shrink-0 items-center gap-[7px] rounded-[10px] border border-brand-green-light-active bg-[#fffefc] px-[16px] py-[8px] max-md:relative max-md:size-[32px] max-md:justify-center max-md:rounded-[16px] max-md:p-0 max-md:after:absolute max-md:after:-inset-2 transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           <span
             aria-hidden="true"
@@ -155,12 +188,14 @@ const DashboardTopNav = ({ className }) => {
               className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none"
             />
           </span>
-          <span className="font-sans text-[14px] font-medium leading-6 tracking-[0.2px] text-black">
+          <span className="font-sans text-[14px] font-medium leading-6 tracking-[0.2px] text-black max-md:hidden">
             {TOP_NAV.profileName}
           </span>
-          <CommunityIcon src={icons.navChipCaret} size={14} />
+          <CommunityIcon src={icons.navChipCaret} size={14} className="max-md:hidden" />
         </button>
       </div>
+
+      <DashboardSearchSheet isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 };

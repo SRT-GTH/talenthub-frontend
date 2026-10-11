@@ -343,10 +343,10 @@ const ToastItem = React.forwardRef(function ToastItem(
         </span>
         <button
           type="button"
-          className="flex shrink-0 items-center justify-center hover:opacity-70 transition-opacity"
+          className="flex size-5 shrink-0 items-center justify-center hover:opacity-70 transition-opacity max-lg:size-6 max-sm:size-11"
           onClick={beginExit}
           aria-label="Dismiss notification"
-          style={{ width: 20, height: 20, color: '#404040' }}
+          style={{ color: '#404040' }}
         >
           <svg width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true">
             <path
@@ -410,10 +410,10 @@ const ToastItem = React.forwardRef(function ToastItem(
 
       <button
         type="button"
-        className="flex shrink-0 items-center justify-center hover:opacity-70 transition-opacity mt-[3px]"
+        className="flex size-5 shrink-0 items-center justify-center hover:opacity-70 transition-opacity mt-[3px] max-lg:size-6 max-sm:size-11"
         onClick={beginExit}
         aria-label="Dismiss notification"
-        style={{ width: 20, height: 20, color: '#575755' }}
+        style={{ color: '#575755' }}
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
           <path

@@ -442,22 +442,16 @@ const STAGE_QA_NODE_PREFIX = {
 const FirstTimeHero = ({ hero }) => <CareerBuddyHero hero={hero} />;
 
 const ReturningHero = ({ name }) => (
-  <div className="flex flex-col items-center text-center px-10 pt-[clamp(3rem,8vh,5rem)] pb-4 gap-[14px] shrink-0">
+  <div className="flex flex-col items-center text-center px-10 pt-[clamp(3rem,8vh,5rem)] pb-4 gap-[14px] shrink-0 max-lg:min-h-0 max-lg:shrink max-lg:max-h-[34%] max-lg:overflow-y-auto max-lg:px-4 max-lg:pt-2 max-lg:pb-1 max-lg:gap-1">
     {/* Figma 5146:75802 — mixed styles: green Instrument Serif question, SF Pro Medium name */}
-    <h1
-      className="text-center leading-[1.3] tracking-[0.1px]"
-      style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)' }}
-    >
+    <h1 className="text-center leading-[1.3] tracking-[0.1px] text-[clamp(1.5rem,2.5vw,2rem)] max-lg:text-[18px]">
       <span className="font-display font-normal text-brand-green">
         {RETURNING_HERO.headlineQuestion.replace(/\?$/, '')}
       </span>
       <span className="font-display font-normal text-[#404040]">?</span>{' '}
       <span className="font-sans font-medium text-[#404040]">{name}</span>
     </h1>
-    <p
-      className="font-sans font-normal text-content-secondary max-w-[40rem]"
-      style={{ fontSize: 'clamp(0.9375rem, 1.4vw, 1.125rem)' }}
-    >
+    <p className="font-sans font-normal text-content-secondary max-w-[40rem] text-[clamp(0.9375rem,1.4vw,1.125rem)] max-lg:text-[13px]">
       {RETURNING_HERO.subtitle}
     </p>
   </div>
@@ -477,6 +471,13 @@ const CareerBuddySection = () => {
   const [stages, setStages] = useState(CAREER_BUDDY_STAGES);
   const [trailStageIndex, setTrailStageIndex] = useState(0);
   const [expandedPanelId, setExpandedPanelId] = useState(null);
+  // Below lg only one pane is visible: the chat or the profile panel
+  // (segmented "Chat | Profile" switch). >= lg shows both side by side.
+  const [mobilePane, setMobilePane] = useState('chat');
+  // Profile panel id the user has already seen while on the Profile pane —
+  // drives the "new" dot on the Profile tab when the chat opens a section.
+  const [seenPanelId, setSeenPanelId] = useState(null);
+  const shellRef = useRef(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [toast, setToast] = useState(null);
   // Parent panel: My Profile vs Elliot's Profile (Figma 5132:77628).
@@ -530,6 +531,27 @@ const CareerBuddySection = () => {
   // Ref (not state) so the simulated-save setTimeout always reads the
   // value set at wrap-up choice time, not a stale render closure.
   const guidanceResumeNodeIdRef = useRef(null);
+
+  // Keyboard-aware shell height (< lg): `dvh` tracks the URL bar but not the
+  // on-screen keyboard, so mirror the visual viewport into a CSS var the shell
+  // uses for its height. The composer then stays pinned above the keyboard.
+  useEffect(() => {
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    const el = shellRef.current;
+    if (!vv || !el) return undefined;
+    const apply = () => {
+      el.style.setProperty('--cb-vvh', `${Math.round(vv.height)}px`);
+      if (vv.offsetTop > 0) window.scrollTo(0, 0);
+      log('visualViewport', { height: Math.round(vv.height), offsetTop: vv.offsetTop });
+    };
+    apply();
+    vv.addEventListener('resize', apply);
+    vv.addEventListener('scroll', apply);
+    return () => {
+      vv.removeEventListener('resize', apply);
+      vv.removeEventListener('scroll', apply);
+    };
+  }, []);
   // Parent My/Ward tab swap replaces `stages` — keep the live ward snapshot
   // here so resume-filled Modify/Confirm data survives tab flips.
   const parentWardStagesRef = useRef(null);
@@ -2044,8 +2066,11 @@ const CareerBuddySection = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div
+      ref={shellRef}
+      className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-[var(--cb-vvh,100dvh)]"
+    >
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -2055,7 +2080,7 @@ const CareerBuddySection = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar
           stages={trailStages}
           currentStageIndex={trailStageIndex}
@@ -2063,6 +2088,49 @@ const CareerBuddySection = () => {
           interactive={false}
           className="w-full h-full"
         />
+      </div>
+
+      {/* Chat | Profile switch — below lg only one pane shows at a time. */}
+      <div className="lg:hidden shrink-0 border-b border-border-default bg-white px-4 py-1.5">
+        <div
+          role="group"
+          aria-label="Career Buddy view"
+          className="grid grid-cols-2 gap-1 rounded-[10px] bg-neutral p-0.5"
+        >
+          {[
+            { id: 'chat', label: 'Chat' },
+            { id: 'profile', label: 'Profile' },
+          ].map((tab) => {
+            const selected = mobilePane === tab.id;
+            const showDot =
+              tab.id === 'profile' &&
+              mobilePane === 'chat' &&
+              Boolean(expandedPanelId) &&
+              expandedPanelId !== seenPanelId;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => {
+                  log('branch', { mobilePane: tab.id });
+                  setMobilePane(tab.id);
+                  if (tab.id === 'profile') setSeenPanelId(expandedPanelId);
+                }}
+                className={`relative inline-flex min-h-8 items-center justify-center gap-2 rounded-[8px] font-sans text-[14px] font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green ${
+                  selected
+                    ? 'bg-white text-brand-green shadow-sm'
+                    : 'text-content-secondary hover:text-content-primary'
+                }`}
+              >
+                {tab.label}
+                {showDot && (
+                  <span aria-label="New update" className="size-2 rounded-full bg-accent" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {toast && (
@@ -2184,7 +2252,11 @@ const CareerBuddySection = () => {
             <main> above — this pane's own grid-texture decoration (below)
             deliberately bleeds past its right edge, which is exactly the
             kind of overflow that can get silently scrolled into view. */}
-        <div className="relative flex-1 min-h-0 flex flex-col overflow-clip">
+        <div
+          className={`relative flex-1 min-h-0 min-w-0 flex flex-col overflow-clip ${
+            mobilePane === 'profile' ? 'max-lg:hidden' : ''
+          }`}
+        >
           {/* Gradient backdrop as its own layer (z:-2, behind the page-level
               ellipses at z:-1) rather than a `background` set directly on this
               wrapper — a background painted on the wrapper itself sits at the
@@ -2369,8 +2441,13 @@ const CareerBuddySection = () => {
             onDecline={() => log('milestone share declined')}
           />
 
-          {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} />}
-          {heroMode === 'returning' && <ReturningHero name={personaName} />}
+          {/* Hero collapses away below lg while a full-pane voice overlay is up. */}
+          <div
+            className={voiceCallOpen || voiceSettingsOpen ? 'contents max-lg:hidden' : 'contents'}
+          >
+            {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} />}
+            {heroMode === 'returning' && <ReturningHero name={personaName} />}
+          </div>
 
           <div className="relative flex flex-1 min-h-0 flex-col">
             <ChatThread
@@ -2436,7 +2513,9 @@ const CareerBuddySection = () => {
         {/* RIGHT — role-specific panel */}
         {isRecruiter ? (
           <RecruiterPanel
-            className="w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default"
+            className={`w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
+              mobilePane === 'chat' ? 'max-lg:hidden' : ''
+            }`}
             stages={stages}
             expandedId={expandedPanelId}
             onToggleExpand={(id) => setExpandedPanelId((prev) => (prev === id ? null : id))}
@@ -2447,7 +2526,9 @@ const CareerBuddySection = () => {
           />
         ) : (
           <TalentProfilePanel
-            className="w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default"
+            className={`w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
+              mobilePane === 'chat' ? 'max-lg:hidden' : ''
+            }`}
             stages={panelStages}
             expandedId={expandedPanelId}
             onToggleExpand={(id) => setExpandedPanelId((prev) => (prev === id ? null : id))}

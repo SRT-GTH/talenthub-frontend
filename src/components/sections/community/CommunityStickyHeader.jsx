@@ -52,7 +52,7 @@ const CommunityStickyHeader = ({
       <Link
         to={'/community'}
         onClick={() => log('breadcrumb: back to community index')}
-        className="inline-flex items-center justify-center gap-[7.17px] rounded-[7.17px] border-[1.195px] border-brand-green-light-active bg-brand-green-light/50 px-[14.34px] py-[7.17px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        className="inline-flex items-center justify-center gap-[7.17px] max-lg:min-h-[44px] rounded-[7.17px] border-[1.195px] border-brand-green-light-active bg-brand-green-light/50 px-[14.34px] py-[7.17px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <CommunityIcon src={icons.communityChip} size={14.34} />
         <span className="whitespace-nowrap font-sans text-[15.54px] tracking-[0.239px] text-[#999]">
@@ -71,7 +71,7 @@ const CommunityStickyHeader = ({
 
     <CommunityTabs value={activeTab} onChange={onTabChange} />
 
-    <div className="flex h-[45px] items-start gap-[10px]">
+    <div className="flex h-[45px] max-lg:h-[48px] items-start gap-[10px]">
       {joined ? (
         <>
           <button

@@ -1,5 +1,6 @@
 import { useId, useRef, useState } from 'react';
 import Field from './Field.jsx';
+import TagRow from '../TagRow.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 
@@ -198,7 +199,7 @@ const Upload = ({
     >
       <div
         className={classNames(
-          'relative flex flex-col items-center justify-center w-full px-4 py-5 rounded-2xl gap-2',
+          'relative flex flex-col items-center justify-center w-full px-4 py-5 rounded-2xl gap-2 max-md:py-2 max-md:gap-0.5 max-md:min-h-[96px]!',
           stateClasses,
           'transition-colors duration-150'
         )}
@@ -211,7 +212,7 @@ const Upload = ({
         {/* Icon block */}
         <span
           className={classNames(
-            'inline-flex items-center justify-center size-10 rounded-md',
+            'inline-flex items-center justify-center size-10 max-md:size-8 rounded-md',
             isReceived
               ? 'bg-brand-green text-white'
               : variant === 'amber'
@@ -242,13 +243,13 @@ const Upload = ({
           {isReceived ? (
             <p className="font-sans text-[12px] leading-4 text-brand-green">{filename}</p>
           ) : (
-            <p className="font-sans text-[12px] leading-4 text-neutral-dark-hover">
+            <p className="font-sans text-[12px] max-md:text-[14px] leading-4 text-neutral-dark-hover max-md:flex max-md:items-center max-md:justify-center max-md:gap-1">
               Or{' '}
               <button
                 type="button"
                 onClick={openFilePicker}
                 disabled={effectiveDisabled}
-                className="font-medium text-brand-green underline cursor-pointer disabled:cursor-not-allowed"
+                className="font-medium text-brand-green underline cursor-pointer disabled:cursor-not-allowed max-md:h-11 max-md:px-1"
               >
                 browse to choose a file
               </button>
@@ -258,15 +259,20 @@ const Upload = ({
 
         {/* Accept-type pills */}
         {acceptLabels && acceptLabels.length > 0 && !isReceived && resolvedState !== 'loading' && (
-          <div className="flex items-center gap-1.5 mt-1">
-            {acceptLabels.map((extName) => (
-              <span
-                key={extName}
-                className="inline-flex items-center justify-center px-2 h-[21px] min-w-9 rounded-pill bg-white border border-[#e6e6e6] font-sans font-bold text-[10px] text-neutral-dark-active"
-              >
-                {extName}
-              </span>
-            ))}
+          <div className="mt-1 w-full">
+            <TagRow
+              items={acceptLabels}
+              gap={6}
+              className="justify-center"
+              renderItem={(extName) => (
+                <span
+                  key={extName}
+                  className="inline-flex h-[21px] min-w-9 items-center justify-center whitespace-nowrap rounded-pill border border-[#e6e6e6] bg-white px-2 font-sans text-[10px] font-bold text-neutral-dark-active max-lg:text-[12px] max-md:h-6"
+                >
+                  {extName}
+                </span>
+              )}
+            />
           </div>
         )}
 
@@ -289,7 +295,7 @@ const Upload = ({
           <span
             className="absolute right-[10px] top-[10px] font-sans font-semibold uppercase tracking-[0.5px]"
             style={{
-              fontSize: 9,
+              fontSize: 'var(--fs-9)',
               lineHeight: '10.7px',
               padding: '3px 8px',
               borderRadius: 4,

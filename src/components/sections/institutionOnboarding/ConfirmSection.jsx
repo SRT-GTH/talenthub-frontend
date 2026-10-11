@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -89,25 +90,25 @@ const ConfirmStatCard = ({
   log('ConfirmStatCard render', { label, value });
   return (
     <div
-      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black"
+      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black max-md:h-auto! max-md:w-full! max-md:justify-center max-md:gap-0 max-md:border-black/15 max-md:px-2 max-md:py-2 max-md:text-center"
       style={{ width: '194px', height: '98px', backgroundColor: outerFill }}
     >
       {/* Inner box — 177×60 */}
       <div
-        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white"
+        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white max-md:h-auto max-md:w-full max-md:border-0! max-md:bg-transparent max-md:p-0"
         style={{ border: '0.4px solid rgba(0,0,0,0.4)' }}
       >
         {/* Frame 376 — stacked value + sub-label */}
         <div className="flex flex-col items-center gap-[4px]">
           <span
-            className="font-sans font-normal"
+            className="font-sans font-normal max-md:text-[28px]! max-md:leading-8!"
             style={{ fontSize: '32px', lineHeight: '22px', color: valueColor }}
           >
             {value}
           </span>
           <span
-            className="font-sans font-normal text-center"
-            style={{ fontSize: '10px', lineHeight: '16px', color: subLabelColor }}
+            className="font-sans font-normal text-center max-md:hidden"
+            style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: subLabelColor }}
           >
             {subLabel}
           </span>
@@ -116,7 +117,7 @@ const ConfirmStatCard = ({
       {/* Outer label */}
       <span
         className="font-sans font-medium"
-        style={{ fontSize: '10px', lineHeight: '16px', color: labelColor }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
       >
         {label}
       </span>
@@ -133,7 +134,7 @@ const ConfirmStatCard = ({
  * Row height: 42px. Container horizontal padding: px-[16px].
  */
 const ChecklistItem = ({ number, text }) => (
-  <div className="flex items-center gap-[12px] h-[42px] px-[16px]">
+  <div className="flex items-center gap-[12px] h-[42px] px-[16px] max-md:h-auto max-md:min-h-10 max-md:gap-3 max-md:border-b max-md:border-black/6 max-md:px-0 max-md:py-2">
     {/* Numbered circle */}
     <div
       className="shrink-0 flex items-center justify-center rounded-full bg-[#387440]"
@@ -141,14 +142,14 @@ const ChecklistItem = ({ number, text }) => (
     >
       <span
         className="font-sans font-bold text-white"
-        style={{ fontSize: '10px', lineHeight: '13px' }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '13px' }}
       >
         {number}
       </span>
     </div>
     {/* Description */}
     <span
-      className="font-sans font-normal text-[#111111]"
+      className="font-sans font-normal text-[#111111] max-md:text-[14px]! max-md:leading-5!"
       style={{ fontSize: '12px', lineHeight: '18px' }}
     >
       {text}
@@ -176,21 +177,25 @@ const ConfirmSection = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center py-[88px] px-6">
+    <div className="flex flex-1 flex-col items-center py-[88px] px-6 max-md:px-4 max-md:py-4">
       {/* ── Content column: max-w=897px centred ── */}
-      <div className="w-full max-w-[897px] flex flex-col gap-[40px]">
+      <div className="w-full max-w-[897px] flex flex-col gap-[40px] max-md:gap-3">
         {/* ── Upper block: header + stats + checklist — gap=16 ── */}
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex flex-col gap-[16px] max-md:gap-3">
           {/* ── Header block: caption + headline + subtitle + divider ── */}
-          <div className="flex flex-col items-center gap-[8px]">
+          <div className="flex flex-col items-center gap-[8px] max-md:items-start">
             {/* Caption badge — Figma 3040:71914 "07 | Confirm Accounts" */}
-            <Captions items={[{ index: '07', label: 'Confirm Accounts' }]} currentIndex={0} />
+            <Captions
+              items={[{ index: '07', label: 'Confirm Accounts' }]}
+              currentIndex={0}
+              className="max-md:px-2.5 max-md:py-0.5"
+            />
 
             {/* Headline — Figma 3040:71923
                 Instrument Serif fs=64 lh=70 ls=-0.64px CENTER
                 styleTable[73]: "submit?" (indices 9–15) → italic #387440 */}
             <h1
-              className="text-center font-serif text-black"
+              className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2rem, 4.4vw, 4rem)',
                 lineHeight: 1.094,
@@ -203,7 +208,7 @@ const ConfirmSection = () => {
             {/* Subtitle — Figma 3040:71925 verbatim
                 SF Pro Rounded 400 fs=16 lh=24 ls=0.2 #737373 CENTER max-w=536px */}
             <p
-              className="font-sans font-normal text-center text-[#737373]"
+              className="font-sans font-normal text-center text-[#737373] max-md:text-left max-md:text-[14px]! max-md:leading-5!"
               style={{
                 fontSize: 'clamp(0.875rem, 1vw, 1rem)',
                 lineHeight: '24px',
@@ -222,7 +227,7 @@ const ConfirmSection = () => {
           {/* ── Stat cards — Figma "File summary" 897×98 HORIZONTAL gap=38 ──
                4 cards with colour-coded outer fills, value, sub-label, outer label */}
           <div
-            className="flex items-center justify-between"
+            className="flex items-center justify-between max-md:grid max-md:grid-cols-2 max-md:items-stretch max-md:gap-2!"
             style={{ gap: '38px' }}
             role="region"
             aria-label="Submission summary"
@@ -277,25 +282,25 @@ const ConfirmSection = () => {
           </div>
 
           {/* ── Checklist box + warning — Figma Frame 358 (890×266, gap=16 VERTICAL) ── */}
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-[16px] max-md:gap-3">
             {/* Bordered checklist box — Figma 3046:73914 "Border"
                 890×206, stroke #000000@1, r=16
                 Header strip: "What happens when you click Submit" bg=#f8f8f4
                 4 numbered action items (h=42 each) */}
             <div
-              className="w-full rounded-[16px] border border-black overflow-hidden"
+              className="w-full rounded-[16px] border border-black overflow-hidden max-md:overflow-visible max-md:rounded-none max-md:border-0"
               role="list"
               aria-label="What happens when you click Submit"
             >
               {/* Header strip — Figma Background+HorizontalBorder 35px
                   fill #f8f8f4, text fs=10 fw=700 #70706e */}
               <div
-                className="flex items-center px-[16px] bg-[#f8f8f4]"
+                className="flex items-center px-[16px] bg-[#f8f8f4] max-md:h-auto! max-md:bg-transparent max-md:px-0 max-md:pb-1"
                 style={{ height: '35px', borderBottom: '1px solid rgba(0,0,0,0.08)' }}
               >
                 <span
                   className="font-sans font-bold text-[#70706e]"
-                  style={{ fontSize: '10px', lineHeight: '14px', letterSpacing: '0.2px' }}
+                  style={{ fontSize: 'var(--fs-10)', lineHeight: '14px', letterSpacing: '0.2px' }}
                 >
                   What happens when you click Submit
                 </span>
@@ -327,7 +332,7 @@ const ConfirmSection = () => {
                 Icon circle: 22×22 fill #c8951a r=11 + exclamation SVG
                 Text: fs=12 fw=400 #967014 */}
             <div
-              className="flex items-center px-[16px] w-full rounded-[10px]"
+              className="flex items-center px-[16px] w-full rounded-[10px] max-md:h-auto! max-md:px-3 max-md:py-2.5"
               style={{
                 height: '46px',
                 backgroundColor: 'rgba(200,149,26,0.1)',
@@ -336,7 +341,7 @@ const ConfirmSection = () => {
               role="alert"
             >
               {/* Frame 377 (699×22, gap=9 HORIZONTAL) */}
-              <div className="flex items-center gap-[9px]">
+              <div className="flex items-center gap-[9px] max-md:items-start">
                 {/* Amber exclamation circle — 22×22 fill #c8951a r=11 */}
                 <div
                   className="shrink-0 flex items-center justify-center rounded-full bg-[#c8951a]"
@@ -347,7 +352,7 @@ const ConfirmSection = () => {
                 </div>
                 {/* Warning text */}
                 <p
-                  className="font-sans font-normal"
+                  className="font-sans font-normal max-md:text-[13px]! max-md:leading-[18px]!"
                   style={{ fontSize: '12px', lineHeight: '18px', color: '#967014' }}
                 >
                   Once submitted, accounts are created immediately. You can cancel within 5 seconds
@@ -359,7 +364,7 @@ const ConfirmSection = () => {
         </div>
 
         {/* ── CTA row — Figma Frame 360 (882×56, gap=19 HORIZONTAL) ── */}
-        <div className="flex items-center gap-[19px] w-full">
+        <div className="flex items-center gap-[19px] w-full max-md:contents">
           {/* Back button — Figma 3040:72002 "Frame 9 instance"
                128×56, fill=#ffffff, stroke=#111111@2px, r=14
                [left-arrow] "Back" (fs=16 fw=700 #575755) */}
@@ -371,42 +376,46 @@ const ConfirmSection = () => {
               'h-[56px] w-[128px] shrink-0',
               'rounded-[14px] border-2 border-[#111111] bg-white',
               'font-sans font-bold text-[16px] leading-6 text-[#575755]',
+              // Phones: secondary action becomes a small centred text link above the pinned CTA.
+              "relative max-md:h-auto max-md:w-auto max-md:self-center max-md:gap-1 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:text-[13px] max-md:font-semibold max-md:leading-5 max-md:text-brand-green max-md:underline max-md:underline-offset-2 max-md:before:absolute max-md:before:-inset-x-3 max-md:before:-inset-y-3 max-md:before:content-['']",
               'transition-opacity duration-100 hover:opacity-80',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]',
             ].join(' ')}
           >
-            <ArrowLeftIcon className="size-[20px] shrink-0" />
+            <ArrowLeftIcon className="size-[20px] shrink-0 max-md:size-4" />
             Back
           </button>
 
           {/* Submit And Create N Accounts — Figma 3040:72011 "Frame 9 instance"
                734×56 (flex-1), fill=#387440, stroke=#2a5730@2px, r=14
                Text: "Submit And Create N Accounts" (white) + right arrow */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className={[
-              'flex flex-1 items-center justify-center gap-[8px]',
-              'h-[56px]',
-              'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
-              'font-sans font-bold text-[16px] leading-6 text-white',
-              'transition-opacity duration-100 hover:opacity-90',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
-            ].join(' ')}
-          >
-            Submit And Create {validRows} Accounts
-            <ArrowRightIcon />
-          </button>
+          <StickyActionBar bleed={16}>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className={[
+                'flex flex-1 items-center justify-center gap-[8px] max-md:w-full max-md:flex-none',
+                'h-[56px]',
+                'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
+                'font-sans font-bold text-[16px] leading-6 text-white',
+                'transition-opacity duration-100 hover:opacity-90',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
+              ].join(' ')}
+            >
+              Submit And Create {validRows} Accounts
+              <ArrowRightIcon />
+            </button>
+          </StickyActionBar>
         </div>
 
         {/* ── Footer link — consistent with other onboarding steps ── */}
-        <div className="flex items-center justify-center gap-2 text-[14px] leading-6">
+        <div className="flex items-center justify-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
           <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
             Already Have an account?
           </span>
           <Link
             to="/login"
-            className="font-semibold text-brand-green underline-offset-2 hover:underline"
+            className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{ letterSpacing: '0.1px' }}
           >
             Log in Instead

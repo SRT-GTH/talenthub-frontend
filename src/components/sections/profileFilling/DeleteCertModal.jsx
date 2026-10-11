@@ -61,17 +61,35 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
   const linkTags = cert ? [cert.credentialType].filter(Boolean) : [];
 
   const footer = (
-    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)]">
-      <Button variant="tertiary" size="md" onClick={onClose}>
-        Cancel
+    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)] max-sm:gap-2 max-sm:px-4 max-sm:py-3">
+      <Button
+        variant="tertiary"
+        size="md"
+        onClick={onClose}
+        className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+      >
+        <span className="max-sm:sr-only">Cancel</span>
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3 sm:hidden"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </Button>
       <Button
         variant="danger"
         size="md"
         onClick={handleConfirm}
         leftIcon={<WorkDeleteWarningIcon className="size-full" />}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
       >
-        Permanently delete this certification
+        <span className="max-sm:hidden">Permanently delete this certification</span>
+        <span className="sm:hidden">Delete permanently</span>
       </Button>
     </div>
   );
@@ -82,7 +100,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
       onClose={onClose}
       size="sm"
       ariaLabel="Delete this certification"
-      contentClassName="!rounded-[24px] !max-w-[550px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !max-w-[550px] overflow-hidden"
       footer={footer}
     >
       <div className="relative flex flex-col p-[clamp(24px,3vw,40px)] gap-[20px]">
@@ -98,10 +116,10 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
           <span className="size-[56px] rounded-[16px] bg-[#fdecea] border-2 border-[#f6c6bd] flex items-center justify-center">
             <WorkDeleteWarningIcon className="size-[26px] text-[#c0392b]" />
           </span>
-          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] text-[#111]">
+          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] max-lg:tracking-[-0.02em] text-[#111]">
             Delete this certification?
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px] max-lg:text-[14px]">
             This will permanently remove the certification from your profile. Your profile updates
             immediately. This cannot be undone.
           </p>
@@ -131,7 +149,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
                 </span>
               </div>
               <span
-                className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px]"
+                className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px] max-lg:text-[12px]"
                 style={{
                   background: badgeStyle.bg,
                   borderColor: badgeStyle.border,
@@ -151,7 +169,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
                     href={cert.badgeUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border border-[#bfcef2] bg-[#eaeffb] text-[#3062d4] hover:bg-[#d9e4fb] transition-colors duration-150"
+                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border border-[#bfcef2] bg-[#eaeffb] text-[#3062d4] hover:bg-[#d9e4fb] transition-colors duration-150"
                   >
                     Badge URL ↗
                   </a>
@@ -159,7 +177,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
                 {linkTags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {tag}
                   </span>
@@ -167,7 +185,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
                 {cert.skills?.map((skill) => (
                   <span
                     key={skill}
-                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {skill}
                   </span>
@@ -202,7 +220,7 @@ const DeleteCertModal = ({ isOpen, onClose, onConfirm, onEditInstead, cert }) =>
             <span className="font-sans font-semibold text-[12px] text-[#2a5730]">
               Want to fix something instead of deleting?
             </span>
-            <p className="font-sans text-[10px] text-[#387440] leading-[14px] opacity-85">
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-[#387440] leading-[14px] opacity-85">
               Wrong date, wrong org name, missing credential ID? Editing is faster and keeps
               everything intact.
             </p>

@@ -1,4 +1,5 @@
 import { debug } from '../../../utils/debug.js';
+import ClampText from '../../ui/ClampText.jsx';
 import Button from '../../ui/Button.jsx';
 import { LightbulbIcon, SLArrowRightSmIcon } from '../../shared/assets.jsx';
 import AnswerDots from './AnswerDots.jsx';
@@ -58,7 +59,7 @@ function ColorSwatchCard({ color, label, state, onClick }) {
         }}
       />
       <span
-        className={`text-[10px] font-sans font-medium ${state === 'selected' ? 'text-[#387440]' : state === 'wrong' ? 'text-[#c0392b]' : 'text-[#575755]'}`}
+        className={`text-[10px] max-lg:text-[12px] font-sans font-medium ${state === 'selected' ? 'text-[#387440]' : state === 'wrong' ? 'text-[#c0392b]' : 'text-[#575755]'}`}
       >
         {state === 'selected' || state === 'correct' ? `${label} ✓` : label}
       </span>
@@ -105,11 +106,11 @@ export default function QuizQuestion({
   const VisualComponent = hasVisual ? VISUAL_COMPONENTS[challenge.visual.type] : null;
 
   return (
-    <div className="flex flex-col flex-1 px-[clamp(24px,3.9vw,57px)] py-[clamp(16px,2.2vw,32px)] overflow-y-auto">
+    <div className="flex flex-col flex-1 px-[clamp(24px,3.9vw,57px)] max-md:px-4 py-[clamp(16px,2.2vw,32px)] max-md:py-3 overflow-y-auto max-md:overflow-visible">
       {/* Question indicator */}
-      <div className="flex flex-col gap-[16px] mb-[clamp(14px,1.8vw,24px)]">
+      <div className="flex flex-col gap-[16px] max-md:gap-2 mb-[clamp(14px,1.8vw,24px)] max-md:mb-3">
         <div className="flex items-center gap-[8px]">
-          <span className="text-[#888] text-[10px] font-sans font-bold uppercase tracking-[0.2px] leading-[16px] whitespace-nowrap shrink-0">
+          <span className="text-[#888] text-[10px] max-lg:text-[12px] font-sans font-bold uppercase tracking-[0.2px] leading-[16px] whitespace-nowrap shrink-0 max-md:whitespace-normal max-md:shrink">
             Challenge {currentIndex + 1} of {total} · {challenge.topic} · {skillName || 'Python'}
           </span>
           <div className="h-px bg-[rgba(0,0,0,0.07)] flex-1" />
@@ -118,9 +119,9 @@ export default function QuizQuestion({
       </div>
 
       {/* Question text */}
-      <div className="flex flex-col gap-[4px] mb-[clamp(10px,1.4vw,20px)]">
+      <div className="flex flex-col gap-[4px] mb-[clamp(10px,1.4vw,20px)] max-md:mb-2">
         <h2
-          className="text-[#111] text-[clamp(18px,1.7vw,24px)] tracking-[-0.4px] leading-[1.3]"
+          className="text-[#111] text-[clamp(18px,1.7vw,24px)] max-lg:text-[20px] max-md:text-[18px] tracking-[-0.4px] leading-[1.3]"
           style={{ fontFamily: 'Instrument Serif, serif' }}
         >
           {challenge.question}
@@ -129,15 +130,18 @@ export default function QuizQuestion({
           )}
         </h2>
         {challenge.subtitle && (
-          <p className="text-[#70706e] text-[12px] font-sans leading-normal mt-[2px]">
+          <ClampText
+            lines={2}
+            className="text-[#70706e] text-[12px] max-lg:text-[14px] max-md:text-[13px] font-sans leading-normal mt-[2px]"
+          >
             {challenge.subtitle}
-          </p>
+          </ClampText>
         )}
       </div>
 
       {/* Context bar — green left-border box per Figma */}
       {challenge.contextBar && (
-        <div className="bg-[#faf9f6] border-l-[3px] border-[#387440] rounded-tr-[8px] rounded-br-[8px] px-[16px] py-[12px] mb-[clamp(14px,1.8vw,26px)]">
+        <div className="bg-[#faf9f6] border-l-[3px] border-[#387440] rounded-tr-[8px] rounded-br-[8px] px-[16px] py-[12px] max-md:px-3 max-md:py-2 mb-[clamp(14px,1.8vw,26px)] max-md:mb-3">
           <p
             className="text-[#387440] text-[12px] font-sans leading-[18px] m-0"
             style={{ fontFamily: "'DM Mono', monospace" }}
@@ -159,7 +163,7 @@ export default function QuizQuestion({
 
       {/* Code snippet (Python-style) */}
       {hasCode && (
-        <div className="mb-[clamp(14px,1.8vw,26px)]">
+        <div className="mb-[clamp(14px,1.8vw,26px)] max-md:mb-3">
           <CodeSnippet tokens={challenge.code} />
         </div>
       )}
@@ -181,7 +185,7 @@ export default function QuizQuestion({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-[clamp(8px,0.9vw,12px)] mb-[clamp(16px,2.2vw,32px)]">
+        <div className="flex flex-col gap-[clamp(8px,0.9vw,12px)] max-md:gap-2 mb-[clamp(16px,2.2vw,32px)] max-md:mb-3">
           {challenge.options.map((opt, i) => (
             <AnswerCard
               key={i}
@@ -199,19 +203,26 @@ export default function QuizQuestion({
       {/* Structure hint bar (for sentence builder mode, shown at bottom of visual-mcq too) */}
       {challenge.structureHint && (
         <div className="bg-[#faf9f6] border border-[#e8e8e4] rounded-[8px] px-[16px] py-[10px] mb-[clamp(8px,1vw,16px)]">
-          <p className="text-[#387440] text-[11px] font-sans leading-[16px] m-0">
+          <p className="text-[#387440] text-[11px] max-lg:text-[12px] font-sans leading-[16px] m-0">
             {challenge.structureHint}
           </p>
         </div>
       )}
 
       {/* Bottom action bar */}
-      <div className="flex items-center justify-between mt-auto pt-[clamp(8px,1.1vw,16px)]">
+      <div
+        className={[
+          'flex items-center justify-between mt-auto pt-[clamp(8px,1.1vw,16px)]',
+          // Phones: the wrapper dissolves; the hint link stays in the flow and only
+          // the primary action floats (sticky) at the bottom of the screen.
+          'max-md:contents',
+        ].join(' ')}
+      >
         <button
           type="button"
           onClick={onOpenHint}
           disabled={hintAlreadyUsed}
-          className={`flex items-center gap-[8px] text-[14px] font-sans font-semibold tracking-[0.1px] leading-[24px] bg-transparent border-none cursor-pointer transition-all ${
+          className={`flex items-center gap-[8px] max-md:min-h-9 max-md:self-start max-md:whitespace-nowrap max-md:text-[13px] text-[14px] font-sans font-semibold tracking-[0.1px] leading-[24px] bg-transparent border-none cursor-pointer transition-all ${
             hintAlreadyUsed ? 'text-[#c0bfbd] cursor-not-allowed' : 'text-[#111]'
           }`}
         >
@@ -236,7 +247,7 @@ export default function QuizQuestion({
             size="md"
             onClick={onCheck}
             rightIcon={<SLArrowRightSmIcon className="size-[14px]" />}
-            className="text-[14px]!"
+            className="text-[14px]! max-md:whitespace-nowrap max-md:sticky max-md:bottom-[max(12px,env(safe-area-inset-bottom))] max-md:z-10 max-md:mt-2 max-md:min-h-10 max-md:w-full"
           >
             Check Answer
           </Button>
@@ -248,7 +259,7 @@ export default function QuizQuestion({
             size="md"
             onClick={onNext}
             rightIcon={<SLArrowRightSmIcon className="size-[14px]" />}
-            className="text-[14px]!"
+            className="text-[14px]! max-md:whitespace-nowrap max-md:sticky max-md:bottom-[max(12px,env(safe-area-inset-bottom))] max-md:z-10 max-md:mt-2 max-md:min-h-10 max-md:w-full"
           >
             {currentIndex < total - 1 ? 'Next Question' : 'See Results'}
           </Button>

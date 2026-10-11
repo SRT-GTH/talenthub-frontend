@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ClampText from '../../ui/ClampText.jsx';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ValidationCheckCard');
@@ -166,7 +167,7 @@ const InfoIcon = () => (
  */
 const TableHeader = () => (
   <div
-    className="grid w-full px-[16px] py-[8px]"
+    className="grid w-full px-[16px] py-[8px] max-md:hidden"
     style={{
       gridTemplateColumns: '60px 1fr 110px 1fr',
       borderBottom: '1px solid rgba(0,0,0,0.08)',
@@ -176,7 +177,7 @@ const TableHeader = () => (
       <span
         key={col}
         className="font-sans font-bold text-[#70706e]"
-        style={{ fontSize: '10px', lineHeight: '11.93px', letterSpacing: '0.5px' }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '11.93px', letterSpacing: '0.5px' }}
       >
         {col}
       </span>
@@ -194,7 +195,7 @@ const TableRow = ({ row, name, dob, reason, reasonColor }) => {
   const [hovered, setHovered] = useState(false);
   return (
     <div
-      className="grid w-full px-[16px] items-center"
+      className="grid w-full px-[16px] items-center max-md:flex max-md:h-auto! max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-0.5 max-md:px-3 max-md:py-1.5"
       style={{
         gridTemplateColumns: '60px 1fr 110px 1fr',
         height: '34px',
@@ -206,8 +207,8 @@ const TableRow = ({ row, name, dob, reason, reasonColor }) => {
       onMouseLeave={() => setHovered(false)}
     >
       <span
-        className="font-sans font-normal text-[#70706e]"
-        style={{ fontSize: '11px', lineHeight: '13px' }}
+        className="font-sans font-normal text-[#70706e] max-md:min-w-8"
+        style={{ fontSize: 'var(--fs-11)', lineHeight: '13px' }}
       >
         {row}
       </span>
@@ -219,13 +220,13 @@ const TableRow = ({ row, name, dob, reason, reasonColor }) => {
       </span>
       <span
         className="font-sans font-normal text-[#70706e]"
-        style={{ fontSize: '11px', lineHeight: '13px' }}
+        style={{ fontSize: 'var(--fs-11)', lineHeight: '13px' }}
       >
         {dob}
       </span>
       <span
         className="font-sans font-semibold"
-        style={{ fontSize: '11px', lineHeight: '13px', color: reasonColor }}
+        style={{ fontSize: 'var(--fs-11)', lineHeight: '13px', color: reasonColor }}
       >
         {reason}
       </span>
@@ -241,7 +242,7 @@ const MoreRowsRow = ({ count }) => (
   <div className="flex items-center px-[16px]" style={{ height: '33px' }}>
     <span
       className="font-sans font-normal text-[#babab7]"
-      style={{ fontSize: '11px', lineHeight: '13px' }}
+      style={{ fontSize: 'var(--fs-11)', lineHeight: '13px' }}
     >
       + {count} more rows in download file
     </span>
@@ -254,7 +255,7 @@ const MoreRowsRow = ({ count }) => (
  */
 const HowToFixRow = ({ text }) => (
   <div
-    className="flex items-center gap-[8px] w-full px-[16px]"
+    className="flex items-center gap-[8px] w-full px-[16px] max-md:h-auto! max-md:items-start max-md:px-3 max-md:py-2"
     style={{
       height: '34px',
       backgroundColor: '#fefcf5',
@@ -263,8 +264,8 @@ const HowToFixRow = ({ text }) => (
   >
     <InfoIcon />
     <p
-      className="font-sans text-[#111111] truncate"
-      style={{ fontSize: '10px', lineHeight: '12px' }}
+      className="font-sans text-[#111111] truncate max-md:whitespace-normal"
+      style={{ fontSize: 'var(--fs-10)', lineHeight: '12px' }}
     >
       <span className="font-bold">How to fix: </span>
       <span className="font-normal">{text}</span>
@@ -310,7 +311,7 @@ const ValidationCheckCard = ({ variant, title, description, rows = [], howToFix 
       {/* ── Card header — click to expand/collapse ── */}
       <div
         className={[
-          'flex items-center gap-[16px] px-[16px]',
+          'flex items-center gap-[16px] px-[16px] max-md:gap-3 max-md:px-3',
           hasRows ? 'cursor-pointer select-none' : '',
         ].join(' ')}
         style={{ minHeight: '57px', paddingTop: '8px', paddingBottom: '8px' }}
@@ -333,7 +334,7 @@ const ValidationCheckCard = ({ variant, title, description, rows = [], howToFix 
         <div
           className={[
             'shrink-0 flex items-center justify-center',
-            'size-[26px] rounded-full',
+            'size-[26px] rounded-full max-md:size-6',
             cfg.circle,
           ].join(' ')}
           aria-label={`Check ${ARIA_LABEL[variant]}`}
@@ -344,17 +345,32 @@ const ValidationCheckCard = ({ variant, title, description, rows = [], howToFix 
         {/* Text group — title + description, VERTICAL gap=2px */}
         <div className="flex flex-1 flex-col gap-[2px] min-w-0">
           <p
-            className={['font-sans font-bold truncate', cfg.titleCls].join(' ')}
+            className={[
+              'font-sans font-bold truncate max-md:whitespace-normal max-md:text-[14px]! max-md:leading-5!',
+              cfg.titleCls,
+            ].join(' ')}
             style={{ fontSize: '13px', lineHeight: '15.5px' }}
           >
             {title}
           </p>
-          <p
-            className={['font-sans font-normal truncate', cfg.bodyCls].join(' ')}
-            style={{ fontSize: '12px', lineHeight: '15.9px' }}
+          {/* Phones: long descriptions clamp to 2 lines (ClampText is a no-op from lg up).
+              Clicks on its Read more button must not also toggle the card. */}
+          <div
+            onClick={(e) => {
+              if (e.target.closest('button')) e.stopPropagation();
+            }}
           >
-            {description}
-          </p>
+            <ClampText
+              lines={2}
+              className={[
+                'font-sans font-normal text-[12px] leading-[15.9px] truncate max-md:whitespace-normal max-md:text-[13px] max-md:leading-[18px]',
+                cfg.bodyCls,
+              ].join(' ')}
+              buttonClassName="relative text-[12px]! before:absolute before:-inset-x-2 before:-inset-y-2 before:content-['']"
+            >
+              {description}
+            </ClampText>
+          </div>
         </div>
 
         {/* Right side — row count badge + chevron (only when expandable) */}
@@ -367,7 +383,7 @@ const ValidationCheckCard = ({ variant, title, description, rows = [], howToFix 
               style={{
                 backgroundColor: cfg.badgeBg,
                 color: cfg.badgeText,
-                fontSize: '10px',
+                fontSize: 'var(--fs-10)',
                 lineHeight: '18px',
                 padding: '0 8px',
                 height: '18px',

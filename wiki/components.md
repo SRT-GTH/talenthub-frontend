@@ -926,3 +926,13 @@ confirmation modal ships with them.
 - Prefix every component with a `debug(scope)` log on render/mount per [debugging-workflow.md](debugging-workflow.md).
 - Co-locate component-specific styles in the same file (Tailwind classes inline). Cross-component styles live in `src/index.css`.
 - For forms: use `react-hook-form` + `zod` schema. See [api.md](api.md) for related patterns.
+
+## Responsive primitives `✅ VERIFIED` (2026-10-10)
+
+| Component / hook                                                                         | Path                                      | Purpose                                                                                                       |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `ClampText`                                                                              | `ui/ClampText.jsx`                        | Long copy clamps to N lines with "Read more" below lg; full text from lg. Toggle only appears when truncated. |
+| `TagRow`                                                                                 | `ui/TagRow.jsx`                           | Chips/skills on one line with a round "+N" button that expands; wraps normally from lg.                       |
+| `useMediaQuery` / `useIsDesktop`                                                         | `hooks/useMediaQuery.js`                  | Subscribe to a media query (DOM that differs per breakpoint).                                                 |
+| `DashboardMobileTabBar`, `DashboardMoreSheet`, `DashboardSearchSheet`, `dashboardNav.js` | `sections/dashboard/`                     | Phone navigation for the recruiter dashboard (shared nav data with the desktop rail).                         |
+| `StageLayout` / `StageAsideAccordion`                                                    | `sections/profileFilling/StageLayout.jsx` | Content + insight aside → stacked with a collapsible "Why this matters" row below lg.                         |

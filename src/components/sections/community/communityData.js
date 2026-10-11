@@ -15,16 +15,16 @@
  * verbatim and flagged inline — do not "fix" them here.
  */
 
-import coverSoftwareEngineeringGhana from '../../../assets/community/cover-software-engineering-ghana.png';
-import coverYoungEntrepreneursNetwork from '../../../assets/community/cover-young-entrepreneurs-network.png';
-import coverCreativesDesignersHub from '../../../assets/community/cover-creatives-designers-hub.png';
-import coverStemGirlsGhana from '../../../assets/community/cover-stem-girls-ghana.png';
-import coverTradesVocationalSkills from '../../../assets/community/cover-trades-vocational-skills.png';
-import coverFirstGenScholars from '../../../assets/community/cover-first-gen-scholars.png';
-import coverFrontendDevsGhana from '../../../assets/community/cover-frontend-devs-ghana.png';
-import coverHackathonsGhana from '../../../assets/community/cover-hackathons-ghana.png';
-import coverDataScienceGhana from '../../../assets/community/cover-data-science-ghana.png';
-import coverYoungFoundersHub from '../../../assets/community/cover-young-founders-hub.png';
+import coverSoftwareEngineeringGhana from '../../../assets/community/cover-software-engineering-ghana.webp';
+import coverYoungEntrepreneursNetwork from '../../../assets/community/cover-young-entrepreneurs-network.webp';
+import coverCreativesDesignersHub from '../../../assets/community/cover-creatives-designers-hub.webp';
+import coverStemGirlsGhana from '../../../assets/community/cover-stem-girls-ghana.webp';
+import coverTradesVocationalSkills from '../../../assets/community/cover-trades-vocational-skills.webp';
+import coverFirstGenScholars from '../../../assets/community/cover-first-gen-scholars.webp';
+import coverFrontendDevsGhana from '../../../assets/community/cover-frontend-devs-ghana.webp';
+import coverHackathonsGhana from '../../../assets/community/cover-hackathons-ghana.webp';
+import coverDataScienceGhana from '../../../assets/community/cover-data-science-ghana.webp';
+import coverYoungFoundersHub from '../../../assets/community/cover-young-founders-hub.webp';
 
 import heroStack2 from '../../../assets/community/hero-stack-2.png';
 import heroStack3 from '../../../assets/community/hero-stack-3.png';
@@ -42,11 +42,11 @@ import avatarYaaAsantewaa from '../../../assets/community/avatar-yaa-asantewaa.p
 import avatarAkosuaMansa from '../../../assets/community/avatar-akosua-mansa.png';
 import avatarKingD from '../../../assets/community/avatar-king-d.png';
 
-import post1Photo1 from '../../../assets/community/post-1-photo-1.png';
-import post1Photo2 from '../../../assets/community/post-1-photo-2.png';
-import post1Photo3 from '../../../assets/community/post-1-photo-3.png';
-import post1Photo4 from '../../../assets/community/post-1-photo-4.png';
-import post2Photo1 from '../../../assets/community/post-2-photo-1.png';
+import post1Photo1 from '../../../assets/community/post-1-photo-1.webp';
+import post1Photo2 from '../../../assets/community/post-1-photo-2.webp';
+import post1Photo3 from '../../../assets/community/post-1-photo-3.webp';
+import post1Photo4 from '../../../assets/community/post-1-photo-4.webp';
+import post2Photo1 from '../../../assets/community/post-2-photo-1.webp';
 
 import tileDataSciencePlaceholder from '../../../assets/community/tile-data-science-placeholder.svg';
 

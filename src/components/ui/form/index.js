@@ -15,3 +15,4 @@ export { default as Checkbox } from './Checkbox.jsx';
 export { default as Radio } from './Radio.jsx';
 export { default as VerificationCode } from './VerificationCode.jsx';
 export { default as Upload } from './Upload.jsx';
+export { default as StickyActionBar } from './StickyActionBar.jsx';

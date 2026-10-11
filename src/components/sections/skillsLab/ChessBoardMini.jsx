@@ -46,7 +46,7 @@ export default function ChessBoardMini({ fen, highlightedSquares = {}, legends =
             {[8, 7, 6, 5, 4, 3, 2, 1].map((n) => (
               <span
                 key={n}
-                className="bg-clip-text text-[transparent] text-[9px] font-medium leading-none text-center"
+                className="bg-clip-text text-[transparent] text-[9px] max-lg:text-[12px] font-medium leading-none text-center"
                 style={COORD_GRADIENT_STYLE}
               >
                 {n}
@@ -93,7 +93,7 @@ export default function ChessBoardMini({ fen, highlightedSquares = {}, legends =
           {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((l) => (
             <span
               key={l}
-              className="bg-clip-text text-[transparent] text-[9px] font-medium leading-none text-center flex-1"
+              className="bg-clip-text text-[transparent] text-[9px] max-lg:text-[12px] font-medium leading-none text-center flex-1"
               style={COORD_GRADIENT_STYLE}
             >
               {l}
@@ -109,7 +109,7 @@ export default function ChessBoardMini({ fen, highlightedSquares = {}, legends =
                 className={`size-[10px] rounded-full ${LEGEND_COLORS[legend.color] || ''}`}
                 style={!LEGEND_COLORS[legend.color] ? { backgroundColor: legend.color } : undefined}
               />
-              <span className="text-[#575755] text-[10px] font-sans leading-normal">
+              <span className="text-[#575755] text-[10px] max-lg:text-[12px] font-sans leading-normal">
                 {legend.label}
               </span>
             </div>

@@ -116,10 +116,10 @@ const NoneTileBody = ({ sub }) => (
     aria-hidden="true"
     className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-1 text-center"
   >
-    <span className="font-sans font-semibold text-[12px] leading-4 tracking-[0.1px] text-content-primary">
+    <span className="font-sans font-semibold text-[12px] leading-4 tracking-[0.1px] text-content-primary whitespace-nowrap">
       None
     </span>
-    <span className="font-sans text-[10px] leading-[12px] tracking-[0.2px] text-neutral-dark-hover">
+    <span className="font-sans text-[10px] max-lg:text-[12px] leading-[12px] tracking-[0.2px] text-neutral-dark-hover whitespace-nowrap max-lg:hidden">
       {sub}
     </span>
   </span>
@@ -188,16 +188,16 @@ const AvatarExtrasPanel = ({ activeTab = 'extras', onTabSelect, className }) => 
     <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
-        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
+        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] max-lg:text-[20px] leading-[1.1] tracking-[-0.2px] text-content-primary">
           Add your extras
         </h2>
-        <p className="mt-1 font-sans text-[13px] leading-5 tracking-[0.2px] text-neutral-darker">
+        <p className="mt-1 font-sans text-[13px] max-lg:hidden leading-5 tracking-[0.2px] text-neutral-darker">
           Eyewear, facial hair, earrings, and finishing details — go light or stack a few.
         </p>
       </header>
 
       {/* Stat pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-lg:hidden">
         <AvatarStatPill count="24" label="styles" />
         <AvatarStatPill count="12" label="Skin Tones" />
         <AvatarStatPill count="18" label="Hairstyles" />

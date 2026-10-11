@@ -101,7 +101,9 @@ export const AvatarOptionTile = ({
     {label && (
       <span
         className={classNames(
-          'mt-1.5 block text-center font-sans text-[11px] leading-[14px] tracking-[0.1px]',
+          'mt-1.5 block text-center font-sans text-[11px] max-lg:text-[12px] leading-[14px] tracking-[0.1px]',
+          // phones: captions stay on ONE line (may overhang the tile by a few px)
+          'max-lg:-mx-1.5 max-lg:overflow-hidden max-lg:text-ellipsis max-lg:whitespace-nowrap',
           selected ? 'font-semibold text-content-primary' : 'font-medium text-neutral-darker'
         )}
       >
@@ -144,7 +146,9 @@ export const AvatarColorSwatch = ({
     className={classNames(
       'group relative inline-flex items-center justify-center rounded-full',
       // Image-based swatches render a touch bigger than flat-colour ones.
-      image ? 'size-7' : 'size-6',
+      image ? 'size-7 max-lg:size-8' : 'size-6 max-lg:size-8',
+      // 32px visual swatch, 44px hit area
+      'max-lg:before:absolute max-lg:before:-inset-1.5',
       'transition-transform duration-150 ease-out hover:scale-105',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       selected ? 'ring-2 ring-brand-green ring-offset-2 ring-offset-white' : '',
@@ -203,7 +207,7 @@ export const AvatarStatPill = ({ count, label, className }) => (
   <span
     className={classNames(
       'inline-flex items-center gap-1 rounded-pill border border-border-default bg-white px-2.5 py-1',
-      'font-sans text-[11px] leading-4 tracking-[0.2px]',
+      'font-sans text-[11px] max-lg:text-[12px] leading-4 tracking-[0.2px]',
       className
     )}
   >
@@ -222,7 +226,7 @@ export const AvatarSectionHeader = ({ title, meta, className }) => (
       {title}
     </h3>
     {meta && (
-      <span className="font-sans text-[11px] leading-4 tracking-[0.2px] text-neutral-dark-hover">
+      <span className="font-sans text-[11px] max-lg:text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-hover">
         {meta}
       </span>
     )}
@@ -303,7 +307,7 @@ export const AvatarHelperTip = ({ children, className }) => (
     <span aria-hidden="true" className="mt-0.5 inline-flex size-4 shrink-0 text-brand-green">
       <LeafIcon className="size-full" />
     </span>
-    <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-content-primary">
+    <p className="font-sans text-[12px] max-lg:text-[14px] leading-[18px] max-lg:leading-5 tracking-[0.2px] text-content-primary">
       {children}
     </p>
   </div>

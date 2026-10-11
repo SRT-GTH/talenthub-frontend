@@ -30,7 +30,12 @@ const RecruiterQuickActions = ({ onSelect, className }) => {
   log('render', { cardCount: QUICK_ACTIONS.length });
 
   return (
-    <div className={classNames('flex w-full items-stretch gap-[16px]', className)}>
+    <div
+      className={classNames(
+        'grid w-full grid-cols-1 items-stretch gap-[16px] max-lg:gap-[8px] sm:grid-cols-2 lg:flex',
+        className
+      )}
+    >
       {QUICK_ACTIONS.map((action) => {
         const Icon = ICONS[action.id];
         /* A card with a destination is navigation, so it renders as a link;
@@ -47,24 +52,26 @@ const RecruiterQuickActions = ({ onSelect, className }) => {
               onSelect?.(action.id);
             }}
             className={classNames(
-              'flex min-w-0 flex-1 items-center gap-[12px] rounded-lg border border-neutral-light px-[16px] py-[14px] text-left shadow-card',
+              'flex min-w-0 flex-1 items-center gap-[12px] rounded-lg border border-neutral-light px-[16px] py-[14px] text-left shadow-card max-lg:gap-[10px] max-lg:px-[10px] max-lg:py-[8px]',
               'transition-all duration-300 ease-in hover:-translate-y-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
               action.tintClass
             )}
           >
-            <span className="grid size-[44px] shrink-0 place-items-center rounded-[12px] bg-white">
-              <Icon className={classNames('size-[22px]', action.iconClass)} />
+            <span className="grid size-[44px] max-lg:size-[28px] shrink-0 place-items-center rounded-[12px] bg-white">
+              <Icon className={classNames('size-[22px] max-lg:size-[16px]', action.iconClass)} />
             </span>
-            <span className="flex min-w-0 flex-col gap-[2px]">
+            <span className="flex min-w-0 flex-col gap-[2px] max-lg:flex-1 max-lg:flex-row max-lg:items-center max-lg:justify-between max-lg:gap-[8px]">
               <span
                 className={classNames(
-                  'text-[14px] font-semibold leading-5 tracking-[0.1px] text-black/90',
+                  'text-[14px] font-semibold leading-5 tracking-[0.1px] text-black/90 max-lg:truncate max-lg:text-[13px]',
                   action.titleCase && 'capitalize'
                 )}
               >
                 {action.title}
               </span>
-              <span className="text-normal-50 text-neutral-dark-hover">{action.meta}</span>
+              <span className="text-normal-50 text-neutral-dark-hover max-lg:shrink-0 max-lg:whitespace-nowrap max-lg:text-[13px]">
+                {action.meta}
+              </span>
             </span>
           </Tag>
         );

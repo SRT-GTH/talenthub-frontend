@@ -116,10 +116,12 @@ const EMPTY_FORM = {
 // siblings (rounded-24, 1px #e8e8e4, 22px inset, 22px green number pill,
 // 12px semibold title on a #f8f8f4 hairline).
 const FormSection = ({ num, title, children }) => (
-  <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+  <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
     <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
       <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-        <span className="font-sans font-bold text-[11px] text-white leading-none">{num}</span>
+        <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+          {num}
+        </span>
       </span>
       <span className="font-sans font-semibold text-[12px] text-[#111]">{title}</span>
     </div>
@@ -184,15 +186,15 @@ const AddEditGoalModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
   // keeps "Cancel" + "Save Goals" (5622:90254), since there's nothing to
   // delete yet.
   const footer = (
-    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between">
+    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between max-sm:gap-2 max-sm:px-4 max-sm:py-3">
       {isEditMode && initialData?.onDelete ? (
         <button
           type="button"
           onClick={initialData.onDelete}
-          className="flex items-center gap-[7px] rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[18px] py-[14px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
+          className="flex items-center gap-[7px] max-sm:size-11 max-sm:justify-center max-sm:gap-0 max-sm:px-0 max-sm:py-0 rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[18px] py-[14px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
         >
           <WorkDeleteWarningIcon className="size-4" />
-          Delete this Goal
+          <span className="max-sm:sr-only">Delete this Goal</span>
         </button>
       ) : (
         <Button
@@ -200,11 +202,18 @@ const AddEditGoalModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           variant="tertiary"
           size="md"
           onClick={onClose}
+          className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
         >
-          Cancel
+          <span className="max-sm:sr-only">Cancel</span>
         </Button>
       )}
-      <Button variant="primary" size="md" onClick={handleSubmit} disabled={!canSubmit}>
+      <Button
+        variant="primary"
+        size="md"
+        onClick={handleSubmit}
+        disabled={!canSubmit}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
+      >
         {isEditMode ? 'Save Changes' : 'Save Goals'}
       </Button>
     </div>
@@ -217,14 +226,14 @@ const AddEditGoalModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
       size="lg"
       ariaLabel={isEditMode ? 'Edit goal' : 'Add a goal'}
       showClose={false}
-      contentClassName="!max-w-[889px] !rounded-[24px] !border-3 !border-[#c1d4c4] overflow-hidden p-0"
+      contentClassName="!max-w-[889px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] overflow-hidden p-0"
       footer={footer}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-[28px] top-[28px] z-10 size-[28px] rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
+        className="absolute right-[28px] top-[28px] max-sm:right-3 max-sm:top-3 z-10 size-[28px] max-lg:size-9 rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
       >
         <CloseIcon className="size-[12px]" />
       </button>
@@ -247,7 +256,7 @@ const AddEditGoalModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           </div>
 
           <div className="flex flex-col items-center gap-[4px]">
-            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
               New Goals. <span className="italic text-[#387440]">Where do you want to go?</span>
             </h2>
             <p className="font-sans text-[12px] text-[#959592] tracking-[0.2px] leading-[18px] max-w-[600px]">
@@ -374,7 +383,7 @@ const AddEditGoalModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
             <span className="font-sans font-bold text-[12px] text-brand-green">
               Why add a salary range?
             </span>
-            <p className="font-sans text-[11px] text-[#111] opacity-85 leading-[19.25px]">
+            <p className="font-sans text-[11px] max-lg:text-[12px] text-[#111] opacity-85 leading-[19.25px]">
               Profiles with a salary range get 60% fewer mismatched outreach messages from
               recruiters whose budget doesn&rsquo;t match yours. Only recruiters within your range
               (or who choose to reach out anyway) will contact you.

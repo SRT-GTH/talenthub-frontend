@@ -36,8 +36,8 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
       )}
     >
       {/* Header — Figma 7249:73966, pad L20 R14 T18 B16, gap 12 */}
-      <div className="flex flex-col gap-[12px] pb-[16px] pl-[20px] pr-[14px] pt-[18px]">
-        <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-[12px] pb-[16px] pl-[20px] pr-[14px] pt-[18px] max-sm:gap-[8px] max-sm:p-[12px]">
+        <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
           <div className="flex min-w-0 flex-col gap-[3px]">
             <h2
               className={classNames(
@@ -49,7 +49,7 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
             </h2>
             {/* whitespace-pre-wrap preserves the deliberate double space Figma
                 shows in "job matches  in any order" — HTML collapses it otherwise. */}
-            <p className="whitespace-pre-wrap text-normal-50 text-neutral-dark">
+            <p className="whitespace-pre-wrap text-normal-50 max-lg:text-[13px] text-neutral-dark">
               {GET_READY.subtitle}
             </p>
           </div>
@@ -68,13 +68,13 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
       </div>
 
       {/* Checklist — Figma 7249:73975, pad L20 R20 T2 B10 */}
-      <ul className="flex flex-col px-[20px] pb-[10px] pt-[2px]">
+      <ul className="flex flex-col px-[20px] pb-[10px] pt-[2px] max-sm:px-[12px] max-sm:pb-[4px] max-sm:pt-0">
         {GET_READY.items.map((item) => (
           <li
             key={item.id}
             className={classNames(
-              'flex items-center gap-[12px] py-[8px]',
-              item.tall && 'min-h-[78px]'
+              'flex items-center gap-[12px] py-[8px] max-sm:flex-wrap',
+              item.tall && 'min-h-[78px] max-sm:min-h-0'
             )}
           >
             {item.done ? (
@@ -85,7 +85,12 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
               <span className="size-[24px] shrink-0 rounded-full border-[1.5px] border-neutral-hover" />
             )}
 
-            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+            <div
+              className={classNames(
+                'flex min-w-0 flex-1 flex-col gap-[2px]',
+                item.action && 'max-sm:basis-[calc(100%-36px)]'
+              )}
+            >
               <span
                 className={classNames(
                   item.done
@@ -97,7 +102,9 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
                 {item.title}
               </span>
               {item.description && (
-                <span className="text-normal-50 text-neutral-active">{item.description}</span>
+                <span className="text-normal-50 max-lg:text-[13px] text-neutral-active">
+                  {item.description}
+                </span>
               )}
             </div>
 
@@ -111,7 +118,7 @@ const RecruiterGetReadyCard = ({ onItemAction, className }) => {
                 /* Figma shadow is a solid 3px shelf (#2a5730, 0 blur) — the
                    theme's --shadow-button-shelf is 0 4px 8px blurred, a
                    different effect, so this is an arbitrary value. */
-                className="inline-flex shrink-0 items-center gap-[6px] rounded-[9px] bg-brand-green px-[14px] py-[8px] shadow-[0_3px_0_0_var(--color-brand-green-dark)] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[3px] active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="inline-flex shrink-0 items-center gap-[6px] rounded-[9px] bg-brand-green px-[14px] py-[8px] max-sm:relative max-sm:ml-[36px] max-sm:h-[34px] max-sm:py-0 max-sm:after:absolute max-sm:after:-inset-y-[5px] max-sm:after:inset-x-0 max-lg:shadow-none shadow-[0_3px_0_0_var(--color-brand-green-dark)] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[3px] active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >
                 <span className="text-[14px] font-semibold leading-6 tracking-[0.2px] text-white">
                   {item.action}

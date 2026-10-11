@@ -33,7 +33,7 @@ const RailCard = ({ children, className, title }) => (
   <div
     title={title}
     className={classNames(
-      'w-full overflow-hidden rounded-[24.108px] bg-white p-[28px] shadow-[0px_2px_1px_0px_rgba(141,138,138,0.17)]',
+      'w-full overflow-hidden rounded-[24.108px] bg-white p-[28px] max-sm:rounded-[14px] max-sm:p-[14px] shadow-[0px_2px_1px_0px_rgba(141,138,138,0.17)]',
       className
     )}
   >
@@ -104,20 +104,20 @@ const CommunityRightRail = ({ className }) => {
                     log('related community clicked:', item.id);
                     navigate(`/community/${item.id}`);
                   }}
-                  className="flex w-full items-center justify-between rounded-[8px] px-[12px] py-[12.05px] text-left transition-colors hover:bg-neutral focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
+                  className="flex w-full items-center justify-between rounded-[8px] px-[12px] py-[12.05px] max-lg:px-[4px] max-lg:py-[6px] text-left transition-colors hover:bg-neutral focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
                 >
-                  <span className="flex min-w-0 items-center gap-[16.88px]">
+                  <span className="flex min-w-0 items-center gap-[16.88px] max-lg:gap-[10px]">
                     <img
                       src={item.image}
                       alt=""
                       draggable="false"
-                      className="size-[53.04px] shrink-0 select-none rounded-[12.05px] object-cover"
+                      className="size-[53.04px] max-lg:size-[32px] shrink-0 select-none rounded-[12.05px] object-cover"
                     />
-                    <span className="flex min-w-0 flex-col items-start gap-[6px]">
-                      <span className="w-full truncate font-sans text-[16px] font-medium text-black">
+                    <span className="flex min-w-0 flex-col items-start gap-[6px] max-lg:flex-row max-lg:items-baseline max-lg:gap-[6px]">
+                      <span className="w-full truncate font-sans text-[16px] max-lg:w-auto max-lg:min-w-0 max-lg:text-[14px] max-lg:leading-5 font-medium text-black">
                         {item.name}
                       </span>
-                      <span className="w-full truncate font-sans text-[15px] text-[#737373]">
+                      <span className="w-full truncate font-sans text-[15px] max-lg:w-auto max-lg:shrink-0 max-lg:whitespace-nowrap max-lg:text-[14px] max-lg:leading-5 text-[#737373]">
                         {item.meta}
                       </span>
                     </span>

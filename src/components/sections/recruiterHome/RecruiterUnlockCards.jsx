@@ -35,7 +35,7 @@ const RecruiterUnlockCards = ({ className }) => {
   log('render', { cardCount: COMING_UP.cards.length });
 
   return (
-    <section className={classNames('flex w-full flex-col gap-[12px]', className)}>
+    <section className={classNames('flex w-full flex-col gap-[12px] max-lg:gap-[8px]', className)}>
       <div className="flex max-w-[415px] flex-col gap-[2px]">
         <h2
           className={classNames(
@@ -47,16 +47,18 @@ const RecruiterUnlockCards = ({ className }) => {
         </h2>
         {/* See RecruiterGetReadyCard — same deliberate double space, in
             "turns these on  no pressure". */}
-        <p className="whitespace-pre-wrap text-normal-50 text-neutral-dark">{COMING_UP.subtitle}</p>
+        <p className="whitespace-pre-wrap text-normal-50 max-lg:text-[13px] text-neutral-dark">
+          {COMING_UP.subtitle}
+        </p>
       </div>
 
-      <div className="flex items-stretch gap-[14px]">
+      <div className="flex flex-col items-stretch gap-[14px] max-lg:gap-[10px] lg:flex-row">
         {COMING_UP.cards.map((card) => {
           const Icon = ICONS[card.icon];
           return (
             <article
               key={card.id}
-              className="relative flex min-w-0 flex-1 flex-col gap-[12px] rounded-lg bg-white p-[16px] opacity-[0.92]"
+              className="relative flex min-w-0 flex-1 flex-col gap-[12px] max-lg:gap-[8px] rounded-lg bg-white p-[16px] max-lg:p-[12px] opacity-[0.92]"
             >
               {/* Exact 7/5 dashed r16 outline — see component note above. */}
               <svg
@@ -75,7 +77,7 @@ const RecruiterUnlockCards = ({ className }) => {
               </svg>
 
               <div className="relative flex items-center justify-between gap-2">
-                <span className="grid size-[44px] shrink-0 place-items-center rounded-[12px] border border-neutral-light bg-white">
+                <span className="grid size-[44px] max-lg:size-[36px] shrink-0 place-items-center rounded-[12px] border border-neutral-light bg-white">
                   <Icon
                     className={classNames(
                       'text-brand-green',
@@ -102,7 +104,9 @@ const RecruiterUnlockCards = ({ className }) => {
                     {card.title}
                   </h3>
                   {/* #646461 — a one-off description grey with no theme token. */}
-                  <p className="text-normal-50 text-[#646461]">{card.description}</p>
+                  <p className="text-normal-50 max-lg:text-[13px] text-[#646461]">
+                    {card.description}
+                  </p>
                 </div>
 
                 <span className="inline-flex w-fit items-center gap-[8px] rounded-pill border border-neutral-light bg-white px-[8px] py-[4px]">

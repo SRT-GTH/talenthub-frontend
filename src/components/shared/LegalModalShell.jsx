@@ -126,7 +126,7 @@ const LegalModalShell = ({
       onClick={onClose}
     >
       <div
-        className="relative flex w-full max-w-[680px] flex-col bg-white"
+        className="relative flex w-full max-w-[680px] flex-col bg-white max-md:max-h-[90dvh]!"
         style={{
           maxHeight: 'min(90vh, 1126px)',
           borderTopLeftRadius: 24,
@@ -143,7 +143,7 @@ const LegalModalShell = ({
 
         {/* Header */}
         <div
-          className="flex items-start justify-between px-6 pb-4 pt-9"
+          className="flex items-start justify-between px-6 pb-4 pt-9 max-md:px-4 max-md:pb-3 max-md:pt-7"
           style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
         >
           <div className="flex flex-col gap-2">
@@ -168,7 +168,7 @@ const LegalModalShell = ({
               </svg>
               <span
                 className="font-bold uppercase text-[#70706E]"
-                style={{ fontSize: 10, letterSpacing: '0.6px' }}
+                style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.6px' }}
               >
                 Summary
               </span>
@@ -253,7 +253,10 @@ const LegalModalShell = ({
                       border: `1px solid ${styles.bubble.borderColor}`,
                     }}
                   >
-                    <span className="font-bold" style={{ fontSize: 11, color: styles.digit }}>
+                    <span
+                      className="font-bold"
+                      style={{ fontSize: 'var(--fs-11)', color: styles.digit }}
+                    >
                       {point.n}
                     </span>
                   </span>
@@ -339,13 +342,13 @@ const LegalModalShell = ({
 
         {/* Footer */}
         <div
-          className="flex flex-col gap-4 px-6 pb-6 pt-3"
+          className="flex flex-col gap-4 px-6 pb-6 pt-3 max-md:gap-2 max-md:px-4 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-md:pt-2"
           style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
         >
           <div className="flex items-center justify-between gap-4">
             <p
               className="max-w-[401px] text-[#BABAB7]"
-              style={{ fontSize: 11, lineHeight: '15.4px' }}
+              style={{ fontSize: 'var(--fs-11)', lineHeight: '15.4px' }}
             >
               {footerHelper}
             </p>
@@ -354,7 +357,7 @@ const LegalModalShell = ({
                 href={readFullHref}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-[35px] items-center gap-2 rounded-[4px] border px-4 transition-colors hover:bg-brand-green-light"
+                className="inline-flex h-[35px] shrink-0 items-center gap-2 whitespace-nowrap rounded-[4px] border px-4 transition-colors hover:bg-brand-green-light max-md:h-8 max-md:px-3"
                 style={{ borderColor: '#C1D4C4' }}
               >
                 <span
@@ -379,7 +382,7 @@ const LegalModalShell = ({
           <button
             type="button"
             onClick={onAccept}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-[14px] bg-brand-green transition-transform hover:translate-y-px"
+            className="flex h-14 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[14px] bg-brand-green transition-transform hover:translate-y-px max-md:h-11 max-md:rounded-[10px] max-md:shadow-none!"
             style={{
               border: '1px solid #2A5730',
               borderLeftWidth: 2,
@@ -395,7 +398,7 @@ const LegalModalShell = ({
               />
             </svg>
             <span
-              className="font-bold"
+              className="font-bold max-md:text-[14px]!"
               style={{
                 fontSize: 16,
                 lineHeight: '24px',

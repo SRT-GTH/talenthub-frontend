@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
+import ClampText from '../../ui/ClampText.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 import AddEditWorkModal from './AddEditWorkModal.jsx';
 import DeleteWorkModal from './DeleteWorkModal.jsx';
 import WorkSavedModal from './WorkSavedModal.jsx';
@@ -133,21 +136,18 @@ const RoleCard = ({ role, onEdit, onDelete, readOnly = false }) => {
   log('RoleCard render', { id: role.id, statusTag: role.statusTag, readOnly });
 
   return (
-    <div
-      className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] flex flex-col gap-[10px] relative"
-      style={{ boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.07)' }}
-    >
+    <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] flex flex-col gap-[10px] relative max-lg:rounded-xl max-lg:p-3 max-lg:gap-2 shadow-[0px_4px_0px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
       {/* Edit/delete icon buttons — top-right, 28px squares. Hidden for the
           "Example of a strong work entry" reference card (readOnly): it's a
           static illustration, not a real saved role, so editing/deleting it
           makes no sense. */}
       {!readOnly && (
-        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px]">
+        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px] max-lg:right-2 max-lg:top-2 max-lg:gap-1">
           <button
             type="button"
             onClick={onEdit}
             aria-label={`Edit ${role.jobTitle}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
           >
             <WorkEditPencilIcon className="size-3" />
           </button>
@@ -155,20 +155,24 @@ const RoleCard = ({ role, onEdit, onDelete, readOnly = false }) => {
             type="button"
             onClick={onDelete}
             aria-label={`Delete ${role.jobTitle}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
           >
             <WorkDeleteIcon className="size-3" />
           </button>
         </div>
       )}
 
-      <div className={`flex items-start gap-[14px] ${readOnly ? '' : 'pr-[70px]'}`}>
-        <span className="size-[44px] rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
-          <WorkRoleIcon className="size-5 text-brand-green" />
+      <div
+        className={`flex items-start gap-[14px] max-sm:gap-2.5 ${readOnly ? '' : 'pr-[70px] max-lg:pr-[76px] max-sm:pr-0'}`}
+      >
+        <span className="size-[44px] max-sm:size-8 rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
+          <WorkRoleIcon className="size-5 max-sm:size-4 text-brand-green" />
         </span>
-        <div className="flex flex-col gap-[4px] min-w-0">
-          <span className="font-sans font-bold text-[15px] text-[#111]">{role.jobTitle}</span>
-          <div className="flex items-center flex-wrap gap-[9px] font-sans text-[12px] text-[#70706e]">
+        <div className="flex flex-col gap-[4px] min-w-0 max-sm:flex-row max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1">
+          <span className="max-sm:w-full max-lg:text-[16px] font-sans font-bold text-[15px] text-[#111] max-sm:min-h-8 max-sm:pr-[76px]">
+            {role.jobTitle}
+          </span>
+          <div className="flex items-center flex-wrap gap-[9px] font-sans text-[12px] text-[#70706e] max-sm:w-full max-lg:gap-x-2 max-lg:gap-y-0">
             <span>
               {role.organisation} — {role.location}
             </span>
@@ -176,32 +180,43 @@ const RoleCard = ({ role, onEdit, onDelete, readOnly = false }) => {
             <span>
               {role.startDate} – {role.isCurrent ? 'Present' : role.endDate}
             </span>
-            <span className="text-[#e8e8e4]">|</span>
-            <span className="font-mono text-[10px] text-[#babab7]">{role.duration}</span>
+            <span className="text-[#e8e8e4] max-sm:hidden">|</span>
+            <span className="font-mono text-[10px] max-lg:text-[12px] text-[#babab7] max-sm:hidden">
+              {role.duration}
+            </span>
           </div>
           <span
-            className="inline-flex items-center gap-[4px] self-start rounded-full border px-[8px] h-[19px] font-sans font-semibold text-[10px]"
+            className="inline-flex items-center gap-[4px] self-start rounded-full border px-[8px] h-[19px] font-sans font-semibold text-[10px] max-lg:text-[12px]"
             style={{
               background: statusStyle.bg,
               borderColor: statusStyle.border,
               color: statusStyle.text,
             }}
           >
-            {statusStyle.dot && <span className="text-[8px]">●</span>}
+            {statusStyle.dot && <span className="text-[8px] max-lg:text-[12px]">●</span>}
             {role.statusTag}
           </span>
-          <p className="font-sans text-[12px] text-[#70706e] leading-[1.65] mt-[2px]">
+          <ClampText
+            lines={2}
+            className="font-sans text-[12px] text-[#70706e] leading-[1.65] mt-[2px] max-lg:text-[13px] max-lg:leading-[18px] max-sm:order-last max-sm:mt-0 max-sm:w-full"
+            buttonClassName="max-sm:order-last max-sm:w-full max-sm:!mt-0 max-sm:!min-h-6 max-sm:leading-4"
+          >
             {role.description}
-          </p>
-          <div className="flex items-center flex-wrap gap-[5px] mt-[2px]">
-            {role.tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-[#f8f8f4] h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
-              >
-                {tag}
-              </span>
-            ))}
+          </ClampText>
+          <div className="min-w-0 max-sm:w-full lg:contents">
+            <TagRow
+              gap={5}
+              className="items-center mt-[2px] max-sm:mt-0"
+              items={role.tags}
+              renderItem={(tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-[#f8f8f4] h-[21px] max-lg:h-7 px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
+                >
+                  {tag}
+                </span>
+              )}
+            />
           </div>
         </div>
       </div>
@@ -214,11 +229,11 @@ const RoleCard = ({ role, onEdit, onDelete, readOnly = false }) => {
 // "Recruiter views this week" (verbatim, confirmed via get_design_context).
 const WorkStage2RightAside = ({ roleCount }) => (
   <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
     aria-label="Work experience guidance"
     style={{ scrollbarWidth: 'none' }}
   >
-    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)]">
+    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)] max-lg:gap-3 max-lg:p-4">
       {/* What counts? */}
       <div
         className="rounded-[10px] border border-[#c1d4c4] p-[16px]"
@@ -253,31 +268,25 @@ const WorkStage2RightAside = ({ roleCount }) => (
       </div>
 
       {/* Why this matters */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-sans font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           Why this matters
         </p>
-        <p className="font-sans text-[12px] text-[#999] leading-[1.6]">
+        <p className="font-sans text-[12px] text-[#999] leading-[1.6] max-lg:text-[14px]">
           Recruiters prioritize experience. Even 3 months at an SME beats a blank page. Skills lab
           badges complement your work history.
         </p>
       </div>
 
       {/* Recruiter views this week */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px]"
-        style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.07)' }}
-      >
-        <p className="font-sans font-bold text-[10px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] shadow-[0px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
           👀 Recruiter views this week
         </p>
-        <p className="font-display text-[36px] leading-none text-[#111] mb-[10px]">
+        <p className="font-display text-[36px] max-lg:text-[24px] leading-none text-[#111] mb-[10px]">
           {roleCount > 0 ? Math.min(roleCount * 3, 24) : 0}
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] mb-[10px]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] mb-[10px]">
           profile views from recruiters
         </p>
         <div className="h-[6px] rounded-full bg-[#e8e8e4] overflow-hidden mb-[10px]">
@@ -289,7 +298,7 @@ const WorkStage2RightAside = ({ roleCount }) => (
             }}
           />
         </div>
-        <p className="font-sans text-[10px] text-[#70706e]">
+        <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e]">
           {roleCount > 0
             ? 'Recruiters are already discovering your profile.'
             : 'Add work experience to unlock recruiter discovery'}
@@ -420,8 +429,8 @@ const WorkStage2Section = () => {
   const isEmpty = roles.length === 0;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -430,24 +439,24 @@ const WorkStage2Section = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={4} completionPct={44} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
               {/* Header — Figma 5112:106307 */}
               <section
                 aria-label="Work history — where you've been"
-                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)]"
+                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] max-lg:px-4 max-lg:py-4"
               >
-                <h2 className="font-display text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] mb-[clamp(8px,0.93vw,16px)]">
+                <h1 className="font-display text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                   <span className="not-italic text-[#111]">Work history. </span>
                   <span className="italic text-brand-green">Where you&rsquo;ve been.</span>
-                </h2>
-                <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+                </h1>
+                <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                   Full-time, internship, freelance, national service, apprenticeship — all count.
                   You can add as many roles as you like and re-order them any time.
                 </p>
@@ -459,8 +468,7 @@ const WorkStage2Section = () => {
                   ].map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] border border-[#e1eae2] whitespace-nowrap"
-                      style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+                      className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] max-lg:py-[5px] border border-[#e1eae2] whitespace-nowrap shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none"
                     >
                       {tag}
                     </span>
@@ -468,7 +476,7 @@ const WorkStage2Section = () => {
                 </div>
               </section>
 
-              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)]">
+              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] max-lg:px-4 max-lg:py-4">
                 {isEmpty ? (
                   <>
                     {/* Empty state — Figma 5112:107315 */}
@@ -490,7 +498,7 @@ const WorkStage2Section = () => {
                       <Button variant="primary" size="md" onClick={openAddModal}>
                         + Add your first role
                       </Button>
-                      <p className="font-sans text-[12px] text-[#70706e]">
+                      <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
                         No experience at all?{' '}
                         <button
                           type="button"
@@ -535,7 +543,7 @@ const WorkStage2Section = () => {
                     <button
                       type="button"
                       onClick={openAddModal}
-                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] mt-[10px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] max-lg:py-2 max-lg:text-[14px] mt-[10px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                       style={{ background: 'rgba(235,241,236,0.5)', border: '2px dashed #387440' }}
                     >
                       <span className="size-[20px] bg-brand-green rounded-[4px] flex items-center justify-center shrink-0">
@@ -559,7 +567,9 @@ const WorkStage2Section = () => {
             </div>
           </div>
 
-          <WorkStage2RightAside roleCount={roles.length} />
+          <StageAsideAccordion title="What counts & why it matters">
+            <WorkStage2RightAside roleCount={roles.length} />
+          </StageAsideAccordion>
         </div>
 
         {/* Footer — spans the full viewport width (the Figma
@@ -567,9 +577,9 @@ const WorkStage2Section = () => {
             aside's own height stops above it instead of running down
             alongside it, so the footer is a sibling of the row above, not
             nested inside the column next to the aside. */}
-        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-[6px]">
+            <div className="flex items-center gap-[6px] max-sm:hidden">
               <span
                 aria-hidden="true"
                 className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -579,19 +589,21 @@ const WorkStage2Section = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
               <Button
                 variant="tertiary"
                 size="md"
+                className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                 onClick={handleGoBack}
                 leftIcon={<ArrowLeftIcon className="size-full" />}
               >
-                Skills
+                <span className="max-md:sr-only">Skills</span>
               </Button>
 
               <Button
                 variant="primary"
                 size="md"
+                className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                 onClick={handleNext}
                 rightIcon={<ArrowRightSmIcon className="size-full" />}
               >

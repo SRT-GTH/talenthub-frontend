@@ -135,12 +135,18 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
       )}
     >
       <DashboardPageBackground className="z-0" />
-      <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-[16px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)]">
+      <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-[16px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)] max-md:pr-4">
         <div className="relative min-w-0 flex-1">
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex min-w-0 items-center gap-[8px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className={classNames(
+              'flex min-w-0 items-center gap-[8px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              // Phones: no floating arrow — swiping is the affordance, and a soft
+              // fade on the right edge shows there is more to scroll to.
+              canScrollRight &&
+                'max-md:[mask-image:linear-gradient(to_right,#000_calc(100%-32px),transparent)]'
+            )}
             role="group"
             aria-label="Filter communities by category"
           >
@@ -156,7 +162,7 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
                     onChange?.(category);
                   }}
                   className={classNames(
-                    'flex shrink-0 flex-col items-center justify-center rounded-[12px] border-[1.216px] border-brand-green-light-hover px-[14px] py-[6px] shadow-bottom-100 transition-colors',
+                    'flex shrink-0 flex-col items-center justify-center rounded-[12px] border-[1.216px] border-brand-green-light-hover px-[14px] py-[6px] max-md:relative max-md:min-h-[30px] max-md:px-[12px] max-md:py-0 max-md:after:absolute max-md:after:-inset-x-[2px] max-md:after:-inset-y-[7px] shadow-bottom-100 max-md:shadow-none transition-colors',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                     active ? 'bg-brand-green' : 'bg-white hover:bg-brand-green-light'
                   )}
@@ -165,8 +171,8 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
                     className={classNames(
                       'whitespace-nowrap font-sans tracking-[0.2431px]',
                       active
-                        ? 'bg-clip-text text-[14.5px] font-semibold leading-[24.314px] text-transparent'
-                        : 'text-[13px] font-medium leading-[24.314px] text-[#737373]'
+                        ? 'bg-clip-text text-[14.5px] max-md:text-[13px] font-semibold leading-[24.314px] max-md:leading-[28px] text-transparent'
+                        : 'text-[13px] font-medium leading-[24.314px] max-md:leading-[28px] text-[#737373]'
                     )}
                     style={active ? { backgroundImage: ACTIVE_LABEL_GRADIENT } : undefined}
                   >
@@ -186,7 +192,7 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
               type="button"
               onClick={handleScrollClick}
               aria-label="Scroll right for more categories"
-              className="absolute -right-[16px] top-1/2 z-10 flex size-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[#e0e0e0] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.12)] transition-colors hover:bg-[#f5f5f5]"
+              className="absolute -right-[16px] top-1/2 z-10 flex size-[32px] max-md:hidden -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[#e0e0e0] bg-white shadow-[0px_2px_8px_rgba(0,0,0,0.12)] transition-colors hover:bg-[#f5f5f5]"
             >
               <ScrollRightChevron className="size-[14px] text-[#575755]" />
             </button>
@@ -195,9 +201,11 @@ const CategoryFilterBar = ({ value, onChange, query, onQueryChange, showSearch, 
 
         {/* Compact search — Figma 7025:85850 "GTHInput" on the SCROLLED frame
             only (306px, narrower than the header's own 450px copy) — see
-            file header comment for why this is conditional. */}
+            file header comment for why this is conditional. Hidden below md:
+            squeezing it next to the chips in a sticky row is unusable on a
+            phone, and the full search sits at the top of the page. */}
         {showSearch && (
-          <label className="flex w-[clamp(180px,18vw,306px)] shrink-0 items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
+          <label className="flex w-[clamp(180px,18vw,306px)] shrink-0 max-md:hidden items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
             <span className="sr-only">{COMMUNITY_SEARCH_PLACEHOLDER}</span>
             <CommunityIcon src={icons.search} size={19.45} />
             <input

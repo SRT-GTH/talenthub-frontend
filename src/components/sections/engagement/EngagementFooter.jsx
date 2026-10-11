@@ -57,12 +57,12 @@ const EngagementFooter = ({
   <footer
     className={classNames(
       'w-full border-t border-border-default bg-background-default',
-      'px-[clamp(16px,4vw,56px)] py-[clamp(16px,2vw,28px)]',
-      'flex flex-wrap items-center justify-between gap-4',
+      'px-[clamp(16px,4vw,56px)] py-[clamp(16px,2vw,28px)] max-sm:gap-2.5 max-sm:py-3',
+      'flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch',
       className
     )}
   >
-    <div className="flex items-center gap-2 font-sans text-[14px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
+    <div className="flex items-center gap-2 font-sans text-[14px] max-sm:text-[12px] leading-5 max-sm:leading-4 tracking-[0.2px] text-neutral-dark-hover">
       <StatusDot color="brand" />
       <span>
         <span className="font-semibold text-content-primary">Auto-Saved</span>
@@ -71,18 +71,21 @@ const EngagementFooter = ({
       </span>
     </div>
 
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 max-sm:w-full max-sm:gap-2">
       <Button
         variant="tertiary"
         size="md"
+        aria-label={skipLabel}
+        className="max-md:min-h-10 max-sm:w-11 max-sm:min-w-0 max-sm:shrink-0 max-sm:gap-0 max-sm:px-0"
         onClick={onSkip}
         leftIcon={<ArrowLeft className="size-4" />}
       >
-        {skipLabel}
+        <span className="max-sm:sr-only">{skipLabel}</span>
       </Button>
       <Button
         variant="primary"
         size="md"
+        className="max-md:min-h-10 max-md:py-2 max-sm:flex-1 whitespace-nowrap"
         onClick={onContinue}
         rightIcon={<ArrowRight className="size-4" />}
       >

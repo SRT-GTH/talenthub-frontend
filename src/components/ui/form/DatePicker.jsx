@@ -214,14 +214,14 @@ const DatePicker = ({
         <div
           role="dialog"
           aria-label="Choose a date"
-          className="absolute top-full left-0 z-20 mt-3 w-[264px] rounded-md border-2 border-brand-green-light-active bg-white p-3 shadow-[0_-4px_0_0_rgba(34,70,38,0.8)]"
+          className="absolute top-full left-0 z-20 mt-3 w-[264px] max-md:w-full rounded-md border-2 border-brand-green-light-active bg-white p-3 shadow-[0_-4px_0_0_rgba(34,70,38,0.8)]"
         >
           <div className="flex items-center justify-between mb-2 px-1">
             <button
               type="button"
               onClick={goToPrevMonth}
               aria-label="Previous month"
-              className="flex size-6 items-center justify-center rounded-full text-content-tertiary transition-colors duration-100 hover:bg-brand-green-light hover:text-brand-green"
+              className="flex size-6 max-md:size-11 items-center justify-center rounded-full text-content-tertiary transition-colors duration-100 hover:bg-brand-green-light hover:text-brand-green"
             >
               <ChevronLeftIcon className="size-4" />
             </button>
@@ -232,7 +232,7 @@ const DatePicker = ({
               type="button"
               onClick={goToNextMonth}
               aria-label="Next month"
-              className="flex size-6 items-center justify-center rounded-full text-content-tertiary transition-colors duration-100 hover:bg-brand-green-light hover:text-brand-green"
+              className="flex size-6 max-md:size-11 items-center justify-center rounded-full text-content-tertiary transition-colors duration-100 hover:bg-brand-green-light hover:text-brand-green"
             >
               <ChevronRightIcon className="size-4" />
             </button>
@@ -242,7 +242,7 @@ const DatePicker = ({
             {WEEKDAY_LABELS.map((wd) => (
               <span
                 key={wd}
-                className="flex h-6 items-center justify-center font-sans text-[10px] font-semibold text-content-tertiary"
+                className="flex h-6 items-center justify-center font-sans text-[10px] max-lg:text-[12px] font-semibold text-content-tertiary"
               >
                 {wd}
               </span>
@@ -262,7 +262,7 @@ const DatePicker = ({
                   aria-current={isToday ? 'date' : undefined}
                   aria-pressed={isSelected}
                   className={classNames(
-                    'flex size-8 items-center justify-center rounded-full font-sans text-[12px] transition-colors duration-100',
+                    'flex size-8 max-md:h-10 max-md:w-full max-md:text-[14px] items-center justify-center rounded-full font-sans text-[12px] transition-colors duration-100',
                     !inMonth && 'text-[#c8c8c8] hover:bg-neutral',
                     inMonth && !isSelected && 'text-content-primary hover:bg-brand-green-light',
                     isSelected && 'bg-brand-green font-semibold text-white',
@@ -279,7 +279,7 @@ const DatePicker = ({
             <button
               type="button"
               onClick={() => handlePick(new Date())}
-              className="w-full text-center font-sans text-[11px] font-semibold text-brand-green transition-colors duration-100 hover:text-brand-green-active"
+              className="w-full text-center font-sans text-[11px] max-lg:text-[12px] max-md:py-3 font-semibold text-brand-green transition-colors duration-100 hover:text-brand-green-active"
             >
               Today
             </button>

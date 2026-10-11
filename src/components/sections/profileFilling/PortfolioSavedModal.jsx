@@ -62,7 +62,7 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
       onClose={onClose}
       size="sm"
       ariaLabel="Portfolio saved"
-      contentClassName="!rounded-[24px] !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
     >
       <div className="relative flex flex-col items-center gap-[18px] p-[clamp(24px,3vw,40px)] text-center">
         {/* Top glow — same colour as the CTA button below (Button `secondary`
@@ -78,11 +78,11 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
         </span>
 
         <div className="flex flex-col items-center gap-[6px]">
-          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1]">
+          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1]">
             <span className="not-italic text-[#111]">Portfolio </span>
             <span className="italic text-brand-green">complete.</span>
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px] max-lg:text-[14px]">
             {projectCount} project{projectCount !== 1 ? 's' : ''}, {pinnedCount} pinned. Recruiters
             now spend 3.4× longer on your profile and can filter you by project type.
           </p>
@@ -100,7 +100,7 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
             <span className="font-sans font-semibold text-[14px] text-[#2a5730]">
               Portfolio filter unlocked in recruiter search
             </span>
-            <p className="font-sans text-[12px] text-[#96a090] leading-[18px]">
+            <p className="font-sans text-[12px] text-[#96a090] leading-[18px] max-lg:text-[14px]">
               Recruiters can now filter for &ldquo;has portfolio&rdquo; — one of the most-used
               filters in GTH. Your pinned project title appears on every search result card.
             </p>
@@ -134,12 +134,12 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
                     <span className="font-sans font-bold text-[12px] text-[#111] truncate">
                       {p.title}
                     </span>
-                    <span className="font-sans text-[10px] text-[#70706e] truncate">
+                    <span className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] truncate">
                       {p.projectType} · {p.year}
                     </span>
                   </div>
                   {p.isPinned && (
-                    <span className="inline-flex items-center shrink-0 rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[8px] py-[3px] font-sans font-semibold text-[10px] text-[#2a5730]">
+                    <span className="inline-flex items-center shrink-0 rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[8px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#2a5730]">
                       ⭐ Pinned
                     </span>
                   )}
@@ -154,8 +154,12 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
             header comment on why this isn't computed live. */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] text-[#111]">Profile strength</span>
-            <span className="font-sans text-[10px] text-[#2a5730]">52% : 4 stages done</span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#111]">
+              Profile strength
+            </span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730]">
+              52% : 4 stages done
+            </span>
           </div>
           <div className="h-[8px] w-full rounded-[4px] bg-[#f8f8f4] border border-[#e8e8e4] overflow-hidden">
             <div
@@ -170,7 +174,7 @@ const PortfolioSavedModal = ({ isOpen, onClose, onContinue, projects = [] }) => 
           size="lg"
           onClick={onContinue}
           rightIcon={<ArrowRightIcon className="size-full" />}
-          className="w-full"
+          className="w-full max-sm:py-2.5 max-sm:text-[14px] max-sm:leading-5"
         >
           Continue to Certs stage
         </Button>

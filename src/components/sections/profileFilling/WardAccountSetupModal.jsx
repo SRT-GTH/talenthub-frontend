@@ -194,7 +194,7 @@ const WardAccountSetupModal = ({
   );
 
   const detailsFooter = (
-    <div className="flex items-center justify-between gap-[16px] border-t border-[#f0ece4] bg-[#fefdfa] px-[clamp(20px,3vw,34px)] py-[16px]">
+    <div className="flex items-center justify-between gap-[16px] border-t border-[#f0ece4] bg-[#fefdfa] px-[clamp(20px,3vw,34px)] py-[16px] max-sm:gap-3 max-sm:py-3">
       <span className="inline-flex items-center gap-[8px] font-sans text-[12px] text-[#70706e]">
         <AutosaveInfoIcon className="size-[14px] text-brand-green" />
         {WARD_SETUP_DETAILS.autosave}
@@ -228,7 +228,7 @@ const WardAccountSetupModal = ({
         ariaLabel="Set a password for your ward's account"
         showClose
         className="!bg-[rgba(17,17,17,0.7)] !backdrop-blur-none"
-        contentClassName="!max-w-[528px] !rounded-[24px] !overflow-hidden"
+        contentClassName="!max-w-[528px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !overflow-hidden"
       >
         <div className="flex flex-col items-center gap-[36px] px-[clamp(24px,4vw,48px)] py-[clamp(32px,5vw,48px)]">
           <div className="flex w-full flex-col items-center gap-[10px] text-center">
@@ -293,7 +293,7 @@ const WardAccountSetupModal = ({
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-[8px]">
+          <div className="flex flex-wrap items-center justify-center gap-[8px] max-sm:flex-col max-sm:items-stretch max-sm:[&>*]:whitespace-nowrap">
             <Button
               type="button"
               variant="primary"
@@ -340,7 +340,7 @@ const WardAccountSetupModal = ({
       header={detailsHeader}
       footer={detailsFooter}
       className="!bg-[rgba(17,17,17,0.7)] !backdrop-blur-none"
-      contentClassName="!max-w-[850px] !h-[min(90vh,820px)] !rounded-[24px]"
+      contentClassName="!max-w-[850px] !h-[min(90vh,820px)] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0"
     >
       <div className="flex flex-col gap-[15px] px-[clamp(20px,3vw,36px)] pb-[16px] pt-[clamp(8px,1vw,16px)]">
         <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2">

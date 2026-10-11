@@ -99,14 +99,14 @@ const MiniCard = ({
                 </span>
               )}
               {status && (
-                <span className="font-sans font-semibold text-[10px] leading-4 tracking-[0.2px] text-success">
+                <span className="font-sans font-semibold text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px] text-success">
                   {status}
                 </span>
               )}
             </div>
           )}
           {description && (
-            <span className="font-sans text-[10px] leading-4 tracking-[0.2px] text-neutral-dark-active">
+            <span className="font-sans text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-active">
               {description}
             </span>
           )}

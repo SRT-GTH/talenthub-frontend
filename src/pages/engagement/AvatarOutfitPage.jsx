@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarOutfitPanel from '../../components/sections/engagement/avatar/AvatarOutfitPanel.jsx';
-import outfitHeroStage from '../../assets/engagement/avatar-outfit-hero-stage.png';
+import outfitHeroStage from '../../assets/engagement/avatar-outfit-hero-stage.webp';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarOutfitPage');

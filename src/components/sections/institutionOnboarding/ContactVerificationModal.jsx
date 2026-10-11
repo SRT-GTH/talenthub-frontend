@@ -70,8 +70,8 @@ const maskEmail = (email) => {
 // ── sub-components ────────────────────────────────────────────────────────
 
 const DataRow = ({ label, value, icon }) => (
-  <div className="flex items-center justify-between py-3 border-b border-[#e6e6e6] last:border-b-0">
-    <span className="inline-flex items-center gap-2 font-sans text-[12px] lg:text-[14px] leading-5 text-neutral-darker">
+  <div className="flex items-center justify-between py-3 max-sm:py-2 border-b border-[#e6e6e6] last:border-b-0">
+    <span className="inline-flex items-center gap-2 font-sans text-[12px] max-sm:text-[13px] lg:text-[14px] leading-5 text-neutral-darker">
       {icon && (
         <span className="inline-flex size-4 text-neutral-darker" aria-hidden="true">
           {icon}
@@ -80,7 +80,7 @@ const DataRow = ({ label, value, icon }) => (
       {label}
     </span>
     <span
-      className="font-sans text-[12px] lg:text-[14px] font-semibold leading-5 text-brand-green text-right max-w-[56%] truncate"
+      className="font-sans text-[12px] max-sm:text-[13px] lg:text-[14px] font-semibold leading-5 text-brand-green text-right max-w-[56%] truncate"
       title={value}
     >
       {value || <span className="font-normal text-[#babab7] italic">—</span>}
@@ -199,11 +199,11 @@ const ContactVerificationModal = ({ data, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="contact-verify-title"
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
         onClick={handleBackdropClick}
       >
         <div
-          className="relative w-full max-w-[540px] rounded-3xl bg-white p-8 md:p-10 shadow-xl"
+          className="relative w-full max-w-[540px] rounded-3xl bg-white p-8 md:p-10 shadow-xl max-sm:p-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* ── Close button (✕) — absolutely positioned top-right ── */}
@@ -214,14 +214,14 @@ const ContactVerificationModal = ({ data, onClose }) => {
               log('close button clicked');
               onClose?.();
             }}
-            className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+            className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-sm:right-3 max-sm:top-3 max-sm:before:absolute max-sm:before:-inset-2 max-sm:before:content-['']"
           >
             <CloseIcon />
           </button>
 
           {/* ── Header ── */}
-          <div className="mb-6 flex flex-col items-center gap-4 text-center">
-            <div className="flex size-[64px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light">
+          <div className="mb-6 flex flex-col items-center gap-4 text-center max-sm:mb-3 max-sm:gap-2">
+            <div className="flex size-[64px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light max-sm:size-10 max-sm:rounded-xl">
               <MessageBubbleIcon />
             </div>
             <div className="flex flex-col gap-1">
@@ -237,7 +237,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
                 Check your <span className="italic text-brand-green">messages.</span>
               </h2>
               <p
-                className="font-sans text-[14px] leading-5 text-[#737373]"
+                className="font-sans text-[14px] leading-5 text-[#737373] max-sm:text-[13px]"
                 style={{ letterSpacing: '0.1px' }}
               >
                 Enter the 6-digit code sent to{' '}
@@ -247,7 +247,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
           </div>
 
           {/* ── Tab switcher ── */}
-          <div className="mb-5 flex rounded-xl bg-[#f5f5f5] p-1 gap-1">
+          <div className="mb-5 max-sm:mb-3 flex rounded-xl bg-[#f5f5f5] p-1 gap-1">
             {['sms', 'email'].map((tab) => (
               <button
                 key={tab}
@@ -269,7 +269,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
                 {tab === 'sms' ? (
                   <span className="inline-flex items-center justify-center gap-1.5">
                     {verified.sms && (
-                      <span className="inline-flex size-3.5 items-center justify-center rounded-full bg-brand-green text-white text-[9px]">
+                      <span className="inline-flex size-3.5 items-center justify-center rounded-full bg-brand-green text-white text-[9px] max-lg:text-[12px]">
                         ✓
                       </span>
                     )}
@@ -278,7 +278,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
                 ) : (
                   <span className="inline-flex items-center justify-center gap-1.5">
                     {verified.email && (
-                      <span className="inline-flex size-3.5 items-center justify-center rounded-full bg-brand-green text-white text-[9px]">
+                      <span className="inline-flex size-3.5 items-center justify-center rounded-full bg-brand-green text-white text-[9px] max-lg:text-[12px]">
                         ✓
                       </span>
                     )}
@@ -290,7 +290,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
           </div>
 
           {/* ── OTP boxes ── */}
-          <div className="mb-5 flex justify-center">
+          <div className="mb-5 max-sm:mb-3 flex justify-center">
             <VerificationCode
               length={6}
               splitAfter={3}
@@ -309,7 +309,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
           </div>
 
           {/* ── Timer ── */}
-          <div className="mb-4 flex items-center justify-center gap-1.5">
+          <div className="mb-4 max-sm:mb-2 flex items-center justify-center gap-1.5">
             <ClockIcon className={isExpired ? 'text-danger' : 'text-content-helper'} />
             <span
               className={classNames(
@@ -322,14 +322,14 @@ const ContactVerificationModal = ({ data, onClose }) => {
           </div>
 
           {/* ── Resend ── */}
-          <div className="mb-5 flex items-center justify-center gap-1 text-[13px]">
+          <div className="mb-5 max-sm:mb-3 flex items-center justify-center gap-1 text-[13px]">
             <span className="text-content-helper">I didn&apos;t receive a code.</span>
             <button
               type="button"
               onClick={handleResend}
               disabled={resendLeft > 0}
               className={classNames(
-                'font-semibold transition-colors duration-100',
+                "relative font-semibold transition-colors duration-100 max-sm:before:absolute max-sm:before:-inset-x-2 max-sm:before:-inset-y-3 max-sm:before:content-['']",
                 resendLeft > 0
                   ? 'text-content-tertiary cursor-not-allowed'
                   : 'text-brand-green hover:underline underline-offset-2'
@@ -347,7 +347,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
             disabled={!isCodeComplete || isExpired}
             rightIcon={<ArrowRightIcon />}
             onClick={handleVerify}
-            className="w-full mb-4"
+            className="w-full mb-4 max-sm:mb-3"
           >
             {verifyButtonLabel}
           </Button>
@@ -355,7 +355,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
           {/* ── Trust badge ── */}
           <div className="flex items-center justify-center gap-1">
             <ShieldCheckIcon className="text-brand-green" />
-            <span className="text-[10px] text-neutral-dark-hover">
+            <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover">
               Your contact details are encrypted at rest
             </span>
           </div>
@@ -372,11 +372,11 @@ const ContactVerificationModal = ({ data, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="contact-success-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
     >
       <div
-        className="relative w-full max-w-[440px] rounded-3xl bg-white p-10 shadow-xl"
+        className="relative w-full max-w-[440px] rounded-3xl bg-white p-10 shadow-xl max-sm:p-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Close button (✕) — absolutely positioned top-right ── */}
@@ -387,14 +387,14 @@ const ContactVerificationModal = ({ data, onClose }) => {
             log('close button clicked');
             onClose?.();
           }}
-          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-sm:right-3 max-sm:top-3 max-sm:before:absolute max-sm:before:-inset-2 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
 
         {/* ── Header ── */}
-        <div className="mb-6 flex flex-col items-center gap-4 text-center">
-          <div className="flex size-[62px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light">
+        <div className="mb-6 flex flex-col items-center gap-4 text-center max-sm:mb-3 max-sm:gap-2">
+          <div className="flex size-[62px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light max-sm:size-10 max-sm:rounded-xl">
             <SuccessCheckIcon />
           </div>
           <div className="flex flex-col gap-1">
@@ -410,7 +410,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
               Contact <span className="italic text-brand-green">verified.</span>
             </h2>
             <p
-              className="font-sans text-[14px] leading-5 text-[#959592]"
+              className="font-sans text-[14px] leading-5 text-[#959592] max-sm:text-[13px]"
               style={{ letterSpacing: '0.1px' }}
             >
               Both your phone and email are confirmed. Here&apos;s what we stored.
@@ -419,7 +419,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
         </div>
 
         {/* ── Summary table ── */}
-        <div className="mb-4 rounded-2xl bg-[#EBF1EC]/30 border border-brand-green-light-hover p-4">
+        <div className="mb-4 rounded-2xl bg-[#EBF1EC]/30 border border-brand-green-light-hover p-4 max-sm:mb-3 max-sm:rounded-xl max-sm:px-3 max-sm:py-1">
           <DataRow icon={<UserIcon />} label="Contact Name" value={data?.fullName} />
           <DataRow icon={<BriefcaseIcon />} label="Role / Title" value={data?.roleTitle} />
           <DataRow icon={<PhoneIcon />} label="Phone Number" value={maskedPhone} />
@@ -427,7 +427,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
         </div>
 
         {/* Divider */}
-        <div className="w-full h-[3px] mb-4 bg-brand-green-light" />
+        <div className="w-full h-[3px] mb-4 max-sm:mb-3 bg-brand-green-light" />
 
         {/* ── Continue CTA ── */}
         <Button
@@ -441,9 +441,9 @@ const ContactVerificationModal = ({ data, onClose }) => {
           Continue to Activate Account
         </Button>
 
-        <div className="flex items-center justify-center mt-3.5 gap-1">
+        <div className="flex items-center justify-center mt-3.5 max-sm:mt-2.5 gap-1">
           <ShieldCheckIcon className="text-brand-green" />
-          <span className="text-[10px] text-neutral-dark-hover">
+          <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover">
             Data encrypted at rest · Ghana Data Protection Act compliant
           </span>
         </div>

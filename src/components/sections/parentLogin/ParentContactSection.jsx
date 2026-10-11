@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { debug } from '../../../utils/debug.js';
 import PhoneInput from '../../ui/form/PhoneInput.jsx';
@@ -22,7 +24,7 @@ const log = debug('ParentContactSection');
 // ── Caption badge ──────────────────────────────────────────────────────────
 const ContactCaptionBadge = () => (
   <div
-    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white"
+    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white max-md:px-3! max-md:py-0.5! max-md:self-start"
     style={{ borderColor: '#eedeb8', padding: '4px 16px' }}
   >
     <span
@@ -246,6 +248,8 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
 
   const expiry = useCountdown(600, true);
   const resend = useCountdown(60, true);
+  // Phones get slightly smaller OTP boxes so the sheet stays compact.
+  const isPhone = useMediaQuery('(max-width: 639px)');
 
   log('OtpModal mount:', { phone, email });
 
@@ -278,14 +282,14 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
       style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="relative w-full max-w-[420px] rounded-3xl bg-white"
+        className="relative w-full max-w-[420px] rounded-3xl bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -296,13 +300,13 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8]"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
 
         {/* ── Top icon: document + checkmark badge — Figma 2938:27933 */}
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 flex justify-center max-sm:mb-2">
           <div
             style={{
               backgroundColor: '#faf4e8',
@@ -318,11 +322,11 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         </div>
 
         {/* ── Channel pills: SMS · Email — Figma 2938:27941 + 2938:27948 */}
-        <div className="mb-4 flex items-center justify-center gap-2">
+        <div className="mb-4 flex items-center justify-center gap-2 max-sm:mb-2">
           <span
             className="inline-flex items-center gap-1 font-sans"
             style={{
-              fontSize: 10,
+              fontSize: 'var(--fs-10)',
               color: '#b48617',
               backgroundColor: '#faf4e8',
               border: '1px solid #f7efdd',
@@ -335,11 +339,11 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
             <EnvelopeSmIcon />
             SMS
           </span>
-          <span style={{ fontSize: 10, color: '#b48617', lineHeight: '16px' }}>·</span>
+          <span style={{ fontSize: 'var(--fs-10)', color: '#b48617', lineHeight: '16px' }}>·</span>
           <span
             className="inline-flex items-center gap-1 font-sans"
             style={{
-              fontSize: 10,
+              fontSize: 'var(--fs-10)',
               color: '#b48617',
               backgroundColor: '#faf4e8',
               border: '1px solid #f7efdd',
@@ -356,7 +360,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
 
         {/* ── Headline — Figma 2938:27955 */}
         <h2
-          className="mb-2 text-center font-display font-normal"
+          className="mb-2 text-center font-display font-normal max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
           style={{ fontSize: 28, color: '#111', letterSpacing: '-1.1px', lineHeight: '30px' }}
         >
           Check your{' '}
@@ -367,7 +371,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
 
         {/* ── Subtitle — Figma 2938:27957 */}
         <p
-          className="mb-3 text-center font-sans"
+          className="mb-3 text-center font-sans max-sm:mb-2"
           style={{ fontSize: 14, color: '#70706e', lineHeight: '20px', letterSpacing: '0.2px' }}
         >
           We sent a 6-digit code to confirm your contact details.
@@ -382,14 +386,14 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         </p>
 
         {/* ── Change contact details — Figma 2938:27959 */}
-        <div className="mb-5 flex justify-center">
+        <div className="mb-5 flex justify-center max-sm:mb-3">
           <button
             type="button"
             onClick={() => {
               log('change contact details clicked');
               onClose();
             }}
-            className="font-sans font-medium underline"
+            className="relative font-sans font-medium underline max-sm:before:absolute max-sm:before:-inset-x-1 max-sm:before:-inset-y-3 max-sm:before:content-['']"
             style={{
               fontSize: 12,
               color: '#b48617',
@@ -406,7 +410,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         </div>
 
         {/* ── OTP boxes — Figma 2938:27964–27969 (62px native, 52px in modal) */}
-        <div className="mb-5 flex justify-center">
+        <div className="mb-5 flex justify-center max-sm:mb-3">
           <VerificationCode
             length={OTP_LENGTH}
             value={otp}
@@ -417,12 +421,12 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
             }}
             state={hasError ? 'error' : undefined}
             autoFocus
-            boxSize={52}
+            boxSize={isPhone ? 44 : 52}
           />
         </div>
 
         {/* ── Timer row — Figma 2938:27975 clock + 2938:27978 label + 2938:27979 countdown */}
-        <div className="mb-2 flex items-center justify-center gap-1.5">
+        <div className="mb-2 flex items-center justify-center gap-1.5 max-sm:mb-1">
           <ClockSmIcon />
           <span
             className="font-sans"
@@ -439,7 +443,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         </div>
 
         {/* ── Resend row — Figma 2938:27982 + 2938:27984 */}
-        <div className="mb-5 flex items-center justify-center gap-1">
+        <div className="mb-5 flex items-center justify-center gap-1 max-sm:mb-3">
           <span
             className="font-sans"
             style={{ fontSize: 12, color: '#70706e', lineHeight: '20px' }}
@@ -450,7 +454,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
             type="button"
             onClick={handleResend}
             disabled={!resend.expired}
-            className="font-sans font-semibold"
+            className="relative font-sans font-semibold max-sm:before:absolute max-sm:before:-inset-x-1 max-sm:before:-inset-y-3 max-sm:before:content-['']"
             style={{
               fontSize: 12,
               color: resend.expired ? '#387440' : '#babab7',
@@ -471,7 +475,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
           type="button"
           onClick={canSubmit ? handleVerify : undefined}
           disabled={!canSubmit}
-          className="w-full font-sans font-bold transition-colors"
+          className="w-full font-sans font-bold transition-colors max-sm:h-11! max-sm:rounded-[10px]! max-sm:text-[14px]! max-sm:border-b-2! max-sm:shadow-none!"
           style={{
             height: 56,
             borderRadius: 14,
@@ -494,7 +498,12 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         {/* ── Attempts remaining — Figma 2938:27992, always visible */}
         <p
           className="mt-2 text-center font-sans"
-          style={{ fontSize: 10, color: '#70706e', lineHeight: '16px', letterSpacing: '0.2px' }}
+          style={{
+            fontSize: 'var(--fs-10)',
+            color: '#70706e',
+            lineHeight: '16px',
+            letterSpacing: '0.2px',
+          }}
         >
           {attemptsLeft > 0
             ? `${attemptsLeft} attempt${attemptsLeft !== 1 ? 's' : ''} remaining`
@@ -506,7 +515,12 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
           <ShieldSmIcon fill="#b48617" />
           <p
             className="text-center font-sans"
-            style={{ fontSize: 10, color: '#959592', lineHeight: '16px', letterSpacing: '0.2px' }}
+            style={{
+              fontSize: 'var(--fs-10)',
+              color: '#959592',
+              lineHeight: '16px',
+              letterSpacing: '0.2px',
+            }}
           >
             Data encrypted at rest · Ghana Data Protection Act compliant
           </p>
@@ -526,11 +540,11 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
   log('SuccessModal mount');
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
       style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="relative w-full max-w-[420px] rounded-3xl bg-white"
+        className="relative w-full max-w-[420px] rounded-3xl bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -541,14 +555,15 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8]"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
 
         {/* ── Amber check icon — Figma 2938:31772 */}
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 flex justify-center max-sm:mb-2">
           <div
+            className="max-sm:size-10!"
             style={{
               width: 48,
               height: 48,
@@ -574,9 +589,9 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
         </div>
 
         {/* ── "Contact verified" Captions badge — Figma 2938:31775 */}
-        <div className="mb-3 flex justify-center">
+        <div className="mb-3 flex justify-center max-sm:mb-2">
           <span
-            className="inline-flex items-center gap-[6px] font-sans"
+            className="inline-flex items-center gap-[6px] font-sans max-sm:px-3! max-sm:py-1!"
             style={{
               fontSize: 12,
               color: '#999',
@@ -605,7 +620,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
 
         {/* ── Headline — Figma 2938:31778 */}
         <h2
-          className="mb-2 text-center font-display font-normal"
+          className="mb-2 text-center font-display font-normal max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
           style={{ fontSize: 32, color: '#111', letterSpacing: '-1.2px', lineHeight: '32px' }}
         >
           You&apos;re{' '}
@@ -616,7 +631,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
 
         {/* ── Subtitle — Figma 2938:31779 */}
         <p
-          className="mb-4 text-center font-sans"
+          className="mb-4 text-center font-sans max-sm:mb-3"
           style={{ fontSize: 12, color: '#959592', lineHeight: '18px', letterSpacing: '0.2px' }}
         >
           Your phone and email have been confirmed. Here&apos;s what we verified.
@@ -625,7 +640,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
         {/* ── Summary card — Figma 2938:31780 */}
         {/* Phone first, Email second — amber tint bg, amber border */}
         <div
-          className="mb-4 rounded-[16px] border px-4 py-1"
+          className="mb-4 rounded-[16px] border px-4 py-1 max-sm:mb-3 max-sm:rounded-[12px] max-sm:px-3"
           style={{ backgroundColor: 'rgba(250,244,232,0.3)', borderColor: '#f7efdd' }}
         >
           {/* Phone row */}
@@ -681,7 +696,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
 
         {/* ── Progress bar — Figma 2938:31793 (step 3 of 8 ≈ 37.5%) */}
         <div
-          className="mb-4 w-full overflow-hidden rounded-[4px]"
+          className="mb-4 w-full overflow-hidden rounded-[4px] max-sm:mb-3"
           style={{ height: 6, backgroundColor: '#ebf1ec' }}
           aria-hidden="true"
         >
@@ -698,7 +713,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
             log('SuccessModal continue clicked');
             onContinue();
           }}
-          className="flex w-full items-center justify-center gap-2 font-sans font-bold"
+          className="flex w-full items-center justify-center gap-2 font-sans font-bold max-sm:h-11! max-sm:rounded-[10px]! max-sm:text-[14px]! max-sm:border-b-2! max-sm:shadow-none!"
           style={{
             height: 56,
             borderRadius: 14,
@@ -734,7 +749,12 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
           <ShieldSmIcon fill="#387440" />
           <p
             className="text-center font-sans"
-            style={{ fontSize: 10, color: '#959592', lineHeight: '16px', letterSpacing: '0.2px' }}
+            style={{
+              fontSize: 'var(--fs-10)',
+              color: '#959592',
+              lineHeight: '16px',
+              letterSpacing: '0.2px',
+            }}
           >
             Data encrypted at rest · Ghana Data Protection Act compliant
           </p>
@@ -775,14 +795,14 @@ const ParentContactSection = () => {
   };
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-20">
-      <div className="flex w-full max-w-[762px] flex-col items-center gap-6">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[762px] flex-col items-center gap-6 max-md:gap-3">
         {/* Step badge */}
         <ContactCaptionBadge />
 
         {/* Headline */}
         <h1
-          className="max-w-[554px] text-center font-display font-normal text-black"
+          className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -797,7 +817,7 @@ const ParentContactSection = () => {
 
         {/* Subtitle */}
         <p
-          className="max-w-[542px] text-center font-sans"
+          className="max-w-[542px] text-center font-sans max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
           style={{
             fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
             color: '#737373',
@@ -813,11 +833,11 @@ const ParentContactSection = () => {
 
         {/* Form fields */}
         <div
-          className="flex w-full flex-wrap justify-center gap-x-4 gap-y-4"
+          className="flex w-full flex-wrap justify-center gap-x-4 gap-y-4 max-md:gap-y-3"
           style={{ maxWidth: 720 }}
         >
           {/* Phone Number */}
-          <div style={{ width: 340 }}>
+          <div className="max-w-full" style={{ width: 340 }}>
             <PhoneInput
               label="Phone Number"
               required
@@ -832,7 +852,7 @@ const ParentContactSection = () => {
           </div>
 
           {/* WhatsApp Number */}
-          <div style={{ width: 340 }}>
+          <div className="max-w-full" style={{ width: 340 }}>
             <PhoneInput
               label="WhatsApp Number"
               optional
@@ -868,39 +888,41 @@ const ParentContactSection = () => {
         </div>
 
         {/* CTA */}
-        <div className="flex w-full max-w-[698px] flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSend}
-            disabled={!isFormReady}
-            className="flex w-full items-center justify-center gap-2 font-sans font-bold transition-all"
-            style={{
-              height: 56,
-              borderRadius: 14,
-              fontSize: 16,
-              letterSpacing: '0.1px',
-              lineHeight: '24px',
-              color: '#fff',
-              backgroundColor: isFormReady ? '#c8951a' : '#bfbfbf',
-              border: `2px solid ${isFormReady ? '#a07715' : '#ccc'}`,
-              borderBottom: `4px solid ${isFormReady ? '#a07715' : 'rgba(191,191,191,0.8)'}`,
-              cursor: isFormReady ? 'pointer' : 'not-allowed',
-            }}
-          >
-            Send Verification Code
-            <ArrowRightIcon />
-          </button>
+        <div className="flex w-full max-w-[698px] flex-col items-center gap-2 max-md:contents">
+          <StickyActionBar bleed={16}>
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={!isFormReady}
+              className="flex w-full items-center justify-center gap-2 font-sans font-bold transition-all max-md:h-11! max-md:rounded-[10px]! max-md:text-[14px]! max-md:border-b-2!"
+              style={{
+                height: 56,
+                borderRadius: 14,
+                fontSize: 16,
+                letterSpacing: '0.1px',
+                lineHeight: '24px',
+                color: '#fff',
+                backgroundColor: isFormReady ? '#c8951a' : '#bfbfbf',
+                border: `2px solid ${isFormReady ? '#a07715' : '#ccc'}`,
+                borderBottom: `4px solid ${isFormReady ? '#a07715' : 'rgba(191,191,191,0.8)'}`,
+                cursor: isFormReady ? 'pointer' : 'not-allowed',
+              }}
+            >
+              Send Verification Code
+              <ArrowRightIcon />
+            </button>
+          </StickyActionBar>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 max-md:text-[13px]">
             <span
-              className="font-sans"
+              className="font-sans max-md:text-[13px]!"
               style={{ fontSize: 14, color: '#737373', letterSpacing: '0.2px', lineHeight: '20px' }}
             >
               Already Have an account?
             </span>
             <Link
               to="/onboarding/parent-login"
-              className="font-sans font-semibold"
+              className="font-sans font-semibold relative max-md:text-[13px]! max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ fontSize: 14, color: '#387440', letterSpacing: '0.1px', lineHeight: '24px' }}
             >
               Log in Instead

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { debug } from '../../../utils/debug.js';
+import ClampText from '../../ui/ClampText.jsx';
 import Button from '../../ui/Button.jsx';
 import { ChessHintIcon, ChessFlagIcon, SLArrowRightSmIcon } from '../../shared/assets.jsx';
 import AnswerDots from './AnswerDots.jsx';
@@ -69,13 +70,13 @@ export default function ChessPuzzle({
   };
 
   return (
-    <div className="flex flex-1 overflow-y-auto">
+    <div className="flex flex-1 overflow-y-auto max-lg:flex-col max-lg:overflow-visible">
       {/* Left column — chess board */}
-      <div className="flex flex-col items-center justify-center flex-1 px-[clamp(24px,3.9vw,57px)] py-[clamp(16px,2.2vw,32px)] bg-[#fdfdfc]">
+      <div className="flex flex-col items-center justify-center flex-1 px-[clamp(24px,3.9vw,57px)] max-md:px-4 py-[clamp(16px,2.2vw,32px)] max-md:py-3 bg-[#fdfdfc]">
         {/* Question indicator */}
-        <div className="w-full max-w-[520px] flex flex-col gap-[16px] mb-[clamp(14px,1.8vw,24px)]">
+        <div className="w-full max-w-[520px] flex flex-col gap-[16px] max-md:gap-2 mb-[clamp(14px,1.8vw,24px)] max-md:mb-2">
           <div className="flex items-center gap-[8px]">
-            <span className="text-[#888] text-[10px] font-sans font-bold uppercase tracking-[0.2px] leading-[16px] whitespace-nowrap shrink-0">
+            <span className="text-[#888] text-[10px] max-lg:text-[12px] font-sans font-bold uppercase tracking-[0.2px] leading-[16px] whitespace-nowrap shrink-0 max-md:whitespace-normal max-md:shrink">
               Puzzle {currentIndex + 1} of {total} · {isWhiteTurn ? 'White' : 'Black'} to play ·{' '}
               {challenge.topic} · {skillName || 'Team Leadership'}
             </span>
@@ -85,18 +86,21 @@ export default function ChessPuzzle({
         </div>
 
         {/* Puzzle title */}
-        <div className="w-full max-w-[520px] flex flex-col gap-[4px] mb-[clamp(10px,1.4vw,20px)]">
+        <div className="w-full max-w-[520px] flex flex-col gap-[4px] mb-[clamp(10px,1.4vw,20px)] max-md:mb-2">
           <h2
-            className="text-[#111] text-[clamp(18px,1.7vw,24px)] tracking-[-0.4px] leading-[1.3]"
+            className="text-[#111] text-[clamp(18px,1.7vw,24px)] max-lg:text-[20px] max-md:text-[18px] tracking-[-0.4px] leading-[1.3]"
             style={{ fontFamily: 'Instrument Serif, serif' }}
           >
             {challenge.question}
             {challenge.titleEmphasis && <span className="italic"> {challenge.titleEmphasis}</span>}
           </h2>
           {challenge.description && (
-            <p className="text-[#70706e] text-[12px] font-sans leading-normal mt-[2px]">
+            <ClampText
+              lines={2}
+              className="text-[#70706e] text-[12px] max-lg:text-[14px] max-md:text-[13px] font-sans leading-normal mt-[2px]"
+            >
               {challenge.description}
-            </p>
+            </ClampText>
           )}
         </div>
 
@@ -111,7 +115,7 @@ export default function ChessPuzzle({
 
         {/* Chess board — Figma 4515:33634 */}
         <div
-          className="w-full max-w-[560px] rounded-[8px] p-[18px]"
+          className="w-full max-w-[560px] rounded-[8px] p-[18px] max-sm:p-2"
           style={{
             backgroundImage:
               'linear-gradient(134.091deg, rgb(20, 41, 22) 0%, rgb(42, 87, 48) 100%)',
@@ -136,7 +140,7 @@ export default function ChessPuzzle({
                 {(isWhiteTurn ? [8, 7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7, 8]).map((n) => (
                   <span
                     key={n}
-                    className="bg-clip-text text-[transparent] text-[11px] font-medium leading-none text-center"
+                    className="bg-clip-text text-[transparent] text-[11px] max-lg:text-[12px] font-medium leading-none text-center"
                     style={{
                       backgroundImage:
                         'linear-gradient(235.788deg, rgb(254, 241, 231) 0%, rgb(232, 242, 237) 20.192%)',
@@ -195,7 +199,7 @@ export default function ChessPuzzle({
               ).map((l) => (
                 <span
                   key={l}
-                  className="bg-clip-text text-[transparent] text-[11px] font-medium leading-none text-center flex-1"
+                  className="bg-clip-text text-[transparent] text-[11px] max-lg:text-[12px] font-medium leading-none text-center flex-1"
                   style={{
                     backgroundImage:
                       'linear-gradient(235.788deg, rgb(254, 241, 231) 0%, rgb(232, 242, 237) 20.192%)',
@@ -222,9 +226,9 @@ export default function ChessPuzzle({
       </div>
 
       {/* Right column — controls panel */}
-      <div className="w-[clamp(340px,30vw,440px)] border-l border-[rgba(0,0,0,0.07)] bg-[#fdfdfc] px-[clamp(20px,2vw,28px)] py-[clamp(16px,2.2vw,32px)] flex flex-col gap-[16px] overflow-y-auto">
-        {/* Puzzle title (right panel) */}
-        <div className="flex flex-col gap-[4px]">
+      <div className="w-[clamp(340px,30vw,440px)] max-lg:w-full max-lg:border-l-0 max-lg:border-t border-l border-[rgba(0,0,0,0.07)] bg-[#fdfdfc] px-[clamp(20px,2vw,28px)] max-md:px-4 py-[clamp(16px,2.2vw,32px)] max-lg:py-3 flex flex-col gap-[16px] max-lg:gap-2.5 overflow-y-auto max-lg:overflow-visible">
+        {/* Puzzle title (right panel) - duplicated above the board when stacked */}
+        <div className="flex flex-col gap-[4px] max-lg:hidden">
           <h3
             className="text-[#111] text-[clamp(18px,1.7vw,24px)] tracking-[-0.4px] leading-[1.3]"
             style={{ fontFamily: 'Instrument Serif, serif' }}
@@ -265,7 +269,7 @@ export default function ChessPuzzle({
               type="button"
               onClick={hintAlreadyUsed ? undefined : onOpenHint}
               disabled={hintAlreadyUsed}
-              className={`flex items-center justify-center gap-[8px] w-full py-[12px] rounded-[8px] border text-[14px] font-sans font-semibold leading-[24px] transition-all ${
+              className={`flex items-center justify-center gap-[8px] w-full py-[12px] max-lg:py-2 max-lg:min-h-10 rounded-[8px] border text-[14px] font-sans font-semibold leading-[24px] transition-all ${
                 hintAlreadyUsed
                   ? 'border-[#e8e8e4] text-[#c0bfbd] cursor-not-allowed bg-[#f8f8f4]'
                   : 'border-[#c1d4c4] text-[#387440] cursor-pointer bg-white hover:bg-[#f0f7f1]'
@@ -278,7 +282,7 @@ export default function ChessPuzzle({
             <button
               type="button"
               onClick={onGiveUp}
-              className="flex items-center justify-center gap-[8px] w-full py-[12px] rounded-[8px] border-none bg-transparent text-[#959592] text-[14px] font-sans font-semibold leading-[24px] cursor-pointer hover:text-[#575755] transition-colors"
+              className="flex items-center justify-center gap-[8px] w-full py-[12px] max-lg:py-2 max-lg:min-h-10 rounded-[8px] border-none bg-transparent text-[#959592] text-[14px] font-sans font-semibold leading-[24px] cursor-pointer hover:text-[#575755] transition-colors"
             >
               <ChessFlagIcon className="text-[#959592]" />
               Give up · see the solution
@@ -293,7 +297,7 @@ export default function ChessPuzzle({
             size="md"
             onClick={onNextPuzzle}
             rightIcon={<SLArrowRightSmIcon className="size-[14px]" />}
-            className="text-[14px]! w-full"
+            className="text-[14px]! w-full max-lg:min-h-10 whitespace-nowrap"
           >
             {currentIndex < total - 1 ? 'Next Puzzle' : 'See Results'}
           </Button>

@@ -169,10 +169,10 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
   };
 
   return (
-    <div className="flex w-full gap-[16px]">
+    <div className="flex w-full gap-[16px] max-sm:flex-col">
       {/* Quick picks — Figma 5146:75673 */}
       <div
-        className="flex w-[153px] shrink-0 flex-col gap-[22px] rounded-[12px] border border-[#e5e5e5] px-[22px] py-[16px]"
+        className="flex w-[153px] shrink-0 flex-col gap-[22px] rounded-[12px] border border-[#e5e5e5] px-[22px] py-[16px] max-sm:w-full max-sm:gap-2 max-sm:px-3 max-sm:py-3"
         role="listbox"
         aria-label="Quick date picks"
       >
@@ -190,7 +190,7 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
                 onSelect(date);
               }}
               className={[
-                'w-full rounded-[6px] px-[6px] py-[4px] text-left font-sans text-[14px] leading-[17px]',
+                'w-full rounded-[6px] px-[6px] py-[4px] text-left font-sans text-[14px] leading-[17px] max-lg:min-h-11 max-lg:px-3',
                 'transition-colors duration-150',
                 active
                   ? 'font-medium text-[#111] bg-[#f0f0f0]'
@@ -204,7 +204,7 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
       </div>
 
       {/* Month calendar — Figma 5146:75679 */}
-      <div className="flex min-w-0 flex-1 flex-col gap-[16px] rounded-[12px] border border-[#e5e5e5] px-[22px] py-[16px]">
+      <div className="flex min-w-0 flex-1 flex-col gap-[16px] rounded-[12px] border border-[#e5e5e5] px-[22px] py-[16px] max-sm:px-3">
         <div className="flex items-center justify-between py-[4px]">
           <button
             type="button"
@@ -212,7 +212,7 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
             onClick={() =>
               setViewMonth((m) => addMonths(new Date(m.getFullYear(), m.getMonth(), 1), -1))
             }
-            className="inline-flex size-[18px] items-center justify-center text-[#111] hover:opacity-70"
+            className="inline-flex size-[18px] items-center justify-center text-[#111] hover:opacity-70 max-lg:size-11"
           >
             <ChevronIcon direction="left" className="h-[11px] w-[6px]" />
           </button>
@@ -225,17 +225,17 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
             onClick={() =>
               setViewMonth((m) => addMonths(new Date(m.getFullYear(), m.getMonth(), 1), 1))
             }
-            className="inline-flex size-[18px] items-center justify-center text-[#111] hover:opacity-70"
+            className="inline-flex size-[18px] items-center justify-center text-[#111] hover:opacity-70 max-lg:size-11"
           >
             <ChevronIcon direction="right" className="h-[11px] w-[6px]" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-x-[4px] gap-y-[14px]">
+        <div className="grid grid-cols-7 gap-x-[4px] gap-y-[14px] max-sm:gap-y-1">
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="flex size-[22px] items-center justify-center font-sans text-[14px] font-medium leading-[17px] text-[#111]"
+              className="mx-auto flex size-[22px] items-center justify-center font-sans text-[14px] font-medium leading-[17px] text-[#111] max-sm:size-9"
             >
               {d}
             </div>
@@ -253,7 +253,7 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
                 aria-pressed={selected}
                 onClick={() => cell.selectable && onSelect(startOfDay(cell.date))}
                 className={[
-                  'mx-auto flex size-[22px] shrink-0 items-center justify-center rounded-full',
+                  'mx-auto flex size-[22px] shrink-0 items-center justify-center rounded-full max-sm:size-9',
                   cell.selectable ? 'cursor-pointer' : 'cursor-default',
                   selected
                     ? ''
@@ -362,7 +362,9 @@ const CareerBuddyOptOutModal = ({
       <div
         className={[
           'flex w-full flex-col items-center text-center',
-          isSchedule ? 'gap-[28px] p-[48px]' : 'gap-[36px] px-[48px] py-[64px]',
+          isSchedule
+            ? 'gap-[28px] p-[48px] max-sm:gap-5 max-sm:p-5'
+            : 'gap-[36px] px-[48px] py-[64px] max-sm:gap-6 max-sm:px-5 max-sm:py-10',
         ].join(' ')}
       >
         <div
@@ -371,7 +373,7 @@ const CareerBuddyOptOutModal = ({
             isSchedule ? 'gap-[6px]' : 'gap-[10px]',
           ].join(' ')}
         >
-          <h2 className="font-display text-[36px] font-normal leading-[1.3] text-[#111]">
+          <h2 className="font-display text-[36px] font-normal leading-[1.3] text-[#111] max-sm:text-[28px]">
             {copy.title}
           </h2>
           <p
@@ -395,7 +397,7 @@ const CareerBuddyOptOutModal = ({
             ' '
           )}
         >
-          <div className="flex flex-row flex-nowrap items-center justify-center gap-[8px]">
+          <div className="flex flex-row flex-nowrap items-center justify-center gap-[8px] max-sm:w-full max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-3">
             <Button
               type="button"
               variant="primary"

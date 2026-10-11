@@ -8,7 +8,7 @@ import { SLCloseIcon, SLStarIcon, SLArrowRightIcon } from '../../shared/assets.j
 const log = debug('QuizResults');
 
 const MODAL_CONTENT_CLASS =
-  'rounded-[24px]! shadow-[0px_32px_80px_0px_rgba(0,0,0,0.45)]! overflow-hidden max-w-[520px]!';
+  'rounded-[24px]! max-sm:rounded-b-none! shadow-[0px_32px_80px_0px_rgba(0,0,0,0.45)]! overflow-hidden max-w-[520px]!';
 
 function AnswerDot({ result }) {
   if (result === 'correct') {
@@ -86,16 +86,25 @@ export default function QuizResults({
         ariaLabel="Quiz Results"
         contentClassName={MODAL_CONTENT_CLASS}
         footer={
-          <div className="flex items-center justify-end gap-[8px] border-t border-[#e7e7e7] px-[28px] py-[24px]">
-            <Button variant="tertiary" size="lg" onClick={onRetry} className="w-[138px]">
-              ↻ Replay
+          <div className="flex items-center justify-end gap-[8px] border-t border-[#e7e7e7] px-[28px] py-[24px] max-sm:px-4 max-sm:py-3">
+            <Button
+              variant="tertiary"
+              size="lg"
+              onClick={onRetry}
+              aria-label="Replay"
+              className="w-[138px] max-sm:w-11 max-sm:min-w-0 max-sm:flex-none max-sm:px-0"
+            >
+              <span className="max-sm:sr-only">↻ Replay</span>
+              <span aria-hidden="true" className="sm:hidden">
+                ↻
+              </span>
             </Button>
             <Button
               variant="primary"
               size="sm"
               onClick={handleClose}
               rightIcon={<SLArrowRightIcon className="size-[20px]" />}
-              className="w-[210px]"
+              className="w-[210px] max-sm:w-auto max-sm:flex-1 max-sm:min-h-10 whitespace-nowrap"
             >
               Back to skill labs
             </Button>
@@ -104,14 +113,14 @@ export default function QuizResults({
       >
         {/* ── Header ── */}
         <div
-          className="relative px-[28px] pt-[24px] pb-[20px]"
+          className="relative px-[28px] max-sm:px-4 pt-[24px] pb-[20px]"
           style={{
             backgroundImage:
               'linear-gradient(131deg, rgb(239, 249, 241) 0%, rgb(255, 255, 255) 100%)',
           }}
         >
           <div className="inline-flex items-center px-[12px] py-[5px] rounded-[4px] bg-[#ebf1ec] border border-[#c1d4c4]">
-            <span className="text-[#387440] text-[10px] font-sans font-bold uppercase tracking-[1px] leading-normal">
+            <span className="text-[#387440] text-[10px] max-lg:text-[12px] font-sans font-bold uppercase tracking-[1px] leading-normal">
               ✓ Skill Verified
             </span>
           </div>
@@ -119,12 +128,14 @@ export default function QuizResults({
             type="button"
             onClick={handleClose}
             aria-label="Close"
-            className="absolute right-[30px] top-[14px] size-[28px] rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
+            className="absolute right-[30px] top-[14px] size-[28px] max-sm:right-2 max-sm:top-2 max-sm:size-11 rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
           >
             <SLCloseIcon className="text-[#387440]" />
           </button>
-          <div className="flex flex-col items-center gap-[8px] mt-[20px]">
-            <span className="text-[72px] leading-[80px]">{successEmoji || '🎉'}</span>
+          <div className="flex flex-col items-center gap-[8px] max-sm:gap-1.5 mt-[20px] max-sm:mt-3">
+            <span className="text-[72px] max-sm:text-[48px] leading-[80px] max-sm:leading-[52px]">
+              {successEmoji || '🎉'}
+            </span>
             <div className="flex flex-col items-center gap-[8px]">
               <h3
                 className="text-[#111] text-[26px] tracking-[-1px] text-center leading-[26px]"
@@ -132,7 +143,7 @@ export default function QuizResults({
               >
                 {skillName} verified!
               </h3>
-              <p className="text-[#959592] text-[12px] font-sans leading-[19.8px] text-center max-w-[354px]">
+              <p className="text-[#959592] text-[12px] max-lg:text-[14px] font-sans leading-[19.8px] text-center max-w-[354px]">
                 You passed the {skillName} challenge. The green ✓ badge is now on your recruiter
                 card.
               </p>
@@ -141,18 +152,20 @@ export default function QuizResults({
               className="flex items-end gap-[6px]"
               style={{ fontFamily: 'Instrument Serif, serif' }}
             >
-              <span className="text-[#387440] text-[56px] tracking-[-2px] leading-[56px]">
+              <span className="text-[#387440] text-[56px] max-sm:text-[40px] tracking-[-2px] leading-[56px] max-sm:leading-[40px]">
                 {score}
               </span>
-              <span className="text-[#575755] text-[28px] leading-normal">/ {total}</span>
+              <span className="text-[#575755] text-[28px] max-sm:text-[20px] leading-normal">
+                / {total}
+              </span>
             </div>
           </div>
         </div>
 
         {/* ── Body ── */}
-        <div className="px-[28px] pt-[16px]">
+        <div className="px-[28px] max-sm:px-4 pt-[16px]">
           {/* Badges */}
-          <div className="flex items-center gap-[8px] justify-center mb-[24px]">
+          <div className="flex items-center gap-[8px] max-lg:flex-wrap justify-center mb-[24px]">
             <div className="flex items-center gap-[10px] px-[10px] py-[7px] rounded-[6px] bg-[#faf4e8] border border-[#eedeb8]">
               <SLStarIcon className="text-[#c8951a]" />
               <span className="text-[#3f6212] text-[12px] font-sans font-semibold leading-none">
@@ -167,7 +180,7 @@ export default function QuizResults({
           </div>
 
           {/* Answer dots */}
-          <div className="flex items-center gap-[12px] justify-center mb-[24px]">
+          <div className="flex items-center gap-[12px] max-lg:flex-wrap max-sm:gap-2 justify-center mb-[24px]">
             {answers.map((result, i) => (
               <AnswerDot key={i} result={result} />
             ))}
@@ -178,7 +191,7 @@ export default function QuizResults({
             <p className="text-[#1d7c4d] text-[14px] font-sans font-bold leading-normal m-0">
               {successInfoTitle || '✓ Verified badge added to your card'}
             </p>
-            <p className="text-[#2a5730] text-[11px] font-sans leading-[16.5px] mt-[8px] m-0">
+            <p className="text-[#2a5730] text-[11px] max-lg:text-[14px] font-sans leading-[16.5px] max-lg:leading-5 mt-[8px] m-0">
               {successInfoBody || (
                 <>
                   Your {skillName} skill now shows a green ✓ on your GTH recruiter card. Recruiters
@@ -195,12 +208,12 @@ export default function QuizResults({
               className="flex items-start gap-[12px] border-b border-[#ebf1ec] py-[12px] last:border-b-0"
             >
               <div className="size-[26px] rounded-full bg-[#387440] flex items-center justify-center shrink-0">
-                <span className="text-white text-[11px] font-sans font-bold leading-none">
+                <span className="text-white text-[11px] max-lg:text-[12px] font-sans font-bold leading-none">
                   {i + 1}
                 </span>
               </div>
               <div className="flex flex-col gap-[5px] flex-1 min-w-0">
-                <span className="text-[#142916] text-[12px] font-sans font-semibold leading-normal">
+                <span className="text-[#142916] text-[12px] max-lg:text-[14px] font-sans font-semibold leading-normal">
                   {item.topic} : {item.correct}/{item.total} correct.{' '}
                   {item.strong ? 'Solid' : 'Needs review'}
                 </span>
@@ -222,11 +235,25 @@ export default function QuizResults({
       ariaLabel="Quiz Results"
       contentClassName={MODAL_CONTENT_CLASS}
       footer={
-        <div className="flex items-center justify-end gap-[8px] border-t border-[#e7e7e7] px-[28px] py-[24px]">
-          <Button variant="tertiary" size="lg" onClick={handleClose} className="w-[150px]">
-            Back to Lab
+        <div className="flex items-center justify-end gap-[8px] border-t border-[#e7e7e7] px-[28px] py-[24px] max-sm:px-4 max-sm:py-3">
+          <Button
+            variant="tertiary"
+            size="lg"
+            onClick={handleClose}
+            aria-label="Back to Lab"
+            className="w-[150px] max-sm:w-11 max-sm:min-w-0 max-sm:flex-none max-sm:px-0"
+          >
+            <span className="max-sm:sr-only">Back to Lab</span>
+            <span aria-hidden="true" className="sm:hidden">
+              ←
+            </span>
           </Button>
-          <Button variant="primary" size="sm" onClick={onRetry}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onRetry}
+            className="max-sm:w-auto max-sm:flex-1 max-sm:min-h-10 whitespace-nowrap"
+          >
             {retryLabel || '↻ Retry now  fresh questions'}
           </Button>
         </div>
@@ -234,14 +261,14 @@ export default function QuizResults({
     >
       {/* ── Header ── */}
       <div
-        className="relative px-[28px] pt-[24px] pb-[20px]"
+        className="relative px-[28px] max-sm:px-4 pt-[24px] pb-[20px]"
         style={{
           backgroundImage:
             'linear-gradient(132deg, rgb(239, 249, 241) 0%, rgb(255, 255, 255) 100%)',
         }}
       >
         <div className="inline-flex items-center px-[12px] py-[5px] rounded-[4px] bg-[#ebf1ec] border border-[#ebc2bd]">
-          <span className="text-[#c0392b] text-[10px] font-sans font-bold uppercase tracking-[1px] leading-normal">
+          <span className="text-[#c0392b] text-[10px] max-lg:text-[12px] font-sans font-bold uppercase tracking-[1px] leading-normal">
             ✕ Not quite
           </span>
         </div>
@@ -249,12 +276,14 @@ export default function QuizResults({
           type="button"
           onClick={handleClose}
           aria-label="Close"
-          className="absolute right-[30px] top-[14px] size-[28px] rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
+          className="absolute right-[30px] top-[14px] size-[28px] max-sm:right-2 max-sm:top-2 max-sm:size-11 rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
         >
           <SLCloseIcon className="text-[#387440]" />
         </button>
-        <div className="flex flex-col items-center gap-[8px] mt-[20px]">
-          <span className="text-[60px] leading-[67px]">💔</span>
+        <div className="flex flex-col items-center gap-[8px] max-sm:gap-1.5 mt-[20px] max-sm:mt-3">
+          <span className="text-[60px] max-sm:text-[44px] leading-[67px] max-sm:leading-[48px]">
+            💔
+          </span>
           <div className="flex flex-col items-center gap-[8px]">
             <h3
               className="text-[#111] text-[26px] tracking-[-1px] text-center leading-[26px]"
@@ -262,7 +291,7 @@ export default function QuizResults({
             >
               So close.
             </h3>
-            <p className="text-[#959592] text-[12px] font-sans leading-[19.8px] text-center max-w-[354px]">
+            <p className="text-[#959592] text-[12px] max-lg:text-[14px] font-sans leading-[19.8px] text-center max-w-[354px]">
               You got {score}/{total}. You needed {passThreshold} to pass. That&rsquo;s just{' '}
               {passThreshold - score} more &mdash; you already know{' '}
               {Math.round((score / total) * 100)}% of this. Retake with fresh questions.
@@ -272,18 +301,20 @@ export default function QuizResults({
             className="flex items-end gap-[6px]"
             style={{ fontFamily: 'Instrument Serif, serif' }}
           >
-            <span className="text-[#c0392b] text-[56px] tracking-[-2px] leading-[56px]">
+            <span className="text-[#c0392b] text-[56px] max-sm:text-[40px] tracking-[-2px] leading-[56px] max-sm:leading-[40px]">
               {score}
             </span>
-            <span className="text-[#575755] text-[28px] leading-normal">/ {total}</span>
+            <span className="text-[#575755] text-[28px] max-sm:text-[20px] leading-normal">
+              / {total}
+            </span>
           </div>
         </div>
       </div>
 
       {/* ── Body ── */}
-      <div className="px-[28px] pt-[16px]">
+      <div className="px-[28px] max-sm:px-4 pt-[16px]">
         {/* Badges */}
-        <div className="flex items-center gap-[8px] justify-center mb-[24px]">
+        <div className="flex items-center gap-[8px] max-lg:flex-wrap justify-center mb-[24px]">
           {failureBadges ? (
             failureBadges.map((badge, i) => (
               <div
@@ -314,7 +345,7 @@ export default function QuizResults({
         </div>
 
         {/* Answer dots */}
-        <div className="flex items-center gap-[12px] justify-center mb-[24px]">
+        <div className="flex items-center gap-[12px] max-lg:flex-wrap max-sm:gap-2 justify-center mb-[24px]">
           {answers.map((result, i) => (
             <AnswerDot key={i} result={result} />
           ))}
@@ -325,7 +356,7 @@ export default function QuizResults({
           <p className="text-[#902b20] text-[14px] font-sans font-bold leading-normal m-0">
             Where it went wrong
           </p>
-          <p className="text-[#902b20] text-[12px] font-sans leading-[20px] mt-[8px] m-0">
+          <p className="text-[#902b20] text-[12px] max-lg:text-[14px] font-sans leading-[20px] mt-[8px] m-0">
             {wrongIndices.length > 0 && <>Q{wrongIndices.join(', Q')} : </>}
             all from the same area:{' '}
             {topicBreakdown
@@ -342,7 +373,7 @@ export default function QuizResults({
           {topicBreakdown.map((item, i) => (
             <div
               key={i}
-              className="flex items-center h-[35px] bg-[rgba(235,241,236,0.5)] border border-[#c1d4c4] rounded-[8px] px-[12px]"
+              className="flex items-center h-[35px] max-sm:h-auto max-sm:min-h-[35px] max-sm:py-2 max-sm:gap-2 bg-[rgba(235,241,236,0.5)] border border-[#c1d4c4] rounded-[8px] px-[12px]"
             >
               <div
                 className={`size-[8px] rounded-[4px] shrink-0 ${item.strong ? 'bg-[#1d7c4d]' : 'bg-[#c0392b]'}`}
@@ -356,7 +387,7 @@ export default function QuizResults({
                 }`}
               >
                 <span
-                  className={`text-[10px] font-sans font-semibold leading-none ${
+                  className={`text-[10px] max-lg:text-[12px] font-sans font-semibold leading-none ${
                     item.strong ? 'text-[#1d7c4d]' : 'text-[#c0392b]'
                   }`}
                 >

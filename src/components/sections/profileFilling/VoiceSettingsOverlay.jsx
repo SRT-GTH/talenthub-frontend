@@ -38,7 +38,7 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
 
   return (
     <div
-      className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#f8f8f4]/95 px-[clamp(1.5rem,4vw,3rem)]"
+      className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#f8f8f4]/95 max-lg:bg-[#f8f8f4] px-[clamp(1.5rem,4vw,3rem)]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="voice-settings-title"
@@ -139,7 +139,7 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
                   log('branch', { cycle: 'prev', next });
                   setDraftId(next);
                 }}
-                className="flex size-7 items-center justify-center rounded-full bg-white"
+                className="flex size-7 items-center justify-center rounded-full bg-white max-lg:size-11"
               >
                 <ChevronIcon dir="left" className="size-7" />
               </button>
@@ -151,7 +151,7 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
                   log('branch', { cycle: 'next', next });
                   setDraftId(next);
                 }}
-                className="flex size-7 items-center justify-center rounded-full bg-white"
+                className="flex size-7 items-center justify-center rounded-full bg-white max-lg:size-11"
               >
                 <ChevronIcon dir="right" className="size-7" />
               </button>
@@ -159,14 +159,14 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-[8px]">
+        <div className="flex items-center gap-[8px] max-sm:w-full">
           <button
             type="button"
             onClick={() => {
               log('branch', { done: draftId });
               onDone?.(draftId);
             }}
-            className="inline-flex h-11 items-center justify-center rounded-[10px] border-2 border-[#2a5730] bg-brand-green px-[18px] font-sans text-[14px] font-medium text-white"
+            className="inline-flex h-11 items-center justify-center rounded-[10px] border-2 border-[#2a5730] bg-brand-green px-[18px] font-sans text-[14px] font-medium text-white max-sm:flex-1"
           >
             Done
           </button>
@@ -176,9 +176,20 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
               log('branch', { cancel: true });
               onCancel?.();
             }}
-            className="inline-flex h-11 items-center justify-center rounded-[14px] border-2 border-[#111] bg-white px-[18px] font-sans text-[14px] font-medium text-[#111]"
+            className="inline-flex h-11 items-center justify-center rounded-[14px] border-2 border-[#111] bg-white px-[18px] font-sans text-[14px] font-medium text-[#111] max-sm:w-11 max-sm:px-0"
           >
-            Cancel
+            <span className="max-sm:sr-only">Cancel</span>
+            <svg
+              viewBox="0 0 12 12"
+              className="size-3 sm:hidden"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M2 2l8 8M10 2l-8 8" />
+            </svg>
           </button>
         </div>
       </div>

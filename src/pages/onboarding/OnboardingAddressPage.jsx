@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import { TextInput, Select } from '../../components/ui/form';
+import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
@@ -20,16 +20,16 @@ import { debug } from '../../utils/debug.js';
 const log = debug('OnboardingAddressPage');
 
 /*
- * OnboardingAddressPage â€” Step 04 of the talent onboarding flow.
+ * OnboardingAddressPage — Step 04 of the talent onboarding flow.
  * Maps to user story US-1.1.1-04 ("Capture Talent Address"). Route:
  * /onboarding/address.
  *
  * Figma sources:
- *   2403:27731 â€” default empty state (4 fields in v1)
- *   2418:41754 â€” error state (6 fields in v2)
- *   2424:42470 â€” filled state (6 fields)
- *   2426:43114 â€” loader A (button-inline submit spinner)
- *   2426:43585 â€” loader B (post-success modal)
+ *   2403:27731 — default empty state (4 fields in v1)
+ *   2418:41754 — error state (6 fields in v2)
+ *   2424:42470 — filled state (6 fields)
+ *   2426:43114 — loader A (button-inline submit spinner)
+ *   2426:43585 — loader B (post-success modal)
  *
  * Frame discrepancy: the default (v1) frame shows 4 fields in 2x2;
  * the error/filled/loader frames (v2) show 6 fields in 2x3. We build
@@ -37,16 +37,16 @@ const log = debug('OnboardingAddressPage');
  * rows and is the more recent design.
  *
  * Layout:
- *   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
- *   â”‚ Region*           â”‚ District*              â”‚ (disabled until Region)
- *   â”‚ Town/City*        â”‚ Digital Address* (GH-) â”‚
- *   â”‚ Community / Area  â”‚ Nearby Landmark        â”‚ (both optional)
- *   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+ *   ┌────────────────────────────────────────────┐
+ *   │ Region*           │ District*              │ (disabled until Region)
+ *   │ Town/City*        │ Digital Address* (GH-) │
+ *   │ Community / Area  │ Nearby Landmark        │ (both optional)
+ *   └────────────────────────────────────────────┘
  *
  * On submit, the page briefly shows the button-inline LoadingSpinner,
  * then mounts the "Address confirmed" modal. Dismissing the modal
  * navigates to the next onboarding step (/education, scaffolded but
- * not yet built â€” falls back to /welcome until that ships).
+ * not yet built — falls back to /welcome until that ships).
  */
 
 // ---- option data ------------------------------------------------------
@@ -110,11 +110,11 @@ const TOWNS_BY_DISTRICT = {
 // at entry but we upper-case on input change for display consistency.
 const DIGITAL_ADDRESS_PATTERN = /^[A-Z]{2}-\d{3}-\d{4}$/;
 
-// Mask a GhanaPost code (e.g. "GA-123-4567") to "GHA-â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢ ".
+// Mask a GhanaPost code (e.g. "GA-123-4567") to "GHA-•••••••••• ".
 // Used in the success-modal summary row for Digital Address.
 const maskDigitalAddress = (raw) => {
-  if (!raw) return 'â€”';
-  return `GHA-${'â€¢'.repeat(Math.max(0, raw.length - 3))}`;
+  if (!raw) return '—';
+  return `GHA-${'•'.repeat(Math.max(0, raw.length - 3))}`;
 };
 
 // ---- success modal ----------------------------------------------------
@@ -128,11 +128,11 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="address-confirmed-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(34, 70, 38, 0.45)' }}
     >
       <div
-        className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)]"
+        className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{ border: '3px solid #C1D4C4' }}
       >
         <button
@@ -172,7 +172,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
           </span>
           <h2
             id="address-confirmed-title"
-            className="font-display font-normal text-[#111111]"
+            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
             style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
           >
             Address <span className="italic text-brand-green">confirmed.</span>
@@ -239,11 +239,11 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
         </Button>
 
         <p
-          className="mt-3 flex items-center justify-center gap-1.5 text-[10px] leading-4 text-[#959592]"
+          className="mt-3 flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
           style={{ letterSpacing: '0.2px' }}
         >
           <ShieldCheckIcon className="text-[#959592]" />
-          Data encrypted at rest Â· Ghana Data Protection Act compliant
+          Data encrypted at rest · Ghana Data Protection Act compliant
         </p>
       </div>
     </div>
@@ -322,13 +322,13 @@ const OnboardingAddressPage = () => {
 
   const handleContinue = () => {
     setShowSuccess(false);
-    log('continue â†’ /onboarding/education');
+    log('continue → /onboarding/education');
     navigate('/onboarding/talent/education');
   };
 
-  const getRegionLabel = (v) => REGION_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
-  const getDistrictLabel = (v) => availableDistricts.find((o) => o.value === v)?.label || 'â€”';
-  const getTownLabel = (v) => availableTowns.find((o) => o.value === v)?.label || 'â€”';
+  const getRegionLabel = (v) => REGION_OPTIONS.find((o) => o.value === v)?.label || '—';
+  const getDistrictLabel = (v) => availableDistricts.find((o) => o.value === v)?.label || '—';
+  const getTownLabel = (v) => availableTowns.find((o) => o.value === v)?.label || '—';
 
   const summary = [
     {
@@ -360,17 +360,17 @@ const OnboardingAddressPage = () => {
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
-        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
               aria-busy={isSubmitting}
             >
-              {/* Eyebrow â€” "04 Your Address" â€” leading dot, italic numeral. */}
+              {/* Eyebrow — "04 Your Address" — leading dot, italic numeral. */}
               <span
-                className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
+                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
                 style={{
                   background: '#FFFEFC',
                   borderColor: '#C1D4C4',
@@ -400,14 +400,14 @@ const OnboardingAddressPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black"
+                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
               >
                 Where are you <span className="italic text-brand-green">located?</span>
               </h1>
 
               <p
-                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
                 style={{ letterSpacing: '0.2px' }}
               >
                 Helps us match you to opportunities and institutions nearby across Ghana.
@@ -415,9 +415,9 @@ const OnboardingAddressPage = () => {
 
               <WavyDivider />
 
-              {/* Form grid â€” 6 fields in 2x3 layout (collapses to single column
+              {/* Form grid — 6 fields in 2x3 layout (collapses to single column
                 on narrow viewports). Optional fields drop their asterisk. */}
-              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
+              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 max-md:gap-y-3">
                 <Select
                   label="Region"
                   required
@@ -472,7 +472,7 @@ const OnboardingAddressPage = () => {
                   value={community}
                   onChange={(e) => setCommunity(e.target.value)}
                   leftIcon={<MapPinIcon />}
-                  helperText="Optional â€” helps us localise opportunities"
+                  helperText="Optional — helps us localise opportunities"
                 />
                 <TextInput
                   label="Nearby Landmark"
@@ -485,27 +485,29 @@ const OnboardingAddressPage = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={!isValid || isSubmitting}
-                state={isSubmitting ? 'active' : undefined}
-                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-                rightIcon={<ArrowRightIcon />}
-                className="mt-2 w-full"
-                aria-busy={isSubmitting}
-              >
-                Confirm Address
-              </Button>
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={!isValid || isSubmitting}
+                  state={isSubmitting ? 'active' : undefined}
+                  leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                  rightIcon={<ArrowRightIcon />}
+                  className="mt-2 w-full"
+                  aria-busy={isSubmitting}
+                >
+                  Confirm Address
+                </Button>
+              </StickyActionBar>
 
-              <div className="flex items-center gap-2 text-[14px] leading-6">
+              <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
                 <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                   Already Have an account?
                 </span>
                 <Link
                   to={'/login'}
-                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                   style={{ letterSpacing: '0.1px' }}
                 >
                   Log in Instead

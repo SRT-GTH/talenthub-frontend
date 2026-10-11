@@ -75,3 +75,6 @@ above 18 onboarding raw code/
 below 18 onboarding raw code/
 
 .vercel
+
+# responsive/visual test artifacts
+tests/e2e/.visual-baseline/

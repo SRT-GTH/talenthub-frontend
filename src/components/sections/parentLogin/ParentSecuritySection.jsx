@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import PasswordInput from '../../ui/form/PasswordInput.jsx';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, CloseIcon, LockIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -40,7 +41,7 @@ const schema = z
  */
 const SecurityCaptionBadge = () => (
   <div
-    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white"
+    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white max-md:px-3! max-md:py-0.5! max-md:self-start"
     style={{ borderColor: '#eedeb8', padding: '4px 16px' }}
   >
     <span
@@ -78,7 +79,7 @@ const SecurityCaptionBadge = () => (
  */
 const ModalCheckIcon = () => (
   <div
-    className="flex items-center justify-center rounded-[10px] shrink-0"
+    className="flex items-center justify-center rounded-[10px] shrink-0 max-sm:size-10!"
     style={{
       backgroundColor: '#faf4e8',
       boxShadow: '0px 1px 2px rgba(27,36,44,0.12)',
@@ -109,7 +110,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
   return (
     /* Backdrop — Figma 2952:91655 */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
       style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
       role="dialog"
       aria-modal="true"
@@ -117,7 +118,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
     >
       {/* Card */}
       <div
-        className="relative flex w-full max-w-[440px] flex-col items-center gap-4 rounded-[24px] bg-white px-8 py-8"
+        className="relative flex w-full max-w-[440px] flex-col items-center gap-4 rounded-[24px] bg-white px-8 py-8 max-sm:max-h-[92dvh] max-sm:gap-3 max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -130,7 +131,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
             log('modal close clicked');
             onClose();
           }}
-          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full text-neutral-dark transition-colors hover:bg-neutral hover:text-black"
+          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full text-neutral-dark transition-colors hover:bg-neutral hover:text-black max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
           aria-label="Close"
         >
           <CloseIcon />
@@ -141,7 +142,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
 
         {/* "Contact verified" Captions badge — Figma 2952:91665 */}
         <div
-          className="flex items-center gap-[6px] rounded-[6px] border px-8 py-[10px]"
+          className="flex items-center gap-[6px] rounded-[6px] border px-8 py-[10px] max-sm:px-3 max-sm:py-1"
           style={{
             backgroundColor: 'rgba(235,241,236,0.5)',
             borderColor: '#faf4e8',
@@ -169,7 +170,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
         {/* Headline — Figma 2952:91668 */}
         {/* "Password " — Instrument Serif Regular #111, "Captured" — italic #b48617 */}
         <h2
-          className="font-display font-normal text-center"
+          className="font-display font-normal text-center max-sm:text-[22px]! max-sm:leading-7!"
           style={{ fontSize: 32, letterSpacing: '-1.2px', lineHeight: '32px', color: '#111' }}
         >
           Password{' '}
@@ -188,7 +189,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
 
         {/* Saved info summary card — Figma 2952:91670 */}
         <div
-          className="w-full rounded-[16px] border px-4 py-3 flex flex-col gap-1"
+          className="w-full rounded-[16px] border px-4 py-3 flex flex-col gap-1 max-sm:rounded-[12px] max-sm:px-3 max-sm:py-1"
           style={{ backgroundColor: 'rgba(250,244,232,0.3)', borderColor: '#f7efdd' }}
         >
           {/* Row 1: Password */}
@@ -309,15 +310,15 @@ const ParentSecuritySection = () => {
 
   return (
     <>
-      <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-20">
-        <div className="flex w-full max-w-[762px] flex-col items-center gap-6">
+      <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="flex w-full max-w-[762px] flex-col items-center gap-6 max-md:gap-3">
           {/* Step badge — Figma 2938:32743 */}
           <SecurityCaptionBadge />
 
           {/* Headline — Figma 2938:32752 */}
           {/* "Create a strong " regular black + italic amber "password" */}
           <h1
-            className="max-w-[554px] text-center font-display font-normal"
+            className="max-w-[554px] text-center font-display font-normal max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
               lineHeight: 1.094,
@@ -333,7 +334,7 @@ const ParentSecuritySection = () => {
 
           {/* Subtitle — Figma 2938:32754 */}
           <p
-            className="max-w-[482px] text-center font-sans"
+            className="max-w-[482px] text-center font-sans max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
             style={{
               fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
               lineHeight: 1.5,
@@ -351,7 +352,7 @@ const ParentSecuritySection = () => {
           <form
             onSubmit={handleSubmit(onSubmit, onError)}
             noValidate
-            className="flex w-full max-w-[698px] flex-col gap-4"
+            className="flex w-full max-w-[698px] flex-col gap-4 max-md:gap-3"
           >
             {/* Password — Figma 2939:46535 */}
             <PasswordInput
@@ -372,26 +373,28 @@ const ParentSecuritySection = () => {
             />
 
             {/* CTA — Figma 2938:32823 */}
-            <div className="mt-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full justify-center"
-                disabled={!isValid || isSubmitting}
-                rightIcon={<ArrowRightIcon />}
-              >
-                {isSubmitting ? 'Saving…' : 'Create a New Password'}
-              </Button>
+            <div className="mt-2 max-md:contents">
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center"
+                  disabled={!isValid || isSubmitting}
+                  rightIcon={<ArrowRightIcon />}
+                >
+                  {isSubmitting ? 'Saving…' : 'Create a New Password'}
+                </Button>
+              </StickyActionBar>
             </div>
           </form>
 
           {/* Footer — Figma 2938:32824 */}
-          <p className="font-sans text-sm" style={{ color: '#737373' }}>
+          <p className="font-sans text-sm max-md:text-[13px]" style={{ color: '#737373' }}>
             Already Have an account?{' '}
             <Link
               to="/onboarding/parent-login"
-              className="font-semibold underline-offset-2 hover:underline"
+              className="font-semibold underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ color: '#387440' }}
               onClick={() => log('log in instead clicked')}
             >

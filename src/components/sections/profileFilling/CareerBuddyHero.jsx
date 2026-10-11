@@ -1,4 +1,5 @@
 import CareerBuddyAvatar from '../../shared/CareerBuddyAvatar.jsx';
+import { useIsDesktop } from '../../../hooks/useMediaQuery.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('CareerBuddyHero');
@@ -24,19 +25,25 @@ const log = debug('CareerBuddyHero');
  */
 const CareerBuddyHero = ({ hero }) => {
   log('render', { eyebrow: hero?.eyebrow, buddyCardSubtitle: hero?.buddyCardSubtitle });
+  // The mascot keeps its place on phones, just smaller (Figma 80px >= lg).
+  const avatarSize = useIsDesktop() ? 80 : 40;
 
   return (
-    <div className="flex flex-col items-center text-center px-10 pt-14 pb-6 gap-[14px] shrink-0">
-      <h1 className="text-[32px] tracking-[0.1px] text-[#404040] max-w-[782px]">
-        <span className="font-display not-italic leading-[1.3] text-brand-green">
+    <div className="flex flex-col items-center text-center px-10 pt-14 pb-6 gap-[14px] shrink-0 max-lg:min-h-0 max-lg:shrink max-lg:max-h-[30%] max-lg:overflow-y-auto max-lg:gap-1.5 max-lg:px-4 max-lg:pb-2 max-lg:pt-2">
+      <h1 className="text-[32px] tracking-[0.1px] text-[#404040] max-w-[782px] max-lg:text-[18px] max-lg:leading-snug">
+        <span className="font-display not-italic leading-[1.3] text-brand-green max-lg:leading-snug">
           {hero.eyebrow}
         </span>
-        <span className="font-sans font-medium leading-[1.3]">{hero.headlineRest}</span>
+        <span className="font-sans font-medium leading-[1.3] max-lg:leading-snug">
+          {hero.headlineRest}
+        </span>
       </h1>
-      <p className="font-sans text-[18px] text-[#595959]">{hero.subtitle}</p>
-      <div className="mt-[14px] flex w-full max-w-[450px] items-center gap-[14px] rounded-[12px] border border-[#e8e8e7] bg-[#f8f8f4] px-[16px] py-[14px]">
-        <CareerBuddyAvatar size={80} />
-        <p className="text-[18px] leading-normal text-[#404040] text-left">
+      <p className="font-sans text-[18px] text-[#595959] max-lg:max-w-full max-lg:truncate max-lg:text-[12px] max-lg:leading-4">
+        {hero.subtitle}
+      </p>
+      <div className="mt-[14px] flex w-full max-w-[450px] items-center gap-[14px] rounded-[12px] border border-[#e8e8e7] bg-[#f8f8f4] px-[16px] py-[14px] max-lg:mt-0 max-lg:gap-2.5 max-lg:px-2.5 max-lg:py-2">
+        <CareerBuddyAvatar size={avatarSize} />
+        <p className="text-[18px] leading-normal text-[#404040] text-left max-lg:text-[13px] max-lg:leading-snug">
           <span className="font-display not-italic">{hero.buddyCardLabel}</span>
           {'  '}
           <span className="font-sans">{hero.buddyCardSubtitle}</span>

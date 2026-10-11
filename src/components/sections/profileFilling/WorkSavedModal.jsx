@@ -99,7 +99,7 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
       onClose={onClose}
       size="sm"
       ariaLabel="Work history saved"
-      contentClassName="!rounded-[24px] !border-3 !border-[#c1d4c4] !max-w-[480px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] !max-w-[480px] overflow-hidden"
     >
       <div className="relative flex flex-col items-center gap-[18px] p-[clamp(24px,3vw,40px)] text-center">
         {/* Top glow — same colour as the CTA button below (Button `secondary`
@@ -115,11 +115,11 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
         </span>
 
         <div className="flex flex-col items-center gap-[6px]">
-          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1px] leading-[1.1]">
+          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1px] max-lg:tracking-[-0.02em] leading-[1.1]">
             <span className="not-italic text-[#111]">Work History </span>
             <span className="italic text-brand-green">complete.</span>
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px] max-lg:text-[14px]">
             {roleCount} role{roleCount !== 1 ? 's' : ''}, {yearsLabel} of experience. Your profile
             now appears in senior role searches on GTH.
           </p>
@@ -137,7 +137,7 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
             <span className="font-sans font-semibold text-[14px] text-[#2a5730]">
               Senior role matching unlocked
             </span>
-            <p className="font-sans text-[12px] text-[#96a090] leading-[18px]">
+            <p className="font-sans text-[12px] text-[#96a090] leading-[18px] max-lg:text-[14px]">
               Recruiters filtering for 1–3 year experience roles can now find you. Work history is
               one of the top three filters in GTH recruiter search.
             </p>
@@ -162,14 +162,14 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
                     <span className="font-sans font-bold text-[12px] text-[#111] truncate">
                       {r.jobTitle}
                     </span>
-                    <span className="font-sans text-[10px] text-[#70706e] truncate">
+                    <span className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] truncate">
                       {r.isCurrent
                         ? `${r.organisation} — ${r.location}`
                         : `${r.organisation} · ${r.duration}`}
                     </span>
                   </div>
                   <span
-                    className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px]"
+                    className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px]"
                     style={{
                       background: statusStyle.bg,
                       borderColor: statusStyle.border,
@@ -189,8 +189,12 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
             header comment on why this isn't computed live. */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] text-[#111]">Profile strength</span>
-            <span className="font-sans text-[10px] text-[#2a5730]">52% : 4 stages done</span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#111]">
+              Profile strength
+            </span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730]">
+              52% : 4 stages done
+            </span>
           </div>
           <div className="h-[8px] w-full rounded-[4px] bg-[#f8f8f4] border border-[#e8e8e4] overflow-hidden">
             <div
@@ -205,7 +209,7 @@ const WorkSavedModal = ({ isOpen, onClose, onContinue, roles = [] }) => {
           size="lg"
           onClick={onContinue}
           rightIcon={<ArrowRightIcon className="size-full" />}
-          className="w-full"
+          className="w-full max-sm:py-2.5 max-sm:text-[14px] max-sm:leading-5"
         >
           Continue to Portfolio stage
         </Button>

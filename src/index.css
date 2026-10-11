@@ -424,6 +424,101 @@
   --color-overlay-light: rgba(0, 0, 0, 0.5);
 }
 
+/*
+ * RESPONSIVE FOUNDATIONS (wiki/responsive-plan.md)
+ * Policy: >= lg (1024px) stays pixel-exact to Figma; everything below adapts.
+ * Floors: body >= 14px, secondary text >= 12px, form fields 16px (iOS zooms
+ * the page on focus for anything smaller), interactive targets >= 44px.
+ */
+@theme {
+  /* Large phones. Base (unprefixed) styles target 320px. */
+  --breakpoint-xs: 25rem; /* 400px */
+}
+
+/* Never let a mobile viewport render text below the 12px floor via tokens. */
+@media (max-width: 1023.98px) {
+  :root {
+    --text-strong-25: 12px;
+    --text-strong-25--line-height: 16px;
+    --text-medium-25: 12px;
+    --text-medium-25--line-height: 16px;
+    --text-normal-25: 12px;
+    --text-normal-25--line-height: 16px;
+  }
+}
+
+/* Display headings are 36-72px fixed; scale them down on phones. */
+@media (max-width: 767.98px) {
+  :root {
+    --text-display-xl: 44px;
+    --text-display-xl--line-height: 48px;
+    --text-display-lg: 36px;
+    --text-display-lg--line-height: 40px;
+    --text-display-md: 30px;
+    --text-display-md--line-height: 36px;
+  }
+}
+
+/*
+ * Inline `style={{ fontSize }}` can't carry a media query, so sub-12px inline
+ * sizes use these variables: Figma value at >= lg, 12px floor below.
+ */
+:root {
+  --fs-8: 8px;
+  --fs-9: 9px;
+  --fs-10: 10px;
+  --fs-11: 11px;
+}
+@media (max-width: 1023.98px) {
+  :root {
+    --fs-8: 12px;
+    --fs-9: 12px;
+    --fs-10: 12px;
+    --fs-11: 12px;
+  }
+}
+
+/*
+ * Hard floor for touch targets (WCAG 2.5.8: 24px). `:where()` keeps specificity
+ * at zero so any component can still ask for more. Inline text links are
+ * unaffected (min-size doesn't apply to inline boxes). Primary controls should
+ * reach 44px via `tap-target` / `min-h-11` on the component itself.
+ * Lives in `@layer base` on purpose: unlayered CSS would beat every Tailwind
+ * utility (they are layered), silently disabling `min-h-11` / `tap-target`.
+ */
+@layer base {
+  @media (max-width: 1023.98px), (pointer: coarse) {
+    :where(
+      button,
+      [role='button'],
+      [role='tab'],
+      [role='menuitem'],
+      [role='switch'],
+      summary,
+      a[href]
+    ) {
+      min-height: 24px;
+      min-width: 24px;
+    }
+  }
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility px-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+/* Minimum comfortable touch target (WCAG 2.5.8 hard floor is 24px; we want 44). */
+@utility tap-target {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
 /* Base element styles */
 html,
 body {
@@ -434,6 +529,23 @@ body {
   background-color: var(--color-background-default);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/*
+ * iOS Safari zooms the whole page when a focused field is < 16px. Force 16px
+ * on touch devices and phone-width viewports; desktop (>= 768, fine pointer)
+ * keeps the Figma sizes.
+ */
+@media (max-width: 767.98px), (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(
+      [type='color']
+    ),
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 /*

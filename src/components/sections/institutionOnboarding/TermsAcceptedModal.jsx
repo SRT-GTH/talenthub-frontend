@@ -99,11 +99,11 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="terms-accepted-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
     >
       <div
-        className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-[#c1d4c4] bg-white p-10 shadow-xl"
+        className="relative w-full max-w-[440px] rounded-[24px] border-[3px] border-[#c1d4c4] bg-white p-10 shadow-xl max-sm:p-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Close button (✕) — absolutely positioned top-right ── */}
@@ -114,16 +114,16 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
             log('close button clicked');
             onClose?.();
           }}
-          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-sm:right-3 max-sm:top-3 max-sm:before:absolute max-sm:before:-inset-2 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
 
         {/* ── Header ── */}
-        <div className="mb-6 flex flex-col items-center gap-4 text-center">
+        <div className="mb-6 flex flex-col items-center gap-4 text-center max-sm:mb-3 max-sm:gap-2">
           {/* Icon badge */}
           <div
-            className="flex size-[64px] shrink-0 items-center justify-center rounded-[10px]"
+            className="flex size-[64px] shrink-0 items-center justify-center rounded-[10px] max-sm:size-10"
             style={{
               background: '#e1eae2',
               boxShadow: '0 2px 8px rgba(56,116,64,0.14)',
@@ -135,7 +135,7 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
           <div className="flex flex-col gap-1">
             <h2
               id="terms-accepted-title"
-              className="font-display font-normal text-black"
+              className="font-display font-normal text-black max-sm:text-[22px]!"
               style={{
                 fontSize: 'clamp(1.5rem, 2.5vw, 2rem)',
                 lineHeight: 1.15,
@@ -145,7 +145,7 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
               Terms <span className="italic text-brand-green">Accepted</span>
             </h2>
             <p
-              className="font-sans font-normal text-[#959592]"
+              className="font-sans font-normal text-[#959592] max-sm:text-[13px]!"
               style={{ fontSize: '12px', lineHeight: 1.5 }}
             >
               You've agreed to all 3 required documents and reviewed your summary form. Here&apos;s
@@ -156,7 +156,7 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
 
         {/* ── Consent record table ── */}
         <div
-          className="mb-5 overflow-hidden rounded-[16px] border"
+          className="mb-5 max-sm:mb-3 overflow-hidden rounded-[16px] max-sm:rounded-xl border"
           style={{
             background: 'rgba(235,241,236,0.3)',
             borderColor: 'rgba(0,0,0,0.07)',
@@ -166,7 +166,7 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
             <div
               key={row.label}
               className={[
-                'flex items-center justify-between px-4 py-3',
+                'flex items-center justify-between px-4 py-3 max-sm:px-3 max-sm:py-2',
                 i < CONSENT_ROWS.length - 1 ? 'border-b border-[rgba(0,0,0,0.06)]' : '',
               ].join(' ')}
             >
@@ -174,12 +174,15 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
                 <RowCheckIcon />
                 <span
                   className="font-sans font-semibold text-brand-green"
-                  style={{ fontSize: '10px', letterSpacing: '0.4px' }}
+                  style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.4px' }}
                 >
                   {row.label}
                 </span>
               </span>
-              <span className="font-sans text-[10px] text-[#babab7]" aria-label="Confirmed">
+              <span
+                className="font-sans text-[10px] max-lg:text-[12px] text-[#babab7]"
+                aria-label="Confirmed"
+              >
                 —
               </span>
             </div>
@@ -187,7 +190,7 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
         </div>
 
         {/* ── Progress divider ── */}
-        <div className="mb-5 h-[4px] w-full rounded-[4px] bg-[#ebf1ec]" />
+        <div className="mb-5 max-sm:mb-3 h-[4px] w-full rounded-[4px] bg-[#ebf1ec]" />
 
         {/* ── CTA ── */}
         <Button
@@ -202,9 +205,9 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
         </Button>
 
         {/* ── Trust badge ── */}
-        <div className="mt-3.5 flex items-center justify-center gap-1.5">
+        <div className="mt-3.5 max-sm:mt-2.5 flex items-center justify-center gap-1.5">
           <ShieldCheckIcon className="text-brand-green" />
-          <span className="font-sans text-[10px] text-[#959592]">
+          <span className="font-sans text-[10px] max-lg:text-[12px] text-[#959592]">
             Data encrypted at rest · Ghana Data Protection Act compliant
           </span>
         </div>

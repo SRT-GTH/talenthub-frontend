@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
 import { icons } from '../community/communityIcons.js';
 import { SIDEBAR_PROFILE, SIDEBAR_PUBLIC_PROFILE } from './dashboardData.js';
+import { useDashboardNav } from './dashboardNav.js';
+import NavBadge from './NavBadge.jsx';
+import PublicProfileCard from './PublicProfileCard.jsx';
 import avatarLarge from '../../../assets/community/avatar-recruiter-large.svg';
 
 const log = debug('DashboardSidebar');
@@ -29,71 +32,7 @@ const log = debug('DashboardSidebar');
  * communityData.js.
  */
 
-const NAV_ITEMS = [
-  {
-    id: 'home',
-    label: 'Home',
-    icon: icons.navHome,
-    collapsedIcon: icons.navHomeCollapsed,
-    to: '/recruiter/home',
-  },
-  {
-    id: 'talent-search',
-    label: 'Talent Search',
-    icon: icons.navTalentSearch,
-    collapsedIcon: icons.navTalentSearchCollapsed,
-    to: '/recruiter/talent-search',
-  },
-  {
-    id: 'job-postings',
-    label: 'Job Postings',
-    icon: icons.navJobPostings,
-    collapsedIcon: icons.navJobPostingsCollapsed,
-    badge: '5',
-    to: '/recruiter/job-postings',
-  },
-  {
-    id: 'community',
-    label: 'Community',
-    icon: icons.navCommunityActive,
-    collapsedIcon: icons.navCommunityActiveCollapsed,
-    to: '/community',
-  },
-  {
-    id: 'messages',
-    label: 'Messages',
-    icon: icons.navMessages,
-    collapsedIcon: icons.navMessages,
-    badge: '3',
-    to: '/recruiter/messages',
-  },
-  {
-    id: 'application-pipeline',
-    label: 'Application Pipeline',
-    icon: icons.navApplicationPipeline,
-    collapsedIcon: icons.navApplicationPipelineCollapsed,
-    to: '/recruiter/application-pipeline',
-  },
-];
-
-const SECONDARY_NAV_ITEMS = [
-  { id: 'profile', label: 'Profile', icon: icons.navProfile, collapsedIcon: icons.navProfile },
-];
-
 const GREEN_GRADIENT = 'linear-gradient(171.84deg, #387440 14.637%, #84cc16 85.349%)';
-const BADGE_GRADIENT = 'linear-gradient(136.55deg, #387440 14.637%, #84cc16 85.349%)';
-
-const NavBadge = ({ count, className, style }) => (
-  <span
-    className={classNames(
-      'inline-flex h-[18px] items-center justify-center overflow-hidden rounded-[99px] px-[6px] py-[2px] font-sans text-[10px] font-medium text-white',
-      className
-    )}
-    style={{ backgroundImage: BADGE_GRADIENT, ...style }}
-  >
-    {count}
-  </span>
-);
 
 const ExpandedNavItem = ({ item, onNavigate }) => {
   const content = (
@@ -204,62 +143,17 @@ const CollapsedNavItem = ({ item, onNavigate }) => {
   );
 };
 
-/* Public-profile card. In the expanded rail it is always visible (7025:85355).
- * In the collapsed rail only the link icon shows (7025:86227) and the full card
- * appears as a popover — Figma annotation on 7025:87865:
- *   "Appears when link Icon is hovered or clicked." */
-const PublicProfileCard = ({ className, style }) => (
-  <div
-    /* Width is set by the caller (`w-full` in the expanded rail, a fixed
-       249px for the collapsed rail's popover) — `classNames` is a plain join,
-       not tailwind-merge, so no width class may live in the base list. */
-    className={classNames(
-      'flex flex-col items-start gap-[10px] overflow-hidden rounded-[12px] border border-neutral bg-white p-[12px]',
-      className
-    )}
-    style={style}
-  >
-    <div className="flex w-full items-center gap-[6px] rounded-[8px] bg-brand-green-light px-[10px] py-[8px]">
-      <CommunityIcon src={icons.linkOutlined} size={16} />
-      <span className="font-sans text-[13px] font-medium leading-[18px] tracking-[0.2px] text-brand-green">
-        {SIDEBAR_PUBLIC_PROFILE.heading}
-      </span>
-    </div>
-    <p className="w-full font-mono text-[10px] leading-4 tracking-[0.2px] text-brand-green-hover">
-      {SIDEBAR_PUBLIC_PROFILE.url}
-    </p>
-    <button
-      type="button"
-      onClick={() => log('preview as talent clicked (no destination wired yet)')}
-      className="flex h-[36px] w-full items-center justify-center gap-[6px] rounded-[8px] border border-brand-green-light-active bg-white px-[12px] py-[6px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-    >
-      <span className="font-sans text-[13px] font-semibold leading-[18px] tracking-[0.2px] text-brand-green">
-        {SIDEBAR_PUBLIC_PROFILE.action}
-      </span>
-      <span className="inline-flex -scale-y-100 rotate-180 items-center justify-center">
-        <CommunityIcon src={icons.arrowUpLeft} size={16} />
-      </span>
-    </button>
-  </div>
-);
-
-const DashboardSidebar = ({ collapsed, onToggle, className }) => {
-  const { pathname } = useLocation();
-
-  /* `active` used to be hardcoded on the Community item, which left it lit
-     up on every screen that mounts this rail. Now that Home has a real
-     destination (/recruiter/home, added with the recruiter dashboard home)
-     the active item is derived from the route instead. Behaviour on the
-     community routes is unchanged: /community and /community/:id both still
-     resolve to the Community item. Items with no `to` stay inactive, exactly
-     as before. */
-  const withActive = (items) =>
-    items.map((item) => ({
-      ...item,
-      active: Boolean(item.to) && (pathname === item.to || pathname.startsWith(`${item.to}/`)),
-    }));
-  const navItems = withActive(NAV_ITEMS);
-  const secondaryNavItems = withActive(SECONDARY_NAV_ITEMS);
+/*
+ * `compact` is the md–lg (tablet) rail: the same collapsed rendering, forced
+ * collapsed, a touch narrower, with no expand toggle and no "New" badge (that
+ * badge hangs 46px outside the avatar puck and the narrow rail would clip it).
+ * Phones get DashboardMobileTabBar instead; >= lg is the untouched rail.
+ */
+const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) => {
+  /* `active` is derived from the route (see dashboardNav.js): /community and
+     /community/:id both resolve to the Community item, and items with no `to`
+     stay inactive, exactly as before. */
+  const { navItems, secondaryNavItems } = useDashboardNav();
 
   /* Figma annotation (7025:87865): "Appears when link Icon is hovered or
      clicked." Hover and click are tracked separately so a click that follows
@@ -291,7 +185,7 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
     onToggle?.();
   };
 
-  const toggleButton = (
+  const toggleButton = compact ? null : (
     <button
       type="button"
       onClick={handleToggle}
@@ -316,6 +210,7 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
       <aside
         className={classNames(
           'relative flex w-[126px] shrink-0 flex-col items-center justify-between border-r-2 border-white bg-white px-[12px] py-[60px]',
+          compact && 'max-lg:w-[104px] max-lg:px-[8px] max-lg:py-[24px]',
           className
         )}
         aria-label="Community navigation"
@@ -338,9 +233,9 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
                 className="h-[70px] w-[69px] max-w-none select-none"
               />
             </span>
-            <span className="absolute -right-[46px] top-[5px] inline-flex h-[18px] items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light px-[4px] py-[2px]">
+            <span className="absolute -right-[46px] top-[5px] inline-flex h-[18px] max-lg:hidden items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light px-[4px] py-[2px]">
               <CommunityIcon src={icons.newBadge} size={8} />
-              <span className="font-sans text-[9px] font-medium tracking-[0.2px] text-informative-dark">
+              <span className="font-sans text-[9px] max-lg:text-[12px] font-medium tracking-[0.2px] text-informative-dark">
                 {SIDEBAR_PROFILE.badge}
               </span>
             </span>
@@ -427,7 +322,7 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
             </span>
             <span className="inline-flex h-[18px] items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light py-[2px] pl-[6px] pr-[7px]">
               <CommunityIcon src={icons.newBadge} size={8} />
-              <span className="font-sans text-[10px] font-semibold leading-5 tracking-[0.2px] text-informative-dark">
+              <span className="font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-informative-dark">
                 {SIDEBAR_PROFILE.badge}
               </span>
             </span>
@@ -449,7 +344,7 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
             <span className="font-sans text-[13px] font-semibold leading-5 text-black">
               {SIDEBAR_PROFILE.gettingStartedLabel}
             </span>
-            <span className="font-sans text-[11px] font-medium leading-4 text-neutral-dark">
+            <span className="font-sans text-[11px] max-lg:text-[12px] font-medium leading-4 text-neutral-dark">
               {SIDEBAR_PROFILE.gettingStartedCount}
             </span>
           </div>
@@ -487,7 +382,9 @@ const DashboardSidebar = ({ collapsed, onToggle, className }) => {
                 <span className="font-sans text-[12px] font-semibold leading-5 tracking-[0.2px] text-brand-green">
                   {stat.value}
                 </span>
-                <span className="font-sans text-[11px] text-[#999]">{stat.label}</span>
+                <span className="font-sans text-[11px] max-lg:text-[12px] text-[#999]">
+                  {stat.label}
+                </span>
               </div>
             </div>
           ))}

@@ -185,7 +185,7 @@ const RecruiterPanel = ({
         className
       )}
     >
-      <header className="flex flex-col gap-[9px] pt-[14px] pb-[20px]">
+      <header className="flex flex-col gap-[9px] pt-[14px] pb-[20px] max-lg:gap-1 max-lg:pb-3 max-lg:pt-2">
         <h2
           className="font-display leading-tight tracking-[-1px] text-[#111]"
           style={{ fontSize: 'clamp(1.5rem, 2.1vw, 2rem)' /* 24→32 */ }}
@@ -216,13 +216,13 @@ const RecruiterPanel = ({
           return (
             <div key={stage.id} className="border-b border-[#e5e7eb]">
               {/* Header row — Figma 5132:66804: pr-20 py-40, gap-20 */}
-              <div className="flex items-center justify-between gap-[20px] py-[40px] pr-[20px]">
+              <div className="flex items-center justify-between gap-[20px] py-[40px] pr-[20px] max-lg:gap-3 max-lg:py-3 max-lg:pr-0">
                 <div className="flex min-w-0 flex-1 items-center gap-[20px]">
-                  <span className="flex size-10 shrink-0 items-center justify-center text-brand-green">
-                    <Icon className="size-10" />
+                  <span className="flex size-10 max-lg:size-7 shrink-0 items-center justify-center text-brand-green">
+                    <Icon className="size-10 max-lg:size-7" />
                   </span>
                   <div className="flex min-w-0 flex-col gap-[6px]">
-                    <p className="font-sans text-[20px] font-medium leading-normal text-[#111]">
+                    <p className="font-sans text-[20px] font-medium leading-normal text-[#111] max-lg:text-[16px]">
                       {stage.panelLabel}
                     </p>
                     <p className="font-sans text-[14px] leading-normal text-[#595959]">
@@ -237,7 +237,7 @@ const RecruiterPanel = ({
                   aria-label={
                     expanded ? `Collapse ${stage.panelLabel}` : `Expand ${stage.panelLabel}`
                   }
-                  className="border border-[#e5e7eb] bg-white"
+                  className="border border-[#e5e7eb] bg-white max-lg:size-11"
                   onClick={() => {
                     log('branch', { toggle: stage.id, expanded: !expanded });
                     onToggleExpand?.(stage.id);
@@ -248,7 +248,7 @@ const RecruiterPanel = ({
               </div>
 
               {expanded && (
-                <div className="flex flex-col items-end gap-[48px] px-[40px] pb-[29px] pt-[10px]">
+                <div className="flex flex-col items-end gap-[48px] px-[40px] pb-[29px] pt-[10px] max-lg:gap-8 max-lg:px-0">
                   {canPreview ? (
                     isEditing && !isJobs ? (
                       <>
@@ -322,7 +322,7 @@ const RecruiterPanel = ({
                                         [stage.id]: { ...prev[stage.id], [field.label]: value },
                                       }));
                                     }}
-                                    className="w-[250px] max-w-[290px] rounded-[8px] border border-[#e9e9e9] px-[16px] py-[12px] font-sans text-[16px] leading-[1.4] text-[#737373] focus:border-brand-green-light-active focus:outline-none"
+                                    className="w-[250px] max-lg:w-full max-w-[290px] rounded-[8px] border border-[#e9e9e9] px-[16px] py-[12px] font-sans text-[16px] leading-[1.4] text-[#737373] focus:border-brand-green-light-active focus:outline-none"
                                   />
                                 )}
                               </div>
@@ -425,7 +425,7 @@ const RecruiterPanel = ({
                                 <span className="shrink-0 whitespace-nowrap font-sans text-[16px] font-medium leading-[1.5] text-[#111]">
                                   {field.label}
                                 </span>
-                                <span className="w-[250px] max-w-[350px] text-right font-sans text-[17px] leading-[1.45] text-[#595959]">
+                                <span className="w-[250px] max-lg:w-auto max-lg:min-w-0 max-lg:[overflow-wrap:anywhere] max-w-[350px] text-right font-sans text-[17px] leading-[1.45] text-[#595959]">
                                   {field.value}
                                 </span>
                               </div>

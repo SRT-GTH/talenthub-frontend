@@ -54,17 +54,35 @@ const DeleteWorkModal = ({ isOpen, onClose, onConfirm, onEditInstead, role }) =>
     : null;
 
   const footer = (
-    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)]">
-      <Button variant="tertiary" size="md" onClick={onClose}>
-        Cancel
+    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)] max-sm:gap-2 max-sm:px-4 max-sm:py-3">
+      <Button
+        variant="tertiary"
+        size="md"
+        onClick={onClose}
+        className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+      >
+        <span className="max-sm:sr-only">Cancel</span>
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3 sm:hidden"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </Button>
       <Button
         variant="danger"
         size="md"
         onClick={handleConfirm}
         leftIcon={<WorkDeleteWarningIcon className="size-full" />}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
       >
-        Permanently delete this role
+        <span className="max-sm:hidden">Permanently delete this role</span>
+        <span className="sm:hidden">Delete permanently</span>
       </Button>
     </div>
   );
@@ -75,7 +93,7 @@ const DeleteWorkModal = ({ isOpen, onClose, onConfirm, onEditInstead, role }) =>
       onClose={onClose}
       size="sm"
       ariaLabel="Delete this role"
-      contentClassName="!rounded-[24px] !max-w-[550px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !max-w-[550px] overflow-hidden"
       footer={footer}
     >
       <div className="relative flex flex-col p-[clamp(24px,3vw,40px)] gap-[20px]">
@@ -91,10 +109,10 @@ const DeleteWorkModal = ({ isOpen, onClose, onConfirm, onEditInstead, role }) =>
           <span className="size-[56px] rounded-[16px] bg-[#fdecea] border-2 border-[#f6c6bd] flex items-center justify-center">
             <WorkDeleteWarningIcon className="size-[26px] text-[#c0392b]" />
           </span>
-          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] text-[#111]">
+          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] max-lg:tracking-[-0.02em] text-[#111]">
             Delete this role?
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px] max-lg:text-[14px]">
             This will permanently remove the role from your work history. Your profile updates
             immediately. This cannot be undone.
           </p>
@@ -118,28 +136,30 @@ const DeleteWorkModal = ({ isOpen, onClose, onConfirm, onEditInstead, role }) =>
                     {role.startDate} – {role.isCurrent ? 'Present' : role.endDate}
                   </span>
                   <span className="text-[#e8e8e4]">|</span>
-                  <span className="font-mono text-[10px] text-[#babab7]">{role.duration}</span>
+                  <span className="font-mono text-[10px] max-lg:text-[12px] text-[#babab7]">
+                    {role.duration}
+                  </span>
                 </div>
               </div>
               <span
-                className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[10px]"
+                className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px]"
                 style={{
                   background: statusStyle.bg,
                   borderColor: statusStyle.border,
                   color: statusStyle.text,
                 }}
               >
-                {statusStyle.dot && <span className="text-[8px]">●</span>}
+                {statusStyle.dot && <span className="text-[8px] max-lg:text-[12px]">●</span>}
                 {role.statusTag}
               </span>
-              <p className="font-sans text-[12px] text-[#70706e] leading-[1.65]">
+              <p className="font-sans text-[12px] text-[#70706e] leading-[1.65] max-lg:text-[14px]">
                 {role.description}
               </p>
               <div className="flex items-center flex-wrap gap-[5px]">
                 {role.tags?.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {tag}
                   </span>
@@ -174,7 +194,7 @@ const DeleteWorkModal = ({ isOpen, onClose, onConfirm, onEditInstead, role }) =>
             <span className="font-sans font-semibold text-[12px] text-[#2a5730]">
               Want to fix something instead of deleting?
             </span>
-            <p className="font-sans text-[10px] text-[#387440] leading-[14px] opacity-85">
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-[#387440] leading-[14px] opacity-85">
               If the dates, title or description are wrong, editing is safer. You keep the history
               and any recruiter activity on this role.
             </p>

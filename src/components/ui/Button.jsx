@@ -189,6 +189,25 @@ const SIZE_CLASSES = {
   xs: 'px-[14px] py-[6px] rounded-[8px]',
 };
 
+// RESPONSIVE (wiki/responsive-plan.md §3a): below lg the Figma buttons (50-56px
+// tall, 28-34px side padding, 16px text, 4px "shelf") are oversized for a phone.
+// Compact scale: ~40px tall, 14px text, 2px shelf. >= lg is untouched. The hit
+// area stays comfortable because pages pair these with full-width rows / the
+// global 24px floor; icon-only controls add their own padding.
+const MOBILE_COMPACT_CLASSES = {
+  lg: 'max-lg:px-4 max-lg:py-2.5 max-lg:text-[14px] max-lg:rounded-[10px]',
+  md: 'max-lg:px-4 max-lg:py-2.5 max-lg:text-[14px] max-lg:rounded-[10px]',
+  sm: 'max-lg:px-3.5 max-lg:py-2 max-lg:text-[14px] max-lg:rounded-[10px]',
+  xs: '',
+};
+const MOBILE_SHELF_CLASSES = {
+  primary: 'max-lg:drop-shadow-[0_2px_0_#224626] max-lg:active:translate-y-0.5',
+  secondary: 'max-lg:drop-shadow-[0_2px_0_#967014] max-lg:active:translate-y-0.5',
+  tertiary: 'max-lg:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)] max-lg:active:translate-y-0.5',
+  gold: 'max-lg:drop-shadow-[0_2px_0_#96700f] max-lg:active:translate-y-0.5',
+  danger: 'max-lg:drop-shadow-[0_2px_0_#ad3327] max-lg:active:translate-y-0.5',
+};
+
 // Tailwind v4 JIT requires literal class names in source — no runtime
 // concatenation of `hover:` prefixes. Each variant ships two bundles:
 //   interactive — default + hover/active/disabled pseudos for real usage
@@ -451,7 +470,9 @@ const Button = ({
       className={classNames(
         BASE_CLASSES,
         SIZE_CLASSES[size],
+        MOBILE_COMPACT_CLASSES[size],
         variantClasses,
+        MOBILE_SHELF_CLASSES[variant],
         textColourClass,
         className
       )}

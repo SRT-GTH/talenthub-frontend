@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import InterviewConfirmModal from './InterviewConfirmModal.jsx';
@@ -187,35 +188,37 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
     setInterviewers([]);
   };
 
-  return (
+  // Portalled to <body> so the overlay sits above the shell's fixed Career Buddy
+  // launcher and the phone tab bar (both live in the shell's own stacking context).
+  return createPortal(
     <>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={SCHEDULE_HEADER.title}
-        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4 max-sm:items-stretch max-sm:p-0"
         onClick={() => setConfirm('cancel')}
       >
         <div
           onClick={(event) => event.stopPropagation()}
-          className="relative my-auto flex w-full max-w-[1219px] flex-col gap-[24px] rounded-[24px] bg-white px-[32px] py-[28px] shadow-[0_4px_0_0_rgba(0,0,0,0.13),0_40px_100px_0_rgba(0,0,0,0.25)]"
+          className="relative my-auto flex w-full max-w-[1219px] flex-col gap-[24px] rounded-[24px] bg-white px-[32px] py-[28px] shadow-[0_4px_0_0_rgba(0,0,0,0.13),0_40px_100px_0_rgba(0,0,0,0.25)] max-sm:my-0 max-sm:min-h-dvh max-sm:rounded-none max-sm:px-[16px] max-sm:pb-0 max-sm:pt-[calc(20px+env(safe-area-inset-top))]"
         >
           {/* Close — Figma 7249:80519 */}
           <button
             type="button"
             aria-label="Close"
             onClick={() => setConfirm('cancel')}
-            className="absolute right-[32px] top-[28px] grid size-[28px] place-items-center rounded-[20px] bg-brand-green-light text-brand-green transition-colors hover:bg-brand-green-light-hover"
+            className="absolute right-[32px] top-[28px] grid size-[28px] place-items-center rounded-[20px] bg-brand-green-light text-brand-green transition-colors hover:bg-brand-green-light-hover max-sm:right-[8px] max-sm:top-[calc(8px+env(safe-area-inset-top))] max-sm:size-[44px] max-sm:rounded-full"
           >
             <ModalCloseIcon className="size-[16px]" />
           </button>
 
           {/* Header — Figma 7249:80369 */}
-          <div className="flex max-w-[420px] flex-col gap-[4px]">
-            <h2 className="font-display text-[32px] not-italic leading-[41.6px] text-black">
+          <div className="flex max-w-[420px] flex-col gap-[4px] max-sm:pr-[44px]">
+            <h2 className="font-display text-[32px] not-italic leading-[41.6px] text-black max-sm:text-[22px] max-sm:leading-[28px]">
               {SCHEDULE_HEADER.title}
             </h2>
-            <p className="font-sans text-[14px] leading-[16.71px] text-[#595959]">
+            <p className="font-sans text-[14px] leading-[16.71px] text-[#595959] max-sm:leading-5">
               {SCHEDULE_HEADER.subtitle}
             </p>
           </div>
@@ -223,7 +226,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
           <div className="flex flex-col gap-[32px] xl:flex-row">
             {/* ── LEFT COLUMN — Figma 7249:80373, 495 wide ── */}
             <div className="flex w-full flex-col gap-[24px] xl:w-[495px] xl:shrink-0">
-              <div className="flex flex-col gap-[23px] rounded-[14px] border border-border-card bg-white p-[22px]">
+              <div className="flex flex-col gap-[23px] rounded-[14px] border border-border-card bg-white p-[22px] max-sm:p-[16px]">
                 {/* Candidate — Figma 7249:80375 */}
                 <div className="flex items-center gap-[16px]">
                   <span className="grid size-[64px] shrink-0 place-items-center rounded-full border-2 border-[#f3f8f4]">
@@ -289,8 +292,8 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                               setFormat(item.id);
                             }}
                             className={classNames(
-                              'inline-flex h-[40px] items-center gap-[8px] rounded-pill border-[1.21px] px-[16px]',
-                              'font-sans text-[16px] leading-6 tracking-[0.2px] transition-all duration-300 ease-in',
+                              'inline-flex h-[40px] max-lg:h-[34px] items-center gap-[8px] rounded-pill border-[1.21px] px-[16px] max-lg:px-[12px]',
+                              'font-sans text-[16px] max-lg:text-[14px] leading-6 tracking-[0.2px] transition-all duration-300 ease-in',
                               isActive
                                 ? 'border-brand-green-light-hover bg-brand-green-light text-brand-green-dark'
                                 : 'border-border-pill bg-neutral text-content-helper hover:bg-neutral-hover'
@@ -381,7 +384,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                             setAddingInterviewer((prev) => !prev);
                           }}
                           /* 2px #ffffff dashed [6,4] on #eae8e2, rounded-full */
-                          className="relative grid size-[40px] shrink-0 place-items-center rounded-full bg-[#eae8e2] text-content-muted"
+                          className="relative grid size-[40px] max-lg:size-[44px] shrink-0 place-items-center rounded-full bg-[#eae8e2] text-content-muted"
                         >
                           <svg
                             aria-hidden="true"
@@ -407,7 +410,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                             value={interviewerName}
                             onChange={(event) => setInterviewerName(event.target.value)}
                             placeholder={INTERVIEWER_INPUT.placeholder}
-                            className="h-[40px] min-w-0 flex-1 rounded-[10px] border border-[#cccccc] bg-white px-[14px] font-sans text-[13px] text-black outline-none placeholder:text-content-helper"
+                            className="h-[40px] max-lg:h-[48px] min-w-0 flex-1 rounded-[10px] border border-[#cccccc] bg-white px-[14px] font-sans text-[13px] max-lg:text-[16px] text-black outline-none placeholder:text-content-helper"
                           />
                           <button
                             type="button"
@@ -418,7 +421,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                               setInterviewerName('');
                               setAddingInterviewer(false);
                             }}
-                            className="inline-flex h-[40px] shrink-0 items-center rounded-[10px] bg-brand-green px-[14px] font-sans text-[13px] font-semibold text-white transition-colors hover:bg-brand-green-hover"
+                            className="inline-flex h-[40px] max-lg:h-[48px] shrink-0 items-center rounded-[10px] bg-brand-green px-[14px] font-sans text-[13px] max-lg:text-[14px] font-semibold text-white transition-colors hover:bg-brand-green-hover"
                           >
                             {INTERVIEWER_INPUT.add}
                           </button>
@@ -443,7 +446,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                         log('branch', { action: 'edit-notes' });
                         setNotesSaved(false);
                       }}
-                      className="text-center font-sans text-[14px] font-medium leading-[19.2px] text-[#00522b] transition-opacity hover:opacity-80"
+                      className="text-center font-sans text-[14px] font-medium leading-[19.2px] text-[#00522b] transition-opacity hover:opacity-80 max-lg:min-h-[44px] max-lg:px-[8px]"
                     >
                       {RECRUITER_NOTES.edit}
                     </button>
@@ -470,7 +473,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                     onBlur={() => notes.trim() && setNotesSaved(true)}
                     placeholder={NOTES_PLACEHOLDER}
                     /* Figma 7249:80441 — 86 tall, pad L14 R14 T14 B52 */
-                    className="no-scrollbar h-[86px] w-full resize-none rounded-[10px] border border-[#cccccc] bg-white px-[14px] pb-[52px] pt-[14px] font-sans text-[14px] leading-5 tracking-[0.2px] text-black shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] outline-none placeholder:text-[#999999]"
+                    className="no-scrollbar h-[86px] w-full resize-none rounded-[10px] border border-[#cccccc] bg-white px-[14px] pb-[52px] pt-[14px] font-sans text-[14px] max-lg:text-[16px] leading-5 tracking-[0.2px] text-black shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] outline-none placeholder:text-[#999999]"
                   />
                 </div>
               )}
@@ -478,7 +481,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
 
             {/* ── RIGHT COLUMN — Figma 7249:80445, 628 wide ── */}
             <div className="flex min-w-0 flex-1 flex-col items-end gap-[24px]">
-              <div className="flex w-full flex-col gap-[24px] rounded-[14px] border border-border-card bg-white px-[22px] py-[20px]">
+              <div className="flex w-full flex-col gap-[24px] rounded-[14px] border border-border-card bg-white px-[22px] py-[20px] max-sm:px-[16px]">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <span className="flex items-center gap-[11.99px]">
                     <SlotsCalendarIcon className="h-[20px] w-[18px] shrink-0 text-brand-green" />
@@ -518,7 +521,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                         aria-label="Previous days"
                         onClick={() => scrollDays('prev')}
                         disabled={dayEdges.atStart}
-                        className="grid size-[32px] shrink-0 place-items-center rounded-[8px] border border-border-card text-content-helper transition-colors hover:bg-neutral disabled:cursor-not-allowed disabled:opacity-40"
+                        className="grid size-[32px] max-lg:size-[44px] shrink-0 place-items-center rounded-[8px] border border-border-card text-content-helper transition-colors hover:bg-neutral disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <SlotArrowIcon className="size-[14px]" />
                       </button>
@@ -543,7 +546,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                                 setDayId(day.id);
                               }}
                               className={classNames(
-                                'flex h-[89.6px] w-[80px] shrink-0 flex-col items-center justify-center rounded-[12px] border pb-[16px] pt-[15px]',
+                                'flex h-[89.6px] w-[80px] max-sm:h-[68px] max-sm:w-[64px] shrink-0 flex-col items-center justify-center rounded-[12px] border pb-[16px] pt-[15px] max-sm:pb-[8px] max-sm:pt-[8px]',
                                 'transition-all duration-300 ease-in',
                                 // Figma draws unavailable days at NODE opacity 0.50
                                 day.disabled && 'cursor-not-allowed opacity-50',
@@ -583,7 +586,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                         aria-label="Next days"
                         onClick={() => scrollDays('next')}
                         disabled={dayEdges.atEnd}
-                        className="grid size-[32px] shrink-0 place-items-center rounded-[8px] border border-border-card text-content-helper transition-colors hover:bg-neutral disabled:cursor-not-allowed disabled:opacity-40"
+                        className="grid size-[32px] max-lg:size-[44px] shrink-0 place-items-center rounded-[8px] border border-border-card text-content-helper transition-colors hover:bg-neutral disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <SlotArrowIcon className="size-[14px] rotate-180" />
                       </button>
@@ -609,8 +612,8 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                               setTimeId(slot.id);
                             }}
                             className={classNames(
-                              'flex h-[46.8px] items-center justify-center rounded-[8px] border px-[12px]',
-                              'font-sans text-[16px] leading-6 tracking-[0.2px] transition-all duration-300 ease-in',
+                              'flex h-[46.8px] max-sm:h-[40px] items-center justify-center rounded-[8px] border px-[12px]',
+                              'font-sans text-[16px] max-lg:text-[14px] leading-6 tracking-[0.2px] transition-all duration-300 ease-in',
                               // Figma draws unavailable slots at NODE opacity 0.40
                               slot.disabled && 'cursor-not-allowed opacity-40',
                               // Active (7249:81743) is #387440 fill AND border with
@@ -639,7 +642,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                         <span className="font-sans text-[14px] font-medium leading-[19.2px] text-[#00522b]">
                           {TENTATIVE.label}
                         </span>
-                        <span className="font-sans text-[12px] leading-[17.6px] text-[#6b6a63]">
+                        <span className="font-sans text-[12px] leading-[17.6px] text-[#6b6a63] max-lg:text-[14px]">
                           {TENTATIVE.format(selectedTime?.label ?? '')}
                         </span>
                       </span>
@@ -650,7 +653,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                           setDayId(null);
                           setTimeId(null);
                         }}
-                        className="ml-auto shrink-0 font-sans text-[14px] font-medium text-[#00522b] transition-opacity hover:opacity-80"
+                        className="ml-auto shrink-0 font-sans text-[14px] font-medium text-[#00522b] transition-opacity hover:opacity-80 max-lg:min-h-[44px] max-lg:px-[8px]"
                       >
                         {TENTATIVE.clear}
                       </button>
@@ -660,18 +663,19 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
               </div>
 
               {/* Actions — Figma 7249:80515, right-aligned, gap 12 */}
-              <div className="flex items-center gap-[12px]">
+              {/* Phones: pinned to the bottom of the sheet so Schedule is always reachable. */}
+              <div className="flex items-center gap-[12px] max-sm:sticky max-sm:bottom-0 max-sm:z-10 max-sm:-mx-[16px] max-sm:items-stretch max-sm:self-stretch max-sm:border-t max-sm:border-border-card max-sm:bg-white max-sm:px-[16px] max-sm:pb-[calc(8px+env(safe-area-inset-bottom))] max-sm:pt-[8px]">
                 <button
                   type="button"
                   onClick={() => setConfirm('cancel')}
-                  className="inline-flex h-[44px] items-center justify-center rounded-[14px] border-2 border-black/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:flex-1 items-center justify-center whitespace-nowrap max-sm:px-[12px] rounded-[14px] max-sm:rounded-[10px] max-sm:border max-sm:shadow-none border-2 border-black/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
                 >
                   {SCHEDULE_ACTIONS.cancel}
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirm('schedule')}
-                  className="inline-flex h-[44px] items-center justify-center rounded-[10px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[14px] font-bold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
+                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:flex-1 items-center justify-center whitespace-nowrap max-sm:px-[12px] rounded-[10px] border-2 border-brand-green-dark max-sm:border max-sm:shadow-none bg-brand-green px-[18px] font-sans text-[14px] font-bold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
                 >
                   {SCHEDULE_ACTIONS.submit}
                 </button>
@@ -705,7 +709,8 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
         }}
         onCancel={() => setConfirm(null)}
       />
-    </>
+    </>,
+    document.body
   );
 };
 

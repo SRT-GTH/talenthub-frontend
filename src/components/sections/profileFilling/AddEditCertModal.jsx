@@ -161,15 +161,15 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
   // AddEditWorkModal/AddEditPortfolioModal already established; Add mode
   // keeps Cancel + Save since there's nothing to delete yet.
   const footer = (
-    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between">
+    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between max-sm:gap-2 max-sm:px-4 max-sm:py-3">
       {isEditMode && initialData?.onDelete ? (
         <button
           type="button"
           onClick={initialData.onDelete}
-          className="flex items-center gap-[7px] rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
+          className="flex items-center gap-[7px] max-sm:size-11 max-sm:justify-center max-sm:gap-0 max-sm:px-0 max-sm:py-0 rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
         >
           <WorkDeleteWarningIcon className="size-4" />
-          Delete this Certification
+          <span className="max-sm:sr-only">Delete this Certification</span>
         </button>
       ) : (
         <Button
@@ -177,8 +177,9 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           variant="tertiary"
           size="md"
           onClick={onClose}
+          className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
         >
-          Cancel
+          <span className="max-sm:sr-only">Cancel</span>
         </Button>
       )}
       <Button
@@ -186,7 +187,11 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         size="md"
         onClick={handleSubmit}
         disabled={!canSubmit}
-        className={isEditMode ? '!py-[10px] !text-[12px] !leading-[normal]' : undefined}
+        className={
+          isEditMode
+            ? '!py-[10px] !text-[12px] !leading-[normal] max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+            : 'max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+        }
       >
         {isEditMode ? 'Save Changes' : 'Save certification →'}
       </Button>
@@ -200,19 +205,19 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
       size="lg"
       ariaLabel={isEditMode ? 'Edit certification' : 'Add a certification'}
       showClose={false}
-      contentClassName="!max-w-[820px] !rounded-[24px] !border-3 !border-[#c1d4c4] overflow-hidden p-0"
+      contentClassName="!max-w-[820px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] overflow-hidden p-0"
       footer={footer}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-[25px] top-[25px] z-10 size-[28px] rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
+        className="absolute right-[25px] top-[25px] max-sm:right-3 max-sm:top-3 z-10 size-[28px] max-lg:size-9 rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
       >
         <CloseIcon className="size-[12px]" />
       </button>
 
-      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px]">
+      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px] max-sm:gap-4 max-sm:px-4 max-sm:pt-5 max-sm:pb-3">
         {/* Header — see file-header comment re: "Identity captured." clone. */}
         <div className="flex flex-col items-center gap-[16px] text-center">
           <div
@@ -229,7 +234,7 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           </div>
 
           <div className="flex flex-col items-center gap-[4px]">
-            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
               {isEditMode ? (
                 'Update this certification.'
               ) : (
@@ -262,7 +267,7 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
               <span className="font-sans font-semibold text-[12px] text-[#111]">
                 Have a PDF or image?
               </span>
-              <span className="font-sans text-[11px] text-[#70706e]">
+              <span className="font-sans text-[11px] max-lg:text-[12px] text-[#70706e]">
                 Upload it and GTH auto-fills the fields below in ~2 seconds.
               </span>
             </div>
@@ -279,10 +284,12 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 1 — Certificate details */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">1</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                1
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">Core details</span>
           </div>
@@ -336,10 +343,12 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 2 — Dates */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">2</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                2
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">Dates</span>
           </div>
@@ -375,14 +384,16 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 3 — Credential ID & verification */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">3</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                3
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">
               Verification{' '}
-              <span className="font-normal text-[10px] text-[#70706e]">
+              <span className="font-normal text-[10px] max-lg:text-[12px] text-[#70706e]">
                 - removes &ldquo;Self-reported&rdquo; label
               </span>
             </span>
@@ -417,10 +428,10 @@ const AddEditCertModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
               className="rounded-[10px] p-[15px] flex flex-col gap-[4px]"
               style={{ background: 'rgba(235,241,236,0.3)' }}
             >
-              <span className="font-sans font-semibold text-[11px] text-[#2a5730]">
+              <span className="font-sans font-semibold text-[11px] max-lg:text-[12px] text-[#2a5730]">
                 ✓ How to remove &ldquo;Self-reported&rdquo;
               </span>
-              <p className="font-sans text-[10px] text-[#2a5730] opacity-85 leading-[1.5]">
+              <p className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730] opacity-85 leading-[1.5]">
                 Add either a Credential ID (from Coursera, LinkedIn Learning, AWS etc.) or a badge
                 verify link. GTH will mark the cert as Uploaded &amp; verifiable and the disclaimer
                 disappears.

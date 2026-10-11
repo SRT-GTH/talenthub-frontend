@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import Checkbox from '../../ui/form/Checkbox.jsx';
@@ -57,22 +58,22 @@ const SmallPersonIcon = () => (
 
 // ── review card field sub-component ───────────────────────────────────────
 
-const ReviewField = ({ label, value }) => (
+const ReviewField = ({ label, value, className = '' }) => (
   <div
-    className="flex flex-col justify-center gap-[3px] rounded-[10px] px-3"
+    className={`flex flex-col justify-center gap-[3px] rounded-[10px] px-3 max-md:h-auto! max-md:min-h-10 max-md:flex-row max-md:items-center max-md:justify-between max-md:gap-3 max-md:rounded-none max-md:border-b max-md:border-black/6 max-md:bg-transparent! max-md:px-0 max-md:py-1.5 ${className}`}
     style={{
       background: '#f8f8f4',
       height: '49px',
     }}
   >
     <span
-      className="font-sans font-bold uppercase leading-none text-[#babab7]"
-      style={{ fontSize: '9px', letterSpacing: '0.6px' }}
+      className="font-sans font-bold uppercase leading-none max-md:leading-tight text-[#babab7] max-md:shrink-0 max-md:text-[12px]! max-md:font-medium max-md:normal-case max-md:tracking-normal! max-md:text-[#737373]"
+      style={{ fontSize: 'var(--fs-9)', letterSpacing: '0.6px' }}
     >
       {label}
     </span>
     <span
-      className="font-sans font-semibold leading-none text-[#595959] truncate"
+      className="font-sans font-semibold leading-none text-[#595959] truncate max-md:min-w-0 max-md:text-right max-md:text-[14px]"
       style={{ fontSize: '14px' }}
       title={value || ''}
     >
@@ -88,30 +89,30 @@ const ReviewField = ({ label, value }) => (
 // ── review card section header ─────────────────────────────────────────────
 
 const ReviewSectionHeader = ({ icon, label, editPath }) => (
-  <div className="mb-3 flex items-center gap-10">
+  <div className="mb-3 flex items-center gap-10 max-md:mb-0 max-md:justify-between max-md:gap-3 max-md:pb-1">
     <span className="inline-flex items-center gap-1.5">
       <span className="inline-flex shrink-0 items-center justify-center" aria-hidden="true">
         {icon}
       </span>
       <span
-        className="font-sans text-nowrap font-bold uppercase text-[#babab7]"
-        style={{ fontSize: '10px', letterSpacing: '1px' }}
+        className="font-sans text-nowrap font-bold uppercase text-[#babab7] max-md:text-[12px]! max-md:text-brand-green"
+        style={{ fontSize: 'var(--fs-10)', letterSpacing: '1px' }}
       >
         {label}
       </span>
     </span>
     <Link
       to={editPath}
-      className="inline-flex items-center justify-center rounded-[6px] border border-[#c1d4c4]  px-2 font-sans font-semibold uppercase text-brand-green transition-colors duration-100 hover:bg-[#ebf1ec]"
+      className="relative inline-flex shrink-0 items-center justify-center rounded-[6px] border border-[#c1d4c4]  px-2 font-sans font-semibold uppercase text-brand-green transition-colors duration-100 hover:bg-[#ebf1ec] max-md:order-last max-md:h-auto! max-md:border-0 max-md:px-0 max-md:text-[13px]! max-md:normal-case max-md:tracking-normal! max-md:underline max-md:underline-offset-2 max-md:hover:bg-transparent max-md:before:absolute max-md:before:-inset-x-2 max-md:before:-inset-y-3 max-md:before:content-['']"
       style={{
         height: '19px',
-        fontSize: '10px',
+        fontSize: 'var(--fs-10)',
         letterSpacing: '1px',
       }}
     >
       Edit
     </Link>
-    <div className="h-[1px] w-full bg-black/6 " />
+    <div className="h-[1px] w-full bg-black/6 max-md:hidden" />
   </div>
 );
 
@@ -131,7 +132,7 @@ const InfoCircleIcon = () => (
 const DisabledCTA = () => (
   <div
     aria-disabled="true"
-    className="flex w-full cursor-not-allowed select-none items-center justify-center gap-2 rounded-[14px] border border-t border-b-2 border-l-2 border-r-2"
+    className="flex w-full cursor-not-allowed select-none items-center justify-center gap-2 rounded-[14px] border border-t border-b-2 border-l-2 border-r-2 max-md:h-11 max-md:rounded-[10px] max-md:px-4! max-md:py-0! max-md:text-[14px]! max-md:shadow-none!"
     style={{
       background: '#bfbfbf',
       borderColor: '#cccccc',
@@ -263,14 +264,18 @@ const ActivateSection = () => {
   return (
     <>
       {/* Main content column — full-width since layout has no right panel */}
-      <div className="flex flex-1 items-start justify-center px-6 py-12 md:py-20">
-        <div className="flex w-full max-w-[897px] flex-col items-center gap-6">
+      <div className="flex flex-1 items-start justify-center px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="flex w-full max-w-[897px] flex-col items-center gap-6 max-md:gap-3">
           {/* ── Step badge ── */}
-          <Captions items={[{ index: '03', label: 'Activate Account' }]} currentIndex={0} />
+          <Captions
+            items={[{ index: '03', label: 'Activate Account' }]}
+            currentIndex={0}
+            className="max-md:self-start max-md:px-2.5 max-md:py-0.5"
+          />
 
           {/* ── Headline ── */}
           <h1
-            className="font-display font-normal text-center text-black"
+            className="font-display font-normal text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
               lineHeight: 1.094,
@@ -283,7 +288,7 @@ const ActivateSection = () => {
 
           {/* ── Subtext ── */}
           <p
-            className="text-center font-sans font-normal text-[#737373]"
+            className="text-center font-sans font-normal text-[#737373] max-md:text-left max-md:text-[14px]! max-md:leading-5!"
             style={{
               fontSize: 'clamp(0.875rem, 1.1vw, 1rem)',
               lineHeight: 1.6,
@@ -299,7 +304,7 @@ const ActivateSection = () => {
 
           {/* ── Review card ── */}
           <div
-            className="w-full rounded-[24px] border bg-white p-6 md:p-8"
+            className="w-full rounded-[24px] border bg-white p-6 md:p-8 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none!"
             style={{
               borderColor: 'rgba(0,0,0,0.08)',
               boxShadow: '0 4px 0 0 rgba(0,0,0,0.13)',
@@ -313,14 +318,14 @@ const ActivateSection = () => {
             />
 
             {/* Row 1: 3-column */}
-            <div className="mb-2 grid grid-cols-3 gap-2">
+            <div className="mb-2 grid grid-cols-3 max-sm:grid-cols-1 gap-2 max-md:mb-0 max-md:gap-0">
               <ReviewField label="Legal Institution Name" value={null} />
               <ReviewField label="Trading / Common Name" value={null} />
               <ReviewField label="Institution Type" value={null} />
             </div>
 
             {/* Row 2: 2-column */}
-            <div className="mb-6 grid grid-cols-2 gap-2">
+            <div className="mb-6 grid grid-cols-2 gap-2 max-md:mb-3 max-md:grid-cols-1 max-md:gap-0">
               <ReviewField label="Region" value={null} />
               <ReviewField label="District" value={null} />
             </div>
@@ -333,17 +338,17 @@ const ActivateSection = () => {
             />
 
             {/* 2-column layout: left col (3 fields), right col (2 fields) */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 max-md:flex max-md:flex-col max-md:gap-0">
               {/* Left */}
-              <div className="flex flex-col gap-2">
-                <ReviewField label="Full Name" value={null} />
-                <ReviewField label="Phone Number" value={null} />
-                <ReviewField label="Password" value="••••••••" />
+              <div className="flex flex-col gap-2 max-md:contents">
+                <ReviewField label="Full Name" value={null} className="max-md:order-1" />
+                <ReviewField label="Phone Number" value={null} className="max-md:order-3" />
+                <ReviewField label="Password" value="••••••••" className="max-md:order-5" />
               </div>
               {/* Right */}
-              <div className="flex flex-col gap-2">
-                <ReviewField label="Role / Title" value={null} />
-                <ReviewField label="Email Address" value={null} />
+              <div className="flex flex-col gap-2 max-md:contents">
+                <ReviewField label="Role / Title" value={null} className="max-md:order-2" />
+                <ReviewField label="Email Address" value={null} className="max-md:order-4" />
               </div>
             </div>
           </div>
@@ -351,10 +356,10 @@ const ActivateSection = () => {
           {/* ── Agreements section ── */}
           <div className="w-full">
             {/* Agreements header */}
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-4 flex items-center gap-3 max-md:mb-2">
               <span
-                className="font-sans font-bold uppercase text-[#babab7]"
-                style={{ fontSize: '10px', letterSpacing: '1px', whiteSpace: 'nowrap' }}
+                className="font-sans font-bold uppercase text-[#babab7] max-md:whitespace-normal! max-md:text-[12px]! max-md:text-[#737373]"
+                style={{ fontSize: 'var(--fs-10)', letterSpacing: '1px', whiteSpace: 'nowrap' }}
               >
                 Required Agreements — All 3 must be accepted
               </span>
@@ -362,7 +367,7 @@ const ActivateSection = () => {
             </div>
 
             {/* Checkboxes */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 max-md:gap-3">
               <Checkbox
                 checked={agreed1}
                 onChange={(e) => {
@@ -392,7 +397,7 @@ const ActivateSection = () => {
 
           {/* ── Info notice ── */}
           <div
-            className="flex w-full items-center gap-2.5 rounded-[12px] border px-4"
+            className="flex w-full items-center gap-2.5 rounded-[12px] border px-4 max-md:h-auto! max-md:py-2"
             style={{
               background: '#ebf1ec',
               borderColor: '#e0e7f9',
@@ -400,7 +405,7 @@ const ActivateSection = () => {
             }}
           >
             <p
-              className="font-sans font-medium text-brand-green"
+              className="font-sans font-medium text-brand-green max-md:text-[13px]!"
               style={{ fontSize: '12px', lineHeight: 1.4 }}
             >
               Your account activates immediately , no review required. You can start uploading
@@ -409,29 +414,31 @@ const ActivateSection = () => {
           </div>
 
           {/* ── CTA ── */}
-          {allAgreed ? (
-            <Button
-              type="button"
-              variant="primary"
-              size="lg"
-              rightIcon={<ArrowRightIcon />}
-              onClick={handleActivateClick}
-              className="w-full"
-            >
-              Activate Institution Account
-            </Button>
-          ) : (
-            <DisabledCTA />
-          )}
+          <StickyActionBar bleed={16}>
+            {allAgreed ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="lg"
+                rightIcon={<ArrowRightIcon />}
+                onClick={handleActivateClick}
+                className="w-full"
+              >
+                Activate Institution Account
+              </Button>
+            ) : (
+              <DisabledCTA />
+            )}
+          </StickyActionBar>
 
           {/* Already-have-account link */}
-          <div className="flex items-center justify-center gap-2 text-[14px] leading-6">
+          <div className="flex items-center justify-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
             <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
               Already Have an account?
             </span>
             <Link
               to="/login"
-              className="font-semibold text-brand-green underline-offset-2 hover:underline"
+              className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ letterSpacing: '0.1px' }}
             >
               Log in Instead

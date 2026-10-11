@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
 import { CriteriaChevronIcon } from '../jobScreening/jobScreeningIcons.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -82,7 +83,11 @@ const STATE_BADGES = {
       />
     </svg>
   ),
-  alert: <span className="font-sans text-[10px] font-bold leading-[15px] text-white">!</span>,
+  alert: (
+    <span className="font-sans text-[10px] max-lg:text-[12px] font-bold leading-[15px] text-white">
+      !
+    </span>
+  ),
   check: (
     <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className="size-[12px]">
       <path
@@ -97,41 +102,46 @@ const STATE_BADGES = {
 };
 
 const ProfileCard = ({ card, onAction }) => (
-  <article className="flex flex-col gap-[14px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
+  <article className="relative flex flex-col gap-[14px] max-lg:gap-[8px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] max-lg:p-[12px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
     {card.avatar && (
       /* Figma 7249:79077 — 40px ring, 1px #e6e2d6, 38px image inside */
-      <span className="grid size-[40px] place-items-center rounded-full border border-border-card">
+      <span className="grid size-[40px] place-items-center rounded-full border border-border-card max-lg:absolute max-lg:right-[12px] max-lg:top-[12px] max-lg:size-[36px]">
         <img
           src={AVATARS[card.avatar]}
           alt={card.name}
-          className="size-[38px] rounded-full object-cover"
+          className="size-[38px] max-lg:size-[32px] rounded-full object-cover"
         />
       </span>
     )}
 
-    <div className="flex flex-col gap-[14px]">
-      <div className="flex flex-col gap-[4px]">
-        <h4 className="font-sans text-[16px] font-medium leading-5 text-[#1c1c1a]">{card.name}</h4>
-        <p className="font-sans text-[14px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
+    <div className="flex flex-col gap-[14px] max-lg:gap-[8px]">
+      <div className="flex flex-col gap-[4px] max-lg:gap-0 max-lg:pr-[44px]">
+        <h4 className="font-sans text-[16px] max-lg:text-[15px] font-medium leading-5 text-[#1c1c1a]">
+          {card.name}
+        </h4>
+        <p className="font-sans text-[14px] max-lg:text-[13px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
           {card.meta}
         </p>
       </div>
 
       {card.tags && (
-        <div className="flex flex-wrap items-center gap-[4px]">
-          {card.tags.map((tag) => (
+        <TagRow
+          items={card.tags}
+          gap={4}
+          className="items-center"
+          renderItem={(tag) => (
             <span
               key={tag}
-              className="inline-flex h-[26px] items-center rounded-[8px] bg-[#f3f8f4] px-[10px] font-sans text-[12px] font-medium leading-[14.32px] text-brand-green-dark"
+              className="inline-flex h-[26px] max-lg:h-[24px] items-center rounded-[8px] bg-[#f3f8f4] px-[10px] font-sans text-[12px] font-medium leading-[14.32px] text-brand-green-dark"
             >
               {tag}
             </span>
-          ))}
-        </div>
+          )}
+        />
       )}
 
       {card.noteLabel && (
-        <div className="flex flex-col gap-[2px] rounded-[8px] bg-brand-green-light px-[10px] py-[8px]">
+        <div className="flex flex-col gap-[2px] rounded-[8px] bg-brand-green-light px-[10px] py-[8px] max-lg:py-[6px]">
           <span className="font-sans text-[13px] font-medium text-brand-green-dark">
             {card.noteLabel}
           </span>
@@ -141,7 +151,7 @@ const ProfileCard = ({ card, onAction }) => (
 
       {(card.time || card.rating) && (
         /* Figma 7249:79088 — 1px #e5e5e5 top rule, pad-top 12, SPACE_BETWEEN */
-        <div className="flex items-center justify-between gap-2 border-t border-[#e5e5e5] pt-[12px]">
+        <div className="flex items-center justify-between gap-2 border-t border-[#e5e5e5] pt-[12px] max-lg:pt-[8px]">
           <span className="flex items-center gap-[4px]">
             <ClockIcon className="size-[14px] text-[#bfbfbf]" />
             <span className="font-sans text-[13px] leading-[15.51px] tracking-[0.2px] text-[#bfbfbf]">
@@ -161,7 +171,7 @@ const ProfileCard = ({ card, onAction }) => (
         <button
           type="button"
           onClick={() => onAction(card.id, card.primaryAction)}
-          className="inline-flex h-[30px] items-center justify-center rounded-[8px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
+          className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] max-lg:shadow-none transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] max-lg:active:translate-y-0 active:shadow-none"
         >
           {card.primaryAction}
         </button>
@@ -173,20 +183,20 @@ const ProfileCard = ({ card, onAction }) => (
 const MeetingCard = ({ card, onAction }) => {
   const tone = MEETING_TONES[card.tone];
   return (
-    <article className="relative flex flex-col gap-[14px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
+    <article className="relative flex flex-col gap-[14px] max-lg:gap-[8px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] max-lg:p-[12px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
       {/* 24px round state badge — Figma 7249:79183 / :79186 / :79216 */}
       <span
         className={classNames(
-          'absolute right-[18px] top-[18px] grid size-[24px] place-items-center rounded-full',
+          'absolute right-[18px] max-lg:right-[12px] top-[18px] max-lg:top-[12px] grid size-[24px] place-items-center rounded-full',
           tone.badge
         )}
       >
         {STATE_BADGES[card.badge]}
       </span>
 
-      <div className="flex flex-col gap-[14px] pr-[32px]">
+      <div className="flex flex-col gap-[14px] max-lg:gap-[8px] pr-[32px]">
         <div className="flex flex-col gap-[4px]">
-          <h4 className="font-sans text-[16px] font-medium leading-[19.09px] text-[#1c1c1a]">
+          <h4 className="font-sans text-[16px] max-lg:text-[15px] font-medium leading-[19.09px] text-[#1c1c1a]">
             {card.name}
           </h4>
           <p className="font-sans text-[14px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
@@ -197,7 +207,7 @@ const MeetingCard = ({ card, onAction }) => {
         {/* Status box — Figma 7249:79175, r8, 1.21px outline, pad 14/10 */}
         <div
           className={classNames(
-            'flex items-center gap-[8px] rounded-[8px] border-[1.21px] px-[14px] py-[10px]',
+            'flex items-center gap-[8px] rounded-[8px] border-[1.21px] px-[14px] py-[10px] max-lg:px-[10px] max-lg:py-[6px]',
             tone.box
           )}
         >
@@ -218,12 +228,12 @@ const MeetingCard = ({ card, onAction }) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-[6px]">
+      <div className="flex flex-col gap-[6px] max-lg:gap-[6px]">
         {card.primaryAction && (
           <button
             type="button"
             onClick={() => onAction(card.id, card.primaryAction)}
-            className="inline-flex h-[30px] items-center justify-center rounded-[8px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
+            className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] max-lg:shadow-none transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] max-lg:active:translate-y-0 active:shadow-none"
           >
             {card.primaryAction}
           </button>
@@ -233,7 +243,7 @@ const MeetingCard = ({ card, onAction }) => {
           <button
             type="button"
             onClick={() => onAction(card.id, card.secondaryAction)}
-            className="inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#e5e5e5] bg-white px-[18px] font-sans text-[12px] font-medium leading-[14.32px] tracking-[0.1px] text-black transition-colors hover:bg-neutral"
+            className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border border-[#e5e5e5] bg-white px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-black transition-colors hover:bg-neutral"
           >
             {card.secondaryAction}
           </button>
@@ -247,6 +257,43 @@ const ApplicationPipelineSection = () => {
   // Figma 7249:80368 et al. open from the Shortlisted card's "Schedule
   // Interview" CTA and from the Interview card's "Reschedule".
   const [scheduleOpen, setScheduleOpen] = useState(false);
+
+  // Below lg the board is a scroll-snap strip (one column ~85vw) and the stage
+  // chips above it are a jump nav. `activeStageId` follows the snapped column.
+  const boardRef = useRef(null);
+  const chipRowRef = useRef(null);
+  const [activeStageId, setActiveStageId] = useState(COLUMNS[0].id);
+
+  const getColumnEls = () => Array.from(boardRef.current?.querySelectorAll('[data-stage]') ?? []);
+
+  const jumpToStage = (id) => {
+    const board = boardRef.current;
+    const target = getColumnEls().find((el) => el.dataset.stage === id);
+    if (!board || !target) return;
+    log('branch', { jumpToStage: id });
+    setActiveStageId(id);
+    board.scrollTo({ left: target.offsetLeft - 16, behavior: 'smooth' });
+  };
+
+  const handleBoardScroll = () => {
+    const board = boardRef.current;
+    if (!board) return;
+    // The column whose left edge is nearest the strip's left edge is "current".
+    const probe = board.scrollLeft + 16;
+    let nearest = getColumnEls()[0];
+    getColumnEls().forEach((el) => {
+      if (Math.abs(el.offsetLeft - probe) < Math.abs(nearest.offsetLeft - probe)) nearest = el;
+    });
+    if (nearest && nearest.dataset.stage !== activeStageId) setActiveStageId(nearest.dataset.stage);
+  };
+
+  // Keep the active chip visible in its own scrolling row.
+  useEffect(() => {
+    const row = chipRowRef.current;
+    const chip = row?.querySelector('[aria-current="true"]');
+    if (!row || !chip) return;
+    row.scrollLeft = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
+  }, [activeStageId]);
 
   useEffect(() => {
     log('mount', {
@@ -267,7 +314,7 @@ const ApplicationPipelineSection = () => {
 
   return (
     <DashboardShell>
-      <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+      <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <RecruiterPageHeading
           lead={PAGE_HEADING.lead}
           accent={PAGE_HEADING.accent}
@@ -284,31 +331,70 @@ const ApplicationPipelineSection = () => {
           <button
             type="button"
             onClick={() => log('branch', { action: 'open-posting-select', wired: false })}
-            className="flex h-[51px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf]"
+            className="flex h-[51px] max-lg:h-[44px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
           >
-            {CHOOSE_POSTING.value}
+            <span className="min-w-0 truncate">{CHOOSE_POSTING.value}</span>
             <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
           </button>
         </label>
 
-        {/* Board — Figma 7249:79069, HORIZONTAL gap 16 */}
-        <div className="-mx-2 flex items-start gap-[16px] overflow-x-auto px-2 pb-[48px]">
+        {/* Stage jump nav — below lg only. Sticky under the top bar while the page scrolls. */}
+        <nav
+          aria-label="Pipeline stages"
+          className="sticky top-0 z-20 -mx-4 -mb-[12px] border-b border-border-card bg-white/95 backdrop-blur lg:hidden"
+        >
+          <div
+            ref={chipRowRef}
+            className="no-scrollbar flex gap-[8px] overflow-x-auto px-4 py-[8px] [mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]"
+          >
+            {COLUMNS.map((column) => {
+              const isActive = column.id === activeStageId;
+              return (
+                <button
+                  key={column.id}
+                  type="button"
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={() => jumpToStage(column.id)}
+                  className={classNames(
+                    'relative inline-flex h-[30px] shrink-0 items-center gap-[6px] rounded-pill border-[1.22px] px-[12px] font-sans text-[13px] transition-colors after:absolute after:-inset-y-[7px] after:inset-x-0',
+                    isActive
+                      ? 'border-brand-green bg-brand-green font-semibold text-white'
+                      : 'border-brand-green-light-hover bg-white font-medium text-content-helper'
+                  )}
+                >
+                  {column.label}
+                  <span className={isActive ? 'text-white/80' : 'text-content-muted'}>
+                    {column.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Board — Figma 7249:79069, HORIZONTAL gap 16. Below lg: scroll-snap strip. */}
+        <div
+          ref={boardRef}
+          onScroll={handleBoardScroll}
+          className="relative -mx-2 flex items-start gap-[16px] overflow-x-auto px-2 pb-[48px] max-lg:-mx-4 max-lg:snap-x max-lg:snap-mandatory max-lg:px-4 max-lg:scroll-px-4"
+        >
           {COLUMNS.map((column) => (
             <section
               key={column.id}
-              className="flex w-[280px] shrink-0 flex-col gap-[16px] rounded-[12px] border border-[#00522b]/10 bg-[#f3f8f4]/28 px-[14px] pb-[24px] pt-[24px]"
+              data-stage={column.id}
+              className="flex w-[280px] shrink-0 flex-col gap-[16px] rounded-[12px] max-lg:w-[min(85vw,360px)] max-lg:snap-start border border-[#00522b]/10 bg-[#f3f8f4]/28 px-[14px] pb-[24px] pt-[24px] max-lg:gap-[8px] max-lg:border-0 max-lg:bg-transparent max-lg:px-0 max-lg:pb-[12px] max-lg:pt-[4px]"
             >
               <header className="flex items-center justify-between gap-2">
                 {/* Figma textCase: UPPER */}
-                <h3 className="font-sans text-[16px] font-semibold uppercase leading-5 text-black">
+                <h3 className="font-sans text-[16px] max-lg:text-[14px] font-semibold uppercase leading-5 text-black">
                   {column.label}
                 </h3>
-                <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[8px] py-[6px] font-sans text-[14px] font-medium leading-[16.71px] text-content-helper">
+                <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[8px] py-[6px] max-lg:py-[2px] font-sans text-[14px] max-lg:text-[12px] font-medium leading-[16.71px] text-content-helper">
                   {column.count}
                 </span>
               </header>
 
-              <div className="flex flex-col gap-[12px]">
+              <div className="flex flex-col gap-[12px] max-lg:gap-[8px]">
                 {column.cards.map((card) =>
                   card.kind === 'meeting' ? (
                     <MeetingCard key={card.id} card={card} onAction={handleAction} />

@@ -1,4 +1,5 @@
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import Button from '../ui/Button.jsx';
 import Logo from './Logo.jsx';
 import { classNames } from '../../utils/classNames.js';
@@ -25,6 +26,10 @@ const log = debug('Navbar');
  *   └─ Get Started (primary button + arrow)
  *
  * Routes are placeholders pointing back at `/` until the route map grows.
+ *
+ * RESPONSIVE (wiki/responsive-plan.md §4): below `lg` the pill collapses to
+ * logo + hamburger and the links / Sign In / Get Started live in a sheet
+ * anchored under it. >= lg is the Figma pill, unchanged.
  */
 
 const NAV_ITEMS = [
@@ -56,14 +61,54 @@ const ArrowRight = (props) => (
 
 const Divider = () => <span aria-hidden="true" className="w-px h-[30px] bg-white/10 shrink-0" />;
 
+const MenuIcon = ({ open }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    className="size-6"
+    aria-hidden="true"
+  >
+    {open ? (
+      <>
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+      </>
+    ) : (
+      <>
+        <line x1="4" y1="7" x2="20" y2="7" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="4" y1="17" x2="20" y2="17" />
+      </>
+    )}
+  </svg>
+);
+
 const Navbar = () => {
-  log('render');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  log('render', { menuOpen });
+
+  // Close the sheet on navigation and on Escape.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   return (
-    <header className="fixed top-5 left-0 right-0 z-30 px-6 md:px-12">
+    <header className="fixed top-3 left-0 right-0 z-30 px-3 xs:px-4 md:top-5 md:px-12">
       <nav
         className={classNames(
-          'mx-auto max-w-[1107px] h-[88px] px-12 rounded-xl',
+          'relative mx-auto max-w-[1107px] h-14 px-4 rounded-xl lg:h-[88px] lg:px-12',
           'flex items-center justify-between gap-8',
           'bg-[rgba(17,17,17,0.6)] backdrop-blur-[20px]',
           'border-[0.8px] border-brand-green',
@@ -75,10 +120,12 @@ const Navbar = () => {
           <Link to={'/'} className="inline-flex">
             <Logo size="md" />
           </Link>
-          <Divider />
+          <span className="hidden lg:block">
+            <Divider />
+          </span>
         </div>
 
-        <ul className="flex items-center gap-[26px]">
+        <ul className="hidden items-center gap-[26px] lg:flex">
           {NAV_ITEMS.map((item) => (
             <li key={item.label}>
               <NavLink
@@ -97,7 +144,18 @@ const Navbar = () => {
           ))}
         </ul>
 
-        <div className="flex items-center gap-4 shrink-0">
+        <button
+          type="button"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          aria-controls="primary-mobile-menu"
+          onClick={() => setMenuOpen((open) => !open)}
+          className="tap-target grid place-items-center rounded-md text-white lg:hidden"
+        >
+          <MenuIcon open={menuOpen} />
+        </button>
+
+        <div className="hidden items-center gap-4 shrink-0 lg:flex">
           <Divider />
           <Link
             to={'/'}
@@ -119,6 +177,34 @@ const Navbar = () => {
             Get Started
           </Button>
         </div>
+
+        {menuOpen && (
+          <div
+            id="primary-mobile-menu"
+            className="absolute left-0 right-0 top-[calc(100%+8px)] flex max-h-[calc(100dvh-88px)] flex-col gap-1 overflow-y-auto rounded-xl border-[0.8px] border-brand-green bg-[#111] p-3 shadow-[0_16px_24px_rgba(27,36,44,0.16)] backdrop-blur-[20px] lg:hidden"
+          >
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className="flex min-h-12 items-center rounded-md px-3 font-sans text-[16px] text-neutral-dark transition-colors hover:bg-white/5 hover:text-white"
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <div className="mt-2 flex flex-col gap-3 border-t border-white/10 pt-4">
+              <Link
+                to={'/'}
+                className="inline-flex h-12 items-center justify-center rounded-md border-2 border-[rgba(193,212,196,0.7)] font-sans text-[14px] font-medium text-white/80 hover:bg-white/5 hover:text-white"
+              >
+                Sign In
+              </Link>
+              <Button variant="primary" size="sm" rightIcon={<ArrowRight />} className="w-full">
+                Get Started
+              </Button>
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   );

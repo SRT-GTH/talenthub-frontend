@@ -274,14 +274,14 @@ const CategoryChip = ({ cat, isSelected, isLocked, onToggle }) => (
     type="button"
     disabled={isLocked}
     onClick={onToggle}
-    className="flex items-center gap-[8px] pl-[9px] pr-[12px] py-[11px] rounded-[10px] border border-[#fef1e7] bg-white text-left w-full transition-opacity duration-150 hover:opacity-80 disabled:cursor-default"
+    className="flex items-center gap-[8px] pl-[9px] pr-[12px] py-[11px] rounded-[10px] border border-[#fef1e7] bg-white text-left w-full transition-opacity duration-150 hover:opacity-80 disabled:cursor-default max-sm:w-auto max-sm:rounded-full max-sm:px-3 max-sm:py-1.5 max-sm:whitespace-nowrap"
     style={isSelected ? { backgroundImage: CHIP_GRADIENT } : undefined}
   >
     <cat.Icon
       className={`size-[16px] shrink-0 ${isSelected ? 'text-[#387440]' : 'text-[#C1D4C4]'}`}
     />
     <span
-      className="font-sans text-[12px] leading-normal truncate"
+      className="font-sans text-[12px] leading-normal truncate max-lg:text-[13px] max-sm:overflow-visible max-sm:whitespace-nowrap"
       style={{ color: isSelected ? '#387440' : '#70706e', fontWeight: isSelected ? 600 : 400 }}
     >
       {cat.label}
@@ -360,7 +360,7 @@ const AddCategoryModal = ({ isOpen, onClose, selectedIds = [], onDone }) => {
           </div>
 
           {/* Title — Figma 3576:89192: Instrument Serif 32px tracking-[-1.2px] */}
-          <h2 className="font-display text-[clamp(24px,2.31vw,32px)] text-center leading-[1.1] tracking-[-1.2px]">
+          <h2 className="font-display text-[clamp(24px,2.31vw,32px)] text-center leading-[1.1] tracking-[-1.2px] max-lg:tracking-[-0.02em]">
             <span className="not-italic text-[#111]">Add an </span>
             <span className="italic text-[#387440]">Interest Category</span>
           </h2>
@@ -373,7 +373,7 @@ const AddCategoryModal = ({ isOpen, onClose, selectedIds = [], onDone }) => {
         </div>
 
         {/* 2-column grid of 16 categories — Figma 3576:89194 */}
-        <div className="grid grid-cols-2 gap-[6px]">
+        <div className="grid grid-cols-2 gap-[6px] max-sm:flex max-sm:flex-wrap max-sm:gap-2">
           {CATEGORY_CATALOG.map((cat) => {
             const isLocked = selectedIds.includes(cat.id);
             const isSelected = isLocked || pendingIds.has(cat.id);
@@ -393,7 +393,7 @@ const AddCategoryModal = ({ isOpen, onClose, selectedIds = [], onDone }) => {
         <div className="mt-[20px] flex flex-col gap-[10px]">
           {/* Label + divider */}
           <div className="flex items-center gap-[14px]">
-            <span className="font-bold text-[10px] text-[#595959] tracking-[0.7px] uppercase whitespace-nowrap shrink-0">
+            <span className="font-bold text-[10px] max-lg:text-[12px] text-[#595959] tracking-[0.7px] uppercase whitespace-nowrap shrink-0">
               Or type your own
             </span>
             <div className="flex-1 h-px" style={{ background: 'rgba(0,0,0,0.07)' }} />
@@ -409,12 +409,12 @@ const AddCategoryModal = ({ isOpen, onClose, selectedIds = [], onDone }) => {
                 if (e.key === 'Enter') handleAddCustom();
               }}
               placeholder="Add a specific — e.g. 'Mobile dev', 'Cloud infra'…"
-              className="flex-1 min-w-0 h-[40px] bg-white border border-[#e8e8e4] rounded-[10px] px-[11px] font-sans text-[12px] text-[#111] outline-none focus:border-[#387440] transition-colors duration-150 placeholder-[#c8c8c8]"
+              className="flex-1 min-w-0 h-[40px] max-lg:h-11 bg-white border border-[#e8e8e4] rounded-[10px] px-[11px] font-sans text-[12px] text-[#111] outline-none focus:border-[#387440] transition-colors duration-150 placeholder-[#c8c8c8]"
             />
             <button
               type="button"
               onClick={handleAddCustom}
-              className="h-[40px] px-[18px] bg-[#387440] border-2 border-[#2a5730] rounded-[10px] font-bold text-[12px] text-white leading-none whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity duration-150"
+              className="h-[40px] max-lg:h-11 px-[18px] bg-[#387440] border-2 border-[#2a5730] rounded-[10px] font-bold text-[12px] text-white leading-none whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity duration-150"
               style={{ filter: 'drop-shadow(0px 3px 0px #2a5730)' }}
             >
               + Add Custom

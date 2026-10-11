@@ -1,5 +1,5 @@
-import photoLarge from '../../../assets/hero/parent-panel-photo-large.png';
-import photoSmall from '../../../assets/hero/parent-panel-photo-small.png';
+import photoLarge from '../../../assets/hero/parent-panel-photo-large.webp';
+import photoSmall from '../../../assets/hero/parent-panel-photo-small.webp';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentLoginPanelContent');
@@ -114,7 +114,7 @@ export const FlagCorrectionsOverlay = ({ className = '' }) => {
         </p>
         <p
           className="font-sans text-neutral-darker"
-          style={{ fontSize: 10, lineHeight: '15px', letterSpacing: '0.1px' }}
+          style={{ fontSize: 'var(--fs-10)', lineHeight: '15px', letterSpacing: '0.1px' }}
         >
           Spot something wrong? Flag it and Kofi gets notified.
         </p>

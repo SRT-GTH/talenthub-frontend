@@ -50,8 +50,10 @@ const INTERACTIVE_CLASSES =
   'focus-within:bg-yellow-light focus-within:border-brand-green-light-active ' +
   'focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
 
+// Phones: 44px, flat 1px border (no 2.5px shelf), tighter side padding.
 const WRAPPER_BASE =
   'flex items-center gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
+  'max-md:py-[9px] max-md:pl-3 max-md:pr-3 max-md:shadow-none! ' +
   'transition-colors duration-100';
 
 // Compact deadline chips (Figma 5132:68248 day/year) — 46px, r=8, #e6e6e6, no shelf.
@@ -92,7 +94,7 @@ const XS_INTERACTIVE_CLASSES = 'bg-white border border-[#e8e8e4] focus-within:bo
 // 8px Raleway medium #32683a parked at the top-left inside the 51px box.
 const INSCRIPTION_CLASSES =
   'pointer-events-none absolute left-[16px] top-[6px] z-[1] ' +
-  'font-sans text-[8px] font-medium leading-[11px] text-[#32683a]';
+  'font-sans text-[8px] max-lg:text-[12px] font-medium leading-[11px] text-[#32683a]';
 
 const WRAPPER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
 
@@ -100,20 +102,20 @@ const WRAPPER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
 // Medium 14/24, color #111. Placeholder stays 400 / #595959 via the
 // `placeholder:` modifiers so the empty state is unchanged.
 const INPUT_BASE =
-  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'w-0 flex-1 min-w-0 bg-transparent outline-none border-none ' +
   'font-sans font-medium text-[14px] leading-[24px] tracking-[0.2px] ' +
   'text-[#111111] ' +
   'placeholder:text-[#595959] placeholder:font-normal ' +
   'disabled:cursor-not-allowed';
 
 const INPUT_SM_BASE =
-  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'w-0 flex-1 min-w-0 bg-transparent outline-none border-none ' +
   'font-sans text-[16px] leading-[22px] tracking-[0.2px] text-[#737373] ' +
   'placeholder:text-[#999999] placeholder:font-normal ' +
   'disabled:cursor-not-allowed';
 
 const INPUT_XS_BASE =
-  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'w-0 flex-1 min-w-0 bg-transparent outline-none border-none ' +
   'font-sans text-[13px] leading-[20px] text-[#111] ' +
   'placeholder:text-[#757575] placeholder:opacity-50 ' +
   'disabled:cursor-not-allowed';
@@ -244,7 +246,12 @@ const TextInput = ({
           <span
             className={classNames(
               'flex items-center justify-center shrink-0 text-content-tertiary',
-              isXs ? '[&>svg]:size-4' : '[&>svg]:size-5'
+              isXs ? '[&>svg]:size-4' : '[&>svg]:size-5',
+              // Phones: grow an interactive child (show/hide eye, clear…) to a 44px hit area
+              // with matching negative margins so the field's visual size is unchanged.
+              !isXs &&
+                !isSm &&
+                'max-md:[&>button]:-m-2.5 max-md:[&>button]:inline-flex max-md:[&>button]:h-11 max-md:[&>button]:w-11 max-md:[&>button]:items-center max-md:[&>button]:justify-center'
             )}
             aria-hidden={rightIconInteractive ? undefined : 'true'}
           >

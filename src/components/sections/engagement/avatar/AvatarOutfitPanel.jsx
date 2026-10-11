@@ -106,7 +106,7 @@ const ChoicePill = ({ active, label, onClick }) => (
     onClick={onClick}
     aria-pressed={active}
     className={classNames(
-      'inline-flex items-center justify-center rounded-pill px-4 py-1.5',
+      'inline-flex items-center justify-center rounded-pill px-4 py-1.5 max-lg:min-h-8 max-lg:py-1',
       'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
       'border transition-[background-color,border-color,color] duration-150',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
@@ -127,16 +127,16 @@ const AvatarOutfitPanel = ({ activeTab = 'outfit', onTabSelect, className }) => 
     <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
-        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
+        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] max-lg:text-[20px] leading-[1.1] tracking-[-0.2px] text-content-primary">
           Dress how you show up.
         </h2>
-        <p className="mt-1 font-sans text-[13px] leading-5 tracking-[0.2px] text-neutral-darker">
+        <p className="mt-1 font-sans text-[13px] max-lg:hidden leading-5 tracking-[0.2px] text-neutral-darker">
           Last one! Pick an outfit and finalise your avatar.
         </p>
       </header>
 
       {/* Stat pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-lg:hidden">
         <AvatarStatPill count="24" label="styles" />
         <AvatarStatPill count="12" label="Skin Tones" />
         <AvatarStatPill count="18" label="Hairstyles" />
@@ -164,7 +164,7 @@ const AvatarOutfitPanel = ({ activeTab = 'outfit', onTabSelect, className }) => 
       {/* Apparel grid — 6 columns × 2 rows (last row has 5) */}
       <section className="flex flex-col gap-3">
         <AvatarSectionHeader title="Apparel" meta="Pick one" />
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           {OUTFITS.map((outfit) => (
             <AvatarOptionTile
               key={outfit.id}

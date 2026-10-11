@@ -90,13 +90,13 @@ const Field = ({
   const showLabelRow = Boolean(label) || optional || Boolean(labelTrailing);
 
   return (
-    <div className={classNames('flex flex-col gap-2 w-full', className)} {...rest}>
+    <div className={classNames('flex flex-col gap-2 max-md:gap-1.5 w-full', className)} {...rest}>
       {showLabelRow && (
-        <div className="flex h-[21px] items-center justify-between w-full">
+        <div className="flex h-[21px] max-md:h-auto items-center justify-between w-full">
           {label ? (
             <label
               htmlFor={htmlFor}
-              className="inline-flex items-baseline gap-px font-sans font-medium text-[14px] leading-[24px] tracking-[0.2px] text-content-primary"
+              className="inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary"
             >
               {label}
               {required && (

@@ -141,14 +141,16 @@ const EngagementTopBar = ({
     <div
       className={classNames(
         'w-full bg-white border-b border-border-default',
-        'px-[clamp(20px,3.125vw,54px)] py-[10px]',
+        'px-[clamp(20px,3.125vw,54px)] max-md:px-4 py-[10px]',
         'flex items-center justify-between',
         className
       )}
     >
       {/* relative wrapper hosts the two overlay chevron buttons — the <nav>
           itself only needs to scroll + fade, not know about its siblings. */}
-      <div className="relative flex-1 min-w-0">
+      {/* Below md the 9-stage trail is replaced by the compact progress line
+          further down (plan §4: breadcrumb -> current step only). */}
+      <div className="relative flex-1 min-w-0 max-md:hidden">
         <nav
           ref={trailRef}
           aria-label="Profile engagement stages"
@@ -270,13 +272,43 @@ const EngagementTopBar = ({
       </div>
 
       {/* Right: step counter + progress bar, right-aligned (items-end in flex-col) */}
-      <div className="w-[323px] shrink-0 flex flex-col gap-[4px] items-end justify-center">
+      <div className="w-[323px] shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden">
         <EngagementProgressIndicator
           currentIndex={currentStageIndex}
           totalSteps={stages.length}
           currentStepLabel={currentStage?.trailLabel || currentStage?.title}
           completionPct={completionPct}
         />
+      </div>
+
+      {/* Phones: one "Step 4 of 9 · Skills  33%" line + bar. The shared
+          EngagementProgressIndicator's right-hand copy is ~200px of nowrap
+          text, which cannot fit beside the step label at 320px. */}
+      <div className="flex w-full min-w-0 flex-col gap-1 md:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <p className="min-w-0 truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-yellow-dark-active">
+            Step {Math.min(currentStageIndex + 1, stages.length)} of {stages.length} ·{' '}
+            <span className="font-bold text-content-primary">
+              {currentStage?.trailLabel || currentStage?.title}
+            </span>
+          </p>
+          <span className="shrink-0 font-sans text-[12px] leading-[18px] tracking-[0.2px] text-yellow-dark-active">
+            {Math.round(completionPct)}% complete
+          </span>
+        </div>
+        <div
+          className="h-[6px] w-full overflow-hidden rounded-pill bg-brand-green-light-hover"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(((currentStageIndex + 1) / stages.length) * 100)}
+          aria-label="Profile engagement progress"
+        >
+          <div
+            className="h-full rounded-pill bg-brand-green"
+            style={{ width: `${Math.min(100, ((currentStageIndex + 1) / stages.length) * 100)}%` }}
+          />
+        </div>
       </div>
     </div>
   );

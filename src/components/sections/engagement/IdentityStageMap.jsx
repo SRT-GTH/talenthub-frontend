@@ -1,5 +1,5 @@
 import { classNames } from '../../../utils/classNames.js';
-import identityMapBg from '../../../assets/engagement/identity-map-bg.png';
+import identityMapBg from '../../../assets/engagement/identity-map-bg.webp';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('IdentityStageMap');
@@ -12,7 +12,7 @@ const log = debug('IdentityStageMap');
  * trees, mountains, sparkles, dashed connector path, geography labels,
  * the dashed road at the bottom). Rather than reconstruct all of those
  * inline in code — which produced a bare, off-design result on the first
- * pass — we render the designer-provided flat export (`identity-map-bg.png`)
+ * pass — we render the designer-provided flat export (`identity-map-bg.webp`)
  * as the full map visual.
  *
  * The component is just a responsive container that lets the image fill
@@ -27,7 +27,7 @@ const IdentityStageMap = ({ className }) => {
   return (
     <div
       className={classNames(
-        'relative w-full overflow-hidden',
+        'relative w-full overflow-hidden max-lg:overflow-x-auto max-lg:overscroll-x-contain',
         'rounded-r-3xl lg:rounded-r-none',
         'bg-[#cfe0c8]', // matches the image's top-most gradient stop so any
         // letterboxing on extreme aspect ratios blends in
@@ -37,9 +37,14 @@ const IdentityStageMap = ({ className }) => {
       <img
         src={identityMapBg}
         alt="Section 1 · Your Identity progress map showing the 9 profile stages and milestone rewards"
-        className="block w-full h-auto select-none"
+        // Below lg the 1255px map would shrink to an unreadable ~288px, so it keeps a
+        // 680px floor and pans horizontally inside its box instead.
+        className="block w-full h-auto select-none max-lg:min-w-[680px]"
         draggable="false"
       />
+      <p className="sticky left-0 w-full bg-[#cfe0c8] px-4 py-2 text-center font-sans text-[12px] leading-4 text-neutral-darker lg:hidden">
+        Swipe sideways to explore the map
+      </p>
     </div>
   );
 };

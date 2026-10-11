@@ -20,6 +20,13 @@ const log = debug('TalentSearchFilterBar');
  * container's PADDING edge; padding on an ancestor would leave a permanent gap
  * above the bar that scrolled content bleeds through.
  *
+ * RESPONSIVE: below md the bar is no longer sticky (`relative`, so the
+ * background layer below stays clipped to it) (it would eat ~100px of a
+ * 568px phone), the "More Filters" link becomes a 44px "Filters (n)" button that
+ * opens TalentSearchFilterSheet, the applied chips scroll sideways beside it and
+ * the segmented control spans the full width on its own row. md–lg keeps the
+ * wrapping chips + 300px control; >= lg is the Figma bar.
+ *
  * The segmented control reuses the geometry Figma also uses for the Talent
  * Profile Panel switcher (#f2f2f2 track, white active pill, 6px gap, 4px pad).
  */
@@ -27,40 +34,48 @@ const TalentSearchFilterBar = ({ activeTabId, onSelectTab, onOpenMoreFilters, cl
   log('render', { activeTabId, chipCount: FILTER_CHIPS.length });
 
   return (
-    <div className={classNames('sticky top-0 z-20 w-full overflow-hidden py-[4px]', className)}>
+    <div
+      className={classNames(
+        'sticky top-0 z-20 w-full overflow-hidden py-[4px] max-md:relative max-md:py-[4px]',
+        className
+      )}
+    >
       <DashboardPageBackground className="z-0" />
 
-      <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-[16px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+      <div className="relative z-10 flex w-full flex-wrap items-center justify-between gap-[16px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:flex-col max-md:items-stretch max-md:gap-[12px]">
         {/* Active filters — Figma 7249:74328, gap 8 */}
-        <div className="flex flex-wrap items-center gap-[8px]">
-          {FILTER_CHIPS.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => {
-                log('branch', { chip: chip.id, action: 'edit-filter', wired: false });
-              }}
-              className="inline-flex h-[29.39px] items-center gap-[8px] rounded-[8px] border border-brand-green-light-hover bg-white px-[12px] transition-colors hover:bg-neutral"
-            >
-              <span className="font-sans text-[11px] font-semibold leading-[15.4px] tracking-[0.44px] text-content-muted">
-                {chip.label}
-              </span>
-              <span className="font-sans text-[13px] font-medium leading-[13px] text-[#1c1c1a]">
-                {chip.value}
-              </span>
-              <FilterRemoveIcon className="size-[7px] text-[#1c1c1a]" />
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-[8px] max-md:flex-nowrap max-md:-mx-[16px] max-md:pl-[16px]">
+          {/* Applied chips: one sideways-scrolling row on phones. */}
+          <div className="no-scrollbar contents max-md:-mr-[16px] max-md:flex max-md:min-w-0 max-md:flex-1 max-md:gap-[8px] max-md:overflow-x-auto max-md:pr-[16px] max-md:[mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]">
+            {FILTER_CHIPS.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => {
+                  log('branch', { chip: chip.id, action: 'edit-filter', wired: false });
+                }}
+                className="inline-flex h-[29.39px] max-lg:h-[30px] shrink-0 items-center gap-[6px] rounded-[8px] border border-brand-green-light-hover bg-white px-[12px] max-lg:px-[10px] transition-colors hover:bg-neutral"
+              >
+                <span className="font-sans text-[11px] max-lg:text-[12px] font-semibold leading-[15.4px] tracking-[0.44px] text-content-muted">
+                  {chip.label}
+                </span>
+                <span className="font-sans text-[13px] font-medium leading-[13px] text-[#1c1c1a]">
+                  {chip.value}
+                </span>
+                <FilterRemoveIcon className="size-[7px] text-[#1c1c1a]" />
+              </button>
+            ))}
+          </div>
 
           {/* Figma 7249:74354 — separated from the chips by an 8px left border */}
-          <span className="border-l border-brand-green-light-hover pl-[8px]">
+          <span className="border-l border-brand-green-light-hover pl-[8px] max-md:hidden">
             <button
               type="button"
               onClick={() => {
                 log('branch', { action: 'more-filters', wired: false });
                 onOpenMoreFilters?.();
               }}
-              className="inline-flex items-center gap-[3.99px] text-brand-green transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-[3.99px] text-brand-green transition-opacity hover:opacity-80 max-lg:min-h-[40px]"
             >
               <MoreFiltersIcon className="size-[10.5px]" />
               {/* Figma 7249:74354 — 13/13 semibold #387440 */}
@@ -80,7 +95,7 @@ const TalentSearchFilterBar = ({ activeTabId, onSelectTab, onOpenMoreFilters, cl
         <div
           role="tablist"
           aria-label="Result filter"
-          className="flex h-[44px] w-[300px] shrink-0 items-center gap-[6px] overflow-hidden rounded-[8px] bg-[#f2f2f2] p-[4px] shadow-[0_1px_2px_0_rgba(0,0,0,0.17)]"
+          className="flex h-[44px] w-[300px] shrink-0 items-center gap-[6px] overflow-hidden rounded-[8px] bg-[#f2f2f2] p-[4px] shadow-[0_1px_2px_0_rgba(0,0,0,0.17)] max-md:h-[40px] max-md:w-full"
         >
           {RESULT_TABS.map((tab) => {
             const isActive = tab.id === activeTabId;
@@ -95,7 +110,7 @@ const TalentSearchFilterBar = ({ activeTabId, onSelectTab, onOpenMoreFilters, cl
                   onSelectTab?.(tab.id);
                 }}
                 className={classNames(
-                  'flex h-[36px] w-[93.33px] shrink-0 items-center justify-center overflow-hidden whitespace-nowrap px-[24px]',
+                  'flex h-[36px] w-[93.33px] shrink-0 items-center justify-center overflow-hidden whitespace-nowrap px-[24px] max-md:h-[32px] max-md:w-auto max-md:flex-1 max-md:px-[4px]',
                   'font-sans text-[13px] font-medium leading-[15.51px] transition-all duration-300 ease-in',
                   isActive
                     ? 'rounded-[8px] border border-[#e5e5e5] bg-white text-brand-green'

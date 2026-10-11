@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import Captions from '../../ui/Captions.jsx';
 import Checkbox from '../../ui/form/Checkbox.jsx';
 import PreviewField from '../../ui/PreviewField.jsx';
+import ClampText from '../../ui/ClampText.jsx';
+import ParentDefRows from './ParentDefRows.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, IdCardIcon, MailIcon, UserIcon } from '../../shared/assets.jsx';
 import { OptOutModal, ParentRightsModal, DataProcessingModal } from './ConsentModals.jsx';
 import { debug } from '../../../utils/debug.js';
 // Placeholder ward avatar — same as Link Ward step; swap for the real per-ward
 // photo when the parent onboarding store is wired.
-import wardAvatar from '../../../assets/hero/parent-welcome-panel-photo.png';
+import wardAvatar from '../../../assets/hero/parent-welcome-panel-photo.webp';
 
 const log = debug('ParentReviewSection');
 
@@ -64,8 +67,13 @@ const EditLink = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex h-[19px] items-center rounded-[6px] border px-[7px] font-sans font-semibold uppercase"
-    style={{ borderColor: '#faf4e8', color: '#c8951a', fontSize: 10, letterSpacing: '1px' }}
+    className="relative flex h-[19px] shrink-0 items-center rounded-[6px] border px-[7px] font-sans font-semibold uppercase max-md:h-auto max-md:border-0 max-md:px-0 max-md:text-[13px]! max-md:normal-case max-md:tracking-normal! max-md:before:absolute max-md:before:-inset-x-2 max-md:before:-inset-y-3 max-md:before:content-['']"
+    style={{
+      borderColor: '#faf4e8',
+      color: '#c8951a',
+      fontSize: 'var(--fs-10)',
+      letterSpacing: '1px',
+    }}
   >
     Edit
   </button>
@@ -73,18 +81,18 @@ const EditLink = ({ onClick }) => (
 
 // ── Section header: icon + label (+ edit) + divider — Figma 2973:80557 etc. ──
 const SectionHeader = ({ icon, label, onEdit }) => (
-  <div className="flex w-full items-center gap-[8px]">
-    <span className="flex items-center gap-[8px]" style={{ color: '#babab7' }}>
+  <div className="flex w-full items-center gap-[8px] max-md:justify-between">
+    <span className="flex items-center gap-[8px] max-md:order-first" style={{ color: '#babab7' }}>
       <span className="flex [&>svg]:size-[11px]">{icon}</span>
       <span
-        className="whitespace-nowrap font-sans font-bold uppercase"
-        style={{ fontSize: 9, letterSpacing: '1px', color: '#babab7' }}
+        className="whitespace-nowrap max-md:whitespace-normal font-sans font-bold uppercase"
+        style={{ fontSize: 'var(--fs-9)', letterSpacing: '1px', color: '#babab7' }}
       >
         {label}
       </span>
     </span>
     {onEdit && <EditLink onClick={onEdit} />}
-    <span className="h-px flex-1" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }} />
+    <span className="h-px flex-1 max-md:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }} />
   </div>
 );
 
@@ -105,7 +113,7 @@ const VerifiedBadge = () => (
     style={{ backgroundColor: '#faf4e8', borderColor: 'rgba(245,189,79,0.2)' }}
   >
     <MiniCheck color="#b48617" />
-    <span className="font-sans font-semibold" style={{ fontSize: 9, color: '#b48617' }}>
+    <span className="font-sans font-semibold" style={{ fontSize: 'var(--fs-9)', color: '#b48617' }}>
       Verified
     </span>
   </span>
@@ -119,7 +127,7 @@ const OtpBadge = () => (
     <MiniCheck color="#c8951a" />
     <span
       className="font-sans font-bold uppercase"
-      style={{ fontSize: 9, color: '#c8951a', letterSpacing: '1px' }}
+      style={{ fontSize: 'var(--fs-9)', color: '#c8951a', letterSpacing: '1px' }}
     >
       OTP verified
     </span>
@@ -128,7 +136,7 @@ const OtpBadge = () => (
 
 const LinkedBadge = () => (
   <span
-    className="flex shrink-0 items-center gap-[4px] rounded-[8px] px-[14px] py-[6px]"
+    className="flex shrink-0 items-center gap-[4px] rounded-[8px] px-[14px] py-[6px] max-md:rounded-[6px] max-md:px-2.5 max-md:py-1 max-md:shadow-none!"
     style={{ backgroundColor: '#387440', boxShadow: '0px 3px 0px #2a5730' }}
   >
     <MiniCheck color="#ffffff" />
@@ -192,18 +200,19 @@ const ParentReviewSection = () => {
 
   return (
     <>
-      <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-20">
-        <div className="flex w-full max-w-[897px] flex-col items-center gap-6">
+      <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="flex w-full max-w-[897px] flex-col items-center gap-6 max-md:gap-3">
           {/* Step badge — Figma 2947:75882 — shared Captions (amber parent theme) */}
           <Captions
             variant="amber"
             items={[{ index: '06', label: 'Review & Consent' }]}
             currentIndex={0}
+            className="max-md:self-start max-md:px-3 max-md:py-0.5"
           />
 
           {/* Headline — Figma 2944:68077 */}
           <h1
-            className="text-center font-display font-normal"
+            className="text-center font-display font-normal max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
               lineHeight: 1.094,
@@ -219,7 +228,7 @@ const ParentReviewSection = () => {
 
           {/* Subtitle — Figma 2944:68079 */}
           <p
-            className="max-w-[490px] text-center font-sans"
+            className="max-w-[490px] text-center font-sans max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
             style={{
               fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
               lineHeight: 1.5,
@@ -236,37 +245,60 @@ const ParentReviewSection = () => {
 
           {/* ── Review card — Figma 2973:80541 ── */}
           <div
-            className="flex w-full flex-col gap-6 rounded-[24px] border bg-white p-6"
+            className="flex w-full flex-col gap-6 rounded-[24px] border bg-white p-6 max-md:gap-3 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none! max-md:[&>section+section]:border-t max-md:[&>section+section]:border-[#ECECE8] max-md:[&>section+section]:pt-3"
             style={{
               borderColor: 'rgba(0,0,0,0.08)',
               boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.13)',
             }}
           >
             {/* Section 1: Your Identity — Figma 2973:80555 */}
-            <section className="flex flex-col gap-[12px]">
+            <section className="flex flex-col gap-[12px] max-md:gap-1">
               <SectionHeader icon={<UserIcon />} label="Your Identity" />
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex gap-[18px]">
-                  <PreviewField className="flex-1" label="First name" value="Abena" height={49} />
+              <ParentDefRows
+                rows={[
+                  { label: 'Full name', value: 'Abena Mensah' },
+                  { label: 'Date of birth', value: '12 March 2003' },
+                  { label: 'Gender', value: 'Female' },
+                  { label: 'Relationship to ward', value: 'Mother' },
+                ]}
+              />
+              <div className="flex flex-col gap-[8px] max-md:hidden">
+                <div className="flex gap-[18px] max-md:grid max-md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-md:gap-2">
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
+                    label="First name"
+                    value="Abena"
+                    height={49}
+                  />
+                  <PreviewField
+                    className="min-w-0 flex-1"
                     label="Middle name"
                     value="—"
                     muted
                     height={49}
                   />
-                  <PreviewField className="flex-1" label="Last name" value="Mensah" height={49} />
-                </div>
-                <div className="flex gap-[18px]">
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
+                    label="Last name"
+                    value="Mensah"
+                    height={49}
+                  />
+                </div>
+                <div className="flex gap-[18px] max-md:grid max-md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-md:gap-2">
+                  <PreviewField
+                    className="min-w-0 flex-1"
                     label="Date of birth"
                     value="12 March 2003"
                     height={49}
                   />
-                  <PreviewField className="flex-1" label="Gender" value="Female" height={49} />
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
+                    label="Gender"
+                    value="Female"
+                    height={49}
+                  />
+                  <PreviewField
+                    className="min-w-0 flex-1"
                     label="Relationship to ward"
                     value="Mother"
                     height={49}
@@ -276,13 +308,28 @@ const ParentReviewSection = () => {
             </section>
 
             {/* Section 2: Identity & verification — Figma 2973:80592 */}
-            <section className="flex flex-col gap-[12px]">
+            <section className="flex flex-col gap-[12px] max-md:gap-1">
               <SectionHeader
                 icon={<IdCardIcon />}
                 label="Identity & verification"
                 onEdit={handleEdit('/onboarding/parent-verification')}
               />
-              <div className="flex flex-col gap-[15px]">
+              <ParentDefRows
+                rows={[
+                  {
+                    label: 'Ghana Card Number',
+                    value: 'GHA-●●●●●●●●●-●',
+                    valueColor: '#575755',
+                    trailing: <VerifiedBadge />,
+                  },
+                  {
+                    label: 'Profile photo',
+                    value: '✓ Uploaded & confirmed',
+                    valueColor: '#b48617',
+                  },
+                ]}
+              />
+              <div className="flex flex-col gap-[15px] max-md:hidden">
                 <PreviewField
                   className="w-full"
                   label="Ghana Card Number"
@@ -304,16 +351,29 @@ const ParentReviewSection = () => {
             </section>
 
             {/* Section 3: Contact details — Figma 2973:80627 */}
-            <section className="flex flex-col gap-[12px]">
+            <section className="flex flex-col gap-[12px] max-md:gap-1">
               <SectionHeader
                 icon={<MailIcon />}
                 label="Contact details"
                 onEdit={handleEdit('/onboarding/parent-contact')}
               />
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex gap-[18px]">
+              <ParentDefRows
+                rows={[
+                  {
+                    label: 'Phone number',
+                    value: '+233 20 ••• ••• ••2',
+                    valueColor: '#575755',
+                    trailing: <OtpBadge />,
+                  },
+                  { label: 'WhatsApp', value: 'Same as phone', valueColor: '#70706e' },
+                  { label: 'Email address', value: 'a.mensah@gmail.com', valueColor: '#70706e' },
+                  { label: 'Preferred contact', value: 'Phone & WhatsApp', valueColor: '#575755' },
+                ]}
+              />
+              <div className="flex flex-col gap-[8px] max-md:hidden">
+                <div className="flex gap-[18px] max-md:grid max-md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-md:gap-2">
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     label="Phone number"
                     valueColor="#575755"
                     height={65}
@@ -325,23 +385,23 @@ const ParentReviewSection = () => {
                     }
                   />
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     label="WhatsApp"
                     value="Same as phone"
                     muted
                     height={65}
                   />
                 </div>
-                <div className="flex gap-[18px]">
+                <div className="flex gap-[18px] max-md:grid max-md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] max-md:gap-2">
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     label="Email address"
-                    value="a.mensah@gmail.com"
+                    value={<span className="max-md:break-all">a.mensah@gmail.com</span>}
                     muted
                     height={48}
                   />
                   <PreviewField
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     label="Preferred contact"
                     value="Phone & WhatsApp"
                     valueColor="#575755"
@@ -352,21 +412,27 @@ const ParentReviewSection = () => {
             </section>
 
             {/* Section 4: Account Security — Figma 2973:80658 */}
-            <section className="flex flex-col gap-[12px]">
+            <section className="flex flex-col gap-[12px] max-md:gap-1">
               <SectionHeader
                 icon={<LockGlyph />}
                 label="Account Security"
                 onEdit={handleEdit('/onboarding/parent-security')}
               />
-              <div className="flex gap-[18px]">
+              <ParentDefRows
+                rows={[
+                  { label: 'Password', value: <PasswordDots /> },
+                  { label: 'Preferred contact', value: 'Phone & WhatsApp', valueColor: '#575755' },
+                ]}
+              />
+              <div className="flex gap-[18px] max-md:hidden">
                 <PreviewField
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                   label="Password"
                   value={<PasswordDots />}
                   height={48}
                 />
                 <PreviewField
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                   label="Preferred contact"
                   value="Phone & WhatsApp"
                   valueColor="#575755"
@@ -376,7 +442,7 @@ const ParentReviewSection = () => {
             </section>
 
             {/* Section 5: Linked Ward — Figma 2973:80685 */}
-            <section className="flex flex-col gap-[12px]">
+            <section className="flex flex-col gap-[12px] max-md:gap-1">
               <SectionHeader
                 icon={<LinkGlyph />}
                 label="Linked Ward"
@@ -384,12 +450,12 @@ const ParentReviewSection = () => {
               />
               {/* Ward card — Figma 2973:80697 */}
               <div
-                className="flex w-full items-center justify-between rounded-[10px] px-[13px]"
+                className="flex w-full items-center justify-between rounded-[10px] px-[13px] max-md:min-h-0! max-md:gap-3 max-md:bg-transparent! max-md:px-0 max-md:py-1"
                 style={{ minHeight: 99, backgroundColor: '#f8f8f4' }}
               >
-                <div className="flex items-center gap-[16px]">
+                <div className="flex min-w-0 items-center gap-[16px] max-md:gap-3">
                   <span
-                    className="block size-[72px] shrink-0 overflow-hidden rounded-full border-2"
+                    className="block size-[72px] shrink-0 overflow-hidden rounded-full border-2 max-md:size-10"
                     style={{
                       borderColor: '#c1d4c4',
                       boxShadow:
@@ -403,9 +469,9 @@ const ParentReviewSection = () => {
                       draggable={false}
                     />
                   </span>
-                  <div className="flex flex-col gap-[4px]">
+                  <div className="flex min-w-0 flex-col gap-[4px]">
                     <p
-                      className="font-sans font-semibold"
+                      className="font-sans font-semibold max-md:leading-5!"
                       style={{
                         fontSize: 16,
                         color: '#575755',
@@ -416,13 +482,13 @@ const ParentReviewSection = () => {
                       Abena Mensah
                     </p>
                     <span
-                      className="inline-flex w-fit items-center justify-center rounded-[4px] border px-[8px] py-[3px]"
+                      className="inline-flex w-fit max-w-full items-center justify-center rounded-[4px] border px-[8px] py-[3px] max-md:justify-start max-md:border-0 max-md:bg-transparent! max-md:p-0 max-md:text-left"
                       style={{ backgroundColor: '#ebf1ec', borderColor: '#c1d4c4' }}
                     >
                       <span
-                        className="font-sans font-semibold"
+                        className="font-sans font-semibold max-md:font-medium"
                         style={{
-                          fontSize: 10,
+                          fontSize: 'var(--fs-10)',
                           color: '#2a5730',
                           letterSpacing: '0.2px',
                           lineHeight: '16px',
@@ -439,12 +505,12 @@ const ParentReviewSection = () => {
           </div>
 
           {/* ── Consent block — Figma 2944:68279 ── */}
-          <div className="flex w-full flex-col gap-[16px]">
+          <div className="flex w-full flex-col gap-[16px] max-md:gap-2">
             {/* Header row — Figma 2944:68280 */}
             <div className="flex items-center gap-[8px]">
               <span
-                className="whitespace-nowrap font-sans font-bold uppercase"
-                style={{ fontSize: 10, color: '#babab7', letterSpacing: '1px' }}
+                className="whitespace-nowrap max-md:whitespace-normal font-sans font-bold uppercase"
+                style={{ fontSize: 'var(--fs-10)', color: '#babab7', letterSpacing: '1px' }}
               >
                 Required agreements — all 3 must be accepted
               </span>
@@ -452,8 +518,9 @@ const ParentReviewSection = () => {
             </div>
 
             {/* Checkboxes — Figma 2944:68287 / 68288 / 68381 */}
-            <div className="flex flex-col gap-[16px]">
+            <div className="flex flex-col gap-[16px] max-md:gap-3">
               <Checkbox
+                labelClassName="max-md:text-[13px]! max-md:leading-[18px]!"
                 checked={consent.access}
                 onChange={toggle('access')}
                 label={
@@ -471,6 +538,7 @@ const ParentReviewSection = () => {
                 }
               />
               <Checkbox
+                labelClassName="max-md:text-[13px]! max-md:leading-[18px]!"
                 checked={consent.rights}
                 onChange={toggle('rights')}
                 label={
@@ -488,6 +556,7 @@ const ParentReviewSection = () => {
                 }
               />
               <Checkbox
+                labelClassName="max-md:text-[13px]! max-md:leading-[18px]!"
                 checked={consent.data}
                 onChange={toggle('data')}
                 label={
@@ -509,7 +578,7 @@ const ParentReviewSection = () => {
 
             {/* Data-protection notice — Figma 2944:68289 */}
             <div
-              className="flex w-full flex-col gap-[6px] rounded-[12px] border px-[20px] py-[13px]"
+              className="flex w-full flex-col gap-[6px] rounded-[12px] border px-[20px] py-[13px] max-md:gap-0.5 max-md:px-3 max-md:py-2"
               style={{ backgroundColor: 'rgba(234,239,251,0.4)', borderColor: '#e0e7f9' }}
             >
               <p
@@ -523,63 +592,61 @@ const ParentReviewSection = () => {
               >
                 Your data is protected under Ghanaian law
               </p>
-              <p
-                className="font-sans"
-                style={{
-                  fontSize: 12,
-                  color: '#3062d4',
-                  letterSpacing: '0.2px',
-                  lineHeight: '18px',
-                }}
+              <ClampText
+                lines={2}
+                className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#3062d4]"
+                buttonClassName="text-[12px] font-semibold text-[#3062d4]"
               >
                 Ghana Talent Hub complies with the Data Protection Act (Act 843, 2012). You can
                 withdraw consent, request access to your data, or request deletion at any time from
                 Settings → Privacy.
-              </p>
+              </ClampText>
             </div>
           </div>
 
           {/* ── CTA — Figma 2944:68294 — gated on all 3 consents ── */}
-          {allAccepted ? (
-            <Button
-              type="button"
-              variant="primary"
-              size="lg"
-              className="w-full justify-center"
-              rightIcon={<ArrowRightIcon />}
-              onClick={handleContinue}
-            >
-              Accept All Three To Continue
-            </Button>
-          ) : (
-            <div
-              className="flex w-full items-center justify-center gap-[8px] rounded-[14px] border-2 px-[40px] py-[16px]"
-              style={{
-                backgroundColor: '#bfbfbf',
-                borderColor: '#ccc',
-                boxShadow: '0px 4px 0px rgba(191,191,191,0.8)',
-                cursor: 'not-allowed',
-              }}
-              aria-disabled="true"
-            >
-              <span
-                className="font-sans font-bold text-white"
-                style={{ fontSize: 16, letterSpacing: '0.1px', lineHeight: '24px' }}
+          <StickyActionBar bleed={16}>
+            {allAccepted ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="lg"
+                className="w-full justify-center"
+                rightIcon={<ArrowRightIcon />}
+                onClick={handleContinue}
               >
                 Accept All Three To Continue
-              </span>
-              <span className="text-white">
-                <ArrowRightIcon />
-              </span>
-            </div>
-          )}
+              </Button>
+            ) : (
+              <div
+                className="flex w-full items-center justify-center gap-[8px] rounded-[14px] border-2 px-[40px] py-[16px] max-md:h-11 max-md:rounded-[10px] max-md:px-4 max-md:py-0 max-md:shadow-none!"
+                style={{
+                  backgroundColor: '#bfbfbf',
+                  borderColor: '#ccc',
+                  boxShadow: '0px 4px 0px rgba(191,191,191,0.8)',
+                  cursor: 'not-allowed',
+                }}
+                aria-disabled="true"
+              >
+                <span
+                  className="font-sans font-bold text-white max-md:text-[14px]!"
+                  style={{ fontSize: 16, letterSpacing: '0.1px', lineHeight: '24px' }}
+                >
+                  Accept All Three To Continue
+                </span>
+                <span className="text-white">
+                  <ArrowRightIcon />
+                </span>
+              </div>
+            )}
+          </StickyActionBar>
 
           {/* Footer */}
-          <p className="font-sans text-sm" style={{ color: '#737373' }}>
+          <p className="font-sans text-sm max-md:text-[13px]" style={{ color: '#737373' }}>
             Already Have an account?{' '}
             <Link
               to="/onboarding/parent-login"
-              className="font-semibold underline-offset-2 hover:underline"
+              className="font-semibold underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ color: '#387440' }}
               onClick={() => log('log in instead clicked')}
             >

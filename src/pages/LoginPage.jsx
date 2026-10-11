@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
+import {
+  COMPACT_PRIMARY_BUTTON,
+  COMPACT_SECONDARY_BUTTON,
+} from '../components/ui/form/mobileScale.js';
 import { TextInput, Checkbox } from '../components/ui/form';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
 import {
@@ -45,9 +49,8 @@ const GhanaFlagIcon = () => (
     <span className="absolute inset-x-0 top-0 h-[6.67px] bg-[#006B3F]" />
     <span className="absolute inset-x-0 top-[6.67px] h-[6.67px] bg-[#FCD116]" />
     <span className="absolute inset-x-0 top-[13.33px] h-[6.67px] bg-[#CE1126]" />
-    <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 text-[8px] leading-none text-black">
-      ★
-    </span>
+    {/* Star drawn via ::after so the button's label has a single text row. */}
+    <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 text-[8px] max-lg:text-[12px] leading-none text-black after:content-['★']" />
   </span>
 );
 
@@ -68,10 +71,15 @@ const DangerAlertIcon = ({ className }) => (
 // failed log-in. Light danger fill, soft danger outline, danger-tone title
 // + body, "Forget Password" inline link, dismiss-X. Sits absolutely so it
 // can hover over the brand-green panel without disturbing its layout.
-const AuthErrorToast = ({ onClose }) => (
+// `inline` renders the compact phone version above the form (the panel is only decor on phones).
+const AuthErrorToast = ({ onClose, inline = false }) => (
   <div
     role="alert"
-    className="absolute right-4 top-4 z-10 hidden w-[360px] items-start gap-3 rounded-[14px] border border-danger-light-active bg-danger-light px-4 py-3 shadow-[0_16px_24px_-6px_rgba(146,43,33,0.18),0_2px_2px_-1px_rgba(146,43,33,0.06)] lg:flex"
+    className={
+      inline
+        ? 'flex w-full items-start gap-2 rounded-[10px] border border-danger-light-active bg-danger-light px-3 py-2 lg:hidden'
+        : 'absolute right-4 top-4 z-10 hidden w-[360px] items-start gap-3 rounded-[14px] border border-danger-light-active bg-danger-light px-4 py-3 shadow-[0_16px_24px_-6px_rgba(146,43,33,0.18),0_2px_2px_-1px_rgba(146,43,33,0.06)] lg:flex'
+    }
   >
     <span className="mt-[2px] inline-flex shrink-0 text-danger">
       <DangerAlertIcon className="size-4" />
@@ -84,7 +92,7 @@ const AuthErrorToast = ({ onClose }) => (
         Please check your details and try again.{' '}
         <Link
           to="/forgot-password"
-          className="font-semibold text-danger underline underline-offset-2 hover:text-danger-hover"
+          className="font-semibold text-danger underline underline-offset-2 hover:text-danger-hover relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
         >
           Forget Password
         </Link>
@@ -109,7 +117,7 @@ const AuthErrorToast = ({ onClose }) => (
 // one design family. The interactive focus-within rules stay live except
 // in the error state (red border wins until the user starts typing again).
 const PHONE_WRAPPER_BASE =
-  'flex h-[51px] w-full items-center gap-2 rounded-md pr-4 transition-colors';
+  'flex h-[51px] max-md:h-11 w-full items-center gap-2 rounded-md pr-4 max-md:pr-3 max-md:shadow-none! transition-colors';
 const PHONE_WRAPPER_DEFAULT =
   'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] ' +
   'focus-within:border-brand-green-light-active focus-within:bg-yellow-light focus-within:shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]';
@@ -179,10 +187,14 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-[700px] flex-col gap-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full max-w-[700px] flex-col gap-6 max-md:gap-3"
+      noValidate
+    >
       {/* eyebrow + heading + sub-copy */}
-      <header className="flex flex-col items-center gap-3 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-[10px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5">
+      <header className="flex flex-col items-center gap-3 text-center max-md:gap-1.5">
+        <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[10px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5">
           <span
             aria-hidden="true"
             className="size-2 rounded-full bg-brand-green shadow-[inset_0_0_3px_#19341d]"
@@ -193,14 +205,14 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         </span>
 
         <h1
-          className="font-display font-normal"
+          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight!"
           style={{ fontSize: 'clamp(2rem, 3.6vw, 2.75rem)', lineHeight: 1.15 }}
         >
           <span className="block text-black">Log in to</span>
           <span className="block italic text-brand-green">Ghana Talent Hub.</span>
         </h1>
 
-        <p className="max-w-[360px] text-[14px] leading-[20px] tracking-[0.2px] text-[#737373]">
+        <p className="max-w-[360px] text-[14px] max-md:text-[13px] leading-[20px] tracking-[0.2px] text-[#737373]">
           Enter your phone number and password to access your talent profile and opportunities.
         </p>
 
@@ -208,12 +220,12 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
       </header>
 
       {/* fields */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 max-md:gap-3">
         {/* Phone with country-code picker */}
         <div className="flex flex-col gap-2">
           <label
             htmlFor="login-phone"
-            className="inline-flex items-baseline gap-px text-[14px] font-medium leading-6 tracking-[0.2px] text-content-primary"
+            className="inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 max-md:leading-5 tracking-[0.2px] text-content-primary"
           >
             Phone Number
             <span aria-hidden="true" className="text-[14px] font-semibold text-brand-green">
@@ -228,7 +240,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
           >
             <button
               type="button"
-              className="flex h-full items-center gap-2 border-r border-[#e7e7e7] pl-4 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
+              className="flex h-full shrink-0 items-center gap-2 whitespace-nowrap border-r border-[#e7e7e7] pl-4 max-md:pl-3 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
               aria-label="Select country code"
             >
               <GhanaFlagIcon />
@@ -238,14 +250,14 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
             <input
               id="login-phone"
               type="tel"
-              inputMode="numeric"
+              inputMode="tel"
               autoComplete="tel-national"
               placeholder="23 533 45"
               value={phone}
               onChange={handlePhoneChange}
               aria-invalid={Boolean(phoneError) || undefined}
               aria-describedby={phoneError ? 'login-phone-error' : undefined}
-              className="flex-1 min-w-0 border-none bg-transparent text-[14px] leading-5 tracking-[0.2px] text-content-primary placeholder:text-[#595959] outline-none"
+              className="w-0 flex-1 min-w-0 border-none bg-transparent text-[14px] leading-5 tracking-[0.2px] text-content-primary placeholder:text-[#595959] outline-none"
             />
           </div>
           {phoneError && (
@@ -265,7 +277,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
           <div className="flex items-center justify-between">
             <label
               htmlFor="login-password"
-              className="inline-flex items-baseline gap-px text-[14px] font-medium leading-6 tracking-[0.2px] text-content-primary"
+              className="inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 max-md:leading-5 tracking-[0.2px] text-content-primary"
             >
               Password
               <span aria-hidden="true" className="text-[14px] font-semibold text-brand-green">
@@ -274,7 +286,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
             </label>
             <Link
               to="/forgot-password"
-              className="text-[14px] font-semibold leading-6 tracking-[0.1px] text-brand-green underline-offset-2 hover:underline"
+              className="text-[14px] max-md:text-[13px] font-semibold leading-6 tracking-[0.1px] text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             >
               Forget Password
             </Link>
@@ -298,6 +310,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
                 <EyeIcon />
               </button>
             }
+            rightIconInteractive
           />
         </div>
 
@@ -320,7 +333,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         state={isLoading ? 'active' : undefined}
         leftIcon={isLoading ? <LoadingSpinner stroke="#EBF1EC" /> : undefined}
         rightIcon={<ArrowRightIcon />}
-        className="w-full"
+        className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
         aria-busy={isLoading}
       >
         {isLoading ? 'Logging You In' : hasValues ? 'Continue' : 'Enter Your Details To Continue'}
@@ -337,13 +350,19 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
       </div>
 
       {/* Create-account callout */}
-      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-[#e7e7e7] bg-yellow-light p-4 text-center">
-        <p className="text-[14px] leading-5 tracking-[0.2px] text-[#737373]">
+      <div className="flex flex-col items-center gap-3 max-md:gap-2 rounded-[14px] border border-[#e7e7e7] bg-yellow-light p-4 max-md:p-3 text-center">
+        <p className="text-[14px] max-md:text-[13px] leading-5 tracking-[0.2px] text-[#737373]">
           Create your free talent profile in under 5 minutes.
         </p>
         <Link to={'/get-started'}>
-          <Button variant="tertiary" size="md" rightIcon={<ArrowRightIcon />}>
-            Create an account — it&apos;s free
+          <Button
+            variant="tertiary"
+            size="md"
+            rightIcon={<ArrowRightIcon />}
+            className={COMPACT_SECONDARY_BUTTON}
+          >
+            <span className="max-sm:hidden">Create an account — it&apos;s free</span>
+            <span className="sm:hidden">Create an account</span>
           </Button>
         </Link>
       </div>
@@ -367,8 +386,13 @@ const LoginPage = () => {
           overflow-y-auto + hidden scrollbar: left col scrolls while the
           right panel stays fixed at screen height (fixed-shell via MainLayout
           isFixedShellPath + TalentOnboardingLayout). */}
-      <div className="relative flex flex-1 items-center justify-center overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20">
-        <div className="relative z-10 flex w-full items-center justify-center">
+      <div className="relative flex flex-1 items-center max-md:items-start justify-center max-lg:z-10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="relative z-10 flex w-full flex-col items-center justify-center gap-3">
+          {authError && (
+            <div className="w-full max-w-[700px] lg:hidden">
+              <AuthErrorToast inline onClose={() => setAuthError(false)} />
+            </div>
+          )}
           <LoginForm
             onAuthFailure={() => setAuthError(true)}
             onClearAuthFailure={() => authError && setAuthError(false)}

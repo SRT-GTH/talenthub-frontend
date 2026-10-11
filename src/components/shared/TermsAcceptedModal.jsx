@@ -28,11 +28,11 @@ const TermsAcceptedModal = ({ onClose, onContinue }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="terms-accepted-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(17,17,17,0.7)' }}
     >
       <div
-        className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10"
+        className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{
           border: '3px solid #C1D4C4',
           boxShadow:
@@ -58,7 +58,7 @@ const TermsAcceptedModal = ({ onClose, onContinue }) => {
 
           <h2
             id="terms-accepted-title"
-            className="font-display font-normal text-[#111111]"
+            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
             style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
           >
             Terms <span className="italic text-brand-green">Accepted.</span>
@@ -129,7 +129,7 @@ const TermsAcceptedModal = ({ onClose, onContinue }) => {
         </Button>
 
         <p
-          className="mt-3 flex items-center justify-center gap-1.5 text-[10px] leading-4 text-[#959592]"
+          className="mt-3 flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
           style={{ letterSpacing: '0.2px' }}
         >
           <ShieldCheckIcon className="text-[#959592]" />

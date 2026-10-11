@@ -59,8 +59,10 @@ const EntryMethodCard = ({
         <span
           className={classNames(
             'absolute left-1/2 -top-3.5 -translate-x-1/2 z-10',
+            // phones: small corner badge instead of a ribbon overhanging the card
+            'max-md:left-auto max-md:right-3 max-md:-top-2.5 max-md:translate-x-0 max-md:px-2 max-md:py-0.5',
             'inline-flex items-center rounded-md bg-brand-green px-3 py-1',
-            'font-sans font-semibold text-[11px] tracking-[0.6px] uppercase text-white',
+            'font-sans font-semibold text-[11px] max-lg:text-[12px] tracking-[0.6px] uppercase text-white',
             'shadow-bottom-100'
           )}
         >
@@ -74,6 +76,8 @@ const EntryMethodCard = ({
         className={classNames(
           'group flex w-full flex-col items-start gap-4 text-left',
           'rounded-xl bg-white px-5 py-6 h-full',
+          // phones: compact icon | text | arrow row (~84px) instead of a 250px stack
+          'max-md:grid max-md:grid-cols-[40px_minmax(0,1fr)_16px] max-md:items-center max-md:gap-x-3 max-md:gap-y-0.5 max-md:px-3 max-md:py-3',
           'transition-[border-color,box-shadow,transform] duration-150 ease-out',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
           highlighted
@@ -85,6 +89,7 @@ const EntryMethodCard = ({
           aria-hidden="true"
           className={classNames(
             'inline-flex size-12 items-center justify-center rounded-md',
+            'max-md:col-start-1 max-md:row-span-3 max-md:row-start-1 max-md:size-10',
             highlighted
               ? 'bg-brand-green-light text-brand-green'
               : 'bg-neutral text-content-primary'
@@ -97,7 +102,8 @@ const EntryMethodCard = ({
           <span
             className={classNames(
               'inline-flex items-center rounded-md border px-2 py-0.5',
-              'font-sans font-semibold text-[10px] leading-4 tracking-[0.6px] uppercase',
+              'max-md:col-start-2 max-md:row-start-2 max-md:justify-self-start max-md:py-0 max-md:text-[12px] max-md:tracking-[0.3px]',
+              'font-sans font-semibold text-[10px] max-lg:text-[12px] leading-4 tracking-[0.6px] uppercase',
               highlighted
                 ? 'bg-brand-green-light border-brand-green-light-active text-brand-green-dark'
                 : 'bg-neutral border-[#dfdfdc] text-neutral-darker'
@@ -107,14 +113,16 @@ const EntryMethodCard = ({
           </span>
         )}
 
-        <h3 className="font-display text-[22px] leading-[1.15] text-content-primary">{title}</h3>
+        <h3 className="font-display text-[22px] leading-[1.15] text-content-primary max-md:col-start-2 max-md:row-start-1 max-md:text-[18px]">
+          {title}
+        </h3>
 
-        <p className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-neutral-darker">
+        <p className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-neutral-darker max-md:col-start-2 max-md:row-start-3 max-md:text-[13px] max-md:leading-[18px]">
           {description}
         </p>
 
-        <div className="mt-auto flex w-full items-center justify-between pt-4 border-t border-border-default">
-          <span className="font-sans font-semibold text-[14px] leading-5 tracking-[0.2px] text-content-primary">
+        <div className="mt-auto flex w-full items-center justify-between pt-4 border-t border-border-default max-md:col-start-3 max-md:row-span-3 max-md:row-start-1 max-md:w-auto max-md:border-0 max-md:pt-0">
+          <span className="font-sans font-semibold text-[14px] leading-5 tracking-[0.2px] text-content-primary max-md:sr-only">
             {actionLabel}
           </span>
           <ArrowRight

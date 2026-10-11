@@ -87,15 +87,15 @@ const ParentInviteWelcomeSection = () => {
   };
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 md:px-14 py-12 md:py-16">
-      <div className="flex w-full max-w-full flex-col gap-[20px]">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 md:px-14 py-12 md:py-16 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-full flex-col gap-[20px] max-md:gap-3">
         {/* Pre-fill notification banner — Figma 2864:36861 */}
         <div
-          className="flex w-full items-center gap-[12px] rounded-[16px] border px-[16px] py-[14px]"
+          className="flex w-full items-center gap-[12px] rounded-[16px] border px-[16px] py-[14px] max-md:gap-2.5 max-md:rounded-[12px] max-md:px-3 max-md:py-2.5"
           style={{ backgroundColor: '#ebf1ec', borderColor: '#c1d4c4' }}
         >
           <span
-            className="flex size-[32px] shrink-0 items-center justify-center rounded-[6px]"
+            className="flex size-[32px] shrink-0 items-center justify-center rounded-[6px] max-md:size-7 max-md:shadow-none!"
             style={{ backgroundColor: '#387440', boxShadow: '0px 3px 0px #2a5730' }}
           >
             <BellGlyph />
@@ -123,14 +123,14 @@ const ParentInviteWelcomeSection = () => {
         {/* Caption — Figma 2864:36867 */}
         <span
           className="font-sans font-bold uppercase"
-          style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+          style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
         >
           Parent / Guardian Onboarding
         </span>
 
         {/* Headline — Figma 2864:36868 */}
         <h1
-          className="font-display font-normal"
+          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
           style={{
             fontSize: 'clamp(2.25rem, 3.8vw, 3.25rem)',
             lineHeight: 0.95,
@@ -146,7 +146,7 @@ const ParentInviteWelcomeSection = () => {
 
         {/* Subtitle — Figma 2864:36869 */}
         <p
-          className="max-w-[460px] font-sans"
+          className="max-w-[460px] font-sans max-md:leading-5!"
           style={{ fontSize: 14, color: '#70706e', lineHeight: '23.8px' }}
         >
           Ghana Talent Hub uses an opt-out model — your ward has immediate access. Create your
@@ -155,7 +155,7 @@ const ParentInviteWelcomeSection = () => {
 
         {/* How this works — Figma 2864:36870 */}
         <div
-          className="flex w-full flex-col gap-[9px] rounded-[16px] border px-[20px] py-[19px]"
+          className="flex w-full flex-col gap-[9px] rounded-[16px] border px-[20px] py-[19px] max-md:gap-2 max-md:rounded-[12px] max-md:px-3 max-md:py-3"
           style={{ backgroundColor: '#faf4e8', borderColor: '#eedeb8' }}
         >
           <div className="flex items-center gap-[8px]">
@@ -175,7 +175,10 @@ const ParentInviteWelcomeSection = () => {
               >
                 <BulletCheck />
               </span>
-              <p className="font-sans" style={{ fontSize: 13, lineHeight: '20.15px' }}>
+              <p
+                className="font-sans max-md:leading-[18px]!"
+                style={{ fontSize: 13, lineHeight: '20.15px' }}
+              >
                 <span className="font-bold" style={{ color: '#111' }}>
                   {row.strong}
                 </span>
@@ -189,14 +192,17 @@ const ParentInviteWelcomeSection = () => {
         <button
           type="button"
           onClick={handleCreate}
-          className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px]"
+          className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px] max-md:h-11 max-md:px-4 max-md:py-0 max-md:shadow-none!"
           style={{
             backgroundColor: '#c8951a',
             borderColor: '#967014',
             boxShadow: '0px 3px 0px #967014',
           }}
         >
-          <span className="font-sans font-bold" style={{ fontSize: 15, lineHeight: 'normal' }}>
+          <span
+            className="font-sans font-bold max-md:text-[14px]!"
+            style={{ fontSize: 15, lineHeight: 'normal' }}
+          >
             Create my parent account
           </span>
           <ArrowRightIcon />
@@ -206,7 +212,7 @@ const ParentInviteWelcomeSection = () => {
         <button
           type="button"
           onClick={handleOptOut}
-          className="flex w-full items-center justify-center rounded-[10px] border px-[40px] py-[13px] font-sans font-semibold"
+          className="flex w-full items-center justify-center rounded-[10px] border px-[40px] py-[13px] font-sans font-semibold max-md:h-9 max-md:px-4 max-md:py-0"
           style={{ borderColor: '#c6c6c3', color: '#70706e', fontSize: 14 }}
         >
           I have concerns — opt-out instead
@@ -215,7 +221,7 @@ const ParentInviteWelcomeSection = () => {
         {/* Footer — Figma 2864:36893 */}
         <p
           className="flex items-center justify-center gap-[6px] font-sans"
-          style={{ fontSize: 11 }}
+          style={{ fontSize: 'var(--fs-11)' }}
         >
           <span style={{ color: '#babab7' }}>Already have an account?</span>
           <button
@@ -224,7 +230,7 @@ const ParentInviteWelcomeSection = () => {
               log('log in clicked');
               navigate('/onboarding/parent-login');
             }}
-            className="font-bold"
+            className="relative font-bold max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-3 max-md:before:content-['']"
             style={{ color: '#387440', borderBottom: '1px solid #c1d4c4' }}
           >
             Log in

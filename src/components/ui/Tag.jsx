@@ -51,8 +51,8 @@ const CHIP_COLOR_CLASSES = {
 };
 
 const PILL_SIZE_CLASSES = {
-  sm: 'px-2 py-0.5 text-[10px] leading-4',
-  md: 'px-3 py-1 text-[10px] leading-4',
+  sm: 'px-2 py-0.5 text-[10px] max-lg:text-[12px] leading-4',
+  md: 'px-3 py-1 text-[10px] max-lg:text-[12px] leading-4',
 };
 
 const PILL_BASE =
@@ -64,7 +64,7 @@ const PILL_BASE =
 const CHIP_BASE =
   'inline-flex items-center justify-center gap-1 rounded-[4px] border ' +
   'px-2 py-[3px] ' +
-  'font-sans font-semibold text-[10px] leading-4 tracking-[0.2px] ' +
+  'font-sans font-semibold text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px] ' +
   'whitespace-nowrap';
 
 const Tag = ({ variant = 'pill', color = 'brand', size = 'md', className, children, ...rest }) => {

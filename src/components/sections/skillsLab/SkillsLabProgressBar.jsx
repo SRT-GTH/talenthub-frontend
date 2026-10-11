@@ -17,13 +17,13 @@ export default function SkillsLabProgressBar({
   log('rendering progress:', currentIndex + 1, '/', total, 'progress:', progress + '%');
 
   return (
-    <div className="flex items-center justify-between bg-white border-b border-[rgba(0,0,0,0.07)] h-[clamp(60px,5.7vw,82px)] px-[clamp(24px,3.9vw,56px)]">
-      <div className="flex items-center gap-[clamp(8px,1.1vw,16px)] flex-1">
-        <button className="size-[31px] rounded-[6px] bg-white border border-[#e8e8e4] flex items-center justify-center rotate-0 cursor-pointer shrink-0">
+    <div className="flex items-center justify-between bg-white border-b border-[rgba(0,0,0,0.07)] h-[clamp(60px,5.7vw,82px)] px-[clamp(24px,3.9vw,56px)] max-md:h-auto max-md:gap-3 max-md:px-4 max-md:py-2">
+      <div className="flex items-center gap-[clamp(8px,1.1vw,16px)] flex-1 min-w-0">
+        <button className="size-[31px] max-md:size-9 rounded-[6px] bg-white border border-[#e8e8e4] flex items-center justify-center rotate-0 cursor-pointer shrink-0">
           <SLChevronLeftIcon />
         </button>
 
-        <div className="flex flex-col gap-[4px] flex-1 max-w-[clamp(400px,52vw,760px)]">
+        <div className="flex flex-col gap-[4px] flex-1 min-w-0 max-w-[clamp(400px,52vw,760px)] max-md:max-w-none max-md:mr-9">
           <div className="relative h-[16px] rounded-[8px] bg-[#f8f8f4] border-2 border-[#fef1e7] overflow-visible">
             <div
               className="absolute inset-y-[1px] left-[calc(0.15%-2px)] rounded-[6px]"
@@ -57,7 +57,7 @@ export default function SkillsLabProgressBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-[13px] text-[16px] whitespace-nowrap ml-[clamp(16px,2.2vw,32px)]">
+      <div className="flex items-center gap-[13px] text-[16px] whitespace-nowrap ml-[clamp(16px,2.2vw,32px)] max-md:ml-0 max-md:gap-2 max-md:text-[14px]">
         <span className="font-sans font-black text-[#c0392b] leading-normal">❤️ {lives}</span>
         <span className="font-sans font-bold text-[#c8951a] leading-normal">🔥 {streak}</span>
         <span className="font-sans font-bold text-[#387440] leading-normal">⭐ {xp}</span>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import { TextInput, VerificationCode } from '../../components/ui/form';
+import { TextInput, VerificationCode, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
@@ -26,28 +26,28 @@ import { debug } from '../../utils/debug.js';
 const log = debug('OnboardingContactPage');
 
 /*
- * OnboardingContactPage â€” Step 3 of the talent onboarding flow.
+ * OnboardingContactPage — Step 3 of the talent onboarding flow.
  * Maps to user story US-1.1.1-03 ("Capture Talent Contact Information").
  * Route: /onboarding/contact.
  *
  * Figma source frames:
  *   default        2385:38797
  *   filled         2397:31787
- *   loader         2397:32237   (CTA pressed-state only â€” no full overlay)
+ *   loader         2397:32237   (CTA pressed-state only — no full overlay)
  *   otp-modal      2397:32664
  *   otp-error      2403:14917   (red cell variant)
  *   otp-ready      2403:15506   (green cell variant + enabled CTA)
  *   success        2403:26840
  *
  * Flow:
- *   1. Empty form â†’ "Send Verification Code" CTA disabled.
+ *   1. Empty form → "Send Verification Code" CTA disabled.
  *   2. User fills phone (required) + optional whatsapp + email (required).
  *      CTA enables.
- *   3. Submit â†’ CTA shows brief pressed-spinner state, then OTP modal mounts.
+ *   3. Submit → CTA shows brief pressed-spinner state, then OTP modal mounts.
  *   4. User types 6-digit code. While typing, cells animate to "active".
  *      Demo accepts "123456"; everything else after 6 digits shows error.
- *   5. On valid code â†’ success modal with summary rows.
- *   6. Success modal "Continue To Address" â†’ /address isn't built yet so we
+ *   5. On valid code → success modal with summary rows.
+ *   6. Success modal "Continue To Address" → /address isn't built yet so we
  *      bounce to /welcome instead (TODO: swap to '/onboarding/talent/address'
  *      when the route ships).
  */
@@ -66,20 +66,20 @@ const formatMmSs = (totalSeconds) => {
 };
 
 // Light masking helper used in the success modal summary rows. Keeps the
-// last 2 phone digits visible, masks the middle: "+233 24 â€¢â€¢â€¢ â€¢â€¢67".
+// last 2 phone digits visible, masks the middle: "+233 24 ••• ••67".
 const maskPhone = (raw) => {
   const digits = raw.replace(/\D/g, '');
   if (digits.length < 4) return raw;
   const tail = digits.slice(-2);
-  return `+233 ${digits.slice(0, 2)} â€¢â€¢â€¢ â€¢â€¢${tail}`;
+  return `+233 ${digits.slice(0, 2)} ••• ••${tail}`;
 };
 
-// Mask an email "kofi@example.com" â†’ "kâ€¢â€¢â€¢i@example.com".
+// Mask an email "kofi@example.com" → "k•••i@example.com".
 const maskEmail = (raw) => {
   const [name, host] = raw.split('@');
   if (!name || !host) return raw;
-  if (name.length <= 2) return `${name[0]}â€¢â€¢â€¢@${host}`;
-  return `${name[0]}â€¢â€¢â€¢${name[name.length - 1]}@${host}`;
+  if (name.length <= 2) return `${name[0]}•••@${host}`;
+  return `${name[0]}•••${name[name.length - 1]}@${host}`;
 };
 
 // ---- Helper-row diamond glyph ----------------------------------------
@@ -115,18 +115,18 @@ const PhoneNumberInput = ({
   countryCode = '+233',
   flag = <GhanaFlagRoundIcon />,
 }) => {
-  // Figma 2388:19683 / 2389:19884 â€” country-code prefix (96px) butted up
+  // Figma 2388:19683 / 2389:19884 — country-code prefix (96px) butted up
   // against the number input. The prefix carries radius `10 0 0 10`, the
   // number input radius `0 10 10 0`. Both share the same 51px height,
   // border, and 2.5px shadow.
   //
   // Field-level edge states (raw HTML "input state" dump):
-  //   error    â†’ red chrome on both halves, red value/placeholder text,
+  //   error    → red chrome on both halves, red value/placeholder text,
   //              red trailing-label, diamond-icon helper row in danger.
-  //   default  â†’ grey 1px outline, neutral text, focus-within picks up
+  //   default  → grey 1px outline, neutral text, focus-within picks up
   //              the brand-green yellow-tinted halo (unchanged from v1).
   //
-  // No `filled` boolean is needed for chrome â€” only the trailing-label
+  // No `filled` boolean is needed for chrome — only the trailing-label
   // color flips when filled, which the caller drives via
   // `trailingLabelClassName`.
 
@@ -163,7 +163,7 @@ const PhoneNumberInput = ({
       labelTrailingClassName={resolvedTrailingClass}
       helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
     >
-      <div className="flex h-[51px] w-full items-stretch">
+      <div className="flex h-[51px] w-full items-stretch max-md:h-11 max-md:[&_*]:shadow-none!">
         {/* Country-code prefix (left, 96px, rounded-left) */}
         <button
           type="button"
@@ -186,7 +186,7 @@ const PhoneNumberInput = ({
         {/* Number input (right, flex-1, rounded-right) */}
         <div
           className={classNames(
-            'flex h-full flex-1 items-center gap-2 rounded-r-[10px] bg-white pl-5 pr-4',
+            'flex h-full min-w-0 flex-1 items-center gap-2 rounded-r-[10px] bg-white pl-5 pr-4',
             numberBoxClasses
           )}
         >
@@ -201,7 +201,7 @@ const PhoneNumberInput = ({
             onBlur={onBlur}
             aria-invalid={hasError || undefined}
             className={classNames(
-              'min-w-0 flex-1 border-none bg-transparent text-[14px] leading-6 font-medium outline-none placeholder-shown:font-normal placeholder-shown:leading-5 placeholder:font-normal',
+              'w-0 min-w-0 flex-1 border-none bg-transparent text-[14px] leading-6 font-medium outline-none placeholder-shown:font-normal placeholder-shown:leading-5 placeholder:font-normal',
               inputTextClasses
             )}
             style={{ letterSpacing: '0.2px' }}
@@ -217,7 +217,7 @@ const PhoneNumberInput = ({
 const ContactEyebrow = () => (
   // Figma node 2385:38983. Single 1px border, leading 8px dot with halo,
   // serif italic "03" + body label.
-  <span className="inline-flex items-center gap-2 rounded-[8px] border border-brand-green-light-active bg-[#FFFEFC] px-4 py-1">
+  <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border border-brand-green-light-active bg-[#FFFEFC] px-4 py-1">
     <span
       aria-hidden="true"
       className="size-2 rounded-full border-[1.5px] border-success bg-brand-green-light-hover"
@@ -239,16 +239,16 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   // Self-contained state machine for the OTP modal. Owns:
   //   - the 6-digit code being typed
   //   - the "wrong code" flash (`hasError`)
-  //   - the 09:58 countdown (`secondsLeft`) â€” when this hits 0 the modal
+  //   - the 09:58 countdown (`secondsLeft`) — when this hits 0 the modal
   //     enters the expired state (Figma 2403:31758): cells disabled, amber
   //     outline, expired helper row, resend becomes the primary action
   //   - the 59s resend cooldown (`resendIn`)
-  //   - attempts remaining â€” counted down on every wrong submission;
+  //   - attempts remaining — counted down on every wrong submission;
   //     when it hits 1 the modal outline escalates from sage to red
   //     (Figma 2403:31233); at 0 we fire `onLockout` so the parent can
   //     surface the abandon-onboarding pop-up (Figma 2403:24060)
   //
-  // Cells render via VerificationCode's existing `state` / `error` props â€”
+  // Cells render via VerificationCode's existing `state` / `error` props —
   // we just toggle them. Outline color, helper-row copy, CTA copy, and the
   // caption tone are all derived from the booleans below.
 
@@ -270,8 +270,8 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
   const handleCodeChange = (next) => {
     log('otp change:', next.length);
-    if (isExpired) return; // freeze input while expired â€” user must resend
-    // Clear the error halo as soon as the user edits â€” whether they
+    if (isExpired) return; // freeze input while expired — user must resend
+    // Clear the error halo as soon as the user edits — whether they
     // delete a digit or overwrite one. Compare against the previous
     // value so retyping the same wrong code keeps the halo on.
     if (hasError && next !== code) setHasError(false);
@@ -285,7 +285,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   const handleVerify = () => {
     if (!isComplete || isExpired) return;
     if (code === DEMO_VALID_OTP) {
-      log('otp valid â†’ verified');
+      log('otp valid → verified');
       onVerified();
       return;
     }
@@ -293,7 +293,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
     setHasError(true);
     const nextAttempts = Math.max(0, attemptsLeft - 1);
     setAttemptsLeft(nextAttempts);
-    // 0 attempts â†’ caller surfaces the abandon-onboarding pop-up.
+    // 0 attempts → caller surfaces the abandon-onboarding pop-up.
     if (nextAttempts === 0) onLockout?.();
   };
 
@@ -307,8 +307,8 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
     setResendIn(59);
   };
 
-  // Outline color tiers â€” sage default â†’ red on escalated error
-  // (â‰¤1 attempt left + error showing) â†’ amber on expired. Mirrors Figma
+  // Outline color tiers — sage default → red on escalated error
+  // (≤1 attempt left + error showing) → amber on expired. Mirrors Figma
   // frames 2403:22869 (default) / 2403:23779 (soft error) /
   // 2403:31233 (escalated error) / 2403:31758 (expired).
   const outlineColor = isExpired
@@ -320,15 +320,15 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   // Resend is "ready" (clickable green) when either expired OR cooldown 0.
   const resendReady = isExpired || resendIn === 0;
 
-  // Bottom caption â€” counts attempts; on error/expired it appends
+  // Bottom caption — counts attempts; on error/expired it appends
   // " before lockout" and turns red.
   const showLockoutWarning = hasError || isExpired;
   const attemptsLabel = `${attemptsLeft} attempt${
     attemptsLeft === 1 ? '' : 's'
   } remaining${showLockoutWarning ? ' before lockout' : ''}`;
 
-  // CTA copy: ready â†’ verify; complete-but-wrong â†’ re-enter prompt;
-  // anything else (incomplete OR expired) â†’ enter-all prompt.
+  // CTA copy: ready → verify; complete-but-wrong → re-enter prompt;
+  // anything else (incomplete OR expired) → enter-all prompt.
   const ctaCopy = isReady
     ? 'Verify & Continue'
     : isComplete && hasError
@@ -336,9 +336,9 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
       : 'Enter all 6 digits to continue';
 
   // Hero chip swaps icon + tint based on modal state.
-  //   default / soft-error â†’ brand-green-light + message bubble
-  //   escalated error      â†’ pink (#f9ebea) + message bubble (red)
-  //   expired              â†’ cream (#faf4e8) + clock (amber)
+  //   default / soft-error → brand-green-light + message bubble
+  //   escalated error      → pink (#f9ebea) + message bubble (red)
+  //   expired              → cream (#faf4e8) + clock (amber)
   const heroVariant = isExpired
     ? {
         bg: '#faf4e8',
@@ -357,9 +357,9 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
           icon: <MessageBubbleIcon />,
         };
 
-  // H2 swap.  default â†’ "Check your messages."
-  //          error    â†’ "That code was wrong." (italic red)
-  //          expired  â†’ "That code has expired" (italic amber)
+  // H2 swap.  default → "Check your messages."
+  //          error    → "That code was wrong." (italic red)
+  //          expired  → "That code has expired" (italic amber)
   const heading = isExpired ? (
     <>
       That code has{' '}
@@ -377,7 +377,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
     </>
   );
 
-  // Alert-card content below cells â€” replaces the plain helper row.
+  // Alert-card content below cells — replaces the plain helper row.
   // Figma 2403:23779 (soft) is single-line; 2403:31233 (hard) and
   // 2403:31758 (expired) stack title + body.
   const alertCard = isExpired
@@ -388,7 +388,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
         iconColor: '#B8712A',
         titleColor: '#7B241C',
         bodyColor: '#A93226',
-        title: 'This code has expired â€” request a new one to continue',
+        title: 'This code has expired — request a new one to continue',
         body: 'Codes are valid for 10 minutes. A fresh code will be sent to the same phone and email.',
       }
     : hasError && attemptsLeft <= 1
@@ -410,7 +410,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
             iconColor: '#7B241C',
             titleColor: '#7B241C',
             bodyColor: null,
-            title: "That code isn't right â€” double-check and try again",
+            title: "That code isn't right — double-check and try again",
             body: null,
           }
         : null;
@@ -420,11 +420,11 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
       role="dialog"
       aria-modal="true"
       aria-labelledby="otp-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(0, 0, 0, 0.30)' }}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8"
+        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{
           outline: `3px solid ${outlineColor}`,
           outlineOffset: '-3px',
@@ -442,7 +442,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
           <CloseIcon />
         </button>
 
-        {/* Hero chip â€” bg + icon swap with modal state (default green /
+        {/* Hero chip — bg + icon swap with modal state (default green /
             pink on hard-error / cream + clock on expired). */}
         <div className="flex flex-col items-center gap-3 text-center">
           <span
@@ -463,7 +463,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
           <h2
             id="otp-modal-title"
-            className="font-display font-normal text-[#111111]"
+            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
             style={{ fontSize: 28, lineHeight: '30px', letterSpacing: '-1.1px' }}
           >
             {heading}
@@ -477,7 +477,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
             className="text-[12px] font-semibold leading-5 text-[#575755]"
             style={{ letterSpacing: '0.1px' }}
           >
-            {maskPhone(phone)} Â· {maskEmail(email)}
+            {maskPhone(phone)} · {maskEmail(email)}
           </p>
 
           <button
@@ -490,7 +490,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
         </div>
 
         {/* OTP cells. We force the per-box state with `state=` so the cells
-            paint correctly without VerificationCode â†’ Field also rendering
+            paint correctly without VerificationCode → Field also rendering
             its built-in helper text (we render our own styled alert card
             below to match Figma 2403:23779 / 31233 / 31758). */}
         <div className="mt-5 flex justify-center">
@@ -503,7 +503,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
           />
         </div>
 
-        {/* Styled alert card â€” rendered for soft-error / hard-error /
+        {/* Styled alert card — rendered for soft-error / hard-error /
             expired. Single-line for soft error; title + body for the
             other two. Replaces the plain helper row from v1. */}
         {alertCard && (
@@ -528,7 +528,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
               </p>
               {alertCard.body && (
                 <p
-                  className="text-[11px] leading-[16px]"
+                  className="text-[11px] max-lg:text-[12px] leading-[16px]"
                   style={{ color: alertCard.bodyColor, letterSpacing: '0.2px' }}
                 >
                   {alertCard.body}
@@ -539,7 +539,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
         )}
 
         {/* Timer + resend row. Timer turns red when expired so the user's
-            eye snaps to the resend CTA, which has gone from grey â†’ green. */}
+            eye snaps to the resend CTA, which has gone from grey → green. */}
         <div className="mt-4 flex items-center justify-between">
           <div
             className="inline-flex items-center gap-1.5 text-[12px] text-[#70706E]"
@@ -583,7 +583,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
         <p
           className={classNames(
-            'mt-2 text-center text-[10px] leading-4',
+            'mt-2 text-center text-[10px] max-lg:text-[12px] leading-4',
             showLockoutWarning ? 'font-medium text-danger' : 'text-[#70706E]'
           )}
           style={{ letterSpacing: '0.2px' }}
@@ -592,11 +592,11 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
         </p>
 
         <p
-          className="mt-3 flex items-center justify-center gap-1 text-center text-[10px] leading-4 text-[#959592]"
+          className="mt-3 flex items-center justify-center gap-1 text-center text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
           style={{ letterSpacing: '0.2px' }}
         >
           <ShieldCheckIcon className="size-3" />
-          Data encrypted at rest Â· Ghana Data Protection Act compliant
+          Data encrypted at rest · Ghana Data Protection Act compliant
         </p>
       </div>
     </div>
@@ -604,11 +604,14 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 };
 
 const ChannelBadge = ({ label }) => (
-  // Small cream-green pill carrying the channel name â€” SMS / Email.
+  // Small cream-green pill carrying the channel name — SMS / Email.
   // Reuses the eyebrow chassis from `ContactEyebrow` at smaller size.
   <span className="inline-flex items-center gap-1 rounded-[6px] border border-brand-green-light-hover bg-brand-green-light px-2 py-0.5">
     <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
-    <span className="text-[11px] font-medium text-brand-green" style={{ letterSpacing: '0.2px' }}>
+    <span
+      className="text-[11px] max-lg:text-[12px] font-medium text-brand-green"
+      style={{ letterSpacing: '0.2px' }}
+    >
       {label}
     </span>
   </span>
@@ -624,11 +627,11 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
     role="dialog"
     aria-modal="true"
     aria-labelledby="contact-verified-title"
-    className="fixed inset-0 z-50 flex items-center justify-center px-4"
+    className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
     style={{ background: 'rgba(0, 0, 0, 0.30)' }}
   >
     <div
-      className="relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8"
+      className="relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
       style={{
         outline: '3px solid #C1D4C4',
         outlineOffset: '-3px',
@@ -670,7 +673,7 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
         </span>
         <h2
           id="contact-verified-title"
-          className="font-display font-normal text-[#111111]"
+          className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
           style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
         >
           You&apos;re <span className="italic text-brand-green">Verified.</span>
@@ -718,11 +721,11 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
       </Button>
 
       <p
-        className="mt-3 flex items-center justify-center gap-1 text-center text-[10px] leading-4 text-[#959592]"
+        className="mt-3 flex items-center justify-center gap-1 text-center text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
         style={{ letterSpacing: '0.2px' }}
       >
         <ShieldCheckIcon className="size-3" />
-        Data encrypted at rest Â· Ghana Data Protection Act compliant
+        Data encrypted at rest · Ghana Data Protection Act compliant
       </p>
     </div>
   </div>
@@ -753,7 +756,7 @@ const LockoutDetailRow = ({ icon, title, body, withTopBorder }) => (
         {title}
       </p>
       <p
-        className="text-[11px] leading-[16px]"
+        className="text-[11px] max-lg:text-[12px] leading-[16px]"
         style={{ color: '#A93226', letterSpacing: '0.2px' }}
       >
         {body}
@@ -766,7 +769,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
   // Figma 2403:24342. Terminal state after the user burns all 3 OTP
   // attempts. Locks the flow for 15 minutes; "Send a new code" is
   // disabled until the cooldown elapses. "Change contact details"
-  // is always available â€” it returns the user to the Contact form.
+  // is always available — it returns the user to the Contact form.
   log('LockoutModal mount; cooldown:', COOLDOWN_SECONDS);
 
   const [cooldownLeft, setCooldownLeft] = useState(COOLDOWN_SECONDS);
@@ -785,11 +788,11 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="lockout-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(0, 0, 0, 0.30)' }}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8"
+        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{
           outline: '3px solid #C0392B',
           outlineOffset: '-3px',
@@ -797,7 +800,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
             '0 32px 80px rgba(0,0,0,0.14), 0 4px 0 rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)',
         }}
       >
-        {/* Red error medallion â€” 72px circle, 32px alert triangle, 2px
+        {/* Red error medallion — 72px circle, 32px alert triangle, 2px
             halo. */}
         <div className="flex flex-col items-center gap-3 text-center">
           <span
@@ -821,7 +824,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
               style={{ background: '#C0392B' }}
             />
             <span
-              className="text-[10px] font-bold uppercase leading-[14px]"
+              className="text-[10px] max-lg:text-[12px] font-bold uppercase leading-[14px]"
               style={{ color: '#C0392B', letterSpacing: '0.5px' }}
             >
               Verification failed
@@ -830,7 +833,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
 
           <h2
             id="lockout-title"
-            className="font-display font-normal text-[#111111]"
+            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
             style={{ fontSize: 30, lineHeight: '32px', letterSpacing: '-1.1px' }}
           >
             Something went <span className="italic text-danger">wrong.</span>
@@ -857,7 +860,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
           <LockoutDetailRow
             icon={<ClockIcon className="size-3" />}
             title="Verification window expired"
-            body="OTP codes are valid for 10 minutes only â€” this one has expired."
+            body="OTP codes are valid for 10 minutes only — this one has expired."
             withTopBorder
           />
         </ul>
@@ -888,7 +891,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
           </span>
         </div>
 
-        {/* Primary CTA â€” disabled while cooldown active. */}
+        {/* Primary CTA — disabled while cooldown active. */}
         <Button
           type="button"
           variant="primary"
@@ -901,7 +904,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
           Send a new code
         </Button>
 
-        {/* Secondary â€” always enabled. */}
+        {/* Secondary — always enabled. */}
         <button
           type="button"
           onClick={onChangeContact}
@@ -921,7 +924,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
 
         {/* Help footer */}
         <p
-          className="mt-4 text-center text-[11px] leading-4"
+          className="mt-4 text-center text-[11px] max-lg:text-[12px] leading-4"
           style={{ color: '#BABAB7', letterSpacing: '0.2px' }}
         >
           Still having trouble?{' '}
@@ -962,7 +965,7 @@ const OnboardingContactPage = () => {
   // visual states (error / filled / verified) fire predictably.
   //
   //   phone:    9-digit Ghana mobile (after +233 prefix), required.
-  //   whatsapp: optional â€” must be 9 digits IF present.
+  //   whatsapp: optional — must be 9 digits IF present.
   //   email:    standard local@host.tld, required.
   const phoneDigits = phone.replace(/\D/g, '');
   const whatsappDigits = whatsapp.replace(/\D/g, '');
@@ -1002,7 +1005,7 @@ const OnboardingContactPage = () => {
     if (isSubmitting) return;
     setSubmitAttempted(true);
     if (!isValid) {
-      log('submit blocked â€” invalid', { isPhoneValid, isWhatsappValid, isEmailValid });
+      log('submit blocked — invalid', { isPhoneValid, isWhatsappValid, isEmailValid });
       return;
     }
     log('submit', { phone, whatsapp, email });
@@ -1024,7 +1027,7 @@ const OnboardingContactPage = () => {
 
   const handleContinueToAddress = () => {
     setShowSuccess(false);
-    // /address isn't built yet â€” bounce to welcome so the user isn't
+    // /address isn't built yet — bounce to welcome so the user isn't
     // stranded. Swap to '/onboarding/talent/address' when the route ships.
     navigate('/onboarding/talent/welcome');
   };
@@ -1034,17 +1037,17 @@ const OnboardingContactPage = () => {
       <OnboardingHeader currentKey="contact" percent={78} />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
-        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
               <ContactEyebrow />
 
               <h1
-                className="font-display font-normal text-black"
+                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
                 style={{
                   fontSize: 'clamp(2.25rem, 5vw, 4rem)',
                   lineHeight: 1.1,
@@ -1055,7 +1058,7 @@ const OnboardingContactPage = () => {
               </h1>
 
               <p
-                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
                 style={{ letterSpacing: '0.2px' }}
               >
                 We&apos;ll send a quick verification code to confirm it&apos;s really you. Keeping
@@ -1064,8 +1067,8 @@ const OnboardingContactPage = () => {
 
               <WavyDivider />
 
-              <div className="flex w-full flex-col gap-4 text-left">
-                <div className="grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2">
+              <div className="flex w-full flex-col gap-4 text-left max-md:gap-3">
+                <div className="grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2 max-md:gap-y-3">
                   <PhoneNumberInput
                     id="contact-phone"
                     label="Phone Number"
@@ -1141,27 +1144,29 @@ const OnboardingContactPage = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={!isValid || isSubmitting}
-                state={isSubmitting ? 'active' : undefined}
-                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-                rightIcon={<ArrowRightIcon />}
-                className="mt-2 w-full max-w-[420px]"
-                aria-busy={isSubmitting}
-              >
-                Send Verification Code
-              </Button>
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={!isValid || isSubmitting}
+                  state={isSubmitting ? 'active' : undefined}
+                  leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                  rightIcon={<ArrowRightIcon />}
+                  className="mt-2 w-full max-w-[420px]"
+                  aria-busy={isSubmitting}
+                >
+                  Send Verification Code
+                </Button>
+              </StickyActionBar>
 
-              <div className="flex items-center gap-2 text-[14px] leading-6">
+              <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
                 <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                   Already Have an account?
                 </span>
                 <Link
                   to={'/login'}
-                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                   style={{ letterSpacing: '0.1px' }}
                 >
                   Log in Instead
@@ -1182,7 +1187,7 @@ const OnboardingContactPage = () => {
           onChangeContact={() => setShowOtp(false)}
           onVerified={handleVerified}
           onLockout={() => {
-            log('lockout â†’ surfacing abandon-onboarding pop-up');
+            log('lockout → surfacing abandon-onboarding pop-up');
             setShowOtp(false);
             setShowLockout(true);
           }}
@@ -1204,12 +1209,12 @@ const OnboardingContactPage = () => {
             setShowOtp(true);
           }}
           onChangeContact={() => {
-            log('lockout â†’ change contact details');
+            log('lockout → change contact details');
             setShowLockout(false);
           }}
           onContactSupport={() => {
-            log('lockout â†’ contact support');
-            // No support route yet â€” sink to /login as a stand-in.
+            log('lockout → contact support');
+            // No support route yet — sink to /login as a stand-in.
             navigate('/login');
           }}
         />

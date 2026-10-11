@@ -68,6 +68,8 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
         'group w-full flex items-center gap-4 text-left',
         'rounded-xl bg-white border border-border-default shadow-bottom-200',
         'px-4 py-4',
+        // phones: flat full-bleed row (icon | title+status+subtitle | chip | arrow)
+        'max-lg:gap-3 max-lg:rounded-none max-lg:border-0 max-lg:bg-transparent max-lg:px-0 max-lg:py-2.5 max-lg:shadow-none max-lg:hover:shadow-none',
         'transition-[border-color,box-shadow,transform] duration-150 ease-out',
         'hover:border-brand-green-light-active hover:shadow-bottom-300',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
@@ -78,7 +80,7 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
       <span
         aria-hidden="true"
         className={classNames(
-          'inline-flex shrink-0 items-center justify-center size-10 rounded-md',
+          'inline-flex shrink-0 items-center justify-center size-10 rounded-md max-lg:size-9',
           'text-[20px] leading-none',
           iconTileClasses
         )}
@@ -86,14 +88,14 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
         {stage.emoji}
       </span>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className="font-display text-[18px] leading-[1.15] text-content-primary">
+      <div className="flex-1 min-w-0 max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-2">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="font-display text-[18px] max-lg:text-[17px] leading-[1.15] text-content-primary">
             {stage.title}
           </span>
           <span
             className={classNames(
-              'font-sans text-[12px] leading-4 tracking-[0.2px]',
+              'font-sans text-[12px] leading-4 tracking-[0.2px] whitespace-nowrap',
               isDone
                 ? 'text-success font-semibold'
                 : isInProgress
@@ -106,12 +108,16 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
           </span>
         </div>
 
-        <p className="mt-1 font-sans text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-hover">
+        <p className="mt-1 max-lg:mt-0 max-lg:col-start-1 max-lg:row-start-2 font-sans text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-hover">
           {stage.subtitle}
         </p>
 
-        <div className="mt-2 flex items-center gap-2">
-          <Tag variant="chip" color={isDone ? 'brand' : 'neutral'}>
+        <div className="mt-2 flex flex-wrap items-center gap-2 max-lg:col-start-2 max-lg:row-span-2 max-lg:row-start-1 max-lg:mt-0">
+          <Tag
+            variant="chip"
+            color={isDone ? 'brand' : 'neutral'}
+            className={isDone ? undefined : 'max-lg:hidden'}
+          >
             {stage.metaPrimary}
           </Tag>
           <Tag variant="chip" color="neutral">
@@ -123,8 +129,8 @@ const ProfileStageCard = ({ stage, onSelect, className, ...rest }) => {
       <span
         aria-hidden="true"
         className={classNames(
-          'inline-flex shrink-0 items-center justify-center size-8 rounded-md',
-          'border border-border-default bg-white text-neutral-dark-hover',
+          'inline-flex shrink-0 items-center justify-center size-8 rounded-md max-lg:size-6',
+          'border border-border-default bg-white text-neutral-dark-hover max-lg:border-0 max-lg:bg-transparent',
           'transition-colors group-hover:text-brand-green group-hover:border-brand-green-light-active'
         )}
       >

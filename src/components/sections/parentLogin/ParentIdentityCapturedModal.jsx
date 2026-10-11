@@ -171,13 +171,13 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="parent-identity-captured-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
       {/* Card */}
       <div
-        className="relative w-full max-w-[440px] overflow-y-auto rounded-3xl bg-white p-8"
+        className="relative w-full max-w-[440px] overflow-y-auto rounded-3xl bg-white p-8 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         style={{
           maxHeight: '90vh',
           boxShadow:
@@ -193,7 +193,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
             log('close button clicked');
             onClose?.();
           }}
-          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+          className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-2 max-sm:before:content-[''] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
         >
           <CloseIcon />
         </button>
@@ -201,7 +201,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
         {/* ── Check icon box (Figma 2920:89409) ── */}
         {/* bg-[#faf4e8], rounded-[10px], drop-shadow */}
         <div
-          className="mx-auto mb-5 flex size-[52px] items-center justify-center rounded-[10px]"
+          className="mx-auto mb-5 flex size-[52px] items-center justify-center rounded-[10px] max-sm:mb-2 max-sm:size-10"
           style={{
             backgroundColor: '#faf4e8',
             boxShadow: '0px 1px 1px rgba(27,36,44,0.12)',
@@ -213,7 +213,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
         {/* ── Caption pill (Figma 2920:89412) ── */}
         {/* "Parent Identity  complete" — amber dot + #999 text */}
         <div
-          className="mx-auto mb-4 flex w-fit items-center gap-[6px] rounded-[6px] border bg-[rgba(250,244,232,0.5)] px-8 py-2.5"
+          className="mx-auto mb-4 flex w-fit items-center gap-[6px] rounded-[6px] border bg-[rgba(250,244,232,0.5)] px-8 py-2.5 max-sm:mb-2 max-sm:px-3 max-sm:py-1"
           style={{ borderColor: '#eedeb8' }}
         >
           <span
@@ -238,7 +238,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
         {/* ── Headline (Figma 2920:89415) ── */}
         <h2
           id="parent-identity-captured-title"
-          className="mb-2 text-center font-display font-normal text-black"
+          className="mb-2 text-center font-display font-normal text-black max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
           style={{ fontSize: 32, lineHeight: 1, letterSpacing: '-1.2px' }}
         >
           Identity{' '}
@@ -249,7 +249,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
 
         {/* ── Subtitle (Figma 2920:89416) ── */}
         <p
-          className="mb-5 text-center font-sans text-[12px]"
+          className="mb-5 text-center font-sans text-[12px] max-sm:mb-3"
           style={{ color: '#959592', letterSpacing: '0.2px', lineHeight: '18px' }}
         >
           Your personal information is saved and encrypted.
@@ -259,7 +259,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
 
         {/* ── Summary card (Figma 2920:89417) ── */}
         <div
-          className="mb-5 rounded-[16px] border p-4"
+          className="mb-5 rounded-[16px] border p-4 max-sm:mb-3 max-sm:rounded-[12px] max-sm:px-3 max-sm:py-1"
           style={{ borderColor: '#eedeb8', backgroundColor: 'rgba(250,244,232,0.5)' }}
         >
           {/* Row 1: Full Name */}
@@ -273,7 +273,7 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
             leftIcon={
               flagEmoji ? (
                 <span
-                  className="inline-flex items-center justify-center rounded-[4px] bg-white text-[10px] leading-none"
+                  className="inline-flex items-center justify-center rounded-[4px] bg-white text-[10px] max-lg:text-[12px] leading-none"
                   style={{ width: 14, height: 14 }}
                 >
                   {flagEmoji}
@@ -301,15 +301,15 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
           size="lg"
           onClick={handleContinue}
           rightIcon={<ArrowRightIcon />}
-          className="w-full"
+          className="w-full max-sm:h-11 max-sm:py-0 max-sm:drop-shadow-none!"
         >
           Continue To Verification Details
         </Button>
 
         {/* ── Footer ── */}
-        <div className="mt-3.5 flex items-center justify-center gap-1">
+        <div className="mt-3.5 flex items-center justify-center gap-1 max-sm:mt-2">
           <ShieldIcon className="text-brand-green" />
-          <span className="text-[10px] text-neutral-dark-hover">
+          <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover">
             Data encrypted at rest · Ghana Data Protection Act compliant
           </span>
         </div>

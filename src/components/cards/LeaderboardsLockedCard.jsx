@@ -45,7 +45,7 @@ const LeaderboardsLockedCard = ({ remainingStages = 7, city = 'Accra', onClick, 
       <span aria-hidden="true" className="shrink-0">
         <ShieldIcon className="size-9" />
       </span>
-      <p className="font-sans text-[13px] leading-[20px] tracking-[0.2px] text-content-primary">
+      <p className="font-sans text-[13px] max-lg:text-[14px] leading-[20px] tracking-[0.2px] text-content-primary">
         Complete{' '}
         <button
           type="button"

@@ -75,11 +75,11 @@ const CommunityTabs = ({ value, onChange, className }) => (
     role="tablist"
     aria-label="Community sections"
     className={classNames(
-      'flex items-start rounded-[16px] border-r-[0.8px] border-[#e2e8f0] bg-white p-[8px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.1)]',
+      'flex items-start rounded-[16px] border-r-[0.8px] border-[#e2e8f0] bg-white p-[8px] max-sm:w-full max-sm:p-[4px] max-sm:rounded-[12px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.1)]',
       className
     )}
   >
-    <div className="flex items-end justify-center gap-[clamp(4px,1.1vw,16px)]">
+    <div className="flex items-end justify-center gap-[clamp(4px,1.1vw,16px)] max-sm:w-full">
       {COMMUNITY_TABS.map((tab) => {
         const active = tab === value;
         const TabIcon = TAB_ICONS[tab];
@@ -94,20 +94,20 @@ const CommunityTabs = ({ value, onChange, className }) => (
               onChange?.(tab);
             }}
             className={classNames(
-              'flex w-[clamp(96px,8.68vw,150px)] max-w-[210px] items-center justify-center gap-[6px] px-[16px] py-[10px] transition-colors',
+              'flex w-[clamp(96px,8.68vw,150px)] max-w-[210px] items-center justify-center gap-[6px] px-[16px] py-[10px] max-sm:w-auto max-sm:min-w-0 max-sm:flex-1 max-sm:gap-[4px] max-sm:px-[4px] max-lg:min-h-[36px] max-sm:py-[4px] transition-colors',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
               active ? 'rounded-[8px] bg-brand-green' : 'rounded-[8px] hover:bg-brand-green-light'
             )}
           >
             <TabIcon
               className={classNames(
-                'size-[24px] shrink-0',
+                'size-[24px] max-sm:size-[18px] shrink-0',
                 active ? 'text-white' : 'text-[#202021]'
               )}
             />
             <span
               className={classNames(
-                'whitespace-nowrap text-center font-sans text-[16px]',
+                'whitespace-nowrap text-center font-sans text-[16px] max-sm:text-[14px]',
                 active ? 'bg-clip-text text-transparent' : 'text-[#202021]'
               )}
               style={active ? { backgroundImage: ACTIVE_LABEL_GRADIENT } : undefined}

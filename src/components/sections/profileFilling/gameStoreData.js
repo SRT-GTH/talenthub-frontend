@@ -1,10 +1,10 @@
 import escapeRoomThumb from '../../../assets/games/game-store/escape-room-thumb.png';
-import desertIslandThumb from '../../../assets/games/game-store/desert-island-thumb.png';
-import towerBuilderThumb from '../../../assets/games/game-store/tower-builder-thumb.png';
-import theNegotiationThumb from '../../../assets/games/game-store/the-negotiation-thumb.png';
-import speedSortThumb from '../../../assets/games/game-store/speed-sort-thumb.png';
-import monopolyThumb from '../../../assets/games/game-store/monopoly-thumb.png';
-import thePitchThumb from '../../../assets/games/game-store/the-pitch-thumb.png';
+import desertIslandThumb from '../../../assets/games/game-store/desert-island-thumb.webp';
+import towerBuilderThumb from '../../../assets/games/game-store/tower-builder-thumb.webp';
+import theNegotiationThumb from '../../../assets/games/game-store/the-negotiation-thumb.webp';
+import speedSortThumb from '../../../assets/games/game-store/speed-sort-thumb.webp';
+import monopolyThumb from '../../../assets/games/game-store/monopoly-thumb.webp';
+import thePitchThumb from '../../../assets/games/game-store/the-pitch-thumb.webp';
 
 /*
  * Game Store data — Figma 5132:60815 ("All Games"), card grid re-extracted

@@ -77,7 +77,7 @@ const CategoryTag = () => (
     className={classNames(
       'inline-flex items-center gap-1.5 rounded-md border border-brand-green-light-active',
       'bg-brand-green-light px-2.5 py-1',
-      'font-sans font-semibold text-[11px] leading-4 tracking-[0.2px] text-brand-green-dark'
+      'font-sans font-semibold text-[11px] max-lg:text-[12px] leading-4 tracking-[0.2px] text-brand-green-dark'
     )}
   >
     <span aria-hidden="true" className="inline-block size-1.5 rounded-full bg-brand-green" />
@@ -87,21 +87,21 @@ const CategoryTag = () => (
 
 const EntryMethodModal = ({ isOpen, onClose, onFillManually, onChatWithAi, onUploadCv }) => (
   <Modal isOpen={isOpen} onClose={onClose} size="xl" ariaLabel="Choose how to add your details">
-    <div className="px-[clamp(20px,3vw,40px)] py-[clamp(24px,3vw,40px)]">
+    <div className="px-[clamp(20px,3vw,40px)] py-[clamp(24px,3vw,40px)] max-sm:px-4 max-sm:pb-5 max-sm:pt-6">
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-3">
+      <div className="flex flex-col items-center text-center gap-3 max-sm:gap-2">
         <CategoryTag />
-        <h2 className="font-display text-[clamp(28px,3vw,36px)] leading-[1.1] tracking-[-0.5px] text-content-primary">
+        <h2 className="font-display text-[clamp(28px,3vw,36px)] max-sm:text-[20px] leading-[1.1] tracking-[-0.5px] text-content-primary">
           How would you like to add your details
         </h2>
-        <p className="max-w-[520px] font-sans text-[14px] leading-[22px] tracking-[0.2px] text-neutral-darker">
+        <p className="max-w-[520px] font-sans text-[14px] max-sm:text-[13px] leading-[22px] max-sm:leading-[18px] tracking-[0.2px] text-neutral-darker">
           Three ways to do this — pick whatever feels right today. You can switch anytime,
           mix-and-match, or come back later. Nothing&apos;s locked in.
         </p>
       </div>
 
       {/* Three option cards */}
-      <div className="mt-8 grid gap-5 md:grid-cols-3">
+      <div className="mt-8 max-sm:mt-5 grid gap-5 max-sm:gap-3 md:grid-cols-3">
         <EntryMethodCard
           icon={<PencilIcon className="size-6" />}
           duration="~3 min"
@@ -136,8 +136,8 @@ const EntryMethodModal = ({ isOpen, onClose, onFillManually, onChatWithAi, onUpl
       <div
         className={classNames(
           'mt-6 rounded-xl border border-brand-green-light-active bg-brand-green-light/50',
-          'px-4 py-3 text-center',
-          'font-sans text-[13px] leading-[20px] tracking-[0.2px] text-brand-green-dark'
+          'px-4 py-3 text-center max-sm:mt-3 max-sm:px-3 max-sm:py-2 max-sm:text-left',
+          'font-sans text-[13px] max-lg:text-[14px] max-sm:text-[13px] leading-[20px] max-sm:leading-[18px] tracking-[0.2px] text-brand-green-dark'
         )}
       >
         Don't worry you can mix and match. Upload a CV, then add freelance gigs by chat, then edit a

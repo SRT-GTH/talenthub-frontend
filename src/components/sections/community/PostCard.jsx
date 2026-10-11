@@ -5,6 +5,7 @@ import CommunityIcon from './CommunityIcon.jsx';
 import { icons } from './communityIcons.js';
 import { POST_MENU_ITEMS } from './communityData.js';
 import CommentThread from './CommentThread.jsx';
+import ClampText from '../../ui/ClampText.jsx';
 
 const log = debug('PostCard');
 
@@ -42,7 +43,7 @@ const PostPhotos = ({ post }) => {
 
   if (post.photoLayout === 'single') {
     return (
-      <div className="h-[248.31px] w-full overflow-hidden rounded-[7.23px]">
+      <div className="h-[248.31px] max-sm:h-[170px] w-full overflow-hidden rounded-[7.23px]">
         <img
           src={post.photos[0]}
           alt=""
@@ -55,7 +56,7 @@ const PostPhotos = ({ post }) => {
 
   const [first, second, third, fourth] = post.photos;
   return (
-    <div className="flex h-[256px] w-full items-start gap-[9.64px]">
+    <div className="flex h-[256px] max-sm:h-[140px] w-full items-start gap-[9.64px] max-sm:gap-[6px]">
       <div className="h-full min-w-0 flex-1 overflow-hidden rounded-[7.23px]">
         <img src={first} alt="" draggable="false" className="size-full select-none object-cover" />
       </div>
@@ -130,31 +131,31 @@ const PostCard = ({
   return (
     <article
       className={classNames(
-        'flex w-full flex-col items-center justify-center gap-[15.67px] overflow-visible rounded-[19.29px] bg-white px-[24.1px] py-[19.29px] shadow-[0px_7.232px_10.005px_0px_rgba(63,42,120,0.12)]',
+        'flex w-full flex-col items-center justify-center gap-[15.67px] overflow-visible rounded-[19.29px] bg-white px-[24.1px] py-[19.29px] max-sm:gap-[8px] max-sm:rounded-none max-sm:border-b max-sm:border-[#e8e8e4] max-sm:bg-transparent max-sm:px-0 max-sm:pb-[10px] max-sm:pt-[6px] shadow-[0px_7.232px_10.005px_0px_rgba(63,42,120,0.12)] max-sm:shadow-none',
         className
       )}
     >
       {/* Header */}
-      <header className="flex w-full items-start justify-between">
-        <div className="flex items-center gap-[20.49px]">
+      <header className="flex w-full items-start justify-between max-sm:gap-[8px]">
+        <div className="flex items-center gap-[20.49px] max-sm:min-w-0 max-sm:gap-[12px]">
           <img
             src={post.avatar}
             alt=""
             draggable="false"
-            className="size-[60.27px] shrink-0 select-none rounded-full object-cover"
+            className="size-[60.27px] shrink-0 select-none rounded-full object-cover max-sm:size-[40px]"
           />
           <div className="flex flex-col items-start gap-[4px]">
-            <div className="flex items-center gap-[7.23px]">
-              <span className="whitespace-nowrap font-sans text-[18px] font-medium text-[#2a2a2a]">
+            <div className="flex items-center gap-[7.23px] max-sm:flex-wrap">
+              <span className="whitespace-nowrap font-sans text-[18px] max-sm:text-[15px] font-medium text-[#2a2a2a]">
                 {post.author}
               </span>
-              <span className="inline-flex items-center justify-center rounded-full border-[1.205px] border-[#e8e8e4] bg-neutral px-[9.64px] py-[4.82px]">
-                <span className="whitespace-nowrap font-sans text-[14px] font-medium text-neutral-dark-active">
+              <span className="inline-flex items-center justify-center rounded-full border-[1.205px] border-[#e8e8e4] bg-neutral px-[9.64px] py-[4.82px] max-sm:px-[8px] max-sm:py-0">
+                <span className="whitespace-nowrap font-sans text-[14px] max-sm:text-[12px] font-medium text-neutral-dark-active">
                   {post.badge}
                 </span>
               </span>
             </div>
-            <span className="whitespace-nowrap font-sans text-[14px] text-[#999]">
+            <span className="whitespace-nowrap font-sans text-[14px] max-sm:text-[12px] text-[#999]">
               {post.timestamp}
             </span>
           </div>
@@ -169,7 +170,7 @@ const PostCard = ({
               log('post menu toggled for', post.id, '→', !menuOpen);
               setMenuOpen((open) => !open);
             }}
-            className="inline-flex size-[24.11px] items-center justify-center rounded transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="relative inline-flex size-[24.11px] items-center max-lg:after:absolute max-lg:after:-inset-2.5 justify-center rounded transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <CommunityIcon src={icons.postMenu} size={24.11} />
           </button>
@@ -189,7 +190,7 @@ const PostCard = ({
                     setMenuOpen(false);
                     if (item.id === 'report') onReport?.(post);
                   }}
-                  className="block w-full px-[16px] py-[10px] text-left font-sans text-[14px] text-[#595959] transition-colors hover:bg-neutral focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
+                  className="block w-full px-[16px] py-[10px] max-lg:min-h-[44px] text-left font-sans text-[14px] text-[#595959] transition-colors hover:bg-neutral focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
                 >
                   {item.label}
                 </button>
@@ -200,21 +201,24 @@ const PostCard = ({
       </header>
 
       {/* Body — Figma authors this as a single mixed-style text node */}
-      <p className="w-full whitespace-pre-wrap font-sans text-[16px] leading-[1.5] [word-break:break-word]">
+      <ClampText
+        lines={4}
+        className="w-full whitespace-pre-wrap font-sans text-[16px] max-sm:text-[14px] leading-[1.5] [word-break:break-word]"
+      >
         {post.body.map((run, index) => (
           <span key={`${post.id}-run-${index}`} className={BODY_TONE_CLASSES[run.tone]}>
             {run.text}
           </span>
         ))}
-      </p>
+      </ClampText>
 
       <PostPhotos post={post} />
 
       {/* Action row */}
-      <div className="flex w-full flex-col items-center justify-center gap-[7.23px]">
+      <div className="flex w-full flex-col items-center justify-center gap-[7.23px] max-sm:gap-0">
         <div className="h-[1.808px] w-full bg-[#ededed]" />
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center py-[10.85px]">
+        <div className="flex w-full items-center justify-between max-sm:flex-wrap max-sm:gap-x-[8px]">
+          <div className="flex items-center py-[10.85px] max-sm:py-[2px]">
             <div className="flex items-center gap-[9.64px]">
               <button
                 type="button"
@@ -222,7 +226,7 @@ const PostCard = ({
                 aria-label={`Like ${post.author}'s post`}
                 onClick={() => handleReaction('up')}
                 className={classNames(
-                  'flex items-center justify-center gap-[7.23px] rounded-[12.05px] border-b border-l-2 border-r-2 border-t border-neutral-active px-[19.29px] py-[12.05px] drop-shadow-[0px_3px_0px_#959592] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_1px_0px_#959592]',
+                  'flex items-center justify-center gap-[7.23px] rounded-[12.05px] border-b border-l-2 border-r-2 border-t border-neutral-active px-[19.29px] py-[12.05px] max-sm:px-[10px] max-sm:py-[4px] max-lg:relative max-lg:min-h-[34px] max-lg:after:absolute max-lg:after:-inset-y-[5px] max-lg:after:inset-x-0 drop-shadow-[0px_3px_0px_#959592] max-sm:drop-shadow-none transition-transform active:translate-y-[2px] active:drop-shadow-[0px_1px_0px_#959592]',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                   reaction === 'up' ? 'bg-brand-green-light' : 'bg-neutral'
                 )}
@@ -238,7 +242,7 @@ const PostCard = ({
                 aria-label={`Dislike ${post.author}'s post`}
                 onClick={() => handleReaction('down')}
                 className={classNames(
-                  'flex items-center justify-center gap-[7.23px] rounded-[12.05px] border-b-2 border-l-2 border-r-2 border-t border-neutral-active px-[19.29px] py-[12.05px] drop-shadow-[0px_3px_0px_#959592] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_1px_0px_#959592]',
+                  'flex items-center justify-center gap-[7.23px] rounded-[12.05px] border-b-2 border-l-2 border-r-2 border-t border-neutral-active px-[19.29px] py-[12.05px] max-sm:px-[10px] max-sm:py-[4px] max-lg:relative max-lg:min-h-[34px] max-lg:after:absolute max-lg:after:-inset-y-[5px] max-lg:after:inset-x-0 drop-shadow-[0px_3px_0px_#959592] max-sm:drop-shadow-none transition-transform active:translate-y-[2px] active:drop-shadow-[0px_1px_0px_#959592]',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                   reaction === 'down' ? 'bg-brand-green-light' : 'bg-neutral'
                 )}
@@ -258,10 +262,10 @@ const PostCard = ({
                 log('comment thread opened on post:', post.id);
                 setCommentsOpen(true);
               }}
-              className="flex items-center gap-[4.83px] rounded-[9.66px] px-[14.48px] py-[7.24px] transition-colors hover:bg-[#f1f1f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="flex items-center gap-[4.83px] rounded-[9.66px] px-[14.48px] py-[7.24px] max-sm:px-[8px] max-sm:py-[4px] max-lg:min-h-[36px] transition-colors hover:bg-[#f1f1f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
-              <CommunityIcon src={icons.comment} size={28.93} />
-              <span className="whitespace-nowrap font-sans text-[16px] text-[#595959]">
+              <CommunityIcon src={icons.comment} size={28.93} className="max-sm:size-[22px]!" />
+              <span className="whitespace-nowrap font-sans text-[16px] max-sm:text-[13px] text-[#595959]">
                 {post.commentLabel}
               </span>
             </button>
@@ -273,10 +277,10 @@ const PostCard = ({
               log('share clicked on post:', post.id);
               onShare?.(post);
             }}
-            className="flex items-center gap-[4.83px] rounded-[9.66px] px-[14.48px] py-[7.24px] transition-colors hover:bg-[#f1f1f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="flex items-center gap-[4.83px] rounded-[9.66px] px-[14.48px] py-[7.24px] max-sm:px-[8px] max-sm:py-[4px] max-lg:min-h-[36px] transition-colors hover:bg-[#f1f1f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <CommunityIcon src={icons.share} size={18} />
-            <span className="whitespace-nowrap font-sans text-[16px] leading-[1.5] text-[#595959]">
+            <span className="whitespace-nowrap font-sans text-[16px] max-sm:text-[13px] leading-[1.5] text-[#595959]">
               Share
             </span>
           </button>

@@ -7,6 +7,8 @@ import {
   ConversationIcon,
 } from './talentSearchIcons.jsx';
 import { CARD_LABELS } from './talentSearchData.js';
+import ClampText from '../../ui/ClampText.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 
 const log = debug('CandidateCard');
 
@@ -35,32 +37,32 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
   return (
     <article
       className={classNames(
-        'flex min-w-0 flex-col gap-[12px] rounded-[12px] border border-border-card bg-white px-[20px] py-[16px]',
+        'relative flex min-w-0 flex-col gap-[12px] rounded-[12px] border border-border-card bg-white px-[20px] py-[16px] max-sm:gap-[6px] max-sm:p-[10px]',
         className
       )}
     >
       {/* ── Identity row — Figma 7249:74365, gap 24, py 20 ── */}
-      <div className="flex items-center gap-[24px] py-[20px]">
+      <div className="flex items-center gap-[24px] py-[20px] max-sm:gap-[12px] max-sm:py-0">
         <div className="relative shrink-0">
           <img
             src={avatarSrc}
             alt={candidate.name}
-            className="size-[73.85px] rounded-full border-2 border-[#1f6b3f] object-cover"
+            className="size-[73.85px] rounded-full border-2 border-[#1f6b3f] object-cover max-sm:size-[52px]"
           />
           {/* Match badge — 32x32, #387440, 2px white ring */}
-          <span className="absolute -bottom-[2px] -right-[2px] grid size-[32px] place-items-center rounded-full border-2 border-white bg-brand-green">
-            <span className="font-sans text-[10px] font-bold leading-4 text-white">
+          <span className="absolute -bottom-[2px] -right-[2px] grid size-[32px] place-items-center rounded-full border-2 border-white bg-brand-green max-sm:-bottom-[4px] max-sm:-right-[10px] max-sm:flex max-sm:h-[24px] max-sm:w-auto max-sm:min-w-[24px] max-sm:items-center max-sm:justify-center max-sm:whitespace-nowrap max-sm:px-[6px]">
+            <span className="font-sans text-[10px] max-lg:text-[12px] font-bold leading-4 max-sm:leading-none max-sm:font-semibold max-sm:tabular-nums text-white">
               {candidate.matchPercent}%
             </span>
           </span>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-[9px]">
-          <div className="flex flex-col gap-[2px]">
-            <h3 className="font-display not-italic text-[20px] leading-[26px] tracking-[-0.5px] text-black">
+        <div className="flex min-w-0 flex-1 flex-col gap-[9px] max-sm:gap-[4px]">
+          <div className="flex flex-col gap-[2px] max-sm:pr-[72px]">
+            <h3 className="font-display not-italic text-[20px] leading-[26px] tracking-[-0.5px] text-black max-sm:text-[17px] max-sm:leading-[22px]">
               {candidate.name}
             </h3>
-            <p className="font-sans text-[14px] leading-[16.71px] tracking-[0.2px] text-content-muted">
+            <p className="font-sans text-[14px] max-sm:text-[13px] leading-[16.71px] tracking-[0.2px] text-content-muted">
               {candidate.role}
             </p>
           </div>
@@ -73,7 +75,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
                 style={{ width: `${candidate.matchPercent}%` }}
               />
             </span>
-            <span className="pt-[6px] font-sans text-[10px] font-semibold leading-4 text-brand-green">
+            <span className="pt-[6px] font-sans text-[10px] max-lg:text-[12px] font-semibold leading-4 text-brand-green">
               {CARD_LABELS.matchScore(candidate.matchPercent)}
             </span>
           </div>
@@ -82,26 +84,33 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
 
       {/* ── Body ── */}
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex flex-col gap-[16px] max-sm:gap-[6px]">
           {/* Tags + row actions — Figma 7249:74384 */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex min-w-0 flex-wrap items-center gap-[6px]">
-              {candidate.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex h-[26px] items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[9.64px] font-sans text-[12px] font-medium leading-[14.32px] text-neutral-dark-active"
-                >
-                  {tag}
-                </span>
-              ))}
+          <div className="flex items-start justify-between gap-4 sm:items-center max-sm:gap-[8px]">
+            <div className="min-w-0 max-sm:flex-1">
+              {/* One line + "+N" circle below lg; wraps from lg up (see TagRow). */}
+              <TagRow
+                items={candidate.tags}
+                gap={6}
+                className="min-w-0 items-center"
+                renderItem={(tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex h-[26px] max-sm:h-[24px] items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[9.64px] font-sans text-[12px] font-medium leading-[14.32px] text-neutral-dark-active"
+                  >
+                    {tag}
+                  </span>
+                )}
+              />
             </div>
 
-            <div className="flex shrink-0 items-center gap-[8px]">
+            {/* Below sm the save / more buttons ride the avatar + name row (top-right of the card). */}
+            <div className="flex shrink-0 items-center gap-[8px] max-sm:absolute max-sm:right-[12px] max-sm:top-[12px] max-sm:gap-[6px]">
               <button
                 type="button"
                 aria-label={`Save ${candidate.name}`}
                 onClick={() => log('branch', { action: 'save', id: candidate.id, wired: false })}
-                className="grid size-[32px] place-items-center rounded-full border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
+                className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
                 <SaveHeartIcon className="w-[11.67px]" />
               </button>
@@ -109,7 +118,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
                 type="button"
                 aria-label={`More options for ${candidate.name}`}
                 onClick={() => log('branch', { action: 'more', id: candidate.id, wired: false })}
-                className="grid size-[32px] place-items-center rounded-full border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
+                className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
                 <MoreDotsIcon className="w-[9.33px]" />
               </button>
@@ -119,39 +128,47 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
           {/* Match explanation — Figma 7249:74422, #f3f8f4 on a 1px #00522b border */}
           {/* Figma 7249:74470 — fill #ebf1ec; the 1px #00522b stroke carries
               opacity 0.10, so it reads as almost no border at all. */}
-          <div className="flex gap-[12px] rounded-[8px] border border-[#00522b]/10 bg-brand-green-light p-[16px]">
+          <div className="flex gap-[12px] max-sm:gap-[8px] rounded-[8px] border border-[#00522b]/10 bg-brand-green-light p-[16px] max-sm:p-[8px]">
             <LightbulbIcon className="size-[20px] shrink-0 text-brand-green" />
             <div className="flex min-w-0 flex-col gap-[3.13px]">
-              <p className="font-sans text-[14px] font-semibold leading-5 text-brand-green">
+              <p className="font-sans text-[14px] max-sm:sr-only font-semibold leading-5 text-brand-green">
                 {CARD_LABELS.matchExplanation}
               </p>
               {/* whitespace-pre-line keeps Figma's hard line breaks in the body copy */}
-              <p className="whitespace-pre-line font-sans text-[14px] leading-5 tracking-[0.2px] text-content-helper">
+              <ClampText
+                lines={2}
+                className="whitespace-pre-line max-sm:whitespace-normal font-sans text-[14px] max-sm:text-[13px] leading-5 tracking-[0.2px] text-content-helper"
+              >
                 {candidate.explanation}
-              </p>
+              </ClampText>
             </div>
           </div>
 
           {/* Top skills + availability — Figma 7249:74440, gap 19 */}
-          <div className="flex flex-col gap-[19px]">
-            <div className="flex flex-col gap-[10px]">
-              <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+          <div className="flex flex-col gap-[19px] max-sm:gap-[4px]">
+            <div className="flex flex-col gap-[10px] max-sm:flex-row max-sm:items-center max-sm:gap-[8px]">
+              <p className="font-sans text-[16px] max-sm:shrink-0 max-sm:text-[13px] leading-6 max-sm:leading-5 tracking-[0.2px] text-[#999999]">
                 {CARD_LABELS.topSkills}
               </p>
-              <div className="flex flex-wrap items-center gap-[6px]">
-                {candidate.topSkills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center rounded-[6px] border border-border-pill bg-neutral px-[8px] pb-[2.59px] pt-[1px] font-sans text-[14px] leading-6 tracking-[0.2px] text-[#595959]"
-                  >
-                    {skill}
-                  </span>
-                ))}
+              <div className="min-w-0 max-sm:flex-1">
+                <TagRow
+                  items={candidate.topSkills}
+                  gap={6}
+                  className="items-center"
+                  renderItem={(skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center rounded-[6px] border border-border-pill bg-neutral px-[8px] pb-[2.59px] pt-[1px] font-sans text-[14px] max-sm:text-[12px] leading-6 max-sm:leading-5 tracking-[0.2px] text-[#595959]"
+                    >
+                      {skill}
+                    </span>
+                  )}
+                />
               </div>
             </div>
 
-            <div className="flex flex-col gap-[8px]">
-              <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-neutral-dark-hover">
+            <div className="flex flex-col gap-[8px] max-sm:gap-[2px]">
+              <p className="font-sans text-[16px] max-sm:sr-only leading-6 tracking-[0.2px] text-neutral-dark-hover">
                 {CARD_LABELS.availability}
               </p>
               <div className="flex items-center gap-[8px]">
@@ -162,7 +179,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
                     candidate.available ? 'bg-[#22c55e]' : 'bg-danger'
                   )}
                 />
-                <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-black">
+                <span className="font-sans text-[14px] max-sm:text-[13px] leading-5 tracking-[0.2px] text-black">
                   {candidate.availability}
                 </span>
               </div>
@@ -171,27 +188,28 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
         </div>
 
         {/* CTA row — Figma 7249:74492, right-aligned, gap 11.99, pt 24 */}
-        <div className="flex items-center justify-end gap-[11.99px] pt-[24px]">
+        <div className="flex items-center justify-end gap-[11.99px] pt-[24px] max-sm:gap-[8px] max-sm:pt-[0px]">
           <button
             type="button"
             onClick={() => {
               log('branch', { action: 'view-profile', id: candidate.id, wired: false });
               onViewProfile?.(candidate.id);
             }}
-            className="inline-flex h-[40px] items-center justify-center rounded-[10.36px] border-[2.07px] border-black/30 bg-white px-[16.58px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.1px] text-black shadow-[0_4.14px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+            className="relative inline-flex h-[40px] max-lg:h-[40px] max-sm:flex-1 items-center justify-center whitespace-nowrap max-lg:after:absolute max-lg:after:-inset-y-[4px] max-lg:after:inset-x-0 max-lg:text-[13px] max-lg:shadow-none max-lg:border max-lg:rounded-[8px] rounded-[10.36px] border-[2.07px] border-black/30 bg-white px-[16.58px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.1px] text-black shadow-[0_4.14px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
           >
             {CARD_LABELS.viewProfile}
           </button>
           <button
             type="button"
+            aria-label={CARD_LABELS.startConversation}
             onClick={() => {
               log('branch', { action: 'start-conversation', id: candidate.id, wired: false });
               onStartConversation?.(candidate.id);
             }}
-            className="inline-flex h-[40px] items-center justify-center gap-[7.17px] rounded-[11.95px] border-[2.39px] border-brand-green-dark bg-brand-green px-[19.12px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.78px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.78px] active:shadow-none"
+            className="relative inline-flex h-[40px] max-lg:h-[40px] items-center justify-center gap-[7.17px] whitespace-nowrap max-sm:size-[40px] max-sm:shrink-0 max-sm:px-0 max-lg:after:absolute max-lg:after:-inset-y-[4px] max-lg:after:inset-x-0 max-lg:text-[13px] max-lg:shadow-none max-lg:border max-lg:rounded-[8px] rounded-[11.95px] border-[2.39px] border-brand-green-dark bg-brand-green px-[19.12px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.78px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.78px] active:shadow-none"
           >
             <ConversationIcon className="size-[22px] shrink-0" />
-            {CARD_LABELS.startConversation}
+            <span className="max-sm:sr-only">{CARD_LABELS.startConversation}</span>
           </button>
         </div>
       </div>

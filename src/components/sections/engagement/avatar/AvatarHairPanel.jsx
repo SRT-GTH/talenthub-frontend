@@ -102,16 +102,17 @@ const AvatarHairPanel = ({ activeTab = 'hair', onTabSelect, className }) => {
     <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
-        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
+        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] max-lg:text-[20px] leading-[1.1] tracking-[-0.2px] text-content-primary">
           Crown energy
         </h2>
-        <p className="mt-1 font-sans text-[13px] leading-5 tracking-[0.2px] text-neutral-darker">
-          Pick a hairstyle — preview updates instantly on the left.
+        <p className="mt-1 font-sans text-[13px] max-lg:hidden leading-5 tracking-[0.2px] text-neutral-darker">
+          Pick a hairstyle — preview updates instantly
+          <span className="max-lg:hidden"> on the left</span>.
         </p>
       </header>
 
       {/* Stat pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-lg:hidden">
         <AvatarStatPill count="24" label="styles" />
         <AvatarStatPill count="12" label="Skin Tones" />
         <AvatarStatPill count="18" label="Hairstyles" />
@@ -124,7 +125,7 @@ const AvatarHairPanel = ({ activeTab = 'hair', onTabSelect, className }) => {
       {/* 12 hairstyle tiles in a 6×2 grid */}
       <section className="flex flex-col gap-3">
         <AvatarSectionHeader title="Choose a hairstyle" meta="12 Options" />
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           {HAIRSTYLES.map((style) => (
             <AvatarOptionTile
               key={style.id}

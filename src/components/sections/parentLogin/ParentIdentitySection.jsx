@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import TextInput from '../../ui/form/TextInput.jsx';
 import Select from '../../ui/form/Select.jsx';
@@ -99,7 +100,7 @@ const NATIONALITIES = [
  */
 const IdentityCaptionBadge = () => (
   <div
-    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white"
+    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white max-md:px-3! max-md:py-0.5! max-md:self-start"
     style={{ borderColor: '#eedeb8', padding: '4px 16px' }}
   >
     <span
@@ -179,14 +180,14 @@ const ParentIdentitySection = () => {
 
   return (
     <>
-      <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-20">
-        <div className="flex w-full max-w-[762px] flex-col items-center gap-6">
+      <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="flex w-full max-w-[762px] flex-col items-center gap-6 max-md:gap-3">
           {/* Step badge — "03 · Parent Identity" (Figma 2901:85292) */}
           <IdentityCaptionBadge />
 
           {/* Headline (Figma 2901:81409) */}
           <h1
-            className="max-w-[554px] text-center font-display font-normal text-black"
+            className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
               lineHeight: 1.094,
@@ -201,7 +202,7 @@ const ParentIdentitySection = () => {
 
           {/* Subtitle */}
           <p
-            className="max-w-[482px] text-center font-sans text-neutral-darker"
+            className="max-w-[482px] text-center font-sans text-neutral-darker max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
             style={{ fontSize: 'clamp(0.875rem, 1.2vw, 1rem)', lineHeight: 1.6 }}
           >
             This information is used to personalise your parent account and communicate with you
@@ -214,10 +215,10 @@ const ParentIdentitySection = () => {
           <form
             onSubmit={handleSubmit(onSubmit, onError)}
             noValidate
-            className="flex w-full flex-col gap-4"
+            className="flex w-full flex-col gap-4 max-md:gap-3"
           >
             {/* Row 1: First Name + Middle Name */}
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
               <TextInput
                 leftIcon={<PersonIcon />}
                 label="First Name"
@@ -237,7 +238,7 @@ const ParentIdentitySection = () => {
             </div>
 
             {/* Row 2: Last Name + Relationship */}
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
               <TextInput
                 leftIcon={<PersonIcon />}
                 label="Last Name"
@@ -271,7 +272,7 @@ const ParentIdentitySection = () => {
             </div>
 
             {/* Row 3: Gender + Nationality */}
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
               <Controller
                 name="gender"
                 control={control}
@@ -330,27 +331,29 @@ const ParentIdentitySection = () => {
             />
 
             {/* CTA */}
-            <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 w-full">
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <LoadingSpinner className="size-5" />
-                  Saving...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  Fill In Your Details
-                  <ArrowRightIcon className="size-5" />
-                </span>
-              )}
-            </Button>
+            <StickyActionBar bleed={16}>
+              <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 w-full">
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <LoadingSpinner className="size-5" />
+                    Saving...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Fill In Your Details
+                    <ArrowRightIcon className="size-5" />
+                  </span>
+                )}
+              </Button>
+            </StickyActionBar>
           </form>
 
           {/* Footer */}
-          <p className="font-sans text-sm text-neutral-darker">
+          <p className="font-sans text-sm text-neutral-darker max-md:text-[13px]">
             Already have an account?{' '}
             <Link
               to="/onboarding/parent-login"
-              className="font-semibold underline"
+              className="font-semibold underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ color: '#c8951a' }}
             >
               Log in Instead

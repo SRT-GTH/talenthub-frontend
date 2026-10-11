@@ -60,7 +60,7 @@ const RecruiterHomeSection = () => {
       {/* Figma: column starts 40px after the rail and ends 56px from the screen
           edge (x343 → 1672 on a 1728 frame), 28px top/bottom, 30px row gap.
           Side padding is clamped so it compresses on narrower viewports. */}
-      <div className="flex w-full flex-col gap-[30px] py-[28px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+      <div className="flex w-full flex-col gap-[30px] py-[28px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <RecruiterWelcomeHero onCustomize={handleCustomize} />
         <RecruiterQuickActions onSelect={handleQuickAction} />
         <RecruiterGetReadyCard onItemAction={handleChecklistAction} />

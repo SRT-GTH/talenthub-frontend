@@ -34,6 +34,7 @@ Every claim in this wiki carries a tag:
 - [debugging-workflow.md](debugging-workflow.md) — Console-log convention + Playwright verification
 - [figma-fidelity.md](figma-fidelity.md) — Pixel-perfect implementation rules (`clamp()`, `get_design_context`)
 - [pre-commit-workflow.md](pre-commit-workflow.md) — Lint, format, build, husky hooks
+- [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — PROPOSED
 
 ### External
 

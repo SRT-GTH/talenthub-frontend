@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 import useVoiceCapture from '../../hooks/useVoiceCapture.js';
+import { useIsDesktop } from '../../hooks/useMediaQuery.js';
 import Button from './Button.jsx';
 import AudioLevelWaveform from './AudioLevelWaveform.jsx';
 import CareerBuddyAvatar from '../shared/CareerBuddyAvatar.jsx';
@@ -116,21 +117,30 @@ const log = debug('ChatThread');
  *                    (same KYB-style "File too large" toast in CareerBuddySection)
  */
 
-const UserAvatar = ({ src }) =>
+const UserAvatar = ({ src, size = 48 }) =>
   src ? (
     <img
       src={src}
       alt=""
       aria-hidden="true"
-      className="size-12 shrink-0 rounded-full object-cover"
+      className="shrink-0 rounded-full object-cover"
+      style={{ width: size, height: size }}
       draggable="false"
     />
   ) : (
     // Shared layered avatar from the customiser (AvatarPreview).
-    <AvatarPreview size={48} />
+    <AvatarPreview size={size} />
   );
 
+// Tap-target floor for the tiny per-message action icons (thumbs, retry, copy,
+// edit, version pager): visually unchanged >= lg, 40px hit area below lg.
+const ACTION_BTN =
+  'max-lg:relative max-lg:inline-flex max-lg:size-8 max-lg:items-center max-lg:justify-center max-lg:after:absolute max-lg:after:-inset-1';
+
 const MessageBubble = ({ message, onRetry, onSelectOption }) => {
+  // Phones/tablets: smaller avatars + no persona caption (the left/right
+  // alignment already says who spoke); >= lg keeps the Figma 48px column.
+  const avatarSize = useIsDesktop() ? 48 : 32;
   const isBot = message.sender === 'bot';
   const versions = message.versions ?? (message.text ? [message.text] : []);
   const [versionIndex, setVersionIndex] = useState(message.versionIndex ?? versions.length - 1);
@@ -141,32 +151,36 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
   return (
     <div
       className={classNames(
-        'flex flex-col gap-[6px] max-w-[750px]',
+        'flex flex-col gap-[6px] max-w-[750px] max-lg:max-w-full max-lg:gap-1 min-w-0',
         isBot ? 'items-start self-start' : 'items-end self-end'
       )}
     >
       <div
         className={classNames(
-          'flex items-start gap-[12px]',
+          'flex items-start gap-[12px] max-lg:max-w-full max-lg:gap-2',
           isBot ? 'flex-row' : 'flex-row-reverse'
         )}
       >
         {/* Avatar column — circle + persona label, Figma 5132:43391 */}
         <span className="flex flex-col items-center gap-[6px] shrink-0">
-          {isBot ? <CareerBuddyAvatar size={48} /> : <UserAvatar src={message.avatarSrc} />}
-          <span className="font-sans text-[10px] leading-[1.3] text-[#595959] whitespace-nowrap">
+          {isBot ? (
+            <CareerBuddyAvatar size={avatarSize} />
+          ) : (
+            <UserAvatar src={message.avatarSrc} size={avatarSize} />
+          )}
+          <span className="font-sans text-[10px] max-lg:sr-only leading-[1.3] text-[#595959] whitespace-nowrap">
             {isBot ? 'Career Buddy' : message.personaLabel}
           </span>
         </span>
 
         {message.file ? (
-          <div className="flex items-center gap-2 rounded-[10px] border border-border-default bg-white px-3 py-2 mt-[6px]">
+          <div className="flex items-center gap-2 rounded-[10px] border border-border-default bg-white px-3 py-2 mt-[6px] max-lg:min-w-0">
             <ChatFileIcon className="size-4 text-content-secondary shrink-0" />
             <span className="flex flex-col leading-tight">
               <span className="font-sans text-[12px] font-medium text-content-primary truncate max-w-[140px]">
                 {message.file.name}
               </span>
-              <span className="font-sans text-[10px] text-content-tertiary">
+              <span className="font-sans text-[10px] max-lg:text-[12px] text-content-tertiary">
                 {message.file.size}
               </span>
             </span>
@@ -174,7 +188,7 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
         ) : (
           <div
             className={classNames(
-              'flex flex-col gap-[12px] rounded-[12px] px-[16px] py-[14px] font-sans text-[15px] leading-[26px] text-[#595959] whitespace-pre-line',
+              'flex flex-col gap-[12px] rounded-[12px] px-[16px] py-[14px] font-sans text-[15px] leading-[26px] text-[#595959] whitespace-pre-line max-lg:min-w-0 max-lg:[overflow-wrap:anywhere] max-lg:gap-2 max-lg:px-3 max-lg:py-2 max-lg:text-[14px] max-lg:leading-[20px]',
               isBot || message.auto ? 'bg-white' : 'bg-white shadow-sm'
             )}
           >
@@ -188,7 +202,10 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
               {message.bullets && message.bullets.length > 0 && (
                 <ul className="mt-1 flex flex-col gap-[2px]">
                   {message.bullets.map((bullet, i) => (
-                    <li key={i} className="text-[15px] leading-[26px]">
+                    <li
+                      key={i}
+                      className="text-[15px] leading-[26px] max-lg:text-[14px] max-lg:leading-[20px]"
+                    >
                       {bullet}
                     </li>
                   ))}
@@ -203,7 +220,7 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
               <button
                 type="button"
                 onClick={message.linkButton.onClick}
-                className="self-start m-0 inline-flex items-center justify-center gap-[3px] rounded-[100px] border border-solid border-[#387440] bg-[#e1eae2] px-[8px] py-[5px] font-sans text-[13.5px] font-normal leading-none text-[#387440] whitespace-nowrap hover:bg-[#d4e4d6]"
+                className="self-start m-0 inline-flex items-center justify-center gap-[3px] rounded-[100px] border border-solid border-[#387440] bg-[#e1eae2] px-[8px] py-[5px] font-sans text-[13.5px] font-normal leading-none text-[#387440] whitespace-nowrap hover:bg-[#d4e4d6] max-lg:min-h-8 max-lg:px-3"
               >
                 {message.linkButton.label}
                 <ChatLinkArrowIcon className="block size-[16px] shrink-0" />
@@ -221,13 +238,13 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
               // container. An earlier pass used `grid-cols-2 w-[334px]` (equal
               // fixed-width columns) without `whitespace-nowrap`, which wraps
               // longer option text even though the bubble has room to spare.
-              <div className="grid grid-cols-[repeat(2,fit-content(100%))] gap-x-[12px] gap-y-[10px]">
+              <div className="grid grid-cols-[repeat(2,fit-content(100%))] gap-x-[12px] gap-y-[10px] max-sm:grid-cols-1">
                 {message.options.map((option) => (
                   <button
                     key={option.id}
                     type="button"
                     onClick={() => onSelectOption?.(option.id)}
-                    className="flex items-center rounded-[16px] border-[0.8px] border-[#e5e7eb] bg-white pl-[16px] pr-[20px] py-[8px] font-sans text-[15px] whitespace-nowrap text-left text-[#575755] hover:border-brand-green hover:text-brand-green"
+                    className="flex items-center rounded-[16px] border-[0.8px] border-[#e5e7eb] bg-white pl-[16px] pr-[20px] py-[8px] font-sans text-[15px] whitespace-nowrap text-left text-[#575755] hover:border-brand-green hover:text-brand-green max-lg:min-h-9 max-lg:py-1 max-lg:text-[14px]"
                   >
                     {option.label}
                   </button>
@@ -240,13 +257,16 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
 
       {/* Bot message actions — thumbs up/down + retry (Figma 5132:45547) */}
       {isBot && message.showActions && (
-        <div className="flex items-center gap-[10px] pl-[60px] text-content-tertiary">
+        <div className="flex items-center gap-[10px] pl-[60px] max-lg:pl-10 text-content-tertiary">
           <button
             type="button"
             aria-label="Helpful"
             aria-pressed={feedback === 'up'}
             onClick={() => setFeedback((f) => (f === 'up' ? null : 'up'))}
-            className={feedback === 'up' ? 'text-brand-green' : 'hover:text-brand-green'}
+            className={classNames(
+              feedback === 'up' ? 'text-brand-green' : 'hover:text-brand-green',
+              ACTION_BTN
+            )}
           >
             <ChatThumbsUpIcon className="size-[14px]" />
           </button>
@@ -255,7 +275,10 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
             aria-label="Not helpful"
             aria-pressed={feedback === 'down'}
             onClick={() => setFeedback((f) => (f === 'down' ? null : 'down'))}
-            className={feedback === 'down' ? 'text-danger' : 'hover:text-danger'}
+            className={classNames(
+              feedback === 'down' ? 'text-danger' : 'hover:text-danger',
+              ACTION_BTN
+            )}
           >
             <ChatThumbsDownIcon className="size-[14px]" />
           </button>
@@ -263,7 +286,7 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
             type="button"
             aria-label="Regenerate response"
             onClick={() => onRetry?.(message.id)}
-            className="hover:text-brand-green"
+            className={classNames('hover:text-brand-green', ACTION_BTN)}
           >
             <ChatRetryIcon className="size-[14px]" />
           </button>
@@ -275,16 +298,20 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
           generated confirmation — Figma's static "1/2" demo counter isn't
           reproduced here since it doesn't correspond to a real edit). */}
       {!isBot && message.auto && (
-        <div className="flex items-center gap-[15px] pr-[60px] text-content-tertiary">
+        <div className="flex items-center gap-[15px] pr-[60px] max-lg:pr-10 text-content-tertiary">
           <button
             type="button"
             aria-label="Copy message"
             onClick={() => navigator.clipboard?.writeText(activeText)}
-            className="hover:text-brand-green"
+            className={classNames('hover:text-brand-green', ACTION_BTN)}
           >
             <ChatCopyIcon className="size-[14px]" />
           </button>
-          <button type="button" aria-label="Edit message" className="hover:text-brand-green">
+          <button
+            type="button"
+            aria-label="Edit message"
+            className={classNames('hover:text-brand-green', ACTION_BTN)}
+          >
             <ChatPencilIcon className="size-[13px]" />
           </button>
         </div>
@@ -292,8 +319,12 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
 
       {/* User message edit + version pagination (Figma 5132:45547) */}
       {!isBot && !message.auto && hasMultipleVersions && (
-        <div className="flex items-center gap-[8px] pr-[60px] text-content-tertiary">
-          <button type="button" aria-label="Edit message" className="hover:text-brand-green">
+        <div className="flex items-center gap-[8px] pr-[60px] max-lg:pr-10 text-content-tertiary">
+          <button
+            type="button"
+            aria-label="Edit message"
+            className={classNames('hover:text-brand-green', ACTION_BTN)}
+          >
             <ChatPencilIcon className="size-[13px]" />
           </button>
           <button
@@ -301,11 +332,11 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
             aria-label="Previous version"
             disabled={versionIndex === 0}
             onClick={() => setVersionIndex((i) => Math.max(0, i - 1))}
-            className="hover:text-brand-green disabled:opacity-30"
+            className={classNames('hover:text-brand-green disabled:opacity-30', ACTION_BTN)}
           >
             <ChatPaginationChevronIcon dir="left" className="size-[13px]" />
           </button>
-          <span className="font-sans text-[11px]">
+          <span className="font-sans text-[11px] max-lg:text-[12px]">
             {versionIndex + 1}/{versions.length}
           </span>
           <button
@@ -313,7 +344,7 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
             aria-label="Next version"
             disabled={versionIndex === versions.length - 1}
             onClick={() => setVersionIndex((i) => Math.min(versions.length - 1, i + 1))}
-            className="hover:text-brand-green disabled:opacity-30"
+            className={classNames('hover:text-brand-green disabled:opacity-30', ACTION_BTN)}
           >
             <ChatPaginationChevronIcon dir="right" className="size-[13px]" />
           </button>
@@ -472,8 +503,8 @@ const ChatThread = ({
         className={classNames(
           'flex items-center gap-[8px]',
           trailingModeCards?.length
-            ? 'h-[58.5px] border-t border-[#e5e7eb] pt-[16px]'
-            : 'h-[72px] rounded-[12px] border border-[#e5e7eb] bg-white p-[16px]'
+            ? 'h-[58.5px] border-t border-[#e5e7eb] pt-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:pt-2'
+            : 'h-[72px] rounded-[12px] border border-[#e5e7eb] bg-white p-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:p-1.5'
         )}
       >
         <div className="flex flex-1 min-w-0 items-center gap-[5px]">
@@ -493,7 +524,10 @@ const ChatThread = ({
             aria-label="Attach a file"
             onClick={handleAttachClick}
             disabled={!enableAttach}
-            className={enableAttach ? 'text-brand-green' : undefined}
+            className={classNames(
+              'max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1',
+              enableAttach && 'text-brand-green'
+            )}
           >
             <ChatAttachIcon className="size-4" />
           </Button>
@@ -527,7 +561,7 @@ const ChatThread = ({
               type="button"
               aria-label="Confirm dictation"
               onClick={handleConfirmDictation}
-              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755]"
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755] max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
             >
               <CheckIcon className="size-[18px]" />
             </button>
@@ -535,7 +569,7 @@ const ChatThread = ({
               type="button"
               aria-label="Cancel dictation"
               onClick={handleCancelDictation}
-              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755]"
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[#575755] max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
             >
               <ChatVoiceCloseIcon className="size-[12px]" />
             </button>
@@ -545,7 +579,7 @@ const ChatThread = ({
             type="submit"
             aria-label="Send"
             disabled={disabled}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-green text-white hover:bg-brand-green-hover disabled:opacity-50"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-green text-white hover:bg-brand-green-hover disabled:opacity-50 max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
           >
             <ChatSendArrowIcon className="size-4" />
           </button>
@@ -558,6 +592,7 @@ const ChatThread = ({
               aria-label="Dictate with microphone"
               onClick={handleMicClick}
               disabled={disabled}
+              className="max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
             >
               <ChatMicIcon className="size-[18.5px]" />
             </Button>
@@ -566,6 +601,7 @@ const ChatThread = ({
               variant="icon"
               size="md"
               aria-label="Start voice call"
+              className="max-lg:size-9 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
               disabled={disabled || !onOpenVoiceCall}
               onClick={() => {
                 log('branch', { openVoiceCall: true });
@@ -584,12 +620,12 @@ const ChatThread = ({
     <div className={classNames('relative flex flex-1 min-h-0 flex-col', className)}>
       {/* New Chat + History / Settings — float over the chat (transparent chrome). */}
       {(onNewChat || onOpenHistory || onOpenVoiceSettings) && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-[54px] pt-6">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-[54px] pt-6 max-lg:relative max-lg:shrink-0 max-lg:px-4 max-lg:pb-1 max-lg:pt-3">
           {onNewChat ? (
             <button
               type="button"
               onClick={onNewChat}
-              className="pointer-events-auto inline-flex items-center gap-[4px] rounded-[12px] bg-black/[0.21] px-[14px] py-[10px] font-sans text-[15px] leading-[22px] text-[#fefefe] hover:bg-black/30"
+              className="pointer-events-auto inline-flex items-center gap-[4px] rounded-[12px] bg-black/[0.21] px-[14px] py-[10px] font-sans text-[15px] leading-[22px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:py-1.5 max-lg:text-[14px]"
             >
               <PlusIcon className="size-[20px]" /> New Chat
             </button>
@@ -602,7 +638,7 @@ const ChatThread = ({
                 type="button"
                 onClick={onOpenHistory}
                 aria-label="Chat history"
-                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30"
+                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:min-w-9 max-lg:px-2 max-lg:py-1.5"
               >
                 <ChatHistoryIcon className="size-[20px]" />
               </button>
@@ -612,7 +648,7 @@ const ChatThread = ({
                 type="button"
                 onClick={onOpenVoiceSettings}
                 aria-label="Voice settings"
-                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30"
+                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:min-w-9 max-lg:px-2 max-lg:py-1.5"
               >
                 <ChatSettingsSlidersIcon className="size-[18px] text-[#fefefe]" />
               </button>
@@ -639,10 +675,13 @@ const ChatThread = ({
           mode. Top padding clears the floating New Chat / History pills
           for the first paint; scrolling still passes under that transparent
           chrome. */}
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6">
+      <div
+        ref={scrollRef}
+        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain"
+      >
         <div
-          className={`flex flex-col gap-[16px] mt-auto ${
-            onNewChat || onOpenHistory || onOpenVoiceSettings ? 'pt-[52px]' : ''
+          className={`flex flex-col gap-[16px] max-lg:gap-3 mt-auto ${
+            onNewChat || onOpenHistory || onOpenVoiceSettings ? 'pt-[52px] max-lg:pt-0' : ''
           }`}
         >
           {messages.map((message) => (
@@ -653,7 +692,7 @@ const ChatThread = ({
 
       {/* Fixed footer — mode-picker cards / suggested-reply chips + the
           input bar. Never part of the scrollable region above. */}
-      <div className="shrink-0 flex flex-col gap-[16px] px-[54px] pb-6 pt-[16px]">
+      <div className="shrink-0 flex flex-col gap-[16px] px-[54px] pb-6 pt-[16px] max-lg:gap-3 max-lg:px-4 max-lg:pb-[max(12px,env(safe-area-inset-bottom))] max-lg:pt-3">
         {/* Mode-picker cards (Figma 5132:57368) — cards row + input bar share
             ONE bg-white/rounded-[16px]/p-[20px] box (verified via
             get_design_context: Frame 14224 wraps "GTH CARDS" x3 AND
@@ -663,28 +702,28 @@ const ChatThread = ({
             frame are separate siblings ~200px apart, so that was wrong on
             both placement and merge target. */}
         {trailingModeCards && trailingModeCards.length > 0 ? (
-          <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[20px]">
+          <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[20px] max-lg:gap-3 max-lg:p-3">
             {/* grid-cols-3 (not flex row) — 3 cards (Personality mode-picker)
                 fill one row identically to the old flex-1 layout, but 6
                 cards (the post-Personality section-picker, Figma 5132:49680,
                 "3×2 grid") now wrap into 2 rows instead of squeezing 6 into
                 one line. */}
-            <div className="grid grid-cols-3 gap-[20px]">
+            <div className="grid grid-cols-3 gap-[20px] max-lg:gap-3 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:pb-1 max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
               {trailingModeCards.map((card) => (
                 <button
                   key={card.id}
                   type="button"
                   onClick={() => onSelectModeCard?.(card.id)}
-                  className="group flex min-w-0 items-start gap-[16px] rounded-[16px] border-2 border-[#e6e6e6] bg-[#fffefc] py-[20px] pl-[24px] pr-[16px] text-left hover:border-brand-green hover:bg-white hover:shadow-[0px_6px_0px_rgba(34,70,38,0.8)]"
+                  className="group flex min-w-0 items-start gap-[16px] rounded-[16px] border-2 border-[#e6e6e6] bg-[#fffefc] py-[20px] pl-[24px] pr-[16px] text-left hover:border-brand-green hover:bg-white hover:shadow-[0px_6px_0px_rgba(34,70,38,0.8)] max-lg:gap-2.5 max-lg:p-2.5 max-md:w-[72%] max-md:shrink-0 max-md:snap-start"
                 >
-                  <span className="flex size-[62px] shrink-0 items-center justify-center rounded-[10px] bg-[#f8f8f4] text-content-secondary group-hover:bg-brand-green-light group-hover:text-brand-green">
-                    {card.Icon && <card.Icon className="size-10" />}
+                  <span className="flex size-[62px] shrink-0 items-center justify-center rounded-[10px] bg-[#f8f8f4] text-content-secondary group-hover:bg-brand-green-light group-hover:text-brand-green max-lg:size-10">
+                    {card.Icon && <card.Icon className="size-10 max-lg:size-6" />}
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-[6px]">
-                    <span className="font-display text-[22px] leading-normal text-[#111] group-hover:text-brand-green">
+                  <span className="flex min-w-0 flex-1 flex-col gap-[6px] max-lg:gap-0.5">
+                    <span className="font-display text-[22px] leading-normal text-[#111] group-hover:text-brand-green max-lg:text-[17px] max-lg:leading-tight">
                       {card.title}
                     </span>
-                    <span className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373]">
+                    <span className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373] max-lg:text-[12px] max-lg:leading-4 max-lg:line-clamp-2">
                       {card.description}
                     </span>
                   </span>
@@ -697,7 +736,7 @@ const ChatThread = ({
           <>
             {/* Suggested replies (Figma 5132:43427 "Bubbles") */}
             {suggestedReplies.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[14px]">
+              <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[14px] max-md:-mx-4 max-md:flex-nowrap max-md:gap-x-2 max-md:overflow-x-auto max-md:px-4 max-md:pb-1 max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
                 {suggestedReplies.map((reply) => (
                   <Button
                     key={reply}
@@ -706,7 +745,7 @@ const ChatThread = ({
                     size="md"
                     onClick={() => submit(reply)}
                     disabled={disabled}
-                    className="shrink-0"
+                    className="shrink-0 max-lg:min-h-8 max-lg:px-3 max-lg:py-1 max-lg:text-[13px]"
                   >
                     {reply}
                   </Button>

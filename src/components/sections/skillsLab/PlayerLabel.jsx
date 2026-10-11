@@ -6,9 +6,9 @@ export default function PlayerLabel({ name, role, isComputer = false, isActive =
   log('rendering:', name, 'role:', role, 'active:', isActive);
 
   return (
-    <div className="flex items-center gap-[10px] px-[12px] py-[8px] rounded-[10px] bg-[#f8f8f4] border border-[#e8e8e4]">
+    <div className="flex items-center gap-[10px] px-[12px] py-[8px] max-md:py-1.5 rounded-[10px] bg-[#f8f8f4] border border-[#e8e8e4]">
       <div
-        className="size-[32px] rounded-full flex items-center justify-center shrink-0"
+        className="size-[32px] max-md:size-7 rounded-full flex items-center justify-center shrink-0"
         style={{
           backgroundImage: isComputer
             ? 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)'
@@ -18,7 +18,7 @@ export default function PlayerLabel({ name, role, isComputer = false, isActive =
         {isComputer ? (
           <span className="text-white text-[14px] leading-none">🤖</span>
         ) : (
-          <span className="text-white text-[11px] font-bold font-sans leading-none">
+          <span className="text-white text-[11px] max-lg:text-[12px] font-bold font-sans leading-none">
             {name
               .split(' ')
               .map((n) => n[0])
@@ -31,7 +31,7 @@ export default function PlayerLabel({ name, role, isComputer = false, isActive =
         <span className="text-[#111] text-[13px] font-sans font-semibold leading-normal">
           {name}
         </span>
-        <span className="text-[#959592] text-[11px] font-sans leading-normal">
+        <span className="text-[#959592] text-[11px] max-lg:text-[12px] font-sans leading-normal">
           {role}
           {isActive && <span className="text-[#387440] font-semibold"> · Your turn</span>}
         </span>

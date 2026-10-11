@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 import AddEditCertModal from './AddEditCertModal.jsx';
 import DeleteCertModal from './DeleteCertModal.jsx';
 import CertSavedModal from './CertSavedModal.jsx';
@@ -136,20 +138,19 @@ const CertCard = ({ cert, onEdit, onDelete, readOnly = false }) => {
       // Figma 5245:167801 (get_design_context, verified 2026-09-09) — real
       // spec is rounded-16/border/drop-shadow-4px PLUS opacity-85 on the
       // whole card (not the plain fully-opaque card an earlier pass guessed).
-      className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] flex flex-col gap-[10px] relative opacity-[0.85]"
-      style={{ boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.07)' }}
+      className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] flex flex-col gap-[10px] relative opacity-[0.85] max-lg:rounded-xl max-lg:p-3 max-lg:gap-2 max-lg:opacity-100 shadow-[0px_4px_0px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none"
     >
       {/* Edit/delete icon buttons — top-right, 28px squares. Hidden for the
           "Example of a strong certification entry" reference card
           (readOnly): it's a static illustration, not a real saved
           certification, so editing/deleting it makes no sense. */}
       {!readOnly && (
-        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px]">
+        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px] max-lg:right-2 max-lg:top-2 max-lg:gap-1">
           <button
             type="button"
             onClick={onEdit}
             aria-label={`Edit ${cert.name}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
           >
             <WorkEditPencilIcon className="size-3" />
           </button>
@@ -157,7 +158,7 @@ const CertCard = ({ cert, onEdit, onDelete, readOnly = false }) => {
             type="button"
             onClick={onDelete}
             aria-label={`Delete ${cert.name}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
           >
             <WorkDeleteWarningIcon className="size-3" />
           </button>
@@ -166,23 +167,27 @@ const CertCard = ({ cert, onEdit, onDelete, readOnly = false }) => {
 
       {/* Figma 5245:167801/167839 — the icon box is vertically centered
           against the (taller) text column, not top-aligned. */}
-      <div className={`flex items-center gap-[14px] ${readOnly ? '' : 'pr-[70px]'}`}>
+      <div
+        className={`flex items-center gap-[14px] max-sm:gap-2.5 ${readOnly ? '' : 'pr-[70px] max-lg:pr-[76px] max-sm:pr-0'}`}
+      >
         {/* Figma 5245:167801 — this is a laptop glyph (the same WorkRoleIcon
             already used for Work Experience roles), NOT a certificate/document
             icon — an earlier pass guessed CertificateIcon here without a real
             dive. */}
-        <span className="size-[44px] rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
-          <WorkRoleIcon className="size-5 text-brand-green" />
+        <span className="size-[44px] max-sm:size-8 rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
+          <WorkRoleIcon className="size-5 max-sm:size-4 text-brand-green" />
         </span>
-        <div className="flex flex-col gap-[4px] min-w-0">
-          <span className="font-sans font-bold text-[15px] text-[#111]">{cert.name}</span>
-          <span className="font-sans text-[12px] text-[#70706e]">
+        <div className="flex flex-col gap-[4px] min-w-0 max-sm:flex-row max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-1">
+          <span className="max-sm:w-full max-lg:text-[16px] font-sans font-bold text-[15px] text-[#111] max-sm:min-h-8 max-sm:pr-[76px]">
+            {cert.name}
+          </span>
+          <span className="font-sans text-[12px] text-[#70706e] max-sm:w-full">
             {cert.issuer} · {buildDateSummary(cert.dateIssued, cert.doesNotExpire, cert.expiryDate)}
           </span>
           {/* Figma 5245:167819 — real spec is px-9/py-3, text-8px (an earlier
               pass guessed px-8/h-19/text-10px). */}
           <span
-            className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px]"
+            className="inline-flex items-center gap-[4px] self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px] max-lg:text-[12px]"
             style={{
               background: badgeStyle.bg,
               borderColor: badgeStyle.border,
@@ -194,43 +199,46 @@ const CertCard = ({ cert, onEdit, onDelete, readOnly = false }) => {
           {cert.credentialId && (
             // Figma 5245:167821 — credential ID renders in amber (#c8951a),
             // not the plain grey an earlier pass guessed.
-            <p className="font-sans font-medium text-[12px] text-[#c8951a] mt-[2px]">
+            <p className="font-sans font-medium text-[12px] text-[#c8951a] mt-[2px] max-sm:mt-0 max-lg:text-[13px]">
               ID: {cert.credentialId}
             </p>
           )}
-          <div className="flex items-center flex-wrap gap-[5px] mt-[2px]">
+          <div className="min-w-0 max-sm:w-full lg:contents">
             {/* Figma 5245:167856 — "Badge URL ↗" is a real informative-blue
                 link BUTTON (its own #eaeffb/#bfcef2/#3062d4 styling), not a
                 plain grey tag sharing the credentialType/skills row style —
                 an earlier pass rendered it identically to those. It's also a
                 genuine clickable link (opens the real badge URL), not just a
                 decorative label. */}
-            {cert.badgeUrl && (
-              <a
-                href={cert.badgeUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border border-[#bfcef2] bg-[#eaeffb] text-[#3062d4] hover:bg-[#d9e4fb] transition-colors duration-150"
-              >
-                Badge URL ↗
-              </a>
-            )}
-            {linkTags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-[#f8f8f4] h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
-              >
-                {tag}
-              </span>
-            ))}
-            {cert.skills.map((skill) => (
-              <span
-                key={skill}
-                className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-[#f8f8f4] h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
-              >
-                {skill}
-              </span>
-            ))}
+            <TagRow
+              gap={5}
+              className="items-center mt-[2px] max-sm:mt-0"
+              items={[
+                ...(cert.badgeUrl ? [{ kind: 'badge', label: 'Badge URL ↗' }] : []),
+                ...linkTags.map((label) => ({ kind: 'tag', label })),
+                ...cert.skills.map((label) => ({ kind: 'tag', label })),
+              ]}
+              renderItem={(item, index) =>
+                item.kind === 'badge' ? (
+                  <a
+                    key={`badge-${index}`}
+                    href={cert.badgeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center rounded-full h-[22px] max-lg:h-7 px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border border-[#bfcef2] bg-[#eaeffb] text-[#3062d4] hover:bg-[#d9e4fb] transition-colors duration-150"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <span
+                    key={`${item.label}-${index}`}
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-[#f8f8f4] h-[21px] max-lg:h-7 px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
+                  >
+                    {item.label}
+                  </span>
+                )
+              }
+            />
           </div>
         </div>
       </div>
@@ -250,11 +258,11 @@ const CertCard = ({ cert, onEdit, onDelete, readOnly = false }) => {
 // is treated as the shared "Why this matters" card, not reproduced verbatim.
 const CertsStage2RightAside = ({ certCount }) => (
   <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
     aria-label="Certifications guidance"
     style={{ scrollbarWidth: 'none' }}
   >
-    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)]">
+    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)] max-lg:gap-3 max-lg:p-4">
       {/* What counts? */}
       <div
         className="rounded-[10px] border border-[#c1d4c4] p-[16px]"
@@ -292,31 +300,25 @@ const CertsStage2RightAside = ({ certCount }) => (
 
       {/* Why this matters — Figma 5217:124254 (get_design_context, verified
           2026-09-09), replacing an earlier pass's invented body text. */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-sans font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           Why this matters
         </p>
-        <p className="font-sans text-[12px] text-[#999] leading-[1.6]">
+        <p className="font-sans text-[12px] text-[#999] leading-[1.6] max-lg:text-[14px]">
           Verified credentials earn the green ✓ badge. Recruiters trust verified skills 4× more than
           self-reported ones.
         </p>
       </div>
 
       {/* Recruiter views this week */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px]"
-        style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.07)' }}
-      >
-        <p className="font-sans font-bold text-[10px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] shadow-[0px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
           👀 Recruiter views this week
         </p>
-        <p className="font-display text-[36px] leading-none text-[#111] mb-[10px]">
+        <p className="font-display text-[36px] max-lg:text-[24px] leading-none text-[#111] mb-[10px]">
           {certCount > 0 ? Math.min(certCount * 3, 24) : 0}
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] mb-[10px]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] mb-[10px]">
           profile views from recruiters
         </p>
         <div className="h-[6px] rounded-full bg-[#e8e8e4] overflow-hidden mb-[10px]">
@@ -328,7 +330,7 @@ const CertsStage2RightAside = ({ certCount }) => (
             }}
           />
         </div>
-        <p className="font-sans text-[10px] text-[#70706e]">
+        <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e]">
           {certCount > 0
             ? 'Recruiters are already discovering your profile.'
             : 'Add certifications to unlock recruiter discovery'}
@@ -442,8 +444,8 @@ const CertsStage2Section = () => {
   const isEmpty = certs.length === 0;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -452,14 +454,14 @@ const CertsStage2Section = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={6} completionPct={67} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
               {/* Header — Figma "Section" (5217:124223 / 5245:167962).
                   ⚠️ ASSUMPTION: Figma's own headline literally reads "What
                   pulls you in?" (an Interests-stage clone) — replaced with
@@ -471,14 +473,14 @@ const CertsStage2Section = () => {
                   the header text same as this section's own layout shows. */}
               <section
                 aria-label="Certifications — proof you can point to"
-                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px]"
+                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px] max-lg:px-4 max-lg:py-4"
               >
                 <div className="min-w-0">
-                  <h2 className="font-display text-[clamp(26px,2.89vw,40px)] max-w-[340px] leading-[0.95] tracking-[-1.8px] mb-[clamp(8px,0.93vw,16px)]">
+                  <h1 className="font-display text-[clamp(26px,2.89vw,40px)] max-w-[340px] leading-[0.95] tracking-[-1.8px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                     <span className="not-italic text-[#111]">Certifications. </span>
                     <span className="italic text-brand-green">Proof of what you know.</span>
-                  </h2>
-                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+                  </h1>
+                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                     Degrees, online courses, licences, bootcamps — anything with your name on it
                     counts. Upload a PDF or photo, or add the details manually.
                   </p>
@@ -486,8 +488,7 @@ const CertsStage2Section = () => {
                     {[`2-8 certs `, `Upload or manual`, '~7 min'].map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] border border-[#e1eae2] whitespace-nowrap"
-                        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+                        className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] max-lg:py-[5px] border border-[#e1eae2] whitespace-nowrap shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none"
                       >
                         {tag}
                       </span>
@@ -496,14 +497,11 @@ const CertsStage2Section = () => {
                 </div>
 
                 {/* "Why certs matter" stat card — Figma 5217:124226 */}
-                <div
-                  className="hidden lg:block shrink-0 w-[420px] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px]"
-                  style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-                >
+                <div className="hidden lg:block shrink-0 w-[420px] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
                   <p className="font-sans font-bold text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[10px]">
                     Why certs matter
                   </p>
-                  <p className="font-sans text-[12px] text-[#70706e] leading-[1.6] mb-[14px]">
+                  <p className="font-sans text-[12px] text-[#70706e] leading-[1.6] mb-[14px] max-lg:text-[14px]">
                     Certifications back up your skills with third-party proof. Verified certs earn
                     the green ✓ badge recruiters trust 4× more.
                   </p>
@@ -515,7 +513,7 @@ const CertsStage2Section = () => {
                       <p className="font-sans font-bold text-[13px] text-[#111]">
                         Profile strength
                       </p>
-                      <p className="font-sans text-[12px] text-[#959592]">
+                      <p className="font-sans text-[12px] text-[#959592] max-lg:text-[14px]">
                         Six stages done. Certs add third-party proof.
                       </p>
                     </div>
@@ -523,7 +521,7 @@ const CertsStage2Section = () => {
                 </div>
               </section>
 
-              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)]">
+              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] max-lg:px-4 max-lg:py-4">
                 {isEmpty ? (
                   <>
                     {/* Empty state — Figma 5217:124048, ✅ VERIFIED verbatim copy */}
@@ -549,7 +547,7 @@ const CertsStage2Section = () => {
                           Add manually
                         </Button>
                       </div>
-                      <p className="font-sans text-[12px] text-[#70706e]">
+                      <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
                         No certs yet?{' '}
                         <button
                           type="button"
@@ -594,7 +592,7 @@ const CertsStage2Section = () => {
                     <button
                       type="button"
                       onClick={openAddModal}
-                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] mt-[10px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] max-lg:py-2 max-lg:text-[14px] mt-[10px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                       style={{ background: 'rgba(235,241,236,0.5)', border: '2px dashed #387440' }}
                     >
                       <span className="size-[20px] bg-brand-green rounded-[4px] flex items-center justify-center shrink-0">
@@ -618,15 +616,17 @@ const CertsStage2Section = () => {
             </div>
           </div>
 
-          <CertsStage2RightAside certCount={certs.length} />
+          <StageAsideAccordion title="What counts & why it matters">
+            <CertsStage2RightAside certCount={certs.length} />
+          </StageAsideAccordion>
         </div>
 
         {/* Footer — spans the full viewport width, sibling of the row above
             rather than nested next to the aside (same layout note as
             WorkStage2Section.jsx / PortfolioStage2Section.jsx). */}
-        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-[6px]">
+            <div className="flex items-center gap-[6px] max-sm:hidden">
               <span
                 aria-hidden="true"
                 className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -636,19 +636,21 @@ const CertsStage2Section = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
               <Button
                 variant="tertiary"
                 size="md"
+                className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                 onClick={handleGoBack}
                 leftIcon={<ArrowLeftIcon className="size-full" />}
               >
-                Certs intro
+                <span className="max-md:sr-only">Certs intro</span>
               </Button>
 
               <Button
                 variant="primary"
                 size="md"
+                className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                 onClick={handleNext}
                 rightIcon={<ArrowRightSmIcon className="size-full" />}
               >

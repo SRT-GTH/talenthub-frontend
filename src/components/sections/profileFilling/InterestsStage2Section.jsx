@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
 import AddCategoryModal from './AddCategoryModal.jsx';
 import InterestsCompleteModal from './InterestsCompleteModal.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -210,20 +211,17 @@ const CategoryCard = ({
     <>
       {/* ── The card ──────────────────────────────────────────────────────── */}
       <div
-        className={`bg-white border rounded-[16px] overflow-hidden transition-colors duration-150 ${
-          isExpanded ? 'border-[#387440]' : 'border-[#e8e8e4]'
+        className={`bg-white border rounded-[16px] overflow-hidden transition-colors duration-150 max-lg:rounded-xl max-lg:shadow-none ${
+          isExpanded
+            ? 'border-[#387440] shadow-[0px_4px_0px_0px_rgba(42,87,48,0.2)]'
+            : 'border-[#e8e8e4] shadow-[0px_4px_0px_0px_rgba(0,0,0,0.06)]'
         }`}
-        style={{
-          boxShadow: isExpanded
-            ? '0px 4px 0px 0px rgba(42,87,48,0.2)'
-            : '0px 4px 0px 0px rgba(0,0,0,0.06)',
-        }}
       >
         {/* Header row — always 84px — Figma 3550:47566 */}
-        <div className="flex items-center gap-[10px] h-[84px] px-[15px]">
+        <div className="flex items-center gap-[10px] h-[84px] px-[15px] max-lg:h-auto max-lg:min-h-16 max-lg:px-3 max-lg:py-2">
           {/* Icon container: light-green bg when expanded, gradient when collapsed */}
           <div
-            className="size-[38px] rounded-[10px] flex items-center justify-center shrink-0"
+            className="size-[38px] max-lg:size-8 rounded-[10px] flex items-center justify-center shrink-0"
             style={{ background: isExpanded ? '#f7fee7' : ICON_GRADIENT }}
           >
             <Icon className="size-5 text-[#387440]" />
@@ -233,23 +231,23 @@ const CategoryCard = ({
           <div className="flex-1 min-w-0">
             {/* Title row */}
             <div className="flex items-center gap-[8px] mb-[2px]">
-              <span className="font-sans font-bold text-[13px] text-[#111] leading-normal truncate">
+              <span className="font-sans font-bold text-[13px] max-lg:text-[15px] text-[#111] leading-normal truncate max-sm:overflow-visible max-sm:whitespace-normal max-sm:[overflow-wrap:anywhere]">
                 {label}
               </span>
               {hasDone && (
-                <span className="font-bold text-[10px] text-[#1d7c4d] leading-normal whitespace-nowrap shrink-0">
+                <span className="font-bold text-[10px] max-lg:text-[12px] text-[#1d7c4d] leading-normal whitespace-nowrap shrink-0">
                   ✓ Done
                 </span>
               )}
               {isExpanded && (
-                <span className="font-bold text-[10px] text-[#c8951a] leading-normal whitespace-nowrap shrink-0">
+                <span className="font-bold text-[10px] max-lg:text-[12px] text-[#c8951a] leading-normal whitespace-nowrap shrink-0">
                   In progress
                 </span>
               )}
             </div>
 
             {/* Subtitle — "Added: …" when expanded, specifics list when collapsed */}
-            <p className="font-sans text-[11px] text-[#70706e] leading-normal mb-[4px] truncate">
+            <p className="font-sans text-[11px] max-lg:text-[12px] text-[#70706e] leading-normal mb-[4px] max-lg:mb-1 truncate">
               {specifics.length > 0
                 ? (isExpanded ? 'Added: ' : '') + specifics.join(' · ')
                 : 'No specifics added yet'}
@@ -257,11 +255,11 @@ const CategoryCard = ({
 
             {/* Tags row — specifics count + Primary when expanded */}
             <div className="flex items-center gap-[6px]">
-              <span className="inline-flex items-center bg-[#ebf1ec] border border-[#c1d4c4] rounded-full h-[19px] px-[8px] font-semibold text-[10px] text-[#2a5730] leading-none">
+              <span className="inline-flex items-center bg-[#ebf1ec] border border-[#c1d4c4] rounded-full h-[19px] max-lg:h-7 px-[8px] font-semibold text-[10px] max-lg:text-[12px] text-[#2a5730] leading-none">
                 {specifics.length} specific{specifics.length !== 1 ? 's' : ''}
               </span>
               {isExpanded && (
-                <span className="inline-flex items-center bg-[#fefcf5] border border-[#e2dcca] rounded-full h-[19px] px-[8px] font-semibold text-[10px] text-[#999] leading-none">
+                <span className="inline-flex items-center bg-[#fefcf5] border border-[#e2dcca] rounded-full h-[19px] max-lg:h-7 px-[8px] font-semibold text-[10px] max-lg:text-[12px] text-[#999] leading-none">
                   Primary
                 </span>
               )}
@@ -269,11 +267,11 @@ const CategoryCard = ({
           </div>
 
           {/* Action buttons — 28×28 each */}
-          <div className="flex items-center gap-[5px] shrink-0">
+          <div className="flex items-center gap-[5px] shrink-0 max-lg:gap-1.5">
             <button
               type="button"
               onClick={onToggle}
-              className="size-[28px] bg-white border border-[#e8e8e4] rounded-[6px] flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 bg-white border border-[#e8e8e4] rounded-[6px] flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
               aria-label={isExpanded ? `Collapse ${label}` : `Expand ${label}`}
             >
               {isExpanded ? (
@@ -285,7 +283,7 @@ const CategoryCard = ({
             <button
               type="button"
               onClick={onRemoveCategory}
-              className="size-[28px] bg-white border border-[#e8e8e4] rounded-[6px] flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 bg-white border border-[#e8e8e4] rounded-[6px] flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
               aria-label={`Remove ${label}`}
             >
               <TrashIcon className="size-3" />
@@ -303,7 +301,7 @@ const CategoryCard = ({
             }}
           >
             {/* Section label — "SPECIFICS INSIDE …" */}
-            <p className="font-bold text-[10px] text-[#387440] tracking-[0.6px] uppercase pt-[14px] pb-[8px]">
+            <p className="font-bold text-[10px] max-lg:text-[12px] text-[#387440] tracking-[0.6px] uppercase pt-[14px] pb-[8px]">
               Specifics inside {label}
             </p>
 
@@ -319,7 +317,7 @@ const CategoryCard = ({
                     <button
                       type="button"
                       onClick={() => onRemoveSpecific(s)}
-                      className="font-semibold text-[11px] text-[#babab7] hover:text-[#555] leading-none ml-[2px]"
+                      className="font-semibold text-[11px] max-lg:text-[12px] text-[#babab7] hover:text-[#555] leading-none ml-[2px] max-lg:-my-3 max-lg:-mr-2 max-lg:p-2.5"
                       aria-label={`Remove ${s}`}
                     >
                       ✕
@@ -339,7 +337,7 @@ const CategoryCard = ({
                   if (e.key === 'Enter') handleAddFromInput();
                 }}
                 placeholder="Add a specific — e.g. 'Mobile dev', 'Cloud infra', 'Cybersecurity'…"
-                className="flex-1 h-[34px] bg-white border border-[#e8e8e4] rounded-[10px] px-[11px] font-sans text-[12px] text-[#111] outline-none focus:border-[#387440] transition-colors duration-150"
+                className="flex-1 min-w-0 h-[34px] max-lg:h-11 bg-white border border-[#e8e8e4] rounded-[10px] px-[11px] font-sans text-[12px] text-[#111] outline-none focus:border-[#387440] transition-colors duration-150"
                 style={{ '::placeholder': { color: '#c8c8c8' } }}
               />
               <Button variant="primary" size="sm" onClick={handleAddFromInput}>
@@ -354,13 +352,13 @@ const CategoryCard = ({
       {isExpanded && suggestions && suggestions.length > 0 && (
         <div>
           {/* "SUGGESTIONS FOR …" label — Figma 3576:89634: bold 10px #70706e tracking-[0.7px] uppercase */}
-          <p className="font-bold text-[10px] text-[#70706e] tracking-[0.7px] uppercase mt-[2px] mb-[4px]">
+          <p className="font-bold text-[10px] max-lg:text-[12px] text-[#70706e] tracking-[0.7px] uppercase mt-[2px] mb-[4px]">
             Suggestions for {label}
           </p>
           {/* Horizontal divider — Figma 3576:89635 */}
           <div className="h-px mb-[6px]" style={{ background: 'rgba(0,0,0,0.07)' }} />
           {/* 2-column grid — Figma 3576:89506–89622 */}
-          <div className="grid grid-cols-2 gap-[6px]">
+          <div className="grid grid-cols-2 gap-[6px] max-sm:flex max-sm:flex-wrap max-sm:gap-2">
             {suggestions.map((sugg) => {
               const sLabel = sugg.label;
               const SuggIcon = sugg.Icon;
@@ -371,14 +369,14 @@ const CategoryCard = ({
                   type="button"
                   disabled={isAdded}
                   onClick={() => !isAdded && onAddSpecific(sLabel)}
-                  className="flex items-center gap-[8px] pl-[9px] pr-[10px] py-[11px] rounded-[10px] border border-[#fef1e7] bg-white text-left w-full transition-opacity duration-150 hover:opacity-80"
+                  className="flex items-center gap-[8px] pl-[9px] pr-[10px] py-[11px] rounded-[10px] border border-[#fef1e7] bg-white text-left w-full transition-opacity duration-150 hover:opacity-80 max-sm:w-auto max-sm:rounded-full max-sm:px-3 max-sm:py-1.5"
                   style={isAdded ? { backgroundImage: SUGGESTION_GRADIENT } : undefined}
                 >
                   <SuggIcon
                     className={`size-[16px] shrink-0 ${isAdded ? 'text-[#387440]' : 'text-[#C1D4C4]'}`}
                   />
                   <span
-                    className="font-sans text-[12px] leading-normal whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="font-sans text-[12px] leading-normal whitespace-nowrap overflow-hidden text-ellipsis max-lg:text-[13px] max-sm:overflow-visible max-sm:whitespace-nowrap"
                     style={{
                       color: isAdded ? '#387440' : '#70706e',
                       fontWeight: isAdded ? 600 : 400,
@@ -400,17 +398,17 @@ const CategoryCard = ({
 
 const Stage2RightPanel = () => (
   <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[#e8e8e4] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[#e8e8e4] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
     aria-label="Interests guidance"
     style={{ scrollbarWidth: 'none' }}
   >
     <div className="flex flex-col gap-[10px] p-[clamp(12px,1.16vw,20px)]">
       {/* WHY INTERESTS MATTER — bg-white, rounded-[16px] */}
       <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
+        <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
           Why Interests Matter
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6] mb-[10px]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] leading-[1.6] mb-[10px]">
           Categories solve the cold-start problem — you match to at least 2–3 roles before
           you&apos;ve filled anything else. Specifics surface you to mentors with the same niche.
         </p>
@@ -419,10 +417,10 @@ const Stage2RightPanel = () => (
             22%
           </span>
           <div>
-            <p className="font-sans font-semibold text-[11px] text-[#111] leading-tight">
+            <p className="font-sans font-semibold text-[11px] max-lg:text-[12px] text-[#111] leading-tight">
               Profile strength
             </p>
-            <p className="font-sans text-[10px] text-[#70706e] leading-tight mt-[2px]">
+            <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e] leading-tight mt-[2px]">
               Two stages done. Interests fills the matching engine.
             </p>
           </div>
@@ -434,7 +432,7 @@ const Stage2RightPanel = () => (
         className="border border-[#c1d4c4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
         style={{ background: 'rgba(235,241,236,0.5)' }}
       >
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
+        <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
           What Counts?
         </p>
         <ul className="flex flex-col gap-[5px]">
@@ -446,7 +444,7 @@ const Stage2RightPanel = () => (
           ].map((item) => (
             <li
               key={item}
-              className="flex items-start gap-[6px] font-sans text-[11px] text-[#70706e] leading-[1.5]"
+              className="flex items-start gap-[6px] font-sans text-[11px] max-lg:text-[12px] text-[#70706e] leading-[1.5]"
             >
               <span className="font-bold text-[#387440] shrink-0 mt-px">✓</span>
               {item}
@@ -457,10 +455,10 @@ const Stage2RightPanel = () => (
 
       {/* POPULAR IN GHANA */}
       <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
+        <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
           Popular in Ghana
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] leading-[1.6]">
           Tech &amp; Engineering, Business, and Creative Arts are the top 3. Health Sciences and
           Education are rising fast in the 2024 cohort.
         </p>
@@ -468,10 +466,10 @@ const Stage2RightPanel = () => (
 
       {/* THE SWEET SPOT */}
       <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]">
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
+        <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
           The Sweet Spot
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] leading-[1.6]">
           3–5 categories. 8–10 specifics. Too few = broad matches. Too many = noise. Depth beats
           breadth here.
         </p>
@@ -482,10 +480,10 @@ const Stage2RightPanel = () => (
         className="border border-[#c1d4c4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
         style={{ background: 'rgba(235,241,236,0.5)' }}
       >
-        <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
+        <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[8px]">
           Mentor Matching
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] leading-[1.6]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] leading-[1.6]">
           Add 2 more specifics to unlock — you&apos;ll be surfaced to senior professionals in the
           same niche.
         </p>
@@ -587,9 +585,9 @@ const InterestsStage2Section = () => {
   const totalSpecifics = categories.reduce((sum, c) => sum + c.specifics.length, 0);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
       {/* Top nav */}
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -599,26 +597,26 @@ const InterestsStage2Section = () => {
       </div>
 
       {/* Stage trail bar — Interests (index 1) active */}
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={1} completionPct={0} className="w-full h-full" />
       </div>
 
       {/* Main */}
-      <main className="flex-1 min-h-0 overflow-hidden flex">
+      <main className="flex-1 min-h-0 overflow-hidden flex max-lg:flex-col max-lg:overflow-visible">
         {/* Left column */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
           {/* Scrollable content */}
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
             {/* Header — Figma 3531:46294 */}
             <section
               aria-label="Interests — what pulls you in"
-              className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)]"
+              className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] max-lg:px-4 max-lg:py-4"
             >
-              <h2 className="font-display text-[clamp(26px,2.89vw,50px)] leading-[0.92] tracking-[-2px] mb-[clamp(8px,0.93vw,16px)]">
+              <h1 className="font-display text-[clamp(26px,2.89vw,50px)] leading-[0.92] tracking-[-2px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                 <span className="not-italic text-[#111]">What pulls </span>
                 <span className="italic text-[#387440]">you in?</span>
-              </h2>
-              <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+              </h1>
+              <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                 Pick broad areas first, then add specifics. Drives your role matches, mentor
                 suggestions, and Squad recommendations. Multi-entry — add as many as fit. Real ones
                 only.
@@ -631,7 +629,7 @@ const InterestsStage2Section = () => {
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] border border-[#c1d4c4] whitespace-nowrap"
+                    className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] max-lg:py-[5px] border border-[#c1d4c4] whitespace-nowrap"
                   >
                     {tag}
                   </span>
@@ -640,22 +638,22 @@ const InterestsStage2Section = () => {
             </section>
 
             {/* Section heading — Figma 3531:46331 */}
-            <div className="px-[clamp(20px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(10px,0.93vw,16px)]">
-              <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[6px]">
+            <div className="px-[clamp(20px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(10px,0.93vw,16px)] max-lg:px-4">
+              <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[6px]">
                 What this stage covers
               </p>
-              <h3 className="font-display text-[clamp(20px,1.97vw,34px)] leading-[1.05] tracking-[-1px] mb-[4px]">
+              <h3 className="font-display text-[clamp(20px,1.97vw,34px)] leading-[1.05] tracking-[-1px] max-lg:tracking-[-0.02em] mb-[4px]">
                 <span className="not-italic text-[#111]">Broad areas </span>
                 <span className="italic text-[#387440]">first.</span>
               </h3>
-              <p className="font-sans text-[clamp(10px,0.69vw,12px)] text-[#737373] leading-[1.5]">
+              <p className="font-sans text-[clamp(10px,0.69vw,12px)] max-lg:text-[14px] text-[#737373] leading-[1.5]">
                 Pick 2–6 categories that genuinely describe you. Expand any card to add specifics
                 inside it.
               </p>
             </div>
 
             {/* Category accordion cards + inline suggestions */}
-            <div className="flex flex-col gap-[8px] px-[clamp(20px,3.24vw,56px)] pb-[8px]">
+            <div className="flex flex-col gap-[8px] px-[clamp(20px,3.24vw,56px)] pb-[8px] max-lg:px-4">
               {categories.map((cat) => (
                 <CategoryCard
                   key={cat.id}
@@ -672,11 +670,11 @@ const InterestsStage2Section = () => {
             </div>
 
             {/* Add another interest category — dashed green button → opens modal */}
-            <div className="px-[clamp(20px,3.24vw,56px)] pt-[8px] pb-[clamp(16px,1.85vw,32px)]">
+            <div className="px-[clamp(20px,3.24vw,56px)] pt-[8px] pb-[clamp(16px,1.85vw,32px)] max-lg:px-4">
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(true)}
-                className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-[#387440] transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] max-lg:py-2 max-lg:text-[14px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-[#387440] transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                 style={{
                   background: 'rgba(235,241,236,0.5)',
                   border: '2px dashed #387440',
@@ -700,24 +698,24 @@ const InterestsStage2Section = () => {
             </div>
 
             {/* Live role matches — Figma 3547:47351 */}
-            <div className="px-[clamp(20px,3.24vw,56px)] pb-[clamp(24px,2.31vw,40px)]">
+            <div className="px-[clamp(20px,3.24vw,56px)] pb-[clamp(24px,2.31vw,40px)] max-lg:px-4">
               <div className="bg-[#fffefc] border border-[#eedeb8] rounded-[10px] p-[clamp(14px,1.39vw,24px)]">
-                <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#967014] mb-[10px]">
+                <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#967014] mb-[10px]">
                   Live Role Matches from Your Interests
                 </p>
                 <div className="flex flex-col gap-[8px] mb-[8px]">
                   {ROLE_MATCHES.map(({ role, company, pct }) => (
                     <div key={role} className="flex items-center justify-between gap-[8px]">
-                      <span className="font-sans font-semibold text-[12px] text-[#967014] min-w-0 truncate">
+                      <span className="font-sans font-semibold text-[12px] text-[#967014] min-w-0 truncate max-sm:overflow-visible max-sm:whitespace-normal max-lg:text-[14px]">
                         {role} · {company}
                       </span>
-                      <span className="inline-flex items-center bg-[#f7efdd] rounded-full px-[8px] py-[2px] font-bold text-[10px] text-[#967014] whitespace-nowrap shrink-0">
+                      <span className="inline-flex items-center bg-[#f7efdd] rounded-full px-[8px] py-[2px] font-bold text-[10px] max-lg:text-[12px] text-[#967014] whitespace-nowrap shrink-0">
                         {pct}% match
                       </span>
                     </div>
                   ))}
                 </div>
-                <p className="font-sans text-[11px] text-[rgba(17,17,17,0.55)] underline underline-offset-2 cursor-pointer">
+                <p className="font-sans text-[11px] max-lg:text-[14px] text-[rgba(17,17,17,0.55)] underline underline-offset-2 cursor-pointer">
                   +139 more in Opportunities →
                 </p>
               </div>
@@ -725,9 +723,9 @@ const InterestsStage2Section = () => {
           </div>
 
           {/* Footer */}
-          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-[6px]">
+              <div className="flex items-center gap-[6px] max-sm:hidden">
                 <span
                   aria-hidden="true"
                   className="inline-block w-[6px] h-[6px] rounded-[3px] bg-[#387440] shrink-0"
@@ -737,19 +735,21 @@ const InterestsStage2Section = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
                 <Button
                   variant="tertiary"
                   size="md"
+                  className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                   onClick={handleGoBack}
                   leftIcon={<ArrowLeftIcon className="size-full" />}
                 >
-                  Avatar
+                  <span className="max-md:sr-only">Avatar</span>
                 </Button>
 
                 <Button
                   variant="primary"
                   size="md"
+                  className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                   onClick={handleNext}
                   rightIcon={<ArrowRightIcon className="size-full" />}
                 >
@@ -761,7 +761,9 @@ const InterestsStage2Section = () => {
         </div>
 
         {/* Right panel */}
-        <Stage2RightPanel />
+        <StageAsideAccordion title="Why this matters">
+          <Stage2RightPanel />
+        </StageAsideAccordion>
       </main>
 
       {/* Add Category Modal */}

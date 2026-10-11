@@ -65,13 +65,13 @@ const ArrowMini = () => (
 // ── Numbered list item — Figma 2947:79705 etc. ──────────────────────────────
 export const ConsentListItem = ({ n, title, desc, highlight = false }) => (
   <div
-    className="flex items-start gap-[12px] border-b py-[13px]"
+    className="flex items-start gap-[12px] border-b py-[13px] max-sm:gap-2.5 max-sm:py-2.5"
     style={{ borderColor: 'rgba(0,0,0,0.06)' }}
   >
     <span
       className="flex size-[26px] shrink-0 items-center justify-center rounded-[13px] border font-display font-bold"
       style={{
-        fontSize: 11,
+        fontSize: 'var(--fs-11)',
         backgroundColor: highlight ? '#ebf1ec' : '#f8f8f4',
         borderColor: highlight ? '#c1d4c4' : '#c6c6c3',
         color: highlight ? '#2a5730' : '#70706e',
@@ -86,7 +86,10 @@ export const ConsentListItem = ({ n, title, desc, highlight = false }) => (
       >
         {title}
       </p>
-      <p className="font-sans" style={{ fontSize: 12, color: '#737373', lineHeight: '19.8px' }}>
+      <p
+        className="font-sans max-sm:leading-[17px]!"
+        style={{ fontSize: 12, color: '#737373', lineHeight: '19.8px' }}
+      >
         {desc}
       </p>
     </div>
@@ -102,7 +105,7 @@ export const NoticeBox = ({ variant = 'blue', title, children }) => {
 
   return (
     <div
-      className="flex gap-[12px] rounded-[12px] border p-[12px]"
+      className="flex gap-[12px] rounded-[12px] border p-[12px] max-sm:gap-2.5 max-sm:p-2.5"
       style={{ backgroundColor: cfg.bg, borderColor: cfg.border }}
     >
       <span
@@ -115,7 +118,7 @@ export const NoticeBox = ({ variant = 'blue', title, children }) => {
       </span>
       <div className="flex flex-col gap-[2px]">
         <p
-          className="font-sans font-semibold"
+          className="font-sans font-semibold max-sm:leading-5!"
           style={{ fontSize: 14, color: cfg.text, lineHeight: '24px' }}
         >
           {title}
@@ -166,18 +169,18 @@ const ConsentModal = ({
       onClick={onClose}
     >
       <div
-        className="flex max-h-[92vh] w-full max-w-[666px] flex-col overflow-hidden rounded-t-[24px] bg-white sm:rounded-[24px]"
+        className="flex max-h-[92vh] max-sm:max-h-[92dvh] w-full max-w-[666px] flex-col overflow-hidden rounded-t-[24px] bg-white sm:rounded-[24px]"
         style={{ boxShadow: '0px -16px 24px rgba(0,0,0,0.22)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drag handle — Figma 2947:79683 */}
-        <div className="flex shrink-0 justify-center pt-[16px]">
+        <div className="flex shrink-0 justify-center pt-[16px] max-sm:pt-2">
           <span className="h-[4px] w-[36px] rounded-[2px]" style={{ backgroundColor: '#c6c6c3' }} />
         </div>
 
         {/* Header — Figma 2947:79684 */}
         <div
-          className="shrink-0 mx-6 pb-[14px] pt-[12px]"
+          className="shrink-0 mx-6 pb-[14px] pt-[12px] max-sm:mx-4 max-sm:pb-2 max-sm:pt-1.5"
           style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
         >
           <div className="flex items-start justify-between">
@@ -188,7 +191,7 @@ const ConsentModal = ({
               <SummaryBadgeIcon />
               <span
                 className="font-sans font-bold uppercase"
-                style={{ fontSize: 10, color: '#70706e', letterSpacing: '0.6px' }}
+                style={{ fontSize: 'var(--fs-10)', color: '#70706e', letterSpacing: '0.6px' }}
               >
                 {badge}
               </span>
@@ -197,7 +200,7 @@ const ConsentModal = ({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="flex size-[27px] items-center justify-center rounded-[16px] text-[#70706e] transition-colors hover:bg-neutral"
+              className="relative flex size-[27px] items-center justify-center rounded-[16px] text-[#70706e] transition-colors hover:bg-neutral max-sm:size-8 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
               style={{ backgroundColor: '#f8f8f4' }}
             >
               <CloseIcon />
@@ -205,7 +208,7 @@ const ConsentModal = ({
           </div>
           {/* Title — Instrument Serif 24px + italic amber accent */}
           <h2
-            className="mt-[10px] font-display font-normal"
+            className="mt-[10px] font-display font-normal max-sm:mt-1.5 max-sm:text-[20px]! max-sm:leading-6!"
             style={{ fontSize: 24, letterSpacing: '-1px', lineHeight: '23.1px', color: '#111' }}
           >
             {title}{' '}
@@ -220,11 +223,11 @@ const ConsentModal = ({
         {/* Intro banner — Figma 2947:79695 */}
         {intro && (
           <div
-            className="flex shrink-0 items-center gap-[16px] mx-6 px-3.5 py-[15px]"
+            className="flex shrink-0 items-center gap-[16px] mx-6 px-3.5 py-[15px] max-sm:mx-4 max-sm:gap-3 max-sm:px-3 max-sm:py-2.5"
             style={{ backgroundColor: 'rgba(235,241,236,0.6)', borderBottom: '1px solid #c1d4c4' }}
           >
             <span
-              className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px]"
+              className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] max-sm:shadow-none!"
               style={{ backgroundColor: '#387440', boxShadow: '0px 3px 0px #2a5730' }}
             >
               <SummaryDocIcon />
@@ -244,19 +247,19 @@ const ConsentModal = ({
         )}
 
         {/* Scrollable body — Figma 2947:79704 */}
-        <div className="flex-1 overflow-y-auto px-6 py-[16px]">
+        <div className="flex-1 overflow-y-auto px-6 py-[16px] max-sm:px-4 max-sm:py-2">
           <div className="flex flex-col gap-[8px]">{children}</div>
         </div>
 
         {/* Footer — Figma 2947:79762 */}
         <div
-          className="shrink-0 px-6 pb-[16px] pt-[12px]"
+          className="shrink-0 px-6 pb-[16px] pt-[12px] max-sm:px-4 max-sm:pb-[max(12px,env(safe-area-inset-bottom))] max-sm:pt-2"
           style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
         >
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 max-sm:gap-3">
             <p
               className="font-sans"
-              style={{ fontSize: 11, color: '#babab7', lineHeight: '15.4px' }}
+              style={{ fontSize: 'var(--fs-11)', color: '#babab7', lineHeight: '15.4px' }}
             >
               {footnote}
             </p>
@@ -266,7 +269,7 @@ const ConsentModal = ({
                 e.preventDefault();
                 log('read full document clicked');
               }}
-              className="flex shrink-0 items-center gap-[8px] rounded-[4px] border px-[16px] py-[8px] font-sans font-semibold"
+              className="relative flex shrink-0 items-center gap-[8px] rounded-[4px] border px-[16px] py-[8px] font-sans font-semibold max-sm:px-3 max-sm:py-1.5 max-sm:before:absolute max-sm:before:-inset-x-1 max-sm:before:-inset-y-2 max-sm:before:content-['']"
               style={{
                 borderColor: '#c1d4c4',
                 color: '#387440',
@@ -282,7 +285,7 @@ const ConsentModal = ({
             type="button"
             variant="primary"
             size="lg"
-            className="mt-[16px] w-full justify-center"
+            className="mt-[16px] w-full justify-center max-sm:mt-2 max-sm:h-11 max-sm:py-0 max-sm:drop-shadow-none!"
             leftIcon={<CheckLargeIcon />}
             onClick={() => {
               log('accept clicked');

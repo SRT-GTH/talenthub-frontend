@@ -8,7 +8,7 @@ export default function SkillsLabHeader({ title, subtitle, score, total, remaini
 
   return (
     <div
-      className="flex items-center justify-between px-[clamp(24px,3.9vw,57px)] h-[clamp(64px,5.9vw,86px)] border-b border-[rgba(0,0,0,0.2)]"
+      className="flex items-center justify-between px-[clamp(24px,3.9vw,57px)] h-[clamp(64px,5.9vw,86px)] max-lg:h-auto max-lg:py-3 max-md:flex-col max-md:items-start max-md:gap-2 max-md:px-4 max-md:py-2.5 border-b border-[rgba(0,0,0,0.2)]"
       style={{
         backgroundImage: 'linear-gradient(177deg, #142916 0%, #2a5730 100%)',
       }}
@@ -17,19 +17,19 @@ export default function SkillsLabHeader({ title, subtitle, score, total, remaini
         <GameControllerIcon className="text-white" />
         <div className="flex flex-col gap-[2px]">
           <span
-            className="text-white text-[clamp(16px,1.5vw,22px)] tracking-[-0.4px] leading-normal"
+            className="text-white text-[clamp(16px,1.5vw,22px)] max-lg:text-[20px] max-md:text-[17px] tracking-[-0.4px] leading-normal"
             style={{ fontFamily: 'Instrument Serif, serif' }}
           >
             {title}
           </span>
-          <span className="text-[rgba(255,255,255,0.9)] text-[clamp(10px,0.83vw,12px)] font-sans leading-normal">
+          <span className="text-[rgba(255,255,255,0.9)] text-[clamp(10px,0.83vw,12px)] max-lg:text-[12px] font-sans leading-normal">
             {subtitle}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center h-[40px] px-[14px] rounded-full bg-[rgba(255,255,255,0.15)] border border-[rgba(255,255,255,0.25)]">
-        <span className="text-white text-[12px] font-sans font-bold leading-normal whitespace-pre">
+      <div className="flex items-center h-[40px] max-md:h-auto max-md:min-h-7 max-md:py-1 px-[14px] rounded-full bg-[rgba(255,255,255,0.15)] border border-[rgba(255,255,255,0.25)]">
+        <span className="text-white text-[12px] font-sans font-bold leading-normal whitespace-pre max-md:whitespace-normal">
           {` ${score}/${total} correct  ·  ${remaining} remaining`}
         </span>
       </div>

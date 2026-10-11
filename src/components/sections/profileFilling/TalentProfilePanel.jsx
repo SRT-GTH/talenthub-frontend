@@ -197,9 +197,11 @@ const TalentProfilePanel = ({
       )}
       aria-label={ariaLabel}
     >
-      <div className="flex flex-col gap-[9px] pt-[14px] pb-[20px]">
-        <h2 className="font-display not-italic text-[32px] tracking-[-1px] text-[#111]">{title}</h2>
-        <p className="font-sans text-[16px] leading-[18px] tracking-[0.2px] text-[#595959]">
+      <div className="flex flex-col gap-[9px] pt-[14px] pb-[20px] max-lg:gap-1 max-lg:pb-3 max-lg:pt-2">
+        <h2 className="font-display not-italic text-[32px] tracking-[-1px] text-[#111] max-lg:text-[24px]">
+          {title}
+        </h2>
+        <p className="font-sans text-[16px] leading-[18px] tracking-[0.2px] text-[#595959] max-lg:text-[14px] max-lg:leading-5">
           {subtitle}
         </p>
       </div>
@@ -215,7 +217,7 @@ const TalentProfilePanel = ({
           <div
             role="tablist"
             aria-label={`${title} view`}
-            className="flex w-[300px] items-start gap-[6px] rounded-[10px] bg-[#f2f2f2] p-[6px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.17)]"
+            className="flex w-[300px] items-start gap-[6px] max-lg:w-full max-lg:max-w-[360px] rounded-[10px] bg-[#f2f2f2] p-[6px] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.17)]"
           >
             {tabs.map((tab) => {
               const isActive = tab.id === activeTabId;
@@ -227,7 +229,7 @@ const TalentProfilePanel = ({
                   aria-selected={isActive}
                   onClick={() => onSelectTab?.(tab.id)}
                   className={classNames(
-                    'flex flex-1 min-w-px items-center justify-center overflow-hidden whitespace-nowrap',
+                    'flex flex-1 min-w-px items-center justify-center overflow-hidden whitespace-nowrap max-lg:min-h-11',
                     'font-sans text-[14px] text-center transition-all duration-300 ease-in',
                     isActive
                       ? 'rounded-[10px] border border-[#e5e5e5] bg-white px-[24px] py-[14px] text-brand-green'
@@ -276,17 +278,17 @@ const TalentProfilePanel = ({
                   e.preventDefault();
                   onToggleExpand?.(stage.id);
                 }}
-                className="w-full flex items-center justify-between gap-[20px] py-[40px] pr-[20px] text-left cursor-pointer"
+                className="w-full flex items-center justify-between gap-[20px] py-[40px] pr-[20px] text-left cursor-pointer max-lg:gap-3 max-lg:py-3 max-lg:pr-0"
                 aria-expanded={isExpanded}
               >
-                <span className="flex items-center gap-[20px] min-w-0">
+                <span className="flex items-center gap-[20px] min-w-0 max-lg:gap-3">
                   {Icon ? (
-                    <Icon className="size-10 text-brand-green shrink-0" />
+                    <Icon className="size-10 text-brand-green shrink-0 max-lg:size-7" />
                   ) : (
                     <span className="size-10 shrink-0" aria-hidden="true" />
                   )}
                   <span className="flex flex-col gap-[6px] min-w-0">
-                    <span className="font-sans font-medium text-[20px] text-[#111] truncate">
+                    <span className="font-sans font-medium text-[20px] text-[#111] truncate max-lg:text-[16px] max-sm:overflow-visible max-sm:whitespace-normal">
                       {stage.panelLabel}
                     </span>
                     <span className="font-sans text-[14px] text-[#595959]">
@@ -308,7 +310,7 @@ const TalentProfilePanel = ({
                   aria-label={
                     isExpanded ? `Collapse ${stage.panelLabel}` : `Expand ${stage.panelLabel}`
                   }
-                  className="bg-white border border-[#e5e7eb]"
+                  className="bg-white border border-[#e5e7eb] max-lg:size-11"
                   onClick={(e) => {
                     // Row itself already toggles on click — stop this from
                     // bubbling up and firing the same toggle a second time.
@@ -326,7 +328,7 @@ const TalentProfilePanel = ({
               </div>
 
               {isExpanded && (
-                <div className="pb-[29px] px-[40px]">
+                <div className="pb-[29px] px-[40px] max-lg:px-0 max-lg:pb-5">
                   {stage.entries ? (
                     <>
                       {/* Work Experience (Figma 5132:50598 view / 5132:50994
@@ -555,7 +557,7 @@ const TalentProfilePanel = ({
                               </span>
                               <span
                                 className={classNames(
-                                  'font-sans text-[17px] text-right max-w-[350px] flex items-center gap-[6px]',
+                                  'font-sans text-[17px] text-right max-w-[350px] flex items-center gap-[6px] max-lg:min-w-0 max-lg:[overflow-wrap:anywhere]',
                                   field.verified ? 'text-brand-green' : 'text-[#595959]'
                                 )}
                               >
@@ -601,7 +603,7 @@ const TalentProfilePanel = ({
                     )
                   ) : stage.previewFields ? (
                     <>
-                      <p className="font-sans text-[10px] font-semibold uppercase tracking-wide text-content-tertiary mb-2">
+                      <p className="font-sans text-[10px] max-lg:text-[12px] font-semibold uppercase tracking-wide text-content-tertiary mb-2">
                         Preview — not yet confirmed by Career Buddy
                       </p>
                       <dl className="flex flex-col gap-2 opacity-70">

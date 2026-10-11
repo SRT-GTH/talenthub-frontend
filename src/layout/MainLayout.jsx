@@ -49,14 +49,14 @@ const MainLayout = () => {
   log('mount; pathname:', pathname, 'onboarding:', onboarding, 'fixedShell:', fixedShell);
 
   return (
-    // Layout-wide column. Fixed-shell auth flows lock to `h-screen` + overflow-
+    // Layout-wide column. Fixed-shell auth flows lock to `h-dvh` (not `h-screen`: 100vh is taller than the visible viewport on iOS) + overflow-
     // hidden so the page itself never scrolls (navbar + right panel stay put,
-    // content column scrolls internally). Everything else uses `min-h-screen`
+    // content column scrolls internally). Everything else uses `min-h-dvh`
     // with normal page scroll (sticky navbar keeps the header visible).
     <div
       className={classNames(
         'mx-auto flex w-full flex-col',
-        fixedShell ? 'h-screen overflow-hidden' : 'min-h-screen'
+        fixedShell ? 'h-dvh overflow-hidden' : 'min-h-dvh'
       )}
     >
       {onboarding ? <OnboardingNavbar /> : <Navbar />}

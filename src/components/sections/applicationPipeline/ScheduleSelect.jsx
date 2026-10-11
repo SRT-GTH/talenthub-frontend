@@ -101,15 +101,15 @@ const ScheduleSelect = ({
         className={classNames(
           'flex w-full items-center justify-between gap-[8px] rounded-[10px] border bg-white text-left',
           'transition-all duration-300 ease-in',
-          isChip ? 'h-[36px] px-[16px]' : 'h-[51px] px-[16px]',
+          isChip ? 'h-[36px] max-lg:h-[44px] px-[16px]' : 'h-[51px] max-lg:h-[44px] px-[16px]',
           open
             ? 'border-brand-green shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]'
-            : 'border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)]'
+            : 'border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] max-lg:shadow-none'
         )}
       >
         <span
           className={classNames(
-            'truncate font-sans text-[13px] font-medium leading-5 tracking-[0.2px]',
+            'truncate font-sans text-[13px] max-lg:text-[16px] font-medium leading-5 tracking-[0.2px]',
             // Figma: a chosen field value reads #595959; the Month / Year chips
             // and any placeholder stay content-helper grey.
             value && !isChip ? 'text-[#595959]' : 'text-content-helper'
@@ -143,7 +143,7 @@ const ScheduleSelect = ({
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => choose(option)}
                 className={classNames(
-                  'flex h-[40px] cursor-pointer items-center justify-between gap-[8px] px-[16px]',
+                  'flex h-[40px] max-lg:h-[44px] cursor-pointer items-center justify-between gap-[8px] px-[16px]',
                   'font-sans text-[14px] leading-[24px] tracking-[0.24px] transition-colors',
                   index === activeIndex && 'bg-[#f6f6f6]',
                   'active:bg-[#ededed]',

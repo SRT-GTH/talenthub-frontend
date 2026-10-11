@@ -1,5 +1,6 @@
 import { classNames } from '../../../utils/classNames.js';
 import ProgressRing from '../../ui/ProgressRing.jsx';
+import ClampText from '../../ui/ClampText.jsx';
 
 /*
  * ProfileStandingCard — "Where you stand" summary card.
@@ -23,6 +24,8 @@ const ProfileStandingCard = ({
     className={classNames(
       'rounded-xl bg-white border border-border-default shadow-bottom-200',
       'px-5 py-5',
+      // phones: flat strip on the hero wash, no card chrome
+      'max-lg:rounded-none max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none',
       'w-full max-w-[clamp(360px,32vw,488px)]',
       className
     )}
@@ -30,16 +33,19 @@ const ProfileStandingCard = ({
     <p className="font-sans font-semibold text-[12px] leading-4 tracking-[0.2px] uppercase text-neutral-dark-hover">
       📈 Where you stand
     </p>
-    <div className="mt-4 flex items-start gap-4">
+    <div className="mt-4 max-lg:mt-2 flex items-start gap-4 max-lg:gap-3">
       <ProgressRing value={completionPct} size={56} label="Profile completion" />
       <div className="flex-1 min-w-0">
-        <p className="font-sans font-semibold text-[16px] leading-6 tracking-[0.1px] text-content-primary">
+        <p className="font-sans font-semibold text-[16px] max-lg:text-[15px] leading-6 max-lg:leading-5 tracking-[0.1px] text-content-primary">
           {doneCount} done · {inProgressCount} in progress
         </p>
-        <p className="mt-1 font-sans text-[12px] leading-[18px] tracking-[0.2px] text-neutral-dark-hover">
+        <ClampText
+          lines={2}
+          className="mt-1 font-sans text-[12px] max-lg:text-[13px] leading-[18px] max-lg:leading-[18px] tracking-[0.2px] text-neutral-dark-hover"
+        >
           {remainingCount} stages left. None required. Your profile card gets stronger each one you
           finish. Avatar alone is enough to show up in recruiter search.
-        </p>
+        </ClampText>
       </div>
     </div>
   </aside>

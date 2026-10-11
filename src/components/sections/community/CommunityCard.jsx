@@ -115,22 +115,26 @@ const CommunityCard = ({ community, onToggleJoin }) => {
       }}
       aria-label={`${name.trim()}, ${memberLabel.trim()}`}
       className={classNames(
-        'relative flex w-full cursor-pointer flex-col items-start justify-end gap-[10px] rounded-[20px] border-[1.036px] border-[#e5e5e5] bg-white p-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.11)] transition-shadow hover:shadow-bottom-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+        'relative flex w-full cursor-pointer flex-col items-start justify-end gap-[10px] max-sm:flex-row max-sm:items-start max-sm:justify-start max-sm:gap-[12px] rounded-[20px] border-[1.036px] border-[#e5e5e5] bg-white p-[12px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.11)] transition-shadow hover:shadow-bottom-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
         leaveConfirmOpen && 'z-20'
       )}
     >
-      <div className="h-[110px] w-full overflow-hidden rounded-[12px]">
+      <div className="h-[110px] w-full overflow-hidden rounded-[12px] max-sm:size-[80px] max-sm:shrink-0">
         <img src={cover} alt="" draggable="false" className="size-full select-none object-cover" />
       </div>
 
-      <div className="flex w-full flex-col items-start py-[8px]">
-        <div className="flex w-full flex-col items-end gap-[4px]">
-          <div className="flex w-full flex-col items-start gap-[7px] [word-break:break-word]">
+      <div className="flex w-full flex-col items-start py-[8px] max-sm:min-w-0 max-sm:flex-1 max-sm:py-0">
+        <div className="flex w-full flex-col items-end gap-[4px] max-sm:items-start max-sm:gap-[6px]">
+          <div className="flex w-full flex-col items-start gap-[7px] max-sm:gap-[2px] [word-break:break-word]">
             <div className="flex w-full flex-col items-start gap-[4px]">
-              <p className="font-sans text-[16.58px] font-semibold text-black">{name}</p>
-              <p className="font-sans text-[13.47px] text-[#999]">{memberLabel}</p>
+              <p className="font-sans text-[16.58px] max-sm:text-[16px] max-sm:leading-5 font-semibold text-black">
+                {name}
+              </p>
+              <p className="font-sans text-[13.47px] max-sm:text-[12px] text-[#999]">
+                {memberLabel}
+              </p>
             </div>
-            <p className="h-[41px] w-full max-w-[280px] font-sans text-[14.5px] leading-[20.5px] text-[#595959]">
+            <p className="h-[41px] w-full max-w-[280px] font-sans text-[14.5px] leading-[20.5px] text-[#595959] max-sm:h-auto max-sm:line-clamp-2 max-sm:text-[13px] max-sm:leading-[18px]">
               {description}
             </p>
           </div>
@@ -142,11 +146,11 @@ const CommunityCard = ({ community, onToggleJoin }) => {
               aria-pressed={joined}
               aria-expanded={joined ? leaveConfirmOpen : undefined}
               className={classNames(
-                'flex shrink-0 items-center justify-center gap-[6px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t px-[16px] py-[10px] transition-transform active:translate-y-[2px]',
+                'relative flex shrink-0 items-center justify-center gap-[6px] whitespace-nowrap rounded-[10px] border-b-2 border-l-2 border-r-2 border-t px-[16px] py-[10px] max-sm:px-[12px] max-sm:py-[5px] max-sm:after:absolute max-sm:after:-inset-y-[6px] max-sm:after:inset-x-0 transition-transform active:translate-y-[2px]',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                 joined
-                  ? 'border-[rgba(17,17,17,0.3)] bg-white drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)]'
-                  : 'border-brand-green-dark bg-brand-green drop-shadow-[0px_4px_0px_#224626] active:drop-shadow-[0px_2px_0px_#224626]'
+                  ? 'border-[rgba(17,17,17,0.3)] bg-white drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] max-sm:drop-shadow-none active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)]'
+                  : 'border-brand-green-dark bg-brand-green drop-shadow-[0px_4px_0px_#224626] max-sm:drop-shadow-none active:drop-shadow-[0px_2px_0px_#224626]'
               )}
             >
               <CommunityIcon src={joined ? icons.joinedCard : icons.joinCard} size={18} />
@@ -175,7 +179,7 @@ const CommunityCard = ({ community, onToggleJoin }) => {
                 // card's onClick and navigated away instead of just
                 // interacting with the popup.
                 onClick={(event) => event.stopPropagation()}
-                className="absolute left-0 top-[56px] z-20 flex h-[45px] w-[98px] items-center justify-center rounded-[12px] border border-[rgba(192,57,43,0.2)] bg-[#fef6f5] px-[16px] shadow-[0px_2px_2.8px_rgba(56,116,64,0.24)]"
+                className="absolute left-0 top-[56px] max-sm:top-[40px] z-20 flex h-[45px] w-[98px] items-center justify-center rounded-[12px] border border-[rgba(192,57,43,0.2)] bg-[#fef6f5] px-[16px] shadow-[0px_2px_2.8px_rgba(56,116,64,0.24)]"
               >
                 <Button variant="text-danger" onClick={handleConfirmLeave}>
                   Leave

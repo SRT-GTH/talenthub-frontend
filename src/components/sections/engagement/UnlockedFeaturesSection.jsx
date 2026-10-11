@@ -27,15 +27,15 @@ const UnlockedFeaturesSection = ({
     className={classNames(
       'w-full',
       SECTION_BG[background] || SECTION_BG.default,
-      'px-[clamp(16px,4vw,56px)] py-[clamp(32px,4vw,48px)]',
+      'px-[clamp(16px,4vw,56px)] py-[clamp(32px,4vw,48px)] max-md:py-4',
       className
     )}
   >
     <div className="mx-auto max-w-[1200px]">
-      <p className="font-sans font-semibold text-[10px] leading-3 tracking-[1.4px] uppercase text-neutral-darker">
+      <p className="font-sans font-semibold text-[10px] max-lg:text-[12px] leading-3 tracking-[1.4px] uppercase text-neutral-darker">
         {kicker}
       </p>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
+      <div className="mt-4 max-md:mt-2 grid gap-4 max-md:gap-2 md:grid-cols-3">
         {items.map((item) => (
           <UnlockedFeatureCard
             key={item.title}

@@ -108,7 +108,7 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
       onClose={onClose}
       size="sm"
       ariaLabel="Pitch published"
-      contentClassName="!rounded-[24px] !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
     >
       <div className="relative flex flex-col items-center gap-[18px] p-[clamp(24px,3vw,40px)] text-center">
         {/* Top glow — Figma 6107:122562 is a literal rgba(245,158,11,0.2)
@@ -126,7 +126,7 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
 
         <div className="flex flex-col items-center gap-[6px]">
           {/* Figma 6107:122570 — mixed style, verified per-headline. */}
-          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
             Pitch <span className="italic text-[#387440]">published.</span>
           </h2>
           {/* Figma 6107:122571 — verbatim, including the missing em dash. */}
@@ -148,7 +148,7 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
             <span className="font-sans font-semibold text-[14px] text-[#2a5730]">
               Your profile is 100% complete
             </span>
-            <p className="font-sans text-[12px] text-[#96a090] leading-[18px]">
+            <p className="font-sans text-[12px] text-[#96a090] leading-[18px] max-lg:text-[14px]">
               Profiles with a pitch receive 6× more recruiter outreach. Recruiters browsing your
               profile now see your pitch first.
             </p>
@@ -172,12 +172,12 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
                   <span className="font-sans font-bold text-[12px] text-[#111] truncate w-full">
                     {row.title}
                   </span>
-                  <span className="font-sans text-[10px] text-[#70706e] truncate w-full">
+                  <span className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] truncate w-full">
                     {row.meta}
                   </span>
                 </div>
                 <span
-                  className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px] whitespace-nowrap"
+                  className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px] whitespace-nowrap"
                   style={row.pillStyle}
                 >
                   {row.pill}
@@ -191,8 +191,12 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
             "100% : 9 stages done". */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] text-[#111]">Profile strength</span>
-            <span className="font-sans text-[10px] text-[#2a5730]">100% : 9 stages done</span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#111]">
+              Profile strength
+            </span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730]">
+              100% : 9 stages done
+            </span>
           </div>
           <div className="h-[8px] w-full rounded-[4px] bg-[#f8f8f4] border border-[#e8e8e4] overflow-hidden">
             <div
@@ -213,7 +217,7 @@ const PitchPublishedModal = ({ isOpen, onClose, onContinue, summary }) => {
           size="lg"
           onClick={onContinue}
           rightIcon={<ArrowRightIcon className="size-full" />}
-          className="w-full"
+          className="w-full max-sm:py-2.5 max-sm:text-[14px] max-sm:leading-5"
         >
           View your live profile
         </Button>

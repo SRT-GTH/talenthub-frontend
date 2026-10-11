@@ -25,21 +25,24 @@ const TalentPoolInsightBanner = ({ onViewReport, className }) => {
 
   return (
     <div
-      className={classNames('flex w-full flex-col items-stretch gap-[24px] lg:flex-row', className)}
+      className={classNames(
+        'flex w-full flex-col items-stretch gap-[24px] max-sm:gap-[10px] lg:flex-row',
+        className
+      )}
     >
       {/* Insight panel — Figma 7249:74588, flood #387440, r12, padding 24 */}
-      <div className="relative flex min-w-0 flex-1 items-center overflow-hidden rounded-[12px] bg-brand-green p-[24px]">
+      <div className="relative flex min-w-0 flex-1 items-center overflow-hidden rounded-[12px] bg-brand-green p-[24px] max-sm:p-[14px]">
         {/* Figma 7249:74593: 100x60 at left 794 / top 144 inside the 878x188
             panel, so it bleeds off the bottom-right corner and gets clipped. */}
-        <InsightTrendWatermark className="pointer-events-none absolute left-[90.43%] top-[76.6%] h-[60px] w-[100px] text-white opacity-[0.10]" />
+        <InsightTrendWatermark className="pointer-events-none absolute left-[90.43%] top-[76.6%] h-[60px] w-[100px] text-white opacity-[0.10] max-sm:bottom-[-6px] max-sm:left-auto max-sm:right-[-10px] max-sm:top-auto max-sm:h-[48px] max-sm:w-[80px] max-sm:opacity-[0.2]" />
 
         <div className="relative flex max-w-[433px] flex-col gap-[8px]">
-          <h3 className="font-display not-italic text-[18px] leading-7 text-white">
+          <h3 className="font-display not-italic text-[18px] max-sm:text-[16px] leading-7 max-sm:leading-6 text-white">
             {TALENT_POOL_INSIGHT.heading}
           </h3>
           {/* Figma node opacity 0.90 on the body block; whitespace-pre-line
               preserves its three hard line breaks. */}
-          <p className="whitespace-pre-line pb-[8px] font-sans text-[16px] leading-6 tracking-[0.2px] text-white opacity-90">
+          <p className="whitespace-pre-line pb-[8px] font-sans text-[16px] leading-6 tracking-[0.2px] text-white opacity-90 max-sm:whitespace-normal max-sm:pb-[4px] max-sm:text-[13px] max-sm:leading-5">
             {TALENT_POOL_INSIGHT.body}
           </p>
           <button
@@ -48,21 +51,21 @@ const TalentPoolInsightBanner = ({ onViewReport, className }) => {
               log('branch', { action: 'view-market-report', wired: false });
               onViewReport?.();
             }}
-            className="inline-flex h-[28px] w-fit items-center justify-center rounded-full bg-white px-[16px] font-sans text-[12px] font-bold leading-4 text-brand-green transition-colors hover:bg-neutral"
+            className="relative inline-flex h-[28px] max-lg:h-[32px] w-fit max-lg:after:absolute max-lg:after:-inset-y-[6px] max-lg:after:inset-x-0 items-center justify-center rounded-full bg-white px-[16px] font-sans text-[12px] font-bold leading-4 text-brand-green transition-colors hover:bg-neutral"
           >
             {TALENT_POOL_INSIGHT.action}
           </button>
         </div>
       </div>
       {/* Analytics tile — Figma 7249:74583, 427x188, centred column */}
-      <div className="flex w-full shrink-0 flex-col items-center justify-center rounded-[12px] border border-border-card bg-white px-[24px] py-[48.5px] lg:w-[427px]">
-        <p className="font-sans text-[11px] font-semibold leading-[15.4px] tracking-[0.44px] text-content-muted">
+      <div className="flex w-full shrink-0 flex-col items-center justify-center rounded-[12px] border border-border-card bg-white px-[24px] py-[48.5px] max-sm:py-[12px] lg:w-[427px]">
+        <p className="font-sans text-[11px] max-lg:text-[12px] font-semibold leading-[15.4px] tracking-[0.44px] text-content-muted">
           {AVERAGE_MATCH.label}
         </p>
-        <p className="font-display not-italic text-[36px] leading-10 text-brand-green">
+        <p className="font-display not-italic text-[36px] max-sm:text-[26px] leading-10 max-sm:leading-8 text-brand-green">
           {AVERAGE_MATCH.value}
         </p>
-        <p className="pt-[7px] font-sans text-[11px] leading-[17.6px] text-[#6b6a63]">
+        <p className="pt-[7px] font-sans text-[11px] max-lg:text-[12px] leading-[17.6px] text-[#6b6a63]">
           {AVERAGE_MATCH.caption}
         </p>
       </div>

@@ -1,4 +1,4 @@
-import studentPhoto from '../../../assets/hero/talent-welcome-panel-img.png';
+import studentPhoto from '../../../assets/hero/talent-welcome-panel-img.webp';
 import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
 import gthIcon from '../../../assets/hero/talent-panel-gth-icon.svg';
 import avatar1 from '../../../assets/hero/talent-panel-institution-avatar-1.jpg';

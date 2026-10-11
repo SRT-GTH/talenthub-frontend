@@ -12,24 +12,24 @@ import { debug } from '../../utils/debug.js';
 const log = debug('MilestoneUnlockPage');
 
 /*
- * MilestoneUnlockPage â€” celebration screen after completing a milestone.
- * Source: Figma frame ("You're discoverable" â€” Milestone 1 of 3).
+ * MilestoneUnlockPage — celebration screen after completing a milestone.
+ * Source: Figma frame ("You're discoverable" — Milestone 1 of 3).
  *
  * The flow surfaces three named milestones along the engagement journey:
- *   1. "You're discoverable" â€” after Avatar + Interests + Personality
- *   2. (future) "You're matchable" â€” after Skills + Work + Portfolio
- *   3. (future) "You're hireable" â€” after Certs + Goals + Pitch
+ *   1. "You're discoverable" — after Avatar + Interests + Personality
+ *   2. (future) "You're matchable" — after Skills + Work + Portfolio
+ *   3. (future) "You're hireable" — after Certs + Goals + Pitch
  *
  * Today we hardcode the discoverable milestone's copy and data here. Once
  * milestones 2 and 3 land we'll lift the per-milestone payload into a
  * shared constants module keyed by milestone id.
  *
  * Layout:
- *   â”Œâ”€ EngagementTopNav        (with the gold "Switch Modes" pill enabled)
- *   â”œâ”€ EngagementTopBar        (stage trail)
- *   â”œâ”€ MilestoneHeroPanel      (gift + headline + stats + CTAs + completed)
- *   â”œâ”€ UnlockedFeaturesSection ("what you just unlocked" 3-card grid)
- *   â””â”€ EngagementFooter
+ *   ┌─ EngagementTopNav        (with the gold "Switch Modes" pill enabled)
+ *   ├─ EngagementTopBar        (stage trail)
+ *   ├─ MilestoneHeroPanel      (gift + headline + stats + CTAs + completed)
+ *   ├─ UnlockedFeaturesSection ("what you just unlocked" 3-card grid)
+ *   └─ EngagementFooter
  */
 
 const DISCOVERABLE_MILESTONE = {
@@ -68,7 +68,7 @@ const DISCOVERABLE_MILESTONE = {
       highlighted: false,
     },
   ],
-  // Details modal content â€” what pops up when the user claims the reward.
+  // Details modal content — what pops up when the user claims the reward.
   // Source: Figma frame ("Profile Discoverable" details modal).
   details: {
     headline: (
@@ -107,13 +107,13 @@ const MilestoneUnlockPage = () => {
   const navigate = useNavigate();
 
   // For the milestone hero we lock the trail to its visual "just finished
-  // stage 3" state â€” i.e. Personality completed (index 3 is the next stage
+  // stage 3" state — i.e. Personality completed (index 3 is the next stage
   // to start, which is Skills). This is the data shown when the celebration
   // screen appears, regardless of the live PROFILE_STAGES state.
   const trailCurrentIndex = 3; // Skills is the next unstarted stage
   const completionPct = Math.round((3 / 9) * 100); // 33%
 
-  // Details modal â€” pops up when the user clicks "Claim your reward".
+  // Details modal — pops up when the user clicks "Claim your reward".
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const closeDetails = () => setIsDetailsOpen(false);
 
@@ -136,18 +136,18 @@ const MilestoneUnlockPage = () => {
   };
 
   const handleClaim = () => {
-    log('claim reward â†’ open details modal');
+    log('claim reward → open details modal');
     setIsDetailsOpen(true);
   };
 
   const handleDetailsCta = () => {
-    log('details modal CTA â†’ continue building');
+    log('details modal CTA → continue building');
     closeDetails();
     navigate('/profile/engagement');
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-default">
+    <div className="flex flex-col min-h-dvh bg-background-default">
       <EngagementTopNav
         onSaveExit={handleSaveExit}
         showSwitchModes
@@ -155,7 +155,13 @@ const MilestoneUnlockPage = () => {
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
 
-      <EngagementHero completionPct={33} doneCount={3} inProgressCount={0} remainingCount={6} />
+      <EngagementHero
+        completionPct={33}
+        doneCount={3}
+        inProgressCount={0}
+        remainingCount={6}
+        compactOnPhones
+      />
 
       <main className="flex-1">
         <MilestoneHeroPanel

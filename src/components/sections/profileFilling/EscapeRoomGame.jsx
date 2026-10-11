@@ -8,10 +8,10 @@ import {
   SaveIcon,
   SuccessCheckIcon,
 } from '../../shared/assets.jsx';
-import stage1Bg from '../../../assets/games/escape-room/stage-1-the-room.png';
-import stage2Bg from '../../../assets/games/escape-room/stage-2-investigating.png';
-import stage3Bg from '../../../assets/games/escape-room/stage-3-getting-warmer.png';
-import stage4Bg from '../../../assets/games/escape-room/stage-4-final-door.png';
+import stage1Bg from '../../../assets/games/escape-room/stage-1-the-room.webp';
+import stage2Bg from '../../../assets/games/escape-room/stage-2-investigating.webp';
+import stage3Bg from '../../../assets/games/escape-room/stage-3-getting-warmer.webp';
+import stage4Bg from '../../../assets/games/escape-room/stage-4-final-door.webp';
 
 const log = debug('EscapeRoomGame');
 
@@ -109,14 +109,13 @@ const ChoiceBubble = ({ choice, onSelect }) => (
   <button
     type="button"
     onClick={() => onSelect(choice)}
-    style={{
-      left: choice.position.left,
-      top: choice.position.top,
-      transform: 'translate(-50%, -50%)',
-    }}
-    className="group absolute max-w-[260px] rounded-full bg-black/70 px-[16px] py-[8px] text-left shadow-lg backdrop-blur-none transition-all duration-150 hover:bg-white/60 hover:backdrop-blur-[5px]"
+    // >= lg: scattered over the illustration at Figma's percentages.
+    // < lg: the bubbles stack as full-width answers in a bottom panel
+    // (see the wrapper in EscapeRoomGame) — position vars are ignored there.
+    style={{ '--cx': choice.position.left, '--cy': choice.position.top }}
+    className="group max-w-[260px] rounded-full bg-black/70 px-[16px] py-[8px] text-left shadow-lg backdrop-blur-none transition-all duration-150 hover:bg-white/60 hover:backdrop-blur-[5px] max-lg:min-h-12 max-lg:w-full max-lg:max-w-none max-lg:rounded-2xl max-lg:px-4 max-lg:py-3 lg:absolute lg:left-[var(--cx)] lg:top-[var(--cy)] lg:-translate-x-1/2 lg:-translate-y-1/2"
   >
-    <span className="font-sans text-[14px] text-white transition-colors group-hover:text-[#142916]">
+    <span className="font-sans text-[14px] text-white transition-colors group-hover:text-[#142916] max-lg:text-[15px]">
       {choice.letter}. {choice.text}
     </span>
   </button>
@@ -195,12 +194,14 @@ const EscapeRoomGame = ({ open, onExit }) => {
           className="relative size-full bg-cover bg-center"
           style={{ backgroundImage: `url(${stage.background})` }}
         >
-          <div className="absolute left-[24px] top-[24px] flex items-center gap-[8px] rounded-[10px] bg-black/60 px-[12px] py-[8px]">
+          <div className="absolute left-[24px] top-[24px] flex items-center gap-[8px] rounded-[10px] bg-black/60 px-[12px] py-[8px] max-lg:left-3 max-lg:top-3">
             <PersonalityGamesIcon className="size-[20px]" />
-            <span className="font-sans text-[14px] font-semibold text-white">The Escape Room</span>
+            <span className="font-sans text-[14px] font-semibold text-white max-[420px]:sr-only">
+              The Escape Room
+            </span>
           </div>
 
-          <div className="absolute left-1/2 top-[24px] flex -translate-x-1/2 items-center gap-[6px] rounded-full bg-black/70 px-[16px] py-[8px] text-white">
+          <div className="absolute left-1/2 top-[24px] flex -translate-x-1/2 items-center gap-[6px] rounded-full bg-black/70 px-[16px] py-[8px] text-white max-lg:left-3 max-lg:top-[64px] max-lg:translate-x-0">
             <ClockIcon className="size-[16px]" />
             <span className="font-sans text-[14px] font-medium tabular-nums">
               {formatTime(secondsLeft)}
@@ -214,22 +215,26 @@ const EscapeRoomGame = ({ open, onExit }) => {
           <Button
             variant="gold"
             size="sm"
-            className="!absolute !right-[24px] !top-[24px] !py-[10px]"
+            className="!absolute !right-[24px] !top-[24px] !py-[10px] max-lg:!right-3 max-lg:!top-3 max-lg:!px-3"
             leftIcon={<SaveIcon className="size-full" />}
             onClick={onExit}
           >
             Save & Exit
           </Button>
 
-          <div className="absolute left-1/2 top-[16%] w-[min(90%,560px)] -translate-x-1/2 rounded-full bg-black/70 px-[20px] py-[10px] text-center font-sans text-[16px] text-white">
+          <div className="absolute left-1/2 top-[16%] w-[min(90%,560px)] -translate-x-1/2 rounded-full bg-black/70 px-[20px] py-[10px] text-center font-sans text-[16px] text-white max-lg:top-[112px] max-lg:w-[calc(100%-24px)] max-lg:rounded-2xl">
             {stage.narrator}
           </div>
 
-          {stage.choices.map((choice) => (
-            <ChoiceBubble key={choice.letter} choice={choice} onSelect={handleSelectChoice} />
-          ))}
+          {/* < lg: answers become a full-width stack pinned to the bottom
+              (thumb zone); >= lg the wrapper vanishes (display: contents). */}
+          <div className="max-lg:absolute max-lg:inset-x-0 max-lg:bottom-0 max-lg:flex max-lg:flex-col max-lg:gap-2 max-lg:bg-linear-to-t max-lg:from-black/80 max-lg:via-black/50 max-lg:to-transparent max-lg:px-3 max-lg:pb-[max(12px,env(safe-area-inset-bottom))] max-lg:pt-10 lg:contents">
+            {stage.choices.map((choice) => (
+              <ChoiceBubble key={choice.letter} choice={choice} onSelect={handleSelectChoice} />
+            ))}
+          </div>
 
-          <div className="absolute bottom-[24px] right-[24px] rounded-[10px] bg-black/60 px-[12px] py-[6px] font-sans text-[13px] text-white">
+          <div className="absolute bottom-[24px] right-[24px] rounded-[10px] bg-black/60 px-[12px] py-[6px] font-sans text-[13px] text-white max-lg:bottom-auto max-lg:right-3 max-lg:top-[64px]">
             {stage.label}
           </div>
         </div>

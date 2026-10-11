@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
+import ClampText from '../../components/ui/ClampText.jsx';
+import { StickyActionBar } from '../../components/ui/form';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
@@ -22,20 +24,20 @@ import { debug } from '../../utils/debug.js';
 const log = debug('OnboardingReviewPage');
 
 /*
- * OnboardingReviewPage â€” Step 07 of the talent onboarding flow.
+ * OnboardingReviewPage — Step 07 of the talent onboarding flow.
  * Maps to user story US-1.1.1-07 ("Review onboarding data and accept terms").
  * Route: /onboarding/review.
  *
  * Figma sources (file Bin8roWL8sloyc36IgFMuT):
- *   2788:14548 â€” default (disabled CTA, no checkboxes ticked)
- *   2837:28039 â€” variant A (both checkboxes ticked, CTA still disabled)
- *   2837:28481 â€” variant B (pressed/active CTA after all 3 accepted)
- *   2837:27365 â€” overlay "Terms Accepted" success modal
- *   2837:28954 â€” Terms & Conditions modal
- *   2846:29512 â€” Privacy Policy modal
- *   2846:30205 â€” Data Processing Consent modal
+ *   2788:14548 — default (disabled CTA, no checkboxes ticked)
+ *   2837:28039 — variant A (both checkboxes ticked, CTA still disabled)
+ *   2837:28481 — variant B (pressed/active CTA after all 3 accepted)
+ *   2837:27365 — overlay "Terms Accepted" success modal
+ *   2837:28954 — Terms & Conditions modal
+ *   2846:29512 — Privacy Policy modal
+ *   2846:30205 — Data Processing Consent modal
  *
- * Single-column page (no right panel) â€” differs from contact/address.
+ * Single-column page (no right panel) — differs from contact/address.
  * Decoration is the same 4 green corner orbs as those screens.
  *
  * Acceptance state machine:
@@ -62,18 +64,18 @@ const MOCK_PROFILE = {
   tier: 'Gold Tier',
   personal: {
     firstName: 'Abena',
-    middleName: 'â€”',
+    middleName: '—',
     lastName: 'Mensah',
     dob: '12 March 2003',
     gender: 'Female',
     nationality: 'ðŸ‡¬ðŸ‡­ Ghanaian',
   },
   identity: {
-    ghanaCardMasked: 'GHA-â—â—â—â—â—â—â—â—â—-â—',
+    ghanaCardMasked: 'GHA-●●●●●●●●●-●',
     photoConfirmed: true,
   },
   contact: {
-    phoneMasked: '+233 20 â€¢â€¢â€¢ â€¢â€¢â€¢ â€¢â€¢2',
+    phoneMasked: '+233 20 ••• ••• ••2',
     phoneVerified: true,
     whatsapp: 'Same as phone',
     email: 'a.mensah@gmail.com',
@@ -92,7 +94,7 @@ const MOCK_PROFILE = {
     grade: 'Year 2',
     curriculum: 'National Accreditation Board',
     graduation: 'Class of 2028',
-    institution: 'KNUST â€” Kwame Nkrumah University of Science and Technology',
+    institution: 'KNUST — Kwame Nkrumah University of Science and Technology',
     confirmed: true,
   },
 };
@@ -103,25 +105,27 @@ const MOCK_PROFILE = {
 // cell ("FIRST NAME", "REGION", etc.). Matches Figma cell-label spec.
 const CellLabel = ({ children }) => (
   <span
-    className="block font-bold uppercase text-[#BABAB7]"
-    style={{ fontSize: 9, lineHeight: 'normal', letterSpacing: '0.6px' }}
+    className="block font-bold uppercase text-[#BABAB7] max-md:shrink-0 max-md:text-[12px] max-md:font-medium max-md:normal-case max-md:tracking-normal!"
+    style={{ fontSize: 'var(--fs-9)', lineHeight: 'normal', letterSpacing: '0.6px' }}
   >
     {children}
   </span>
 );
 
-// Value cell â€” light cream fill with the label up top and the value
+// Value cell — light cream fill with the label up top and the value
 // below. `muted` reduces weight to Regular and dims the text (used for
-// "â€”" empty values and soft optional rows like "Same as phone").
+// "—" empty values and soft optional rows like "Same as phone").
 const Cell = ({ label, value, muted = false, className = '', children }) => (
-  <div className={`flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-3 ${className}`}>
+  <div
+    className={`flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-3 max-md:flex-row max-md:items-baseline max-md:justify-between max-md:gap-3 max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0 max-md:py-2.5 ${className}`}
+  >
     <CellLabel>{label}</CellLabel>
     {children ?? (
       <span
         className={
           muted
-            ? 'text-[14px] leading-[16.9px] text-[#70706E]'
-            : 'font-semibold text-[14px] leading-[16.9px] text-[#575755]'
+            ? 'text-[14px] leading-[16.9px] text-[#70706E] max-md:min-w-0 max-md:text-[13px] max-md:text-right max-md:break-words'
+            : 'font-semibold text-[14px] leading-[16.9px] text-[#575755] max-md:min-w-0 max-md:text-[13px] max-md:text-right max-md:break-words'
         }
       >
         {value}
@@ -135,10 +139,10 @@ const Cell = ({ label, value, muted = false, className = '', children }) => (
 const EditChip = ({ to }) => (
   <Link
     to={to}
-    className="inline-flex h-[19px] items-center rounded-[6px] border px-2 font-semibold uppercase text-brand-green transition-colors hover:bg-brand-green-light"
+    className="relative inline-flex h-[19px] shrink-0 items-center rounded-[6px] border px-2 font-semibold uppercase text-brand-green transition-colors hover:bg-brand-green-light max-md:h-auto max-md:border-0! max-md:px-1 max-md:normal-case max-md:underline max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2 max-md:before:content-['']"
     style={{
       borderColor: '#C1D4C4',
-      fontSize: 10,
+      fontSize: 'var(--fs-10)',
       letterSpacing: '1px',
       lineHeight: 'normal',
     }}
@@ -147,18 +151,18 @@ const EditChip = ({ to }) => (
   </Link>
 );
 
-// Reusable section header strip â€” icon + uppercase title + EDIT chip +
+// Reusable section header strip — icon + uppercase title + EDIT chip +
 // 1px hairline filling the remaining width. The icon is a stroke SVG
 // from `assets.jsx` sized down via `text-[#BABAB7]` so we don't need
-// new 11Ã—11 variants.
+// new 11×11 variants.
 const SectionHeader = ({ icon, title, editTo }) => (
   <div className="flex items-center gap-3">
     <span className="inline-flex size-[14px] shrink-0 items-center justify-center text-[#BABAB7]">
       {icon}
     </span>
     <span
-      className="font-bold uppercase text-[#BABAB7]"
-      style={{ fontSize: 9, letterSpacing: '1px', lineHeight: 'normal' }}
+      className="min-w-0 font-bold uppercase text-[#BABAB7]"
+      style={{ fontSize: 'var(--fs-9)', letterSpacing: '1px', lineHeight: 'normal' }}
     >
       {title}
     </span>
@@ -167,11 +171,11 @@ const SectionHeader = ({ icon, title, editTo }) => (
   </div>
 );
 
-// Verified / OTP verified / Confirmed badge â€” small light-green pill
-// with a 8Ã—8 check glyph. Re-used in three sections.
-const VerifiedBadge = ({ label }) => (
+// Verified / OTP verified / Confirmed badge — small light-green pill
+// with a 8×8 check glyph. Re-used in three sections.
+const VerifiedBadge = ({ label, className = '' }) => (
   <span
-    className="inline-flex h-[16px] items-center gap-1 rounded-[4px] px-1.5"
+    className={`inline-flex h-[16px] shrink-0 items-center gap-1 rounded-[4px] px-1.5 ${className}`}
     style={{
       background: '#E8F2ED',
       border: '1px solid rgba(29,124,77,0.2)',
@@ -186,7 +190,10 @@ const VerifiedBadge = ({ label }) => (
         strokeLinejoin="round"
       />
     </svg>
-    <span className="font-semibold text-[#1D7C4D]" style={{ fontSize: 9, lineHeight: '11.7px' }}>
+    <span
+      className="font-semibold text-[#1D7C4D]"
+      style={{ fontSize: 'var(--fs-9)', lineHeight: '11.7px' }}
+    >
       {label}
     </span>
   </span>
@@ -196,17 +203,17 @@ const VerifiedBadge = ({ label }) => (
 
 const CardHeaderStrip = ({ profile, onEditProfile }) => (
   <div
-    className="flex items-center justify-between px-6"
+    className="flex items-center justify-between px-6 max-md:h-auto! max-md:gap-3 max-md:px-0 max-md:py-2"
     style={{
       height: 102,
       borderBottom: '1px solid rgba(0,0,0,0.07)',
     }}
   >
-    <div className="flex items-center gap-4">
-      {/* Avatar â€” 72Ã—72 circle, cream border, drop-shadow. Falls back
+    <div className="flex min-w-0 items-center gap-4 max-md:gap-3">
+      {/* Avatar — 72×72 circle, cream border, drop-shadow. Falls back
           to user-glyph until the talent's photo loads. */}
       <span
-        className="flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F2F2EE]"
+        className="flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F2F2EE] max-md:size-10"
         style={{
           border: '2px solid #C1D4C4',
           boxShadow: '0 2px 8px -1px rgba(27,36,44,0.08), 0 2px 2px -1px rgba(27,36,44,0.04)',
@@ -233,7 +240,7 @@ const CardHeaderStrip = ({ profile, onEditProfile }) => (
         >
           <span
             className="font-semibold text-[#2A5730]"
-            style={{ fontSize: 10, lineHeight: '16px' }}
+            style={{ fontSize: 'var(--fs-10)', lineHeight: '16px' }}
           >
             {profile.role}
           </span>
@@ -244,7 +251,7 @@ const CardHeaderStrip = ({ profile, onEditProfile }) => (
     <button
       type="button"
       onClick={onEditProfile}
-      className="inline-flex h-[31px] items-center gap-1.5 rounded-[4px] border bg-white px-2 transition-colors hover:bg-brand-green-light"
+      className="inline-flex h-[31px] items-center gap-1.5 rounded-[4px] border bg-white px-2 transition-colors hover:bg-brand-green-light max-md:h-8 max-md:shrink-0"
       style={{ borderColor: '#C1D4C4' }}
     >
       <PencilEditIcon />
@@ -259,7 +266,7 @@ const TalentScoreStrip = ({ score, tier }) => {
   const clamped = Math.max(0, Math.min(100, score));
   return (
     <div
-      className="mx-6 mt-6 flex items-center gap-3 rounded-[8px] px-4"
+      className="mx-6 mt-6 flex items-center gap-3 rounded-[8px] px-4 max-sm:mx-4 max-md:mx-0 max-md:mt-2 max-md:h-12!"
       style={{
         height: 60,
         background: 'rgba(235,241,236,0.5)',
@@ -267,13 +274,13 @@ const TalentScoreStrip = ({ score, tier }) => {
       }}
     >
       <span
-        className="font-display italic text-brand-green"
+        className="font-display italic text-brand-green max-md:text-[24px]!"
         style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-2px' }}
       >
         {score}
       </span>
       <div className="flex flex-1 flex-col gap-1.5">
-        <span className="text-[#2A5730]" style={{ fontSize: 10, lineHeight: '16px' }}>
+        <span className="text-[#2A5730]" style={{ fontSize: 'var(--fs-10)', lineHeight: '16px' }}>
           Talent Score
         </span>
         <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#E1EAE2]">
@@ -286,7 +293,7 @@ const TalentScoreStrip = ({ score, tier }) => {
       >
         <span
           className="font-medium"
-          style={{ fontSize: 10, lineHeight: '16px', color: '#C8951A' }}
+          style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: '#C8951A' }}
         >
           {tier}
         </span>
@@ -296,14 +303,14 @@ const TalentScoreStrip = ({ score, tier }) => {
 };
 
 const PersonalSection = ({ data }) => (
-  <div className="mx-6 mt-6 flex flex-col gap-3">
+  <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
       icon={<UserIcon />}
       title="Personal Information"
       editTo={'/onboarding/talent/personal-info'}
     />
     {/* Two rows of three cells each. Stack vertically on narrow viewports. */}
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 max-md:gap-0">
       <Cell label="First name" value={data.firstName} />
       <Cell label="Middle name" value={data.middleName} muted />
       <Cell label="Last name" value={data.lastName} />
@@ -315,16 +322,16 @@ const PersonalSection = ({ data }) => (
 );
 
 const IdentitySection = ({ data }) => (
-  <div className="mx-6 mt-6 flex flex-col gap-3">
+  <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
       icon={<IdCardIcon />}
       title="Identity & Verification"
       editTo={'/onboarding/talent/personal-info'}
     />
 
-    {/* Row A â€” Ghana Card masked + Verified badge */}
+    {/* Row A — Ghana Card masked + Verified badge */}
     <div
-      className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
+      className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0 max-sm:flex-wrap"
       style={{ minHeight: 52 }}
     >
       <span
@@ -335,21 +342,21 @@ const IdentitySection = ({ data }) => (
           <IdCardIcon />
         </span>
       </span>
-      <div className="flex flex-1 flex-col gap-0.5">
+      <div className="flex flex-1 flex-col gap-0.5 max-sm:min-w-[9rem]">
         <CellLabel>Ghana Card Number</CellLabel>
         <span
-          className="font-bold text-[#575755]"
+          className="font-bold text-[#575755] max-sm:break-all"
           style={{ fontSize: 12, letterSpacing: '1px', lineHeight: '16px' }}
         >
           {data.ghanaCardMasked}
         </span>
       </div>
-      <VerifiedBadge label="Verified" />
+      <VerifiedBadge label="Verified" className="max-sm:ml-11" />
     </div>
 
-    {/* Row B â€” Profile photo confirmed */}
+    {/* Row B — Profile photo confirmed */}
     <div
-      className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
+      className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0"
       style={{ minHeight: 52 }}
     >
       <span
@@ -383,17 +390,17 @@ const IdentitySection = ({ data }) => (
 );
 
 const ContactSection = ({ data }) => (
-  <div className="mx-6 mt-6 flex flex-col gap-3">
+  <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
       icon={<PhoneIcon />}
       title="Contact Details"
       editTo={'/onboarding/talent/contact'}
     />
 
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {/* Phone â€” masked value with OTP-verified badge underneath the value */}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
+      {/* Phone — masked value with OTP-verified badge underneath the value */}
       <div
-        className="flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
+        className="flex flex-col gap-1 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0"
         style={{ minHeight: 65 }}
       >
         <CellLabel>Phone number</CellLabel>
@@ -419,11 +426,11 @@ const ContactSection = ({ data }) => (
 
 const AddressSection = ({ data }) => (
   <div
-    className="mx-6 mt-6 flex flex-col gap-3 pb-6"
+    className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1 pb-6"
     style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
   >
     <SectionHeader icon={<MapPinIcon />} title="Address" editTo={'/onboarding/talent/address'} />
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Region" value={data.region} />
       <Cell label="District" value={data.district} />
       <Cell label="Town / City" value={data.town} />
@@ -435,24 +442,24 @@ const AddressSection = ({ data }) => (
 );
 
 const EducationSection = ({ data }) => (
-  <div className="mx-6 mt-6 flex flex-col gap-3 pb-6">
+  <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1 pb-6">
     <SectionHeader
       icon={<MortarboardIcon />}
       title="Education"
-      // Education step not yet built â€” fall back to the address step
+      // Education step not yet built — fall back to the address step
       // (last completed page) so the Edit chip never 404s.
       editTo={'/onboarding/talent/address'}
     />
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Education level" value={data.level} />
       <Cell label="Grade / Year" value={data.grade} />
       <Cell label="Curriculum" value={data.curriculum} />
       <Cell label="Expected graduation" value={data.graduation} />
     </div>
 
-    {/* Institution â€” full-width row with a "Confirmed" badge on the right */}
+    {/* Institution — full-width row with a "Confirmed" badge on the right */}
     <div
-      className="flex items-start justify-between gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5"
+      className="flex items-start justify-between gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0"
       style={{ minHeight: 50 }}
     >
       <div className="flex flex-col gap-0.5">
@@ -476,7 +483,7 @@ const EducationSection = ({ data }) => (
 // ---- consent block ----------------------------------------------------
 
 const ConsentCheckbox = ({ checked, onToggle, children }) => {
-  // Visual box mirrors the design-system Checkbox at 20Ã—20 with the
+  // Visual box mirrors the design-system Checkbox at 20×20 with the
   // shelf-collapse press animation. We don't use the form/Checkbox here
   // because the row's label contains inline links that open modals,
   // and the native `<input>` inside Checkbox would steal click focus
@@ -562,12 +569,16 @@ const ConsentBlock = ({
       <div className="flex items-center gap-4">
         <span
           className="font-bold uppercase text-[#BABAB7]"
-          style={{ fontSize: 10, letterSpacing: '1px', lineHeight: 'normal' }}
+          style={{ fontSize: 'var(--fs-10)', letterSpacing: '1px', lineHeight: 'normal' }}
         >
-          Required agreements â€” all 3 must be accepted
+          Required agreements — all 3 must be accepted
         </span>
         <div className="h-px flex-1" style={{ background: 'rgba(0,0,0,0.07)' }} />
-        <span aria-hidden="true" className="font-bold" style={{ fontSize: 10, color: '#C0392B' }}>
+        <span
+          aria-hidden="true"
+          className="font-bold"
+          style={{ fontSize: 'var(--fs-10)', color: '#C0392B' }}
+        >
           *
         </span>
       </div>
@@ -583,7 +594,7 @@ const ConsentBlock = ({
         <InlineLink onClick={onOpenConsent}>Learn more about data processing</InlineLink>.
       </ConsentCheckbox>
 
-      {/* DPA disclosure callout â€” blue tint, two-line copy from Figma. */}
+      {/* DPA disclosure callout — blue tint, two-line copy from Figma. */}
       <div
         className="rounded-[12px] px-5 py-3"
         style={{
@@ -597,14 +608,14 @@ const ConsentBlock = ({
         >
           Your data is protected under Ghanaian law
         </p>
-        <p
-          className="mt-1 text-[#3062D4]"
-          style={{ fontSize: 12, lineHeight: '18px', letterSpacing: '0.2px' }}
+        <ClampText
+          lines={2}
+          className="mt-1 text-[12px] leading-[18px] tracking-[0.2px] text-[#3062D4]"
         >
           Ghana Talent Hub complies with the Data Protection Act (Act 843, 2012). You can withdraw
-          consent, request access to your data, or request deletion at any time from Settings â†’
+          consent, request access to your data, or request deletion at any time from Settings →
           Privacy.
-        </p>
+        </ClampText>
       </div>
     </div>
   );
@@ -613,7 +624,7 @@ const ConsentBlock = ({
 // ---- background decoration -------------------------------------------
 
 // Same green-orb corner motif used on the Address / Contact backgrounds,
-// minus the right-side panel + tilted-photo column. Decorative only â€”
+// minus the right-side panel + tilted-photo column. Decorative only —
 // hidden from assistive tech.
 const ReviewBackgroundOrbs = () => (
   <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -656,7 +667,7 @@ const OnboardingReviewPage = () => {
 
   // First checkbox label folds two links (Terms + Privacy). Tapping
   // the checkbox itself opens whichever link is still un-accepted so
-  // the user is never stuck â€” accepting both flips the row visually.
+  // the user is never stuck — accepting both flips the row visually.
   const handleToggleTermsRow = (event) => {
     event?.preventDefault?.();
     log('checkbox 1 toggle; terms=', termsAccepted, 'privacy=', privacyAccepted);
@@ -693,33 +704,33 @@ const OnboardingReviewPage = () => {
 
   const handleSubmit = () => {
     if (!allAccepted) {
-      log('submit blocked â€” not all accepted');
+      log('submit blocked — not all accepted');
       return;
     }
-    log('submit â€” opening success modal');
+    log('submit — opening success modal');
     setShowSuccessModal(true);
   };
 
   const handleContinueAfterSuccess = () => {
     setShowSuccessModal(false);
-    // /onboarding/done isn't built yet â€” fall back to /welcome so the
+    // /onboarding/done isn't built yet — fall back to /welcome so the
     // user doesn't hit a 404. Same pattern as OnboardingAddressPage.
-    log('continue after success â†’ /welcome (fallback)');
+    log('continue after success → /welcome (fallback)');
     navigate('/onboarding/talent/welcome');
   };
 
   return (
-    <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-col bg-white">
+    <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
       <OnboardingHeader currentKey="review" percent={78} />
 
       <ReviewBackgroundOrbs />
 
-      <section className="relative flex flex-1 justify-center px-6 pt-12 pb-16">
-        <div className="flex w-full max-w-[897px] flex-col gap-8">
+      <section className="relative flex flex-1 justify-center px-6 pt-12 pb-16 max-md:px-4 max-md:pt-3 max-md:pb-4">
+        <div className="flex w-full max-w-[897px] flex-col gap-8 max-md:gap-4">
           {/* Hero */}
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col items-center gap-4 text-center max-md:gap-2">
             <span
-              className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
+              className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
               style={{ background: '#FFFEFC', borderColor: '#C1D4C4' }}
             >
               <span
@@ -746,7 +757,7 @@ const OnboardingReviewPage = () => {
             </span>
 
             <h1
-              className="font-display font-normal text-black"
+              className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2.25rem, 5vw, 4rem)',
                 lineHeight: 1.1,
@@ -757,19 +768,19 @@ const OnboardingReviewPage = () => {
             </h1>
 
             <p
-              className="max-w-[554px] text-[16px] leading-6 text-[#737373]"
+              className="max-w-[554px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
               style={{ letterSpacing: '0.2px' }}
             >
               Review everything you&apos;ve entered. If anything looks wrong, tap Edit next to the
               section. Then accept the three agreements to activate your account.
             </p>
 
-            <div className="h-px w-[200px]" style={{ background: '#C1D4C4' }} />
+            <div className="h-px w-[200px] max-md:w-[132px]" style={{ background: '#C1D4C4' }} />
           </div>
 
           {/* Summary card */}
           <div
-            className="relative w-full rounded-[24px] bg-white"
+            className="relative w-full rounded-[24px] bg-white max-md:rounded-none max-md:border-0! max-md:shadow-none!"
             style={{
               boxShadow: '0 2px 8px -1px rgba(27,36,44,0.08), 0 2px 2px -1px rgba(27,36,44,0.04)',
               border: '1px solid rgba(0,0,0,0.04)',
@@ -800,34 +811,36 @@ const OnboardingReviewPage = () => {
           />
 
           {/* CTA */}
-          <Button
-            type="button"
-            variant="primary"
-            size="lg"
-            disabled={!allAccepted}
-            onClick={handleSubmit}
-            rightIcon={<ArrowRightIcon />}
-            className="w-full"
-          >
-            {allAccepted ? 'Activate My Account' : 'Accept All Three To Continue'}
-          </Button>
+          <StickyActionBar bleed={16}>
+            <Button
+              type="button"
+              variant="primary"
+              size="lg"
+              disabled={!allAccepted}
+              onClick={handleSubmit}
+              rightIcon={<ArrowRightIcon />}
+              className="w-full"
+            >
+              {allAccepted ? 'Activate My Account' : 'Accept All Three To Continue'}
+            </Button>
+          </StickyActionBar>
 
           {/* Trust footer + login fallback */}
           <div className="flex flex-col items-center gap-2">
             <p
-              className="flex items-center gap-1.5 text-[10px] leading-4 text-[#959592]"
+              className="flex items-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
               style={{ letterSpacing: '0.2px' }}
             >
               <ShieldCheckIcon className="text-[#959592]" />
-              Data encrypted at rest Â· Ghana Data Protection Act compliant
+              Data encrypted at rest · Ghana Data Protection Act compliant
             </p>
-            <div className="flex items-center gap-2 text-[14px] leading-6">
+            <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
               <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                 Already Have an account?
               </span>
               <Link
                 to={'/login'}
-                className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                 style={{ letterSpacing: '0.1px' }}
               >
                 Log in Instead

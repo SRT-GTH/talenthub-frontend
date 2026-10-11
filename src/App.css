@@ -18,5 +18,8 @@
 }
 
 .page-fade-in {
-  animation: page-fade-in 220ms ease-out both;
+  /* `backwards`, not `both`: `both` keeps the final transform (translateY(0)) after the
+     animation ends, which makes this wrapper the containing block for every
+     `position: fixed` descendant (modals, bottom bars, sheets). */
+  animation: page-fade-in 220ms ease-out backwards;
 }

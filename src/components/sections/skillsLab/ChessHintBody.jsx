@@ -18,7 +18,7 @@ export default function ChessHintBody({ hint, challenge }) {
   }
 
   return (
-    <div className="px-[28px] pt-[12px]">
+    <div className="px-[28px] max-sm:px-4 pt-[12px]">
       {/* Mini board with highlights */}
       <div className="flex justify-center mb-[16px]">
         <ChessBoardMini
@@ -46,15 +46,15 @@ export default function ChessHintBody({ hint, challenge }) {
                   isHighlighted ? 'bg-[#387440]' : 'bg-[#387440]'
                 }`}
               >
-                <span className="text-white text-[11px] font-sans font-bold leading-none">
+                <span className="text-white text-[11px] max-lg:text-[12px] font-sans font-bold leading-none">
                   {i + 1}
                 </span>
               </div>
               <div className="flex flex-col gap-[5px] flex-1 min-w-0">
-                <span className="text-[#142916] text-[12px] font-sans font-semibold leading-normal">
+                <span className="text-[#142916] text-[12px] max-lg:text-[14px] font-sans font-semibold leading-normal">
                   {step.title}
                 </span>
-                <p className="text-[#70706e] text-[12px] font-sans leading-[18.6px] m-0">
+                <p className="text-[#70706e] text-[12px] max-lg:text-[14px] font-sans leading-[18.6px] max-lg:leading-5 m-0">
                   {step.body}
                 </p>
               </div>
@@ -65,7 +65,7 @@ export default function ChessHintBody({ hint, challenge }) {
 
       {hint.keyInsight && (
         <div className="bg-[#faf4e8] border border-[#eedeb8] rounded-[10px] px-[14px] py-[12px] my-[12px]">
-          <p className="text-[#a07715] text-[12px] font-sans leading-[19.2px] m-0">
+          <p className="text-[#a07715] text-[12px] max-lg:text-[14px] font-sans leading-[19.2px] m-0">
             <span className="font-bold">Key insight: </span>
             {hint.keyInsight}
           </p>

@@ -1,4 +1,4 @@
-import gthMark from '../../assets/brand/gth-mark.png';
+import gthMark from '../../assets/brand/gth-mark.webp';
 import gthWordmark from '../../assets/brand/gth-wordmark.png';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarExtrasPanel from '../../components/sections/engagement/avatar/AvatarExtrasPanel.jsx';
-import extrasHeroStage from '../../assets/engagement/avatar-extras-hero-stage.png';
+import extrasHeroStage from '../../assets/engagement/avatar-extras-hero-stage.webp';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarExtrasPage');

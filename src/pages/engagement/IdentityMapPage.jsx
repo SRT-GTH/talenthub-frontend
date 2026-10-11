@@ -86,7 +86,7 @@ const IdentityMapPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-default">
+    <div className="flex flex-col min-h-dvh bg-background-default">
       <EngagementTopNav onSaveExit={handleSaveExit} />
       <EngagementTopBar
         currentStageIndex={counts.currentIndex}

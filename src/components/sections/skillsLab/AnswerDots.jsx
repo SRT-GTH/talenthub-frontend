@@ -6,7 +6,7 @@ export default function AnswerDots({ answers, currentIndex, total }) {
   log('rendering dots, answered:', answers.length, 'current:', currentIndex);
 
   return (
-    <div className="flex items-center gap-[12px]">
+    <div className="flex items-center gap-[12px] max-lg:flex-wrap max-md:gap-2">
       {Array.from({ length: total }, (_, i) => {
         const answer = answers[i];
         const isActive = i === currentIndex && !answer;
@@ -15,7 +15,7 @@ export default function AnswerDots({ answers, currentIndex, total }) {
           return (
             <div
               key={i}
-              className="size-[28px] rounded-[14px] border-2 border-[#387440] flex items-center justify-center"
+              className="size-[28px] max-md:size-6 rounded-[14px] border-2 border-[#387440] flex items-center justify-center"
               style={{
                 backgroundImage: 'linear-gradient(216deg, #FEF1E7 0%, #E8F2ED 20.19%)',
               }}
@@ -31,7 +31,7 @@ export default function AnswerDots({ answers, currentIndex, total }) {
           return (
             <div
               key={i}
-              className="size-[28px] rounded-[14px] border-2 border-[#387440] flex items-center justify-center"
+              className="size-[28px] max-md:size-6 rounded-[14px] border-2 border-[#387440] flex items-center justify-center"
               style={{
                 backgroundImage: 'linear-gradient(216deg, #FEF1E7 0%, #E8F2ED 20.19%)',
               }}
@@ -47,7 +47,7 @@ export default function AnswerDots({ answers, currentIndex, total }) {
           return (
             <div
               key={i}
-              className="size-[28px] rounded-[14px] border-2 border-[#c8951a] bg-[#eedeb8] flex items-center justify-center"
+              className="size-[28px] max-md:size-6 rounded-[14px] border-2 border-[#c8951a] bg-[#eedeb8] flex items-center justify-center"
             >
               <span className="text-[12px] font-sans font-bold text-[#c8951a] leading-none">●</span>
             </div>
@@ -57,7 +57,7 @@ export default function AnswerDots({ answers, currentIndex, total }) {
         return (
           <div
             key={i}
-            className="size-[28px] rounded-[14px] border-2 border-[#e6e6e6] bg-[#fdfdfc]"
+            className="size-[28px] max-md:size-6 rounded-[14px] border-2 border-[#e6e6e6] bg-[#fdfdfc]"
           />
         );
       })}

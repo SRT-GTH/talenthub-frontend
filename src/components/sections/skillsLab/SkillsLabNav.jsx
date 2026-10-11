@@ -14,13 +14,13 @@ export default function SkillsLabNav({ userName = 'Kofi A.' }) {
 
   return (
     <nav
-      className="flex items-center justify-between px-[clamp(24px,4.4vw,64px)] py-[clamp(8px,0.8vw,12px)] bg-[#f8f8f4] border-b border-[#e7e7e7]"
+      className="flex items-center justify-between gap-3 px-[clamp(24px,4.4vw,64px)] max-md:px-4 py-[clamp(8px,0.8vw,12px)] max-md:py-1.5 bg-[#f8f8f4] border-b border-[#e7e7e7]"
       style={{ boxShadow: '0px 1px 1px rgba(27,36,44,0.12)' }}
     >
       <Logo size="md" />
-      <div className="flex items-center gap-[clamp(12px,1.7vw,24px)]">
+      <div className="flex items-center gap-[clamp(12px,1.7vw,24px)] max-md:gap-2">
         <button
-          className="flex items-center gap-[8px] px-[clamp(16px,1.9vw,28px)] py-[10px] rounded-[10px] text-[14px] font-sans font-bold tracking-[0.1px] leading-[24px] cursor-pointer"
+          className="max-md:hidden flex items-center gap-[8px] px-[clamp(16px,1.9vw,28px)] py-[10px] rounded-[10px] text-[14px] font-sans font-bold tracking-[0.1px] leading-[24px] cursor-pointer"
           style={{
             background: '#c8951a',
             border: '1px solid #967014',
@@ -43,7 +43,7 @@ export default function SkillsLabNav({ userName = 'Kofi A.' }) {
         </button>
 
         <span
-          className="font-sans font-medium text-[14px] tracking-[0.2px] leading-[24px] underline decoration-solid cursor-pointer bg-clip-text text-transparent"
+          className="max-md:inline-flex max-md:min-h-11 max-md:items-center font-sans font-medium text-[14px] tracking-[0.2px] leading-[24px] underline decoration-solid cursor-pointer bg-clip-text text-transparent"
           style={{
             backgroundImage: 'linear-gradient(161deg, #142916 0%, #2a5730 100%)',
           }}
@@ -51,11 +51,11 @@ export default function SkillsLabNav({ userName = 'Kofi A.' }) {
           Save &amp; Exit
         </span>
 
-        <div className="size-[36px] rounded-[18px] bg-[#f8fafc] border border-[#e2e8f0] flex items-center justify-center cursor-pointer">
+        <div className="max-md:hidden size-[36px] rounded-[18px] bg-[#f8fafc] border border-[#e2e8f0] flex items-center justify-center cursor-pointer">
           <NotificationIcon />
         </div>
 
-        <div className="flex items-center gap-[7px] px-[16px] py-[8px] rounded-[10px] bg-[#fffefc] border border-[#c1d4c4]">
+        <div className="flex items-center gap-[7px] px-[16px] max-md:px-2 py-[8px] rounded-[10px] bg-[#fffefc] border border-[#c1d4c4]">
           <div
             className="size-[24px] rounded-[12px] flex items-center justify-center"
             style={{
@@ -63,13 +63,13 @@ export default function SkillsLabNav({ userName = 'Kofi A.' }) {
             }}
           >
             <span
-              className="text-white text-[10px] font-bold"
+              className="text-white text-[10px] max-lg:text-[12px] font-bold"
               style={{ fontFamily: 'Instrument Sans, sans-serif' }}
             >
               {initials}
             </span>
           </div>
-          <span className="font-sans font-medium text-[14px] text-[#111] tracking-[0.2px] leading-[24px]">
+          <span className="max-md:sr-only font-sans font-medium text-[14px] text-[#111] tracking-[0.2px] leading-[24px]">
             {userName}
           </span>
         </div>

@@ -60,17 +60,35 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
     : [];
 
   const footer = (
-    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)]">
-      <Button variant="tertiary" size="md" onClick={onClose}>
-        Cancel
+    <div className="flex items-center justify-end gap-[12px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[rgba(0,0,0,0.07)] max-sm:gap-2 max-sm:px-4 max-sm:py-3">
+      <Button
+        variant="tertiary"
+        size="md"
+        onClick={onClose}
+        className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+      >
+        <span className="max-sm:sr-only">Cancel</span>
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3 sm:hidden"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </Button>
       <Button
         variant="danger"
         size="md"
         onClick={handleConfirm}
         leftIcon={<WorkDeleteWarningIcon className="size-full" />}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
       >
-        Permanently delete this project
+        <span className="max-sm:hidden">Permanently delete this project</span>
+        <span className="sm:hidden">Delete permanently</span>
       </Button>
     </div>
   );
@@ -81,7 +99,7 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
       onClose={onClose}
       size="sm"
       ariaLabel="Delete this project"
-      contentClassName="!rounded-[24px] !max-w-[550px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !max-w-[550px] overflow-hidden"
       footer={footer}
     >
       <div className="relative flex flex-col p-[clamp(24px,3vw,40px)] gap-[20px]">
@@ -97,10 +115,10 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
           <span className="size-[56px] rounded-[16px] bg-[#fdecea] border-2 border-[#f6c6bd] flex items-center justify-center">
             <WorkDeleteWarningIcon className="size-[26px] text-[#c0392b]" />
           </span>
-          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] text-[#111]">
+          <h2 className="font-display text-[clamp(22px,2.2vw,28px)] tracking-[-0.8px] max-lg:tracking-[-0.02em] text-[#111]">
             Delete this project?
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[360px] max-lg:text-[14px]">
             This will permanently remove the role from your work history. Your profile updates
             immediately. This cannot be undone.
           </p>
@@ -125,14 +143,14 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
                   {project.projectType} · {project.year} · {project.role}
                 </span>
               </div>
-              <p className="font-sans text-[12px] text-[#70706e] leading-[1.5]">
+              <p className="font-sans text-[12px] text-[#70706e] leading-[1.5] max-lg:text-[14px]">
                 {project.description}
               </p>
               <div className="flex items-center flex-wrap gap-[5px]">
                 {linkTags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {tag}
                   </span>
@@ -140,7 +158,7 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
                 {project.technologies?.map((tech) => (
                   <span
                     key={tech}
-                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center rounded-full border border-[#e8e8e4] bg-white h-[21px] px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {tech}
                   </span>
@@ -175,7 +193,7 @@ const DeletePortfolioModal = ({ isOpen, onClose, onConfirm, onEditInstead, proje
             <span className="font-sans font-semibold text-[12px] text-[#2a5730]">
               Want to fix something instead of deleting?
             </span>
-            <p className="font-sans text-[10px] text-[#387440] leading-[14px] opacity-85">
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-[#387440] leading-[14px] opacity-85">
               Wrong title, outdated description, broken link? Editing keeps all the context intact.
               Deleting and re-adding means starting from scratch.
             </p>

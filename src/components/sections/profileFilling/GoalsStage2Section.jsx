@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
+import ClampText from '../../ui/ClampText.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 import AddEditGoalModal from './AddEditGoalModal.jsx';
 import DeleteGoalModal from './DeleteGoalModal.jsx';
 import GoalSavedModal from './GoalSavedModal.jsx';
@@ -176,21 +179,18 @@ const GoalCard = ({ goal, onEdit, onDelete, readOnly = false }) => {
   const neutralChips = [goal.location, goal.timeframe, ...(goal.skills ?? [])].filter(Boolean);
 
   return (
-    <div
-      className="bg-white border border-[#e8e8e4] rounded-[16px] p-[17px] flex flex-col gap-[10px] relative opacity-[0.85]"
-      style={{ boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.07)' }}
-    >
+    <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[17px] flex flex-col gap-[10px] relative opacity-[0.85] max-lg:rounded-xl max-lg:p-3 max-lg:gap-2 max-lg:opacity-100 shadow-[0px_4px_0px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
       {/* ❓ Edit/delete icon buttons — see file-header note #1: this pair is
           NOT in Figma's Goals frames, it's the established sibling-stage
           affordance carried over so the (real) Edit + Delete modals have an
           entry point. Hidden on the empty state's static reference card. */}
       {!readOnly && (
-        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px]">
+        <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px] max-lg:right-2 max-lg:top-2 max-lg:gap-1">
           <button
             type="button"
             onClick={onEdit}
             aria-label={`Edit ${goal.role}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
           >
             <WorkEditPencilIcon className="size-3" />
           </button>
@@ -198,7 +198,7 @@ const GoalCard = ({ goal, onEdit, onDelete, readOnly = false }) => {
             type="button"
             onClick={onDelete}
             aria-label={`Delete ${goal.role}`}
-            className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
+            className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
           >
             <WorkDeleteWarningIcon className="size-3" />
           </button>
@@ -207,14 +207,16 @@ const GoalCard = ({ goal, onEdit, onDelete, readOnly = false }) => {
 
       {/* Figma 5622:89438 — 44px rounded-10 rgba(235,241,236,0.5) tile with
           the "laptop" glyph, vertically centred against the text column. */}
-      <div className={`flex items-center gap-[14px] ${readOnly ? '' : 'pr-[70px]'}`}>
-        <span className="size-[44px] rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
-          <WorkRoleIcon className="size-5 text-brand-green" />
+      <div
+        className={`flex items-center gap-[14px] max-sm:gap-2.5 ${readOnly ? '' : 'pr-[70px] max-lg:pr-[76px] max-sm:pr-0'}`}
+      >
+        <span className="size-[44px] max-sm:size-8 rounded-[10px] bg-[rgba(235,241,236,0.5)] flex items-center justify-center shrink-0">
+          <WorkRoleIcon className="size-5 max-sm:size-4 text-brand-green" />
         </span>
 
-        <div className="flex flex-col gap-[6px] min-w-0 flex-1">
-          <div className="flex flex-col gap-[8px] items-start">
-            <span className="font-sans font-bold text-[15px] text-[#111]">
+        <div className="flex flex-col gap-[6px] min-w-0 flex-1 max-lg:gap-1.5">
+          <div className="flex flex-col gap-[8px] items-start max-lg:gap-1">
+            <span className="font-sans font-bold text-[15px] max-lg:text-[16px] text-[#111] max-sm:min-h-8 max-sm:pr-[76px]">
               {goal.industry ? `${goal.role} — ${goal.industry}` : goal.role}
             </span>
             {salary && (
@@ -227,33 +229,46 @@ const GoalCard = ({ goal, onEdit, onDelete, readOnly = false }) => {
           </div>
 
           <div className="flex flex-col gap-[3px]">
-            <div className="flex items-center flex-wrap gap-[8px]">
-              {goal.opportunityType && (
-                /* Figma 5622:89461 — informative-blue chip */
-                <span className="inline-flex items-center h-[22px] px-[10px] rounded-full border border-[#bfcef2] bg-[#eaeffb] font-sans font-semibold text-[10px] text-[#3062d4]">
-                  {goal.opportunityType}
-                </span>
-              )}
-              {neutralChips.map((chip) => (
-                <span
-                  key={chip}
-                  className="inline-flex items-center h-[22px] px-[10px] rounded-full border font-sans font-semibold text-[10px]"
-                  style={{
-                    background: NEUTRAL_CHIP_STYLE.bg,
-                    borderColor: NEUTRAL_CHIP_STYLE.border,
-                    color: NEUTRAL_CHIP_STYLE.text,
-                  }}
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
+            <TagRow
+              gap={8}
+              className="items-center"
+              items={[
+                ...(goal.opportunityType ? [{ kind: 'type', label: goal.opportunityType }] : []),
+                ...neutralChips.map((label) => ({ kind: 'chip', label })),
+              ]}
+              renderItem={(item, index) =>
+                item.kind === 'type' ? (
+                  /* Figma 5622:89461 — informative-blue chip */
+                  <span
+                    key={`type-${index}`}
+                    className="inline-flex items-center h-[22px] max-lg:h-7 px-[10px] max-lg:px-2.5 rounded-full border border-[#bfcef2] bg-[#eaeffb] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#3062d4]"
+                  >
+                    {item.label}
+                  </span>
+                ) : (
+                  <span
+                    key={`${item.label}-${index}`}
+                    className="inline-flex items-center h-[22px] max-lg:h-7 px-[10px] max-lg:px-2.5 rounded-full border font-sans font-semibold text-[10px] max-lg:text-[12px]"
+                    style={{
+                      background: NEUTRAL_CHIP_STYLE.bg,
+                      borderColor: NEUTRAL_CHIP_STYLE.border,
+                      color: NEUTRAL_CHIP_STYLE.text,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )
+              }
+            />
             {goal.description && (
               /* Figma 5622:89471 — the description renders in brand green,
                  wrapped in curly quotes. */
-              <p className="font-sans text-[12px] text-brand-green leading-[19.8px]">
+              <ClampText
+                lines={2}
+                className="font-sans text-[12px] text-brand-green leading-[19.8px] max-lg:text-[13px] max-lg:leading-[18px]"
+              >
                 &ldquo;{goal.description}&rdquo;
-              </p>
+              </ClampText>
             )}
           </div>
         </div>
@@ -271,7 +286,7 @@ const GoalsStage2RightAside = ({ goalCount }) => {
   log('aside render', { goalCount });
   return (
     <aside
-      className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+      className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
       aria-label="Goals guidance"
       style={{ scrollbarWidth: 'none' }}
     >
@@ -310,14 +325,11 @@ const GoalsStage2RightAside = ({ goalCount }) => {
         </div>
 
         {/* Why this matters — Figma 5619:81372/81373/81374 */}
-        <div
-          className="bg-white border border-[#e8e8e4] rounded-[10px] p-[15px]"
-          style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-        >
-          <p className="font-sans font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+        <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[15px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+          <p className="font-sans font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
             Why this matters
           </p>
-          <p className="font-sans text-[12px] text-[#999] leading-[19.2px]">
+          <p className="font-sans text-[12px] text-[#999] leading-[19.2px] max-lg:text-[14px]">
             Specific goals beat vague ones. &ldquo;Product designer, fintech, Accra, GHS 4k+&rdquo;
             matches far better than &ldquo;open to anything&rdquo;.
           </p>
@@ -328,17 +340,14 @@ const GoalsStage2RightAside = ({ goalCount }) => {
             goals to unlock recruiter discovery"; the count/bar/prompt swap
             to a live derived state once goals exist, same convention every
             sibling aside uses (no real analytics backend exists). */}
-        <div
-          className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px]"
-          style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.07)' }}
-        >
-          <p className="font-sans font-bold text-[10px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
+        <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] shadow-[0px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
+          <p className="font-sans font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
             👀 Recruiter views this week
           </p>
-          <p className="font-display text-[36px] leading-[36px] text-[#111] mb-[10px]">
+          <p className="font-display text-[36px] max-lg:text-[24px] leading-[36px] text-[#111] mb-[10px]">
             {goalCount > 0 ? Math.min(goalCount * 3, 24) : 0}
           </p>
-          <p className="font-sans text-[11px] text-[#70706e] mb-[10px]">
+          <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] mb-[10px]">
             profile views from recruiters
           </p>
           <div className="h-[6px] rounded-full bg-[#e8e8e4] overflow-hidden mb-[10px]">
@@ -350,7 +359,7 @@ const GoalsStage2RightAside = ({ goalCount }) => {
               }}
             />
           </div>
-          <p className="font-sans text-[10px] text-[#70706e]">
+          <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e]">
             {goalCount > 0
               ? 'Recruiters are already discovering your profile.'
               : 'Set your goals to unlock recruiter discovery'}
@@ -454,8 +463,8 @@ const GoalsStage2Section = () => {
   log('branch: list state', { isEmpty, goalCount: goals.length });
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -464,21 +473,21 @@ const GoalsStage2Section = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={7} completionPct={78} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
               {/* Header — Figma 5619:81341 (empty) / 5622:89365 (populated),
                   identical in both. Unlike Certs, this header needed NO
                   substitution: the headline, subtext, stat card and tags are
                   all genuinely Goals-specific and ✅ VERIFIED verbatim. */}
               <section
                 aria-label="Goals — where you want to go"
-                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px]"
+                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px] max-lg:px-4 max-lg:py-4"
                 style={{
                   background: [
                     'radial-gradient(circle at 8% 0%, rgba(56,116,64,0.07) 0%, transparent 55%)',
@@ -491,12 +500,12 @@ const GoalsStage2Section = () => {
                   {/* Figma 5619:81342 — mixed style within ONE line: plain
                       "Your goals.  " + italic green "Where do you want to
                       go?" */}
-                  <h2 className="font-display text-[clamp(26px,2.89vw,40px)] max-w-[420px] leading-[0.95] tracking-[-1.8px] mb-[clamp(8px,0.93vw,16px)]">
+                  <h1 className="font-display text-[clamp(26px,2.89vw,40px)] max-w-[420px] leading-[0.95] tracking-[-1.8px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                     <span className="not-italic text-[#111]">Your goals. </span>
                     <span className="italic text-brand-green">Where do you want to go?</span>
-                  </h2>
+                  </h1>
                   {/* Figma 5619:81343 */}
-                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[22.4px] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[22.4px] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                     Tell recruiters exactly what you&rsquo;re looking for — role, industry,
                     location, timeline, salary. Add multiple goals and drag to set your priority.
                     Your top goal drives your primary recruiter match.
@@ -518,7 +527,7 @@ const GoalsStage2Section = () => {
                     ].map((tag) => (
                       <span
                         key={tag.label}
-                        className={`inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] leading-5 bg-white rounded-full px-[12px] py-[6px] border border-[#e1eae2] whitespace-nowrap ${tag.tone}`}
+                        className={`inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-5 bg-white rounded-full px-[12px] py-[6px] max-lg:py-[3px] border border-[#e1eae2] whitespace-nowrap ${tag.tone}`}
                         style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
                       >
                         {tag.label}
@@ -528,14 +537,11 @@ const GoalsStage2Section = () => {
                 </div>
 
                 {/* "Why goals matter" stat card — Figma 5619:81344 */}
-                <div
-                  className="hidden lg:block shrink-0 w-[clamp(360px,28vw,487px)] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px]"
-                  style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-                >
+                <div className="hidden lg:block shrink-0 w-[clamp(360px,28vw,487px)] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
                   <p className="font-sans font-bold text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[10px]">
                     Why goals matter
                   </p>
-                  <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px] mb-[14px]">
+                  <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px] mb-[14px] max-lg:text-[14px]">
                     Goals solve the guessing problem — recruiters match you to roles you actually
                     want, not just roles you can do. Your primary goal drives your headline match.
                   </p>
@@ -547,7 +553,7 @@ const GoalsStage2Section = () => {
                       <p className="font-sans font-bold text-[13px] text-[#111]">
                         Profile strength
                       </p>
-                      <p className="font-sans text-[12px] text-[#959592]">
+                      <p className="font-sans text-[12px] text-[#959592] max-lg:text-[14px]">
                         Seven stages done. Goals aim the matching engine.
                       </p>
                     </div>
@@ -555,7 +561,7 @@ const GoalsStage2Section = () => {
                 </div>
               </section>
 
-              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)]">
+              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] max-lg:px-4 max-lg:py-4">
                 {isEmpty ? (
                   <>
                     {/* Empty state — Figma 5659:81360 "Large empty state",
@@ -585,7 +591,7 @@ const GoalsStage2Section = () => {
                           </Button>
                         </div>
                       </div>
-                      <p className="font-sans text-[12px] text-[#70706e]">
+                      <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
                         No certs yet??{' '}
                         <button
                           type="button"
@@ -645,7 +651,7 @@ const GoalsStage2Section = () => {
                     <button
                       type="button"
                       onClick={openAddModal}
-                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] h-[76px] mt-[28px] font-sans font-bold text-[12px] text-brand-green capitalize transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] h-[76px] max-lg:h-11 max-lg:mt-2 mt-[28px] font-sans font-bold text-[12px] text-brand-green capitalize transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                       style={{ background: 'rgba(235,241,236,0.5)', border: '2px dashed #387440' }}
                     >
                       <span className="size-[20px] bg-brand-green rounded-[10px] flex items-center justify-center shrink-0">
@@ -669,15 +675,17 @@ const GoalsStage2Section = () => {
             </div>
           </div>
 
-          <GoalsStage2RightAside goalCount={goals.length} />
+          <StageAsideAccordion title="What counts & why it matters">
+            <GoalsStage2RightAside goalCount={goals.length} />
+          </StageAsideAccordion>
         </div>
 
         {/* Footer — Figma 5619:81434 / 6686:91416. Spans the full viewport
             width, sibling of the row above rather than nested next to the
             aside (same layout note as every sibling stage-2 section). */}
-        <footer className="shrink-0 h-[101px] w-full border-t border-[rgba(0,0,0,0.07)] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+        <footer className="shrink-0 h-[101px] w-full border-t border-[rgba(0,0,0,0.07)] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-[10px] max-sm:hidden">
               <span
                 aria-hidden="true"
                 className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -687,21 +695,23 @@ const GoalsStage2Section = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
               {/* ❓ Figma labels this back button literally "Goals" — see
                   file-header note #5. */}
               <Button
                 variant="tertiary"
                 size="md"
+                className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                 onClick={handleGoBack}
                 leftIcon={<ArrowLeftIcon className="size-full" />}
               >
-                Goals
+                <span className="max-md:sr-only">Goals</span>
               </Button>
 
               <Button
                 variant="primary"
                 size="md"
+                className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                 onClick={handleNext}
                 rightIcon={<ArrowRightSmIcon className="size-full" />}
               >

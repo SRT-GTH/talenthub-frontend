@@ -71,7 +71,7 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
       onClose={onClose}
       size="sm"
       ariaLabel="Goals saved"
-      contentClassName="!rounded-[24px] !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
     >
       <div className="relative flex flex-col items-center gap-[18px] p-[clamp(24px,3vw,40px)] text-center">
         {/* Top glow — Figma 5619:83054 is a literal
@@ -89,7 +89,7 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
         </span>
 
         <div className="flex flex-col items-center gap-[6px]">
-          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
             Goals <span className="italic text-[#387440]">complete.</span>
           </h2>
           <p className="font-sans text-[12px] text-[#959592] tracking-[0.2px] leading-[18px] max-w-[400px]">
@@ -110,7 +110,7 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
             <span className="font-sans font-semibold text-[14px] text-[#2a5730]">
               Goal-matched search active
             </span>
-            <p className="font-sans text-[12px] text-[#96a090] leading-[18px]">
+            <p className="font-sans text-[12px] text-[#96a090] leading-[18px] max-lg:text-[14px]">
               Recruiters filtering for your target role, industry and location will now see your
               profile. Your primary goal drives your headline match.
             </p>
@@ -138,13 +138,13 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
                       <span className="font-sans font-bold text-[12px] text-[#111] truncate w-full text-left">
                         {goal.industry ? `${goal.role} — ${goal.industry}` : goal.role}
                       </span>
-                      <span className="font-sans text-[10px] text-[#70706e] truncate w-full text-left">
+                      <span className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] truncate w-full text-left">
                         {buildGoalSummaryLine(goal)}
                       </span>
                     </div>
                     {isPrimary && (
                       <span
-                        className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px]"
+                        className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px]"
                         style={{
                           background: PRIMARY_BADGE_STYLE.bg,
                           borderColor: PRIMARY_BADGE_STYLE.border,
@@ -165,8 +165,12 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
             "78% : 8 stages done" (Goals is stage 8 of 9). */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] text-[#111]">Profile strength</span>
-            <span className="font-sans text-[10px] text-[#2a5730]">78% : 8 stages done</span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#111]">
+              Profile strength
+            </span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730]">
+              78% : 8 stages done
+            </span>
           </div>
           <div className="h-[8px] w-full rounded-[4px] bg-[#f8f8f4] border border-[#e8e8e4] overflow-hidden">
             <div
@@ -190,7 +194,7 @@ const GoalSavedModal = ({ isOpen, onClose, onContinue, goals = [] }) => {
           size="lg"
           onClick={onContinue}
           rightIcon={<ArrowRightIcon className="size-full" />}
-          className="w-full"
+          className="w-full max-sm:py-2.5 max-sm:text-[14px] max-sm:leading-5"
         >
           Continue to Pitch stage
         </Button>

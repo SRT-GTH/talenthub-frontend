@@ -15,7 +15,13 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:responsive": "playwright test responsive.spec",
+    "test:visual": "playwright test desktop-visual",
+    "test:visual:update": "playwright test desktop-visual --update-snapshots",
+    "audit:responsive": "node scripts/responsive-audit.mjs",
+    "audit:density": "node scripts/density-audit.mjs",
+    "audit:text": "node scripts/text-size-audit.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

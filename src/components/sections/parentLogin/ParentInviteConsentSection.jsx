@@ -47,10 +47,18 @@ const ShieldMini = () => (
 
 // ── consent checkbox card — Figma 2864:37761 / 37766 / 37773 ────────────────
 const ConsentCard = ({ checked, onToggle, children }) => (
-  <button
-    type="button"
+  <div
+    role="checkbox"
+    aria-checked={checked}
+    tabIndex={0}
     onClick={onToggle}
-    className="flex w-full items-start gap-[12px] rounded-[10px] border bg-white px-[16px] py-[15px] text-left transition-colors"
+    onKeyDown={(e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        onToggle();
+      }
+    }}
+    className="flex w-full cursor-pointer items-start gap-[12px] rounded-[10px] border bg-white px-[16px] py-[15px] text-left transition-colors max-md:gap-3 max-md:rounded-none max-md:border-0 max-md:border-b max-md:bg-transparent max-md:px-0 max-md:py-3 max-md:shadow-none!"
     style={{
       borderColor: checked ? '#c1d4c4' : '#ccc',
       boxShadow: checked
@@ -77,10 +85,10 @@ const ConsentCard = ({ checked, onToggle, children }) => (
         </svg>
       )}
     </span>
-    <p className="font-sans" style={{ fontSize: 13, lineHeight: '20.8px' }}>
+    <p className="font-sans max-md:leading-[18px]!" style={{ fontSize: 13, lineHeight: '20.8px' }}>
       {children}
     </p>
-  </button>
+  </div>
 );
 
 const Strong = ({ children }) => (
@@ -116,18 +124,18 @@ const ParentInviteConsentSection = () => {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       {/* ── Scrollable body ── */}
-      <div className="flex-1 px-6 py-10 md:px-14">
-        <div className="mx-auto flex w-full max-w-full flex-col gap-[16px]">
+      <div className="flex-1 px-6 py-10 md:px-14 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex w-full max-w-full flex-col gap-[16px] max-md:gap-2">
           {/* Header (centered) — Figma 2864:37758 / 37759 / 37760 */}
-          <div className="flex flex-col items-center gap-[6px] text-center">
+          <div className="flex flex-col items-center gap-[6px] text-center max-md:items-start max-md:gap-1 max-md:text-left">
             <span
               className="font-sans font-bold uppercase"
-              style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+              style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
             >
               Step 6 of 7 — Consent &amp; Rights
             </span>
             <h1
-              className="font-display font-normal"
+              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1.6px',
@@ -141,7 +149,7 @@ const ParentInviteConsentSection = () => {
               </span>
             </h1>
             <p
-              className="max-w-[380px] font-sans"
+              className="max-w-[380px] font-sans max-md:leading-[18px]!"
               style={{ fontSize: 13, color: '#70706e', lineHeight: '20.8px' }}
             >
               Please read and confirm each statement below. All three are required to activate your
@@ -184,13 +192,13 @@ const ParentInviteConsentSection = () => {
 
           {/* Compliance note — Figma 2864:37782 */}
           <div
-            className="flex w-full items-center gap-[8px] rounded-[10px] border px-[12px] py-[11px]"
+            className="flex w-full items-center gap-[8px] rounded-[10px] border px-[12px] py-[11px] max-md:mt-1 max-md:py-2"
             style={{ backgroundColor: '#ebf1ec', borderColor: '#c1d4c4' }}
           >
             <ShieldMini />
             <span
               className="font-sans"
-              style={{ fontSize: 11, color: '#142916', lineHeight: 'normal' }}
+              style={{ fontSize: 'var(--fs-11)', color: '#142916', lineHeight: 'normal' }}
             >
               Data encrypted at rest · Ghana Data Protection Act compliant · No third-party data
               sharing
@@ -201,7 +209,7 @@ const ParentInviteConsentSection = () => {
 
       {/* ── Sticky footer — Figma 2864:37786 ── */}
       <div
-        className="sticky bottom-0 bg-white px-6 py-[15px] md:px-14"
+        className="sticky bottom-0 z-20 bg-white px-6 py-[15px] max-md:px-4 max-md:py-2 max-md:pb-[max(8px,env(safe-area-inset-bottom))] md:px-14"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="mx-auto flex w-full max-w-full items-center gap-[10px]">
@@ -211,36 +219,40 @@ const ParentInviteConsentSection = () => {
               log('back clicked');
               navigate(-1);
             }}
-            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold"
+            aria-label="Back"
+            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"
             style={{ borderColor: '#c6c6c3', color: '#111', fontSize: 14 }}
           >
             <ChevronLeft />
-            Back
+            <span className="max-md:sr-only">Back</span>
           </button>
 
           {allAccepted ? (
             <button
               type="button"
               onClick={handleActivate}
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 text-white transition-transform active:translate-y-[2px]"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
               style={{
                 backgroundColor: '#c8951a',
                 borderColor: '#967014',
                 boxShadow: '0px 3px 0px #967014',
               }}
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15 }}>
+              <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
                 Activate Parent Account
               </span>
               <ArrowRightIcon />
             </button>
           ) : (
             <div
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none!"
               style={{ backgroundColor: '#e6e6e3', borderColor: '#d8d8d4', cursor: 'not-allowed' }}
               aria-disabled="true"
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15, color: '#a6a6a3' }}>
+              <span
+                className="font-sans font-bold max-md:text-[14px]!"
+                style={{ fontSize: 15, color: '#a6a6a3' }}
+              >
                 Activate Parent Account
               </span>
               <span style={{ color: '#a6a6a3' }}>

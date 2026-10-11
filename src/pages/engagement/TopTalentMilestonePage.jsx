@@ -171,7 +171,7 @@ const TopTalentMilestonePage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-default">
+    <div className="flex flex-col min-h-dvh bg-background-default">
       <EngagementTopNav
         onSaveExit={handleSaveExit}
         showSwitchModes
@@ -179,7 +179,13 @@ const TopTalentMilestonePage = () => {
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
 
-      <EngagementHero completionPct={100} doneCount={9} inProgressCount={0} remainingCount={0} />
+      <EngagementHero
+        completionPct={100}
+        doneCount={9}
+        inProgressCount={0}
+        remainingCount={0}
+        compactOnPhones
+      />
 
       <main className="flex-1">
         <MilestoneHeroPanel

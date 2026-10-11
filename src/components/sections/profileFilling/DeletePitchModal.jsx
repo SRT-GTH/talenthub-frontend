@@ -67,17 +67,35 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
   };
 
   const footer = (
-    <div className="flex items-center justify-end gap-[8px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[#e7e7e7]">
-      <Button variant="tertiary" size="md" onClick={onClose}>
-        Cancel
+    <div className="flex items-center justify-end gap-[8px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[#e7e7e7] max-sm:gap-2 max-sm:px-4 max-sm:py-3">
+      <Button
+        variant="tertiary"
+        size="md"
+        onClick={onClose}
+        className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+      >
+        <span className="max-sm:sr-only">Cancel</span>
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3 sm:hidden"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </Button>
       <Button
         variant="danger"
         size="md"
         onClick={handleConfirm}
         leftIcon={<WorkDeleteWarningIcon className="size-full" />}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
       >
-        Permanently delete this pitch
+        <span className="max-sm:hidden">Permanently delete this pitch</span>
+        <span className="sm:hidden">Delete permanently</span>
       </Button>
     </div>
   );
@@ -88,7 +106,7 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
       onClose={onClose}
       size="sm"
       ariaLabel="Delete this pitch"
-      contentClassName="!rounded-[24px] !max-w-[520px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !max-w-[520px] overflow-hidden"
       footer={footer}
     >
       <div className="relative flex flex-col p-[clamp(24px,3vw,40px)] gap-[17px]">
@@ -102,10 +120,10 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
 
         <div className="flex flex-col items-center gap-[8px] text-center">
           <WorkDeleteWarningIcon className="size-[56px] text-[#c0392b]" />
-          <h2 className="font-display text-[clamp(22px,2.2vw,26px)] tracking-[-1px] leading-[26px] text-[#111]">
+          <h2 className="font-display text-[clamp(22px,2.2vw,26px)] tracking-[-1px] max-lg:tracking-[-0.02em] leading-[26px] text-[#111]">
             Delete this Pitch?
           </h2>
-          <p className="font-sans text-[12px] text-[#959592] leading-[19.8px] max-w-[354px]">
+          <p className="font-sans text-[12px] text-[#959592] leading-[19.8px] max-w-[354px] max-lg:text-[14px]">
             This will permanently remove your pitch video from your profile. Your profile updates
             immediately. This cannot be undone.
           </p>
@@ -130,7 +148,7 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
 
               {/* "●  Live" pill — Figma 6107:123225/123226 */}
               <span
-                className="inline-flex items-center self-start rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[9px] py-[3px] font-sans font-semibold text-[8px] text-[#2a5730] whitespace-pre"
+                className="inline-flex items-center self-start rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[9px] py-[3px] font-sans font-semibold text-[8px] max-lg:text-[12px] text-[#2a5730] whitespace-pre"
                 style={{ letterSpacing: 0 }}
               >
                 ●&nbsp; Live
@@ -153,14 +171,14 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
                     log('preview chip clicked (mock — no real media attached)');
                     pitch.onPreview?.();
                   }}
-                  className="inline-flex items-center h-[22px] px-[10px] rounded-full border border-[#bfcef2] bg-[#eaeffb] font-sans font-semibold text-[10px] text-[#3062d4] cursor-pointer transition-colors duration-150 hover:bg-[#dde6f8]"
+                  className="inline-flex items-center h-[22px] px-[10px] rounded-full border border-[#bfcef2] bg-[#eaeffb] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#3062d4] cursor-pointer transition-colors duration-150 hover:bg-[#dde6f8]"
                 >
                   Preview ↗
                 </button>
                 {(pitch.chips ?? []).map((chip) => (
                   <span
                     key={chip}
-                    className="inline-flex items-center h-[22px] px-[10px] rounded-full border border-[#e8e8e4] bg-[#f8f8f4] font-sans font-semibold text-[10px] text-[#70706e]"
+                    className="inline-flex items-center h-[22px] px-[10px] rounded-full border border-[#e8e8e4] bg-[#f8f8f4] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e]"
                   >
                     {chip}
                   </span>
@@ -197,7 +215,7 @@ const DeletePitchModal = ({ isOpen, onClose, onConfirm, onReplaceInstead, pitch 
             <span className="font-sans font-semibold text-[12px] text-[#2a5730]">
               Want to replace it instead of deleting?
             </span>
-            <p className="font-sans text-[10px] text-brand-green leading-[14px] opacity-85">
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-brand-green leading-[14px] opacity-85">
               Recorded a better take? Replacing is faster and keeps your card live — the new pitch
               goes live instantly.
             </p>

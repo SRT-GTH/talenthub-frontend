@@ -38,7 +38,7 @@ export default function AnswerCard({ index, text, state = 'default', onClick }) 
     <button
       type="button"
       onClick={onClick}
-      className={`${s.card} rounded-[16px] h-[clamp(56px,5.4vw,78px)] w-full flex items-center gap-[clamp(12px,1.4vw,20px)] px-[clamp(14px,1.5vw,21px)] cursor-pointer transition-all duration-150`}
+      className={`${s.card} rounded-[16px] h-[clamp(56px,5.4vw,78px)] max-lg:h-auto max-lg:min-h-[52px] max-lg:py-2 w-full flex items-center gap-[clamp(12px,1.4vw,20px)] max-md:gap-3 px-[clamp(14px,1.5vw,21px)] cursor-pointer transition-all duration-150`}
     >
       <div
         className={`${s.badge} size-[36px] rounded-[18px] flex items-center justify-center shrink-0`}
@@ -46,7 +46,7 @@ export default function AnswerCard({ index, text, state = 'default', onClick }) 
         <span className="text-[13px] font-sans font-bold leading-none">{letter}</span>
       </div>
       <span
-        className={`${s.text} font-sans font-medium text-[14px] tracking-[0.28px] leading-[19.6px]`}
+        className={`${s.text} font-sans font-medium text-[14px] tracking-[0.28px] leading-[19.6px] text-left`}
       >
         {text}
       </span>

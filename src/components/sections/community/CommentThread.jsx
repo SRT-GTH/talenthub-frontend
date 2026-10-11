@@ -29,10 +29,13 @@ const log = debug('CommentThread');
 const BUTTON_LABEL_GRADIENT = 'linear-gradient(203.44deg, #fef1e7 0%, #e8f2ed 20.192%)';
 const AVATAR_GRADIENT = 'linear-gradient(135deg, #142916 0%, #2a5730 100%)';
 
-const InitialsAvatar = ({ initials, size, fontSize }) => (
+const InitialsAvatar = ({ initials, size, fontSize, className }) => (
   <span
     aria-hidden="true"
-    className="relative inline-flex shrink-0 items-center justify-center rounded-full"
+    className={classNames(
+      'relative inline-flex shrink-0 items-center justify-center rounded-full',
+      className
+    )}
     style={{ width: size, height: size, backgroundImage: AVATAR_GRADIENT }}
   >
     <span
@@ -53,7 +56,7 @@ const GreenActionButton = ({ label, onClick, disabled, className }) => (
     onClick={onClick}
     aria-disabled={disabled || undefined}
     className={classNames(
-      'flex shrink-0 items-center justify-center gap-[7.23px] rounded-[12.05px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[19.29px] py-[12.05px] drop-shadow-[0px_3px_0px_#224626] transition-transform',
+      'flex shrink-0 items-center justify-center gap-[7.23px] max-lg:min-h-[40px] max-sm:py-[6px] rounded-[12.05px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[19.29px] py-[12.05px] drop-shadow-[0px_3px_0px_#224626] transition-transform',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       'active:translate-y-[2px] active:drop-shadow-[0px_1px_0px_#224626]',
       className
@@ -82,8 +85,9 @@ const ReplyComposer = ({ authorName, onSubmit }) => {
   };
 
   return (
-    <div className="flex h-[43.39px] w-full items-center gap-[14.47px]">
-      <InitialsAvatar initials="KA" size="43.39px" fontSize="12.05px" />
+    <div className="flex h-[43.39px] max-lg:h-[44px] w-full items-center gap-[14.47px] max-sm:gap-[8px]">
+      {/* The avatar is dropped on phones so the field keeps a usable width. */}
+      <InitialsAvatar initials="KA" size="43.39px" fontSize="12.05px" className="max-sm:hidden" />
       <label className="flex h-full min-w-0 flex-1 flex-col items-center justify-center overflow-hidden rounded-[9.64px] border-[1.205px] border-[#e0e0e0] px-[14.47px] py-[9.64px] focus-within:border-brand-green-light-active">
         <span className="sr-only">{`Reply ${authorName}...`}</span>
         <div className="flex w-full items-center justify-between">
@@ -95,7 +99,7 @@ const ReplyComposer = ({ authorName, onSubmit }) => {
             onKeyDown={(event) => {
               if (event.key === 'Enter') handleSubmit();
             }}
-            className="min-w-0 flex-1 bg-transparent font-sans text-[14px] text-black outline-none placeholder:text-[#999]"
+            className="min-w-0 flex-1 bg-transparent font-sans text-[14px] max-lg:text-[16px] text-black outline-none placeholder:text-[#999]"
           />
           <CommunityIcon src={icons.emojiSmileSm} size={24.11} />
         </div>
@@ -120,11 +124,11 @@ const CommentRow = ({ comment, onLike, onReply }) => {
         src={comment.avatar}
         alt=""
         draggable="false"
-        className="size-[48.22px] shrink-0 select-none rounded-full object-cover"
+        className="size-[48.22px] max-sm:size-[40px] shrink-0 select-none rounded-full object-cover"
       />
       <div className="flex min-w-0 flex-1 flex-col items-start justify-center gap-[12.05px]">
         <div className="flex w-full flex-col items-start gap-[4.82px]">
-          <div className="flex items-center justify-center gap-[7.23px]">
+          <div className="flex items-center justify-center gap-[7.23px] max-sm:flex-wrap max-sm:justify-start">
             <span className="whitespace-nowrap font-sans text-[16px] font-medium leading-[1.5] text-black">
               {comment.author}
             </span>
@@ -133,7 +137,7 @@ const CommentRow = ({ comment, onLike, onReply }) => {
               {comment.timestamp}
             </span>
           </div>
-          <p className="w-full font-sans text-[15px] leading-[1.5] text-[#595959]">
+          <p className="w-full font-sans text-[15px] max-sm:text-[14px] leading-[1.5] max-sm:leading-5 text-[#595959]">
             {comment.body}
           </p>
         </div>
@@ -147,7 +151,7 @@ const CommentRow = ({ comment, onLike, onReply }) => {
                 log('comment liked:', comment.id);
                 onLike?.(comment.id, 'up');
               }}
-              className="flex items-center gap-[3.62px] rounded px-[2px] transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="flex items-center gap-[3.62px] rounded px-[2px] max-lg:relative max-lg:min-h-[32px] max-lg:min-w-[32px] max-lg:after:absolute max-lg:after:-inset-1.5 transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <CommunityIcon src={icons.commentThumbsUp} size={14.47} className="!h-[15.96px]" />
               <span className="font-sans text-[15px] leading-[1.5] text-neutral-darker">
@@ -161,7 +165,7 @@ const CommentRow = ({ comment, onLike, onReply }) => {
                 log('comment disliked:', comment.id);
                 onLike?.(comment.id, 'down');
               }}
-              className="inline-flex -scale-y-100 rotate-180 items-center justify-center rounded px-[2px] transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="inline-flex -scale-y-100 rotate-180 items-center justify-center rounded px-[2px] max-lg:relative max-lg:min-h-[32px] max-lg:min-w-[32px] max-lg:after:absolute max-lg:after:-inset-1.5 transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <CommunityIcon src={icons.commentThumbsDown} size={14.47} className="!h-[15.95px]" />
             </button>
@@ -172,7 +176,7 @@ const CommentRow = ({ comment, onLike, onReply }) => {
               log('reply composer toggled for:', comment.id, '→', !replyOpen);
               setReplyOpen((open) => !open);
             }}
-            className="whitespace-nowrap font-sans text-[15px] leading-[1.5] text-brand-green-dark hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="whitespace-nowrap font-sans text-[15px] leading-[1.5] text-brand-green-dark max-lg:min-h-[32px] max-lg:px-[8px] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             Reply
           </button>
@@ -186,7 +190,7 @@ const CommentRow = ({ comment, onLike, onReply }) => {
               log('replies expander toggled for:', comment.id, '→', !repliesExpanded);
               setRepliesExpanded((expanded) => !expanded);
             }}
-            className="flex items-center gap-[7.23px] rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="flex items-center gap-[7.23px] rounded max-lg:min-h-[32px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <span className="whitespace-nowrap font-sans text-[15px] leading-[1.5] text-black">
               {comment.replyCountLabel}
@@ -250,7 +254,7 @@ const CommentThread = ({ post, onClose, onAddComment, onLikeComment, onReplyToCo
             log('comment thread closed on post:', post.id);
             onClose?.();
           }}
-          className="whitespace-nowrap font-sans text-[15.67px] font-medium text-brand-green hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          className="whitespace-nowrap font-sans text-[15.67px] font-medium text-brand-green max-lg:min-h-[32px] max-lg:px-[8px] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           Cancel
         </button>
@@ -258,9 +262,14 @@ const CommentThread = ({ post, onClose, onAddComment, onLikeComment, onReplyToCo
 
       <div className="flex w-full flex-col items-start gap-[19.29px]">
         {/* Top-level composer */}
-        <div className="flex h-[52.93px] w-full items-center gap-[14.47px]">
-          <InitialsAvatar initials="KA" size="48.22px" fontSize="14.47px" />
-          <label className="flex min-w-0 flex-1 flex-col items-start overflow-hidden rounded-[14.47px] border-[1.205px] border-[#e0e0e0] px-[18px] py-[12px] focus-within:border-brand-green-light-active">
+        <div className="flex h-[52.93px] max-sm:h-[44px] w-full items-center gap-[14.47px] max-sm:gap-[8px]">
+          <InitialsAvatar
+            initials="KA"
+            size="48.22px"
+            fontSize="14.47px"
+            className="max-sm:hidden"
+          />
+          <label className="flex min-w-0 flex-1 flex-col items-start overflow-hidden rounded-[14.47px] max-sm:rounded-[10px] border-[1.205px] border-[#e0e0e0] px-[18px] py-[12px] max-sm:h-full max-sm:justify-center max-sm:px-[12px] max-sm:py-0 focus-within:border-brand-green-light-active">
             <span className="sr-only">{COMMENT_PLACEHOLDER}</span>
             <div className="flex w-full items-center justify-between">
               <input

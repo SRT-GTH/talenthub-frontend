@@ -45,7 +45,12 @@ const PreviewField = ({
       <div className="flex min-w-0 flex-1 flex-col gap-[3px] py-[8px]">
         <span
           className="font-sans font-bold uppercase"
-          style={{ fontSize: 9, color: '#babab7', letterSpacing: '0.6px', lineHeight: 'normal' }}
+          style={{
+            fontSize: 'var(--fs-9)',
+            color: '#babab7',
+            letterSpacing: '0.6px',
+            lineHeight: 'normal',
+          }}
         >
           {label}
         </span>

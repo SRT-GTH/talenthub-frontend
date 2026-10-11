@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarSkinPanel from '../../components/sections/engagement/avatar/AvatarSkinPanel.jsx';
-import skinHeroStage from '../../assets/engagement/avatar-skin-hero-stage.png';
+import skinHeroStage from '../../assets/engagement/avatar-skin-hero-stage.webp';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarSkinTonePage');

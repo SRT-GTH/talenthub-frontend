@@ -71,8 +71,39 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent = 0 }) => {
   const currentIndex = steps.findIndex((s) => s.key === currentKey);
 
   return (
-    <div className="relative h-[58px] w-full border-b border-[#F1F1EF] bg-white">
-      <div className="mx-auto flex h-full items-center justify-between px-[54px]">
+    <div className="relative h-[58px] w-full border-b border-[#F1F1EF] bg-white max-md:h-auto">
+      {/* Phones: one slim row "Step 3 of 8 · Contact  38%" with a 3px progress line (<= 36px) */}
+      <div className="relative flex items-center justify-between gap-3 px-4 py-2 md:hidden">
+        <p className="min-w-0 truncate text-[13px] font-semibold leading-4 text-brand-green">
+          <span className="text-[#575755]">
+            Step {currentIndex >= 0 ? currentIndex + 1 : 1} of {steps.length}
+          </span>
+          <span aria-hidden="true" className="px-1.5 text-[#BABAB7]">
+            ·
+          </span>
+          <span className="capitalize" aria-current="step">
+            {steps[currentIndex]?.label ?? ''}
+          </span>
+        </p>
+        <span className="shrink-0 text-[13px] font-semibold leading-4 text-brand-green">
+          {clamped}%
+        </span>
+        <div
+          className="absolute inset-x-0 bottom-0 h-[3px] bg-[#EBF1EC]"
+          role="progressbar"
+          aria-valuenow={clamped}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Onboarding completion"
+        >
+          <div
+            className="h-full bg-brand-green transition-[width] duration-300"
+            style={{ width: `${clamped}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="mx-auto flex h-full items-center justify-between px-[54px] max-md:hidden">
         {/* Breadcrumbs */}
         <nav
           aria-label="Onboarding progress"

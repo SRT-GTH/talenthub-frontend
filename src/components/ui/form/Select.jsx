@@ -28,7 +28,7 @@ const log = debug('Select');
  */
 
 const TRIGGER_BASE =
-  'flex h-[51px] items-center gap-2 pl-[20px] pr-[16px] py-[13px] rounded-md w-full ' +
+  'flex h-[51px] max-md:h-11 items-center gap-2 pl-[20px] pr-[16px] max-md:pl-3 max-md:pr-3 py-[13px] max-md:py-0 rounded-md w-full max-md:shadow-none! ' +
   'transition-colors duration-100 cursor-pointer text-left ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
 
@@ -50,7 +50,7 @@ const TRIGGER_INSCRIPTION_CLASSES = 'relative items-end pt-[22px] pb-[10px]';
 
 const INSCRIPTION_CLASSES =
   'pointer-events-none absolute left-[16px] top-[6px] z-[1] ' +
-  'font-sans text-[8px] font-medium leading-[11px] text-[#32683a]';
+  'font-sans text-[8px] max-lg:text-[12px] font-medium leading-[11px] text-[#32683a]';
 
 const TRIGGER_STATE_CLASSES = {
   default: 'bg-white border border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)]',
@@ -210,6 +210,18 @@ const Select = ({
     };
   }, [open]);
 
+  // Phones: the menu opens downward; make sure it is not left hidden under the
+  // sticky action bar / below the fold (respects the scroller's scroll-padding).
+  useEffect(() => {
+    if (!open || typeof window === 'undefined' || !window.matchMedia('(max-width: 767px)').matches)
+      return;
+    const frame = requestAnimationFrame(() => {
+      log('mobile: scroll menu into view');
+      document.getElementById(listboxId)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [open, listboxId]);
+
   // Focus search box when menu opens with searchable enabled.
   useEffect(() => {
     if (open && searchable) {
@@ -290,7 +302,7 @@ const Select = ({
                 ? 'text-[13px] leading-[20px]'
                 : isSm
                   ? 'text-[16px] leading-[22px]'
-                  : 'text-[14px] leading-[20px]',
+                  : 'text-[14px] max-md:text-[16px] leading-[20px]',
               selected
                 ? isXs
                   ? 'text-[#111] font-normal'
@@ -359,6 +371,7 @@ const Select = ({
                       className={classNames(
                         'flex items-center px-3 py-2 rounded-sm text-left cursor-pointer',
                         'font-sans text-[12px] leading-[18px] tracking-[0.2px]',
+                        'max-md:py-3 max-md:text-[14px]',
                         'hover:bg-brand-green-light',
                         isSelected
                           ? 'bg-brand-green-light text-content-primary font-medium'

@@ -25,6 +25,10 @@ const log = debug('Modal');
  * `overflow-hidden` on the content box clips children/footer to
  * `rounded-2xl` so opaque footers don't square off the bottom corners.
  * Callers that need a fixed height (Game Store) pass it via contentClassName.
+ *
+ * RESPONSIVE: below `sm` (640px) the dialog becomes a bottom sheet — flush to
+ * the screen edges, square bottom, capped at 100dvh so the on-screen keyboard
+ * and iOS URL bar never push the footer out of reach. >= sm is unchanged.
  */
 
 const SIZE_CLASSES = {
@@ -146,15 +150,15 @@ const Modal = ({
       aria-label={ariaLabel}
       onMouseDown={handleOverlayMouseDown}
       className={classNames(
-        'fixed inset-0 z-50 flex items-center justify-center overflow-hidden',
-        'px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)]',
+        'fixed inset-0 z-50 flex items-end justify-center overflow-hidden sm:items-center',
+        'px-0 pt-[env(safe-area-inset-top)] sm:px-[clamp(12px,2vw,32px)] sm:py-[clamp(16px,3vw,40px)]',
         'bg-black/30 backdrop-blur-[2px]',
         className
       )}
     >
       <div
         className={classNames(
-          'relative flex w-full max-h-full flex-col overflow-hidden rounded-2xl bg-white shadow-bottom-400',
+          'relative flex w-full max-h-full flex-col overflow-hidden rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-bottom-400 sm:rounded-2xl sm:pb-0',
           SIZE_CLASSES[size] || SIZE_CLASSES.lg,
           contentClassName
         )}
@@ -166,7 +170,7 @@ const Modal = ({
             onClick={onClose}
             aria-label="Close"
             className={classNames(
-              'absolute right-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full',
+              'absolute right-3 top-3 z-10 inline-flex size-11 items-center justify-center rounded-full sm:right-4 sm:top-4 sm:size-9',
               'border border-border-default bg-white text-content-primary',
               'hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
             )}

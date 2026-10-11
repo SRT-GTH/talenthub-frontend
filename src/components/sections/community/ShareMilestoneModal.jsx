@@ -115,16 +115,16 @@ const ShareMilestoneModal = ({
       aria-modal="true"
       aria-label={copy.title}
       onMouseDown={handleOverlayMouseDown}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)] backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 px-[clamp(12px,2vw,32px)] py-[clamp(16px,3vw,40px)] backdrop-blur-[2px] max-sm:items-start max-sm:p-0"
     >
-      <div className="flex w-full max-w-[600px] flex-col items-center gap-[24px]">
-        <div className="relative flex w-full flex-col items-start gap-[24px] rounded-[24px] bg-white px-[32px] py-[28px] shadow-[0px_40px_100px_0px_rgba(0,0,0,0.25),0px_4px_0px_0px_rgba(0,0,0,0.13)]">
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-[24px] max-sm:gap-[16px] max-sm:pb-[calc(16px+env(safe-area-inset-bottom))]">
+        <div className="relative flex w-full flex-col items-start gap-[24px] rounded-[24px] bg-white px-[32px] py-[28px] shadow-[0px_40px_100px_0px_rgba(0,0,0,0.25),0px_4px_0px_0px_rgba(0,0,0,0.13)] max-sm:gap-[16px] max-sm:rounded-t-none max-sm:px-[16px] max-sm:pt-[calc(20px+env(safe-area-inset-top))]">
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-[14px] top-[11px] inline-flex size-[28px] items-center justify-center rounded-[20px] bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="absolute right-[14px] top-[11px] max-sm:right-[8px] max-sm:top-[calc(8px+env(safe-area-inset-top))] inline-flex size-[28px] max-sm:size-[44px] items-center justify-center rounded-[20px] max-sm:rounded-full bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <CommunityIcon src={icons.modalClose} size={16} />
           </button>
@@ -133,7 +133,7 @@ const ShareMilestoneModal = ({
             <CommunityIcon src={icons.diamondTrophy} size={26} />
           </span>
 
-          <div className="flex flex-col items-start gap-[4px]">
+          <div className="flex flex-col items-start gap-[4px] max-sm:pr-[48px]">
             <h2 className="font-display text-[32px] text-black">{copy.title}</h2>
             <p className="font-sans text-[14px] text-[#595959]">{copy.subtitle}</p>
           </div>
@@ -145,7 +145,7 @@ const ShareMilestoneModal = ({
                 rows={2}
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                className="w-full resize-none bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-[#595959] outline-none"
+                className="w-full resize-none bg-transparent font-sans text-[14px] max-lg:text-[16px] leading-5 tracking-[0.2px] text-[#595959] outline-none"
               />
             </label>
 
@@ -172,7 +172,7 @@ const ShareMilestoneModal = ({
                         setAudience(item);
                       }}
                       className={classNames(
-                        'flex flex-col items-center justify-center rounded-[100px] border border-brand-green-light-hover py-[6px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] transition-colors',
+                        'flex flex-col items-center justify-center rounded-[100px] border border-brand-green-light-hover py-[6px] max-lg:min-h-[44px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] transition-colors',
                         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                         isPicker ? 'pl-[12px] pr-[27px]' : 'px-[12px]',
                         active ? 'bg-brand-green' : 'bg-white hover:bg-brand-green-light'
@@ -181,7 +181,7 @@ const ShareMilestoneModal = ({
                       <span className="relative flex items-center justify-center gap-[6px]">
                         <span
                           className={classNames(
-                            'whitespace-nowrap font-sans text-[12.5px] font-medium leading-5 tracking-[0.2px]',
+                            'whitespace-nowrap font-sans text-[12.5px] max-lg:text-[14px] font-medium leading-5 tracking-[0.2px]',
                             active ? 'bg-clip-text text-transparent' : 'text-[#737373]'
                           )}
                           style={active ? { backgroundImage: CHIP_LABEL_GRADIENT } : undefined}
@@ -213,7 +213,7 @@ const ShareMilestoneModal = ({
                     log('share target community:', event.target.value);
                     setCommunity(event.target.value);
                   }}
-                  className="w-full bg-transparent font-sans text-[14px] text-black outline-none"
+                  className="w-full bg-transparent font-sans text-[14px] max-lg:text-[16px] text-black outline-none"
                 >
                   {COMMUNITIES.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -232,14 +232,14 @@ const ShareMilestoneModal = ({
                   onDecline?.();
                   onClose?.();
                 }}
-                className="whitespace-nowrap font-sans text-[13px] font-medium text-[#737373] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="whitespace-nowrap font-sans text-[13px] max-lg:text-[14px] font-medium text-[#737373] max-lg:min-h-[44px] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >
                 {copy.declineLabel}
               </button>
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex items-center justify-center gap-[8px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="flex items-center justify-center gap-[8px] max-lg:min-h-[48px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >
                 <span
                   className="whitespace-nowrap bg-clip-text font-sans text-[14px] font-bold leading-6 tracking-[0.1px] text-transparent"

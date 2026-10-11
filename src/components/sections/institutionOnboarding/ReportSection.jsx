@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import Loader from '../../ui/Loader.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
@@ -266,7 +267,7 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
   log('LoadingStatCard render', { value, label });
   return (
     <div
-      className="flex-1 flex flex-col items-center gap-[4px]"
+      className="flex-1 flex flex-col items-center gap-[4px] max-md:h-auto! max-md:min-w-0 max-md:gap-0.5! max-md:border-black/15! max-md:py-2!"
       style={{
         height: '98px',
         backgroundColor: outerFill,
@@ -278,7 +279,7 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
     >
       {/* Inner white box */}
       <div
-        className="relative flex items-center justify-center overflow-hidden"
+        className="relative flex items-center justify-center overflow-hidden max-md:h-auto! max-md:border-0! max-md:bg-transparent!"
         style={{
           width: 'calc(100% - 18px)',
           height: '60px',
@@ -288,7 +289,7 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
         }}
       >
         <span
-          className="font-sans"
+          className="font-sans max-md:text-[24px]! max-md:leading-8!"
           style={{ fontSize: 'clamp(1.5rem, 2.2vw, 2rem)', lineHeight: '22px', color: valueColor }}
         >
           {value}
@@ -301,7 +302,7 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
       </div>
       {/* Label below inner box */}
       <span
-        className="font-sans font-medium"
+        className="font-sans font-medium max-md:px-1 max-md:text-center max-md:leading-4!"
         style={{ fontSize: '12px', lineHeight: '20px', color: labelColor, letterSpacing: '0.2px' }}
       >
         {label}
@@ -327,7 +328,7 @@ const ReportStatCard = ({
   log('ReportStatCard render', { value, label });
   return (
     <div
-      className="flex flex-col items-center gap-[4px]"
+      className="flex flex-col items-center gap-[4px] max-md:h-auto! max-md:w-full! max-md:gap-0! max-md:border-black/15! max-md:py-2!"
       style={{
         width: '194px',
         height: '98px',
@@ -340,7 +341,7 @@ const ReportStatCard = ({
     >
       {/* Inner white box — 177×60 */}
       <div
-        className="flex flex-col items-center justify-center gap-[4px]"
+        className="flex flex-col items-center justify-center gap-[4px] max-md:h-auto! max-md:w-full! max-md:border-0! max-md:bg-transparent! max-md:p-0"
         style={{
           width: '177px',
           height: '60px',
@@ -350,15 +351,15 @@ const ReportStatCard = ({
         }}
       >
         <span
-          className="font-sans"
+          className="font-sans max-md:text-[28px]! max-md:leading-8!"
           style={{ fontSize: 'clamp(1.2rem, 2vw, 2rem)', lineHeight: '22px', color: valueColor }}
         >
           {value}
         </span>
         <span
-          className="font-sans text-center"
+          className="font-sans text-center max-md:hidden"
           style={{
-            fontSize: '10px',
+            fontSize: 'var(--fs-10)',
             lineHeight: '16px',
             color: subColor,
             paddingLeft: '4px',
@@ -371,7 +372,7 @@ const ReportStatCard = ({
       {/* Outer label below inner box */}
       <span
         className="font-sans font-medium text-center"
-        style={{ fontSize: '10px', lineHeight: '16px', color: labelColor }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
       >
         {label}
       </span>
@@ -388,13 +389,18 @@ const ProcessingLog = ({ entries }) => (
     {/* "Processing log" label — fs=11 fw=700 ls=0.6 #70706e */}
     <span
       className="font-sans font-bold"
-      style={{ fontSize: '11px', lineHeight: '13px', letterSpacing: '0.6px', color: '#70706e' }}
+      style={{
+        fontSize: 'var(--fs-11)',
+        lineHeight: '13px',
+        letterSpacing: '0.6px',
+        color: '#70706e',
+      }}
     >
       Processing log
     </span>
     {/* Log box — 890×130 bg #f8f8f4 border #000000@1 r=10 */}
     <div
-      className="overflow-y-auto"
+      className="overflow-y-auto max-md:h-24! max-md:border-black/15! max-md:px-3! max-md:py-2.5!"
       style={{
         height: '130px',
         backgroundColor: '#f8f8f4',
@@ -403,7 +409,7 @@ const ProcessingLog = ({ entries }) => (
         padding: '12px 16px',
       }}
     >
-      <div className="flex flex-col gap-[8px]">
+      <div className="flex flex-col gap-[8px] max-md:gap-1.5">
         {entries.map((entry, i) => (
           <div
             key={i}
@@ -421,7 +427,7 @@ const ProcessingLog = ({ entries }) => (
               }}
             />
             <span
-              className="font-sans"
+              className="font-sans max-md:text-[13px]!"
               style={{ fontSize: '12px', lineHeight: '15.4px', color: '#111111' }}
             >
               {entry.text}
@@ -439,7 +445,7 @@ const ProcessingLog = ({ entries }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 const InfoBanner = () => (
   <div
-    className="flex items-center"
+    className="flex items-center max-md:h-auto! max-md:items-start max-md:py-2.5"
     style={{
       width: '100%',
       height: '46px',
@@ -452,7 +458,10 @@ const InfoBanner = () => (
     }}
   >
     <InfoCircleIcon />
-    <span className="font-sans" style={{ fontSize: '12px', lineHeight: '18px', color: '#244a9f' }}>
+    <span
+      className="font-sans max-md:text-[13px]! max-md:leading-[18px]!"
+      style={{ fontSize: '12px', lineHeight: '18px', color: '#244a9f' }}
+    >
       Safe to close this tab processing continues in the background. We&apos;ll email you when
       it&apos;s complete.
     </span>
@@ -466,7 +475,7 @@ const InfoBanner = () => (
 const DownloadButton = ({ label, iconColor, borderColor }) => (
   <button
     type="button"
-    className="flex items-center gap-[8px] font-sans font-bold"
+    className="relative flex items-center gap-[8px] font-sans font-bold max-md:h-9! max-md:w-full max-md:justify-center max-md:text-[13px]! max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1 max-md:before:content-['']"
     style={{
       height: '40px',
       backgroundColor: '#ffffff',
@@ -506,7 +515,7 @@ const ReportCheckCard = ({ card }) => {
 
   return (
     <div
-      className="w-full overflow-hidden"
+      className="w-full overflow-hidden max-md:rounded-[10px]! max-md:border-black/15!"
       style={{ border: '1px solid #000000', borderRadius: '16px' }}
     >
       {/* ── Header row ── */}
@@ -516,7 +525,7 @@ const ReportCheckCard = ({ card }) => {
         aria-expanded={isExpanded}
         onClick={handleToggle}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleToggle()}
-        className="flex items-center justify-between cursor-pointer"
+        className="flex items-center justify-between cursor-pointer max-md:px-3!"
         style={{
           minHeight: '44px',
           backgroundColor: '#f8f8f4',
@@ -529,7 +538,7 @@ const ReportCheckCard = ({ card }) => {
         <div className="flex items-center gap-[10px] flex-1 min-w-0">
           <CheckCardUsersIcon />
           <span
-            className="font-sans font-semibold truncate"
+            className="font-sans font-semibold truncate max-md:whitespace-normal"
             style={{ fontSize: '14px', lineHeight: '16.7px', color: '#111111' }}
           >
             {card.title}
@@ -549,7 +558,7 @@ const ReportCheckCard = ({ card }) => {
               paddingRight: '8px',
               paddingTop: '3px',
               paddingBottom: '3px',
-              fontSize: '11px',
+              fontSize: 'var(--fs-11)',
               lineHeight: '13px',
               whiteSpace: 'nowrap',
             }}
@@ -565,11 +574,11 @@ const ReportCheckCard = ({ card }) => {
         <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
           {/* Table header */}
           <div
-            className="grid font-sans font-bold"
+            className="grid font-sans font-bold max-md:hidden"
             style={{
               gridTemplateColumns: '48px 1fr 90px 1fr 90px',
               padding: '6px 16px',
-              fontSize: '10px',
+              fontSize: 'var(--fs-10)',
               lineHeight: '13px',
               letterSpacing: '0.3px',
               color: '#70706e',
@@ -603,7 +612,7 @@ const ReportTableRow = ({ row, isCreated, isAlt }) => {
 
   return (
     <div
-      className="grid items-center font-sans"
+      className="grid items-center font-sans max-md:flex max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-0.5 max-md:px-3! max-md:py-1.5"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -620,19 +629,21 @@ const ReportTableRow = ({ row, isCreated, isAlt }) => {
       }}
     >
       {/* Row number */}
-      <span style={{ fontSize: '11px', color: '#70706e' }}>{row.row}</span>
+      <span style={{ fontSize: 'var(--fs-11)', color: '#70706e' }}>{row.row}</span>
 
       {/* Name */}
       <span style={{ fontSize: '12px', fontWeight: 600, color: '#111111' }}>{row.name}</span>
 
       {/* col3 — type (created) or dob (failed) */}
-      <span style={{ fontSize: '10px', color: '#70706e' }}>{row.col3}</span>
+      <span style={{ fontSize: 'var(--fs-10)', color: '#70706e' }}>{row.col3}</span>
 
       {/* col4 — level (created) or reason (failed) */}
-      <span style={{ fontSize: '10px', color: isCreated ? '#70706e' : '#c0392b' }}>{row.col4}</span>
+      <span style={{ fontSize: 'var(--fs-10)', color: isCreated ? '#70706e' : '#c0392b' }}>
+        {row.col4}
+      </span>
 
       {/* Status pill */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="max-md:ml-auto" style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <span
           className="font-sans font-semibold"
           style={{
@@ -643,7 +654,7 @@ const ReportTableRow = ({ row, isCreated, isAlt }) => {
             paddingRight: '8px',
             paddingTop: '3px',
             paddingBottom: '3px',
-            fontSize: '10px',
+            fontSize: 'var(--fs-10)',
             lineHeight: '12px',
           }}
         >
@@ -668,7 +679,7 @@ const ReportTableFooter = ({ card }) => {
       }}
     >
       <span
-        className="font-sans"
+        className="font-sans max-md:py-2 max-md:text-[12px]!"
         style={{
           fontSize: isInfo ? '10px' : '11px',
           fontWeight: isInfo ? 600 : 400,
@@ -753,10 +764,10 @@ const ReportSection = () => {
   const isLoading = phase === 'loading';
 
   return (
-    <div className="flex flex-col items-center py-[88px] px-6 w-full">
-      <div className="w-full max-w-[897px] flex flex-col gap-[40px]">
+    <div className="flex flex-col items-center py-[88px] px-6 w-full max-md:px-4 max-md:py-4">
+      <div className="w-full max-w-[897px] flex flex-col gap-[40px] max-md:gap-3">
         {/* ─────────── HEADER BLOCK (shared by both phases) ─────────── */}
-        <div className="flex flex-col items-center gap-[16px]">
+        <div className="flex flex-col items-center gap-[16px] max-md:items-start max-md:gap-2">
           {/* Caption badge */}
           <Captions
             items={[
@@ -766,11 +777,12 @@ const ReportSection = () => {
               },
             ]}
             currentIndex={0}
+            className="max-md:px-2.5 max-md:py-0.5"
           />
 
           {/* Headline — loading: "Creating accounts.." / report: "821 students are live" */}
           <h1
-            className="font-display text-center"
+            className="font-display text-center max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2.5rem, 4.4vw, 4rem)',
               lineHeight: '70px',
@@ -791,7 +803,7 @@ const ReportSection = () => {
 
           {/* Subtitle */}
           <p
-            className="font-sans text-center"
+            className="font-sans text-center max-md:text-left max-md:text-[14px]! max-md:leading-5!"
             style={{
               fontSize: 'clamp(0.9rem, 1.2vw, 1rem)',
               lineHeight: '24px',
@@ -809,15 +821,17 @@ const ReportSection = () => {
         </div>
 
         {/* Concentric rings — decorative visual motif (both phases) */}
-        <div className="flex justify-center">
-          <ConcentricRings />
+        <div className="flex justify-center max-md:h-10 max-md:items-center">
+          <div className="max-md:scale-50">
+            <ConcentricRings />
+          </div>
         </div>
 
         {/* ─────────── LOADING PHASE CONTENT ─────────── */}
         {isLoading && (
           <>
             {/* 3 loading stat cards — gap=28 */}
-            <div className="flex gap-[28px] w-full">
+            <div className="flex gap-[28px] w-full max-md:grid max-md:grid-cols-3 max-md:gap-2">
               <LoadingStatCard
                 value={MOCK_LOADING.accountsToCreate}
                 valueColor="#387440"
@@ -842,7 +856,7 @@ const ReportSection = () => {
             </div>
 
             {/* Processing log + info banner — gap=16 */}
-            <div className="flex flex-col gap-[16px] w-full">
+            <div className="flex flex-col gap-[16px] w-full max-md:gap-3">
               <ProcessingLog entries={LOG_ENTRIES.slice(0, visibleLogs)} />
               <InfoBanner />
             </div>
@@ -853,16 +867,16 @@ const ReportSection = () => {
         {!isLoading && (
           <>
             {/* 4 report stat cards — 194×98 each, gap=35 */}
-            <div className="flex gap-[35px] justify-center w-full flex-wrap">
+            <div className="flex gap-[35px] justify-center w-full flex-wrap max-md:grid max-md:grid-cols-2 max-md:gap-2">
               {MOCK_REPORT_STATS.map((stat) => (
                 <ReportStatCard key={stat.label} {...stat} />
               ))}
             </div>
 
             {/* Downloads + check cards — gap=16 */}
-            <div className="flex flex-col gap-[16px] w-full">
+            <div className="flex flex-col gap-[16px] w-full max-md:gap-2">
               {/* Download button row */}
-              <div className="flex gap-[10px]">
+              <div className="flex gap-[10px] max-md:flex-col max-md:gap-2">
                 <DownloadButton
                   label="Download 26 failed rows"
                   iconColor="#c0392b"
@@ -886,12 +900,12 @@ const ReportSection = () => {
         {/* ─────────── CTA ROW ─────────── */}
         {isLoading ? (
           /* Loading phase CTA — gap=19 */
-          <div className="flex gap-[19px] w-full">
+          <div className="flex gap-[19px] w-full max-md:contents">
             {/* Back button — 128×56, white, #111111@2, r=14 */}
             <button
               type="button"
               onClick={handleBack}
-              className="flex items-center justify-center gap-[8px] font-sans font-bold"
+              className="flex items-center justify-center gap-[8px] font-sans font-bold relative max-md:h-auto! max-md:w-auto! max-md:self-center max-md:gap-1 max-md:rounded-none! max-md:border-0! max-md:bg-transparent! max-md:text-[13px]! max-md:font-semibold max-md:leading-5! max-md:text-brand-green! max-md:underline max-md:underline-offset-2 max-md:before:absolute max-md:before:-inset-x-3 max-md:before:-inset-y-3 max-md:before:content-['']"
               style={{
                 width: '128px',
                 height: '56px',
@@ -906,42 +920,44 @@ const ReportSection = () => {
                 flexShrink: 0,
               }}
             >
-              <ArrowLeftIcon />
+              <ArrowLeftIcon className="max-md:size-4" />
               Back
             </button>
 
             {/* "View Upload Report" — flex-1, disabled → gray / active → green */}
-            <button
-              type="button"
-              onClick={isReportReady ? handleViewReport : undefined}
-              disabled={!isReportReady}
-              className="flex items-center justify-center gap-[8px] font-sans font-bold"
-              style={{
-                flex: 1,
-                height: '56px',
-                backgroundColor: isReportReady ? '#387440' : '#bfbfbf',
-                border: `2px solid ${isReportReady ? '#2a5730' : '#cccccc'}`,
-                borderRadius: '14px',
-                fontSize: '16px',
-                lineHeight: '24px',
-                letterSpacing: '0.1px',
-                color: '#ffffff',
-                cursor: isReportReady ? 'pointer' : 'not-allowed',
-                transition: 'background-color 0.3s ease, border-color 0.3s ease',
-              }}
-            >
-              View Upload Report
-              <ArrowRightIcon />
-            </button>
+            <StickyActionBar bleed={16}>
+              <button
+                type="button"
+                onClick={isReportReady ? handleViewReport : undefined}
+                disabled={!isReportReady}
+                className="flex items-center justify-center gap-[8px] font-sans font-bold max-md:flex-none! max-md:w-full max-md:h-11! max-md:rounded-[10px]!"
+                style={{
+                  flex: 1,
+                  height: '56px',
+                  backgroundColor: isReportReady ? '#387440' : '#bfbfbf',
+                  border: `2px solid ${isReportReady ? '#2a5730' : '#cccccc'}`,
+                  borderRadius: '14px',
+                  fontSize: '16px',
+                  lineHeight: '24px',
+                  letterSpacing: '0.1px',
+                  color: '#ffffff',
+                  cursor: isReportReady ? 'pointer' : 'not-allowed',
+                  transition: 'background-color 0.3s ease, border-color 0.3s ease',
+                }}
+              >
+                View Upload Report
+                <ArrowRightIcon />
+              </button>
+            </StickyActionBar>
           </div>
         ) : (
           /* Report phase CTA — gap=20 */
-          <div className="flex gap-[20px] w-full">
+          <div className="flex gap-[20px] w-full max-md:contents">
             {/* Upload another batch — 220×56, white, r=14 */}
             <button
               type="button"
               onClick={handleUploadAnother}
-              className="flex items-center justify-center gap-[8px] font-sans font-bold"
+              className="flex items-center justify-center gap-[8px] font-sans font-bold relative max-md:h-auto! max-md:w-auto! max-md:self-center max-md:gap-1 max-md:rounded-none! max-md:border-0! max-md:bg-transparent! max-md:text-[13px]! max-md:font-semibold max-md:leading-5! max-md:text-brand-green! max-md:underline max-md:underline-offset-2 max-md:before:absolute max-md:before:-inset-x-3 max-md:before:-inset-y-3 max-md:before:content-['']"
               style={{
                 width: '220px',
                 height: '56px',
@@ -956,49 +972,51 @@ const ReportSection = () => {
                 flexShrink: 0,
               }}
             >
-              <ArrowLeftIcon />
+              <ArrowLeftIcon className="max-md:size-4" />
               Upload another batch
             </button>
 
             {/* Go to Institution Dashboard — flex-1, green */}
-            <button
-              type="button"
-              onClick={handleDashboard}
-              disabled={isDashboardLoading}
-              className="flex items-center justify-center gap-[8px] font-sans font-bold"
-              style={{
-                flex: 1,
-                height: '56px',
-                backgroundColor: isDashboardLoading ? '#2d5d33' : '#387440',
-                border: `2px solid ${isDashboardLoading ? '#224626' : '#2a5730'}`,
-                borderRadius: '14px',
-                fontSize: '16px',
-                lineHeight: '24px',
-                letterSpacing: '0.1px',
-                color: '#ffffff',
-                cursor: isDashboardLoading ? 'not-allowed' : 'pointer',
-                transition: 'background-color 0.2s ease',
-              }}
-            >
-              {isDashboardLoading ? (
-                <>
-                  <Loader size="sm" label="Loading Institution Dashboard" />
-                  Loading Institution Dashboard
-                </>
-              ) : (
-                <>
-                  Go to Institution Dashboard
-                  <ArrowRightIcon />
-                </>
-              )}
-            </button>
+            <StickyActionBar bleed={16}>
+              <button
+                type="button"
+                onClick={handleDashboard}
+                disabled={isDashboardLoading}
+                className="flex items-center justify-center gap-[8px] font-sans font-bold max-md:flex-none! max-md:w-full max-md:h-11! max-md:rounded-[10px]!"
+                style={{
+                  flex: 1,
+                  height: '56px',
+                  backgroundColor: isDashboardLoading ? '#2d5d33' : '#387440',
+                  border: `2px solid ${isDashboardLoading ? '#224626' : '#2a5730'}`,
+                  borderRadius: '14px',
+                  fontSize: '16px',
+                  lineHeight: '24px',
+                  letterSpacing: '0.1px',
+                  color: '#ffffff',
+                  cursor: isDashboardLoading ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                {isDashboardLoading ? (
+                  <>
+                    <Loader size="sm" label="Loading Institution Dashboard" />
+                    Loading Institution Dashboard
+                  </>
+                ) : (
+                  <>
+                    Go to Institution Dashboard
+                    <ArrowRightIcon />
+                  </>
+                )}
+              </button>
+            </StickyActionBar>
           </div>
         )}
 
         {/* Footer link — "Already Have an account? Log in Instead" */}
         <div className="flex items-center justify-center gap-[4px]">
           <span
-            className="font-sans"
+            className="font-sans max-md:text-[13px]!"
             style={{
               fontSize: '14px',
               lineHeight: '20px',
@@ -1010,7 +1028,7 @@ const ReportSection = () => {
           </span>
           <Link
             to="/login"
-            className="font-sans font-semibold underline"
+            className="font-sans font-semibold underline relative max-md:text-[13px]! max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{
               fontSize: '14px',
               lineHeight: '24px',

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import gthLogoStacked from '../../assets/brand/gth-logo-stacked.png';
+import gthLogoStacked from '../../assets/brand/gth-logo-stacked.webp';
 import { classNames } from '../../utils/classNames.js';
 import { getNavAuthCta } from '../../constants/authRoutes.js';
 import { debug } from '../../utils/debug.js';
@@ -41,13 +41,14 @@ const PRIMARY_GRADIENT = {
 };
 
 const CREATE_ACCOUNT_CLASSES = classNames(
-  'inline-flex h-10 items-center justify-center gap-2 px-5 rounded-[10px]',
+  'relative inline-flex h-10 max-md:h-9 items-center justify-center gap-2 px-5 max-md:px-4 rounded-[10px]',
+  "max-md:after:absolute max-md:after:-inset-y-1 max-md:after:inset-x-0 max-md:after:content-['']",
   'border-t border-l-2 border-r-2 border-b-2 border-solid border-brand-green-dark bg-brand-green',
-  'drop-shadow-[0_4px_0_#224626]',
+  'drop-shadow-[0_4px_0_#224626] max-md:drop-shadow-[0_2px_0_#224626]',
   'hover:border-brand-green-active hover:drop-shadow-[0_5px_0_#224626]',
   'active:bg-brand-green-active active:border-brand-green-dark-hover active:translate-y-1 active:drop-shadow-none',
   'transition-[transform,filter,background-color,border-color] duration-100 ease-out',
-  'font-sans font-semibold text-[14px] leading-5 tracking-[0.1px] whitespace-nowrap select-none',
+  'font-sans font-semibold text-[14px] max-md:text-[13px] leading-5 tracking-[0.1px] whitespace-nowrap select-none',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
 );
 
@@ -65,13 +66,17 @@ const OnboardingNavbar = () => {
         boxShadow: '0 1px 2px rgba(27,36,44,0.12)',
       }}
     >
-      <div className="flex items-center justify-between px-6 py-3 md:px-16">
+      <div className="flex items-center justify-between px-4 py-3 max-md:py-1.5 md:px-16">
         <Link to={'/'} aria-label="Ghana Talent Hub home">
           {/* Single composed 71×66 PNG per Figma node 3052:74371 — mark sits
               tight above the two-line "GHANA / TALENT HUB" wordmark with no
               separator gap. Pulled fresh from the Figma Dev Mode MCP rather
               than reusing the horizontal-wordmark gth-wordmark.png. */}
-          <img src={gthLogoStacked} alt="Ghana Talent Hub" className="h-[66px] w-[71px]" />
+          <img
+            src={gthLogoStacked}
+            alt="Ghana Talent Hub"
+            className="h-[66px] w-[71px] max-md:h-10 max-md:w-[43px]"
+          />
         </Link>
 
         {showCreate ? (
@@ -83,7 +88,7 @@ const OnboardingNavbar = () => {
         ) : (
           <Link
             to={cta.to}
-            className="inline-flex items-center justify-center rounded-[2px] px-2 text-[14px] font-semibold leading-6 text-brand-green"
+            className="relative inline-flex items-center justify-center rounded-[2px] px-2 text-[14px] font-semibold leading-6 text-brand-green max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{
               borderBottom: '1px solid #142916',
               letterSpacing: '0.1px',

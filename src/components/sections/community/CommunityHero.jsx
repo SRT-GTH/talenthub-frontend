@@ -3,6 +3,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from './CommunityIcon.jsx';
 import { icons } from './communityIcons.js';
+import ClampText from '../../ui/ClampText.jsx';
 
 const log = debug('CommunityHero');
 
@@ -34,42 +35,65 @@ const PHOTO_STACK_POSITIONS = [
   { left: '89.70%', top: '13px' },
 ];
 
+/* < lg offsets for the scaled-down fan (right edge / top, per photo). */
+const MOBILE_STACK = [
+  'max-lg:right-[42px]! max-lg:top-[12px]!',
+  'max-lg:right-[28px]! max-lg:top-[8px]!',
+  'max-lg:right-[14px]! max-lg:top-[4px]!',
+  'max-lg:right-0! max-lg:top-0!',
+];
+
 const CommunityHero = ({ community, joined, onToggleJoin, onInvite, className }) => (
-  <section className={classNames('flex flex-col items-start gap-[19.12px]', className)}>
-    <div className="relative flex w-full flex-col items-start gap-[14.34px]">
+  <section
+    className={classNames('flex flex-col items-start gap-[19.12px] max-md:gap-[10px]', className)}
+  >
+    <div className="relative flex w-full flex-col items-start gap-[14.34px] max-md:gap-[8px]">
       <Link
         to={'/community'}
         onClick={() => log('breadcrumb: back to community index')}
-        className="inline-flex items-center justify-center gap-[7.17px] rounded-[7.17px] border-[1.195px] border-brand-green-light-active bg-brand-green-light/50 px-[14.34px] py-[7.17px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        className="inline-flex items-center justify-center gap-[7.17px] max-lg:min-h-[32px] max-md:px-[10px] max-md:py-[4px] rounded-[7.17px] border-[1.195px] border-brand-green-light-active bg-brand-green-light/50 px-[14.34px] py-[7.17px] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <CommunityIcon src={icons.communityChip} size={14.34} />
-        <span className="whitespace-nowrap font-sans text-[15.54px] tracking-[0.239px] text-[#999]">
+        <span className="whitespace-nowrap font-sans text-[15.54px] max-md:text-[13px] tracking-[0.239px] text-[#999]">
           {community.breadcrumbLabel}
         </span>
       </Link>
 
       <div className="flex w-full flex-col items-start gap-[9.56px]">
-        <h1 className="font-display text-[clamp(34px,3.04vw,52.6px)] leading-[0.92] tracking-[-2px] text-black">
+        <h1 className="font-display text-[clamp(34px,3.04vw,52.6px)] leading-[0.92] tracking-[-2px] text-black max-md:pr-[84px] max-md:text-[24px] max-md:leading-[1.1] max-md:tracking-[-0.5px]">
           {community.title}
         </h1>
-        <p className="whitespace-nowrap font-sans text-[16.73px] leading-[23.9px] tracking-[0.239px] text-neutral-dark-hover">
+        <p className="whitespace-nowrap font-sans text-[16.73px] leading-[23.9px] tracking-[0.239px] text-neutral-dark-hover max-md:text-[13px] max-md:leading-5">
           {community.memberLabel}
         </p>
       </div>
 
-      <p className="max-w-[636px] font-sans text-[16.73px] leading-[23.67px] text-[#595959]">
+      <ClampText
+        lines={3}
+        className="max-w-[636px] font-sans text-[16.73px] leading-[23.67px] text-[#595959] max-md:text-[14px] max-md:leading-5"
+      >
         {community.description}
-      </p>
+      </ClampText>
 
-      {/* Fanned photo stack — hidden below xl where it would collide with copy */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden xl:block">
+      {/* Fanned photo stack. >= xl: Figma's exact fan. Below lg: the SAME four photos
+          scaled down (40x52) and tucked into the top-right corner, so the decor
+          stays visible on phones. lg–xl stays hidden as before (it would collide
+          with the copy). `!` beats the inline Figma left/top at < lg only. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 hidden max-lg:block xl:block"
+      >
         {community.photoStack.map((photo, index) => (
           <img
             key={photo}
             src={photo}
             alt=""
             draggable="false"
-            className="absolute h-[130px] w-[100px] select-none rounded-[6px] border-[0.8px] border-[#c9c9c9] object-cover"
+            className={classNames(
+              'absolute h-[130px] w-[100px] select-none rounded-[6px] border-[0.8px] border-[#c9c9c9] object-cover',
+              'max-lg:h-[52px] max-lg:w-[40px] max-lg:left-auto! max-lg:rounded-[5px]',
+              MOBILE_STACK[index]
+            )}
             style={PHOTO_STACK_POSITIONS[index]}
           />
         ))}
@@ -86,7 +110,7 @@ const CommunityHero = ({ community, joined, onToggleJoin, onInvite, className })
               log('leave community:', community.id);
               onToggleJoin?.();
             }}
-            className="flex h-[45px] items-center justify-center gap-[6px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[14px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="flex h-[45px] max-lg:h-[40px] max-md:drop-shadow-none items-center justify-center gap-[6px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[14px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <CommunityIcon src={icons.joinedHeader} size={18} />
             <span className="whitespace-nowrap font-sans text-[14px] font-medium tracking-[0.1px] text-black">
@@ -99,7 +123,7 @@ const CommunityHero = ({ community, joined, onToggleJoin, onInvite, className })
               log('invite friends clicked');
               onInvite?.();
             }}
-            className="flex h-[45px] items-center justify-center gap-[6px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[14px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="flex h-[45px] max-lg:h-[40px] max-md:drop-shadow-none items-center justify-center gap-[6px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[14px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <CommunityIcon src={icons.inviteFriends} size={18} />
             <span
@@ -118,11 +142,11 @@ const CommunityHero = ({ community, joined, onToggleJoin, onInvite, className })
             log('join community:', community.id);
             onToggleJoin?.();
           }}
-          className="flex items-center justify-center gap-[7.17px] rounded-[11.95px] border-b-[2.391px] border-l-[2.391px] border-r-[2.391px] border-t-[1.195px] border-brand-green-dark bg-brand-green px-[19.12px] py-[11.95px] drop-shadow-[0px_4.781px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          className="flex items-center justify-center gap-[7.17px] max-lg:min-h-[40px] max-md:px-[14px] max-md:py-[8px] max-md:drop-shadow-none rounded-[11.95px] border-b-[2.391px] border-l-[2.391px] border-r-[2.391px] border-t-[1.195px] border-brand-green-dark bg-brand-green px-[19.12px] py-[11.95px] drop-shadow-[0px_4.781px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           <CommunityIcon src={icons.joinHero} size={21.5} />
           <span
-            className="whitespace-nowrap bg-clip-text font-sans text-[16px] font-medium tracking-[0.12px] text-transparent"
+            className="whitespace-nowrap bg-clip-text font-sans text-[16px] max-md:text-[14px] font-medium tracking-[0.12px] text-transparent"
             style={{ backgroundImage: LABEL_GRADIENT }}
           >
             Join

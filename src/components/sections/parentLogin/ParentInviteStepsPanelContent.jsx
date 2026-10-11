@@ -75,7 +75,7 @@ const WardInviteStepsPanelContent = ({
               <span
                 className="flex size-[22px] shrink-0 items-center justify-center rounded-full font-sans font-bold"
                 style={{
-                  fontSize: 11,
+                  fontSize: 'var(--fs-11)',
                   backgroundColor: active ? '#ffffff' : 'rgba(255,255,255,0.18)',
                   color: active ? '#967014' : 'rgba(255,255,255,0.85)',
                 }}

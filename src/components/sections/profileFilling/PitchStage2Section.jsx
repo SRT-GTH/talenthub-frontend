@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
 import PitchRecorder from './PitchRecorder.jsx';
 import PitchPublishedModal from './PitchPublishedModal.jsx';
 import DeletePitchModal from './DeletePitchModal.jsx';
@@ -134,7 +135,7 @@ const SectionLabel = ({ children, onDelete, deleteLabel }) => (
         type="button"
         onClick={onDelete}
         aria-label={deleteLabel}
-        className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+        className="size-[28px] max-lg:size-11 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150 cursor-pointer"
       >
         <WorkDeleteWarningIcon className="size-3" />
       </button>
@@ -168,7 +169,7 @@ const MODE_ICONS = {
 };
 
 const ThreeWaysRow = ({ onPick }) => (
-  <div className="flex flex-wrap items-start gap-[16px] w-full">
+  <div className="flex flex-wrap items-start gap-[16px] w-full max-lg:gap-2">
     {THREE_WAYS.map((way) => {
       const Icon = MODE_ICONS[way.id];
       return (
@@ -176,12 +177,15 @@ const ThreeWaysRow = ({ onPick }) => (
           key={way.id}
           type="button"
           onClick={() => onPick(way.id)}
-          className="flex-1 min-w-[240px] flex flex-col items-center gap-[8px] bg-white border border-[#e1eae2] rounded-[12px] p-[20px] text-center cursor-pointer transition-colors duration-150 hover:bg-[rgba(235,241,236,0.5)]"
-          style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
+          className="flex-1 min-w-[240px] flex flex-col items-center gap-[8px] bg-white border border-[#e1eae2] rounded-[12px] p-[20px] text-center max-lg:p-3 max-sm:px-3 max-sm:py-1 max-sm:grid max-sm:grid-cols-[auto_1fr] max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-0 max-sm:text-left cursor-pointer transition-colors duration-150 hover:bg-[rgba(235,241,236,0.5)] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none"
         >
-          <Icon className="size-5 text-brand-green" />
-          <span className="font-sans font-semibold text-[14px] text-brand-green">{way.title}</span>
-          <span className="font-sans text-[12px] leading-[18px] text-[#70706e]">{way.body}</span>
+          <Icon className="size-5 text-brand-green max-sm:row-span-2" />
+          <span className="font-sans font-semibold text-[14px] text-brand-green max-sm:leading-[18px]">
+            {way.title}
+          </span>
+          <span className="font-sans text-[12px] leading-[18px] text-[#70706e] max-sm:truncate">
+            {way.body}
+          </span>
         </button>
       );
     })}
@@ -192,10 +196,7 @@ const ThreeWaysRow = ({ onPick }) => (
 // Figma 5895:32 — bold green lead + grey tail per row, a hairline, then the
 // italic Instrument-Serif example. ✅ VERIFIED verbatim.
 const FormulaCompactCard = () => (
-  <div
-    className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[24px] py-[22px] flex flex-col gap-[10px]"
-    style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-  >
+  <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[24px] py-[22px] flex flex-col gap-[10px] max-lg:px-3 max-lg:py-3 max-lg:gap-2 shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
     {FORMULA_ROWS.map((row) => (
       <div key={row.num} className="flex flex-wrap items-start gap-[6px]">
         <span className="font-sans font-bold text-[12px] text-brand-green">{row.lead}</span>
@@ -231,7 +232,7 @@ const PitchStage2RightAside = ({ contentKey, isPublished, uploadedFile }) => {
 
   return (
     <aside
-      className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+      className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
       aria-label="Pitch guidance"
       style={{ scrollbarWidth: 'none' }}
     >
@@ -265,14 +266,13 @@ const PitchStage2RightAside = ({ contentKey, isPublished, uploadedFile }) => {
         </div>
 
         {/* Prose card — Figma 5890:148 */}
-        <div
-          className="bg-white border border-[#e8e8e4] rounded-[10px] p-[15px]"
-          style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-        >
-          <p className="font-sans font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+        <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[15px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+          <p className="font-sans font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
             {content.proseTitle}
           </p>
-          <p className="font-sans text-[12px] text-[#999] leading-[19.2px]">{content.prose}</p>
+          <p className="font-sans text-[12px] text-[#999] leading-[19.2px] max-lg:text-[14px]">
+            {content.prose}
+          </p>
         </div>
 
         {/* Recruiter views — Figma 5890:151. Figma's static state is 0 views
@@ -280,17 +280,14 @@ const PitchStage2RightAside = ({ contentKey, isPublished, uploadedFile }) => {
             recruiter discovery" (5890:157, ✅ VERIFIED verbatim); the values
             swap to a live derived state once the pitch is published, the same
             convention every sibling aside uses (no analytics backend exists). */}
-        <div
-          className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px]"
-          style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.07)' }}
-        >
-          <p className="font-sans font-bold text-[10px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
+        <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] shadow-[0px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
+          <p className="font-sans font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
             👀 Recruiter views this week
           </p>
-          <p className="font-display text-[36px] leading-[36px] text-[#111] mb-[10px]">
+          <p className="font-display text-[36px] max-lg:text-[24px] leading-[36px] text-[#111] mb-[10px]">
             {isPublished ? 24 : 0}
           </p>
-          <p className="font-sans text-[11px] text-[#70706e] mb-[10px]">
+          <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] mb-[10px]">
             profile views from recruiters
           </p>
           <div className="h-[6px] rounded-full bg-[#e8e8e4] overflow-hidden mb-[10px]">
@@ -302,7 +299,7 @@ const PitchStage2RightAside = ({ contentKey, isPublished, uploadedFile }) => {
               }}
             />
           </div>
-          <p className="font-sans text-[10px] text-[#70706e]">
+          <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e]">
             {isPublished
               ? 'Recruiters are already discovering your profile.'
               : 'Publish your pitch to unlock recruiter discovery'}
@@ -522,22 +519,22 @@ const PitchStage2Section = () => {
   const renderEmptyState = () => (
     <>
       <div
-        className="rounded-[24px] border-2 border-dashed border-brand-green flex flex-col items-center gap-[22px] px-[24px] py-[clamp(32px,4vw,56px)] text-center"
+        className="rounded-[24px] border-2 border-dashed border-brand-green flex flex-col items-center gap-[22px] px-[24px] py-[clamp(32px,4vw,56px)] text-center max-lg:gap-3 max-lg:px-4 max-lg:py-5 max-lg:rounded-2xl"
         style={{ background: 'rgba(235,241,236,0.5)' }}
       >
-        <div className="flex flex-col items-center gap-[20px]">
+        <div className="flex flex-col items-center gap-[20px] max-lg:gap-3">
           <div className="flex flex-col items-center gap-[4px]">
             {/* ❓ Certs leftover glyph — see file-header note #5. */}
-            <UploadCertificateIcon className="size-10 text-brand-green" />
+            <UploadCertificateIcon className="size-10 max-lg:size-8 text-brand-green" />
             <h3 className="font-display text-[clamp(20px,2vw,26px)] text-brand-green mt-[8px]">
               No pitch yet.
             </h3>
-            <p className="font-sans text-[14px] text-[#70706e] leading-[24.5px] max-w-[622px] mt-[4px]">
+            <p className="font-sans text-[14px] text-[#70706e] leading-[24.5px] max-w-[622px] mt-[4px] max-lg:leading-5">
               Record a 60-second video in-browser, upload one you recorded on your phone, or write a
               4-sentence pitch. All three work. All three beat having nothing.
             </p>
           </div>
-          <div className="flex items-center flex-wrap justify-center gap-[20px]">
+          <div className="flex items-center flex-wrap justify-center gap-[20px] max-lg:gap-3 max-lg:w-full max-lg:[&>button]:flex-1 max-lg:[&>button]:px-4 max-lg:[&>button]:py-2 max-lg:[&>button]:text-[14px] max-lg:[&>button]:leading-5">
             <Button variant="primary" size="md" onClick={() => handlePickMode('record')}>
               Add your pitch
             </Button>
@@ -547,12 +544,12 @@ const PitchStage2Section = () => {
           </div>
         </div>
         {/* Figma 6083:34058 — ✅ VERIFIED verbatim. */}
-        <p className="font-sans text-[12px] text-[#70706e]">
+        <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
           No pitch yet?{' '}
           <button
             type="button"
             onClick={handleGoToHub}
-            className="font-semibold text-brand-green underline underline-offset-2 cursor-pointer"
+            className="font-semibold text-brand-green underline underline-offset-2 cursor-pointer max-lg:py-3"
           >
             Skip this stage
           </button>
@@ -584,9 +581,9 @@ const PitchStage2Section = () => {
               #e8e8e4 track, no thumb); the right-hand value is the real take
               length instead of Figma's literal "0:58". */}
           <div className="flex items-center gap-[12px] w-full">
-            <span className="font-mono text-[11px] text-[#111]">0:00</span>
+            <span className="font-mono text-[11px] max-lg:text-[12px] text-[#111]">0:00</span>
             <div className="flex-1 h-[4px] rounded-[2px] bg-[#e8e8e4]" aria-hidden="true" />
-            <span className="font-mono text-[11px] text-[#70706e]">
+            <span className="font-mono text-[11px] max-lg:text-[12px] text-[#70706e]">
               {formatDurationLabel(elapsedSeconds)}
             </span>
           </div>
@@ -619,12 +616,9 @@ const PitchStage2Section = () => {
           </div>
 
           {/* Profile-strength card — Figma 5906:24/26/27/28 */}
-          <div
-            className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-col gap-[10px]"
-            style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-          >
+          <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-col gap-[10px] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
             <div className="flex items-start justify-between gap-[12px]">
-              <p className="font-sans font-medium text-[12px] text-brand-green">
+              <p className="font-sans font-medium text-[12px] text-brand-green max-lg:text-[14px]">
                 Profile strength after publishing pitch
               </p>
               <span className="flex items-center gap-[8px] shrink-0">
@@ -639,7 +633,7 @@ const PitchStage2Section = () => {
           </div>
 
           {/* Figma 5906:35 — two-line footnote. ✅ VERIFIED verbatim. */}
-          <p className="w-full text-center font-sans text-[11px] leading-[17px] text-[#979286]">
+          <p className="w-full text-center font-sans text-[11px] max-lg:text-[12px] leading-[17px] text-[#979286]">
             Publishing makes your full profile live on GTH. Recruiters can find and reach out to you
             immediately.
             <br />
@@ -669,10 +663,7 @@ const PitchStage2Section = () => {
           <PitchRecorder state="recorded" onPreview={handlePreview} />
 
           {/* File row — Figma 5903:19/20/22/23/24/25/26/27 */}
-          <div
-            className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[14px] flex flex-wrap items-center gap-[14px]"
-            style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-          >
+          <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[14px] flex flex-wrap items-center gap-[14px] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
             <span className="flex items-start rounded-[10px] bg-[#eff4f0] px-[12px] py-[10px] shrink-0">
               <PitchFilmSlateIcon className="size-4 text-brand-green" />
             </span>
@@ -680,7 +671,7 @@ const PitchStage2Section = () => {
               <p className="font-sans font-medium text-[13px] text-brand-green truncate">
                 {uploadedFile.name}
               </p>
-              <div className="flex flex-wrap items-start gap-[6px] font-sans font-medium text-[11px]">
+              <div className="flex flex-wrap items-start gap-[6px] font-sans font-medium text-[11px] max-lg:text-[12px]">
                 <span className="text-[#70706e]">
                   {uploadedFile.sizeLabel} · {uploadedFile.format} ·
                 </span>
@@ -706,10 +697,7 @@ const PitchStage2Section = () => {
               5903:38/41/44/47. Note Figma writes these facts with a colon
               separator here while the aside uses an em dash for the same
               ones; both reproduced verbatim in their own place. */}
-          <div
-            className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[18px] flex flex-col gap-[10px]"
-            style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-          >
+          <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[18px] max-lg:px-3 max-lg:py-3 flex flex-col gap-[10px] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
             <div className="flex items-start gap-[8px] text-brand-green">
               <span className="font-sans font-bold text-[12px]">✓</span>
               <span className="font-sans font-medium text-[13px]">File passed all checks</span>
@@ -717,7 +705,9 @@ const PitchStage2Section = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-[60px] gap-y-[8px]">
               {buildUploadFileChecks(uploadedFile).map((check) => (
                 <div key={check} className="flex items-start gap-[8px]">
-                  <span className="font-sans font-semibold text-[11px] text-brand-green">✓</span>
+                  <span className="font-sans font-semibold text-[11px] max-lg:text-[12px] text-brand-green">
+                    ✓
+                  </span>
                   <span className="font-sans text-[12px] text-[#70706e]">{check}</span>
                 </div>
               ))}
@@ -731,10 +721,7 @@ const PitchStage2Section = () => {
 
           {/* Figma 5903:49 — the four rows live inside one white card here,
               unlike the record frame's free-standing rows. */}
-          <div
-            className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-col gap-[8px]"
-            style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-          >
+          <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-col gap-[8px] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
             {renderChecklist(UPLOAD_CHECKLIST, 'upload')}
           </div>
 
@@ -744,7 +731,7 @@ const PitchStage2Section = () => {
             <button
               type="button"
               onClick={() => setUploadedFile(null)}
-              className="font-semibold text-brand-green cursor-pointer"
+              className="font-semibold text-brand-green cursor-pointer max-lg:py-3"
             >
               Upload a different file
             </button>{' '}
@@ -752,7 +739,7 @@ const PitchStage2Section = () => {
             <button
               type="button"
               onClick={() => handlePickMode('record')}
-              className="font-semibold text-brand-green cursor-pointer"
+              className="font-semibold text-brand-green cursor-pointer max-lg:py-3"
             >
               record in-browser instead
             </button>
@@ -792,16 +779,18 @@ const PitchStage2Section = () => {
             {PHONE_TRANSFER_CARDS.map((card) => (
               <div
                 key={card.id}
-                className="border border-[#e1eae2] rounded-[12px] px-[20px] py-[18px] flex flex-col gap-[6px]"
+                className="border border-[#e1eae2] rounded-[12px] px-[20px] py-[18px] max-lg:px-3 max-lg:py-3 flex flex-col gap-[6px]"
                 style={{
                   background: card.highlighted ? 'rgba(235,241,236,0.5)' : '#ffffff',
                   boxShadow: '0px 2px 6px rgba(0,0,0,0.04)',
                 }}
               >
-                <p className="font-sans font-semibold text-[11px] tracking-[0.6px] text-brand-green">
+                <p className="font-sans font-semibold text-[11px] max-lg:text-[12px] tracking-[0.6px] text-brand-green">
                   {card.title}
                 </p>
-                <p className="font-sans text-[12px] leading-[18px] text-[#70706e]">{card.body}</p>
+                <p className="font-sans text-[12px] leading-[18px] text-[#70706e] max-lg:text-[14px]">
+                  {card.body}
+                </p>
               </div>
             ))}
           </div>
@@ -812,7 +801,7 @@ const PitchStage2Section = () => {
             <button
               type="button"
               onClick={handleGoToHub}
-              className="font-semibold text-brand-green cursor-pointer"
+              className="font-semibold text-brand-green cursor-pointer max-lg:py-3"
             >
               Skip pitch
             </button>
@@ -851,10 +840,10 @@ const PitchStage2Section = () => {
             suppressed above because Figma splits it into a left-hand word
             count and a right-hand DM-Mono character budget. */}
         <div className="flex items-start justify-between w-full">
-          <span className="font-sans text-[11px] text-[#70706e]">
+          <span className="font-sans text-[11px] max-lg:text-[12px] text-[#70706e]">
             {words} word{words === 1 ? '' : 's'}
           </span>
-          <span className="font-mono text-[10px] text-[#babab7]">
+          <span className="font-mono text-[10px] max-lg:text-[12px] text-[#babab7]">
             {writtenText.length} / {WRITTEN_PITCH_CHAR_LIMIT}
           </span>
         </div>
@@ -867,14 +856,14 @@ const PitchStage2Section = () => {
             boxShadow: '0px 2px 6px rgba(0,0,0,0.04)',
           }}
         >
-          <p className="font-sans font-bold text-[11px] tracking-[0.6px] text-brand-green">
+          <p className="font-sans font-bold text-[11px] max-lg:text-[12px] tracking-[0.6px] text-brand-green">
             💡 THE 4-SENTENCE FORMULA
           </p>
 
           <div className="flex flex-col gap-[14px]">
             {FORMULA_ROWS.map((row) => (
               <div key={row.num} className="flex items-start gap-[12px]">
-                <span className="inline-flex items-start rounded-full bg-brand-green px-[7px] py-[2px] font-sans font-bold text-[10px] text-white shrink-0">
+                <span className="inline-flex items-start rounded-full bg-brand-green px-[7px] py-[2px] font-sans font-bold text-[10px] max-lg:text-[12px] text-white shrink-0">
                   {row.num}
                 </span>
                 <div className="flex flex-col gap-[2px] min-w-0">
@@ -890,25 +879,26 @@ const PitchStage2Section = () => {
           <div className="h-px w-full bg-[#d5e3d7]" aria-hidden="true" />
 
           <div className="flex flex-col gap-[12px] text-[#70706e]">
-            <p className="font-sans font-bold text-[10px] tracking-[0.6px]">COMPLETE EXAMPLE</p>
+            <p className="font-sans font-bold text-[10px] max-lg:text-[12px] tracking-[0.6px]">
+              COMPLETE EXAMPLE
+            </p>
             <p className="font-display italic text-[15px] leading-[24px]">{FORMULA_EXAMPLE_LONG}</p>
           </div>
 
-          <p className="font-mono text-[10px] text-[#babab7]">{FORMULA_EXAMPLE_META}</p>
+          <p className="font-mono text-[10px] max-lg:text-[12px] text-[#babab7]">
+            {FORMULA_EXAMPLE_META}
+          </p>
         </div>
 
         {/* "Want 6× more recruiter messages?" banner — Figma 5905:45/47/48/49
             + the "Record Instead" button 6120:134706. */}
-        <div
-          className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-wrap items-center gap-[14px]"
-          style={{ boxShadow: '0px 2px 6px rgba(0,0,0,0.04)' }}
-        >
+        <div className="w-full bg-white border border-[#e8e8e4] rounded-[12px] px-[20px] py-[16px] flex flex-wrap items-center gap-[14px] shadow-[0px_2px_6px_rgba(0,0,0,0.04)] max-lg:shadow-none">
           <PitchFilmSlateIcon className="size-4 shrink-0 text-brand-green" />
           <div className="flex-1 min-w-[240px] flex flex-col gap-[8px]">
             <p className="font-sans font-bold text-[13px] text-[#19341d]">
               Want 6× more recruiter messages?
             </p>
-            <p className="font-sans text-[12px] text-[#999]">
+            <p className="font-sans text-[12px] text-[#999] max-lg:text-[14px]">
               A video pitch dramatically outperforms a written one. Record when you’re ready — it
               replaces this.
             </p>
@@ -929,7 +919,7 @@ const PitchStage2Section = () => {
           <button
             type="button"
             onClick={handleGoToHub}
-            className="font-semibold text-brand-green cursor-pointer"
+            className="font-semibold text-brand-green cursor-pointer max-lg:py-3"
           >
             Skip pitch
           </button>
@@ -939,8 +929,8 @@ const PitchStage2Section = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -949,16 +939,16 @@ const PitchStage2Section = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         {/* completionPct 90 — ✅ VERIFIED from Figma 5924:21659's own
             "· 90% profile complete · auto-saved" string. */}
         <EngagementTopBar currentStageIndex={8} completionPct={90} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
               {/* Header — Figma 5978:29454, identical on every Pitch stage-2
                   frame. Unlike the intro page's headline, THIS one is NOT
                   mixed-style: 5978:29455 is a single plain #111
@@ -966,7 +956,7 @@ const PitchStage2Section = () => {
                   per-headline in the raw dive, not assumed). */}
               <section
                 aria-label="Your Pitch — the final piece"
-                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px]"
+                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] flex items-start justify-between gap-x-[40px] max-lg:px-4 max-lg:py-4"
                 style={{
                   background: [
                     'radial-gradient(circle at 8% 0%, rgba(56,116,64,0.07) 0%, transparent 55%)',
@@ -976,12 +966,12 @@ const PitchStage2Section = () => {
                 }}
               >
                 <div className="min-w-0">
-                  <h2 className="font-display not-italic text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] text-[#111] mb-[clamp(8px,0.93vw,16px)]">
+                  <h1 className="font-display not-italic text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] text-[#111] mb-[clamp(8px,0.93vw,16px)]">
                     <span className="block">Your Pitch</span>
                     <span className="block">The Final Piece</span>
-                  </h2>
+                  </h1>
                   {/* Figma 5978:29456 — ✅ VERIFIED verbatim (two lines). */}
-                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[22.4px] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[840px]">
+                  <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[22.4px] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[840px]">
                     This is the last stage. A 60-second video or written pitch is the single
                     highest-impact addition you can make to your profile. Record, upload a file, or
                     write a text pitch — all three work.
@@ -998,7 +988,7 @@ const PitchStage2Section = () => {
                     ].map((tag) => (
                       <span
                         key={tag.label}
-                        className={`inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] leading-5 bg-white rounded-full px-[12px] py-[6px] border border-[#e1eae2] whitespace-nowrap ${tag.tone}`}
+                        className={`inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-5 bg-white rounded-full px-[12px] py-[6px] max-lg:py-[3px] border border-[#e1eae2] whitespace-nowrap ${tag.tone}`}
                         style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
                       >
                         {tag.label}
@@ -1008,14 +998,11 @@ const PitchStage2Section = () => {
                 </div>
 
                 {/* "Why pitch matters" stat card — Figma 5978:29457 */}
-                <div
-                  className="hidden lg:block shrink-0 w-[clamp(360px,28vw,487px)] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px]"
-                  style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-                >
+                <div className="hidden lg:block shrink-0 w-[clamp(360px,28vw,487px)] bg-white border border-[#e8e8e4] rounded-[16px] p-[18px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
                   <p className="font-sans font-bold text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[10px]">
                     Why pitch matters
                   </p>
-                  <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px] mb-[14px]">
+                  <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px] mb-[14px] max-lg:text-[14px]">
                     Profiles with a pitch receive 6× more recruiter outreach than those without. A
                     pitch turns a data card into a person. That difference is real and measurable.
                   </p>
@@ -1027,7 +1014,7 @@ const PitchStage2Section = () => {
                       <p className="font-sans font-bold text-[13px] text-[#111]">
                         Profile strength
                       </p>
-                      <p className="font-sans text-[12px] text-[#959592]">
+                      <p className="font-sans text-[12px] text-[#959592] max-lg:text-[14px]">
                         Eight stages done. Pitch is the final piece.
                       </p>
                     </div>
@@ -1035,7 +1022,7 @@ const PitchStage2Section = () => {
                 </div>
               </section>
 
-              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] flex flex-col gap-[18px]">
+              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] flex flex-col gap-[18px] max-lg:px-4 max-lg:py-4">
                 {/* Section label — Figma 5895:2 / 5906:2 / 5900:2 / 5903:2 /
                     5905:2. Sits ABOVE the mode tab row on every frame that
                     has one (verified on 5890:694 / 5890:1040 / 5890:1386),
@@ -1052,7 +1039,7 @@ const PitchStage2Section = () => {
                     See file-header note #1 for why they render in Record mode
                     too, and note #2 for the Written frame's doubled icon. */}
                 {mode && (
-                  <div className="flex flex-wrap items-start gap-[10px] w-full">
+                  <div className="flex flex-wrap items-start gap-[10px] w-full max-lg:items-stretch">
                     {PITCH_MODES.map((tab) => {
                       const isActive = tab.id === mode;
                       const style = isActive ? TAB_ACTIVE_STYLE : TAB_INACTIVE_STYLE;
@@ -1068,7 +1055,7 @@ const PitchStage2Section = () => {
                           type="button"
                           aria-pressed={isActive}
                           onClick={() => handlePickMode(tab.id)}
-                          className={`inline-flex items-center gap-[6px] rounded-full border px-[16px] py-[6px] font-sans text-[12px] cursor-pointer transition-colors duration-150 ${
+                          className={`inline-flex items-center gap-[6px] rounded-full border px-[16px] py-[6px] max-lg:min-h-11 max-lg:text-[14px] font-sans text-[12px] cursor-pointer transition-colors duration-150 ${
                             isActive ? 'font-semibold' : 'font-medium hover:bg-[#fafaf8]'
                           }`}
                           style={{
@@ -1093,20 +1080,22 @@ const PitchStage2Section = () => {
             </div>
           </div>
 
-          <PitchStage2RightAside
-            contentKey={asideKey}
-            isPublished={isPublished}
-            uploadedFile={uploadedFile}
-          />
+          <StageAsideAccordion title="Tips & why it matters">
+            <PitchStage2RightAside
+              contentKey={asideKey}
+              isPublished={isPublished}
+              uploadedFile={uploadedFile}
+            />
+          </StageAsideAccordion>
         </div>
 
         {/* Footer — Figma 6686:91434 / 91453 / 91472 / 91510 (the shared
             footer painted over every Pitch frame). Spans the full viewport
             width, sibling of the row above rather than nested next to the
             aside — same layout note as every sibling stage-2 section. */}
-        <footer className="shrink-0 h-[101px] w-full border-t border-[rgba(0,0,0,0.07)] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+        <footer className="shrink-0 h-[101px] w-full border-t border-[rgba(0,0,0,0.07)] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-[10px] max-sm:hidden">
               <span
                 aria-hidden="true"
                 className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -1116,15 +1105,16 @@ const PitchStage2Section = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
               {/* ❓ Figma labels this back button literally "Goals". */}
               <Button
                 variant="tertiary"
                 size="md"
+                className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                 onClick={handleGoBack}
                 leftIcon={<ArrowLeftIcon className="size-full" />}
               >
-                Goals
+                <span className="max-md:sr-only">Goals</span>
               </Button>
 
               {/* Disabled until a pitch actually exists — Figma draws no
@@ -1133,6 +1123,7 @@ const PitchStage2Section = () => {
               <Button
                 variant="primary"
                 size="md"
+                className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                 onClick={handlePublish}
                 disabled={!hasPitch}
                 rightIcon={<ArrowRightSmIcon className="size-full" />}

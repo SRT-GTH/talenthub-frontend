@@ -33,6 +33,8 @@ const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
     <div
       className={classNames(
         'absolute left-4 top-4 bottom-4 z-20 w-[220px] rounded-[16px] bg-white shadow-lg border border-border-default',
+        // < lg: full-width sheet over the chat pane
+        'max-lg:inset-0 max-lg:w-auto max-lg:rounded-none max-lg:border-0',
         'transition-all duration-200 ease-in',
         open
           ? 'opacity-100 translate-x-0 pointer-events-auto'
@@ -43,12 +45,12 @@ const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
       aria-hidden={!open}
     >
       <div className="flex flex-col h-full overflow-hidden">
-        <div className="px-4 pt-4 pb-2 flex items-center justify-between shrink-0">
+        <div className="px-4 pt-4 pb-2 flex items-center justify-between shrink-0 max-lg:pt-[max(8px,env(safe-area-inset-top))]">
           <button
             type="button"
             onClick={onClose}
             aria-label="Close history"
-            className="text-content-tertiary hover:text-brand-green"
+            className="text-content-tertiary hover:text-brand-green max-lg:-ml-3 max-lg:inline-flex max-lg:size-11 max-lg:items-center max-lg:justify-center"
           >
             <ChevronDoubleLeftIcon className="size-4" />
           </button>
@@ -60,7 +62,7 @@ const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 pb-4 flex flex-col gap-4">
           {CHAT_HISTORY_GROUPS.map((group) => (
             <div key={group.label} className="flex flex-col gap-1">
-              <span className="font-sans text-[10px] font-medium text-content-tertiary uppercase tracking-wide">
+              <span className="font-sans text-[10px] max-lg:text-[12px] font-medium text-content-tertiary uppercase tracking-wide">
                 {group.label}
               </span>
               <div className="flex flex-col border-t border-border-default">
@@ -69,7 +71,7 @@ const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
                     key={entry}
                     type="button"
                     onClick={() => log('branch', { historyEntryClicked: entry })}
-                    className="text-left font-sans text-[12px] text-content-primary py-2 border-b border-border-default hover:text-brand-green"
+                    className="text-left font-sans text-[12px] text-content-primary py-2 border-b border-border-default hover:text-brand-green max-lg:min-h-11 max-lg:text-[14px]"
                   >
                     {entry}
                   </button>

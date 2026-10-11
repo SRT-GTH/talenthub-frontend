@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
+import ClampText from '../../ui/ClampText.jsx';
+import TagRow from '../../ui/TagRow.jsx';
 import AddEditPortfolioModal from './AddEditPortfolioModal.jsx';
 import DeletePortfolioModal from './DeletePortfolioModal.jsx';
 import PortfolioSavedModal from './PortfolioSavedModal.jsx';
@@ -132,33 +135,55 @@ const ProjectTagRow = ({ project, isPinned }) => {
     },
   ].filter(Boolean);
 
+  const items = [
+    ...linkTags.map((tag) => ({ kind: 'link', tag })),
+    ...(isPinned ? [{ kind: 'pinned' }] : []),
+    ...project.technologies.map((tech) => ({ kind: 'tech', tech })),
+  ];
+
   return (
-    <div className="flex items-center flex-wrap gap-[8px] mt-[2px]">
-      {linkTags.map((tag) => (
-        <span
-          key={tag.label}
-          className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border"
-          style={{ background: tag.bg, borderColor: tag.border, color: tag.color }}
-        >
-          {tag.label}
-        </span>
-      ))}
-      {/* Hero card only — Figma 5180:104928, "⭐ Pinned" as a tag chip IN
-          ADDITION to the corner badge, not instead of it. */}
-      {isPinned && (
-        <span className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border border-[#c1d4c4] bg-[#ebf1ec] text-[#2a5730]">
-          ⭐ Pinned
-        </span>
-      )}
-      {project.technologies.map((tech) => (
-        <span
-          key={tech}
-          className="inline-flex items-center rounded-full h-[20px] px-[8px] font-sans font-semibold text-[10px] text-[#70706e] bg-[#f8f8f4] border border-[#e8e8e4]"
-        >
-          {tech}
-        </span>
-      ))}
-    </div>
+    <TagRow
+      gap={8}
+      className="items-center mt-[2px]"
+      items={items}
+      renderItem={(item, index) => {
+        if (item.kind === 'link') {
+          return (
+            <span
+              key={`l-${item.tag.label}`}
+              className="inline-flex items-center rounded-full h-[22px] max-lg:h-7 px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border"
+              style={{
+                background: item.tag.bg,
+                borderColor: item.tag.border,
+                color: item.tag.color,
+              }}
+            >
+              {item.tag.label}
+            </span>
+          );
+        }
+        if (item.kind === 'pinned') {
+          /* Hero card only — Figma 5180:104928, "Pinned" as a tag chip IN
+             ADDITION to the corner badge, not instead of it. */
+          return (
+            <span
+              key="pinned"
+              className="inline-flex items-center rounded-full h-[22px] max-lg:h-7 px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border border-[#c1d4c4] bg-[#ebf1ec] text-[#2a5730]"
+            >
+              ⭐ Pinned
+            </span>
+          );
+        }
+        return (
+          <span
+            key={`t-${item.tech}-${index}`}
+            className="inline-flex items-center rounded-full h-[20px] max-lg:h-7 px-[8px] font-sans font-semibold text-[10px] max-lg:text-[12px] text-[#70706e] bg-[#f8f8f4] border border-[#e8e8e4]"
+          >
+            {item.tech}
+          </span>
+        );
+      }}
+    />
   );
 };
 
@@ -168,42 +193,44 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
   // Compact row layout — every non-pinned project.
   if (!project.isPinned) {
     return (
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[16px] overflow-hidden relative flex items-stretch"
-        style={{ boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.07)' }}
-      >
+      <div className="bg-white border border-[#e8e8e4] rounded-[16px] overflow-hidden relative flex items-stretch max-lg:rounded-xl shadow-[0px_4px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
         <div
-          className="w-[72px] shrink-0 flex items-center justify-center"
+          className="w-[72px] shrink-0 flex items-center justify-center max-sm:w-10"
           style={{ background: PROJECT_ICON_GRADIENT }}
           aria-hidden="true"
         >
-          <span className="text-[26px] leading-none">
+          <span className="text-[26px] leading-none max-sm:text-[20px]">
             {getProjectTypeEmoji(project.projectType)}
           </span>
         </div>
 
         <div
-          className={`flex-1 min-w-0 px-[16px] py-[16px] flex flex-col gap-[8px] ${readOnly ? '' : 'pr-[70px]'}`}
+          className={`flex-1 min-w-0 px-[16px] py-[16px] flex flex-col gap-[8px] max-lg:gap-1.5 max-lg:px-3 max-lg:py-3 ${readOnly ? '' : 'pr-[70px] max-lg:pr-[76px]'}`}
         >
           <div className="flex flex-col gap-[4px]">
-            <span className="font-sans font-semibold text-[16px] text-[#111]">{project.title}</span>
+            <span className="font-sans font-semibold text-[16px] text-[#111] max-lg:min-h-9">
+              {project.title}
+            </span>
             <span className="font-sans text-[12px] text-[#70706e]">
               {project.projectType} · {project.year} · {project.role}
             </span>
           </div>
-          <p className="font-sans text-[12px] text-[#70706e] leading-[1.5]">
+          <ClampText
+            lines={2}
+            className="font-sans text-[12px] text-[#70706e] leading-[1.5] max-lg:text-[13px] max-lg:leading-[18px] "
+          >
             {project.description}
-          </p>
+          </ClampText>
           <ProjectTagRow project={project} isPinned={false} />
         </div>
 
         {!readOnly && (
-          <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px]">
+          <div className="absolute right-[14px] top-[14px] flex items-center gap-[6px] max-lg:right-2 max-lg:top-2 max-lg:gap-1">
             <button
               type="button"
               onClick={onEdit}
               aria-label={`Edit ${project.title}`}
-              className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:bg-[#f8f8f4] transition-colors duration-150"
             >
               <WorkEditPencilIcon className="size-3" />
             </button>
@@ -211,7 +238,7 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
               type="button"
               onClick={onDelete}
               aria-label={`Delete ${project.title}`}
-              className="size-[28px] rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-[#e8e8e4] bg-white flex items-center justify-center text-[#555] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors duration-150"
             >
               <WorkDeleteWarningIcon className="size-3" />
             </button>
@@ -223,13 +250,10 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
 
   // Hero layout — the pinned project only.
   return (
-    <div
-      className="bg-white border border-[#c1d4c4] rounded-[16px] overflow-hidden relative"
-      style={{ boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.07)' }}
-    >
+    <div className="bg-white border border-[#c1d4c4] rounded-[16px] overflow-hidden relative shadow-[0px_4px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
       {/* Cover image / fallback gradient — Figma 5180:105045 */}
       <div
-        className="relative h-[110px] flex items-center justify-center"
+        className="relative h-[110px] max-lg:h-16 flex items-center justify-center"
         style={
           project.coverImage
             ? {
@@ -242,7 +266,7 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
       >
         {!project.coverImage && <ImagePlaceholderIcon className="size-9 text-white/80" />}
 
-        <span className="absolute left-[10px] top-[10px] inline-flex items-center gap-[4px] rounded-full bg-[rgba(235,241,236,0.2)] px-[10px] py-[3px] font-sans font-bold text-[9.2px] text-white">
+        <span className="absolute left-[10px] top-[10px] inline-flex items-center gap-[4px] rounded-full bg-[rgba(235,241,236,0.2)] px-[10px] py-[3px] font-sans font-bold text-[9.2px] max-lg:text-[12px] text-white">
           ⭐ Pinned
         </span>
 
@@ -252,7 +276,7 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
               type="button"
               onClick={onEdit}
               aria-label={`Edit ${project.title}`}
-              className="size-[28px] rounded-[6px] border border-white/40 bg-white/90 flex items-center justify-center text-[#555] hover:bg-white transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-white/40 bg-white/90 flex items-center justify-center text-[#555] hover:bg-white transition-colors duration-150"
             >
               <WorkEditPencilIcon className="size-3" />
             </button>
@@ -260,7 +284,7 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
               type="button"
               onClick={onDelete}
               aria-label={`Delete ${project.title}`}
-              className="size-[28px] rounded-[6px] border border-white/40 bg-white/90 flex items-center justify-center text-[#555] hover:text-red-500 hover:bg-red-50 transition-colors duration-150"
+              className="size-[28px] max-lg:size-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1.5 rounded-[6px] border border-white/40 bg-white/90 flex items-center justify-center text-[#555] hover:text-red-500 hover:bg-red-50 transition-colors duration-150"
             >
               <WorkDeleteWarningIcon className="size-3" />
             </button>
@@ -269,14 +293,19 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
       </div>
 
       {/* Info panel — Figma 5180:105025 */}
-      <div className="border border-[rgba(235,241,236,0.5)] px-[16px] py-[16px] flex flex-col gap-[8px]">
+      <div className="border border-[rgba(235,241,236,0.5)] px-[16px] py-[16px] flex flex-col gap-[8px] max-lg:gap-1.5 max-lg:px-3 max-lg:py-3">
         <div className="flex flex-col gap-[4px]">
           <span className="font-sans font-semibold text-[16px] text-[#111]">{project.title}</span>
           <span className="font-sans text-[12px] text-[#70706e]">
             {project.projectType} · {project.year} · {project.role}
           </span>
         </div>
-        <p className="font-sans text-[12px] text-[#70706e] leading-[1.5]">{project.description}</p>
+        <ClampText
+          lines={2}
+          className="font-sans text-[12px] text-[#70706e] leading-[1.5] max-lg:text-[13px] max-lg:leading-[18px] "
+        >
+          {project.description}
+        </ClampText>
         <ProjectTagRow project={project} isPinned />
       </div>
     </div>
@@ -292,11 +321,11 @@ const ProjectCard = ({ project, onEdit, onDelete, readOnly = false }) => {
 // here, its body copy ("Proof beats claims...") was already correct.
 const PortfolioStage2RightAside = ({ projectCount }) => (
   <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[rgba(0,0,0,0.07)] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
     aria-label="Portfolio guidance"
     style={{ scrollbarWidth: 'none' }}
   >
-    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)]">
+    <div className="flex flex-col gap-[16px] p-[clamp(16px,1.5vw,24px)] max-lg:gap-3 max-lg:p-4">
       {/* What counts? */}
       <div
         className="rounded-[10px] border border-[#c1d4c4] p-[16px]"
@@ -331,31 +360,25 @@ const PortfolioStage2RightAside = ({ projectCount }) => (
       </div>
 
       {/* Why This Matters — Figma 5178:101863 */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-sans font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[16px] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           Why This Matters
         </p>
-        <p className="font-sans text-[12px] text-[#999] leading-[1.6]">
+        <p className="font-sans text-[12px] text-[#999] leading-[1.6] max-lg:text-[14px]">
           Proof beats claims. A live demo link is the strongest signal on GTH — recruiters open it
           first.
         </p>
       </div>
 
       {/* Recruiter views this week */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px]"
-        style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.07)' }}
-      >
-        <p className="font-sans font-bold text-[10px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[16px] p-[16px] shadow-[0px_4px_0px_rgba(0,0,0,0.07)] max-lg:shadow-none">
+        <p className="font-sans font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.8px] text-[#70706e] mb-[10px]">
           👀 Recruiter views this week
         </p>
-        <p className="font-display text-[36px] leading-none text-[#111] mb-[10px]">
+        <p className="font-display text-[36px] max-lg:text-[24px] leading-none text-[#111] mb-[10px]">
           {projectCount > 0 ? Math.min(projectCount * 3, 24) : 0}
         </p>
-        <p className="font-sans text-[11px] text-[#70706e] mb-[10px]">
+        <p className="font-sans text-[11px] max-lg:text-[14px] text-[#70706e] mb-[10px]">
           profile views from recruiters
         </p>
         <div className="h-[6px] rounded-full bg-[#e8e8e4] overflow-hidden mb-[10px]">
@@ -367,7 +390,7 @@ const PortfolioStage2RightAside = ({ projectCount }) => (
             }}
           />
         </div>
-        <p className="font-sans text-[10px] text-[#70706e]">
+        <p className="font-sans text-[10px] max-lg:text-[14px] text-[#70706e]">
           {projectCount > 0
             ? 'Recruiters are already discovering your profile.'
             : 'Add projects to unlock recruiter discovery'}
@@ -498,8 +521,8 @@ const PortfolioStage2Section = () => {
   const isEmpty = projects.length === 0;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -508,24 +531,24 @@ const PortfolioStage2Section = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={5} completionPct={56} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
               {/* Header — Figma 5178:101625 */}
               <section
                 aria-label="Portfolio — things you've shipped"
-                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)]"
+                className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.31vw,40px)] max-lg:px-4 max-lg:py-4"
               >
-                <h2 className="font-display text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] mb-[clamp(8px,0.93vw,16px)]">
+                <h1 className="font-display text-[clamp(26px,2.89vw,40px)] leading-[0.95] tracking-[-1.8px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                   <span className="not-italic text-[#111]">Portfolio. </span>
                   <span className="italic text-brand-green">Things you&rsquo;ve shipped.</span>
-                </h2>
-                <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+                </h1>
+                <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[1.6] text-[#70706e] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                   A web app, a design case study, a data analysis, a research paper — anything you
                   created counts. Add 2–6 projects and pin your best one to the top.
                 </p>
@@ -540,8 +563,7 @@ const PortfolioStage2Section = () => {
                   {['2–6 projects', 'Pin your best', '~7 min'].map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] border border-[#e1eae2] whitespace-nowrap"
-                      style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+                      className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-4 text-[#70706e] bg-white rounded-full px-[10px] py-[4px] max-lg:py-[5px] border border-[#e1eae2] whitespace-nowrap shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none"
                     >
                       {tag}
                     </span>
@@ -549,7 +571,7 @@ const PortfolioStage2Section = () => {
                 </div>
               </section>
 
-              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)]">
+              <div className="px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2vw,32px)] max-lg:px-4 max-lg:py-4">
                 {isEmpty ? (
                   <>
                     {/* Empty state — Figma 5178:101668 */}
@@ -571,7 +593,7 @@ const PortfolioStage2Section = () => {
                       <Button variant="primary" size="md" onClick={openAddModal}>
                         + Add your first project
                       </Button>
-                      <p className="font-sans text-[12px] text-[#70706e]">
+                      <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
                         Nothing built yet?{' '}
                         <button
                           type="button"
@@ -616,7 +638,7 @@ const PortfolioStage2Section = () => {
                     <button
                       type="button"
                       onClick={openAddModal}
-                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] mt-[16px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                      className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] max-lg:py-2 max-lg:text-[14px] mt-[16px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-brand-green transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                       style={{ background: 'rgba(235,241,236,0.5)', border: '2px dashed #387440' }}
                     >
                       <span className="size-[20px] bg-brand-green rounded-[4px] flex items-center justify-center shrink-0">
@@ -640,15 +662,17 @@ const PortfolioStage2Section = () => {
             </div>
           </div>
 
-          <PortfolioStage2RightAside projectCount={projects.length} />
+          <StageAsideAccordion title="What counts & why it matters">
+            <PortfolioStage2RightAside projectCount={projects.length} />
+          </StageAsideAccordion>
         </div>
 
         {/* Footer — spans the full viewport width, sibling of the row above
             rather than nested next to the aside (same layout note as
             WorkStage2Section.jsx). */}
-        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+        <footer className="shrink-0 h-[142px] w-full border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-[6px]">
+            <div className="flex items-center gap-[6px] max-sm:hidden">
               <span
                 aria-hidden="true"
                 className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -658,19 +682,21 @@ const PortfolioStage2Section = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
               <Button
                 variant="tertiary"
                 size="md"
+                className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                 onClick={handleGoBack}
                 leftIcon={<ArrowLeftIcon className="size-full" />}
               >
-                Work
+                <span className="max-md:sr-only">Work</span>
               </Button>
 
               <Button
                 variant="primary"
                 size="md"
+                className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                 onClick={handleNext}
                 rightIcon={<ArrowRightSmIcon className="size-full" />}
               >

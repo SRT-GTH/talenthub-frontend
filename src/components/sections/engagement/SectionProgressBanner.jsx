@@ -25,7 +25,7 @@ const SectionProgressBanner = ({
     )}
   >
     <StatusDot color="brand" />
-    <span className="font-sans font-semibold text-[11px] leading-4 tracking-[1.2px] uppercase text-content-primary">
+    <span className="font-sans font-semibold text-[11px] max-lg:text-[12px] leading-4 tracking-[1.2px] uppercase text-content-primary">
       Section {sectionNumber} · {sectionLabel} · {stagesDone} of {totalStages} Stages Done
     </span>
   </div>

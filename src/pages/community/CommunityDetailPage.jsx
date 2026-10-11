@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
+import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import DashboardShell from '../../components/sections/dashboard/DashboardShell.jsx';
 import DashboardPageBackground from '../../components/sections/dashboard/DashboardPageBackground.jsx';
 import CommunityHero from '../../components/sections/community/CommunityHero.jsx';
@@ -55,6 +56,11 @@ const CommunityDetailPage = () => {
   const [guidelinesOpen, setGuidelinesOpen] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef(null);
+  // Phones keep the full hero (+ its tabs) at the top of the feed: the sticky
+  // compact header would stack hero chip, title, tabs and buttons over the filters.
+  const isPhone = useMediaQuery('(max-width: 767.98px)');
+  const showHero = !scrolled || isPhone;
+  const showCompactHeader = scrolled && !isPhone;
 
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
@@ -246,14 +252,14 @@ const CommunityDetailPage = () => {
           already scales proportionally via `fr` units, so it should
           genuinely fill the space between the two margins, not stop short
           of it on wider real screens. */}
-      <div className="flex w-full flex-col items-start gap-[24px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)] pt-[32px]">
+      <div className="flex w-full flex-col items-start gap-[24px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)] pt-[32px] max-md:pr-4 max-md:pt-[20px]">
         {/* Guidelines toast — first-visit state (Figma 7025:86093). Portals
             to #toast-root (see GuidelinesToast.jsx) and takes no layout
             space of its own — rendered here only for state/lifecycle. */}
         <GuidelinesToast open={guidelinesOpen} onDismiss={() => setGuidelinesOpen(false)} />
 
         {/* Full hero — replaced by the compact header once it scrolls away */}
-        {!scrolled && (
+        {showHero && (
           <>
             <CommunityHero
               community={community}
@@ -281,10 +287,11 @@ const CommunityDetailPage = () => {
           becomes a permanent gap scrolled content bleeds through). Its own
           inner content uses the same margins, no `max-w` cap (see lead
           content's comment above for why). */}
-      <div className="sticky top-0 z-20 w-full overflow-hidden py-[12px]">
+      {/* Phones: `relative` instead of sticky — the filters + search + Create stack is too tall to pin on a 568px screen. */}
+      <div className="sticky top-0 z-20 w-full overflow-hidden py-[12px] max-md:relative">
         <DashboardPageBackground className="z-0" />
-        <div className="relative z-10 flex w-full flex-col gap-[16px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)]">
-          {scrolled && (
+        <div className="relative z-10 flex w-full flex-col gap-[16px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)] max-md:pr-4">
+          {showCompactHeader && (
             <CommunityStickyHeader
               community={community}
               joined={joined}
@@ -310,7 +317,7 @@ const CommunityDetailPage = () => {
       {/* Non-sticky trailing content — back to the page's real (asymmetric,
           not centered, uncapped) padding now that the full-bleed sticky
           block above has closed. */}
-      <div className="flex w-full flex-col items-start gap-[24px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)] pt-[24px]">
+      <div className="flex w-full flex-col items-start gap-[24px] pl-[clamp(16px,1.85vw,32px)] pr-[clamp(28px,3.24vw,56px)] pt-[24px] max-md:pr-4">
         {/* Three-column body — Figma 7025:86315 (331 | 703 | 422 of 1514) */}
         <div className="grid w-full grid-cols-1 items-start gap-[clamp(16px,1.9vw,29px)] xl:grid-cols-[minmax(0,331fr)_minmax(0,703fr)_minmax(0,422fr)]">
           <CommunityLeftRail community={community} className="order-2 xl:order-1" />

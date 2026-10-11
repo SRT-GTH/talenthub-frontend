@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import TalentSearchHeader from './TalentSearchHeader.jsx';
 import TalentSearchFilterBar from './TalentSearchFilterBar.jsx';
+import TalentSearchFilterSheet from './TalentSearchFilterSheet.jsx';
 import CandidateCard from './CandidateCard.jsx';
 import TalentPoolInsightBanner from './TalentPoolInsightBanner.jsx';
-import { CANDIDATES, RESULT_TABS } from './talentSearchData.js';
+import { CANDIDATES, FILTER_CHIPS, RESULT_TABS } from './talentSearchData.js';
 import { debug } from '../../../utils/debug.js';
 // PLACEHOLDER AVATARS — Figma embeds its own image fills for the three
 // candidates and no matching assets exist in the project yet. Existing
@@ -51,7 +52,7 @@ const AVATARS = {
 
 const CandidateGrid = ({ keyPrefix, onViewProfile, onStartConversation }) => (
   // Figma lm=GRID: 3 x 432.33 + 2 x 16 = 1329
-  <div className="grid w-full grid-cols-1 gap-[16px] md:grid-cols-2 xl:grid-cols-3">
+  <div className="grid w-full grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
     {CANDIDATES.map((candidate) => (
       <CandidateCard
         key={`${keyPrefix}-${candidate.id}`}
@@ -66,6 +67,7 @@ const CandidateGrid = ({ keyPrefix, onViewProfile, onStartConversation }) => (
 
 const TalentSearchSection = () => {
   const [activeTabId, setActiveTabId] = useState(RESULT_TABS[0].id);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
   useEffect(() => {
     log('mount', { route: '/recruiter/talent-search', candidateCount: CANDIDATES.length });
@@ -82,10 +84,14 @@ const TalentSearchSection = () => {
 
   return (
     <DashboardShell>
-      <div className="flex w-full flex-col pb-[32px] pt-[32px]">
+      <div className="flex w-full flex-col pb-[32px] pt-[32px] max-md:pb-[16px] max-md:pt-[12px]">
         {/* Header — padded column. Figma gap to the filter row is 20. */}
-        <div className="w-full pb-[20px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
-          <TalentSearchHeader onSearch={(value) => log('search', { length: value.length })} />
+        <div className="w-full pb-[20px] max-md:pb-[10px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+          <TalentSearchHeader
+            onSearch={(value) => log('search', { length: value.length })}
+            filterCount={FILTER_CHIPS.length}
+            onOpenFilters={() => setFilterSheetOpen(true)}
+          />
         </div>
 
         {/* Full-bleed sticky bar — see LAYOUT NOTE above. */}
@@ -96,7 +102,7 @@ const TalentSearchSection = () => {
         />
 
         {/* Results — Figma 7249:74362: VERTICAL gap 16, pb 48, after a 40 gap. */}
-        <div className="flex w-full flex-col gap-[16px] pb-[48px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] pt-[40px]">
+        <div className="flex w-full flex-col gap-[16px] pb-[48px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] pt-[40px] max-md:gap-[10px] max-md:pb-[8px] max-md:pt-[10px]">
           <CandidateGrid
             keyPrefix="a"
             onViewProfile={handleViewProfile}
@@ -112,6 +118,7 @@ const TalentSearchSection = () => {
           />
         </div>
       </div>
+      <TalentSearchFilterSheet isOpen={filterSheetOpen} onClose={() => setFilterSheetOpen(false)} />
     </DashboardShell>
   );
 };

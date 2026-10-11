@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import Upload from '../../ui/form/Upload.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
@@ -26,7 +27,7 @@ const log = debug('ParentVerificationSection');
  */
 const VerificationCaptionBadge = () => (
   <div
-    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white"
+    className="inline-flex items-center gap-[4px] rounded-[8px] border bg-white max-md:px-3! max-md:py-0.5! max-md:self-start"
     style={{ borderColor: '#eedeb8', padding: '4px 16px' }}
   >
     <span
@@ -129,14 +130,14 @@ const ParentVerificationSection = () => {
   };
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-20">
-      <div className="flex w-full max-w-[762px] flex-col items-center gap-6">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[762px] flex-col items-center gap-6 max-md:gap-3">
         {/* Step badge */}
         <VerificationCaptionBadge />
 
         {/* Headline */}
         <h1
-          className="max-w-[554px] text-center font-display font-normal text-black"
+          className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -151,7 +152,7 @@ const ParentVerificationSection = () => {
 
         {/* Subtitle */}
         <p
-          className="max-w-[482px] text-center font-sans text-neutral-dark-hover"
+          className="max-w-[482px] text-center font-sans text-neutral-dark-hover max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
           style={{
             fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
             lineHeight: 1.5,
@@ -165,7 +166,7 @@ const ParentVerificationSection = () => {
         <WavyDivider />
 
         {/* Upload cards */}
-        <div className="flex w-full max-w-[482px] flex-col gap-4">
+        <div className="flex w-full max-w-[482px] flex-col gap-4 max-md:gap-3">
           {/* Ghana Card ID (Figma 2931:91903) */}
           <Upload
             variant="amber"
@@ -203,7 +204,7 @@ const ParentVerificationSection = () => {
           />
 
           {/* Skip row */}
-          <div className="flex items-center justify-center gap-1 pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-1 pt-1 max-md:pt-0">
             <span
               className="font-sans text-neutral-dark-active"
               style={{ fontSize: 12, lineHeight: '14.3px' }}
@@ -213,7 +214,7 @@ const ParentVerificationSection = () => {
             <a
               href="#"
               onClick={handleSkip}
-              className="font-sans font-bold underline-offset-2 hover:underline"
+              className="font-sans font-bold underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ fontSize: 12, lineHeight: '14.3px', color: '#b48617' }}
             >
               Continue without verification
@@ -222,23 +223,25 @@ const ParentVerificationSection = () => {
         </div>
 
         {/* CTA */}
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          onClick={handleContinue}
-          rightIcon={<ArrowRightIcon />}
-          className="mt-2 w-full max-w-[698px]"
-        >
-          Fill In Your Details
-        </Button>
+        <StickyActionBar bleed={16}>
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            onClick={handleContinue}
+            rightIcon={<ArrowRightIcon />}
+            className="mt-2 w-full max-w-[698px]"
+          >
+            Fill In Your Details
+          </Button>
+        </StickyActionBar>
 
         {/* Footer */}
-        <p className="font-sans text-sm text-neutral-dark-hover">
+        <p className="font-sans text-sm text-neutral-dark-hover max-md:text-[13px]">
           Already Have an account?{' '}
           <Link
             to="/onboarding/parent-login"
-            className="font-semibold underline"
+            className="font-semibold underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{ color: '#387440' }}
           >
             Log in Instead

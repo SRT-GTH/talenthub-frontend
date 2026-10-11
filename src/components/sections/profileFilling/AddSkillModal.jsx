@@ -136,7 +136,7 @@ const CategoryChip = ({ label, isSelected, onToggle }) => (
   <button
     type="button"
     onClick={onToggle}
-    className={`h-[34px] px-[12px] py-[8px] rounded-full border text-[10px] font-medium tracking-[0.2px] whitespace-nowrap transition-all duration-150 cursor-pointer ${
+    className={`h-[34px] max-lg:h-8 px-[12px] py-[8px] rounded-full border text-[10px] max-lg:text-[12px] font-medium tracking-[0.2px] whitespace-nowrap transition-all duration-150 cursor-pointer ${
       isSelected
         ? 'bg-[#ebf1ec] border-[#387440] text-[#387440]'
         : 'bg-white border-[#e1eae2] text-[#70706e] hover:border-[#c1d4c4]'
@@ -219,7 +219,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
       size="lg"
       ariaLabel={isEditMode ? 'Edit skill' : 'Add a skill'}
       showClose={false}
-      contentClassName="!rounded-[24px] !border-[3px] !border-[#c1d4c4] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-[3px] !border-[#c1d4c4] overflow-hidden"
     >
       {/* ── Scrollable body ─────────────────────────────────────────────── */}
       <div className="flex flex-col">
@@ -228,7 +228,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-[25px] top-[25px] z-10 size-[28px] rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-[#387440] hover:bg-[#c1d4c4] transition-colors duration-150"
+          className="absolute right-[25px] top-[25px] max-sm:right-3 max-sm:top-3 z-10 size-[28px] max-lg:size-9 rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-[#387440] hover:bg-[#c1d4c4] transition-colors duration-150"
         >
           <CloseXIcon className="size-[12px]" />
         </button>
@@ -257,7 +257,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
 
             {/* Heading + subtitle */}
             <div className="flex flex-col items-center gap-[4px] text-center">
-              <h2 className="font-display text-[clamp(24px,2.31vw,40px)] tracking-[-1.2px] leading-[1.1]">
+              <h2 className="font-display text-[clamp(24px,2.31vw,40px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1]">
                 {isEditMode ? (
                   <>
                     <span className="not-italic text-[#111]">Edit y</span>
@@ -301,8 +301,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
                   if (e.key === 'Enter' && canSubmit) handleSubmit();
                 }}
                 placeholder="e.g. React, Tableau, Public Speaking…"
-                className="w-full h-full bg-white border border-[#ccc] rounded-[10px] pl-[20px] pr-[16px] font-sans text-[14px] text-[#111] placeholder:text-[#959592] tracking-[0.2px] leading-[20px] outline-none transition-colors duration-150 focus:border-[#387440]"
-                style={{ boxShadow: '0px 2.5px 0px 0px rgba(191,191,191,0.8)' }}
+                className="w-full h-full bg-white border border-[#ccc] rounded-[10px] pl-[20px] pr-[16px] font-sans text-[14px] text-[#111] placeholder:text-[#959592] tracking-[0.2px] leading-[20px] outline-none transition-colors duration-150 focus:border-[#387440] shadow-[0px_2.5px_0px_0px_rgba(191,191,191,0.8)] max-lg:shadow-none"
               />
             </div>
           </div>
@@ -317,7 +316,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
                 optional, adds credibility
               </span>
             </div>
-            <div className="flex items-stretch gap-[8px]">
+            <div className="flex items-stretch gap-[8px] max-sm:grid max-sm:grid-cols-2">
               {PROFICIENCY_LEVELS.map(({ label, dots }) => (
                 <ProficiencyCard
                   key={label}
@@ -391,7 +390,7 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
               <p className="font-sans font-bold text-[12px] text-[#387440] leading-normal">
                 {calloutSkillName} is verifiable in Skills Lab
               </p>
-              <p className="font-sans text-[10px] text-[#70706e] leading-normal">
+              <p className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] leading-normal">
                 Once you save, you can verify {calloutSkillName} in the Skills Lab (5–10 min). Pass
                 = green ✓ on your card.
               </p>
@@ -401,14 +400,14 @@ const AddSkillModal = ({ isOpen, onClose, onAdd, editSkill = null }) => {
 
         {/* ── Sticky footer (Figma 3721:22460) ──────────────────────────── */}
         <div
-          className="shrink-0 h-[90px] border-t flex items-center px-[clamp(20px,2.5vw,40px)]"
+          className="shrink-0 h-[90px] border-t flex items-center px-[clamp(20px,2.5vw,40px)] max-sm:h-auto max-sm:py-3"
           style={{ borderTopColor: 'rgba(0,0,0,0.07)', background: 'white' }}
         >
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-3 max-sm:[&>button]:w-full">
             {/* Auto-saved indicator — Figma 3721:22462/3/4 */}
             <div className="flex items-center gap-[10px]">
               <span className="size-[6px] rounded-[3px] bg-[#387440] shrink-0" aria-hidden="true" />
-              <span className="font-sans text-[12px] text-[#babab7] leading-normal whitespace-nowrap">
+              <span className="font-sans text-[12px] text-[#babab7] leading-normal whitespace-nowrap max-sm:whitespace-normal">
                 Auto-saved · changes carry to all tabs
               </span>
             </div>

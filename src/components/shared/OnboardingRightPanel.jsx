@@ -51,7 +51,7 @@ export default function OnboardingRightPanel({
   return (
     <aside
       aria-hidden={toast ? undefined : true}
-      className="relative hidden shrink-0 self-stretch overflow-hidden lg:block"
+      className="relative hidden shrink-0 self-stretch overflow-hidden lg:block max-lg:pointer-events-none max-lg:absolute max-lg:right-0 max-lg:top-0 max-lg:z-0 max-lg:block max-lg:aspect-[739/973] max-lg:w-[180px]! max-lg:self-auto max-lg:rounded-bl-[32px] max-lg:opacity-30 max-lg:blur-[3px] max-lg:[&_button]:invisible max-lg:[&_a]:invisible max-lg:[&_[role=button]]:invisible"
       style={{ width: 'clamp(360px, 42vw, 739px)', backgroundColor: bgColor }}
     >
       {/* ── TR ellipse glow — top-right, bleeds off-screen ─────────────────── */}
@@ -148,7 +148,7 @@ export default function OnboardingRightPanel({
       {panelContent}
 
       {/* ── Toast / alert slot ─────────────────────────────────────────────── */}
-      {toast}
+      {toast ? <div className="max-lg:hidden lg:contents">{toast}</div> : null}
     </aside>
   );
 }

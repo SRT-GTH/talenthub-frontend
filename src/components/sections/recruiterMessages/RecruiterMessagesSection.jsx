@@ -4,6 +4,7 @@ import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import { SearchIcon } from '../../shared/assets.jsx';
 import { MeatballMenuIcon } from '../jobPostings/jobPostingsIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
+import { useIsDesktop } from '../../../hooks/useMediaQuery.js';
 import { debug } from '../../../utils/debug.js';
 import {
   PAGE_HEADING,
@@ -42,6 +43,12 @@ const AVATARS = {
  * composer) and r24:
  *   list   371 wide, pad 22/28, shadow 0 2px 1px #8d8a8a
  *   thread 948 wide, pad 22 / 18 top / 14 bottom, SPACE_BETWEEN
+ *
+ * RESPONSIVE (below lg) — master/detail, not two squeezed panes. `showThread`
+ * is a phone/tablet-only flag: false shows the conversation list, true shows
+ * the open thread full-screen with a back arrow (tab bar + Career Buddy
+ * launcher are dropped via DashboardShell's `immersiveOnMobile`). At >= lg
+ * `showThread` is ignored and both panes render exactly as in Figma.
  *
  * Verified details that are easy to get wrong:
  *  • The SELECTED conversation is a white row with a 1.21px #00522b outline,
@@ -117,6 +124,18 @@ const ProposalWatermark = ({ className = '' }) => (
   </svg>
 );
 
+const BackArrowIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M15 5l-7 7 7 7"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 const RefreshIcon = ({ className = '' }) => (
   <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
     <path
@@ -139,7 +158,11 @@ const RecruiterMessagesSection = () => {
   const [activeTabId, setActiveTabId] = useState(INBOX_TABS[0].id);
   const [activeConversationId, setActiveConversationId] = useState(CONVERSATIONS[0].id);
   const [threadMenuOpen, setThreadMenuOpen] = useState(false);
+  // Below lg only: which of the two panes is on screen.
+  const [showThread, setShowThread] = useState(false);
   const threadMenuRef = useRef(null);
+  const messagesRef = useRef(null);
+  const isDesktop = useIsDesktop();
 
   // The tabs only ever toggled their own highlight before — the list below
   // always rendered all of CONVERSATIONS regardless of activeTabId. This is
@@ -166,6 +189,15 @@ const RecruiterMessagesSection = () => {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [threadMenuOpen]);
 
+  // Chat convention on small screens: land on the latest message.
+  useEffect(() => {
+    if (!showThread || isDesktop) return;
+    const el = messagesRef.current;
+    if (!el) return;
+    log('branch: thread opened below lg → scroll to latest message', { activeConversationId });
+    el.scrollTop = el.scrollHeight;
+  }, [showThread, isDesktop, activeConversationId]);
+
   useEffect(() => {
     log('active conversation changed', {
       activeConversationId,
@@ -178,26 +210,45 @@ const RecruiterMessagesSection = () => {
   }, [activeConversationId, activeConversation, activeThread]);
 
   return (
-    <DashboardShell>
+    <DashboardShell
+      immersiveOnMobile={showThread}
+      // The thread screen runs edge-to-edge, so drop the scroll area's end padding.
+      mainClassName={showThread ? 'max-lg:pb-0!' : undefined}
+    >
       {/* `h-full` so this fills DashboardShell's `<main>` box exactly instead of
           growing past it — the list and thread panels below then scroll
           INTERNALLY (each own `overflow-y-auto`) instead of the whole page
           scrolling, so the conversation list and the thread's header/composer
           stay fully visible at all times. */}
-      <div className="flex h-full w-full flex-col gap-[24px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
-        <RecruiterPageHeading lead={PAGE_HEADING.lead} subtitle={PAGE_SUBHEADING} />
+      <div
+        className={classNames(
+          'flex h-full w-full flex-col gap-[24px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-lg:gap-[10px] max-lg:py-[12px]',
+          showThread && 'max-lg:gap-0 max-lg:p-0'
+        )}
+      >
+        <RecruiterPageHeading
+          lead={PAGE_HEADING.lead}
+          subtitle={PAGE_SUBHEADING}
+          className={showThread ? 'max-lg:hidden' : undefined}
+        />
 
         <div className="flex min-h-0 flex-1 flex-col gap-[10px] lg:flex-row">
           {/* ── Conversation list — Figma 7249:84031 ── */}
-          <aside className="flex h-full w-full shrink-0 flex-col gap-[16px] rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] py-[28px] shadow-[0_2px_1px_0_#8d8a8a] lg:w-[371px]">
-            <label className="flex h-[45px] items-center gap-[9.73px] rounded-[12px] border-[1.22px] border-[#cccccc] bg-white px-[16px] shadow-[0_3.04px_0_0_#bfbfbf] focus-within:border-brand-green">
+          <aside
+            className={classNames(
+              'flex h-full w-full shrink-0 flex-col gap-[16px] rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] py-[28px] shadow-[0_2px_1px_0_#8d8a8a] lg:w-[371px]',
+              'max-lg:gap-[10px] max-lg:rounded-none max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none',
+              showThread && 'max-lg:hidden'
+            )}
+          >
+            <label className="flex h-[45px] max-lg:h-[44px] items-center gap-[9.73px] rounded-[12px] max-lg:rounded-[10px] border-[1.22px] max-lg:border border-[#cccccc] bg-white px-[16px] max-lg:px-[12px] shadow-[0_3.04px_0_0_#bfbfbf] max-lg:shadow-none focus-within:border-brand-green">
               <span className="sr-only">{SEARCH_PLACEHOLDER}</span>
               <SearchIcon className="size-[16px] shrink-0 text-[#595959]" />
               <input
                 type="search"
                 placeholder={SEARCH_PLACEHOLDER}
                 onChange={(event) => log('search', { length: event.target.value.length })}
-                className="min-w-0 flex-1 bg-transparent font-sans text-[13px] leading-[24.31px] tracking-[0.24px] text-black outline-none placeholder:text-[#999999]"
+                className="min-w-0 flex-1 bg-transparent font-sans text-[13px] max-lg:text-[16px] leading-[24.31px] tracking-[0.24px] text-black outline-none placeholder:text-[#999999]"
               />
             </label>
 
@@ -228,8 +279,8 @@ const RecruiterMessagesSection = () => {
                         }
                       }}
                       className={classNames(
-                        'inline-flex h-[33px] items-center gap-[4.86px] rounded-pill border-[1.22px] border-brand-green-light-hover px-[14px]',
-                        'font-sans text-[14px] shadow-[0_1.22px_3.65px_0_rgba(0,0,0,0.08)] transition-all duration-300 ease-in',
+                        'relative inline-flex h-[33px] max-lg:h-[30px] items-center gap-[4.86px] rounded-pill border-[1.22px] border-brand-green-light-hover px-[14px] max-lg:px-[12px] max-lg:after:absolute max-lg:after:-inset-x-[2px] max-lg:after:-inset-y-[7px]',
+                        'font-sans text-[14px] max-lg:text-[13px] shadow-[0_1.22px_3.65px_0_rgba(0,0,0,0.08)] max-lg:shadow-none transition-all duration-300 ease-in',
                         isActive
                           ? 'bg-brand-green font-semibold text-white'
                           : 'bg-white font-medium text-content-helper hover:bg-neutral'
@@ -245,25 +296,27 @@ const RecruiterMessagesSection = () => {
                 type="button"
                 aria-label="Refresh conversations"
                 onClick={() => log('branch', { action: 'refresh-inbox', wired: false })}
-                className="shrink-0 text-[#595959] transition-opacity hover:opacity-70"
+                className="relative grid shrink-0 place-items-center text-[#595959] transition-opacity hover:opacity-70 max-lg:size-[36px] max-lg:after:absolute max-lg:after:-inset-1"
               >
                 <RefreshIcon className="size-[20px]" />
               </button>
             </div>
 
-            <ul className="flex min-h-0 flex-1 flex-col gap-[7.23px] overflow-y-auto">
+            <ul className="flex min-h-0 flex-1 flex-col gap-[7.23px] overflow-y-auto max-lg:gap-0">
               {visibleConversations.map((conversation) => {
                 const isActive = conversation.id === activeConversationId;
                 return (
-                  <li key={conversation.id}>
+                  <li key={conversation.id} className="max-lg:border-b max-lg:border-[#e8e8e4]">
                     <button
                       type="button"
                       onClick={() => {
                         log('branch', { openConversation: conversation.id });
                         setActiveConversationId(conversation.id);
+                        // Below lg this swaps the list for the thread screen.
+                        setShowThread(true);
                       }}
                       className={classNames(
-                        'flex w-full items-center gap-[12px] px-[10px] text-left transition-all duration-300 ease-in',
+                        'flex w-full items-center gap-[12px] px-[10px] text-left transition-all duration-300 ease-in max-lg:rounded-none max-lg:border-0 max-lg:px-0 max-lg:py-[10px] max-lg:shadow-none',
                         isActive
                           ? 'rounded-[12px] border-[1.21px] border-[#00522b]/10 bg-white py-[14px] shadow-[0_1px_6px_0_rgba(0,82,43,0.25)]'
                           : 'rounded-[12px] py-[12px] hover:bg-neutral'
@@ -272,23 +325,23 @@ const RecruiterMessagesSection = () => {
                       <img
                         src={AVATARS[conversation.id]}
                         alt={conversation.name}
-                        className="size-[53px] shrink-0 rounded-full object-cover"
+                        className="size-[53px] max-lg:size-[44px] shrink-0 rounded-full object-cover"
                       />
-                      <span className="flex min-w-0 flex-1 flex-col gap-[7px]">
+                      <span className="flex min-w-0 flex-1 flex-col gap-[7px] max-lg:gap-[3px]">
                         <span className="flex items-center justify-between gap-[10px]">
                           <span className="truncate font-sans text-[15px] font-medium leading-[17.9px] text-black">
                             {conversation.name}
                           </span>
-                          <span className="shrink-0 font-sans text-[13px] leading-[15.51px] text-content-helper">
+                          <span className="shrink-0 font-sans text-[13px] max-lg:text-[12px] leading-[15.51px] text-content-helper">
                             {conversation.time}
                           </span>
                         </span>
                         <span className="flex items-center justify-between gap-[10px]">
-                          <span className="truncate font-sans text-[13.5px] leading-[16.11px] text-content-helper">
+                          <span className="truncate font-sans text-[13.5px] max-lg:text-[13px] leading-[16.11px] text-content-helper">
                             {conversation.preview}
                           </span>
                           {conversation.unread && (
-                            <span className="grid size-[18px] shrink-0 place-items-center rounded-full bg-brand-green font-sans text-[10px] font-bold text-white">
+                            <span className="grid size-[18px] shrink-0 place-items-center rounded-full bg-brand-green font-sans text-[10px] max-lg:text-[12px] font-bold text-white max-lg:size-auto max-lg:h-[20px] max-lg:min-w-[20px] max-lg:px-[5px] max-lg:leading-none max-lg:tabular-nums">
                               {conversation.unread}
                             </span>
                           )}
@@ -302,21 +355,41 @@ const RecruiterMessagesSection = () => {
           </aside>
 
           {/* ── Thread — Figma 7249:84101 ── */}
-          <section className="flex h-full min-w-0 flex-1 flex-col rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] pb-[14px] pt-[18px]">
+          <section
+            className={classNames(
+              'flex h-full min-w-0 flex-1 flex-col rounded-[24px] border-[1.21px] border-[#00522b]/10 bg-white px-[22px] pb-[14px] pt-[18px]',
+              // Below lg the thread is a full screen: no card chrome, safe-area aware.
+              'max-lg:rounded-none max-lg:border-0 max-lg:px-[12px] max-lg:pb-[calc(8px+env(safe-area-inset-bottom))] max-lg:pt-0',
+              !showThread && 'max-lg:hidden'
+            )}
+          >
             {/* Header pill — Figma 7249:84103, r100, 1.21px #00522b. `shrink-0`
                 so it stays pinned above the scrolling messages below it. */}
-            <header className="flex shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 px-[12px] py-[8px]">
-              <span className="flex items-center gap-[14px]">
+            <header className="flex shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 px-[12px] py-[8px] max-lg:gap-[8px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-[#e8e8e4] max-lg:px-0 max-lg:py-[4px]">
+              <span className="flex items-center gap-[14px] max-lg:min-w-0 max-lg:flex-1 max-lg:gap-[8px]">
+                {/* Below lg only — back to the conversation list. */}
+                <button
+                  type="button"
+                  aria-label="Back to conversations"
+                  onClick={() => {
+                    log('branch', { action: 'back-to-list' });
+                    setThreadMenuOpen(false);
+                    setShowThread(false);
+                  }}
+                  className="relative grid size-[40px] shrink-0 place-items-center rounded-full text-black max-lg:-ml-[8px] max-lg:after:absolute max-lg:after:-inset-0.5 transition-colors hover:bg-neutral focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green lg:hidden"
+                >
+                  <BackArrowIcon className="size-[24px]" />
+                </button>
                 <img
                   src={AVATARS[activeConversation.id]}
                   alt={activeConversation.name}
-                  className="size-[53px] rounded-full object-cover"
+                  className="size-[53px] rounded-full object-cover max-lg:size-[36px]"
                 />
-                <span className="flex flex-col gap-[6px]">
-                  <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black">
+                <span className="flex flex-col gap-[6px] max-lg:min-w-0 max-lg:gap-[2px]">
+                  <span className="font-sans text-[16px] font-medium leading-[19.09px] text-black max-lg:truncate">
                     {activeConversation.name}
                   </span>
-                  <span className="font-sans text-[14px] leading-[16.71px] text-content-helper">
+                  <span className="font-sans text-[14px] max-lg:text-[12px] leading-[16.71px] text-content-helper max-lg:truncate">
                     {activeConversation.meta}
                   </span>
                 </span>
@@ -331,7 +404,7 @@ const RecruiterMessagesSection = () => {
                     log('branch', { action: 'thread-menu', open: !threadMenuOpen });
                     setThreadMenuOpen((prev) => !prev);
                   }}
-                  className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill transition-colors hover:bg-neutral"
+                  className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill transition-colors hover:bg-neutral max-lg:relative max-lg:after:absolute max-lg:after:-inset-x-[6px] max-lg:after:-inset-y-[10px]"
                 >
                   <MeatballMenuIcon className="w-[18.75px] text-[#999999]" />
                 </button>
@@ -340,7 +413,7 @@ const RecruiterMessagesSection = () => {
                   /* Figma 7249:84533 — 265 wide, r24, 0.7px #e5e5e5, 49px rows */
                   <div
                     role="menu"
-                    className="absolute right-0 top-[34px] z-30 w-[265px] overflow-hidden rounded-[24px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
+                    className="absolute right-0 top-[34px] z-30 w-[265px] max-lg:max-w-[calc(100vw-32px)] overflow-hidden rounded-[24px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
                   >
                     {THREAD_MENU_ITEMS.map((item, index) => (
                       <div key={item.id}>
@@ -369,7 +442,10 @@ const RecruiterMessagesSection = () => {
 
             {/* Scrolls internally — header above and composer below stay
                   pinned in place regardless of thread length. */}
-            <div className="mt-[32px] flex min-h-0 flex-1 flex-col items-center gap-[15px] overflow-y-auto">
+            <div
+              ref={messagesRef}
+              className="mt-[32px] flex min-h-0 flex-1 flex-col items-center gap-[15px] overflow-y-auto max-lg:mt-0 max-lg:py-[10px]"
+            >
               {activeThread?.dayGroups.map((group) => (
                 <div key={group.day} className="flex w-full flex-col items-center gap-[15px]">
                   {/* Day pill — Figma 7249:84116, #e5e5e5 at 50% FILL alpha */}
@@ -427,7 +503,7 @@ const RecruiterMessagesSection = () => {
                         <div
                           key={message.id}
                           className={classNames(
-                            'flex w-full max-w-[537px] flex-col gap-[6px] rounded-[12px] px-[16px] pb-[8px] pt-[14px]',
+                            'flex w-full max-w-[537px] flex-col gap-[6px] rounded-[12px] px-[16px] pb-[8px] pt-[14px] max-lg:max-w-[88%] max-lg:px-[12px] max-lg:pb-[6px] max-lg:pt-[8px]',
                             fromRecruiter ? 'self-end bg-[#e5e5e5]/50' : 'self-start bg-[#737373]'
                           )}
                         >
@@ -465,17 +541,17 @@ const RecruiterMessagesSection = () => {
                 event.preventDefault();
                 log('branch', { action: 'send-message', wired: false });
               }}
-              className="mt-[24px] flex h-[60px] shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 py-[12px] pl-[20px] pr-[12px]"
+              className="mt-[24px] flex h-[60px] shrink-0 items-center justify-between gap-[16.88px] rounded-pill border-[1.21px] border-[#00522b]/10 py-[12px] pl-[20px] pr-[12px] max-lg:mt-[4px] max-lg:h-[44px] max-lg:gap-[8px] max-lg:border max-lg:py-[4px] max-lg:pl-[14px] max-lg:pr-[4px]"
             >
               <input
                 type="text"
                 placeholder={COMPOSER_PLACEHOLDER}
-                className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-[17.6px] text-black outline-none placeholder:text-[#999999]"
+                className="min-w-0 flex-1 bg-transparent font-sans text-[14px] max-lg:text-[16px] leading-[17.6px] text-black outline-none placeholder:text-[#999999]"
               />
               <button
                 type="submit"
                 aria-label="Send message"
-                className="grid h-[36px] w-[37px] shrink-0 place-items-center rounded-full bg-brand-green transition-colors hover:bg-brand-green-hover"
+                className="grid h-[36px] w-[37px] shrink-0 place-items-center rounded-full bg-brand-green transition-colors hover:bg-brand-green-hover max-lg:relative max-lg:size-[36px] max-lg:after:absolute max-lg:after:-inset-1"
               >
                 <SendIcon className="h-[12px] w-[13px] text-white" />
               </button>

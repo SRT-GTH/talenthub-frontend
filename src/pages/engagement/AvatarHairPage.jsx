@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import AvatarStepLayout from '../../components/sections/engagement/AvatarStepLayout.jsx';
 import AvatarHairPanel from '../../components/sections/engagement/avatar/AvatarHairPanel.jsx';
-import hairHeroStage from '../../assets/engagement/avatar-hair-hero-stage.png';
+import hairHeroStage from '../../assets/engagement/avatar-hair-hero-stage.webp';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AvatarHairPage');

@@ -139,20 +139,20 @@ const CommunityHomePage = () => {
           content genuinely fill the space between the two margins, which is
           what the card grid's own `auto-fill` columns are already built to
           do. */}
-      <div className="flex w-full flex-col items-start gap-[3px] pb-[24px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)] pt-[32px]">
-        <div className="flex w-full flex-wrap items-center justify-between gap-6">
+      <div className="flex w-full flex-col items-start gap-[3px] pb-[24px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)] pt-[32px] max-md:gap-[8px] max-md:pb-[8px] max-md:pt-[12px] max-md:pr-4">
+        <div className="flex w-full flex-wrap items-center justify-between gap-6 max-md:gap-[10px]">
           <div className="flex w-[355px] max-w-full flex-col items-start gap-[3px]">
-            <h1 className="w-full font-display text-[clamp(30px,2.31vw,40px)] tracking-[-2px] text-black">
+            <h1 className="w-full font-display text-[clamp(30px,2.31vw,40px)] tracking-[-2px] text-black max-md:text-[24px] max-md:leading-[1.2] max-md:tracking-[-0.5px]">
               {INDEX_HEADING.lead}
               {/* Figma sets this run to Instrument Serif *Italic* #387440. */}
               <em className="italic text-brand-green">{INDEX_HEADING.accent}</em>
             </h1>
-            <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999]">
+            <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999] max-md:hidden">
               {INDEX_SUBHEADING}
             </p>
           </div>
 
-          <label className="flex w-[clamp(240px,26vw,450px)] max-w-full items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
+          <label className="flex w-[clamp(240px,26vw,450px)] max-w-full items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] max-md:h-[44px] max-md:rounded-[10px] max-md:border max-md:px-[12px] max-md:py-0 shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] max-md:shadow-none focus-within:border-brand-green-light-active">
             <span className="sr-only">{COMMUNITY_SEARCH_PLACEHOLDER}</span>
             <CommunityIcon src={icons.search} size={19.45} />
             <input
@@ -160,7 +160,7 @@ const CommunityHomePage = () => {
               value={query}
               placeholder={COMMUNITY_SEARCH_PLACEHOLDER}
               onChange={(event) => setQuery(event.target.value)}
-              className="min-w-0 flex-1 bg-transparent font-sans text-[14.5px] leading-[24.31px] tracking-[0.2431px] text-black outline-none placeholder:text-[#999]"
+              className="min-w-0 flex-1 bg-transparent font-sans text-[14.5px] max-md:text-[16px] leading-[24.31px] tracking-[0.2431px] text-black outline-none placeholder:text-[#999]"
             />
           </label>
         </div>
@@ -182,7 +182,7 @@ const CommunityHomePage = () => {
         showSearch={scrolled}
       />
 
-      <div className="flex w-full flex-col items-start gap-[20px] pb-[8px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)] pt-[24px]">
+      <div className="flex w-full flex-col items-start gap-[20px] pb-[8px] pl-[clamp(12px,1.39vw,24px)] pr-[clamp(28px,3.24vw,56px)] pt-[24px] max-md:gap-[8px] max-md:pt-[8px] max-md:pr-4">
         {showResultsLine && (
           <p className="font-sans text-[14px] leading-[19.95px] tracking-[0.1995px] text-neutral-dark-hover">
             {resultsLine.lead}
@@ -190,7 +190,7 @@ const CommunityHomePage = () => {
           </p>
         )}
 
-        <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(258px,1fr))] justify-items-center gap-[19.45px]">
+        <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(258px,1fr))] justify-items-center gap-[19.45px] max-md:gap-[10px]">
           {visible.map((community) => (
             <CommunityCard
               key={community.id}

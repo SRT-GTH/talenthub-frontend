@@ -1,4 +1,4 @@
-import photoStudents from '../../../assets/hero/parent-welcome-panel-photo.png';
+import photoStudents from '../../../assets/hero/parent-welcome-panel-photo.webp';
 import ellipse5 from '../../../assets/hero/Ellipse 5.svg';
 import { FlagCorrectionsOverlay } from './ParentLoginPanelContent.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -9,7 +9,7 @@ const log = debug('ParentWelcomePanelContent');
  * ParentWelcomePanelContent — exactly 3 foreground elements for the parent
  * welcome screen right panel (Figma group 2894:72732, parent frame 2865:44066).
  *
- *   1. Photo card       — Students using GTH on phone.png, rotate(7deg)
+ *   1. Photo card       — Students using GTH on phone.webp, rotate(7deg)
  *   2. Ward Status card — white card, icon above text, top-right
  *   3. Flag corrections — shared green card, bottom-left
  *
@@ -59,7 +59,12 @@ export const WardStatusCard = () => {
         <div className="flex flex-col gap-1">
           <p
             className="font-sans font-semibold uppercase"
-            style={{ fontSize: 9, lineHeight: 'normal', letterSpacing: '0.6px', color: '#70706e' }}
+            style={{
+              fontSize: 'var(--fs-9)',
+              lineHeight: 'normal',
+              letterSpacing: '0.6px',
+              color: '#70706e',
+            }}
           >
             Ward Status
           </p>

@@ -190,3 +190,13 @@ If the element has **dynamic data** (career level number, XP count, partner list
 - Design tokens: [design-tokens.md](design-tokens.md)
 - Figma node map: [figma-node-map.md](figma-node-map.md)
 - Position helper: [`src/utils/figmaPosition.js`](../src/utils/figmaPosition.js)
+
+## Responsive amendment `✅ VERIFIED` (2026-10-08, see [responsive-plan.md](responsive-plan.md))
+
+Figma ships desktop frames only (~1728px). The exact-value rule above therefore applies **at ≥ lg (1024px)**. Below 1024px we adapt for the device instead of scaling the desktop design down:
+
+- Desktop output must not change — guarded by `npm run test:visual` (baselines at 1024 / 1440).
+- Add mobile behaviour as `max-lg:` / `max-md:` overrides or mobile-first base classes that `lg:` restores to the Figma value. Never edit a value that applies at ≥ lg to make mobile work.
+- Floors that override Figma on small screens: body text ≥ 14px, secondary ≥ 12px, form fields 16px (iOS zoom), interactive targets ≥ 44px preferred / 24px hard minimum.
+- Sub-12px Figma text uses `max-lg:text-[12px]` (classes) or `var(--fs-N)` (inline styles, defined in `index.css`).
+- `npm run test:responsive` (or `npm run audit:responsive` for a fast sweep) is the gate for horizontal overflow, clipped content, tiny text and small tap targets at 320/375/768/1024/1440.

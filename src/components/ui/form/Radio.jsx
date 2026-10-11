@@ -31,6 +31,7 @@ const Radio = ({
       htmlFor={inputId}
       className={classNames(
         'inline-flex items-center gap-[8px] select-none',
+        'max-md:min-h-11',
         disabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer',
         className
       )}

@@ -73,7 +73,7 @@ const schema = z.object({
 // ── field label (label + required */optional) ───────────────────────────────
 const FieldLabel = ({ children, required, optional }) => (
   <span
-    className="mb-[8px] flex items-center gap-[3px] font-sans font-bold"
+    className="mb-[8px] flex items-center gap-[3px] font-sans font-bold max-md:mb-1.5 max-md:text-[13px]!"
     style={{ fontSize: 13, color: '#111', lineHeight: 'normal' }}
   >
     {children}
@@ -88,7 +88,7 @@ const FieldLabel = ({ children, required, optional }) => (
 
 // ── single-select chip group — Figma 2864:37075 / 37125 ─────────────────────
 const ChipGroup = ({ options, value, onChange }) => (
-  <div className="flex flex-wrap gap-[7px]">
+  <div className="flex flex-wrap gap-[7px] max-md:gap-2">
     {options.map((opt) => {
       const val = typeof opt === 'string' ? opt : opt.value;
       const label = typeof opt === 'string' ? opt : opt.label;
@@ -98,7 +98,7 @@ const ChipGroup = ({ options, value, onChange }) => (
           key={val}
           type="button"
           onClick={() => onChange(val)}
-          className="flex h-[32px] items-center rounded-full border px-[15px] font-sans font-medium transition-colors"
+          className="relative flex h-[32px] max-md:h-8 items-center rounded-full border px-[15px] max-md:px-3 max-md:text-[13px]! font-sans font-medium transition-colors max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1.5 max-md:before:content-['']"
           style={{
             fontSize: 14,
             backgroundColor: selected ? '#faf4e8' : '#f8f8f4',
@@ -123,7 +123,7 @@ const RadioGroup = ({ options, value, onChange }) => (
           key={opt}
           type="button"
           onClick={() => onChange(opt)}
-          className="flex h-[37px] items-center gap-[8px] rounded-full border px-[19px] font-sans font-medium transition-colors"
+          className="relative flex h-[37px] max-md:h-8 max-md:flex-1 max-md:justify-center items-center gap-[8px] rounded-full border px-[19px] max-md:px-3 max-md:text-[13px]! font-sans font-medium transition-colors max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1.5 max-md:before:content-['']"
           style={{
             fontSize: 14,
             backgroundColor: '#ffffff',
@@ -198,18 +198,18 @@ const ParentInviteIdentitySection = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex min-h-full flex-1 flex-col">
       {/* ── Scrollable form body ── */}
-      <div className="flex-1 px-6 md:px-14 py-10">
-        <div className="mx-auto flex w-full max-w-full  flex-col gap-[20px]">
+      <div className="flex-1 px-6 md:px-14 py-10 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex w-full max-w-full  flex-col gap-[20px] max-md:gap-3">
           {/* Header (centered) — Figma 2864:37049 / 37050 / 37051 */}
-          <div className="flex flex-col items-center gap-[6px] text-center">
+          <div className="flex flex-col items-center gap-[6px] text-center max-md:items-start max-md:gap-1 max-md:text-left">
             <span
               className="font-sans font-bold uppercase"
-              style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+              style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
             >
               Step 1 of 7 — Parent Identity
             </span>
             <h1
-              className="font-display font-normal"
+              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1px',
@@ -223,7 +223,7 @@ const ParentInviteIdentitySection = () => {
               </span>
             </h1>
             <p
-              className="max-w-[420px] font-sans"
+              className="max-w-[420px] font-sans max-md:leading-5!"
               style={{ fontSize: 14, color: '#70706e', lineHeight: '23px' }}
             >
               This information is used to personalise your parent account and communicate with you
@@ -232,7 +232,7 @@ const ParentInviteIdentitySection = () => {
           </div>
 
           {/* Name row — First + Last (Figma 2864:37052) */}
-          <div className="grid grid-cols-1 gap-[16px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-[16px] max-md:gap-3 sm:grid-cols-2">
             <label className="flex flex-col">
               <FieldLabel required>First Name</FieldLabel>
               <TextInput
@@ -284,10 +284,11 @@ const ParentInviteIdentitySection = () => {
           {/* Date of birth — Day / Month / Year (Figma 2864:37105) */}
           <div className="flex flex-col">
             <FieldLabel required>Date of Birth</FieldLabel>
-            <div className="grid grid-cols-3 gap-[10px]">
+            <div className="grid grid-cols-3 gap-[10px] max-md:grid-cols-2">
               <TextInput
                 placeholder="Day"
                 inputMode="numeric"
+                autoComplete="bday-day"
                 error={errors.day?.message}
                 {...register('day')}
               />
@@ -297,6 +298,7 @@ const ParentInviteIdentitySection = () => {
                 render={({ field }) => (
                   <Select
                     placeholder="Month"
+                    className="max-md:order-first max-md:col-span-2"
                     options={MONTHS}
                     value={field.value}
                     onChange={field.onChange}
@@ -307,6 +309,7 @@ const ParentInviteIdentitySection = () => {
               <TextInput
                 placeholder="Year"
                 inputMode="numeric"
+                autoComplete="bday-year"
                 error={errors.year?.message}
                 {...register('year')}
               />
@@ -329,7 +332,7 @@ const ParentInviteIdentitySection = () => {
 
       {/* ── Sticky footer: Back + Continue (Figma 2864:37134) ── */}
       <div
-        className="sticky bottom-0 bg-white px-6 py-[15px]"
+        className="sticky bottom-0 z-20 bg-white px-6 py-[15px] max-md:px-4 max-md:py-2 max-md:pb-[max(8px,env(safe-area-inset-bottom))]"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="mx-auto flex w-full max-w-[900px] items-center gap-[10px]">
@@ -339,36 +342,40 @@ const ParentInviteIdentitySection = () => {
               log('back clicked');
               navigate(-1);
             }}
-            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold"
+            aria-label="Back"
+            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"
             style={{ borderColor: '#c6c6c3', color: '#111', fontSize: 14 }}
           >
             <ChevronLeft />
-            Back
+            <span className="max-md:sr-only">Back</span>
           </button>
 
           {isValid ? (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 text-white transition-transform active:translate-y-[2px]"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
               style={{
                 backgroundColor: '#c8951a',
                 borderColor: '#967014',
                 boxShadow: '0px 3px 0px #967014',
               }}
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15 }}>
+              <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
                 {isSubmitting ? 'Saving…' : 'Continue'}
               </span>
               <ArrowRightIcon />
             </button>
           ) : (
             <div
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none!"
               style={{ backgroundColor: '#e6e6e3', borderColor: '#d8d8d4', cursor: 'not-allowed' }}
               aria-disabled="true"
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15, color: '#a6a6a3' }}>
+              <span
+                className="font-sans font-bold max-md:text-[14px]!"
+                style={{ fontSize: 15, color: '#a6a6a3' }}
+              >
                 Continue
               </span>
               <span style={{ color: '#a6a6a3' }}>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from '../../ui/Button.jsx';
+import ClampText from '../../ui/ClampText.jsx';
 import { CloseIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
@@ -217,7 +218,7 @@ const ItemNumber = ({ num, accent }) => {
       ].join(' ')}
     >
       <span
-        className="font-sans font-bold text-[11px] leading-none"
+        className="font-sans font-bold text-[11px] max-lg:text-[12px] leading-none"
         style={{ color: isGreen ? '#2a5730' : '#70706e' }}
       >
         {num}
@@ -233,7 +234,7 @@ const ItemNumber = ({ num, accent }) => {
 const ItemRow = ({ item, isLast }) => (
   <div
     className={[
-      'flex items-start gap-3 py-[13px]',
+      'flex items-start gap-3 py-[13px] max-md:py-2.5',
       !isLast ? 'border-b border-[rgba(0,0,0,0.06)]' : '',
     ].join(' ')}
   >
@@ -249,12 +250,14 @@ const ItemRow = ({ item, isLast }) => (
       >
         {item.heading}
       </p>
-      <p
-        className="font-sans font-normal text-[#737373]"
-        style={{ fontSize: '12px', lineHeight: '19.8px' }}
+      {/* Phones: clamp to 3 lines with a Read more toggle (full text from lg up). */}
+      <ClampText
+        lines={3}
+        className="font-sans font-normal text-[#737373] text-[12px] leading-[19.8px] max-md:text-[13px] max-md:leading-5"
+        buttonClassName="relative text-[13px]! before:absolute before:-inset-x-2 before:-inset-y-2 before:content-['']"
       >
         {item.body}
-      </p>
+      </ClampText>
     </div>
   </div>
 );
@@ -274,7 +277,7 @@ const WarningCard = ({ card }) => {
   const bodyColor = isBlue ? '#3062d4' : '#5a3c00';
 
   return (
-    <div className={`flex items-start gap-3 rounded-[12px] border p-4 ${containerCls}`}>
+    <div className={`flex items-start gap-3 rounded-[12px] border p-4 max-md:p-3 ${containerCls}`}>
       <div
         className="shrink-0 flex items-center justify-center size-[22px] rounded-[6px]"
         style={{ background: iconBg, boxShadow: '0px 1px 0px rgba(0,0,0,0.1)' }}
@@ -311,7 +314,7 @@ const WarningCard = ({ card }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const RightsCard = ({ card }) => (
-  <div className="flex items-start gap-3 rounded-[12px] border border-[#c1d4c4] bg-[rgba(235,241,236,0.5)] p-4">
+  <div className="flex items-start gap-3 rounded-[12px] border border-[#c1d4c4] bg-[rgba(235,241,236,0.5)] p-4 max-md:p-3">
     <div
       className="shrink-0 flex items-center justify-center size-[22px] rounded-[6px]"
       style={{ background: '#387440', boxShadow: '0px 1px 0px rgba(0,0,0,0.1)' }}
@@ -319,7 +322,7 @@ const RightsCard = ({ card }) => (
     >
       <span
         className="font-sans font-bold text-white select-none"
-        style={{ fontSize: '10px', lineHeight: 1 }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: 1 }}
       >
         ✓
       </span>
@@ -346,7 +349,7 @@ const RightsCard = ({ card }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DPBanner = ({ title, subtitle }) => (
-  <div className="flex items-start gap-3 rounded-[12px] border border-[#c1d4c4] bg-[rgba(235,241,236,0.5)] p-4 mb-3">
+  <div className="flex items-start gap-3 rounded-[12px] border border-[#c1d4c4] bg-[rgba(235,241,236,0.5)] p-4 mb-3 max-md:p-3">
     <div
       className="shrink-0 flex items-center justify-center size-[34px] rounded-[8px]"
       style={{ background: '#387440', boxShadow: '0px 2px 0px rgba(0,0,0,0.1)' }}
@@ -380,7 +383,7 @@ const SectionLabel = ({ text }) => (
     <span className="inline-flex items-center rounded-[4px] border border-[#c6c6c3] bg-[rgba(248,248,244,0.5)] px-2 h-[21px]">
       <span
         className="font-sans font-bold uppercase text-[#70706e]"
-        style={{ fontSize: '10px', letterSpacing: '0.6px' }}
+        style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.6px' }}
       >
         {text}
       </span>
@@ -483,7 +486,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
     >
       {/* ── Sheet (mobile) / Card (desktop) ── */}
       <div
-        className="relative flex flex-col w-full md:max-w-[680px] rounded-t-[20px] md:rounded-[24px] bg-white overflow-hidden"
+        className="relative flex flex-col w-full md:max-w-[680px] rounded-t-[20px] md:rounded-[24px] bg-white overflow-hidden max-md:h-[85dvh]! max-md:max-h-[85dvh]!"
         style={{
           height: '80vh',
           maxHeight: '80vh',
@@ -495,7 +498,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
       >
         {/* ── Mobile drag handle (hidden on md+) ── */}
         <div
-          className="flex md:hidden items-center justify-center py-3 shrink-0 cursor-grab active:cursor-grabbing select-none"
+          className="flex md:hidden items-center justify-center py-3 max-md:py-2 shrink-0 cursor-grab active:cursor-grabbing select-none"
           style={{ touchAction: 'none' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -510,7 +513,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
         </div>
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-6 pt-3 md:pt-6 pb-4 shrink-0 border-b border-[rgba(0,0,0,0.06)]">
+        <div className="flex items-center justify-between px-6 max-md:px-4 pt-3 md:pt-6 pb-4 max-md:pb-3 shrink-0 border-b border-[rgba(0,0,0,0.06)]">
           <h2
             id="legal-modal-title"
             className="font-display font-normal text-black"
@@ -529,14 +532,14 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
               log('close button clicked');
               onClose?.();
             }}
-            className="ml-4 shrink-0 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+            className="relative ml-4 shrink-0 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-md:before:absolute max-md:before:-inset-2 max-md:before:content-['']"
           >
             <CloseIcon />
           </button>
         </div>
 
         {/* ── Scrollable body ── */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 max-md:px-4 max-md:py-3">
           {/* T&C: section label + subtitle */}
           {variant === 'tc' && (
             <>
@@ -589,9 +592,9 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
         </div>
 
         {/* ── Footer ── */}
-        <div className="shrink-0 border-t border-[rgba(0,0,0,0.06)] px-6 pt-4 pb-6 md:pb-6">
+        <div className="shrink-0 border-t border-[rgba(0,0,0,0.06)] px-6 pt-4 pb-6 max-md:px-4 max-md:pt-3 max-md:pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
           {/* Summary text + optional Read full document link */}
-          <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center justify-between gap-4 mb-4 max-md:mb-3">
             <p
               className="font-sans font-normal text-[#959592]"
               style={{ fontSize: '12px', lineHeight: '1.5' }}
@@ -605,7 +608,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
                   e.preventDefault();
                   log('read full document clicked');
                 }}
-                className="shrink-0 inline-flex items-center gap-1 font-sans font-semibold text-brand-green hover:opacity-80 transition-opacity"
+                className="relative shrink-0 inline-flex items-center gap-1 font-sans font-semibold text-brand-green hover:opacity-80 transition-opacity max-md:before:absolute max-md:before:-inset-x-2 max-md:before:-inset-y-3 max-md:before:content-['']"
                 style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
               >
                 Read full document

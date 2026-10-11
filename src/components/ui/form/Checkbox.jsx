@@ -139,6 +139,8 @@ const Checkbox = ({
         htmlFor={inputId}
         className={classNames(
           'inline-flex items-start gap-3 select-none',
+          // Phones: 44px hit row; negative margin keeps the visual rhythm unchanged.
+          'max-md:-my-3 max-md:py-3 md:max-lg:-my-1 md:max-lg:py-1',
           disabled ? 'cursor-not-allowed' : 'cursor-pointer'
         )}
       >

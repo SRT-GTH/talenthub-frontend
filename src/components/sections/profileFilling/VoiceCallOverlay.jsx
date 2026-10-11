@@ -38,7 +38,7 @@ const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
 
   return (
     <div
-      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#f8f8f4]/92"
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#f8f8f4]/92 max-lg:bg-[#f8f8f4]"
       role="dialog"
       aria-modal="true"
       aria-label={`Voice call with ${voice.name}`}
@@ -107,7 +107,7 @@ const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
             log('branch', { openSettingsFromCall: true });
             onOpenSettings?.();
           }}
-          className="!size-10"
+          className="!size-10 max-lg:!size-11"
         >
           <ChatSettingsSlidersIcon className="size-[18px]" />
         </Button>

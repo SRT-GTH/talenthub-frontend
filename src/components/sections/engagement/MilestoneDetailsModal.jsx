@@ -1,5 +1,6 @@
 import { classNames } from '../../../utils/classNames.js';
 import Modal from '../../ui/Modal.jsx';
+import ClampText from '../../ui/ClampText.jsx';
 import giftImg from '../../../assets/engagement/reward-gift.png';
 
 /*
@@ -121,8 +122,8 @@ const ArrowRight = ({ className }) => (
 const FeatureRow = ({ icon, title, description, badge }) => {
   const Icon = STATUS_ICONS[icon] || STATUS_ICONS.check;
   return (
-    <div className="flex items-start gap-3 py-3">
-      <Icon className="size-9 shrink-0" />
+    <div className="flex items-start gap-3 py-3 max-sm:py-2">
+      <Icon className="size-9 max-sm:size-8 shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-sans font-semibold text-[14px] leading-5 tracking-[0.1px] text-content-primary">
@@ -133,16 +134,19 @@ const FeatureRow = ({ icon, title, description, badge }) => {
               className={classNames(
                 'inline-flex items-center rounded-md px-2 py-0.5',
                 'bg-neutral text-neutral-darker border border-neutral-hover',
-                'font-sans font-medium text-[10px] leading-4 tracking-[0.2px]'
+                'font-sans font-medium text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px]'
               )}
             >
               {badge}
             </span>
           )}
         </div>
-        <p className="mt-0.5 font-sans text-[12px] leading-[18px] tracking-[0.2px] text-neutral-darker">
+        <ClampText
+          lines={2}
+          className="mt-0.5 font-sans text-[12px] max-lg:text-[14px] leading-[18px] max-lg:leading-5 tracking-[0.2px] text-neutral-darker"
+        >
           {description}
-        </p>
+        </ClampText>
       </div>
     </div>
   );
@@ -161,27 +165,27 @@ const MilestoneDetailsModal = ({
   onCta,
 }) => (
   <Modal isOpen={isOpen} onClose={onClose} size="md" ariaLabel={ariaLabel}>
-    <div className="px-[clamp(20px,3vw,32px)] py-[clamp(24px,3vw,32px)]">
+    <div className="px-[clamp(20px,3vw,32px)] py-[clamp(24px,3vw,32px)] max-sm:px-4 max-sm:py-5">
       {/* Hero image */}
       <div className="flex justify-center">
         <img
           src={iconSrc}
           alt=""
           aria-hidden="true"
-          className="size-[clamp(48px,5vw,64px)] object-contain"
+          className="size-[clamp(48px,5vw,64px)] max-sm:size-11 object-contain"
         />
       </div>
 
       {/* Headline + description */}
-      <h2 className="mt-3 text-center font-display text-[clamp(26px,2.6vw,32px)] leading-[1.1] tracking-[-0.3px] text-content-primary">
+      <h2 className="mt-3 text-center font-display text-[clamp(26px,2.6vw,32px)] max-sm:text-[20px] leading-[1.1] tracking-[-0.3px] text-content-primary">
         {headline}
       </h2>
-      <p className="mt-2 mx-auto max-w-[44ch] text-center font-sans text-[13px] leading-[20px] tracking-[0.2px] text-neutral-darker">
+      <p className="mt-2 mx-auto max-w-[44ch] text-center font-sans text-[13px] max-lg:text-[14px] max-sm:text-[13px] leading-[20px] tracking-[0.2px] text-neutral-darker">
         {description}
       </p>
 
       {/* Feature rows */}
-      <div className="mt-5 divide-y divide-border-default">
+      <div className="mt-5 max-sm:mt-3 divide-y divide-border-default">
         {items.map((item) => (
           <FeatureRow
             key={item.title}
@@ -198,9 +202,9 @@ const MilestoneDetailsModal = ({
         type="button"
         onClick={onCta}
         className={classNames(
-          'mt-6 inline-flex w-full items-center justify-center gap-2 rounded-pill',
-          'px-5 py-3.5',
-          'font-sans font-semibold text-[15px] leading-5 tracking-[0.1px]',
+          'mt-6 max-sm:mt-4 inline-flex w-full items-center justify-center gap-2 rounded-pill',
+          'px-5 py-3.5 max-sm:py-2.5',
+          'font-sans font-semibold text-[15px] max-sm:text-[14px] leading-5 tracking-[0.1px]',
           'shadow-bottom-300',
           'focus-visible:outline-2 focus-visible:outline-offset-2',
           CTA_THEMES[ctaTheme] || CTA_THEMES.green

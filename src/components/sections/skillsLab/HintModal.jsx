@@ -6,7 +6,7 @@ import { SLCloseIcon, SLClockIcon } from '../../shared/assets.jsx';
 const log = debug('HintModal');
 
 const MODAL_CONTENT_CLASS =
-  'rounded-[24px]! shadow-[0px_32px_80px_0px_rgba(0,0,0,0.45)]! overflow-hidden max-w-[520px]!';
+  'rounded-[24px]! max-sm:rounded-b-none! shadow-[0px_32px_80px_0px_rgba(0,0,0,0.45)]! overflow-hidden max-w-[520px]!';
 
 const COLOR_MAP = {
   variable: '#c0392b',
@@ -60,15 +60,27 @@ export default function HintModal({
       ariaLabel="Hint"
       contentClassName={MODAL_CONTENT_CLASS}
       footer={
-        <div className="flex items-center justify-between border-t border-[#e7e7e7] px-[28px] py-[24px]">
-          <p className="text-[#595959] text-[11px] font-sans leading-[14px] m-0 max-w-[159px]">
+        <div className="flex items-center justify-between border-t border-[#e7e7e7] px-[28px] py-[24px] max-sm:flex-col max-sm:items-stretch max-sm:gap-3 max-sm:px-4 max-sm:py-4">
+          <p className="text-[#595959] text-[11px] max-lg:text-[12px] font-sans leading-[14px] m-0 max-w-[159px] max-sm:max-w-none">
             Q{currentIndex + 1} of {total} · {score} correct so far · need {passThreshold}+ to pass
           </p>
-          <div className="flex items-center gap-[5px]">
-            <Button variant="tertiary" size="md" onClick={onClose} className="w-[116px]">
-              Cancel
+          <div className="flex items-center gap-[5px] max-sm:gap-2">
+            <Button
+              variant="tertiary"
+              size="md"
+              onClick={onClose}
+              aria-label="Cancel"
+              className="w-[116px] max-sm:w-11 max-sm:min-w-0 max-sm:flex-none max-sm:px-0 max-sm:min-h-10"
+            >
+              <span className="max-sm:sr-only">Cancel</span>
+              <SLCloseIcon className="size-4 sm:hidden" />
             </Button>
-            <Button variant="primary" size="sm" onClick={onUseHint}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onUseHint}
+              className="max-sm:min-h-10 max-sm:flex-1 whitespace-nowrap"
+            >
               Use hint −1pt
             </Button>
           </div>
@@ -77,14 +89,14 @@ export default function HintModal({
     >
       {/* ── Header with gradient ── */}
       <div
-        className="relative px-[28px] pt-[24px] pb-[20px]"
+        className="relative px-[28px] max-sm:px-4 pt-[24px] pb-[20px]"
         style={{
           backgroundImage:
             'linear-gradient(135deg, rgb(239, 249, 241) 0%, rgb(255, 255, 255) 100%)',
         }}
       >
         <div className="inline-flex items-center px-[12px] py-[5px] rounded-[4px] bg-[#ebf1ec] border border-[#c1d4c4]">
-          <span className="text-[#387440] text-[10px] font-sans font-bold uppercase tracking-[1px] leading-normal text-center">
+          <span className="text-[#387440] text-[10px] max-lg:text-[12px] font-sans font-bold uppercase tracking-[1px] leading-normal text-center">
             {skillName || 'Python'} · {challenge?.topic || 'Topic'}
           </span>
         </div>
@@ -93,20 +105,20 @@ export default function HintModal({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-[30px] top-[14px] size-[28px] rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
+          className="absolute right-[30px] top-[14px] size-[28px] max-sm:right-2 max-sm:top-2 max-sm:size-11 rounded-full bg-[#ebf1ec] flex items-center justify-center cursor-pointer border-none"
         >
           <SLCloseIcon className="text-[#387440]" />
         </button>
 
-        <div className="flex flex-col items-center gap-[8px] mt-[20px]">
-          <span className="text-[48px] leading-none">💡</span>
+        <div className="flex flex-col items-center gap-[8px] max-sm:gap-1.5 mt-[20px] max-sm:mt-3">
+          <span className="text-[48px] max-sm:text-[36px] leading-none">💡</span>
           <h3
             className="text-[#111] text-[clamp(22px,2.1vw,26px)] tracking-[-1px] text-center"
             style={{ fontFamily: 'Instrument Serif, serif' }}
           >
             {renderHeadingWithEmphasis(hint.heading)}
           </h3>
-          <p className="text-[#959592] text-[12px] font-sans leading-[19.8px] text-center max-w-[354px]">
+          <p className="text-[#959592] text-[12px] max-lg:text-[14px] font-sans leading-[19.8px] text-center max-w-[354px]">
             {description}
           </p>
           <div className="flex items-center gap-[4px] px-[8px] py-[6px] rounded-[4px] bg-[#faf4e8] border border-[#eedeb8]">
@@ -122,7 +134,7 @@ export default function HintModal({
       {renderBody ? (
         renderBody(hint, challenge)
       ) : (
-        <div className="px-[28px] pt-[12px]">
+        <div className="px-[28px] max-sm:px-4 pt-[12px]">
           {challenge?.code && (
             <div className="bg-[rgba(235,241,236,0.5)] border-l-[3px] border-[#387440] rounded-tr-[10px] rounded-br-[10px] h-[45px] flex items-center px-[10px] mb-[16px]">
               <code className="font-sans text-[12px] leading-[18px] tracking-[0.2px] whitespace-nowrap overflow-x-auto">
@@ -142,15 +154,15 @@ export default function HintModal({
                 className="flex items-start gap-[12px] border-b border-[#ebf1ec] py-[12px]"
               >
                 <div className="size-[26px] rounded-full bg-[#387440] flex items-center justify-center shrink-0">
-                  <span className="text-white text-[11px] font-sans font-bold leading-none">
+                  <span className="text-white text-[11px] max-lg:text-[12px] font-sans font-bold leading-none">
                     {i + 1}
                   </span>
                 </div>
                 <div className="flex flex-col gap-[5px] flex-1 min-w-0">
-                  <span className="text-[#142916] text-[12px] font-sans font-semibold leading-normal">
+                  <span className="text-[#142916] text-[12px] max-lg:text-[14px] font-sans font-semibold leading-normal">
                     {step.title}
                   </span>
-                  <p className="text-[#70706e] text-[12px] font-sans leading-[18.6px] m-0">
+                  <p className="text-[#70706e] text-[12px] max-lg:text-[14px] font-sans leading-[18.6px] max-lg:leading-5 m-0">
                     {step.body}
                   </p>
                 </div>
@@ -160,7 +172,7 @@ export default function HintModal({
 
           {hint.keyInsight && (
             <div className="bg-[#faf4e8] border border-[#eedeb8] rounded-[10px] px-[14px] py-[12px] my-[12px]">
-              <p className="text-[#a07715] text-[12px] font-sans leading-[19.2px] m-0">
+              <p className="text-[#a07715] text-[12px] max-lg:text-[14px] font-sans leading-[19.2px] m-0">
                 <span className="font-bold">Key insight: </span>
                 {hint.keyInsight}
               </p>

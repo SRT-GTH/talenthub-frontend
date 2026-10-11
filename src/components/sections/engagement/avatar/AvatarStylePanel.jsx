@@ -249,16 +249,17 @@ const AvatarStylePanel = ({ activeTab = 'style', onTabSelect, className }) => {
     <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
-        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
+        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] max-lg:text-[20px] leading-[1.1] tracking-[-0.2px] text-content-primary">
           Customise your look
         </h2>
-        <p className="mt-1 font-sans text-[13px] leading-5 tracking-[0.2px] text-neutral-darker">
-          Select a style tile — preview updates instantly on the left.
+        <p className="mt-1 font-sans text-[13px] max-lg:hidden leading-5 tracking-[0.2px] text-neutral-darker">
+          Select a style tile — preview updates instantly
+          <span className="max-lg:hidden"> on the left</span>.
         </p>
       </header>
 
       {/* Stat pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-lg:hidden">
         <AvatarStatPill count="24" label="styles" />
         <AvatarStatPill count="12" label="Skin Tones" />
         <AvatarStatPill count="18" label="Hairstyles" />

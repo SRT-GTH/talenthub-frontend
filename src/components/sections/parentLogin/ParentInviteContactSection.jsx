@@ -27,9 +27,9 @@ const schema = z.object({
 
 // ── label row (label + required */optional + right-side hint) ───────────────
 const LabelRow = ({ children, required, optional, trailing }) => (
-  <div className="mb-[8px] flex items-center justify-between">
+  <div className="mb-[8px] flex items-center justify-between max-md:mb-1.5">
     <span
-      className="flex items-center gap-[3px] font-sans font-bold"
+      className="flex items-center gap-[3px] font-sans font-bold max-md:text-[13px]!"
       style={{ fontSize: 13, color: '#111' }}
     >
       {children}
@@ -93,18 +93,18 @@ const ParentInviteContactSection = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex min-h-full flex-1 flex-col">
       {/* ── Scrollable body ── */}
-      <div className="flex-1 px-6 py-10 md:px-14">
-        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px]">
+      <div className="flex-1 px-6 py-10 md:px-14 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px] max-md:gap-3">
           {/* Header (centered) — Figma 2864:37350 / 37351 / 37352 */}
-          <div className="flex flex-col items-center gap-[6px] text-center">
+          <div className="flex flex-col items-center gap-[6px] text-center max-md:items-start max-md:gap-1 max-md:text-left">
             <span
               className="font-sans font-bold uppercase"
-              style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+              style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
             >
               Step 3 of 7 — Contact Information
             </span>
             <h1
-              className="font-display font-normal"
+              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1px',
@@ -118,7 +118,7 @@ const ParentInviteContactSection = () => {
               </span>
             </h1>
             <p
-              className="max-w-[440px] font-sans"
+              className="max-w-[440px] font-sans max-md:leading-5!"
               style={{ fontSize: 14, color: '#70706e', lineHeight: '23px' }}
             >
               We&apos;ll send a quick code to confirm it&apos;s really you — keeping your account
@@ -187,7 +187,7 @@ const ParentInviteContactSection = () => {
 
       {/* ── Sticky footer — Figma 2864:37391 ── */}
       <div
-        className="sticky bottom-0 bg-white px-6 py-[15px] md:px-14"
+        className="sticky bottom-0 z-20 bg-white px-6 py-[15px] max-md:px-4 max-md:py-2 max-md:pb-[max(8px,env(safe-area-inset-bottom))] md:px-14"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="mx-auto flex w-full max-w-full items-center gap-[10px]">
@@ -197,36 +197,40 @@ const ParentInviteContactSection = () => {
               log('back clicked');
               navigate(-1);
             }}
-            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold"
+            aria-label="Back"
+            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"
             style={{ borderColor: '#c6c6c3', color: '#111', fontSize: 14 }}
           >
             <ChevronLeft />
-            Back
+            <span className="max-md:sr-only">Back</span>
           </button>
 
           {isValid ? (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 text-white transition-transform active:translate-y-[2px]"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
               style={{
                 backgroundColor: '#c8951a',
                 borderColor: '#967014',
                 boxShadow: '0px 3px 0px #967014',
               }}
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15 }}>
+              <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
                 {isSubmitting ? 'Sending…' : 'Send Verification Code'}
               </span>
               <ArrowRightIcon />
             </button>
           ) : (
             <div
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none!"
               style={{ backgroundColor: '#e6e6e3', borderColor: '#d8d8d4', cursor: 'not-allowed' }}
               aria-disabled="true"
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15, color: '#a6a6a3' }}>
+              <span
+                className="font-sans font-bold max-md:text-[14px]!"
+                style={{ fontSize: 15, color: '#a6a6a3' }}
+              >
                 Send Verification Code
               </span>
               <span style={{ color: '#a6a6a3' }}>

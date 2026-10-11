@@ -112,10 +112,10 @@ const StageMapNode = ({
             className={classNames(
               'font-sans font-semibold tracking-[0.8px] uppercase text-center',
               isMilestone
-                ? 'text-[10px] leading-3 text-content-primary'
+                ? 'text-[10px] max-lg:text-[12px] leading-3 text-content-primary'
                 : isDone
-                  ? 'text-[10px] leading-3 text-white'
-                  : 'text-[10px] leading-3 text-content-primary'
+                  ? 'text-[10px] max-lg:text-[12px] leading-3 text-white'
+                  : 'text-[10px] max-lg:text-[12px] leading-3 text-content-primary'
             )}
           >
             {label}

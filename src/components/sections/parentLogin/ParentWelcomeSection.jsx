@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Toast from '../../ui/Toast.jsx';
+import ParentInlineNotice from './ParentInlineNotice.jsx';
+import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentWelcomeSection');
@@ -19,7 +21,7 @@ const log = debug('ParentWelcomeSection');
 // Figma 2900:76717 — identical structure to the one in ParentLoginSection.
 const WelcomeBackBadge = () => (
   <span
-    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-3 py-[5px]"
+    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-3 py-[5px] max-md:py-0.5 max-md:self-start"
     style={{ backgroundColor: '#f7efdd', border: '1px solid #eedeb8' }}
   >
     <span
@@ -45,7 +47,7 @@ const WelcomeBackBadge = () => (
 // Figma 2865:44250 — amber dot + "How This Works" in #967014 semibold.
 const HowThisWorksBadge = () => (
   <span
-    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-4 py-[4px]"
+    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-4 py-[4px] max-md:px-3 max-md:py-0.5 max-md:self-start"
     style={{
       backgroundColor: 'rgba(250,244,232,0.6)',
       border: '1px solid #eedeb8',
@@ -120,19 +122,39 @@ const ParentWelcomeSection = () => {
 
   const navigate = useNavigate();
   const [toastVisible, setToastVisible] = useState(true);
+  // Phones: the shared Toast's full-screen scrim + tall card covers the page, so
+  // the same message is shown as a compact inline notice instead.
+  const isTabletUp = useMediaQuery('(min-width: 1024px)');
 
-  log('toast visible:', toastVisible);
+  log('toast visible:', toastVisible, 'branch:', isTabletUp ? 'toast' : 'inline-notice');
+
+  const wardBody = (
+    <>
+      <strong style={{ fontWeight: 600, color: '#2a5730' }}>Kofi Mensah (16)</strong> provided your
+      contact. Your details have been pre-filled below. Create your account to review their profile.
+    </>
+  );
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-16 lg:py-20">
-      <div className="flex w-full max-w-[698px] flex-col items-center gap-6">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-16 lg:py-20 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[698px] flex-col items-center gap-6 max-md:gap-3">
+        {/* Phones: compact inline notice replaces the Toast */}
+        {!isTabletUp && toastVisible && (
+          <ParentInlineNotice
+            title="Your ward registered on Ghana Talent Hub"
+            onDismiss={() => setToastVisible(false)}
+          >
+            {wardBody}
+          </ParentInlineNotice>
+        )}
+
         {/* Welcome badge — Figma 2900:76717 */}
         <WelcomeBackBadge />
 
         {/* Headline — Figma 2865:44246, Instrument Serif 64px */}
         {/* "on the platform." italic #c8951a */}
         <h1
-          className="font-display font-normal text-center text-black"
+          className="font-display font-normal text-center text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -148,7 +170,7 @@ const ParentWelcomeSection = () => {
 
         {/* Subtitle — Figma 2865:44248, SF Pro Rounded 16px #737373 */}
         <p
-          className="font-sans font-normal text-center"
+          className="font-sans font-normal text-center max-md:self-stretch max-md:text-left max-md:text-[14px]! max-md:leading-5!"
           style={{
             fontSize: 16,
             lineHeight: '24px',
@@ -172,10 +194,14 @@ const ParentWelcomeSection = () => {
           {STEPS.map(({ num, title, desc }) => {
             log('render step', num);
             return (
-              <div key={num} className="flex items-center gap-4 py-4" style={{ minHeight: 72 }}>
+              <div
+                key={num}
+                className="flex items-center gap-4 py-4 max-md:min-h-0! max-md:gap-3 max-md:py-3"
+                style={{ minHeight: 72 }}
+              >
                 {/* Number badge — 32×32 amber */}
                 <span
-                  className="flex shrink-0 items-center justify-center rounded-[30px]"
+                  className="flex shrink-0 items-center justify-center rounded-[30px] max-md:size-7!"
                   style={{
                     width: 32,
                     height: 32,
@@ -199,13 +225,13 @@ const ParentWelcomeSection = () => {
                 {/* Step text */}
                 <div className="flex flex-col gap-[2px]">
                   <p
-                    className="font-sans font-semibold"
+                    className="font-sans font-semibold max-md:text-[15px]! max-md:leading-5!"
                     style={{ fontSize: 16, lineHeight: '22px', color: '#c8951a' }}
                   >
                     {title}
                   </p>
                   <p
-                    className="font-sans font-normal"
+                    className="font-sans font-normal max-md:text-[13px]! max-md:leading-[18px]!"
                     style={{ fontSize: 14, lineHeight: '20px', color: '#575755' }}
                   >
                     {desc}
@@ -217,13 +243,13 @@ const ParentWelcomeSection = () => {
         </div>
 
         {/* ── CTA block — Figma 2865:44284 ── */}
-        <div className="flex w-full flex-col gap-4" style={{ maxWidth: 542 }}>
+        <div className="flex w-full flex-col gap-4 max-md:gap-2" style={{ maxWidth: 542 }}>
           {/* Primary CTA — "Create My Parent Account" */}
           {/* Figma 2865:44285 — bg #387440, shelf #224626, full-width */}
           <button
             type="button"
             className="flex w-full items-center justify-center gap-2 rounded-[14px] px-[40px] py-[16px] font-sans font-bold transition-all
-              hover:drop-shadow-[0_5px_0_#224626] active:translate-y-1 active:drop-shadow-none"
+              hover:drop-shadow-[0_5px_0_#224626] active:translate-y-1 active:drop-shadow-none max-md:h-11 max-md:rounded-[10px] max-md:px-4 max-md:py-0 max-md:text-[14px]! max-md:leading-5! max-md:shadow-none! max-md:hover:drop-shadow-none"
             style={{
               backgroundColor: '#387440',
               border: '2px solid #2a5730',
@@ -248,7 +274,7 @@ const ParentWelcomeSection = () => {
           <button
             type="button"
             className="flex w-full items-center justify-center gap-2 rounded-[14px] px-[40px] py-[16px] font-sans font-bold transition-all
-              hover:drop-shadow-[0_5px_0_rgba(17,17,17,0.25)] active:translate-y-1 active:drop-shadow-none"
+              hover:drop-shadow-[0_5px_0_rgba(17,17,17,0.25)] active:translate-y-1 active:drop-shadow-none max-md:h-9 max-md:rounded-[10px] max-md:px-4 max-md:py-0 max-md:text-[14px]! max-md:leading-5! max-md:shadow-none! max-md:hover:drop-shadow-none"
             style={{
               backgroundColor: '#faf4e8',
               border: '1px solid rgba(17,17,17,0.3)',
@@ -269,13 +295,13 @@ const ParentWelcomeSection = () => {
 
           {/* Footer link — Figma 2865:44286 */}
           <p
-            className="font-sans font-normal text-center"
+            className="font-sans font-normal text-center max-md:text-[13px]!"
             style={{ fontSize: 14, lineHeight: '20px', color: '#737373' }}
           >
             Already have an account?{' '}
             <button
               type="button"
-              className="font-semibold hover:underline focus-visible:underline"
+              className="font-semibold hover:underline focus-visible:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ color: '#387440' }}
               onClick={() => {
                 log('log in link clicked');
@@ -290,18 +316,12 @@ const ParentWelcomeSection = () => {
 
       {/* Ward registration toast — Figma 2900:76816 */}
       {/* Auto-shows on mount; persists 8 s then fades out */}
-      {toastVisible && (
+      {isTabletUp && toastVisible && (
         <Toast
           variant="success"
           position="top-right"
           title="Your ward registered on Ghana Talent Hub"
-          body={
-            <>
-              <strong style={{ fontWeight: 600, color: '#2a5730' }}>Kofi Mensah (16)</strong>{' '}
-              provided your contact. Your details have been pre-filled below. Create your account to
-              review their profile.
-            </>
-          }
+          body={wardBody}
           duration={8000}
           onDismiss={() => {
             log('toast dismissed');

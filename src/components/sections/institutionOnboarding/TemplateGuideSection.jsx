@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
@@ -91,23 +92,27 @@ const LegendDot = ({ dotClass, children }) => (
 
 // ── Field row — dot + label + optional hint text ──────────────────────────────
 const FieldRow = ({ required = true, label, hint }) => (
-  <div className="flex items-start gap-[8px]">
+  <div className="flex items-start gap-[8px] max-md:min-h-7 max-md:items-center">
     {/* dot: green = required, grey = optional */}
     <span
       className={[
-        'mt-[4px] shrink-0 rounded-full size-[6px]',
+        'mt-[4px] max-md:mt-0 shrink-0 rounded-full size-[6px]',
         required ? 'bg-[#387440]' : 'bg-[#d0d0d0]',
       ].join(' ')}
       aria-hidden="true"
     />
     <span className="font-sans text-[13px] leading-[15px] text-[#222] font-medium">{label}</span>
-    {hint && <span className="font-sans text-[11px] leading-[13px] text-[#888]">{hint}</span>}
+    {hint && (
+      <span className="font-sans text-[11px] max-lg:text-[12px] leading-[13px] text-[#888] max-md:ml-auto max-md:text-right max-md:text-[#737373]">
+        {hint}
+      </span>
+    )}
   </div>
 );
 
 // ── Section header inside a quadrant ─────────────────────────────────────────
 const QuadrantHeader = ({ children }) => (
-  <p className="mb-[12px] font-sans text-[11px] font-semibold uppercase tracking-[0.5px] leading-[13px] text-[#555]">
+  <p className="mb-[12px] max-md:mb-1 font-sans text-[11px] max-lg:text-[12px] font-semibold uppercase tracking-[0.5px] leading-[13px] text-[#555] max-md:text-brand-green">
     {children}
   </p>
 );
@@ -131,15 +136,19 @@ const TemplateGuideSection = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-10 py-[88px] px-6">
+    <div className="flex flex-1 flex-col items-center gap-10 py-[88px] px-6 max-md:gap-3 max-md:px-4 max-md:py-4">
       {/* ── Header block: caption + headline + subtitle ── */}
-      <div className="flex w-full flex-col items-center gap-6 max-w-[560px]">
+      <div className="flex w-full flex-col items-center gap-6 max-w-[560px] max-md:items-start max-md:gap-3">
         {/* Caption badge — Figma 3007:40275: "04 | Bulk Upload" */}
-        <Captions items={[{ index: '04', label: 'Bulk Upload' }]} currentIndex={0} />
+        <Captions
+          items={[{ index: '04', label: 'Bulk Upload' }]}
+          currentIndex={0}
+          className="max-md:self-start max-md:px-2.5 max-md:py-0.5"
+        />
 
         {/* Headline — Figma 3007:40284 */}
         <h1
-          className="text-center font-serif text-black tracking-[-0.64px]"
+          className="text-center font-serif text-black tracking-[-0.64px] max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -150,7 +159,7 @@ const TemplateGuideSection = () => {
 
         {/* Subtitle — Figma 3007:40286 — verbatim (double space before "column" is intentional) */}
         <p
-          className="font-sans font-normal text-center text-[#737373]"
+          className="font-sans font-normal text-center text-[#737373] max-md:text-left max-md:text-[14px]! max-md:leading-5!"
           style={{
             fontSize: 'clamp(0.875rem, 1vw, 1rem)',
             lineHeight: '24px',
@@ -167,10 +176,10 @@ const TemplateGuideSection = () => {
       <WavyDivider />
 
       {/* ── Guide section: legend + column reference table ── */}
-      <div className="flex w-full flex-col gap-6 max-w-[698px]">
+      <div className="flex w-full flex-col gap-6 max-w-[698px] max-md:gap-3">
         {/* Legend — Figma 3007:40569 "Frame 338": Required column + Optional column */}
         <div
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 max-md:justify-start max-md:gap-x-4 max-md:gap-y-1"
           role="list"
           aria-label="Column colour legend"
         >
@@ -182,11 +191,11 @@ const TemplateGuideSection = () => {
 
         {/* Column reference table — Figma 3007:40576 "Background+Border" */}
         <div
-          className="w-full overflow-hidden rounded-[10px] border border-[#c1d4c4]"
+          className="w-full overflow-hidden rounded-[10px] border border-[#c1d4c4] max-md:overflow-visible max-md:rounded-none max-md:border-0 max-md:shadow-none!"
           style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}
         >
           {/* ── Header bar — Figma 3007:40577 ── */}
-          <div className="flex items-center gap-3 bg-[#387440] px-4 py-[10px]">
+          <div className="flex items-center gap-3 bg-[#387440] px-4 py-[10px] max-md:hidden">
             {/* [ASSET: csv-file-icon] — inline SVG placeholder, no paths from Figma */}
             <svg
               viewBox="0 0 14 14"
@@ -220,19 +229,19 @@ const TemplateGuideSection = () => {
             </span>
 
             {/* 3007:40582 "Overlay" — "Fixed format" badge */}
-            <span className="rounded-[4px] bg-white/20 px-[8px] py-[2px] font-sans text-[10px] font-medium leading-[14px] text-white">
+            <span className="rounded-[4px] bg-white/20 px-[8px] py-[2px] font-sans text-[10px] max-lg:text-[12px] font-medium leading-[14px] text-white">
               Fixed format
             </span>
           </div>
 
           {/* ── 2×2 quadrant grid ── */}
-          <div className="grid grid-cols-2 divide-x divide-[#c1d4c4]">
+          <div className="grid grid-cols-2 divide-x divide-[#c1d4c4] max-md:grid-cols-1 max-md:divide-x-0">
             {/* TOP-LEFT — Figma 3007:40584 "HorizontalBorder" ── */}
             {/* ── Student identity (3007:40585) ── */}
-            <div className="border-b border-[#c1d4c4] p-4">
+            <div className="border-b border-[#c1d4c4] p-4 max-md:px-0 max-md:py-3">
               {/* 3007:40585 */}
               <QuadrantHeader>Student identity</QuadrantHeader>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40587 First Name — required */}
                 <FieldRow required label="First Name" />
                 {/* 3007:40589 Last Name — required */}
@@ -248,10 +257,10 @@ const TemplateGuideSection = () => {
 
             {/* TOP-RIGHT — Figma 3007:40598 "Border" ── */}
             {/* ── Contact (at least one) (3007:40599) ── */}
-            <div className="border-b border-[#c1d4c4] p-4">
+            <div className="border-b border-[#c1d4c4] p-4 max-md:px-0 max-md:py-3">
               {/* 3007:40599 */}
               <QuadrantHeader>Contact (at least one)</QuadrantHeader>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40601 Email Address — required (at least one) */}
                 <FieldRow required label="Email Address" />
                 {/* 3007:40603 Phone Number + 3007:40604 +233… — required (at least one) */}
@@ -261,10 +270,10 @@ const TemplateGuideSection = () => {
 
             {/* BOTTOM-LEFT — Figma 3007:40605 "HorizontalBorder" ── */}
             {/* ── Education (3007:40606) ── */}
-            <div className="p-4">
+            <div className="p-4 max-md:px-0 max-md:py-3">
               {/* 3007:40606 */}
               <QuadrantHeader>Education</QuadrantHeader>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40608 Level + 3007:40609 JHS / SHS / University */}
                 <FieldRow required label="Level" hint="JHS / SHS / University" />
                 {/* 3007:40611 Grade + 3007:40612 JHS1, SHS2, Level 100… */}
@@ -274,10 +283,10 @@ const TemplateGuideSection = () => {
 
             {/* BOTTOM-RIGHT — Figma 3007:40613 "Border" ── */}
             {/* ── Parent / Guardian (minors only) (3007:40614) ── */}
-            <div className="p-4">
+            <div className="p-4 max-md:px-0 max-md:py-3">
               {/* 3007:40614 */}
               <QuadrantHeader>Parent / Guardian (minors only)</QuadrantHeader>
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40616 Guardian First Name — optional */}
                 <FieldRow required={false} label="Guardian First Name" />
                 {/* 3007:40618 Guardian Last Name — optional */}
@@ -297,12 +306,12 @@ const TemplateGuideSection = () => {
         <a
           href="#"
           onClick={handleDownload}
-          className="flex w-full items-center justify-center gap-2 rounded-[8px] border-b border-[#387440] px-[34px] py-4 text-[#387440] transition-opacity duration-100 hover:opacity-80"
+          className="flex w-full items-center justify-center gap-2 rounded-[8px] border-b border-[#387440] px-[34px] py-4 max-md:h-10 max-md:px-4 max-md:py-0 text-[#387440] transition-opacity duration-100 hover:opacity-80"
           style={{ boxShadow: '0px 2px 0px 0px rgba(17,17,17,0.2)' }}
           aria-label="Download GTH_Bulk_Upload_Template.csv"
         >
           <DownloadIcon />
-          <span className="font-sans font-semibold text-[12px] tracking-[0.1px] leading-[24px]">
+          <span className="font-sans font-semibold text-[12px] max-md:text-[13px] tracking-[0.1px] leading-[24px]">
             Download GTH Template (.csv)
           </span>
           <ArrowRightIcon />
@@ -311,16 +320,18 @@ const TemplateGuideSection = () => {
         {/* ── Primary CTA — Figma 3007:40296 (primary, h=56) ──
              ⚠️ ASSUMPTION: button label "I'm ready to fill the template".
              Figma instance text could not be verified (MCP rate-limited). ── */}
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          rightIcon={<ArrowRightIcon />}
-          onClick={handleContinue}
-          className="w-full"
-        >
-          I&apos;m ready to fill the template
-        </Button>
+        <StickyActionBar bleed={16}>
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            rightIcon={<ArrowRightIcon />}
+            onClick={handleContinue}
+            className="w-full"
+          >
+            I&apos;m ready to fill the template
+          </Button>
+        </StickyActionBar>
       </div>
     </div>
   );

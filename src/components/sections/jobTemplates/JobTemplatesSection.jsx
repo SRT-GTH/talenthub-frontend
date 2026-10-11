@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import RecruiterJobTabs from '../recruiterShared/RecruiterJobTabs.jsx';
-import { SearchIcon } from '../../shared/assets.jsx';
+import RecruiterListToolbar from '../recruiterShared/RecruiterListToolbar.jsx';
 import {
   TemplateCodeIcon,
   TemplateMegaphoneIcon,
@@ -12,7 +12,6 @@ import {
   TemplatePlusIcon,
   TemplateArrowRightIcon,
 } from './jobTemplatesIcons.jsx';
-import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
   PAGE_HEADING,
@@ -60,21 +59,21 @@ const TemplateCard = ({ template, onUse }) => {
     <button
       type="button"
       onClick={() => onUse?.(template.id)}
-      className="flex h-full min-w-0 flex-col justify-between rounded-[14px] border border-border-card bg-white p-[22px] text-left transition-all duration-300 ease-in hover:-translate-y-[2px] hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+      className="flex h-full min-w-0 flex-col justify-between rounded-[14px] border border-border-card bg-white p-[22px] max-sm:p-[14px] text-left transition-all duration-300 ease-in hover:-translate-y-[2px] hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
     >
-      <span className="flex flex-col gap-[24px]">
+      <span className="flex flex-col gap-[24px] max-sm:gap-[10px]">
         {/* Figma: 48x48 #f3f8f4 r8 tile */}
-        <span className="grid size-[48px] place-items-center rounded-[8px] bg-[#f3f8f4]">
+        <span className="grid size-[48px] max-sm:size-[40px] place-items-center rounded-[8px] bg-[#f3f8f4]">
           <Icon className="w-[23.33px] text-brand-green-active" />
         </span>
 
-        <span className="flex flex-col gap-[16px]">
-          <span className="flex flex-col gap-[12px]">
-            <span className="font-display text-[28px] not-italic leading-[36.4px] tracking-[-1.6px] text-black">
+        <span className="flex flex-col gap-[16px] max-sm:gap-[8px]">
+          <span className="flex flex-col gap-[12px] max-sm:gap-[6px]">
+            <span className="font-display text-[28px] not-italic leading-[36.4px] tracking-[-1.6px] text-black max-sm:text-[16px] max-sm:leading-6 max-sm:tracking-[-0.3px]">
               {template.title}
             </span>
             <span className="flex items-center gap-[6px]">
-              <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[9.64px] py-[6px] font-sans text-[14px] font-medium leading-[16.71px] text-content-helper">
+              <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[9.64px] py-[6px] font-sans text-[14px] font-medium leading-[16.71px] text-content-helper max-sm:py-[2px] max-sm:text-[12px]">
                 {template.category}
               </span>
               <span className="font-sans text-[14px] leading-[16.71px] text-content-muted">•</span>
@@ -85,17 +84,17 @@ const TemplateCard = ({ template, onUse }) => {
           </span>
 
           {/* whitespace-pre-line keeps Figma's hard line breaks and literal "…" */}
-          <span className="whitespace-pre-line font-sans text-[14px] leading-[21.6px] text-content-helper">
+          <span className="whitespace-pre-line font-sans text-[14px] leading-[21.6px] text-content-helper max-sm:line-clamp-3 max-sm:text-[13px] max-sm:leading-5">
             {template.description}
           </span>
         </span>
       </span>
 
-      <span className="mt-[30px] flex items-center justify-between gap-3 border-t border-border-card pt-[18px]">
-        <span className="font-sans text-[14px] leading-[17.6px] text-[#999999]">
+      <span className="mt-[30px] flex items-center justify-between gap-3 border-t border-border-card pt-[18px] max-sm:mt-[10px] max-sm:pt-[8px]">
+        <span className="font-sans text-[14px] max-sm:text-[13px] leading-[17.6px] text-[#999999]">
           {template.footnote}
         </span>
-        <TemplateArrowRightIcon className="size-[24px] shrink-0 text-brand-green-dark" />
+        <TemplateArrowRightIcon className="size-[24px] max-sm:size-[20px] shrink-0 text-brand-green-dark" />
       </span>
     </button>
   );
@@ -110,9 +109,9 @@ const JobTemplatesSection = () => {
 
   return (
     <DashboardShell>
-      <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
+      <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         {/* Header block — Figma 7249:75079, gap 16 */}
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
           <RecruiterPageHeading
             lead={PAGE_HEADING.lead}
             accent={PAGE_HEADING.accent}
@@ -122,61 +121,22 @@ const JobTemplatesSection = () => {
         </div>
 
         {/* Canvas — Figma 7249:75098, gap 32 */}
-        <div className="flex flex-col gap-[32px] pb-[48px]">
-          <div className="flex items-center justify-between gap-[28.93px]">
-            {/* Category pills — Figma 7249:75100, gap 8, h37, r100 */}
-            <div className="flex flex-wrap items-center gap-[8px]">
-              {CATEGORY_PILLS.map((pill) => {
-                const isActive = pill === activeCategory;
-                return (
-                  <button
-                    key={pill}
-                    type="button"
-                    onClick={() => {
-                      log('branch', { category: pill });
-                      setActiveCategory(pill);
-                    }}
-                    className={classNames(
-                      'inline-flex h-[37px] shrink-0 items-center rounded-pill border-[1.22px] border-brand-green-light-hover px-[14px]',
-                      'font-sans tracking-[0.24px] shadow-[0_1.22px_3.65px_0_rgba(0,0,0,0.08)] transition-all duration-300 ease-in',
-                      isActive
-                        ? 'bg-brand-green text-[14.59px] font-semibold text-white'
-                        : 'bg-white text-[14px] font-medium text-content-helper hover:bg-neutral'
-                    )}
-                  >
-                    {pill}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Search + Create — Figma 7249:75126: a 547.73x49 HORIZONTAL group,
-                gap 19.29. It must NOT wrap: the input is a fixed 362px and the
-                button a fixed 166.4px, so `flex-wrap` + `w-full` on the label
-                was pushing the button onto its own line. */}
-            <div className="flex shrink-0 flex-nowrap items-center gap-[19.29px]">
-              <label className="flex h-[49px] w-[362px] shrink-0 items-center gap-[9.73px] rounded-[12px] border-[1.22px] border-[#cccccc] bg-white px-[24px] shadow-[0_3.04px_0_0_#bfbfbf] focus-within:border-brand-green">
-                <span className="sr-only">{SEARCH_PLACEHOLDER}</span>
-                <SearchIcon className="size-[19.45px] shrink-0 text-[#595959]" />
-                <input
-                  type="search"
-                  placeholder={SEARCH_PLACEHOLDER}
-                  onChange={(event) => log('search', { length: event.target.value.length })}
-                  className="min-w-0 flex-1 bg-transparent font-sans text-[14.5px] leading-[24.31px] text-black outline-none placeholder:text-[#999999]"
-                />
-              </label>
-              <button
-                type="button"
-                onClick={() => log('branch', { action: 'create-custom', wired: false })}
-                className="inline-flex h-[49px] shrink-0 items-center justify-center whitespace-nowrap rounded-[12.05px] border-[2.41px] border-brand-green-dark bg-brand-green px-[24.11px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.82px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.82px] active:shadow-none"
-              >
-                {CREATE_CUSTOM_LABEL}
-              </button>
-            </div>
-          </div>
+        <div className="flex flex-col gap-[32px] pb-[48px] max-md:gap-[12px] max-md:pb-[8px]">
+          {/* Category pills + search + create — Figma 7249:75100 / 7249:75126 */}
+          <RecruiterListToolbar
+            chips={CATEGORY_PILLS.map((pill) => ({ id: pill, label: pill }))}
+            activeChipId={activeCategory}
+            onChipSelect={(id) => {
+              log('branch', { category: id });
+              setActiveCategory(id);
+            }}
+            searchLabel={SEARCH_PLACEHOLDER}
+            actionLabel={CREATE_CUSTOM_LABEL}
+            onAction={() => log('branch', { action: 'create-custom', wired: false })}
+          />
 
           {/* Grid — Figma 7249:75140: 4 columns of 315.25, 22.67 gutter */}
-          <div className="grid grid-cols-1 gap-[22.67px] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-[22.67px] max-md:gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
             {TEMPLATES.map((template) => (
               <TemplateCard
                 key={template.id}
@@ -193,7 +153,7 @@ const JobTemplatesSection = () => {
               onClick={() =>
                 log('branch', { action: 'blank-template', destination: 'none-in-figma' })
               }
-              className="relative flex min-h-[360px] flex-col items-center justify-center gap-[11px] rounded-[14px] px-[44px] py-[23px] text-center transition-colors hover:bg-white/60"
+              className="relative flex min-h-[360px] max-sm:min-h-[104px] flex-col items-center justify-center gap-[11px] max-sm:gap-[4px] rounded-[14px] px-[44px] py-[23px] max-sm:py-[12px] text-center transition-colors hover:bg-white/60"
             >
               {/* Tailwind cannot express stroke-dasharray, so the 6/4 dash is
                   drawn as an SVG rect (2px stroke clipped to 2px inset). */}
@@ -212,13 +172,13 @@ const JobTemplatesSection = () => {
                 />
               </svg>
 
-              <span className="relative mb-[16px] grid size-[64px] place-items-center rounded-full bg-[#f0eee8]">
+              <span className="relative mb-[16px] max-sm:mb-0 grid size-[64px] max-sm:size-[36px] place-items-center rounded-full bg-[#f0eee8]">
                 <TemplatePlusIcon className="size-[18.67px] text-content-muted" />
               </span>
-              <span className="relative mb-[8px] font-display text-[28px] not-italic leading-[64px] tracking-[-1.6px] text-black">
+              <span className="relative mb-[8px] max-sm:mb-0 font-display text-[28px] max-sm:text-[16px] not-italic leading-[64px] max-sm:leading-6 tracking-[-1.6px] text-black">
                 {BLANK_TEMPLATE.title}
               </span>
-              <span className="relative px-[18px] pt-[4px] font-sans text-[14px] leading-[21.6px] text-content-helper">
+              <span className="relative px-[18px] pt-[4px] max-sm:pt-0 font-sans text-[14px] max-sm:text-[13px] leading-[21.6px] max-sm:leading-5 text-content-helper">
                 {BLANK_TEMPLATE.description}
               </span>
             </button>

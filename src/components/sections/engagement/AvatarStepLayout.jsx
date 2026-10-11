@@ -50,7 +50,12 @@ const DOT_OFFSET_BL = { top: `${50 + 0.7071 * 50}%`, left: `${50 - 0.7071 * 50}%
 // all derive their size/position from this so they stay locked
 // together at every viewport. Bumped up per the latest Figma —
 // the ring should read big and confident, not dainty.
-const RING_SIZE = 'clamp(460px, 78vh, 800px)';
+//
+// RESPONSIVE: the values live in CSS custom properties set on the stage
+// column (see the className on the LEFT column below) so phones can swap in
+// a stage that is sized from its own height instead of the viewport.
+// >= lg resolves to the exact original values.
+const RING_SIZE = 'var(--ring)';
 
 // Horizontal anchor for the avatar stage (ring + canvas + bottom bar)
 // inside the LEFT column. 50% would centre everything; pushing it to
@@ -58,16 +63,17 @@ const RING_SIZE = 'clamp(460px, 78vh, 800px)';
 // horizontal space so the (now-larger) ring doesn't crowd the headline.
 // All three layers (ring, canvas, bar) read from this constant so they
 // stay locked to the same column-x at every viewport.
-const STAGE_X = '53%';
+const STAGE_X = 'var(--stage-x)';
 
 const AvatarStage = () => (
   <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
     {/* Outer dashed ring container — sized to wrap the avatar's inner
         solid circle. Uses an SVG <circle> for perfectly even dashing. */}
     <div
-      className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
+      className="absolute -translate-x-1/2 -translate-y-1/2"
       style={{
         left: STAGE_X,
+        top: 'var(--stage-cy)',
         // Ring at 95% of RING_SIZE — bigger than the 0.85 attempt
         // (which read as too close to the disc) but still slightly
         // smaller than the full canvas so there's a comfortable
@@ -118,8 +124,8 @@ const AvatarStage = () => (
         bottom-left) plus one tiny accent. The opposite diagonal
         (top-left + bottom-right) is intentionally empty so the top
         heading has clean negative space behind it. */}
-    <SparkleIcon className="absolute top-[10%] right-[12%] size-14 text-white/85" />
-    <SparkleIcon className="absolute bottom-[10%] left-[8%] size-14 text-white/85" />
+    <SparkleIcon className="absolute top-[10%] right-[12%] size-14 max-lg:size-6 max-lg:right-[24%] max-lg:top-[8%] text-white/85" />
+    <SparkleIcon className="absolute bottom-[10%] left-[8%] size-14 max-lg:size-6 text-white/85" />
     {/* Tiny accent star near the middle-left */}
     <SparkleIcon className="absolute top-[44%] left-[5%] size-3 text-white/60" />
   </div>
@@ -284,16 +290,16 @@ const AvatarStageOverlay = ({ stageTag, stageHeading }) => {
         circle in the middle of the stage. */}
       {(stageTag || stageHeading) && (
         <div
-          className="absolute top-[clamp(12px,2vw,28px)] left-[clamp(12px,2vw,28px)] max-w-[clamp(180px,28vw,320px)]"
+          className="absolute top-[clamp(12px,2vw,28px)] left-[clamp(12px,2vw,28px)] max-w-[clamp(180px,28vw,320px)] max-lg:max-w-[52%]"
           style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.18)' }}
         >
           {stageTag && (
-            <div className="inline-flex items-center gap-1.5 rounded-pill bg-white px-2.5 py-1 font-sans text-[11px] leading-4 tracking-[0.2px] text-brand-green shadow-sm">
+            <div className="inline-flex items-center gap-1.5 rounded-pill bg-white px-2.5 py-1 font-sans text-[11px] max-lg:text-[12px] leading-4 tracking-[0.2px] text-brand-green shadow-sm">
               {stageTag}
             </div>
           )}
           {stageHeading && (
-            <h2 className="mt-3 font-display text-[clamp(22px,2.4vw,34px)] leading-[1.1] tracking-[-0.3px] text-white">
+            <h2 className="mt-3 max-lg:mt-1.5 font-display text-[clamp(22px,2.4vw,34px)] max-lg:text-[18px] leading-[1.1] tracking-[-0.3px] text-white">
               {stageHeading}
             </h2>
           )}
@@ -307,15 +313,15 @@ const AvatarStageOverlay = ({ stageTag, stageHeading }) => {
         point so the buttons visually rest on the ring. Uses the same
         size constant as the ring so they stay locked together. */}
       <div
-        className="pointer-events-auto absolute flex items-center gap-2"
+        className="pointer-events-auto absolute flex items-center gap-2 max-lg:contents"
         style={{
           // Bar tracks the ring at its new 0.95 multiplier. The
           // translate dropped from -100% to -65% — bar moves DOWN
           // so it's no longer floating well above the ring; its
           // ~65% point now sits at the ring's bottom edge.
           left: STAGE_X,
-          top: `calc(50% + ${RING_SIZE} * 0.95 / 2)`,
-          transform: 'translate(-50%, -65%)',
+          top: 'var(--bar-top)',
+          transform: 'var(--bar-tr)',
         }}
       >
         <button
@@ -323,7 +329,9 @@ const AvatarStageOverlay = ({ stageTag, stageHeading }) => {
           onClick={undo}
           aria-label="Undo last change"
           className={classNames(
-            'inline-flex items-center justify-center size-9 rounded-full bg-white shadow-sm',
+            'inline-flex items-center justify-center size-9 max-lg:size-10 rounded-full bg-white shadow-sm',
+            // phones: undo / shuffle stack on the right of the stage; 48px hit area via ::before
+            'max-lg:pointer-events-auto max-lg:absolute max-lg:right-3 max-lg:top-3 max-lg:before:absolute max-lg:before:-inset-1',
             'text-content-primary transition-colors duration-150 hover:text-brand-green',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
           )}
@@ -331,7 +339,7 @@ const AvatarStageOverlay = ({ stageTag, stageHeading }) => {
           <UndoIcon className="size-4" />
         </button>
 
-        <div className="inline-flex items-center gap-2 rounded-pill bg-white px-3 py-1.5 shadow-sm">
+        <div className="inline-flex items-center gap-2 rounded-pill bg-white px-3 py-1.5 shadow-sm max-lg:pointer-events-auto max-lg:absolute max-lg:bottom-3 max-lg:left-3">
           <span className="font-sans font-semibold text-[13px] leading-4 text-content-primary">
             {selection.username || 'KofiA_23'}
           </span>
@@ -343,7 +351,8 @@ const AvatarStageOverlay = ({ stageTag, stageHeading }) => {
           onClick={handleShuffle}
           aria-label="Randomise avatar"
           className={classNames(
-            'inline-flex items-center justify-center size-9 rounded-full bg-white shadow-sm',
+            'inline-flex items-center justify-center size-9 max-lg:size-10 rounded-full bg-white shadow-sm',
+            'max-lg:pointer-events-auto max-lg:absolute max-lg:right-3 max-lg:top-[60px] max-lg:before:absolute max-lg:before:-inset-1',
             'text-content-primary transition-colors duration-150 hover:text-brand-green',
             'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
           )}
@@ -401,9 +410,9 @@ const AvatarStepLayout = ({
     //   • topbar    = 81px (4.7vw of 1728)
     //   • footer    = 150px (8.7vw of 1728, lives inside right column)
     // clamps give a sensible floor on smaller viewports.
-    <div className="flex flex-col h-screen overflow-hidden bg-background-default">
+    <div className="flex flex-col h-screen overflow-hidden bg-background-default max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible [--stage-h:clamp(172px,28dvh,300px)] md:[--stage-h:clamp(240px,32dvh,380px)]">
       {/* Top nav — 90px tall per Figma */}
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] max-lg:h-auto flex items-stretch">
         <EngagementTopNav
           onSaveExit={handleSaveExit}
           showSwitchModes
@@ -412,16 +421,16 @@ const AvatarStepLayout = ({
         />
       </div>
       {/* Stage trail — 77px tall per Figma 3530:36666 (was 81px, corrected 2026-07-04) */}
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] max-lg:h-auto flex items-stretch">
         <EngagementTopBar currentStageIndex={0} completionPct={0} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden">
+      <main className="flex-1 min-h-0 overflow-hidden max-lg:overflow-visible">
         {/* Left:right column proportion matches the Figma reference
             990:738 (left stage : right customiser ≈ 57.3% : 42.7%). The
             `fr` units keep that ratio at every viewport instead of
             pinning the right column to a fixed clamp. */}
-        <div className="grid grid-cols-1 lg:grid-cols-[990fr_738fr] h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[990fr_738fr] h-full max-lg:block max-lg:h-auto">
           {/* LEFT — live avatar stage. AvatarPreview stacks the layered
             SVGs (body + hair + outfit + extras) and updates as the user
             clicks tiles on the right.
@@ -445,7 +454,19 @@ const AvatarStepLayout = ({
             viewport on shorter screens).
           */}
           <div
-            className="relative h-full flex items-center justify-center px-[clamp(16px,3vw,48px)] py-[clamp(16px,3vw,40px)] overflow-hidden"
+            className={classNames(
+              'relative h-full flex items-center justify-center px-[clamp(16px,3vw,48px)] py-[clamp(16px,3vw,40px)] overflow-hidden',
+              // RESPONSIVE (< lg): the stage is a pinned strip at the top of the
+              // page (~38dvh); the options scroll underneath it. Geometry
+              // is driven by these custom properties; the lg: values are the
+              // original Figma ones.
+              'max-lg:sticky max-lg:top-0 max-lg:z-20 max-lg:h-[var(--stage-h)] max-lg:shadow-[0_6px_12px_-8px_rgba(0,0,0,0.3)]',
+              '[--ring:calc(var(--stage-h)_-_20px)] lg:[--ring:clamp(460px,78vh,800px)]',
+              '[--stage-x:50%] lg:[--stage-x:53%]',
+              '[--stage-cy:50%]',
+              '[--bar-top:calc(100%_-_6px)] lg:[--bar-top:calc(50%_+_var(--ring)_*_0.95_/_2)]',
+              '[--bar-tr:translate(-50%,-100%)] lg:[--bar-tr:translate(-50%,-65%)]'
+            )}
             style={{
               // Layered backgrounds (front-to-back):
               //   1. faint diagonal grid lines (both 45° and -45°)
@@ -480,7 +501,7 @@ const AvatarStepLayout = ({
               className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
               style={{
                 left: STAGE_X,
-                top: '50%',
+                top: 'var(--stage-cy)',
                 width: RING_SIZE,
               }}
             >
@@ -516,14 +537,14 @@ const AvatarStepLayout = ({
                                                        modern Edge */}
           <aside
             data-scroll-container
-            className="relative h-full bg-white border-l border-border-default overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="relative h-full max-lg:h-auto bg-white border-l border-border-default overflow-y-auto max-lg:overflow-visible [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="flex flex-col min-h-full">
               {/* Horizontal padding = 7% of column width → ~635px inner
               content area when the right column is 738px (Figma's
               "635 × 510.44 Hug" annotation). `flex-1` lets the panel
               grow so the footer below sticks to the column bottom. */}
-              <div className="flex-1 px-[7%] py-[clamp(16px,2vw,32px)]">
+              <div className="flex-1 px-[7%] max-lg:px-4 py-[clamp(16px,2vw,32px)]">
                 {panel ? (
                   panel
                 ) : (
@@ -534,6 +555,34 @@ const AvatarStepLayout = ({
                     draggable="false"
                   />
                 )}
+
+                {/* Phones: the sticky bar only carries the primary action, so
+                  Back + the auto-save note live at the end of the options. */}
+                <div className="mt-5 flex items-center justify-between gap-3 lg:hidden">
+                  <button
+                    type="button"
+                    onClick={onGoBack || handleGoBackDefault}
+                    className="inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap font-sans text-[14px] font-semibold text-content-primary underline underline-offset-4"
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="size-4"
+                    >
+                      <path d="M16 10H4" />
+                      <path d="M10 4l-6 6 6 6" />
+                    </svg>
+                    Go back
+                  </button>
+                  <p className="font-sans text-[12px] leading-4 text-neutral-dark-hover">
+                    Auto-saved · changes carry to all tabs
+                  </p>
+                </div>
               </div>
 
               {/* Footer — 150px tall per Figma (the "736 × 150" area).
@@ -547,14 +596,14 @@ const AvatarStepLayout = ({
               previous 150px was eating into the panel and hiding the
               skin-tone swatches + everything below. ~96px max is
               enough room for the buttons + the auto-saved line below. */}
-              <div className="shrink-0 h-[clamp(72px,5.6vw,96px)] border-t border-border-default flex flex-col items-center justify-center gap-[clamp(4px,0.6vw,8px)] px-[clamp(16px,3vw,40px)] bg-background-default">
+              <div className="shrink-0 h-[clamp(72px,5.6vw,96px)] max-lg:h-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))] max-lg:shadow-[0_-6px_12px_-8px_rgba(0,0,0,0.2)] border-t border-border-default flex flex-col items-center justify-center gap-[clamp(4px,0.6vw,8px)] px-[clamp(16px,3vw,40px)] bg-background-default">
                 <div className="flex items-center justify-center gap-3 w-full">
                   <button
                     type="button"
                     onClick={onGoBack || handleGoBackDefault}
                     className={classNames(
                       'inline-flex items-center gap-2 rounded-pill bg-white border border-border-default',
-                      'px-5 py-2 font-sans font-semibold text-[14px] leading-5 text-content-primary',
+                      'px-5 py-2 max-lg:hidden font-sans font-semibold text-[14px] leading-5 text-content-primary',
                       'shadow-sm transition-colors duration-150 hover:border-brand-green hover:text-brand-green',
                       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
                     )}
@@ -579,7 +628,7 @@ const AvatarStepLayout = ({
                     onClick={onContinue || handleContinueDefault}
                     className={classNames(
                       'inline-flex flex-1 items-center justify-center gap-2 rounded-pill bg-brand-green',
-                      'px-6 py-2 font-sans font-semibold text-[14px] leading-5 text-white',
+                      'px-6 py-2 max-lg:min-h-10 font-sans font-semibold text-[14px] leading-5 text-white',
                       'shadow-sm transition-colors duration-150 hover:bg-brand-green-dark',
                       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
                     )}
@@ -600,7 +649,7 @@ const AvatarStepLayout = ({
                     </svg>
                   </button>
                 </div>
-                <p className="flex items-center gap-1.5 font-sans text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-hover">
+                <p className="flex items-center gap-1.5 font-sans text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-hover max-lg:hidden">
                   <span
                     className="inline-block size-1.5 rounded-full bg-brand-green"
                     aria-hidden="true"

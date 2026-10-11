@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import TextInput from '../../ui/form/TextInput.jsx';
@@ -118,14 +119,18 @@ const ContactInfoSection = () => {
 
   return (
     /* flex-1 fills the space beside InstitutionRightPanel */
-    <div className="flex flex-1 items-start justify-center px-6 py-12 md:py-20">
-      <div className="flex w-full max-w-[762px] flex-col items-center gap-6">
+    <div className="flex flex-1 items-start justify-center px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[762px] flex-col items-center gap-6 max-md:gap-3">
         {/* Step badge — "02 · Contact Details" */}
-        <Captions items={[{ index: '02', label: 'Contact Details' }]} currentIndex={0} />
+        <Captions
+          items={[{ index: '02', label: 'Contact Details' }]}
+          currentIndex={0}
+          className="max-md:self-start max-md:px-2.5 max-md:py-0.5"
+        />
 
         {/* Headline — Instrument Serif, clamp 2rem→4rem */}
         <h1
-          className="font-display font-normal max-w-[554px] text-center text-black"
+          className="font-display font-normal max-w-[554px] text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -141,16 +146,17 @@ const ContactInfoSection = () => {
         <form
           onSubmit={handleSubmit(onSubmit, onError)}
           noValidate
-          className="flex w-full flex-col gap-4"
+          className="flex w-full flex-col gap-4 max-md:gap-3"
         >
           {/* Row 1: Full Name + Role / Title */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
             <TextInput
               leftIcon={<UserIcon />}
               label="Full Name"
               required
               placeholder="e.g. Kwame Mensah"
               error={errors.fullName?.message}
+              autoComplete="name"
               {...register('fullName')}
             />
             <TextInput
@@ -159,12 +165,13 @@ const ContactInfoSection = () => {
               required
               placeholder="e.g. Registrar"
               error={errors.roleTitle?.message}
+              autoComplete="organization-title"
               {...register('roleTitle')}
             />
           </div>
 
           {/* Row 2: Phone Number + Email Address */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
             <Controller
               name="phoneNumber"
               control={control}
@@ -201,17 +208,20 @@ const ContactInfoSection = () => {
               helperIconClassName={emailError ? undefined : 'text-brand-green'}
               helperTextClassName={emailError ? undefined : 'text-brand-green'}
               error={emailError}
+              autoComplete="email"
+              inputMode="email"
               {...register('email')}
             />
           </div>
 
           {/* Row 3: Password + Confirm Password */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
             <PasswordInput
               label="Password"
               required
               placeholder="Min. 8 characters"
               error={errors.password?.message}
+              autoComplete="new-password"
               {...register('password')}
             />
             <PasswordInput
@@ -220,32 +230,35 @@ const ContactInfoSection = () => {
               placeholder="Re-enter password"
               successText={passwordsMatch ? 'Passwords match' : undefined}
               error={errors.confirmPassword?.message}
+              autoComplete="new-password"
               {...register('confirmPassword')}
             />
           </div>
 
           {/* Save & Continue CTA */}
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            disabled={isSubmitting}
-            leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-            rightIcon={!isSubmitting ? <ArrowRightIcon /> : undefined}
-            className="mt-2 w-full"
-            aria-busy={isSubmitting}
-          >
-            {isSubmitting ? 'Saving…' : 'Save & Continue'}
-          </Button>
+          <StickyActionBar bleed={16}>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              disabled={isSubmitting}
+              leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+              rightIcon={!isSubmitting ? <ArrowRightIcon /> : undefined}
+              className="mt-2 w-full max-md:mt-0"
+              aria-busy={isSubmitting}
+            >
+              {isSubmitting ? 'Saving…' : 'Save & Continue'}
+            </Button>
+          </StickyActionBar>
 
           {/* Already-have-account link */}
-          <div className="flex items-center justify-center gap-2 text-[14px] leading-6">
+          <div className="flex items-center justify-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
             <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
               Already Have an account?
             </span>
             <Link
               to="/login"
-              className="font-semibold text-brand-green underline-offset-2 hover:underline"
+              className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ letterSpacing: '0.1px' }}
             >
               Log in Instead

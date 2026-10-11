@@ -77,7 +77,7 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
       onClose={onClose}
       size="sm"
       ariaLabel="Certifications saved"
-      contentClassName="!rounded-[24px] !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] !max-w-[482px] overflow-hidden"
     >
       <div className="relative flex flex-col items-center gap-[18px] p-[clamp(24px,3vw,40px)] text-center">
         {/* Top glow — same colour as the CTA button below (Button `secondary`
@@ -93,10 +93,10 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
         </span>
 
         <div className="flex flex-col items-center gap-[6px]">
-          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+          <h2 className="font-display text-[clamp(24px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
             Certifications complete.
           </h2>
-          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px]">
+          <p className="font-sans text-[13px] text-[#70706e] leading-[1.5] max-w-[380px] max-lg:text-[14px]">
             {certCount} certification{certCount !== 1 ? 's' : ''} added. {verifiedCount} verified,{' '}
             {selfReportedCount} self-reported. Your credential layer is live on GTH.
           </p>
@@ -114,7 +114,7 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
             <span className="font-sans font-semibold text-[14px] text-[#2a5730]">
               Credential filter unlocked in recruiter search
             </span>
-            <p className="font-sans text-[12px] text-[#96a090] leading-[18px]">
+            <p className="font-sans text-[12px] text-[#96a090] leading-[18px] max-lg:text-[14px]">
               Recruiters can now filter for specific certifications. Your verified cert badges
               appear on your recruiter card.
             </p>
@@ -142,12 +142,12 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
                       <span className="font-sans font-bold text-[12px] text-[#111] truncate">
                         {c.name}
                       </span>
-                      <span className="font-sans text-[10px] text-[#70706e] truncate">
+                      <span className="font-sans text-[10px] max-lg:text-[12px] text-[#70706e] truncate">
                         {c.issuer} · {buildDateSummary(c.dateIssued, c.doesNotExpire, c.expiryDate)}
                       </span>
                     </div>
                     <span
-                      className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px]"
+                      className="inline-flex items-center shrink-0 rounded-full border px-[8px] py-[3px] font-sans font-semibold text-[10px] max-lg:text-[12px]"
                       style={{
                         background: badgeStyle.bg,
                         borderColor: badgeStyle.border,
@@ -167,8 +167,12 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
             static value "72% : 7 stages done" (Certs is stage 7 of 9). */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] text-[#111]">Profile strength</span>
-            <span className="font-sans text-[10px] text-[#2a5730]">72% : 7 stages done</span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#111]">
+              Profile strength
+            </span>
+            <span className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730]">
+              72% : 7 stages done
+            </span>
           </div>
           <div className="h-[8px] w-full rounded-[4px] bg-[#f8f8f4] border border-[#e8e8e4] overflow-hidden">
             <div
@@ -188,7 +192,7 @@ const CertSavedModal = ({ isOpen, onClose, onContinue, certs = [] }) => {
           size="lg"
           onClick={onContinue}
           rightIcon={<ArrowRightIcon className="size-full" />}
-          className="w-full"
+          className="w-full max-sm:py-2.5 max-sm:text-[14px] max-sm:leading-5"
         >
           Continue to Goals stage
         </Button>

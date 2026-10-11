@@ -3,6 +3,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import DashboardTopNav from './DashboardTopNav.jsx';
 import DashboardSidebar from './DashboardSidebar.jsx';
+import DashboardMobileTabBar from './DashboardMobileTabBar.jsx';
 import DashboardPageBackground from './DashboardPageBackground.jsx';
 import CareerBuddyFloatingButton from '../community/CareerBuddyFloatingButton.jsx';
 
@@ -14,7 +15,13 @@ const log = debug('DashboardShell');
  *   [ page background: grid texture @70% + three blurred ellipses ]
  *   [ DashboardTopNav                                             ]
  *   [ DashboardSidebar | children                                 ]
+ *   [ DashboardMobileTabBar — phones only (< md)                   ]
  *   [ CareerBuddyFloatingButton — fixed bottom-right, every screen ]
+ *
+ * NAVIGATION BY BREAKPOINT (wiki/responsive-plan.md §4)
+ *   < md        bottom tab bar (+ More sheet) — the rail is not rendered
+ *   md – lg     compact icon rail (the collapsed rail, forced collapsed)
+ *   >= lg       the Figma rail, expanded/collapsed by the user (unchanged)
  *
  * Mounted OUTSIDE MainLayout (same as /profile/engagement/*) because Figma's
  * frames carry their own dashboard chrome — no landing Navbar/Footer, no
@@ -45,6 +52,10 @@ const DashboardShell = ({
   defaultSidebarCollapsed = false,
   contentClassName,
   mainClassName,
+  /* Messages' thread view below lg is full-screen: it passes true to drop the
+     tab bar (phones) and the Career Buddy launcher (< lg) — both would sit on
+     top of the composer. No effect at >= lg. */
+  immersiveOnMobile = false,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
 
@@ -57,7 +68,7 @@ const DashboardShell = ({
        scrolls. Mirrors MainLayout's `h-screen overflow-hidden` pattern and
        matches Figma, where the rail is a fixed 977px column and the
        annotations describe headers that "remain fixed on scroll". */
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-white">
+    <div className="relative flex h-screen max-lg:h-dvh w-full flex-col overflow-hidden max-lg:overflow-clip bg-white">
       {/* --- page background (Figma 7025:85168 grid + 7025:85170-172 ellipses) --- */}
       <DashboardPageBackground className="z-0" />
 
@@ -73,6 +84,8 @@ const DashboardShell = ({
                own nav block internally instead. */
             className="hidden h-full lg:flex"
           />
+          {/* md–lg: the same rail, forced collapsed (icon-only) and compact. */}
+          <DashboardSidebar collapsed compact className="hidden h-full md:flex lg:hidden" />
 
           {/* No horizontal/top padding here on purpose — a `position: sticky`
               child sticks to the *padding edge*, not the border edge, so any
@@ -83,16 +96,25 @@ const DashboardShell = ({
               bars span this element's full, unpadded box. */}
           <main
             className={classNames(
-              'min-h-0 min-w-0 flex-1 overflow-y-auto pb-[64px]',
+              /* Below lg the Career Buddy launcher floats over the bottom-right of
+                 this scroll area, so the end-of-scroll padding clears it
+                 (phones: 56px button + 12px gap above the in-flow tab bar). */
+              'min-h-0 min-w-0 flex-1 overflow-y-auto pb-[64px] max-md:pb-[80px] md:max-lg:pb-[104px]',
               mainClassName
             )}
           >
             {children}
           </main>
         </div>
+
+        {/* Phones only (md:hidden inside) — in flow, so <main> ends at its top edge. */}
+        <DashboardMobileTabBar className={immersiveOnMobile ? 'max-md:hidden' : undefined} />
       </div>
 
-      <CareerBuddyFloatingButton />
+      {/* `contents` keeps this wrapper out of layout; the button is fixed. */}
+      <div className={immersiveOnMobile ? 'contents max-lg:hidden' : 'contents'}>
+        <CareerBuddyFloatingButton />
+      </div>
     </div>
   );
 };

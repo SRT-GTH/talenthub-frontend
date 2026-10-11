@@ -6,6 +6,7 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import PasswordInput from '../../ui/form/PasswordInput.jsx';
 import Checkbox from '../../ui/form/Checkbox.jsx';
 import Button from '../../ui/Button.jsx';
+import { COMPACT_PRIMARY_BUTTON } from '../../ui/form/mobileScale.js';
 import { UserIcon, LoadingSpinner } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
@@ -46,7 +47,7 @@ const schema = z.object({
  */
 const WelcomeBackBadge = () => (
   <span
-    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-3 py-[5px]"
+    className="inline-flex w-fit items-center gap-2 rounded-[8px] px-3 py-[5px] max-md:py-0.5 max-md:self-start"
     style={{ backgroundColor: '#f7efdd', border: '1px solid #eedeb8' }}
   >
     <span
@@ -125,15 +126,15 @@ const ParentLoginSection = () => {
 
   return (
     /* flex-1: fills the Outlet slot in ParentOnboardingLayout */
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-16 lg:py-20">
-      <div className="flex w-full max-w-[698px] items-center flex-col gap-6">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-16 lg:py-20 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[698px] items-center flex-col gap-6 max-md:gap-3">
         {/* Welcome back badge — Figma 2884:64938 */}
         <WelcomeBackBadge />
 
         {/* Headline — Figma 2884:64946, Instrument Serif 64px */}
         {/* "Ghana Talent Hub." chars 10–26 → italic #c8951a (accent gold) */}
         <h1
-          className="font-display font-normal text-center text-black"
+          className="font-display font-normal text-center text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -148,14 +149,14 @@ const ParentLoginSection = () => {
 
         {/* Subtitle — Figma 2884:64948, SF Pro Rounded 16px #737373 */}
         <p
-          className="font-sans font-normal text-center text-[16px] leading-6"
+          className="font-sans font-normal text-center text-[16px] leading-6 max-md:self-stretch max-md:text-left max-md:text-[14px] max-md:leading-5"
           style={{ color: '#737373', letterSpacing: '0.2px' }}
         >
           Log in to review Kofi&apos;s profile, manage their access, or update your settings. New
           here?{' '}
           <button
             type="button"
-            className="font-normal text-brand-green hover:underline focus-visible:underline"
+            className="font-normal text-brand-green hover:underline focus-visible:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             onClick={() => log('create account clicked')}
           >
             Create your account.
@@ -169,7 +170,7 @@ const ParentLoginSection = () => {
         <form
           onSubmit={handleSubmit(onSubmit, onError)}
           noValidate
-          className="flex flex-1 w-full flex-col gap-4"
+          className="flex flex-1 w-full flex-col gap-4 max-md:gap-3"
         >
           {/* Email / Phone input — Figma 2884:64952 */}
           <TextInput
@@ -191,7 +192,7 @@ const ParentLoginSection = () => {
             labelTrailing={
               <button
                 type="button"
-                className="font-semibold hover:underline focus-visible:underline"
+                className="font-semibold hover:underline focus-visible:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                 onClick={() => log('forgot password clicked')}
               >
                 Forget Password
@@ -210,7 +211,7 @@ const ParentLoginSection = () => {
           />
 
           {/* ── CTA block — Figma 2884:64957 ── */}
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col gap-4 mt-2 max-md:mt-1">
             {/* Primary CTA button — full width, 56px target height */}
             {/* Disabled: #bfbfbf (Button primary disabled state) */}
             {/* Active: #387440 (Button primary default state) */}
@@ -219,7 +220,7 @@ const ParentLoginSection = () => {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full justify-center"
+              className={`w-full justify-center ${COMPACT_PRIMARY_BUTTON}`}
               disabled={!isValid || isSubmitting}
               state={isSubmitting ? 'active' : undefined}
               leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
@@ -235,7 +236,7 @@ const ParentLoginSection = () => {
         {/* Register card — Figma 2884:64965 */}
         {/* 698×99, fill=#fefefd (#neutral-light-hover), r=16, stroke=#e6e6e6 */}
         <div
-          className="flex flex-col gap-3 items-center rounded-[16px] px-5 py-4 w-full"
+          className="flex flex-col gap-3 items-center rounded-[16px] px-5 py-4 w-full max-md:gap-2 max-md:rounded-[12px] max-md:px-3 max-md:py-3"
           style={{ backgroundColor: '#fefefd', border: '1px solid #e6e6e6' }}
         >
           <p
@@ -249,7 +250,7 @@ const ParentLoginSection = () => {
           {/* 203×38, fill=#ffffff, r=10, stroke=#c6c6c3, UserIcon + text + arrow */}
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-[10px] text-black-light-active hover:bg-neutral font-sans font-semibold transition-colors duration-100"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-white px-4 py-[10px] max-md:py-[8px] text-black-light-active hover:bg-neutral font-sans font-semibold transition-colors duration-100 relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{
               fontSize: 14,
               lineHeight: '18px',

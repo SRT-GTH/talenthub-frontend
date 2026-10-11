@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
+import ClampText from '../../ui/ClampText.jsx';
+import TagRow from '../../ui/TagRow.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentSuccessSection');
@@ -108,7 +111,7 @@ const AuditChip = ({ label }) => (
     </span>
     <span
       className="font-sans font-bold"
-      style={{ fontSize: 11, color: '#2a5730', lineHeight: 'normal' }}
+      style={{ fontSize: 'var(--fs-11)', color: '#2a5730', lineHeight: 'normal' }}
     >
       {label}
     </span>
@@ -118,25 +121,29 @@ const AuditChip = ({ label }) => (
 // ── next-step card — Figma 2952:96815 / 96822 / 96828 ───────────────────────
 const NextStepCard = ({ icon, iconBg, iconShadow, iconColor, title, desc, dimmed = false }) => (
   <div
-    className="flex w-full items-start gap-[12px] rounded-[10px] px-[16px] py-[13px]"
+    className="flex w-full items-start gap-[12px] rounded-[10px] px-[16px] py-[13px] max-md:gap-2.5 max-md:px-3 max-md:py-2.5"
     style={{ backgroundColor: '#f8f8f4', opacity: dimmed ? 0.6 : 1 }}
   >
     <span
-      className="flex size-[32px] shrink-0 items-center justify-center rounded-[6px] [&>svg]:size-[14px]"
+      className="flex size-[32px] shrink-0 items-center justify-center rounded-[6px] max-md:size-7 [&>svg]:size-[14px]"
       style={{ backgroundColor: iconBg, boxShadow: `0px 2px 0px ${iconShadow}`, color: iconColor }}
     >
       {icon}
     </span>
-    <div className="flex flex-col gap-[3px]">
+    <div className="flex min-w-0 flex-col gap-[3px]">
       <p
         className="font-sans font-bold"
         style={{ fontSize: 13, color: '#111', lineHeight: 'normal' }}
       >
         {title}
       </p>
-      <p className="font-sans" style={{ fontSize: 11, color: '#70706e', lineHeight: '15.95px' }}>
+      <ClampText
+        lines={2}
+        className="font-sans text-[length:var(--fs-11)] leading-[15.95px] text-[#70706e]"
+        buttonClassName="text-[12px] font-semibold text-[#b48617]"
+      >
         {desc}
-      </p>
+      </ClampText>
     </div>
   </div>
 );
@@ -158,13 +165,13 @@ const ParentSuccessSection = () => {
   };
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-12 md:py-16">
-      <div className="flex w-full max-w-[720px] flex-col gap-5">
+    <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-16 max-md:px-4 max-md:py-4">
+      <div className="flex w-full max-w-[720px] flex-col gap-5 max-md:gap-3">
         {/* ── Header block (centered) ── */}
-        <div className="flex flex-col items-center gap-[14px] text-center">
+        <div className="flex flex-col items-center gap-[14px] text-center max-md:gap-2">
           {/* Success icon — Figma 2952:96782 */}
           <span
-            className="flex size-[80px] items-center justify-center rounded-full"
+            className="flex size-[80px] items-center justify-center rounded-full max-md:my-1.5 max-md:size-12 max-md:shadow-[0_0_0_5px_#faf4e8,0_0_0_6px_#eedeb8,0_2px_0_0_#967014]! [&>svg]:max-md:size-6"
             style={{
               backgroundColor: '#c8951a',
               boxShadow: '0 0 0 12px #faf4e8, 0 0 0 16px #eedeb8, 0 3px 0 0 #967014',
@@ -175,15 +182,15 @@ const ParentSuccessSection = () => {
 
           {/* Caption — Figma 2952:96786 */}
           <span
-            className="mt-[6px] font-sans font-bold uppercase"
-            style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+            className="mt-[6px] font-sans font-bold uppercase max-md:mt-0"
+            style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
           >
             Registration complete
           </span>
 
           {/* Headline — Figma 2952:96787 */}
           <h1
-            className="font-display font-normal"
+            className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
             style={{
               fontSize: 'clamp(2rem, 3.4vw, 2.75rem)',
               lineHeight: 1,
@@ -201,7 +208,7 @@ const ParentSuccessSection = () => {
 
           {/* Subtitle — Figma 2952:96788 */}
           <p
-            className="max-w-[420px] font-sans"
+            className="max-w-[420px] font-sans max-md:text-[14px]!"
             style={{ fontSize: 13, color: '#70706e', lineHeight: '22.1px' }}
           >
             You&apos;re now connected to Kofi&apos;s journey on Ghana Talent Hub. You can review
@@ -209,24 +216,27 @@ const ParentSuccessSection = () => {
           </p>
 
           {/* Audit chips — Figma 2952:96789 */}
-          <div className="flex flex-wrap items-center justify-center gap-[8px]">
-            <AuditChip label="PARENT_ACCOUNT_CREATED" />
-            <AuditChip label="WARD_AUTO_LINKED" />
+          <div className="w-full min-w-0">
+            <TagRow
+              className="items-center justify-center"
+              items={['PARENT_ACCOUNT_CREATED', 'WARD_AUTO_LINKED']}
+              renderItem={(label) => <AuditChip key={label} label={label} />}
+            />
           </div>
         </div>
 
         {/* ── Ward confirmed card — Figma 2952:96798 ── */}
         <div
-          className="flex w-full items-center justify-between rounded-[16px] border-2 bg-white px-[20px] py-[20px]"
+          className="flex w-full items-center justify-between rounded-[16px] border-2 bg-white px-[20px] py-[20px] max-md:gap-3 max-md:rounded-none max-md:border-x-0 max-md:border-y max-md:bg-transparent max-md:px-0 max-md:py-2.5 max-md:shadow-none!"
           style={{
             borderColor: '#c1d4c4',
             boxShadow: '0px 3px 0px 0px #c1d4c4, 0px 8px 24px 0px rgba(56,116,64,0.07)',
           }}
         >
-          <div className="flex items-center gap-[14px]">
+          <div className="flex min-w-0 items-center gap-[14px] max-md:gap-3">
             {/* Green avatar badge */}
             <span
-              className="flex size-[52px] shrink-0 items-center justify-center rounded-[26px]"
+              className="flex size-[52px] shrink-0 items-center justify-center rounded-[26px] max-md:size-10 max-md:shadow-none!"
               style={{ backgroundColor: '#387440', boxShadow: '0px 3px 0px #2a5730' }}
             >
               <Check size={24} color="#ffffff" stroke={2.4} />
@@ -238,23 +248,26 @@ const ParentSuccessSection = () => {
               >
                 Kofi Mensah
               </p>
-              <div className="flex items-center gap-[6px]" style={{ color: '#70706e' }}>
+              <div
+                className="flex flex-wrap items-center gap-x-[6px] gap-y-0.5"
+                style={{ color: '#70706e' }}
+              >
                 <PersonMini />
                 <span
                   className="font-sans font-semibold"
-                  style={{ fontSize: 11, lineHeight: 'normal' }}
+                  style={{ fontSize: 'var(--fs-11)', lineHeight: 'normal' }}
                 >
                   Age 16
                 </span>
                 <span
                   className="font-sans font-semibold"
-                  style={{ fontSize: 11, lineHeight: 'normal' }}
+                  style={{ fontSize: 'var(--fs-11)', lineHeight: 'normal' }}
                 >
                   🇬🇭 Ghanaian
                 </span>
                 <span
                   className="font-sans font-semibold"
-                  style={{ fontSize: 11, lineHeight: 'normal' }}
+                  style={{ fontSize: 'var(--fs-11)', lineHeight: 'normal' }}
                 >
                   JHS 3 · Achimota
                 </span>
@@ -263,13 +276,13 @@ const ParentSuccessSection = () => {
           </div>
           {/* Linked badge */}
           <span
-            className="flex shrink-0 items-center gap-[6px] rounded-full px-[12px] py-[6px]"
+            className="flex shrink-0 items-center gap-[6px] rounded-full px-[12px] py-[6px] max-md:px-2.5 max-md:py-1 max-md:shadow-none!"
             style={{ backgroundColor: '#387440', boxShadow: '0px 3px 0px #2a5730' }}
           >
             <Check size={11} color="#ffffff" stroke={2.6} />
             <span
               className="font-sans font-bold text-white"
-              style={{ fontSize: 11, lineHeight: 'normal' }}
+              style={{ fontSize: 'var(--fs-11)', lineHeight: 'normal' }}
             >
               Linked
             </span>
@@ -279,12 +292,12 @@ const ParentSuccessSection = () => {
         {/* ── Next steps — Figma 2952:96814 ── */}
         <span
           className="font-sans font-bold uppercase"
-          style={{ fontSize: 11, color: '#babab7', letterSpacing: '0.7px' }}
+          style={{ fontSize: 'var(--fs-11)', color: '#babab7', letterSpacing: '0.7px' }}
         >
           What you can do now
         </span>
 
-        <div className="flex flex-col gap-[8px]">
+        <div className="flex flex-col gap-[8px] max-md:gap-2">
           <NextStepCard
             icon={<EyeGlyph />}
             iconBg="#faf4e8"
@@ -313,7 +326,7 @@ const ParentSuccessSection = () => {
         </div>
 
         {/* ── Opt-out escape hatch — Figma 2952:96835 ── */}
-        <div className="flex items-center justify-center gap-[8px]">
+        <div className="flex flex-wrap items-center justify-center gap-[8px]">
           <span style={{ color: '#70706e' }}>
             <UndoGlyph />
           </span>
@@ -326,7 +339,7 @@ const ParentSuccessSection = () => {
           <a
             href="#"
             onClick={handleOptOut}
-            className="font-sans font-bold"
+            className="relative font-sans font-bold max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-3 max-md:before:content-['']"
             style={{
               fontSize: 12,
               color: '#c0392b',
@@ -338,21 +351,26 @@ const ParentSuccessSection = () => {
         </div>
 
         {/* ── Primary CTA — Figma 2952:96842 (amber) ── */}
-        <button
-          type="button"
-          onClick={handleDashboard}
-          className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px]"
-          style={{
-            backgroundColor: '#c8951a',
-            borderColor: '#967014',
-            boxShadow: '0px 3px 0px #967014',
-          }}
-        >
-          <span className="font-sans font-bold" style={{ fontSize: 15, lineHeight: 'normal' }}>
-            Go to Parent Dashboard
-          </span>
-          <ArrowRightIcon />
-        </button>
+        <StickyActionBar bleed={16}>
+          <button
+            type="button"
+            onClick={handleDashboard}
+            className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px]"
+            style={{
+              backgroundColor: '#c8951a',
+              borderColor: '#967014',
+              boxShadow: '0px 3px 0px #967014',
+            }}
+          >
+            <span
+              className="font-sans font-bold max-md:text-[14px]!"
+              style={{ fontSize: 15, lineHeight: 'normal' }}
+            >
+              Go to Parent Dashboard
+            </span>
+            <ArrowRightIcon />
+          </button>
+        </StickyActionBar>
       </div>
     </div>
   );

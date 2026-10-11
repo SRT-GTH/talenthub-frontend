@@ -30,9 +30,14 @@ const PostFilterBar = ({
   onCreatePost,
   className,
 }) => (
-  <div className={classNames('flex flex-wrap items-center justify-between gap-4', className)}>
+  <div
+    className={classNames(
+      'flex flex-wrap items-center justify-between gap-4 max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-[10px]',
+      className
+    )}
+  >
     <div
-      className="flex items-center gap-[8px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex items-center gap-[8px] max-sm:-mx-[16px] max-sm:px-[16px] max-sm:py-[2px] max-sm:[mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       role="group"
       aria-label="Filter posts by type"
     >
@@ -48,7 +53,7 @@ const PostFilterBar = ({
               onFilterChange?.(item);
             }}
             className={classNames(
-              'flex shrink-0 flex-col items-center justify-center rounded-[12px] border-[1.216px] border-brand-green-light-hover px-[14px] py-[6px] drop-shadow-[0px_1.216px_1.824px_rgba(0,0,0,0.06)] transition-colors',
+              'flex shrink-0 flex-col items-center justify-center rounded-[12px] border-[1.216px] border-brand-green-light-hover px-[14px] py-[6px] max-lg:relative max-lg:min-h-[30px] max-lg:px-[12px] max-lg:py-0 max-lg:after:absolute max-lg:after:-inset-x-[2px] max-lg:after:-inset-y-[7px] drop-shadow-[0px_1.216px_1.824px_rgba(0,0,0,0.06)] max-lg:drop-shadow-none transition-colors',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
               active ? 'bg-brand-green' : 'bg-white hover:bg-brand-green-light'
             )}
@@ -57,8 +62,8 @@ const PostFilterBar = ({
               className={classNames(
                 'whitespace-nowrap font-sans tracking-[0.2431px]',
                 active
-                  ? 'bg-clip-text text-[17.73px] font-semibold leading-[29.56px] text-transparent'
-                  : 'text-[14px] font-medium leading-[24.31px] text-[#737373]'
+                  ? 'bg-clip-text text-[17.73px] max-lg:text-[13px] font-semibold leading-[29.56px] max-lg:leading-[28px] text-transparent'
+                  : 'text-[14px] max-lg:text-[13px] font-medium leading-[24.31px] max-lg:leading-[28px] text-[#737373]'
               )}
               style={active ? { backgroundImage: ACTIVE_LABEL_GRADIENT } : undefined}
             >
@@ -69,8 +74,8 @@ const PostFilterBar = ({
       })}
     </div>
 
-    <div className="flex items-center gap-[clamp(10px,1.27vw,19.3px)]">
-      <label className="flex w-[clamp(200px,23.9vw,362px)] max-w-[450px] items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
+    <div className="flex items-center gap-[clamp(10px,1.27vw,19.3px)] max-sm:w-full">
+      <label className="flex w-[clamp(200px,23.9vw,362px)] max-sm:w-auto max-sm:min-w-0 max-sm:flex-1 max-w-[450px] items-center gap-[9.73px] overflow-hidden rounded-[12px] border-[1.216px] border-[#ccc] bg-white px-[24px] py-[12px] max-sm:h-[44px] max-sm:rounded-[10px] max-sm:border max-sm:px-[12px] max-sm:py-0 shadow-[0px_3.039px_0px_0px_rgba(191,191,191,0.8)] max-sm:shadow-none focus-within:border-brand-green-light-active">
         <span className="sr-only">{POST_SEARCH_PLACEHOLDER}</span>
         <CommunityIcon src={icons.search} size={19.45} />
         <input
@@ -81,21 +86,22 @@ const PostFilterBar = ({
             log('feed search query:', event.target.value);
             onQueryChange?.(event.target.value);
           }}
-          className="min-w-0 flex-1 bg-transparent font-sans text-[14.5px] leading-[24.31px] tracking-[0.2431px] text-black outline-none placeholder:text-[#999]"
+          className="min-w-0 flex-1 bg-transparent font-sans text-[14.5px] max-lg:text-[16px] leading-[24.31px] tracking-[0.2431px] text-black outline-none placeholder:text-[#999]"
         />
       </label>
 
       <button
         type="button"
+        aria-label="Create Post"
         onClick={() => {
           log('create post clicked');
           onCreatePost?.();
         }}
-        className="flex shrink-0 items-center justify-center gap-[7.23px] self-stretch rounded-[12.05px] border-b-[2.411px] border-l-[2.411px] border-r-[2.411px] border-t-[1.205px] border-brand-green-dark bg-brand-green px-[24.1px] py-[12.05px] drop-shadow-[0px_4.822px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        className="flex shrink-0 items-center justify-center gap-[7.23px] self-stretch rounded-[12.05px] border-b-[2.411px] border-l-[2.411px] border-r-[2.411px] border-t-[1.205px] border-brand-green-dark bg-brand-green px-[24.1px] py-[12.05px] max-sm:px-[16px] max-lg:min-h-[40px] max-sm:size-[44px] max-sm:self-center max-sm:px-0 max-sm:py-0 max-sm:drop-shadow-none drop-shadow-[0px_4.822px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <CommunityIcon src={icons.createPost} size={18} />
         <span
-          className="whitespace-nowrap bg-clip-text font-sans text-[14px] font-medium tracking-[0.12px] text-transparent"
+          className="whitespace-nowrap bg-clip-text font-sans text-[14px] font-medium tracking-[0.12px] text-transparent max-sm:sr-only"
           style={{ backgroundImage: CREATE_LABEL_GRADIENT }}
         >
           Create Post

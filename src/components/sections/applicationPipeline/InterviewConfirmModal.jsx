@@ -26,23 +26,23 @@ const InterviewConfirmModal = ({ open, copy, onConfirm, onCancel }) => {
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4 max-sm:items-end max-sm:px-0"
       onClick={onCancel}
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="flex w-full max-w-[528px] flex-col items-center rounded-[24px] bg-white px-[48px] py-[64px] shadow-[0_4px_0_0_rgba(0,0,0,0.13),0_40px_100px_0_rgba(0,0,0,0.25)]"
+        className="flex w-full max-w-[528px] flex-col items-center rounded-[24px] bg-white px-[48px] py-[64px] shadow-[0_4px_0_0_rgba(0,0,0,0.13),0_40px_100px_0_rgba(0,0,0,0.25)] max-sm:max-h-dvh max-sm:overflow-y-auto max-sm:rounded-b-none max-sm:px-[20px] max-sm:pb-[calc(24px+env(safe-area-inset-bottom))] max-sm:pt-[32px]"
       >
-        <h2 className="font-display text-[36px] not-italic leading-[46.8px] text-black">
+        <h2 className="font-display text-[36px] not-italic leading-[46.8px] text-black max-sm:text-center max-sm:text-[22px] max-sm:leading-[28px]">
           {copy.title}
         </h2>
 
-        <div className="flex w-full flex-col items-center gap-[36px]">
+        <div className="flex w-full flex-col items-center gap-[36px] max-sm:gap-[24px]">
           <p className="w-full max-w-[432px] text-center font-sans text-[16px] leading-6 text-[#575755]">
             {copy.body}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-[8px]">
+          <div className="flex flex-wrap items-center justify-center gap-[8px] max-sm:w-full max-sm:flex-col max-sm:gap-[12px]">
             <button
               type="button"
               onClick={() => {
@@ -50,7 +50,7 @@ const InterviewConfirmModal = ({ open, copy, onConfirm, onCancel }) => {
                 onConfirm?.();
               }}
               className={classNames(
-                'inline-flex h-[44px] items-center justify-center rounded-[10px] border-2 px-[18px]',
+                'inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[10px] border-2 px-[18px]',
                 'font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white',
                 'transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none',
                 copy.tone === 'danger'
@@ -67,7 +67,7 @@ const InterviewConfirmModal = ({ open, copy, onConfirm, onCancel }) => {
                 log('branch', { action: 'keep-editing' });
                 onCancel?.();
               }}
-              className="inline-flex h-[44px] items-center justify-center rounded-[14px] border-2 border-black/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+              className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[14px] border-2 border-black/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
             >
               {copy.cancelLabel}
             </button>

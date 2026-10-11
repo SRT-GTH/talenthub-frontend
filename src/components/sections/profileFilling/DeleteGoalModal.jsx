@@ -85,17 +85,35 @@ const DeleteGoalModal = ({
   const neutralChips = goal ? [goal.opportunityType, ...(goal.skills ?? [])].filter(Boolean) : [];
 
   const footer = (
-    <div className="flex items-center justify-end gap-[8px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[#e7e7e7]">
-      <Button variant="tertiary" size="md" onClick={onClose}>
-        Cancel
+    <div className="flex items-center justify-end gap-[8px] px-[clamp(24px,3vw,40px)] py-[16px] border-t border-[#e7e7e7] max-sm:gap-2 max-sm:px-4 max-sm:py-3">
+      <Button
+        variant="tertiary"
+        size="md"
+        onClick={onClose}
+        className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+      >
+        <span className="max-sm:sr-only">Cancel</span>
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3 sm:hidden"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </Button>
       <Button
         variant="danger"
         size="md"
         onClick={handleConfirm}
         leftIcon={<WorkDeleteWarningIcon className="size-full" />}
+        className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
       >
-        Permanently delete this goal
+        <span className="max-sm:hidden">Permanently delete this goal</span>
+        <span className="sm:hidden">Delete permanently</span>
       </Button>
     </div>
   );
@@ -106,7 +124,7 @@ const DeleteGoalModal = ({
       onClose={onClose}
       size="sm"
       ariaLabel="Delete this goal"
-      contentClassName="!rounded-[24px] !max-w-[520px] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !max-w-[520px] overflow-hidden"
       footer={footer}
     >
       <div className="relative flex flex-col p-[clamp(24px,3vw,40px)] gap-[17px]">
@@ -121,10 +139,10 @@ const DeleteGoalModal = ({
 
         <div className="flex flex-col items-center gap-[8px] text-center">
           <WorkDeleteWarningIcon className="size-[56px] text-[#c0392b]" />
-          <h2 className="font-display text-[clamp(22px,2.2vw,26px)] tracking-[-1px] leading-[26px] text-[#111]">
+          <h2 className="font-display text-[clamp(22px,2.2vw,26px)] tracking-[-1px] max-lg:tracking-[-0.02em] leading-[26px] text-[#111]">
             Delete this Goal?
           </h2>
-          <p className="font-sans text-[12px] text-[#959592] leading-[19.8px] max-w-[354px]">
+          <p className="font-sans text-[12px] text-[#959592] leading-[19.8px] max-w-[354px] max-lg:text-[14px]">
             This will permanently remove the goal from your profile. Your profile updates
             immediately. This cannot be undone.
           </p>
@@ -149,7 +167,7 @@ const DeleteGoalModal = ({
 
               {/* "●  Active" pill — Figma 5625:92804/92805 */}
               <span
-                className="inline-flex items-center self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px] whitespace-pre"
+                className="inline-flex items-center self-start rounded-full border px-[9px] py-[3px] font-sans font-semibold text-[8px] max-lg:text-[12px] whitespace-pre"
                 style={{
                   background: ACTIVE_BADGE_STYLE.bg,
                   borderColor: ACTIVE_BADGE_STYLE.border,
@@ -173,7 +191,7 @@ const DeleteGoalModal = ({
               <div className="flex items-center flex-wrap gap-[8px] mt-[2px]">
                 {isPrimary && (
                   <span
-                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border"
+                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border"
                     style={{
                       background: PRIMARY_BADGE_STYLE.bg,
                       borderColor: PRIMARY_BADGE_STYLE.border,
@@ -186,7 +204,7 @@ const DeleteGoalModal = ({
                 {neutralChips.map((chip) => (
                   <span
                     key={chip}
-                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] border"
+                    className="inline-flex items-center rounded-full h-[22px] px-[10px] font-sans font-semibold text-[10px] max-lg:text-[12px] border"
                     style={{
                       background: NEUTRAL_CHIP_STYLE.bg,
                       borderColor: NEUTRAL_CHIP_STYLE.border,
@@ -227,7 +245,7 @@ const DeleteGoalModal = ({
             <span className="font-sans font-semibold text-[12px] text-[#2a5730]">
               Want to fix something instead of deleting?
             </span>
-            <p className="font-sans text-[10px] text-brand-green leading-[14px] opacity-85">
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-brand-green leading-[14px] opacity-85">
               Wrong date, wrong org name, missing credential ID? Editing is faster and keeps
               everything intact.
             </p>

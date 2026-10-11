@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
+import { COMPACT_PRIMARY_BUTTON } from '../../components/ui/form/mobileScale.js';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
 import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
@@ -25,15 +26,15 @@ const log = debug('OnboardingWelcomePage');
 // ---- left column primitives -------------------------------------------
 
 const TalentTag = () => (
-  // "Talent" eyebrow pill â€" Figma node 2858:24046 family.
-  // "Talent" eyebrow pill â€" Figma node 2858:24046 family.
+  // "Talent" eyebrow pill — Figma node 2858:24046 family.
+  // "Talent" eyebrow pill — Figma node 2858:24046 family.
   // bg #EBF1EC, 1px #387440 inset outline, radius 5, padding 4/12.
   <span
-    className="inline-flex items-center gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
+    className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1 rounded-[5px] bg-brand-green-light px-3 py-1"
     style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
   >
     <span
-      className="text-[10px] font-medium leading-4 text-brand-green"
+      className="text-[10px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
       style={{ letterSpacing: '0.2px' }}
     >
       Talent
@@ -97,12 +98,12 @@ const OnboardingWelcomePage = () => {
   return (
     <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
       {/* Left content column — scrolls independently within the fixed shell */}
-      <div className="flex flex-1 min-h-0 items-center justify-center overflow-y-auto no-scrollbar px-6 py-12 md:py-20">
-        <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center">
+      <div className="flex flex-1 min-h-0 items-center max-md:items-start justify-center max-lg:relative max-lg:z-10 overflow-y-auto no-scrollbar px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
+        <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center max-md:gap-3">
           <TalentTag />
 
           <h1
-            className="font-display font-normal text-black"
+            className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
             style={{ fontSize: 'clamp(2rem, 4.4vw, 4rem)', lineHeight: 1.1 }}
           >
             <span className="block">Welcome. Here&apos;s what</span>
@@ -112,7 +113,7 @@ const OnboardingWelcomePage = () => {
           </h1>
 
           <p
-            className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+            className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
             style={{ letterSpacing: '0.2px' }}
           >
             Just a few questions. We&apos;ll use your answers to build a profile that works hard for
@@ -185,12 +186,12 @@ const OnboardingWelcomePage = () => {
               return (
                 <li
                   key={step.title}
-                  className={`relative flex h-[70px] items-start ${isLast ? '' : 'border-b border-[#E6E6E6]'}`}
+                  className={`relative flex h-[70px] max-md:h-auto max-md:min-h-[70px] max-md:py-4 items-start ${isLast ? '' : 'border-b border-[#E6E6E6]'}`}
                 >
-                  <span aria-hidden="true" className="absolute left-0 top-[19px]">
+                  <span aria-hidden="true" className="absolute left-0 top-[19px] max-md:top-4">
                     <StepNumberBadge n={idx + 1} />
                   </span>
-                  <div className="absolute left-[58px] top-[17px] flex flex-col gap-2">
+                  <div className="absolute left-[58px] top-[17px] flex flex-col gap-2 max-md:static max-md:ml-[58px]">
                     <p className="text-[16px] font-semibold leading-[18px] text-brand-green">
                       {step.title}
                     </p>
@@ -211,20 +212,20 @@ const OnboardingWelcomePage = () => {
             disabled={isSubmitting}
             leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
             rightIcon={<ArrowRightIcon />}
-            className="mt-3 w-full max-w-[420px]"
+            className={`mt-3 w-full max-w-[420px] ${COMPACT_PRIMARY_BUTTON}`}
             aria-busy={isSubmitting}
           >
             {isSubmitting ? 'Setting Things Up' : "Let's Begin"}
           </Button>
 
           {/* Already-have-account link */}
-          <div className="flex items-center gap-2 text-[14px] leading-6">
+          <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
             <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
               Already Have an account?
             </span>
             <Link
               to={'/login'}
-              className="font-semibold text-brand-green underline-offset-2 hover:underline"
+              className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
               style={{ letterSpacing: '0.1px' }}
             >
               Log in Instead

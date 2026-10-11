@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Upload from '../../ui/form/Upload.jsx';
+import ClampText from '../../ui/ClampText.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
@@ -74,18 +75,18 @@ const ParentInviteVerificationSection = () => {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       {/* ── Scrollable body ── */}
-      <div className="flex-1 px-6 py-10 md:px-14">
-        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px]">
+      <div className="flex-1 px-6 py-10 md:px-14 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px] max-md:gap-3">
           {/* Header (centered) — Figma 2864:37225 / 37226 / 37227 */}
-          <div className="flex flex-col items-center gap-[6px] text-center">
+          <div className="flex flex-col items-center gap-[6px] text-center max-md:items-start max-md:gap-1 max-md:text-left">
             <span
               className="font-sans font-bold uppercase"
-              style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+              style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
             >
               Step 2 of 7 — Verification
             </span>
             <h1
-              className="font-display font-normal"
+              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1px',
@@ -99,7 +100,7 @@ const ParentInviteVerificationSection = () => {
               </span>
             </h1>
             <p
-              className="max-w-[440px] font-sans"
+              className="max-w-[440px] font-sans max-md:leading-5!"
               style={{ fontSize: 14, color: '#70706e', lineHeight: '23px' }}
             >
               Both fields are optional — you can skip this step and verify later. Adding an ID and
@@ -109,7 +110,7 @@ const ParentInviteVerificationSection = () => {
 
           {/* Note banner — Figma 2864:37228 */}
           <div
-            className="flex w-full items-start gap-[12px] rounded-[16px] border px-[15px] py-[13px]"
+            className="flex w-full items-start gap-[12px] rounded-[16px] border px-[15px] py-[13px] max-md:gap-2.5 max-md:rounded-[12px] max-md:px-3 max-md:py-2.5"
             style={{ backgroundColor: '#faf4e8', borderColor: '#eedeb8' }}
           >
             <span
@@ -118,20 +119,26 @@ const ParentInviteVerificationSection = () => {
             >
               <InfoGlyph />
             </span>
-            <p className="font-sans" style={{ fontSize: 13, lineHeight: '20px' }}>
-              <span className="font-bold" style={{ color: '#111' }}>
-                Both fields are optional for parents
-              </span>
-              <span style={{ color: '#575755' }}>
-                {' '}
-                Unlike talent accounts, parent verification is not required to access the platform.
-                You can always add these details later from your dashboard.
-              </span>
-            </p>
+            <div className="min-w-0 flex-1">
+              <ClampText
+                lines={3}
+                className="font-sans text-[13px] leading-5 max-md:leading-[18px]"
+                buttonClassName="text-[13px] font-semibold text-[#b48617]"
+              >
+                <span className="font-bold" style={{ color: '#111' }}>
+                  Both fields are optional for parents
+                </span>
+                <span style={{ color: '#575755' }}>
+                  {' '}
+                  Unlike talent accounts, parent verification is not required to access the
+                  platform. You can always add these details later from your dashboard.
+                </span>
+              </ClampText>
+            </div>
           </div>
 
           {/* Upload cards — Figma 2864:37235 / 37245 (reused Upload, amber) */}
-          <div className="grid grid-cols-1 gap-[16px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-[16px] max-md:gap-3 sm:grid-cols-2">
             <Upload
               variant="amber"
               height={160}
@@ -167,7 +174,7 @@ const ParentInviteVerificationSection = () => {
           </div>
 
           {/* Skip row — Figma 2864:37254 */}
-          <div className="flex items-center justify-center gap-[6px]">
+          <div className="flex flex-wrap items-center justify-center gap-[6px]">
             <span className="font-sans" style={{ fontSize: 12, color: '#70706e' }}>
               Prefer to skip for now?
             </span>
@@ -177,7 +184,7 @@ const ParentInviteVerificationSection = () => {
                 log('continue without verification');
                 goNext();
               }}
-              className="font-sans font-bold"
+              className="relative font-sans font-bold max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-3 max-md:before:content-['']"
               style={{ fontSize: 12, color: '#c8951a', borderBottom: '1px solid #eedeb8' }}
             >
               Continue without verification
@@ -188,7 +195,7 @@ const ParentInviteVerificationSection = () => {
 
       {/* ── Sticky footer: Back + Continue (Figma 2864:37257) ── */}
       <div
-        className="sticky bottom-0 bg-white px-6 py-[15px] md:px-14"
+        className="sticky bottom-0 z-20 bg-white px-6 py-[15px] max-md:px-4 max-md:py-2 max-md:pb-[max(8px,env(safe-area-inset-bottom))] md:px-14"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="mx-auto flex w-full max-w-full items-center gap-[10px]">
@@ -198,23 +205,24 @@ const ParentInviteVerificationSection = () => {
               log('back clicked');
               navigate(-1);
             }}
-            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold"
+            aria-label="Back"
+            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"
             style={{ borderColor: '#c6c6c3', color: '#111', fontSize: 14 }}
           >
             <ChevronLeft />
-            Back
+            <span className="max-md:sr-only">Back</span>
           </button>
           <button
             type="button"
             onClick={goNext}
-            className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 text-white transition-transform active:translate-y-[2px]"
+            className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
             style={{
               backgroundColor: '#c8951a',
               borderColor: '#967014',
               boxShadow: '0px 3px 0px #967014',
             }}
           >
-            <span className="font-sans font-bold" style={{ fontSize: 15 }}>
+            <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
               Continue
             </span>
             <ArrowRightIcon />

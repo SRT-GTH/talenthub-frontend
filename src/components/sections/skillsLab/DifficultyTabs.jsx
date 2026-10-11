@@ -12,11 +12,11 @@ export default function DifficultyTabs() {
       <span className="text-[#575755] text-[12px] font-sans font-semibold leading-normal">
         Computer Difficulty
       </span>
-      <div className="flex items-center gap-[8px]">
+      <div className="flex items-center gap-[8px] max-lg:flex-wrap">
         {TABS.map((tab) => (
           <div
             key={tab}
-            className={`px-[16px] py-[6px] rounded-[6px] text-[12px] font-sans font-semibold leading-normal cursor-default ${
+            className={`px-[16px] max-sm:flex-1 max-sm:text-center py-[6px] rounded-[6px] text-[12px] font-sans font-semibold leading-normal cursor-default ${
               tab === 'Random'
                 ? 'bg-[#387440] text-white border border-[#387440]'
                 : 'bg-white text-[#575755] border border-[#e8e8e4]'

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import { TextInput, Select } from '../../components/ui/form';
+import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
@@ -26,40 +26,40 @@ import { debug } from '../../utils/debug.js';
 const log = debug('OnboardingEducationPage');
 
 /*
- * OnboardingEducationPage â€” Step 05 of the talent onboarding flow.
+ * OnboardingEducationPage — Step 05 of the talent onboarding flow.
  * Maps to user story US-1.1.1-05 ("Capture Talent Education"). Route:
  * /onboarding/education.
  *
  * Figma sources (page-level):
- *   2709:12641 â€” default empty state
- *   2709:14806 â€” filled state (all 4 fields populated, CTA active)
- *   2709:18846 â€” loader A (button-inline spinner; pressed dark-green CTA)
- *   2709:25638 â€” loader B (post-success summary modal)
- *   2739:15931 â€” level-not-jhs (gating warning modal for sub-JHS picks)
+ *   2709:12641 — default empty state
+ *   2709:14806 — filled state (all 4 fields populated, CTA active)
+ *   2709:18846 — loader A (button-inline spinner; pressed dark-green CTA)
+ *   2709:25638 — loader B (post-success summary modal)
+ *   2739:15931 — level-not-jhs (gating warning modal for sub-JHS picks)
  *
- * Figma sources (field-level edge-cases â€” see temp-outputs/education-edge-cases/):
- *   2709:15270 â€” empty default (cascade: Grade disabled until Level)
- *   2709:15480 / 2709:15690 â€” progressive fill (Level â†’ Grade verified)
- *   2709:15900 â€” Grade picked; Graduation STILL disabled until Institution
- *   2709:16110 / 2709:16320 â€” Institution + Graduation verified states
- *   2709:37471 / 2717:38189 â€” error states (frame 8 adds the callout banner)
+ * Figma sources (field-level edge-cases — see temp-outputs/education-edge-cases/):
+ *   2709:15270 — empty default (cascade: Grade disabled until Level)
+ *   2709:15480 / 2709:15690 — progressive fill (Level → Grade verified)
+ *   2709:15900 — Grade picked; Graduation STILL disabled until Institution
+ *   2709:16110 / 2709:16320 — Institution + Graduation verified states
+ *   2709:37471 / 2717:38189 — error states (frame 8 adds the callout banner)
  *
  * Cascade gate (per frame 2709:15900):
- *   Level â†’ Grade â†’ Institution â†’ Graduation
+ *   Level → Grade → Institution → Graduation
  *
  * Submit behaviour:
- *   - On submit with sub-JHS level â†’ show LevelNotEligibleModal
- *     (amber-themed gating modal â€” single CTA resets the level)
- *   - On submit with 2+ invalid fields â†’ show EducationErrorCallout banner
+ *   - On submit with sub-JHS level → show LevelNotEligibleModal
+ *     (amber-themed gating modal — single CTA resets the level)
+ *   - On submit with 2+ invalid fields → show EducationErrorCallout banner
  *     above the form + per-field error chrome.
- *   - On submit with eligible level â†’ 900ms button-inline loader,
+ *   - On submit with eligible level → 900ms button-inline loader,
  *     then EducationConfirmedModal (green-themed summary modal)
- *     â†’ navigates to /onboarding/review on continue.
+ *     → navigates to /onboarding/review on continue.
  */
 
 // ---- option data ------------------------------------------------------
 
-// Qualification levels â€” `primary` is sub-JHS and triggers the gating
+// Qualification levels — `primary` is sub-JHS and triggers the gating
 // warning modal. Everything else proceeds to the success state. Mirrors
 // the option set inferred from the Figma `05-level-not-jhs` variant.
 const LEVEL_OPTIONS = [
@@ -74,7 +74,7 @@ const LEVEL_OPTIONS = [
 
 const SUB_JHS_LEVELS = new Set(['primary']);
 
-// Grade/Year options are level-dependent. Stub data â€” real backend wires
+// Grade/Year options are level-dependent. Stub data — real backend wires
 // these to a curriculum service later.
 const GRADES_BY_LEVEL = {
   jhs: [
@@ -106,7 +106,7 @@ const GRADES_BY_LEVEL = {
   none: [{ value: 'gap', label: 'Gap year / Not studying' }],
 };
 
-// Expected-graduation years â€” current year + 6 forward. Avoids a date
+// Expected-graduation years — current year + 6 forward. Avoids a date
 // picker dependency for a simple "yyyy" field.
 const CURRENT_YEAR = new Date().getFullYear();
 const GRADUATION_YEARS = Array.from({ length: 7 }, (_, i) => {
@@ -117,7 +117,7 @@ const GRADUATION_YEARS = Array.from({ length: 7 }, (_, i) => {
 // ---- error callout banner --------------------------------------------
 
 // Surfaces above the form when the user clicks Continue with 2+ empty
-// required fields. Matches Figma frame 2717:38189 â€” 430Ã—75 box, asymmetric
+// required fields. Matches Figma frame 2717:38189 — 430×75 box, asymmetric
 // 3px-left red border, alert + close glyphs. Dismissable; re-shows on the
 // next failed submit attempt.
 const EducationErrorCallout = ({ title, body, onClose }) => {
@@ -187,11 +187,11 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="education-success-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(0, 0, 0, 0.45)' }}
     >
       <div
-        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)]"
+        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{ border: '3px solid #C1D4C4' }}
       >
         {/* Top-right close chip */}
@@ -205,7 +205,7 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
           <CloseIcon />
         </button>
 
-        {/* Icon block â€” green-tinted square with success check */}
+        {/* Icon block — green-tinted square with success check */}
         <div className="flex flex-col items-center gap-3">
           <span
             className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
@@ -274,9 +274,9 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
           I&apos;m Ready
         </Button>
 
-        {/* Footer note â€” shield + GDPA */}
+        {/* Footer note — shield + GDPA */}
         <p
-          className="flex items-center justify-center gap-1.5 text-[10px] leading-4 text-[#959592]"
+          className="flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
           style={{ letterSpacing: '0.2px' }}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -294,7 +294,7 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
               strokeLinejoin="round"
             />
           </svg>
-          Data encrypted at rest Â· Ghana Data Protection Act compliant
+          Data encrypted at rest · Ghana Data Protection Act compliant
         </p>
       </div>
     </div>
@@ -310,11 +310,11 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="education-gate-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
       style={{ background: 'rgba(0, 0, 0, 0.45)' }}
     >
       <div
-        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)]"
+        className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{ border: '3px solid #EEDEB8' }}
       >
         {/* Top-right close chip (re-uses the green chip even on amber card,
@@ -329,7 +329,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
           <CloseIcon />
         </button>
 
-        {/* Icon block â€” amber-tinted square with warning glyph */}
+        {/* Icon block — amber-tinted square with warning glyph */}
         <div className="flex flex-col items-center gap-3">
           <span
             className="flex size-16 items-center justify-center rounded-[10px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]"
@@ -379,7 +379,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
           </p>
         </div>
 
-        {/* Muted secondary CTA â€” "Choose A Different Level" */}
+        {/* Muted secondary CTA — "Choose A Different Level" */}
         <button
           type="button"
           onClick={onChangeLevel}
@@ -454,7 +454,7 @@ const OnboardingEducationPage = () => {
   const isInstitutionMissing = institution.trim().length === 0;
   const isGraduationMissing = graduation === '';
 
-  // Field-level error chrome / copy â€” only after the first submit attempt
+  // Field-level error chrome / copy — only after the first submit attempt
   // and only for fields whose cascade is satisfied (so cascade-disabled
   // fields keep their grey prompt instead of yelling).
   const levelError = hasSubmittedOnce && isLevelMissing ? 'Please select your level' : undefined;
@@ -501,11 +501,11 @@ const OnboardingEducationPage = () => {
     event.preventDefault();
     setHasSubmittedOnce(true);
 
-    // Sub-JHS gate â€” block the flow with the amber warning modal even if
+    // Sub-JHS gate — block the flow with the amber warning modal even if
     // the rest of the form is empty. The CTA in the modal resets the level
     // and asks the user to pick again.
     if (SUB_JHS_LEVELS.has(level)) {
-      log('submit blocked â€” sub-JHS level', { level });
+      log('submit blocked — sub-JHS level', { level });
       setShowLevelGate(true);
       return;
     }
@@ -526,7 +526,7 @@ const OnboardingEducationPage = () => {
     log('submit', { level, grade, institution, graduation });
     setShowErrorBanner(false);
     setIsSubmitting(true);
-    // Fake round-trip â€” real wiring lands when the education-save service
+    // Fake round-trip — real wiring lands when the education-save service
     // is built. 900ms keeps the loader visible without being annoying.
     setTimeout(() => {
       setIsSubmitting(false);
@@ -538,21 +538,21 @@ const OnboardingEducationPage = () => {
     // Below-18 talents collect a parent/guardian contact before the
     // review/terms step; adults skip straight to review.
     const nextRoute = isMinor ? '/onboarding/talent/parent-info' : '/onboarding/talent/review';
-    log('continue â†’', nextRoute, '(isMinor:', isMinor, ')');
+    log('continue →', nextRoute, '(isMinor:', isMinor, ')');
     setShowSuccess(false);
     navigate(nextRoute);
   };
 
   const handleChangeLevel = () => {
-    log('level-gate â†’ reset level');
+    log('level-gate → reset level');
     setShowLevelGate(false);
     setLevel('');
     setGrade('');
     setGraduation('');
   };
 
-  const getLevelLabel = (v) => LEVEL_OPTIONS.find((o) => o.value === v)?.label || 'â€”';
-  const getGradeLabel = (v) => availableGrades.find((o) => o.value === v)?.label || 'â€”';
+  const getLevelLabel = (v) => LEVEL_OPTIONS.find((o) => o.value === v)?.label || '—';
+  const getGradeLabel = (v) => availableGrades.find((o) => o.value === v)?.label || '—';
 
   const summary = [
     {
@@ -567,12 +567,12 @@ const OnboardingEducationPage = () => {
     },
     {
       label: 'Institution',
-      value: institution || 'â€”',
+      value: institution || '—',
       icon: <SearchIcon />,
     },
     {
       label: 'Graduating',
-      value: graduation ? `Class of ${graduation}` : 'â€”',
+      value: graduation ? `Class of ${graduation}` : '—',
       icon: <MapPinIcon />,
     },
   ];
@@ -593,17 +593,17 @@ const OnboardingEducationPage = () => {
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
-        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
               aria-busy={isSubmitting}
             >
-              {/* Eyebrow â€” "05 Education" â€” trend-up glyph + italic numeral */}
+              {/* Eyebrow — "05 Education" — trend-up glyph + italic numeral */}
               <span
-                className="inline-flex items-center gap-2 rounded-[8px] border px-4 py-1"
+                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-2 rounded-[8px] border px-4 py-1"
                 style={{
                   background: '#FFFEFC',
                   borderColor: '#C1D4C4',
@@ -627,17 +627,17 @@ const OnboardingEducationPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black"
+                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
               >
                 Your <span className="italic text-brand-green">Educational</span> Level
               </h1>
 
               <p
-                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
                 style={{ letterSpacing: '0.2px' }}
               >
-                Select your level â€” everything else fills in automatically.
+                Select your level — everything else fills in automatically.
               </p>
 
               <WavyDivider />
@@ -654,11 +654,11 @@ const OnboardingEducationPage = () => {
                 />
               )}
 
-              {/* Form grid â€” 4 fields in 2x2 (collapses to single column on
-                narrow viewports). Progressive disclosure: Level â†’ Grade â†’
-                Institution â†’ Graduation. Each unlocks the next; clearing a
+              {/* Form grid — 4 fields in 2x2 (collapses to single column on
+                narrow viewports). Progressive disclosure: Level → Grade →
+                Institution → Graduation. Each unlocks the next; clearing a
                 parent clears its descendants. */}
-              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2">
+              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 max-md:gap-y-3">
                 <Select
                   label="Education level"
                   required
@@ -722,31 +722,33 @@ const OnboardingEducationPage = () => {
                 />
               </div>
 
-              {/* Continue stays clickable even when the form is invalid â€” the
+              {/* Continue stays clickable even when the form is invalid — the
                 submit handler short-circuits and surfaces the per-field error
                 chrome + aggregated banner (Figma frames 2709:37471 /
                 2717:38189). Only disabled mid-submit. */}
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={isSubmitting}
-                state={isSubmitting ? 'active' : undefined}
-                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-                rightIcon={<ArrowRightIcon />}
-                className="mt-2 w-full"
-                aria-busy={isSubmitting}
-              >
-                Continue
-              </Button>
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={isSubmitting}
+                  state={isSubmitting ? 'active' : undefined}
+                  leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                  rightIcon={<ArrowRightIcon />}
+                  className="mt-2 w-full"
+                  aria-busy={isSubmitting}
+                >
+                  Continue
+                </Button>
+              </StickyActionBar>
 
-              <div className="flex items-center gap-2 text-[14px] leading-6">
+              <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
                 <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                   Already Have an account?
                 </span>
                 <Link
                   to={'/login'}
-                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                   style={{ letterSpacing: '0.1px' }}
                 >
                   Log in Instead

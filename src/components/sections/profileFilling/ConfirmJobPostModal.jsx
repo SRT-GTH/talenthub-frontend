@@ -25,7 +25,7 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
       ariaLabel={CONFIRM_JOB_POST.title}
       showClose={false}
       className="!bg-[rgba(17,17,17,0.7)] !backdrop-blur-none"
-      contentClassName="!max-w-[528px] !rounded-[24px] !overflow-hidden"
+      contentClassName="!max-w-[528px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !overflow-hidden"
     >
       {/* Figma pad 48×64; title 36px Instrument Serif; body 16/24 #575755; CTA gap 36 then 8. */}
       <div className="flex flex-col items-center gap-[36px] px-[48px] py-[64px] text-center">
@@ -38,11 +38,12 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-[8px]">
+        <div className="flex flex-wrap items-center justify-center gap-[8px] max-sm:flex-nowrap">
           <Button
             type="button"
             variant="primary"
             size="sm"
+            className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
             rightIcon={<ArrowRightIcon />}
             onClick={() => {
               log('branch', { confirmPost: true });
@@ -60,9 +61,9 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
               log('branch', { goBackEdit: true });
               onClose?.();
             }}
-            className="!rounded-[14px] !gap-[6px]"
+            className="!rounded-[14px] !gap-[6px] max-sm:px-3 max-sm:py-2 max-sm:leading-5"
           >
-            {CONFIRM_JOB_POST.edit}
+            <span className="max-sm:sr-only">{CONFIRM_JOB_POST.edit}</span>
           </Button>
         </div>
       </div>

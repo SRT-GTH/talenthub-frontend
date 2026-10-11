@@ -47,17 +47,17 @@ const ReportPostModal = ({ isOpen, onClose, post, onSubmit }) => {
       ariaLabel={REPORT_POST_COPY.title}
       contentClassName="!max-w-[560px] !rounded-[24px] !shadow-[0px_40px_100px_0px_rgba(0,0,0,0.25),0px_4px_0px_0px_rgba(0,0,0,0.13)]"
     >
-      <div className="relative flex flex-col items-start gap-[17px] px-[32px] py-[28px]">
+      <div className="relative flex flex-col items-start gap-[17px] px-[32px] py-[28px] max-sm:px-[16px] max-sm:pb-[16px] max-sm:pt-[20px]">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-[14px] top-[11px] inline-flex size-[28px] items-center justify-center rounded-[20px] bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          className="absolute right-[14px] top-[11px] max-sm:right-[8px] max-sm:top-[8px] inline-flex size-[28px] max-sm:size-[44px] items-center justify-center rounded-[20px] max-sm:rounded-full bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           <CommunityIcon src={icons.modalClose} size={16} />
         </button>
 
-        <div className="flex flex-col items-start gap-[4px]">
+        <div className="flex flex-col items-start gap-[4px] max-sm:pr-[48px]">
           <h2 className="font-display text-[32px] text-black">{REPORT_POST_COPY.title}</h2>
           <p className="font-sans text-[14px] text-[#595959]">{REPORT_POST_COPY.subtitle}</p>
         </div>
@@ -80,7 +80,7 @@ const ReportPostModal = ({ isOpen, onClose, post, onSubmit }) => {
                     log('report reason selected:', item);
                     setReason(item);
                   }}
-                  className="flex items-center gap-[12px] overflow-hidden rounded bg-white py-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                  className="flex items-center gap-[12px] overflow-hidden rounded bg-white py-[6px] max-lg:min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
                 >
                   <CommunityIcon
                     src={selected ? icons.radioChecked : icons.radioUnchecked}
@@ -100,11 +100,11 @@ const ReportPostModal = ({ isOpen, onClose, post, onSubmit }) => {
           </div>
 
           <div className="flex w-full flex-col items-end bg-white">
-            <div className="flex items-start gap-[12px] bg-white">
+            <div className="flex items-start gap-[12px] bg-white max-sm:w-full [&>button]:max-sm:flex-1">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center justify-center rounded-[14px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[18px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="flex items-center justify-center max-lg:min-h-[48px] rounded-[14px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[18px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >
                 <span className="whitespace-nowrap font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black">
                   {REPORT_POST_COPY.cancelLabel}
@@ -113,7 +113,7 @@ const ReportPostModal = ({ isOpen, onClose, post, onSubmit }) => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="flex items-center justify-center gap-[8px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="flex items-center justify-center gap-[8px] max-lg:min-h-[48px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >
                 <span
                   className="whitespace-nowrap bg-clip-text font-sans text-[14px] font-bold leading-6 tracking-[0.1px] text-transparent"

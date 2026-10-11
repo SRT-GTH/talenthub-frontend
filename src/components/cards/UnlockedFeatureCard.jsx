@@ -1,4 +1,5 @@
 import { classNames } from '../../utils/classNames.js';
+import ClampText from '../ui/ClampText.jsx';
 
 /*
  * UnlockedFeatureCard — one card in the "What you just unlocked" grid
@@ -43,7 +44,7 @@ const UnlockedFeatureCard = ({
   return (
     <article
       className={classNames(
-        'flex flex-col gap-2 rounded-2xl p-5',
+        'flex flex-col gap-2 rounded-2xl p-5 max-md:gap-1 max-md:rounded-xl max-md:p-3',
         highlighted
           ? palette.highlightedBox
           : 'bg-white border border-border-default shadow-bottom-200',
@@ -52,15 +53,18 @@ const UnlockedFeatureCard = ({
     >
       <h4
         className={classNames(
-          'font-sans font-semibold text-[16px] leading-6 tracking-[0.1px]',
+          'font-sans font-semibold text-[16px] max-md:text-[15px] leading-6 max-md:leading-5 tracking-[0.1px]',
           palette.title
         )}
       >
         {title}
       </h4>
-      <p className="font-sans text-[13px] leading-[20px] tracking-[0.2px] text-neutral-darker">
+      <ClampText
+        lines={3}
+        className="font-sans text-[13px] max-md:text-[13px] max-lg:text-[14px] leading-[20px] max-md:leading-[18px] tracking-[0.2px] text-neutral-darker"
+      >
         {description}
-      </p>
+      </ClampText>
     </article>
   );
 };

@@ -62,7 +62,7 @@ const EyeToggle = ({ show, onClick }) => (
     type="button"
     onClick={onClick}
     aria-label={show ? 'Hide password' : 'Show password'}
-    className="text-neutral-dark-active"
+    className="relative text-neutral-dark-active max-md:before:absolute max-md:before:-inset-3 max-md:before:content-['']"
   >
     {show ? <EyeOffIcon /> : <EyeIcon />}
   </button>
@@ -70,7 +70,7 @@ const EyeToggle = ({ show, onClick }) => (
 
 const FieldLabel = ({ children, required }) => (
   <span
-    className="mb-[8px] flex items-center gap-[3px] font-sans font-bold"
+    className="mb-[8px] flex items-center gap-[3px] font-sans font-bold max-md:mb-1.5"
     style={{ fontSize: 13, color: '#111' }}
   >
     {children}
@@ -103,18 +103,18 @@ const ParentInviteSecuritySection = () => {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       {/* ── Scrollable body ── */}
-      <div className="flex-1 px-6 py-10 md:px-14">
-        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px]">
+      <div className="flex-1 px-6 py-10 md:px-14 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex w-full max-w-full flex-col gap-[20px] max-md:gap-3">
           {/* Header (centered) — Figma 2864:37487 / 37488 / 37489 */}
-          <div className="flex flex-col items-center gap-[6px] text-center">
+          <div className="flex flex-col items-center gap-[6px] text-center max-md:items-start max-md:gap-1 max-md:text-left">
             <span
               className="font-sans font-bold uppercase"
-              style={{ fontSize: 10, color: '#c8951a', letterSpacing: '1.3px' }}
+              style={{ fontSize: 'var(--fs-10)', color: '#c8951a', letterSpacing: '1.3px' }}
             >
               Step 4 of 7 — Account Security
             </span>
             <h1
-              className="font-display font-normal"
+              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1px',
@@ -128,7 +128,7 @@ const ParentInviteSecuritySection = () => {
               </span>
             </h1>
             <p
-              className="max-w-[440px] font-sans"
+              className="max-w-[440px] font-sans max-md:leading-5!"
               style={{ fontSize: 14, color: '#70706e', lineHeight: '23px' }}
             >
               This password protects your parent account. Use something only you would know.
@@ -147,7 +147,7 @@ const ParentInviteSecuritySection = () => {
             />
 
             {/* Strength meter — Figma 2864:37492 … 37495 */}
-            <div className="mt-[14px] flex gap-[4px]">
+            <div className="mt-[14px] flex gap-[4px] max-md:mt-2.5">
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
@@ -164,7 +164,7 @@ const ParentInviteSecuritySection = () => {
             </span>
 
             {/* Requirements — Figma 2864:37497 … 37512 */}
-            <div className="mt-[10px] flex flex-col gap-[4px]">
+            <div className="mt-[10px] flex flex-col gap-[4px] max-md:mt-2 max-md:grid max-md:grid-cols-2 max-md:gap-x-3 max-md:gap-y-1.5">
               {RULES.map((rule, i) => (
                 <span key={rule.key} className="flex items-center gap-[8px]">
                   <RuleCheck met={met[i]} />
@@ -196,7 +196,7 @@ const ParentInviteSecuritySection = () => {
 
       {/* ── Sticky footer — Figma 2864:37527 ── */}
       <div
-        className="sticky bottom-0 bg-white px-6 py-[15px] md:px-14"
+        className="sticky bottom-0 z-20 bg-white px-6 py-[15px] max-md:px-4 max-md:py-2 max-md:pb-[max(8px,env(safe-area-inset-bottom))] md:px-14"
         style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
       >
         <div className="mx-auto flex w-full max-w-full items-center gap-[10px]">
@@ -206,36 +206,40 @@ const ParentInviteSecuritySection = () => {
               log('back clicked');
               navigate(-1);
             }}
-            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold"
+            aria-label="Back"
+            className="flex h-[48px] items-center gap-[8px] rounded-[10px] border px-[21px] font-sans font-semibold max-md:h-11 max-md:w-11 max-md:shrink-0 max-md:justify-center max-md:px-0"
             style={{ borderColor: '#c6c6c3', color: '#111', fontSize: 14 }}
           >
             <ChevronLeft />
-            Back
+            <span className="max-md:sr-only">Back</span>
           </button>
 
           {canContinue ? (
             <button
               type="button"
               onClick={handleContinue}
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 text-white transition-transform active:translate-y-[2px]"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
               style={{
                 backgroundColor: '#c8951a',
                 borderColor: '#967014',
                 boxShadow: '0px 3px 0px #967014',
               }}
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15 }}>
+              <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
                 Continue
               </span>
               <ArrowRightIcon />
             </button>
           ) : (
             <div
-              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2"
+              className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none!"
               style={{ backgroundColor: '#e6e6e3', borderColor: '#d8d8d4', cursor: 'not-allowed' }}
               aria-disabled="true"
             >
-              <span className="font-sans font-bold" style={{ fontSize: 15, color: '#a6a6a3' }}>
+              <span
+                className="font-sans font-bold max-md:text-[14px]!"
+                style={{ fontSize: 15, color: '#a6a6a3' }}
+              >
                 Continue
               </span>
               <span style={{ color: '#a6a6a3' }}>

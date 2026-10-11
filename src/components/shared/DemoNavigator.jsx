@@ -5,6 +5,16 @@ import { useCareerBuddyRole } from '../../hooks/useCareerBuddyRole.js';
 
 const log = debug('DemoNavigator');
 
+// The responsive e2e gate and screenshot tooling hide this dev-only bar so it
+// never pollutes layout measurements: localStorage `gth:hide-demo` = '1'.
+const isDemoHidden = () => {
+  try {
+    return window.localStorage.getItem('gth:hide-demo') === '1';
+  } catch {
+    return false;
+  }
+};
+
 const TALENT_ADULT_STEPS = [
   { label: 'Welcome', path: '/onboarding/talent/welcome' },
   { label: 'Date of Birth', path: '/onboarding/talent/dob' },
@@ -190,8 +200,12 @@ export default function DemoNavigator() {
   const [activeFlow, setActiveFlow] = useState('talent');
   const [isMinor, setIsMinor] = useState(false);
   const [isPathB, setIsPathB] = useState(false);
+  // Below md the full pill (≈800px wide) cannot fit; it collapses to a small
+  // toggle and expands into a horizontally scrollable bar.
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!import.meta.env.DEV) return null;
+  if (isDemoHidden()) return null;
   if (!onOnboarding && !onCareerBuddy && !onProfileFilling && !onRecruiter) return null;
 
   // The current URL always wins over a stale toggle click (e.g. the back
@@ -329,8 +343,13 @@ export default function DemoNavigator() {
     navigate(dest);
   }
 
-  return (
-    <div className="fixed bottom-6 left-1/2 z-[9999] flex -translate-x-1/2 items-center gap-3 rounded-full bg-gray-900/90 px-4 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+  const bar = (
+    <div
+      data-demo-navigator
+      className={`fixed bottom-[68px] left-14 right-2 z-[9999] flex items-center gap-3 overflow-x-auto whitespace-nowrap [&>*]:shrink-0 rounded-full bg-gray-900/90 px-4 py-2 text-sm text-white shadow-lg backdrop-blur-sm md:bottom-6 md:left-1/2 md:right-auto md:w-max md:max-w-[calc(100vw-32px)] md:-translate-x-1/2 ${
+        mobileOpen ? 'flex' : 'hidden md:flex'
+      }`}
+    >
       {/* Surface: Onboarding | Career Buddy */}
       <div className="flex items-center gap-1">
         {[
@@ -493,5 +512,21 @@ export default function DemoNavigator() {
         </>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {bar}
+      <button
+        type="button"
+        data-demo-navigator
+        aria-label={mobileOpen ? 'Hide demo navigator' : 'Show demo navigator'}
+        aria-expanded={mobileOpen}
+        onClick={() => setMobileOpen((open) => !open)}
+        className="fixed bottom-[68px] left-2 z-[10000] grid size-11 place-items-center rounded-full bg-gray-900/90 text-xs font-semibold text-white shadow-lg md:hidden"
+      >
+        {mobileOpen ? '×' : 'Demo'}
+      </button>
+    </>
   );
 }

@@ -82,8 +82,8 @@ const PortfolioIntroSection = () => {
   const currentStage = PROFILE_STAGES[5]; // project-portfolio
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -92,17 +92,17 @@ const PortfolioIntroSection = () => {
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={5} completionPct={56} className="w-full h-full" />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-hidden flex">
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+      <main className="flex-1 min-h-0 overflow-hidden flex max-lg:flex-col max-lg:overflow-visible">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
             {/* Header section — Figma 5178:101475 */}
             <section
               aria-label={`${currentStage?.title ?? 'Portfolio'} overview`}
-              className="border-b border-[rgba(0,0,0,0.07)] flex flex-col justify-center px-[clamp(20px,3.24vw,56px)] py-[clamp(24px,2.78vw,48px)] relative"
+              className="border-b border-[rgba(0,0,0,0.07)] flex flex-col justify-center px-[clamp(20px,3.24vw,56px)] py-[clamp(24px,2.78vw,48px)] relative max-lg:px-4 max-lg:py-4"
               style={{
                 background: [
                   'radial-gradient(circle at 0% 0%, rgba(56,116,64,0.07) 0%, transparent 55%)',
@@ -111,12 +111,12 @@ const PortfolioIntroSection = () => {
                 ].join(', '),
               }}
             >
-              <h2 className="font-display text-[clamp(22px,2.55vw,44px)] leading-[0.92] tracking-[-2px] mb-[clamp(8px,0.93vw,16px)]">
+              <h1 className="font-display text-[clamp(22px,2.55vw,44px)] leading-[0.92] tracking-[-2px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                 <span className="not-italic text-content-primary block">Portfolio</span>
                 <span className="italic text-brand-green block">Show, don&rsquo;t just tell.</span>
-              </h2>
+              </h1>
 
-              <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-5 tracking-[0.2px] text-[#959592] mb-[clamp(8px,0.93vw,16px)] max-w-[500px]">
+              <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-5 tracking-[0.2px] text-[#959592] max-lg:text-[#737373] mb-[clamp(8px,0.93vw,16px)] max-w-[500px]">
                 Projects are where recruiters spend 3.4× longer than any other profile section. Your
                 pinned project appears first on your summary card. Even one documented project beats
                 none.
@@ -126,7 +126,7 @@ const PortfolioIntroSection = () => {
                 {['Not Started', '3.4× attention', '~7 min'].map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] leading-4 text-content-helper bg-white rounded-pill px-[10px] py-[4px] border border-brand-green-light-hover whitespace-nowrap"
+                    className="inline-flex items-center font-sans font-medium text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-4 text-content-helper bg-white rounded-pill px-[10px] py-[4px] max-lg:py-[5px] border border-brand-green-light-hover whitespace-nowrap"
                   >
                     {tag}
                   </span>
@@ -136,7 +136,7 @@ const PortfolioIntroSection = () => {
 
             {/* Section label — Figma 5178:101484 */}
             <div className="flex items-center gap-[8px] px-[clamp(16px,3.125vw,54px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(10px,1.16vw,20px)]">
-              <span className="font-sans font-bold text-[10px] leading-4 tracking-[0.08em] text-[#888] uppercase whitespace-nowrap shrink-0">
+              <span className="font-sans font-bold text-[10px] max-lg:text-[12px] leading-4 tracking-[0.08em] text-[#888] uppercase whitespace-nowrap shrink-0">
                 WHAT THIS STAGE COVERS
               </span>
               <div className="flex-1 h-px bg-[rgba(0,0,0,0.07)]" aria-hidden="true" />
@@ -147,19 +147,18 @@ const PortfolioIntroSection = () => {
               {STAGE_CARDS.map((card) => (
                 <div
                   key={`card-${card.num}`}
-                  className="flex items-center gap-[clamp(10px,1.39vw,24px)] bg-white border border-[#e8e8e4] rounded-[12px] min-h-[clamp(64px,4.92vw,85px)] px-[clamp(10px,0.87vw,15px)] py-[10px] shrink-0"
-                  style={{ boxShadow: '0px 4px 0px rgba(0,0,0,0.06)' }}
+                  className="flex items-center gap-[clamp(10px,1.39vw,24px)] bg-white border border-[#e8e8e4] rounded-[12px] min-h-[clamp(64px,4.92vw,85px)] max-lg:py-3 px-[clamp(10px,0.87vw,15px)] py-[10px] shrink-0 shadow-[0px_4px_0px_rgba(0,0,0,0.06)] max-lg:shadow-none"
                 >
                   <div className="size-[26px] rounded-[13px] bg-brand-green flex items-center justify-center shrink-0">
-                    <span className="font-mono text-[11px] font-medium text-white leading-none select-none">
+                    <span className="font-mono text-[11px] max-lg:text-[12px] font-medium text-white leading-none select-none">
                       {card.num}
                     </span>
                   </div>
                   <div className="flex flex-col justify-center min-w-0">
-                    <p className="font-sans font-bold text-[13px] leading-5 text-content-primary truncate">
+                    <p className="font-sans font-bold text-[13px] leading-5 text-content-primary truncate max-lg:overflow-visible max-lg:whitespace-normal max-lg:text-[16px]">
                       {card.title}
                     </p>
-                    <p className="font-sans text-[12px] leading-5 tracking-[0.2px] text-[#959592] max-w-[711px]">
+                    <p className="font-sans text-[12px] leading-5 tracking-[0.2px] text-[#959592] max-w-[711px] max-lg:text-[13px] max-lg:leading-[18px] max-lg:line-clamp-none max-lg:text-[#737373]">
                       {card.body}
                     </p>
                   </div>
@@ -169,9 +168,9 @@ const PortfolioIntroSection = () => {
           </div>
 
           {/* Footer — Figma 5178:101390 */}
-          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-[6px]">
+              <div className="flex items-center gap-[6px] max-sm:hidden">
                 <span
                   aria-hidden="true"
                   className="inline-block w-[6px] h-[6px] rounded-[3px] bg-brand-green shrink-0"
@@ -181,19 +180,21 @@ const PortfolioIntroSection = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
                 <Button
                   variant="tertiary"
                   size="md"
+                  className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                   onClick={handleGoBack}
                   leftIcon={<ArrowLeftIcon className="size-full" />}
                 >
-                  Go back
+                  <span className="max-md:sr-only">Go back</span>
                 </Button>
 
                 <Button
                   variant="primary"
                   size="md"
+                  className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                   onClick={handleOpenPortfolio}
                   rightIcon={<ArrowRightSmIcon className="size-full" />}
                 >

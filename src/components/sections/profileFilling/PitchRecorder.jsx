@@ -116,7 +116,7 @@ const PitchRecorder = ({
   return (
     <div
       // Figma 6083:46917 — bg #121211, rounded-16, 416px tall.
-      className="relative w-full h-[clamp(280px,28.9vw,416px)] rounded-[16px] bg-[#121211] overflow-hidden"
+      className="relative w-full h-[clamp(280px,28.9vw,416px)] rounded-[16px] bg-[#121211] overflow-hidden max-lg:h-auto max-lg:aspect-[4/5] md:max-lg:aspect-video max-sm:aspect-auto max-sm:min-h-[480px]"
       role="group"
       aria-label="Pitch video recorder"
     >
@@ -187,7 +187,7 @@ const PitchRecorder = ({
             is hidden there. */}
         {!isRecorded && (
           <span
-            className={`absolute bottom-[39px] left-1/2 -translate-x-1/2 font-sans font-semibold text-[14px] ${
+            className={`absolute bottom-[39px] left-1/2 -translate-x-1/2 font-sans font-semibold text-[14px] max-sm:bottom-auto max-sm:top-[60px] ${
               isRecording ? 'text-white' : 'text-white/80'
             }`}
           >
@@ -200,7 +200,7 @@ const PitchRecorder = ({
           needs-access state; "ready" is this same frame minus this card. */}
       {needsAccess && (
         <div
-          className="absolute left-1/2 top-[calc(50%-27px)] w-[min(760px,calc(100%-48px))] -translate-x-1/2 -translate-y-1/2 rounded-[20px] border border-white/15 bg-white/[0.06] p-[20px] flex flex-col gap-[12px]"
+          className="absolute left-1/2 top-[calc(50%-27px)] max-sm:top-[calc(50%-100px)] w-[min(760px,calc(100%-48px))] -translate-x-1/2 -translate-y-1/2 rounded-[20px] border border-white/15 bg-white/[0.06] p-[20px] flex flex-col gap-[12px]"
           style={{ backdropFilter: 'blur(12px)' }}
         >
           <div className="flex items-center gap-[12px]">
@@ -246,7 +246,7 @@ const PitchRecorder = ({
           recorded frame (5890:1732) replaces this row with the page-level
           "Re-Record" action bar below the viewfinder. */}
       {!isRecorded && (
-        <div className="absolute bottom-[52px] left-1/2 flex -translate-x-1/2 items-center gap-[16px]">
+        <div className="absolute bottom-[52px] left-1/2 flex -translate-x-1/2 items-center gap-[16px] max-sm:bottom-5 max-sm:w-[calc(100%-32px)] max-sm:flex-wrap max-sm:justify-center max-sm:gap-3">
           {needsAccess && (
             /* btn-allow — Figma 6093:21854 */
             <button
@@ -255,7 +255,7 @@ const PitchRecorder = ({
                 log('allow camera clicked (mock — no getUserMedia call)');
                 onAllowCamera?.();
               }}
-              className="flex items-center gap-[8px] rounded-full bg-white px-[18px] py-[12px] font-sans font-bold text-[14px] text-[#121211] cursor-pointer transition-transform duration-150 hover:-translate-y-px"
+              className="flex items-center gap-[8px] rounded-full bg-white px-[18px] py-[12px] max-sm:w-full max-sm:justify-center max-lg:min-h-11 font-sans font-bold text-[14px] text-[#121211] cursor-pointer transition-transform duration-150 hover:-translate-y-px"
               style={{ filter: 'drop-shadow(0px 10px 12px rgba(0,0,0,0.2))' }}
             >
               <CheckIcon className="size-[18px]" />

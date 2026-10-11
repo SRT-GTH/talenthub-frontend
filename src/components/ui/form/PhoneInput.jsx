@@ -37,6 +37,7 @@ const log = debug('PhoneInput');
 
 const WRAPPER_BASE =
   'flex items-center gap-0 pl-[16px] pr-[16px] py-[13px] rounded-md w-full ' +
+  'max-md:py-[9px] max-md:pl-3 max-md:pr-3 max-md:shadow-none! ' +
   'transition-colors duration-100';
 
 const INTERACTIVE_CLASSES =
@@ -51,7 +52,7 @@ const ERROR_CLASSES =
 const DISABLED_CLASSES = 'bg-brand-green-light border-2 border-[#cccccc] opacity-55 shadow-none';
 
 const INPUT_BASE =
-  'flex-1 min-w-0 bg-transparent outline-none border-none ' +
+  'w-0 flex-1 min-w-0 bg-transparent outline-none border-none ' +
   'font-sans font-medium text-[14px] leading-[24px] tracking-[0.2px] ' +
   'text-[#111111] ' +
   'placeholder:text-[#595959] placeholder:font-normal ' +
@@ -111,7 +112,8 @@ const PhoneInput = ({
           ref={ref}
           id={inputId}
           type="tel"
-          inputMode="numeric"
+          inputMode="tel"
+          autoComplete="tel-national"
           disabled={disabled}
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error || helperText ? `${inputId}-msg` : undefined}

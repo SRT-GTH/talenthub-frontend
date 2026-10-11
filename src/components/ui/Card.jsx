@@ -132,7 +132,7 @@ const Card = ({
                   <span
                     className={classNames(
                       'inline-flex items-center justify-center px-1.5 py-1 rounded-[5px]',
-                      'font-sans font-medium text-[10px] leading-4 tracking-[0.2px] uppercase',
+                      'font-sans font-medium text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px] uppercase',
                       tagClasses
                     )}
                   >

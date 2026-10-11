@@ -13,22 +13,22 @@ import { debug } from '../../utils/debug.js';
 const log = debug('Top20MilestonePage');
 
 /*
- * Top20MilestonePage â€” celebration screen for Milestone 2 of 3.
+ * Top20MilestonePage — celebration screen for Milestone 2 of 3.
  * Source: Figma frame ("Top 20% profile" milestone celebration).
  *
  * Same layout pattern as MilestoneUnlockPage (Milestone 1) but with the
  * gold/amber accent theme and the milestone-2-specific copy:
- *   â”œâ”€ EngagementTopNav         (with Switch Modes pill)
- *   â”œâ”€ EngagementTopBar         (Step 7 of 9 Â· Certs is the next stage)
- *   â”œâ”€ MilestoneHeroPanel       (trophy + gold pill + "Top 20% profile."
- *   â”‚                            headline with 20% in gold italic and
- *   â”‚                            "profile." in green italic + 4 stat
- *   â”‚                            tiles + gold primary CTA + 6 completed
- *   â”‚                            chips)
- *   â”œâ”€ UnlockedFeaturesSection  (gold-accented 3-card grid on a cream wash)
- *   â””â”€ EngagementFooter         (â† Back to map / Next: Certs â†’)
+ *   ├─ EngagementTopNav         (with Switch Modes pill)
+ *   ├─ EngagementTopBar         (Step 7 of 9 · Certs is the next stage)
+ *   ├─ MilestoneHeroPanel       (trophy + gold pill + "Top 20% profile."
+ *   │                            headline with 20% in gold italic and
+ *   │                            "profile." in green italic + 4 stat
+ *   │                            tiles + gold primary CTA + 6 completed
+ *   │                            chips)
+ *   ├─ UnlockedFeaturesSection  (gold-accented 3-card grid on a cream wash)
+ *   └─ EngagementFooter         (← Back to map / Next: Certs →)
  *
- * The milestone payload sits in TOP20_MILESTONE â€” when Milestone 3 lands
+ * The milestone payload sits in TOP20_MILESTONE — when Milestone 3 lands
  * we'll lift this and the discoverable payload into a shared constants
  * module keyed by milestone id.
  */
@@ -51,7 +51,7 @@ const TOP20_MILESTONE = {
     { value: '+100 XP', label: 'Milestone Bonus', accent: 'accent' },
   ],
   completedStages: ['Avatar', 'Interest', 'Personality', 'Skills', 'Work', 'Portfolio'],
-  // Details modal â€” pops up when the user claims the Top 20% badge.
+  // Details modal — pops up when the user claims the Top 20% badge.
   // Source: Figma frame (Top 20% Profile details modal).
   details: {
     headline: (
@@ -71,7 +71,7 @@ const TOP20_MILESTONE = {
       },
       {
         icon: 'arrow',
-        title: '2.8Ã— more profile views',
+        title: '2.8× more profile views',
         description:
           'Badge holders rank higher in search results. More views = more opportunities surfacing.',
       },
@@ -94,7 +94,7 @@ const TOP20_MILESTONE = {
     {
       title: 'Boosted search ranking',
       description:
-        'Your card ranks higher in recruiter search results. Profiles with this badge receive 2.8Ã— more views than those without.',
+        'Your card ranks higher in recruiter search results. Profiles with this badge receive 2.8× more views than those without.',
       highlighted: true,
     },
     {
@@ -110,12 +110,12 @@ const Top20MilestonePage = () => {
   log('mount');
   const navigate = useNavigate();
 
-  // Trail "frozen" state for this milestone â€” 6 stages just completed,
+  // Trail "frozen" state for this milestone — 6 stages just completed,
   // Certs is the next stage to start.
   const trailCurrentIndex = 6; // Certs
   const completionPct = Math.round((6 / 9) * 100); // 67%
 
-  // Details modal â€” pops up when the user claims the Top 20% badge.
+  // Details modal — pops up when the user claims the Top 20% badge.
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const closeDetails = () => setIsDetailsOpen(false);
 
@@ -138,7 +138,7 @@ const Top20MilestonePage = () => {
   };
 
   const handleClaim = () => {
-    log('claim top 20% badge â†’ open details modal');
+    log('claim top 20% badge → open details modal');
     setIsDetailsOpen(true);
   };
 
@@ -149,7 +149,7 @@ const Top20MilestonePage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-default">
+    <div className="flex flex-col min-h-dvh bg-background-default">
       <EngagementTopNav
         onSaveExit={handleSaveExit}
         showSwitchModes
@@ -157,7 +157,13 @@ const Top20MilestonePage = () => {
       />
       <EngagementTopBar currentStageIndex={trailCurrentIndex} completionPct={completionPct} />
 
-      <EngagementHero completionPct={67} doneCount={6} inProgressCount={0} remainingCount={3} />
+      <EngagementHero
+        completionPct={67}
+        doneCount={6}
+        inProgressCount={0}
+        remainingCount={3}
+        compactOnPhones
+      />
 
       <main className="flex-1">
         <MilestoneHeroPanel

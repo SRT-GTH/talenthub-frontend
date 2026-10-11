@@ -3,6 +3,58 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-10] update | Responsive pass executed (320px floor) — plan phases 0-4 + perf
+
+Executed `wiki/responsive-plan.md`. Result on the integrated build: the 5-width gate
+(320/375/768/1024/1440 × 72 routes) passes 360/360; decor hidden on phones ~145 → 1 (a
+false positive: the Messages thread is not mounted in the phone list view); desktop (>= lg)
+verified pixel-identical by `npm run test:visual` against baselines captured before the work.
+
+**Foundations** — `viewport-fit=cover` + `interactive-widget=resizes-content`; `xs` (400px) breakpoint;
+`--fs-8..11` / token floors so Figma sub-12px text becomes 12px below lg (362 `max-lg:text-[12px]`
+class floors + 87 inline sizes via codemod); 16px form fields on phones/touch; global 24px touch-target
+floor in `@layer base` (unlayered CSS would silently beat Tailwind utilities); `pt-safe/pb-safe/tap-target`
+utilities; `useMediaQuery`. `MainLayout` uses `dvh`. `App.css` `page-fade-in` uses `backwards` fill (the
+old `both` kept a transform that made the page wrapper the containing block for every `fixed` modal/bar).
+
+**Shared components** — marketing `Navbar` hamburger sheet; `Modal` = bottom sheet below sm; shared
+`EngagementTopNav` keeps logo · Save & Exit · avatar · "…" menu below md; `Button` compact phone scale
+(~40px, 14px text, 2px shelf); new `ui/ClampText` ("Read more", clamps below lg) and `ui/TagRow`
+(one line + round "+N", wraps from lg); dashboard bottom tab bar + More sheet + search sheet; floating
+Career Buddy button 56px/68px offset; `DemoNavigator` collapses to a toggle on phones.
+
+**Owner design direction (see plan §3a)** — mobile is not shrunken desktop: flat lists instead of
+container cards, ~2.5+ cards per screen, h1 24px / card titles 16px / body 14px / labels 12px, pills
+28-32px, inputs 44px/16px, buttons 40px, labels never wrap (secondary actions become icon-only),
+decorative SVG art stays visible (scaled down), sticky chrome <= ~30% of the viewport and one purpose per row.
+
+**Performance** — every page is `React.lazy` + `Suspense` (initial JS 2.44 MB/644 KB gz → 340 KB/103 KB gz);
+44.5 MB of heavy PNG/JPG photos converted to WebP (`scripts/optimize-images.py`, 3.9 MB; imports rewritten).
+
+**Tooling** — `npm run test:responsive` (gate), `test:visual[:update]` (desktop baselines, git-ignored),
+`audit:responsive`, `audit:density`, `audit:text`, plus `scripts/{decor,mobile-scale}-audit.mjs`,
+`responsive-shot.mjs`, `fix-mojibake.py`. Use `MSYS_NO_PATHCONV=1` in Git Bash when passing `/routes`.
+Port 5173 on the dev machine may serve another app; the e2e config uses 5199.
+
+**Known / open** — mojibake in source strings was repaired by `scripts/fix-mojibake.py`; Skills Lab non-chess
+quiz types and the 5 "Saved" modals were checked by eye/code only; real iOS/Android keyboard behaviour is
+unverified (headless cannot open one); mobile patterns are engineering proposals pending designer sign-off
+(`⚠️ ASSUMPTION`). Unused heavy assets remain in the repo (e.g. 9 MB `onboarding/right panel img.svg`) —
+they do not ship in the bundle.
+
+## [2026-10-08] create | Responsive master plan (320px floor)
+
+Audited all 73 routes at 320/375/768 with a headless-Chromium harness (page
+overflow, clipped shells, tiny text, small tap targets) plus visual review of
+24 routes at 320. Findings, root-cause taxonomy (P1–P8), breakpoint policy,
+mobile pattern catalogue, 7-phase plan and open decisions are in
+`wiki/responsive-plan.md` (status PROPOSED, nothing implemented).
+
+Headlines: only 7/73 routes scroll horizontally, but 37 `h-screen` shells clip
+silently and there is no mobile navigation for the recruiter dashboard or
+marketing Navbar; profile-filling + Career Buddy never re-flow. Also found:
+port 5173 on this machine serves an unrelated app (redirects to `/admin/`).
+
 ## [2026-10-03] fix | Recruiter Messages — thread didn't swap per conversation, style corrections
 
 `RecruiterMessagesSection` tracked `activeConversationId` on click but the

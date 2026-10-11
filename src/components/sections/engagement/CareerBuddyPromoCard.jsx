@@ -38,7 +38,7 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
     className={classNames(
       'relative overflow-hidden rounded-2xl bg-brand-green text-white',
       'shadow-bottom-300',
-      'p-5 min-h-[260px]',
+      'p-5 min-h-[260px] max-sm:min-h-[210px] max-sm:p-3.5',
       className
     )}
   >
@@ -63,6 +63,9 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       className={classNames(
         'pointer-events-none select-none',
         'absolute right-3 top-3 z-0',
+        // Narrow cards: tuck the mascot lower/right so it stops covering the header.
+        // phones: keep the Figma overlap (bubble over the belly), just a bit smaller
+        'max-sm:right-0 max-sm:top-2 max-sm:h-[86%]',
         'h-[82%] w-auto object-contain object-bottom'
       )}
     />
@@ -79,12 +82,14 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
         />
       </span>
       <div className="leading-tight">
-        <p className="font-display text-[18px] tracking-[-0.2px]">Career Buddy</p>
+        <p className="font-display text-[18px] max-sm:text-[17px] tracking-[-0.2px]">
+          Career Buddy
+        </p>
         <p className="font-sans text-[12px] text-white/80">Your AI guide</p>
       </div>
     </header>
 
-    <div className="relative z-10 mt-5 max-w-[230px]">
+    <div className="relative z-10 mt-5 max-w-[230px] max-sm:mt-3 max-sm:max-w-[72%]">
       <ChatBubble tail="bottom-right">
         <span className="block font-semibold text-content-primary">
           Don&rsquo;t Want To Fill It Manually?
@@ -95,7 +100,7 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
       </ChatBubble>
     </div>
 
-    <div className="relative z-10 mt-5 flex justify-center">
+    <div className="relative z-10 mt-5 max-sm:mt-3 flex justify-center">
       {/* Figma uses a pure white pill (not the design-system shelf button)
         — full-width, dark text, soft 1px shadow, large radius. */}
       <button
@@ -103,7 +108,7 @@ const CareerBuddyPromoCard = ({ onStart, className }) => (
         onClick={onStart}
         className={classNames(
           'inline-flex w-full max-w-[260px] items-center justify-center gap-2',
-          'rounded-pill bg-white py-3 px-5',
+          'rounded-pill bg-white py-3 px-5 max-sm:py-2 max-sm:max-w-none',
           'font-sans font-semibold text-[15px] leading-6 tracking-[0.1px] text-content-primary',
           'shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_12px_rgba(0,0,0,0.08)]',
           'hover:bg-yellow-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'

@@ -1,4 +1,4 @@
-import studentsPhoto from '../../../assets/hero/Students using GTH on phone.jpg';
+import studentsPhoto from '../../../assets/hero/Students using GTH on phone.webp';
 import sparkleVector from '../../../assets/hero/sparkle vector.svg';
 import yourNextAdventureCard from '../../../assets/hero/Your next adventure vector.svg';
 import powerYourCareerCard from '../../../assets/hero/power your career vector.svg';

@@ -19,18 +19,20 @@ const MilestoneStatTile = ({ value, label, accent = 'brand', className }) => (
       'flex flex-col items-center justify-center gap-1',
       'rounded-xl bg-white border border-border-default',
       'px-5 py-4 min-w-[140px]',
+      // Phones: compact cell in a 2-3 column strip.
+      'max-sm:min-w-0 max-sm:gap-0.5 max-sm:rounded-lg max-sm:px-2 max-sm:py-2',
       className
     )}
   >
     <span
       className={classNames(
-        'font-display text-[clamp(28px,3vw,36px)] leading-[1.0] tracking-[-0.5px]',
+        'font-display text-[clamp(28px,3vw,36px)] max-sm:text-[17px] leading-[1.0] tracking-[-0.5px]',
         accent === 'accent' ? 'text-accent-dark' : 'text-brand-green'
       )}
     >
       {value}
     </span>
-    <span className="font-sans font-semibold text-[10px] leading-3 tracking-[1.4px] uppercase text-neutral-darker text-center">
+    <span className="font-sans font-semibold text-[10px] max-lg:text-[12px] leading-3 tracking-[1.4px] max-sm:tracking-[0.4px] uppercase text-neutral-darker text-center">
       {label}
     </span>
   </div>

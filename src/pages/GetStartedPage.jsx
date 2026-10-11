@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
+import StickyActionBar from '../components/ui/form/StickyActionBar.jsx';
+import { COMPACT_PRIMARY_BUTTON } from '../components/ui/form/mobileScale.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
 import {
   TalentIcon,
@@ -79,22 +81,22 @@ const ROLES = [
 // Figma source: node 2153:13850 ("WHAT YOU WOULD GET" pill inside the
 // Talent-selected variant of node 2153:13443).
 const BenefitsBar = ({ benefits }) => (
-  <div className="flex h-[53px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[10px] border border-brand-green-light-active bg-neutral px-2.5 py-2">
-    <span className="px-2.5 py-2 text-[12px] font-bold leading-5 tracking-[0.1px] text-neutral-dark">
+  <div className="flex h-[53px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[10px] border border-brand-green-light-active bg-neutral px-2.5 py-2 max-md:h-auto max-md:flex-wrap max-md:gap-x-2 max-md:gap-y-0 max-md:py-1.5">
+    <span className="px-2.5 py-2 max-md:py-0.5 text-[12px] font-bold leading-5 tracking-[0.1px] text-neutral-dark max-md:w-full max-md:text-center">
       WHAT YOU WOULD GET
     </span>
-    <ul className="flex items-center gap-3">
+    <ul className="flex items-center gap-3 max-md:flex-wrap max-md:justify-center max-md:gap-x-2 max-md:gap-y-0">
       {benefits.map((label, idx) => (
         <li key={label} className="flex items-center">
           {idx > 0 && (
             <span
               aria-hidden="true"
-              className="mr-3 text-[24px] font-medium leading-9 text-neutral-darker"
+              className="mr-3 max-md:mr-2 text-[24px] max-md:text-[16px] font-medium leading-9 max-md:leading-5 text-neutral-darker"
             >
               ·
             </span>
           )}
-          <span className="text-center text-[14px] font-medium leading-6 tracking-[0.2px] text-brand-green">
+          <span className="text-center text-[14px] max-md:text-[13px] font-medium leading-6 max-md:leading-5 tracking-[0.2px] text-brand-green">
             {label}
           </span>
         </li>
@@ -157,16 +159,16 @@ const GetStartedPage = () => {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-160px)] overflow-hidden bg-white">
+    <section className="relative min-h-[calc(100vh-160px)] max-md:min-h-[calc(100dvh-53px)] overflow-clip bg-white">
       <BackgroundOrbs />
 
-      <div className="relative mx-auto flex max-w-[951px] flex-col items-center gap-16 px-6 py-16 md:py-24">
+      <div className="relative mx-auto flex max-w-[951px] flex-col items-center gap-16 px-6 py-16 md:py-24 max-md:gap-3 max-md:px-4 max-md:py-4">
         {/* Inner content column: header + cards + benefits (gap-24) */}
-        <div className="flex w-full flex-col items-center gap-6">
+        <div className="flex w-full flex-col items-center gap-6 max-md:gap-3">
           {/* ---- header ------------------------------------------------ */}
-          <div className="flex flex-col items-center gap-6 text-center">
+          <div className="flex flex-col items-center gap-6 text-center max-md:gap-2">
             {/* Eyebrow pill */}
-            <span className="inline-flex items-center gap-1.5 rounded-[10px] border border-accent-light-active bg-accent-light px-6 py-2.5">
+            <span className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[10px] border border-accent-light-active bg-accent-light px-6 py-2.5">
               <span
                 aria-hidden="true"
                 className="size-2 rounded-full border-[1.5px] border-warning bg-accent-light shadow-[inset_0_0_4px_#E8A832]"
@@ -178,7 +180,7 @@ const GetStartedPage = () => {
 
             {/* Headline */}
             <h1
-              className="font-display max-w-[792px] font-normal text-black"
+              className="font-display max-w-[792px] font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
               style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.25 }}
             >
               <span>Let&apos;s </span>
@@ -188,7 +190,7 @@ const GetStartedPage = () => {
             </h1>
 
             {/* Sub-copy */}
-            <p className="max-w-[720px] px-2 text-[16px] leading-6 tracking-[0.2px] text-[#737373]">
+            <p className="max-w-[720px] px-2 text-[16px] max-md:text-[14px] leading-6 max-md:leading-5 tracking-[0.2px] text-[#737373]">
               Your GTH experience is shaped around your role. Pick one to get started.
             </p>
 
@@ -200,7 +202,7 @@ const GetStartedPage = () => {
           <div
             role="radiogroup"
             aria-label="Choose your role"
-            className="grid w-full grid-cols-1 gap-6 md:grid-cols-3 md:gap-[30px]"
+            className="grid w-full grid-cols-1 gap-6 max-md:hidden md:grid-cols-3 md:gap-[30px]"
           >
             {ROLES.map((role) => (
               <Card
@@ -215,35 +217,88 @@ const GetStartedPage = () => {
               />
             ))}
           </div>
+          {/* ---- phones: compact role rows (3 fit above the CTA bar) ---- */}
+          <div
+            role="radiogroup"
+            aria-label="Choose your role"
+            className="flex w-full flex-col gap-2 md:hidden"
+          >
+            {ROLES.map((role) => {
+              const selected = selectedRole === role.id;
+              return (
+                <button
+                  key={role.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  aria-label={`${role.tag}: ${role.headline}`}
+                  onClick={() => setSelectedRole(role.id)}
+                  className={`flex w-full items-center gap-3 rounded-[12px] border p-3 text-left transition-colors ${
+                    selected
+                      ? 'border-brand-green bg-brand-green-light'
+                      : 'border-[#E7E7E7] bg-white'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-[#F2F2EE] text-content-tertiary [&>svg]:size-6"
+                  >
+                    {role.icon}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[12px] font-semibold uppercase leading-4 tracking-[0.6px] text-brand-green">
+                      {role.tag}
+                    </span>
+                    <span className="text-[16px] font-semibold leading-5 text-black">
+                      {role.headline}
+                    </span>
+                    <span className="text-[13px] leading-[18px] text-[#737373]">
+                      {role.description}
+                    </span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] ${
+                      selected ? 'border-brand-green' : 'border-[#CCCCCC]'
+                    }`}
+                  >
+                    {selected && <span className="size-2.5 rounded-full bg-brand-green" />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
           {/* ---- "what you would get" benefits bar --------------------- */}
           {selectedRoleData && <BenefitsBar benefits={selectedRoleData.benefits} />}
         </div>
 
         {/* ---- CTA + login link ------------------------------------- */}
-        <div className="flex w-full flex-col items-center gap-2">
-          <Button
-            variant="primary"
-            size="lg"
-            disabled={!hasSelection}
-            leftIcon={isLoading ? <LoadingSpinner /> : undefined}
-            rightIcon={isLoading ? undefined : <ArrowRightIcon />}
-            onClick={handleContinue}
-            className="w-full"
-            aria-busy={isLoading}
-          >
-            {isLoading
-              ? 'Setting things up'
-              : selectedRoleData
-                ? selectedRoleData.ctaLabel
-                : 'Select a role to continue'}
-          </Button>
+        <div className="flex w-full flex-col items-center gap-2 max-md:contents">
+          <StickyActionBar bleed={16}>
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={!hasSelection}
+              leftIcon={isLoading ? <LoadingSpinner /> : undefined}
+              rightIcon={isLoading ? undefined : <ArrowRightIcon />}
+              onClick={handleContinue}
+              className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
+              aria-busy={isLoading}
+            >
+              {isLoading
+                ? 'Setting things up'
+                : selectedRoleData
+                  ? selectedRoleData.ctaLabel
+                  : 'Select a role to continue'}
+            </Button>
+          </StickyActionBar>
 
-          <p className="flex items-center gap-1 py-2 text-[14px] leading-6 tracking-[0.1px] text-[#737373]">
+          <p className="flex items-center gap-1 py-2 max-md:py-1 text-[14px] max-md:text-[13px] leading-6 max-md:leading-5 tracking-[0.1px] text-[#737373]">
             Already have an account?
             <Link
               to="/login"
-              className="font-semibold text-brand-green underline-offset-2 hover:underline"
+              className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             >
               Log in instead
             </Link>

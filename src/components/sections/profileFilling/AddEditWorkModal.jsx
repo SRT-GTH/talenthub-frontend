@@ -131,7 +131,7 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
   // Figma 5178:36607 only ever shows these two side by side); Add mode keeps
   // Cancel + Save since there's nothing to delete yet.
   const footer = (
-    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between">
+    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between max-sm:gap-2 max-sm:px-4 max-sm:py-3">
       {isEditMode && initialData?.onDelete ? (
         // Figma 5217:122734 — a flat pink pill, not the shelf-style
         // `Button` architecture (no border-2/shelf-shadow at all here), so
@@ -140,10 +140,10 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         <button
           type="button"
           onClick={initialData.onDelete}
-          className="flex items-center gap-[7px] rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
+          className="flex items-center gap-[7px] max-sm:size-11 max-sm:justify-center max-sm:gap-0 max-sm:px-0 max-sm:py-0 rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
         >
           <WorkDeleteWarningIcon className="size-4" />
-          Delete this Role
+          <span className="max-sm:sr-only">Delete this Role</span>
         </button>
       ) : (
         <Button
@@ -151,8 +151,9 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           variant="tertiary"
           size="md"
           onClick={onClose}
+          className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
         >
-          Cancel
+          <span className="max-sm:sr-only">Cancel</span>
         </Button>
       )}
       <Button
@@ -163,7 +164,11 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         // Edit mode's "Delete this Role" is a flat, shorter pill (Figma
         // 5217:122734, py-10/12px text, no shelf) — match its height here
         // rather than leaving Save Changes at Button's taller default.
-        className={isEditMode ? '!py-[10px] !text-[12px] !leading-[normal]' : undefined}
+        className={
+          isEditMode
+            ? '!py-[10px] !text-[12px] !leading-[normal] max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+            : 'max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+        }
       >
         {isEditMode ? 'Save Changes' : 'Save role →'}
       </Button>
@@ -177,14 +182,14 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
       size="lg"
       ariaLabel={isEditMode ? 'Edit role' : 'Add a role'}
       showClose={false}
-      contentClassName="!max-w-[757px] !rounded-[24px] !border-3 !border-[#c1d4c4] overflow-hidden p-0"
+      contentClassName="!max-w-[757px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] overflow-hidden p-0"
       footer={footer}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-[25px] top-[25px] z-10 size-[28px] rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
+        className="absolute right-[25px] top-[25px] max-sm:right-3 max-sm:top-3 z-10 size-[28px] max-lg:size-9 rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
       >
         <CloseIcon className="size-[12px]" />
       </button>
@@ -194,7 +199,7 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           with its own scroll + footer div, which put the "sticky" footer
           INSIDE that single scroll region instead of pinning it — Modal's
           own `footer` prop above is what actually keeps it fixed). */}
-      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px]">
+      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px] max-sm:gap-4 max-sm:px-4 max-sm:pt-5 max-sm:pb-3">
         {/* Header — Figma 5114:124045 */}
         <div className="flex flex-col items-center gap-[16px] text-center">
           <div
@@ -211,7 +216,7 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
           </div>
 
           <div className="flex flex-col items-center gap-[4px]">
-            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
               {isEditMode ? 'Update your role.' : 'New role. Tell your story'}
             </h2>
             <p className="font-sans text-[12px] text-[#959592] tracking-[0.2px] leading-[18px] max-w-[480px]">
@@ -223,10 +228,12 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 1 — Role & organisation — Figma 5114:124319 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">1</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                1
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">
               Role &amp; organisation
@@ -278,10 +285,12 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 2 — Dates & duration — Figma 5114:124385 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">2</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                2
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">
               Dates &amp; duration
@@ -319,10 +328,12 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         </div>
 
         {/* Section 3 — What you did & achieved — Figma 5114:124542 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[16px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">3</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                3
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#595959]">
               What you did &amp; what you achieved
@@ -344,14 +355,14 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
             className="rounded-[10px] p-[15px] flex flex-col gap-[10px]"
             style={{ background: 'rgba(235,241,236,0.3)' }}
           >
-            <span className="font-sans font-semibold text-[11px] text-[#2a5730]">
+            <span className="font-sans font-semibold text-[11px] max-lg:text-[12px] text-[#2a5730]">
               Strong description patterns
             </span>
             <ul className="flex flex-col gap-[6px]">
               {STRONG_PATTERNS.map((tip) => (
                 <li
                   key={tip}
-                  className="flex items-start gap-[8px] font-sans text-[10px] text-[#2a5730] opacity-85 leading-[1.5]"
+                  className="flex items-start gap-[8px] font-sans text-[10px] max-lg:text-[12px] text-[#2a5730] opacity-85 leading-[1.5]"
                 >
                   <span className="shrink-0">•</span>
                   {tip}
@@ -365,7 +376,7 @@ const AddEditWorkModal = ({ isOpen, onClose, onSave, mode = 'add', initialData =
         {isEditMode && isDirty && (
           <div className="rounded-[10px] border border-[#eedeb8] bg-[#fffefc] px-[16px] py-[10px] flex items-center gap-[8px]">
             <span className="size-[6px] rounded-full bg-[#c8951a] shrink-0" aria-hidden="true" />
-            <span className="font-sans text-[11px] text-[#967014]">
+            <span className="font-sans text-[11px] max-lg:text-[12px] text-[#967014]">
               Unsaved changes — save before leaving or changes will be lost.
             </span>
           </div>

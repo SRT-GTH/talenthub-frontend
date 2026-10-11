@@ -86,9 +86,11 @@ const LightingTile = ({ preset, selected, onClick }) => (
     type="button"
     onClick={onClick}
     aria-pressed={selected}
-    aria-label={preset.label}
+    aria-label={`${preset.label} — ${preset.sub}`}
     className={classNames(
       'group relative flex min-w-[120px] flex-1 flex-col items-start gap-1 rounded-xl p-3',
+      // phones: one-line tile (emoji + label); the sub-label lives in aria-label
+      'max-lg:flex-row max-lg:items-center max-lg:gap-2 max-lg:px-3 max-lg:py-2',
       'transition-[border-color,box-shadow,transform] duration-150 ease-out',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       preset.bg,
@@ -97,13 +99,13 @@ const LightingTile = ({ preset, selected, onClick }) => (
         : 'border border-border-default/40 hover:border-brand-green-light-active'
     )}
   >
-    <span aria-hidden="true" className="text-[20px] leading-none">
+    <span aria-hidden="true" className="text-[20px] max-lg:text-[13px] leading-4">
       {preset.emoji}
     </span>
     <span className="font-sans font-semibold text-[13px] leading-4 tracking-[0.1px] text-content-primary">
       {preset.label}
     </span>
-    <span className="font-sans text-[11px] leading-4 tracking-[0.2px] text-neutral-darker">
+    <span className="font-sans text-[11px] max-lg:hidden leading-4 tracking-[0.2px] text-neutral-darker">
       {preset.sub}
     </span>
   </button>
@@ -117,16 +119,17 @@ const AvatarSkinPanel = ({ activeTab = 'skin', onTabSelect, className }) => {
     <div className={classNames('flex flex-col gap-[clamp(12px,1.5vw,24px)]', className)}>
       {/* Header */}
       <header>
-        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] leading-[1.1] tracking-[-0.2px] text-content-primary">
+        <h2 className="font-display text-[clamp(22px,2.2vw,28px)] max-lg:text-[20px] leading-[1.1] tracking-[-0.2px] text-content-primary">
           Pick your skin tone
         </h2>
-        <p className="mt-1 font-sans text-[13px] leading-5 tracking-[0.2px] text-neutral-darker">
-          Select a tone — preview updates instantly on the left.
+        <p className="mt-1 font-sans text-[13px] max-lg:hidden leading-5 tracking-[0.2px] text-neutral-darker">
+          Select a tone — preview updates instantly
+          <span className="max-lg:hidden"> on the left</span>.
         </p>
       </header>
 
       {/* Stat pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 max-lg:hidden">
         <AvatarStatPill count="24" label="styles" />
         <AvatarStatPill count="12" label="Skin Tones" />
         <AvatarStatPill count="18" label="Hairstyles" />
@@ -139,7 +142,7 @@ const AvatarSkinPanel = ({ activeTab = 'skin', onTabSelect, className }) => {
       {/* 12 base-tone tiles in a 6×2 grid */}
       <section className="flex flex-col gap-3">
         <AvatarSectionHeader title="Choose a base tone" meta="12 Options" />
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           {SKIN_TONES.map((tone) => (
             <AvatarOptionTile
               key={tone.id}

@@ -50,16 +50,16 @@ const CheckIcon = () => (
 
 // ── data table row ────────────────────────────────────────────────────────
 const DataRow = ({ label, value, leftIcon }) => (
-  <div className="flex items-center justify-between py-3 border-b border-[#e6e6e6] last:border-b-0">
+  <div className="flex items-center justify-between py-3 max-sm:py-2 border-b border-[#e6e6e6] last:border-b-0">
     <span
-      className="font-sans text-[12px] lg:text-[14px] flex items-center leading-5 text-neutral-darker"
+      className="font-sans text-[12px] max-sm:text-[13px] lg:text-[14px] flex items-center leading-5 text-neutral-darker"
       style={{ letterSpacing: '0.1px' }}
     >
       <span>{leftIcon && <span className="inline-flex mr-2 size-4">{leftIcon}</span>}</span>
       {label}
     </span>
     <span
-      className="font-sans  text-[12px] lg:text-[14px] font-semibold leading-5 text-brand-green text-right max-w-[56%] truncate"
+      className="font-sans  text-[12px] max-sm:text-[13px] lg:text-[14px] font-semibold leading-5 text-brand-green text-right max-w-[56%] truncate"
       style={{ letterSpacing: '0.1px' }}
       title={value}
     >
@@ -102,13 +102,13 @@ const IdentityCapturedModal = ({ data, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="identity-captured-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
       {/* Card */}
       <div
-        className="relative w-full max-w-[440px] rounded-3xl bg-white p-10 shadow-xl"
+        className="relative w-full max-w-[440px] rounded-3xl bg-white p-10 shadow-xl max-sm:p-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         /* Prevent backdrop click from closing when clicking inside the card */
         onClick={(e) => e.stopPropagation()}
       >
@@ -120,21 +120,21 @@ const IdentityCapturedModal = ({ data, onClose }) => {
             log('close button clicked');
             onClose?.();
           }}
-          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2"
+          className="absolute right-5 top-5 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-sm:right-3 max-sm:top-3 max-sm:before:absolute max-sm:before:-inset-2 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
 
         {/* Header */}
-        <div className="mb-6 flex flex-col items-center gap-4">
+        <div className="mb-6 flex flex-col items-center gap-4 max-sm:mb-3 max-sm:gap-2">
           {/* Icon box — 62×62, brand-green-light bg, rounded-2xl */}
-          <div className="flex size-[62px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light">
+          <div className="flex size-[62px] shrink-0 items-center justify-center rounded-2xl bg-brand-green-light max-sm:size-10 max-sm:rounded-xl">
             <CheckIcon />
           </div>
 
           <div className="flex flex-col items-center gap-1">
             <Captions
-              className="w-fit "
+              className="w-fit max-sm:px-2.5 max-sm:py-0.5"
               labelClassName="text-[#999999]"
               items={[{ label: 'Institution Setup' }]}
             />
@@ -154,7 +154,7 @@ const IdentityCapturedModal = ({ data, onClose }) => {
 
             {/* Subtitle */}
             <p
-              className="font-sans text-[14px] leading-5 text-center text-[#959592]"
+              className="font-sans text-[14px] leading-5 text-center text-[#959592] max-sm:text-[13px]"
               style={{ letterSpacing: '0.1px' }}
             >
               Your Institutional information is saved and encrypted. Here&apos;s a summary of what
@@ -164,7 +164,7 @@ const IdentityCapturedModal = ({ data, onClose }) => {
         </div>
 
         {/* Data table — 5 rows */}
-        <div className="mb-4 rounded-[16px] bg-[#EBF1EC]/30 border border-brand-green-light-hover p-4 ">
+        <div className="mb-4 rounded-[16px] bg-[#EBF1EC]/30 border border-brand-green-light-hover p-4 max-sm:mb-3 max-sm:rounded-xl max-sm:px-3 max-sm:py-1">
           <DataRow
             leftIcon={<PersonIcon className="text-brand-green" />}
             label="Institution Name"
@@ -193,7 +193,7 @@ const IdentityCapturedModal = ({ data, onClose }) => {
         </div>
 
         {/* divider */}
-        <div className="w-full h-[3px] mb-4 bg-brand-green-light" />
+        <div className="w-full h-[3px] mb-4 max-sm:mb-3 bg-brand-green-light" />
 
         {/* CTA */}
         <Button
@@ -207,9 +207,9 @@ const IdentityCapturedModal = ({ data, onClose }) => {
           Continue To Contact Details
         </Button>
 
-        <div className="flex items-center justify-center mt-3.5 gap-1">
+        <div className="flex items-center justify-center mt-3.5 max-sm:mt-2.5 gap-1">
           <ShieldIcon className="text-brand-green" />
-          <span className="text-[10px] text-neutral-dark-hover ">
+          <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover ">
             Data encrypted at rest · Ghana Data Protection Act compliant
           </span>
         </div>

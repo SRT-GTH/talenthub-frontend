@@ -196,15 +196,15 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
   // (unlike AddEditWorkModal's Add/Edit distinction) this is not a
   // copy-paste slip to correct, just how Figma specs this particular modal.
   const footer = (
-    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between">
+    <div className="border-t border-[rgba(0,0,0,0.07)] bg-white px-[clamp(20px,2.5vw,40px)] py-[16px] flex items-center justify-between max-sm:gap-2 max-sm:px-4 max-sm:py-3">
       {isEditMode && initialData?.onDelete ? (
         <button
           type="button"
           onClick={initialData.onDelete}
-          className="flex items-center gap-[7px] rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
+          className="flex items-center gap-[7px] max-sm:size-11 max-sm:justify-center max-sm:gap-0 max-sm:px-0 max-sm:py-0 rounded-[10px] border border-[#ebc2bd] bg-[#f9ebea] px-[14px] py-[10px] font-sans font-bold text-[12px] text-[#c0392b] transition-colors duration-150 hover:bg-[#f6ddda]"
         >
           <WorkDeleteWarningIcon className="size-4" />
-          Delete this Project
+          <span className="max-sm:sr-only">Delete this Project</span>
         </button>
       ) : (
         <Button
@@ -212,8 +212,9 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
           variant="tertiary"
           size="md"
           onClick={onClose}
+          className="max-sm:px-3 max-sm:py-2 max-sm:leading-5"
         >
-          Cancel
+          <span className="max-sm:sr-only">Cancel</span>
         </Button>
       )}
       <Button
@@ -221,7 +222,11 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
         size="md"
         onClick={handleSubmit}
         disabled={!canSubmit}
-        className={isEditMode ? '!py-[10px] !text-[12px] !leading-[normal]' : undefined}
+        className={
+          isEditMode
+            ? '!py-[10px] !text-[12px] !leading-[normal] max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+            : 'max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5'
+        }
       >
         Save Changes
       </Button>
@@ -235,19 +240,19 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
       size="lg"
       ariaLabel={isEditMode ? 'Edit project' : 'Add a project'}
       showClose={false}
-      contentClassName="!max-w-[820px] !rounded-[24px] !border-3 !border-[#c1d4c4] overflow-hidden p-0"
+      contentClassName="!max-w-[820px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !border-3 !border-[#c1d4c4] overflow-hidden p-0"
       footer={footer}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-[25px] top-[25px] z-10 size-[28px] rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
+        className="absolute right-[25px] top-[25px] max-sm:right-3 max-sm:top-3 z-10 size-[28px] max-lg:size-9 rounded-[20px] bg-[#ebf1ec] flex items-center justify-center text-brand-green hover:bg-[#c1d4c4] transition-colors duration-150"
       >
         <CloseIcon className="size-[12px]" />
       </button>
 
-      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px]">
+      <div className="px-[clamp(24px,4vw,68px)] pt-[clamp(28px,3vw,48px)] pb-[clamp(20px,2vw,32px)] flex flex-col gap-[24px] max-sm:gap-4 max-sm:px-4 max-sm:pt-5 max-sm:pb-3">
         {/* Header — Figma 5178:102298 */}
         <div className="flex flex-col items-center gap-[16px] text-center">
           <div
@@ -266,7 +271,7 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
           </div>
 
           <div className="flex flex-col items-center gap-[4px]">
-            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] leading-[1.1] text-[#111]">
+            <h2 className="font-display text-[clamp(22px,2.4vw,32px)] tracking-[-1.2px] max-lg:tracking-[-0.02em] leading-[1.1] text-[#111]">
               {isEditMode
                 ? 'Editing project. Update the details.'
                 : 'New project. Show what you built.'}
@@ -282,13 +287,15 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
         </div>
 
         {/* Section 1 — Cover image — Figma 5178:102305 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">1</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                1
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">Cover image</span>
-            <span className="font-sans text-[11px] text-[#70706e]">
+            <span className="font-sans text-[11px] max-lg:text-[12px] text-[#70706e]">
               optional — strongly recommended
             </span>
           </div>
@@ -311,10 +318,12 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
         </div>
 
         {/* Section 2 — Project basics — Figma 5209:112732 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">2</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                2
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">Project basics</span>
           </div>
@@ -371,10 +380,12 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
         </div>
 
         {/* Section 3 — What it is & what you built — Figma 5204:112463 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">3</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                3
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">
               What it is &amp; what you built
@@ -396,18 +407,22 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
             className="rounded-[10px] p-[15px] flex flex-col gap-[6px]"
             style={{ background: 'rgba(235,241,236,0.3)' }}
           >
-            <span className="font-sans font-semibold text-[11px] text-[#2a5730]">
+            <span className="font-sans font-semibold text-[11px] max-lg:text-[12px] text-[#2a5730]">
               Strong description patterns
             </span>
-            <p className="font-sans text-[10px] text-[#2a5730] opacity-85">{STRONG_PATTERN_LEAD}</p>
+            <p className="font-sans text-[10px] max-lg:text-[12px] text-[#2a5730] opacity-85">
+              {STRONG_PATTERN_LEAD}
+            </p>
           </div>
         </div>
 
         {/* Section 4 — Technologies & links — Figma 5204:112595 */}
-        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px]">
+        <div className="rounded-[24px] border border-[#e8e8e4] bg-white p-[22px] flex flex-col gap-[8px] max-sm:rounded-none max-sm:border-0 max-sm:border-t max-sm:border-[#eeeeea] max-sm:p-0 max-sm:pt-3 max-sm:gap-3">
           <div className="flex items-center gap-[10px] border-b border-[#f8f8f4] pb-[10px]">
             <span className="size-[22px] rounded-[11px] bg-brand-green flex items-center justify-center shrink-0">
-              <span className="font-sans font-bold text-[11px] text-white leading-none">4</span>
+              <span className="font-sans font-bold text-[11px] max-lg:text-[12px] text-white leading-none">
+                4
+              </span>
             </span>
             <span className="font-sans font-semibold text-[12px] text-[#111]">
               Technologies &amp; links
@@ -469,7 +484,7 @@ const AddEditPortfolioModal = ({ isOpen, onClose, onSave, mode = 'add', initialD
             <span className="font-sans font-bold text-[15px] pl-2 text-[#111]">
               {isEditMode ? ' Pinned as top project' : ' Set as pinned project'}
             </span>
-            <p className="font-sans text-[12px] text-[#70706e]">
+            <p className="font-sans text-[12px] text-[#70706e] max-lg:text-[14px]">
               {isEditMode
                 ? 'Pinned project appears first on your card and recruiter profile. Only one project can be pinned at a time.'
                 : 'Your pinned project appears first on your recruiter card. Only one can be pinned.'}

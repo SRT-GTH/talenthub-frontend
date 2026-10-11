@@ -237,7 +237,7 @@ const JobPostFormModal = ({
       header={header}
       footer={footer}
       className="!bg-[rgba(17,17,17,0.7)] !backdrop-blur-none"
-      contentClassName="!max-w-[850px] !h-[min(90vh,820px)] !rounded-[24px]"
+      contentClassName="!max-w-[850px] !h-[min(90vh,820px)] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0"
     >
       <div className="flex flex-col gap-[clamp(16px,2vw,30px)] px-[clamp(20px,3vw,36px)] pb-[16px] pt-[clamp(8px,1vw,12px)]">
         <FormSection title="BASIC INFORMATION">

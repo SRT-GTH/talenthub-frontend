@@ -24,7 +24,9 @@ const StatRow = ({ iconBg, iconBorder, icon, title, description }) => (
     </div>
     <div className="flex-1 min-w-0 pt-[1px]">
       <p className="font-sans font-semibold text-[14px] text-[#2a5730] leading-normal">{title}</p>
-      <p className="font-sans text-[12px] text-[#96a090] leading-[18px] mt-[2px]">{description}</p>
+      <p className="font-sans text-[12px] text-[#96a090] leading-[18px] mt-[2px] max-lg:text-[14px]">
+        {description}
+      </p>
     </div>
   </div>
 );
@@ -45,7 +47,7 @@ const InterestsCompleteModal = ({
       onClose={onClose}
       size="sm"
       ariaLabel="Interests complete"
-      contentClassName="!rounded-[24px] !shadow-[0px_24px_64px_0px_rgba(0,0,0,0.12),0px_4px_0px_0px_rgba(0,0,0,0.07),0px_0px_0px_1px_rgba(0,0,0,0.04)] overflow-hidden"
+      contentClassName="!rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !shadow-[0px_24px_64px_0px_rgba(0,0,0,0.12),0px_4px_0px_0px_rgba(0,0,0,0.07),0px_0px_0px_1px_rgba(0,0,0,0.04)] overflow-hidden"
     >
       {/* Body — Figma 3576:101711 */}
       <div className="px-[clamp(24px,5.47vw,40px)] pt-[40px] pb-[32px] flex flex-col gap-[20px]">
@@ -55,7 +57,7 @@ const InterestsCompleteModal = ({
             🏆
           </div>
 
-          <h2 className="font-display text-[clamp(24px,2.31vw,32px)] leading-[1.1] tracking-[-1.2px]">
+          <h2 className="font-display text-[clamp(24px,2.31vw,32px)] leading-[1.1] tracking-[-1.2px] max-lg:tracking-[-0.02em]">
             <span className="not-italic text-[#111]">Interests c</span>
             <span className="italic text-[#387440]">omplete.</span>
           </h2>
@@ -105,7 +107,7 @@ const InterestsCompleteModal = ({
         <button
           type="button"
           onClick={onContinue}
-          className="w-full flex items-center justify-center gap-[8px] px-[40px] py-[16px] rounded-[14px] font-sans font-bold text-[16px] tracking-[0.1px] text-[#faf4e8] bg-[#c8951a] hover:opacity-90 transition-opacity duration-150 whitespace-nowrap"
+          className="w-full flex items-center justify-center gap-[8px] px-[40px] py-[16px] max-sm:px-4 max-sm:py-2.5 max-sm:text-[14px] rounded-[14px] font-sans font-bold text-[16px] tracking-[0.1px] text-[#faf4e8] bg-[#c8951a] hover:opacity-90 transition-opacity duration-150 whitespace-nowrap"
           style={{
             borderTop: '1px solid #967014',
             borderRight: '2px solid #967014',
@@ -115,7 +117,8 @@ const InterestsCompleteModal = ({
           }}
         >
           <SparkleIcon className="size-[18px] shrink-0" />
-          Continue to Personality stage
+          <span className="max-sm:hidden">Continue to Personality stage</span>
+          <span className="sm:hidden">Continue</span>
           <ArrowRightSmIcon className="size-[18px] shrink-0" />
         </button>
       </div>

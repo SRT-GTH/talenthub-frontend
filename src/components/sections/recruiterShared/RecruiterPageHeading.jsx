@@ -24,7 +24,7 @@ const RecruiterPageHeading = ({ lead, accent, subtitle, className }) => {
   return (
     <div className={classNames('flex min-w-0 flex-col gap-[3px]', className)}>
       <h1
-        className="font-display not-italic tracking-[-2px] text-black"
+        className="font-display not-italic tracking-[-2px] max-md:tracking-[-0.5px] max-md:text-[24px]! max-md:leading-[1.2]! text-black"
         /* Figma 40px/52 — clamped per the fluid-sizing rule. */
         style={{ fontSize: 'clamp(1.75rem, 1.4rem + 1.1vw, 2.5rem)', lineHeight: 1.3 }}
       >
@@ -34,7 +34,7 @@ const RecruiterPageHeading = ({ lead, accent, subtitle, className }) => {
       {subtitle && (
         /* whitespace-pre-wrap preserves the deliberate double spaces Figma
            puts in several of these subtitles. */
-        <p className="whitespace-pre-wrap font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+        <p className="whitespace-pre-wrap font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999] max-md:hidden">
           {subtitle}
         </p>
       )}

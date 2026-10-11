@@ -84,12 +84,43 @@ const InstitutionOnboardingBreadcrumb = ({ currentStep = 0, completionPercent })
   return (
     <nav
       aria-label="Institution onboarding steps"
-      className="flex h-12 items-center gap-0 bg-white px-6"
+      className="flex h-12 items-center gap-0 bg-white px-6 max-md:h-auto max-md:px-0 max-md:py-0"
       style={{ borderBottom: '1px solid #e7e7e7' }}
     >
+      {/* ── Phones: one slim row "Step 3 of 8 · Contact  38%" with a 3px progress line (<= 36px) ── */}
+      <div
+        className="relative flex w-full items-center justify-between gap-3 px-4 py-2 md:hidden"
+        aria-label={`${pct}% complete`}
+      >
+        <p className="min-w-0 truncate font-sans text-[13px] font-semibold leading-4 text-brand-green">
+          <span className="text-[#575755]">
+            Step {Math.min(currentStep + 1, total)} of {total}
+          </span>
+          <span aria-hidden="true" className="px-1.5 text-[#babab7]">
+            ·
+          </span>
+          <span className="capitalize">{INSTITUTION_STEPS[currentStep] ?? ''}</span>
+        </p>
+        <span className="shrink-0 font-sans text-[13px] font-semibold leading-4 text-brand-green">
+          {pct}%
+        </span>
+        <span
+          className="absolute inset-x-0 bottom-0 h-[3px] bg-brand-green-light"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span
+            className="block h-full bg-brand-green transition-[width] duration-300"
+            style={{ width: `${pct}%` }}
+          />
+        </span>
+      </div>
+
       {/* ── Steps list — scrollable on narrow viewports ── */}
       <ol
-        className="flex flex-1 min-w-0 items-center overflow-x-auto"
+        className="flex flex-1 min-w-0 items-center overflow-x-auto max-md:hidden"
         style={{
           scrollbarWidth: 'none',
         }} /* hide scrollbar; raw CSS — Tailwind has no scrollbar-hide utility in v4 by default */
@@ -140,7 +171,7 @@ const InstitutionOnboardingBreadcrumb = ({ currentStep = 0, completionPercent })
            Previous implementation had all three in a single horizontal row
            which did not match the Figma spec. ── */}
       <div
-        className="ml-4 flex shrink-0 flex-col gap-[4px]"
+        className="ml-4 flex shrink-0 flex-col gap-[4px] max-md:hidden"
         style={{ width: 'clamp(120px, 14vw, 180px)' }}
         aria-label={`${pct}% complete`}
       >

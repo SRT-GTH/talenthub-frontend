@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import ValidationCheckCard from './ValidationCheckCard.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
@@ -211,7 +212,7 @@ const DownloadBanner = ({ failedRows }) => {
   log('DownloadBanner render', { failedRows });
   return (
     <div
-      className="flex items-center gap-[16px] w-full px-[16px] rounded-[10px]"
+      className="flex items-center gap-[16px] w-full px-[16px] rounded-[10px] max-md:h-auto! max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-2 max-md:px-3 max-md:py-2.5"
       style={{
         height: '63px',
         backgroundColor: 'rgba(249,235,234,0.5)',
@@ -225,13 +226,13 @@ const DownloadBanner = ({ failedRows }) => {
       {/* Text group — flex-1, VERTICAL gap=2 */}
       <div className="flex flex-1 flex-col gap-[2px] min-w-0">
         <p
-          className="font-sans font-semibold truncate"
+          className="font-sans font-semibold truncate max-md:whitespace-normal"
           style={{ fontSize: '14px', lineHeight: '16px', color: '#922b21' }}
         >
           Download the error file to see all {failedRows} rows with failure reasons
         </p>
         <p
-          className="font-sans font-normal truncate"
+          className="font-sans font-normal truncate max-md:whitespace-normal"
           style={{ fontSize: '12px', lineHeight: '18px', color: '#c0392b' }}
         >
           Each row has a &ldquo;Failure_Reason&rdquo; column added. Fix and re-upload as a new
@@ -244,7 +245,7 @@ const DownloadBanner = ({ failedRows }) => {
       <button
         type="button"
         className={[
-          'flex items-center justify-center gap-[8px] shrink-0',
+          'flex items-center justify-center gap-[8px] shrink-0 max-md:h-9! max-md:w-full max-md:text-[13px]!',
           'font-sans font-bold text-white',
           'rounded-[10px]',
           'transition-opacity duration-100 hover:opacity-85',
@@ -282,16 +283,16 @@ const StatCard = ({ value, label, valueColor, labelColor = '#2a5730' }) => {
   log('StatCard render', { label, value });
   return (
     <div
-      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black bg-[#f8f8f4]"
+      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black bg-[#f8f8f4] max-md:h-auto! max-md:w-full! max-md:gap-0 max-md:border-black/15 max-md:py-2"
       style={{ width: '194px', height: '98px' }}
     >
       {/* Inner box */}
       <div
-        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white"
+        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white max-md:h-auto max-md:w-auto max-md:border-0! max-md:bg-transparent"
         style={{ border: '0.4px solid rgba(0,0,0,0.4)' }}
       >
         <span
-          className="font-sans font-normal"
+          className="font-sans font-normal max-md:text-[28px]! max-md:leading-8!"
           style={{ fontSize: '32px', lineHeight: '22px', color: valueColor }}
         >
           {value}
@@ -300,7 +301,7 @@ const StatCard = ({ value, label, valueColor, labelColor = '#2a5730' }) => {
       {/* Label */}
       <span
         className="font-sans font-medium"
-        style={{ fontSize: '10px', lineHeight: '16px', color: labelColor }}
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
       >
         {label}
       </span>
@@ -320,7 +321,8 @@ const TabButton = ({ active, onClick, children }) => (
     type="button"
     onClick={onClick}
     className={[
-      'flex items-center justify-center h-[32px] px-[16px] rounded-[10px] border',
+      'relative flex items-center justify-center h-[32px] px-[16px] rounded-[10px] border',
+      "max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-1.5 max-md:before:content-['']",
       'font-sans font-semibold whitespace-nowrap transition-colors duration-100',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green',
       active
@@ -409,21 +411,25 @@ const ValidateSection = () => {
   log('visibleChecks', { count: visibleChecks.length, tab: activeTab });
 
   return (
-    <div className="flex flex-1 flex-col items-center py-[88px] px-6">
+    <div className="flex flex-1 flex-col items-center py-[88px] px-6 max-md:px-4 max-md:py-4">
       {/* ── Content column: max-w=897px centred ── */}
-      <div className="w-full max-w-[897px] flex flex-col gap-[40px]">
+      <div className="w-full max-w-[897px] flex flex-col gap-[40px] max-md:gap-3">
         {/* ── Upper block: header + stats + tabs + checks ── gap=16 between each */}
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex flex-col gap-[16px] max-md:gap-3">
           {/* ── Header block ── */}
-          <div className="flex flex-col items-center gap-[8px]">
+          <div className="flex flex-col items-center gap-[8px] max-md:items-start">
             {/* Caption badge — Figma 3028:67078 */}
-            <Captions items={[{ index: '06', label: 'Validate File' }]} currentIndex={0} />
+            <Captions
+              items={[{ index: '06', label: 'Validate File' }]}
+              currentIndex={0}
+              className="max-md:px-2.5 max-md:py-0.5"
+            />
 
             {/* Headline — Figma 3028:67087 / 3028:67657
                 Instrument Serif fs=64 lh=70 ls=-0.64px CENTER
                 "26 issues found." → italic #387440 */}
             <h1
-              className="text-center font-serif text-black"
+              className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2rem, 4.4vw, 4rem)',
                 lineHeight: 1.094,
@@ -437,7 +443,7 @@ const ValidateSection = () => {
             {/* Subtitle — Figma 3028:67089 / 3028:67659 verbatim
                 SF Pro Rounded 400 fs=16 lh=24 ls=0.2 #737373 CENTER max-w=536px */}
             <p
-              className="font-sans font-normal text-center text-[#737373]"
+              className="font-sans font-normal text-center text-[#737373] max-md:text-left max-md:text-[14px]! max-md:leading-5!"
               style={{
                 fontSize: 'clamp(0.875rem, 1vw, 1rem)',
                 lineHeight: '24px',
@@ -457,7 +463,7 @@ const ValidateSection = () => {
                HORIZONTAL gap=38, 897×98
                Swap to error metrics on "failed rows" tab ── */}
           <div
-            className="flex items-center justify-between"
+            className="flex items-center justify-between max-md:grid max-md:grid-cols-2 max-md:items-stretch max-md:gap-2!"
             style={{ gap: '38px' }}
             role="region"
             aria-label={activeTab === 'failed' ? 'Error row summary' : 'File scan summary'}
@@ -474,9 +480,9 @@ const ValidateSection = () => {
           </div>
 
           {/* ── Tab switcher + check cards ── */}
-          <div className="flex flex-col gap-[16px]">
+          <div className="flex flex-col gap-[16px] max-md:gap-2">
             {/* Tab switcher — Figma 3028:67109 / 3028:67679 "Toggle buttons" */}
-            <div className="flex items-center gap-[8px]" role="tablist">
+            <div className="flex flex-wrap items-center gap-[8px]" role="tablist">
               <TabButton active={activeTab === 'checks'} onClick={() => handleTabChange('checks')}>
                 Validation checks
               </TabButton>
@@ -491,7 +497,7 @@ const ValidateSection = () => {
 
             {/* Check card list — Figma 3028:67114 "Checks view" VERTICAL gap=16 */}
             <div
-              className="flex flex-col gap-[16px]"
+              className="flex flex-col gap-[16px] max-md:gap-2"
               role="list"
               aria-label={
                 activeTab === 'checks'
@@ -522,7 +528,7 @@ const ValidateSection = () => {
 
         {/* ── CTA row — Figma 3028:67164 "Frame 360"
              HORIZONTAL gap=19, 897×56 ── */}
-        <div className="flex items-center gap-[19px] w-full">
+        <div className="flex items-center gap-[19px] w-full max-md:contents">
           {/* Re-Upload File — Figma 3028:67166
                218×56, fill=#ffffff, stroke=#111111(2px), r=14 */}
           <button
@@ -533,41 +539,45 @@ const ValidateSection = () => {
               'h-[56px] w-[218px] shrink-0',
               'rounded-[14px] border-2 border-[#111111] bg-white',
               'font-sans font-bold text-[16px] leading-6 text-[#111111]',
+              // Phones: secondary action becomes a small centred text link above the pinned CTA.
+              "relative max-md:h-auto max-md:w-auto max-md:self-center max-md:gap-1 max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:text-[13px] max-md:font-semibold max-md:leading-5 max-md:text-brand-green max-md:underline max-md:underline-offset-2 max-md:before:absolute max-md:before:-inset-x-3 max-md:before:-inset-y-3 max-md:before:content-['']",
               'transition-opacity duration-100 hover:opacity-80',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]',
             ].join(' ')}
           >
-            <ArrowLeftIcon className="size-[20px] shrink-0" />
+            <ArrowLeftIcon className="size-[20px] shrink-0 max-md:size-4" />
             Re-Upload File
           </button>
 
           {/* Proceed With N Valid Rows — Figma 3028:67175 / 3028:67745
                flex-1, fill=#387440, stroke=#2a5730(2px), r=14 */}
-          <button
-            type="button"
-            onClick={handleProceed}
-            className={[
-              'flex flex-1 items-center justify-center gap-[8px]',
-              'h-[56px]',
-              'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
-              'font-sans font-bold text-[16px] leading-6 text-white',
-              'transition-opacity duration-100 hover:opacity-90',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
-            ].join(' ')}
-          >
-            Proceed With {validRows} Valid Rows
-            <ArrowRightIcon />
-          </button>
+          <StickyActionBar bleed={16}>
+            <button
+              type="button"
+              onClick={handleProceed}
+              className={[
+                'flex flex-1 items-center justify-center gap-[8px] max-md:w-full max-md:flex-none',
+                'h-[56px]',
+                'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
+                'font-sans font-bold text-[16px] leading-6 text-white',
+                'transition-opacity duration-100 hover:opacity-90',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
+              ].join(' ')}
+            >
+              Proceed With {validRows} Valid Rows
+              <ArrowRightIcon />
+            </button>
+          </StickyActionBar>
         </div>
 
         {/* ── Footer link — consistent with other onboarding steps ── */}
-        <div className="flex items-center justify-center gap-2 text-[14px] leading-6">
+        <div className="flex items-center justify-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
           <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
             Already Have an account?
           </span>
           <Link
             to="/login"
-            className="font-semibold text-brand-green underline-offset-2 hover:underline"
+            className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{ letterSpacing: '0.1px' }}
           >
             Log in Instead

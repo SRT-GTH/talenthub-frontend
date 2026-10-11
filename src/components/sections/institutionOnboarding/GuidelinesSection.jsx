@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import { COMPACT_PRIMARY_BUTTON } from '../../ui/form/mobileScale.js';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, LoadingSpinner } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -24,11 +25,11 @@ const log = debug('GuidelinesSection');
 
 const InstitutionTag = () => (
   <span
-    className="inline-flex items-center rounded-[5px] bg-brand-green-light px-3 py-1"
+    className="inline-flex items-center rounded-[5px] bg-brand-green-light px-3 py-1 max-md:py-0.5"
     style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
   >
     <span
-      className="text-[10px] font-medium leading-4 text-brand-green"
+      className="text-[10px] max-lg:text-[12px] font-medium leading-4 text-brand-green"
       style={{ letterSpacing: '0.2px' }}
     >
       Institution
@@ -39,7 +40,7 @@ const InstitutionTag = () => (
 const StepNumberBadge = ({ n, numberColor }) => (
   <span
     aria-hidden="true"
-    className={`flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-green-light font-display italic ${numberColor}`}
+    className={`flex size-8 max-md:size-7 shrink-0 items-center justify-center rounded-full bg-brand-green-light font-display italic ${numberColor}`}
     style={{
       fontSize: 16,
       outline: '1px solid #C1D4C4',
@@ -88,13 +89,13 @@ const GuidelinesSection = () => {
 
   return (
     /* flex-1 fills the space beside InstitutionRightPanel in InstitutionOnboardingLayout */
-    <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20">
-      <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center">
+    <div className="flex flex-1 items-center justify-center px-6 py-12 md:py-20 max-md:items-start max-md:px-4 max-md:py-5">
+      <div className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center max-md:gap-3">
         <InstitutionTag />
 
         {/* Headline — Figma 2971:65523: Instrument Serif 64px/70px, tracking -0.64px */}
         <h1
-          className="font-display font-normal text-black"
+          className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -112,7 +113,7 @@ const GuidelinesSection = () => {
 
         {/* Sub-copy — Figma 2971:65535 */}
         <p
-          className="max-w-[482px] text-[16px] leading-6 text-content-helper"
+          className="max-w-[482px] text-[16px] leading-6 text-content-helper max-md:text-[14px] max-md:leading-5"
           style={{ letterSpacing: '0.2px' }}
         >
           {
@@ -122,7 +123,7 @@ const GuidelinesSection = () => {
 
         {/* Time badge — Figma 2971:65537 */}
         <div
-          className="inline-flex items-center gap-[6px] rounded-[8px] border bg-[#fffefc] px-4 py-1"
+          className="inline-flex items-center gap-[6px] rounded-[8px] border bg-[#fffefc] px-4 py-1 max-md:px-3 max-md:py-0.5"
           style={{ borderColor: '#dbdbdb' }}
         >
           <span
@@ -145,18 +146,18 @@ const GuidelinesSection = () => {
         </div>
 
         {/* 3-step list */}
-        <ol className="mt-2 w-full max-w-[511px] divide-y divide-[#E6E6E6] text-left">
+        <ol className="mt-2 max-md:mt-0 w-full max-w-[511px] divide-y divide-[#E6E6E6] text-left">
           {STEPS.map((step) => {
             log('step render:', step.number, step.title);
             return (
-              <li key={step.title} className="flex items-start gap-4 py-4">
+              <li key={step.title} className="flex items-start gap-4 py-4 max-md:gap-3 max-md:py-3">
                 <StepNumberBadge n={step.number} numberColor={step.numberColor} />
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 max-md:gap-0.5">
                   <p className="text-[16px] font-semibold leading-[18px] text-brand-green">
                     {step.title}
                   </p>
                   <p
-                    className="text-[14px] leading-5 text-neutral-darker"
+                    className="text-[14px] leading-5 text-neutral-darker max-md:text-[13px] max-md:leading-[18px]"
                     style={{ letterSpacing: '0.1px' }}
                   >
                     {step.description}
@@ -177,20 +178,20 @@ const GuidelinesSection = () => {
           disabled={isSubmitting}
           leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
           rightIcon={<ArrowRightIcon />}
-          className="mt-3 w-full"
+          className={`mt-3 w-full max-md:mt-1 ${COMPACT_PRIMARY_BUTTON}`}
           aria-busy={isSubmitting}
         >
           {isSubmitting ? 'Setting Things Up' : "Let's Begin"}
         </Button>
 
         {/* Already-have-account link */}
-        <div className="flex items-center gap-2 text-[14px] leading-6">
+        <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
           <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
             Already Have an account?
           </span>
           <Link
             to="/login"
-            className="font-semibold text-brand-green underline-offset-2 hover:underline"
+            className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{ letterSpacing: '0.1px' }}
           >
             Log in Instead

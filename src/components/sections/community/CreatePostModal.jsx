@@ -34,7 +34,7 @@ const ShelfButton = ({ children, onClick, className }) => (
     type="button"
     onClick={onClick}
     className={classNames(
-      'flex items-center justify-center gap-[4px] rounded-[14px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[18px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)]',
+      'flex items-center justify-center gap-[4px] max-lg:min-h-[44px] rounded-[14px] border-b-2 border-l-2 border-r-2 border-t border-[rgba(17,17,17,0.3)] bg-white px-[18px] py-[10px] drop-shadow-[0px_4px_0px_rgba(17,17,17,0.25)] transition-transform active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_rgba(17,17,17,0.25)]',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
       className
     )}
@@ -100,17 +100,17 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
       ariaLabel={CREATE_POST_COPY.title}
       contentClassName="!rounded-[24px] !shadow-[0px_40px_100px_0px_rgba(0,0,0,0.25),0px_4px_0px_0px_rgba(0,0,0,0.13)]"
     >
-      <div className="relative flex flex-col items-start gap-[24px] px-[32px] py-[28px]">
+      <div className="relative flex flex-col items-start gap-[24px] px-[32px] py-[28px] max-sm:gap-[16px] max-sm:px-[16px] max-sm:pb-0 max-sm:pt-[20px]">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-[14px] top-[11px] inline-flex size-[28px] items-center justify-center rounded-[20px] bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          className="absolute right-[14px] top-[11px] max-sm:right-[8px] max-sm:top-[8px] inline-flex size-[28px] max-sm:size-[44px] items-center justify-center rounded-[20px] max-sm:rounded-full bg-brand-green-light transition-colors hover:bg-brand-green-light-active focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           <CommunityIcon src={icons.modalClose} size={16} />
         </button>
 
-        <div className="flex flex-col items-start gap-[4px]">
+        <div className="flex flex-col items-start gap-[4px] max-sm:pr-[48px]">
           <h2 className="font-display text-[32px] text-black">{CREATE_POST_COPY.title}</h2>
           <p className="font-sans text-[14px] text-[#595959]">
             {CREATE_POST_COPY.postingToLead}
@@ -137,14 +137,14 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
                     setType(item);
                   }}
                   className={classNames(
-                    'flex flex-col items-center justify-center rounded-[100px] border border-brand-green-light-hover px-[12px] py-[6px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] transition-colors',
+                    'flex flex-col items-center justify-center rounded-[100px] border border-brand-green-light-hover px-[12px] py-[6px] max-lg:min-h-[44px] max-lg:px-[16px] drop-shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] transition-colors',
                     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                     active ? 'bg-brand-green' : 'bg-white hover:bg-brand-green-light'
                   )}
                 >
                   <span
                     className={classNames(
-                      'whitespace-nowrap font-sans text-[12.5px] font-medium leading-5 tracking-[0.2px]',
+                      'whitespace-nowrap font-sans text-[12.5px] max-lg:text-[14px] font-medium leading-5 tracking-[0.2px]',
                       active ? 'bg-clip-text text-transparent' : 'text-[#737373]'
                     )}
                     style={active ? { backgroundImage: CHIP_LABEL_GRADIENT } : undefined}
@@ -157,14 +157,14 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
           </div>
 
           {/* Body */}
-          <label className="flex h-[179px] w-full items-start gap-[8px] overflow-hidden rounded-[10px] border border-[#ccc] bg-white px-[16px] py-[13px] shadow-[0px_2.5px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
+          <label className="flex h-[179px] max-sm:h-[140px] w-full items-start gap-[8px] overflow-hidden rounded-[10px] border border-[#ccc] bg-white px-[16px] py-[13px] shadow-[0px_2.5px_0px_0px_rgba(191,191,191,0.8)] focus-within:border-brand-green-light-active">
             <span className="sr-only">{CREATE_POST_COPY.placeholder}</span>
             <textarea
               value={body}
               maxLength={CREATE_POST_COPY.maxLength}
               placeholder={CREATE_POST_COPY.placeholder}
               onChange={(event) => setBody(event.target.value)}
-              className="size-full resize-none bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#999]"
+              className="size-full resize-none bg-transparent font-sans text-[14px] max-lg:text-[16px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#999]"
             />
           </label>
 
@@ -192,7 +192,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-[10px] rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              className="flex items-center justify-center gap-[10px] rounded max-lg:min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               <CommunityIcon src={icons.images} size={20} />
               <span className="flex flex-col items-start justify-center gap-[2px] text-left">
@@ -249,7 +249,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
                     next[index] = event.target.value;
                     setLinks(next);
                   }}
-                  className="w-full bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#999]"
+                  className="w-full bg-transparent font-sans text-[14px] max-lg:text-[16px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#999]"
                 />
               </label>
             ))}
@@ -268,8 +268,8 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
           </div>
 
           {/* Footer */}
-          <div className="flex w-full items-center justify-between bg-white">
-            <span className="whitespace-nowrap font-sans text-[11px] text-[#bfbfbf]">
+          <div className="flex w-full items-center justify-between bg-white max-sm:sticky max-sm:bottom-0 max-sm:z-10 max-sm:-ml-[16px] max-sm:w-[calc(100%+32px)] max-sm:border-t max-sm:border-border-card max-sm:px-[16px] max-sm:py-[12px]">
+            <span className="whitespace-nowrap font-sans text-[11px] max-lg:text-[12px] text-[#bfbfbf]">
               {`${body.length} / ${CREATE_POST_COPY.maxLength}`}
             </span>
             <div className="flex items-start gap-[12px] bg-white">
@@ -286,7 +286,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
                    empty case is guarded in handleSubmit. */
                 aria-disabled={!body.trim() || undefined}
                 className={classNames(
-                  'flex items-center justify-center gap-[8px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform',
+                  'flex items-center justify-center gap-[8px] max-lg:min-h-[44px] rounded-[10px] border-b-2 border-l-2 border-r-2 border-t border-brand-green-dark bg-brand-green px-[18px] py-[10px] drop-shadow-[0px_4px_0px_#224626] transition-transform',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                   'active:translate-y-[2px] active:drop-shadow-[0px_2px_0px_#224626]'
                 )}

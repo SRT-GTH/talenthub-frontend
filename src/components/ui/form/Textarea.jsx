@@ -43,11 +43,12 @@ const INTERACTIVE_CLASSES =
   'focus-within:bg-[#eef7f2] focus-within:border-brand-green-light-active ' +
   'focus-within:shadow-[0_3px_0_0_rgba(34,70,38,0.8)]';
 
-const WRAPPER_BASE = 'flex w-full rounded-md transition-colors duration-100 overflow-hidden';
+const WRAPPER_BASE =
+  'flex w-full rounded-md transition-colors duration-100 overflow-hidden max-md:shadow-none!';
 
 const TEXTAREA_BASE =
   'flex-1 min-w-0 bg-transparent outline-none border-none resize-y ' +
-  'pl-5 pr-4 py-[13px] ' +
+  'pl-5 pr-4 py-[13px] max-md:pl-3 max-md:pr-3 max-md:py-2.5 ' +
   'font-sans text-[14px] leading-[20px] tracking-[0.2px] ' +
   'text-content-primary ' +
   'placeholder:text-[#595959] placeholder:font-normal ' +
@@ -152,7 +153,7 @@ const Textarea = ({
       {showCounterResolved && (
         <div
           className={classNames(
-            'flex justify-end mt-1 px-1 font-sans text-[10px] leading-4 tracking-[0.2px]',
+            'flex justify-end mt-1 px-1 font-sans text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px]',
             counterColour
           )}
           aria-live="polite"

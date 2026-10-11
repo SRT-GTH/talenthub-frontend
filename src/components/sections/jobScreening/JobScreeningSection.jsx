@@ -13,6 +13,7 @@ import {
   CriteriaToggle,
 } from './jobScreeningIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
+import ClampText from '../../ui/ClampText.jsx';
 import { debug } from '../../../utils/debug.js';
 import {
   PAGE_HEADING,
@@ -80,9 +81,9 @@ const JobScreeningSection = () => {
     <DashboardShell>
       <div
         ref={rootRef}
-        className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]"
+        className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]"
       >
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
           <RecruiterPageHeading
             lead={PAGE_HEADING.lead}
             accent={PAGE_HEADING.accent}
@@ -91,7 +92,7 @@ const JobScreeningSection = () => {
           <RecruiterJobTabs />
         </div>
 
-        <div className="flex flex-col gap-[32px] pb-[48px]">
+        <div className="flex flex-col gap-[32px] pb-[48px] max-md:gap-[16px] max-md:pb-[8px]">
           {/* Applying to — Figma 7249:78235, 431 wide, gap 8 */}
           <label className="flex w-full max-w-[431px] flex-col gap-[8px]">
             <span className="font-sans text-[14px] font-medium leading-6 tracking-[0.2px] text-black">
@@ -103,44 +104,47 @@ const JobScreeningSection = () => {
             <button
               type="button"
               onClick={() => log('branch', { action: 'open-applying-to', wired: false })}
-              className="flex h-[51px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf]"
+              className="flex h-[51px] max-lg:min-h-[44px] max-lg:h-auto items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
             >
-              {APPLYING_TO.value}
+              <span className="min-w-0 truncate">{APPLYING_TO.value}</span>
               <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
             </button>
           </label>
 
-          <div className="flex flex-col gap-[18px]">
+          <div className="flex flex-col gap-[18px] max-md:gap-[10px]">
             {/* Section label — Figma 7249:78251, gap 16 */}
             <div className="flex items-center gap-[16px]">
-              <span className="font-sans text-[16px] font-medium leading-5 tracking-[0.2px] text-brand-green">
+              <span className="font-sans text-[16px] max-lg:text-[13px] font-medium leading-5 tracking-[0.2px] text-brand-green">
                 {CORE_REQUIREMENTS.sectionLabel}
               </span>
-              <span className="inline-flex items-center rounded-[6px] border-[1.21px] border-border-pill bg-white px-[12px] py-[4px] font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-content-helper">
+              <span className="inline-flex items-center rounded-[6px] border-[1.21px] border-border-pill bg-white px-[12px] py-[4px] font-sans text-[14px] max-lg:text-[13px] font-medium leading-5 tracking-[0.2px] text-content-helper">
                 {CORE_REQUIREMENTS.badge}
               </span>
             </div>
 
             {/* Criteria + funnel — Figma 7249:78256, gap 32 */}
-            <div className="flex flex-col gap-[32px] xl:flex-row">
-              <div className="flex min-w-0 flex-1 flex-col gap-[24px] rounded-[14px] border border-border-card bg-white px-[22px] py-[20px]">
+            <div className="flex flex-col gap-[32px] max-md:gap-[12px] xl:flex-row">
+              <div className="flex min-w-0 flex-1 flex-col gap-[24px] max-sm:gap-0 rounded-[14px] border border-border-card bg-white px-[22px] py-[20px] max-sm:px-[12px] max-sm:py-[4px]">
                 {CORE_REQUIREMENTS.items.map((item) => {
                   const Icon = CRITERIA_ICONS[item.icon];
                   return (
                     <div
                       key={item.id}
-                      className="flex items-start justify-between gap-4 rounded-[12px] px-[12px] py-[16px]"
+                      className="flex items-start justify-between gap-4 rounded-[12px] px-[12px] py-[16px] max-sm:px-[4px] max-sm:py-[10px]"
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
                         <div className="flex items-center gap-[8px]">
                           <Icon className="h-[16px] w-[19.5px] shrink-0 text-brand-green" />
-                          <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-black">
+                          <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                             {item.title}
                           </span>
                         </div>
-                        <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                        <ClampText
+                          lines={2}
+                          className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]"
+                        >
                           {item.description}
-                        </p>
+                        </ClampText>
 
                         <div className="flex flex-wrap items-center gap-[16px] pt-[8px]">
                           {item.value && (
@@ -156,7 +160,7 @@ const JobScreeningSection = () => {
                                   }
                                   setOpenSelectId((prev) => (prev === item.id ? null : item.id));
                                 }}
-                                className="inline-flex h-[38px] items-center gap-[4px] rounded-[8px] border border-[#e9e9e9] px-[12px] font-sans text-[16px] leading-[22.4px] text-[#595959] transition-colors hover:bg-neutral"
+                                className="inline-flex h-[38px] max-lg:min-h-[32px] max-lg:h-auto items-center gap-[4px] rounded-[8px] border border-[#e9e9e9] px-[12px] font-sans text-[16px] max-lg:text-[13px] leading-[22.4px] text-[#595959] transition-colors hover:bg-neutral"
                               >
                                 {selectedValues[item.id] ?? item.value}
                                 <CriteriaChevronIcon className="size-[16px] text-[#595959]" />
@@ -164,7 +168,7 @@ const JobScreeningSection = () => {
 
                               {item.options && openSelectId === item.id && (
                                 /* Figma 7249:78785 */
-                                <span className="absolute left-0 top-[42px] z-20 block w-[115px] overflow-hidden rounded-[10px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]">
+                                <span className="absolute left-0 top-[42px] z-20 block w-[115px] max-lg:w-[160px] overflow-hidden rounded-[10px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]">
                                   {item.options.map((option, index) => (
                                     <span key={option} className="block">
                                       {index > 0 && (
@@ -181,7 +185,7 @@ const JobScreeningSection = () => {
                                           setOpenSelectId(null);
                                         }}
                                         className={classNames(
-                                          'flex h-[41px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] text-content-helper transition-colors',
+                                          'flex h-[41px] max-lg:h-[40px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] text-content-helper transition-colors',
                                           // Figma highlights one row at #f6f6f6 to show the
                                           // hover state; the same fill marks the ACTIVE row,
                                           // i.e. whichever option is currently selected.
@@ -202,7 +206,7 @@ const JobScreeningSection = () => {
                             item.tags.map((tag) => (
                               <span
                                 key={tag}
-                                className="inline-flex h-[34px] items-center rounded-[8px] bg-brand-green-light px-[12px] font-sans text-[16px] leading-6 text-black"
+                                className="inline-flex h-[34px] items-center rounded-[8px] bg-brand-green-light px-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 text-black"
                               >
                                 {tag}
                               </span>
@@ -211,13 +215,13 @@ const JobScreeningSection = () => {
                             <button
                               type="button"
                               onClick={() => log('branch', { action: 'add-skill', wired: false })}
-                              className="inline-flex h-[34px] items-center rounded-[8px] border border-[#00522b]/10 px-[12px] font-sans text-[16px] leading-6 text-brand-green-dark transition-colors hover:bg-brand-green-light"
+                              className="inline-flex h-[34px] max-lg:min-h-[32px] max-lg:h-auto items-center rounded-[8px] border border-[#00522b]/10 px-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 text-brand-green-dark transition-colors hover:bg-brand-green-light"
                             >
                               {item.addLabel}
                             </button>
                           )}
                           {item.meta && (
-                            <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-content-helper">
+                            <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-content-helper">
                               {item.meta}
                             </span>
                           )}
@@ -235,17 +239,17 @@ const JobScreeningSection = () => {
                 {/* Figma 7249:78802 — counterAxisAlignItems CENTER, and every
                     text node in this card is textAlignHorizontal CENTER. */}
                 <div className="flex flex-col items-center gap-[16px]">
-                  <h3 className="text-center font-sans text-[18px] font-medium leading-6 tracking-[0.2px] text-black">
+                  <h3 className="text-center font-sans text-[18px] max-lg:text-[16px] font-medium leading-6 tracking-[0.2px] text-black">
                     {TALENT_FUNNEL.title}
                   </h3>
 
                   <div className="flex w-full flex-col gap-[16px]">
                     {/* Figma 7249:78805 — counterAxisAlignItems MAX (bottom) */}
                     <div className="flex items-end justify-between gap-3">
-                      <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#595959]">
+                      <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#595959]">
                         {TALENT_FUNNEL.stats[0].label}
                       </span>
-                      <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-black">
+                      <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                         {TALENT_FUNNEL.stats[0].value}
                       </span>
                     </div>
@@ -260,11 +264,11 @@ const JobScreeningSection = () => {
                     <div className="flex items-center justify-between gap-3">
                       <span className="flex items-center gap-[8px]">
                         <span className="size-[12px] rounded-full bg-brand-green" />
-                        <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#595959]">
+                        <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#595959]">
                           {TALENT_FUNNEL.stats[1].label}
                         </span>
                       </span>
-                      <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-brand-green">
+                      <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-brand-green">
                         {TALENT_FUNNEL.stats[1].value}
                       </span>
                     </div>
@@ -275,7 +279,7 @@ const JobScreeningSection = () => {
                     { top: 1, right: 0, bottom: 0, left: 0 }), pad-top 23,
                     gap 12, counterAxisAlignItems CENTER. */}
                 <div className="flex flex-col items-center gap-[12px] border-t border-border-card pt-[23px]">
-                  <span className="w-full text-center font-sans text-[16px] leading-6 tracking-[0.2px] text-black">
+                  <span className="w-full text-center font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                     {TALENT_FUNNEL.qualityLabel}
                   </span>
                   <span className="flex items-center gap-[4px]">
@@ -288,12 +292,12 @@ const JobScreeningSection = () => {
                         )}
                       />
                     ))}
-                    <span className="pl-[8px] font-sans text-[16px] leading-6 tracking-[0.2px] text-black">
+                    <span className="pl-[8px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                       {TALENT_FUNNEL.qualityValue}
                     </span>
                   </span>
                   {/* whitespace-pre-line keeps Figma's hard line break */}
-                  <p className="w-full whitespace-pre-line pt-[4px] text-center font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                  <p className="w-full whitespace-pre-line pt-[4px] text-center font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">
                     {TALENT_FUNNEL.qualityNote}
                   </p>
                 </div>
@@ -302,14 +306,14 @@ const JobScreeningSection = () => {
                   <button
                     type="button"
                     onClick={() => log('branch', { action: 'apply-filter-pool', wired: false })}
-                    className="inline-flex h-[44px] items-center justify-center rounded-[10px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
+                    className="inline-flex h-[44px] max-lg:h-[40px] items-center justify-center rounded-[10px] border-2 border-brand-green-dark max-lg:border max-lg:shadow-none bg-brand-green px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
                   >
                     {TALENT_FUNNEL.primaryAction}
                   </button>
                   <button
                     type="button"
                     onClick={() => log('branch', { action: 'save-as-template', wired: false })}
-                    className="inline-flex h-[44px] items-center justify-center rounded-[14px] border-2 border-black/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+                    className="inline-flex h-[44px] max-lg:h-[40px] items-center justify-center rounded-[14px] border-2 border-black/30 max-lg:rounded-[10px] max-lg:border max-lg:shadow-none bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
                   >
                     {TALENT_FUNNEL.secondaryAction}
                   </button>
@@ -324,31 +328,34 @@ const JobScreeningSection = () => {
                 return (
                   <div
                     key={card.id}
-                    className="flex w-full flex-col gap-[4px] rounded-[14px] border border-border-card bg-white px-[22px] pb-[38px] pt-[22px] sm:w-[300px]"
+                    className="flex w-full flex-col gap-[4px] rounded-[14px] border border-border-card bg-white px-[22px] pb-[38px] pt-[22px] max-sm:p-[14px] sm:w-[300px]"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <Icon className="size-[18px] shrink-0 text-brand-green" />
                       <CriteriaToggle size="sm" />
                     </div>
-                    <h4 className="pt-[12px] font-sans text-[16px] leading-6 tracking-[0.2px] text-black">
+                    <h4 className="pt-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                       {card.title}
                     </h4>
-                    <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                    <ClampText
+                      lines={2}
+                      className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]"
+                    >
                       {card.description}
-                    </p>
+                    </ClampText>
 
                     <div className="flex flex-col gap-[8px] pt-[16px]">
                       <div className="flex items-center justify-between gap-3">
                         <span
                           className={classNames(
-                            'inline-flex items-center rounded-full px-[8px] py-[4px] font-sans text-[16px] leading-6 tracking-[0.2px]',
+                            'inline-flex items-center rounded-full px-[8px] py-[4px] font-sans text-[16px] max-lg:text-[13px] leading-6 max-lg:leading-5 tracking-[0.2px]',
                             card.badge ? 'bg-[#f3f8f4] text-brand-green' : 'text-brand-green'
                           )}
                         >
                           {card.badge ?? card.value}
                         </span>
                         {card.badge && (
-                          <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-brand-green">
+                          <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-brand-green">
                             {card.value}
                           </span>
                         )}
@@ -362,7 +369,7 @@ const JobScreeningSection = () => {
                         </span>
                       )}
                       {card.meta && (
-                        <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                        <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">
                           {card.meta}
                         </span>
                       )}
@@ -375,22 +382,22 @@ const JobScreeningSection = () => {
 
           {/* Market insights — Figma 7249:78400, gap 18 */}
           <div className="flex flex-col gap-[18px]">
-            <span className="font-sans text-[16px] font-medium leading-5 tracking-[0.2px] text-brand-green">
+            <span className="font-sans text-[16px] max-lg:text-[13px] font-medium leading-5 tracking-[0.2px] text-brand-green">
               {MARKET_INSIGHTS.sectionLabel}
             </span>
-            <div className="flex flex-col gap-[18px] md:flex-row">
+            <div className="flex flex-col gap-[18px] max-md:gap-[10px] md:flex-row">
               {MARKET_INSIGHTS.cards.map((card) => (
                 <div
                   key={card.id}
-                  className="flex min-w-0 flex-1 flex-col gap-[8px] rounded-[12px] border border-border-card bg-white px-[24px] pb-[24px] pt-[23px]"
+                  className="flex min-w-0 flex-1 flex-col gap-[8px] rounded-[12px] border border-border-card bg-white px-[24px] pb-[24px] pt-[23px] max-sm:p-[14px]"
                 >
-                  <h5 className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                  <h5 className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">
                     {card.title}
                   </h5>
-                  <span className="font-display text-[36px] not-italic leading-[64px] text-black">
+                  <span className="font-display text-[36px] not-italic leading-[64px] text-black max-lg:text-[17px] max-lg:leading-6">
                     {card.value}
                   </span>
-                  <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999]">
+                  <p className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">
                     {card.note}
                   </p>
                 </div>

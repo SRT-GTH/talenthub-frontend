@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
+import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import { ArrowRightIcon, CloseIcon } from '../../shared/assets.jsx';
@@ -96,8 +97,8 @@ const InfoSmallIcon = () => (
 // ── File type pill (".csv" / ".xlsx" / ".xls") ────────────────────────
 // Figma: rounded-full white bg, #e6e6e6 stroke, Instrument Sans Bold 10px #70706e
 const FileTypePill = ({ ext }) => (
-  <span className="inline-flex items-center justify-center rounded-full border border-[#e6e6e6] bg-white px-[6px] h-[21px]">
-    <span className="font-sans font-bold text-[10px] leading-[12.2px] text-[#70706e] whitespace-nowrap">
+  <span className="inline-flex items-center justify-center rounded-full border border-[#e6e6e6] bg-white px-[6px] h-[21px] max-md:h-6">
+    <span className="font-sans font-bold text-[10px] max-lg:text-[12px] leading-[12.2px] text-[#70706e] whitespace-nowrap">
       {ext}
     </span>
   </span>
@@ -124,7 +125,7 @@ const UploadZone = ({
   log('UploadZone render', { isUploaded, isHover });
 
   const containerCls = [
-    'relative flex items-center justify-center w-full h-[173px]',
+    'relative flex items-center justify-center w-full h-[173px] max-md:h-auto max-md:min-h-[88px] max-md:px-4 max-md:py-3',
     'rounded-[16px] border-2 cursor-pointer select-none',
     'transition-colors duration-150',
     isUploaded || isHover ? 'bg-[#ebf1ec] border-[#387440]' : 'bg-[#fefef3] border-[#c1d4c4]',
@@ -153,12 +154,12 @@ const UploadZone = ({
       }}
     >
       {/* Inner content — VERTICAL stack, centered (Figma Frame 333) */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 max-md:gap-1">
         {/* ── Icon box (40×40, r:10) ── */}
         {isUploaded ? (
           /* Uploaded state — Figma 3014:59183: green fill + check icon */
           <div
-            className="flex items-center justify-center size-[40px] rounded-[10px] bg-[#387440] text-[#ebf1ec]"
+            className="flex items-center justify-center size-[40px] max-md:size-8 rounded-[10px] bg-[#387440] text-[#ebf1ec]"
             style={{ boxShadow: '0 2px 8px rgba(27,36,44,0.08), 0 2px 2px rgba(27,36,44,0.04)' }}
             aria-hidden="true"
           >
@@ -167,7 +168,7 @@ const UploadZone = ({
         ) : (
           /* Default / hover state — Figma 3014:50739 / 3014:57783: white fill + upload icon */
           <div
-            className="flex items-center justify-center size-[40px] rounded-[10px] bg-white text-[#387440]"
+            className="flex items-center justify-center size-[40px] max-md:size-8 rounded-[10px] bg-white text-[#387440]"
             style={{ boxShadow: '0 2px 8px rgba(27,36,44,0.08), 0 2px 2px rgba(27,36,44,0.04)' }}
             aria-hidden="true"
           >
@@ -185,17 +186,28 @@ const UploadZone = ({
               color: isUploaded ? '#387440' : '#111111',
             }}
           >
-            {isUploaded ? 'File Received' : 'Drag Your File Here'}
+            {isUploaded ? (
+              'File Received'
+            ) : (
+              <>
+                <span className="max-md:hidden">Drag Your File Here</span>
+                <span className="md:hidden">Tap To Choose Your File</span>
+              </>
+            )}
           </span>
           {/* Secondary label — SF Pro Rounded Regular 12px */}
           <span
-            className="font-sans font-normal text-[12px] text-center"
+            className={`font-sans font-normal text-[12px] text-center ${isUploaded ? '' : 'max-md:hidden'}`}
             style={{
               lineHeight: '15.95px',
               color: isUploaded ? '#387440' : '#959592',
             }}
           >
-            {isUploaded ? file.name : 'Or browser to choose a file'}
+            {isUploaded ? (
+              <span className="block max-w-[240px] truncate">{file.name}</span>
+            ) : (
+              'Or browser to choose a file'
+            )}
           </span>
         </div>
 
@@ -219,7 +231,7 @@ const UploadZone = ({
 const FilePill = ({ file, onRemove }) => {
   log('FilePill render', { fileName: file?.name });
   return (
-    <div className="flex w-full items-center gap-3 rounded-[6px] border border-[#ddebe4] bg-[#ebf1ec] px-4 h-[63px]">
+    <div className="flex w-full items-center gap-3 rounded-[6px] border border-[#ddebe4] bg-[#ebf1ec] px-4 h-[63px] max-md:h-14 max-md:px-3">
       {/* File icon — green circle 32×32, r:8 */}
       <div
         className="flex shrink-0 items-center justify-center size-[32px] rounded-[8px] bg-[#387440] text-white"
@@ -230,7 +242,7 @@ const FilePill = ({ file, onRemove }) => {
       </div>
 
       {/* Filename — SF Pro Rounded Bold 12px #575755 */}
-      <span className="flex-1 font-sans font-bold text-[12px] leading-5 tracking-[0.1px] text-[#575755] truncate">
+      <span className="flex-1 font-sans font-bold text-[12px] max-md:text-[13px] leading-5 tracking-[0.1px] text-[#575755] truncate">
         {file.name}
       </span>
 
@@ -239,7 +251,7 @@ const FilePill = ({ file, onRemove }) => {
         type="button"
         onClick={onRemove}
         aria-label="Remove selected file"
-        className="shrink-0 text-[#387440] hover:opacity-70 transition-opacity duration-100 focus:outline-none"
+        className="inline-flex shrink-0 items-center justify-center text-[#387440] hover:opacity-70 transition-opacity duration-100 focus:outline-none max-md:-mr-3 max-md:size-11"
       >
         <CloseIcon />
       </button>
@@ -324,17 +336,21 @@ const UploadSection = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-10 py-[88px] px-6">
+    <div className="flex flex-1 flex-col items-center gap-10 py-[88px] px-6 max-md:gap-3 max-md:px-4 max-md:py-4">
       {/* ── Header block ─────────────────────────────────────────── */}
-      <div className="flex w-full flex-col items-center gap-6 max-w-[560px]">
+      <div className="flex w-full flex-col items-center gap-6 max-w-[560px] max-md:items-start max-md:gap-3">
         {/* Caption badge — Figma 3010:43788 */}
-        <Captions items={[{ index: '05', label: 'Bulk Upload' }]} currentIndex={0} />
+        <Captions
+          items={[{ index: '05', label: 'Bulk Upload' }]}
+          currentIndex={0}
+          className="max-md:self-start max-md:px-2.5 max-md:py-0.5"
+        />
 
         {/* ── Headline — Figma 3010:43797 ──
              Instrument Serif 400 64px lh:70 ls:-0.64 CENTER
              Character override indices 12–24: "student file." → italic #387440 */}
         <h1
-          className="text-center font-serif text-black"
+          className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -348,7 +364,7 @@ const UploadSection = () => {
              SF Pro Rounded 400 16px lh:24 ls:0.2 #737373 CENTER; max-w:482px
              Frame 13 provides pad:4/30/4/30 context. */}
         <p
-          className="font-sans font-normal text-center text-[#737373]"
+          className="font-sans font-normal text-center text-[#737373] max-md:text-left max-md:text-[14px]! max-md:leading-5!"
           style={{
             fontSize: 'clamp(0.875rem, 1vw, 1rem)',
             lineHeight: '24px',
@@ -365,7 +381,7 @@ const UploadSection = () => {
       <WavyDivider />
 
       {/* ── Upload zone + file pill + info row ───────────────────── */}
-      <div className="flex w-full flex-col gap-4 max-w-[698px]">
+      <div className="flex w-full flex-col gap-4 max-w-[698px] max-md:gap-3">
         {/* Hidden file input — accepts .csv .xlsx .xls */}
         <input
           ref={fileInputRef}
@@ -396,7 +412,7 @@ const UploadSection = () => {
           <InfoSmallIcon />
           {/* Figma 3010:50558 — Instrument Sans 400 11px #70706e — verbatim */}
           <span
-            className="font-sans font-normal text-[11px] text-[#70706e]"
+            className="font-sans font-normal text-[11px] max-lg:text-[12px] text-[#70706e]"
             style={{ lineHeight: '13.42px' }}
           >
             Maximum 10,000 rows per upload. Larger batches should be split into multiple uploads.
@@ -405,31 +421,33 @@ const UploadSection = () => {
       </div>
 
       {/* ── CTA + footer ────────────────────────────────────────── */}
-      <div className="flex w-full flex-col items-center gap-2 max-w-[698px]">
+      <div className="flex w-full flex-col items-center gap-2 max-w-[698px] max-md:contents">
         {/* ── CTA — Figma 3010:43809 ──
              Disabled (gray) when no file; primary (green) when file selected.
              Button component handles the disabled/primary color switch.
              Figma disabled: fill #bfbfbf r:14 shadow y:4 rgba(191,191,191,0.80) */}
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          rightIcon={<ArrowRightIcon />}
-          disabled={!file}
-          onClick={handleContinue}
-          className="w-full"
-        >
-          Run Pre-Fight Check
-        </Button>
+        <StickyActionBar bleed={16}>
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            rightIcon={<ArrowRightIcon />}
+            disabled={!file}
+            onClick={handleContinue}
+            className="w-full"
+          >
+            Run Pre-Fight Check
+          </Button>
+        </StickyActionBar>
 
         {/* ── Footer link — Figma 3010:43810 ── */}
-        <div className="flex items-center justify-center gap-2 text-[14px] leading-6">
+        <div className="flex items-center justify-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
           <span className="text-content-helper" style={{ letterSpacing: '0.2px' }}>
             Already Have an account?
           </span>
           <Link
             to="/login"
-            className="font-semibold text-brand-green underline-offset-2 hover:underline"
+            className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
             style={{ letterSpacing: '0.1px' }}
           >
             Log in Instead

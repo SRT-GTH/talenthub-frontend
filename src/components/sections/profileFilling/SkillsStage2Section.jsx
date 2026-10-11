@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
+import StageAsideAccordion from './StageLayout.jsx';
 import { debug } from '../../../utils/debug.js';
 import {
   SkillIconJs,
@@ -197,37 +198,38 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
 
   return (
     <div
-      className={`rounded-[16px] border border-[#e8e8e4] overflow-hidden transition-all duration-150 ${
+      className={`rounded-[16px] border border-[#e8e8e4] overflow-hidden transition-all duration-150 shadow-[0px_4px_0px_0px_rgba(0,0,0,0.07)] max-lg:rounded-xl max-lg:shadow-none ${
         isVerified ? 'bg-[rgba(235,241,236,0.5)]' : 'bg-white'
       }`}
-      style={{ boxShadow: '0px 4px 0px 0px rgba(0,0,0,0.07)' }}
     >
       {/* Main card row */}
-      <div className="flex items-start gap-[12px] px-[15px] py-[13px]">
+      <div className="flex items-start gap-[12px] px-[15px] py-[13px] max-sm:flex-wrap max-lg:gap-2.5 max-lg:px-3 max-lg:py-3">
         {/* Icon box — 40×40 rounded-[10px]. Brand bg per skill; renders SVG component
             or emoji fallback. Figma: bg-[#f7fee7] with emoji placeholder. */}
         <div
-          className={`size-[40px] ${skill.iconBg ?? 'bg-[#f7fee7]'} rounded-[10px] flex items-center justify-center shrink-0 mt-[1px] overflow-hidden`}
+          className={`size-[40px] max-lg:size-9 ${skill.iconBg ?? 'bg-[#f7fee7]'} rounded-[10px] flex items-center justify-center shrink-0 mt-[1px] overflow-hidden`}
         >
           {skill.IconComponent ? (
             <skill.IconComponent className="size-[22px]" />
           ) : (
-            <span className="text-[20px] leading-none select-none">{skill.emoji}</span>
+            <span className="text-[20px] max-lg:text-[16px] leading-none select-none">
+              {skill.emoji}
+            </span>
           )}
         </div>
 
         {/* Content column */}
-        <div className="flex-1 min-w-0 flex flex-col gap-[7px] pt-[4px]">
+        <div className="flex-1 min-w-0 flex flex-col gap-[7px] pt-[4px] max-lg:gap-1.5 max-lg:pt-0 max-sm:flex-row max-sm:flex-wrap max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-1">
           {/* Skill name + status badge */}
-          <div className="flex items-center gap-[7px]">
-            <span className="font-sans font-semibold text-[14px] text-[#111] leading-normal truncate">
+          <div className="flex items-center gap-[7px] max-sm:w-full max-sm:flex-wrap">
+            <span className="font-sans font-semibold text-[14px] max-lg:text-[16px] text-[#111] leading-normal truncate max-sm:overflow-visible max-sm:whitespace-normal">
               {skill.name}
             </span>
             {isVerified ? (
               /* Verified pill — dark green bg, gradient text (Figma 3673:29193) */
-              <span className="h-[16px] px-[8px] rounded-full flex items-center bg-[#387440] border border-[#c1d4c4] shrink-0">
+              <span className="h-[16px] max-lg:h-auto max-lg:py-px px-[8px] rounded-full flex items-center bg-[#387440] border border-[#c1d4c4] shrink-0">
                 <span
-                  className="text-[8px] font-medium tracking-[0.2px] whitespace-nowrap"
+                  className="text-[8px] max-lg:text-[12px] font-medium tracking-[0.2px] whitespace-nowrap"
                   style={{
                     backgroundImage:
                       'linear-gradient(193deg, rgb(254,241,231) 0%, rgb(232,242,237) 20.2%)',
@@ -241,7 +243,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
               </span>
             ) : (
               /* Self-reported pill — cream bg, gray text (Figma 3673:29193 self-reported state) */
-              <span className="h-[16px] px-[8px] rounded-full flex items-center bg-[#fffefc] border border-[#b5b5b5] text-[8px] font-medium text-[#595959] tracking-[0.2px] whitespace-nowrap shrink-0">
+              <span className="h-[16px] max-lg:h-auto max-lg:py-px px-[8px] rounded-full flex items-center bg-[#fffefc] border border-[#b5b5b5] text-[8px] max-lg:text-[12px] font-medium text-[#595959] tracking-[0.2px] whitespace-nowrap shrink-0">
                 Self-reported
               </span>
             )}
@@ -261,7 +263,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
                 );
               })}
             </div>
-            <span className="font-sans font-medium text-[10px] text-[#70706e]">
+            <span className="font-sans font-medium text-[10px] max-lg:text-[12px] text-[#70706e]">
               {skill.proficiency}
             </span>
           </div>
@@ -272,7 +274,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
               {endorsers.map((initial, i) => (
                 <div
                   key={i}
-                  className="size-5 rounded-[10px] border-2 border-white flex items-center justify-center font-bold text-[9px] text-white shrink-0"
+                  className="size-5 rounded-[10px] border-2 border-white flex items-center justify-center font-bold text-[9px] max-lg:text-[12px] text-white shrink-0"
                   style={{
                     background: AVATAR_COLORS[i],
                     marginLeft: i > 0 ? '-7px' : '0',
@@ -284,7 +286,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
                 </div>
               ))}
             </div>
-            <span className="font-sans text-[10px] leading-normal">
+            <span className="font-sans text-[10px] max-lg:text-[12px] leading-normal">
               <span className="font-bold" style={{ color: endorsementAmber ? '#c8951a' : '#111' }}>
                 {skill.endorsements}
               </span>{' '}
@@ -300,7 +302,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
           </div>
 
           {/* Progress bar — Figma 3670:29187 / 29188 */}
-          <div className="h-[4px] max-w-[810px] bg-neutral border border-[#e8e8e4] rounded-[2px] overflow-hidden">
+          <div className="h-[4px] max-w-[810px] max-sm:w-full max-sm:order-last bg-neutral border border-[#e8e8e4] rounded-[2px] overflow-hidden">
             <div
               className="h-full bg-[#387440] rounded-[2px] transition-all duration-300"
               style={{ width: `${barPct}%` }}
@@ -309,11 +311,11 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
         </div>
 
         {/* Action buttons — Figma 3677:29572 */}
-        <div className="flex items-center gap-[8px]  shrink-0 self-center ml-[8px]">
+        <div className="flex items-center gap-[8px]  shrink-0 self-center ml-[8px] max-sm:ml-0 max-sm:w-full max-sm:justify-end max-sm:self-auto max-sm:-mt-0.5">
           {!isVerified && (
             <Button
               variant="tertiary-subtle"
-              className="drop-shadow-none text-[10px]! font-medium"
+              className="drop-shadow-none text-[10px] max-lg:text-[12px]! max-lg:min-h-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1 font-medium"
               size="xs"
               leftIcon={<CheckBadgeIcon className="size-full" />}
               onClick={onVerifyInLab}
@@ -323,7 +325,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
           )}
           <Button
             variant="tertiary"
-            className="drop-shadow-none border-[#DBDBDB]! text-[10px]!"
+            className="drop-shadow-none border-[#DBDBDB]! text-[10px] max-lg:text-[12px]! max-lg:min-h-8 max-lg:relative max-lg:after:absolute max-lg:after:-inset-1"
             size="xs"
             onClick={onEdit}
           >
@@ -338,7 +340,7 @@ const SkillCard = ({ skill, onEdit, onVerifyInLab }) => {
 // ─── Right panel ──────────────────────────────────────────────────────────────
 const SkillsStage2RightPanel = () => (
   <aside
-    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[#e8e8e4] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+    className="w-[clamp(240px,19.04vw,329px)] shrink-0 bg-[#f8f8f4] border-l border-[#e8e8e4] overflow-y-auto [&::-webkit-scrollbar]:hidden max-lg:w-full max-lg:border-l-0 max-lg:overflow-visible"
     aria-label="Skills guidance"
     style={{ scrollbarWidth: 'none' }}
   >
@@ -351,46 +353,37 @@ const SkillsStage2RightPanel = () => (
         <p className="font-bold text-[12px] uppercase tracking-[0.6px] text-[#2a5730] mb-[8px]">
           Mentor matching
         </p>
-        <p className="font-sans text-[12px] text-[#2a5730] leading-[19.2px]">
+        <p className="font-sans text-[12px] text-[#2a5730] leading-[19.2px] max-lg:text-[14px]">
           Verified ✓ skills are clicked 4× more by recruiters than self-reported. Your top 3–5 are
           worth verifying. The rest can stay self-reported.
         </p>
       </div>
 
       {/* PEER ENDORSEMENTS — Figma 3669:28748 */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           Peer endorsements
         </p>
-        <p className="font-sans text-[12px] text-[#999] leading-[19.2px]">
+        <p className="font-sans text-[12px] text-[#999] leading-[19.2px] max-lg:text-[14px]">
           Anyone on GTH who&apos;s worked with you can endorse a skill. Each endorsement adds social
           proof — shown as faces + count beside the skill.
         </p>
       </div>
 
       {/* THE SWEET SPOT — Skills Lab (Figma 3669:28751) */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           The sweet spot
         </p>
-        <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px]">
+        <p className="font-sans text-[12px] text-[#70706e] leading-[19.2px] max-lg:text-[14px]">
           A mini-game assessment area. Pass a skill challenge = green ✓. Retake with no penalty.
           Currently supports: Python, SQL, Excel, Figma, Data Analysis and 12 more.
         </p>
       </div>
 
       {/* THE SWEET SPOT — proficiency levels (Figma 3676:29366) */}
-      <div
-        className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)]"
-        style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
-      >
-        <p className="font-bold text-[11px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
+      <div className="bg-white border border-[#e8e8e4] rounded-[10px] p-[clamp(12px,0.93vw,16px)] shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none">
+        <p className="font-bold text-[11px] max-lg:text-[12px] uppercase tracking-[0.6px] text-[#70706e] mb-[8px]">
           The sweet spot
         </p>
         <ul className="flex flex-col gap-[0px]">
@@ -483,9 +476,9 @@ const SkillsStage2Section = () => {
   const totalEndorsements = skills.reduce((sum, s) => sum + s.endorsements, 0);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
+    <div className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
       {/* Top nav */}
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
@@ -495,20 +488,20 @@ const SkillsStage2Section = () => {
       </div>
 
       {/* Stage trail — Skills (index 3) active */}
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
         <EngagementTopBar currentStageIndex={3} completionPct={0} className="w-full h-full" />
       </div>
 
       {/* Main area */}
-      <main className="flex-1 min-h-0 overflow-hidden flex">
+      <main className="flex-1 min-h-0 overflow-hidden flex max-lg:flex-col max-lg:overflow-visible">
         {/* Left column */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden max-lg:contents">
           {/* Scrollable content */}
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar max-lg:flex-none max-lg:overflow-visible">
             {/* Hero header — Figma 3670:29134 */}
             <section
               aria-label="Skills — what you can actually do"
-              className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.08vw,36px)]"
+              className="border-b border-[rgba(0,0,0,0.07)] px-[clamp(20px,3.24vw,56px)] py-[clamp(20px,2.08vw,36px)] max-lg:px-4 max-lg:py-4"
               style={{
                 background: [
                   'radial-gradient(ellipse at 8% 0%, rgba(56,116,64,0.07) 0%, transparent 40%)',
@@ -517,12 +510,12 @@ const SkillsStage2Section = () => {
                 ].join(', '),
               }}
             >
-              <h2 className="font-display text-[clamp(26px,2.89vw,50px)] leading-[0.92] tracking-[-2px] mb-[clamp(8px,0.93vw,16px)]">
+              <h1 className="font-display text-[clamp(26px,2.89vw,50px)] leading-[0.92] tracking-[-2px] max-lg:tracking-[-0.02em] max-lg:text-[22px] max-lg:leading-[1.1] mb-[clamp(8px,0.93vw,16px)]">
                 <span className="not-italic text-[#111]">Skills</span>
                 <br />
                 <span className="italic text-[#387440]">What you can actually do.</span>
-              </h2>
-              <p className="font-sans text-[clamp(11px,0.81vw,14px)] leading-[1.6] text-[#959592] tracking-[0.2px] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
+              </h1>
+              <p className="font-sans text-[clamp(11px,0.81vw,14px)] max-lg:text-[14px] leading-[1.6] text-[#959592] max-lg:text-[#737373] tracking-[0.2px] mb-[clamp(10px,0.93vw,16px)] max-w-[680px]">
                 Add as many skills as you have. Set proficiency, collect peer endorsements, and
                 verify your top skills via the Skills Lab mini-game to earn the green ✓ badge that
                 recruiters trust 4× more.
@@ -535,8 +528,7 @@ const SkillsStage2Section = () => {
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] leading-5 text-[#737373] bg-white rounded-full px-[12px] py-[4px] border border-[#e1eae2] whitespace-nowrap"
-                    style={{ boxShadow: '0px 1px 1.5px rgba(0,0,0,0.06)' }}
+                    className="inline-flex items-center font-sans font-semibold text-[clamp(10px,0.69vw,12px)] max-lg:text-[12px] leading-5 text-[#737373] bg-white rounded-full px-[12px] py-[4px] max-lg:py-[3px] border border-[#e1eae2] whitespace-nowrap shadow-[0px_1px_1.5px_rgba(0,0,0,0.06)] max-lg:shadow-none"
                   >
                     {tag}
                   </span>
@@ -545,22 +537,22 @@ const SkillsStage2Section = () => {
             </section>
 
             {/* "Stack Your Skills" section header — Figma 3669:28758 */}
-            <div className="px-[clamp(20px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(10px,0.93vw,16px)]">
-              <p className="font-bold text-[10px] uppercase tracking-[0.08em] text-[#888] mb-[6px]">
+            <div className="px-[clamp(20px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(10px,0.93vw,16px)] max-lg:px-4">
+              <p className="font-bold text-[10px] max-lg:text-[12px] uppercase tracking-[0.08em] text-[#888] mb-[6px]">
                 All Skills
               </p>
-              <h3 className="font-display text-[clamp(20px,1.62vw,28px)] leading-[1.05] tracking-[-1px] mb-[4px]">
+              <h3 className="font-display text-[clamp(20px,1.62vw,28px)] leading-[1.05] tracking-[-1px] max-lg:tracking-[-0.02em] mb-[4px]">
                 <span className="not-italic text-[#111]">Stack Your </span>
                 <span className="italic text-[#387440]">Skills.</span>
               </h3>
-              <p className="font-sans text-[clamp(10px,0.69vw,12px)] text-[#737373] leading-[1.5] max-w-[600px]">
+              <p className="font-sans text-[clamp(10px,0.69vw,12px)] max-lg:text-[14px] text-[#737373] leading-[1.5] max-w-[600px]">
                 Verified skills show first on your recruiter card. Self-reported skills still show —
                 they just don&apos;t get the ✓ badge. Both matter.
               </p>
             </div>
 
             {/* Skill cards */}
-            <div className="flex flex-col gap-[8px] px-[clamp(20px,3.24vw,56px)] pb-[8px]">
+            <div className="flex flex-col gap-[8px] px-[clamp(20px,3.24vw,56px)] pb-[8px] max-lg:px-4">
               {skills.map((skill) => (
                 <SkillCard
                   key={skill.id}
@@ -572,11 +564,11 @@ const SkillsStage2Section = () => {
             </div>
 
             {/* Add Another Skill — opens AddSkillModal (Figma 3669:28769) */}
-            <div className="px-[clamp(20px,3.24vw,56px)] pt-[8px] pb-[clamp(16px,1.85vw,32px)]">
+            <div className="px-[clamp(20px,3.24vw,56px)] pt-[8px] pb-[clamp(16px,1.85vw,32px)] max-lg:px-4">
               <button
                 type="button"
                 onClick={openAddModal}
-                className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-[#387440] transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
+                className="w-full flex items-center justify-center gap-[10px] rounded-[16px] py-[clamp(16px,1.62vw,28px)] max-lg:py-2 max-lg:text-[14px] font-sans font-semibold text-[clamp(12px,0.81vw,14px)] text-[#387440] transition-colors duration-150 hover:bg-[rgba(235,241,236,0.7)]"
                 style={{
                   background: 'rgba(235,241,236,0.5)',
                   border: '2px dashed #387440',
@@ -601,9 +593,9 @@ const SkillsStage2Section = () => {
           </div>
 
           {/* Footer */}
-          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)]">
+          <footer className="shrink-0 h-[142px] border-t border-[#f1f5f9] bg-white flex items-center px-[clamp(20px,3.24vw,56px)] max-lg:h-auto max-lg:order-2 max-lg:mt-auto max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:px-4 max-lg:py-2 max-lg:pb-[max(8px,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-[6px]">
+              <div className="flex items-center gap-[6px] max-sm:hidden">
                 <span
                   aria-hidden="true"
                   className="inline-block w-[6px] h-[6px] rounded-[3px] bg-[#387440] shrink-0"
@@ -613,19 +605,21 @@ const SkillsStage2Section = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 max-md:w-full max-md:gap-3">
                 <Button
                   variant="tertiary"
                   size="md"
+                  className="max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_rgba(17,17,17,0.25)]"
                   onClick={handleGoBack}
                   leftIcon={<ArrowLeftIcon className="size-full" />}
                 >
-                  Skills
+                  <span className="max-md:sr-only">Skills</span>
                 </Button>
 
                 <Button
                   variant="primary"
                   size="md"
+                  className="max-md:flex-1 max-md:px-4 max-md:py-2 max-md:text-[14px] max-md:leading-5 max-md:drop-shadow-[0_2px_0_#224626]"
                   onClick={handleNext}
                   rightIcon={<ArrowRightIcon className="size-full" />}
                 >
@@ -637,7 +631,9 @@ const SkillsStage2Section = () => {
         </div>
 
         {/* Right panel */}
-        <SkillsStage2RightPanel />
+        <StageAsideAccordion title="Why this matters">
+          <SkillsStage2RightPanel />
+        </StageAsideAccordion>
       </main>
 
       {/* Skill modal — add or edit mode, portal-rendered, Figma 3721:22423 */}

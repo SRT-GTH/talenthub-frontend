@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -33,12 +34,26 @@ const JOB_TABS = [
 
 const RecruiterJobTabs = ({ className }) => {
   const { pathname } = useLocation();
+  const rowRef = useRef(null);
   log('render', { pathname });
+
+  // Phones: the three tabs can be wider than the screen, so the row scrolls
+  // sideways — start with the active tab centred rather than hidden off-screen.
+  useEffect(() => {
+    const row = rowRef.current;
+    const active = row?.querySelector('[aria-current="page"]');
+    if (!row || !active || row.scrollWidth <= row.clientWidth) return;
+    log('branch: scrolling active tab into view', { pathname });
+    row.scrollLeft = active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2;
+  }, [pathname]);
 
   return (
     <div
+      ref={rowRef}
       className={classNames(
         'flex w-fit items-center gap-[12px] border-b border-border-card',
+        // Phones: scroll sideways inside the page gutters instead of overflowing.
+        'no-scrollbar max-w-full max-sm:w-full max-sm:gap-[4px] max-sm:overflow-x-auto',
         className
       )}
     >
@@ -51,11 +66,11 @@ const RecruiterJobTabs = ({ className }) => {
             aria-current={isActive ? 'page' : undefined}
             onClick={() => log('branch', { tab: tab.id, to: tab.to })}
             className={classNames(
-              'flex h-[40px] items-center justify-center px-[14px] py-[6px]',
+              'flex h-[40px] max-lg:h-[36px] max-lg:text-[14px] shrink-0 items-center justify-center whitespace-nowrap px-[14px] py-[6px]',
               'font-sans text-[15px] font-medium tracking-[0.24px] transition-colors duration-300 ease-in',
               // -1px drops each tab's own underline onto the group's rule so the
               // active one overdraws it rather than stacking above it.
-              '-mb-px border-b-[1.3px]',
+              '-mb-px border-b-[1.3px] max-sm:mb-0',
               isActive
                 ? 'border-brand-green text-brand-green'
                 : 'border-transparent text-content-helper hover:text-brand-green'

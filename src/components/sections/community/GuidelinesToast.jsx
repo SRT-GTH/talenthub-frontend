@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Toast from '../../ui/Toast.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import CommunityIcon from './CommunityIcon.jsx';
 import { icons } from './communityIcons.js';
 import { COMMUNITY_GUIDELINES } from './communityData.js';
@@ -42,7 +43,42 @@ const GuidelinesToast = ({ open, onDismiss, className }) => {
     log('visibility:', open ? 'shown' : 'hidden');
   }, [open]);
 
+  const isPhone = useMediaQuery('(max-width: 767.98px)');
+
   if (!open) return null;
+
+  // Phones: the floating, scrim-backed toast sat on top of the hero title until
+  // dismissed. Here it is a slim in-flow banner (title + two lines) with a
+  // dismiss button, so nothing is covered.
+  if (isPhone) {
+    return (
+      <div
+        role="status"
+        className={`flex w-full items-start gap-[8px] rounded-[10px] border border-b-[2px] border-brand-green-light-active border-b-brand-green bg-brand-green-light px-[10px] py-[8px] ${className ?? ''}`}
+      >
+        <span className="mt-[1px] shrink-0">
+          <CommunityIcon src={icons.clipboardCheck} size={18} />
+        </span>
+        <p className="min-w-0 flex-1 font-sans text-[12px] leading-4 text-[#2a5730]">
+          <span className="font-semibold">{COMMUNITY_GUIDELINES.title}. </span>
+          <span className="line-clamp-2">{COMMUNITY_GUIDELINES.body}</span>
+        </p>
+        <button
+          type="button"
+          aria-label="Dismiss guidelines"
+          onClick={() => {
+            log('dismissed by user (phone banner)');
+            onDismiss?.();
+          }}
+          className="relative -mr-[2px] grid size-[24px] shrink-0 place-items-center text-[#2a5730] after:absolute after:-inset-2.5"
+        >
+          <span aria-hidden="true" className="text-[16px] leading-none">
+            ×
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <Toast
@@ -50,7 +86,7 @@ const GuidelinesToast = ({ open, onDismiss, className }) => {
       position="top-center"
       // DashboardTopNav is a fixed ~68-90px-tall bar; the default top-center
       // offset (24px) sat underneath/overlapping it, so this clears it.
-      offsetClassName="!top-[100px]"
+      offsetClassName="!top-[100px] max-lg:!top-[80px]"
       variant="success"
       compact
       stacked

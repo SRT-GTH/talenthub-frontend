@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
+import { debug } from '../../../../utils/debug.js';
 
 // Icon-only PNGs exported from Figma. Text labels + pill background are
 // added in code so we can flip the pill colour when the tab is active —
@@ -25,6 +27,8 @@ import outfitIcon from '../../../../assets/engagement/clothes-hanger.png';
  */
 
 // Tab order is fixed by the Figma design.
+const log = debug('AvatarCategoryTabs');
+
 const TABS = [
   { id: 'style', label: 'Style', image: styleIcon },
   { id: 'skin', label: 'Skin', image: skinIcon },
@@ -41,6 +45,8 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
     aria-label={label}
     className={classNames(
       'inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5',
+      // Phones: 32px pills that never shrink (the row scrolls instead).
+      'max-lg:min-h-8 max-lg:shrink-0 max-lg:snap-start max-lg:py-1 max-lg:px-3 max-lg:text-[13px]',
       'font-sans font-semibold text-[13px] leading-5 tracking-[0.1px]',
       'border transition-[background-color,border-color,color] duration-150',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
@@ -64,26 +70,62 @@ const CategoryTabButton = ({ image, label, active, onClick }) => (
   </button>
 );
 
-const AvatarCategoryTabs = ({ activeTab = 'style', onTabSelect, className }) => (
-  <nav
-    aria-label="Customisation categories"
-    className={classNames(
-      'flex flex-wrap items-center gap-2',
-      // Faint grey divider line under the tab row, full panel width.
-      'pb-4 border-b border-border-default',
-      className
-    )}
-  >
-    {TABS.map((tab) => (
-      <CategoryTabButton
-        key={tab.id}
-        image={tab.image}
-        label={tab.label}
-        active={tab.id === activeTab}
-        onClick={() => onTabSelect?.(tab.id)}
-      />
-    ))}
-  </nav>
-);
+const AvatarCategoryTabs = ({ activeTab = 'style', onTabSelect, className }) => {
+  const navRef = useRef(null);
+  const [moreRight, setMoreRight] = useState(false);
+
+  // Phones: the pill row scrolls sideways, so bring the active pill into view
+  // (horizontal only, so the page itself never jumps).
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector('[aria-pressed="true"]');
+    if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+    log('scroll active tab into view', activeTab);
+    nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+  }, [activeTab]);
+
+  // Right-edge fade while more pills are hidden off-screen.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return undefined;
+    const update = () => setMoreRight(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      nav.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [activeTab]);
+
+  return (
+    <nav
+      ref={navRef}
+      data-more-right={moreRight || undefined}
+      aria-label="Customisation categories"
+      className={classNames(
+        'flex flex-wrap items-center gap-2',
+        // Phones: one horizontally scrollable pill row that stays pinned right
+        // under the sticky avatar stage while the option grid scrolls.
+        'max-lg:flex-nowrap max-lg:overflow-x-auto max-lg:snap-x max-lg:no-scrollbar',
+        'max-lg:data-[more-right]:[mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]',
+        'max-lg:sticky max-lg:top-[var(--stage-h)] max-lg:z-10 max-lg:-mx-4 max-lg:bg-white max-lg:px-4 max-lg:py-1',
+        // Faint grey divider line under the tab row, full panel width.
+        'pb-4 border-b border-border-default max-lg:pb-1',
+        className
+      )}
+    >
+      {TABS.map((tab) => (
+        <CategoryTabButton
+          key={tab.id}
+          image={tab.image}
+          label={tab.label}
+          active={tab.id === activeTab}
+          onClick={() => onTabSelect?.(tab.id)}
+        />
+      ))}
+    </nav>
+  );
+};
 
 export default AvatarCategoryTabs;

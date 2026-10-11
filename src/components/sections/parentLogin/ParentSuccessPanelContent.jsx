@@ -52,7 +52,7 @@ const StatCard = ({ value, label }) => (
     <span
       className="text-center font-sans font-bold uppercase"
       style={{
-        fontSize: 10,
+        fontSize: 'var(--fs-10)',
         color: 'rgba(255,255,255,0.5)',
         letterSpacing: '0.5px',
         lineHeight: '13px',

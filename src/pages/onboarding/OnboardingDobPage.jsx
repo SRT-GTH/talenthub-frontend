@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
-import { TextInput } from '../../components/ui/form';
+import { TextInput, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
@@ -19,7 +19,7 @@ import TalentDobPanelContent from '../../components/sections/talentAuth/TalentDo
 const log = debug('OnboardingDobPage');
 
 /*
- * OnboardingDobPage â€” Step 1 of the talent onboarding flow.
+ * OnboardingDobPage — Step 1 of the talent onboarding flow.
  * Maps to user story US-1.1.1-01 ("Start Self-Onboarding and Choose
  * Age Path"). Route: /onboarding/dob.
  * Figma source: nodes 2236:830 (default), 2282:7563 / 8944 / 9846
@@ -34,7 +34,7 @@ const log = debug('OnboardingDobPage');
  * input prompting parental consent.
  *
  * On submit the page shows the full-screen "Building your student
- * profileâ€¦" overlay before navigating onward â€” the next route is
+ * profile…" overlay before navigating onward — the next route is
  * not yet wired, so the placeholder timeout returns to /welcome
  * for now.
  */
@@ -76,7 +76,7 @@ const yearsBetween = (date) => {
 
 const LoadingOverlay = () => (
   // Modal that appears after a successful submit. Figma node
-  // 2282:23881 â€” sits below the safari chrome (top 52px) with a
+  // 2282:23881 — sits below the safari chrome (top 52px) with a
   // dim backdrop and a centered white card with the mortarboard
   // icon, two-toned headline and a 3px progress rail.
   <div
@@ -87,7 +87,7 @@ const LoadingOverlay = () => (
     style={{ background: 'rgba(17, 17, 17, 0.70)' }}
   >
     <div
-      className="flex w-[420px] flex-col gap-6 rounded-[24px] bg-white px-[49px] py-8 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
+      className="flex w-[420px] max-w-[calc(100%-2rem)] flex-col gap-6 rounded-[24px] bg-white px-[49px] max-sm:px-6 py-8 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16),0_2px_2px_-1px_rgba(27,36,44,0.04)]"
       style={{ outline: '3px solid #C1D4C4', outlineOffset: '-3px' }}
     >
       <div className="flex flex-col items-center gap-3">
@@ -97,10 +97,10 @@ const LoadingOverlay = () => (
         <div className="flex flex-col items-center gap-1 text-center">
           <p
             id="onboarding-loading-title"
-            className="font-display font-normal text-[#111111]"
+            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
             style={{ fontSize: 28, lineHeight: '29.4px' }}
           >
-            Building your <span className="italic text-brand-green">student profileâ€¦</span>
+            Building your <span className="italic text-brand-green">student profile…</span>
           </p>
           <p className="text-[14px] leading-5 text-[#70706E]" style={{ letterSpacing: '0.2px' }}>
             Personalising your GTH experience. Just a moment.
@@ -117,7 +117,7 @@ const LoadingOverlay = () => (
       </div>
     </div>
 
-    {/* Keyframes for the indeterminate rail â€” keeps the overlay
+    {/* Keyframes for the indeterminate rail — keeps the overlay
         self-contained without polluting global CSS. */}
     <style>{`
       @keyframes onboardingLoaderSlide {
@@ -139,7 +139,7 @@ const OnboardingDobPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
 
-  // Derived state â€” single source of truth for "is this entry valid".
+  // Derived state — single source of truth for "is this entry valid".
   const parsed = useMemo(() => parseDob(dob), [dob]);
   const age = parsed ? yearsBetween(parsed) : null;
   const isVerified = age !== null && age >= 13 && age <= 99;
@@ -154,7 +154,7 @@ const OnboardingDobPage = () => {
     // can read `isMinor` without re-asking.
     setDateOfBirth({ dob, age });
     setIsSubmitting(true);
-    // Brief inline loading before the overlay takes over â€” gives the
+    // Brief inline loading before the overlay takes over — gives the
     // CTA's pressed state a moment to read before the modal mounts.
     setTimeout(() => {
       setShowOverlay(true);
@@ -173,14 +173,14 @@ const OnboardingDobPage = () => {
       <OnboardingHeader currentKey="start" percent={78} />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
-        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16">
+        <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
+          <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-[554px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
-              {/* Eyebrow â€” "01" italic ordinal + "The Basics" label */}
+              {/* Eyebrow — "01" italic ordinal + "The Basics" label */}
               <div className="flex items-center gap-2">
                 <span aria-hidden="true" className="size-2 rounded-full bg-brand-green" />
                 <span
@@ -198,14 +198,14 @@ const OnboardingDobPage = () => {
               </div>
 
               <h1
-                className="font-display font-normal text-black"
+                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
                 style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
               >
                 When were you <span className="italic text-brand-green">born?</span>
               </h1>
 
               <p
-                className="max-w-[482px] text-[16px] leading-6 text-[#737373]"
+                className="max-w-[482px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
                 style={{ letterSpacing: '0.2px' }}
               >
                 Your age shapes your entire GTH experience. We use it once to make sure everything
@@ -243,11 +243,11 @@ const OnboardingDobPage = () => {
                   onChange={(e) => setDob(e.target.value)}
                   verified={isVerified}
                   leftIcon={<CalendarIcon />}
-                  helperText="Enter your day, month, then year â€” we'll route you to the right experience."
+                  helperText="Enter your day, month, then year — we'll route you to the right experience."
                 />
               </div>
 
-              {/* Under-18 notice â€” Figma node 2282:23881 (notes symbol).
+              {/* Under-18 notice — Figma node 2282:23881 (notes symbol).
                 Translucent cream bg with a 1px gold-light outline. */}
               {isUnder18 && (
                 <div
@@ -269,27 +269,29 @@ const OnboardingDobPage = () => {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={!isVerified || isSubmitting}
-                state={isSubmitting ? 'active' : undefined}
-                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
-                rightIcon={<ArrowRightIcon />}
-                className="mt-1 w-full max-w-[420px]"
-                aria-busy={isSubmitting}
-              >
-                {isSubmitting ? 'Setting Things Up' : 'Continue'}
-              </Button>
+              <StickyActionBar bleed={16}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={!isVerified || isSubmitting}
+                  state={isSubmitting ? 'active' : undefined}
+                  leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                  rightIcon={<ArrowRightIcon />}
+                  className="mt-1 w-full max-w-[420px]"
+                  aria-busy={isSubmitting}
+                >
+                  {isSubmitting ? 'Setting Things Up' : 'Continue'}
+                </Button>
+              </StickyActionBar>
 
-              <div className="flex items-center gap-2 text-[14px] leading-6">
+              <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
                 <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                   Already Have an account?
                 </span>
                 <Link
                   to={'/login'}
-                  className="font-semibold text-brand-green underline-offset-2 hover:underline"
+                  className="font-semibold text-brand-green underline-offset-2 hover:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
                   style={{ letterSpacing: '0.1px' }}
                 >
                   Log in Instead
