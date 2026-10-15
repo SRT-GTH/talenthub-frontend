@@ -1,4 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ParentOptOutModal from './ParentOptOutModal.jsx';
+import { getInvite, useWardDisplay } from '../../../services/parentInvite.api.js';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import ClampText from '../../ui/ClampText.jsx';
 import TagRow from '../../ui/TagRow.jsx';
@@ -153,15 +156,26 @@ const NextStepCard = ({ icon, iconBg, iconShadow, iconColor, title, desc, dimmed
 const ParentSuccessSection = () => {
   log('mount');
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const live = useWardDisplay();
+  const [optOutOpen, setOptOutOpen] = useState(false);
+  // Invited flow: the real ward. Flow A (still a static demo) keeps its sample.
+  const invited = Boolean(state?.invited || getInvite()?.invite);
+  const ward = invited
+    ? live
+    : { firstName: 'Kofi', possessive: "Kofi's", fullName: 'Kofi Mensah', school: 'Achimota' };
+  // Signed in only when the parent used the email the notice went to.
+  const needsLogin = invited && state?.loggedIn === false;
 
   const handleDashboard = () => {
-    log('go to parent dashboard clicked');
-    navigate('/');
+    log('primary CTA clicked', { needsLogin });
+    navigate(needsLogin ? '/login' : '/');
   };
 
   const handleOptOut = (e) => {
     e.preventDefault();
-    log('opt-out Kofi instead clicked');
+    log('opt-out instead clicked');
+    if (invited) setOptOutOpen(true);
   };
 
   return (
@@ -211,8 +225,8 @@ const ParentSuccessSection = () => {
             className="max-w-[420px] font-sans max-md:text-[14px]!"
             style={{ fontSize: 13, color: '#70706e', lineHeight: '22.1px' }}
           >
-            You&apos;re now connected to Kofi&apos;s journey on Ghana Talent Hub. You can review
-            their profile, flag anything that needs correcting, and opt-out at any time.
+            You&apos;re now connected to {ward.possessive} journey on Ghana Talent Hub. You can
+            review their profile, flag anything that needs correcting, and opt-out at any time.
           </p>
 
           {/* Audit chips — Figma 2952:96789 */}
@@ -246,7 +260,7 @@ const ParentSuccessSection = () => {
                 className="font-sans font-bold"
                 style={{ fontSize: 16, color: '#111', lineHeight: 'normal' }}
               >
-                Kofi Mensah
+                <span data-testid="done-ward-name">{ward.fullName}</span>
               </p>
               <div
                 className="flex flex-wrap items-center gap-x-[6px] gap-y-0.5"
@@ -269,7 +283,7 @@ const ParentSuccessSection = () => {
                   className="font-sans font-semibold"
                   style={{ fontSize: 'var(--fs-11)', lineHeight: 'normal' }}
                 >
-                  JHS 3 · Achimota
+                  {ward.school}
                 </span>
               </div>
             </div>
@@ -303,8 +317,8 @@ const ParentSuccessSection = () => {
             iconBg="#faf4e8"
             iconShadow="#eedeb8"
             iconColor="#c8951a"
-            title="Review Kofi's profile"
-            desc="See everything Kofi has shared on the platform — assessments, profile info, and activity."
+            title={`Review ${ward.possessive} profile`}
+            desc={`See everything ${ward.firstName} has shared on the platform — assessments, profile info, and activity.`}
           />
           <NextStepCard
             icon={<FlagGlyph />}
@@ -312,7 +326,7 @@ const ParentSuccessSection = () => {
             iconShadow="#c1d4c4"
             iconColor="#387440"
             title="Flag something for correction"
-            desc="If anything on Kofi's profile looks wrong, you can flag it. Kofi will be notified to review and correct it."
+            desc={`If anything on ${ward.possessive} profile looks wrong, you can flag it. ${ward.firstName} will be notified to review and correct it.`}
           />
           <NextStepCard
             icon={<PinGlyph />}
@@ -320,7 +334,7 @@ const ParentSuccessSection = () => {
             iconShadow="#babab7"
             iconColor="#ffffff"
             title="Opt-out location"
-            desc="If you ever want to remove Kofi's access, go to Dashboard → Settings → Opt-out Ward."
+            desc={`If you ever want to remove ${ward.possessive} access, go to Dashboard → Settings → Opt-out Ward.`}
             dimmed
           />
         </div>
@@ -346,7 +360,7 @@ const ParentSuccessSection = () => {
               borderBottom: '1px solid rgba(192,57,43,0.25)',
             }}
           >
-            Opt-out Kofi instead
+            Opt-out {ward.firstName} instead
           </a>
         </div>
 
@@ -366,12 +380,21 @@ const ParentSuccessSection = () => {
               className="font-sans font-bold max-md:text-[14px]!"
               style={{ fontSize: 15, lineHeight: 'normal' }}
             >
-              Go to Parent Dashboard
+              {needsLogin ? 'Log in to your account' : 'Go to Parent Dashboard'}
             </span>
             <ArrowRightIcon />
           </button>
         </StickyActionBar>
+        {needsLogin && (
+          <p
+            className="text-center font-sans text-[12px] leading-5 text-[#70706e]"
+            data-testid="done-login-note"
+          >
+            We&apos;ll send a code to {state?.email} to confirm it&apos;s yours.
+          </p>
+        )}
       </div>
+      <ParentOptOutModal isOpen={optOutOpen} onClose={() => setOptOutOpen(false)} />
     </div>
   );
 };

@@ -12,14 +12,7 @@ const log = debug('ParentInviteStepsPanelContent');
  * Per-step copy is configured in WARD_INVITE_STEP_PANELS below.
  */
 
-const STEPS = [
-  'Your identity',
-  'Verification',
-  'Contact details',
-  'Security',
-  'Link your ward',
-  'Consent',
-];
+const STEPS = ['Your identity', 'Contact details', 'Security', 'Link your ward', 'Consent'];
 
 const StepCheck = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">

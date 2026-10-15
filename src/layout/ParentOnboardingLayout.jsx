@@ -15,7 +15,7 @@ import WardInvitePanelContent from '../components/sections/parentLogin/ParentInv
 import WardInviteStepsPanelContent from '../components/sections/parentLogin/ParentInviteStepsPanelContent.jsx';
 import WardLinkPanelContent from '../components/sections/parentLogin/ParentInviteLinkPanelContent.jsx';
 import WardConsentPanelContent from '../components/sections/parentLogin/ParentInviteConsentPanelContent.jsx';
-import { WARD_INVITE_STEP_PANELS } from '../constants/parentFlows.js';
+import { WARD_INVITE_STEP_PANELS, INVITED_STEPS } from '../constants/parentFlows.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('ParentOnboardingLayout');
@@ -97,6 +97,7 @@ const ParentOnboardingLayout = () => {
         <ParentOnboardingBreadcrumb
           currentStep={currentStep}
           completionPercent={completionPercent}
+          steps={isInvited ? INVITED_STEPS : undefined}
         />
       )}
 

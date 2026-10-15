@@ -7,6 +7,13 @@ import Select from '../../ui/form/Select.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
+import {
+  getParentDraft,
+  saveParentDraft,
+  toIsoDate,
+  wardDisplay,
+} from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInviteIdentitySection');
 
 /*
@@ -172,17 +179,22 @@ const ParentInviteIdentitySection = () => {
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      relationship: '',
-      gender: '',
-      day: '',
-      month: '',
-      year: '',
-      nationality: '',
-    },
+    defaultValues: (() => {
+      // Saved answers first; otherwise the parent name the ward gave.
+      const d = getParentDraft();
+      const [first = '', ...rest] = (wardDisplay().parentName || '').split(/\s+/).filter(Boolean);
+      return {
+        firstName: d.firstName ?? first,
+        lastName: d.lastName ?? rest.join(' '),
+        middleName: d.middleName ?? '',
+        relationship: d.relationship ?? '',
+        gender: d.gender ?? '',
+        day: d.day ?? '',
+        month: d.month ?? '',
+        year: d.year ?? '',
+        nationality: d.nationality ?? '',
+      };
+    })(),
   });
 
   const onSubmit = async (data) => {
@@ -190,9 +202,10 @@ const ParentInviteIdentitySection = () => {
       relationship: data.relationship,
       nationality: data.nationality,
     });
-    await new Promise((r) => setTimeout(r, 400));
-    log('continue → parent-invited-verification');
-    navigate('/onboarding/parent-invited-verification');
+    saveParentDraft({ ...data, dateOfBirth: toIsoDate(data) });
+    // No Ghana Card step for invited parents until NIA verification exists.
+    log('continue → parent-invited-contact');
+    navigate('/onboarding/parent-invited-contact');
   };
 
   return (

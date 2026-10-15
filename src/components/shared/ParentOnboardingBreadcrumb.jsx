@@ -87,8 +87,13 @@ const StepSeparator = () => (
   </span>
 );
 
-const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
-  const total = PARENT_STEPS.length;
+// `steps` lets the invited flow pass its own list (no Verification step).
+const ParentOnboardingBreadcrumb = ({
+  currentStep = 0,
+  completionPercent,
+  steps = PARENT_STEPS,
+}) => {
+  const total = steps.length;
   const pct =
     completionPercent !== undefined
       ? Math.max(0, Math.min(100, completionPercent))
@@ -114,7 +119,7 @@ const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
           <span aria-hidden="true" className="px-1.5 text-[#babab7]">
             ·
           </span>
-          <span>{PARENT_STEPS[currentStep] ?? ''}</span>
+          <span>{steps[currentStep] ?? ''}</span>
         </p>
         <span
           className="shrink-0 font-sans text-[13px] font-bold leading-4"
@@ -142,7 +147,7 @@ const ParentOnboardingBreadcrumb = ({ currentStep = 0, completionPercent }) => {
         className="flex flex-1 min-w-0 items-center overflow-x-auto max-md:hidden"
         style={{ scrollbarWidth: 'none' }}
       >
-        {PARENT_STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const isActive = index === currentStep;
           const isDone = index < currentStep;
 

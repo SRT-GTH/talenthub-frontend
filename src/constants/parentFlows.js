@@ -34,10 +34,14 @@ export const PARENT_FIRST_STEP = PARENT_FLOWS.selfServe.firstStep;
  * step-list panel copy. `currentStep` is the 0-based index into the panel's
  * 6-item list.
  */
+// Breadcrumb labels for the invited flow (B). There is no Ghana Card step:
+// identity cannot be verified without NIA access yet.
+export const INVITED_STEPS = ['Identity', 'Contact', 'Security', 'Link Ward', 'Consent', 'Done'];
+
 export const WARD_INVITE_STEP_PANELS = {
   'parent-invited-identity': {
     currentStep: 0,
-    percent: 10,
+    percent: 15,
     title: 'Your identity',
     titleAccent: 'builds trust.',
     subtitle:
@@ -52,29 +56,29 @@ export const WARD_INVITE_STEP_PANELS = {
       "Verification builds trust but isn't required. Your ward's access is already active regardless of this step.",
   },
   'parent-invited-contact': {
-    currentStep: 2,
-    percent: 34,
+    currentStep: 1,
+    percent: 35,
     title: 'Secure contact',
     titleAccent: 'details.',
     subtitle: "Your contact details are encrypted and protected under Ghana's Data Protection Act.",
   },
   'parent-invited-security': {
-    currentStep: 3,
-    percent: 50,
+    currentStep: 2,
+    percent: 55,
     title: 'Lock your account',
     titleAccent: 'down.',
     subtitle:
       "A strong password protects your ward's data and your ability to manage their access.",
   },
   'parent-invited-link-ward': {
-    currentStep: 4,
-    percent: 78,
+    currentStep: 3,
+    percent: 75,
     // Uses a custom link-diagram panel (WardLinkPanelContent), not the step list.
     panel: 'link',
   },
   'parent-invited-consent': {
-    currentStep: 5,
-    percent: 88,
+    currentStep: 4,
+    percent: 90,
     // Uses a custom capability-list panel (WardConsentPanelContent).
     panel: 'consent',
   },
