@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
 import {
   COMPACT_PRIMARY_BUTTON,
   COMPACT_SECONDARY_BUTTON,
 } from '../components/ui/form/mobileScale.js';
-import { TextInput, Checkbox } from '../components/ui/form';
+import { TextInput, Checkbox, VerificationCode } from '../components/ui/form';
+import ApiErrorNote from '../components/shared/ApiErrorNote.jsx';
+import { getApiErrorCode, getApiErrorMessage } from '../services/apiErrors.js';
+import {
+  LOGIN_MODE,
+  requestLoginOtp,
+  verifyLoginOtp,
+  resendLoginOtp,
+} from '../services/auth.api.js';
+import { toGhanaE164 } from '../services/onboardingMappers.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
 import {
   ChevronDownIcon,
@@ -14,6 +23,7 @@ import {
   ArrowRightIcon,
   LoadingSpinner,
   CloseIcon,
+  MailIcon,
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
@@ -72,7 +82,11 @@ const DangerAlertIcon = ({ className }) => (
 // + body, "Forget Password" inline link, dismiss-X. Sits absolutely so it
 // can hover over the brand-green panel without disturbing its layout.
 // `inline` renders the compact phone version above the form (the panel is only decor on phones).
-const AuthErrorToast = ({ onClose, inline = false }) => (
+const AuthErrorToast = ({
+  onClose,
+  inline = false,
+  title = 'Incorrect Phone Number Or Password',
+}) => (
   <div
     role="alert"
     className={
@@ -86,7 +100,7 @@ const AuthErrorToast = ({ onClose, inline = false }) => (
     </span>
     <div className="flex flex-1 flex-col gap-1">
       <p className="text-[14px] font-semibold leading-5 tracking-[0.1px] text-danger-dark">
-        Incorrect Phone Number Or Password
+        {title}
       </p>
       <p className="text-[12px] leading-[18px] tracking-[0.2px] text-danger">
         Please check your details and try again.{' '}
@@ -125,66 +139,255 @@ const PHONE_WRAPPER_ERROR =
   'bg-white border-[1.5px] border-danger-light-active shadow-[0_2.5px_0_0_rgba(146,43,33,0.8)]';
 
 const PHONE_ERROR_COPY = 'Enter a valid Ghanaian mobile number (e.g. 020 000 0000)';
+const EMAIL_ERROR_COPY = 'Enter a valid email address';
 const PASSWORD_ERROR_COPY = 'Please enter your password';
+const AUTH_FAILURE_TITLE = {
+  phone: 'Incorrect Phone Number Or Password',
+  email: 'Incorrect Email Or Password',
+};
 
-// Rough Ghana mobile heuristic — keeps the demo-state contract simple:
-// at least 9 digits after stripping non-digit characters. Real validation
-// (network code + local-number rules) lands when the /login API does.
-const isPhoneShapeValid = (raw) => raw.replace(/\D/g, '').length >= 9;
+// Ghana mobile: 9 digits after the +233 prefix (a leading 0 is allowed).
+const isPhoneShapeValid = (raw) => /^0?\d{9}$/.test(raw.replace(/\D/g, ''));
+const isEmailShapeValid = (raw) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw.trim());
+
+// Phone / Email switch, only shown when VITE_LOGIN_IDENTIFIER=both.
+const MethodToggle = ({ method, onChange }) => (
+  <div
+    role="tablist"
+    aria-label="Log in with"
+    className="grid grid-cols-2 gap-1 rounded-[10px] border border-[#e7e7e7] bg-[#FAFAF8] p-1"
+  >
+    {[
+      { key: 'phone', label: 'Phone Number' },
+      { key: 'email', label: 'Email' },
+    ].map((opt) => (
+      <button
+        key={opt.key}
+        type="button"
+        role="tab"
+        aria-selected={method === opt.key}
+        onClick={() => onChange(opt.key)}
+        className={classNames(
+          'h-9 rounded-[8px] text-[14px] max-md:text-[13px] font-semibold tracking-[0.1px] transition-colors',
+          method === opt.key
+            ? 'bg-white text-brand-green shadow-[0_1px_2px_rgba(0,0,0,0.08)] border border-brand-green-light-active'
+            : 'text-[#737373] hover:text-content-primary'
+        )}
+      >
+        {opt.label}
+      </button>
+    ))}
+  </div>
+);
+
+const FieldError = ({ id, message }) => (
+  <div id={id} role="alert" className="flex items-center gap-2 px-2 text-danger">
+    <DangerAlertIcon className="size-4 shrink-0" />
+    <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px]">{message}</p>
+  </div>
+);
+
+// Step 2: the 6-digit code emailed after a correct password.
+const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
+  const navigate = useNavigate();
+  const [code, setCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [isResending, setIsResending] = useState(false);
+
+  const verify = async (value) => {
+    if (isVerifying || String(value).length !== 6) return;
+    setIsVerifying(true);
+    setError('');
+    try {
+      const { accessToken } = await verifyLoginOtp({ identity, otp: value });
+      if (!accessToken) throw new Error('No token returned');
+      log('logged in; going to profile');
+      navigate('/profile/engagement', { replace: true });
+    } catch (err) {
+      log.error('verify failed:', getApiErrorCode(err));
+      const apiCode = getApiErrorCode(err);
+      setError(
+        apiCode === 'INVALID_OTP'
+          ? 'That code is not correct. Please check it and try again.'
+          : apiCode === 'TOO_MANY_ATTEMPTS'
+            ? 'Too many attempts. Request a new code.'
+            : getApiErrorMessage(err)
+      );
+      setIsVerifying(false);
+    }
+  };
+
+  const resend = async () => {
+    if (isResending) return;
+    setIsResending(true);
+    setError('');
+    try {
+      await resendLoginOtp({ identity });
+      setNotice('A new code is on its way.');
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  return (
+    <div className="flex w-full max-w-[700px] flex-col gap-6 max-md:gap-3">
+      <header className="flex flex-col items-center gap-3 text-center max-md:gap-1.5">
+        <h1
+          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight!"
+          style={{ fontSize: 'clamp(2rem, 3.6vw, 2.75rem)', lineHeight: 1.15 }}
+        >
+          <span className="block text-black">Check your</span>
+          <span className="block italic text-brand-green">email.</span>
+        </h1>
+        <p className="max-w-[380px] text-[14px] max-md:text-[13px] leading-[20px] tracking-[0.2px] text-[#737373]">
+          We sent a 6-digit code to{' '}
+          <span className="font-semibold text-content-primary">{maskedEmail || 'your email'}</span>.
+          Enter it below to finish logging in.
+        </p>
+        <WavyDivider />
+      </header>
+
+      <VerificationCode
+        length={6}
+        value={code}
+        onChange={(v) => {
+          setCode(v);
+          if (error) setError('');
+        }}
+        onComplete={verify}
+        autoFocus
+        label="Verification code"
+        error={error || undefined}
+        helperText={!error ? notice || 'The code expires in 15 minutes.' : undefined}
+      />
+
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        disabled={code.length !== 6 || isVerifying}
+        state={isVerifying ? 'active' : undefined}
+        leftIcon={isVerifying ? <LoadingSpinner stroke="#EBF1EC" /> : undefined}
+        rightIcon={<ArrowRightIcon />}
+        onClick={() => verify(code)}
+        className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
+        aria-busy={isVerifying}
+      >
+        {isVerifying ? 'Verifying' : 'Verify And Log In'}
+      </Button>
+
+      <div className="flex items-center justify-between text-[14px] max-md:text-[13px]">
+        <button
+          type="button"
+          onClick={onBack}
+          className="font-semibold text-[#737373] underline-offset-2 hover:underline"
+        >
+          Use different details
+        </button>
+        <button
+          type="button"
+          onClick={resend}
+          disabled={isResending}
+          className="font-semibold text-brand-green underline-offset-2 hover:underline disabled:opacity-60"
+        >
+          {isResending ? 'Sending…' : 'Resend code'}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
+  const [method, setMethod] = useState(LOGIN_MODE === 'email' ? 'email' : 'phone');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [phoneError, setPhoneError] = useState(null);
+  const [identifierError, setIdentifierError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
+  const [apiError, setApiError] = useState('');
+  const [otpStep, setOtpStep] = useState(null); // { identity, maskedEmail }
 
-  const hasValues = phone.trim().length > 0 && password.length > 0;
+  const identifierValue = method === 'phone' ? phone : email;
+  const hasValues = identifierValue.trim().length > 0 && password.length > 0;
 
-  const handlePhoneChange = (event) => {
-    setPhone(event.target.value);
-    if (phoneError) setPhoneError(null);
+  const clearErrors = () => {
+    if (identifierError) setIdentifierError(null);
+    if (apiError) setApiError('');
+    onClearAuthFailure();
+  };
+
+  const handleMethodChange = (next) => {
+    log('login method:', next);
+    setMethod(next);
+    setIdentifierError(null);
+    setApiError('');
     onClearAuthFailure();
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
     if (passwordError) setPasswordError(null);
+    if (apiError) setApiError('');
     onClearAuthFailure();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (isLoading) return;
 
-    const nextPhoneError = !phone.trim()
-      ? PHONE_ERROR_COPY
-      : !isPhoneShapeValid(phone)
-        ? PHONE_ERROR_COPY
-        : null;
+    const nextIdentifierError =
+      method === 'phone'
+        ? isPhoneShapeValid(phone)
+          ? null
+          : PHONE_ERROR_COPY
+        : isEmailShapeValid(email)
+          ? null
+          : EMAIL_ERROR_COPY;
     const nextPasswordError = password.length === 0 ? PASSWORD_ERROR_COPY : null;
-
-    setPhoneError(nextPhoneError);
+    setIdentifierError(nextIdentifierError);
     setPasswordError(nextPasswordError);
-
-    if (nextPhoneError || nextPasswordError) {
-      log('submit blocked — field errors', { phone: nextPhoneError, password: nextPasswordError });
+    if (nextIdentifierError || nextPasswordError) {
+      log('submit blocked: field errors', { method });
       return;
     }
 
-    log('submit', { phone, keepLoggedIn });
+    const identity =
+      method === 'phone' ? { phoneNumber: toGhanaE164(phone) } : { email: email.trim() };
+    log('submit', { method, keepLoggedIn });
     setIsLoading(true);
-    // Placeholder transition until /login API is wired in. The simulated
-    // failure surfaces the auth-failure toast so the design-system error
-    // state is reachable in development; remove once a real auth call
-    // returns its own success / error branch.
-    setTimeout(() => {
+    setApiError('');
+    try {
+      const res = await requestLoginOtp({ identity, password });
+      setOtpStep({ identity, maskedEmail: res?.maskedEmail || res?.data?.maskedEmail });
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      log.error('login failed:', code);
+      if (code === 'INVALID_CREDENTIALS') onAuthFailure(method);
+      else setApiError(getApiErrorMessage(err));
+    } finally {
       setIsLoading(false);
-      onAuthFailure();
-    }, 1500);
+    }
   };
+
+  if (otpStep) {
+    return (
+      <LoginOtpStep
+        identity={otpStep.identity}
+        maskedEmail={otpStep.maskedEmail}
+        onBack={() => {
+          setOtpStep(null);
+          setPassword('');
+        }}
+      />
+    );
+  }
 
   return (
     <form
@@ -213,7 +416,8 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         </h1>
 
         <p className="max-w-[360px] text-[14px] max-md:text-[13px] leading-[20px] tracking-[0.2px] text-[#737373]">
-          Enter your phone number and password to access your talent profile and opportunities.
+          Enter your {method === 'phone' ? 'phone number' : 'email address'} and password to access
+          your talent profile and opportunities.
         </p>
 
         <WavyDivider />
@@ -221,56 +425,71 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
 
       {/* fields */}
       <div className="flex flex-col gap-4 max-md:gap-3">
-        {/* Phone with country-code picker */}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="login-phone"
-            className="inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 max-md:leading-5 tracking-[0.2px] text-content-primary"
-          >
-            Phone Number
-            <span aria-hidden="true" className="text-[14px] font-semibold text-brand-green">
-              *
-            </span>
-          </label>
-          <div
-            className={classNames(
-              PHONE_WRAPPER_BASE,
-              phoneError ? PHONE_WRAPPER_ERROR : PHONE_WRAPPER_DEFAULT
-            )}
-          >
-            <button
-              type="button"
-              className="flex h-full shrink-0 items-center gap-2 whitespace-nowrap border-r border-[#e7e7e7] pl-4 max-md:pl-3 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
-              aria-label="Select country code"
+        {LOGIN_MODE === 'both' && <MethodToggle method={method} onChange={handleMethodChange} />}
+
+        {method === 'phone' ? (
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="login-phone"
+              className="inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 max-md:leading-5 tracking-[0.2px] text-content-primary"
             >
-              <GhanaFlagIcon />
-              <span className="font-medium">+233</span>
-              <ChevronDownIcon className="text-content-tertiary" />
-            </button>
-            <input
-              id="login-phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel-national"
-              placeholder="23 533 45"
-              value={phone}
-              onChange={handlePhoneChange}
-              aria-invalid={Boolean(phoneError) || undefined}
-              aria-describedby={phoneError ? 'login-phone-error' : undefined}
-              className="w-0 flex-1 min-w-0 border-none bg-transparent text-[14px] leading-5 tracking-[0.2px] text-content-primary placeholder:text-[#595959] outline-none"
-            />
-          </div>
-          {phoneError && (
+              Phone Number
+              <span aria-hidden="true" className="text-[14px] font-semibold text-brand-green">
+                *
+              </span>
+            </label>
             <div
-              id="login-phone-error"
-              role="alert"
-              className="flex items-center gap-2 px-2 text-danger"
+              className={classNames(
+                PHONE_WRAPPER_BASE,
+                identifierError ? PHONE_WRAPPER_ERROR : PHONE_WRAPPER_DEFAULT
+              )}
             >
-              <DangerAlertIcon className="size-4 shrink-0" />
-              <p className="font-sans text-[12px] leading-[18px] tracking-[0.2px]">{phoneError}</p>
+              <button
+                type="button"
+                className="flex h-full shrink-0 items-center gap-2 whitespace-nowrap border-r border-[#e7e7e7] pl-4 max-md:pl-3 pr-3 text-[14px] tracking-[0.2px] text-content-primary"
+                aria-label="Select country code"
+              >
+                <GhanaFlagIcon />
+                <span className="font-medium">+233</span>
+                <ChevronDownIcon className="text-content-tertiary" />
+              </button>
+              <input
+                id="login-phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                placeholder="24 123 4567"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  clearErrors();
+                }}
+                aria-invalid={Boolean(identifierError) || undefined}
+                aria-describedby={identifierError ? 'login-identifier-error' : undefined}
+                className="w-0 flex-1 min-w-0 border-none bg-transparent text-[14px] leading-5 tracking-[0.2px] text-content-primary placeholder:text-[#595959] outline-none"
+              />
             </div>
-          )}
-        </div>
+            {identifierError && (
+              <FieldError id="login-identifier-error" message={identifierError} />
+            )}
+          </div>
+        ) : (
+          <TextInput
+            id="login-email"
+            label="Email Address"
+            required
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearErrors();
+            }}
+            error={identifierError || undefined}
+            leftIcon={<MailIcon />}
+          />
+        )}
 
         {/* Password with Forget Password link + eye toggle */}
         <div className="flex flex-col gap-2">
@@ -321,10 +540,9 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         />
       </div>
 
-      {/* CTA. Loading state mirrors Figma 2849:54106 "Pressed-active" —
-          forced `state="active"` pins the darker-green pressed look while
-          the spinner spins; `aria-busy` keeps the disabled-on-submit
-          semantics for screen readers. */}
+      <ApiErrorNote message={apiError} />
+
+      {/* CTA. Loading state mirrors Figma 2849:54106 "Pressed-active". */}
       <Button
         type="submit"
         variant="primary"
@@ -374,34 +592,36 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
 
 const LoginPage = () => {
   log('mount');
-  const [authError, setAuthError] = useState(false);
+  // null, or the login method that failed ('phone' | 'email') for the toast copy.
+  const [authError, setAuthError] = useState(null);
+  const toastTitle = AUTH_FAILURE_TITLE[authError] || AUTH_FAILURE_TITLE.phone;
 
   return (
     // Outer width is pinned to the Figma frame (1728×1117, node 2849-52564)
     // so the design holds its shape on zoom-out and ultrawide displays
     // instead of stretching across the viewport.
     <section className="relative flex w-full flex-1 min-h-0 overflow-hidden">
-      {/* Left column — TalentOnboardingLayout provides the TL green ellipse
-          behind this transparent section; no local orb asset needed.
-          overflow-y-auto + hidden scrollbar: left col scrolls while the
-          right panel stays fixed at screen height (fixed-shell via MainLayout
-          isFixedShellPath + TalentOnboardingLayout). */}
+      {/* Left column scrolls while the right panel stays fixed at screen height. */}
       <div className="relative flex flex-1 items-center max-md:items-start justify-center max-lg:z-10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
         <div className="relative z-10 flex w-full flex-col items-center justify-center gap-3">
           {authError && (
             <div className="w-full max-w-[700px] lg:hidden">
-              <AuthErrorToast inline onClose={() => setAuthError(false)} />
+              <AuthErrorToast inline title={toastTitle} onClose={() => setAuthError(null)} />
             </div>
           )}
           <LoginForm
-            onAuthFailure={() => setAuthError(true)}
-            onClearAuthFailure={() => authError && setAuthError(false)}
+            onAuthFailure={(method) => setAuthError(method)}
+            onClearAuthFailure={() => authError && setAuthError(null)}
           />
         </div>
       </div>
       <OnboardingRightPanel
         panelContent={<TalentLoginPanelContent />}
-        toast={authError ? <AuthErrorToast onClose={() => setAuthError(false)} /> : null}
+        toast={
+          authError ? (
+            <AuthErrorToast title={toastTitle} onClose={() => setAuthError(null)} />
+          ) : null
+        }
       />
     </section>
   );

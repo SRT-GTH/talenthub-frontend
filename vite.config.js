@@ -31,6 +31,11 @@ export default defineConfig({
         target: process.env.VITE_PROXY_TARGET || 'https://srt-backend-m5mc.onrender.com',
         changeOrigin: true,
         secure: true,
+        // The backend checks Origin against CORS_ORIGINS. Proxied requests are
+        // server-to-server, so drop the browser's localhost Origin header.
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin'));
+        },
       },
     },
   },
