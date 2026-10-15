@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { startOnboarding } from '../../services/onboarding.api.js';
+import { toIsoDate } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -134,6 +138,7 @@ const LoadingOverlay = () => (
 const OnboardingDobPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const { setDateOfBirth } = useOnboarding();
   const [dob, setDob] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -145,7 +150,7 @@ const OnboardingDobPage = () => {
   const isVerified = age !== null && age >= 13 && age <= 99;
   const isUnder18 = isVerified && age < 18;
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!isVerified || isSubmitting) return;
     log('submit', { dob, age, isMinor: age < 18 });
@@ -153,24 +158,28 @@ const OnboardingDobPage = () => {
     // breadcrumb, Education page's next-route branch, ParentInfo gate)
     // can read `isMinor` without re-asking.
     setDateOfBirth({ dob, age });
+    setApiError('');
     setIsSubmitting(true);
-    // Brief inline loading before the overlay takes over — gives the
-    // CTA's pressed state a moment to read before the modal mounts.
-    setTimeout(() => {
+    try {
+      // Starts the backend onboarding session (stores the sessionToken).
+      const res = await startOnboarding({ dob: toIsoDate(dob) });
+      log('session started, agePath:', res?.agePath);
       setShowOverlay(true);
       setTimeout(() => {
-        // Next route isn't built yet; bounce back to welcome so the
-        // user can navigate intentionally instead of getting stranded.
         setShowOverlay(false);
         setIsSubmitting(false);
         navigate('/onboarding/talent/personal-info');
-      }, 2400);
-    }, 400);
+      }, 1200);
+    } catch (err) {
+      log.error('start failed:', err?.response?.status);
+      setApiError(getApiErrorMessage(err));
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="start" percent={78} />
+      <OnboardingHeader currentKey="start" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
@@ -269,6 +278,7 @@ const OnboardingDobPage = () => {
                 </div>
               )}
 
+              <ApiErrorNote message={apiError} className="mx-auto" />
               <StickyActionBar bleed={16}>
                 <Button
                   type="submit"

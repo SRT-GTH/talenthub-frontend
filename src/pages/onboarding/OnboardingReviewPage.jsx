@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import {
+  captureStep,
+  activateOnboarding,
+  clearOnboardingSession,
+} from '../../services/onboarding.api.js';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
 import Button from '../../components/ui/Button.jsx';
 import ClampText from '../../components/ui/ClampText.jsx';
 import { StickyActionBar } from '../../components/ui/form';
@@ -652,6 +660,9 @@ const ReviewBackgroundOrbs = () => (
 const OnboardingReviewPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
+  const [isActivating, setIsActivating] = useState(false);
+  const { isMinor } = useOnboarding();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [consentAccepted, setConsentAccepted] = useState(false);
@@ -702,26 +713,46 @@ const OnboardingReviewPage = () => {
     setShowConsentModal(false);
   };
 
-  const handleSubmit = () => {
-    if (!allAccepted) {
-      log('submit blocked — not all accepted');
+  const handleSubmit = async () => {
+    if (!allAccepted || isActivating) {
+      log('submit blocked', { allAccepted, isActivating });
       return;
     }
-    log('submit — opening success modal');
-    setShowSuccessModal(true);
+    setApiError('');
+    setIsActivating(true);
+    try {
+      if (!isMinor) {
+        // Adults record the three consents first; minors activate directly
+        // (ADR-O-01 opt-out model, the parent gets the opt-out notice).
+        await captureStep('consent', {
+          consentGiven: {
+            tos: termsAccepted,
+            privacyPolicy: privacyAccepted,
+            dataProcessing: consentAccepted,
+          },
+        });
+      }
+      const res = await activateOnboarding();
+      log('account activated:', { userId: res?.userId, isMinor });
+      clearOnboardingSession();
+      setShowSuccessModal(true);
+    } catch (err) {
+      setApiError(getApiErrorMessage(err));
+    } finally {
+      setIsActivating(false);
+    }
   };
 
   const handleContinueAfterSuccess = () => {
     setShowSuccessModal(false);
-    // /onboarding/done isn't built yet — fall back to /welcome so the
-    // user doesn't hit a 404. Same pattern as OnboardingAddressPage.
-    log('continue after success → /welcome (fallback)');
-    navigate('/onboarding/talent/welcome');
+    // Account exists now; log in (email + password, then OTP).
+    log('continue after success -> /login');
+    navigate('/login');
   };
 
   return (
     <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
-      <OnboardingHeader currentKey="review" percent={78} />
+      <OnboardingHeader currentKey="review" />
 
       <ReviewBackgroundOrbs />
 
@@ -812,6 +843,7 @@ const OnboardingReviewPage = () => {
 
           {/* CTA */}
           <StickyActionBar bleed={16}>
+            <ApiErrorNote message={apiError} className="mx-auto mb-2" />
             <Button
               type="button"
               variant="primary"

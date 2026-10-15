@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { captureStep } from '../../services/onboarding.api.js';
+import { splitFullName, toGhanaE164 } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
@@ -50,9 +54,8 @@ const log = debug('OnboardingParentInfoPage');
  *
  * Validation rule (per the disclosure banner copy):
  *   - Guardian name + relationship are always required.
- *   - One of phone OR email is required (the banner says "phone OR email").
- *     We surface this by requiring at least one contact method; both can
- *     be filled if the user wants belt-and-braces coverage.
+ *   - Parent email is required (the opt-out notice goes by email; SMS
+ *     isn't live). Phone is optional.
  *
  * Submit flow:
  *   - Disabled CTA → "Fill In Your Guardian Details"
@@ -243,7 +246,7 @@ const LegalDisclosureBanner = () => (
       style={{ letterSpacing: '0.2px' }}
     >
       The notification tells your parent/guardian about GTH and their right to opt you out within 7
-      days if they have concerns. You only need to provide one contact method — phone OR email. Your
+      days if they have concerns. We send it to their email, so an email address is required. Your
       account opens immediately regardless.
     </p>
   </div>
@@ -436,6 +439,7 @@ const ParentRightPanel = () => (
 const OnboardingParentInfoPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const { isMinor } = useOnboarding();
 
   // Defensive redirect — adults shouldn't see this page (Education
@@ -465,14 +469,15 @@ const OnboardingParentInfoPage = () => {
 
   const markTouched = (key) => () => setTouched((prev) => ({ ...prev, [key]: true }));
 
-  // Per-field validation — name + relationship always required; at
-  // least one of phone OR email must be present (banner copy).
+  // Per-field validation: name, relationship and email are required;
+  // phone is optional.
   const phoneDigits = phone.replace(/\D/g, '');
   const isPhoneFilled = phone !== '';
   const isPhoneValid = isPhoneFilled ? phoneDigits.length === 9 : true;
   const isEmailFilled = email !== '';
   const isEmailValid = isEmailFilled ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) : true;
-  const hasContactMethod = isPhoneFilled || isEmailFilled;
+  // Email is required: it's how the parent gets the opt-out notice (SMS isn't
+  // live yet), and the backend rejects the step without it. Phone is optional.
 
   const showFieldError = (key) => touched[key] || submitAttempted;
 
@@ -485,24 +490,23 @@ const OnboardingParentInfoPage = () => {
   const phoneError =
     showFieldError('phone') && isPhoneFilled && !isPhoneValid
       ? 'Enter a valid 9-digit Ghana number'
-      : submitAttempted && !hasContactMethod
-        ? 'Phone OR email is required'
-        : undefined;
-  const emailError =
-    showFieldError('email') && isEmailFilled && !isEmailValid
-      ? 'Enter a valid email address'
-      : submitAttempted && !hasContactMethod
-        ? 'Phone OR email is required'
+      : undefined;
+  const emailError = !showFieldError('email')
+    ? undefined
+    : !isEmailFilled
+      ? "Your parent or guardian's email is required"
+      : !isEmailValid
+        ? 'Enter a valid email address'
         : undefined;
 
   const isValid = useMemo(
     () =>
       guardianName.trim().length > 0 &&
       relationship !== '' &&
-      hasContactMethod &&
+      isEmailFilled &&
       isPhoneValid &&
       isEmailValid,
-    [guardianName, relationship, hasContactMethod, isPhoneValid, isEmailValid]
+    [guardianName, relationship, isEmailFilled, isPhoneValid, isEmailValid]
   );
 
   // CTA copy mirrors Figma 2858:28741 (disabled prompt) → 2865:38068
@@ -518,25 +522,31 @@ const OnboardingParentInfoPage = () => {
       log('submit blocked — invalid', {
         guardianName: !!guardianName,
         relationship: !!relationship,
-        hasContactMethod,
+        hasEmail: isEmailFilled,
         isPhoneValid,
         isEmailValid,
       });
       return;
     }
     log('submit', { guardianName, relationship, hasPhone: isPhoneFilled, hasEmail: isEmailFilled });
+    setApiError('');
     setIsSubmitting(true);
-    // Fake round-trip; real wiring lands when the parent-save service is
-    // built. 900ms keeps the loader visible without being annoying.
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate('/onboarding/talent/review');
-    }, 900);
+    const { first, last } = splitFullName(guardianName);
+    captureStep('parent', {
+      parentFirstName: first,
+      ...(last ? { parentLastName: last } : {}),
+      parentRelationship: relationship,
+      ...(isPhoneFilled ? { parentPhone: toGhanaE164(phone) } : {}),
+      parentEmail: email.trim(),
+    })
+      .then(() => navigate('/onboarding/talent/review'))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
     <div className="mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
-      <OnboardingHeader currentKey="parent" percent={88} />
+      <OnboardingHeader currentKey="parent" />
 
       <section className="relative flex flex-1">
         {/* Left form column */}
@@ -598,24 +608,20 @@ const OnboardingParentInfoPage = () => {
                 <PhoneNumberInput
                   id="parent-phone"
                   label="Phone Number"
-                  trailingLabel={isEmailFilled && !isPhoneFilled ? 'Optional' : 'SMS verification'}
+                  trailingLabel="Optional"
                   value={phone}
                   onChange={setPhone}
                   onBlur={markTouched('phone')}
                   error={phoneError}
                   helperText={
-                    phoneError
-                      ? undefined
-                      : 'We send an SMS so they can opt out within 7 days if they have concerns'
+                    phoneError ? undefined : 'Optional. Lets us reach them by phone if we need to'
                   }
                 />
                 <TextInput
                   id="parent-email"
                   label="Email Address"
                   type="email"
-                  trailingLabel={
-                    isPhoneFilled && !isEmailFilled ? 'Optional' : 'Email verification'
-                  }
+                  trailingLabel="Required"
                   trailingLabelClassName={emailError ? 'text-danger' : 'text-brand-green'}
                   placeholder="Email"
                   autoComplete="email"
@@ -623,6 +629,7 @@ const OnboardingParentInfoPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={markTouched('email')}
                   error={emailError}
+                  helperText={emailError ? undefined : 'We email the opt-out notice here'}
                   verified={isEmailFilled && isEmailValid}
                   leftIcon={<MailIcon />}
                 />
@@ -631,6 +638,7 @@ const OnboardingParentInfoPage = () => {
               <LegalDisclosureBanner />
             </div>
 
+            <ApiErrorNote message={apiError} className="mx-auto" />
             <StickyActionBar bleed={16}>
               <Button
                 type="submit"

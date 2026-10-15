@@ -15,7 +15,7 @@
  * are muted grey/500.
  */
 
-import { getTalentOnboardingSteps } from './onboardingSteps.js';
+import { getTalentOnboardingSteps, getOnboardingPercent } from './onboardingSteps.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 
 const ChevronRight = () => (
@@ -60,15 +60,20 @@ const CompletedCheck = () => (
   </svg>
 );
 
-const OnboardingHeader = ({ steps: stepsProp, currentKey, percent = 0 }) => {
+const OnboardingHeader = ({ steps: stepsProp, currentKey, percent }) => {
   // Steps list defaults to whatever the talent context implies (the
   // Parent step appears automatically for under-18 users). Callers can
   // still override with an explicit `steps` prop — e.g. parent/recruiter
   // flows will pass their own catalogue once those land.
   const { isMinor } = useOnboarding();
   const steps = stepsProp ?? getTalentOnboardingSteps({ isMinor: Boolean(isMinor) });
-  const clamped = Math.max(0, Math.min(100, percent));
   const currentIndex = steps.findIndex((s) => s.key === currentKey);
+  // Progress follows the trail: every step before the current one counts as
+  // done, and reaching the last step ("Done") is 100%. The minor path has an
+  // extra Parent step, so its percentages differ slightly. Callers can still
+  // pass an explicit `percent` to override.
+  const computed = getOnboardingPercent(steps, currentIndex);
+  const clamped = Math.max(0, Math.min(100, percent ?? computed));
 
   return (
     <div className="relative h-[58px] w-full border-b border-[#F1F1EF] bg-white max-md:h-auto">

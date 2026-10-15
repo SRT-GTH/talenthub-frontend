@@ -6,4 +6,6 @@ export const STORAGE_KEYS = {
   authToken: 'th:auth-token',
   refreshToken: 'th:refresh-token',
   userProfile: 'th:user-profile',
+  // Talent onboarding session token (sessionStorage, backend session lives 48 h)
+  onboardingSession: 'th:onboarding-session',
 };
