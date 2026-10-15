@@ -58,6 +58,10 @@ test('minor signs up with parent details and activates', async ({ page }) => {
     phone: uniquePhone('20'),
     email: `e2e.parent.${id}@example.com`,
   });
+  // Review shows the captured data from the backend summary (not mock data).
+  await page.waitForURL('**/onboarding/talent/review');
+  await expect(page.getByText('Accra Academy').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText('Akosua').first()).toBeVisible();
   const activated = page.waitForResponse((r) => r.url().includes('/onboarding/activate'), {
     timeout: 120_000,
   });

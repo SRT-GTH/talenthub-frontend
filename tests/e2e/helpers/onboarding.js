@@ -132,6 +132,7 @@ export const fillEducation = async (page, e) => {
     .last()
     .click();
   await page.getByRole('button', { name: /i'm ready/i }).click({ timeout: 60_000 });
+  await page.waitForURL(/\/onboarding\/talent\/(review|parent-info)/, { timeout: 60_000 });
 };
 
 export const fillParent = async (page, g) => {
@@ -149,6 +150,8 @@ export const acceptConsentsAndActivate = async (page) => {
   await page.waitForURL('**/onboarding/talent/review');
   const activate = page.getByRole('button', { name: /activate my account/i });
   const boxes = page.locator('main label:has(input[type="checkbox"])'); // scoped: the DemoNavigator bar has its own "Minor" checkbox
+  // The review page is lazy-loaded; wait for the consent rows before looping.
+  await expect(boxes.first()).toBeAttached({ timeout: 30_000 });
   for (let i = 0; i < 6 && !(await activate.isVisible().catch(() => false)); i += 1) {
     const count = await boxes.count();
     for (let b = 0; b < count; b += 1) {
