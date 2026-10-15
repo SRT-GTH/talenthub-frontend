@@ -40,3 +40,12 @@ export const getTalentOnboardingSteps = ({ isMinor = false } = {}) => {
     ...ADULT_TALENT_STEPS.slice(educationIndex + 1),
   ];
 };
+
+/**
+ * Percent complete for a step trail: steps before `currentIndex` are done,
+ * the final step (Done) is 100%. Unknown index -> 0.
+ */
+export const getOnboardingPercent = (steps, currentIndex) => {
+  if (!Array.isArray(steps) || steps.length < 2 || currentIndex < 0) return 0;
+  return Math.round((Math.min(currentIndex, steps.length - 1) / (steps.length - 1)) * 100);
+};

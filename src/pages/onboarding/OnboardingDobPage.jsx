@@ -179,7 +179,7 @@ const OnboardingDobPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="start" percent={78} />
+      <OnboardingHeader currentKey="start" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">

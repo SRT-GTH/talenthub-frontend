@@ -752,7 +752,7 @@ const OnboardingReviewPage = () => {
 
   return (
     <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
-      <OnboardingHeader currentKey="review" percent={78} />
+      <OnboardingHeader currentKey="review" />
 
       <ReviewBackgroundOrbs />
 
