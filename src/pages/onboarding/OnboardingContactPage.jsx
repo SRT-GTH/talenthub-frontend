@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { getApiErrorCode } from '../../services/apiErrors.js';
+import { captureStep, verifyContactOtp, resendContactOtp } from '../../services/onboarding.api.js';
+import { toGhanaE164 } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, VerificationCode, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
@@ -257,6 +262,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [secondsLeft, setSecondsLeft] = useState(598); // 09:58
   const [resendIn, setResendIn] = useState(59);
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -282,24 +288,42 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   const isInvalid = isComplete && hasError && !isExpired;
   const isReady = isComplete && !hasError && !isExpired;
 
-  const handleVerify = () => {
-    if (!isComplete || isExpired) return;
-    if (code === DEMO_VALID_OTP) {
-      log('otp valid → verified');
+  const handleVerify = async () => {
+    if (!isComplete || isExpired || verifying) return;
+    setVerifying(true);
+    try {
+      // Backend checks the code it emailed at the contact step
+      // (staging accepts 123456 while the test bypass is on).
+      await verifyContactOtp(code);
+      log('otp verified by backend');
       onVerified();
-      return;
+    } catch (err) {
+      const errCode = getApiErrorCode(err);
+      log('otp rejected:', errCode, 'attempts before:', attemptsLeft);
+      setHasError(true);
+      if (errCode === 'OTP_EXPIRED') {
+        setSecondsLeft(0);
+        return;
+      }
+      const nextAttempts = Math.max(0, attemptsLeft - 1);
+      setAttemptsLeft(nextAttempts);
+      // 0 attempts (or backend lock) -> caller surfaces the abandon-onboarding pop-up.
+      if (nextAttempts === 0 || errCode === 'OTP_LOCKED') onLockout?.();
+    } finally {
+      setVerifying(false);
     }
-    log('otp invalid; attempts before:', attemptsLeft);
-    setHasError(true);
-    const nextAttempts = Math.max(0, attemptsLeft - 1);
-    setAttemptsLeft(nextAttempts);
-    // 0 attempts → caller surfaces the abandon-onboarding pop-up.
-    if (nextAttempts === 0) onLockout?.();
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!isExpired && resendIn > 0) return;
-    log('resend code; reset to fresh 09:58 + 3 attempts');
+    log('resend code requested');
+    try {
+      await resendContactOtp();
+    } catch (err) {
+      const errCode = getApiErrorCode(err);
+      log.error('resend failed:', errCode);
+      if (errCode === 'OTP_RESEND_TOO_SOON') return;
+    }
     setCode('');
     setHasError(false);
     setAttemptsLeft(3);
@@ -948,6 +972,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
 const OnboardingContactPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const [phone, setPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [email, setEmail] = useState('');
@@ -1009,12 +1034,19 @@ const OnboardingContactPage = () => {
       return;
     }
     log('submit', { phone, whatsapp, email });
+    setApiError('');
     setIsSubmitting(true);
-    // Pressed-state spinner reads for ~600ms before the modal mounts.
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowOtp(true);
-    }, 600);
+    captureStep('contact', {
+      email: email.trim(),
+      phoneNumber: toGhanaE164(phone),
+      ...(whatsapp ? { whatsappNumber: toGhanaE164(whatsapp) } : {}),
+    })
+      .then(() => {
+        log('contact captured, verification code issued');
+        setShowOtp(true);
+      })
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setIsSubmitting(false));
   };
 
   const markTouched = (key) => () => setTouched((prev) => ({ ...prev, [key]: true }));
@@ -1029,7 +1061,7 @@ const OnboardingContactPage = () => {
     setShowSuccess(false);
     // /address isn't built yet — bounce to welcome so the user isn't
     // stranded. Swap to '/onboarding/talent/address' when the route ships.
-    navigate('/onboarding/talent/welcome');
+    navigate('/onboarding/talent/address');
   };
 
   return (
@@ -1144,6 +1176,7 @@ const OnboardingContactPage = () => {
                 />
               </div>
 
+              <ApiErrorNote message={apiError} className="mx-auto" />
               <StickyActionBar bleed={16}>
                 <Button
                   type="submit"

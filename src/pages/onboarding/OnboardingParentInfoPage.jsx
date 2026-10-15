@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { captureStep } from '../../services/onboarding.api.js';
+import { splitFullName, toGhanaE164 } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import Field from '../../components/ui/form/Field.jsx';
@@ -436,6 +440,7 @@ const ParentRightPanel = () => (
 const OnboardingParentInfoPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const { isMinor } = useOnboarding();
 
   // Defensive redirect — adults shouldn't see this page (Education
@@ -525,13 +530,19 @@ const OnboardingParentInfoPage = () => {
       return;
     }
     log('submit', { guardianName, relationship, hasPhone: isPhoneFilled, hasEmail: isEmailFilled });
+    setApiError('');
     setIsSubmitting(true);
-    // Fake round-trip; real wiring lands when the parent-save service is
-    // built. 900ms keeps the loader visible without being annoying.
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate('/onboarding/talent/review');
-    }, 900);
+    const { first, last } = splitFullName(guardianName);
+    captureStep('parent', {
+      parentFirstName: first,
+      ...(last ? { parentLastName: last } : {}),
+      parentRelationship: relationship,
+      ...(isPhoneFilled ? { parentPhone: toGhanaE164(phone) } : {}),
+      ...(isEmailFilled ? { parentEmail: email.trim() } : {}),
+    })
+      .then(() => navigate('/onboarding/talent/review'))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -631,6 +642,7 @@ const OnboardingParentInfoPage = () => {
               <LegalDisclosureBanner />
             </div>
 
+            <ApiErrorNote message={apiError} className="mx-auto" />
             <StickyActionBar bleed={16}>
               <Button
                 type="submit"

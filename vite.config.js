@@ -24,6 +24,15 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    // Dev only: forward /api to the backend so the browser stays same-origin
+    // (no CORS). Point VITE_PROXY_TARGET at another backend if needed.
+    proxy: {
+      '/api': {
+        target: process.env.VITE_PROXY_TARGET || 'https://srt-backend-m5mc.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   preview: {
     port: 4173,

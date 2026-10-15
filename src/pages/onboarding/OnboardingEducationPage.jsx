@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { captureStep } from '../../services/onboarding.api.js';
+import { mapEducationLevel } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -409,6 +413,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
 const OnboardingEducationPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const { isMinor } = useOnboarding();
   const [level, setLevel] = useState('');
   const [grade, setGrade] = useState('');
@@ -525,13 +530,16 @@ const OnboardingEducationPage = () => {
 
     log('submit', { level, grade, institution, graduation });
     setShowErrorBanner(false);
+    setApiError('');
     setIsSubmitting(true);
-    // Fake round-trip — real wiring lands when the education-save service
-    // is built. 900ms keeps the loader visible without being annoying.
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-    }, 900);
+    captureStep('education', {
+      educationLevel: mapEducationLevel(level),
+      ...(grade ? { educationGrade: grade } : {}),
+      // Institution and expected graduation have no backend field yet (plan B4).
+    })
+      .then(() => setShowSuccess(true))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setIsSubmitting(false));
   };
 
   const handleContinue = () => {
@@ -726,6 +734,7 @@ const OnboardingEducationPage = () => {
                 submit handler short-circuits and surfaces the per-field error
                 chrome + aggregated banner (Figma frames 2709:37471 /
                 2717:38189). Only disabled mid-submit. */}
+              <ApiErrorNote message={apiError} className="mx-auto" />
               <StickyActionBar bleed={16}>
                 <Button
                   type="submit"

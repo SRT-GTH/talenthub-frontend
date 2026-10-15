@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { captureStep } from '../../services/onboarding.api.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -255,6 +258,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
 const OnboardingAddressPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const [region, setRegion] = useState('');
   const [district, setDistrict] = useState('');
   const [townCity, setTownCity] = useState('');
@@ -311,13 +315,19 @@ const OnboardingAddressPage = () => {
       return;
     }
     log('submit', { region, district, townCity, digitalAddress });
+    setApiError('');
     setIsSubmitting(true);
-    // Fake round-trip; real wiring lands when the address-save service is
-    // built. 900ms keeps the loader visible without being annoying.
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-    }, 900);
+    // Backend address: region, district, locality, streetAddress (plan M6:
+    // digital address, community and landmark are folded into streetAddress).
+    captureStep('address', {
+      region: getRegionLabel(region),
+      district: getDistrictLabel(district),
+      locality: getTownLabel(townCity),
+      streetAddress: [digitalAddress, community, landmark].filter(Boolean).join(', '),
+    })
+      .then(() => setShowSuccess(true))
+      .catch((err) => setApiError(getApiErrorMessage(err)))
+      .finally(() => setIsSubmitting(false));
   };
 
   const handleContinue = () => {
@@ -485,6 +495,7 @@ const OnboardingAddressPage = () => {
                 />
               </div>
 
+              <ApiErrorNote message={apiError} className="mx-auto" />
               <StickyActionBar bleed={16}>
                 <Button
                   type="submit"

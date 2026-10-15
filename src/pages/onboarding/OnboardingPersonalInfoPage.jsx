@@ -1,5 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { captureStep } from '../../services/onboarding.api.js';
+import { mapGender, mapNationality } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -260,6 +264,7 @@ const NATIONALITY_OPTIONS = [
 const OnboardingPersonalInfoPage = () => {
   log('mount');
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState('');
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [firstName, setFirstName] = useState('');
@@ -313,16 +318,31 @@ const OnboardingPersonalInfoPage = () => {
   // ("Fill In Your Details") is the nudge while the user is still typing.
   const ctaLabel = isValid || isSubmitting ? 'Save & Continue' : 'Fill In Your Details';
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setHasSubmittedOnce(true);
     if (!isValid || isSubmitting) return;
     log('submit', { firstName, lastName, gender, nationality });
+    setApiError('');
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await captureStep('identity', {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        ...(middleName.trim() ? { middleName: middleName.trim() } : {}),
+        ...(mapGender(gender) ? { gender: mapGender(gender) } : {}),
+        ...(nationality ? { nationality: mapNationality(nationality) } : {}),
+        ...(ghanaCardId.trim() ? { ghanaCardNumber: ghanaCardId.trim() } : {}),
+        password,
+      });
+      // Profile photo is not sent yet: no upload endpoint is wired (plan M9).
+      log('identity captured');
       setShowSuccess(true);
-    }, 900);
+    } catch (err) {
+      setApiError(getApiErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleContinue = () => {
@@ -514,6 +534,7 @@ const OnboardingPersonalInfoPage = () => {
                 />
               </div>
 
+              <ApiErrorNote message={apiError} className="mx-auto" />
               <StickyActionBar bleed={16}>
                 <Button
                   type="submit"
