@@ -23,6 +23,11 @@ const MESSAGES = {
   OTP_NOT_SENT: 'We have not sent you a code yet. Request one.',
   OTP_RESEND_TOO_SOON: 'Please wait a moment before requesting another code.',
   INVALID_CREDENTIALS: 'Email or password is incorrect.',
+  INVALID_PHOTO_TYPE: 'Upload a JPG, PNG or WebP image.',
+  PHOTO_TOO_LARGE: 'Your photo must be 5 MB or smaller.',
+  PHOTO_UPLOAD_FAILED: 'We could not upload your photo. Please try again.',
+  INVALID_GRADUATION_YEAR: 'Pick a valid expected graduation year.',
+  INVALID_INSTITUTION: 'That institution name is too long.',
   NETWORK: 'We could not reach the server. Check your connection and try again.',
   WAKING_UP: 'The server is starting up. Please try again in a minute.',
   RATE_LIMITED: 'Too many attempts. Please wait a few minutes and try again.',
@@ -35,6 +40,8 @@ export const getApiErrorCode = (error) => {
 
 export const getApiErrorMessage = (error, fallback = 'Something went wrong. Please try again.') => {
   if (error?.code === 'SESSION_MISSING') return MESSAGES.SESSION_MISSING;
+  // Client-side checks (e.g. photo type/size) throw with a known code and no response.
+  if (!error?.response && error?.code && MESSAGES[error.code]) return MESSAGES[error.code];
   const status = error?.response?.status;
   const data = error?.response?.data;
   log.error('API error:', status, data?.type || data?.code, data?.message);

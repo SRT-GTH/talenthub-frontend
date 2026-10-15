@@ -69,6 +69,41 @@ export const captureStep = async (stepKey, fields) => {
   return data;
 };
 
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+const readAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
+/**
+ * POST /upload-photo { sessionToken, base64String } -> { profilePhoto }
+ * Uploads to Cloudinary through the backend (no login needed: the session
+ * token authorises it) and returns the hosted URL. JPG/PNG/WebP, 5 MB max.
+ */
+export const uploadOnboardingPhoto = async (file) => {
+  const sessionToken = requireToken();
+  if (!PHOTO_TYPES.includes(file?.type)) {
+    const err = new Error('Upload a JPG, PNG or WebP image');
+    err.code = 'INVALID_PHOTO_TYPE';
+    throw err;
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    const err = new Error('Photo must be 5 MB or smaller');
+    err.code = 'PHOTO_TOO_LARGE';
+    throw err;
+  }
+  const base64String = await readAsDataUrl(file);
+  log('upload-photo:', file.type, file.size, 'bytes');
+  const { data } = await api.post(`${BASE}/upload-photo`, { sessionToken, base64String });
+  log('upload-photo: url received:', Boolean(data?.profilePhoto));
+  return data?.profilePhoto;
+};
+
 /** POST /verify-contact { sessionToken, otp } -> { verified } */
 export const verifyContactOtp = async (otp) => {
   const sessionToken = requireToken();
