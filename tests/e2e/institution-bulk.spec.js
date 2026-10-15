@@ -16,6 +16,9 @@ test.use({
   actionTimeout: 45_000,
 });
 
+// Admin of an earlier e2e institution (institution-register.spec.js run on 2026-10-14).
+const OTHER_INSTITUTION_EMAIL = 'e2e.institution.6053491@example.com';
+
 const HEADER =
   'First Name,Last Name,Date of Birth,Gender,Email,Phone,Level,Grade,Student ID,Parent Name,Parent Email,Parent Phone';
 
@@ -108,4 +111,33 @@ test('institution uploads students: template, validate, submit, report', async (
     JSON.parse(sessionStorage.getItem('th:institution-bulk') || 'null')
   );
   console.log(`BULK_OPERATION_ID=${state?.bulkOperationId} ORG=${id}`);
+
+  // Another institution's admin opens the same report: the backend refuses
+  // (org check) and the page says so instead of showing the rows.
+  const other = OTHER_INSTITUTION_EMAIL;
+  const login = await page.request.post('/api/auth/login', {
+    data: { email: other, password: 'Inst@12345!' },
+  });
+  expect(login.status(), 'other institution login').toBeLessThan(300);
+  const otp = await page.request.post('/api/auth/verify-otp', {
+    data: { email: other, otp: '123456' },
+  });
+  const otpBody = await otp.json();
+  const otherToken = (otpBody.data || otpBody).accessToken;
+  expect(otherToken, 'other institution token').toBeTruthy();
+
+  const refused = page.waitForResponse(
+    (r) => r.url().includes(`/users/bulk-operation-status/${state.bulkOperationId}`),
+    { timeout: 60_000 }
+  );
+  await page.evaluate((t) => localStorage.setItem('th:auth-token', t), otherToken);
+  await page.reload();
+  const res403 = await refused;
+  expect(res403.status()).toBe(403);
+  expect((await res403.json()).type).toBe('NOT_ORGANIZATION_MEMBER');
+  await expect(page.getByTestId('api-error')).toHaveText(
+    'This upload belongs to another institution.'
+  );
+  await expect(page.getByText(/finished: 3 accounts created/i)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /view upload report/i })).toBeDisabled();
 });

@@ -654,6 +654,8 @@ const ReportSection = () => {
       } catch (err) {
         if (stopped) return;
         setPollError(getApiErrorMessage(err, 'Could not get the upload status. Retrying…'));
+        // Signed out, another institution's upload, or gone: retrying won't help.
+        if ([401, 403, 404].includes(err?.response?.status)) return;
       }
       timer = setTimeout(tick, 2000);
     };

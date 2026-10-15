@@ -37,6 +37,7 @@ const MESSAGES = {
   BULK_UPLOAD_FAILED: 'The upload was not accepted. Please try again.',
   NO_BULK_OPERATION: 'Nothing has been submitted yet. Start from the upload step.',
   OPERATION_NOT_FOUND: 'We could not find this upload. Start from the upload step.',
+  NOT_ORGANIZATION_MEMBER: 'This upload belongs to another institution.',
   NETWORK: 'We could not reach the server. Check your connection and try again.',
   WAKING_UP: 'The server is starting up. Please try again in a minute.',
   RATE_LIMITED: 'Too many attempts. Please wait a few minutes and try again.',
