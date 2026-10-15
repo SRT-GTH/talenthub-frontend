@@ -6,6 +6,9 @@ import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import { ArrowRightIcon, CloseIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import { validateUpload } from '../../../services/institutionBulk.js';
 
 const log = debug('UploadSection');
 
@@ -267,12 +270,14 @@ const UploadSection = () => {
 
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   log('mount');
   log('render', { hasFile: !!file, fileName: file?.name, isDragging });
 
   // ── File validation & selection ────────────────────────────────
-  const ACCEPTED_EXTS = new Set(['.csv', '.xlsx', '.xls']);
+  const ACCEPTED_EXTS = new Set(['.csv', '.xlsx']);
 
   const applyFile = useCallback((candidate) => {
     if (!candidate) {
@@ -281,7 +286,11 @@ const UploadSection = () => {
     }
     const ext = '.' + candidate.name.split('.').pop().toLowerCase();
     log('applyFile', { name: candidate.name, ext, accepted: ACCEPTED_EXTS.has(ext) });
-    if (!ACCEPTED_EXTS.has(ext)) return; // silently ignore unsupported types
+    if (!ACCEPTED_EXTS.has(ext)) {
+      setApiError('Upload a .csv or .xlsx file. Save older .xls files as .xlsx first.');
+      return;
+    }
+    setApiError('');
     setFile(candidate);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -293,6 +302,7 @@ const UploadSection = () => {
   const handleRemoveFile = () => {
     log('remove file');
     setFile(null);
+    setApiError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -330,9 +340,21 @@ const UploadSection = () => {
   };
 
   // ── CTA ────────────────────────────────────────────────────────
-  const handleContinue = () => {
-    log('CTA → /onboarding/institution/validate', { fileName: file?.name });
-    navigate('/onboarding/institution/validate');
+  // Parses the file, runs the row checks and the backend dry run, then shows
+  // the result on the validate step.
+  const handleContinue = async () => {
+    if (!file || isChecking) return;
+    log('CTA → validate', { fileName: file.name });
+    setApiError('');
+    setIsChecking(true);
+    try {
+      await validateUpload(file);
+      navigate('/onboarding/institution/validate');
+    } catch (err) {
+      setApiError(getApiErrorMessage(err, 'We could not check this file. Please try again.'));
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   return (
@@ -386,7 +408,7 @@ const UploadSection = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.xlsx,.xls"
+          accept=".csv,.xlsx"
           className="sr-only"
           onChange={handleInputChange}
           aria-label="Select a CSV or Excel file to upload"
@@ -426,17 +448,18 @@ const UploadSection = () => {
              Disabled (gray) when no file; primary (green) when file selected.
              Button component handles the disabled/primary color switch.
              Figma disabled: fill #bfbfbf r:14 shadow y:4 rgba(191,191,191,0.80) */}
+        <ApiErrorNote message={apiError} />
         <StickyActionBar bleed={16}>
           <Button
             type="button"
             variant="primary"
             size="lg"
             rightIcon={<ArrowRightIcon />}
-            disabled={!file}
+            disabled={!file || isChecking}
             onClick={handleContinue}
             className="w-full"
           >
-            Run Pre-Fight Check
+            {isChecking ? 'Checking file…' : 'Run Pre-Flight Check'}
           </Button>
         </StickyActionBar>
 

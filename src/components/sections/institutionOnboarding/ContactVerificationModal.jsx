@@ -16,6 +16,12 @@ import {
 } from '../../shared/assets.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { verifyContactCode, sendContactCode } from '../../../services/institution.api.js';
+import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
+import { splitFullName } from '../../../services/onboardingMappers.js';
+
+// SMS codes need an SMS provider; until then only the email is verified.
+const SMS_ENABLED = import.meta.env.VITE_SMS_OTP_ENABLED === 'true';
 
 const log = debug('ContactVerificationModal');
 
@@ -97,8 +103,10 @@ const ContactVerificationModal = ({ data, onClose }) => {
 
   // ── stage state ──────────────────────────────────────────────────────
   const [stage, setStage] = useState('otp'); // 'otp' | 'success'
-  const [activeTab, setActiveTab] = useState('sms'); // 'sms' | 'email'
-  const [verified, setVerified] = useState({ sms: false, email: false });
+  const [activeTab, setActiveTab] = useState(SMS_ENABLED ? 'sms' : 'email'); // 'sms' | 'email'
+  const [verified, setVerified] = useState({ sms: !SMS_ENABLED, email: false });
+  const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [code, setCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(600); // 10 min
   const [resendLeft, setResendLeft] = useState(59); // 59s resend delay
@@ -146,12 +154,26 @@ const ContactVerificationModal = ({ data, onClose }) => {
     }
   };
 
-  const handleVerify = () => {
-    if (code.length < 6) {
+  const handleVerify = async () => {
+    if (code.length < 6 || isVerifying) {
       log('verify attempted with incomplete code, length:', code.length);
       return;
     }
-    log('verifying tab:', activeTab, 'with code:', code);
+    log('verifying tab:', activeTab);
+    setError('');
+    if (activeTab === 'email') {
+      setIsVerifying(true);
+      try {
+        await verifyContactCode(code);
+      } catch (err) {
+        const apiCode = getApiErrorCode(err);
+        log.error('verify failed:', apiCode);
+        setError(getApiErrorMessage(err));
+        setIsVerifying(false);
+        return;
+      }
+      setIsVerifying(false);
+    }
 
     const nextVerified = { ...verified, [activeTab]: true };
     setVerified(nextVerified);
@@ -169,11 +191,18 @@ const ContactVerificationModal = ({ data, onClose }) => {
     setActiveTab(switchTo);
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendLeft > 0) return;
     log('resending code for tab:', activeTab);
     setResendLeft(59);
     setCode('');
+    setError('');
+    try {
+      await sendContactCode({ email: data?.email, firstName: splitFullName(data?.fullName).first });
+      setTimeLeft(900);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    }
   };
 
   const handleContinue = () => {
@@ -248,7 +277,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
 
           {/* ── Tab switcher ── */}
           <div className="mb-5 max-sm:mb-3 flex rounded-xl bg-[#f5f5f5] p-1 gap-1">
-            {['sms', 'email'].map((tab) => (
+            {(SMS_ENABLED ? ['sms', 'email'] : ['email']).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -344,13 +373,22 @@ const ContactVerificationModal = ({ data, onClose }) => {
             type="button"
             variant="primary"
             size="lg"
-            disabled={!isCodeComplete || isExpired}
+            disabled={!isCodeComplete || isExpired || isVerifying}
             rightIcon={<ArrowRightIcon />}
             onClick={handleVerify}
             className="w-full mb-4 max-sm:mb-3"
           >
-            {verifyButtonLabel}
+            {isVerifying ? 'Verifying…' : verifyButtonLabel}
           </Button>
+          {error && (
+            <p
+              role="alert"
+              data-testid="api-error"
+              className="mb-3 text-center text-[13px] text-danger"
+            >
+              {error}
+            </p>
+          )}
 
           {/* ── Trust badge ── */}
           <div className="flex items-center justify-center gap-1">

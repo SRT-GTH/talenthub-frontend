@@ -9,6 +9,13 @@ import TermsAcceptedModal from './TermsAcceptedModal.jsx';
 import LegalDocModal from './LegalDocModal.jsx';
 import { ArrowRightIcon, MailIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
+import {
+  getInstitutionDraft,
+  hasContactPassword,
+  registerInstitution,
+} from '../../../services/institution.api.js';
 
 const log = debug('ActivateSection');
 
@@ -167,6 +174,14 @@ const ActivateSection = () => {
   const [showDataModal, setShowDataModal] = useState(false); // Data Processing
 
   const allAgreed = agreed1 && agreed2 && agreed3;
+  const [isActivating, setIsActivating] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [draft] = useState(() => getInstitutionDraft());
+  const inst = draft.institution || {};
+  const contact = draft.contact || {};
+  const maskedPhone = contact.phoneNumber
+    ? `+233 ••• ••${String(contact.phoneNumber).replace(/\D/g, '').slice(-2)}`
+    : null;
 
   log('mount');
   log('render', {
@@ -181,13 +196,38 @@ const ActivateSection = () => {
   });
 
   // ── handlers ─────────────────────────────────────────────────────────
-  const handleActivateClick = () => {
-    if (!allAgreed) {
+  const handleActivateClick = async () => {
+    if (!allAgreed || isActivating) {
       log('activate clicked but not all agreements checked');
       return;
     }
-    log('all agreements checked — opening TermsAcceptedModal');
-    setShowModal(true);
+    if (!draft.institution || !draft.contact) {
+      setApiError('Some details are missing. Please complete the earlier steps.');
+      return;
+    }
+    if (!hasContactPassword()) {
+      setApiError('For your security, please re-enter your password on the contact step.');
+      return;
+    }
+    setApiError('');
+    setIsActivating(true);
+    try {
+      await registerInstitution();
+      log('institution registered — opening TermsAcceptedModal');
+      setShowModal(true);
+    } catch (err) {
+      const code = getApiErrorCode(err);
+      log.error('registration failed:', code);
+      setApiError(
+        code === 'ORGANIZATION_EXISTS'
+          ? 'An institution with this name is already registered. Log in instead, or contact support.'
+          : code === 'USER_EXISTS'
+            ? 'An account with this email already exists. Log in instead.'
+            : getApiErrorMessage(err)
+      );
+    } finally {
+      setIsActivating(false);
+    }
   };
 
   const handleModalClose = () => {
@@ -319,15 +359,15 @@ const ActivateSection = () => {
 
             {/* Row 1: 3-column */}
             <div className="mb-2 grid grid-cols-3 max-sm:grid-cols-1 gap-2 max-md:mb-0 max-md:gap-0">
-              <ReviewField label="Legal Institution Name" value={null} />
-              <ReviewField label="Trading / Common Name" value={null} />
-              <ReviewField label="Institution Type" value={null} />
+              <ReviewField label="Legal Institution Name" value={inst.legalName || null} />
+              <ReviewField label="Trading / Common Name" value={inst.tradingName || null} />
+              <ReviewField label="Institution Type" value={inst.institutionType || null} />
             </div>
 
             {/* Row 2: 2-column */}
             <div className="mb-6 grid grid-cols-2 gap-2 max-md:mb-3 max-md:grid-cols-1 max-md:gap-0">
-              <ReviewField label="Region" value={null} />
-              <ReviewField label="District" value={null} />
+              <ReviewField label="Region" value={inst.region || null} />
+              <ReviewField label="District" value={inst.district || null} />
             </div>
 
             {/* ─── CONTACT DETAILS section ─── */}
@@ -341,14 +381,26 @@ const ActivateSection = () => {
             <div className="grid grid-cols-2 gap-2 max-md:flex max-md:flex-col max-md:gap-0">
               {/* Left */}
               <div className="flex flex-col gap-2 max-md:contents">
-                <ReviewField label="Full Name" value={null} className="max-md:order-1" />
-                <ReviewField label="Phone Number" value={null} className="max-md:order-3" />
+                <ReviewField
+                  label="Full Name"
+                  value={contact.fullName || null}
+                  className="max-md:order-1"
+                />
+                <ReviewField label="Phone Number" value={maskedPhone} className="max-md:order-3" />
                 <ReviewField label="Password" value="••••••••" className="max-md:order-5" />
               </div>
               {/* Right */}
               <div className="flex flex-col gap-2 max-md:contents">
-                <ReviewField label="Role / Title" value={null} className="max-md:order-2" />
-                <ReviewField label="Email Address" value={null} className="max-md:order-4" />
+                <ReviewField
+                  label="Role / Title"
+                  value={contact.roleTitle || null}
+                  className="max-md:order-2"
+                />
+                <ReviewField
+                  label="Email Address"
+                  value={contact.email || null}
+                  className="max-md:order-4"
+                />
               </div>
             </div>
           </div>
@@ -414,6 +466,7 @@ const ActivateSection = () => {
           </div>
 
           {/* ── CTA ── */}
+          <ApiErrorNote message={apiError} />
           <StickyActionBar bleed={16}>
             {allAgreed ? (
               <Button
@@ -422,9 +475,11 @@ const ActivateSection = () => {
                 size="lg"
                 rightIcon={<ArrowRightIcon />}
                 onClick={handleActivateClick}
+                disabled={isActivating}
+                aria-busy={isActivating}
                 className="w-full"
               >
-                Activate Institution Account
+                {isActivating ? 'Activating…' : 'Activate Institution Account'}
               </Button>
             ) : (
               <DisabledCTA />

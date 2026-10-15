@@ -1,11 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import Loader from '../../ui/Loader.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import {
+  getBulkState,
+  getBulkStatus,
+  clearBulkState,
+  describeRow,
+  downloadFailedRows,
+  downloadFullReport,
+} from '../../../services/institutionBulk.js';
 
 const log = debug('ReportSection');
 
@@ -50,94 +60,7 @@ const log = debug('ReportSection');
 // Mock data (replace with real API responses)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MOCK_LOADING = {
-  accountsToCreate: 821,
-  smsQueued: 198,
-  skipped: 26,
-};
-
-/** Verbatim Figma characters (3061:75343 log entries) */
-const LOG_ENTRIES = [
-  { dot: '#c8951a', text: 'Batch job started  847 valid rows queued' },
-  { dot: '#1d7c4d', text: 'Row 1–50: Accounts created ✓' },
-  { dot: '#1d7c4d', text: 'Row 51–100: Accounts created ✓' },
-  { dot: '#1d7c4d', text: 'Row 651–821: Accounts created ✓' },
-  { dot: '#c8951a', text: 'Final SMS batch dispatched 198 total' },
-];
-
-/** Verbatim Figma stat-card text (3065:7371 text nodes) */
-const MOCK_REPORT_STATS = [
-  {
-    value: 847,
-    valueColor: '#387440',
-    subLabel: 'Credentials sent to all 821',
-    subColor: '#2a5730',
-    label: 'Accounts To Create',
-    labelColor: '#2a5730',
-    outerFill: 'rgba(235,241,236,0.5)',
-  },
-  {
-    value: 26,
-    valueColor: '#387440',
-    subLabel: 'Download, fix & re-upload',
-    subColor: '#2a5730',
-    label: 'Failed rows',
-    labelColor: '#2a5730',
-    outerFill: '#f8f8f4',
-  },
-  {
-    value: 198,
-    valueColor: '#3062d4',
-    subLabel: 'Opt-out links dispatched within 24h',
-    subColor: '#244a9f',
-    label: 'Parent SMS sent',
-    labelColor: '#244a9f',
-    outerFill: 'rgba(234,239,251,0.5)',
-  },
-  {
-    value: 114,
-    valueColor: '#967014',
-    subLabel: 'Flagged for follow-up',
-    subColor: '#967014',
-    label: 'Minors — no parent',
-    labelColor: '#967014',
-    outerFill: '#faf4e8',
-  },
-];
-
-/** Verbatim Figma check card row data (3069:20561, 3065:8002–8049, 3069:20606, 3069:20631–20652) */
-const MOCK_CHECK_CARDS = [
-  {
-    id: 'created',
-    title: 'In-file duplicates  same name and date of birth',
-    badgeCount: 821,
-    badgeType: 'created', // dark badge
-    type: 'created',
-    rows: [
-      { row: 489, name: 'Kwabena Tawiah', col3: 'Minor', col4: 'SHS 3' },
-      { row: 301, name: 'Adwoa Kyei', col3: 'Adult', col4: 'Levl 300' },
-      { row: 198, name: 'Yaw Darko', col3: 'Minor', col4: 'SHS 2' },
-      { row: 67, name: 'Kofi Boateng', col3: 'Minor', col4: 'JHS 3' },
-      { row: 34, name: 'Abena Owusu', col3: 'Adult', col4: 'SHS 2' },
-      { row: 145, name: 'Adwoa Mensah', col3: 'Minor', col4: 'SHS 1' },
-    ],
-    footerText: 'Showing first 8 of 821 rows  download full report for complete list',
-    footerType: 'info',
-  },
-  {
-    id: 'failed',
-    title: 'Invalid phone format  not a valid Ghana number',
-    badgeCount: 4,
-    badgeType: 'failed', // red badge
-    type: 'failed',
-    rows: [
-      { row: 67, name: 'Kofi Boateng', col3: '–', col4: 'Email & phone missing' },
-      { row: 198, name: 'Yaw Darko', col3: '–', col4: 'Email & phone missing' },
-    ],
-    footerText: '+ 4 more rows in download file',
-    footerType: 'more',
-  },
-];
+// Live data comes from getBulkStatus() (services/institutionBulk.js).
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Hand-crafted SVG icons
@@ -472,9 +395,11 @@ const InfoBanner = () => (
 // DownloadButton — compact download action button
 // Figma: 3065:7371 Frame 386 (two buttons, h=40, r=10)
 // ─────────────────────────────────────────────────────────────────────────────
-const DownloadButton = ({ label, iconColor, borderColor }) => (
+const DownloadButton = ({ label, iconColor, borderColor, onClick, testId }) => (
   <button
     type="button"
+    onClick={onClick}
+    data-testid={testId}
     className="relative flex items-center gap-[8px] font-sans font-bold max-md:h-9! max-md:w-full max-md:justify-center max-md:text-[13px]! max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1 max-md:before:content-['']"
     style={{
       height: '40px',
@@ -698,46 +623,150 @@ const ReportTableFooter = ({ card }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const ReportSection = () => {
   const navigate = useNavigate();
+  const [saved] = useState(() => getBulkState());
+  const report = saved.report || null;
 
   /**
    * phase:
-   *   'loading'  — processing animation, disabled CTA
+   *   'loading'  — processing view while the backend creates accounts
    *   'complete' — full report view
    */
   const [phase, setPhase] = useState('loading');
-  const [visibleLogs, setVisibleLogs] = useState(1); // how many log entries to show
-  const [isReportReady, setIsReportReady] = useState(false); // enables "View Upload Report" btn
+  const [status, setStatus] = useState(null);
+  const [pollError, setPollError] = useState('');
   const [isDashboardLoading, setIsDashboardLoading] = useState(false); // dashboard btn loading state
+  const isReportReady = Boolean(status?.done); // enables "View Upload Report" btn
 
-  const logTimerRef = useRef(null);
+  log('mount', { phase, bulkOperationId: saved.bulkOperationId });
 
-  log('mount', { phase, visibleLogs, isReportReady });
-
-  // ── Log entry animation (loading phase only) ──────────────────────────────
+  // ── Poll the bulk operation until it finishes ───────────────────────────────
   useEffect(() => {
-    if (phase !== 'loading') return;
-
-    log('log animation starting');
-
-    let count = 1; // first entry already visible
-
-    logTimerRef.current = setInterval(() => {
-      count += 1;
-      log('log entry revealed', { count });
-      setVisibleLogs(count);
-
-      if (count >= LOG_ENTRIES.length) {
-        clearInterval(logTimerRef.current);
-        log('log animation complete — enabling report button');
-        // Small delay before enabling CTA so user can read the last entry
-        setTimeout(() => setIsReportReady(true), 700);
+    if (!saved.bulkOperationId) return undefined;
+    let stopped = false;
+    let timer;
+    const tick = async () => {
+      try {
+        const s = await getBulkStatus();
+        if (stopped) return;
+        setStatus(s);
+        setPollError('');
+        if (s.done) return;
+      } catch (err) {
+        if (stopped) return;
+        setPollError(getApiErrorMessage(err, 'Could not get the upload status. Retrying…'));
+        // Signed out, another institution's upload, or gone: retrying won't help.
+        if ([401, 403, 404].includes(err?.response?.status)) return;
       }
-    }, 900);
+      timer = setTimeout(tick, 2000);
+    };
+    tick();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [saved.bulkOperationId]);
 
-    return () => clearInterval(logTimerRef.current);
-  }, [phase]);
+  const total = status?.total ?? report?.validRows ?? 0;
+  const logs = [{ dot: '#c8951a', text: `Batch job started — ${total} valid rows queued` }];
+  if (status?.processed) {
+    logs.push({ dot: '#1d7c4d', text: `Rows processed: ${status.processed} of ${status.total}` });
+  }
+  if (status?.failed) {
+    logs.push({
+      dot: '#c0392b',
+      text: `${status.failed} row${status.failed > 1 ? 's' : ''} could not be created`,
+    });
+  }
+  if (status?.done) {
+    logs.push({ dot: '#1d7c4d', text: `Finished: ${status.successful} accounts created ✓` });
+  }
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Report view data ─────────────────────────────────────────────────────────
+  const created = status?.created ?? [];
+  const notCreated = [
+    ...(status?.rejected ?? []).map((r) => ({ ...describeRow(r), reason: r.reason })),
+    ...(saved.rows || [])
+      .filter((r) => r.problems?.length)
+      .map((r) => ({ ...describeRow(r), reason: r.problems.map((p) => p.reason).join('; ') })),
+  ];
+  const SHOW = 8;
+  const reportStats = [
+    {
+      value: status?.successful ?? 0,
+      valueColor: '#387440',
+      subLabel: 'Email invites sent',
+      subColor: '#2a5730',
+      label: 'Accounts Created',
+      labelColor: '#2a5730',
+      outerFill: 'rgba(235,241,236,0.5)',
+    },
+    {
+      value: notCreated.length,
+      valueColor: '#387440',
+      subLabel: 'Download, fix & re-upload',
+      subColor: '#2a5730',
+      label: 'Failed rows',
+      labelColor: '#2a5730',
+      outerFill: '#f8f8f4',
+    },
+    {
+      value: status?.parentNotices ?? 0,
+      valueColor: '#3062d4',
+      subLabel: 'Opt-out notices emailed',
+      subColor: '#244a9f',
+      label: 'Parents notified',
+      labelColor: '#244a9f',
+      outerFill: 'rgba(234,239,251,0.5)',
+    },
+    {
+      value: report?.minorsNoParent ?? 0,
+      valueColor: '#967014',
+      subLabel: 'Skipped: need a parent email',
+      subColor: '#967014',
+      label: 'Minors — no parent',
+      labelColor: '#967014',
+      outerFill: '#faf4e8',
+    },
+  ];
+  const checkCards = [
+    {
+      id: 'created',
+      title: 'Accounts created',
+      badgeCount: created.length,
+      badgeType: 'created',
+      type: 'created',
+      rows: created.slice(0, SHOW).map((r) => {
+        const d = describeRow(r);
+        return { row: d.row, name: d.name, col3: d.type, col4: d.level };
+      }),
+      footerText:
+        created.length > SHOW
+          ? `Showing first ${SHOW} of ${created.length} rows — download the full report for the complete list`
+          : `All ${created.length} rows shown`,
+      footerType: 'info',
+    },
+    ...(notCreated.length
+      ? [
+          {
+            id: 'failed',
+            title: 'Not created — fix and re-upload',
+            badgeCount: notCreated.length,
+            badgeType: 'failed',
+            type: 'failed',
+            rows: notCreated
+              .slice(0, SHOW)
+              .map((d) => ({ row: d.row, name: d.name, col3: d.dob, col4: d.reason })),
+            footerText:
+              notCreated.length > SHOW
+                ? `+ ${notCreated.length - SHOW} more rows in the download file`
+                : 'Download the failed rows to fix them',
+            footerType: 'more',
+          },
+        ]
+      : []),
+  ];
+
+  // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleViewReport = () => {
     log('view report clicked');
     setPhase('complete');
@@ -749,16 +778,21 @@ const ReportSection = () => {
   };
 
   const handleUploadAnother = () => {
-    log('upload another batch clicked — navigating to upload');
+    log('upload another batch clicked');
+    clearBulkState();
     navigate('/onboarding/institution/upload');
   };
 
   const handleDashboard = () => {
     if (isDashboardLoading) return;
-    log('go to institution dashboard clicked — simulating loading');
+    log('go to institution dashboard clicked');
     setIsDashboardLoading(true);
-    // Mock: in production this would navigate to /dashboard
+    // The institution dashboard is not built yet.
   };
+
+  if (!saved.bulkOperationId) {
+    return <Navigate to="/onboarding/institution/upload" replace />;
+  }
 
   // ── Shared header elements ─────────────────────────────────────────────────
   const isLoading = phase === 'loading';
@@ -796,7 +830,8 @@ const ReportSection = () => {
               </>
             ) : (
               <>
-                821 students are <span className="italic text-brand-green">live</span>
+                {status?.successful ?? 0} students are{' '}
+                <span className="italic text-brand-green">live</span>
               </>
             )}
           </h1>
@@ -833,21 +868,21 @@ const ReportSection = () => {
             {/* 3 loading stat cards — gap=28 */}
             <div className="flex gap-[28px] w-full max-md:grid max-md:grid-cols-3 max-md:gap-2">
               <LoadingStatCard
-                value={MOCK_LOADING.accountsToCreate}
+                value={total}
                 valueColor="#387440"
                 label="Accounts To Create"
                 labelColor="#2a5730"
                 outerFill="rgba(235,241,236,0.5)"
               />
               <LoadingStatCard
-                value={MOCK_LOADING.smsQueued}
+                value={report?.parentNotices ?? 0}
                 valueColor="#a07715"
-                label="SMS Queued"
+                label="Parent Notices"
                 labelColor="#a07715"
                 outerFill="#faf4e8"
               />
               <LoadingStatCard
-                value={MOCK_LOADING.skipped}
+                value={report?.failedRows ?? 0}
                 valueColor="#575755"
                 label="Skipped"
                 labelColor="#111111"
@@ -857,7 +892,8 @@ const ReportSection = () => {
 
             {/* Processing log + info banner — gap=16 */}
             <div className="flex flex-col gap-[16px] w-full max-md:gap-3">
-              <ProcessingLog entries={LOG_ENTRIES.slice(0, visibleLogs)} />
+              <ProcessingLog entries={logs} />
+              <ApiErrorNote message={pollError} className="max-w-none" />
               <InfoBanner />
             </div>
           </>
@@ -868,7 +904,7 @@ const ReportSection = () => {
           <>
             {/* 4 report stat cards — 194×98 each, gap=35 */}
             <div className="flex gap-[35px] justify-center w-full flex-wrap max-md:grid max-md:grid-cols-2 max-md:gap-2">
-              {MOCK_REPORT_STATS.map((stat) => (
+              {reportStats.map((stat) => (
                 <ReportStatCard key={stat.label} {...stat} />
               ))}
             </div>
@@ -878,19 +914,23 @@ const ReportSection = () => {
               {/* Download button row */}
               <div className="flex gap-[10px] max-md:flex-col max-md:gap-2">
                 <DownloadButton
-                  label="Download 26 failed rows"
+                  label={`Download ${notCreated.length} failed rows`}
+                  onClick={() => downloadFailedRows(status?.rejected ?? [])}
+                  testId="download-failed"
                   iconColor="#c0392b"
                   borderColor="#f9ebea"
                 />
                 <DownloadButton
                   label="Download full report"
+                  onClick={() => downloadFullReport(status)}
+                  testId="download-report"
                   iconColor="#387440"
                   borderColor="#ebf1ec"
                 />
               </div>
 
               {/* Expandable check cards */}
-              {MOCK_CHECK_CARDS.map((card) => (
+              {checkCards.map((card) => (
                 <ReportCheckCard key={card.id} card={card} />
               ))}
             </div>

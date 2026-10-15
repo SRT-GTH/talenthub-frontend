@@ -1,4 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import { getBulkState, submitBulkUpload } from '../../../services/institutionBulk.js';
 import Captions from '../../ui/Captions.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
@@ -47,12 +51,6 @@ const log = debug('ConfirmSection');
  */
 
 // ── Mock data (replace with API response) ────────────────────────────────────
-const MOCK = {
-  validRows: 847,
-  failedRows: 26,
-  smsCount: 198, // minors with parent contact (312 - 114 no-contact)
-  minorsNoContact: 114,
-};
 
 // ── Warning exclamation icon ──────────────────────────────────────────────────
 /*
@@ -162,7 +160,16 @@ const ChecklistItem = ({ number, text }) => (
 const ConfirmSection = () => {
   const navigate = useNavigate();
 
-  const { validRows, failedRows, smsCount, minorsNoContact } = MOCK;
+  const [report] = useState(() => getBulkState().report || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
+  // smsCount: minors whose parent gets the opt-out notice (sent by email).
+  const {
+    validRows = 0,
+    failedRows = 0,
+    parentNotices: smsCount = 0,
+    minorsNoParent: minorsNoContact = 0,
+  } = report || {};
 
   log('mount', { validRows, failedRows, smsCount, minorsNoContact });
 
@@ -171,10 +178,23 @@ const ConfirmSection = () => {
     navigate('/onboarding/institution/validate');
   };
 
-  const handleSubmit = () => {
-    log('submit → /onboarding/institution/report', { validRows });
-    navigate('/onboarding/institution/report');
+  const handleSubmit = async () => {
+    if (isSubmitting || !validRows) return;
+    log('submit', { validRows });
+    setApiError('');
+    setIsSubmitting(true);
+    try {
+      await submitBulkUpload();
+      navigate('/onboarding/institution/report');
+    } catch (err) {
+      setApiError(getApiErrorMessage(err, 'The upload was not accepted. Please try again.'));
+      setIsSubmitting(false);
+    }
   };
+
+  if (!report) {
+    return <Navigate to="/onboarding/institution/upload" replace />;
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center py-[88px] px-6 max-md:px-4 max-md:py-4">
@@ -260,8 +280,8 @@ const ConfirmSection = () => {
                 outer fill: #eaeffb @50%  value: #3062d3  sub: #244a9f  label: #244a9f */}
             <ConfirmStatCard
               value={smsCount}
-              subLabel="All valid rows from upload"
-              label="Opt-Out SMS Will Be Sent"
+              subLabel="Emailed to parents of minors"
+              label="Opt-Out Notices Will Be Sent"
               outerFill="rgba(234,239,251,0.5)"
               valueColor="#3062d3"
               subLabelColor="#244a9f"
@@ -272,7 +292,7 @@ const ConfirmSection = () => {
                 outer fill: #faf4e8  value: #967014  sub: #967014  label: #967014 */}
             <ConfirmStatCard
               value={minorsNoContact}
-              subLabel="All valid rows from upload"
+              subLabel="Skipped until a parent email is added"
               label="Minors No Parent Contact"
               outerFill="#faf4e8"
               valueColor="#967014"
@@ -308,17 +328,14 @@ const ConfirmSection = () => {
 
               {/* 4 action items — Figma HorizontalBorder rows (875×42 within 890) */}
               <div role="list">
-                <ChecklistItem
-                  number={1}
-                  text={`${validRows} student accounts are created immediately with temporary passwords`}
-                />
+                <ChecklistItem number={1} text={`${validRows} student accounts are created`} />
                 <ChecklistItem
                   number={2}
-                  text="Login credentials are sent to each student's email or phone"
+                  text="Each student gets an email invite to set a password and sign in"
                 />
                 <ChecklistItem
                   number={3}
-                  text={`${smsCount} opt-out SMS notifications dispatched to parents within 24 hours`}
+                  text={`${smsCount} parents of minors are emailed an opt-out notice`}
                 />
                 <ChecklistItem
                   number={4}
@@ -389,20 +406,24 @@ const ConfirmSection = () => {
           {/* Submit And Create N Accounts — Figma 3040:72011 "Frame 9 instance"
                734×56 (flex-1), fill=#387440, stroke=#2a5730@2px, r=14
                Text: "Submit And Create N Accounts" (white) + right arrow */}
+          <ApiErrorNote message={apiError} className="max-md:order-first" />
           <StickyActionBar bleed={16}>
             <button
               type="button"
               onClick={handleSubmit}
+              disabled={isSubmitting || !validRows}
+              data-testid="submit-bulk"
               className={[
                 'flex flex-1 items-center justify-center gap-[8px] max-md:w-full max-md:flex-none',
                 'h-[56px]',
                 'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
                 'font-sans font-bold text-[16px] leading-6 text-white',
                 'transition-opacity duration-100 hover:opacity-90',
+                'disabled:cursor-not-allowed disabled:opacity-50',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
               ].join(' ')}
             >
-              Submit And Create {validRows} Accounts
+              {isSubmitting ? 'Creating accounts…' : `Submit And Create ${validRows} Accounts`}
               <ArrowRightIcon />
             </button>
           </StickyActionBar>

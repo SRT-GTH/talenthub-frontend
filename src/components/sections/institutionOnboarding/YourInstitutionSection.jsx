@@ -19,6 +19,7 @@ import {
 import IdentityCapturedModal from './IdentityCapturedModal.jsx';
 import { GHANA_REGIONS, DISTRICTS_BY_REGION } from '../../../constants/ghanaDistricts.js';
 import { debug } from '../../../utils/debug.js';
+import { getInstitutionDraft, saveInstitutionDraft } from '../../../services/institution.api.js';
 
 const log = debug('YourInstitutionSection');
 
@@ -89,12 +90,14 @@ const YourInstitutionSection = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
+    // Pre-fill from the draft when the user comes back to edit.
     defaultValues: {
       legalName: '',
       tradingName: '',
       institutionType: '',
       region: '',
       district: '',
+      ...(getInstitutionDraft().institution || {}),
     },
     mode: 'onTouched' /* validate after first blur, then on every change */,
   });
@@ -123,8 +126,8 @@ const YourInstitutionSection = () => {
       region: data.region,
       district: data.district,
     });
-    // Future: POST /api/institution/identity
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    // Kept in the draft until the account is created on the Activate step.
+    saveInstitutionDraft({ institution: data });
     log('submit success — opening IdentityCapturedModal');
     setSubmittedData(data);
     setShowModal(true);
