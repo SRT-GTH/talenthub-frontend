@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
-import { captureStep } from '../../services/onboarding.api.js';
+import { captureStep, uploadOnboardingPhoto } from '../../services/onboarding.api.js';
 import { mapGender, mapNationality } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
@@ -132,7 +132,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
         id="onboarding-profile-photo"
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg"
+        accept="image/png,image/jpeg,image/webp"
         className="sr-only"
         onChange={handleChange}
       />
@@ -326,6 +326,8 @@ const OnboardingPersonalInfoPage = () => {
     setApiError('');
     setIsSubmitting(true);
     try {
+      // Upload first so the identity step carries the hosted photo URL.
+      const photoUrl = profilePhoto ? await uploadOnboardingPhoto(profilePhoto) : null;
       await captureStep('identity', {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -333,10 +335,10 @@ const OnboardingPersonalInfoPage = () => {
         ...(mapGender(gender) ? { gender: mapGender(gender) } : {}),
         ...(nationality ? { nationality: mapNationality(nationality) } : {}),
         ...(ghanaCardId.trim() ? { ghanaCardNumber: ghanaCardId.trim() } : {}),
+        ...(photoUrl ? { profilePhoto: photoUrl } : {}),
         password,
       });
-      // Profile photo is not sent yet: no upload endpoint is wired (plan M9).
-      log('identity captured');
+      log('identity captured; photo uploaded:', Boolean(photoUrl));
       setShowSuccess(true);
     } catch (err) {
       setApiError(getApiErrorMessage(err));

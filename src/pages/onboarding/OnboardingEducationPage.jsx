@@ -535,7 +535,8 @@ const OnboardingEducationPage = () => {
     captureStep('education', {
       educationLevel: mapEducationLevel(level),
       ...(grade ? { educationGrade: grade } : {}),
-      // Institution and expected graduation have no backend field yet (plan B4).
+      ...(institution.trim() ? { educationInstitution: institution.trim() } : {}),
+      ...(graduation ? { expectedGraduationYear: graduation } : {}),
     })
       .then(() => setShowSuccess(true))
       .catch((err) => setApiError(getApiErrorMessage(err)))

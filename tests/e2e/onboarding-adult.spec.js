@@ -52,6 +52,10 @@ test('adult signs up end-to-end and activates', async ({ page }) => {
     grade: 'Year 3',
     institution: 'Central University',
   });
+  // Review shows the captured data from the backend summary (not mock data).
+  await page.waitForURL('**/onboarding/talent/review');
+  await expect(page.getByText('Central University').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText('Kwame').first()).toBeVisible();
   const activated = page.waitForResponse((r) => r.url().includes('/onboarding/activate'), {
     timeout: 120_000,
   });
