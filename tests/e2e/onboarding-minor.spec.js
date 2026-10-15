@@ -15,6 +15,7 @@ import {
   fillEducation,
   fillParent,
   acceptConsentsAndActivate,
+  expectProgress,
 } from './helpers/onboarding.js';
 
 test.use({
@@ -32,6 +33,7 @@ test('minor signs up with parent details and activates', async ({ page }) => {
   const id = uniqueSuffix();
 
   await fillDob(page, '10-05-2010');
+  await expectProgress(page, 25);
   await fillPersonal(page, {
     firstName: 'Akosua',
     lastName: `Minor${id.slice(-5)}`,
@@ -39,13 +41,17 @@ test('minor signs up with parent details and activates', async ({ page }) => {
     ghanaCard: `8${id.slice(-8)}2`,
     password: 'Test@12345!',
   });
+  await expectProgress(page, 38);
   await fillContact(page, { phone: uniquePhone('54'), email: `e2e.minor.${id}@example.com` });
+  await expectProgress(page, 50);
   await fillAddress(page);
+  await expectProgress(page, 63);
   await fillEducation(page, {
     level: 'Senior High School (SHS)',
     grade: 'SHS 3',
     institution: 'Accra Academy',
   });
+  await expectProgress(page, 75);
   await fillParent(page, {
     name: 'Ama Mensah',
     relationship: 'Mother',
@@ -55,6 +61,7 @@ test('minor signs up with parent details and activates', async ({ page }) => {
   const activated = page.waitForResponse((r) => r.url().includes('/onboarding/activate'), {
     timeout: 120_000,
   });
+  await expectProgress(page, 88);
   await acceptConsentsAndActivate(page);
   const res = await activated;
   expect(res.status(), await res.text()).toBeLessThan(300);

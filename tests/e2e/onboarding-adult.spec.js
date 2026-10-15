@@ -15,6 +15,7 @@ import {
   fillAddress,
   fillEducation,
   acceptConsentsAndActivate,
+  expectProgress,
 } from './helpers/onboarding.js';
 
 test.use({
@@ -32,6 +33,7 @@ test('adult signs up end-to-end and activates', async ({ page }) => {
   const id = uniqueSuffix();
 
   await fillDob(page, '10-05-2004');
+  await expectProgress(page, 29);
   await fillPersonal(page, {
     firstName: 'Kwame',
     middleName: 'E2E',
@@ -40,8 +42,11 @@ test('adult signs up end-to-end and activates', async ({ page }) => {
     ghanaCard: `7${id.slice(-8)}1`,
     password: 'Test@12345!',
   });
+  await expectProgress(page, 43);
   await fillContact(page, { phone: uniquePhone('24'), email: `e2e.adult.${id}@example.com` });
+  await expectProgress(page, 57);
   await fillAddress(page);
+  await expectProgress(page, 71);
   await fillEducation(page, {
     level: 'University (Degree)',
     grade: 'Year 3',
@@ -50,6 +55,7 @@ test('adult signs up end-to-end and activates', async ({ page }) => {
   const activated = page.waitForResponse((r) => r.url().includes('/onboarding/activate'), {
     timeout: 120_000,
   });
+  await expectProgress(page, 86);
   await acceptConsentsAndActivate(page);
   const res = await activated;
   expect(res.status(), await res.text()).toBeLessThan(300);

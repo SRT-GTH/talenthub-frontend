@@ -169,3 +169,12 @@ export const acceptConsentsAndActivate = async (page) => {
   await expect(activate).toBeEnabled();
   await activate.click();
 };
+
+/** The header meter shows the computed percent for the current step. */
+export const expectProgress = async (page, percent) => {
+  // The phone-size meter carries the aria value; it's display:none on desktop,
+  // so match it by attribute (role queries skip hidden elements).
+  await expect(
+    page.locator('[role="progressbar"][aria-label="Onboarding completion"]')
+  ).toHaveAttribute('aria-valuenow', String(percent));
+};
