@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
@@ -6,7 +6,9 @@ import {
   captureStep,
   activateOnboarding,
   clearOnboardingSession,
+  getOnboardingStatus,
 } from '../../services/onboarding.api.js';
+import { buildReviewProfile } from '../../services/onboardingReview.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import Button from '../../components/ui/Button.jsx';
 import ClampText from '../../components/ui/ClampText.jsx';
@@ -64,48 +66,9 @@ const log = debug('OnboardingReviewPage');
 // Until the talent profile store is wired up, render the same values
 // shown in the Figma frames so the page reads truthfully against the
 // design. Pull these from Redux once the onboarding slice lands.
-const MOCK_PROFILE = {
-  name: 'Abena Mensah',
-  role: 'Student',
-  avatarUrl: null,
-  score: 78,
-  tier: 'Gold Tier',
-  personal: {
-    firstName: 'Abena',
-    middleName: '—',
-    lastName: 'Mensah',
-    dob: '12 March 2003',
-    gender: 'Female',
-    nationality: 'ðŸ‡¬ðŸ‡­ Ghanaian',
-  },
-  identity: {
-    ghanaCardMasked: 'GHA-●●●●●●●●●-●',
-    photoConfirmed: true,
-  },
-  contact: {
-    phoneMasked: '+233 20 ••• ••• ••2',
-    phoneVerified: true,
-    whatsapp: 'Same as phone',
-    email: 'a.mensah@gmail.com',
-    preferred: 'Phone & WhatsApp',
-  },
-  address: {
-    region: 'Ashanti Region',
-    district: 'Kumasi Metropolitan',
-    town: 'Kumasi',
-    digital: 'AK-039-4718',
-    community: 'Adum',
-    landmark: 'Opp. Kejetia Market',
-  },
-  education: {
-    level: 'University (Degree)',
-    grade: 'Year 2',
-    curriculum: 'National Accreditation Board',
-    graduation: 'Class of 2028',
-    institution: 'KNUST — Kwame Nkrumah University of Science and Technology',
-    confirmed: true,
-  },
-};
+// Profile data comes from the backend session summary (see onboardingReview.js).
+// Shown while it loads:
+const LOADING_PROFILE = buildReviewProfile(null);
 
 // ---- small atoms ------------------------------------------------------
 
@@ -359,7 +322,7 @@ const IdentitySection = ({ data }) => (
           {data.ghanaCardMasked}
         </span>
       </div>
-      <VerifiedBadge label="Verified" className="max-sm:ml-11" />
+      {data.ghanaCardVerified && <VerifiedBadge label="Verified" className="max-sm:ml-11" />}
     </div>
 
     {/* Row B — Profile photo confirmed */}
@@ -390,7 +353,7 @@ const IdentitySection = ({ data }) => (
               strokeLinejoin="round"
             />
           </svg>
-          Uploaded & confirmed
+          {data.photoUploaded ? 'Uploaded' : 'Not added'}
         </span>
       </div>
     </div>
@@ -454,9 +417,7 @@ const EducationSection = ({ data }) => (
     <SectionHeader
       icon={<MortarboardIcon />}
       title="Education"
-      // Education step not yet built — fall back to the address step
-      // (last completed page) so the Edit chip never 404s.
-      editTo={'/onboarding/talent/address'}
+      editTo={'/onboarding/talent/education'}
     />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Education level" value={data.level} />
@@ -663,6 +624,8 @@ const OnboardingReviewPage = () => {
   const [apiError, setApiError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
   const { isMinor } = useOnboarding();
+  const [profile, setProfile] = useState(LOADING_PROFILE);
+  const [loadError, setLoadError] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [consentAccepted, setConsentAccepted] = useState(false);
@@ -670,6 +633,24 @@ const OnboardingReviewPage = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getOnboardingStatus()
+      .then((res) => {
+        if (cancelled) return;
+        log('summary loaded; sections:', Object.keys(res?.summary || {}));
+        setProfile(buildReviewProfile(res?.summary));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        log.error('summary load failed:', err?.response?.status);
+        setLoadError(getApiErrorMessage(err));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const allAccepted = useMemo(
     () => termsAccepted && privacyAccepted && consentAccepted,
@@ -817,16 +798,19 @@ const OnboardingReviewPage = () => {
               border: '1px solid rgba(0,0,0,0.04)',
             }}
           >
+            <ApiErrorNote message={loadError} className="mx-6 mt-4" />
             <CardHeaderStrip
-              profile={MOCK_PROFILE}
+              profile={profile}
               onEditProfile={() => navigate('/onboarding/talent/personal-info')}
             />
-            <TalentScoreStrip score={MOCK_PROFILE.score} tier={MOCK_PROFILE.tier} />
-            <PersonalSection data={MOCK_PROFILE.personal} />
-            <IdentitySection data={MOCK_PROFILE.identity} />
-            <ContactSection data={MOCK_PROFILE.contact} />
-            <AddressSection data={MOCK_PROFILE.address} />
-            <EducationSection data={MOCK_PROFILE.education} />
+            {profile.score != null && (
+              <TalentScoreStrip score={profile.score} tier={profile.tier} />
+            )}
+            <PersonalSection data={profile.personal} />
+            <IdentitySection data={profile.identity} />
+            <ContactSection data={profile.contact} />
+            <AddressSection data={profile.address} />
+            <EducationSection data={profile.education} />
           </div>
 
           {/* Consent block */}
