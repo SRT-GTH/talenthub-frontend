@@ -5,6 +5,7 @@ import WavyDivider from '../../shared/WavyDivider.jsx';
 import Captions from '../../ui/Captions.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { TEMPLATE_FILENAME, downloadTemplate } from '../../../services/institutionBulk.js';
 
 const log = debug('TemplateGuideSection');
 
@@ -12,7 +13,7 @@ const log = debug('TemplateGuideSection');
  * TemplateGuideSection — Phase 4 / Bulk Upload — column reference guide.
  * Figma frame: 3007:39760 ("Template guide(CSV)")
  *
- * Explains the structure of GTH_Bulk_Upload_Template.csv so institution
+ * Explains the structure of {TEMPLATE_FILENAME} so institution
  * admins know what fields to fill before proceeding to the editable
  * spreadsheet.
  *
@@ -33,7 +34,7 @@ const log = debug('TemplateGuideSection');
  *   3007:40572   "Required column" legend label
  *   3007:40574   optional column dot swatch in legend
  *   3007:40575   "Optional column" legend label
- *   3007:40577   guide header bar ("GTH_Bulk_Upload_Template.csv" + "Fixed format")
+ *   3007:40577   guide header bar ("{TEMPLATE_FILENAME}" + "Fixed format")
  *   3007:40584   Student identity section (top-left)
  *   3007:40585   "Student identity" section header
  *   3007:40587   "First Name"
@@ -132,7 +133,7 @@ const TemplateGuideSection = () => {
   const handleDownload = (e) => {
     e.preventDefault();
     log('download template CSV clicked');
-    /* TODO: wire to actual file download once asset is available */
+    downloadTemplate();
   };
 
   return (
@@ -223,9 +224,9 @@ const TemplateGuideSection = () => {
               />
             </svg>
 
-            {/* 3007:40581 — "GTH_Bulk_Upload_Template.csv" */}
+            {/* 3007:40581 — "{TEMPLATE_FILENAME}" */}
             <span className="font-sans text-[12px] font-semibold leading-[24px] text-white">
-              GTH_Bulk_Upload_Template.csv
+              {TEMPLATE_FILENAME}
             </span>
 
             {/* 3007:40582 "Overlay" — "Fixed format" badge */}
@@ -247,11 +248,10 @@ const TemplateGuideSection = () => {
                 {/* 3007:40589 Last Name — required */}
                 <FieldRow required label="Last Name" />
                 {/* 3007:40591 Middle Name — optional */}
-                <FieldRow required={false} label="Middle Name" />
                 {/* 3007:40593 Date of Birth + 3007:40594 DD/MM/YYYY */}
                 <FieldRow required label="Date of Birth" hint="DD/MM/YYYY" />
                 {/* 3007:40596 Gender + 3007:40597 Male / Female */}
-                <FieldRow required label="Gender" hint="Male / Female" />
+                <FieldRow required={false} label="Gender" hint="Male / Female" />
               </div>
             </div>
 
@@ -259,12 +259,12 @@ const TemplateGuideSection = () => {
             {/* ── Contact (at least one) (3007:40599) ── */}
             <div className="border-b border-[#c1d4c4] p-4 max-md:px-0 max-md:py-3">
               {/* 3007:40599 */}
-              <QuadrantHeader>Contact (at least one)</QuadrantHeader>
+              <QuadrantHeader>Contact</QuadrantHeader>
               <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40601 Email Address — required (at least one) */}
-                <FieldRow required label="Email Address" />
+                <FieldRow required label="Email" hint="Invite is sent here" />
                 {/* 3007:40603 Phone Number + 3007:40604 +233… — required (at least one) */}
-                <FieldRow required label="Phone Number" hint="+233…" />
+                <FieldRow required label="Phone" hint="0241234567 or +233…" />
               </div>
             </div>
 
@@ -275,9 +275,9 @@ const TemplateGuideSection = () => {
               <QuadrantHeader>Education</QuadrantHeader>
               <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40608 Level + 3007:40609 JHS / SHS / University */}
-                <FieldRow required label="Level" hint="JHS / SHS / University" />
+                <FieldRow required={false} label="Level" hint="JHS / SHS / University" />
                 {/* 3007:40611 Grade + 3007:40612 JHS1, SHS2, Level 100… */}
-                <FieldRow required label="Grade" hint="JHS1, SHS2, Level 100…" />
+                <FieldRow required={false} label="Grade" hint="JHS1, SHS2, Level 100…" />
               </div>
             </div>
 
@@ -288,27 +288,27 @@ const TemplateGuideSection = () => {
               <QuadrantHeader>Parent / Guardian (minors only)</QuadrantHeader>
               <div className="flex flex-col gap-[10px] max-md:gap-0.5">
                 {/* 3007:40616 Guardian First Name — optional */}
-                <FieldRow required={false} label="Guardian First Name" />
+                <FieldRow required={false} label="Parent Name" />
                 {/* 3007:40618 Guardian Last Name — optional */}
-                <FieldRow required={false} label="Guardian Last Name" />
+                <FieldRow required={false} label="Parent Email" hint="Required if under 18" />
                 {/* 3007:40620 Guardian Email or Phone — optional */}
-                <FieldRow required={false} label="Guardian Email or Phone" />
+                <FieldRow required={false} label="Parent Phone" />
                 {/* 3010:40802 Relationship frame: 3007:40622 "Relationship" + 3007:40623 "Mother / Father…" */}
-                <FieldRow required={false} label="Relationship" hint="Mother / Father…" />
+                <FieldRow required={false} label="Student ID" hint="Your own reference" />
               </div>
             </div>
           </div>
         </div>
 
         {/* ── Download button — Figma 3010:40810 (secondary, h=44) ──
-             ⚠️ ASSUMPTION: button text "Download GTH_Bulk_Upload_Template.csv".
+             ⚠️ ASSUMPTION: button text "Download {TEMPLATE_FILENAME}".
              Figma instance text could not be verified (MCP rate-limited). ── */}
         <a
           href="#"
           onClick={handleDownload}
           className="flex w-full items-center justify-center gap-2 rounded-[8px] border-b border-[#387440] px-[34px] py-4 max-md:h-10 max-md:px-4 max-md:py-0 text-[#387440] transition-opacity duration-100 hover:opacity-80"
           style={{ boxShadow: '0px 2px 0px 0px rgba(17,17,17,0.2)' }}
-          aria-label="Download GTH_Bulk_Upload_Template.csv"
+          aria-label={`Download ${TEMPLATE_FILENAME}`}
         >
           <DownloadIcon />
           <span className="font-sans font-semibold text-[12px] max-md:text-[13px] tracking-[0.1px] leading-[24px]">

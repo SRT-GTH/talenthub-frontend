@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import ValidationCheckCard from './ValidationCheckCard.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { getBulkState, downloadFailedRows } from '../../../services/institutionBulk.js';
 
 const log = debug('ValidateSection');
 
@@ -50,107 +51,16 @@ const log = debug('ValidateSection');
  */
 
 // ── Mock validation data (replace with API response) ─────────────────────────
-const MOCK = {
-  validRows: 847,
-  failedRows: 26,
-  minors: 312,
-  adults: 532,
-  // Breakdown used by the "failed rows" tab stat cards
-  missingContact: 14,
-  duplicates: 8,
-  formatErrors: 4,
-  checks: [
-    {
-      variant: 'passed',
-      title: 'Template format',
-      description: 'All required columns present in correct order',
-      rows: [],
-    },
-    {
-      variant: 'passed',
-      title: 'Date of birth format',
-      description: 'All dates in DD/MM/YYYY  847 valid',
-      rows: [],
-    },
-    {
-      variant: 'passed',
-      title: 'Platform duplicates',
-      description: 'No existing accounts matched by email or phone',
-      rows: [],
-    },
-    {
-      variant: 'failed',
-      title: 'Missing required fields  14 rows',
-      description:
-        'Rows 34, 67, 89, 112, 145, 198, 234, 267, 301, 344, 378, 412, 456, 489  email and phone both missing',
-      howToFix:
-        'Open your spreadsheet and add a valid email address or phone number for each flagged row.',
-      rows: [
-        { row: '34', name: 'Abena Owusu', dob: '12/03/2009', reason: 'No email or phone' },
-        { row: '67', name: 'Kwame Yeboah', dob: '15/07/2008', reason: 'No email or phone' },
-        { row: '89', name: 'Adwoa Mensah', dob: '22/02/2009', reason: 'No email or phone' },
-        { row: '112', name: 'Kofi Asante', dob: '03/11/2007', reason: 'No email or phone' },
-        { row: '145', name: 'Akosua Frimpong', dob: '18/05/2010', reason: 'No email or phone' },
-        { row: '198', name: 'Ama Boateng', dob: '07/09/2008', reason: 'No email or phone' },
-        { row: '234', name: 'Yaw Darko', dob: '14/01/2009', reason: 'No email or phone' },
-        { row: '267', name: 'Efua Mensah', dob: '28/06/2010', reason: 'No email or phone' },
-        { row: '301', name: 'Kojo Osei', dob: '05/12/2007', reason: 'No email or phone' },
-        { row: '344', name: 'Abena Asare', dob: '19/04/2008', reason: 'No email or phone' },
-        { row: '378', name: 'Fiifi Agyeman', dob: '30/08/2009', reason: 'No email or phone' },
-        { row: '412', name: 'Adwoa Kyei', dob: '11/02/2010', reason: 'No email or phone' },
-        { row: '456', name: 'Kwesi Baah', dob: '24/07/2007', reason: 'No email or phone' },
-        { row: '489', name: 'Kwabena Tawiah', dob: '08/04/2006', reason: 'No email or phone' },
-      ],
-    },
-    {
-      variant: 'failed',
-      title: 'In-file duplicates  8 rows',
-      description: '4 pairs with identical name + DOB. First occurrence kept, duplicate flagged',
-      howToFix:
-        'Remove or correct the duplicate entries. Each person should appear only once in the file.',
-      rows: [
-        { row: '78', name: 'Esi Amponsah', dob: '04/05/2008', reason: 'Duplicate of row 23' },
-        { row: '134', name: 'Nana Akoto', dob: '17/09/2007', reason: 'Duplicate of row 55' },
-        { row: '211', name: 'Mawuli Agbeko', dob: '22/03/2009', reason: 'Duplicate of row 102' },
-        { row: '289', name: 'Akua Sarpong', dob: '09/11/2008', reason: 'Duplicate of row 176' },
-        { row: '356', name: 'Esi Amponsah', dob: '04/05/2008', reason: 'Duplicate of row 23' },
-        { row: '423', name: 'Nana Akoto', dob: '17/09/2007', reason: 'Duplicate of row 55' },
-        { row: '510', name: 'Mawuli Agbeko', dob: '22/03/2009', reason: 'Duplicate of row 102' },
-        { row: '587', name: 'Akua Sarpong', dob: '09/11/2008', reason: 'Duplicate of row 176' },
-      ],
-    },
-    {
-      variant: 'warning',
-      title: 'Minors without parent contact 114 rows',
-      description: 'Accounts created, but no opt-out notification can be sent. Flag for follow-up.',
-      howToFix:
-        'Add a parent or guardian email or phone number in the Parent_Contact column for under-18 rows.',
-      rows: [
-        { row: '12', name: 'Kofi Acheampong', dob: '14/06/2010', reason: 'No parent contact' },
-        { row: '19', name: 'Akosua Tetteh', dob: '03/02/2011', reason: 'No parent contact' },
-        { row: '27', name: 'Kwame Amoah', dob: '21/09/2010', reason: 'No parent contact' },
-        { row: '41', name: 'Ama Ofori', dob: '08/11/2011', reason: 'No parent contact' },
-        { row: '53', name: 'Yaw Quansah', dob: '17/04/2012', reason: 'No parent contact' },
-        { row: '60', name: 'Abena Nkrumah', dob: '29/07/2010', reason: 'No parent contact' },
-        { row: '74', name: 'Kojo Adjei', dob: '05/01/2011', reason: 'No parent contact' },
-        { row: '88', name: 'Efua Owusu', dob: '13/05/2012', reason: 'No parent contact' },
-        { row: '95', name: 'Fiifi Asante', dob: '24/08/2010', reason: 'No parent contact' },
-        { row: '101', name: 'Esi Mensah', dob: '07/03/2011', reason: 'No parent contact' },
-      ],
-    },
-    {
-      variant: 'failed',
-      title: 'Invalid phone format 4 rows',
-      description: 'Rows 502, 611, 734, 798  phone numbers not in +233 format',
-      howToFix: 'Phone numbers must start with +233 followed by 9 digits, e.g. +233201234567.',
-      rows: [
-        { row: '502', name: 'Nana Adu', dob: '16/03/2008', reason: 'Invalid: 0501234567' },
-        { row: '611', name: 'Kosi Agyekum', dob: '25/10/2009', reason: 'Invalid: 244987654' },
-        { row: '734', name: 'Abena Darko', dob: '12/07/2007', reason: 'Invalid: +1234567890' },
-        { row: '798', name: 'Kwaku Boateng', dob: '03/09/2010', reason: 'Invalid: 07712345678' },
-      ],
-    },
-  ],
+// Filled in by validateUpload() on the upload step (services/institutionBulk.js).
+const EMPTY_REPORT = {
+  validRows: 0,
+  failedRows: 0,
+  minors: 0,
+  adults: 0,
+  missingContact: 0,
+  duplicates: 0,
+  formatErrors: 0,
+  checks: [],
 };
 
 // ── Download banner icons ─────────────────────────────────────────────────────
@@ -260,7 +170,11 @@ const DownloadBanner = ({ failedRows }) => {
           lineHeight: '14.32px',
           whiteSpace: 'nowrap',
         }}
-        onClick={() => log('download csv clicked')}
+        onClick={() => {
+          log('download csv clicked');
+          downloadFailedRows();
+        }}
+        data-testid="download-failed-rows"
       >
         <DownloadIconWhite />
         Download .csv
@@ -341,6 +255,7 @@ const TabButton = ({ active, onClick, children }) => (
 const ValidateSection = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('checks');
+  const [report] = useState(() => getBulkState().report || null);
 
   const {
     validRows,
@@ -351,7 +266,7 @@ const ValidateSection = () => {
     duplicates,
     formatErrors,
     checks,
-  } = MOCK;
+  } = report || EMPTY_REPORT;
 
   // Derive failed+warning cards for the second tab
   const failedChecks = checks.filter((c) => c.variant === 'failed' || c.variant === 'warning');
@@ -386,7 +301,7 @@ const ValidateSection = () => {
           },
           {
             value: missingContact,
-            label: 'Missing Contact',
+            label: 'Missing Fields',
             valueColor: '#c0392b',
             labelColor: '#c0392b',
           },
@@ -409,6 +324,10 @@ const ValidateSection = () => {
   // Which check cards to display
   const visibleChecks = activeTab === 'checks' ? checks : failedChecks;
   log('visibleChecks', { count: visibleChecks.length, tab: activeTab });
+
+  if (!report) {
+    return <Navigate to="/onboarding/institution/upload" replace />;
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center py-[88px] px-6 max-md:px-4 max-md:py-4">
@@ -437,7 +356,11 @@ const ValidateSection = () => {
               }}
             >
               File scanned{' '}
-              <span className="italic text-brand-green">{failedRows} issues found.</span>
+              <span className="italic text-brand-green">
+                {failedRows
+                  ? `${failedRows} row${failedRows > 1 ? 's' : ''} with issues.`
+                  : 'No issues found.'}
+              </span>
             </h1>
 
             {/* Subtitle — Figma 3028:67089 / 3028:67659 verbatim
@@ -493,7 +416,7 @@ const ValidateSection = () => {
 
             {/* Download banner — only on "failed rows" tab
                 Figma 3034:71143, 897×63 */}
-            {activeTab === 'failed' && <DownloadBanner failedRows={failedRows} />}
+            {activeTab === 'failed' && failedRows > 0 && <DownloadBanner failedRows={failedRows} />}
 
             {/* Check card list — Figma 3028:67114 "Checks view" VERTICAL gap=16 */}
             <div
@@ -555,12 +478,15 @@ const ValidateSection = () => {
             <button
               type="button"
               onClick={handleProceed}
+              disabled={!validRows}
+              data-testid="proceed-valid-rows"
               className={[
                 'flex flex-1 items-center justify-center gap-[8px] max-md:w-full max-md:flex-none',
                 'h-[56px]',
                 'rounded-[14px] border-2 border-[#2a5730] bg-[#387440]',
                 'font-sans font-bold text-[16px] leading-6 text-white',
                 'transition-opacity duration-100 hover:opacity-90',
+                'disabled:cursor-not-allowed disabled:opacity-50',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a5730]',
               ].join(' ')}
             >

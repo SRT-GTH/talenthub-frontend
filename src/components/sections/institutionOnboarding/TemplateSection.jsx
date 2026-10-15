@@ -6,6 +6,11 @@ import Captions from '../../ui/Captions.jsx';
 import TagRow from '../../ui/TagRow.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import {
+  TEMPLATE_COLUMNS,
+  TEMPLATE_FILENAME,
+  downloadTemplate,
+} from '../../../services/institutionBulk.js';
 
 const log = debug('TemplateSection');
 
@@ -16,7 +21,9 @@ const log = debug('TemplateSection');
  * Shows a read-only preview spreadsheet (static display only — not editable)
  * so the institution admin can see how the template looks before proceeding.
  *
- * A Download link lets the user grab the .xlsx file for offline fill-in.
+ * A Download link saves the template as CSV (opens in Excel) for offline fill-in.
+ * The columns come from TEMPLATE_COLUMNS in services/institutionBulk.js, which
+ * is also what the upload step reads, so the two cannot drift apart.
  * The CTA "I have my file ready" continues to the Upload step.
  *
  * Route:   /onboarding/institution/template
@@ -77,7 +84,6 @@ const LEGEND_ITEMS = [
   { label: 'Required column', swatchClass: 'bg-[#ebf1ec] border border-[#c1d4c4]' },
   { label: 'Optional column', swatchClass: 'bg-[#f9f9f9] border border-[#d0d0d0]' },
   { label: 'Minors only', swatchClass: 'bg-[#fff8e6] border border-[rgba(0,0,0,0.1)]' },
-  { label: 'Must fill at least one', star: true },
 ];
 
 // ── Column definitions (Figma: header row cells) ──────────────────────────
@@ -85,62 +91,15 @@ const LEGEND_ITEMS = [
 // star: renders ★ in #eedeb8 next to label
 // subTag / subTagType: small overlay badge ('white' = semi-transparent white bg,
 //                      'amber' = semi-transparent amber bg for Minors cols)
-const COLUMNS = [
-  { key: 'firstName', label: 'First Name', type: 'required', star: true },
-  { key: 'lastName', label: 'Last Name', type: 'required', star: true },
-  { key: 'dob', label: 'Date of Birth', type: 'required', star: true },
-  { key: 'gender', label: 'Gender', type: 'required', star: true },
-  {
-    key: 'email',
-    label: 'Email',
-    type: 'required',
-    star: true,
-    subTag: 'or Phone',
-    subTagType: 'white',
-  },
-  {
-    key: 'phone',
-    label: 'Phone',
-    type: 'optional',
-    star: false,
-    subTag: 'or Email',
-    subTagType: 'white',
-  },
-  { key: 'level', label: 'Level', type: 'required', star: true },
-  { key: 'grade', label: 'Grade', type: 'required', star: true },
-  {
-    key: 'parentFirst',
-    label: 'Parent First Name',
-    type: 'minors',
-    star: false,
-    subTag: 'Minors',
-    subTagType: 'amber',
-  },
-  {
-    key: 'parentLast',
-    label: 'Parent Last Name',
-    type: 'minors',
-    star: false,
-    subTag: 'Minors',
-    subTagType: 'amber',
-  },
-  {
-    key: 'parentPhone',
-    label: 'Parent Email/Phone',
-    type: 'minors',
-    star: false,
-    subTag: 'Minors',
-    subTagType: 'amber',
-  },
-  {
-    key: 'relation',
-    label: 'Relationship',
-    type: 'optional',
-    star: false,
-    subTag: 'Optional',
-    subTagType: 'white',
-  },
-];
+// Same columns as the upload parser (services/institutionBulk.js).
+const COLUMNS = TEMPLATE_COLUMNS.map((c) => ({
+  key: c.key,
+  label: c.header,
+  type: c.required ? 'required' : c.minors ? 'minors' : 'optional',
+  star: Boolean(c.required),
+  ...(c.minors ? { subTag: 'Minors', subTagType: 'amber' } : {}),
+  ...(!c.required && !c.minors ? { subTag: 'Optional', subTagType: 'white' } : {}),
+}));
 
 // Column widths (px)
 const COL_W = {
@@ -148,14 +107,14 @@ const COL_W = {
   lastName: 100,
   dob: 96,
   gender: 72,
-  email: 148,
+  email: 170,
   phone: 120,
   level: 84,
-  grade: 72,
-  parentFirst: 152,
-  parentLast: 150,
-  parentPhone: 170,
-  relation: 131,
+  grade: 84,
+  studentId: 96,
+  parentName: 140,
+  parentEmail: 170,
+  parentPhone: 120,
 };
 
 const TOTAL_DATA_W = Object.values(COL_W).reduce((a, b) => a + b, 0); // 1395
@@ -170,77 +129,66 @@ const CELL_CLS = {
 };
 
 // Sample data rows — verbatim from Figma, hint-only cells set to ''
+const SAMPLE = [
+  [
+    'Kofi',
+    'Mensah',
+    '12/03/2001',
+    'Male',
+    'k.mensah@example.com',
+    '0241234567',
+    'University',
+    'Level 200',
+    'CU-0001',
+    '',
+    '',
+    '',
+  ],
+  [
+    'Ama',
+    'Boateng',
+    '28/07/2000',
+    'Female',
+    'ama.b@example.com',
+    '0244567890',
+    'University',
+    'Level 300',
+    'CU-0002',
+    '',
+    '',
+    '',
+  ],
+  [
+    'Kwame',
+    'Asante',
+    '14/09/2009',
+    'Male',
+    'k.asante@example.com',
+    '0205550001',
+    'SHS',
+    'SHS 2',
+    'CU-0003',
+    'Akosua Asante',
+    'akosua.asante@example.com',
+    '0205551234',
+  ],
+  [
+    'Adwoa',
+    'Frimpong',
+    '02/11/2008',
+    'Female',
+    'a.frimpong@example.com',
+    '0277000002',
+    'SHS',
+    'SHS 3',
+    'CU-0004',
+    'Kojo Frimpong',
+    'kojo.f@example.com',
+    '',
+  ],
+];
 const INITIAL_ROWS = [
-  {
-    firstName: 'Kofi',
-    lastName: 'Mensah',
-    dob: '12/03/2001',
-    gender: 'Male',
-    email: 'k.mensah@gmail.com',
-    phone: '',
-    level: 'University',
-    grade: 'Level 200',
-    parentFirst: '',
-    parentLast: '',
-    parentPhone: '',
-    relation: '',
-  },
-  {
-    firstName: 'Ama',
-    lastName: 'Boateng',
-    dob: '28/07/2000',
-    gender: 'Female',
-    email: '',
-    phone: '0244567890',
-    level: 'SHS',
-    grade: 'SHS 3',
-    parentFirst: '',
-    parentLast: '',
-    parentPhone: '',
-    relation: '',
-  },
-  {
-    firstName: 'Kwame',
-    lastName: 'Asante',
-    dob: '14/09/2009',
-    gender: 'Male',
-    email: 'k.asante@student.edu',
-    phone: '',
-    level: 'JHS',
-    grade: 'JHS 2',
-    parentFirst: 'Akosua',
-    parentLast: 'Asante',
-    parentPhone: '0205551234',
-    relation: 'Mother',
-  },
-  {
-    firstName: 'Adwoa',
-    lastName: 'Frimpong',
-    dob: '02/11/2008',
-    gender: 'Female',
-    email: 'a.frimpong@jhs.edu.gh',
-    phone: '',
-    level: 'JHS',
-    grade: 'JHS 3',
-    parentFirst: '',
-    parentLast: '',
-    parentPhone: '',
-    relation: '',
-  },
-  {
-    firstName: 'Yaw',
-    lastName: 'Darko',
-    dob: '19/04/1999',
-    gender: 'Male',
-    email: 'yaw.darko@ug.edu.gh',
-    phone: '0277123456',
-    level: 'University',
-    grade: 'Level 300',
-    parentFirst: '',
-    parentLast: '',
-    parentPhone: '',
-    relation: '',
-  },
+  ...SAMPLE.map((cells) => Object.fromEntries(COLUMNS.map((c, i) => [c.key, cells[i] ?? '']))),
   // two blank rows so the sheet looks ready for input
   Object.fromEntries(COLUMNS.map((c) => [c.key, ''])),
   Object.fromEntries(COLUMNS.map((c) => [c.key, ''])),
@@ -537,15 +485,17 @@ const TemplateSection = () => {
           onClick={(e) => {
             e.preventDefault();
             log('download link clicked');
+            downloadTemplate();
           }}
           className="flex w-full items-center justify-center gap-2 rounded-[8px] border-b border-[#387440] px-[34px] py-4 max-md:h-10 max-md:px-4 max-md:py-0 text-[#387440] transition-opacity duration-100 hover:opacity-80"
           style={{ boxShadow: '0px 2px 0px 0px rgba(17,17,17,0.2)' }}
-          aria-label="Download GTH_Student_Upload_Template.xlsx"
+          aria-label={`Download ${TEMPLATE_FILENAME}`}
+          data-testid="download-template"
         >
           <DownloadIcon />
           <span className="font-sans font-semibold text-[12px] max-md:text-[13px] tracking-[0.1px] leading-[24px] max-md:min-w-0 max-md:text-center">
-            <span className="max-md:hidden">Download GTH_Student_Upload_Template.xlsx</span>
-            <span className="md:hidden">Download template (.xlsx)</span>
+            <span className="max-md:hidden">Download {TEMPLATE_FILENAME}</span>
+            <span className="md:hidden">Download template (.csv)</span>
           </span>
           <ArrowRightIcon />
         </a>

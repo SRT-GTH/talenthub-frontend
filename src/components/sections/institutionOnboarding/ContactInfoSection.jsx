@@ -20,6 +20,15 @@ import {
 } from '../../shared/assets.jsx';
 import ContactVerificationModal from './ContactVerificationModal.jsx';
 import { debug } from '../../../utils/debug.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import {
+  getInstitutionDraft,
+  saveInstitutionDraft,
+  setContactPassword,
+  sendContactCode,
+} from '../../../services/institution.api.js';
+import { splitFullName } from '../../../services/onboardingMappers.js';
 
 const log = debug('ContactInfoSection');
 
@@ -71,6 +80,8 @@ const ContactInfoSection = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
+  const [apiError, setApiError] = useState('');
+  const savedContact = getInstitutionDraft().contact || {};
 
   const {
     register,
@@ -80,11 +91,12 @@ const ContactInfoSection = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
+    // Pre-fill from the draft (never the password: it is not stored).
     defaultValues: {
-      fullName: '',
-      roleTitle: '',
-      phoneNumber: '',
-      email: '',
+      fullName: savedContact.fullName || '',
+      roleTitle: savedContact.roleTitle || '',
+      phoneNumber: savedContact.phoneNumber || '',
+      email: savedContact.email || '',
       password: '',
       confirmPassword: '',
     },
@@ -106,11 +118,21 @@ const ContactInfoSection = () => {
   // Submit: short delay to show loading state, then open modal.
   const onSubmit = async (data) => {
     log('form submit', { email: data.email, roleTitle: data.roleTitle });
-    // Future: POST /api/institution/contact
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    log('submit success — opening ContactVerificationModal');
-    setSubmittedData(data);
-    setShowModal(true);
+    setApiError('');
+    const { password, confirmPassword: _ignored, ...contact } = data;
+    saveInstitutionDraft({ contact });
+    setContactPassword(password);
+    try {
+      const res = await sendContactCode({
+        email: contact.email.trim(),
+        firstName: splitFullName(contact.fullName).first,
+      });
+      log('code sent — opening ContactVerificationModal');
+      setSubmittedData({ ...contact, maskedEmail: res.maskedEmail });
+      setShowModal(true);
+    } catch (err) {
+      setApiError(getApiErrorMessage(err));
+    }
   };
 
   const onError = (errs) => {
@@ -265,6 +287,7 @@ const ContactInfoSection = () => {
             </Link>
           </div>
         </form>
+        <ApiErrorNote message={apiError} />
       </div>
 
       {/* Contact Verification modal — rendered after successful submit */}
