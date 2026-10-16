@@ -1,0 +1,8 @@
+{
+  "id": "7873:53502",
+  "label": "Warning toast (Unsaved changes)",
+  "group": "Miscellaneous",
+  "width": 1728,
+  "unreachable": true,
+  "reason": "The only talent warning toast is the Game Store stub \"Coming soon / <game> gameplay is not built yet\" (CareerBuddySection handlePlayGame). No flow shows \"Warning - Unsaved changes\" over the Education review panel."
+}

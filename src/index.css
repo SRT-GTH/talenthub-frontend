@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './styles/playful.css';
 
 /*
  * TalentHub design tokens (Tailwind v4 @theme).
@@ -518,6 +519,16 @@
   min-height: 2.75rem;
   min-width: 2.75rem;
 }
+
+/*
+ * PLAYFUL APPEARANCE (Figma section 7958:212035 "Playful mode").
+ * `playful:` applies a utility ONLY under <html data-ui-style="playful">, which
+ * <UiStyleScope> sets while a talent Career Buddy screen is mounted and removes
+ * on unmount, so Focused screens (and every other route) are untouched.
+ * Write Playful rules as extra classes: `rounded-[12px] playful:rounded-[16px]`.
+ */
+@custom-variant playful (&:where([data-ui-style='playful'] *));
+@custom-variant focused (&:where([data-ui-style='focused'] *));
 
 /* Base element styles */
 html,

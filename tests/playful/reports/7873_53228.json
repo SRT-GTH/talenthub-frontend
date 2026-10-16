@@ -1,0 +1,2736 @@
+{
+  "id": "7873:53228",
+  "label": "Error toast (No internet connection)",
+  "group": "Miscellaneous",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -2.7,
+    "derived": 54.7
+  },
+  "offsetUsed": 55,
+  "counts": {
+    "figmaTexts": 86,
+    "matched": 79,
+    "unmatched": 7,
+    "layoutMismatch": 64,
+    "fontMetric": 33,
+    "widthOver15": 10
+  },
+  "worstLayoutPx": 1348.1,
+  "unmatched": [
+    {
+      "text": "Avatar",
+      "figma": {
+        "x": 82,
+        "y": 120
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 117
+      },
+      "closestDom": "Step 3 of 9 ·"
+    },
+    {
+      "text": "My bad, I studied for a Bachelor of Science in Computer Science.",
+      "figma": {
+        "x": 577,
+        "y": 56
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Excellent choice! And what was your field of study or specialization within Computer Science?",
+      "figma": {
+        "x": 142,
+        "y": 141
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Transcri... .pdf",
+      "figma": {
+        "x": 908,
+        "y": 758
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Yes, I have a PDF copy — I’ve attached it.",
+      "figma": {
+        "x": 724,
+        "y": 821
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Switch Modes ",
+      "figma": {
+        "x": 1265,
+        "y": 31
+      },
+      "closestDom": null
+    }
+  ],
+  "layout": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 3.8,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "Focused",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.6,
+      "dy": 1.4,
+      "dh": 2,
+      "wPct": 0.3
+    },
+    {
+      "text": "Playful",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.3,
+      "dy": 1.4,
+      "dh": 2,
+      "wPct": 5.2
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -39.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 39.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "The information gathered from the our interaction on your ed",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": -39.2,
+      "dh": -6,
+      "wPct": -4.4
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -37.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 37.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 35.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "div",
+      "dx": 3,
+      "dy": 33.3,
+      "dh": -3,
+      "wPct": 7.2
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 33.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 31.8,
+      "dh": -6,
+      "wPct": 8.5
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 31.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "div",
+      "dx": 3,
+      "dy": 29.3,
+      "dh": -3,
+      "wPct": 8.6
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 29.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 27.8,
+      "dh": -6,
+      "wPct": 7.5
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 27.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 26.4,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": 2,
+      "dy": 26.3,
+      "dh": -1,
+      "wPct": -70.8
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "div",
+      "dx": 3,
+      "dy": 25.3,
+      "dh": -3,
+      "wPct": 7.7
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 25.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 23.8,
+      "dh": -6,
+      "wPct": 9.8
+    },
+    {
+      "text": "Pitch",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.5,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 1.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 23.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Goals",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 22.4,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Certs",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 22,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 1.2
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 18,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 7.7
+    },
+    {
+      "text": "Work",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 15.7,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 6.8
+    },
+    {
+      "text": "Skills",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 13.7,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 6.2
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -10.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Personality",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 10.1,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 5.2
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -9.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "No internet connection",
+      "sel": "span.font-normal.text-[13px].text-[#595959]",
+      "dx": 1.1,
+      "dy": 9,
+      "dh": 2,
+      "wPct": 6.4
+    },
+    {
+      "text": "Interests ",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 7.2,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 5.3
+    },
+    {
+      "text": "Career Options",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.6,
+      "dy": -7.2,
+      "dh": 3,
+      "wPct": 4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -6.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Error",
+      "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
+      "dx": 1.1,
+      "dy": 6,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -5.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Work Experience",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -5.7,
+      "dh": 3,
+      "wPct": 5.1
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -5.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -5.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Education",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 4.9,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 3.8
+    },
+    {
+      "text": "Save & Exit",
+      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
+      "dx": -4.4,
+      "dy": 0.9,
+      "dh": -5,
+      "wPct": 5.6
+    },
+    {
+      "text": "Personality",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.8,
+      "dy": -4.2,
+      "dh": 3,
+      "wPct": 5.8
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 1.3,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -3.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 0.9,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Write a message…",
+      "sel": "input.flex-1.min-w-0.border-none",
+      "dx": 1,
+      "dy": -3,
+      "dh": 4,
+      "wPct": -82.6
+    },
+    {
+      "text": "University of Cape Coast",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -25.1
+    },
+    {
+      "text": "Bachelor of Science",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -40.4
+    },
+    {
+      "text": " Computer Science",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -45
+    },
+    {
+      "text": "2018",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -83.7
+    },
+    {
+      "text": "2022",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -83.7
+    },
+    {
+      "text": "Modify",
+      "sel": "span.leading-6",
+      "dx": -2.7,
+      "dy": -2.2,
+      "dh": -5,
+      "wPct": 0.6
+    },
+    {
+      "text": "Personal area of interest",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -2.7,
+      "dh": 3,
+      "wPct": 6.5
+    },
+    {
+      "text": "Educational Background",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -1,
+      "dy": -2.2,
+      "dh": 3,
+      "wPct": 4.4
+    },
+    {
+      "text": "Second Class Upper",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.2,
+      "dh": -3,
+      "wPct": -34.7
+    },
+    {
+      "text": "Uploaded",
+      "sel": "span.font-sans.text-[18px].leading-[1.5]",
+      "dx": 0.5,
+      "dy": -2.2,
+      "dh": -3,
+      "wPct": 6.7
+    },
+    {
+      "text": "Confirm",
+      "sel": "span.leading-6.bg-clip-text.text-transparent",
+      "dx": -0.5,
+      "dy": -2.2,
+      "dh": -5,
+      "wPct": 0.5
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -2.2,
+      "dh": 2,
+      "wPct": 7.4
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Skills",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 13.7,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 6.2,
+      "severe": false
+    },
+    {
+      "text": "Work",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 15.7,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 18,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 7.7,
+      "severe": false
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 3.8,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 1.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "div",
+      "dx": 3,
+      "dy": 33.3,
+      "dh": -3,
+      "wPct": 7.2,
+      "severe": false
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 31.8,
+      "dh": -6,
+      "wPct": 8.5,
+      "severe": false
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "div",
+      "dx": 3,
+      "dy": 29.3,
+      "dh": -3,
+      "wPct": 8.6,
+      "severe": false
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 27.8,
+      "dh": -6,
+      "wPct": 7.5,
+      "severe": false
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "div",
+      "dx": 3,
+      "dy": 25.3,
+      "dh": -3,
+      "wPct": 7.7,
+      "severe": false
+    },
+    {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "div",
+      "dx": 1.4,
+      "dy": 23.8,
+      "dh": -6,
+      "wPct": 9.8,
+      "severe": false
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": 2,
+      "dy": 26.3,
+      "dh": -1,
+      "wPct": -70.8,
+      "severe": true
+    },
+    {
+      "text": "Write a message…",
+      "sel": "input.flex-1.min-w-0.border-none",
+      "dx": 1,
+      "dy": -3,
+      "dh": 4,
+      "wPct": -82.6,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 1.3,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 1.8,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Institution",
+      "sel": "span.max-w-[180px].shrink-0.font-sans",
+      "dx": -1,
+      "dy": -1.7,
+      "dh": -2,
+      "wPct": 6,
+      "severe": false
+    },
+    {
+      "text": "University of Cape Coast",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -25.1,
+      "severe": true
+    },
+    {
+      "text": "Bachelor of Science",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -40.4,
+      "severe": true
+    },
+    {
+      "text": " Computer Science",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -45,
+      "severe": true
+    },
+    {
+      "text": "2018",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -83.7,
+      "severe": true
+    },
+    {
+      "text": "2022",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": -83.7,
+      "severe": true
+    },
+    {
+      "text": "Second Class Upper",
+      "sel": "span.min-h-[25px].w-[250px].min-w-0",
+      "dx": 0.5,
+      "dy": -2.2,
+      "dh": -3,
+      "wPct": -34.7,
+      "severe": true
+    },
+    {
+      "text": "Uploaded",
+      "sel": "span.font-sans.text-[18px].leading-[1.5]",
+      "dx": 0.5,
+      "dy": -2.2,
+      "dh": -3,
+      "wPct": 6.7,
+      "severe": false
+    },
+    {
+      "text": "Personal area of interest",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -2.7,
+      "dh": 3,
+      "wPct": 6.5,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -2.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -3.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -5.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -6.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -9.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "No internet connection",
+      "sel": "span.font-normal.text-[13px].text-[#595959]",
+      "dx": 1.1,
+      "dy": 9,
+      "dh": 2,
+      "wPct": 6.4,
+      "severe": false
+    }
+  ],
+  "medianDx": 0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 225.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 225.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 55,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "summaryLine": "141 style mismatches (colour:16 radius:36 shadow:13 stroke:20 opacity:2 typography:54); shapes 26/150 matched",
+    "counts": {
+      "colour": 16,
+      "radius": 36,
+      "shadow": 13,
+      "stroke": 20,
+      "opacity": 2,
+      "typography": 54,
+      "gradient": 0,
+      "mixedRuns": 2
+    },
+    "shapes": {
+      "total": 150,
+      "matched": 26
+    },
+    "textStyleMatched": 79,
+    "unmatchedShapes": [
+      {
+        "node": "teenyicons:left-outline",
+        "nodeId": "7873:53256",
+        "type": "FRAME",
+        "box": [1055, 107, 58, 44]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:53262",
+        "type": "RECTANGLE",
+        "box": [1351, 124, 5, 5]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:53267",
+        "type": "FRAME",
+        "box": [1351, 140, 62, 6]
+      },
+      {
+        "node": "grid",
+        "nodeId": "7873:53276",
+        "type": "RECTANGLE",
+        "box": [754, 657, 358, 405]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53286;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 28, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53286;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 28, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53286;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 28, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53287;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 113, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53287;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 113, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53287;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 113, 8, 8]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53287;5132:42710",
+        "type": "FRAME",
+        "box": [54, 11, 60, 13]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53288;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [561, 42, 434, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53288;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 42, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53288;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 198, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53288;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 198, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53288;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 198, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53288;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 42, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53288;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 96, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53289;5132:42683",
+        "type": "FRAME",
+        "box": [60, 127, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53289;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 283, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53289;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 283, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53289;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 283, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53289;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 127, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:53289;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 133, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53289;5132:42710",
+        "type": "FRAME",
+        "box": [54, 181, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:53289;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 127, 698, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53290;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [456, 212, 539, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53290;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 212, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53290;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 368, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53290;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 368, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53290;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 368, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53290;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 212, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53290;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 266, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53291;5132:42683",
+        "type": "FRAME",
+        "box": [60, 297, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53291;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 453, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53291;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 453, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53291;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 453, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53291;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 297, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:53291;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 303, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53291;5132:42710",
+        "type": "FRAME",
+        "box": [54, 351, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:53291;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 297, 477, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53292;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [712, 382, 283, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53292;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 382, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53292;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 60, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53292;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 538, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53292;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 538, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53292;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 538, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53292;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 382, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53292;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 436, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53293;5132:42683",
+        "type": "FRAME",
+        "box": [60, 467, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53293;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 145, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53293;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 623, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53293;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 623, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53293;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 623, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53293;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 467, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:53293;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 473, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53293;5132:42710",
+        "type": "FRAME",
+        "box": [54, 521, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:53293;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 467, 389, 80]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53294;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [635, 565, 360, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53294;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 565, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53294;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 243, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53294;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 721, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53294;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 721, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53294;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 721, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53294;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 565, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53294;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 619, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53295;5132:42683",
+        "type": "FRAME",
+        "box": [60, 650, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53295;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 328, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53295;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 806, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53295;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 806, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53295;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 806, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53295;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 650, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:53295;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 656, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53295;5132:42710",
+        "type": "FRAME",
+        "box": [54, 704, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:53295;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 650, 481, 80]
+      },
+      {
+        "node": "Frame 14119",
+        "nodeId": "I7873:53296;5132:42952",
+        "type": "FRAME",
+        "box": [863, 748, 134, 49]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53296;5132:42958;5132:43038",
+        "type": "FRAME",
+        "box": [708, 807, 289, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53296;5132:42960",
+        "type": "FRAME",
+        "box": [1009, 807, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53296;5132:42961",
+        "type": "RECTANGLE",
+        "box": [687, 485, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53296;5132:42962",
+        "type": "RECTANGLE",
+        "box": [982, 963, 8, 8]
+      }
+    ],
+    "unmatchedShapesCount": 124,
+    "mismatches": [
+      {
+        "cat": "opacity",
+        "prop": "opacity",
+        "node": "Ellipse 1",
+        "nodeId": "7873:53231",
+        "figma": 0.15000000596046448,
+        "app": 1,
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Ellipse 1",
+        "nodeId": "7873:53231",
+        "figma": "rgba(255,216,107,0.35)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "opacity",
+        "prop": "opacity",
+        "node": "Ellipse 3",
+        "nodeId": "7873:53232",
+        "figma": 0.10000000149011612,
+        "app": 1,
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Ellipse 3",
+        "nodeId": "7873:53232",
+        "figma": "rgba(255,216,107,0.35)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Frame 14226",
+        "nodeId": "7873:53392",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 10 12 0 rgba(28,42,33,0.06) | 5 5 0 0 rgba(28,42,33,0.55)",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85940",
+        "figma": "rgba(255,216,107,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85940",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85940",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85940",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85940",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:53404",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-1",
+        "node": "Frame 339",
+        "nodeId": "I7873:53405;5132:42211",
+        "figma": "0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "drop-shadow(rgba(28, 42, 33, 0.06) 0px 10px 12px) drop-shadow(rgba(28, 42, 33, 0.55) 5px 5px 0px)",
+        "sel": "button.inline-flex.cursor-pointer.items-center.justify-center"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-1",
+        "node": "Frame 9",
+        "nodeId": "I7873:53405;5132:42215",
+        "figma": "0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "drop-shadow(rgba(28, 42, 33, 0.06) 0px 10px 12px) drop-shadow(rgba(28, 42, 33, 0.55) 5px 5px 0px)",
+        "sel": "button.inline-flex.cursor-pointer.items-center.justify-center"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 17",
+        "nodeId": "7873:53406",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:53407",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 9",
+        "nodeId": "7873:53408",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 20",
+        "nodeId": "7873:53417",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 11",
+        "nodeId": "7873:53418",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 12",
+        "nodeId": "7873:53427",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:53436",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:53437",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Nav",
+        "nodeId": "7873:53447",
+        "figma": "0 1 2 0 rgba(27,36,44,0.12)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 1 1 0 rgba(27,36,44,0.12)",
+        "sel": "header.w-full.bg-neutral.border-b.border-border-default"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Avatar",
+        "nodeId": "I7873:53235;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Avatar",
+        "nodeId": "I7873:53235;2263:8185",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Avatar",
+        "nodeId": "I7873:53235;2263:8185",
+        "figma": "rgba(56,116,64,1)",
+        "app": "rgba(186,186,183,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Personal Info",
+        "nodeId": "I7873:53237;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Personal Info",
+        "nodeId": "I7873:53237;2263:8185",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Education",
+        "nodeId": "I7873:53239;2263:8176",
+        "figma": 500,
+        "app": "600",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Education",
+        "nodeId": "I7873:53239;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Education",
+        "nodeId": "I7873:53239;2263:8176",
+        "figma": "rgba(186,186,183,1)",
+        "app": "rgba(56,116,64,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Interests ",
+        "nodeId": "I7873:53241;2263:8176",
+        "figma": 500,
+        "app": "600",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Interests ",
+        "nodeId": "I7873:53241;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Personality",
+        "nodeId": "I7873:53243;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Skills",
+        "nodeId": "I7873:53245;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Work",
+        "nodeId": "I7873:53247;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Portfolio",
+        "nodeId": "I7873:53249;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Certs",
+        "nodeId": "I7873:53251;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Goals",
+        "nodeId": "I7873:53253;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Pitch",
+        "nodeId": "I7873:53255;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "· 0% profile complete · auto-saved",
+        "nodeId": "7873:53265",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.pl-3.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53287;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:53288;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53289;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:53290;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53291;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:53292;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53293;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:53294;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53295;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "6MB",
+        "nodeId": "I7873:53296;5132:42956",
+        "figma": 15,
+        "app": 12.5,
+        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "6MB",
+        "nodeId": "I7873:53296;5132:42956",
+        "figma": "rgba(153,153,153,1)",
+        "app": "rgba(126,139,153,1)",
+        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:53296;5132:43023",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:53297;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Write a message…",
+        "nodeId": "I7873:53390;5132:42718",
+        "figma": 20,
+        "app": 24,
+        "sel": "input.flex-1.min-w-0.border-none.outline-none"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Write a message…",
+        "nodeId": "I7873:53390;5132:42718",
+        "figma": "rgba(153,153,153,1)",
+        "app": "rgba(28,42,33,1)",
+        "sel": "input.flex-1.min-w-0.border-none.outline-none"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "New Chat",
+        "nodeId": "7873:53395",
+        "figma": "left",
+        "app": "center",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: 80%",
+        "nodeId": "I7873:53404;5132:40727",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personal-info-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: In Progress",
+        "nodeId": "I7873:53405;5132:42181",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-educational-background-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Uploaded",
+        "nodeId": "I7873:53405;5132:42209",
+        "figma": "right",
+        "app": "start",
+        "sel": "span.font-sans.text-[18px].leading-[1.5].text-[#387440]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Modify",
+        "nodeId": "I7873:53405;5132:42212",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.leading-6"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Confirm",
+        "nodeId": "I7873:53405;5132:42217",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.leading-6.bg-clip-text.text-transparent"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:53406;5132:42280",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:53407;5132:42368",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: 48%",
+        "nodeId": "7873:53414",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:53417;5132:42454",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:53424",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:53433",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:53436;5132:42586",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:53444",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "+20 XP PER SECTION",
+        "nodeId": "7878:85944",
+        "figma": 13.13,
+        "app": 16.5,
+        "sel": "span.absolute.right-[3px].top-[5px].inline-flex"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Focused",
+        "nodeId": "I7878:85945;7875:85648",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.max-[480px]:sr-only"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Playful",
+        "nodeId": "I7878:85945;7875:85653",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.max-[480px]:sr-only"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Save & Exit",
+        "nodeId": "7873:53464",
+        "figma": 24,
+        "app": 20,
+        "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-decoration",
+        "node": "Save & Exit",
+        "nodeId": "7873:53464",
+        "figma": "none",
+        "app": "underline",
+        "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-family (fallback?)",
+        "node": "KA",
+        "nodeId": "7873:53473",
+        "figma": "Instrument Sans",
+        "app": "\"SF Pro Rounded\", -apple-system, BlinkMacSystemFon",
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "KA",
+        "nodeId": "7873:53473",
+        "figma": 12.2,
+        "app": 15,
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "KA",
+        "nodeId": "7873:53473",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Error",
+        "nodeId": "I7873:53501;5620:67719",
+        "figma": 16.71,
+        "app": 21,
+        "sel": "span.font-semibold.text-[14px].text-[#2a5730].playful:text-[#902b20]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Error",
+        "nodeId": "I7873:53501;5620:67719",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.font-semibold.text-[14px].text-[#2a5730].playful:text-[#902b20]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "No internet connection",
+        "nodeId": "I7873:53501;5620:67720",
+        "figma": 15.51,
+        "app": 19.5,
+        "sel": "span.font-normal.text-[13px].text-[#595959]"
+      }
+    ],
+    "byProp": {
+      "opacity": 2,
+      "fill": 12,
+      "shadow-count": 11,
+      "border-width-top": 5,
+      "border-width-right": 5,
+      "border-width-bottom": 5,
+      "border-width-left": 5,
+      "radius-tl": 9,
+      "radius-tr": 9,
+      "radius-br": 9,
+      "radius-bl": 9,
+      "shadow-1": 2,
+      "font-weight": 15,
+      "line-height": 18,
+      "text-colour": 4,
+      "text-align": 19,
+      "text-decoration": 1,
+      "font-family (fallback?)": 1
+    }
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
+import StyleSwitch from '../../ui/StyleSwitch.jsx';
+import UiStyleScope from '../../shared/UiStyleScope.jsx';
+import PickYourVibeModal from './PickYourVibeModal.jsx';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
 import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
 import ChatThread from '../../ui/ChatThread.jsx';
 import Toast from '../../ui/Toast.jsx';
@@ -30,6 +34,7 @@ import {
   PERSONALITY_FIELDS,
   WORK_EXPERIENCE_ENTRIES,
   PERSONAL_INTERESTS_PREVIEW_FIELDS,
+  toPlayfulCopy,
 } from './careerBuddyScript.js';
 import {
   RECRUITER_BUDDY_NODES,
@@ -123,6 +128,13 @@ import pageEllipseTl from '../../../assets/hero/page-ellipse-tl.svg';
 import pageEllipseBr from '../../../assets/hero/page-ellipse-br.svg';
 import pageEllipseCenter from '../../../assets/hero/page-ellipse-center.svg';
 import careerBuddyBgGrid from '../../../assets/engagement/career-buddy-bg-grid.png';
+// Playful page glows + doodle stars (Figma 7873:50489/50490/50491, 7878:85732-85734).
+import pfEllipseTl from '../../../assets/playful/bg-ellipse-tl.svg';
+import pfEllipseBr from '../../../assets/playful/bg-ellipse-br.svg';
+import pfEllipseCenter from '../../../assets/playful/bg-ellipse-center.svg';
+import pfSparkleGoldLg from '../../../assets/playful/sparkle-gold-lg.svg';
+import pfSparkleGreenSm from '../../../assets/playful/sparkle-green-sm.svg';
+import pfSparkleGoldSm from '../../../assets/playful/sparkle-gold-sm.svg';
 
 const log = debug('CareerBuddySection');
 
@@ -439,7 +451,9 @@ const STAGE_QA_NODE_PREFIX = {
 // icon instead of the real 80px CareerBuddyAvatar).
 // Extracted 2026-08-10 to src/components/sections/profileFilling/CareerBuddyHero.jsx
 // so the recruiter flow can render the identical hero with its own copy.
-const FirstTimeHero = ({ hero }) => <CareerBuddyHero hero={hero} />;
+const FirstTimeHero = ({ hero, playful = false }) => (
+  <CareerBuddyHero hero={hero} playful={playful} />
+);
 
 const ReturningHero = ({ name }) => (
   <div className="flex flex-col items-center text-center px-10 pt-[clamp(3rem,8vh,5rem)] pb-4 gap-[14px] shrink-0 max-lg:min-h-0 max-lg:shrink max-lg:max-h-[34%] max-lg:overflow-y-auto max-lg:px-4 max-lg:pt-2 max-lg:pb-1 max-lg:gap-1">
@@ -457,12 +471,87 @@ const ReturningHero = ({ name }) => (
   </div>
 );
 
+// Playful display face (Bricolage Grotesque) is not in index.html (lead request) — load it
+// once, only while a talent Playful screen is up. Falls back to the rounded body stack.
+const PLAYFUL_FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,600&family=Instrument+Sans:wght@400;500;600;700&display=swap';
+const ensurePlayfulFont = () => {
+  if (document.querySelector('link[data-pf-font]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = PLAYFUL_FONT_HREF;
+  link.setAttribute('data-pf-font', '');
+  document.head.appendChild(link);
+  log('playful font link added');
+};
+
+// Doodle stars on the chat pane (Figma 7878:85732-85734). Centre-point percentages of the
+// 1112x893 pane + translate(-50%,-50%), like the other pane decor, so they stay proportional.
+// Gentle twinkle is motion-safe only; decorative (aria-hidden).
+const PLAYFUL_STARS = [
+  {
+    src: pfSparkleGoldLg,
+    left: '43.87%',
+    top: '2.41%',
+    size: 34.35,
+    rotate: '-rotate-12',
+    delay: '0s',
+  },
+  {
+    src: pfSparkleGreenSm,
+    left: '46.73%',
+    top: '6.06%',
+    size: 22.35,
+    rotate: 'rotate-8',
+    delay: '0.9s',
+  },
+  {
+    src: pfSparkleGoldSm,
+    left: '3.25%',
+    top: '77.6%',
+    size: 26.35,
+    rotate: '-rotate-6',
+    delay: '1.7s',
+  },
+];
+
+const PlayfulStars = () => (
+  <>
+    {PLAYFUL_STARS.map((star) => (
+      <span
+        key={star.src}
+        aria-hidden="true"
+        className="pointer-events-none absolute z-0 hidden playful:block"
+        style={{
+          left: star.left,
+          top: star.top,
+          width: star.size,
+          height: star.size,
+          transform: 'translate(-50%,-50%)',
+        }}
+      >
+        <img
+          src={star.src}
+          alt=""
+          draggable={false}
+          className={`size-full ${star.rotate} motion-safe:animate-[pf-twinkle_3.4s_ease-in-out_infinite]`}
+          style={{ animationDelay: star.delay }}
+        />
+      </span>
+    ))}
+  </>
+);
+
 const CareerBuddySection = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { role } = useCareerBuddyRole();
   const isRecruiter = role === 'recruiter';
   const isParent = role === 'parent';
+  // Playful appearance is talent-only; `playful` also needs the stored choice to be Playful.
+  const { uiStyle, vibeChosen } = useUiStyle();
+  const isTalent = !isRecruiter && !isParent;
+  const playful = isTalent && uiStyle === 'playful';
   // ?cb= query param lets DemoNavigator jump into mid-flow recruiter/parent states.
   const demoHint = searchParams.get('cb') || 'welcome';
 
@@ -552,6 +641,10 @@ const CareerBuddySection = () => {
       vv.removeEventListener('scroll', apply);
     };
   }, []);
+  useEffect(() => {
+    log('playful', { isTalent, uiStyle, vibeChosen });
+    if (playful) ensurePlayfulFont();
+  }, [playful, isTalent, uiStyle, vibeChosen]);
   // Parent My/Ward tab swap replaces `stages` — keep the live ward snapshot
   // here so resume-filled Modify/Confirm data survives tab flips.
   const parentWardStagesRef = useRef(null);
@@ -1300,9 +1393,13 @@ const CareerBuddySection = () => {
             next = { ...next, ...remapped };
           }
         }
+        if (uiStyle === 'playful' && !isRecruiter && !isParent && typeof next.text === 'string') {
+          const playfulText = toPlayfulCopy(next.text);
+          if (playfulText !== next.text) next = { ...next, text: playfulText };
+        }
         return next;
       }),
-    [messages, isParent, parentProfileTab, personaName]
+    [messages, isParent, isRecruiter, uiStyle, parentProfileTab, personaName]
   );
 
   // After a successful job post, surface unfinished setup chips (Company / KYB).
@@ -2068,19 +2165,26 @@ const CareerBuddySection = () => {
   return (
     <div
       ref={shellRef}
-      className="flex flex-col h-screen overflow-hidden bg-white max-lg:h-[var(--cb-vvh,100dvh)]"
+      className="flex flex-col h-screen overflow-hidden bg-white playful:bg-[#f8f8f4] max-lg:h-[var(--cb-vvh,100dvh)]"
     >
+      {/* Playful appearance is talent-only (Figma "Playful mode" is the talent flow). */}
+      <UiStyleScope enabled={!isRecruiter && !isParent} />
       <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
         <EngagementTopNav
+          styleSwitch={!isRecruiter && !isParent ? <StyleSwitch /> : null}
           bgClass="bg-neutral"
           onSaveExit={handleSaveExit}
-          showSwitchModes={Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId)}
+          showSwitchModes={
+            Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
+            // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
+            (playful && heroMode === 'first-time')
+          }
           onSwitchModes={handleSwitchModes}
           className="w-full h-full"
         />
       </div>
 
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
+      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto playful:lg:h-[clamp(60px,4.69vw,81px)]">
         <EngagementTopBar
           stages={trailStages}
           currentStageIndex={trailStageIndex}
@@ -2141,6 +2245,7 @@ const CareerBuddySection = () => {
           variant={toast.variant}
           title={toast.title}
           body={toast.body}
+          xpBadge={/^Educational background saved/i.test(toast.title ?? '') ? '+20 XP' : undefined}
           duration={toast.variant === 'welcome' ? 5000 : 4000}
           onDismiss={() => setToast(null)}
         />
@@ -2184,7 +2289,18 @@ const CareerBuddySection = () => {
           <img
             src={pageEllipseTl}
             alt=""
-            className="absolute block max-w-none"
+            className="absolute block max-w-none playful:hidden"
+            style={{
+              inset: '-35.03%',
+              width: 'calc(100% + 70.06%)',
+              height: 'calc(100% + 70.06%)',
+            }}
+            draggable={false}
+          />
+          <img
+            src={pfEllipseTl}
+            alt=""
+            className="absolute hidden max-w-none playful:block"
             style={{
               inset: '-35.03%',
               width: 'calc(100% + 70.06%)',
@@ -2208,7 +2324,18 @@ const CareerBuddySection = () => {
           <img
             src={pageEllipseBr}
             alt=""
-            className="absolute block max-w-none"
+            className="absolute block max-w-none playful:hidden"
+            style={{
+              inset: '-35.03%',
+              width: 'calc(100% + 70.06%)',
+              height: 'calc(100% + 70.06%)',
+            }}
+            draggable={false}
+          />
+          <img
+            src={pfEllipseBr}
+            alt=""
+            className="absolute hidden max-w-none playful:block"
             style={{
               inset: '-35.03%',
               width: 'calc(100% + 70.06%)',
@@ -2232,7 +2359,18 @@ const CareerBuddySection = () => {
           <img
             src={pageEllipseCenter}
             alt=""
-            className="absolute block max-w-none"
+            className="absolute block max-w-none playful:hidden"
+            style={{
+              inset: '-42.28%',
+              width: 'calc(100% + 84.56%)',
+              height: 'calc(100% + 84.56%)',
+            }}
+            draggable={false}
+          />
+          <img
+            src={pfEllipseCenter}
+            alt=""
+            className="absolute hidden max-w-none playful:block"
             style={{
               inset: '-42.28%',
               width: 'calc(100% + 84.56%)',
@@ -2264,7 +2402,7 @@ const CareerBuddySection = () => {
               z:-1 and was fully hiding them underneath this opaque box. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none playful:hidden"
             style={{
               background: 'linear-gradient(160deg, #ebf1ec 0%, #fdfdfc 55%, #ffffff 100%)',
               zIndex: -2,
@@ -2280,7 +2418,7 @@ const CareerBuddySection = () => {
               pointer-events-none so they never intercept clicks. */}
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute z-0"
+            className={`pointer-events-none absolute z-0 ${heroMode === 'first-time' ? '' : 'playful:hidden'}`}
             style={{
               left: '20.32%',
               top: '14.4%',
@@ -2293,7 +2431,7 @@ const CareerBuddySection = () => {
           </span>
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute z-0"
+            className={`pointer-events-none absolute z-0 ${heroMode === 'first-time' ? '' : 'playful:hidden'}`}
             style={{
               left: '91.7%',
               top: '23.6%',
@@ -2317,6 +2455,7 @@ const CareerBuddySection = () => {
           >
             <CareerBuddyBgChartIcon className="size-full" />
           </span>
+          {playful && <PlayfulStars />}
           {/* Grid texture (Figma 5132:45036). Figma's own node metadata places
               this literally at x:1112-1470 of the 1728px full-width reference
               frame — i.e. entirely inside the RIGHT PANEL's own horizontal
@@ -2431,6 +2570,9 @@ const CareerBuddySection = () => {
             onConfirmSchedule={handleConfirmSchedule}
           />
 
+          {/* First-visit "Pick your vibe" (Figma 7883:86839) — talent only, until answered */}
+          {isTalent && <PickYourVibeModal open={!vibeChosen} />}
+
           <ShareMilestoneModal
             isOpen={Boolean(milestoneStageId)}
             stageLabel={milestoneStageId ? STAGE_MILESTONE_LABELS[milestoneStageId] : undefined}
@@ -2445,7 +2587,7 @@ const CareerBuddySection = () => {
           <div
             className={voiceCallOpen || voiceSettingsOpen ? 'contents max-lg:hidden' : 'contents'}
           >
-            {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} />}
+            {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} playful={playful} />}
             {heroMode === 'returning' && <ReturningHero name={personaName} />}
           </div>
 

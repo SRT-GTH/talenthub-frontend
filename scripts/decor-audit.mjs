@@ -82,7 +82,10 @@ const run = async (width) => {
     isMobile: width < 768,
     hasTouch: width < 768,
   });
-  await ctx.addInitScript(() => localStorage.setItem('gth:hide-demo', '1'));
+  await ctx.addInitScript(() => {
+    localStorage.setItem('gth:hide-demo', '1');
+    localStorage.setItem('gth:ui-style-chosen', '1');
+  });
   const page = await ctx.newPage();
   const result = {};
   for (const route of routes) {

@@ -182,6 +182,16 @@ All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
 
 `DashboardSidebar` derives its active item from `useLocation().pathname`; Home, Talent Search, Job Postings, Messages and Application Pipeline all resolve to the routes above. Community remains `/community` and `/community/:communityId`. ✅ VERIFIED
 
+## Backend wiring by route family `✅ VERIFIED` (2026-10-16)
+
+| Family                                                                                        | State                                                                                            |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/login`                                                                                      | Live: two-step login via `auth.api` (password, then emailed code).                               |
+| `/onboarding/talent/*`                                                                        | Live: session-based onboarding via `onboarding.api` (incl. photo upload, live review, activate). |
+| `/onboarding/institution/*`                                                                   | Live: registration + bulk upload via `institution.api` / `institutionBulk`.                      |
+| `/onboarding/parent-*`                                                                        | Static (live version on unmerged branch `feat/parent-invited-flow`).                             |
+| everything else (engagement, profile filling, Career Buddy, Skills Lab, community, recruiter) | Static mock data.                                                                                |
+
 ## Adding a route
 
 1. Create the page in `src/pages/<flow>/<Name>Page.jsx` (thin wrapper around a section component).

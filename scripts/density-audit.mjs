@@ -81,7 +81,10 @@ const ctx = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await ctx.addInitScript(() => localStorage.setItem('gth:hide-demo', '1'));
+await ctx.addInitScript(() => {
+  localStorage.setItem('gth:hide-demo', '1');
+  localStorage.setItem('gth:ui-style-chosen', '1');
+});
 const page = await ctx.newPage();
 let low = 0;
 for (const route of routes) {

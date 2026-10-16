@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from '../../ui/Button.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulEscapeRoomGame from './PlayfulEscapeRoomGame.jsx';
 import {
   PersonalityGamesIcon,
   ClockIcon,
@@ -121,7 +123,7 @@ const ChoiceBubble = ({ choice, onSelect }) => (
   </button>
 );
 
-const EscapeRoomGame = ({ open, onExit }) => {
+const FocusedEscapeRoomGame = ({ open, onExit }) => {
   const [stageIndex, setStageIndex] = useState(0);
   const [complete, setComplete] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(GAME_DURATION_SECONDS);
@@ -241,6 +243,17 @@ const EscapeRoomGame = ({ open, onExit }) => {
       )}
     </div>,
     document.body
+  );
+};
+
+// Appearance style switch: Focused is the original game, unchanged; Playful renders
+// PlayfulEscapeRoomGame (Figma stages 2-4) with the same stage copy and callbacks.
+const EscapeRoomGame = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulEscapeRoomGame {...props} stages={ESCAPE_ROOM_STAGES} />
+  ) : (
+    <FocusedEscapeRoomGame {...props} />
   );
 };
 

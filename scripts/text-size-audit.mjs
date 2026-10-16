@@ -41,7 +41,10 @@ for (const width of widths) {
     hasTouch: true,
     isMobile: true,
   });
-  await ctx.addInitScript(() => localStorage.setItem('gth:hide-demo', '1'));
+  await ctx.addInitScript(() => {
+    localStorage.setItem('gth:hide-demo', '1');
+    localStorage.setItem('gth:ui-style-chosen', '1');
+  });
   const page = await ctx.newPage();
   for (const route of routes) {
     try {

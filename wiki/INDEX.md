@@ -22,7 +22,7 @@ Every claim in this wiki carries a tag:
 
 - [architecture.md](architecture.md) — Stack, directory tree, entry points, state conventions (NB: Redux store is unwired scaffold; state lives in route-level contexts)
 - [routing.md](routing.md) — Full route map (talent / institution / parent A+B / engagement / avatar), 4 layout shells, auth-CTA helpers
-- [api.md](api.md) — axios client, interceptors, env vars (no endpoints wired yet)
+- [api.md](api.md) — axios client, dev proxy, service modules, endpoint table, env vars (login, talent onboarding, institution bulk upload wired to staging)
 
 ### Components & Styling
 
@@ -34,7 +34,7 @@ Every claim in this wiki carries a tag:
 - [debugging-workflow.md](debugging-workflow.md) — Console-log convention + Playwright verification
 - [figma-fidelity.md](figma-fidelity.md) — Pixel-perfect implementation rules (`clamp()`, `get_design_context`)
 - [pre-commit-workflow.md](pre-commit-workflow.md) — Lint, format, build, husky hooks
-- [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — PROPOSED
+- [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — EXECUTED 2026-10-10
 
 ### External
 
@@ -46,4 +46,4 @@ Every claim in this wiki carries a tag:
 
 ---
 
-_Last updated: 2026-09-17 (Talent Community Engagement — `/community` + `/community/:communityId`)_
+_Last updated: 2026-10-16 (backend wiring for login / talent onboarding / institution; responsive pass executed)_

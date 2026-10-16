@@ -1,0 +1,255 @@
+/*
+ * Playful appearance tokens (see wiki/playful-mode.md).
+ * Everything here is scoped to [data-ui-style='playful'] so it can never affect
+ * Focused screens or other routes. Each agent appends under its own header;
+ * do not reorder or edit another agent's block.
+ */
+
+[data-ui-style='playful'] {
+  /* Shared across the style switch (Figma 7875:85654) */
+  --pf-ink: #1c2a21;
+  --pf-ink-55: rgba(28, 42, 33, 0.55);
+  --pf-shelf: 5px 5px 0 var(--pf-ink-55);
+}
+
+/* === Shell + Welcome === */
+
+[data-ui-style='playful'] {
+  /* Figma 7873:50485 (Welcome phase) + 7883:86839 (Pick your vibe) */
+  --pf-canvas: #f8f8f4;
+  --pf-cream: #fbf4e0;
+  --pf-sticker-yellow: #ffd86b;
+  --pf-sticker-green: #c1d4c4;
+  --pf-green: #387440;
+  --pf-green-hover: #32683a;
+  --pf-green-dark: #2a5730;
+  --pf-shelf-soft: 0 10px 12px rgba(28, 42, 33, 0.06), 5px 5px 0 var(--pf-ink-55);
+  /* Display face for Playful headings. Bricolage Grotesque is loaded at runtime by
+     CareerBuddySection (Google Fonts); falls back to the rounded body stack. */
+  --pf-font-display: 'Bricolage Grotesque', 'SF Pro Rounded', 'Nunito', system-ui, sans-serif;
+}
+
+/* Doodle-star twinkle (also referenced by the Chat blocks). Used behind motion-safe: only. */
+@keyframes pf-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.12) rotate(8deg);
+  }
+}
+
+/* === Chat === */
+
+/* === Panel === */
+
+[data-ui-style='playful'] {
+  --pf-panel-bg: #fbf4e0;
+  --pf-gold: #ffd86b;
+  --pf-card-shadow: 0 10px 24px rgba(28, 42, 33, 0.06), var(--pf-shelf);
+}
+
+/* === Games === */
+
+/* Figma 7873:68025 (All Games) / 68514 (Game details) / 69410-70136 (stages 2-4).
+   Instrument Sans + Bricolage Grotesque are the Playful type faces; they fall back to the
+   app sans until the fonts are loaded in index.html (lead request). */
+[data-ui-style='playful'] {
+  --pf-font-ui: 'Instrument Sans', var(--font-sans);
+  --pf-font-badge: 'Bricolage Grotesque', var(--font-sans);
+  --pf-games-overlay: rgba(28, 42, 33, 0.7);
+  --pf-games-card-shadow: 0 10px 24px 0 rgba(28, 42, 33, 0.06), 5px 5px 0 0 rgba(28, 42, 33, 0.55);
+}
+
+/* Light cream -> mint text gradient used on dark / gold game chrome (Figma 7873:69742 etc.). */
+[data-ui-style='playful'] .pf-gradtext {
+  background-image: linear-gradient(186deg, #fef1e7 0%, #e8f2ed 20.192%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #e8f2ed;
+}
+
+/* Escape-room choice bubble: hover / keyboard focus swaps the dark glass for light glass
+   (Figma annotation "hover state", 7873:70134 / 70491). */
+[data-ui-style='playful'] .pf-bubble:hover .pf-bubble-text,
+[data-ui-style='playful'] .pf-bubble:focus-visible .pf-bubble-text {
+  background-image: none;
+  -webkit-text-fill-color: #2b2b2b;
+  color: #2b2b2b;
+}
+[data-ui-style='playful'] .pf-bubble:hover .pf-bubble-fill,
+[data-ui-style='playful'] .pf-bubble:focus-visible .pf-bubble-fill {
+  fill: rgba(255, 255, 255, 0.6);
+}
+[data-ui-style='playful'] .pf-bubble:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #1c2a21;
+}
+
+@media (forced-colors: active) {
+  [data-ui-style='playful'] .pf-gradtext {
+    background: none;
+    -webkit-text-fill-color: CanvasText;
+    color: CanvasText;
+  }
+  [data-ui-style='playful'] .pf-bubble .pf-bubble-fill {
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+  [data-ui-style='playful'] .pf-bubble .pf-bubble-text {
+    -webkit-text-fill-color: CanvasText;
+    background: none;
+  }
+}
+
+/* === Overlays === */
+
+/*
+ * Overlays agent — opt-out dialogs, voice call/settings, toasts.
+ * Figma 7887:87553 (scrim rgba(28,42,33,.7), card r24, 1.5px ink-55 border,
+ * `0 10px 24px .06 + 5px 5px ink-55` shelf) and 7881 button shelf.
+ * Bricolage Grotesque is the Playful display face; until the font is loaded
+ * app-wide the stack falls back to the sans stack (see report: request).
+ */
+[data-ui-style='playful'] {
+  --pf-ov-scrim: rgba(28, 42, 33, 0.7);
+  --pf-ov-card-shadow: 0 10px 24px 0 rgba(28, 42, 33, 0.06), 5px 5px 0 0 var(--pf-ink-55);
+  --pf-ov-btn-shadow: 0 10px 12px 0 rgba(28, 42, 33, 0.06), 5px 5px 0 0 var(--pf-ink-55);
+  --pf-ov-font-display:
+    'Bricolage Grotesque', 'SF Pro Rounded', -apple-system, system-ui, sans-serif;
+  --pf-ov-focus: #1c2a21;
+}
+
+[data-ui-style='playful'] .pf-ov-display {
+  font-family: var(--pf-ov-font-display);
+  font-weight: 600;
+  font-variation-settings:
+    'opsz' 14,
+    'wdth' 100;
+  color: var(--pf-ink);
+}
+
+/* Shelf buttons (Figma Frame 9 / Frame 339 in 7887:87871) */
+[data-ui-style='playful'] .pf-ov-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  /* Figma strokes are inside the 44px box: 9+1 top, 8+2 bottom, 16+2 sides */
+  padding: 9px 16px 8px;
+  border-style: solid;
+  border-width: 1px 2px 2px 2px;
+  font-family:
+    'SF Pro Rounded',
+    -apple-system,
+    system-ui,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--pf-ov-btn-shadow);
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+[data-ui-style='playful'] .pf-ov-btn--primary {
+  background: #387440;
+  border-color: #2a5730;
+  border-radius: 10px;
+  color: #e8f2ed;
+}
+[data-ui-style='playful'] .pf-ov-btn--secondary {
+  background: #fff;
+  border-color: rgba(28, 42, 33, 0.3);
+  border-radius: 14px;
+  color: var(--pf-ink);
+}
+[data-ui-style='playful'] .pf-ov-btn__grad {
+  background-image: linear-gradient(188.377deg, #fef1e7 0%, #e8f2ed 20.192%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+/* ⚠️ ASSUMPTION: Figma specs the default state only; hover lifts, press sinks into the shelf. */
+@media (hover: hover) {
+  [data-ui-style='playful'] .pf-ov-btn:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow:
+      0 10px 12px 0 rgba(28, 42, 33, 0.06),
+      6px 6px 0 0 var(--pf-ink-55);
+  }
+}
+[data-ui-style='playful'] .pf-ov-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow:
+    0 10px 12px 0 rgba(28, 42, 33, 0.06),
+    2px 2px 0 0 var(--pf-ink-55);
+}
+[data-ui-style='playful'] .pf-ov-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+[data-ui-style='playful'] .pf-ov-btn:focus-visible,
+[data-ui-style='playful'] .pf-ov-focus:focus-visible {
+  outline: 3px solid var(--pf-ov-focus);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ui-style='playful'] .pf-ov-btn {
+    transition: none;
+  }
+  [data-ui-style='playful'] .pf-ov-btn:hover:not(:disabled),
+  [data-ui-style='playful'] .pf-ov-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  [data-ui-style='playful'] .pf-ov-btn {
+    border-color: ButtonText;
+    forced-color-adjust: auto;
+  }
+  [data-ui-style='playful'] .pf-ov-btn__grad {
+    background: none;
+    -webkit-text-fill-color: ButtonText;
+    color: ButtonText;
+  }
+}
+
+/* Dialog card (Figma div.vid-card) */
+[data-ui-style='playful'] .pf-ov-card {
+  background: #fff;
+  border: 1.5px solid var(--pf-ink-55);
+  border-radius: 24px;
+  box-shadow: var(--pf-ov-card-shadow);
+}
+@media (forced-colors: active) {
+  [data-ui-style='playful'] .pf-ov-card {
+    border-color: CanvasText;
+  }
+}
+
+/* aria-disabled primary (stays focusable so the reason can be announced) */
+[data-ui-style='playful'] .pf-ov-btn--inactive {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  [data-ui-style='playful'] .pf-ov-btn--inactive:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+}
+[data-ui-style='playful'] .pf-ov-btn--inactive:active:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}

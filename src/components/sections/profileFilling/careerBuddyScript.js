@@ -1020,3 +1020,21 @@ export const CAREER_BUDDY_NODES = {
     ],
   },
 };
+
+/*
+ * Playful wording (Figma 7958:212035): the Playful frames drop some emoji and use
+ * a different demo name than the Focused frames. Applied at render time only when
+ * Playful is active, so Focused copy and the script itself stay untouched.
+ */
+const PLAYFUL_COPY_REPLACEMENTS = [
+  [/^👋 Nicely done!/, 'Nicely done!'],
+  [/options below👇/g, 'options below'],
+  [/confirmed ✅/g, 'confirmed'],
+  [/^Great 👌/, 'Great'],
+  [/^(That's a strong result), \S+?👋/, '$1, Andrew'],
+];
+
+export const toPlayfulCopy = (text) =>
+  typeof text === 'string'
+    ? PLAYFUL_COPY_REPLACEMENTS.reduce((out, [re, rep]) => out.replace(re, rep), text)
+    : text;

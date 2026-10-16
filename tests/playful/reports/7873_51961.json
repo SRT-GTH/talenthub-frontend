@@ -1,0 +1,1003 @@
+{
+  "id": "7873:51961",
+  "label": "Welcome (default)",
+  "group": "Miscellaneous",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": 0,
+    "derived": 52
+  },
+  "offsetUsed": 52,
+  "counts": {
+    "figmaTexts": 53,
+    "matched": 0,
+    "unmatched": 53,
+    "layoutMismatch": 0,
+    "fontMetric": 0,
+    "widthOver15": 0
+  },
+  "worstLayoutPx": 0,
+  "unmatched": [
+    {
+      "text": "Avatar",
+      "figma": {
+        "x": 82,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Personal Info",
+      "figma": {
+        "x": 189,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Education",
+      "figma": {
+        "x": 337,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Interests ",
+      "figma": {
+        "x": 465,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Personality",
+      "figma": {
+        "x": 585,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Skills",
+      "figma": {
+        "x": 720,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Work",
+      "figma": {
+        "x": 819,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Portfolio",
+      "figma": {
+        "x": 918,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Certs",
+      "figma": {
+        "x": 1036,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Goals",
+      "figma": {
+        "x": 1136,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Pitch",
+      "figma": {
+        "x": 1238,
+        "y": 123
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 120
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Avatar",
+      "figma": {
+        "x": 1436,
+        "y": 119
+      },
+      "closestDom": null
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "figma": {
+        "x": 1497,
+        "y": 117.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Let's build a profile that gets you seen.",
+      "figma": {
+        "x": 164.5,
+        "y": 449.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Ghana Talent AI · your career buddy from SHS to your first big role",
+      "figma": {
+        "x": 113,
+        "y": 511.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Career Buddy,  your personal career mentor",
+      "figma": {
+        "x": 440.5,
+        "y": 589.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Career Buddy",
+      "figma": {
+        "x": 54,
+        "y": 854
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step on GTH — and you're already discoverable. Whenever you're ready, I'll walk you through the rest of your profile. It takes about 40 minutes total, but you can do it in pieces. Let's go?",
+      "figma": {
+        "x": 142,
+        "y": 814
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Tell me more about GTH",
+      "figma": {
+        "x": 70,
+        "y": 930
+      },
+      "closestDom": null
+    },
+    {
+      "text": "How does GTH match me with opportunities?",
+      "figma": {
+        "x": 279,
+        "y": 930
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Is my personal information safe on GTH",
+      "figma": {
+        "x": 631,
+        "y": 930
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Write a message…",
+      "figma": {
+        "x": 115,
+        "y": 999
+      },
+      "closestDom": null
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "figma": {
+        "x": 225.4,
+        "y": 428.8
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Your profile, live",
+      "figma": {
+        "x": 1166,
+        "y": 210
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "figma": {
+        "x": 1166,
+        "y": 255
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Personal Info.",
+      "figma": {
+        "x": 1247.5,
+        "y": 338.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: 80%",
+      "figma": {
+        "x": 1247.5,
+        "y": 368.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Educational Background",
+      "figma": {
+        "x": 1246,
+        "y": 479
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1246,
+        "y": 509
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Personal area of interest",
+      "figma": {
+        "x": 1246,
+        "y": 618
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1246,
+        "y": 648
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Personality",
+      "figma": {
+        "x": 1247.5,
+        "y": 758.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1247.5,
+        "y": 788.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Skills (Competencies)",
+      "figma": {
+        "x": 1246,
+        "y": 899
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: 48%",
+      "figma": {
+        "x": 1246,
+        "y": 929
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Work Experience",
+      "figma": {
+        "x": 1246,
+        "y": 1038
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1246,
+        "y": 1068
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Project Portfolio",
+      "figma": {
+        "x": 1246,
+        "y": 1177
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1246,
+        "y": 1207
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Certifications",
+      "figma": {
+        "x": 1246,
+        "y": 1316
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1246,
+        "y": 1346
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Career Options",
+      "figma": {
+        "x": 1247.5,
+        "y": 1456.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1247.5,
+        "y": 1486.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Career Pitch",
+      "figma": {
+        "x": 1247.5,
+        "y": 1598.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Completion: Not Started",
+      "figma": {
+        "x": 1247.5,
+        "y": 1628.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "figma": {
+        "x": 1550.6,
+        "y": 203.7
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Focused",
+      "figma": {
+        "x": 1020.6,
+        "y": 37.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Playful",
+      "figma": {
+        "x": 1122.1,
+        "y": 37.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Switch Modes ",
+      "figma": {
+        "x": 1265,
+        "y": 34
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Save & Exit",
+      "figma": {
+        "x": 1416,
+        "y": 34
+      },
+      "closestDom": null
+    },
+    {
+      "text": "KA",
+      "figma": {
+        "x": 1590.7,
+        "y": 39.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Kofi A.",
+      "figma": {
+        "x": 1617,
+        "y": 34
+      },
+      "closestDom": null
+    }
+  ],
+  "layout": [],
+  "fontMetric": [],
+  "medianDx": 0,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 52,
+        "w": 1728,
+        "h": 1065,
+        "sel": "div."
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 52,
+        "w": 1728,
+        "h": 1065,
+        "sel": "div."
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 52,
+        "w": 1728,
+        "h": 1065,
+        "sel": "div."
+      }
+    }
+  },
+  "style": {
+    "summaryLine": "0 style mismatches (none); shapes 0/82 matched",
+    "counts": {
+      "colour": 0,
+      "radius": 0,
+      "shadow": 0,
+      "stroke": 0,
+      "opacity": 0,
+      "typography": 0,
+      "gradient": 0
+    },
+    "shapes": {
+      "total": 82,
+      "matched": 0
+    },
+    "textStyleMatched": 0,
+    "unmatchedShapes": [
+      {
+        "node": "Ellipse 1",
+        "nodeId": "7873:51965",
+        "type": "ELLIPSE",
+        "box": [1424, 718, 571, 571]
+      },
+      {
+        "node": "Ellipse 3",
+        "nodeId": "7873:51966",
+        "type": "ELLIPSE",
+        "box": [676, 51, 473, 473]
+      },
+      {
+        "node": "Frame 152",
+        "nodeId": "7873:51967",
+        "type": "FRAME",
+        "box": [0, 91, 1728, 81]
+      },
+      {
+        "node": "teenyicons:left-outline",
+        "nodeId": "7873:51990",
+        "type": "FRAME",
+        "box": [1055, 110, 58, 44]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:51996",
+        "type": "RECTANGLE",
+        "box": [1351, 127, 5, 5]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:52000",
+        "type": "FRAME",
+        "box": [1351, 143, 323, 6]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:52001",
+        "type": "FRAME",
+        "box": [1351, 143, 62, 6]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52005",
+        "type": "VECTOR",
+        "box": [998, 373, 49, 32]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52006",
+        "type": "VECTOR",
+        "box": [976, 330, 84, 59]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52007",
+        "type": "VECTOR",
+        "box": [982, 333, 32, 31]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52009",
+        "type": "VECTOR",
+        "box": [177, 234, 97, 95]
+      },
+      {
+        "node": "Frame 11",
+        "nodeId": "7873:52014",
+        "type": "FRAME",
+        "box": [331, 561, 450, 108]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "7873:52015",
+        "type": "FRAME",
+        "box": [347, 575, 80, 80]
+      },
+      {
+        "node": "Border",
+        "nodeId": "7873:52016",
+        "type": "RECTANGLE",
+        "box": [41, 269, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52017",
+        "type": "RECTANGLE",
+        "box": [320, 731, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52018",
+        "type": "RECTANGLE",
+        "box": [320, 731, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52019",
+        "type": "RECTANGLE",
+        "box": [320, 731, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52040",
+        "type": "VECTOR",
+        "box": [347, 575, 80, 80]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "7873:52041",
+        "type": "RECTANGLE",
+        "box": [357, 584, 60, 62]
+      },
+      {
+        "node": "grid",
+        "nodeId": "7873:52043",
+        "type": "RECTANGLE",
+        "box": [754, 660, 358, 405]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "7873:52047",
+        "type": "FRAME",
+        "box": [60, 800, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "7873:52048",
+        "type": "RECTANGLE",
+        "box": [-262, 478, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52049",
+        "type": "RECTANGLE",
+        "box": [33, 956, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52050",
+        "type": "RECTANGLE",
+        "box": [33, 956, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "7873:52051",
+        "type": "RECTANGLE",
+        "box": [33, 956, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52072",
+        "type": "VECTOR",
+        "box": [60, 800, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "7873:52073",
+        "type": "RECTANGLE",
+        "box": [66, 806, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "7873:52074",
+        "type": "FRAME",
+        "box": [54, 854, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "7873:52076",
+        "type": "FRAME",
+        "box": [126, 800, 592, 106]
+      },
+      {
+        "node": "Frame 14446",
+        "nodeId": "7873:52083",
+        "type": "INSTANCE",
+        "box": [54, 922, 193, 35]
+      },
+      {
+        "node": "Frame 14447",
+        "nodeId": "7873:52084",
+        "type": "INSTANCE",
+        "box": [263, 922, 336, 35]
+      },
+      {
+        "node": "Frame 14448",
+        "nodeId": "7873:52085",
+        "type": "INSTANCE",
+        "box": [615, 922, 294, 35]
+      },
+      {
+        "node": "GTHInput",
+        "nodeId": "7873:52086",
+        "type": "INSTANCE",
+        "box": [54, 973, 1005, 72]
+      },
+      {
+        "node": "majesticons:attachment-line",
+        "nodeId": "I7873:52086;5132:42717",
+        "type": "INSTANCE",
+        "box": [70, 989, 40, 40]
+      },
+      {
+        "node": "ant-design:audio-outlined",
+        "nodeId": "I7873:52086;5132:42720",
+        "type": "INSTANCE",
+        "box": [950, 988, 43, 43]
+      },
+      {
+        "node": "ant-design:audio-outlined",
+        "nodeId": "I7873:52086;5132:42721",
+        "type": "INSTANCE",
+        "box": [1001, 988, 43, 43]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52088",
+        "type": "VECTOR",
+        "box": [-10, 571, 79, 72]
+      },
+      {
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85844",
+        "type": "STAR",
+        "box": [470, 176, 36, 36]
+      },
+      {
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85845",
+        "type": "STAR",
+        "box": [509, 216, 20, 20]
+      },
+      {
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85846",
+        "type": "STAR",
+        "box": [24, 853, 24, 24]
+      },
+      {
+        "node": "genz:sticker · Meet your Career Buddy",
+        "nodeId": "7881:86247",
+        "type": "FRAME",
+        "box": [208, 414, 180, 56]
+      },
+      {
+        "node": "RIGHT — customiser panel",
+        "nodeId": "7873:52089",
+        "type": "FRAME",
+        "box": [1112, 172, 616, 893]
+      },
+      {
+        "node": "div.svc-row",
+        "nodeId": "7873:52094",
+        "type": "INSTANCE",
+        "box": [1166, 297, 508, 130]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52094;5132:40728",
+        "type": "FRAME",
+        "box": [1617, 344, 36, 36]
+      },
+      {
+        "node": "Component 18",
+        "nodeId": "7873:52095",
+        "type": "INSTANCE",
+        "box": [1166, 439, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52095;5132:42159",
+        "type": "VECTOR",
+        "box": [1191, 490, 30, 25]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52095;5132:42163",
+        "type": "FRAME",
+        "box": [1618, 485, 36, 36]
+      },
+      {
+        "node": "Component 17",
+        "nodeId": "7873:52096",
+        "type": "INSTANCE",
+        "box": [1166, 578, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52096;5132:42277",
+        "type": "VECTOR",
+        "box": [1191, 626, 31, 29]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52096;5132:42281",
+        "type": "FRAME",
+        "box": [1618, 624, 36, 36]
+      },
+      {
+        "node": "div.svc-row",
+        "nodeId": "7873:52097",
+        "type": "INSTANCE",
+        "box": [1166, 717, 508, 130]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52097;5132:42365",
+        "type": "VECTOR",
+        "box": [1191, 765, 30, 35]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52097;5132:42369",
+        "type": "FRAME",
+        "box": [1617, 764, 36, 36]
+      },
+      {
+        "node": "Component 9",
+        "nodeId": "7873:52098",
+        "type": "FRAME",
+        "box": [1166, 859, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52101",
+        "type": "VECTOR",
+        "box": [1189, 908, 35, 33]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "7873:52105",
+        "type": "FRAME",
+        "box": [1618, 905, 36, 36]
+      },
+      {
+        "node": "Component 20",
+        "nodeId": "7873:52107",
+        "type": "INSTANCE",
+        "box": [1166, 998, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52107;5132:42451",
+        "type": "VECTOR",
+        "box": [1189, 1047, 35, 30]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52107;5132:42455",
+        "type": "FRAME",
+        "box": [1618, 1044, 36, 36]
+      },
+      {
+        "node": "Component 11",
+        "nodeId": "7873:52108",
+        "type": "FRAME",
+        "box": [1166, 1137, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52111",
+        "type": "VECTOR",
+        "box": [1193, 1187, 27, 27]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "7873:52115",
+        "type": "FRAME",
+        "box": [1618, 1183, 36, 36]
+      },
+      {
+        "node": "Component 12",
+        "nodeId": "7873:52117",
+        "type": "FRAME",
+        "box": [1166, 1276, 508, 127]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52120",
+        "type": "VECTOR",
+        "box": [1190, 1326, 34, 29]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "7873:52124",
+        "type": "FRAME",
+        "box": [1618, 1322, 36, 36]
+      },
+      {
+        "node": "div.svc-row",
+        "nodeId": "7873:52126",
+        "type": "INSTANCE",
+        "box": [1166, 1415, 508, 130]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52126;5132:42582",
+        "type": "VECTOR",
+        "box": [1189, 1461, 37, 37]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:52126;5132:42583",
+        "type": "VECTOR",
+        "box": [1199, 1461, 27, 27]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "I7873:52126;5132:42587",
+        "type": "FRAME",
+        "box": [1617, 1462, 36, 36]
+      },
+      {
+        "node": "div.svc-row",
+        "nodeId": "7873:52127",
+        "type": "FRAME",
+        "box": [1166, 1557, 508, 130]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "7873:52131",
+        "type": "VECTOR",
+        "box": [1195, 1605, 25, 36]
+      },
+      {
+        "node": "div#svc-icon-0",
+        "nodeId": "7873:52135",
+        "type": "FRAME",
+        "box": [1617, 1604, 36, 36]
+      },
+      {
+        "node": "genz:sticker · +20 XP per section",
+        "nodeId": "7878:85847",
+        "type": "FRAME",
+        "box": [1538, 197, 135, 35]
+      },
+      {
+        "node": "Nav",
+        "nodeId": "7873:52137",
+        "type": "FRAME",
+        "box": [0, 1, 1728, 90]
+      },
+      {
+        "node": "GTHLogo 1",
+        "nodeId": "7873:52138",
+        "type": "RECTANGLE",
+        "box": [54, 13, 71, 66]
+      },
+      {
+        "node": "Style switch",
+        "nodeId": "7878:85849",
+        "type": "INSTANCE",
+        "box": [981, 24, 203, 45]
+      },
+      {
+        "node": "seg · Focused",
+        "nodeId": "I7878:85849;7875:85644",
+        "type": "FRAME",
+        "box": [987, 31, 98, 31]
+      },
+      {
+        "node": "seg · Playful",
+        "nodeId": "I7878:85849;7875:85649",
+        "type": "FRAME",
+        "box": [1087, 29, 92, 34]
+      },
+      {
+        "node": "Frame 9",
+        "nodeId": "7873:52153",
+        "type": "INSTANCE",
+        "box": [1208, 22, 184, 48]
+      },
+      {
+        "node": "Background+Border",
+        "nodeId": "7873:52156",
+        "type": "FRAME",
+        "box": [1510, 28, 36, 36]
+      }
+    ],
+    "unmatchedShapesCount": 82,
+    "mismatches": [],
+    "byProp": {}
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

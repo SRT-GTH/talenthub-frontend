@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulVoiceSettings from './PlayfulVoiceSettings.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import { cycleVoiceId, getVoiceById } from './careerBuddyVoices.js';
 
@@ -22,7 +24,7 @@ const ChevronIcon = ({ dir = 'left', className = '' }) => (
  * Choose-a-voice overlay — Figma 5146:76230 / 76269.
  * Sol (left) / Bruce (right) / Tali (bottom) around the 200px mascot.
  */
-const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
+const FocusedVoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
   const [draftId, setDraftId] = useState(voiceId);
 
   useEffect(() => {
@@ -196,6 +198,16 @@ const VoiceSettingsOverlay = ({ open, voiceId, onDone, onCancel }) => {
 
       <p className="sr-only">Selected voice: {voice.name}</p>
     </div>
+  );
+};
+
+/** Playful appearance renders its own picker (same props); Focused markup is untouched. */
+const VoiceSettingsOverlay = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulVoiceSettings {...props} />
+  ) : (
+    <FocusedVoiceSettingsOverlay {...props} />
   );
 };
 

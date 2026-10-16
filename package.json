@@ -21,7 +21,9 @@
     "test:visual:update": "playwright test desktop-visual --update-snapshots",
     "audit:responsive": "node scripts/responsive-audit.mjs",
     "audit:density": "node scripts/density-audit.mjs",
-    "audit:text": "node scripts/text-size-audit.mjs"
+    "audit:text": "node scripts/text-size-audit.mjs",
+    "audit:figma": "node scripts/figma-geometry-audit.mjs",
+    "audit:figma:fetch": "node scripts/figma-fetch.mjs --all --images"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

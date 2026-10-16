@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulVoiceCall from './PlayfulVoiceCall.jsx';
 import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
@@ -16,7 +18,13 @@ const log = debug('VoiceCallOverlay');
  * User: AvatarPreview badgeBg="voice" (5146:76040 radial #387440).
  * Controls reuse Button icon/ghost-icon (hover gradient from design system).
  */
-const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSettings }) => {
+const FocusedVoiceCallOverlay = ({
+  open,
+  voiceId,
+  userName = 'Emma',
+  onHangUp,
+  onOpenSettings,
+}) => {
   const [muted, setMutedLocal] = useState(false);
   const { level, setMuted, active, error } = useVoiceCapture({
     enabled: open,
@@ -119,6 +127,16 @@ const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
         </p>
       )}
     </div>
+  );
+};
+
+/** Playful appearance renders its own call UI (same props); Focused markup is untouched. */
+const VoiceCallOverlay = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulVoiceCall {...props} />
+  ) : (
+    <FocusedVoiceCallOverlay {...props} />
   );
 };
 

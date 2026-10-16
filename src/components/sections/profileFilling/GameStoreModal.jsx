@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Modal from '../../ui/Modal.jsx';
 import Button from '../../ui/Button.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulGameStoreModal from './PlayfulGameStoreModal.jsx';
 import { GAMES, GAME_CATEGORIES, DIFFICULTY_COLORS } from './gameStoreData.js';
 import {
   GameStoreDiceIcon,
@@ -279,7 +281,7 @@ const GameDetailsBody = ({ game }) => (
   </div>
 );
 
-const GameStoreModal = ({ open, onClose, onPlayGame }) => {
+const FocusedGameStoreModal = ({ open, onClose, onPlayGame }) => {
   const [view, setView] = useState('grid');
   const [selectedGameId, setSelectedGameId] = useState(null);
   const [search, setSearch] = useState('');
@@ -401,6 +403,17 @@ const GameStoreModal = ({ open, onClose, onPlayGame }) => {
         )}
       </div>
     </Modal>
+  );
+};
+
+// Appearance style switch: Focused keeps the original dialog byte-for-byte; Playful renders its
+// own dialog (PlayfulGameStoreModal.jsx) with the same props.
+const GameStoreModal = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulGameStoreModal {...props} />
+  ) : (
+    <FocusedGameStoreModal {...props} />
   );
 };
 

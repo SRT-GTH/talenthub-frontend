@@ -3,6 +3,17 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-16] update | Wiki sync after backend wiring (origin/main 3e03afa)
+
+Pulled `cfbf1d2`, `cc291e3`, `3e03afa` (PRs #1-#3 by emmanuel197), built on the responsive commit `ce9f340`:
+talent onboarding + login, photo upload / institution / graduation year / live review page, institution
+registration and bulk upload — all wired to the staging API (`srt-backend-m5mc.onrender.com`) through new
+`src/services/*` modules, a Vite `/api` dev proxy, `VITE_TENANT_ORG_ID` / `VITE_LOGIN_IDENTIFIER`, and five
+headed e2e specs. Updated `api.md` (proxy, modules, endpoint table, env, tests), `routing.md` (wiring table),
+`architecture.md`, `INDEX.md` (responsive plan now EXECUTED). Still static: parent flows (unmerged branch
+`feat/parent-invited-flow`), recruiter, community, profile filling, Career Buddy, Skills Lab, messages.
+Refresh-token handling is not implemented. Wiki pages not listed here were not re-verified in this pass.
+
 ## [2026-10-10] update | Responsive pass executed (320px floor) — plan phases 0-4 + perf
 
 Executed `wiki/responsive-plan.md`. Result on the integrated build: the 5-width gate

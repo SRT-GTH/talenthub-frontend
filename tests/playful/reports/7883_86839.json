@@ -1,0 +1,480 @@
+{
+  "id": "7883:86839",
+  "label": "Pick your vibe - first visit, Playful selected",
+  "group": "Pick-your-vibe",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -3.7,
+    "derived": 55.7
+  },
+  "offsetUsed": 56,
+  "counts": {
+    "figmaTexts": 38,
+    "matched": 37,
+    "unmatched": 1,
+    "layoutMismatch": 34,
+    "fontMetric": 13,
+    "widthOver15": 3
+  },
+  "worstLayoutPx": 100.2,
+  "unmatched": [
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 30
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -100.2,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "div",
+      "dx": -0.6,
+      "dy": -97.7,
+      "dh": -6,
+      "wPct": 15
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "sel": "span.z-[1].inline-block.rotate-[3deg]",
+      "dx": 34.3,
+      "dy": -11.1,
+      "dh": 2.6,
+      "wPct": 4.6,
+      "lines": "dom 1 vs figma ~2"
+    },
+    {
+      "text": "Your accessibility settings stay the sam",
+      "sel": "p#_r_3_.flex.min-w-0.flex-1",
+      "dx": -22.5,
+      "dy": 1.9,
+      "dh": 2,
+      "wPct": -20.7
+    },
+    {
+      "text": "Let's build a profile that gets you seen.",
+      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
+      "dx": 0.5,
+      "dy": -21.1,
+      "dh": 5,
+      "wPct": -5.5
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": 18.9,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
+      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
+      "dx": 0.5,
+      "dy": -17.7,
+      "dh": 3,
+      "wPct": -39.7
+    },
+    {
+      "text": "Career Buddy, your personal career mentor",
+      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "dx": 2.7,
+      "dy": -13.7,
+      "dh": -26,
+      "wPct": 4
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -8.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -7.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "NEW HERE?",
+      "sel": "span.inline-flex.items-center.rounded-full",
+      "dx": -0.7,
+      "dy": 5,
+      "dh": 2.2,
+      "wPct": 5.5
+    },
+    {
+      "text": "RECOMMENDED",
+      "sel": "span.inline-flex.items-center.rounded-full",
+      "dx": -1.4,
+      "dy": -4.2,
+      "dh": 2.1,
+      "wPct": 2.7
+    },
+    {
+      "text": "SECTION DONE",
+      "sel": "span.inline-flex.items-center.rounded-full",
+      "dx": -0.6,
+      "dy": -4.1,
+      "dh": 2.2,
+      "wPct": 4.5
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -3.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -3.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -3.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "+20 XP",
+      "sel": "span.inline-flex.items-center.rounded-full",
+      "dx": -3.4,
+      "dy": 1.6,
+      "dh": 2,
+      "wPct": -1.3
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 1.9,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Same features, same data, just a differe",
+      "sel": "p#_r_2_.font-sans.text-[16px].leading-[1.5]",
+      "dx": -0.1,
+      "dy": 3.1,
+      "dh": -2,
+      "wPct": 0.1
+    },
+    {
+      "text": "Hey! Ready to build your profile?",
+      "sel": "div.py-[8px].pr-[12px].font-sans",
+      "dx": -0.5,
+      "dy": 3.1,
+      "dh": 2,
+      "wPct": 8.4
+    },
+    {
+      "text": "Let's go",
+      "sel": "div.rounded-[12px].bg-white.px-[12px]",
+      "dx": 0.5,
+      "dy": 3.1,
+      "dh": 2,
+      "wPct": 4.8
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
+      "text": "Pick your vibe",
+      "sel": "h2#_r_1_.font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth'_100].te",
+      "dx": -0.5,
+      "dy": 2.9,
+      "dh": 0,
+      "wPct": -0.4
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 2.8,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 0,
+      "wPct": -0.6
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "Stickers, bold colour, XP and little cel",
+      "sel": "span#_r_2_-playful.font-sans.text-[13.5px].leading-[1.4]",
+      "dx": -1,
+      "dy": -2.7,
+      "dh": -0.1,
+      "wPct": -4.3
+    },
+    {
+      "text": "Hey! Ready to build your profile?",
+      "sel": "div.rounded-[12px].bg-[rgba(229,229,229,0.5)].px-[12px]",
+      "dx": -1,
+      "dy": 2.6,
+      "dh": 2,
+      "wPct": 8.4
+    },
+    {
+      "text": "Let's go",
+      "sel": "div.rounded-[12px].bg-[#32683a].px-[12px]",
+      "dx": 0,
+      "dy": 2.6,
+      "dh": 2,
+      "wPct": 4.8
+    },
+    {
+      "text": "Focused",
+      "sel": "span.font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth'_100].text-[",
+      "dx": -0.5,
+      "dy": 2.6,
+      "dh": -1,
+      "wPct": -1
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.truncate.whitespace-nowrap.font-sans",
+      "dx": -2.1,
+      "dy": 0.3,
+      "dh": -4,
+      "wPct": 2.3
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 2.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
+      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
+      "dx": 0.5,
+      "dy": -17.7,
+      "dh": 3,
+      "wPct": -39.7,
+      "severe": true
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "div",
+      "dx": -0.6,
+      "dy": -97.7,
+      "dh": -6,
+      "wPct": 15,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -3.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -7.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Hey! Ready to build your profile?",
+      "sel": "div.rounded-[12px].bg-[rgba(229,229,229,0.5)].px-[12px]",
+      "dx": -1,
+      "dy": 2.6,
+      "dh": 2,
+      "wPct": 8.4,
+      "severe": false
+    },
+    {
+      "text": "Hey! Ready to build your profile?",
+      "sel": "div.py-[8px].pr-[12px].font-sans",
+      "dx": -0.5,
+      "dy": 3.1,
+      "dh": 2,
+      "wPct": 8.4,
+      "severe": false
+    },
+    {
+      "text": "Calm colours, no stickers, quieter wordi",
+      "sel": "span#_r_2_-focused.font-sans.text-[13.5px].leading-[1.4]",
+      "dx": -0.5,
+      "dy": 1.6,
+      "dh": -0.1,
+      "wPct": -6.3,
+      "severe": false
+    },
+    {
+      "text": "Your accessibility settings stay the sam",
+      "sel": "p#_r_3_.flex.min-w-0.flex-1",
+      "dx": -22.5,
+      "dy": 1.9,
+      "dh": 2,
+      "wPct": -20.7,
+      "severe": true
+    }
+  ],
+  "medianDx": -0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 226.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 226.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 56,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

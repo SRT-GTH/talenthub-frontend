@@ -1,0 +1,8 @@
+{
+  "id": "7873:68946",
+  "label": "vid-card (isolated 600x1033 component)",
+  "group": "Personality",
+  "width": 1728,
+  "unreachable": true,
+  "reason": "Figma frame is a detached 600x1033 export of the Game-details dialog body, not a page state. The same markup is audited inside 7873:68514."
+}

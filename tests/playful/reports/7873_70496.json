@@ -1,0 +1,567 @@
+{
+  "id": "7873:70496",
+  "label": "Games filter - Strategy",
+  "group": "Personality",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": 16,
+    "derived": 36
+  },
+  "offsetUsed": 36,
+  "counts": {
+    "figmaTexts": 41,
+    "matched": 36,
+    "unmatched": 5,
+    "layoutMismatch": 34,
+    "fontMetric": 19,
+    "widthOver15": 12
+  },
+  "worstLayoutPx": 1348.1,
+  "unmatched": [
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 136
+      },
+      "closestDom": "Step 4 of 9 ·"
+    },
+    {
+      "text": "Personal Area of Interest confirmed",
+      "figma": {
+        "x": 742,
+        "y": 283
+      },
+      "closestDom": "Emma[Auto]Personal Area of Interest confirmed"
+    },
+    {
+      "text": "Text",
+      "figma": {
+        "x": 952.5,
+        "y": 324.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Play Games",
+      "figma": {
+        "x": 742,
+        "y": 697
+      },
+      "closestDom": "Emma[Auto]Play Games"
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 50
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -15.2,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 124.3,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -89.2,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 86.8,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 84.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": 30.5,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -2.4,
+      "dy": 30.5,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 29.5,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 29.5,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -28.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -27.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 27.5,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 27.5,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -23.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -23.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -23.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -23.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -23.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -23.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -18.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": -18.1,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -17.7,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "Solve a series of puzzles under time pressure — reveals how ",
+      "sel": "span.font-sans.text-[12px].leading-[1.3]",
+      "dx": -2,
+      "dy": 17.3,
+      "dh": 15.2,
+      "wPct": -5,
+      "lines": "dom 3 vs figma ~2"
+    },
+    {
+      "text": "A classic property game that shows how you think about wealt",
+      "sel": "span.font-sans.text-[12px].leading-[1.3]",
+      "dx": -3,
+      "dy": 17.3,
+      "dh": 15.2,
+      "wPct": -3.9,
+      "lines": "dom 3 vs figma ~2"
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -17.2,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": -17.2,
+      "dh": 0,
+      "wPct": -0.6
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -17.2,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 10.8,
+      "dh": 2,
+      "wPct": -48.3
+    },
+    {
+      "text": "Monopoly",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 10.8,
+      "dh": 2,
+      "wPct": -71
+    },
+    {
+      "text": "Strategy",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -1,
+      "dy": 9.5,
+      "dh": -1,
+      "wPct": -1.8
+    },
+    {
+      "text": "Strategy",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -2,
+      "dy": 9.5,
+      "dh": -1,
+      "wPct": -1.8
+    },
+    {
+      "text": "SHOWING RESULTS FOR ‘sTRATEGY’",
+      "sel": "p.shrink-0.font-sans.text-[12px]",
+      "dx": 0,
+      "dy": 7.5,
+      "dh": 3,
+      "wPct": -63.8
+    },
+    {
+      "text": "Find a game...",
+      "sel": "input.w-full.border-none.bg-transparent",
+      "dx": 1,
+      "dy": 3,
+      "dh": 0,
+      "wPct": 15.3
+    },
+    {
+      "text": "Game Store",
+      "sel": "h2#pf-game-store-title.font-sans.text-[16px].font-bold",
+      "dx": -0.2,
+      "dy": -2.5,
+      "dh": 3,
+      "wPct": 2
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -15.2,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -17.2,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 124.3,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 86.8,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -17.7,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -17.2,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -23.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -23.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -23.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -27.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Pick a game — we'll figure out your personality from how you",
+      "sel": "p.font-sans.text-[12px].leading-[normal]",
+      "dx": -1,
+      "dy": 0,
+      "dh": 2,
+      "wPct": 9.6,
+      "severe": false
+    },
+    {
+      "text": "Find a game...",
+      "sel": "input.w-full.border-none.bg-transparent",
+      "dx": 1,
+      "dy": 3,
+      "dh": 0,
+      "wPct": 15.3,
+      "severe": true
+    },
+    {
+      "text": "SHOWING RESULTS FOR ‘sTRATEGY’",
+      "sel": "p.shrink-0.font-sans.text-[12px]",
+      "dx": 0,
+      "dy": 7.5,
+      "dh": 3,
+      "wPct": -63.8,
+      "severe": true
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 10.8,
+      "dh": 2,
+      "wPct": -48.3,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 27.5,
+      "dh": 2,
+      "wPct": -57.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 29.5,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "Monopoly",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 10.8,
+      "dh": 2,
+      "wPct": -71,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 27.5,
+      "dh": 2,
+      "wPct": -57.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 29.5,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    }
+  ],
+  "medianDx": -0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 206.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 206.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 36,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

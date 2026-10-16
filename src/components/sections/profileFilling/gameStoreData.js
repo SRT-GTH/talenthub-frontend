@@ -150,3 +150,32 @@ export const GAMES = [
     thumb: thePitchThumb,
   },
 ];
+
+/* ---- Playful additions (Figma 7873:68025 / 68514 / 70496) — Focused data above is untouched ---- */
+
+/**
+ * Pure catalogue filter (title search + category chip). Kept side-effect free so the same call
+ * can later be replaced by an API query (`GET /games?category=&q=`).
+ */
+export const filterGames = (games, { search = '', category = 'All' } = {}) => {
+  const q = search.trim().toLowerCase();
+  return games.filter((game) => {
+    const matchesSearch = q === '' || game.title.toLowerCase().includes(q);
+    const matchesCategory = category === 'All' || game.category === category;
+    return matchesSearch && matchesCategory;
+  });
+};
+
+/** Difficulty text colours for Playful — exact Figma values (owner decision: colours never differ from Figma). */
+export const PLAYFUL_DIFFICULTY_COLORS = {
+  Easy: '#387440',
+  Medium: '#c8951a',
+  Hard: '#c0392b',
+};
+export const PLAYFUL_DIFFICULTY_FIGMA_COLORS = DIFFICULTY_COLORS;
+
+/** Figma lays the "What we measure" traits out column-major (col 1: 1st+3rd, col 2: 2nd+4th). */
+export const splitTraitColumns = (traits) => [
+  traits.filter((_, i) => i % 2 === 0),
+  traits.filter((_, i) => i % 2 === 1),
+];
