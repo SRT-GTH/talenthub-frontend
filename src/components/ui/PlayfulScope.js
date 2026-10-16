@@ -30,3 +30,15 @@ export const usePlayfulScope = () => {
 
   return playful;
 };
+
+/**
+ * Attachment-chip label, Playful (Figma 7873:52782 shows the literal text
+ * "Transcr... .pdf"): names whose base is longer than 7 chars are cut after
+ * 7 chars and the extension follows after "... ".
+ */
+export const pfFileLabel = (name = '') => {
+  const dot = name.lastIndexOf('.');
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot) : '';
+  return base.length > 7 ? `${base.slice(0, 7)}... ${ext}`.trim() : name;
+};

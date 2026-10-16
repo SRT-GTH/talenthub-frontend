@@ -4,18 +4,18 @@ import Button from '../../components/ui/Button.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../../components/ui/form/mobileScale.js';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
-import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
-import TalentWelcomePanelContent from '../../components/sections/talentAuth/TalentWelcomePanelContent.jsx';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import { WelcomePanelArt } from '../../components/sections/talentAuth/TalentWelcomePanelContent.jsx';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingWelcomePage');
 
 /*
  * OnboardingWelcomePage — post-role-selection landing.
- * Figma source: nodes 2858:23640 / 2858:23867 / 2858:24094 (Welcome
- * "Here's what happens next" screen). Two-column layout: left rail
+ * Figma source: 8027:202121 (toast, 3 s) / 202348 (role flow) / 202575 (loader)
+ * - Welcome "Here's what happens next" screen. Right panel: TalentWelcomePanelContent. Two-column layout: left rail
  * carries the welcome message + 3-step preview list + "Let's Begin"
- * CTA; right panel is OnboardingRightPanel with TalentWelcomePanelContent
+ * CTA; right panel is TalentOnboardingPanel (variant simple) with TalentWelcomePanelContent
  * (big tilted student photo + 5 floating overlay cards).
  *
  * Visible states:
@@ -45,7 +45,7 @@ const TalentTag = () => (
 const StepNumberBadge = ({ n }) => (
   <span
     aria-hidden="true"
-    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-green-light font-display italic text-[#2A5730]"
+    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-green-light font-heading font-semibold text-[#2A5730]"
     style={{
       fontSize: 16,
       outline: '1px solid #C1D4C4',
@@ -103,12 +103,16 @@ const OnboardingWelcomePage = () => {
           <TalentTag />
 
           <h1
-            className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-            style={{ fontSize: 'clamp(2rem, 4.4vw, 4rem)', lineHeight: 1.1 }}
+            className="font-heading font-semibold text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+            style={{
+              fontSize: 'clamp(2.125rem, 4vw, 3.375rem)',
+              lineHeight: 1.1,
+              letterSpacing: '-0.54px',
+            }}
           >
             <span className="block">Welcome. Here&apos;s what</span>
             <span className="block">
-              happens <span className="italic text-brand-green">next.</span>
+              happens <span className="text-brand-green">next.</span>
             </span>
           </h1>
 
@@ -212,7 +216,7 @@ const OnboardingWelcomePage = () => {
             disabled={isSubmitting}
             leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
             rightIcon={<ArrowRightIcon />}
-            className={`mt-3 w-full max-w-[420px] ${COMPACT_PRIMARY_BUTTON}`}
+            className={`mt-3 w-full max-w-[542px] ${COMPACT_PRIMARY_BUTTON}`}
             aria-busy={isSubmitting}
           >
             {isSubmitting ? 'Setting Things Up' : "Let's Begin"}
@@ -237,9 +241,12 @@ const OnboardingWelcomePage = () => {
       {/* Right panel — shared shell with welcome-specific foreground content.
           Photo + all 5 overlay cards live inside one container in
           TalentWelcomePanelContent so they stay in formation together. */}
-      <OnboardingRightPanel
+      <TalentOnboardingPanel
+        variant="simple"
         bgColor="#FFFEFC"
-        panelContent={<TalentWelcomePanelContent showToast={showToast} />}
+        centerContent={
+          <WelcomePanelArt showToast={showToast} onCloseToast={() => setShowToast(false)} />
+        }
       />
     </section>
   );

@@ -1,4 +1,5 @@
 import { debug } from '../../utils/debug.js';
+import ScrollChevronRow from '../ui/ScrollChevronRow.jsx';
 
 const log = debug('ParentOnboardingBreadcrumb');
 
@@ -143,9 +144,12 @@ const ParentOnboardingBreadcrumb = ({
       </div>
 
       {/* ── Steps list — scrollable on narrow viewports ── */}
-      <ol
-        className="flex flex-1 min-w-0 items-center overflow-x-auto max-md:hidden"
-        style={{ scrollbarWidth: 'none' }}
+      <ScrollChevronRow
+        as="ol"
+        wrapperClassName="flex flex-1 min-w-0 max-md:hidden"
+        className="relative flex items-center"
+        focusSelector='[aria-current="step"]'
+        focusKey={currentStep}
       >
         {steps.map((step, index) => {
           const isActive = index === currentStep;
@@ -173,7 +177,7 @@ const ParentOnboardingBreadcrumb = ({
             </li>
           );
         })}
-      </ol>
+      </ScrollChevronRow>
 
       {/* ── Right: completion readout — amber ── */}
       <div

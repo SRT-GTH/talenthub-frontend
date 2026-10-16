@@ -7,7 +7,7 @@ import Button from './Button.jsx';
 import AudioLevelWaveform from './AudioLevelWaveform.jsx';
 import CareerBuddyAvatar from '../shared/CareerBuddyAvatar.jsx';
 import { PlayfulChip, PlayfulMessageActions } from './PlayfulChatParts.jsx';
-import { usePlayfulScope } from './PlayfulScope.js';
+import { pfFileLabel, usePlayfulScope } from './PlayfulScope.js';
 import AvatarPreview from '../sections/engagement/avatar/AvatarPreview.jsx';
 import {
   PlusIcon,
@@ -177,13 +177,13 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
         </span>
 
         {message.file ? (
-          <div className="flex items-center gap-2 rounded-[10px] border border-border-default bg-white px-3 py-2 mt-[6px] max-lg:min-w-0">
-            <ChatFileIcon className="size-4 text-content-secondary shrink-0" />
+          <div className="flex items-center gap-2 rounded-[10px] border border-border-default bg-white px-3 py-2 mt-[6px] max-lg:min-w-0 playful:border-[#eaeaea] playful:py-3 playful:pl-2 playful:pr-4">
+            <ChatFileIcon className="size-4 text-content-secondary shrink-0 playful:size-[26px] playful:text-[#999]" />
             <span className="flex flex-col leading-tight">
-              <span className="font-sans text-[12px] font-medium text-content-primary truncate max-w-[140px]">
-                {message.file.name}
+              <span className="font-sans text-[12px] font-medium text-content-primary truncate max-w-[140px] playful:max-w-[80px] playful:text-[13px] playful:font-normal playful:leading-[15px] playful:text-[#2e2d2d]">
+                {playful ? pfFileLabel(message.file.name) : message.file.name}
               </span>
-              <span className="font-sans text-[10px] max-lg:text-[12px] text-content-tertiary">
+              <span className="font-sans text-[10px] max-lg:text-[12px] text-content-tertiary playful:text-[12px] playful:leading-[15px] playful:text-[#999]">
                 {message.file.size}
               </span>
             </span>
@@ -209,7 +209,7 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
                   {message.autoLabel ?? '[Auto]'}
                 </p>
               )}
-              {activeText}
+              {playful ? <span className="block">{activeText}</span> : activeText}
               {message.bullets && message.bullets.length > 0 && (
                 <ul className="mt-1 flex flex-col gap-[2px]">
                   {message.bullets.map((bullet, i) => (
@@ -523,7 +523,7 @@ const ChatThread = ({
   // are identical either way, so this is built once and placed in whichever
   // wrapper applies.
   const inputBar = (
-    <form onSubmit={handleSubmitForm} className="shrink-0">
+    <form onSubmit={handleSubmitForm} className="shrink-0 playful:pointer-events-auto">
       <div
         className={classNames(
           'flex items-center gap-[8px]',
@@ -710,7 +710,7 @@ const ChatThread = ({
           chrome. */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain"
+        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain playful:flex playful:flex-col playful:pb-5"
       >
         <div
           className={`flex flex-col gap-[16px] max-lg:gap-3 mt-auto ${
@@ -725,7 +725,7 @@ const ChatThread = ({
 
       {/* Fixed footer — mode-picker cards / suggested-reply chips + the
           input bar. Never part of the scrollable region above. */}
-      <div className="shrink-0 flex flex-col gap-[16px] px-[54px] pb-6 pt-[16px] max-lg:gap-3 max-lg:px-4 max-lg:pb-[max(12px,env(safe-area-inset-bottom))] max-lg:pt-3">
+      <div className="shrink-0 flex flex-col gap-[16px] px-[54px] pb-6 pt-[16px] playful:pointer-events-none playful:-mt-5 max-lg:gap-3 max-lg:px-4 max-lg:pb-[max(12px,env(safe-area-inset-bottom))] max-lg:pt-3">
         {/* Mode-picker cards (Figma 5132:57368) — cards row + input bar share
             ONE bg-white/rounded-[16px]/p-[20px] box (verified via
             get_design_context: Frame 14224 wraps "GTH CARDS" x3 AND
@@ -735,7 +735,7 @@ const ChatThread = ({
             frame are separate siblings ~200px apart, so that was wrong on
             both placement and merge target. */}
         {trailingModeCards && trailingModeCards.length > 0 ? (
-          <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[20px] max-lg:gap-3 max-lg:p-3">
+          <div className="flex flex-col gap-[20px] rounded-[16px] bg-white p-[20px] max-lg:gap-3 max-lg:p-3 playful:pointer-events-auto">
             {/* grid-cols-3 (not flex row) — 3 cards (Personality mode-picker)
                 fill one row identically to the old flex-1 layout, but 6
                 cards (the post-Personality section-picker, Figma 5132:49680,
@@ -769,7 +769,7 @@ const ChatThread = ({
           <>
             {/* Suggested replies (Figma 5132:43427 "Bubbles") */}
             {suggestedReplies.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[14px] max-md:-mx-4 max-md:flex-nowrap max-md:gap-x-2 max-md:overflow-x-auto max-md:px-4 max-md:pb-1 max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden">
+              <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[14px] max-md:-mx-4 max-md:flex-nowrap max-md:gap-x-2 max-md:overflow-x-auto max-md:px-4 max-md:pb-1 max-md:[scrollbar-width:none] max-md:[&::-webkit-scrollbar]:hidden playful:pointer-events-auto">
                 {suggestedReplies.map((reply) =>
                   playful ? (
                     <PlayfulChip key={reply} onClick={() => submit(reply)} disabled={disabled}>

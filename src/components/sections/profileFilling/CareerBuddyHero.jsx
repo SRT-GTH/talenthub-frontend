@@ -50,14 +50,14 @@ const PlayfulHero = ({ hero }) => {
   return (
     <section
       aria-label="Welcome"
-      className="flex shrink-0 flex-col items-center gap-[14px] px-4 pb-3 pt-4 text-center lg:px-10 lg:pb-6 max-xl:lg:gap-[10px] [@media(max-height:820px)]:lg:gap-2 [@media(max-height:820px)]:lg:pb-3 lg:pt-[clamp(36px,calc(100vh-9.89vw-640px),280px)] max-lg:max-h-[34%] max-lg:min-h-0 max-lg:shrink max-lg:gap-2 max-lg:overflow-y-auto"
+      className="flex shrink-0 flex-col items-center gap-[14px] px-4 pb-3 pt-4 text-center lg:px-10 lg:pb-6 max-xl:lg:gap-[10px] [@media(max-height:820px)]:lg:gap-2 [@media(max-height:820px)]:lg:pb-3 lg:pt-[clamp(36px,calc(100vh-9.89vw-612px),308px)] max-lg:max-h-[34%] max-lg:min-h-0 max-lg:shrink max-lg:gap-2 max-lg:overflow-y-auto"
     >
       <div className="flex w-full flex-col items-center gap-[14px] max-lg:gap-1.5">
         <div className="relative flex w-fit max-w-full flex-col items-center [--hs:clamp(26px,2.55vw,44px)] text-[length:var(--hs)] max-lg:w-full max-lg:gap-1.5 max-lg:text-[clamp(22px,6.4vw,28px)]">
           {/* genz:sticker · Meet your Career Buddy — Figma 7881:86239 (rotate 5deg, #32683a, white 11px bold) */}
           <span
             aria-hidden="true"
-            className="z-[1] inline-block rotate-[3deg] rounded-[12px] bg-[#32683a] px-[16px] py-[14px] font-sans text-[11px] font-bold leading-[normal] text-white max-lg:px-3 max-lg:py-1.5 max-lg:text-[12px] lg:absolute lg:left-[calc(var(--hs)*1.25)] lg:top-[calc(var(--hs)*-0.66)] lg:rotate-[5deg]"
+            className="z-[1] inline-block rotate-[3deg] rounded-[12px] bg-[#32683a] px-[16px] py-[14px] font-sans text-[11px] font-bold leading-[normal] text-white max-lg:px-3 max-lg:py-1.5 max-lg:text-[12px] lg:absolute lg:left-[calc(var(--hs)*0.6)] lg:top-[calc(var(--hs)*-0.85)] lg:rotate-[5deg]"
           >
             {PLAYFUL_HERO.sticker}
           </span>

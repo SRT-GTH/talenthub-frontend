@@ -11,9 +11,9 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 54,
-    "matched": 48,
-    "unmatched": 6,
-    "layoutMismatch": 40,
+    "matched": 49,
+    "unmatched": 5,
+    "layoutMismatch": 41,
     "fontMetric": 20,
     "widthOver15": 4
   },
@@ -33,15 +33,7 @@
         "x": 1365,
         "y": 118
       },
-      "closestDom": "Step 3 of 11 ·"
-    },
-    {
-      "text": "Educational background confirmed",
-      "figma": {
-        "x": 742,
-        "y": 265
-      },
-      "closestDom": "Educational Background"
+      "closestDom": "Step 3 of 9 ·"
     },
     {
       "text": "Saved! Your education section is  locked in. Ready to move on to your  personal area of interest?",
@@ -79,25 +71,33 @@
     },
     {
       "text": "Let’s talk about your interests so I can better tailor your ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 388.3,
+      "dy": 408.3,
       "dh": -6,
       "wPct": 8.8
     },
     {
       "text": "I’d love to talk about that",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 381.8,
+      "dy": 401.8,
       "dh": -3,
       "wPct": 11.2
     },
     {
+      "text": "Educational background confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 377.8,
+      "dh": 2,
+      "wPct": -1.9
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -17,
-      "dy": 353.8,
+      "dx": 7.5,
+      "dy": 373.8,
       "dh": 2,
       "wPct": -85.8
     },
@@ -190,20 +190,20 @@
       "wPct": 1.3
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 25.4,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 24.3,
+      "dy": 44.3,
       "dh": 1,
       "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 38.3,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Portfolio",
@@ -254,10 +254,18 @@
       "wPct": 3.8
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 19.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 18.3,
+      "dy": 13.3,
       "dh": 1,
       "wPct": 0.9
     },
@@ -276,14 +284,6 @@
       "dy": -7.2,
       "dh": 3,
       "wPct": 4
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -6.7,
-      "dh": 1,
-      "wPct": 0.9
     },
     {
       "text": "Skills (Competencies)",
@@ -439,26 +439,26 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -17,
-      "dy": 353.8,
+      "dx": 7.5,
+      "dy": 373.8,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
     },
     {
       "text": "I’d love to talk about that",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 381.8,
+      "dy": 401.8,
       "dh": -3,
       "wPct": 11.2,
       "severe": false
     },
     {
       "text": "Let’s talk about your interests so I can better tailor your ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 388.3,
+      "dy": 408.3,
       "dh": -6,
       "wPct": 8.8,
       "severe": false
@@ -621,22 +621,22 @@
     }
   },
   "style": {
-    "summaryLine": "135 style mismatches (colour:17 radius:44 shadow:12 stroke:20 opacity:2 typography:40); shapes 27/89 matched",
+    "summaryLine": "131 style mismatches (colour:16 radius:40 shadow:12 stroke:20 opacity:2 typography:41); shapes 23/89 matched",
     "counts": {
-      "colour": 17,
-      "radius": 44,
+      "colour": 16,
+      "radius": 40,
       "shadow": 12,
       "stroke": 20,
       "opacity": 2,
-      "typography": 40,
+      "typography": 41,
       "gradient": 0,
       "mixedRuns": 2
     },
     "shapes": {
       "total": 89,
-      "matched": 27
+      "matched": 23
     },
-    "textStyleMatched": 48,
+    "textStyleMatched": 49,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -705,6 +705,12 @@
         "box": [1019, 287, 28, 13]
       },
       {
+        "node": "avatar showcase",
+        "nodeId": "I7873:55166;5132:42683",
+        "type": "FRAME",
+        "box": [60, 310, 48, 48]
+      },
+      {
         "node": "Background",
         "nodeId": "I7873:55166;5132:42685",
         "type": "RECTANGLE",
@@ -721,6 +727,24 @@
         "nodeId": "I7873:55166;5132:42687",
         "type": "RECTANGLE",
         "box": [33, 466, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:55166;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 310, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:55166;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 316, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:55166;5132:42710",
+        "type": "FRAME",
+        "box": [54, 364, 60, 13]
       },
       {
         "node": "Component 26",
@@ -1011,7 +1035,7 @@
         "box": [1586, 32, 24, 24]
       }
     ],
-    "unmatchedShapesCount": 62,
+    "unmatchedShapesCount": 66,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1048,51 +1072,6 @@
         "figma": "rgba(255,216,107,0.35)",
         "app": "rgba(0,0,0,0)",
         "sel": "div.pointer-events-none.absolute"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "Vector",
-        "nodeId": "I7873:55166;5132:42708",
-        "figma": "rgba(56,116,64,0.06)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "span.relative.inline-flex.shrink-0.items-center"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "Frame 14175",
-        "nodeId": "I7873:55166;5132:42710",
-        "figma": 6.5,
-        "app": 0,
-        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "Frame 14175",
-        "nodeId": "I7873:55166;5132:42710",
-        "figma": 6.5,
-        "app": 0,
-        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "Frame 14175",
-        "nodeId": "I7873:55166;5132:42710",
-        "figma": 6.5,
-        "app": 0,
-        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "Frame 14175",
-        "nodeId": "I7873:55166;5132:42710",
-        "figma": 6.5,
-        "app": 0,
-        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
       },
       {
         "cat": "shadow",
@@ -2014,6 +1993,15 @@
       },
       {
         "cat": "typography",
+        "prop": "line-height",
+        "node": "Educational background confirmed",
+        "nodeId": "7873:55100",
+        "figma": 17.9,
+        "app": 22.5,
+        "sel": "span.block"
+      },
+      {
+        "cat": "typography",
         "prop": "font-weight",
         "node": "Emma",
         "nodeId": "7873:55165",
@@ -2231,18 +2219,18 @@
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 14,
-      "radius-tl": 11,
-      "radius-tr": 11,
-      "radius-br": 11,
-      "radius-bl": 11,
+      "fill": 13,
       "shadow-count": 12,
       "border-width-top": 5,
       "border-width-right": 5,
       "border-width-bottom": 5,
       "border-width-left": 5,
+      "radius-tl": 10,
+      "radius-tr": 10,
+      "radius-br": 10,
+      "radius-bl": 10,
       "font-weight": 8,
-      "line-height": 16,
+      "line-height": 17,
       "text-colour": 3,
       "text-align": 14,
       "text-decoration": 1,
@@ -2250,6 +2238,7 @@
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_55044-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

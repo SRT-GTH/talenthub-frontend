@@ -11,10 +11,10 @@
   "offsetUsed": 58,
   "counts": {
     "figmaTexts": 71,
-    "matched": 62,
-    "unmatched": 9,
-    "layoutMismatch": 47,
-    "fontMetric": 25,
+    "matched": 64,
+    "unmatched": 7,
+    "layoutMismatch": 49,
+    "fontMetric": 26,
     "widthOver15": 4
   },
   "worstLayoutPx": 1348.1,
@@ -33,7 +33,7 @@
         "x": 1365,
         "y": 114
       },
-      "closestDom": "Step 3 of 11 ·"
+      "closestDom": "Step 3 of 9 ·"
     },
     {
       "text": "My bad, I studied for a Bachelor of Science in Computer Science.",
@@ -52,20 +52,12 @@
       "closestDom": null
     },
     {
-      "text": "That’s a strong result, Andrew  Lastly, do you have a transcript you’d like to upload or link to your profile?",
-      "figma": {
-        "x": 142,
-        "y": 661
-      },
-      "closestDom": "That's a strong result, Emma👋\nLastly, do you have a transcript you'd like to up"
-    },
-    {
       "text": "Transcri... .pdf",
       "figma": {
         "x": 908,
         "y": 755
       },
-      "closestDom": null
+      "closestDom": "Transcr... .pdf"
     },
     {
       "text": "Yes, I have a PDF copy — I’ve attached it.",
@@ -82,14 +74,6 @@
         "y": 28
       },
       "closestDom": null
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 688.8,
-        "y": 4.9
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -102,60 +86,36 @@
       "wPct": 15.9
     },
     {
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 313.7,
+      "dy": 13.2,
+      "dh": 1.9,
+      "wPct": -1.1
+    },
+    {
+      "text": "Educational background saved",
+      "sel": "span.font-normal.text-[13px].text-[#595959]",
+      "dx": 303.7,
+      "dy": 12,
+      "dh": 2,
+      "wPct": 6.4
+    },
+    {
+      "text": "Success",
+      "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
+      "dx": 301.2,
+      "dy": 9,
+      "dh": 2,
+      "wPct": -4.6
+    },
+    {
       "text": "The information gathered from the our interaction on your ed",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -279.2,
+      "dy": -259.2,
       "dh": -6,
       "wPct": -4.4
-    },
-    {
-      "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
-      "dx": 3,
-      "dy": -214.7,
-      "dh": -3,
-      "wPct": 7.7
-    },
-    {
-      "text": "6MB",
-      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": -213.7,
-      "dh": -1,
-      "wPct": -70.8
-    },
-    {
-      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -212.2,
-      "dh": -6,
-      "wPct": 7.5
-    },
-    {
-      "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
-      "dx": 3,
-      "dy": -210.7,
-      "dh": -3,
-      "wPct": 8.6
-    },
-    {
-      "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -208.2,
-      "dh": -6,
-      "wPct": 8.5
-    },
-    {
-      "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
-      "dx": 3,
-      "dy": -206.7,
-      "dh": -3,
-      "wPct": 7.2
     },
     {
       "text": "Focused",
@@ -174,10 +134,66 @@
       "wPct": 5.2
     },
     {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -196.2,
+      "dh": -6,
+      "wPct": 9.8
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -194.7,
+      "dh": -3,
+      "wPct": 7.7
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -192.2,
+      "dh": -6,
+      "wPct": 7.5
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -190.7,
+      "dh": -3,
+      "wPct": 8.6
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": -4,
+      "dy": -188.7,
+      "dh": 1,
+      "wPct": -65
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -188.2,
+      "dh": -6,
+      "wPct": 8.5
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -186.7,
+      "dh": -3,
+      "wPct": 7.2
+    },
+    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -98.7,
+      "dy": -78.7,
       "dh": 1,
       "wPct": 0.9
     },
@@ -185,7 +201,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -95.2,
+      "dy": -75.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -214,86 +230,6 @@
       "wPct": 1.3
     },
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -42.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -40.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -38.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -37.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -36.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -35.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -34.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -33.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -31.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 29.4,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 24,
@@ -316,6 +252,14 @@
       "dy": 4.3,
       "dh": 2,
       "wPct": 6.8
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -22.7,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Personality",
@@ -342,20 +286,68 @@
       "wPct": 3.8
     },
     {
-      "text": "Educational background saved",
-      "sel": "span.font-normal.text-[13px].text-[#595959]",
-      "dx": 1.1,
-      "dy": 12,
-      "dh": 2,
-      "wPct": 6.4
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -20.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
-      "text": "Success",
-      "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
-      "dx": -0.1,
-      "dy": 9,
-      "dh": 2,
-      "wPct": -4.6
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -18.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -17.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -16.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -15.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -14.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -13.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -11.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Career Pitch",
@@ -374,6 +366,14 @@
       "wPct": 7.4
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 5.4,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -387,7 +387,7 @@
       "dx": -0.5,
       "dy": 4.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -518,56 +518,65 @@
     },
     {
       "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -206.7,
+      "dy": -186.7,
       "dh": -3,
       "wPct": 7.2,
       "severe": false
     },
     {
       "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -208.2,
+      "dy": -188.2,
       "dh": -6,
       "wPct": 8.5,
       "severe": false
     },
     {
       "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -210.7,
+      "dy": -190.7,
       "dh": -3,
       "wPct": 8.6,
       "severe": false
     },
     {
       "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -212.2,
+      "dy": -192.2,
       "dh": -6,
       "wPct": 7.5,
       "severe": false
     },
     {
       "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -214.7,
+      "dy": -194.7,
       "dh": -3,
       "wPct": 7.7,
       "severe": false
     },
     {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -196.2,
+      "dh": -6,
+      "wPct": 9.8,
+      "severe": false
+    },
+    {
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": -213.7,
-      "dh": -1,
-      "wPct": -70.8,
+      "dx": -4,
+      "dy": -188.7,
+      "dh": 1,
+      "wPct": -65,
       "severe": true
     },
     {
@@ -690,14 +699,14 @@
     {
       "text": "Educational background saved",
       "sel": "span.font-normal.text-[13px].text-[#595959]",
-      "dx": 1.1,
+      "dx": 303.7,
       "dy": 12,
       "dh": 2,
       "wPct": 6.4,
       "severe": false
     }
   ],
-  "medianDx": 0.1,
+  "medianDx": 0.6,
   "containers": {
     "chatPane": {
       "figma": {
@@ -746,14 +755,14 @@
     }
   },
   "style": {
-    "summaryLine": "136 style mismatches (colour:16 radius:40 shadow:11 stroke:16 opacity:2 typography:51); shapes 27/148 matched",
+    "summaryLine": "136 style mismatches (colour:15 radius:40 shadow:11 stroke:16 opacity:2 typography:52); shapes 27/148 matched",
     "counts": {
-      "colour": 16,
+      "colour": 15,
       "radius": 40,
       "shadow": 11,
       "stroke": 16,
       "opacity": 2,
-      "typography": 51,
+      "typography": 52,
       "gradient": 0,
       "mixedRuns": 2
     },
@@ -761,7 +770,7 @@
       "total": 148,
       "matched": 27
     },
-    "textStyleMatched": 62,
+    "textStyleMatched": 64,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -2220,20 +2229,11 @@
       },
       {
         "cat": "typography",
-        "prop": "line-height",
+        "prop": "font-size",
         "node": "6MB",
         "nodeId": "I7873:54569;5132:42956",
-        "figma": 15,
-        "app": 12.5,
-        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
-      },
-      {
-        "cat": "colour",
-        "prop": "text-colour",
-        "node": "6MB",
-        "nodeId": "I7873:54569;5132:42956",
-        "figma": "rgba(153,153,153,1)",
-        "app": "rgba(126,139,153,1)",
+        "figma": 10,
+        "app": 12,
         "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
       },
       {
@@ -2469,6 +2469,15 @@
         "figma": 15.51,
         "app": 19.5,
         "sel": "span.font-normal.text-[13px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "+20 XP",
+        "nodeId": "7881:86258",
+        "figma": 13.13,
+        "app": 16.5,
+        "sel": "span.pointer-events-none.absolute.-top-[10px].-right-[4px]"
       }
     ],
     "byProp": {
@@ -2485,13 +2494,15 @@
       "shadow-count": 11,
       "font-weight": 15,
       "line-height": 18,
-      "text-colour": 4,
+      "text-colour": 3,
       "text-align": 16,
+      "font-size": 1,
       "text-decoration": 1,
       "font-family (fallback?)": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_54504-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

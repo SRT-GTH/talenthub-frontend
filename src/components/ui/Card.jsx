@@ -67,6 +67,9 @@ const Card = ({
   icon,
   tag,
   headline,
+  // 'display' (default) = Instrument Serif 22px (legacy screens, e.g. HomePage).
+  // 'heading' = Bricolage Grotesque 600 21/26.25 (Figma onboarding redesign).
+  headlineVariant = 'display',
   description,
   className,
   children,
@@ -142,7 +145,9 @@ const Card = ({
                 {headline && (
                   <p
                     className={classNames(
-                      'font-display text-[22px] leading-[1.1]',
+                      headlineVariant === 'heading'
+                        ? 'font-heading text-[21px] font-semibold leading-[1.25]'
+                        : 'font-display text-[22px] leading-[1.1]',
                       headlineClasses
                     )}
                   >

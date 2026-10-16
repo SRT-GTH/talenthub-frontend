@@ -11,10 +11,10 @@
   "offsetUsed": 48,
   "counts": {
     "figmaTexts": 83,
-    "matched": 73,
-    "unmatched": 10,
-    "layoutMismatch": 65,
-    "fontMetric": 31,
+    "matched": 74,
+    "unmatched": 9,
+    "layoutMismatch": 66,
+    "fontMetric": 32,
     "widthOver15": 10
   },
   "worstLayoutPx": 1348.1,
@@ -33,7 +33,7 @@
         "x": 1365,
         "y": 124
       },
-      "closestDom": "Step 3 of 11 ·"
+      "closestDom": "Step 3 of 9 ·"
     },
     {
       "text": "My bad, I studied for a Bachelor of Science in Computer Science.",
@@ -52,20 +52,12 @@
       "closestDom": null
     },
     {
-      "text": "That’s a strong result, Andrew  Lastly, do you have a transcript you’d like to upload or link to your profile?",
-      "figma": {
-        "x": 142,
-        "y": 671
-      },
-      "closestDom": "That's a strong result, Emma👋\nLastly, do you have a transcript you'd like to up"
-    },
-    {
       "text": "Transcri... .pdf",
       "figma": {
         "x": 908,
         "y": 765
       },
-      "closestDom": null
+      "closestDom": "Transcr... .pdf"
     },
     {
       "text": "Yes, I have a PDF copy — I’ve attached it.",
@@ -153,31 +145,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -46.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "The information gathered from the our interaction on your ed",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -46.2,
-      "dh": -6,
-      "wPct": -4.4
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -44.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 32.3,
+      "dy": 52.3,
       "dh": 1,
       "wPct": 2.3
     },
@@ -185,7 +153,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 30.3,
+      "dy": 50.3,
       "dh": 1,
       "wPct": 0.9
     },
@@ -193,15 +161,15 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 28.3,
+      "dy": 48.3,
       "dh": 1,
       "wPct": 2.3
     },
     {
       "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 26.3,
+      "dy": 46.3,
       "dh": -3,
       "wPct": 7.2
     },
@@ -209,15 +177,15 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 26.3,
+      "dy": 46.3,
       "dh": 1,
       "wPct": 0.9
     },
     {
       "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 24.8,
+      "dy": 44.8,
       "dh": -6,
       "wPct": 8.5
     },
@@ -225,9 +193,105 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 24.3,
+      "dy": 44.3,
       "dh": 1,
       "wPct": 2.3
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": -4,
+      "dy": 44.3,
+      "dh": 1,
+      "wPct": -65
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 42.3,
+      "dh": -3,
+      "wPct": 8.6
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 42.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 40.8,
+      "dh": -6,
+      "wPct": 7.5
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 40.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 38.3,
+      "dh": -3,
+      "wPct": 7.7
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 38.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 36.8,
+      "dh": -6,
+      "wPct": 9.8
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 36.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -26.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "The information gathered from the our interaction on your ed",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -26.2,
+      "dh": -6,
+      "wPct": -4.4
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -24.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Portfolio",
@@ -254,22 +318,6 @@
       "wPct": 6.8
     },
     {
-      "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
-      "dx": 3,
-      "dy": 22.3,
-      "dh": -3,
-      "wPct": 8.6
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 22.3,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 22.1,
@@ -292,62 +340,6 @@
       "dy": -5.7,
       "dh": 2,
       "wPct": 3.8
-    },
-    {
-      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": 20.8,
-      "dh": -6,
-      "wPct": 7.5
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 20.3,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 19.4,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
-      "text": "6MB",
-      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": 19.3,
-      "dh": -1,
-      "wPct": -70.8
-    },
-    {
-      "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
-      "dx": 3,
-      "dy": 18.3,
-      "dh": -3,
-      "wPct": 7.7
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 18.3,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 16.3,
-      "dh": 1,
-      "wPct": 2.3
     },
     {
       "text": "Write a message…",
@@ -475,7 +467,7 @@
       "dx": -0.5,
       "dy": -5.2,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -524,6 +516,14 @@
       "dy": 4.7,
       "dh": 3,
       "wPct": 6.5
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": -4.6,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Second Class Upper",
@@ -670,56 +670,65 @@
     },
     {
       "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 26.3,
+      "dy": 46.3,
       "dh": -3,
       "wPct": 7.2,
       "severe": false
     },
     {
       "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 24.8,
+      "dy": 44.8,
       "dh": -6,
       "wPct": 8.5,
       "severe": false
     },
     {
       "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 22.3,
+      "dy": 42.3,
       "dh": -3,
       "wPct": 8.6,
       "severe": false
     },
     {
       "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 20.8,
+      "dy": 40.8,
       "dh": -6,
       "wPct": 7.5,
       "severe": false
     },
     {
       "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 18.3,
+      "dy": 38.3,
       "dh": -3,
       "wPct": 7.7,
       "severe": false
     },
     {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 36.8,
+      "dh": -6,
+      "wPct": 9.8,
+      "severe": false
+    },
+    {
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": 19.3,
-      "dh": -1,
-      "wPct": -70.8,
+      "dx": -4,
+      "dy": 44.3,
+      "dh": 1,
+      "wPct": -65,
       "severe": true
     },
     {
@@ -952,9 +961,9 @@
     }
   },
   "style": {
-    "summaryLine": "130 style mismatches (colour:15 radius:36 shadow:11 stroke:16 opacity:2 typography:50); shapes 23/153 matched",
+    "summaryLine": "129 style mismatches (colour:14 radius:36 shadow:11 stroke:16 opacity:2 typography:50); shapes 23/153 matched",
     "counts": {
-      "colour": 15,
+      "colour": 14,
       "radius": 36,
       "shadow": 11,
       "stroke": 16,
@@ -967,7 +976,7 @@
       "total": 153,
       "matched": 23
     },
-    "textStyleMatched": 73,
+    "textStyleMatched": 74,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -2381,20 +2390,11 @@
       },
       {
         "cat": "typography",
-        "prop": "line-height",
+        "prop": "font-size",
         "node": "6MB",
         "nodeId": "I7873:54388;5132:42956",
-        "figma": 15,
-        "app": 12.5,
-        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
-      },
-      {
-        "cat": "colour",
-        "prop": "text-colour",
-        "node": "6MB",
-        "nodeId": "I7873:54388;5132:42956",
-        "figma": "rgba(153,153,153,1)",
-        "app": "rgba(126,139,153,1)",
+        "figma": 10,
+        "app": 12,
         "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
       },
       {
@@ -2636,14 +2636,16 @@
       "radius-bl": 9,
       "shadow-count": 11,
       "font-weight": 15,
-      "line-height": 16,
-      "text-colour": 4,
+      "line-height": 15,
+      "text-colour": 3,
       "text-align": 17,
+      "font-size": 1,
       "text-decoration": 1,
       "font-family (fallback?)": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_54323-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

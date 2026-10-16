@@ -11,8 +11,8 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 74,
-    "matched": 65,
-    "unmatched": 9,
+    "matched": 66,
+    "unmatched": 8,
     "layoutMismatch": 46,
     "fontMetric": 26,
     "widthOver15": 8
@@ -33,15 +33,7 @@
         "x": 1365,
         "y": 118
       },
-      "closestDom": "Step 4 of 11 ·"
-    },
-    {
-      "text": "Educational background confirmed",
-      "figma": {
-        "x": 742,
-        "y": 65
-      },
-      "closestDom": "Educational Background"
+      "closestDom": "Step 4 of 9 ·"
     },
     {
       "text": "1/2",
@@ -105,7 +97,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -879.2,
+      "dy": -859.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -113,7 +105,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -875.7,
+      "dy": -671.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -134,26 +126,58 @@
       "wPct": 5.2
     },
     {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 145.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 142.8,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 124.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 121.8,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "I’ve always enjoyed subjects related to technology and probl",
-      "sel": "div",
+      "sel": "span.block",
       "dx": -84.6,
-      "dy": -132.4,
+      "dy": -112.4,
       "dh": -3.5,
       "wPct": 3
     },
     {
       "text": "Let’s talk about your interests so I can better tailor your ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -129.7,
+      "dy": -109.7,
       "dh": -6,
       "wPct": 8.8
     },
     {
       "text": "I’d love to talk about that",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -128.2,
+      "dy": -108.2,
       "dh": -3,
       "wPct": 11.2
     },
@@ -161,74 +185,57 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 125.8,
+      "dy": -87.7,
       "dh": 1,
       "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 122.8,
-      "dh": 1,
-      "wPct": 2.3
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -17,
-      "dy": -105.2,
+      "dx": 7.5,
+      "dy": -85.2,
       "dh": 2,
       "wPct": -85.8
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 104.8,
-      "dh": 1,
-      "wPct": 0.9
+      "text": "Educational background confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -81.2,
+      "dh": 2,
+      "wPct": -1.9
     },
     {
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 101.8,
+      "dy": 74.8,
       "dh": 1,
       "wPct": 2.3
-    },
-    {
-      "text": "Yes, I love coding personal projects, playing chess, and vol",
-      "sel": "div",
-      "dx": -12.9,
-      "dy": -85.4,
-      "dh": -3.5,
-      "wPct": 15.9
     },
     {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 76.8,
+      "dy": 70.8,
       "dh": 1,
       "wPct": 0.9
     },
     {
-      "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -74.7,
-      "dh": 20,
-      "wPct": -10.1,
-      "lines": "dom 3 vs figma ~2"
+      "text": "Yes, I love coding personal projects, playing chess, and vol",
+      "sel": "span.block",
+      "dx": -12.9,
+      "dy": -65.4,
+      "dh": -3.5,
+      "wPct": 15.9
     },
     {
-      "text": "I’m really drawn to software development, maybe even becomin",
-      "sel": "div",
-      "dx": -10.5,
-      "dy": -64.4,
-      "dh": -3.5,
-      "wPct": 16.3
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 59.8,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Certs",
@@ -255,36 +262,21 @@
       "wPct": 1.3
     },
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 54.8,
-      "dh": 1,
-      "wPct": 2.3
+      "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -54.7,
+      "dh": 20,
+      "wPct": -10.1,
+      "lines": "dom 3 vs figma ~2"
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 50.8,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 39.8,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 25.4,
-      "dh": 2.2,
-      "wPct": 3.1
+      "text": "I’m really drawn to software development, maybe even becomin",
+      "sel": "span.block",
+      "dx": -10.5,
+      "dy": -44.4,
+      "dh": -3.5,
+      "wPct": 16.3
     },
     {
       "text": "Portfolio",
@@ -521,44 +513,44 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -17,
-      "dy": -105.2,
+      "dx": 7.5,
+      "dy": -85.2,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
     },
     {
       "text": "I’d love to talk about that",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -128.2,
+      "dy": -108.2,
       "dh": -3,
       "wPct": 11.2,
       "severe": false
     },
     {
       "text": "Let’s talk about your interests so I can better tailor your ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -129.7,
+      "dy": -109.7,
       "dh": -6,
       "wPct": 8.8,
       "severe": false
     },
     {
       "text": "Yes, I love coding personal projects, playing chess, and vol",
-      "sel": "div",
+      "sel": "span.block",
       "dx": -12.9,
-      "dy": -85.4,
+      "dy": -65.4,
       "dh": -3.5,
       "wPct": 15.9,
       "severe": true
     },
     {
       "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -74.7,
+      "dy": -54.7,
       "dh": 20,
       "wPct": -10.1,
       "lines": "dom 3 vs figma ~2",
@@ -566,9 +558,9 @@
     },
     {
       "text": "I’m really drawn to software development, maybe even becomin",
-      "sel": "div",
+      "sel": "span.block",
       "dx": -10.5,
-      "dy": -64.4,
+      "dy": -44.4,
       "dh": -3.5,
       "wPct": 16.3,
       "severe": true
@@ -749,14 +741,14 @@
     }
   },
   "style": {
-    "summaryLine": "135 style mismatches (colour:17 radius:36 shadow:12 stroke:20 opacity:2 typography:48); shapes 30/144 matched",
+    "summaryLine": "136 style mismatches (colour:17 radius:36 shadow:12 stroke:20 opacity:2 typography:49); shapes 30/144 matched",
     "counts": {
       "colour": 17,
       "radius": 36,
       "shadow": 12,
       "stroke": 20,
       "opacity": 2,
-      "typography": 48,
+      "typography": 49,
       "gradient": 0,
       "mixedRuns": 3
     },
@@ -764,7 +756,7 @@
       "total": 144,
       "matched": 30
     },
-    "textStyleMatched": 65,
+    "textStyleMatched": 66,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -2178,6 +2170,15 @@
       },
       {
         "cat": "typography",
+        "prop": "line-height",
+        "node": "Educational background confirmed",
+        "nodeId": "7873:55851",
+        "figma": 17.9,
+        "app": 22.5,
+        "sel": "span.block"
+      },
+      {
+        "cat": "typography",
         "prop": "font-weight",
         "node": "Emma",
         "nodeId": "7873:55932",
@@ -2478,7 +2479,7 @@
       "radius-br": 9,
       "radius-bl": 9,
       "font-weight": 14,
-      "line-height": 16,
+      "line-height": 17,
       "text-colour": 5,
       "text-align": 16,
       "text-decoration": 1,
@@ -2486,6 +2487,7 @@
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_55795-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

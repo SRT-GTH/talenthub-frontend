@@ -25,6 +25,11 @@ export const AUTH_ROUTES = {
     signIn: '/onboarding/parent-login',
     signUp: '/onboarding/parent-welcome',
   },
+  recruiter: {
+    // Recruiters share the generic /login until a dedicated sign-in frame ships.
+    signIn: '/login',
+    signUp: '/onboarding/recruiter/profile',
+  },
 };
 
 // Generic (role-agnostic) auth surfaces — the shared login and the role-select
@@ -47,6 +52,7 @@ export const getAuthRole = (pathname) => {
   if (pathname.startsWith('/onboarding/institution')) return 'institution';
   if (pathname.startsWith('/onboarding/parent')) return 'parent';
   if (pathname.startsWith('/onboarding/talent')) return 'talent';
+  if (pathname.startsWith('/onboarding/recruiter')) return 'recruiter';
   return null;
 };
 

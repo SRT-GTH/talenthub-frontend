@@ -24,6 +24,8 @@ import {
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import { PersonalOverlayCards } from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
 
 const log = debug('OnboardingParentInfoPage');
 
@@ -250,188 +252,6 @@ const LegalDisclosureBanner = () => (
       account opens immediately regardless.
     </p>
   </div>
-);
-
-// ---- right panel ------------------------------------------------------
-
-const ParentRightPanel = () => (
-  // Brand-green showcase column with cream-amber accents to match the
-  // Parent step's palette. Same structural language as the other step
-  // right panels (orbs + 3 tilted photo placeholders + compliance pill +
-  // collapsed watch-tutorial badge) so visual cohesion holds across the
-  // flow. Cream tilted summary card (Guardian name / Relationship /
-  // SMS+Email pill) mirrors Figma 2858:28903 family.
-  <aside
-    aria-hidden="true"
-    className="relative hidden min-h-[calc(100vh-160px)] w-[42%] shrink-0 self-stretch overflow-hidden border-l border-[#E7E7E7] bg-brand-green lg:block max-lg:pointer-events-none max-lg:absolute max-lg:right-0 max-lg:top-0 max-lg:z-0 max-lg:block max-lg:aspect-[739/973] max-lg:min-h-0 max-lg:w-[180px]! max-lg:self-auto max-lg:rounded-bl-[32px] max-lg:opacity-30 max-lg:blur-[3px] max-lg:[&_button]:invisible max-lg:[&_a]:invisible max-lg:[&_[role=button]]:invisible"
-  >
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[100px]"
-      style={{ right: '-180px', top: '-200px', background: '#F7EFDD' }}
-    />
-    <div
-      className="pointer-events-none absolute size-[473px] rounded-full opacity-50 blur-[150px]"
-      style={{ left: '-170px', bottom: '-220px', background: '#F9EBEA' }}
-    />
-
-    {/* Top-right tilted photo (+5°, cream border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        right: '8%',
-        top: '12%',
-        width: '52%',
-        height: '38%',
-        transform: 'rotate(5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #EEDEB8',
-        outlineOffset: '-10px',
-      }}
-    />
-    {/* Top-left tilted photo (-8.5°, rose border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '8%',
-        top: '6%',
-        width: '54%',
-        height: '40%',
-        transform: 'rotate(-8.5deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #EBC2BD',
-        outlineOffset: '-10px',
-      }}
-    />
-    {/* Bottom tilted photo (-18°, cream border) */}
-    <div
-      className="absolute overflow-hidden rounded-[40px] shadow-[0_24px_40px_-8px_rgba(27,36,44,0.30)]"
-      style={{
-        left: '12%',
-        bottom: '8%',
-        width: '70%',
-        height: '46%',
-        transform: 'rotate(-18deg)',
-        backgroundImage:
-          'linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.18) 100%)',
-        outline: '10px solid #EEDEB8',
-        outlineOffset: '-10px',
-      }}
-    />
-
-    {/* "Parental consent required" badge — amber tinted, top-left */}
-    <div
-      className="absolute rounded-[13px] p-3 shadow-[0_2px_1px_rgba(27,36,44,0.04),0_16px_12px_rgba(27,36,44,0.16)]"
-      style={{
-        left: 24,
-        top: 240,
-        width: 268,
-        background: '#C8951A',
-        border: '1px solid #FAF4E8',
-      }}
-    >
-      <div className="flex items-center gap-[9px]">
-        <span
-          className="flex size-9 shrink-0 items-center justify-center rounded-[9px]"
-          style={{ background: '#EEDEB8' }}
-          aria-hidden="true"
-        >
-          <span className="text-[#967014]">
-            <UsersGroupIcon />
-          </span>
-        </span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[12px] font-bold leading-[15px] text-[#FEFEFE]">
-            Required for under-18s
-          </p>
-          <p
-            className="text-[10px] max-lg:text-[12px] leading-[14px] text-[#FEFEFE]"
-            style={{ opacity: 0.72 }}
-          >
-            Ghana Data Protection Act, 2012
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Compliance pill — top right */}
-    <div
-      className="absolute inline-flex items-center gap-2 rounded-[10px] border border-black/5 bg-white px-2.5 py-2 shadow-[0_2px_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.1)]"
-      style={{ right: 24, top: 200 }}
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="5.5" stroke="#387440" />
-        <path
-          d="M4.5 7l1.7 2 3.3-3.2"
-          stroke="#387440"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span
-        className="text-[14px] font-semibold leading-6 text-brand-green"
-        style={{ letterSpacing: '0.1px' }}
-      >
-        Ghana Data Protection Act compliant
-      </span>
-    </div>
-
-    {/* Guardian summary card — cream tilted card showing what data is
-        collected. Mirrors Figma 2858:28903 floating preview. */}
-    <div
-      className="absolute rounded-[12px] p-3"
-      style={{
-        left: '38%',
-        bottom: 144,
-        width: 260,
-        background: '#FAF4E8',
-        border: '1px solid #EEDEB8',
-        transform: 'rotate(2deg)',
-        boxShadow: '0 3px 0 #967014, 0 8px 28px rgba(200,149,26,0.14)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span
-            className="text-[12px] leading-[18px] text-[#575755]"
-            style={{ letterSpacing: '0.2px' }}
-          >
-            Guardian Name
-          </span>
-          <span
-            className="text-[12px] font-semibold leading-5"
-            style={{ color: '#C8951A', letterSpacing: '0.2px' }}
-          >
-            Mother
-          </span>
-        </div>
-        <div
-          className="text-[12px] leading-[18px] text-[#575755]"
-          style={{ letterSpacing: '0.2px' }}
-        >
-          Relationship
-        </div>
-        <span
-          className="text-[12px] font-semibold leading-5"
-          style={{ color: '#C8951A', letterSpacing: '0.2px' }}
-        >
-          SMS (+233 24 52..) + Email
-        </span>
-      </div>
-    </div>
-
-    {/* Watch tutorial — collapsed play badge */}
-    <button
-      type="button"
-      aria-label="Watch tutorial for Parent step"
-      className="absolute inline-flex size-[72px] items-center justify-center rounded-full text-white"
-      style={{ right: 32, bottom: 30, background: 'rgba(235,241,236,0.3)' }}
-    >
-      <PlayCircleIcon />
-    </button>
-  </aside>
 );
 
 // ---- page -------------------------------------------------------------
@@ -685,7 +505,13 @@ const OnboardingParentInfoPage = () => {
           </form>
         </div>
 
-        <ParentRightPanel />
+        {/* No Figma frame for this step: reuses the Personal-info panel art
+            (8027:204534) on the shared responsive panel. */}
+        <TalentOnboardingPanel
+          photoCards={[]}
+          showWatchTutorial={false}
+          overlayContent={<PersonalOverlayCards />}
+        />
       </section>
     </div>
   );

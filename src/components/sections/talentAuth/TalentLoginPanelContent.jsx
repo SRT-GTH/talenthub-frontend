@@ -1,163 +1,166 @@
+import { debug } from '../../../utils/debug.js';
 import photo1 from '../../../assets/hero/talent-panel-photo-1.webp';
 import photo2 from '../../../assets/hero/talent-panel-photo-2.webp';
 import photo3 from '../../../assets/hero/talent-panel-photo-3.webp';
 import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
 import ellipseCard23 from '../../../assets/hero/talent-panel-card-ellipse-23.svg';
-import gthIcon from '../../../assets/hero/talent-panel-gth-icon.svg';
+import gthIcon from '../../../assets/entry/panel-shield-check.svg'; // Figma 8027:214229
 import sparkle26 from '../../../assets/hero/talent-panel-sparkle-26.svg';
-import PhotoCard from './PhotoCard.jsx';
+
+const log = debug('TalentLoginPanelContent');
 
 /*
- * TalentLoginPanelContent — foreground composition for the login right panel.
+ * TalentLoginPanelContent - right-panel composition for the talent Login screen.
+ * Figma: 8027:214133 (default) / 214479 / 214691 / 214903 -> panel 'Frame 150'
+ * 8027:214198, 739 x 973. Rebuilt for the shared OnboardingPanel contract
+ * (see TalentOnboardingPanel): nothing is sized in vw or viewport px.
  *
- * Figma reference: node 4704:50608 (Login Screen right panel), 739 × 973 px.
- * Renders inside OnboardingRightPanel (position:relative aside) as a single
- * absolute inset-0 container so all photos + overlay cards share one
- * positioning context and stay in formation at any panel width.
- *
- * Contains:
- *   – PhotoCard (local) — reusable card + photo + corner ellipse
- *   – 3 × PhotoCard (photo1/2/3 at their Figma positions)
- *   – Data Protected chip  (top-left)
- *   – GDPR compliance badge
- *   – Welcome Back stats card (bottom-right, rotate 6°)
- *
- * ✅ VERIFIED — extracted from OnboardingRightPanel.jsx refactor 2026-07-05
+ *  - Photo cards = LOGIN_PHOTO_CARDS (centre point + width as % of the PANEL,
+ *    aspect-ratio 1). Centres/sizes derived from the rotated bounding boxes in
+ *    Figma (side = bbox / (cos t + sin t)):
+ *      8027:214202  top-right  rot +5   side 288 -> 39.0%  centre (72.2%, 47.1%) border #eedeb8
+ *      8027:214208  top-left   rot +7   side 331 -> 44.8%  centre (30.3%, 25.1%) border #ebc2bd
+ *      8027:214211  bottom-left rot -13 side 332 -> 44.9%  centre (27.3%, 71.4%) border #c1d4c4
+ *  - LoginOverlayCards = chips + stats card, positioned in % of the panel on both
+ *    axes. All inner text uses container-query units (cqw) of the overlay
+ *    container (= panel width), so type scales with the panel, never the viewport.
+ *  - 'Verified profile' chip (8027:214221) is visible=false in Figma: not rendered.
  */
 
-// vw-based clamp helpers — panel is clamp(360px, 42vw, 739px).
-// Formula: card_px / 739 × 42vw  →  card-as-fraction-of-panel × 42vw
-// Card 1 inner (288 px): 288/739 × 42 ≈ 16.4 vw
-// Card 2 & 3 inner (331 px): 331/739 × 42 ≈ 18.8 vw
-const CARD1_W = 'clamp(120px, 16.4vw, 288px)';
-const CARD23_W = 'clamp(145px, 18.8vw, 331px)';
+// Overlay container: 1cqw = 1% of the panel width. px/739*100 = cqw.
+const cq = (px) => `${((px / 739) * 100).toFixed(3)}cqw`;
+const fs = (px, floor = 6) => `max(${floor}px, ${cq(px)})`;
 
-export default function TalentLoginPanelContent() {
+// eslint-disable-next-line react-refresh/only-export-components
+export const LOGIN_PHOTO_CARDS = [
+  {
+    photo: photo1,
+    centerX: '72.2%',
+    centerY: '47.1%',
+    rotate: 'rotate(5deg)',
+    width: '39%',
+    aspectRatio: '1',
+    borderColor: '#eedeb8',
+    cornerEllipseSrc: ellipseCard1,
+  },
+  {
+    photo: photo2,
+    centerX: '30.3%',
+    centerY: '25.1%',
+    rotate: 'rotate(7deg)',
+    width: '44.8%',
+    aspectRatio: '1',
+    borderColor: '#ebc2bd',
+    cornerEllipseSrc: ellipseCard23,
+  },
+  {
+    photo: photo3,
+    centerX: '27.3%',
+    centerY: '71.4%',
+    rotate: 'rotate(-13deg)',
+    width: '44.9%',
+    aspectRatio: '1',
+    borderColor: '#c1d4c4',
+    cornerEllipseSrc: ellipseCard23,
+  },
+];
+
+export const LoginOverlayCards = () => {
+  log('render overlays');
   return (
-    // One container — all photos + overlay cards share this positioning context
-    <div className="absolute inset-0" aria-hidden="true">
-      {/* ── Photo Card 1 — woman at desk, top-right, rotate 5° ─────────────── */}
-      {/* Figma: centre at left calc(50%+163.72px)→+22.15%, top calc(50%-27.35px)→-2.81% */}
-      <PhotoCard
-        src={photo1}
-        borderColor="#eedeb8"
-        rotation="5deg"
-        left="calc(50% + 22.15%)"
-        top="calc(50% - 2.81%)"
-        cardWidth={CARD1_W}
-        ellipseSrc={ellipseCard1}
-        inset="-17.98px -9.18px -1.76px -10.56px"
+    // aria-hidden + container so cqw = panel width.
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{ containerType: 'inline-size' }}
+    >
+      {/* sparkle-26 (8027:214233): 104px, rot 32, at (36.1%, 45.2%) */}
+      <img
+        src={sparkle26}
+        alt=""
+        draggable={false}
+        className="absolute block max-w-none"
+        style={{
+          left: '36.1%',
+          top: '45.2%',
+          width: '14%',
+          aspectRatio: '1',
+          transform: 'rotate(32deg)',
+        }}
       />
 
-      {/* ── Photo Card 2 — group studying, top-left, rotate 7° ─────────────── */}
-      {/* Figma: centre at left calc(50%-145.93px)→-19.75%, top calc(50%-242.76px)→-24.95% */}
-      <PhotoCard
-        src={photo2}
-        borderColor="#ebc2bd"
-        rotation="7deg"
-        left="calc(50% - 19.75%)"
-        top="calc(50% - 24.95%)"
-        cardWidth={CARD23_W}
-        ellipseSrc={ellipseCard23}
-        inset="-17.98px -9.9px -2.47px -10.56px"
-      />
-
-      {/* ── Photo Card 3 — man in yellow hoodie, bottom-left, -rotate 13° ──── */}
-      {/* Figma: centre-X at left calc(50%-167.92px)→-22.72%, bottom 80.37/973=8.26% */}
-      {/* sparkle-26 is anchored to this card's top-right corner */}
-      <PhotoCard
-        src={photo3}
-        borderColor="#c1d4c4"
-        rotation="-13deg"
-        left="calc(50% - 22.72%)"
-        bottom="8.26%"
-        cardWidth={CARD23_W}
-        ellipseSrc={ellipseCard23}
-        inset="-17.98px -9.89px -2.47px -10.56px"
-        cornerDecoration={
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              transform: 'translate(45%, -60%)',
-              width: '76.735px',
-              height: '73.945px',
-              pointerEvents: 'none',
-            }}
-          >
-            <img
-              src={sparkle26}
-              alt=""
-              style={{
-                display: 'block',
-                width: '100%',
-                height: '100%',
-                transform: 'rotate(32deg)',
-              }}
-              draggable={false}
-            />
-          </div>
-        }
-      />
-
-      {/* ── Data Protected chip ─────────────────────────────────────────────── */}
-      {/* Figma: left 3.38%, top 36.56%, right edge at 60.4% */}
+      {/* Data Protected chip (8027:214214): 268x68 at (3.4%, 36.6%) */}
       <div
-        className="absolute bg-[#ebf1ec] border border-[#fffefc] rounded-[13px] drop-shadow-[0px_2px_1px_rgba(27,36,44,0.04),0px_16px_12px_rgba(27,36,44,0.16)] flex items-center gap-[9px] px-3 py-2"
-        style={{ left: '3.38%', top: '36.56%', right: '60.4%' }}
+        className="absolute flex items-center border border-[#fffefc] bg-[#ebf1ec] drop-shadow-[0px_2px_1px_rgba(27,36,44,0.04)] drop-shadow-[0px_16px_12px_rgba(27,36,44,0.16)]"
+        style={{
+          left: '3.4%',
+          top: '36.6%',
+          width: '36.3%',
+          borderRadius: cq(13),
+          gap: cq(9),
+          padding: `${cq(14)} ${cq(16)}`,
+        }}
       >
-        <div className="bg-[#387440] rounded-[9px] shrink-0 size-9" />
-        <div className="flex flex-col gap-[2px] items-start text-[#595959] min-w-0">
-          <p className="font-bold leading-[normal]" style={{ fontSize: 'clamp(9px, 1.1vw, 12px)' }}>
+        <div
+          className="shrink-0 bg-[#387440]"
+          style={{ width: cq(36), height: cq(36), borderRadius: cq(9) }}
+        />
+        <div className="flex min-w-0 flex-col text-[#595959]" style={{ gap: cq(2) }}>
+          <p className="font-bold leading-none" style={{ fontSize: fs(12) }}>
             Data Protected
           </p>
-          <p
-            className="font-normal leading-snug opacity-[0.72]"
-            style={{ fontSize: 'clamp(7px, 0.9vw, 10px)' }}
-          >
+          <p className="leading-tight" style={{ fontSize: fs(10) }}>
             Encrypted · Never shared without consent
           </p>
         </div>
       </div>
 
-      {/* ── GDPR compliance badge ───────────────────────────────────────────── */}
-      {/* Figma: left 55.54%, top 22.93%, right 7.04% */}
+      {/* GDPA badge (8027:214227): 288x40 at (54.8%, 22.9%) */}
       <div
-        className="absolute bg-white border border-[rgba(0,0,0,0.06)] rounded-[10px] drop-shadow-[0px_8px_16px_rgba(0,0,0,0.1),0px_2px_0px_rgba(0,0,0,0.05)] flex items-center gap-[8px] px-[10px] py-[8px]"
-        style={{ left: '55.54%', top: '22.93%', right: '7.04%' }}
+        className="absolute flex items-center border border-[rgba(28,42,33,0.06)] bg-white drop-shadow-[0px_8px_16px_rgba(0,0,0,0.1)]"
+        style={{
+          left: '54.8%',
+          top: '22.9%',
+          width: '39%',
+          borderRadius: cq(10),
+          gap: cq(8),
+          padding: `${cq(8)} ${cq(10)}`,
+        }}
       >
-        <div className="flex items-center justify-center shrink-0 size-[13.553px]">
-          <img
-            src={gthIcon}
-            alt=""
-            style={{ display: 'block', width: '12px', height: '12px', transform: 'rotate(8deg)' }}
-            draggable={false}
-          />
-        </div>
+        <img
+          src={gthIcon}
+          alt=""
+          draggable={false}
+          className="shrink-0"
+          style={{ width: cq(14), height: cq(14) }}
+        />
         <p
-          className="text-[#387440] font-semibold tracking-[0.1px] leading-snug"
-          style={{ fontSize: 'clamp(10px, 1.2vw, 14px)' }}
+          className="truncate font-semibold tracking-[0.1px] text-[#387440]"
+          style={{ fontSize: fs(14) }}
         >
           Ghana Data Protection Act compliant
         </p>
       </div>
 
-      {/* ── Welcome Back card — bottom-right, rotate 6° ─────────────────────── */}
-      {/* Figma: left 415/739=56.2%, top 685/973=70.4%, card 248×223px.
-          Internal positions as % of 248×223 reference frame. */}
+      {/* Welcome back card (8027:214234): inner 248x223 (bbox 270x248 at rot 6),
+          centre (74.6%, 83.1%). Internal positions as % of the 248x223 card. */}
       <div
         className="absolute"
-        style={{ left: '56.2%', top: '70.4%', width: '36.5%', aspectRatio: '248/223' }}
+        style={{
+          left: '74.6%',
+          top: '83.1%',
+          width: '33.6%',
+          aspectRatio: '248 / 223',
+          transform: 'translate(-50%, -50%) rotate(6deg)',
+        }}
       >
-        <div style={{ width: '100%', height: '100%', transform: 'rotate(6deg)' }}>
+        <div style={{ width: '100%', height: '100%' }}>
           <div
-            className="relative bg-white overflow-hidden"
+            className="relative overflow-hidden bg-white"
             style={{
               width: '100%',
               height: '100%',
-              borderRadius: 'clamp(10px, 1.37vw, 24px)',
+              borderRadius: cq(24),
               boxShadow:
                 '0px 2px 2px -1px rgba(27,35,44,0.04), 0px 8px 16px -2px rgba(27,36,44,0.12)',
             }}
@@ -179,9 +182,9 @@ export default function TalentLoginPanelContent() {
                 style={{ height: '100%', aspectRatio: '1' }}
               >
                 <p
-                  className="absolute italic font-display text-[#387440] tracking-[-1px]"
+                  className="absolute font-heading font-semibold text-[#387440] tracking-[-0.02em]"
                   style={{
-                    fontSize: 'clamp(8px, 1.14vw, 20px)',
+                    fontSize: 'max(8px, 2.71cqw)',
                     lineHeight: 1,
                     top: 'calc(50% - 8.33%)',
                     left: 'calc(50% - 11.67%)',
@@ -192,7 +195,7 @@ export default function TalentLoginPanelContent() {
                 <p
                   className="absolute font-bold text-[#babab7] tracking-[0.5px] uppercase"
                   style={{
-                    fontSize: 'clamp(4px, 0.4vw, 7px)',
+                    fontSize: 'max(4px, 0.95cqw)',
                     lineHeight: 1,
                     top: 'calc(50% + 18.52%)',
                     left: '50%',
@@ -211,13 +214,13 @@ export default function TalentLoginPanelContent() {
               >
                 <p
                   className="font-medium text-[#babab7]"
-                  style={{ fontSize: 'clamp(5px, 0.57vw, 10px)', lineHeight: 1 }}
+                  style={{ fontSize: 'max(5px, 1.36cqw)', lineHeight: 1 }}
                 >
                   Welcome back,
                 </p>
                 <p
                   className="font-bold text-[#111] truncate"
-                  style={{ fontSize: 'clamp(6px, 0.8vw, 14px)', lineHeight: 1 }}
+                  style={{ fontSize: 'max(6px, 1.90cqw)', lineHeight: 1 }}
                 >
                   Abena Mensah
                 </p>
@@ -231,7 +234,7 @@ export default function TalentLoginPanelContent() {
                   right: '34.96%',
                   top: 'calc(50% + 32.41%)',
                   height: '31.48%',
-                  borderRadius: 'clamp(2px, 0.23vw, 4px)',
+                  borderRadius: 'max(2px, 0.55cqw)',
                   transform: 'translateY(-50%)',
                   paddingLeft: '8%',
                 }}
@@ -239,7 +242,7 @@ export default function TalentLoginPanelContent() {
                 <p
                   className="font-bold text-[#575755] tracking-[0.4px] uppercase"
                   style={{
-                    fontSize: 'clamp(4px, 0.45vw, 9px)',
+                    fontSize: 'max(4px, 1.07cqw)',
                     lineHeight: 1,
                     whiteSpace: 'nowrap',
                   }}
@@ -257,7 +260,7 @@ export default function TalentLoginPanelContent() {
               <p
                 className="absolute font-bold text-[#babab7] uppercase tracking-[0.6px]"
                 style={{
-                  fontSize: 'clamp(4px, 0.51vw, 9px)',
+                  fontSize: 'max(4px, 1.21cqw)',
                   lineHeight: 1,
                   top: '27.5%',
                   left: 0,
@@ -269,7 +272,7 @@ export default function TalentLoginPanelContent() {
               <p
                 className="absolute font-bold text-[#387440]"
                 style={{
-                  fontSize: 'clamp(4px, 0.51vw, 9px)',
+                  fontSize: 'max(4px, 1.21cqw)',
                   lineHeight: 1,
                   top: '27.5%',
                   left: '92.27%',
@@ -280,11 +283,11 @@ export default function TalentLoginPanelContent() {
               </p>
               <div
                 className="absolute left-0 right-0 bg-[#f8f8f4] overflow-hidden"
-                style={{ top: '75%', height: '25%', borderRadius: 'clamp(1px, 0.17vw, 3px)' }}
+                style={{ top: '75%', height: '25%', borderRadius: 'max(1px, 0.40cqw)' }}
               >
                 <div
                   className="absolute bg-gradient-to-r from-[#387440] to-[#5caf6a] inset-[0_26%_0_0]"
-                  style={{ borderRadius: 'clamp(1px, 0.17vw, 3px)' }}
+                  style={{ borderRadius: 'max(1px, 0.40cqw)' }}
                 />
               </div>
             </div>
@@ -302,17 +305,17 @@ export default function TalentLoginPanelContent() {
                 <div
                   key={label}
                   className="absolute inset-y-0 bg-[#f8f8f4] flex flex-col items-center justify-center"
-                  style={{ left, right, gap: '8%', borderRadius: 'clamp(3px, 0.34vw, 6px)' }}
+                  style={{ left, right, gap: '8%', borderRadius: 'max(3px, 0.81cqw)' }}
                 >
                   <p
-                    className="italic font-display text-[#111] tracking-[-0.5px]"
-                    style={{ fontSize: 'clamp(6px, 0.85vw, 15px)', lineHeight: 1 }}
+                    className="font-heading font-semibold text-[#1c2a21] tracking-[-0.035em]"
+                    style={{ fontSize: 'max(6px, 2.02cqw)', lineHeight: 1 }}
                   >
                     {value}
                   </p>
                   <p
                     className="font-bold text-[#babab7] tracking-[0.5px] uppercase"
-                    style={{ fontSize: 'clamp(3px, 0.46vw, 8px)', lineHeight: 1 }}
+                    style={{ fontSize: 'max(3px, 1.10cqw)', lineHeight: 1 }}
                   >
                     {label}
                   </p>
@@ -328,7 +331,7 @@ export default function TalentLoginPanelContent() {
                 right: '6.45%',
                 top: '77.58%',
                 height: '15.25%',
-                borderRadius: 'clamp(4px, 0.57vw, 10px)',
+                borderRadius: 'max(4px, 1.36cqw)',
                 paddingLeft: '5.09%',
                 gap: '3%',
               }}
@@ -336,11 +339,11 @@ export default function TalentLoginPanelContent() {
               <div
                 className="bg-[#387440] shrink-0 rounded-[3px]"
                 style={{
-                  width: 'clamp(3px, 0.34vw, 6px)',
-                  height: 'clamp(3px, 0.34vw, 6px)',
+                  width: 'max(3px, 0.81cqw)',
+                  height: 'max(3px, 0.81cqw)',
                 }}
               />
-              <p style={{ fontSize: 'clamp(5px, 0.58vw, 10px)', lineHeight: 1 }}>
+              <p style={{ fontSize: 'max(5px, 1.38cqw)', lineHeight: 1 }}>
                 <span className="font-bold text-[#387440]">47</span>
                 <span className="font-semibold text-[#2a5730]"> new opportunities matched</span>
               </p>
@@ -350,4 +353,9 @@ export default function TalentLoginPanelContent() {
       </div>
     </div>
   );
+};
+
+// Default export kept so the page can import the content as a unit.
+export default function TalentLoginPanelContent() {
+  return <LoginOverlayCards />;
 }

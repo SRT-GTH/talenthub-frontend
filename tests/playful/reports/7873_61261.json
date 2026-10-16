@@ -70,28 +70,28 @@
       "wPct": 15.9
     },
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -176.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -62.2,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
       "text": "+20 XP PER SECTION",
       "sel": "span.absolute.right-[3px].top-[5px]",
       "dx": -0.5,
-      "dy": 16.9,
+      "dy": -648.1,
       "dh": 2.2,
       "wPct": 3.1
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -169.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -55.2,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Career Pitch",
@@ -243,6 +243,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_61261-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

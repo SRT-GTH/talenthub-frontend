@@ -1,369 +1,265 @@
 import { debug } from '../../../utils/debug.js';
-import photo1 from '../../../assets/hero/talent-panel-photo-1.webp';
-import photo2 from '../../../assets/hero/talent-panel-photo-2.webp';
-import photo3 from '../../../assets/hero/talent-panel-photo-3.webp';
-import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
-import ellipseCard23 from '../../../assets/hero/talent-panel-card-ellipse-23.svg';
-import gthIcon from '../../../assets/hero/talent-panel-gth-icon.svg';
-import sparkle26 from '../../../assets/hero/talent-panel-sparkle-26.svg';
-import arrowDown from '../../../assets/hero/talent-panel-arrow-down2.svg';
-import arrowScribble from '../../../assets/hero/talent-panel-arrow-scribble.svg';
-import PhotoCard from './PhotoCard.jsx';
-import WatchTutorial from '../../ui/WatchTutorial.jsx';
+import photo1 from '../../../assets/hero/talent-panel-fig-photo-gold.webp';
+import photo2 from '../../../assets/hero/talent-panel-fig-photo-pink.webp';
+import photo3 from '../../../assets/hero/talent-panel-fig-photo-green.webp';
+import gthIcon from '../../../assets/talent-onboarding/panel-gdpa-icon.svg';
+import sparkle26 from '../../../assets/talent-onboarding/panel-sparkle-26.svg';
+import arrowDown from '../../../assets/talent-onboarding/panel-arrow-down.svg';
+import arrowScribble from '../../../assets/talent-onboarding/panel-arrow-scribble.svg';
+import tutorialCircle from '../../../assets/talent-onboarding/watch-tutorial-circle.png';
 
 const log = debug('TalentContactPanelContent');
 
 /*
- * TalentContactPanelContent — foreground composition for the Contact Information
- * step's right panel (talent onboarding step 3).
+ * TalentContactPanelContent - photo cards + overlay for the talent Contact,
+ * Address and Education steps (they share one panel composition in Figma).
  *
- * Figma reference: node 2385-38867, panel 739 × 916 px.
+ * Figma: contact 8027:206158 (Frame 141, 739x916; identical on address
+ * 8027:209062.. and education 8027:209541..). Rebuilt in the parent-panel
+ * contract (ParentLoginPanelContent): every position is a % of the panel,
+ * card widths are a % of panel width + aspect-ratio. Because the real panel
+ * height varies (short screens), card widths are additionally capped by a
+ * height-derived value and overlay chips scale with the LIMITING panel
+ * dimension through the `--s` unit (container query on the overlay wrapper),
+ * so nothing overlaps or clips when the panel is short or narrow.
  *
- * ONE-CONTAINER rule: every element lives inside a single absolute inset-0
- * container so cards stay in formation as the panel scales.
+ * Usage:
+ *   <TalentOnboardingPanel
+ *     photoCards={TALENT_CONTACT_PHOTO_CARDS}
+ *     overlayContent={<TalentContactOverlay />}
+ *     showWatchTutorial={false}
+ *   />
  *
- * vw formula: px / 739 × 42vw
- *   CARD1_W (276.587 px): 277/739 × 42 ≈ 15.7 vw  (top-right, gold)
- *   CARD2_W (283.562 px): 284/739 × 42 ≈ 16.1 vw  (top-left, pink)
- *   CARD3_W (331.55  px): 332/739 × 42 ≈ 18.8 vw  (bottom-left, green)
- *
- * Card layout (panel 739 × 916, centre coords):
- *   Top-right   2385:38874  centre (71.53%, 47.07%)  rotate  +5°    border #EEDEB8
- *   Top-left    2385:38877  centre (28.58%, 26.0%)   rotate  -8.51° border #EBC2BD
- *   Bottom-left 2385:38880  x=30.34%, bottom=7.31%   rotate -18°    border #C1D4C4
- *
- * Key differences from other talent panels:
- *   – Card arrangement and rotations unique to the contact step
- *   – Sparkle-26 in cornerDecoration of top-left card (photo2, pink, -8.51°)
- *   – "OTP sent after this step" amber chip at panel level (not a card child)
- *   – "Ghana Data Protection Act compliant" chip at panel level
- *   – "Phone" preview card (cream, rotated +2°) near bottom-right
- *   – Same two hand-drawn arrow decorations as TalentPersonalInfoPanelContent
- *
- * ✅ VERIFIED — Figma nodes 2385-38797 / 2385-38867, built 2026-07-08
+ * Geometry (panel-relative, 739x916): card centres are the rotated bbox
+ * centres; widths are the unrotated side (bbox / (cos+sin)).
+ *   gold  8027:206162  centre (71.6%, 47.07%) side 276.6 rot 5
+ *   pink  8027:206168  centre (28.59%, 26.0%) side 283.1 rot -8.51
+ *   green 8027:206171  centre (30.34%, 74.58%) side 331.6 rot -18
+ * Height cap basis: viewport minus the 149px header + stepper.
  */
 
-const CARD1_W = 'clamp(140px, 15.7vw, 277px)'; // top-right  276.587 px
-const CARD2_W = 'clamp(142px, 16.1vw, 284px)'; // top-left   283.562 px
-const CARD3_W = 'clamp(166px, 18.8vw, 332px)'; // bottom-left 331.55 px
+const heightCap = (frac) => `calc((100svh - 149px) * ${frac})`;
 
-export default function TalentContactPanelContent() {
-  log('mount');
+// eslint-disable-next-line react-refresh/only-export-components
+export const TALENT_CONTACT_PHOTO_CARDS = [
+  {
+    photo: photo1,
+    centerX: '71.6%',
+    centerY: '47.07%',
+    rotate: 'rotate(5deg)',
+    width: `min(37.43%, ${heightCap(276.6 / 916)})`,
+    aspectRatio: '1',
+    borderColor: '#EEDEB8',
+  },
+  {
+    photo: photo2,
+    centerX: '28.59%',
+    centerY: '26%',
+    rotate: 'rotate(-8.51deg)',
+    width: `min(38.31%, ${heightCap(283.1 / 916)})`,
+    aspectRatio: '1',
+    borderColor: '#EBC2BD',
+  },
+  {
+    photo: photo3,
+    centerX: '30.34%',
+    centerY: '74.58%',
+    rotate: 'rotate(-18deg)',
+    width: `min(44.87%, ${heightCap(331.6 / 916)})`,
+    aspectRatio: '1',
+    borderColor: '#C1D4C4',
+  },
+];
 
+// 1 Figma px at the limiting panel dimension.
+const px = (n) => `calc(${n} * var(--s))`;
+
+const Abs = ({ left, top, width, children, style }) => (
+  <div aria-hidden="true" className="absolute" style={{ left, top, width, ...style }}>
+    {children}
+  </div>
+);
+
+export const TalentContactOverlay = () => {
+  log('render overlay');
   return (
-    <div className="absolute inset-0" aria-hidden="true">
-      {/* ── TOP-RIGHT card (Figma 2385:38874) ────────────────────────────────────
-          centre (71.53%, 47.07%), rotate +5°, border #EEDEB8, corner ellipse1.
-          No overlays — GDPA chip is a separate panel-level element.             */}
-      <PhotoCard
-        src={photo1}
-        borderColor="#EEDEB8"
-        rotation="5deg"
-        left="calc(50% + 21.53%)"
-        top="calc(50% - 2.93%)"
-        cardWidth={CARD1_W}
-        ellipseSrc={ellipseCard1}
-        inset="-17.98px -9.85px -2.43px -10.56px"
-      />
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
+      style={{
+        containerType: 'size',
+        '--s': 'min(100cqw / 739, 100cqh / 916)',
+      }}
+    >
+      {/* Sparkle 26 - 8027:206193 export (rotation baked), bbox (324,-17) 98.5x97 */}
+      <Abs left="43.84%" top="-1.86%" width="13.33%">
+        <img src={sparkle26} alt="" className="block w-full" draggable={false} />
+      </Abs>
 
-      {/* ── TOP-LEFT card (Figma 2385:38877) ─────────────────────────────────────
-          centre (28.58%, 26.0%), rotate -8.51°, border #EBC2BD, corner ellipse23.
-          Sparkle-26 in cornerDecoration — bleeds from top-right corner of card,
-          rotates with the card so it stays in formation as panel scales.        */}
-      <PhotoCard
-        src={photo2}
-        borderColor="#EBC2BD"
-        rotation="-8.51deg"
-        left="calc(50% - 21.42%)"
-        top="calc(50% - 24.0%)"
-        cardWidth={CARD2_W}
-        ellipseSrc={ellipseCard23}
-        inset="-17.98px -9.88px -2.46px -10.56px"
-        cornerDecoration={
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              transform: 'translate(38%, -62%)',
-              width: '76.735px',
-              height: '73.945px',
-              pointerEvents: 'none',
-            }}
-          >
-            <img
-              src={sparkle26}
-              alt=""
-              style={{
-                display: 'block',
-                width: '100%',
-                height: '100%',
-                transform: 'rotate(21.55deg)',
-              }}
-              draggable={false}
-            />
-          </div>
-        }
-      />
+      {/* Arrow down - 8027:206195 export (rotation + 50% opacity baked) */}
+      <Abs left="10.24%" top="44.57%" width="16.2%">
+        <img src={arrowDown} alt="" className="block w-full" draggable={false} />
+      </Abs>
 
-      {/* ── BOTTOM-LEFT card (Figma 2385:38880) ──────────────────────────────────
-          x=30.34% bottom=7.31%, rotate -18°, border #C1D4C4, corner ellipse23.
-          bottom=7.31%: derived from card-centre-y=(916-232.77)px from bottom,
-          group bottom-edge = centre-y - CARD3_W/2 ≈ 66.99px = 7.31% of 916.
-          Arrow-down lives here as children — positions relative to card group   */}
-      <PhotoCard
-        src={photo3}
-        borderColor="#C1D4C4"
-        rotation="-18deg"
-        left="calc(50% - 19.66%)"
-        bottom="7.31%"
-        cardWidth={CARD3_W}
-        ellipseSrc={ellipseCard23}
-        inset="-17.98px -9.89px -2.47px -10.56px"
-      >
-        {/* Arrow down (Figma 2353:13941) — panel pos (74.7px, 408.33px) converted to
-            card-group-relative coords (card group top-left at 58.4px, 517.45px):
-              left = (74.7 - 58.4) / 331.55 = 4.91%
-              top  = (408.33 - 517.45) / 331.55 = -32.91%
-            Outer wrapper matches Figma's flex-center container (119.71×119.344px
-            at panel scale), inner img is 95.1×96px centred within it (= 79.45%
-            × 80.44% of wrapper). The centering is the Y-axis offset from Figma. */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: '4.91%',
-            top: '-20.91%',
-            width: '36.1%',
-            height: '36.0%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-          }}
-        >
-          <img
-            src={arrowDown}
-            alt=""
-            style={{ display: 'block', width: '79.45%', height: '80.44%' }}
-            draggable={false}
-          />
-        </div>
-      </PhotoCard>
-
-      {/* ── "OTP sent after this step" amber chip (Figma 2385:38883) ────────────
-          Figma inset: top=36.56%, right=60.4%, left=3.38%.  Amber bg #C8951A,
-          cream border #FAF4E8, rounded-[13px].  MTN-icon placeholder = 36px
-          #EEDEB8 rounded-[9px] square (no actual MTN asset used).              */}
-      <div
-        aria-hidden="true"
+      {/* Amber OTP chip - 8027:206174, (25,334.9) 267.6x64 */}
+      <Abs
+        left="3.38%"
+        top="36.56%"
+        width="36.2%"
         style={{
-          position: 'absolute',
-          left: '3.38%',
-          top: '36.56%',
-          right: '60.4%',
+          height: px(64),
           backgroundColor: '#C8951A',
           border: '1px solid #FAF4E8',
-          borderRadius: 'clamp(8px, 1.3vw, 13px)',
-          boxShadow: '0px 2px 2px rgba(27,36,44,0.04), 0px 16px 12px rgba(27,36,44,0.08)',
-          padding: 'clamp(7px, 0.81vw, 12px)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(5px, 0.61vw, 9px)' }}>
-          <div
-            style={{
-              flexShrink: 0,
-              width: 'clamp(20px, 2.43vw, 36px)',
-              height: 'clamp(20px, 2.43vw, 36px)',
-              borderRadius: 'clamp(5px, 0.61vw, 9px)',
-              backgroundColor: '#EEDEB8',
-            }}
-          />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
-            <p
-              style={{
-                fontSize: 'clamp(6px, 0.81vw, 12px)',
-                fontWeight: 700,
-                lineHeight: 1.25,
-                color: '#FFFFFF',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              OTP sent after this step
-            </p>
-            <p
-              style={{
-                fontSize: 'clamp(5px, 0.68vw, 10px)',
-                lineHeight: 1.4,
-                color: '#FFFFFF',
-                opacity: 0.72,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              SMS + Email · expires in 10 min
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── "Ghana Data Protection Act compliant" white chip (Figma 2385:38896) ─
-          Figma inset: left=55.54%, top=22.81%, right=7.04%.
-          White bg, rgba(0,0,0,0.06) border, rounded-[10px], gthIcon rotate 8°.
-          Same styling as the GDPA chip inside card children on other panels,
-          but positioned panel-level here to sit above the top-right card.      */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: '55.54%',
-          top: '22.81%',
-          right: '7.04%',
-          backgroundColor: 'white',
-          border: '1px solid rgba(0,0,0,0.06)',
-          borderRadius: 'clamp(5px, 0.68vw, 10px)',
-          boxShadow: '0px 8px 16px rgba(0,0,0,0.1), 0px 2px 0px rgba(0,0,0,0.05)',
+          borderRadius: px(13),
+          boxShadow: '0px 2px 2px rgba(27,36,44,0.04), 0px 16px 24px rgba(27,36,44,0.16)',
           display: 'flex',
           alignItems: 'center',
-          gap: 'clamp(4px, 0.54vw, 8px)',
-          padding: 'clamp(4px, 0.54vw, 8px) clamp(5px, 0.68vw, 10px)',
-          overflow: 'hidden',
+          gap: px(9),
+          paddingLeft: px(14.7),
         }}
       >
-        <div
+        <span
+          className="shrink-0"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            width: 'clamp(7px, 0.91vw, 13.553px)',
-            height: 'clamp(7px, 0.91vw, 13.553px)',
+            width: px(36),
+            height: px(36),
+            borderRadius: px(9),
+            backgroundColor: '#EEDEB8',
           }}
-        >
-          <div
+        />
+        <span className="flex min-w-0 flex-col" style={{ gap: px(2) }}>
+          <span
+            className="whitespace-nowrap font-sans font-bold"
+            style={{ fontSize: px(12), lineHeight: px(14.3), color: '#FEFEFE' }}
+          >
+            OTP sent after this step
+          </span>
+          <span
+            className="whitespace-nowrap font-medium"
             style={{
-              transform: 'rotate(8deg)',
-              width: 'clamp(6px, 0.81vw, 12px)',
-              height: 'clamp(6px, 0.81vw, 12px)',
-              flexShrink: 0,
+              fontSize: px(10),
+              lineHeight: px(12.2),
+              color: '#FEFEFE',
+              opacity: 0.72,
+              fontFamily: "'Instrument Sans', var(--font-sans)",
             }}
           >
-            <img
-              src={gthIcon}
-              alt=""
-              style={{ width: '100%', height: '100%', display: 'block' }}
-              draggable={false}
-            />
-          </div>
-        </div>
-        <p
-          style={{
-            fontSize: 'clamp(6px, 0.88vw, 13px)',
-            fontWeight: 600,
-            color: '#387440',
-            letterSpacing: '0.1px',
-            lineHeight: '24px',
-            whiteSpace: 'nowrap',
-            flex: 1,
-            minWidth: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
+            SMS + Email · expires in 10 min
+          </span>
+        </span>
+      </Abs>
+
+      {/* GDPA chip - 8027:206187, (404.9,208.9) 287.6x40 */}
+      <Abs
+        left="54.8%"
+        top="22.8%"
+        width="38.9%"
+        style={{
+          height: px(40),
+          backgroundColor: '#FFFFFF',
+          border: '1px solid rgba(28,42,33,0.06)',
+          borderRadius: px(10),
+          boxShadow: '0px 2px 0px rgba(0,0,0,0.05), 0px 8px 32px rgba(0,0,0,0.10)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: px(8),
+          paddingInline: px(10),
+        }}
+      >
+        <span
+          className="flex shrink-0 items-center justify-center"
+          style={{ width: px(13.6), height: px(13.6) }}
+        >
+          <img
+            src={gthIcon}
+            alt=""
+            style={{ width: px(13.6), height: px(13.6) }}
+            draggable={false}
+          />
+        </span>
+        <span
+          className="whitespace-nowrap font-sans font-semibold text-[#387440]"
+          style={{ fontSize: px(14), lineHeight: px(24), letterSpacing: '0.1px' }}
         >
           Ghana Data Protection Act compliant
-        </p>
-      </div>
+        </span>
+      </Abs>
 
-      {/* ── "Phone" preview card (Figma 2396:19979) ───────────────────────────────
-          left=60.38% (446.23/739), top=70.20% (643/916), rotate +2°.
-          Cream bg #FAF4E8, gold border #EEDEB8.
-          Shadow: 0 3px 0 #967014 (hard bottom shelf) + soft glow.
-          MTN-icon placeholder = 26.388px #EEDEB8 rounded-[5px] rotated 2.78°. */}
-      <div
-        aria-hidden="true"
+      {/* Arrow scribble - 8027:206196, bbox (623,598) 58.5x58.5 */}
+      <Abs left="84.3%" top="65.28%" width="7.92%" style={{ aspectRatio: '1' }}>
+        <img src={arrowScribble} alt="" className="block size-full" draggable={false} />
+      </Abs>
+
+      {/* Phone card - 8027:206197, bbox (447.2,643) 231.5x56.2 rot 2 */}
+      <Abs
+        left="60.5%"
+        top="70.2%"
+        width="31.3%"
         style={{
-          position: 'absolute',
-          left: '60.38%',
-          top: '70.20%',
-          width: 'clamp(130px, 15.56vw, 230px)',
+          height: px(56),
           backgroundColor: '#FAF4E8',
           border: '1px solid #EEDEB8',
-          borderRadius: 'clamp(6px, 0.68vw, 10px)',
-          boxShadow: '0px 3px 0px #967014, 0px 8px 28px rgba(200,149,26,0.14)',
-          padding: 'clamp(5px, 0.54vw, 8px)',
+          borderRadius: px(10),
+          boxShadow: '0px 8px 28px rgba(200,149,26,0.14), 0px 3px 0px #967014',
           transform: 'rotate(2deg)',
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: px(9.8),
+          gap: px(15),
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(5px, 0.54vw, 8px)' }}>
-          <div
+        <span
+          className="shrink-0"
+          style={{
+            width: px(28.5),
+            height: px(28.5),
+            borderRadius: px(5),
+            backgroundColor: '#EEDEB8',
+            transform: 'rotate(0.78deg)',
+          }}
+        />
+        <span className="flex min-w-0 flex-col" style={{ gap: px(6) }}>
+          <span
+            className="font-bold"
             style={{
-              flexShrink: 0,
-              width: 'clamp(15px, 1.78vw, 26.388px)',
-              height: 'clamp(15px, 1.78vw, 26.388px)',
-              borderRadius: 'clamp(3px, 0.34vw, 5px)',
-              backgroundColor: '#EEDEB8',
-              transform: 'rotate(2.78deg)',
+              fontSize: px(12),
+              lineHeight: px(14.6),
+              color: '#1C2A21',
+              fontFamily: "'Instrument Sans', var(--font-sans)",
             }}
-          />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <p
-              style={{
-                fontSize: 'clamp(7px, 0.81vw, 12px)',
-                fontWeight: 700,
-                lineHeight: 1.25,
-                color: '#111111',
-              }}
-            >
-              Phone
-            </p>
-            <p
-              style={{
-                fontSize: 'clamp(6px, 0.74vw, 11px)',
-                lineHeight: 1.36,
-                color: '#70706E',
-                letterSpacing: '0.1px',
-              }}
-            >
-              +233 24 123 4567
-            </p>
-          </div>
-        </div>
-      </div>
+          >
+            Phone
+          </span>
+          <span
+            className="whitespace-nowrap font-sans"
+            style={{ fontSize: px(11), lineHeight: px(15.4), color: '#70706E' }}
+          >
+            +233 24 123 4567
+          </span>
+        </span>
+      </Abs>
 
-      {/* ── Arrow scribble (Figma 2353:13937) ────────────────────────────────────
-          left=622px/739=84.17%, top=598px/916=65.28%.
-          Same position as TalentPersonalInfoPanelContent.                       */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: '84.17%',
-          top: '65.28%',
-          width: '7.92%',
-          aspectRatio: '1',
-          pointerEvents: 'none',
-        }}
-      >
-        <img
-          src={arrowScribble}
-          alt=""
-          className=""
-          style={{ display: 'block', width: '100%', height: '100%' }}
-          draggable={false}
-        />
-      </div>
-
-      {/* ── Watch Tutorial button (Figma 2385:38903) ──────────────────────────────
-          left=470px, top=802px → bottom=916-802-76=38px, right=739-470-211=58px.
-          Same pixel clearance as TalentPersonalInfoPanelContent.                */}
-      <div style={{ position: 'absolute', bottom: '38px', right: '58px', zIndex: 10 }}>
-        <WatchTutorial
-          label="Watch Tutorial"
-          showLabel
+      {/* Watch tutorial - 8027:206194 circle (Figma PNG export; label hidden in the
+          default frame); right edge 682 (7.7%), bottom edge 878 of 916 (4.1%). */}
+      <div className="pointer-events-auto absolute" style={{ right: '7.7%', bottom: '4.1%' }}>
+        <button
+          type="button"
           onClick={() => log('watch tutorial clicked')}
-          aria-label="Watch onboarding tutorial"
-        />
+          aria-label="Watch talent onboarding tutorial"
+          className="block cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        >
+          <img
+            src={tutorialCircle}
+            alt=""
+            width="72"
+            height="72"
+            className="block size-[72px]"
+            draggable={false}
+          />
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default TalentContactOverlay;

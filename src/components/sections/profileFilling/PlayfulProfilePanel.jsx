@@ -578,12 +578,10 @@ const PlayfulProfilePanel = ({
         className
       )}
     >
-      {/* Sticky XP sticker — Figma keeps it pinned while the list scrolls
-          (e.g. 7873:63595: header scrolled away, sticker stays at 424.5/24.65).
-          Zero-height sticky wrapper = no layout cost; below lg it scrolls
-          away with the header (⚠️ ASSUMPTION: a pinned sticker would cover
-          the 44px "+" targets on phones). */}
-      <div className="sticky top-[24px] z-20 h-0 w-full max-lg:static max-lg:h-auto max-lg:pb-2">
+      {/* XP sticker — scrolls away with the list (owner decision 2026-10-16: it must
+          NOT stay fixed on screen). Zero-height wrapper at the same offset it had
+          unscrolled = no layout cost; below lg it flows with the header. */}
+      <div className="relative z-20 h-0 w-full max-lg:static max-lg:h-auto max-lg:pb-2">
         <span
           aria-hidden="true"
           className="absolute right-[3px] top-[5px] inline-flex -rotate-[4deg] items-center whitespace-nowrap rounded-full border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] font-sans text-[11px] font-bold leading-normal text-[#1c2a21] [filter:drop-shadow(2px_2px_0_#1c2a21)] max-lg:relative max-lg:right-auto max-lg:top-auto max-lg:text-[12px] forced-colors:border-[CanvasText]"

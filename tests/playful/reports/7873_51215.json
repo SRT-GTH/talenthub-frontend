@@ -5,76 +5,34 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -4.2,
-    "derived": 56.2
+    "medianDy": -3.2,
+    "derived": 55.2
   },
-  "offsetUsed": 56,
+  "offsetUsed": 55,
   "counts": {
     "figmaTexts": 53,
-    "matched": 51,
-    "unmatched": 2,
-    "layoutMismatch": 42,
-    "fontMetric": 20,
-    "widthOver15": 2
+    "matched": 53,
+    "unmatched": 0,
+    "layoutMismatch": 41,
+    "fontMetric": 22,
+    "widthOver15": 3
   },
-  "worstLayoutPx": 96.2,
-  "unmatched": [
-    {
-      "text": "Step 1 of 9 ·",
-      "figma": {
-        "x": 1365,
-        "y": 116
-      },
-      "closestDom": "Step 1 of 11 ·"
-    },
-    {
-      "text": "Nicely done! Your avatar is all set. That's your first step on GTH — and you're already discoverable. Whenever you're ready, I'll walk you through the rest of your profile. It takes about 40 minutes total, but you can do it in pieces. Let's go?",
-      "figma": {
-        "x": 142,
-        "y": 810
-      },
-      "closestDom": "👋 Nicely done! Your avatar is all set. That's your first step on GTH — and you'"
-    }
-  ],
+  "worstLayoutPx": 44.1,
+  "unmatched": [],
   "layout": [
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -96.2,
-      "dh": 1,
-      "wPct": 2.3
-    },
     {
       "text": "Is my personal information safe on GTH",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 44.1,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 8.4
-    },
-    {
-      "text": "MEET YOUR CAREER BUDDY",
-      "sel": "span.z-[1].inline-block.rotate-[3deg]",
-      "dx": 31.6,
-      "dy": -7.7,
-      "dh": 2.6,
-      "wPct": 4.6,
-      "lines": "dom 1 vs figma ~2"
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 27.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.6,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 1.3
     },
@@ -82,7 +40,7 @@
       "text": "Goals",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 22.4,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 3.1
     },
@@ -90,23 +48,15 @@
       "text": "Certs",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 22,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 1.2
-    },
-    {
-      "text": "Let's build a profile that gets you seen.",
-      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
-      "dx": 0.5,
-      "dy": -21.1,
-      "dh": 5,
-      "wPct": -5.5
     },
     {
       "text": "How does GTH match me with opportunities?",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 18.4,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 7.8
     },
@@ -114,23 +64,15 @@
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 18,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 7.7
-    },
-    {
-      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
-      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
-      "dx": 0.5,
-      "dy": -17.7,
-      "dh": 3,
-      "wPct": -39.7
     },
     {
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.8,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.8
     },
@@ -138,111 +80,144 @@
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 13.8,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.2
     },
     {
       "text": "Career Buddy,  your personal career mentor",
       "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
-      "dx": 2.7,
-      "dy": -13.7,
+      "dx": 2.8,
+      "dy": 13.3,
       "dh": -26,
-      "wPct": 4
+      "wPct": 4.1
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "sel": "span.z-[1].inline-block.rotate-[3deg]",
+      "dx": 2.7,
+      "dy": 10.9,
+      "dh": 2.6,
+      "wPct": 4.6,
+      "lines": "dom 1 vs figma ~2"
     },
     {
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 10.1,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 5.2
     },
     {
-      "text": "Focused",
-      "sel": "span.max-[480px]:sr-only",
-      "dx": -9.2,
-      "dy": 2.4,
-      "dh": 2,
-      "wPct": 0.3
+      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
+      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
+      "dx": 0.5,
+      "dy": 9.3,
+      "dh": 3,
+      "wPct": -39.7
     },
     {
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": -8.2,
+      "dy": -9.2,
       "dh": 3,
       "wPct": 3.9
     },
     {
-      "text": "Switch Modes ",
-      "sel": "span.playful:bg-[linear-gradient(189.84deg,#fef1e7_0%,#e8f2ed_20.192%)].playful:bg-clip-te",
-      "dx": -8.2,
+      "text": "Focused",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": -9.2,
       "dy": 1.4,
-      "dh": -5,
-      "wPct": 0.4
-    },
-    {
-      "text": "Interests ",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 7.8,
-      "dy": 2.3,
       "dh": 2,
-      "wPct": 4.3
+      "wPct": 0.3
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -7.7,
+      "dy": -8.7,
       "dh": 2,
       "wPct": 7.4
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -8.5,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Switch Modes ",
+      "sel": "span.playful:bg-[linear-gradient(189.84deg,#fef1e7_0%,#e8f2ed_20.192%)].playful:bg-clip-te",
+      "dx": -8.2,
+      "dy": 0.4,
+      "dh": -5,
+      "wPct": 0.4
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -8,
+      "dh": -6,
+      "wPct": 15
+    },
+    {
+      "text": "Interests ",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 7.8,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 4.3
     },
     {
       "text": "Playful",
       "sel": "span.max-[480px]:sr-only",
       "dx": -7.5,
-      "dy": 2.4,
+      "dy": 1.4,
       "dh": 2,
       "wPct": 5.2
-    },
-    {
-      "text": "Education",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 6.1,
-      "dy": 2.3,
-      "dh": 2,
-      "wPct": 2.8
     },
     {
       "text": "Career Options",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.6,
-      "dy": -5.2,
+      "dy": -6.2,
       "dh": 3,
       "wPct": 4
+    },
+    {
+      "text": "Education",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 6.1,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 2.8
+    },
+    {
+      "text": "Let's build a profile that gets you seen.",
+      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
+      "dx": 0.5,
+      "dy": 5.9,
+      "dh": 5,
+      "wPct": -5.4
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -4.7,
+      "dy": -5.7,
       "dh": 2,
       "wPct": 7.4
-    },
-    {
-      "text": "Save & Exit",
-      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
-      "dx": -4.4,
-      "dy": 1.9,
-      "dh": -5,
-      "wPct": 5.6
     },
     {
       "text": "Skills (Competencies)",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -3.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 2.7
     },
@@ -250,7 +225,7 @@
       "text": "Work Experience",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -3.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 5.1
     },
@@ -258,7 +233,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -3.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 6.8
     },
@@ -266,7 +241,7 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -3.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 2.6
     },
@@ -274,23 +249,23 @@
       "text": "Tell me more about GTH",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 1,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 9.5
     },
     {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": 1.9,
-      "dh": 1,
-      "wPct": -4.7
+      "text": "Save & Exit",
+      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
+      "dx": -4.4,
+      "dy": 0.9,
+      "dh": -5,
+      "wPct": 5.6
     },
     {
       "text": "Completion: 48%",
       "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 5.8
     },
@@ -298,7 +273,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -306,7 +281,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -314,63 +289,63 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
     {
-      "text": "· 0% profile complete · auto-saved",
-      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
-      "dx": 0,
-      "dy": 2.8,
-      "dh": -2,
-      "wPct": 8
-    },
-    {
-      "text": "Your profile, live",
-      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
-      "dx": -0.5,
-      "dy": 2.8,
-      "dh": 0,
-      "wPct": -0.6
-    },
-    {
-      "text": "Lock in each section to level up your matches.",
-      "sel": "p.m-0.font-sans.text-[16px]",
-      "dx": -0.5,
-      "dy": 2.8,
-      "dh": 4,
-      "wPct": 7.1
-    },
-    {
-      "text": "Avatar",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 0,
-      "dy": 2.3,
-      "dh": 2,
-      "wPct": 5.6
-    },
-    {
-      "text": "Personal Info",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 2.3,
-      "dy": 2.3,
-      "dh": 2,
-      "wPct": 4.6
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 0.9,
+      "dh": 1,
+      "wPct": -4.7
     },
     {
       "text": "Personality",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.8,
-      "dy": -2.2,
+      "dy": -3.2,
       "dh": 3,
       "wPct": 5.8
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -0.7,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -2.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 2.4,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Personal Info",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 2.3,
+      "dy": 1.3,
+      "dh": 2,
+      "wPct": 4.6
     },
     {
       "text": "Avatar",
       "sel": "span.truncate.whitespace-nowrap.font-sans",
       "dx": -2.1,
-      "dy": 0.3,
+      "dy": -0.7,
       "dh": -4,
       "wPct": 2.3
     }
@@ -380,7 +355,7 @@
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 13.8,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.2,
       "severe": false
@@ -389,7 +364,7 @@
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.8,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.8,
       "severe": false
@@ -398,16 +373,25 @@
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 18,
-      "dy": 2.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 7.7,
+      "severe": false
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -0.7,
+      "dh": -2,
+      "wPct": 9.1,
       "severe": false
     },
     {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 2.8,
+      "dy": 1.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -416,16 +400,25 @@
       "text": "Ghana Talent AI · your career buddy from SHS to your first b",
       "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -17.7,
+      "dy": 9.3,
       "dh": 3,
       "wPct": -39.7,
+      "severe": true
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -8,
+      "dh": -6,
+      "wPct": 15,
       "severe": true
     },
     {
       "text": "Tell me more about GTH",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 1,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 9.5,
       "severe": false
@@ -434,7 +427,7 @@
       "text": "How does GTH match me with opportunities?",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 18.4,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 7.8,
       "severe": false
@@ -443,7 +436,7 @@
       "text": "Is my personal information safe on GTH",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 44.1,
-      "dy": -3.5,
+      "dy": -4.5,
       "dh": 3,
       "wPct": 8.4,
       "severe": false
@@ -452,7 +445,7 @@
       "text": "Is my personal information safe on GTH",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": 0,
+      "dy": -1,
       "dh": 4,
       "wPct": -63.2,
       "severe": true
@@ -461,7 +454,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": 2.8,
+      "dy": 1.8,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -470,7 +463,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-educational-background-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -0.2,
+      "dy": -1.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -479,7 +472,7 @@
       "text": "Personal area of interest",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -0.7,
+      "dy": -1.7,
       "dh": 3,
       "wPct": 6.5,
       "severe": false
@@ -488,7 +481,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -0.2,
+      "dy": -1.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -497,7 +490,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -1.7,
+      "dy": -2.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -506,7 +499,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -515,7 +508,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -3.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -524,7 +517,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -533,7 +526,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -3.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -542,7 +535,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -4.7,
+      "dy": -5.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -551,7 +544,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -7.7,
+      "dy": -8.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -568,7 +561,7 @@
       },
       "app": {
         "x": 0,
-        "y": 226.8,
+        "y": 225.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -583,7 +576,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 226.8,
+        "y": 225.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -598,7 +591,7 @@
       },
       "app": {
         "x": 0,
-        "y": 56,
+        "y": 55,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -606,385 +599,361 @@
     }
   },
   "style": {
-    "summaryLine": "125 style mismatches (colour:13 radius:40 shadow:12 stroke:16 opacity:2 typography:42); shapes 22/82 matched",
+    "summaryLine": "133 style mismatches (colour:15 radius:40 shadow:13 stroke:20 opacity:2 typography:43); shapes 26/82 matched",
     "counts": {
-      "colour": 13,
+      "colour": 15,
       "radius": 40,
-      "shadow": 12,
-      "stroke": 16,
+      "shadow": 13,
+      "stroke": 20,
       "opacity": 2,
-      "typography": 42,
+      "typography": 43,
       "gradient": 0,
       "mixedRuns": 3
     },
     "shapes": {
       "total": 82,
-      "matched": 22
+      "matched": 26
     },
-    "textStyleMatched": 51,
+    "textStyleMatched": 53,
     "unmatchedShapes": [
       {
         "node": "teenyicons:left-outline",
         "nodeId": "7873:51242",
         "type": "FRAME",
-        "box": [1055, 106, 58, 44]
+        "box": [1055, 107, 58, 44]
       },
       {
         "node": "Background",
         "nodeId": "7873:51248",
         "type": "RECTANGLE",
-        "box": [1351, 123, 5, 5]
-      },
-      {
-        "node": "Container",
-        "nodeId": "7873:51252",
-        "type": "FRAME",
-        "box": [1351, 139, 323, 6]
+        "box": [1351, 124, 5, 5]
       },
       {
         "node": "Container",
         "nodeId": "7873:51253",
         "type": "FRAME",
-        "box": [1351, 139, 62, 6]
+        "box": [1351, 140, 62, 6]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51257",
         "type": "VECTOR",
-        "box": [998, 369, 49, 32]
+        "box": [998, 370, 49, 32]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51258",
         "type": "VECTOR",
-        "box": [976, 326, 84, 59]
+        "box": [976, 327, 84, 59]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51259",
         "type": "VECTOR",
-        "box": [982, 329, 32, 31]
+        "box": [982, 330, 32, 31]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51261",
         "type": "VECTOR",
-        "box": [177, 230, 97, 95]
+        "box": [177, 231, 97, 95]
       },
       {
         "node": "Frame 11",
         "nodeId": "7873:51266",
         "type": "FRAME",
-        "box": [331, 557, 450, 108]
+        "box": [331, 558, 450, 108]
       },
       {
         "node": "avatar showcase",
         "nodeId": "7873:51267",
         "type": "FRAME",
-        "box": [347, 571, 80, 80]
+        "box": [347, 572, 80, 80]
       },
       {
         "node": "Border",
         "nodeId": "7873:51268",
         "type": "RECTANGLE",
-        "box": [41, 265, 693, 693]
+        "box": [41, 266, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "7873:51269",
         "type": "RECTANGLE",
-        "box": [320, 727, 8, 8]
+        "box": [320, 728, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:51270",
         "type": "RECTANGLE",
-        "box": [320, 727, 8, 8]
+        "box": [320, 728, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:51271",
         "type": "RECTANGLE",
-        "box": [320, 727, 8, 8]
+        "box": [320, 728, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51292",
         "type": "VECTOR",
-        "box": [347, 571, 80, 80]
+        "box": [347, 572, 80, 80]
       },
       {
         "node": "image 9",
         "nodeId": "7873:51293",
         "type": "RECTANGLE",
-        "box": [357, 580, 60, 62]
+        "box": [357, 581, 60, 62]
       },
       {
         "node": "grid",
         "nodeId": "7873:51295",
         "type": "RECTANGLE",
-        "box": [754, 656, 358, 405]
+        "box": [754, 657, 358, 405]
       },
       {
         "node": "avatar showcase",
         "nodeId": "7873:51299",
         "type": "FRAME",
-        "box": [60, 796, 48, 48]
+        "box": [60, 797, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "7873:51300",
         "type": "RECTANGLE",
-        "box": [-262, 474, 693, 693]
+        "box": [-262, 475, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "7873:51301",
         "type": "RECTANGLE",
-        "box": [33, 952, 8, 8]
+        "box": [33, 953, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:51302",
         "type": "RECTANGLE",
-        "box": [33, 952, 8, 8]
+        "box": [33, 953, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:51303",
         "type": "RECTANGLE",
-        "box": [33, 952, 8, 8]
+        "box": [33, 953, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51324",
         "type": "VECTOR",
-        "box": [60, 796, 48, 48]
+        "box": [60, 797, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "7873:51325",
         "type": "RECTANGLE",
-        "box": [66, 802, 37, 38]
+        "box": [66, 803, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "7873:51326",
         "type": "FRAME",
-        "box": [54, 850, 60, 13]
+        "box": [54, 851, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "7873:51328",
         "type": "FRAME",
-        "box": [126, 796, 592, 106]
+        "box": [126, 797, 592, 106]
       },
       {
         "node": "Frame 14446",
         "nodeId": "7873:51335",
         "type": "INSTANCE",
-        "box": [54, 918, 193, 35]
+        "box": [54, 919, 193, 35]
       },
       {
         "node": "Frame 14447",
         "nodeId": "7873:51336",
         "type": "INSTANCE",
-        "box": [263, 918, 336, 35]
+        "box": [263, 919, 336, 35]
       },
       {
         "node": "Frame 14448",
         "nodeId": "7873:51337",
         "type": "INSTANCE",
-        "box": [615, 918, 294, 35]
+        "box": [615, 919, 294, 35]
       },
       {
         "node": "ant-design:audio-outlined",
         "nodeId": "I7873:51338;5132:42727",
         "type": "INSTANCE",
-        "box": [950, 984, 43, 43]
+        "box": [950, 985, 43, 43]
       },
       {
         "node": "ant-design:audio-outlined",
         "nodeId": "I7873:51338;5132:42728",
         "type": "INSTANCE",
-        "box": [1001, 984, 43, 43]
+        "box": [1001, 985, 43, 43]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51340",
         "type": "VECTOR",
-        "box": [-10, 567, 79, 72]
-      },
-      {
-        "node": "genz:doodle · star",
-        "nodeId": "7878:85780",
-        "type": "STAR",
-        "box": [470, 172, 36, 36]
+        "box": [-10, 568, 79, 72]
       },
       {
         "node": "genz:doodle · star",
         "nodeId": "7878:85781",
         "type": "STAR",
-        "box": [509, 212, 20, 20]
+        "box": [509, 213, 20, 20]
       },
       {
         "node": "genz:doodle · star",
         "nodeId": "7878:85782",
         "type": "STAR",
-        "box": [24, 849, 24, 24]
+        "box": [24, 850, 24, 24]
       },
       {
         "node": "genz:sticker · Meet your Career Buddy",
         "nodeId": "7881:86245",
         "type": "FRAME",
-        "box": [208, 397, 180, 56]
+        "box": [208, 398, 180, 56]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51347;5132:42159",
         "type": "VECTOR",
-        "box": [1191, 486, 30, 25]
+        "box": [1191, 487, 30, 25]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51348;5132:42277",
         "type": "VECTOR",
-        "box": [1191, 622, 31, 29]
+        "box": [1191, 623, 31, 29]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51349;5132:42365",
         "type": "VECTOR",
-        "box": [1191, 761, 30, 35]
+        "box": [1191, 762, 30, 35]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:51349;5132:42369",
         "type": "FRAME",
-        "box": [1617, 760, 36, 36]
+        "box": [1617, 761, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51353",
         "type": "VECTOR",
-        "box": [1189, 904, 35, 33]
+        "box": [1189, 905, 35, 33]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "7873:51357",
         "type": "FRAME",
-        "box": [1618, 901, 36, 36]
+        "box": [1618, 902, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51359;5132:42451",
         "type": "VECTOR",
-        "box": [1189, 1043, 35, 30]
+        "box": [1189, 1044, 35, 30]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:51359;5132:42455",
         "type": "FRAME",
-        "box": [1618, 1040, 36, 36]
+        "box": [1618, 1041, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51363",
         "type": "VECTOR",
-        "box": [1193, 1183, 27, 27]
+        "box": [1193, 1184, 27, 27]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "7873:51367",
         "type": "FRAME",
-        "box": [1618, 1179, 36, 36]
+        "box": [1618, 1180, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51372",
         "type": "VECTOR",
-        "box": [1190, 1322, 34, 29]
+        "box": [1190, 1323, 34, 29]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "7873:51376",
         "type": "FRAME",
-        "box": [1618, 1318, 36, 36]
+        "box": [1618, 1319, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51378;5132:42582",
         "type": "VECTOR",
-        "box": [1189, 1457, 37, 37]
+        "box": [1189, 1458, 37, 37]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:51378;5132:42583",
         "type": "VECTOR",
-        "box": [1199, 1457, 27, 27]
+        "box": [1199, 1458, 27, 27]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:51378;5132:42587",
         "type": "FRAME",
-        "box": [1617, 1458, 36, 36]
+        "box": [1617, 1459, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "7873:51383",
         "type": "VECTOR",
-        "box": [1195, 1601, 25, 36]
+        "box": [1195, 1602, 25, 36]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "7873:51387",
         "type": "FRAME",
-        "box": [1617, 1600, 36, 36]
+        "box": [1617, 1601, 36, 36]
       },
       {
         "node": "genz:sticker · +20 XP per section",
         "nodeId": "7878:85783",
         "type": "FRAME",
-        "box": [1538, 193, 135, 35]
-      },
-      {
-        "node": "Style switch",
-        "nodeId": "7878:85785",
-        "type": "INSTANCE",
-        "box": [981, 20, 203, 45]
+        "box": [1538, 194, 135, 35]
       },
       {
         "node": "seg · Focused",
         "nodeId": "I7878:85785;7875:85644",
         "type": "FRAME",
-        "box": [987, 27, 98, 31]
+        "box": [987, 28, 98, 31]
       },
       {
         "node": "seg · Playful",
         "nodeId": "I7878:85785;7875:85649",
         "type": "FRAME",
-        "box": [1087, 25, 92, 34]
-      },
-      {
-        "node": "Frame 9",
-        "nodeId": "7873:51405",
-        "type": "INSTANCE",
-        "box": [1208, 18, 184, 48]
+        "box": [1087, 26, 92, 34]
       },
       {
         "node": "Background+Border",
         "nodeId": "7873:51408",
         "type": "FRAME",
-        "box": [1510, 24, 36, 36]
+        "box": [1510, 25, 36, 36]
       },
       {
         "node": "Background",
         "nodeId": "7873:51414",
         "type": "FRAME",
-        "box": [1586, 30, 24, 24]
+        "box": [1586, 31, 24, 24]
       }
     ],
-    "unmatchedShapesCount": 60,
+    "unmatchedShapesCount": 56,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1039,6 +1008,51 @@
         "figma": "none",
         "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | -0.0783003 0.0506745 0.4 0 none | 0 0 0 0 rgba(0,0,0,0)",
         "sel": "div.flex.items-center.gap-[8px].h-[72px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85780",
+        "figma": "rgba(255,216,107,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85780",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85780",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85780",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85780",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
       },
       {
         "cat": "colour",
@@ -1734,6 +1748,24 @@
         "sel": "header.w-full.bg-neutral.border-b.border-border-default"
       },
       {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Style switch",
+        "nodeId": "7878:85785",
+        "figma": "5 5 0 0 rgba(28,42,33,0.2) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 5 5 0 0 rgba(28,42,33,0.2) | 0 10 12 0 rgba(28,42,33,0.06)",
+        "sel": "div.inline-flex.items-center.gap-[2px].rounded-[999px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "border-colour",
+        "node": "Frame 9",
+        "nodeId": "7873:51405",
+        "figma": "rgba(150,112,20,1)",
+        "app": "rgba(200,149,26,1)",
+        "sel": "button.inline-flex.items-center.gap-2.rounded-[10px]"
+      },
+      {
         "cat": "typography",
         "prop": "line-height",
         "node": "Avatar",
@@ -1831,6 +1863,15 @@
         "figma": 16.71,
         "app": 24,
         "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Step 1 of 9 ·",
+        "nodeId": "7873:51249",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.font-sans.text-[12px]"
       },
       {
         "cat": "typography",
@@ -2114,25 +2155,26 @@
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 12,
-      "border-colour": 1,
-      "shadow-count": 12,
-      "border-width-top": 4,
-      "border-width-right": 4,
-      "border-width-bottom": 4,
-      "border-width-left": 4,
+      "fill": 13,
+      "border-colour": 2,
+      "shadow-count": 13,
+      "border-width-top": 5,
+      "border-width-right": 5,
+      "border-width-bottom": 5,
+      "border-width-left": 5,
       "radius-tl": 10,
       "radius-tr": 10,
       "radius-br": 10,
       "radius-bl": 10,
       "line-height": 20,
-      "text-align": 17,
+      "text-align": 18,
       "font-family (fallback?)": 2,
       "font-weight": 2,
       "text-decoration": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_51215-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

@@ -3,6 +3,25 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-16] create | Recruiter onboarding flow + talent/entry screen corrections (Figma 7356:96249 + 8027:\*)
+
+Built the recruiter onboarding flow (R01-R09: profile + OTP, type, organisation search/create, plan, payment,
+preferences, review, done) as a frontend-only mock under `/onboarding/recruiter/*`, and audited/corrected the
+role-selection, login, login-tutorial and talent onboarding screens against the redesigned `8027:*` frames. Full
+detail, node map, demo triggers and open items: [onboarding-redesign.md](onboarding-redesign.md).
+
+Key points: (1) the parent flow's panel became the shared responsive `OnboardingPanel` (cards = % of panel width,
+overlays = % of panel, short-panel scaling, a11y fix) and the talent/recruiter panels were rebuilt on it; (2) owner
+rule: ALL icons/images are Figma exports, nothing remade (supersedes the old hand-craft rule); (3) headlines are
+Bricolage Grotesque 600 (`font-heading`) - resolve `characterStyleOverrides` before reading sizes (64 -> 54px);
+(4) new `ScrollChevronRow` replaces visible scrollbars on the three breadcrumbs; (5) `MainLayout` fixed-shell now
+includes `/onboarding/recruiter`; (6) talent success page `/onboarding/talent/done` added and Review now navigates
+to it (e2e updated; Review CTA copy "Complete Registration"); (7) DemoNavigator gained a recruiter flow tab and a
+talent Done step. Gates: `responsive-audit` 215/215 (5 widths, all `/onboarding/` routes) and 129/129 at 560px tall;
+`npm run lint` 0 errors (1 pre-existing warning); `npm run build` passes. NOT run: the e2e suite (needs staging
+API) and `npm run test:visual` (baselines intentionally changed - refresh deliberately). Security note: `.mcp.json`
+in this repo contains a committed Figma token (pushed to origin) - revoke it and read the token from an env var.
+
 ## [2026-10-16] update | Wiki sync after backend wiring (origin/main 3e03afa)
 
 Pulled `cfbf1d2`, `cc291e3`, `3e03afa` (PRs #1-#3 by emmanuel197), built on the responsive commit `ce9f340`:

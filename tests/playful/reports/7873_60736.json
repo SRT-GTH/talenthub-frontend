@@ -5,10 +5,10 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -1.2,
-    "derived": 53.2
+    "medianDy": -2.1,
+    "derived": 54.1
   },
-  "offsetUsed": 53,
+  "offsetUsed": 54,
   "counts": {
     "figmaTexts": 16,
     "matched": 13,
@@ -23,15 +23,15 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 119
+        "y": 118
       },
-      "closestDom": "Step 10 of 11 ·"
+      "closestDom": "Step 9 of 9 ·"
     },
     {
       "text": "Perfect, Emma — I’ve recorded that. Just to confirm, kindly cross-check on your Talent Profile Pannel to my right. What area should I guide you on next?",
       "figma": {
         "x": 142,
-        "y": 792
+        "y": 791
       },
       "closestDom": "Perfect, Emma — I've recorded that. Just to confirm, kindly cross-check on your "
     },
@@ -39,7 +39,7 @@
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 33
+        "y": 32
       },
       "closestDom": "Save & Exit"
     }
@@ -49,15 +49,23 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 1.8,
+      "dy": 2.8,
       "dh": -1,
       "wPct": 15.9
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -1049.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 138.9,
+      "dy": 139.9,
       "dh": 2,
       "wPct": 7.4
     },
@@ -65,7 +73,7 @@
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": 138.4,
+      "dy": 139.4,
       "dh": 3,
       "wPct": 3.9
     },
@@ -73,7 +81,7 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 131.3,
+      "dy": 132.3,
       "dh": 3,
       "wPct": 2.6
     },
@@ -81,7 +89,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -115.2,
+      "dy": -94.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -89,23 +97,15 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 73.8,
+      "dy": -84.2,
       "dh": 1,
       "wPct": 2.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 15.9,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -7.2,
+      "dy": -6.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -113,7 +113,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -7.2,
+      "dy": -6.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -121,7 +121,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -0.7,
+      "dy": 0.3,
       "dh": -2,
       "wPct": 44.9
     },
@@ -129,7 +129,7 @@
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": -1.1,
+      "dy": -0.1,
       "dh": 1,
       "wPct": -4.7
     }
@@ -139,7 +139,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 1.8,
+      "dy": 2.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -148,7 +148,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": -0.2,
+      "dy": 0.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -157,7 +157,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -0.7,
+      "dy": 0.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -166,7 +166,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -7.2,
+      "dy": -6.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -175,7 +175,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -7.2,
+      "dy": -6.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -184,7 +184,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 138.9,
+      "dy": 139.9,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -201,7 +201,7 @@
       },
       "app": {
         "x": 0,
-        "y": 223.8,
+        "y": 224.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -216,7 +216,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 223.8,
+        "y": 224.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -231,7 +231,7 @@
       },
       "app": {
         "x": 0,
-        "y": 53,
+        "y": 54,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -242,6 +242,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_60736-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

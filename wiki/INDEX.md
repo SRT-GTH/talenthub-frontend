@@ -34,6 +34,7 @@ Every claim in this wiki carries a tag:
 - [debugging-workflow.md](debugging-workflow.md) — Console-log convention + Playwright verification
 - [figma-fidelity.md](figma-fidelity.md) — Pixel-perfect implementation rules (`clamp()`, `get_design_context`)
 - [pre-commit-workflow.md](pre-commit-workflow.md) — Lint, format, build, husky hooks
+- [onboarding-redesign.md](onboarding-redesign.md) — Recruiter onboarding flow (R01-R09, mock), shared responsive `OnboardingPanel`, talent/entry corrections to the 8027 frames, Figma-export asset rule, demo triggers, **open items** (read this first when resuming)
 - [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — EXECUTED 2026-10-10
 
 ### External
@@ -46,4 +47,4 @@ Every claim in this wiki carries a tag:
 
 ---
 
-_Last updated: 2026-10-16 (backend wiring for login / talent onboarding / institution; responsive pass executed)_
+_Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; backend wiring for login / talent onboarding / institution; responsive pass executed)_

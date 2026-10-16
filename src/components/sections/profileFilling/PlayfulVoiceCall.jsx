@@ -5,7 +5,7 @@ import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
 import useVoiceCapture from '../../../hooks/useVoiceCapture.js';
-import usePlayfulOverlayA11y from '../../ui/PlayfulOverlayA11y.js';
+import usePlayfulOverlayA11y, { usePlayfulPaneReach } from '../../ui/PlayfulOverlayA11y.js';
 import { getVoiceById } from './careerBuddyVoices.js';
 import { ChatMicIcon, ChatSettingsSlidersIcon, ChatVoiceCloseIcon } from '../../shared/assets.jsx';
 
@@ -32,6 +32,7 @@ const PlayfulVoiceCall = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
   const { level, setMuted, active, error } = useVoiceCapture({ enabled: open, listen: false });
 
   const voice = getVoiceById(voiceId);
+  const reach = usePlayfulPaneReach(rootRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -65,15 +66,16 @@ const PlayfulVoiceCall = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
     <div
       ref={rootRef}
       className={classNames(
-        'absolute inset-0 z-20 flex flex-col items-center justify-center overflow-y-auto bg-[#f8f8f4]',
+        'absolute inset-x-0 bottom-0 z-20 flex flex-col items-center overflow-y-auto bg-[#f8f8f4]',
         // ≥ lg: chat stays visible above; only the cluster zone + composer fade to canvas.
-        'lg:justify-end lg:pb-[clamp(24px,10vh,90px)] lg:bg-[linear-gradient(to_bottom,transparent_calc(100%-500px),#f8f8f4_calc(100%-460px))]'
+        'lg:pb-[clamp(20px,calc(8vh+4px),94px)] lg:bg-[linear-gradient(to_bottom,transparent_calc(100%-500px),#f8f8f4_calc(100%-460px))]'
       )}
+      style={{ top: -reach }}
       role="dialog"
       aria-modal="true"
       aria-label={`Voice call with ${voice.name}`}
     >
-      <div className="flex flex-col items-center gap-[24px]">
+      <div className="my-auto flex flex-col items-center gap-[24px] lg:mb-0 lg:mt-auto">
         <div className="flex flex-col items-center gap-[22px]">
           {/* Overlapping avatars — Figma Frame 14690, gap -12 */}
           <div className="flex items-center">

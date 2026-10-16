@@ -17,6 +17,7 @@
 
 import { getTalentOnboardingSteps, getOnboardingPercent } from './onboardingSteps.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
+import ScrollChevronRow from '../ui/ScrollChevronRow.jsx';
 
 const ChevronRight = () => (
   <svg
@@ -110,9 +111,13 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent }) => {
 
       <div className="mx-auto flex h-full items-center justify-between px-[54px] max-md:hidden">
         {/* Breadcrumbs */}
-        <nav
+        <ScrollChevronRow
+          as="nav"
           aria-label="Onboarding progress"
-          className="flex items-center gap-2 overflow-x-auto text-[14px] leading-4 capitalize"
+          wrapperClassName="min-w-0 flex-1"
+          className="relative flex items-center gap-2 text-[14px] leading-4 capitalize"
+          focusSelector='[aria-current="step"]'
+          focusKey={currentKey}
           style={{ letterSpacing: '0.14px' }}
         >
           {steps.map((step, index) => {
@@ -141,7 +146,7 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent }) => {
               </div>
             );
           })}
-        </nav>
+        </ScrollChevronRow>
 
         {/* Completion meter */}
         <div className="flex w-[245px] shrink-0 flex-col gap-2 pl-6">

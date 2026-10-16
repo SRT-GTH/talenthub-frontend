@@ -176,6 +176,14 @@ const log = debug('CareerBuddySection');
  * source file, not a computed weighted average.
  */
 
+// Nodes whose footer suggestedReplies render as in-bubble chips in Playful.
+const PLAYFUL_IN_BUBBLE_NODES = new Set([
+  'post-personality-prompt',
+  'guidance-intro',
+  'guidance-intro-returning',
+  'guidance-intro-section',
+]);
+
 const CAREER_BUDDY_STAGES = [
   { id: 'avatar', trailLabel: 'Avatar', Icon: AvatarStepIcon },
   {
@@ -1323,9 +1331,16 @@ const CareerBuddySection = () => {
   // asset imports or callbacks), so anything a message needs at render time —
   // modeCards' Icon components (MODE_CARD_ICONS), the games-intro linkButton's
   // onClick (opens the Game Store modal) — gets merged in here.
+  const inBubbleChoices = useMemo(
+    () =>
+      uiStyle === 'playful' && !isRecruiter && !isParent && PLAYFUL_IN_BUBBLE_NODES.has(nodeId)
+        ? (currentNode?.suggestedReplies ?? [])
+        : [],
+    [uiStyle, isRecruiter, isParent, nodeId, currentNode]
+  );
   const enrichedMessages = useMemo(
     () =>
-      messages.map((message) => {
+      messages.map((message, messageIndex) => {
         let next = message;
         if (next.modeCards) {
           next = {
@@ -1397,14 +1412,24 @@ const CareerBuddySection = () => {
           const playfulText = toPlayfulCopy(next.text);
           if (playfulText !== next.text) next = { ...next, text: playfulText };
         }
+        // Playful (Figma 7873:59686 etc.): the area / hand-off choices are ink chips INSIDE
+        // the bot bubble; Focused keeps them as footer chips (see activeSuggestedReplies).
+        if (
+          uiStyle === 'playful' &&
+          inBubbleChoices.length > 0 &&
+          messageIndex === messages.length - 1 &&
+          next.sender === 'bot'
+        ) {
+          next = { ...next, options: inBubbleChoices.map((label) => ({ id: label, label })) };
+        }
         return next;
       }),
-    [messages, isParent, isRecruiter, uiStyle, parentProfileTab, personaName]
+    [messages, isParent, isRecruiter, uiStyle, parentProfileTab, personaName, inBubbleChoices]
   );
 
   // After a successful job post, surface unfinished setup chips (Company / KYB).
   const activeSuggestedReplies = useMemo(() => {
-    const base = currentNode?.suggestedReplies ?? [];
+    const base = inBubbleChoices.length > 0 ? [] : (currentNode?.suggestedReplies ?? []);
     if (nodeId !== 'job-posted-success') return base;
     const companyDone = stages.some((s) => s.id === 'company-info' && s.status === 'done');
     const kybDone = kybVerified || stages.some((s) => s.id === 'kyb' && s.status === 'done');
@@ -1413,7 +1438,7 @@ const CareerBuddySection = () => {
     if (!kybDone) chips.push(KYB_UPLOAD_CTA);
     chips.push('Tell me more about GTH');
     return chips;
-  }, [currentNode?.suggestedReplies, nodeId, stages, kybVerified]);
+  }, [currentNode?.suggestedReplies, inBubbleChoices, nodeId, stages, kybVerified]);
 
   const panelStages = useMemo(
     () =>
@@ -2147,6 +2172,11 @@ const CareerBuddySection = () => {
   // literally match a key (it never does) falls through to `next['*']`
   // exactly like free-text input does.
   const handleSelectMcqOption = (optionId) => {
+    if (PLAYFUL_IN_BUBBLE_NODES.has(nodeId)) {
+      log('branch', { inBubbleChoice: optionId, fromNode: nodeId });
+      submit(optionId);
+      return;
+    }
     log('branch', { mcqOptionSelected: optionId, fromNode: nodeId });
     setMessages((prev) => [
       ...prev,
@@ -2245,7 +2275,7 @@ const CareerBuddySection = () => {
           variant={toast.variant}
           title={toast.title}
           body={toast.body}
-          xpBadge={/^Educational background saved/i.test(toast.title ?? '') ? '+20 XP' : undefined}
+          xpBadge={/^Educational background saved/i.test(toast.body ?? '') ? '+20 XP' : undefined}
           duration={toast.variant === 'welcome' ? 5000 : 4000}
           onDismiss={() => setToast(null)}
         />
@@ -2585,7 +2615,11 @@ const CareerBuddySection = () => {
 
           {/* Hero collapses away below lg while a full-pane voice overlay is up. */}
           <div
-            className={voiceCallOpen || voiceSettingsOpen ? 'contents max-lg:hidden' : 'contents'}
+            className={
+              voiceCallOpen || voiceSettingsOpen
+                ? 'contents max-lg:hidden playful:hidden'
+                : 'contents'
+            }
           >
             {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} playful={playful} />}
             {heroMode === 'returning' && <ReturningHero name={personaName} />}

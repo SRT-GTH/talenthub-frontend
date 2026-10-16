@@ -17,6 +17,17 @@ export const ROUTES = [
     'review',
   ].map((s) => `/onboarding/talent/${s}`),
   ...[
+    'profile',
+    'type',
+    'organisation',
+    'organisation/create',
+    'plan',
+    'payment',
+    'preferences',
+    'review',
+    'done',
+  ].map((s) => `/onboarding/recruiter/${s}`),
+  ...[
     'guidelines',
     'your-institution',
     'contact',

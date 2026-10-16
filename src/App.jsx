@@ -20,6 +20,28 @@ const OnboardingParentInfoPage = lazy(
   () => import('./pages/onboarding/OnboardingParentInfoPage.jsx')
 );
 const OnboardingReviewPage = lazy(() => import('./pages/onboarding/OnboardingReviewPage.jsx'));
+const OnboardingDonePage = lazy(() => import('./pages/onboarding/OnboardingDonePage.jsx'));
+const RecruiterProfilePage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterProfilePage.jsx')
+);
+const RecruiterTypePage = lazy(() => import('./pages/onboarding/recruiter/RecruiterTypePage.jsx'));
+const RecruiterOrganisationPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterOrganisationPage.jsx')
+);
+const RecruiterCreateOrganisationPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterCreateOrganisationPage.jsx')
+);
+const RecruiterPlanPage = lazy(() => import('./pages/onboarding/recruiter/RecruiterPlanPage.jsx'));
+const RecruiterPaymentPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterPaymentPage.jsx')
+);
+const RecruiterPreferencesPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterPreferencesPage.jsx')
+);
+const RecruiterReviewPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterReviewPage.jsx')
+);
+const RecruiterDonePage = lazy(() => import('./pages/onboarding/recruiter/RecruiterDonePage.jsx'));
 const ProfileEngagementPage = lazy(() => import('./pages/engagement/ProfileEngagementPage.jsx'));
 const IdentityMapPage = lazy(() => import('./pages/engagement/IdentityMapPage.jsx'));
 const MilestoneUnlockPage = lazy(() => import('./pages/engagement/MilestoneUnlockPage.jsx'));
@@ -123,6 +145,7 @@ const ParentInviteConsentPage = lazy(
   () => import('./pages/parentLogin/ParentInviteConsentPage.jsx')
 );
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import { RecruiterOnboardingProvider } from './providers/RecruiterOnboardingProvider.jsx';
 import CareerBuddyRoleProvider from './providers/CareerBuddyRoleProvider.jsx';
 import UiStyleProvider from './providers/UiStyleProvider.jsx';
 import { AvatarSelectionProvider } from './providers/AvatarSelectionProvider.jsx';
@@ -295,7 +318,105 @@ function App() {
                                 </Suspense>
                               }
                             />
+                            <Route
+                              path="done"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingDonePage />
+                                </Suspense>
+                              }
+                            />
                           </Routes>
+                        </OnboardingProvider>
+                      }
+                    />
+
+                    {/* Recruiter onboarding (Figma 7356:96249). Shares the talent shell
+                (TalentOnboardingLayout glow + OnboardingHeader). OnboardingProvider
+                is mounted too because OnboardingHeader reads it; the recruiter's own
+                mock state lives in RecruiterOnboardingProvider. No route guards -
+                every step must open directly (DemoNavigator + deep links). */}
+                    <Route
+                      path="/onboarding/recruiter/*"
+                      element={
+                        <OnboardingProvider>
+                          <RecruiterOnboardingProvider>
+                            <Routes>
+                              <Route index element={<Navigate to="profile" replace />} />
+                              <Route
+                                path="profile"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterProfilePage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="type"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterTypePage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="organisation"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterOrganisationPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="organisation/create"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterCreateOrganisationPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="plan"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPlanPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="payment"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPaymentPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="preferences"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPreferencesPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="review"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterReviewPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="done"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterDonePage />
+                                  </Suspense>
+                                }
+                              />
+                            </Routes>
+                          </RecruiterOnboardingProvider>
                         </OnboardingProvider>
                       }
                     />

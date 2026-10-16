@@ -516,7 +516,7 @@ const TOAST_OVERLAY_CLASS =
 
 // Playful top-center sits at Figma x=406/1728, y=74-52 (browser chrome); full-width on phones.
 const PLAYFUL_TOP_CENTER =
-  'playful:top-[22px] playful:left-[23.5vw] playful:translate-x-0 max-sm:playful:left-4 max-sm:playful:right-4 max-sm:playful:top-3';
+  'playful:top-[22px] max-sm:playful:left-4 max-sm:playful:right-4 max-sm:playful:top-3 max-sm:playful:translate-x-0';
 
 const Toast = ({ position = 'top-right', offsetClassName, onDismiss, ...props }) => {
   log('portal', { position, variant: props.variant, compact: props.compact });

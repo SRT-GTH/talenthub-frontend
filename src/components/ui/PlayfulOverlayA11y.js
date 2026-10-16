@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('PlayfulOverlayA11y');
@@ -72,4 +72,33 @@ export default function usePlayfulOverlayA11y({ open, enabled = true, rootRef, o
       log('close');
     };
   }, [open, enabled, rootRef]);
+}
+
+/**
+ * Figma draws the voice overlays across the WHOLE chat pane (hero area included),
+ * but they are mounted below the hero. Returns how far (px) the overlay must reach
+ * up to cover the pane: distance between the pane top and the overlay's parent top.
+ * 0 when the hero is hidden (< lg).
+ */
+export function usePlayfulPaneReach(rootRef, open) {
+  const [reach, setReach] = useState(0);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const wrap = root?.parentElement;
+    const pane = wrap?.parentElement;
+    if (!open || !wrap || !pane) return undefined;
+    const measure = () => {
+      const next = Math.max(
+        0,
+        Math.round(wrap.getBoundingClientRect().top - pane.getBoundingClientRect().top)
+      );
+      setReach((prev) => (prev === next ? prev : next));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(pane);
+    [...pane.children].forEach((c) => ro.observe(c));
+    return () => ro.disconnect();
+  }, [open, rootRef]);
+  return reach;
 }

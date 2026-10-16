@@ -5,49 +5,33 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -2.7,
-    "derived": 54.7
+    "medianDy": -6.7,
+    "derived": 58.7
   },
-  "offsetUsed": 55,
+  "offsetUsed": 59,
   "counts": {
     "figmaTexts": 30,
-    "matched": 25,
-    "unmatched": 5,
-    "layoutMismatch": 17,
-    "fontMetric": 12,
+    "matched": 27,
+    "unmatched": 3,
+    "layoutMismatch": 25,
+    "fontMetric": 13,
     "widthOver15": 5
   },
-  "worstLayoutPx": 3101.2,
+  "worstLayoutPx": 3077.2,
   "unmatched": [
     {
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 117
+        "y": 113
       },
-      "closestDom": "Step 5 of 11 ·"
-    },
-    {
-      "text": "Personality confirmed",
-      "figma": {
-        "x": 843,
-        "y": 264
-      },
-      "closestDom": "Personality"
-    },
-    {
-      "text": "Career Exposure",
-      "figma": {
-        "x": 875,
-        "y": 1006
-      },
-      "closestDom": "Career Options"
+      "closestDom": "Step 5 of 9 ·"
     },
     {
       "text": "Perfect, Emma — I’ve recorded that. Just to confirm, kindly cross-check on your Talent Profile Pannel to my right. What area should I guide you on next?",
       "figma": {
         "x": 142,
-        "y": 2997
+        "y": 2993
       },
       "closestDom": null
     },
@@ -55,7 +39,7 @@
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 31
+        "y": 27
       },
       "closestDom": "Save & Exit"
     }
@@ -65,7 +49,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -0.6,
-      "dy": -3101.2,
+      "dy": -3077.2,
       "dh": 2,
       "wPct": -67.6
     },
@@ -73,7 +57,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -2781.2,
+      "dy": -2757.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -81,39 +65,55 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -2199.2,
+      "dy": -2175.2,
       "dh": 1,
       "wPct": 2.3
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 10.3,
-      "dy": -1984.7,
+      "dx": 34.7,
+      "dy": -1960.7,
       "dh": 2,
       "wPct": -81
     },
     {
+      "text": "Career Exposure",
+      "sel": "span.block",
+      "dx": 0,
+      "dy": -1884.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
       "text": "I think I need some guidance",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -1792.2,
+      "dy": -1768.2,
       "dh": 2,
       "wPct": 7.1
     },
     {
       "text": "That’s alright brother. I get where you’re coming from. Sele",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -1778.2,
+      "dy": -1754.2,
       "dh": -6,
-      "wPct": 13.7
+      "wPct": 8
+    },
+    {
+      "text": "Personality confirmed",
+      "sel": "span.block",
+      "dx": -2.1,
+      "dy": -1531.7,
+      "dh": 2,
+      "wPct": 7.6
     },
     {
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 3.8,
+      "dy": 7.8,
       "dh": -1,
       "wPct": 15.9
     },
@@ -121,15 +121,23 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -22.2,
-      "dy": -1170.2,
+      "dy": -1146.2,
       "dh": 2,
       "wPct": -75.2
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -643.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -572.2,
+      "dy": -548.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -137,7 +145,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -113.2,
+      "dy": -89.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -145,7 +153,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 53.8,
+      "dy": 77.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -153,49 +161,89 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 51.8,
+      "dy": 75.8,
       "dh": 1,
       "wPct": 2.3
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 17.9,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
-      "text": "Career Pitch",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.1,
-      "dy": -4.2,
-      "dh": 3,
-      "wPct": 3.9
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 5.8,
+      "dh": -2,
+      "wPct": 8
     },
     {
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 1.3,
+      "dy": 5.3,
       "dh": -2,
       "wPct": 44.9
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -3.7,
-      "dh": 2,
-      "wPct": 7.4
     },
     {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": 0.9,
+      "dy": 4.9,
       "dh": 1,
       "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": 4.9,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 4.8,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 4.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 4.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 4.3,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 4.3,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 4.3,
+      "dh": 3,
+      "wPct": 2.6
     }
   ],
   "fontMetric": [
@@ -203,7 +251,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 3.8,
+      "dy": 7.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -212,7 +260,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 1.8,
+      "dy": 5.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -221,43 +269,52 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -22.2,
-      "dy": -1170.2,
+      "dy": -1146.2,
       "dh": 2,
       "wPct": -75.2,
       "severe": true
     },
     {
+      "text": "Personality confirmed",
+      "sel": "span.block",
+      "dx": -2.1,
+      "dy": -1531.7,
+      "dh": 2,
+      "wPct": 7.6,
+      "severe": false
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 10.3,
-      "dy": -1984.7,
+      "dx": 34.7,
+      "dy": -1960.7,
       "dh": 2,
       "wPct": -81,
       "severe": true
     },
     {
       "text": "I think I need some guidance",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -1792.2,
+      "dy": -1768.2,
       "dh": 2,
       "wPct": 7.1,
       "severe": false
     },
     {
       "text": "That’s alright brother. I get where you’re coming from. Sele",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -1778.2,
+      "dy": -1754.2,
       "dh": -6,
-      "wPct": 13.7,
+      "wPct": 8,
       "severe": false
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -0.6,
-      "dy": -3101.2,
+      "dy": -3077.2,
       "dh": 2,
       "wPct": -67.6,
       "severe": true
@@ -266,7 +323,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 1.3,
+      "dy": 5.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -275,7 +332,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 0.3,
+      "dy": 4.3,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -284,7 +341,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 0.8,
+      "dy": 4.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -293,7 +350,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 0.8,
+      "dy": 4.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -302,7 +359,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -3.7,
+      "dy": 0.3,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -319,7 +376,7 @@
       },
       "app": {
         "x": 0,
-        "y": 225.8,
+        "y": 229.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -334,7 +391,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 225.8,
+        "y": 229.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -349,7 +406,7 @@
       },
       "app": {
         "x": 0,
-        "y": 55,
+        "y": 59,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -360,6 +417,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_59686-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

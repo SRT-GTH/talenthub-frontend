@@ -11,22 +11,14 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 56,
-    "matched": 50,
-    "unmatched": 6,
+    "matched": 51,
+    "unmatched": 5,
     "layoutMismatch": 43,
-    "fontMetric": 19,
+    "fontMetric": 20,
     "widthOver15": 3
   },
-  "worstLayoutPx": 383.3,
+  "worstLayoutPx": 390.3,
   "unmatched": [
-    {
-      "text": "Step 1 of 9 ·",
-      "figma": {
-        "x": 1365,
-        "y": 118
-      },
-      "closestDom": "Step 1 of 11 ·"
-    },
     {
       "text": "Hey! Great question. \nGhana Talent Hub (GTH) is an AI-powered platform built entirely for Ghana's talent ecosystem — connecting students and graduates with real opportunities at top companies across the country.\nHere's what makes GTH different:\nYour profile is matched to live opportunities based on your skills, interests and personality — not just your grades\nEvery profile is verified so recruiters trust what they see\nI'm TALI — your AI career mentor, here to guide you from your first profile section all the way to your first job\nWe're built in Ghana, for Ghana — not adapted from somewhere else\nWant the full story on our mission and the team behind it?",
       "figma": {
@@ -73,7 +65,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 383.3,
+      "dy": 390.3,
       "dh": 1,
       "wPct": 0.9
     },
@@ -158,26 +150,26 @@
       "wPct": 7.4
     },
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -111.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 107.3,
+      "dy": 114.3,
       "dh": 1,
       "wPct": 0.9
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -104.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "Sounds great. Let’s do that.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -75.7,
+      "dy": -68.7,
       "dh": -3,
       "wPct": 8.5
     },
@@ -185,15 +177,15 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -73.7,
+      "dy": -66.7,
       "dh": 1,
       "wPct": 2.3
     },
     {
       "text": "Awesome. I think I’m ready now. Let's build my profile!",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -71.7,
+      "dy": -64.7,
       "dh": -3,
       "wPct": 9.6
     },
@@ -201,17 +193,9 @@
       "text": "Visit our About page",
       "sel": "button.self-start.m-0.inline-flex",
       "dx": 2.4,
-      "dy": -70.4,
+      "dy": -63.4,
       "dh": 3,
       "wPct": 26.4
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 25.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",
@@ -382,6 +366,14 @@
       "wPct": -4.7
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -1.7,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
       "text": "Educational Background",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
@@ -443,6 +435,15 @@
       "severe": false
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -1.7,
+      "dh": -2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -455,25 +456,25 @@
       "text": "Visit our About page",
       "sel": "button.self-start.m-0.inline-flex",
       "dx": 2.4,
-      "dy": -70.4,
+      "dy": -63.4,
       "dh": 3,
       "wPct": 26.4,
       "severe": true
     },
     {
       "text": "Awesome. I think I’m ready now. Let's build my profile!",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -71.7,
+      "dy": -64.7,
       "dh": -3,
       "wPct": 9.6,
       "severe": false
     },
     {
       "text": "Sounds great. Let’s do that.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -75.7,
+      "dy": -68.7,
       "dh": -3,
       "wPct": 8.5,
       "severe": false
@@ -636,14 +637,14 @@
     }
   },
   "style": {
-    "summaryLine": "128 style mismatches (colour:15 radius:40 shadow:12 stroke:20 opacity:2 typography:39); shapes 23/99 matched",
+    "summaryLine": "129 style mismatches (colour:15 radius:40 shadow:12 stroke:20 opacity:2 typography:40); shapes 23/99 matched",
     "counts": {
       "colour": 15,
       "radius": 40,
       "shadow": 12,
       "stroke": 20,
       "opacity": 2,
-      "typography": 39,
+      "typography": 40,
       "gradient": 0,
       "mixedRuns": 1
     },
@@ -651,7 +652,7 @@
       "total": 99,
       "matched": 23
     },
-    "textStyleMatched": 50,
+    "textStyleMatched": 51,
     "unmatchedShapes": [
       {
         "node": "teenyicons:left-outline",
@@ -1997,6 +1998,15 @@
       {
         "cat": "typography",
         "prop": "text-align",
+        "node": "Step 1 of 9 ·",
+        "nodeId": "7873:51476",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.font-sans.text-[12px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
         "node": "· 0% profile complete · auto-saved",
         "nodeId": "7873:51478",
         "figma": "center",
@@ -2278,7 +2288,7 @@
       "radius-br": 10,
       "radius-bl": 10,
       "line-height": 17,
-      "text-align": 15,
+      "text-align": 16,
       "font-size": 1,
       "text-colour": 2,
       "font-weight": 4,
@@ -2287,6 +2297,7 @@
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_51441-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": 14.9,
-    "derived": 37.1
+    "medianDy": -1.2,
+    "derived": 53.2
   },
-  "offsetUsed": 37,
+  "offsetUsed": 53,
   "counts": {
     "figmaTexts": 17,
     "matched": 14,
     "unmatched": 3,
-    "layoutMismatch": 13,
+    "layoutMismatch": 12,
     "fontMetric": 7,
     "widthOver15": 2
   },
@@ -23,15 +23,15 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 135
+        "y": 119
       },
-      "closestDom": "Step 10 of 11 ·"
+      "closestDom": "Step 9 of 9 ·"
     },
     {
       "text": "Perfect, Emma — I’ve recorded that. Just to confirm, kindly cross-check on your Talent Profile Pannel to my right. What area should I guide you on next?",
       "figma": {
         "x": 142,
-        "y": 808
+        "y": 792
       },
       "closestDom": "Perfect, Emma — I've recorded that. Just to confirm, kindly cross-check on your "
     },
@@ -39,7 +39,7 @@
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 49
+        "y": 33
       },
       "closestDom": "Save & Exit"
     }
@@ -49,15 +49,23 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -14.2,
+      "dy": 1.8,
       "dh": -1,
       "wPct": 15.9
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -649.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 384.3,
+      "dy": 400.3,
       "dh": 3,
       "wPct": 6.8
     },
@@ -65,7 +73,7 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 384.3,
+      "dy": 400.3,
       "dh": 3,
       "wPct": 2.6
     },
@@ -73,7 +81,7 @@
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": 379.3,
+      "dy": 395.3,
       "dh": 3,
       "wPct": 3.9
     },
@@ -81,7 +89,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -299.7,
+      "dy": -283.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -89,7 +97,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 245.8,
+      "dy": 261.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -97,7 +105,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 245.8,
+      "dy": 261.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -105,7 +113,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -131.2,
+      "dy": -95.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -113,41 +121,25 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 57.8,
+      "dy": -85.2,
       "dh": 1,
       "wPct": 2.3
-    },
-    {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": -17.1,
-      "dh": 1,
-      "wPct": -4.7
-    },
-    {
-      "text": "Kofi A.",
-      "sel": "span.max-md:sr-only.font-sans.font-semibold",
-      "dx": -1,
-      "dy": -17.1,
-      "dh": -5,
-      "wPct": 5.9
     },
     {
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -16.7,
+      "dy": -0.7,
       "dh": -2,
       "wPct": 44.9
     },
     {
-      "text": "· 0% profile complete · auto-saved",
-      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
-      "dx": 0,
-      "dy": -16.2,
-      "dh": -2,
-      "wPct": 8
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -1.1,
+      "dh": 1,
+      "wPct": -4.7
     }
   ],
   "fontMetric": [
@@ -155,7 +147,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -14.2,
+      "dy": 1.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -164,7 +156,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": -16.2,
+      "dy": -0.2,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -173,7 +165,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -16.7,
+      "dy": -0.7,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -182,7 +174,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 384.3,
+      "dy": 400.3,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -191,7 +183,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 245.8,
+      "dy": 261.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -200,7 +192,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 245.8,
+      "dy": 261.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -209,7 +201,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -299.7,
+      "dy": -283.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -226,7 +218,7 @@
       },
       "app": {
         "x": 0,
-        "y": 207.8,
+        "y": 223.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -241,7 +233,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 207.8,
+        "y": 223.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -256,7 +248,7 @@
       },
       "app": {
         "x": 0,
-        "y": 37,
+        "y": 53,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -267,6 +259,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_60211-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

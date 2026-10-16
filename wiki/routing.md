@@ -182,6 +182,26 @@ All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
 
 `DashboardSidebar` derives its active item from `useLocation().pathname`; Home, Talent Search, Job Postings, Messages and Application Pipeline all resolve to the routes above. Community remains `/community` and `/community/:communityId`. ✅ VERIFIED
 
+## Recruiter onboarding `✅ VERIFIED` (2026-10-16, frontend-only mock)
+
+Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingProvider`; `MainLayout` fixed-shell path. No route guards. Full table, state shape and demo triggers in [onboarding-redesign.md](onboarding-redesign.md).
+
+| Path                                        | Page                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------- |
+| `/onboarding/recruiter`                     | redirect -> `profile`                                               |
+| `/onboarding/recruiter/profile`             | `RecruiterProfilePage` (R01 + OTP/verified modals)                  |
+| `/onboarding/recruiter/type`                | `RecruiterTypePage`                                                 |
+| `/onboarding/recruiter/organisation`        | `RecruiterOrganisationPage`                                         |
+| `/onboarding/recruiter/organisation/create` | `RecruiterCreateOrganisationPage`                                   |
+| `/onboarding/recruiter/plan`                | `RecruiterPlanPage`                                                 |
+| `/onboarding/recruiter/payment`             | `RecruiterPaymentPage`                                              |
+| `/onboarding/recruiter/preferences`         | `RecruiterPreferencesPage`                                          |
+| `/onboarding/recruiter/review`              | `RecruiterReviewPage`                                               |
+| `/onboarding/recruiter/done`                | `RecruiterDonePage`                                                 |
+| `/onboarding/talent/done`                   | `OnboardingDonePage` (talent success; Review's final CTA goes here) |
+
+`/get-started` -> recruiter CTA routes to `/onboarding/recruiter/profile` (`AUTH_ROUTES.recruiter.signUp`); it no longer falls into the institution flow.
+
 ## Backend wiring by route family `✅ VERIFIED` (2026-10-16)
 
 | Family                                                                                        | State                                                                                            |

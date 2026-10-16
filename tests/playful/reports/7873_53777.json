@@ -11,22 +11,14 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 49,
-    "matched": 46,
-    "unmatched": 3,
+    "matched": 47,
+    "unmatched": 2,
     "layoutMismatch": 39,
-    "fontMetric": 18,
+    "fontMetric": 19,
     "widthOver15": 2
   },
-  "worstLayoutPx": 562.3,
+  "worstLayoutPx": 569.3,
   "unmatched": [
-    {
-      "text": "Step 1 of 9 ·",
-      "figma": {
-        "x": 1365,
-        "y": 118
-      },
-      "closestDom": "Step 1 of 11 ·"
-    },
     {
       "text": "Completion: Not Started",
       "figma": {
@@ -47,17 +39,17 @@
   "layout": [
     {
       "text": "Sounds great. Let’s do that.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 562.3,
+      "dy": 569.3,
       "dh": -3,
       "wPct": 8.5
     },
     {
       "text": "To start, what school or institution did you attend most rec",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 560.8,
+      "dy": 567.8,
       "dh": -6,
       "wPct": 9.3
     },
@@ -65,7 +57,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 383.3,
+      "dy": 390.3,
       "dh": 1,
       "wPct": 0.9
     },
@@ -145,17 +137,9 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -111.7,
+      "dy": -104.7,
       "dh": 1,
       "wPct": 2.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 25.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",
@@ -326,6 +310,14 @@
       "wPct": -4.7
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -1.7,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
       "text": "Educational Background",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
@@ -387,6 +379,15 @@
       "severe": false
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": -1.7,
+      "dh": -2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -397,18 +398,18 @@
     },
     {
       "text": "Sounds great. Let’s do that.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": 562.3,
+      "dy": 569.3,
       "dh": -3,
       "wPct": 8.5,
       "severe": false
     },
     {
       "text": "To start, what school or institution did you attend most rec",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": 560.8,
+      "dy": 567.8,
       "dh": -6,
       "wPct": 9.3,
       "severe": false
@@ -571,14 +572,14 @@
     }
   },
   "style": {
-    "summaryLine": "123 style mismatches (colour:16 radius:40 shadow:12 stroke:20 opacity:2 typography:33); shapes 23/73 matched",
+    "summaryLine": "124 style mismatches (colour:16 radius:40 shadow:12 stroke:20 opacity:2 typography:34); shapes 23/73 matched",
     "counts": {
       "colour": 16,
       "radius": 40,
       "shadow": 12,
       "stroke": 20,
       "opacity": 2,
-      "typography": 33,
+      "typography": 34,
       "gradient": 0,
       "mixedRuns": 1
     },
@@ -586,7 +587,7 @@
       "total": 73,
       "matched": 23
     },
-    "textStyleMatched": 46,
+    "textStyleMatched": 47,
     "unmatchedShapes": [
       {
         "node": "teenyicons:left-outline",
@@ -1794,6 +1795,15 @@
       {
         "cat": "typography",
         "prop": "text-align",
+        "node": "Step 1 of 9 ·",
+        "nodeId": "7873:53812",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.font-sans.text-[12px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
         "node": "· 0% profile complete · auto-saved",
         "nodeId": "7873:53814",
         "figma": "center",
@@ -2013,13 +2023,14 @@
       "radius-bl": 10,
       "line-height": 15,
       "text-colour": 3,
-      "text-align": 14,
+      "text-align": 15,
       "font-weight": 2,
       "text-decoration": 1,
       "font-family (fallback?)": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_53777-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

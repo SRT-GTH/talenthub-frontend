@@ -73,6 +73,6 @@ test('minor signs up with parent details and activates', async ({ page }) => {
     .getByRole('button', { name: /continue/i })
     .last()
     .click({ timeout: 30_000 });
-  await page.waitForURL('**/login');
+  await page.waitForURL('**/onboarding/talent/done');
   await page.waitForTimeout(1500);
 });

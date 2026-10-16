@@ -67,6 +67,6 @@ test('adult signs up end-to-end and activates', async ({ page }) => {
     .getByRole('button', { name: /continue/i })
     .last()
     .click({ timeout: 30_000 });
-  await page.waitForURL('**/login');
+  await page.waitForURL('**/onboarding/talent/done');
   await page.waitForTimeout(1500);
 });

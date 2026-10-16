@@ -5,57 +5,33 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -7.2,
-    "derived": 59.2
+    "medianDy": -7.7,
+    "derived": 59.7
   },
-  "offsetUsed": 59,
+  "offsetUsed": 60,
   "counts": {
     "figmaTexts": 33,
-    "matched": 25,
-    "unmatched": 8,
-    "layoutMismatch": 19,
-    "fontMetric": 12,
+    "matched": 28,
+    "unmatched": 5,
+    "layoutMismatch": 22,
+    "fontMetric": 13,
     "widthOver15": 6
   },
-  "worstLayoutPx": 2632.2,
+  "worstLayoutPx": 2611.2,
   "unmatched": [
     {
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 113
+        "y": 112
       },
       "closestDom": "Step 4 of 9 ·"
-    },
-    {
-      "text": "Personal Area of Interest confirmed",
-      "figma": {
-        "x": 742,
-        "y": 260
-      },
-      "closestDom": "Personal area of interest"
-    },
-    {
-      "text": "MCQs (Assessment)",
-      "figma": {
-        "x": 848,
-        "y": 639
-      },
-      "closestDom": "[Auto]MCQs (Assessment)"
-    },
-    {
-      "text": "Option A",
-      "figma": {
-        "x": 923,
-        "y": 912
-      },
-      "closestDom": "[Auto]Option A"
     },
     {
       "text": "Option B",
       "figma": {
         "x": 924,
-        "y": 1667
+        "y": 1666
       },
       "closestDom": null
     },
@@ -63,7 +39,7 @@
       "text": "[Auto]",
       "figma": {
         "x": 923,
-        "y": 1878
+        "y": 1877
       },
       "closestDom": null
     },
@@ -71,7 +47,7 @@
       "text": "Option A",
       "figma": {
         "x": 923,
-        "y": 1896
+        "y": 1895
       },
       "closestDom": "Emma[Auto]Option A"
     },
@@ -79,7 +55,7 @@
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 27
+        "y": 26
       },
       "closestDom": "Save & Exit"
     }
@@ -89,7 +65,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -174.5,
-      "dy": -2632.2,
+      "dy": -2611.2,
       "dh": 2,
       "wPct": -38.7
     },
@@ -97,7 +73,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -2052.2,
+      "dy": -2031.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -105,7 +81,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -1612.2,
+      "dy": -1591.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -113,39 +89,63 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 7.8,
+      "dy": 8.8,
       "dh": -1,
       "wPct": 15.9
-    },
-    {
-      "text": "[Auto]",
-      "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -178.9,
-      "dy": -854.7,
-      "dh": 2,
-      "wPct": -39.8
     },
     {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -480.7,
+      "dy": -459.7,
       "dh": 1,
       "wPct": 0.9
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 0.2,
-      "dy": 173.8,
+      "dx": -79.2,
+      "dy": -457.2,
+      "dh": 2,
+      "wPct": -39.8
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": -181.7,
       "dh": 2,
       "wPct": -85.8
+    },
+    {
+      "text": "MCQs (Assessment)",
+      "sel": "span.block",
+      "dx": -0.6,
+      "dy": -180.2,
+      "dh": 2,
+      "wPct": 5.5
+    },
+    {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": -178.7,
+      "dh": 2,
+      "wPct": 8.3
+    },
+    {
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": -177.7,
+      "dh": 2,
+      "wPct": 0.4
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -23.9,
-      "dy": 69.3,
+      "dy": 90.3,
       "dh": 2,
       "wPct": -74.2
     },
@@ -153,15 +153,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 66.8,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -33.7,
+      "dy": 87.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -169,15 +161,23 @@
       "text": "+20 XP PER SECTION",
       "sel": "span.absolute.right-[3px].top-[5px]",
       "dx": -0.5,
-      "dy": 21.9,
+      "dy": 22.9,
       "dh": 2.2,
       "wPct": 3.1
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -12.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 5.8,
+      "dy": 6.8,
       "dh": -2,
       "wPct": 8
     },
@@ -185,15 +185,15 @@
       "text": "Your profile, live",
       "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
       "dx": -0.5,
-      "dy": 5.8,
+      "dy": 6.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": 5.8,
+      "dy": 6.8,
       "dh": 4,
       "wPct": 7.1
     },
@@ -201,23 +201,15 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 5.3,
+      "dy": 6.3,
       "dh": -2,
       "wPct": 44.9
-    },
-    {
-      "text": "Career Pitch",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.1,
-      "dy": -5.2,
-      "dh": 3,
-      "wPct": 3.9
     },
     {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": 4.9,
+      "dy": 5.9,
       "dh": 1,
       "wPct": -4.7
     },
@@ -225,15 +217,23 @@
       "text": "Kofi A.",
       "sel": "span.max-md:sr-only.font-sans.font-semibold",
       "dx": -1,
-      "dy": 4.9,
+      "dy": 5.9,
       "dh": -5,
       "wPct": 5.9
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -4.2,
+      "dh": 3,
+      "wPct": 3.9
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -4.7,
+      "dy": -3.7,
       "dh": 2,
       "wPct": 7.4
     }
@@ -243,7 +243,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 7.8,
+      "dy": 8.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -252,7 +252,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 5.8,
+      "dy": 6.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -260,8 +260,8 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 0.2,
-      "dy": 173.8,
+      "dx": 2.1,
+      "dy": -181.7,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -270,7 +270,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -23.9,
-      "dy": 69.3,
+      "dy": 90.3,
       "dh": 2,
       "wPct": -74.2,
       "severe": true
@@ -278,17 +278,26 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -178.9,
-      "dy": -854.7,
+      "dx": -79.2,
+      "dy": -457.2,
       "dh": 2,
       "wPct": -39.8,
       "severe": true
     },
     {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": -178.7,
+      "dh": 2,
+      "wPct": 8.3,
+      "severe": false
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -174.5,
-      "dy": -2632.2,
+      "dy": -2611.2,
       "dh": 2,
       "wPct": -38.7,
       "severe": true
@@ -297,7 +306,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 5.3,
+      "dy": 6.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -306,7 +315,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": 5.8,
+      "dy": 6.8,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -315,7 +324,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -0.7,
+      "dy": 0.3,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -324,7 +333,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -0.2,
+      "dy": 0.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -333,7 +342,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -0.2,
+      "dy": 0.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -342,7 +351,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -4.7,
+      "dy": -3.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -359,7 +368,7 @@
       },
       "app": {
         "x": 0,
-        "y": 229.8,
+        "y": 230.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -374,7 +383,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 229.8,
+        "y": 230.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -389,7 +398,7 @@
       },
       "app": {
         "x": 0,
-        "y": 59,
+        "y": 60,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"

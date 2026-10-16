@@ -23,12 +23,28 @@ const TALENT_ADULT_STEPS = [
   { label: 'Address', path: '/onboarding/talent/address' },
   { label: 'Education', path: '/onboarding/talent/education' },
   { label: 'Review', path: '/onboarding/talent/review' },
+  { label: 'Done', path: '/onboarding/talent/done' },
 ];
 
 const TALENT_MINOR_STEPS = [
   ...TALENT_ADULT_STEPS.slice(0, 6),
   { label: 'Parent Info', path: '/onboarding/talent/parent-info' },
   { label: 'Review', path: '/onboarding/talent/review' },
+  { label: 'Done', path: '/onboarding/talent/done' },
+];
+
+// Recruiter onboarding (Figma 7356:96249). Role selection is the shared /get-started page.
+const RECRUITER_ONBOARDING_STEPS = [
+  { label: 'Role', path: '/get-started' },
+  { label: 'Profile + OTP', path: '/onboarding/recruiter/profile' },
+  { label: 'Type', path: '/onboarding/recruiter/type' },
+  { label: 'Organisation', path: '/onboarding/recruiter/organisation' },
+  { label: 'Create org', path: '/onboarding/recruiter/organisation/create' },
+  { label: 'Plan', path: '/onboarding/recruiter/plan' },
+  { label: 'Payment', path: '/onboarding/recruiter/payment' },
+  { label: 'Preferences', path: '/onboarding/recruiter/preferences' },
+  { label: 'Review', path: '/onboarding/recruiter/review' },
+  { label: 'Done', path: '/onboarding/recruiter/done' },
 ];
 
 const INSTITUTION_STEPS = [
@@ -229,13 +245,15 @@ export default function DemoNavigator() {
   const onboardingSteps =
     activeFlow === 'institution'
       ? INSTITUTION_STEPS
-      : activeFlow === 'parent'
-        ? isPathB
-          ? PARENT_B_STEPS
-          : PARENT_A_STEPS
-        : isMinor
-          ? TALENT_MINOR_STEPS
-          : TALENT_ADULT_STEPS;
+      : activeFlow === 'recruiter'
+        ? RECRUITER_ONBOARDING_STEPS
+        : activeFlow === 'parent'
+          ? isPathB
+            ? PARENT_B_STEPS
+            : PARENT_A_STEPS
+          : isMinor
+            ? TALENT_MINOR_STEPS
+            : TALENT_ADULT_STEPS;
 
   const steps =
     effectiveSurface === 'career-buddy'
@@ -278,11 +296,13 @@ export default function DemoNavigator() {
     const dest =
       activeFlow === 'institution'
         ? INSTITUTION_STEPS[0].path
-        : activeFlow === 'parent'
-          ? isPathB
-            ? PARENT_B_STEPS[0].path
-            : PARENT_A_STEPS[0].path
-          : TALENT_ADULT_STEPS[0].path;
+        : activeFlow === 'recruiter'
+          ? RECRUITER_ONBOARDING_STEPS[0].path
+          : activeFlow === 'parent'
+            ? isPathB
+              ? PARENT_B_STEPS[0].path
+              : PARENT_A_STEPS[0].path
+            : TALENT_ADULT_STEPS[0].path;
     navigate(dest);
   }
 
@@ -300,13 +320,15 @@ export default function DemoNavigator() {
     const nextSteps =
       flow === 'institution'
         ? INSTITUTION_STEPS
-        : flow === 'parent'
-          ? isPathB
-            ? PARENT_B_STEPS
-            : PARENT_A_STEPS
-          : isMinor
-            ? TALENT_MINOR_STEPS
-            : TALENT_ADULT_STEPS;
+        : flow === 'recruiter'
+          ? RECRUITER_ONBOARDING_STEPS
+          : flow === 'parent'
+            ? isPathB
+              ? PARENT_B_STEPS
+              : PARENT_A_STEPS
+            : isMinor
+              ? TALENT_MINOR_STEPS
+              : TALENT_ADULT_STEPS;
     log('flow switch:', flow, '→', nextSteps[0].path);
     setActiveFlow(flow);
     navigate(nextSteps[0].path);
@@ -445,7 +467,7 @@ export default function DemoNavigator() {
       ) : (
         <>
           <div className="flex items-center gap-1">
-            {['talent', 'institution', 'parent'].map((flow) => (
+            {['talent', 'institution', 'parent', 'recruiter'].map((flow) => (
               <button
                 key={flow}
                 type="button"

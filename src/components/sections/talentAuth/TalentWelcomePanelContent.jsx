@@ -1,471 +1,388 @@
-import studentPhoto from '../../../assets/hero/talent-welcome-panel-img.webp';
+import studentPhoto from '../../../assets/hero/talent-welcome-panel-main.webp';
 import ellipseCard1 from '../../../assets/hero/talent-panel-card-ellipse-1.svg';
-import gthIcon from '../../../assets/hero/talent-panel-gth-icon.svg';
+import verifiedCheck from '../../../assets/talent-onboarding/panel-verified-check.svg';
+import savedHeart from '../../../assets/talent-onboarding/panel-saved-heart.svg';
+import pencil from '../../../assets/talent-onboarding/panel-pencil.svg';
+import modalClose from '../../../assets/talent-onboarding/modal-close.svg';
+import bgGrid from '../../../assets/hero/talent-panel-bg-grid.png';
 import avatar1 from '../../../assets/hero/talent-panel-institution-avatar-1.jpg';
 import avatar2 from '../../../assets/hero/talent-panel-institution-avatar-2.jpg';
 import avatar3 from '../../../assets/hero/talent-panel-institution-avatar-3.jpg';
+import { PanelStage, StageCard, cq, fs, cardShadow } from './TalentPanelParts.jsx';
+import { debug } from '../../../utils/debug.js';
+
+const log = debug('TalentWelcomePanelContent');
 
 /*
- * TalentWelcomePanelContent — foreground composition for the onboarding welcome
- * right panel.
+ * TalentWelcomePanelContent - right-panel art for the talent Welcome step
+ * ("Welcome. Here's what happens next.").
  *
- * Figma reference: node 2858:23709 (Welcome right panel), 739 × 973 px.
+ * Figma: panel 'Frame 141' 8027:202190 (739 x 976, fill #fffefc, stroke
+ * #e7e7e7) in 8027:202121 (toast frame) / 202348 / 202575 (identical art).
+ * Rendered through the shared panel's `simple` variant (plain #fffefc fill) so
+ * the ellipse glows, grid and cards below are exact Figma values; everything is
+ * % of an aspect-locked stage + container units (see TalentPanelParts), so it
+ * stays composed on short and narrow screens.
  *
- * IMPORTANT — one-container rule:
- *   The main photo card AND all 5 overlay cards live inside a single
- *   `position:absolute; inset:0` container. This keeps every element in
- *   the same positioning context so they always stay in formation with the
- *   central photo regardless of panel width. Never move overlay cards
- *   outside this container.
- *
- * All positions are % of the 739×973 panel reference. Widths use vw-based
- * clamp (panel = clamp(360px,42vw,739px)); formula: px/739×42vw.
- *
- * Props:
- *   showToast — whether to render the 3-second welcome toast (Figma 2858:23758)
- *
- * ✅ VERIFIED — Figma node 2858:23709, built 2026-07-05
+ * Geometry (centre of rotated bbox, % of 739 x 976; true size solved from the
+ * bbox: w = (W cos t - H sin t)/cos 2t):
+ *   8027:202195 main photo  rot +4    533.1 x 599.1 -> 72.14%  ctr (46.84, 50.04)  stroke 10 #eedeb8, r26
+ *   8027:202198 jobs card   rot +4.71 126.4 x 87.1  -> 17.1%   ctr (13.26, 33.14)
+ *   8027:202201 Saved pill            94.8 x 41.5            left 6.50 top 51.07
+ *   8027:202206 Verified profile      132.6 x 40             left 3.27 top 66.66
+ *   8027:202212 My Experience rot +6.59 171.5 x 129.9 -> 23.2% ctr (80.35, 26.44)
+ *   8027:202221 institution card      222.4 x 136.4          left 62.11 top 61.89
+ *   8027:202239 toast (visible=false in Figma; the frame name says 3 seconds)
+ *     309 x 66.4 at (374, 24.3)
+ * Glows: Ellipse 3 8027:202191 (gradient #e8a832 -> #c8951a, a .5, blur 200) and
+ * Ellipse 4 8027:202192 (#c0392b a .5 blur 300); Figma blur R = CSS blur R/2.
+ * Deviations (Figma text-box bugs): '1,580' stays on one line and the
+ * institution title wraps to two lines without overlapping its subtitle.
  */
 
-// Panel = clamp(360px, 42vw, 739px); for width clamp: px/739*42vw
-// Photo: 573px → 573/739*42 = 32.55vw
-// Jobs card: 134px → 134/739*42 = 7.61vw
-// Experience card: 185px → 185/739*42 = 10.51vw
-// Institution card: 222px → 222/739*42 = 12.61vw
-const CARD_SHADOW = '0px 2px 2px -1px rgba(27,36,44,0.04), 0px 16px 24px -6px rgba(27,36,44,0.16)';
+export const WELCOME_REF_H = 976;
 
-export default function TalentWelcomePanelContent({ showToast = false }) {
-  return (
-    // ONE container — photo + all overlay cards always move together
-    <div className="absolute inset-0" aria-hidden="true">
-      {/* ── Main photo card — centred with slight left offset, rotate 4° ───── */}
-      {/* Figma 2858:23714: centre at left calc(50%-23.32px)=46.84%, top 50% */}
-      {/* width 573px, aspectRatio 573/635, border 10px solid #eedeb8, radius 26px */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '46.84%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'clamp(240px, 32.5vw, 573px)',
-        }}
-      >
-        <div style={{ width: '100%', transform: 'rotate(4deg)', aspectRatio: '573/635' }}>
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              height: '100%',
-              borderRadius: 'clamp(14px, 1.48vw, 26px)',
-              border: 'clamp(5px, 0.57vw, 10px) solid #eedeb8',
-              overflow: 'hidden',
-              boxShadow: CARD_SHADOW,
-            }}
-          >
-            <img
-              src={studentPhoto}
-              alt=""
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-              draggable={false}
-            />
-            {/* Corner glow ellipse — same pattern as login photo cards */}
-            {/* NO overflow-hidden/rounded-full on parent — SVG gradient fades naturally */}
-            <div
-              style={{
-                position: 'absolute',
-                left: '-75.84px',
-                top: '-85.44px',
-                width: '238px',
-                aspectRatio: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <div style={{ transform: 'rotate(-4deg)', width: '223px', aspectRatio: '1' }}>
-                <img
-                  src={ellipseCard1}
-                  alt=""
-                  style={{ width: '100%', height: '100%' }}
-                  draggable={false}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+// eslint-disable-next-line react-refresh/only-export-components
+export const WELCOME_PHOTO_CARDS = [
+  {
+    photo: studentPhoto,
+    cx: 46.84,
+    cy: 50.04,
+    size: 72.14,
+    aspect: '533.1 / 599.1',
+    rotate: 4,
+    borderColor: '#eedeb8',
+    radius: 26,
+    ellipse: ellipseCard1,
+  },
+];
 
-      {/* ── "1,580 Jobs Available" card — top-left, rotate 4.71° ──────────── */}
-      {/* Figma 2858:23717: inset 28.13% 77.67% 61.85% 4.19% → left 4.19% top 28.13% */}
-      {/* width = (1-0.0419-0.7767)*739 = 18.14% → 134px at max */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '4.19%',
-          top: '28.13%',
-          width: 'clamp(64px, 7.61vw, 134px)',
-          transform: 'rotate(4.71deg)',
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 'clamp(8px, 1.02vw, 18px)',
-            boxShadow: CARD_SHADOW,
-            padding: 'clamp(8px, 0.95vw, 16px)',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-display, serif)',
-              fontStyle: 'italic',
-              fontSize: 'clamp(14px, 2.04vw, 36px)',
-              lineHeight: 1,
-              color: '#111111',
-              fontWeight: 400,
-            }}
-          >
-            1,580
-          </p>
-          <p
-            style={{
-              fontSize: 'clamp(5px, 0.68vw, 12px)',
-              fontWeight: 500,
-              color: '#70706E',
-              marginTop: '4px',
-              letterSpacing: '0.2px',
-              lineHeight: 1.4,
-            }}
-          >
-            Jobs Available
-          </p>
-        </div>
-      </div>
+const FLOAT_SHADOW = () => `0 ${cq(8)} ${cq(32)} rgba(0,0,0,0.1), 0 ${cq(2)} 0 rgba(0,0,0,0.05)`;
 
-      {/* ── "Saved" green pill — left side, below Jobs card ──────────────── */}
-      {/* Figma 2858:23720: inset 51.07% 80.67% 44.67% 6.5% → left 6.5% top 51.07% */}
-      {/* bg #387440, border 1px solid #2a5730, bottom shadow 0px 4px 0px #2a5730 */}
-      <div style={{ position: 'absolute', left: '6.5%', top: '51.07%' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 'clamp(4px, 0.54vw, 8px)',
-            backgroundColor: '#387440',
-            border: '1px solid #2a5730',
-            borderRadius: 'clamp(5px, 0.57vw, 10px)',
-            padding: 'clamp(4px, 0.54vw, 8px) clamp(6px, 0.81vw, 14px)',
-            boxShadow: '0px 4px 0px #2a5730, 0px 8px 28px rgba(56,116,64,0.25)',
-          }}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            aria-hidden="true"
-            style={{
-              flexShrink: 0,
-              width: 'clamp(8px, 0.8vw, 14px)',
-              height: 'clamp(8px, 0.8vw, 14px)',
-            }}
-          >
-            <path d="M3 1.5h8a1 1 0 0 1 1 1V12l-5-3-5 3V2.5a1 1 0 0 1 1-1z" fill="white" />
-          </svg>
-          <span
-            style={{
-              fontSize: 'clamp(7px, 0.91vw, 16px)',
-              fontWeight: 500,
-              color: 'white',
-              letterSpacing: '0.2px',
-              lineHeight: 1,
-            }}
-          >
-            Saved
-          </span>
-        </div>
-      </div>
-
-      {/* ── "Verified profile" white pill — lower-left ───────────────────── */}
-      {/* Figma 2858:23725: centre at left calc(50%-279.07px)=12.24%, top calc(50%+182.58px)=68.76% */}
-      {/* GTH icon (gthIcon.svg) + "Verified profile" label */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '12.24%',
-          top: '68.76%',
-          transform: 'translate(-50%, -50%)',
-        }}
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 'clamp(4px, 0.54vw, 8px)',
-            backgroundColor: 'white',
-            border: '1px solid rgba(0,0,0,0.05)',
-            borderRadius: 'clamp(5px, 0.57vw, 10px)',
-            padding: 'clamp(4px, 0.54vw, 8px) clamp(6px, 0.81vw, 14px)',
-            boxShadow: '0px 2px 0px rgba(0,0,0,0.05), 0px 8px 32px rgba(0,0,0,0.1)',
-            whiteSpace: 'nowrap',
-          }}
-        >
+const Glows = () => (
+  <>
+    {/* Ellipse 3 - top-right amber */}
+    <div
+      className="pointer-events-none absolute rounded-full"
+      style={{
+        left: '83.63%',
+        top: '-21.41%',
+        width: '64%',
+        aspectRatio: '1',
+        opacity: 0.5,
+        background: 'linear-gradient(180deg, #e8a832 0%, #c8951a 100%)',
+        filter: `blur(${cq(100)})`,
+      }}
+    />
+    {/* Ellipse 4 - bottom-left coral */}
+    <div
+      className="pointer-events-none absolute rounded-full"
+      style={{
+        left: '-23%',
+        top: '75.92%',
+        width: '64%',
+        aspectRatio: '1',
+        opacity: 0.5,
+        backgroundColor: '#c0392b',
+        filter: `blur(${cq(150)})`,
+      }}
+    />
+    {/* grid 8027:202193 - bottom-right texture (same crop as the talent panel shell) */}
+    <div
+      className="pointer-events-none absolute"
+      style={{ right: 0, top: '58.71%', height: '41.5%', width: '48.4%' }}
+    >
+      <div className="relative size-full -scale-y-100 rotate-180">
+        <div className="absolute inset-0 overflow-hidden">
           <img
-            src={gthIcon}
+            src={bgGrid}
             alt=""
-            style={{
-              width: 'clamp(10px, 0.81vw, 14px)',
-              height: 'clamp(10px, 0.81vw, 14px)',
-              transform: 'rotate(8deg)',
-              display: 'block',
-              flexShrink: 0,
-            }}
             draggable={false}
+            className="absolute top-0 max-w-none"
+            style={{ height: '124.47%', left: '-90.11%', width: '280.22%' }}
           />
-          <span
-            style={{
-              fontSize: 'clamp(7px, 0.8vw, 14px)',
-              fontWeight: 600,
-              color: '#387440',
-              letterSpacing: '0.1px',
-            }}
-          >
-            Verified profile
-          </span>
         </div>
       </div>
+    </div>
+  </>
+);
 
-      {/* ── "My Experience" card — top-right, rotate 6.59° ───────────────── */}
-      {/* Figma 2858:23731: inset 18.82% 7.12% 65.94% 67.81% → left 67.81% top 18.82% */}
-      {/* width (1-0.0712-0.6781)*739 = 25.07% → 185px at max */}
-      <div
+const JobsCard = () => (
+  <div
+    className="absolute flex flex-col border border-[#fefcf5] bg-white"
+    style={{
+      left: '13.26%',
+      top: '33.14%',
+      width: cq(126.4),
+      minHeight: cq(87.1),
+      borderRadius: cq(18),
+      padding: `${cq(14)} ${cq(24)}`,
+      transform: 'translate(-50%, -50%) rotate(4.71deg)',
+      boxShadow: FLOAT_SHADOW(),
+    }}
+  >
+    <p
+      className="font-heading whitespace-nowrap font-semibold text-[#1c2a21]"
+      style={{ fontSize: fs(32, 12), lineHeight: 1.2, letterSpacing: '-0.02em' }}
+    >
+      1,580
+    </p>
+    <p
+      className="whitespace-nowrap font-medium text-[#70706e]"
+      style={{ fontSize: fs(12, 6), lineHeight: 1.67, letterSpacing: '0.2px' }}
+    >
+      Jobs Available
+    </p>
+  </div>
+);
+
+const SavedPill = () => (
+  <div
+    className="absolute flex items-center border border-[#2a5730] bg-[#387440]"
+    style={{
+      left: '6.5%',
+      top: '51.07%',
+      gap: cq(7),
+      padding: `${cq(6.75)} ${cq(14)}`,
+      borderRadius: cq(10),
+      boxShadow: `0 ${cq(4)} 0 #2a5730, 0 ${cq(8)} ${cq(28)} rgba(56,116,64,0.25)`,
+    }}
+  >
+    <img
+      src={savedHeart}
+      alt=""
+      draggable={false}
+      className="shrink-0"
+      style={{ width: cq(14), height: cq(14) }}
+    />
+    <span
+      className="font-medium text-white"
+      style={{ fontSize: fs(16, 7), lineHeight: cq(28), letterSpacing: '0.2px' }}
+    >
+      Saved
+    </span>
+  </div>
+);
+
+const VerifiedPill = () => (
+  <div
+    className="absolute flex items-center border border-[rgba(28,42,33,0.06)] bg-white"
+    style={{
+      left: '3.27%',
+      top: '66.66%',
+      gap: cq(8),
+      padding: `${cq(8)} ${cq(10)}`,
+      borderRadius: cq(10),
+      boxShadow: FLOAT_SHADOW(),
+    }}
+  >
+    <img
+      src={verifiedCheck}
+      alt=""
+      draggable={false}
+      className="shrink-0"
+      style={{ width: cq(13.6), height: cq(13.6), transform: 'rotate(8deg)' }}
+    />
+    <span
+      className="whitespace-nowrap font-semibold text-[#387440]"
+      style={{ fontSize: fs(14), lineHeight: cq(24), letterSpacing: '0.1px' }}
+    >
+      Verified profile
+    </span>
+  </div>
+);
+
+const ExperienceCard = () => (
+  <div
+    className="absolute border border-[rgba(28,42,33,0.06)] bg-white"
+    style={{
+      left: '80.35%',
+      top: '26.44%',
+      width: cq(171.5),
+      height: cq(129.9),
+      borderRadius: cq(18),
+      transform: 'translate(-50%, -50%) rotate(6.59deg)',
+      boxShadow: FLOAT_SHADOW(),
+    }}
+  >
+    <p
+      className="absolute font-bold text-[#1c2a21]"
+      style={{ left: cq(16), top: cq(12), fontSize: fs(14), lineHeight: cq(16.7) }}
+    >
+      My Experience
+    </p>
+    <img
+      src={pencil}
+      alt=""
+      draggable={false}
+      className="absolute"
+      style={{ right: cq(14), top: cq(11), width: cq(15.7), height: cq(15.5) }}
+    />
+    {[
+      { w: 132, top: 40, bg: '#f8f8f4' },
+      { w: 111.7, top: 52.9, bg: '#f8f8f4' },
+      { w: 79, top: 65.8, bg: '#ebf1ec' },
+    ].map((bar) => (
+      <span
+        key={bar.top}
+        className="absolute block rounded-full"
         style={{
-          position: 'absolute',
-          left: '67.81%',
-          top: '18.82%',
-          width: 'clamp(76px, 10.51vw, 185px)',
-          transform: 'rotate(6.59deg)',
+          left: cq(16),
+          top: cq(bar.top),
+          width: cq(bar.w),
+          height: cq(6),
+          backgroundColor: bar.bg,
         }}
-      >
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 'clamp(6px, 0.68vw, 12px)',
-            boxShadow: CARD_SHADOW,
-            padding: 'clamp(8px, 0.95vw, 16px)',
-          }}
-        >
-          <p
-            style={{
-              fontSize: 'clamp(6px, 0.8vw, 14px)',
-              fontWeight: 700,
-              color: '#111111',
-              lineHeight: 1.2,
-            }}
-          >
-            My Experience
-          </p>
-          {/* Skeleton placeholder rows */}
-          <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <span
-              style={{
-                display: 'block',
-                height: 'clamp(4px, 0.57vw, 10px)',
-                width: '86%',
-                borderRadius: '999px',
-                backgroundColor: '#EEE7DA',
-              }}
-            />
-            <span
-              style={{
-                display: 'block',
-                height: 'clamp(4px, 0.57vw, 10px)',
-                width: '72%',
-                borderRadius: '999px',
-                backgroundColor: '#EEE7DA',
-              }}
-            />
-            <span
-              style={{
-                display: 'block',
-                height: 'clamp(4px, 0.57vw, 10px)',
-                width: '51%',
-                borderRadius: '999px',
-                backgroundColor: '#EEE7DA',
-              }}
-            />
-          </div>
-          <button
-            type="button"
-            style={{
-              marginTop: '8px',
-              width: '100%',
-              height: 'clamp(20px, 2.04vw, 36px)',
-              borderRadius: 'clamp(4px, 0.45vw, 8px)',
-              backgroundColor: '#387440',
-              color: 'white',
-              fontSize: 'clamp(5px, 0.68vw, 12px)',
-              fontWeight: 700,
-              boxShadow: '0 3px 0 #224626',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Submit
-          </button>
-        </div>
-      </div>
+      />
+    ))}
+    <span
+      className="absolute flex items-center justify-center border-2 border-[#2a5730] bg-[#387440] font-bold text-white"
+      style={{
+        left: cq(18.2),
+        top: cq(80),
+        width: cq(135),
+        height: cq(44.9),
+        borderRadius: cq(10),
+        fontSize: fs(12, 6),
+        letterSpacing: '0.1px',
+        boxShadow: `0 ${cq(4)} 0 #2a5730`,
+      }}
+    >
+      Submit
+    </span>
+  </div>
+);
 
-      {/* ── "Accra Girls Senior High" institution card — bottom-right ────── */}
-      {/* Figma 2858:23740: right 57.61/739=7.79%, top 61.89% */}
-      {/* width 222.391px → clamp(94px, 12.61vw, 222px) */}
-      {/* bg solid #387440, rounded-20, overflow-hidden */}
-      <div
-        style={{
-          position: 'absolute',
-          right: '7.79%',
-          top: '61.89%',
-          width: 'clamp(94px, 12.61vw, 222px)',
-          overflow: 'hidden',
-          borderRadius: 'clamp(10px, 1.13vw, 20px)',
-          backgroundColor: '#387440',
-          border: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0px 2px 2px -1px rgba(27,35,44,0.04), 0px 8px 16px -2px rgba(27,36,44,0.12)',
-        }}
-      >
-        <div style={{ padding: 'clamp(8px, 0.95vw, 16px)', color: 'white' }}>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              borderRadius: 'clamp(3px, 0.34vw, 6px)',
-              backgroundColor: 'rgba(255,255,255,0.4)',
-              padding: 'clamp(2px, 0.27vw, 4px) clamp(4px, 0.54vw, 8px)',
-              fontSize: 'clamp(4px, 0.51vw, 9px)',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.3px',
-              color: 'white',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            ✓ Verified Institution
-          </span>
-          <p
-            style={{
-              marginTop: 'clamp(4px, 0.54vw, 8px)',
-              fontFamily: 'var(--font-display, serif)',
-              fontWeight: 400,
-              fontStyle: 'italic',
-              fontSize: 'clamp(9px, 1.19vw, 21px)',
-              lineHeight: 1.1,
-              color: 'white',
-            }}
-          >
-            Accra Girls Senior High
-          </p>
-          <p
-            style={{
-              marginTop: 'clamp(2px, 0.27vw, 4px)',
-              fontSize: 'clamp(4px, 0.57vw, 10px)',
-              lineHeight: 1.3,
-              color: 'rgba(255,255,255,0.6)',
-            }}
-          >
-            Greater Accra · GES-Accredited
-          </p>
-          {/* Student avatar row — real photos from Figma 2858:23752/23753/23754 */}
-          <div style={{ marginTop: 'clamp(6px, 0.81vw, 14px)', display: 'flex' }}>
-            {[avatar1, avatar2, avatar3].map((src, i) => (
-              <span
-                key={i}
-                style={{
-                  display: 'block',
-                  flexShrink: 0,
-                  width: 'clamp(14px, 1.9vw, 28px)',
-                  height: 'clamp(14px, 1.9vw, 28px)',
-                  borderRadius: '50%',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  overflow: 'hidden',
-                  marginLeft: i === 0 ? 0 : 'clamp(-4px, -0.54vw, -8px)',
-                }}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  draggable={false}
-                />
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+const InstitutionCard = () => (
+  <div
+    className="absolute flex flex-col border border-[rgba(28,42,33,0.1)] bg-[#387440]"
+    style={{
+      left: '62.11%',
+      top: '61.89%',
+      width: cq(222.4),
+      minHeight: cq(136.4),
+      borderRadius: cq(20),
+      padding: cq(18),
+      boxShadow: `0 ${cq(8)} ${cq(16)} ${cq(-2)} rgba(27,36,44,0.12), 0 ${cq(2)} ${cq(2)} ${cq(-1)} rgba(27,35,44,0.04)`,
+    }}
+  >
+    <span
+      className="inline-flex items-center self-start rounded-full bg-white/40 font-bold text-white"
+      style={{ height: cq(17), padding: `0 ${cq(9)}`, fontSize: fs(9, 5), letterSpacing: '0.1px' }}
+    >
+      ✓ Verified Institution
+    </span>
+    <p
+      className="font-heading font-semibold text-white"
+      style={{
+        marginTop: cq(5),
+        fontSize: fs(20, 8),
+        lineHeight: 1.1,
+        letterSpacing: '-0.02em',
+      }}
+    >
+      Accra Girls Senior High
+    </p>
+    <p className="text-white/60" style={{ marginTop: cq(3), fontSize: fs(10, 5), lineHeight: 1.2 }}>
+      Greater Accra · GES-Accredited
+    </p>
+    <div className="flex" style={{ marginTop: cq(10) }}>
+      {[avatar1, avatar2, avatar3].map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          draggable={false}
+          className="block shrink-0 rounded-full border-2 border-white/30 object-cover"
+          style={{ width: cq(28), height: cq(28), marginLeft: i === 0 ? 0 : cq(-6) }}
+        />
+      ))}
+    </div>
+  </div>
+);
 
-      {/* ── Welcome toast — Figma 2858:23758, floats top-centre ─────────── */}
-      {/* Auto-dismissed after 3s (timer managed by OnboardingWelcomePage). */}
+export const WelcomeToast = ({ onClose }) => (
+  <div
+    role="status"
+    aria-live="polite"
+    className="pointer-events-auto absolute z-10 flex items-start border border-[#e1eae2] bg-[#f8f8f4]"
+    style={{
+      left: '50.6%',
+      top: '2.49%',
+      width: cq(309),
+      gap: cq(8),
+      padding: `${cq(10)} ${cq(16)}`,
+      borderRadius: cq(14),
+      boxShadow: cardShadow(),
+    }}
+  >
+    <img
+      src={verifiedCheck}
+      alt=""
+      draggable={false}
+      className="shrink-0"
+      style={{ width: cq(22.6), height: cq(22.6), marginTop: cq(11) }}
+    />
+    <div className="min-w-0 flex-1" style={{ padding: `0 ${cq(10)}` }}>
+      <p
+        className="font-semibold text-[#387440]"
+        style={{ fontSize: fs(14, 9), lineHeight: cq(24), letterSpacing: '0.2px' }}
+      >
+        Welcome to GTH, Student!
+      </p>
+      <p
+        className="text-[#575755]"
+        style={{ fontSize: fs(12, 8), lineHeight: cq(18), letterSpacing: '0.2px' }}
+      >
+        Taking you to your personalized setup
+      </p>
+    </div>
+    <button
+      type="button"
+      onClick={() => {
+        log('toast closed');
+        onClose?.();
+      }}
+      aria-label="Dismiss notification"
+      className="flex shrink-0 items-center justify-center text-[#387440]"
+      style={{ width: cq(20), height: cq(20), marginTop: cq(13) }}
+    >
+      <img src={modalClose} alt="" draggable={false} className="block size-full" />
+    </button>
+  </div>
+);
+
+/*
+ * WelcomePanelArt - centre content of the shared panel's `simple` variant.
+ * Fills the panel (absolute inset-0); glows are full-bleed, the cards live in
+ * the stage.
+ */
+export const WelcomePanelArt = ({ showToast = false, onCloseToast }) => {
+  log('render', { showToast });
+  return (
+    <div className="absolute inset-0 overflow-hidden" style={{ containerType: 'size' }}>
+      <div aria-hidden="true" className="absolute inset-0" style={{ containerType: 'inline-size' }}>
+        <Glows />
+      </div>
+      <PanelStage refH={WELCOME_REF_H}>
+        {WELCOME_PHOTO_CARDS.map((card) => (
+          <StageCard key={card.borderColor} {...card} />
+        ))}
+        <JobsCard />
+        <SavedPill />
+        <VerifiedPill />
+        <ExperienceCard />
+        <InstitutionCard />
+      </PanelStage>
       {showToast && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '24px',
-            transform: 'translateX(-50%)',
-            width: 'clamp(220px, 17.55vw, 309px)',
-            borderRadius: '14px',
-            border: '1px solid rgba(0,0,0,0.05)',
-            backgroundColor: 'white',
-            padding: '12px',
-            boxShadow: '0px 16px 24px -6px rgba(27,36,44,0.18)',
-            zIndex: 10,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <span
-              style={{
-                marginTop: '2px',
-                display: 'flex',
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: '#EBF1EC',
-                color: '#387440',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <circle cx="7" cy="7" r="5.5" stroke="currentColor" />
-                <path
-                  d="M4.5 7l1.7 2 3.3-3.2"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.2, color: '#111111' }}>
-                Welcome to GTH, Student!
-              </p>
-              <p
-                style={{ marginTop: '4px', fontSize: '12px', lineHeight: '16px', color: '#70706E' }}
-              >
-                Your profile is live. Start exploring opportunities.
-              </p>
-            </div>
-          </div>
-        </div>
+        <PanelStage refH={WELCOME_REF_H} decorative={false}>
+          <WelcomeToast onClose={onCloseToast} />
+        </PanelStage>
       )}
     </div>
   );
+};
+
+export default function TalentWelcomePanelContent(props) {
+  return <WelcomePanelArt {...props} />;
 }

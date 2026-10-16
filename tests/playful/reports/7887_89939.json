@@ -5,28 +5,20 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -2.1,
-    "derived": 54.1
+    "medianDy": -2.2,
+    "derived": 54.2
   },
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 26,
-    "matched": 23,
-    "unmatched": 3,
-    "layoutMismatch": 19,
-    "fontMetric": 10,
+    "matched": 24,
+    "unmatched": 2,
+    "layoutMismatch": 20,
+    "fontMetric": 11,
     "widthOver15": 1
   },
-  "worstLayoutPx": 111.6,
+  "worstLayoutPx": 71.2,
   "unmatched": [
-    {
-      "text": "Savvy ad relaxed",
-      "figma": {
-        "x": 313,
-        "y": 637.5
-      },
-      "closestDom": "Savvy and relaxed"
-    },
     {
       "text": "New Chat",
       "figma": {
@@ -45,62 +37,6 @@
     }
   ],
   "layout": [
-    {
-      "text": "Cancel",
-      "sel": "span.max-sm:hidden",
-      "dx": 0.3,
-      "dy": 111.6,
-      "dh": -5,
-      "wPct": -3.5
-    },
-    {
-      "text": "Jovial and cheerful",
-      "sel": "span.font-sans.text-[16px].leading-normal",
-      "dx": -0.5,
-      "dy": 109.6,
-      "dh": 3,
-      "wPct": 6.4
-    },
-    {
-      "text": "Tali",
-      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
-      "dx": -0.3,
-      "dy": 106.6,
-      "dh": -2,
-      "wPct": 0.9
-    },
-    {
-      "text": "Calm and affirming",
-      "sel": "span.font-sans.text-[16px].leading-normal",
-      "dx": -4.5,
-      "dy": 105.1,
-      "dh": 3,
-      "wPct": 7.6
-    },
-    {
-      "text": "Sol",
-      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
-      "dx": 15.8,
-      "dy": 102.1,
-      "dh": -2,
-      "wPct": -1.7
-    },
-    {
-      "text": "Bruce",
-      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
-      "dx": -9.1,
-      "dy": 102.1,
-      "dh": -2,
-      "wPct": -0.6
-    },
-    {
-      "text": "Choose a voice",
-      "sel": "h2#_r_4_.pf-ov-display.text-center.text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)]",
-      "dx": -0.5,
-      "dy": 95.3,
-      "dh": 0,
-      "wPct": -56.4
-    },
     {
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
@@ -174,6 +110,70 @@
       "wPct": 3.1
     },
     {
+      "text": "Sol",
+      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
+      "dx": 11.2,
+      "dy": -0.2,
+      "dh": -2,
+      "wPct": -1.6
+    },
+    {
+      "text": "Cancel",
+      "sel": "span.max-sm:hidden",
+      "dx": 0.3,
+      "dy": 9.3,
+      "dh": -5,
+      "wPct": -3.5
+    },
+    {
+      "text": "Bruce",
+      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
+      "dx": -9.1,
+      "dy": -0.2,
+      "dh": -2,
+      "wPct": -0.6
+    },
+    {
+      "text": "Jovial and cheerful",
+      "sel": "span.font-sans.text-[16px].leading-normal",
+      "dx": -0.5,
+      "dy": 7.3,
+      "dh": 3,
+      "wPct": 6.4
+    },
+    {
+      "text": "Choose a voice",
+      "sel": "h2#_r_4_.pf-ov-display.text-center.text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)]",
+      "dx": -0.5,
+      "dy": -7,
+      "dh": 0,
+      "wPct": -56.3
+    },
+    {
+      "text": "Savvy ad relaxed",
+      "sel": "span.font-sans.text-[16px].leading-normal",
+      "dx": 6.5,
+      "dy": 2.8,
+      "dh": 3,
+      "wPct": 8.9
+    },
+    {
+      "text": "Calm and affirming",
+      "sel": "span.font-sans.text-[16px].leading-normal",
+      "dx": -4.5,
+      "dy": 2.8,
+      "dh": 3,
+      "wPct": 7.6
+    },
+    {
+      "text": "Tali",
+      "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
+      "dx": -0.3,
+      "dy": 4.3,
+      "dh": -2,
+      "wPct": 0.9
+    },
+    {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
@@ -221,16 +221,25 @@
       "text": "Choose a voice",
       "sel": "h2#_r_4_.pf-ov-display.text-center.text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)]",
       "dx": -0.5,
-      "dy": 95.3,
+      "dy": -7,
       "dh": 0,
-      "wPct": -56.4,
+      "wPct": -56.3,
       "severe": true
+    },
+    {
+      "text": "Savvy ad relaxed",
+      "sel": "span.font-sans.text-[16px].leading-normal",
+      "dx": 6.5,
+      "dy": 2.8,
+      "dh": 3,
+      "wPct": 8.9,
+      "severe": false
     },
     {
       "text": "Calm and affirming",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -4.5,
-      "dy": 105.1,
+      "dy": 2.8,
       "dh": 3,
       "wPct": 7.6,
       "severe": false
@@ -239,7 +248,7 @@
       "text": "Jovial and cheerful",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -0.5,
-      "dy": 109.6,
+      "dy": 7.3,
       "dh": 3,
       "wPct": 6.4,
       "severe": false

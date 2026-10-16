@@ -13,7 +13,7 @@
     "figmaTexts": 22,
     "matched": 19,
     "unmatched": 3,
-    "layoutMismatch": 18,
+    "layoutMismatch": 17,
     "fontMetric": 9,
     "widthOver15": 1
   },
@@ -126,14 +126,6 @@
       "wPct": 7.4
     },
     {
-      "text": "TALI",
-      "sel": "p.font-sans.text-[clamp(1.5rem,1.2rem+1vw,2rem)].font-medium",
-      "dx": -0.5,
-      "dy": -36.7,
-      "dh": 5,
-      "wPct": 7
-    },
-    {
       "text": "+20 XP PER SECTION",
       "sel": "span.absolute.right-[3px].top-[5px]",
       "dx": -0.5,
@@ -171,7 +163,7 @@
       "dx": -0.5,
       "dy": 2.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -222,7 +214,7 @@
       "text": "TALI",
       "sel": "p.font-sans.text-[clamp(1.5rem,1.2rem+1vw,2rem)].font-medium",
       "dx": -0.5,
-      "dy": -36.7,
+      "dy": -0.4,
       "dh": 5,
       "wPct": 7,
       "severe": false
@@ -324,7 +316,7 @@
   "style": {
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
-  "consoleErrors": ["[useVoiceCapture] getUserMedia NotAllowedError: Permission denied"],
+  "consoleErrors": [],
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

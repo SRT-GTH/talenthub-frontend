@@ -294,13 +294,9 @@ const DetailsView = ({ game, onBack, backRef }) => {
               <SectionHeading>What we measure</SectionHeading>
               <div className="flex gap-[12px] font-sans text-[13.5px] leading-[1.65] text-[#70706e] max-sm:flex-col max-sm:gap-0">
                 {[colA, colB].map((col, i) => (
-                  <ul key={i} className="min-w-0 flex-1">
-                    {col.map((trait) => (
-                      <li key={trait} className="before:content-['•_']">
-                        {trait}
-                      </li>
-                    ))}
-                  </ul>
+                  <p key={i} className="min-w-0 flex-1 whitespace-pre-line">
+                    {col.map((trait) => `• ${trait}`).join('\n')}
+                  </p>
                 ))}
               </div>
             </section>
@@ -322,7 +318,6 @@ const DetailsView = ({ game, onBack, backRef }) => {
                       </span>
                       <span className="flex min-w-0 flex-col gap-[4px]">
                         <span className={`${UI} text-[13.5px] font-semibold text-[#1c2a21]`}>
-                          <span className="sr-only">{`Step ${i + 1}: `}</span>
                           {tip.title}
                         </span>
                         <span className="font-sans text-[12px] text-[#70706e]">{tip.subtitle}</span>

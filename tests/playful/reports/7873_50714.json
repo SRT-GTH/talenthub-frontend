@@ -5,46 +5,21 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -4.2,
-    "derived": 56.2
+    "medianDy": -3.7,
+    "derived": 55.7
   },
   "offsetUsed": 56,
   "counts": {
     "figmaTexts": 53,
-    "matched": 51,
-    "unmatched": 2,
-    "layoutMismatch": 42,
-    "fontMetric": 20,
-    "widthOver15": 2
+    "matched": 53,
+    "unmatched": 0,
+    "layoutMismatch": 44,
+    "fontMetric": 22,
+    "widthOver15": 3
   },
-  "worstLayoutPx": 96.2,
-  "unmatched": [
-    {
-      "text": "Step 1 of 9 ·",
-      "figma": {
-        "x": 1365,
-        "y": 116
-      },
-      "closestDom": "Step 1 of 11 ·"
-    },
-    {
-      "text": "Nicely done! Your avatar is all set. That's your first step on GTH — and you're already discoverable. Whenever you're ready, I'll walk you through the rest of your profile. It takes about 40 minutes total, but you can do it in pieces. Let's go?",
-      "figma": {
-        "x": 142,
-        "y": 810
-      },
-      "closestDom": "👋 Nicely done! Your avatar is all set. That's your first step on GTH — and you'"
-    }
-  ],
+  "worstLayoutPx": 44.1,
+  "unmatched": [],
   "layout": [
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -96.2,
-      "dh": 1,
-      "wPct": 2.3
-    },
     {
       "text": "Is my personal information safe on GTH",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
@@ -52,23 +27,6 @@
       "dy": -3.5,
       "dh": 3,
       "wPct": 8.4
-    },
-    {
-      "text": "MEET YOUR CAREER BUDDY",
-      "sel": "span.z-[1].inline-block.rotate-[3deg]",
-      "dx": 31.6,
-      "dy": -20.2,
-      "dh": 2.6,
-      "wPct": 4.6,
-      "lines": "dom 1 vs figma ~2"
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 27.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",
@@ -95,14 +53,6 @@
       "wPct": 1.2
     },
     {
-      "text": "Let's build a profile that gets you seen.",
-      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
-      "dx": 0.5,
-      "dy": -21.1,
-      "dh": 5,
-      "wPct": -5.5
-    },
-    {
       "text": "How does GTH match me with opportunities?",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 18.4,
@@ -119,20 +69,20 @@
       "wPct": 7.7
     },
     {
-      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
-      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
-      "dx": 0.5,
-      "dy": -17.7,
-      "dh": 3,
-      "wPct": -39.7
-    },
-    {
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.8,
       "dy": 2.3,
       "dh": 2,
       "wPct": 6.8
+    },
+    {
+      "text": "Career Buddy,  your personal career mentor",
+      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "dx": 0.5,
+      "dy": 14.3,
+      "dh": -26,
+      "wPct": 4.1
     },
     {
       "text": "Skills",
@@ -143,12 +93,12 @@
       "wPct": 6.2
     },
     {
-      "text": "Career Buddy,  your personal career mentor",
-      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
+      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -13.7,
-      "dh": -26,
-      "wPct": 4
+      "dy": 10.3,
+      "dh": 3,
+      "wPct": -39.7
     },
     {
       "text": "Personality",
@@ -199,12 +149,36 @@
       "wPct": 7.4
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -7.5,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "Playful",
       "sel": "span.max-[480px]:sr-only",
       "dx": -7.5,
       "dy": 2.4,
       "dh": 2,
       "wPct": 5.2
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -7,
+      "dh": -6,
+      "wPct": 15
+    },
+    {
+      "text": "Let's build a profile that gets you seen.",
+      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
+      "dx": 0.5,
+      "dy": 6.9,
+      "dh": 5,
+      "wPct": -5.4
     },
     {
       "text": "Education",
@@ -279,6 +253,14 @@
       "wPct": 9.5
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 3.4,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
@@ -319,6 +301,14 @@
       "wPct": 7.4
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -332,7 +322,7 @@
       "dx": -0.5,
       "dy": 2.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -341,6 +331,15 @@
       "dy": 2.8,
       "dh": 4,
       "wPct": 7.1
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "sel": "span.z-[1].inline-block.rotate-[3deg]",
+      "dx": 2.7,
+      "dy": -0.6,
+      "dh": 2.6,
+      "wPct": 4.6,
+      "lines": "dom 1 vs figma ~2"
     },
     {
       "text": "Avatar",
@@ -404,6 +403,15 @@
       "severe": false
     },
     {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -416,9 +424,18 @@
       "text": "Ghana Talent AI · your career buddy from SHS to your first b",
       "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -17.7,
+      "dy": 10.3,
       "dh": 3,
       "wPct": -39.7,
+      "severe": true
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -7,
+      "dh": -6,
+      "wPct": 15,
       "severe": true
     },
     {
@@ -606,22 +623,22 @@
     }
   },
   "style": {
-    "summaryLine": "125 style mismatches (colour:13 radius:40 shadow:12 stroke:16 opacity:2 typography:42); shapes 22/82 matched",
+    "summaryLine": "126 style mismatches (colour:13 radius:40 shadow:12 stroke:16 opacity:2 typography:43); shapes 23/82 matched",
     "counts": {
       "colour": 13,
       "radius": 40,
       "shadow": 12,
       "stroke": 16,
       "opacity": 2,
-      "typography": 42,
+      "typography": 43,
       "gradient": 0,
       "mixedRuns": 3
     },
     "shapes": {
       "total": 82,
-      "matched": 22
+      "matched": 23
     },
-    "textStyleMatched": 51,
+    "textStyleMatched": 53,
     "unmatchedShapes": [
       {
         "node": "teenyicons:left-outline",
@@ -834,12 +851,6 @@
         "box": [24, 849, 24, 24]
       },
       {
-        "node": "genz:sticker · Meet your Career Buddy",
-        "nodeId": "7881:86241",
-        "type": "FRAME",
-        "box": [208, 410, 180, 56]
-      },
-      {
         "node": "Vector",
         "nodeId": "I7873:50846;5132:42159",
         "type": "VECTOR",
@@ -984,7 +995,7 @@
         "box": [1586, 30, 24, 24]
       }
     ],
-    "unmatchedShapesCount": 60,
+    "unmatchedShapesCount": 59,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1835,6 +1846,15 @@
       {
         "cat": "typography",
         "prop": "text-align",
+        "node": "Step 1 of 9 ·",
+        "nodeId": "7873:50748",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.font-sans.text-[12px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
         "node": "· 0% profile complete · auto-saved",
         "nodeId": "7873:50750",
         "figma": "center",
@@ -2126,13 +2146,14 @@
       "radius-br": 10,
       "radius-bl": 10,
       "line-height": 20,
-      "text-align": 17,
+      "text-align": 18,
       "font-family (fallback?)": 2,
       "font-weight": 2,
       "text-decoration": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_50714-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

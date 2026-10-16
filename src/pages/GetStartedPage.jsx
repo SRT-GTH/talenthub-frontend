@@ -5,13 +5,13 @@ import Button from '../components/ui/Button.jsx';
 import StickyActionBar from '../components/ui/form/StickyActionBar.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../components/ui/form/mobileScale.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
-import {
-  TalentIcon,
-  ParentIcon,
-  RecruiterIcon,
-  ArrowRightIcon,
-  LoadingSpinner,
-} from '../components/shared/assets.jsx';
+import { ArrowRightIcon, LoadingSpinner } from '../components/shared/assets.jsx';
+import studentDefault from '../assets/entry/role-student-default.svg';
+import studentSelected from '../assets/entry/role-student-selected.svg';
+import parentDefault from '../assets/entry/role-parent-default.svg';
+import parentSelected from '../assets/entry/role-parent-selected.svg';
+import recruiterDefault from '../assets/entry/role-recruiter-default.svg';
+import recruiterSelected from '../assets/entry/role-recruiter-selected.svg';
 import { AUTH_ROUTES } from '../constants/authRoutes.js';
 import { debug } from '../utils/debug.js';
 import gridBg from '../assets/getStarted/grid.jpg';
@@ -29,14 +29,26 @@ const log = debug('GetStartedPage');
  * wiki/components.md — selection state lives here in the parent.
  */
 
-// Per-Figma the Talent variant ships four benefits; copy for the other
-// roles isn't in the file yet, so all three reuse the Talent list. Swap
-// in per-role copy once the Figma frames for Parent / Company land.
+// Per-role benefit lists straight from Figma roles frames (8027:201634 talent).
 const TALENT_BENEFITS = [
   'Free talent assessment',
   'Verified Profile',
   'Smart Job Matching',
   'Career Guidance',
+];
+
+// Figma 8027:201147 (parent) and 8027:200660 (recruiter) "WHAT YOU WOULD GET" lists.
+const PARENT_BENEFITS = [
+  'Consent controls',
+  'SMS notifications',
+  'Match approvals',
+  'Privacy first',
+];
+const RECRUITER_BENEFITS = [
+  'Search 12K+ profiles',
+  'Post opportunities',
+  'AI matching',
+  'Direct messaging',
 ];
 
 const ROLES = [
@@ -47,8 +59,10 @@ const ROLES = [
     description:
       'Discover your strengths, build a verified profile and get matched with real opportunities.',
     ctaLabel: 'Continue as a Talent',
+    loaderLabel: 'Setting Things Up', // Figma 8027:201877 casing
     benefits: TALENT_BENEFITS,
-    icon: <TalentIcon />,
+    iconDefault: studentDefault, // Figma 8027:200876 / selected 8027:201850 (2153:11455 / 11555)
+    iconSelected: studentSelected,
     // Destination = the role's sign-up entry (single source of truth).
     route: AUTH_ROUTES.talent.signUp,
   },
@@ -59,8 +73,10 @@ const ROLES = [
     description:
       "Stay involved, give consent and guide your child's opportunities every step of the way.",
     ctaLabel: 'Continue as a Parent',
-    benefits: TALENT_BENEFITS,
-    icon: <ParentIcon />,
+    loaderLabel: 'Setting things up', // 8027:201390
+    benefits: PARENT_BENEFITS,
+    iconDefault: parentDefault, // 8027:200877 / selected 8027:201364
+    iconSelected: parentSelected,
     route: AUTH_ROUTES.parent.signUp,
   },
   {
@@ -68,18 +84,29 @@ const ROLES = [
     tag: 'Company/Recruiter',
     headline: "I'm hiring Ghana's best.",
     description: 'Search verified, assessed profiles and connect with the right talent fast.',
-    ctaLabel: 'Continue as a Recruiter',
-    benefits: TALENT_BENEFITS,
-    icon: <RecruiterIcon />,
-    // No dedicated recruiter flow yet — routes to the institution onboarding
-    // (the only org-side flow). Repoint here when a recruiter flow exists.
-    route: AUTH_ROUTES.institution.signUp,
+    ctaLabel: 'Continue As A Recruiter', // Figma 8027:200660 verbatim casing
+    loaderLabel: 'Setting things up', // 8027:200903
+    benefits: RECRUITER_BENEFITS,
+    iconDefault: recruiterDefault, // 8027:201852 / selected 8027:200878
+    iconSelected: recruiterSelected,
+    route: AUTH_ROUTES.recruiter.signUp,
   },
 ];
 
 // Benefits pill that appears under the cards once a role is selected.
 // Figma source: node 2153:13850 ("WHAT YOU WOULD GET" pill inside the
 // Talent-selected variant of node 2153:13443).
+// Role icon = exact Figma export (62x62, tile background included).
+const RoleIcon = ({ role, selected, className }) => (
+  <img
+    src={selected ? role.iconSelected : role.iconDefault}
+    alt=""
+    aria-hidden="true"
+    draggable={false}
+    className={className ?? 'size-full'}
+  />
+);
+
 const BenefitsBar = ({ benefits }) => (
   <div className="flex h-[53px] w-full items-center justify-center gap-2.5 overflow-hidden rounded-[10px] border border-brand-green-light-active bg-neutral px-2.5 py-2 max-md:h-auto max-md:flex-wrap max-md:gap-x-2 max-md:gap-y-0 max-md:py-1.5">
     <span className="px-2.5 py-2 max-md:py-0.5 text-[12px] font-bold leading-5 tracking-[0.1px] text-neutral-dark max-md:w-full max-md:text-center">
@@ -148,6 +175,19 @@ const GetStartedPage = () => {
   const hasSelection = Boolean(selectedRole);
   const selectedRoleData = ROLES.find((r) => r.id === selectedRole);
 
+  // Radio-group arrow-key navigation (Left/Up = previous, Right/Down = next).
+  const handleRadioKeys = (e, id) => {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
+    if (!keys.includes(e.key)) return;
+    e.preventDefault();
+    const i = ROLES.findIndex((r) => r.id === id);
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
+    const next = ROLES[(i + step + ROLES.length) % ROLES.length];
+    log('arrow key ->', next.id);
+    setSelectedRole(next.id);
+    e.currentTarget.parentElement?.querySelector(`[data-role="${next.id}"]`)?.focus();
+  };
+
   const handleContinue = () => {
     if (isLoading || !selectedRoleData) return;
     const dest = selectedRoleData.route;
@@ -180,8 +220,8 @@ const GetStartedPage = () => {
 
             {/* Headline */}
             <h1
-              className="font-display max-w-[792px] font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-              style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.25 }}
+              className="font-heading max-w-[792px] font-semibold tracking-[-0.01em] text-black max-md:text-[24px]! max-md:leading-tight!"
+              style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }} // Figma 54/59.4 Bricolage 600
             >
               <span>Let&apos;s </span>
               <span className="text-accent">set things</span>
@@ -207,13 +247,26 @@ const GetStartedPage = () => {
             {ROLES.map((role) => (
               <Card
                 key={role.id}
-                icon={role.icon}
+                icon={<RoleIcon role={role} selected={selectedRole === role.id} />}
                 tag={role.tag}
                 headline={role.headline}
+                headlineVariant="heading"
                 description={role.description}
                 selected={selectedRole === role.id}
                 onClick={() => setSelectedRole(role.id)}
+                onKeyDown={(e) => handleRadioKeys(e, role.id)}
+                data-role={role.id}
+                role="radio"
+                aria-checked={selectedRole === role.id}
+                aria-pressed={undefined}
+                tabIndex={(selectedRole ?? ROLES[0].id) === role.id ? 0 : -1}
                 aria-label={`${role.tag}: ${role.headline}`}
+                // Figma 8027:200660: with a role chosen the other cards dim.
+                className={
+                  hasSelection && selectedRole !== role.id
+                    ? 'opacity-55 hover:opacity-100 focus-visible:opacity-100'
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -243,7 +296,7 @@ const GetStartedPage = () => {
                     aria-hidden="true"
                     className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-[#F2F2EE] text-content-tertiary [&>svg]:size-6"
                   >
-                    {role.icon}
+                    <RoleIcon role={role} selected={selected} className="size-10 rounded-[10px]" />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="text-[12px] font-semibold uppercase leading-4 tracking-[0.6px] text-brand-green">
@@ -274,7 +327,7 @@ const GetStartedPage = () => {
         </div>
 
         {/* ---- CTA + login link ------------------------------------- */}
-        <div className="flex w-full flex-col items-center gap-2 max-md:contents">
+        <div aria-live="polite" className="flex w-full flex-col items-center gap-2 max-md:contents">
           <StickyActionBar bleed={16}>
             <Button
               variant="primary"
@@ -287,7 +340,7 @@ const GetStartedPage = () => {
               aria-busy={isLoading}
             >
               {isLoading
-                ? 'Setting things up'
+                ? (selectedRoleData?.loaderLabel ?? 'Setting things up')
                 : selectedRoleData
                   ? selectedRoleData.ctaLabel
                   : 'Select a role to continue'}

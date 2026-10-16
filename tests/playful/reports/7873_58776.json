@@ -5,16 +5,16 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -231.2,
-    "derived": 283.2
+    "medianDy": -509.2,
+    "derived": 561.2
   },
-  "offsetUsed": 283,
+  "offsetUsed": 561,
   "counts": {
     "figmaTexts": 22,
-    "matched": 18,
-    "unmatched": 4,
+    "matched": 19,
+    "unmatched": 3,
     "layoutMismatch": 17,
-    "fontMetric": 9,
+    "fontMetric": 10,
     "widthOver15": 3
   },
   "worstLayoutPx": 1348.1,
@@ -23,23 +23,15 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": -111
+        "y": -389
       },
-      "closestDom": "Step 7 of 11 ·"
-    },
-    {
-      "text": "Work Experience confirmed",
-      "figma": {
-        "x": 806,
-        "y": 674
-      },
-      "closestDom": "Work Experience"
+      "closestDom": "Step 7 of 9 ·"
     },
     {
       "text": "Text",
       "figma": {
         "x": 952.5,
-        "y": 715.5
+        "y": 437.5
       },
       "closestDom": null
     },
@@ -47,7 +39,7 @@
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": -197
+        "y": -475
       },
       "closestDom": "Save & Exit"
     }
@@ -57,95 +49,15 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 231.8,
+      "dy": 509.8,
       "dh": -1,
       "wPct": 15.9
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -699.7,
-      "dh": 2,
-      "wPct": 7.4
-    },
-    {
-      "text": "Career Pitch",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.1,
-      "dy": -422.2,
-      "dh": 3,
-      "wPct": 3.9
-    },
-    {
-      "text": "Skills (Competencies)",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -417.7,
-      "dh": 3,
-      "wPct": 2.7
-    },
-    {
-      "text": "Project Portfolio",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -417.7,
-      "dh": 3,
-      "wPct": 6.8
-    },
-    {
-      "text": "Certifications",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -417.7,
-      "dh": 3,
-      "wPct": 2.6
-    },
-    {
-      "text": "Completion: 48%",
-      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -417.2,
-      "dh": 2,
-      "wPct": 5.8
-    },
-    {
-      "text": "Your profile, live",
-      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
-      "dx": -0.5,
-      "dy": -411.2,
-      "dh": 0,
-      "wPct": -0.6
-    },
-    {
-      "text": "Lock in each section to level up your matches.",
-      "sel": "p.m-0.font-sans.text-[16px]",
-      "dx": -0.5,
-      "dy": -411.2,
-      "dh": 4,
-      "wPct": 7.1
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -278.2,
-      "dh": 2,
-      "wPct": 7.4
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 245.9,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 229.8,
+      "dy": 507.8,
       "dh": -2,
       "wPct": 8
     },
@@ -153,7 +65,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 229.3,
+      "dy": 507.3,
       "dh": -2,
       "wPct": 44.9
     },
@@ -161,7 +73,7 @@
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": 228.9,
+      "dy": 506.9,
       "dh": 1,
       "wPct": -4.7
     },
@@ -169,23 +81,103 @@
       "text": "Kofi A.",
       "sel": "span.max-md:sr-only.font-sans.font-semibold",
       "dx": -1,
-      "dy": 228.9,
+      "dy": 506.9,
       "dh": -5,
       "wPct": 5.9
     },
     {
+      "text": "Work Experience confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 503.8,
+      "dh": 2,
+      "wPct": 7
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -33.5,
-      "dy": 201.8,
+      "dx": -9,
+      "dy": 499.8,
       "dh": 2,
       "wPct": -80.5
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -144.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -143.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -141.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -139.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -139.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -139.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -139.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": -133.2,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -133.2,
+      "dh": 4,
+      "wPct": 7.1
     },
     {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -30.7,
+      "dy": 62.3,
       "dh": 1,
       "wPct": 0.9
     }
@@ -195,7 +187,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 231.8,
+      "dy": 509.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -204,7 +196,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 229.8,
+      "dy": 507.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -212,17 +204,26 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -33.5,
-      "dy": 201.8,
+      "dx": -9,
+      "dy": 499.8,
       "dh": 2,
       "wPct": -80.5,
       "severe": true
     },
     {
+      "text": "Work Experience confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 503.8,
+      "dh": 2,
+      "wPct": 7,
+      "severe": false
+    },
+    {
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 229.3,
+      "dy": 507.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -231,7 +232,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": -411.2,
+      "dy": -133.2,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -240,14 +241,14 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -417.7,
+      "dy": -139.7,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
     },
     {
       "text": "Completion: Not Started",
-      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
       "dy": -0.2,
       "dh": 2,
@@ -258,16 +259,16 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -278.2,
+      "dy": -0.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
     },
     {
       "text": "Completion: Not Started",
-      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -699.7,
+      "dy": -143.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -284,7 +285,7 @@
       },
       "app": {
         "x": 0,
-        "y": 453.8,
+        "y": 731.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -299,7 +300,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 453.8,
+        "y": 731.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -314,7 +315,7 @@
       },
       "app": {
         "x": 0,
-        "y": 283,
+        "y": 561,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -325,6 +326,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_58776-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

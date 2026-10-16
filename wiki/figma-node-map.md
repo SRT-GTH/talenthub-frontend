@@ -1957,3 +1957,7 @@ Content canvases: `7249:74314` (talent search), `:75078` (templates), `:75849` (
 
 - Figma fidelity rules: [figma-fidelity.md](figma-fidelity.md)
 - Design tokens: [design-tokens.md](design-tokens.md)
+
+## Onboarding redesign (2026-10-16)
+
+Recruiter onboarding page `7356:96249` "onboarding screens - Recruiter" (sections `7374:*`; panel frame `7991:60605`) and the `8027:*` role-selection / login / tutorial / talent onboarding / success frames are mapped frame-by-frame to pages in [onboarding-redesign.md](onboarding-redesign.md). Every state frame is a state of ONE page (not a separate route).

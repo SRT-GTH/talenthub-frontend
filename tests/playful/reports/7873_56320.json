@@ -11,9 +11,9 @@
   "offsetUsed": 59,
   "counts": {
     "figmaTexts": 22,
-    "matched": 18,
-    "unmatched": 4,
-    "layoutMismatch": 12,
+    "matched": 19,
+    "unmatched": 3,
+    "layoutMismatch": 13,
     "fontMetric": 9,
     "widthOver15": 3
   },
@@ -25,15 +25,7 @@
         "x": 1365,
         "y": 113
       },
-      "closestDom": "Step 4 of 11 ·"
-    },
-    {
-      "text": "Personal Area of Interest confirmed",
-      "figma": {
-        "x": 742,
-        "y": 898
-      },
-      "closestDom": "Personal area of interest"
+      "closestDom": "Step 4 of 9 ·"
     },
     {
       "text": "Text",
@@ -65,25 +57,25 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -134.2,
+      "dy": -127.2,
       "dh": 1,
       "wPct": 0.9
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -22.4,
-      "dy": -131.7,
+      "dx": 2.1,
+      "dy": -124.7,
       "dh": 2,
       "wPct": -85.8
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 21.9,
-      "dh": 2.2,
-      "wPct": 3.1
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": -120.7,
+      "dh": 2,
+      "wPct": 0.4
     },
     {
       "text": "· 0% profile complete · auto-saved",
@@ -99,7 +91,7 @@
       "dx": -0.5,
       "dy": 5.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -148,6 +140,14 @@
       "dy": -4.7,
       "dh": 2,
       "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -2.1,
+      "dh": 2.2,
+      "wPct": 3.1
     }
   ],
   "fontMetric": [
@@ -172,8 +172,8 @@
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -22.4,
-      "dy": -131.7,
+      "dx": 2.1,
+      "dy": -124.7,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -285,6 +285,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_56320-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

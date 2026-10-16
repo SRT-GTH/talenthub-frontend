@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": 11.8,
-    "derived": 40.2
+    "medianDy": 0.8,
+    "derived": 51.2
   },
-  "offsetUsed": 40,
+  "offsetUsed": 51,
   "counts": {
     "figmaTexts": 16,
     "matched": 14,
     "unmatched": 2,
-    "layoutMismatch": 12,
+    "layoutMismatch": 14,
     "fontMetric": 7,
     "widthOver15": 2
   },
@@ -23,15 +23,15 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 132
+        "y": 121
       },
-      "closestDom": "Step 7 of 11 ·"
+      "closestDom": "Step 7 of 9 ·"
     },
     {
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 46
+        "y": 35
       },
       "closestDom": "Save & Exit"
     }
@@ -41,15 +41,23 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -11.2,
+      "dy": -0.2,
       "dh": -1,
       "wPct": 15.9
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -651.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Skills (Competencies)",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -42.7,
+      "dy": -31.7,
       "dh": 3,
       "wPct": 2.7
     },
@@ -57,47 +65,15 @@
       "text": "Completion: 48%",
       "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -42.2,
+      "dy": -31.2,
       "dh": 2,
       "wPct": 5.8
-    },
-    {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": -14.1,
-      "dh": 1,
-      "wPct": -4.7
-    },
-    {
-      "text": "Kofi A.",
-      "sel": "span.max-md:sr-only.font-sans.font-semibold",
-      "dx": -1,
-      "dy": -14.1,
-      "dh": -5,
-      "wPct": 5.9
-    },
-    {
-      "text": "New Chat",
-      "sel": "button.pointer-events-auto.inline-flex.items-center",
-      "dx": 3.8,
-      "dy": -13.7,
-      "dh": -2,
-      "wPct": 44.9
-    },
-    {
-      "text": "· 0% profile complete · auto-saved",
-      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
-      "dx": 0,
-      "dy": -13.2,
-      "dh": -2,
-      "wPct": 8
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 4.8,
+      "dy": 15.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -105,7 +81,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 4.8,
+      "dy": 15.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -113,7 +89,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 4.3,
+      "dy": 15.3,
       "dh": 3,
       "wPct": 6.8
     },
@@ -121,17 +97,57 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 4.3,
+      "dy": 15.3,
       "dh": 3,
       "wPct": 2.6
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 2.9,
-      "dh": 2.2,
-      "wPct": 3.1
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 11.3,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": 10.8,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -3.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": -3.1,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -2.2,
+      "dh": -2,
+      "wPct": 8
     }
   ],
   "fontMetric": [
@@ -139,7 +155,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -11.2,
+      "dy": -0.2,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -148,7 +164,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": -13.2,
+      "dy": -2.2,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -157,7 +173,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -13.7,
+      "dy": -2.7,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -166,7 +182,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 4.3,
+      "dy": 15.3,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -175,7 +191,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 4.8,
+      "dy": 15.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -184,7 +200,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 4.8,
+      "dy": 15.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -193,7 +209,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 0.3,
+      "dy": 11.3,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -210,7 +226,7 @@
       },
       "app": {
         "x": 0,
-        "y": 210.8,
+        "y": 221.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -225,7 +241,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 210.8,
+        "y": 221.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -240,7 +256,7 @@
       },
       "app": {
         "x": 0,
-        "y": 40,
+        "y": 51,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -251,6 +267,7 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_57877-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

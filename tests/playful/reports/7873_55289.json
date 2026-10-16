@@ -5,403 +5,131 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -2.6,
-    "derived": 54.6
+    "medianDy": -1.7,
+    "derived": 53.7
   },
-  "offsetUsed": 55,
+  "offsetUsed": 54,
   "counts": {
     "figmaTexts": 66,
-    "matched": 43,
-    "unmatched": 23,
-    "layoutMismatch": 32,
-    "fontMetric": 15,
-    "widthOver15": 1
+    "matched": 59,
+    "unmatched": 7,
+    "layoutMismatch": 50,
+    "fontMetric": 23,
+    "widthOver15": 6
   },
-  "worstLayoutPx": 382.8,
+  "worstLayoutPx": 1348.1,
   "unmatched": [
+    {
+      "text": "Avatar",
+      "figma": {
+        "x": 82,
+        "y": 121
+      },
+      "closestDom": null
+    },
     {
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 117
+        "y": 118
       },
-      "closestDom": "Step 1 of 11 ·"
-    },
-    {
-      "text": "[Auto]",
-      "figma": {
-        "x": 742,
-        "y": 246
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Educational background confirmed",
-      "figma": {
-        "x": 742,
-        "y": 264
-      },
-      "closestDom": "Educational Background"
-    },
-    {
-      "text": "Emma",
-      "figma": {
-        "x": 1019,
-        "y": 286
-      },
-      "closestDom": null
+      "closestDom": "Step 4 of 9 ·"
     },
     {
       "text": "Saved! Your education section is  locked in. Ready to move on to your  personal area of interest?",
       "figma": {
         "x": 142,
-        "y": 331
+        "y": 332
       },
-      "closestDom": null
-    },
-    {
-      "text": "I’d love to talk about that",
-      "figma": {
-        "x": 828,
-        "y": 416
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Emma",
-      "figma": {
-        "x": 1019,
-        "y": 456
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Career Buddy",
-      "figma": {
-        "x": 54,
-        "y": 541
-      },
-      "closestDom": "MEET YOUR CAREER BUDDY"
-    },
-    {
-      "text": "Let’s talk about your interests so I can better tailor your recommendations. To start, what subjects or areas in education excite you the most?",
-      "figma": {
-        "x": 142,
-        "y": 501
-      },
-      "closestDom": null
-    },
-    {
-      "text": "I’ve always enjoyed subjects related to technology and problem-solving — especially programming and data analysis.",
-      "figma": {
-        "x": 425,
-        "y": 599
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Emma",
-      "figma": {
-        "x": 1019,
-        "y": 639
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Career Buddy",
-      "figma": {
-        "x": 54,
-        "y": 731
-      },
-      "closestDom": "MEET YOUR CAREER BUDDY"
+      "closestDom": "Saved! ✅ Your education section is locked in. Ready to move on to your personal "
     },
     {
       "text": "That’s great! So your educational interests include technology, programming, and data analysis — noted  Outside the classroom, what do you usually like doing? Any hobbies or extracurricular activities?",
       "figma": {
         "x": 142,
-        "y": 691
+        "y": 692
       },
-      "closestDom": null
-    },
-    {
-      "text": "Yes, I love coding personal projects, playing chess, and volunteering to teach basic computing to younger students.",
-      "figma": {
-        "x": 425,
-        "y": 789
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Emma",
-      "figma": {
-        "x": 1019,
-        "y": 829
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Career Buddy",
-      "figma": {
-        "x": 54,
-        "y": 921
-      },
-      "closestDom": "MEET YOUR CAREER BUDDY"
-    },
-    {
-      "text": "Wow, that’s awesome — coding, chess, and mentoring others show strong analytical and leadership skills. Now, thinking about the future — what kind of career paths or roles interest you most?",
-      "figma": {
-        "x": 142,
-        "y": 881
-      },
-      "closestDom": null
-    },
-    {
-      "text": "I’m really drawn to software development, maybe even becoming a product manager later in my career.",
-      "figma": {
-        "x": 425,
-        "y": 979
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Emma",
-      "figma": {
-        "x": 1019,
-        "y": 1019
-      },
-      "closestDom": null
-    },
-    {
-      "text": "Career Buddy",
-      "figma": {
-        "x": 54,
-        "y": 1111
-      },
-      "closestDom": "MEET YOUR CAREER BUDDY"
+      "closestDom": "That's great! So your educational interests include technology, programming, and"
     },
     {
       "text": "Excellent vision, Emma  Review what I’ve gathered from our chat on the Talent Profile Panel to confirm or make changes.",
       "figma": {
         "x": 142,
-        "y": 1071
+        "y": 1072
       },
-      "closestDom": null
+      "closestDom": "Excellent vision, Emma 🌟\nReview what I've gathered from our chat on the Talent "
     },
     {
-      "text": "New Chat",
+      "text": "Completion: Not Started",
       "figma": {
-        "x": 58,
-        "y": 194
+        "x": 1247.5,
+        "y": 1626.5
       },
-      "closestDom": null
+      "closestDom": "CertificationsCompletion: Not Started"
     },
     {
-      "text": "Completion: In Progress",
+      "text": "Switch Modes ",
       "figma": {
-        "x": 1246,
-        "y": 506
+        "x": 1265,
+        "y": 32
       },
       "closestDom": null
     }
   ],
   "layout": [
     {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 2.8,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 382.8,
+      "dy": -1024.2,
       "dh": 1,
       "wPct": 2.3
     },
     {
-      "text": "Certs",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 58,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 1.2
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -1020.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
-      "text": "Goals",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 56.4,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 3.1
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -655.2,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
-      "text": "Pitch",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 55.6,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 1.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 26.4,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
-      "text": "Portfolio",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 24,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 7.7
-    },
-    {
-      "text": "Skills",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 23.8,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 6.2
-    },
-    {
-      "text": "Work",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 23.8,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 6.8
-    },
-    {
-      "text": "Education",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 22.1,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 2.8
-    },
-    {
-      "text": "Personality",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 22.1,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 5.2
-    },
-    {
-      "text": "Interests ",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 21.8,
-      "dy": 1.3,
-      "dh": 2,
-      "wPct": 4.3
-    },
-    {
-      "text": "Career Pitch",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.1,
-      "dy": -9.2,
-      "dh": 3,
-      "wPct": 3.9
-    },
-    {
-      "text": "Focused",
-      "sel": "span.max-[480px]:sr-only",
-      "dx": -9.2,
-      "dy": 1.4,
-      "dh": 2,
-      "wPct": 0.3
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -8.7,
-      "dh": 2,
-      "wPct": 7.4
-    },
-    {
-      "text": "Switch Modes ",
-      "sel": "span.playful:bg-[linear-gradient(189.84deg,#fef1e7_0%,#e8f2ed_20.192%)].playful:bg-clip-te",
-      "dx": -8.2,
-      "dy": 0.4,
-      "dh": -5,
-      "wPct": 0.4
-    },
-    {
-      "text": "Playful",
-      "sel": "span.max-[480px]:sr-only",
-      "dx": -7.5,
-      "dy": 1.4,
-      "dh": 2,
-      "wPct": 5.2
-    },
-    {
-      "text": "Career Options",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.6,
-      "dy": -6.2,
-      "dh": 3,
-      "wPct": 4
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -5.7,
-      "dh": 2,
-      "wPct": 7.4
-    },
-    {
-      "text": "Skills (Competencies)",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -4.7,
-      "dh": 3,
-      "wPct": 2.7
-    },
-    {
-      "text": "Work Experience",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -4.7,
-      "dh": 3,
-      "wPct": 5.1
-    },
-    {
-      "text": "Project Portfolio",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -4.7,
-      "dh": 3,
-      "wPct": 6.8
-    },
-    {
-      "text": "Certifications",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -4.7,
-      "dh": 3,
-      "wPct": 2.6
-    },
-    {
-      "text": "Save & Exit",
-      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
-      "dx": -4.4,
-      "dy": 0.9,
-      "dh": -5,
-      "wPct": 5.6
-    },
-    {
-      "text": "Completion: 48%",
-      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -4.2,
-      "dh": 2,
-      "wPct": 5.8
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -646.2,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 608.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -4.2,
+      "dy": 470.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -409,7 +137,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -4.2,
+      "dy": 467.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -417,57 +145,355 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -4.2,
+      "dy": 467.7,
       "dh": 2,
       "wPct": 7.4
     },
     {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": 0.9,
-      "dh": 1,
-      "wPct": -4.7
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 467.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 466.2,
+      "dh": 2,
+      "wPct": 7.4
     },
     {
       "text": "Personality",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.8,
-      "dy": -3.2,
+      "dy": 329.7,
       "dh": 3,
       "wPct": 5.8
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 328.7,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 328.2,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Work Experience",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 328.2,
+      "dh": 3,
+      "wPct": 5.1
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 328.2,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 328.2,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Career Options",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.6,
+      "dy": 326.7,
+      "dh": 3,
+      "wPct": 4
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": 323.7,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 7.5,
+      "dy": -285.2,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Educational background confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -281.2,
+      "dh": 2,
+      "wPct": -1.9
+    },
+    {
+      "text": "I’ve always enjoyed subjects related to technology and probl",
+      "sel": "span.block",
+      "dx": -84.6,
+      "dy": -277.4,
+      "dh": -3.5,
+      "wPct": 3
+    },
+    {
+      "text": "Let’s talk about your interests so I can better tailor your ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -274.7,
+      "dh": -6,
+      "wPct": 8.8
+    },
+    {
+      "text": "I’d love to talk about that",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -273.2,
+      "dh": -3,
+      "wPct": 11.2
+    },
+    {
+      "text": "Yes, I love coding personal projects, playing chess, and vol",
+      "sel": "span.block",
+      "dx": -12.9,
+      "dy": -230.4,
+      "dh": -3.5,
+      "wPct": 15.9
+    },
+    {
+      "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -219.7,
+      "dh": 20,
+      "wPct": -10.1,
+      "lines": "dom 3 vs figma ~2"
+    },
+    {
+      "text": "I’m really drawn to software development, maybe even becomin",
+      "sel": "span.block",
+      "dx": -10.5,
+      "dy": -209.4,
+      "dh": -3.5,
+      "wPct": 16.3
+    },
+    {
+      "text": "Focused",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.7,
+      "dy": 0.4,
+      "dh": 2,
+      "wPct": 0.3
+    },
+    {
+      "text": "Playful",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.3,
+      "dy": 0.4,
+      "dh": 2,
+      "wPct": 5.2
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 170.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 167.8,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 146.8,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 142.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Completion: In Progress",
+      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": 0.5,
+      "dy": 137.8,
+      "dh": 2,
+      "wPct": 5.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 79.8,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 75.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Certs",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 58.1,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 1.2
+    },
+    {
+      "text": "Goals",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 56.5,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Pitch",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 55.6,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 1.3
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 24.1,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 7.7
+    },
+    {
+      "text": "Skills",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.8,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.2
+    },
+    {
+      "text": "Work",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.8,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.8
+    },
+    {
+      "text": "Personality",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 21.5,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.3
+    },
+    {
+      "text": "Education",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 20.9,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 2.8
+    },
+    {
+      "text": "Interests ",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 20.6,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 5.3
+    },
+    {
+      "text": "Save & Exit",
+      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
+      "dx": -4.4,
+      "dy": -0.1,
+      "dh": -5,
+      "wPct": 5.6
     },
     {
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -3,
+      "dy": -4,
       "dh": 4,
       "wPct": -82.6
     },
     {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -2.7,
-      "dh": 2,
-      "wPct": 7.4
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 44.9
     },
     {
-      "text": "Avatar",
-      "sel": "span.truncate.whitespace-nowrap.font-sans",
-      "dx": -2.1,
-      "dy": -0.7,
-      "dh": -4,
-      "wPct": 2.3
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -0.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Educational Background",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -2.7,
+      "dh": 3,
+      "wPct": 4.4
     }
   ],
   "fontMetric": [
     {
+      "text": "Personality",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 21.5,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.3,
+      "severe": false
+    },
+    {
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 1.3,
+      "dy": 0.3,
       "dh": 2,
       "wPct": 6.2,
       "severe": false
@@ -476,7 +502,7 @@
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 1.3,
+      "dy": 0.3,
       "dh": 2,
       "wPct": 6.8,
       "severe": false
@@ -484,35 +510,108 @@
     {
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 24,
-      "dy": 1.3,
+      "dx": 24.1,
+      "dy": 0.3,
       "dh": 2,
       "wPct": 7.7,
       "severe": false
     },
     {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 2.8,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 1.8,
+      "dy": 0.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
     },
     {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 7.5,
+      "dy": -285.2,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "I’d love to talk about that",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -273.2,
+      "dh": -3,
+      "wPct": 11.2,
+      "severe": false
+    },
+    {
+      "text": "Let’s talk about your interests so I can better tailor your ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -274.7,
+      "dh": -6,
+      "wPct": 8.8,
+      "severe": false
+    },
+    {
+      "text": "Yes, I love coding personal projects, playing chess, and vol",
+      "sel": "span.block",
+      "dx": -12.9,
+      "dy": -230.4,
+      "dh": -3.5,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -219.7,
+      "dh": 20,
+      "wPct": -10.1,
+      "lines": "dom 3 vs figma ~2",
+      "severe": false
+    },
+    {
+      "text": "I’m really drawn to software development, maybe even becomin",
+      "sel": "span.block",
+      "dx": -10.5,
+      "dy": -209.4,
+      "dh": -3.5,
+      "wPct": 16.3,
+      "severe": true
+    },
+    {
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -3,
+      "dy": -4,
       "dh": 4,
       "wPct": -82.6,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 44.9,
       "severe": true
     },
     {
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": 1.8,
+      "dy": 0.8,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -520,7 +619,7 @@
     {
       "text": "Personal area of interest",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
+      "dx": 0.5,
       "dy": -1.7,
       "dh": 3,
       "wPct": 6.5,
@@ -528,18 +627,9 @@
     },
     {
       "text": "Completion: Not Started",
-      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -1.2,
-      "dh": 2,
-      "wPct": 7.4,
-      "severe": false
-    },
-    {
-      "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -2.7,
+      "dx": -0.5,
+      "dy": 470.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -547,8 +637,17 @@
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 608.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -4.2,
+      "dy": 467.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -557,25 +656,16 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -4.7,
+      "dy": 328.2,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
     },
     {
       "text": "Completion: Not Started",
-      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -4.2,
-      "dh": 2,
-      "wPct": 7.4,
-      "severe": false
-    },
-    {
-      "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -4.2,
+      "dy": 467.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -583,8 +673,8 @@
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -5.7,
+      "dx": -0.5,
+      "dy": 467.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -593,13 +683,13 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -8.7,
+      "dy": 466.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
     }
   ],
-  "medianDx": -0.5,
+  "medianDx": 0.1,
   "containers": {
     "chatPane": {
       "figma": {
@@ -610,7 +700,7 @@
       },
       "app": {
         "x": 0,
-        "y": 225.8,
+        "y": 224.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -625,7 +715,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 225.8,
+        "y": 224.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -640,7 +730,7 @@
       },
       "app": {
         "x": 0,
-        "y": 55,
+        "y": 54,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -648,505 +738,505 @@
     }
   },
   "style": {
-    "summaryLine": "125 style mismatches (colour:18 radius:40 shadow:13 stroke:20 opacity:2 typography:32); shapes 25/140 matched",
+    "summaryLine": "87 style mismatches (colour:12 radius:12 shadow:6 stroke:8 opacity:2 typography:47); shapes 16/140 matched",
     "counts": {
-      "colour": 18,
-      "radius": 40,
-      "shadow": 13,
-      "stroke": 20,
+      "colour": 12,
+      "radius": 12,
+      "shadow": 6,
+      "stroke": 8,
       "opacity": 2,
-      "typography": 32,
+      "typography": 47,
       "gradient": 0,
-      "mixedRuns": 1
+      "mixedRuns": 2
     },
     "shapes": {
       "total": 140,
-      "matched": 25
+      "matched": 16
     },
-    "textStyleMatched": 43,
+    "textStyleMatched": 59,
     "unmatchedShapes": [
       {
         "node": "Background",
         "nodeId": "7873:55320",
         "type": "RECTANGLE",
-        "box": [1351, 124, 5, 5]
+        "box": [1351, 125, 5, 5]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:55324",
+        "type": "FRAME",
+        "box": [1351, 141, 323, 6]
       },
       {
         "node": "Container",
         "nodeId": "7873:55325",
         "type": "FRAME",
-        "box": [1351, 140, 62, 6]
+        "box": [1351, 141, 62, 6]
       },
       {
         "node": "grid",
         "nodeId": "7873:55334",
         "type": "RECTANGLE",
-        "box": [754, 657, 358, 405]
+        "box": [754, 658, 358, 405]
       },
       {
         "node": "Frame 14175",
         "nodeId": "7873:55343",
         "type": "FRAME",
-        "box": [726, 232, 269, 64]
+        "box": [726, 233, 269, 64]
       },
       {
         "node": "avatar showcase",
         "nodeId": "7873:55347",
         "type": "FRAME",
-        "box": [1009, 232, 48, 48]
+        "box": [1009, 233, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "7873:55349",
         "type": "RECTANGLE",
-        "box": [982, 388, 8, 8]
+        "box": [982, 389, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:55350",
         "type": "RECTANGLE",
-        "box": [982, 388, 8, 8]
+        "box": [982, 389, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:55351",
         "type": "RECTANGLE",
-        "box": [982, 388, 8, 8]
+        "box": [982, 389, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "7873:55372",
         "type": "VECTOR",
-        "box": [1009, 232, 48, 48]
+        "box": [1009, 233, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "7873:55409",
         "type": "FRAME",
-        "box": [1019, 286, 28, 13]
+        "box": [1019, 287, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55411;5132:42683",
         "type": "FRAME",
-        "box": [60, 317, 48, 48]
+        "box": [60, 318, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55411;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 473, 8, 8]
+        "box": [33, 474, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55411;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 473, 8, 8]
+        "box": [33, 474, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55411;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 473, 8, 8]
+        "box": [33, 474, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55411;5132:42708",
         "type": "VECTOR",
-        "box": [60, 317, 48, 48]
+        "box": [60, 318, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:55411;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 323, 37, 38]
+        "box": [66, 324, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55411;5132:42710",
         "type": "FRAME",
-        "box": [54, 371, 60, 13]
+        "box": [54, 372, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:55411;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 317, 698, 54]
+        "box": [126, 318, 698, 54]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55412;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [812, 402, 183, 51]
+        "box": [812, 403, 183, 51]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55412;5132:42799",
         "type": "FRAME",
-        "box": [1009, 402, 48, 48]
+        "box": [1009, 403, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55412;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 80, 693, 693]
+        "box": [687, 81, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55412;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 558, 8, 8]
+        "box": [982, 559, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55412;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 558, 8, 8]
+        "box": [982, 559, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55412;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 558, 8, 8]
+        "box": [982, 559, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55412;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 402, 48, 48]
+        "box": [1009, 403, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55412;5132:42861",
         "type": "FRAME",
-        "box": [1019, 456, 28, 13]
+        "box": [1019, 457, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55413;5132:42683",
         "type": "FRAME",
-        "box": [60, 487, 48, 48]
+        "box": [60, 488, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55413;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 165, 693, 693]
+        "box": [-262, 166, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55413;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 643, 8, 8]
+        "box": [33, 644, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55413;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 643, 8, 8]
+        "box": [33, 644, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55413;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 643, 8, 8]
+        "box": [33, 644, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55413;5132:42708",
         "type": "VECTOR",
-        "box": [60, 487, 48, 48]
+        "box": [60, 488, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:55413;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 493, 37, 38]
+        "box": [66, 494, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55413;5132:42710",
         "type": "FRAME",
-        "box": [54, 541, 60, 13]
+        "box": [54, 542, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:55413;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 487, 489, 80]
+        "box": [126, 488, 489, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55414;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 585, 586, 74]
+        "box": [409, 586, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55414;5132:42799",
         "type": "FRAME",
-        "box": [1009, 585, 48, 48]
+        "box": [1009, 586, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55414;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 263, 693, 693]
+        "box": [687, 264, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55414;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 741, 8, 8]
+        "box": [982, 742, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55414;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 741, 8, 8]
+        "box": [982, 742, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55414;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 741, 8, 8]
+        "box": [982, 742, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55414;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 585, 48, 48]
+        "box": [1009, 586, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55414;5132:42861",
         "type": "FRAME",
-        "box": [1019, 639, 28, 13]
+        "box": [1019, 640, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55415;5132:42683",
         "type": "FRAME",
-        "box": [60, 677, 48, 48]
+        "box": [60, 678, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55415;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 355, 693, 693]
+        "box": [-262, 356, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55415;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 833, 8, 8]
+        "box": [33, 834, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55415;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 833, 8, 8]
+        "box": [33, 834, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55415;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 833, 8, 8]
+        "box": [33, 834, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55415;5132:42708",
         "type": "VECTOR",
-        "box": [60, 677, 48, 48]
+        "box": [60, 678, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:55415;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 683, 37, 38]
+        "box": [66, 684, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55415;5132:42710",
         "type": "FRAME",
-        "box": [54, 731, 60, 13]
+        "box": [54, 732, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:55415;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 677, 698, 80]
+        "box": [126, 678, 698, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55416;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 775, 586, 74]
+        "box": [409, 776, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55416;5132:42799",
         "type": "FRAME",
-        "box": [1009, 775, 48, 48]
+        "box": [1009, 776, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55416;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 453, 693, 693]
+        "box": [687, 454, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55416;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 931, 8, 8]
+        "box": [982, 932, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55416;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 931, 8, 8]
+        "box": [982, 932, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55416;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 931, 8, 8]
+        "box": [982, 932, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55416;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 775, 48, 48]
+        "box": [1009, 776, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55416;5132:42861",
         "type": "FRAME",
-        "box": [1019, 829, 28, 13]
+        "box": [1019, 830, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55417;5132:42683",
         "type": "FRAME",
-        "box": [60, 867, 48, 48]
+        "box": [60, 868, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55417;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 545, 693, 693]
+        "box": [-262, 546, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55417;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 1023, 8, 8]
+        "box": [33, 1024, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55417;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 1023, 8, 8]
+        "box": [33, 1024, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55417;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 1023, 8, 8]
+        "box": [33, 1024, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55417;5132:42708",
         "type": "VECTOR",
-        "box": [60, 867, 48, 48]
+        "box": [60, 868, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:55417;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 873, 37, 38]
+        "box": [66, 874, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55417;5132:42710",
         "type": "FRAME",
-        "box": [54, 921, 60, 13]
+        "box": [54, 922, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:55417;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 867, 698, 80]
+        "box": [126, 868, 698, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55418;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 965, 586, 74]
+        "box": [409, 966, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55418;5132:42799",
         "type": "FRAME",
-        "box": [1009, 965, 48, 48]
+        "box": [1009, 966, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55418;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 643, 693, 693]
+        "box": [687, 644, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55418;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 1121, 8, 8]
+        "box": [982, 1122, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55418;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 1121, 8, 8]
+        "box": [982, 1122, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:55418;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 1121, 8, 8]
+        "box": [982, 1122, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:55418;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 965, 48, 48]
+        "box": [1009, 966, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:55418;5132:42861",
         "type": "FRAME",
-        "box": [1019, 1019, 28, 13]
+        "box": [1019, 1020, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:55419;5132:42683",
         "type": "FRAME",
-        "box": [60, 1057, 48, 48]
+        "box": [60, 1058, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:55419;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 735, 693, 693]
-      },
-      {
-        "node": "Background",
-        "nodeId": "I7873:55419;5132:42685",
-        "type": "RECTANGLE",
-        "box": [33, 1213, 8, 8]
+        "box": [-262, 736, 693, 693]
       }
     ],
-    "unmatchedShapesCount": 115,
+    "unmatchedShapesCount": 124,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1201,6 +1291,15 @@
         "figma": "none",
         "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | -0.0783003 0.0506745 0.4 0 none | 0 0 0 0 rgba(0,0,0,0)",
         "sel": "div.flex.items-center.gap-[8px].h-[72px]"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Frame 14226",
+        "nodeId": "7873:55427",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 10 12 0 rgba(28,42,33,0.06) | 5 5 0 0 rgba(28,42,33,0.55)",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
       },
       {
         "cat": "colour",
@@ -1446,492 +1545,6 @@
         "sel": "div.flex.cursor-pointer.items-center.justify-between"
       },
       {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-top",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-right",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-bottom",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-left",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "div.svc-row",
-        "nodeId": "7873:55442",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "Component 9",
-        "nodeId": "7873:55443",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "Component 20",
-        "nodeId": "7873:55452",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "Component 11",
-        "nodeId": "7873:55453",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "Component 12",
-        "nodeId": "7873:55462",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-top",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-right",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-bottom",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-left",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "div.svc-row",
-        "nodeId": "7873:55471",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-top",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-right",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-bottom",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-left",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "div.svc-row",
-        "nodeId": "7873:55472",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
         "cat": "shadow",
         "prop": "shadow-count",
         "node": "Nav",
@@ -1941,22 +1554,13 @@
         "sel": "header.w-full.bg-neutral.border-b.border-border-default"
       },
       {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "Style switch",
-        "nodeId": "7878:85993",
-        "figma": "5 5 0 0 rgba(28,42,33,0.2) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 5 5 0 0 rgba(28,42,33,0.2) | 0 10 12 0 rgba(28,42,33,0.06)",
-        "sel": "div.inline-flex.items-center.gap-[2px].rounded-[999px]"
-      },
-      {
-        "cat": "colour",
-        "prop": "border-colour",
-        "node": "Frame 9",
-        "nodeId": "7873:55498",
-        "figma": "rgba(150,112,20,1)",
-        "app": "rgba(200,149,26,1)",
-        "sel": "button.inline-flex.items-center.gap-2.rounded-[10px]"
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Avatar",
+        "nodeId": "I7873:55296;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
       },
       {
         "cat": "typography",
@@ -1968,6 +1572,24 @@
         "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
       },
       {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Avatar",
+        "nodeId": "I7873:55296;2263:8185",
+        "figma": "rgba(56,116,64,1)",
+        "app": "rgba(186,186,183,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Personal Info",
+        "nodeId": "I7873:55298;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
         "cat": "typography",
         "prop": "line-height",
         "node": "Personal Info",
@@ -2001,6 +1623,15 @@
         "nodeId": "I7873:55300;2263:8176",
         "figma": "rgba(56,116,64,1)",
         "app": "rgba(186,186,183,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Interests ",
+        "nodeId": "I7873:55302;2263:8176",
+        "figma": 500,
+        "app": "600",
         "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
       },
       {
@@ -2010,6 +1641,24 @@
         "nodeId": "I7873:55302;2263:8176",
         "figma": 16.71,
         "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Interests ",
+        "nodeId": "I7873:55302;2263:8176",
+        "figma": "rgba(186,186,183,1)",
+        "app": "rgba(56,116,64,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Personality",
+        "nodeId": "I7873:55304;2263:8176",
+        "figma": 500,
+        "app": "600",
         "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
       },
       {
@@ -2086,9 +1735,108 @@
       },
       {
         "cat": "typography",
+        "prop": "line-height",
+        "node": "[Auto]",
+        "nodeId": "7873:55344",
+        "figma": 14.32,
+        "app": 18,
+        "sel": "p.text-[12px].leading-normal.text-[#595959].playful:mb-1"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Educational background confirmed",
+        "nodeId": "7873:55345",
+        "figma": 17.9,
+        "app": 22.5,
+        "sel": "span.block"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "7873:55410",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
         "prop": "font-weight",
         "node": "Career Buddy",
         "nodeId": "I7873:55411;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:55412;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:55413;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:55414;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:55415;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:55416;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:55417;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:55418;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:55419;5132:42711",
         "figma": 500,
         "app": "400",
         "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
@@ -2114,6 +1862,15 @@
       {
         "cat": "typography",
         "prop": "text-align",
+        "node": "New Chat",
+        "nodeId": "7873:55430",
+        "figma": "left",
+        "app": "center",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
         "node": "Completion: 80%",
         "nodeId": "I7873:55439;5132:40727",
         "figma": "center",
@@ -2123,8 +1880,8 @@
       {
         "cat": "typography",
         "prop": "text-align",
-        "node": "Completion: Not Started",
-        "nodeId": "I7873:55441;5132:42280",
+        "node": "Completion: In Progress",
+        "nodeId": "I7873:55440;5132:42171",
         "figma": "center",
         "app": "start",
         "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
@@ -2133,10 +1890,19 @@
         "cat": "typography",
         "prop": "text-align",
         "node": "Completion: Not Started",
-        "nodeId": "I7873:55442;5132:42368",
+        "nodeId": "I7873:55441;5132:42280",
         "figma": "center",
         "app": "start",
         "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:55442;5132:42368",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
       },
       {
         "cat": "typography",
@@ -2154,7 +1920,7 @@
         "nodeId": "I7873:55452;5132:42454",
         "figma": "center",
         "app": "start",
-        "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+        "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
       },
       {
         "cat": "typography",
@@ -2163,7 +1929,7 @@
         "nodeId": "7873:55459",
         "figma": "center",
         "app": "start",
-        "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+        "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
       },
       {
         "cat": "typography",
@@ -2172,22 +1938,13 @@
         "nodeId": "7873:55468",
         "figma": "center",
         "app": "start",
-        "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
-      },
-      {
-        "cat": "typography",
-        "prop": "text-align",
-        "node": "Completion: Not Started",
-        "nodeId": "I7873:55471;5132:42586",
-        "figma": "center",
-        "app": "start",
         "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
       },
       {
         "cat": "typography",
         "prop": "text-align",
         "node": "Completion: Not Started",
-        "nodeId": "7873:55479",
+        "nodeId": "I7873:55471;5132:42586",
         "figma": "center",
         "app": "start",
         "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
@@ -2218,15 +1975,6 @@
         "figma": "left",
         "app": "center",
         "sel": "span.max-[480px]:sr-only"
-      },
-      {
-        "cat": "typography",
-        "prop": "text-align",
-        "node": "Switch Modes ",
-        "nodeId": "I7873:55498;2018:13126",
-        "figma": "left",
-        "app": "center",
-        "sel": "span.playful:bg-[linear-gradient(189.84deg,#fef1e7_0%,#e8f2ed_20.192%)].playful:bg-clip-text.playful:text-tran"
       },
       {
         "cat": "typography",
@@ -2276,26 +2024,27 @@
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 13,
-      "border-colour": 2,
-      "shadow-count": 13,
-      "border-width-top": 5,
-      "border-width-right": 5,
-      "border-width-bottom": 5,
-      "border-width-left": 5,
-      "radius-tl": 10,
-      "radius-tr": 10,
-      "radius-br": 10,
-      "radius-bl": 10,
-      "line-height": 15,
-      "text-colour": 3,
+      "fill": 6,
+      "border-colour": 1,
+      "shadow-count": 6,
+      "border-width-top": 2,
+      "border-width-right": 2,
+      "border-width-bottom": 2,
+      "border-width-left": 2,
+      "radius-tl": 3,
+      "radius-tr": 3,
+      "radius-br": 3,
+      "radius-bl": 3,
+      "font-weight": 14,
+      "line-height": 17,
+      "text-colour": 5,
       "text-align": 14,
-      "font-weight": 1,
       "text-decoration": 1,
       "font-family (fallback?)": 1
     }
   },
   "consoleErrors": [],
+  "shot": "tests\\playful\\shots\\7873_55289-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

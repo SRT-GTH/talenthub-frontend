@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
-import usePlayfulOverlayA11y from '../../ui/PlayfulOverlayA11y.js';
+import usePlayfulOverlayA11y, { usePlayfulPaneReach } from '../../ui/PlayfulOverlayA11y.js';
 import chevronAsset from '../../../assets/playful/overlays/voice-chevron-prev.svg';
 import { cycleVoiceId, getVoiceById } from './careerBuddyVoices.js';
 
@@ -16,8 +16,11 @@ const log = debug('PlayfulVoiceSettings');
  * Bruce (right) under the 200px mascot, Tali centred below, then chevrons and
  * Done / Cancel shelf buttons.
  * Figma draws no selected state, so none is drawn (aria-pressed only).
- * Sol's tagline keeps the product-confirmed "and" (Figma typo "ad").
+ * Sol's tagline is Figma-verbatim ("ad"), per the owner's no-deviation rule.
  */
+
+// Playful frame 7887:89939 shows these taglines verbatim (incl. "Savvy ad relaxed").
+const FIGMA_TAGLINES = { sol: 'Savvy ad relaxed' };
 
 const NAME_CLASS =
   'pf-ov-display text-[clamp(1.125rem,1rem+0.5vw,1.375rem)] leading-[1.25] underline-offset-[5px] decoration-2';
@@ -34,7 +37,9 @@ const VoiceChoice = ({ voice, selected, onPick, className }) => (
     )}
   >
     <span className={classNames(NAME_CLASS, 'no-underline')}>{voice.name}</span>
-    <span className="font-sans text-[16px] leading-normal text-[#737373]">{voice.tagline}</span>
+    <span className="font-sans text-[16px] leading-normal text-[#737373]">
+      {FIGMA_TAGLINES[voice.id] ?? voice.tagline}
+    </span>
   </button>
 );
 
@@ -43,6 +48,7 @@ const PlayfulVoiceSettings = ({ open, voiceId, onDone, onCancel }) => {
   const [announce, setAnnounce] = useState('');
   const rootRef = useRef(null);
   const titleId = useId();
+  const reach = usePlayfulPaneReach(rootRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -81,9 +87,10 @@ const PlayfulVoiceSettings = ({ open, voiceId, onDone, onCancel }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="absolute inset-0 z-30 flex flex-col items-center justify-center overflow-y-auto bg-[#f8f8f4]/95 px-[clamp(1.5rem,4vw,3rem)] py-6 max-lg:bg-[#f8f8f4]"
+      style={{ top: -reach }}
+      className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center overflow-y-auto bg-[#f8f8f4]/95 px-[clamp(1.5rem,4vw,3rem)] py-6 max-lg:bg-[#f8f8f4] lg:pb-[clamp(16px,8vh,90px)] lg:pt-[clamp(16px,5.6vh,63px)]"
     >
-      <div className="flex w-full max-w-[481px] flex-col items-center gap-[clamp(2rem,5vw,4rem)]">
+      <div className="my-auto flex w-full max-w-[481px] flex-col items-center gap-[clamp(2rem,5vw,4rem)]">
         <h2
           id={titleId}
           className="pf-ov-display text-center text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)] leading-[1.2]"

@@ -21,6 +21,11 @@
    * ============================================================ */
   --font-sans: 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Nunito', system-ui, sans-serif;
   --font-display: 'Instrument Serif', Georgia, serif;
+  /* New onboarding design (Figma 7356:96249 + 8027 frames): headlines are Bricolage
+     Grotesque 600. Utility: `font-heading`. `font-display` (Instrument Serif) is unchanged
+     for every other screen. */
+  --font-heading: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  --font-ui: 'Instrument Sans', 'SF Pro Rounded', system-ui, sans-serif;
 
   /* ============================================================
    * BRAND COLORS — Figma frame 45:7799 ("Colors -Primary Brand")

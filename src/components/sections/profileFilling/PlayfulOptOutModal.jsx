@@ -362,7 +362,7 @@ const PlayfulOptOutModal = ({
   const footer = (
     <div
       className={classNames(
-        'flex flex-col items-center px-[48px] max-sm:px-5 max-sm:pb-4 max-sm:pt-4',
+        'flex flex-col items-center px-[46.5px] max-sm:px-5 max-sm:pb-4 max-sm:pt-4',
         isSchedule ? 'gap-[20px] pb-[46.5px] pt-[28px] max-sm:gap-3' : 'pb-[62.5px] pt-[36px]'
       )}
     >
@@ -445,7 +445,7 @@ const PlayfulOptOutModal = ({
       describedBy={`${uid}-desc`}
       cardClassName={isSchedule ? 'sm:max-w-[564px]' : 'sm:max-w-[528px]'}
       bodyClassName={classNames(
-        'flex flex-col items-center px-[48px] text-center max-sm:px-5 max-sm:pt-8',
+        'flex flex-col items-center px-[46.5px] text-center max-sm:px-5 max-sm:pt-8',
         isSchedule ? 'gap-[28px] pt-[46.5px]' : 'pt-[62.5px]'
       )}
       footer={footer}

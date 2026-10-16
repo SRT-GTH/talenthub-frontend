@@ -17,9 +17,6 @@ import {
 import { toGhanaE164 } from '../services/onboardingMappers.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
 import {
-  ChevronDownIcon,
-  LockIcon,
-  EyeIcon,
   ArrowRightIcon,
   LoadingSpinner,
   CloseIcon,
@@ -27,8 +24,18 @@ import {
 } from '../components/shared/assets.jsx';
 import { classNames } from '../utils/classNames.js';
 import { debug } from '../utils/debug.js';
-import OnboardingRightPanel from '../components/shared/OnboardingRightPanel.jsx';
-import TalentLoginPanelContent from '../components/sections/talentAuth/TalentLoginPanelContent.jsx';
+import flagSvg from '../assets/entry/login-ghana-flag.svg';
+import chevronSvg from '../assets/entry/login-chevron-down.svg';
+import lockSvg from '../assets/entry/login-lock.svg';
+import eyeEmptySvg from '../assets/entry/login-eye-a.svg';
+import eyeFilledSvg from '../assets/entry/login-eye-b.svg';
+import userSvg from '../assets/entry/login-create-user.svg';
+import TalentOnboardingPanel from '../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import {
+  LOGIN_PHOTO_CARDS,
+  LoginOverlayCards,
+} from '../components/sections/talentAuth/TalentLoginPanelContent.jsx';
+import LoginTutorialModal from '../components/sections/talentAuth/LoginTutorialModal.jsx';
 
 const log = debug('LoginPage');
 
@@ -49,20 +56,22 @@ const log = debug('LoginPage');
  */
 
 // ---- local icons ------------------------------------------------------
-// SVG-based icons live in `components/shared/assets.jsx`; the Ghana flag
-// is a span-stacked composition (not SVG) so it stays here for now.
+// Icons below are exports of the Figma nodes (src/assets/entry/*.svg).
 
-const GhanaFlagIcon = () => (
-  // Compact Ghana flag for the country-code button. Three horizontal stripes
-  // + the centred black star.
-  <span aria-hidden="true" className="relative inline-block size-5 overflow-hidden rounded-[3px]">
-    <span className="absolute inset-x-0 top-0 h-[6.67px] bg-[#006B3F]" />
-    <span className="absolute inset-x-0 top-[6.67px] h-[6.67px] bg-[#FCD116]" />
-    <span className="absolute inset-x-0 top-[13.33px] h-[6.67px] bg-[#CE1126]" />
-    {/* Star drawn via ::after so the button's label has a single text row. */}
-    <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 text-[8px] max-lg:text-[12px] leading-none text-black after:content-['★']" />
-  </span>
+// Figma exports (node ids in notes_entry.md): flag 8027:214458;2389:19836 (20x20),
+// chevron 2389:19837 (8x8), lock 2278:7334 (16x16), eye 2353:11474/15312 (20x19).
+const FigmaIcon = ({ src, w, h }) => (
+  <img
+    src={src}
+    alt=""
+    aria-hidden="true"
+    width={w}
+    height={h}
+    className="shrink-0"
+    draggable={false}
+  />
 );
+const GhanaFlagIcon = () => <FigmaIcon src={flagSvg} w={20} h={20} />;
 
 // 16px circle-+-bang glyph used at the start of inline field-error rows
 // and on the auth-failure toast. Mirrors Field.jsx's AlertIcon but is
@@ -237,11 +246,11 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
     <div className="flex w-full max-w-[700px] flex-col gap-6 max-md:gap-3">
       <header className="flex flex-col items-center gap-3 text-center max-md:gap-1.5">
         <h1
-          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight!"
-          style={{ fontSize: 'clamp(2rem, 3.6vw, 2.75rem)', lineHeight: 1.15 }}
+          className="font-heading font-semibold tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
+          style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', lineHeight: 1.1 }}
         >
           <span className="block text-black">Check your</span>
-          <span className="block italic text-brand-green">email.</span>
+          <span className="block text-brand-green">email.</span>
         </h1>
         <p className="max-w-[380px] text-[14px] max-md:text-[13px] leading-[20px] tracking-[0.2px] text-[#737373]">
           We sent a 6-digit code to{' '}
@@ -408,11 +417,11 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         </span>
 
         <h1
-          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight!"
-          style={{ fontSize: 'clamp(2rem, 3.6vw, 2.75rem)', lineHeight: 1.15 }}
+          className="font-heading font-semibold tracking-[-0.01em] max-md:text-[24px]! max-md:leading-tight!"
+          style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', lineHeight: 1.1 }}
         >
           <span className="block text-black">Log in to</span>
-          <span className="block italic text-brand-green">Ghana Talent Hub.</span>
+          <span className="block text-brand-green">Ghana Talent Hub.</span>
         </h1>
 
         <p className="max-w-[360px] text-[14px] max-md:text-[13px] leading-[20px] tracking-[0.2px] text-[#737373]">
@@ -451,14 +460,14 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
               >
                 <GhanaFlagIcon />
                 <span className="font-medium">+233</span>
-                <ChevronDownIcon className="text-content-tertiary" />
+                <FigmaIcon src={chevronSvg} w={8} h={8} />
               </button>
               <input
                 id="login-phone"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel-national"
-                placeholder="24 123 4567"
+                placeholder="23 533 45"
                 value={phone}
                 onChange={(e) => {
                   setPhone(e.target.value);
@@ -518,15 +527,16 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
             value={password}
             onChange={handlePasswordChange}
             error={passwordError || undefined}
-            leftIcon={<LockIcon />}
+            leftIcon={<FigmaIcon src={lockSvg} w={16} h={16} />}
             rightIcon={
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
                 className="text-content-tertiary"
               >
-                <EyeIcon />
+                <FigmaIcon src={password ? eyeFilledSvg : eyeEmptySvg} w={20} h={19} />
               </button>
             }
             rightIconInteractive
@@ -554,7 +564,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
         className={`w-full ${COMPACT_PRIMARY_BUTTON}`}
         aria-busy={isLoading}
       >
-        {isLoading ? 'Logging You In' : hasValues ? 'Continue' : 'Enter Your Details To Continue'}
+        {isLoading ? 'Logging You In' : 'Enter Your Details To Continue'}
       </Button>
 
       {/* Divider */}
@@ -576,6 +586,7 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
           <Button
             variant="tertiary"
             size="md"
+            leftIcon={<FigmaIcon src={userSvg} w={20} h={20} />}
             rightIcon={<ArrowRightIcon />}
             className={COMPACT_SECONDARY_BUTTON}
           >
@@ -594,6 +605,7 @@ const LoginPage = () => {
   log('mount');
   // null, or the login method that failed ('phone' | 'email') for the toast copy.
   const [authError, setAuthError] = useState(null);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const toastTitle = AUTH_FAILURE_TITLE[authError] || AUTH_FAILURE_TITLE.phone;
 
   return (
@@ -605,7 +617,7 @@ const LoginPage = () => {
       <div className="relative flex flex-1 items-center max-md:items-start justify-center max-lg:z-10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-6 py-12 md:py-20 max-md:px-4 max-md:py-4">
         <div className="relative z-10 flex w-full flex-col items-center justify-center gap-3">
           {authError && (
-            <div className="w-full max-w-[700px] lg:hidden">
+            <div className="w-full max-w-[700px] lg:sr-only">
               <AuthErrorToast inline title={toastTitle} onClose={() => setAuthError(null)} />
             </div>
           )}
@@ -615,14 +627,17 @@ const LoginPage = () => {
           />
         </div>
       </div>
-      <OnboardingRightPanel
-        panelContent={<TalentLoginPanelContent />}
-        toast={
-          authError ? (
-            <AuthErrorToast title={toastTitle} onClose={() => setAuthError(null)} />
-          ) : null
+      <TalentOnboardingPanel
+        photoCards={LOGIN_PHOTO_CARDS}
+        overlayContent={
+          <>
+            <LoginOverlayCards />
+            {authError && <AuthErrorToast title={toastTitle} onClose={() => setAuthError(null)} />}
+          </>
         }
+        onWatchTutorial={() => setTutorialOpen(true)}
       />
+      <LoginTutorialModal isOpen={tutorialOpen} onClose={() => setTutorialOpen(false)} />
     </section>
   );
 };

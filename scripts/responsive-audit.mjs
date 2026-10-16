@@ -1,12 +1,15 @@
 // Fast local responsive sweep (same probe as the CI gate, one browser, no runner overhead).
 //   node scripts/responsive-audit.mjs                    # all routes, all widths
 //   node scripts/responsive-audit.mjs --widths=320 --only=recruiter
+//   node scripts/responsive-audit.mjs --widths=1280,1024 --heights=560 --only=recruiter   # short screens
 // Env: AUDIT_BASE (default http://127.0.0.1:5199), PW_CHROMIUM_PATH (optional).
 import { chromium } from '@playwright/test';
 import { ROUTES, DEFAULT_WIDTHS, probe } from '../tests/e2e/helpers/responsive.js';
 
 const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
 const widths = arg('widths') ? arg('widths').split(',').map(Number) : DEFAULT_WIDTHS;
+// Optional forced viewport heights (short-screen check); default = the per-width height below.
+const heights = arg('heights') ? arg('heights').split(',').map(Number) : [null];
 // `--only=root` targets just '/' (Git Bash rewrites a bare '/' argument).
 const only = arg('only') === 'root' ? '/' : (arg('only') ?? '');
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
@@ -18,9 +21,12 @@ const browser = await chromium.launch({
 let failing = 0;
 let total = 0;
 await Promise.all(
-  widths.map(async (width) => {
+  widths.flatMap((width) => heights.map((forcedHeight) => [width, forcedHeight])).map(async ([width, forcedHeight]) => {
     const ctx = await browser.newContext({
-      viewport: { width, height: width >= 1024 ? 900 : width >= 768 ? 1024 : 700 },
+      viewport: {
+        width,
+        height: forcedHeight ?? (width >= 1024 ? 900 : width >= 768 ? 1024 : 700),
+      },
       hasTouch: width < 768,
       isMobile: width < 768,
     });
@@ -38,7 +44,7 @@ await Promise.all(
         const { violations, warnings } = await page.evaluate(probe, { width });
         if (violations.length) {
           failing += 1;
-          console.log(`FAIL @${width} ${route}\n    ${violations.join('\n    ')}`);
+          console.log(`FAIL @${width}${forcedHeight ? `x${forcedHeight}` : ''} ${route}\n    ${violations.join('\n    ')}`);
         } else if (warnings.length && process.argv.includes('--warn')) {
           console.log(`warn @${width} ${route}: ${warnings.join('; ')}`);
         }
