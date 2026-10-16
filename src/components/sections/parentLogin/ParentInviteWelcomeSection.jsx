@@ -1,4 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import ParentOptOutModal from './ParentOptOutModal.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import { getInvite, loadInvite, useWardDisplay } from '../../../services/parentInvite.api.js';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { PARENT_FLOWS } from '../../../constants/parentFlows.js';
 import { debug } from '../../../utils/debug.js';
@@ -75,15 +80,55 @@ const HOW_IT_WORKS = [
 const ParentInviteWelcomeSection = () => {
   log('mount');
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ward = useWardDisplay();
+  // 'loading' | 'ready' | 'error'
+  const [state, setState] = useState(() => (getInvite()?.invite ? 'ready' : 'loading'));
+  const [loadError, setLoadError] = useState('');
+  const [optOutOpen, setOptOutOpen] = useState(false);
+
+  // The notice email links here with ?token=<ward token>. Load the invite, then
+  // drop the token from the address bar (it stays in this tab's session).
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (!token) {
+      if (!getInvite()?.invite) {
+        setLoadError('This link is incomplete. Open the link in your notification email again.');
+        setState('error');
+      }
+      return;
+    }
+    let cancelled = false;
+    loadInvite(token)
+      .then(() => {
+        if (cancelled) return;
+        setState('ready');
+        setSearchParams({}, { replace: true });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setLoadError(getApiErrorMessage(err, 'We could not open this link. Please try again.'));
+        setState('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const ready = state === 'ready';
+  const optedOut = ward.status === 'opted_out';
 
   const handleCreate = () => {
+    if (!ready) return;
     log('create my parent account → flow B first step');
     navigate(PARENT_FLOWS.wardInvited.firstStep);
   };
 
   const handleOptOut = (e) => {
     e.preventDefault();
+    if (!ready || optedOut) return;
     log('opt-out instead clicked');
+    setOptOutOpen(true);
   };
 
   return (
@@ -108,13 +153,17 @@ const ParentInviteWelcomeSection = () => {
               Your ward registered on Ghana Talent Hub
             </p>
             <p className="font-sans" style={{ fontSize: 12, lineHeight: '18px' }}>
-              <span className="font-bold" style={{ color: '#387440' }}>
-                Kofi Mensah (16)
+              <span
+                className="font-bold"
+                style={{ color: '#387440' }}
+                data-testid="invite-ward-name"
+              >
+                {state === 'loading' ? 'Loading…' : ward.fullName}
               </span>
               <span style={{ color: '#70706e' }}>
                 {' '}
-                provided your contact. Your details have been pre-filled below. Create your account
-                to review their profile.
+                {ward.school !== '—' ? `(${ward.school}) ` : ''}
+                gave your contact. Create your account to review their profile.
               </span>
             </p>
           </div>
@@ -188,11 +237,31 @@ const ParentInviteWelcomeSection = () => {
           ))}
         </div>
 
+        {state === 'error' && <ApiErrorNote message={loadError} className="max-w-none" />}
+        {ready && optedOut && (
+          <p
+            role="status"
+            data-testid="invite-opted-out"
+            className="rounded-[10px] border border-[#F2C4BE] bg-[#FDF2F1] px-3 py-2 font-sans text-[13px] leading-5 text-[#8f2a20]"
+          >
+            {ward.firstName === 'your ward' ? "Your ward's" : ward.possessive} access is paused. You
+            can still create your account to review their profile.
+          </p>
+        )}
+        {ready && ward.parentAccountExists && (
+          <p className="font-sans text-[12px] leading-5 text-[#70706e]">
+            A parent account is already linked to {ward.firstName}. If it&apos;s yours, log in
+            below.
+          </p>
+        )}
+
         {/* Primary CTA — Figma 2864:36887 (amber) */}
         <button
           type="button"
           onClick={handleCreate}
-          className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px] max-md:h-11 max-md:px-4 max-md:py-0 max-md:shadow-none!"
+          disabled={!ready}
+          data-testid="create-parent-account"
+          className="flex w-full items-center justify-center gap-[8px] rounded-[10px] border-2 px-[40px] py-[16px] text-white transition-transform active:translate-y-[2px] max-md:h-11 max-md:px-4 max-md:py-0 max-md:shadow-none! disabled:cursor-not-allowed disabled:opacity-50"
           style={{
             backgroundColor: '#c8951a',
             borderColor: '#967014',
@@ -212,7 +281,9 @@ const ParentInviteWelcomeSection = () => {
         <button
           type="button"
           onClick={handleOptOut}
-          className="flex w-full items-center justify-center rounded-[10px] border px-[40px] py-[13px] font-sans font-semibold max-md:h-9 max-md:px-4 max-md:py-0"
+          disabled={!ready || optedOut}
+          data-testid="open-opt-out"
+          className="flex w-full items-center justify-center rounded-[10px] border px-[40px] py-[13px] font-sans font-semibold max-md:h-9 max-md:px-4 max-md:py-0 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ borderColor: '#c6c6c3', color: '#70706e', fontSize: 14 }}
         >
           I have concerns — opt-out instead
@@ -237,6 +308,7 @@ const ParentInviteWelcomeSection = () => {
           </button>
         </p>
       </div>
+      <ParentOptOutModal isOpen={optOutOpen} onClose={() => setOptOutOpen(false)} />
     </div>
   );
 };

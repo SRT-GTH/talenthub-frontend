@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import ApiErrorNote from '../../shared/ApiErrorNote.jsx';
+import { getApiErrorMessage } from '../../../services/apiErrors.js';
+import { createParentAccount, useWardDisplay } from '../../../services/parentInvite.api.js';
 
 const log = debug('ParentInviteConsentSection');
 
@@ -107,6 +110,9 @@ const ParentInviteConsentSection = () => {
   log('mount');
   const navigate = useNavigate();
   const [consent, setConsent] = useState({ access: false, rights: false, data: false });
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const ward = useWardDisplay();
   const allAccepted = consent.access && consent.rights && consent.data;
 
   const toggle = (key) => () => {
@@ -114,11 +120,25 @@ const ParentInviteConsentSection = () => {
     setConsent((c) => ({ ...c, [key]: !c[key] }));
   };
 
-  const handleActivate = () => {
-    if (!allAccepted) return;
-    // Flow B shares the Flow A "Done" success screen.
-    log('activate parent account → parent-done');
-    navigate('/onboarding/parent-done');
+  // Creates the account and links the ward (POST /parent-ward/create-account).
+  const handleActivate = async () => {
+    if (!allAccepted || submitting) return;
+    setSubmitting(true);
+    setApiError('');
+    try {
+      const result = await createParentAccount();
+      // Flow B shares the Flow A "Done" success screen.
+      log('activate parent account → parent-done', { loggedIn: result.loggedIn });
+      navigate('/onboarding/parent-done', { state: { invited: true, ...result } });
+    } catch (err) {
+      const code = err?.code;
+      if (code === 'PASSWORD_MISSING') {
+        navigate('/onboarding/parent-invited-security');
+        return;
+      }
+      setApiError(getApiErrorMessage(err, 'We could not create your account. Please try again.'));
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -157,14 +177,15 @@ const ParentInviteConsentSection = () => {
             </p>
           </div>
 
+          <ApiErrorNote message={apiError} className="max-w-none" />
           {/* Consent cards — Figma 2864:37761 / 37766 / 37773 */}
           <ConsentCard checked={consent.access} onToggle={toggle('access')}>
             <Strong>I understand my ward has immediate platform access.</Strong>
             <Muted>
               {' '}
-              Ghana Talent Hub uses an opt-out model. Kofi&apos;s account is already active. I do
-              not need to approve their participation — my account gives me visibility and control,
-              not a gate.
+              Ghana Talent Hub uses an opt-out model. {ward.fullName}&apos;s account is already
+              active. I do not need to approve their participation — my account gives me visibility
+              and control, not a gate.
             </Muted>
           </ConsentCard>
 
@@ -231,6 +252,8 @@ const ParentInviteConsentSection = () => {
             <button
               type="button"
               onClick={handleActivate}
+              disabled={submitting}
+              data-testid="activate-parent"
               className="flex h-[48px] flex-1 items-center justify-center gap-[8px] rounded-[10px] border-2 max-md:h-11 max-md:min-w-0 max-md:shadow-none! text-white transition-transform active:translate-y-[2px]"
               style={{
                 backgroundColor: '#c8951a',
@@ -239,7 +262,7 @@ const ParentInviteConsentSection = () => {
               }}
             >
               <span className="font-sans font-bold max-md:text-[14px]!" style={{ fontSize: 15 }}>
-                Activate Parent Account
+                {submitting ? 'Creating your account…' : 'Activate Parent Account'}
               </span>
               <ArrowRightIcon />
             </button>

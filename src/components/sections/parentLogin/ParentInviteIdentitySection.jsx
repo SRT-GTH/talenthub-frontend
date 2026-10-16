@@ -6,6 +6,14 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import Select from '../../ui/form/Select.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { INVITED_AFTER_IDENTITY } from '../../../constants/parentFlows.js';
+
+import {
+  getParentDraft,
+  saveParentDraft,
+  toIsoDate,
+  wardDisplay,
+} from '../../../services/parentInvite.api.js';
 
 const log = debug('ParentInviteIdentitySection');
 
@@ -172,17 +180,22 @@ const ParentInviteIdentitySection = () => {
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      relationship: '',
-      gender: '',
-      day: '',
-      month: '',
-      year: '',
-      nationality: '',
-    },
+    defaultValues: (() => {
+      // Saved answers first; otherwise the parent name the ward gave.
+      const d = getParentDraft();
+      const [first = '', ...rest] = (wardDisplay().parentName || '').split(/\s+/).filter(Boolean);
+      return {
+        firstName: d.firstName ?? first,
+        lastName: d.lastName ?? rest.join(' '),
+        middleName: d.middleName ?? '',
+        relationship: d.relationship ?? '',
+        gender: d.gender ?? '',
+        day: d.day ?? '',
+        month: d.month ?? '',
+        year: d.year ?? '',
+        nationality: d.nationality ?? '',
+      };
+    })(),
   });
 
   const onSubmit = async (data) => {
@@ -190,9 +203,10 @@ const ParentInviteIdentitySection = () => {
       relationship: data.relationship,
       nationality: data.nationality,
     });
-    await new Promise((r) => setTimeout(r, 400));
-    log('continue → parent-invited-verification');
-    navigate('/onboarding/parent-invited-verification');
+    saveParentDraft({ ...data, dateOfBirth: toIsoDate(data) });
+    // The Ghana Card step shows only when VITE_PARENT_ID_VERIFICATION is on.
+    log('continue →', INVITED_AFTER_IDENTITY);
+    navigate(INVITED_AFTER_IDENTITY);
   };
 
   return (

@@ -1,5 +1,7 @@
 import { debug } from '../../../utils/debug.js';
 
+import { useWardDisplay } from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInviteLinkPanelContent');
 
 /*
@@ -23,6 +25,7 @@ const PersonGlyph = () => (
 );
 
 const WardLinkPanelContent = () => {
+  const ward = useWardDisplay();
   log('render');
   return (
     <div className="flex w-full max-w-[300px] flex-col items-center text-center">
@@ -39,7 +42,8 @@ const WardLinkPanelContent = () => {
         className="mt-[16px] font-sans"
         style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: '21.45px' }}
       >
-        Because Kofi provided your contact during registration, the link is already confirmed.
+        Because {ward.firstName} gave your contact during registration, your link already points to
+        them.
       </p>
 
       {/* Link diagram — Figma 2864:37687 … 37697 */}
@@ -69,7 +73,7 @@ const WardLinkPanelContent = () => {
           className="mb-[8px] font-sans font-semibold"
           style={{ fontSize: 12, color: '#ffffff' }}
         >
-          Kofi Mensah
+          {ward.fullName}
         </span>
         <span
           className="flex size-[52px] items-center justify-center rounded-full"

@@ -5,6 +5,8 @@ import ParentDefRows from './ParentDefRows.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
+import { useWardDisplay } from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInviteLinkWardSection');
 
 /*
@@ -95,6 +97,7 @@ const InfoMini = () => (
 const ParentInviteLinkWardSection = () => {
   log('mount');
   const navigate = useNavigate();
+  const ward = useWardDisplay();
 
   const handleConfirm = () => {
     log('confirm & continue → parent-invited-consent');
@@ -153,15 +156,15 @@ const ParentInviteLinkWardSection = () => {
                 className="font-sans font-bold max-md:text-[13px]!"
                 style={{ fontSize: 14, color: '#2a5730', lineHeight: 'normal' }}
               >
-                Ward automatically linked — Path A
+                Ward found from your link
               </p>
               <ClampText
                 lines={2}
                 className="font-sans text-[12px] font-medium leading-[18px] text-[#2a5730] opacity-85"
                 buttonClassName="text-[12px] font-semibold text-[#2a5730]"
               >
-                Your contact matched the details Kofi provided. No further action is needed to
-                establish the link.
+                Your link comes from the contact {ward.firstName} gave. The link is made when you
+                activate your account.
               </ClampText>
             </div>
           </div>
@@ -183,7 +186,7 @@ const ParentInviteLinkWardSection = () => {
                   className="font-sans font-bold"
                   style={{ fontSize: 16, color: '#111', lineHeight: '20px' }}
                 >
-                  Kofi Mensah
+                  <span data-testid="link-ward-name">{ward.fullName}</span>
                 </p>
                 <div
                   className="flex flex-wrap items-center gap-x-[6px] gap-y-0.5"
@@ -191,14 +194,11 @@ const ParentInviteLinkWardSection = () => {
                 >
                   <PersonMini />
                   <span className="font-sans font-semibold" style={{ fontSize: 'var(--fs-11)' }}>
-                    Age 16
+                    Student
                   </span>
                   <CapMini />
                   <span className="font-sans font-semibold" style={{ fontSize: 'var(--fs-11)' }}>
-                    JHS 3
-                  </span>
-                  <span className="font-sans font-semibold" style={{ fontSize: 'var(--fs-11)' }}>
-                    🇬🇭 Ghanaian
+                    {ward.school}
                   </span>
                 </div>
               </div>
@@ -207,9 +207,9 @@ const ParentInviteLinkWardSection = () => {
               <span className="size-[7px] rounded-full" style={{ backgroundColor: '#1d7c4d' }} />
               <span
                 className="font-sans font-bold"
-                style={{ fontSize: 'var(--fs-11)', color: '#1d7c4d' }}
+                style={{ fontSize: 'var(--fs-11)', color: ward.statusColor }}
               >
-                Active
+                {ward.statusLabel}
               </span>
             </span>
           </div>
@@ -217,17 +217,21 @@ const ParentInviteLinkWardSection = () => {
           {/* Detail grid — Figma 2864:37652 (shared PreviewField) */}
           <ParentDefRows
             rows={[
-              { label: 'School', value: 'Achimota School' },
-              { label: 'Curriculum', value: 'GES' },
-              { label: 'Account created', value: 'Today, 09:42 AM' },
-              { label: 'Account status', value: 'Active', valueColor: '#387440' },
+              { label: 'School', value: ward.school },
+              { label: 'Curriculum', value: ward.curriculum },
+              { label: 'Account created', value: ward.createdLabel },
+              { label: 'Account status', value: ward.statusLabel, valueColor: ward.statusColor },
             ]}
           />
           <div className="grid grid-cols-1 gap-[10px] max-md:hidden sm:grid-cols-2">
-            <PreviewField label="School" value="Achimota School" valueColor="#111" />
-            <PreviewField label="Curriculum" value="GES" valueColor="#111" />
-            <PreviewField label="Account created" value="Today, 09:42 AM" valueColor="#111" />
-            <PreviewField label="Account status" value="Active" valueColor="#387440" />
+            <PreviewField label="School" value={ward.school} valueColor="#111" />
+            <PreviewField label="Curriculum" value={ward.curriculum} valueColor="#111" />
+            <PreviewField label="Account created" value={ward.createdLabel} valueColor="#111" />
+            <PreviewField
+              label="Account status"
+              value={ward.statusLabel}
+              valueColor={ward.statusColor}
+            />
           </div>
 
           {/* Opt-out reminder — Figma 2864:37665 */}
@@ -249,8 +253,8 @@ const ParentInviteLinkWardSection = () => {
                 </span>
                 <span style={{ color: '#b48617', opacity: 0.85 }}>
                   {' '}
-                  If you have concerns about Kofi&apos;s participation, you can remove their access
-                  after completing setup. Their data is preserved and the account can be
+                  If you have concerns about {ward.possessive} participation, you can remove their
+                  access after completing setup. Their data is preserved and the account can be
                   reactivated.
                 </span>
               </ClampText>

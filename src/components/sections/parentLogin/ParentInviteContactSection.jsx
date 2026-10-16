@@ -7,6 +7,12 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import { ArrowRightIcon, MailIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
+import {
+  getParentDraft,
+  saveParentDraft,
+  wardDisplay,
+} from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInviteContactSection');
 
 /*
@@ -80,12 +86,15 @@ const ParentInviteContactSection = () => {
   } = useForm({
     resolver: zodResolver(schema),
     mode: 'onChange',
-    defaultValues: { phone: '', whatsapp: '', email: '' },
+    defaultValues: (() => {
+      const d = getParentDraft();
+      return { phone: d.phone ?? '', whatsapp: d.whatsapp ?? '', email: d.email ?? '' };
+    })(),
   });
 
   const onSubmit = async (data) => {
     log('submit — contact (flow B)', { hasWhatsapp: !!data.whatsapp });
-    await new Promise((r) => setTimeout(r, 400));
+    saveParentDraft({ phone: data.phone, whatsapp: data.whatsapp, email: data.email.trim() });
     log('continue → parent-invited-security');
     navigate('/onboarding/parent-invited-security');
   };
@@ -180,7 +189,14 @@ const ParentInviteContactSection = () => {
               placeholder="you@example.com"
               error={errors.email?.message}
               {...register('email')}
+              data-testid="parent-email"
             />
+            {wardDisplay().parentEmailMasked && (
+              <p className="mt-[6px] font-sans text-[11px] leading-4 text-[#70706e]">
+                Your notice was sent to {wardDisplay().parentEmailMasked}. Use that address to sign
+                in straight away; a different one is confirmed with a code at first login.
+              </p>
+            )}
           </div>
         </div>
       </div>
