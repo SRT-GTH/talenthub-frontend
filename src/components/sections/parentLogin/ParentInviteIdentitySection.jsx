@@ -6,6 +6,7 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import Select from '../../ui/form/Select.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { INVITED_AFTER_IDENTITY } from '../../../constants/parentFlows.js';
 
 import {
   getParentDraft,
@@ -203,9 +204,9 @@ const ParentInviteIdentitySection = () => {
       nationality: data.nationality,
     });
     saveParentDraft({ ...data, dateOfBirth: toIsoDate(data) });
-    // No Ghana Card step for invited parents until NIA verification exists.
-    log('continue → parent-invited-contact');
-    navigate('/onboarding/parent-invited-contact');
+    // The Ghana Card step shows only when VITE_PARENT_ID_VERIFICATION is on.
+    log('continue →', INVITED_AFTER_IDENTITY);
+    navigate(INVITED_AFTER_IDENTITY);
   };
 
   return (

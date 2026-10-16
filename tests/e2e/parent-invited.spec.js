@@ -53,7 +53,15 @@ async function completeSignUp(page, ward, email) {
   await main.getByRole('button', { name: /Ghanaian/ }).click();
   await page.locator('form button[type="submit"]').last().click();
 
-  // No Ghana Card step: straight to contact.
+  // Ghana Card step only when VITE_PARENT_ID_VERIFICATION=true (it is optional:
+  // skip it). Run the spec with the same value the app is built with.
+  if (process.env.VITE_PARENT_ID_VERIFICATION === 'true') {
+    await page.waitForURL('**/onboarding/parent-invited-verification');
+    await expect(
+      page.getByLabel('Parent onboarding steps').getByText('Verification').first()
+    ).toBeAttached();
+    await page.getByText('Continue without verification').click();
+  }
   await page.waitForURL('**/onboarding/parent-invited-contact');
   await expect(page.getByText(/your notice was sent to/i)).toBeVisible();
   await page
