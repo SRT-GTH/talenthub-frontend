@@ -1,5 +1,7 @@
 import { debug } from '../../../utils/debug.js';
 
+import { useWardDisplay } from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInvitePanelContent');
 
 /*
@@ -69,6 +71,7 @@ const InfoCard = ({ icon, label, value, rotate, className = '' }) => (
 );
 
 const WardInvitePanelContent = () => {
+  const ward = useWardDisplay();
   log('render');
   return (
     <div className="flex w-full max-w-[320px] flex-col items-center text-center">
@@ -100,7 +103,7 @@ const WardInvitePanelContent = () => {
         <InfoCard
           icon={<StatusGlyph />}
           label="Ward status"
-          value="Active — Kofi Mensah"
+          value={`${ward.statusLabel} — ${ward.fullName}`}
           rotate="3deg"
           className="-mt-[12px]"
         />

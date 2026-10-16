@@ -4,6 +4,8 @@ import TextInput from '../../ui/form/TextInput.jsx';
 import { ArrowRightIcon, EyeIcon, EyeOffIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
+import { setParentPassword } from '../../../services/parentInvite.api.js';
+
 const log = debug('ParentInviteSecuritySection');
 
 /*
@@ -96,6 +98,7 @@ const ParentInviteSecuritySection = () => {
 
   const handleContinue = () => {
     if (!canContinue) return;
+    setParentPassword(password);
     log('continue → parent-invited-link-ward', { strength });
     navigate('/onboarding/parent-invited-link-ward');
   };

@@ -1,4 +1,5 @@
 import { debug } from '../../../utils/debug.js';
+import { INVITED_PANEL_STEPS } from '../../../constants/parentFlows.js';
 
 const log = debug('ParentInviteStepsPanelContent');
 
@@ -12,14 +13,8 @@ const log = debug('ParentInviteStepsPanelContent');
  * Per-step copy is configured in WARD_INVITE_STEP_PANELS below.
  */
 
-const STEPS = [
-  'Your identity',
-  'Verification',
-  'Contact details',
-  'Security',
-  'Link your ward',
-  'Consent',
-];
+// Includes Verification only when VITE_PARENT_ID_VERIFICATION is on.
+const STEPS = INVITED_PANEL_STEPS;
 
 const StepCheck = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
