@@ -44,7 +44,7 @@ talenthub-frontend/
 │   ├── layout/             # layout shells (MainLayout)
 │   ├── pages/              # top-level routed pages
 │   ├── providers/          # context providers, redux <Provider> wiring
-│   ├── services/           # API clients (axios instance)
+│   ├── services/           # API clients: axios instance + auth/onboarding/institution modules (see api.md)
 │   ├── store/              # Redux Toolkit store + slices/
 │   ├── utils/              # leaf utilities (classNames, debug)
 │   ├── App.jsx             # BrowserRouter + Routes
@@ -78,6 +78,6 @@ talenthub-frontend/
 - **Routing**: config-based in `App.jsx` (not file-based). `/admin/*` slot reserved for lazy-loaded admin (see [routing.md](routing.md)).
 - **Styling**: Tailwind v4 utility classes + design tokens defined in `src/index.css` `@theme` block.
 - **State**: `✅ VERIFIED` (2026-07-06) the Redux store in `src/store/index.js` is **dead scaffold** — empty reducer map, no slices, and `<Provider>` is NOT mounted in `main.jsx`. Actual state lives in route-level React contexts: `OnboardingProvider` (talent DOB/age/isMinor) and `AvatarSelectionProvider` (avatar picks), plus per-section `useState`. Wire the store via `<Provider>` + redux-persist when auth ships.
-- **API**: single axios instance in `src/services/api.js` reading `VITE_API_BASE_URL`. Auth-token interceptor reads from `localStorage` via `STORAGE_KEYS`.
+- **API**: single axios instance in `src/services/api.js` (`VITE_API_BASE_URL`, falls back to `/api`, Vite dev proxy to staging). Auth-token interceptor reads from `localStorage` via `STORAGE_KEYS`; per-feature clients sit beside it — see [api.md](api.md). Pages are code-split with `React.lazy` + `Suspense` (`App.jsx`).
 - **Debug**: `debug(scope)` helper in `src/utils/debug.js` — dev-only, prefixed. See [debugging-workflow.md](debugging-workflow.md).
 - **File naming**: PascalCase components/pages, camelCase utilities, UPPER_SNAKE constant exports. See CLAUDE.md §8.

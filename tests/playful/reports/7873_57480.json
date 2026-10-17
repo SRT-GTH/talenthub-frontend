@@ -1,0 +1,225 @@
+{
+  "id": "7873:57480",
+  "label": "Work - AWAITING REVIEW",
+  "group": "Work Experience",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -27.2,
+    "derived": 79.2
+  },
+  "offsetUsed": 79,
+  "counts": {
+    "figmaTexts": 16,
+    "matched": 14,
+    "unmatched": 2,
+    "layoutMismatch": 8,
+    "fontMetric": 7,
+    "widthOver15": 2
+  },
+  "worstLayoutPx": 1348.1,
+  "unmatched": [
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 93
+      },
+      "closestDom": "Step 7 of 9 ·"
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 7
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 27.8,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -623.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 25.8,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 25.3,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 24.9,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": 24.9,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -5.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -4.7,
+      "dh": 2,
+      "wPct": 7.4
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 27.8,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 25.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 25.3,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -0.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -0.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -0.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -4.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    }
+  ],
+  "medianDx": -0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 249.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 249.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 79,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

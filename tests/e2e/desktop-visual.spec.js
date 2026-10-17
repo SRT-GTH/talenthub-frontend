@@ -25,6 +25,9 @@ for (const width of WIDTHS) {
         await page.addInitScript(() => {
           try {
             window.localStorage.setItem('gth:hide-demo', '1');
+            // Baselines are the Focused look; Playful must never change them.
+            window.localStorage.setItem('gth:ui-style', 'focused');
+            window.localStorage.setItem('gth:ui-style-chosen', '1');
           } catch {
             /* ignore */
           }
@@ -35,7 +38,7 @@ for (const width of WIDTHS) {
         await expect(page).toHaveScreenshot(`${route.replace(/\W+/g, '_')}-${width}.png`, {
           animations: 'disabled',
           caret: 'hide',
-          maxDiffPixelRatio: 0.015,
+          maxDiffPixelRatio: Number(process.env.VISUAL_TOL ?? 0.015),
         });
       });
     }

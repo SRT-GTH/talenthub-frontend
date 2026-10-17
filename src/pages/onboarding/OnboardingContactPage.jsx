@@ -10,21 +10,32 @@ import { TextInput, VerificationCode, StickyActionBar } from '../../components/u
 import Field from '../../components/ui/form/Field.jsx';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
-import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
-import TalentContactPanelContent from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import {
+  TALENT_CONTACT_PHOTO_CARDS,
+  TalentContactOverlay,
+} from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
 import {
   ArrowRightIcon,
   ChevronDownIcon,
-  ClockIcon,
-  CloseIcon,
-  GhanaFlagRoundIcon,
   LoadingSpinner,
-  MailIcon,
   MessageBubbleIcon,
-  PhoneIcon,
+} from '../../components/shared/assets.jsx';
+import {
+  AlertDiamondIcon,
+  CloseIcon,
+  ClockIcon,
+  GhanaFlagRoundIcon,
+  MailIcon,
+  MailRowIcon,
+  PhoneRowIcon,
   ShieldCheckIcon,
   SuccessCheckIcon,
-} from '../../components/shared/assets.jsx';
+  TALENT_ASTERISK,
+} from '../../components/sections/talentAuth/talentIcons.jsx';
+import otpSms from '../../assets/talent-onboarding/otp-sms.svg';
+import otpEmail from '../../assets/talent-onboarding/otp-email.svg';
+import otpHero from '../../assets/talent-onboarding/otp-hero.svg';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -92,16 +103,6 @@ const maskEmail = (raw) => {
 // Design-system canonical helper icon for the Contact step (Figma path
 // repeated at every helper-text row in the input-state dump). Renders as
 // `fill="currentColor"` so the surrounding wrapper's text color wins.
-const AlertDiamondIcon = ({ className }) => (
-  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M8.075 2.012C8.027 1.997 7.975 1.997 7.927 2.012a.85.85 0 0 0-.148.067 4 4 0 0 0-.307.35L2.43 7.472a4 4 0 0 0-.351.307.85.85 0 0 0-.067.148.108.108 0 0 0 0 .148.85.85 0 0 0 .067.147c.06.07.179.196.351.351l5.043 5.043c.173.174.278.292.351.351a.85.85 0 0 0 .148.067.108.108 0 0 0 .148 0 .85.85 0 0 0 .148-.067c.073-.06.178-.177.351-.351l5.043-5.043a4 4 0 0 0 .351-.307.85.85 0 0 0 .067-.148.108.108 0 0 0 0-.148.85.85 0 0 0-.067-.148 4 4 0 0 0-.351-.351L8.527 2.43a4 4 0 0 0-.307-.351.85.85 0 0 0-.148-.067zM7.555.871a1.55 1.55 0 0 1 .891 0c.202.066.361.178.497.293.126.107.266.247.42.4l5.073 5.074c.154.154.294.294.4.42.116.135.228.295.293.497a1.55 1.55 0 0 1 0 .891c-.066.202-.177.361-.293.497-.107.126-.247.266-.4.42L9.363 14.436c-.154.154-.294.294-.42.4-.135.116-.295.228-.497.293a1.55 1.55 0 0 1-.891 0c-.202-.066-.361-.177-.497-.293-.126-.107-.266-.247-.42-.4L1.566 9.363c-.154-.154-.294-.294-.4-.42-.116-.135-.228-.295-.293-.497a1.55 1.55 0 0 1 0-.891c.066-.202.177-.361.293-.497.107-.126.247-.266.4-.42l5.074-5.073c.154-.154.294-.294.42-.4.135-.116.295-.228.497-.293zM8 4c.331 0 .6.269.6.6v2.8a.6.6 0 1 1-1.2 0V4.6c0-.331.269-.6.6-.6zm0 5.6c.331 0 .6.269.6.6v1.2a.6.6 0 1 1-1.2 0v-1.2c0-.331.269-.6.6-.6z"
-      fill="currentColor"
-    />
-  </svg>
-);
 
 // ---- Phone number input (composite) ----------------------------------
 
@@ -159,6 +160,7 @@ const PhoneNumberInput = ({
 
   return (
     <Field
+      asteriskClassName={TALENT_ASTERISK}
       label={label}
       htmlFor={id}
       required={required}
@@ -228,7 +230,7 @@ const ContactEyebrow = () => (
       className="size-2 rounded-full border-[1.5px] border-success bg-brand-green-light-hover"
       style={{ boxShadow: '0 0 4px 0 #006B3F' }}
     />
-    <span className="font-display italic text-[16px] text-[#B5B5B5]">03</span>
+    <span className="font-heading text-[15px] font-semibold text-[#B5B5B5]">03</span>
     <span
       className="text-[12px] leading-[18px] text-brand-green"
       style={{ letterSpacing: '0.2px' }}
@@ -346,7 +348,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
   // Bottom caption — counts attempts; on error/expired it appends
   // " before lockout" and turns red.
-  const showLockoutWarning = hasError || isExpired;
+  const showLockoutWarning = (hasError && attemptsLeft <= 1) || isExpired;
   const attemptsLabel = `${attemptsLeft} attempt${
     attemptsLeft === 1 ? '' : 's'
   } remaining${showLockoutWarning ? ' before lockout' : ''}`;
@@ -355,9 +357,11 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   // anything else (incomplete OR expired) → enter-all prompt.
   const ctaCopy = isReady
     ? 'Verify & Continue'
-    : isComplete && hasError
+    : isComplete && hasError && attemptsLeft <= 1
       ? 'Re-Enter All 6 Digits To Continue'
-      : 'Enter all 6 digits to continue';
+      : isComplete
+        ? 'Verify & Continue'
+        : 'Enter all 6 digits to continue';
 
   // Hero chip swaps icon + tint based on modal state.
   //   default / soft-error → brand-green-light + message bubble
@@ -378,7 +382,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
       : {
           bg: '#ebf1ec',
           color: '#387440',
-          icon: <MessageBubbleIcon />,
+          icon: <img src={otpHero} alt="" aria-hidden="true" className="size-7" />,
         };
 
   // H2 swap.  default → "Check your messages."
@@ -386,18 +390,15 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
   //          expired  → "That code has expired" (italic amber)
   const heading = isExpired ? (
     <>
-      That code has{' '}
-      <span className="italic" style={{ color: '#B8712A' }}>
-        expired.
-      </span>
+      That code has <span style={{ color: '#B8712A' }}>expired.</span>
     </>
-  ) : hasError ? (
+  ) : hasError && attemptsLeft <= 1 ? (
     <>
-      That code was <span className="italic text-danger">wrong.</span>
+      That code was <span className="text-danger">wrong.</span>
     </>
   ) : (
     <>
-      Check your <span className="italic text-brand-green">messages.</span>
+      Check your <span className="text-brand-green">messages.</span>
     </>
   );
 
@@ -426,18 +427,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
           title: 'Maximum attempts reached',
           body: 'You entered an incorrect code 3 times. A 15-minute cooldown has been applied.',
         }
-      : hasError
-        ? {
-            bg: '#f9ebea',
-            border: '#ebc2bd',
-            iconBg: '#ebc2bd',
-            iconColor: '#7B241C',
-            titleColor: '#7B241C',
-            bodyColor: null,
-            title: "That code isn't right — double-check and try again",
-            body: null,
-          }
-        : null;
+      : null; // Figma 8027:207212: soft error = red cells only, no alert card
 
   return (
     <div
@@ -445,10 +435,10 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
       aria-modal="true"
       aria-labelledby="otp-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(0, 0, 0, 0.30)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-9 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
         style={{
           outline: `3px solid ${outlineColor}`,
           outlineOffset: '-3px',
@@ -487,8 +477,8 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
           <h2
             id="otp-modal-title"
-            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-            style={{ fontSize: 28, lineHeight: '30px', letterSpacing: '-1.1px' }}
+            className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+            style={{ fontSize: 28, lineHeight: '33.6px', letterSpacing: '-0.56px' }}
           >
             {heading}
           </h2>
@@ -524,6 +514,8 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
             onChange={handleCodeChange}
             state={isExpired ? 'disabled' : isInvalid ? 'error' : undefined}
             autoFocus={!isExpired}
+            cellGap={4}
+            emptyPlaceholder="-"
           />
         </div>
 
@@ -564,7 +556,7 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
 
         {/* Timer + resend row. Timer turns red when expired so the user's
             eye snaps to the resend CTA, which has gone from grey → green. */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-5 flex flex-col items-center gap-1">
           <div
             className="inline-flex items-center gap-1.5 text-[12px] text-[#70706E]"
             style={{ letterSpacing: '0.2px' }}
@@ -580,17 +572,20 @@ const OtpModal = ({ phone, email, onClose, onChangeContact, onVerified, onLockou
               {formatMmSs(secondsLeft)}
             </span>
           </div>
-          <button
-            type="button"
-            disabled={!resendReady}
-            onClick={handleResend}
-            className={classNames(
-              'text-[12px] font-medium leading-tight underline-offset-2 hover:underline disabled:no-underline disabled:cursor-not-allowed',
-              resendReady ? 'text-brand-green' : 'text-[#BABAB7]'
-            )}
-          >
-            Resend code{!resendReady ? ` (${resendIn}s)` : ''}
-          </button>
+          <span className="inline-flex items-center gap-1 text-[12px] text-[#70706E]">
+            Didn&apos;t receive it?
+            <button
+              type="button"
+              disabled={!resendReady}
+              onClick={handleResend}
+              className={classNames(
+                'text-[12px] font-medium leading-tight underline-offset-2 hover:underline disabled:no-underline disabled:cursor-not-allowed',
+                resendReady ? 'text-brand-green' : 'text-[#BABAB7]'
+              )}
+            >
+              Resend code{!resendReady ? ` (${resendIn}s)` : ''}
+            </button>
+          </span>
         </div>
 
         <Button
@@ -631,7 +626,7 @@ const ChannelBadge = ({ label }) => (
   // Small cream-green pill carrying the channel name — SMS / Email.
   // Reuses the eyebrow chassis from `ContactEyebrow` at smaller size.
   <span className="inline-flex items-center gap-1 rounded-[6px] border border-brand-green-light-hover bg-brand-green-light px-2 py-0.5">
-    <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-green" />
+    <img src={label === 'SMS' ? otpSms : otpEmail} alt="" aria-hidden="true" className="size-3" />
     <span
       className="text-[11px] max-lg:text-[12px] font-medium text-brand-green"
       style={{ letterSpacing: '0.2px' }}
@@ -652,7 +647,7 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
     aria-modal="true"
     aria-labelledby="contact-verified-title"
     className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-    style={{ background: 'rgba(0, 0, 0, 0.30)' }}
+    style={{ background: 'rgba(28, 42, 33, 0.7)' }}
   >
     <div
       className="relative w-full max-w-[440px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
@@ -697,10 +692,10 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
         </span>
         <h2
           id="contact-verified-title"
-          className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-          style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
+          className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+          style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
         >
-          You&apos;re <span className="italic text-brand-green">Verified.</span>
+          You’re <span className="text-brand-green">Verified</span>
         </h2>
         <p className="text-[12px] leading-[18px] text-[#959592]" style={{ letterSpacing: '0.2px' }}>
           Your phone and email have been confirmed. Here&apos;s what we verified.
@@ -714,14 +709,14 @@ const ContactVerifiedModal = ({ phone, email, onClose, onContinue }) => (
       >
         <li className="flex items-center justify-between px-4 py-3 text-[12px] leading-5">
           <span className="flex items-center gap-2 text-[#575755]">
-            <PhoneIcon className="size-3 text-[#575755]" />
+            <PhoneRowIcon className="size-3" />
             Phone
           </span>
           <span className="font-semibold text-brand-green">{maskPhone(phone)}</span>
         </li>
         <li className="flex items-center justify-between border-t border-brand-green-light-hover px-4 py-3 text-[12px] leading-5">
           <span className="flex items-center gap-2 text-[#575755]">
-            <MailIcon className="size-3 text-[#575755]" />
+            <MailRowIcon className="size-3" />
             Email
           </span>
           <span className="font-semibold text-brand-green">{maskEmail(email)}</span>
@@ -813,7 +808,7 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
       aria-modal="true"
       aria-labelledby="lockout-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(0, 0, 0, 0.30)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
         className="relative w-full max-w-[460px] rounded-[24px] bg-white px-8 py-8 max-sm:px-4 max-sm:pt-4 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
@@ -857,10 +852,10 @@ const LockoutModal = ({ onSendNewCode, onChangeContact, onContactSupport }) => {
 
           <h2
             id="lockout-title"
-            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-            style={{ fontSize: 30, lineHeight: '32px', letterSpacing: '-1.1px' }}
+            className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+            style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
           >
-            Something went <span className="italic text-danger">wrong.</span>
+            Something went <span className="text-danger">wrong.</span>
           </h2>
 
           <p
@@ -1066,27 +1061,27 @@ const OnboardingContactPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="contact" />
+      <OnboardingHeader currentKey="contact" percent={78} />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
           <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
+              className="my-auto flex w-full max-w-[739px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
               <ContactEyebrow />
 
               <h1
-                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
+                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
                 style={{
-                  fontSize: 'clamp(2.25rem, 5vw, 4rem)',
+                  fontSize: 'clamp(2.25rem, 5vw, 3.375rem)',
                   lineHeight: 1.1,
                   letterSpacing: '-0.64px',
                 }}
               >
-                How do we <span className="italic text-brand-green">reach you?</span>
+                How do we <span className="text-brand-green">reach you?</span>
               </h1>
 
               <p
@@ -1099,8 +1094,8 @@ const OnboardingContactPage = () => {
 
               <WavyDivider />
 
-              <div className="flex w-full flex-col gap-4 text-left max-md:gap-3">
-                <div className="grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2 max-md:gap-y-3">
+              <div className="flex w-full flex-col gap-4 text-left md:px-5 max-md:gap-3">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 max-md:gap-y-3">
                   <PhoneNumberInput
                     id="contact-phone"
                     label="Phone Number"
@@ -1126,6 +1121,7 @@ const OnboardingContactPage = () => {
                 </div>
 
                 <TextInput
+                  asteriskClassName={TALENT_ASTERISK}
                   id="contact-email"
                   label="Email Address"
                   required
@@ -1186,7 +1182,7 @@ const OnboardingContactPage = () => {
                   state={isSubmitting ? 'active' : undefined}
                   leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
                   rightIcon={<ArrowRightIcon />}
-                  className="mt-2 w-full max-w-[420px]"
+                  className="mt-2 w-full"
                   aria-busy={isSubmitting}
                 >
                   Send Verification Code
@@ -1209,7 +1205,11 @@ const OnboardingContactPage = () => {
           </div>
         </div>
 
-        <OnboardingRightPanel panelContent={<TalentContactPanelContent />} />
+        <TalentOnboardingPanel
+          photoCards={TALENT_CONTACT_PHOTO_CARDS}
+          overlayContent={<TalentContactOverlay />}
+          showWatchTutorial={false}
+        />
       </div>
 
       {showOtp && (

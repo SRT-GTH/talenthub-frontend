@@ -1,0 +1,382 @@
+{
+  "id": "7887:87553",
+  "label": "Opt-out: Your journey matters to us",
+  "group": "Opt out",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -3.7,
+    "derived": 55.7
+  },
+  "offsetUsed": 56,
+  "counts": {
+    "figmaTexts": 27,
+    "matched": 20,
+    "unmatched": 7,
+    "layoutMismatch": 19,
+    "fontMetric": 10,
+    "widthOver15": 2
+  },
+  "worstLayoutPx": 270.5,
+  "unmatched": [
+    {
+      "text": "[Auto]",
+      "figma": {
+        "x": 862,
+        "y": 245
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Post Your First Job",
+      "figma": {
+        "x": 862,
+        "y": 263
+      },
+      "closestDom": null
+    },
+    {
+      "text": "[Auto]",
+      "figma": {
+        "x": 876,
+        "y": 428
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Manual Creation",
+      "figma": {
+        "x": 876,
+        "y": 446
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Emma",
+      "figma": {
+        "x": 1019,
+        "y": 468
+      },
+      "closestDom": null
+    },
+    {
+      "text": "New Chat",
+      "figma": {
+        "x": 58,
+        "y": 193
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 30
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.font-medium.text-[#404040]",
+      "dx": -270.5,
+      "dy": -20.2,
+      "dh": 30,
+      "wPct": 226.1
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -69.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -68.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -64.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -64.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -64.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -64.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -64.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -64.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "GTH is designed to grow with you from age 15 to 30. Before y",
+      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.text-[#575755]",
+      "dx": -1,
+      "dy": 29.7,
+      "dh": -5,
+      "wPct": -6.2
+    },
+    {
+      "text": "Leave entirely",
+      "sel": "button.pf-ov-btn.pf-ov-btn--secondary.max-sm:order-2",
+      "dx": 0.3,
+      "dy": 29.7,
+      "dh": -5,
+      "wPct": 27.4,
+      "lines": "dom 2 vs figma ~1"
+    },
+    {
+      "text": "Your journey matters to us.",
+      "sel": "h2#_r_0_-title.pf-ov-display.text-[clamp(1.625rem,1.2rem+1vw,2rem)].leading-[1.2]",
+      "dx": -1,
+      "dy": 29.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -5.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 1.9,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 2.8,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.truncate.whitespace-nowrap.font-sans",
+      "dx": -2.1,
+      "dy": 0.3,
+      "dh": -4,
+      "wPct": 2.3
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Step 1 of 9 ·",
+      "sel": "span.shrink-0.whitespace-nowrap.font-sans",
+      "dx": -3,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 2.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.font-medium.text-[#404040]",
+      "dx": -270.5,
+      "dy": -20.2,
+      "dh": 30,
+      "wPct": 226.1,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 2.8,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -64.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -64.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -64.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -68.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "GTH is designed to grow with you from age 15 to 30. Before y",
+      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.text-[#575755]",
+      "dx": -1,
+      "dy": 29.7,
+      "dh": -5,
+      "wPct": -6.2,
+      "severe": false
+    },
+    {
+      "text": "Leave entirely",
+      "sel": "button.pf-ov-btn.pf-ov-btn--secondary.max-sm:order-2",
+      "dx": 0.3,
+      "dy": 29.7,
+      "dh": -5,
+      "wPct": 27.4,
+      "lines": "dom 2 vs figma ~1",
+      "severe": true
+    }
+  ],
+  "medianDx": -0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 226.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 226.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 56,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

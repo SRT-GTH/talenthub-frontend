@@ -6,8 +6,11 @@ import EngagementProgressIndicator from '../../ui/EngagementProgressIndicator.js
 import Button from '../../ui/Button.jsx';
 import { SLChevronLeftIcon } from '../../shared/assets.jsx';
 import { PROFILE_STAGES } from '../../../constants/profileStages.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
 
 import arrowhead from '../../../assets/engagement/arrowhead.svg';
+import trailArrowGreen from '../../../assets/playful/trail-arrow-green.svg';
+import trailArrowGrey from '../../../assets/playful/trail-arrow-grey.svg';
 
 const log = debug('EngagementTopBar');
 
@@ -40,6 +43,11 @@ const TRAIL_FADE_WIDTH_PX = 58;
  * CSS mask-image fade so the cut-off stage doesn't look abruptly truncated.
  * Both chevrons render the same SLChevronLeftIcon, mirrored with rotate-180
  * for the right direction rather than shipping a duplicate glyph.
+ *
+ * PLAYFUL (Figma 7873:50492, wiki/playful-mode.md): `playful:` classes only for the
+ * trail (all stages get a filled check-circle - green current, #babab7 others -
+ * 14px arrows, 12px gaps, hover chevron disc), plus a separate Playful progress
+ * block (ink-bordered 6px track) rendered instead of EngagementProgressIndicator.
  *
  * Figma corrections applied 2026-07-04 (node 3530:36666):
  *   - Padding:   clamp(16px,3vw,40px) → clamp(20px,3.125vw,54px) horizontal; 10px fixed vertical
@@ -95,6 +103,49 @@ const STAGE_ROUTES = {
   'talent-pitch': '/profile/filling/pitch',
 };
 
+// Playful progress block (Figma 7873:50517): same copy/logic as
+// EngagementProgressIndicator, but the track carries a 1px ink border.
+const PlayfulProgress = ({ currentIndex, totalSteps, label, completionPct }) => {
+  const safeIndex = Math.max(0, Math.min(currentIndex, totalSteps - 1));
+  const trackPct = Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
+  return (
+    <div className="flex w-full flex-col gap-[4px]">
+      <div className="flex items-center justify-between">
+        <div className="flex min-w-0 items-center gap-[9px]">
+          <span
+            aria-hidden="true"
+            className="inline-block size-[5px] shrink-0 rounded-[2.5px] bg-[#387440]"
+          />
+          <span className="shrink-0 whitespace-nowrap font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#716e65]">
+            Step {Math.min(safeIndex + 1, 9)} of 9 ·
+          </span>
+          {label && (
+            <span className="truncate whitespace-nowrap font-sans text-[12px] font-bold leading-5 tracking-[0.1px] text-[#1c2a21]">
+              {label}
+            </span>
+          )}
+        </div>
+        <span className="shrink-0 whitespace-nowrap pl-3 font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#716e65]">
+          · {Math.round(completionPct)}% profile complete · auto-saved
+        </span>
+      </div>
+      <div
+        className="box-border flex h-[6px] w-full flex-col items-start overflow-clip rounded-[100px] border border-solid border-[#1c2a21] bg-[#e1eae2]"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(trackPct)}
+        aria-label={`Profile engagement progress: ${Math.round(trackPct)} percent`}
+      >
+        <div
+          className="box-border h-[6px] shrink-0 rounded-[100px] border border-solid border-[#1c2a21] bg-[#387440] motion-safe:transition-[width] motion-safe:duration-300"
+          style={{ width: `${trackPct}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const EngagementTopBar = ({
   currentStageIndex = 0,
   completionPct = 0,
@@ -109,6 +160,9 @@ const EngagementTopBar = ({
   progressWidthClass = 'w-[323px]',
   className,
 }) => {
+  const { uiStyle } = useUiStyle();
+  const isPlayful = uiStyle === 'playful';
+  log('branch', { playfulProgress: isPlayful });
   const currentStage = stages[currentStageIndex];
   const trailRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -149,6 +203,7 @@ const EngagementTopBar = ({
       className={classNames(
         'w-full bg-white border-b border-border-default',
         'px-[clamp(20px,3.125vw,54px)] max-md:px-4 py-[10px]',
+        'playful:border-b-0',
         'flex items-center justify-between',
         className
       )}
@@ -161,7 +216,7 @@ const EngagementTopBar = ({
         <nav
           ref={trailRef}
           aria-label="Profile engagement stages"
-          className="flex flex-nowrap items-center gap-x-2 overflow-x-auto no-scrollbar scroll-smooth"
+          className="flex flex-nowrap items-center gap-x-2 overflow-x-auto no-scrollbar scroll-smooth playful:gap-x-[12px]"
           style={{
             // Fade-out at whichever edge currently has hidden overflow (Figma
             // 5132:44983 scroll-chevron affordance) — mask width matches the
@@ -189,9 +244,11 @@ const EngagementTopBar = ({
             // Completed and active stages share a green check-circle; future
             // stages use a grey outline circle to signal they're not yet reached.
             const StageIcon = isFuture ? EmptyCircleIcon : CheckCircleIcon;
+            // Playful: future stages use the same filled check-circle, in grey (Figma 7873:50492).
+            const arrowSrc = index <= currentStageIndex ? trailArrowGreen : trailArrowGrey;
 
             const stageClassName = classNames(
-              'inline-flex items-center gap-[12px] rounded px-1 py-0.5',
+              'inline-flex items-center gap-[12px] rounded px-1 py-0.5 playful:px-0 playful:py-0',
               'transition-colors duration-150',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
               // Icon colour: green for completed/active, neutral-dark for future.
@@ -202,13 +259,19 @@ const EngagementTopBar = ({
 
             const stageContent = (
               <>
-                <StageIcon className="size-4 shrink-0" />
+                <StageIcon
+                  className={classNames('size-4 shrink-0', isFuture && 'playful:hidden')}
+                />
+                {isFuture && <CheckCircleIcon className="hidden size-4 shrink-0 playful:block" />}
                 <span
                   className={classNames(
                     'font-sans text-[14px] leading-[24px] tracking-[0.14px]',
                     // Text colour is independent of icon: only the active step
                     // reads brand-green; completed + future both read neutral-dark.
-                    isCurrent ? 'font-semibold text-brand-green' : 'font-medium text-neutral-dark'
+                    isCurrent ? 'font-semibold text-brand-green' : 'font-medium text-neutral-dark',
+                    'playful:capitalize',
+                    // Figma 7873:50496: the stage right after the current one is Semibold in every frame
+                    index === currentStageIndex + 1 && 'playful:font-semibold'
                   )}
                 >
                   {label}
@@ -217,7 +280,10 @@ const EngagementTopBar = ({
             );
 
             return (
-              <span key={stage.id} className="inline-flex items-center gap-2 shrink-0">
+              <span
+                key={stage.id}
+                className="inline-flex items-center gap-2 shrink-0 playful:gap-[12px]"
+              >
                 {interactive ? (
                   <Link
                     to={route}
@@ -241,7 +307,16 @@ const EngagementTopBar = ({
                     src={arrowhead}
                     alt=""
                     aria-hidden="true"
-                    className="block size-6 select-none opacity-70 shrink-0"
+                    className="block size-6 select-none opacity-70 shrink-0 playful:hidden"
+                    draggable="false"
+                  />
+                )}
+                {index < stages.length - 1 && (
+                  <img
+                    src={arrowSrc}
+                    alt=""
+                    aria-hidden="true"
+                    className="hidden size-[14px] select-none shrink-0 playful:block"
                     draggable="false"
                   />
                 )}
@@ -261,7 +336,7 @@ const EngagementTopBar = ({
             size="sm"
             aria-label="Scroll to previous steps"
             onClick={() => scrollTrail(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2"
+            className="absolute left-0 top-1/2 -translate-y-1/2 playful:size-10 playful:text-[#70706e] playful:hover:bg-[#f2f2f2] playful:focus-visible:outline-3 playful:focus-visible:outline-brand-green"
           >
             <SLChevronLeftIcon className="size-4" />
           </Button>
@@ -273,7 +348,7 @@ const EngagementTopBar = ({
             size="sm"
             aria-label="Scroll to next steps"
             onClick={() => scrollTrail(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2"
+            className="absolute right-0 top-1/2 -translate-y-1/2 playful:size-10 playful:text-[#70706e] playful:hover:bg-[#f2f2f2] playful:focus-visible:outline-3 playful:focus-visible:outline-brand-green"
           >
             <SLChevronLeftIcon className="size-4 rotate-180" />
           </Button>
@@ -284,16 +359,25 @@ const EngagementTopBar = ({
       <div
         className={classNames(
           progressWidthClass,
-          'shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden pl-4'
+          'shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden pl-4 playful:w-auto playful:min-w-[323px]'
         )}
       >
-        <EngagementProgressIndicator
-          currentIndex={currentStageIndex}
-          totalSteps={stages.length}
-          currentStepLabel={currentStage?.trailLabel || currentStage?.title}
-          completionPct={completionPct}
-          trackPct={trackPct}
-        />
+        {isPlayful ? (
+          <PlayfulProgress
+            currentIndex={currentStageIndex}
+            totalSteps={stages.length}
+            label={currentStage?.trailLabel || currentStage?.title}
+            completionPct={completionPct}
+          />
+        ) : (
+          <EngagementProgressIndicator
+            currentIndex={currentStageIndex}
+            totalSteps={stages.length}
+            currentStepLabel={currentStage?.trailLabel || currentStage?.title}
+            completionPct={completionPct}
+            trackPct={trackPct}
+          />
+        )}
       </div>
 
       {/* Phones: one "Step 4 of 9 · Skills  33%" line + bar. The shared
@@ -312,7 +396,7 @@ const EngagementTopBar = ({
           </span>
         </div>
         <div
-          className="h-[6px] w-full overflow-hidden rounded-pill bg-brand-green-light-hover"
+          className="h-[6px] w-full overflow-hidden rounded-pill bg-brand-green-light-hover playful:box-border playful:border playful:border-[#1c2a21]"
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}

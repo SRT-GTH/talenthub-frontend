@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Modal from '../../ui/Modal.jsx';
 import Button from '../../ui/Button.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulOptOutModal from './PlayfulOptOutModal.jsx';
 import { ArrowRightIcon, ChatLinkArrowIcon } from '../../shared/assets.jsx';
 
 const log = debug('CareerBuddyOptOutModal');
@@ -288,7 +290,7 @@ const ScheduleCalendar = ({ selectedDate, onSelect }) => {
   );
 };
 
-const CareerBuddyOptOutModal = ({
+const FocusedOptOutModal = ({
   open,
   initialStep = 'journey',
   onClose,
@@ -437,6 +439,16 @@ const CareerBuddyOptOutModal = ({
         </div>
       </div>
     </Modal>
+  );
+};
+
+/** Playful appearance renders its own dialog (same props); Focused markup is untouched. */
+const CareerBuddyOptOutModal = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulOptOutModal {...props} />
+  ) : (
+    <FocusedOptOutModal {...props} />
   );
 };
 

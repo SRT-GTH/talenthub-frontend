@@ -13,18 +13,21 @@ import { useOnboarding } from '../../hooks/useOnboarding.js';
 import Button from '../../components/ui/Button.jsx';
 import ClampText from '../../components/ui/ClampText.jsx';
 import { StickyActionBar } from '../../components/ui/form';
+import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import { ArrowRightIcon, LoadingSpinner, UserIcon } from '../../components/shared/assets.jsx';
+import idTile from '../../assets/talent-onboarding/review-id-tile.svg';
+import photoTile from '../../assets/talent-onboarding/review-photo-tile.svg';
+import checkboxTick from '../../assets/talent-onboarding/review-checkbox-tick.svg';
 import {
-  ArrowRightIcon,
-  IdCardIcon,
-  MapPinIcon,
-  MortarboardIcon,
-  PencilEditIcon,
-  PhoneIcon,
+  ReviewAddressIcon,
+  ReviewCheckIcon,
+  ReviewContactIcon,
+  ReviewEducationIcon,
+  ReviewIdentityIcon,
+  ReviewPersonalIcon,
   ShieldCheckIcon,
-  SummaryPhotoIcon,
-  UserIcon,
-} from '../../components/shared/assets.jsx';
+} from '../../components/sections/talentAuth/talentIcons.jsx';
 import TermsModal from '../../components/shared/TermsModal.jsx';
 import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
 import DataProcessingConsentModal from '../../components/shared/DataProcessingConsentModal.jsx';
@@ -152,15 +155,7 @@ const VerifiedBadge = ({ label, className = '' }) => (
       border: '1px solid rgba(29,124,77,0.2)',
     }}
   >
-    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-      <path
-        d="M2 4.2 3.3 5.5 6 2.8"
-        stroke="#1D7C4D"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <ReviewCheckIcon />
     <span
       className="font-semibold text-[#1D7C4D]"
       style={{ fontSize: 'var(--fs-9)', lineHeight: '11.7px' }}
@@ -222,11 +217,17 @@ const CardHeaderStrip = ({ profile, onEditProfile }) => (
     <button
       type="button"
       onClick={onEditProfile}
-      className="inline-flex h-[31px] items-center gap-1.5 rounded-[4px] border bg-white px-2 transition-colors hover:bg-brand-green-light max-md:h-8 max-md:shrink-0"
-      style={{ borderColor: '#C1D4C4' }}
+      className="inline-flex h-[31px] cursor-pointer items-center rounded-[14px] bg-white px-3 max-md:h-8 max-md:shrink-0"
+      style={{
+        border: '2px solid rgba(28,42,33,0.3)',
+        borderTopWidth: 1,
+        boxShadow: '0 4px 0 rgba(17,17,17,0.25)',
+      }}
     >
-      <PencilEditIcon />
-      <span className="font-medium text-brand-green" style={{ fontSize: 12, lineHeight: '20px' }}>
+      <span
+        className="font-sans font-bold text-[#1C2A21]"
+        style={{ fontSize: 12, lineHeight: '24px', letterSpacing: '0.1px' }}
+      >
         Edit profile
       </span>
     </button>
@@ -276,7 +277,7 @@ const TalentScoreStrip = ({ score, tier }) => {
 const PersonalSection = ({ data }) => (
   <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
-      icon={<UserIcon />}
+      icon={<ReviewPersonalIcon />}
       title="Personal Information"
       editTo={'/onboarding/talent/personal-info'}
     />
@@ -295,7 +296,7 @@ const PersonalSection = ({ data }) => (
 const IdentitySection = ({ data }) => (
   <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
-      icon={<IdCardIcon />}
+      icon={<ReviewIdentityIcon />}
       title="Identity & Verification"
       editTo={'/onboarding/talent/personal-info'}
     />
@@ -305,14 +306,8 @@ const IdentitySection = ({ data }) => (
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0 max-sm:flex-wrap"
       style={{ minHeight: 52 }}
     >
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-[6px] bg-brand-green-light"
-        aria-hidden="true"
-      >
-        <span className="inline-flex size-[14px] items-center justify-center text-brand-green">
-          <IdCardIcon />
-        </span>
-      </span>
+      {/* Figma export 8027:210911 (32x32 tile incl. card glyph). */}
+      <img src={idTile} alt="" aria-hidden="true" width={32} height={32} className="shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5 max-sm:min-w-[9rem]">
         <CellLabel>Ghana Card Number</CellLabel>
         <span
@@ -330,30 +325,16 @@ const IdentitySection = ({ data }) => (
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0"
       style={{ minHeight: 52 }}
     >
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-brand-green-light"
-        aria-hidden="true"
-      >
-        <span className="inline-flex size-[14px] items-center justify-center text-brand-green">
-          <SummaryPhotoIcon />
-        </span>
-      </span>
+      {/* Figma export 8027:210924 (32x32 tile incl. person glyph). */}
+      <img src={photoTile} alt="" aria-hidden="true" width={32} height={32} className="shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5">
         <CellLabel>Profile photo</CellLabel>
         <span
           className="inline-flex items-center gap-1 font-semibold text-[#1D7C4D]"
           style={{ fontSize: 12, lineHeight: '16px' }}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M3 6.2 5 8l4-4.5"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {data.photoUploaded ? 'Uploaded' : 'Not added'}
+          {/* Figma text node 8027:212637 is the literal string "✓ Uploaded & confirmed". */}
+          {data.photoUploaded ? '✓ Uploaded & confirmed' : 'Not added'}
         </span>
       </div>
     </div>
@@ -363,7 +344,7 @@ const IdentitySection = ({ data }) => (
 const ContactSection = ({ data }) => (
   <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1">
     <SectionHeader
-      icon={<PhoneIcon />}
+      icon={<ReviewContactIcon />}
       title="Contact Details"
       editTo={'/onboarding/talent/contact'}
     />
@@ -400,7 +381,11 @@ const AddressSection = ({ data }) => (
     className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1 pb-6"
     style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}
   >
-    <SectionHeader icon={<MapPinIcon />} title="Address" editTo={'/onboarding/talent/address'} />
+    <SectionHeader
+      icon={<ReviewAddressIcon />}
+      title="Address"
+      editTo={'/onboarding/talent/address'}
+    />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Region" value={data.region} />
       <Cell label="District" value={data.district} />
@@ -415,7 +400,7 @@ const AddressSection = ({ data }) => (
 const EducationSection = ({ data }) => (
   <div className="mx-6 mt-6 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1 pb-6">
     <SectionHeader
-      icon={<MortarboardIcon />}
+      icon={<ReviewEducationIcon />}
       title="Education"
       editTo={'/onboarding/talent/education'}
     />
@@ -478,15 +463,15 @@ const ConsentCheckbox = ({ checked, onToggle, children }) => {
         }
       >
         {checked && (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M5 12.5l4.5 4.5L19 7"
-              stroke="#FFFEFC"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          /* Figma GTHCheckbox active variant, tick-01 node 2019:14108 (24x24 in a 20 box). */
+          <img
+            src={checkboxTick}
+            alt=""
+            aria-hidden="true"
+            width={24}
+            height={24}
+            className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+          />
         )}
       </span>
       <span
@@ -726,14 +711,14 @@ const OnboardingReviewPage = () => {
 
   const handleContinueAfterSuccess = () => {
     setShowSuccessModal(false);
-    // Account exists now; log in (email + password, then OTP).
-    log('continue after success -> /login');
-    navigate('/login');
+    // Account exists now; Figma 8027:213532 shows the success/welcome page next.
+    log('continue after success -> /onboarding/talent/done');
+    navigate('/onboarding/talent/done');
   };
 
   return (
     <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
-      <OnboardingHeader currentKey="review" />
+      <OnboardingHeader currentKey="review" percent={78} />
 
       <ReviewBackgroundOrbs />
 
@@ -755,8 +740,8 @@ const OnboardingReviewPage = () => {
                 }}
               />
               <span
-                className="font-display italic text-[#B5B5B5]"
-                style={{ fontSize: 16, lineHeight: 'normal' }}
+                className="font-heading font-semibold text-[#B5B5B5]"
+                style={{ fontSize: 15, lineHeight: 'normal' }}
               >
                 07
               </span>
@@ -769,25 +754,27 @@ const OnboardingReviewPage = () => {
             </span>
 
             <h1
-              className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
+              className="font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
               style={{
-                fontSize: 'clamp(2.25rem, 5vw, 4rem)',
+                fontSize: 'clamp(2.25rem, 5vw, 3.375rem)',
                 lineHeight: 1.1,
                 letterSpacing: '-0.64px',
               }}
             >
-              Almost <span className="italic text-brand-green">there.</span>
+              Almost <span className="text-brand-green">there.</span>
             </h1>
 
             <p
-              className="max-w-[554px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
+              className="max-w-[640px] text-[16px] leading-6 text-[#737373] max-md:text-[14px] max-md:leading-5"
               style={{ letterSpacing: '0.2px' }}
             >
               Review everything you&apos;ve entered. If anything looks wrong, tap Edit next to the
-              section. Then accept the three agreements to activate your account.
+              section.
+              <br />
+              Then accept the three agreements to activate your account.
             </p>
 
-            <div className="h-px w-[200px] max-md:w-[132px]" style={{ background: '#C1D4C4' }} />
+            <WavyDivider />
           </div>
 
           {/* Summary card */}
@@ -833,23 +820,23 @@ const OnboardingReviewPage = () => {
               variant="primary"
               size="lg"
               disabled={!allAccepted}
+              state={isActivating ? 'active' : undefined}
+              leftIcon={isActivating ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
               onClick={handleSubmit}
               rightIcon={<ArrowRightIcon />}
               className="w-full"
+              aria-busy={isActivating}
             >
-              {allAccepted ? 'Activate My Account' : 'Accept All Three To Continue'}
+              {isActivating
+                ? 'One Sec'
+                : allAccepted
+                  ? 'Complete Registration'
+                  : 'Accept All Three To Continue'}
             </Button>
           </StickyActionBar>
 
           {/* Trust footer + login fallback */}
           <div className="flex flex-col items-center gap-2">
-            <p
-              className="flex items-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
-              style={{ letterSpacing: '0.2px' }}
-            >
-              <ShieldCheckIcon className="text-[#959592]" />
-              Data encrypted at rest · Ghana Data Protection Act compliant
-            </p>
             <div className="flex items-center gap-2 text-[14px] leading-6 max-md:text-[13px] max-md:leading-5">
               <span className="text-[#737373]" style={{ letterSpacing: '0.2px' }}>
                 Already Have an account?

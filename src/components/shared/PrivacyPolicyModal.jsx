@@ -2,7 +2,10 @@ import LegalModalShell from './LegalModalShell.jsx';
 
 /*
  * PrivacyPolicyModal — bottom-sheet modal for the Privacy Policy
- * during onboarding Step 07. Source: Figma node 2846:29512.
+ * during onboarding Step 07. Restyled to Figma 8027:211501 (dialog 8027:211862):
+ * highlighted points 2/4/6, green 'Protected by Ghanaian law' callout.
+ * Point 4 keeps the app's own copy: Figma point 4 is a copy-paste of the Terms
+ * point 3 ('Your information must be accurate'), a design artefact.
  *
  * The Figma text node for the header reads "Terms & Conditions" — a
  * copy-paste artefact from the Terms modal that the design system
@@ -14,7 +17,6 @@ const POINTS = [
     n: 1,
     title: 'We collect what you give us during registration',
     body: 'Name, date of birth, phone number, education details, and location within Ghana. We do not collect your GPS location, financial data, or health information.',
-    highlight: true,
   },
   {
     n: 2,
@@ -31,6 +33,7 @@ const POINTS = [
     n: 4,
     title: 'You control who sees sensitive information',
     body: 'Your phone number, date of birth, and Ghana Card details are hidden from recruiters by default. You can choose to share these directly when applying to specific opportunities.',
+    highlight: true,
   },
   {
     n: 5,
@@ -41,6 +44,7 @@ const POINTS = [
     n: 6,
     title: 'You have rights under the Data Protection Act',
     body: 'You can access, correct, delete, or export your data at any time from Settings → Privacy. You can also withdraw your data processing consent without closing your account.',
+    highlight: true,
   },
   {
     n: 7,
@@ -51,7 +55,7 @@ const POINTS = [
 
 const CALLOUTS = [
   {
-    variant: 'blue',
+    variant: 'green',
     title: 'Protected by Ghanaian law',
     body: 'GTH complies with the Data Protection Act (Act 843, 2012). You can lodge a complaint with the Data Protection Commission of Ghana if you are unsatisfied with our response.',
   },

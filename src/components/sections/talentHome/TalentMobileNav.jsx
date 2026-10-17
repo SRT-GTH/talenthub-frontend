@@ -1,0 +1,200 @@
+import { TalentSidebarProfileAvatarIllustration } from '../../shared/assets.jsx';
+import { useEffect, useState } from 'react';
+import { classNames } from '../../../utils/classNames.js';
+import { debug } from '../../../utils/debug.js';
+import Modal from '../../ui/Modal.jsx';
+import StyleSwitch from '../../ui/StyleSwitch.jsx';
+import CommunityIcon from '../community/CommunityIcon.jsx';
+import { icons } from '../community/communityIcons.js';
+import TalentNavIcon from './TalentNavIcon.jsx';
+import TalentPublicProfileCard from './TalentPublicProfileCard.jsx';
+import {
+  TALENT_NAV_MAIN,
+  TALENT_NAV_SECONDARY,
+  TALENT_PROFILE,
+  getTalentNavData,
+  getTalentSidebarData,
+} from './talentShellData.js';
+
+const log = debug('TalentMobileNav');
+
+/*
+ * TalentMobileNav — phone (< md) replacement for the rail: a bottom tab bar (Home, Opportunities,
+ * Community, Messages, More) and the More sheet (My Assessment, Skills Lab, My Learning, Profile,
+ * Notifications, Help, Accessibility mode, style switch, public-profile card). Same data as
+ * TalentSidebar (talentShellData.js). ⚠️ ASSUMPTION — Figma has no phone frame for the talent
+ * chrome; the pattern mirrors DashboardMobileTabBar (wiki/responsive-plan.md §4).
+ */
+
+const TAB_IDS = ['home', 'opportunities', 'community', 'messages'];
+
+const rowClass =
+  'flex min-h-[44px] w-full items-center gap-[12px] rounded-[10px] px-[12px] py-[6px] text-left font-sans text-[15px] leading-6 tracking-[0.2px] transition-colors active:bg-[#ebf1ec] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
+
+const Badge = ({ count }) => (
+  <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-[99px] bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)] px-[6px] font-sans text-[12px] font-medium leading-none text-white playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:bg-none playful:font-semibold playful:text-[#1f4d26]">
+    {count}
+  </span>
+);
+
+const TalentMobileNav = ({ home, className }) => {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const stateKey = home?.stateKey ?? 'day1';
+  const data = getTalentSidebarData(stateKey);
+  const navData = getTalentNavData(stateKey);
+
+  useEffect(() => {
+    log('mount', { tabs: TAB_IDS, stateKey });
+  }, [stateKey]);
+
+  const select = (item) => {
+    log('select:', item.id);
+    if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
+    else log('no destination wired yet:', item.id);
+    setMoreOpen(false);
+  };
+
+  const tabs = TAB_IDS.map((id) => TALENT_NAV_MAIN.find((item) => item.id === id));
+
+  return (
+    <>
+      <nav
+        aria-label="Primary"
+        className={classNames(
+          'relative z-40 flex w-full shrink-0 items-stretch border-t border-[#e7e7e7] bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_8px_0_rgba(0,0,0,0.04)] md:hidden',
+          className
+        )}
+      >
+        <div className="flex h-[56px] w-full items-stretch">
+          {tabs.map((item) => {
+            const active = item.id === 'home';
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => select(item)}
+                aria-label={item.label}
+                aria-current={active ? 'page' : undefined}
+                className="group flex min-w-[48px] flex-1 flex-col items-center justify-center gap-[1px] px-[2px] py-[4px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <span
+                  className={classNames(
+                    'relative flex h-[28px] w-[52px] items-center justify-center rounded-[14px] transition-colors',
+                    active
+                      ? 'bg-[#387440] playful:shadow-[inset_0_0_0_1.5px_rgba(28,42,33,0.55)]'
+                      : 'group-active:bg-[#ebf1ec]'
+                  )}
+                >
+                  <TalentNavIcon
+                    icon={item.icon}
+                    size={active ? 16 : 18}
+                    className={active ? 'text-white' : 'text-[#999999] playful:text-[#46524a]'}
+                  />
+                  {data.badges[item.id] && (
+                    <span className="absolute -right-[2px] -top-[6px]">
+                      <Badge count={data.badges[item.id]} />
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={classNames(
+                    'max-w-full truncate font-sans text-[12px] leading-4 tracking-[0.1px]',
+                    active ? 'font-semibold text-[#387440]' : 'font-medium text-[#70706e]'
+                  )}
+                >
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={moreOpen}
+            onClick={() => {
+              log('tab click: more →', moreOpen ? 'close' : 'open');
+              setMoreOpen(!moreOpen);
+            }}
+            className="group flex h-[46px] min-w-[48px] flex-1 flex-col items-center justify-center gap-[1px] self-center px-[2px] py-[4px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
+          >
+            <span className="relative flex h-[28px] w-[52px] items-center justify-center rounded-[14px] group-active:bg-[#ebf1ec]">
+              <CommunityIcon src={icons.postMenu} size={18} className="brightness-0 invert-[.6]" />
+            </span>
+            <span className="max-w-full truncate font-sans text-[12px] font-medium leading-4 tracking-[0.1px] text-[#70706e]">
+              More
+            </span>
+          </button>
+        </div>
+      </nav>
+
+      <Modal
+        isOpen={moreOpen}
+        onClose={() => setMoreOpen(false)}
+        size="sm"
+        ariaLabel="More navigation"
+      >
+        <div className="flex flex-col gap-[16px] px-[16px] pb-[20px] pt-[20px]">
+          <div className="flex items-center gap-[12px] pr-[56px]">
+            <span
+              aria-hidden="true"
+              className="relative flex size-[48px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#387440] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]"
+            >
+              <TalentSidebarProfileAvatarIllustration className="absolute -top-[3px] left-1/2 h-[54px] w-[53px] max-w-none -translate-x-1/2 select-none" />
+            </span>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate font-sans text-[16px] font-semibold leading-6 text-[#1c2a21]">
+                {TALENT_PROFILE.name}
+              </span>
+              <span className="truncate font-sans text-[14px] leading-5 text-[#babab7]">
+                {TALENT_PROFILE.headline}
+              </span>
+            </div>
+          </div>
+
+          <nav aria-label="More destinations" className="flex flex-col gap-[2px]">
+            {[TALENT_NAV_MAIN[1], ...TALENT_NAV_SECONDARY].map((item) => (
+              <button key={item.id} type="button" className={rowClass} onClick={() => select(item)}>
+                <TalentNavIcon
+                  icon={item.icon}
+                  size={18}
+                  className="text-[#999999] playful:text-[#46524a]"
+                />
+                <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">
+                  {item.label}
+                </span>
+              </button>
+            ))}
+            <div className="my-[6px] h-px w-full bg-[#e1eae2]" />
+            <button type="button" className={rowClass} onClick={() => log('sheet: notifications')}>
+              <CommunityIcon src={icons.navNotification} size={18} />
+              <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">
+                Notifications
+              </span>
+              <Badge count={navData.notificationCount} />
+            </button>
+            <button type="button" className={rowClass} onClick={() => log('sheet: help')}>
+              <CommunityIcon src={icons.navHelp} size={18} />
+              <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">Help</span>
+            </button>
+            <button
+              type="button"
+              className={rowClass}
+              aria-pressed={Boolean(home?.a11yMode)}
+              onClick={() => home?.update?.({ a11y: !home.a11yMode })}
+            >
+              <CommunityIcon src={icons.navAccessibility} size={18} />
+              <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">
+                Accessibility mode
+              </span>
+            </button>
+          </nav>
+
+          <StyleSwitch className="self-start" />
+          <TalentPublicProfileCard shelf={!data.flat} />
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+export default TalentMobileNav;

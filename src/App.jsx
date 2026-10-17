@@ -20,6 +20,28 @@ const OnboardingParentInfoPage = lazy(
   () => import('./pages/onboarding/OnboardingParentInfoPage.jsx')
 );
 const OnboardingReviewPage = lazy(() => import('./pages/onboarding/OnboardingReviewPage.jsx'));
+const OnboardingDonePage = lazy(() => import('./pages/onboarding/OnboardingDonePage.jsx'));
+const RecruiterProfilePage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterProfilePage.jsx')
+);
+const RecruiterTypePage = lazy(() => import('./pages/onboarding/recruiter/RecruiterTypePage.jsx'));
+const RecruiterOrganisationPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterOrganisationPage.jsx')
+);
+const RecruiterCreateOrganisationPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterCreateOrganisationPage.jsx')
+);
+const RecruiterPlanPage = lazy(() => import('./pages/onboarding/recruiter/RecruiterPlanPage.jsx'));
+const RecruiterPaymentPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterPaymentPage.jsx')
+);
+const RecruiterPreferencesPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterPreferencesPage.jsx')
+);
+const RecruiterReviewPage = lazy(
+  () => import('./pages/onboarding/recruiter/RecruiterReviewPage.jsx')
+);
+const RecruiterDonePage = lazy(() => import('./pages/onboarding/recruiter/RecruiterDonePage.jsx'));
 const ProfileEngagementPage = lazy(() => import('./pages/engagement/ProfileEngagementPage.jsx'));
 const IdentityMapPage = lazy(() => import('./pages/engagement/IdentityMapPage.jsx'));
 const MilestoneUnlockPage = lazy(() => import('./pages/engagement/MilestoneUnlockPage.jsx'));
@@ -82,6 +104,7 @@ const SkillsLabPage = lazy(() => import('./pages/skillsLab/SkillsLabPage.jsx'));
 const CommunityHomePage = lazy(() => import('./pages/community/CommunityHomePage.jsx'));
 const CommunityDetailPage = lazy(() => import('./pages/community/CommunityDetailPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
+const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -123,7 +146,9 @@ const ParentInviteConsentPage = lazy(
   () => import('./pages/parentLogin/ParentInviteConsentPage.jsx')
 );
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import { RecruiterOnboardingProvider } from './providers/RecruiterOnboardingProvider.jsx';
 import CareerBuddyRoleProvider from './providers/CareerBuddyRoleProvider.jsx';
+import UiStyleProvider from './providers/UiStyleProvider.jsx';
 import { AvatarSelectionProvider } from './providers/AvatarSelectionProvider.jsx';
 
 /*
@@ -180,543 +205,642 @@ function App() {
           starts at the top instead of inheriting the previous scroll. */}
       <ScrollToTop />
       <AvatarSelectionProvider initial={APP_AVATAR_INITIAL}>
-        <CareerBuddyRoleProvider>
-          <DemoNavigator />
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
+        <UiStyleProvider>
+          <CareerBuddyRoleProvider>
+            <DemoNavigator />
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
             mirroring the elysium pattern. Add it as:
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
-              <Route element={<MainLayout />}>
-                <Route
-                  path={'/'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <LandingPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={'/get-started'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <GetStartedPage />
-                    </Suspense>
-                  }
-                />
+                <Route element={<MainLayout />}>
+                  <Route
+                    path={'/'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <LandingPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={'/get-started'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <GetStartedPage />
+                      </Suspense>
+                    }
+                  />
 
-                {/* Talent auth + onboarding flow.
+                  {/* Talent auth + onboarding flow.
               TalentOnboardingLayout provides the two page-level background
               glow ellipses (TL green + BR pink) that persist across all talent
               screens and the login page, outside the scrollable content area.
               Mirrors the InstitutionOnboardingLayout / ParentOnboardingLayout
               pattern. */}
-                <Route element={<TalentOnboardingLayout />}>
-                  <Route
-                    path={'/login'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <LoginPage />
-                      </Suspense>
-                    }
-                  />
+                  <Route element={<TalentOnboardingLayout />}>
+                    <Route
+                      path={'/login'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <LoginPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* Wrapped in OnboardingProvider so DOB captured on step 01
+                    {/* Wrapped in OnboardingProvider so DOB captured on step 01
                 propagates to every downstream page (drives the Parent step
                 in the breadcrumb + the under-18 branch out of Education). */}
-                  <Route
-                    path="/onboarding/talent/*"
-                    element={
-                      <OnboardingProvider>
-                        <Routes>
-                          <Route
-                            path="welcome"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingWelcomePage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="dob"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingDobPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="personal-info"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingPersonalInfoPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="contact"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingContactPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="address"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingAddressPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="education"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingEducationPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="parent-info"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingParentInfoPage />
-                              </Suspense>
-                            }
-                          />
-                          <Route
-                            path="review"
-                            element={
-                              <Suspense fallback={<RouteFallback />}>
-                                <OnboardingReviewPage />
-                              </Suspense>
-                            }
-                          />
-                        </Routes>
-                      </OnboardingProvider>
-                    }
-                  />
-                </Route>
+                    <Route
+                      path="/onboarding/talent/*"
+                      element={
+                        <OnboardingProvider>
+                          <Routes>
+                            <Route
+                              path="welcome"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingWelcomePage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="dob"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingDobPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="personal-info"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingPersonalInfoPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="contact"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingContactPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="address"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingAddressPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="education"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingEducationPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="parent-info"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingParentInfoPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="review"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingReviewPage />
+                                </Suspense>
+                              }
+                            />
+                            <Route
+                              path="done"
+                              element={
+                                <Suspense fallback={<RouteFallback />}>
+                                  <OnboardingDonePage />
+                                </Suspense>
+                              }
+                            />
+                          </Routes>
+                        </OnboardingProvider>
+                      }
+                    />
 
-                {/* Institution bulk-onboarding flow.
+                    {/* Recruiter onboarding (Figma 7356:96249). Shares the talent shell
+                (TalentOnboardingLayout glow + OnboardingHeader). OnboardingProvider
+                is mounted too because OnboardingHeader reads it; the recruiter's own
+                mock state lives in RecruiterOnboardingProvider. No route guards -
+                every step must open directly (DemoNavigator + deep links). */}
+                    <Route
+                      path="/onboarding/recruiter/*"
+                      element={
+                        <OnboardingProvider>
+                          <RecruiterOnboardingProvider>
+                            <Routes>
+                              <Route index element={<Navigate to="profile" replace />} />
+                              <Route
+                                path="profile"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterProfilePage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="type"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterTypePage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="organisation"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterOrganisationPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="organisation/create"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterCreateOrganisationPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="plan"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPlanPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="payment"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPaymentPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="preferences"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterPreferencesPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="review"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterReviewPage />
+                                  </Suspense>
+                                }
+                              />
+                              <Route
+                                path="done"
+                                element={
+                                  <Suspense fallback={<RouteFallback />}>
+                                    <RecruiterDonePage />
+                                  </Suspense>
+                                }
+                              />
+                            </Routes>
+                          </RecruiterOnboardingProvider>
+                        </OnboardingProvider>
+                      }
+                    />
+                  </Route>
+
+                  {/* Institution bulk-onboarding flow.
               All steps share InstitutionOnboardingLayout which renders the
               page bg ellipses, the shared right panel, and (for non-guidelines
               routes) the 8-step breadcrumb at the top. */}
-                <Route element={<InstitutionOnboardingLayout />}>
-                  <Route
-                    path="/onboarding/institution/guidelines"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionGuidelinesPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/your-institution"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionYourInstitutionPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/contact"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionContactPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/activate"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionActivatePage />
-                      </Suspense>
-                    }
-                  />
-                  {/* Template Guide — part of Phase 4 "Bulk Upload".
+                  <Route element={<InstitutionOnboardingLayout />}>
+                    <Route
+                      path="/onboarding/institution/guidelines"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionGuidelinesPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/your-institution"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionYourInstitutionPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/contact"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionContactPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/activate"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionActivatePage />
+                        </Suspense>
+                      }
+                    />
+                    {/* Template Guide — part of Phase 4 "Bulk Upload".
                 Comes BEFORE /template in the flow: activate → template-guide → template → upload.
                 Has right panel (does not end with '/activate' or '/template').
                 Automatically gets breadcrumb step 3 "Template" via startsWith match
                 against STEP_PATHS[3] = '/onboarding/institution/template'. */}
-                  <Route
-                    path="/onboarding/institution/template-guide"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionTemplateGuidePage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/template"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionTemplatePage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/upload"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionUploadPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/validate"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionValidatePage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/confirm"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionConfirmPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/onboarding/institution/report"
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <InstitutionReportPage />
-                      </Suspense>
-                    }
-                  />
-                </Route>
+                    <Route
+                      path="/onboarding/institution/template-guide"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionTemplateGuidePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/template"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionTemplatePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/upload"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionUploadPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/validate"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionValidatePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/confirm"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionConfirmPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/onboarding/institution/report"
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <InstitutionReportPage />
+                        </Suspense>
+                      }
+                    />
+                  </Route>
 
-                {/* Parent portal onboarding — shared layout provides BG ellipses + gold right panel.
+                  {/* Parent portal onboarding — shared layout provides BG ellipses + gold right panel.
               Layout swaps the right panel based on the active route:
                 parent-welcome → ParentWelcomeRightPanel (single large photo + Ward Status overlay)
                 parent-login   → ParentLoginRightPanel   (two photo cards + Error callout) */}
-                <Route element={<ParentOnboardingLayout />}>
+                  <Route element={<ParentOnboardingLayout />}>
+                    <Route
+                      path={'/onboarding/parent-welcome'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentWelcomePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInvitePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-identity'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteIdentityPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-verification'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteVerificationPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-contact'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteContactPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-security'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteSecurityPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-link-ward'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteLinkWardPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-invited-consent'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentInviteConsentPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-login'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentLoginPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-identity'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentIdentityPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-verification'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentVerificationPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-contact'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentContactPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-security'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentSecurityPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-link-ward'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentLinkWardPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-review'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentReviewPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/onboarding/parent-done'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ParentDonePage />
+                        </Suspense>
+                      }
+                    />
+                  </Route>
+
+                  {/* /components hosts the design-system playground (HomePage). */}
                   <Route
-                    path={'/onboarding/parent-welcome'}
+                    path={'/components'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <ParentWelcomePage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInvitePage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-identity'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteIdentityPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-verification'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteVerificationPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-contact'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteContactPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-security'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteSecurityPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-link-ward'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteLinkWardPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-invited-consent'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentInviteConsentPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-login'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentLoginPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-identity'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentIdentityPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-verification'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentVerificationPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-contact'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentContactPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-security'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentSecurityPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-link-ward'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentLinkWardPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-review'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentReviewPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path={'/onboarding/parent-done'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <ParentDonePage />
+                        <HomePage />
                       </Suspense>
                     }
                   />
                 </Route>
 
-                {/* /components hosts the design-system playground (HomePage). */}
+                {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
                 <Route
-                  path={'/components'}
+                  path={'/profile/engagement'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <HomePage />
+                      <ProfileEngagementPage />
                     </Suspense>
                   }
                 />
-              </Route>
+                <Route
+                  path={'/profile/engagement/identity'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <IdentityMapPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/engagement/milestone'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <MilestoneUnlockPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/engagement/milestone/top-20'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <Top20MilestonePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/engagement/milestone/top-talent'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TopTalentMilestonePage />
+                    </Suspense>
+                  }
+                />
+                {/* Profile filling — each step owns its own full-bleed chrome (no shared layout). */}
+                <Route
+                  path={'/profile/filling/interests'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <InterestsIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/interests/categories'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <InterestsStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/skills'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SkillsIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/skills/categories'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SkillsStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/work'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <WorkIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/work/history'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <WorkStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/portfolio'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PortfolioIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/portfolio/projects'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PortfolioStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/certs'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CertsIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/certs/list'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CertsStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/goals'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GoalsIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/goals/list'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GoalsStage2Page />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/pitch'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PitchIntroPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/pitch/record'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PitchStage2Page />
+                    </Suspense>
+                  }
+                />
+                {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
+                <Route
+                  path={'/profile/filling/career-buddy'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CareerBuddyPage />
+                    </Suspense>
+                  }
+                />
+                {/* Legacy split route → shared shell + recruiter role. */}
+                <Route
+                  path={'/profile/filling/recruiter-buddy'}
+                  element={<LegacyRecruiterBuddyRedirect />}
+                />
 
-              {/* Profile engagement owns its own top/bottom chrome — mounted outside MainLayout. */}
-              <Route
-                path={'/profile/engagement'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <ProfileEngagementPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/engagement/identity'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <IdentityMapPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/engagement/milestone'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <MilestoneUnlockPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/engagement/milestone/top-20'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <Top20MilestonePage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/engagement/milestone/top-talent'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <TopTalentMilestonePage />
-                  </Suspense>
-                }
-              />
-              {/* Profile filling — each step owns its own full-bleed chrome (no shared layout). */}
-              <Route
-                path={'/profile/filling/interests'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <InterestsIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/interests/categories'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <InterestsStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/skills'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <SkillsIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/skills/categories'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <SkillsStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/work'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <WorkIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/work/history'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <WorkStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/portfolio'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <PortfolioIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/portfolio/projects'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <PortfolioStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/certs'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <CertsIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/certs/list'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <CertsStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/goals'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <GoalsIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/goals/list'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <GoalsStage2Page />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/pitch'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <PitchIntroPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/profile/filling/pitch/record'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <PitchStage2Page />
-                  </Suspense>
-                }
-              />
-              {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
-              <Route
-                path={'/profile/filling/career-buddy'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <CareerBuddyPage />
-                  </Suspense>
-                }
-              />
-              {/* Legacy split route → shared shell + recruiter role. */}
-              <Route
-                path={'/profile/filling/recruiter-buddy'}
-                element={<LegacyRecruiterBuddyRedirect />}
-              />
+                {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
+                <Route
+                  path={'/skills-lab/:skillSlug'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SkillsLabPage />
+                    </Suspense>
+                  }
+                />
 
-              {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
-              <Route
-                path={'/skills-lab/:skillSlug'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <SkillsLabPage />
-                  </Suspense>
-                }
-              />
-
-              {/* Talent Community Engagement — the community/feed area.
+                {/* Talent Community Engagement — the community/feed area.
             Mounted outside MainLayout (same as /profile/engagement/*) because
             Figma's frames carry their own dashboard chrome: a top nav with
             global search + notification cluster and a collapsible left rail,
@@ -731,140 +855,153 @@ function App() {
             NB deliberately NOT under /profile/engagement/* or
             src/components/sections/engagement/ — that namespace is the
             unrelated 9-stage profile-completion feature. */}
-              <Route
-                path={'/community'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <CommunityHomePage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/community/:communityId'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <CommunityDetailPage />
-                  </Suspense>
-                }
-              />
+                <Route
+                  path={'/community'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityHomePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/community/:communityId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityDetailPage />
+                    </Suspense>
+                  }
+                />
 
-              {/* Recruiter dashboard home — Figma 7249:73882 "Recruiter Home-
+                {/* Talent home — Figma "Talents dashboard" 5686:95479 (Focused + Playful).
+            Outside MainLayout like the other dashboard screens; state is chosen by
+            query params (see talentHomeState.js / wiki/talent-home.md). */}
+                <Route
+                  path={'/home'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Recruiter dashboard home — Figma 7249:73882 "Recruiter Home-
             Existing user". Mounts outside MainLayout and reuses DashboardShell
             (same top nav, sidebar and background, all built from this same
             Figma frame set), contributing only its own content column. The
             sidebar's Home item points here. */}
-              <Route
-                path={'/recruiter/home'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <RecruiterHomePage />
-                  </Suspense>
-                }
-              />
+                <Route
+                  path={'/recruiter/home'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <RecruiterHomePage />
+                    </Suspense>
+                  }
+                />
 
-              {/* Recruiter talent search — Figma 7249:74283 "Recruiter Talent
+                {/* Recruiter talent search — Figma 7249:74283 "Recruiter Talent
             Search". Same DashboardShell chrome as the recruiter home; the
             sidebar's Talent Search item points here. */}
-              <Route
-                path={'/recruiter/talent-search'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <TalentSearchPage />
-                  </Suspense>
-                }
-              />
+                <Route
+                  path={'/recruiter/talent-search'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentSearchPage />
+                    </Suspense>
+                  }
+                />
 
-              {/* Remaining recruiter dashboard screens — Figma page "Job -
+                {/* Remaining recruiter dashboard screens — Figma page "Job -
             Prospecting screens" (5566:50658), sections 7249:75045 / :75817 /
             :78065 / :79016 / :83992. All share DashboardShell chrome. */}
-              <Route
-                path={'/recruiter/job-templates'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <JobTemplatesPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/recruiter/job-postings'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <JobPostingsPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/recruiter/job-screening'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <JobScreeningPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/recruiter/application-pipeline'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <ApplicationPipelinePage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path={'/recruiter/messages'}
-                element={
-                  <Suspense fallback={<RouteFallback />}>
-                    <RecruiterMessagesPage />
-                  </Suspense>
-                }
-              />
+                <Route
+                  path={'/recruiter/job-templates'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <JobTemplatesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-postings'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <JobPostingsPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-screening'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <JobScreeningPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/application-pipeline'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ApplicationPipelinePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/messages'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <RecruiterMessagesPage />
+                    </Suspense>
+                  }
+                />
 
-              {/* Avatar customiser steps. Selection state is on the app-root
+                {/* Avatar customiser steps. Selection state is on the app-root
             AvatarSelectionProvider so Career Buddy can reuse the same avatar. */}
-              <Route element={<AvatarFlowLayout />}>
-                <Route
-                  path={'/profile/engagement/avatar'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <AvatarCustomiserPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={'/profile/engagement/avatar/skin'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <AvatarSkinTonePage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={'/profile/engagement/avatar/hair'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <AvatarHairPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={'/profile/engagement/avatar/extras'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <AvatarExtrasPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={'/profile/engagement/avatar/outfit'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <AvatarOutfitPage />
-                    </Suspense>
-                  }
-                />
-              </Route>
-            </Routes>
-          </Suspense>
-        </CareerBuddyRoleProvider>
+                <Route element={<AvatarFlowLayout />}>
+                  <Route
+                    path={'/profile/engagement/avatar'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <AvatarCustomiserPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={'/profile/engagement/avatar/skin'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <AvatarSkinTonePage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={'/profile/engagement/avatar/hair'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <AvatarHairPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={'/profile/engagement/avatar/extras'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <AvatarExtrasPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path={'/profile/engagement/avatar/outfit'}
+                    element={
+                      <Suspense fallback={<RouteFallback />}>
+                        <AvatarOutfitPage />
+                      </Suspense>
+                    }
+                  />
+                </Route>
+              </Routes>
+            </Suspense>
+          </CareerBuddyRoleProvider>
+        </UiStyleProvider>
       </AvatarSelectionProvider>
     </BrowserRouter>
   );

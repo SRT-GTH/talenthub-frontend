@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import { useUiStyle } from '../../../hooks/useUiStyle.js';
+import PlayfulVoiceCall from './PlayfulVoiceCall.jsx';
 import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
@@ -24,7 +26,7 @@ const log = debug('VoiceCallOverlay');
  */
 const PAUSE_MS = 1500;
 
-const VoiceCallOverlay = ({
+const FocusedVoiceCallOverlay = ({
   open,
   voiceId,
   userName = 'Emma',
@@ -162,6 +164,16 @@ const VoiceCallOverlay = ({
         </p>
       )}
     </div>
+  );
+};
+
+/** Playful appearance renders its own call UI (same props); Focused markup is untouched. */
+const VoiceCallOverlay = (props) => {
+  const { uiStyle } = useUiStyle();
+  return uiStyle === 'playful' ? (
+    <PlayfulVoiceCall {...props} />
+  ) : (
+    <FocusedVoiceCallOverlay {...props} />
   );
 };
 

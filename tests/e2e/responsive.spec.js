@@ -38,6 +38,7 @@ for (const width of WIDTHS) {
         await page.addInitScript(() => {
           try {
             window.localStorage.setItem('gth:hide-demo', '1');
+            window.localStorage.setItem('gth:ui-style-chosen', '1');
           } catch {
             /* ignore */
           }

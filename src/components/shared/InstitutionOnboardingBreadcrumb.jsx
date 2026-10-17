@@ -1,5 +1,6 @@
 import ProgressBar from '../ui/ProgressBar.jsx';
 import { debug } from '../../utils/debug.js';
+import ScrollChevronRow from '../ui/ScrollChevronRow.jsx';
 
 const log = debug('InstitutionOnboardingBreadcrumb');
 
@@ -119,11 +120,12 @@ const InstitutionOnboardingBreadcrumb = ({ currentStep = 0, completionPercent })
       </div>
 
       {/* ── Steps list — scrollable on narrow viewports ── */}
-      <ol
-        className="flex flex-1 min-w-0 items-center overflow-x-auto max-md:hidden"
-        style={{
-          scrollbarWidth: 'none',
-        }} /* hide scrollbar; raw CSS — Tailwind has no scrollbar-hide utility in v4 by default */
+      <ScrollChevronRow
+        as="ol"
+        wrapperClassName="flex flex-1 min-w-0 max-md:hidden"
+        className="relative flex items-center"
+        focusSelector='[aria-current="step"]'
+        focusKey={currentStep}
       >
         {INSTITUTION_STEPS.map((step, index) => {
           const isActive = index === currentStep;
@@ -161,7 +163,7 @@ const InstitutionOnboardingBreadcrumb = ({ currentStep = 0, completionPercent })
             </li>
           );
         })}
-      </ol>
+      </ScrollChevronRow>
 
       {/* ── Right: progress readout ──
            Figma node 3010:40725 — container 245×48px.

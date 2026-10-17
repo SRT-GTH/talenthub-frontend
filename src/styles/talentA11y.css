@@ -1,0 +1,61 @@
+/* === talent home · accessibility (A11Y-01 / A11Y-02) ===
+ * Unlayered on purpose: beats the Tailwind utility layer without !important.
+ * Everything is keyed to attributes that exist only on /home, so no other route is affected. */
+
+/* A11Y-01 focus ring (Figma 7751:2581 callout): 3px #111, 2px gap, never removed. Keyboard only. */
+html[data-talent-home] :focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 2px;
+}
+html[data-talent-home] main:focus {
+  outline: none;
+}
+
+/* prefers-reduced-motion: stop animation/transition/smooth-scroll; static visuals unchanged. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-talent-home],
+  html[data-talent-home] *,
+  html[data-talent-home] *::before,
+  html[data-talent-home] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A11Y-02 reduce motion: same, plus the decorative layers the frame hides (blobs, doodle stars)
+ * and stickers drawn upright in the content column. */
+[data-a11y-motion],
+[data-a11y-motion] *,
+[data-a11y-motion] *::before,
+[data-a11y-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+[data-a11y-motion] [data-bg-blobs],
+[data-a11y-motion] main [data-doodle] {
+  display: none !important;
+}
+[data-a11y-motion] main [data-sticker] {
+  rotate: none;
+}
+
+/* A11Y-02 high contrast: secondary text #595959 -> #2b2b2b (chips keep theirs), plain card /
+ * row borders #e7e7e7 -> #767676 with the soft drop shadow removed. Content column only. */
+[data-a11y-contrast] main .text-\[\#595959\]:not(.rounded-full) {
+  color: #2b2b2b;
+}
+[data-a11y-contrast] main .border-\[\#e7e7e7\] {
+  border-color: #767676;
+  box-shadow: none;
+}
+
+/* A11Y-02 underline links (decoration-from-font, underline-position from-font). */
+[data-a11y-links] main [data-link] {
+  text-decoration: underline solid;
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+}

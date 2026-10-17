@@ -8,22 +8,30 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
-import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
-import TalentContactPanelContent from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import {
+  TALENT_CONTACT_PHOTO_CARDS,
+  TalentContactOverlay,
+} from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CalendarIcon,
-  CloseIcon,
   LoadingSpinner,
-  MapIcon,
-  MapPinIcon,
   MortarboardIcon,
   SearchIcon,
-  SuccessCheckIcon,
   TrendUpIcon,
   WarningIcon,
 } from '../../components/shared/assets.jsx';
+import {
+  ShieldCheckIcon,
+  CloseIcon,
+  MapIcon,
+  MapPinIcon,
+  SuccessCheckIcon,
+  TALENT_ASTERISK,
+  AlertDiamondIcon,
+} from '../../components/sections/talentAuth/talentIcons.jsx';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import { debug } from '../../utils/debug.js';
 
@@ -192,7 +200,7 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
       aria-modal="true"
       aria-labelledby="education-success-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(0, 0, 0, 0.45)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
         className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
@@ -221,10 +229,10 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
           </span>
           <p
             id="education-success-title"
-            className="font-display font-normal text-[#111]"
-            style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
+            className="font-heading font-semibold text-[#1C2A21]"
+            style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
           >
-            Education <span className="italic text-brand-green">recorded</span>
+            Education <span className="text-brand-green">recorded</span>
           </p>
           <p
             className="text-center text-[12px] leading-[18px] text-[#959592]"
@@ -283,21 +291,7 @@ const EducationConfirmedModal = ({ summary, onClose, onContinue }) => {
           className="flex items-center justify-center gap-1.5 text-[10px] max-lg:text-[12px] leading-4 text-[#959592]"
           style={{ letterSpacing: '0.2px' }}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M6 1.2 2 3v3.5c0 2.2 1.8 4 4 4.5 2.2-.5 4-2.3 4-4.5V3L6 1.2Z"
-              stroke="#959592"
-              strokeWidth="1.1"
-              strokeLinejoin="round"
-            />
-            <path
-              d="m4.3 6 1.3 1.3L8 5"
-              stroke="#959592"
-              strokeWidth="1.1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ShieldCheckIcon className="size-3" />
           Data encrypted at rest · Ghana Data Protection Act compliant
         </p>
       </div>
@@ -315,7 +309,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
       aria-modal="true"
       aria-labelledby="education-gate-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(0, 0, 0, 0.45)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
         className="relative flex w-[440px] max-w-full flex-col gap-5 rounded-[24px] bg-white px-8 py-7 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
@@ -345,7 +339,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
           </span>
           <p
             id="education-gate-title"
-            className="font-display font-normal text-[#111]"
+            className="font-heading font-semibold text-[#1C2A21]"
             style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
           >
             Not quite yet
@@ -372,7 +366,7 @@ const LevelNotEligibleModal = ({ onClose, onChangeLevel }) => {
             className="text-[12px] font-bold leading-5 text-[#C8951A]"
             style={{ letterSpacing: '0.1px' }}
           >
-            ðŸ“… Check back when you reach JHS 1
+            Check back when you reach JHS 1
           </p>
           <p
             className="text-[12px] leading-[18px] text-[#C8951A]"
@@ -594,11 +588,11 @@ const OnboardingEducationPage = () => {
   const graduationHelper =
     level && grade && !isInstitutionMissing
       ? 'When do you expect to graduate?'
-      : 'Select level, grade and institution first';
+      : 'Select level and grade first';
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="education" />
+      <OnboardingHeader currentKey="education" percent={78} />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
@@ -606,7 +600,7 @@ const OnboardingEducationPage = () => {
           <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
+              className="my-auto flex w-full max-w-[739px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
               aria-busy={isSubmitting}
             >
@@ -622,8 +616,8 @@ const OnboardingEducationPage = () => {
                   <TrendUpIcon className="size-3" />
                 </span>
                 <span
-                  className="font-display italic text-[#B5B5B5]"
-                  style={{ fontSize: 16, lineHeight: 'normal' }}
+                  className="font-heading font-semibold text-[#B5B5B5]"
+                  style={{ fontSize: 15, lineHeight: 'normal' }}
                 >
                   05
                 </span>
@@ -636,10 +630,10 @@ const OnboardingEducationPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }}
               >
-                Your <span className="italic text-brand-green">Educational</span> Level
+                Your <span className="text-brand-green">Educational</span> Level
               </h1>
 
               <p
@@ -667,8 +661,10 @@ const OnboardingEducationPage = () => {
                 narrow viewports). Progressive disclosure: Level → Grade →
                 Institution → Graduation. Each unlocks the next; clearing a
                 parent clears its descendants. */}
-              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 max-md:gap-y-3">
+              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 md:px-5 max-md:gap-y-3">
                 <Select
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Education level"
                   required
                   placeholder="Select your level"
@@ -683,6 +679,8 @@ const OnboardingEducationPage = () => {
                   searchable
                 />
                 <Select
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Grade/Year"
                   required
                   placeholder="Select grade"
@@ -698,6 +696,8 @@ const OnboardingEducationPage = () => {
                   verified={Boolean(grade)}
                 />
                 <TextInput
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Institution"
                   required
                   placeholder="Search school or university"
@@ -715,6 +715,8 @@ const OnboardingEducationPage = () => {
                   autoComplete="off"
                 />
                 <Select
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Expected graduation"
                   required
                   placeholder="yyyy"
@@ -768,7 +770,11 @@ const OnboardingEducationPage = () => {
           </div>
         </div>
 
-        <OnboardingRightPanel panelContent={<TalentContactPanelContent />} />
+        <TalentOnboardingPanel
+          photoCards={TALENT_CONTACT_PHOTO_CARDS}
+          overlayContent={<TalentContactOverlay />}
+          showWatchTutorial={false}
+        />
       </div>
 
       {showSuccess && (

@@ -107,6 +107,14 @@ const Select = ({
   required,
   optional,
   helperText,
+  // Opt-in Field passthroughs (talent Figma 8027); undefined = unchanged.
+  labelTrailing,
+  labelTrailingClassName,
+  helperIcon,
+  helperIconClassName,
+  helperTextClassName,
+  forceAsterisk,
+  asteriskClassName,
   error,
   state,
   options = [],
@@ -259,6 +267,13 @@ const Select = ({
       required={required}
       optional={optional}
       helperText={helperText}
+      labelTrailing={labelTrailing}
+      labelTrailingClassName={labelTrailingClassName}
+      helperIcon={helperIcon}
+      helperIconClassName={helperIconClassName}
+      helperTextClassName={helperTextClassName}
+      forceAsterisk={forceAsterisk}
+      asteriskClassName={asteriskClassName}
       error={error}
       className={className}
     >

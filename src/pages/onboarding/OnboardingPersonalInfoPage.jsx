@@ -10,16 +10,13 @@ import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
 import {
   ArrowRightIcon,
-  CloseIcon,
   EyeIcon,
   EyeOffIcon,
   GlobeIcon,
   IdCardIcon,
   LoadingSpinner,
   LockIcon,
-  PencilEditIcon,
   ProfilePlaceholderIcon,
-  SuccessCheckIcon,
   SummaryFlagIcon,
   SummaryIdIcon,
   SummaryPhotoIcon,
@@ -27,8 +24,12 @@ import {
   UserIcon,
 } from '../../components/shared/assets.jsx';
 import { debug } from '../../utils/debug.js';
-import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
-import TalentPersonalInfoPanelContent from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
+import uploadIcon from '../../assets/talent-onboarding/upload.svg';
+import rowCheckIcon from '../../assets/talent-onboarding/modal-row-check.svg';
+import modalCloseIcon from '../../assets/talent-onboarding/modal-close.svg';
+import identityCheckIcon from '../../assets/talent-onboarding/modal-identity-check.svg';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
+import { PersonalOverlayCards } from '../../components/sections/talentAuth/TalentPersonalInfoPanelContent.jsx';
 
 const log = debug('OnboardingPersonalInfoPage');
 
@@ -105,15 +106,7 @@ const ProfilePhotoField = ({ file, previewUrl, onChange }) => {
             onClick={handleClick}
             className="inline-flex h-[34px] items-center gap-1.5 self-start rounded-[8px] border border-[#E6E6E6] bg-white px-3 text-[11px] max-lg:text-[12px] font-semibold text-[#575755] shadow-[0_2px_0_rgba(0,0,0,0.04)] transition-colors hover:bg-[#FAFAF8]"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path
-                d="M6 8.5V2M6 2 3.5 4.5M6 2l2.5 2.5M2 9.5V10a.5.5 0 0 0 .5.5h7A.5.5 0 0 0 10 10v-.5"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img src={uploadIcon} alt="" draggable={false} className="size-4 shrink-0" />
             Upload photo
           </button>
           {file ? (
@@ -157,12 +150,12 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         aria-label="Close"
         className="absolute right-4 top-4 inline-flex size-7 items-center justify-center rounded-full border border-[#E6E6E6] bg-white text-[#575755] transition-colors hover:bg-[#FAFAF8]"
       >
-        <CloseIcon />
+        <img src={modalCloseIcon} alt="" draggable={false} className="size-4" />
       </button>
 
       <div className="flex flex-col items-center gap-3 text-center">
         <span className="flex size-14 items-center justify-center rounded-[10px] bg-brand-green-light-hover">
-          <SuccessCheckIcon />
+          <img src={identityCheckIcon} alt="" draggable={false} className="size-7" />
         </span>
         <span
           className="inline-flex items-center gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1"
@@ -178,10 +171,10 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
         </span>
         <h2
           id="identity-captured-title"
-          className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+          className="font-heading font-semibold text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
           style={{ fontSize: 32, lineHeight: '34px' }}
         >
-          Identity <span className="italic text-brand-green">captured.</span>
+          Identity <span className="text-brand-green">captured.</span>
         </h2>
         <p className="text-[12px] leading-[18px] text-[#959592]" style={{ letterSpacing: '0.2px' }}>
           Your personal information is saved and encrypted. Here&apos;s a summary of what we stored.
@@ -197,16 +190,7 @@ const IdentityCapturedModal = ({ summary, onClose, onContinue }) => (
             </span>
             {row.value === '__uploaded__' ? (
               <span className="inline-flex items-center gap-1 text-brand-green">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <circle cx="5" cy="5" r="4" stroke="currentColor" strokeWidth="1.2" />
-                  <path
-                    d="m3.2 5.2 1.4 1.4 2.2-2.6"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <img src={rowCheckIcon} alt="" draggable={false} className="size-3 shrink-0" />
                 Uploaded
               </span>
             ) : (
@@ -316,7 +300,14 @@ const OnboardingPersonalInfoPage = () => {
   // Figma frame 2374:14410 keeps the CTA label constant once the user
   // can act on the form ("Save & Continue"). The empty-form copy
   // ("Fill In Your Details") is the nudge while the user is still typing.
-  const ctaLabel = isValid || isSubmitting ? 'Save & Continue' : 'Fill In Your Details';
+  // Figma 8027:205248: 'Setting Things Up' while the request runs; 205509/205770 keep
+  // 'Save & Continue' behind the Identity-captured modal.
+  const ctaLabel =
+    isSubmitting && !showSuccess
+      ? 'Setting Things Up'
+      : isValid || isSubmitting
+        ? 'Save & Continue'
+        : 'Fill In Your Details';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -388,7 +379,7 @@ const OnboardingPersonalInfoPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="profile" />
+      <OnboardingHeader currentKey="profile" percent={78} />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
@@ -398,13 +389,16 @@ const OnboardingPersonalInfoPage = () => {
               className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
             >
-              {/* Eyebrow — pencil glyph + "Build Your Profile" label
-                inside a cream-green pill with green outline. */}
-              <span
-                className="inline-flex items-center max-md:px-3 max-md:py-0.5 gap-1.5 rounded-[6px] border border-brand-green-light-active bg-brand-green-light px-3 py-1.5"
-                style={{ outline: '1px solid #387440', outlineOffset: '-1px' }}
-              >
-                <PencilEditIcon />
+              {/* Eyebrow pill - Figma 8027:204537 family: 02 + "Build Your Profile" */}
+              <span className="inline-flex items-center gap-2 rounded-[8px] border border-[#c1d4c4] bg-[#fffefc] px-4 py-1 max-md:px-3 max-md:py-0.5">
+                <span
+                  aria-hidden="true"
+                  className="size-2 rounded-full border-[1.5px] border-[#1d7c4d] bg-[#e1eae2]"
+                  style={{ boxShadow: '0 0 4px 0 #006B3F' }}
+                />
+                <span className="font-heading text-[15px] font-semibold leading-[19px] text-[#b5b5b5]">
+                  02
+                </span>
                 <span
                   className="text-[12px] leading-[18px] text-brand-green"
                   style={{ letterSpacing: '0.2px' }}
@@ -414,10 +408,14 @@ const OnboardingPersonalInfoPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+                className="font-heading font-semibold text-[#1c2a21] max-md:text-[28px]! max-md:leading-tight!"
+                style={{
+                  fontSize: 'clamp(2.125rem, 4vw, 3.375rem)',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.54px',
+                }}
               >
-                Tell us about <span className="italic text-brand-green">yourself.</span>
+                Tell us about <span className="text-brand-green">yourself.</span>
               </h1>
 
               <p
@@ -546,7 +544,7 @@ const OnboardingPersonalInfoPage = () => {
                   state={isSubmitting ? 'active' : undefined}
                   leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
                   rightIcon={<ArrowRightIcon />}
-                  className="mt-2 w-full max-w-[420px]"
+                  className="mt-2 w-full max-w-[698px]"
                   aria-busy={isSubmitting}
                 >
                   {ctaLabel}
@@ -569,7 +567,11 @@ const OnboardingPersonalInfoPage = () => {
           </div>
         </div>
 
-        <OnboardingRightPanel panelContent={<TalentPersonalInfoPanelContent />} />
+        <TalentOnboardingPanel
+          photoCards={[]}
+          showWatchTutorial={false}
+          overlayContent={<PersonalOverlayCards />}
+        />
       </div>
       {showSuccess && (
         <IdentityCapturedModal

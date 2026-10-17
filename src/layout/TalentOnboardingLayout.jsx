@@ -17,7 +17,7 @@ const log = debug('TalentOnboardingLayout');
  *     h-screen overflow-hidden fixed-shell mode to lock the viewport.
  *
  * Each child route (LoginPage, talent step pages) renders its own
- * two-column layout (left content + OnboardingRightPanel). The layout
+ * two-column layout (left content + OnboardingPanel). The layout
  * does NOT inject a right panel — child routes own that.
  *
  * Mirrors InstitutionOnboardingLayout / ParentOnboardingLayout in structure.

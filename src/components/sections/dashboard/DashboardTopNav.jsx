@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -8,6 +8,13 @@ import { TOP_NAV } from './dashboardData.js';
 import DashboardSearchSheet from './DashboardSearchSheet.jsx';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import avatarNav from '../../../assets/community/avatar-recruiter-nav.svg';
+import {
+  TalentNavProfileAvatarIllustration,
+  TalentNavStreakPlayfulFigureIcon,
+} from '../../shared/assets.jsx';
+import StyleSwitch from '../../ui/StyleSwitch.jsx';
+import { getTalentNavData, getTalentSidebarData } from '../talentHome/talentShellData.js';
+import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
 
 const log = debug('DashboardTopNav');
 
@@ -48,10 +55,33 @@ const NavIconButton = ({ src, label, badge, onClick, className }) => (
   </button>
 );
 
-const DashboardTopNav = ({ className }) => {
+/*
+ * Talent variant (`/home`, Figma `Nav` 8315:461634): pass `talentHome` (useTalentHomeState()).
+ * Everything talent-specific is gated on it — recruiter/community pages never pass it and render
+ * byte-identically. Adds: search opens the global search (⌘K / Ctrl+K), style switch, Playful streak
+ * mark, per-state streak/counts, accessibility toggle (`a11y` param), talent avatar.
+ */
+const DashboardTopNav = ({ className, talentHome }) => {
+  const isTalent = Boolean(talentHome);
+  // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
+  const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
+  const nav = isTalent ? { ...TOP_NAV, ...getTalentNavData(talentHome.stateKey) } : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
   // button that opens DashboardSearchSheet instead.
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isTalent) return undefined;
+    const onKey = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        log('⌘K → open global search');
+        talentHome.update({ search: true });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isTalent, talentHome]);
 
   const handleAction = (action) => {
     // Every control here is presentational in this build — no destination
@@ -90,6 +120,8 @@ const DashboardTopNav = ({ className }) => {
           <input
             type="search"
             placeholder={TOP_NAV.searchPlaceholder}
+            readOnly={isTalent}
+            onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
             onChange={(event) => log('global search input:', event.target.value.length, 'chars')}
             className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#bfbfbf]"
           />
@@ -101,6 +133,9 @@ const DashboardTopNav = ({ className }) => {
 
       {/* Right: streak, utility icons, language, accessibility, profile chip */}
       <div className="flex shrink-0 items-center gap-[clamp(10px,1.39vw,24px)]">
+        {isTalent && (
+          <StyleSwitch className="max-md:hidden max-lg:[&_button>span]:sr-only lg:-mr-[4px]" />
+        )}
         <div className="flex items-center gap-[12px] max-md:gap-[8px]">
           {/* Phone only — opens the full-width search sheet (the inline field is md+). */}
           <button
@@ -109,17 +144,35 @@ const DashboardTopNav = ({ className }) => {
             aria-haspopup="dialog"
             onClick={() => {
               log('search sheet: open');
-              setSearchOpen(true);
+              if (isTalent) talentHome.update({ search: true });
+              else setSearchOpen(true);
             }}
             className="relative inline-flex size-[36px] shrink-0 items-center justify-center rounded-[18px] bg-[#f8fafc] transition-colors after:absolute after:-inset-1 hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green md:hidden"
           >
             <CommunityIcon src={icons.navSearch} size={20} />
           </button>
 
-          <span className="inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] bg-accent-light px-[12px] py-[8px] max-md:py-[2px]">
-            <CommunityIcon src={icons.streakFire} size={20} />
-            <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-accent">
-              {TOP_NAV.streakCount}
+          <span
+            className={classNames(
+              'inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] px-[12px] py-[8px] max-md:py-[2px]',
+              isTalent ? 'bg-[#faf4e8]' : 'bg-accent-light'
+            )}
+          >
+            <CommunityIcon
+              src={icons.streakFire}
+              size={20}
+              className={isTalent ? 'playful:hidden' : undefined}
+            />
+            {isTalent && (
+              <TalentNavStreakPlayfulFigureIcon className="hidden size-[24px] shrink-0 select-none playful:block" />
+            )}
+            <span
+              className={classNames(
+                'font-sans text-[14px] font-semibold leading-6 tracking-[0.1px]',
+                isTalent ? 'text-[#c8951a]' : 'text-accent'
+              )}
+            >
+              {nav.streakCount}
             </span>
           </span>
 
@@ -134,14 +187,14 @@ const DashboardTopNav = ({ className }) => {
             />
             <NavIconButton
               src={icons.navNotification}
-              label={`Notifications, ${TOP_NAV.notificationCount} unread`}
-              badge={TOP_NAV.notificationCount}
+              label={`Notifications, ${nav.notificationCount} unread`}
+              badge={nav.notificationCount}
               onClick={() => handleAction('notifications')}
             />
             <NavIconButton
               src={icons.navMessage}
-              label={`Messages, ${TOP_NAV.messageCount} unread`}
-              badge={TOP_NAV.messageCount}
+              label={`Messages, ${nav.messageCount} unread`}
+              badge={nav.messageCount}
               onClick={() => handleAction('messages')}
             />
 
@@ -157,39 +210,57 @@ const DashboardTopNav = ({ className }) => {
               <CommunityIcon src={icons.navCaret} size={14} />
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleAction('accessibility')}
-              aria-label="Accessibility mode"
-              className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-            >
-              <CommunityIcon src={icons.navAccessibility} size={20} />
-            </button>
+            {isTalent ? (
+              <TalentA11yMenu home={talentHome} />
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleAction('accessibility')}
+                aria-label="Accessibility mode"
+                className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <CommunityIcon src={icons.navAccessibility} size={20} />
+              </button>
+            )}
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => handleAction('profile-menu')}
-          aria-label={`Profile menu, ${TOP_NAV.profileName}`}
+          aria-label={`Profile menu, ${nav.profileName}`}
           /* Phones: collapse to a 44px avatar-only button (the name + caret
              don't fit beside the logo, search and streak at 320). */
           className="inline-flex shrink-0 items-center gap-[7px] rounded-[10px] border border-brand-green-light-active bg-[#fffefc] px-[16px] py-[8px] max-md:relative max-md:size-[32px] max-md:justify-center max-md:rounded-[16px] max-md:p-0 max-md:after:absolute max-md:after:-inset-2 transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           <span
             aria-hidden="true"
-            className="relative size-[24px] shrink-0 overflow-hidden rounded-[12px]"
-            style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
+            className={classNames(
+              'relative size-[24px] shrink-0 overflow-hidden rounded-[12px]',
+              isTalent &&
+                (talentFlat
+                  ? 'bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#84cc16_85.349%)]'
+                  : 'bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]')
+            )}
+            style={
+              isTalent
+                ? undefined
+                : { backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }
+            }
           >
-            <img
-              src={avatarNav}
-              alt=""
-              draggable="false"
-              className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none"
-            />
+            {isTalent ? (
+              <TalentNavProfileAvatarIllustration className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none" />
+            ) : (
+              <img
+                src={avatarNav}
+                alt=""
+                draggable="false"
+                className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none"
+              />
+            )}
           </span>
           <span className="font-sans text-[14px] font-medium leading-6 tracking-[0.2px] text-black max-md:hidden">
-            {TOP_NAV.profileName}
+            {nav.profileName}
           </span>
           <CommunityIcon src={icons.navChipCaret} size={14} className="max-md:hidden" />
         </button>

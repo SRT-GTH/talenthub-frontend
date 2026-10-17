@@ -17,50 +17,12 @@
 
 import { getTalentOnboardingSteps, getOnboardingPercent } from './onboardingSteps.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
+import ScrollChevronRow from '../ui/ScrollChevronRow.jsx';
+import checkGreen from '../../assets/onboarding-header/check-green.svg';
+import checkGrey from '../../assets/onboarding-header/check-grey.svg';
+import separator from '../../assets/onboarding-header/separator.svg';
 
-const ChevronRight = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-    className="shrink-0"
-  >
-    <path
-      d="M10 16L14 12L10 8"
-      stroke="#BABAB7"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const CompletedCheck = () => (
-  // Small filled green check that prefixes completed step labels.
-  // Figma swaps in this badge in place of the chevron's leading dot
-  // once a step is past — keeps the trail readable in one glance.
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-    className="shrink-0"
-  >
-    <circle cx="8" cy="8" r="8" fill="#387440" />
-    <path
-      d="M5 8.4l2 2 4-4.4"
-      stroke="white"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const OnboardingHeader = ({ steps: stepsProp, currentKey, percent }) => {
+const OnboardingHeader = ({ steps: stepsProp, currentKey, percent, completedTone = 'muted' }) => {
   // Steps list defaults to whatever the talent context implies (the
   // Parent step appears automatically for under-18 users). Callers can
   // still override with an explicit `steps` prop — e.g. parent/recruiter
@@ -110,38 +72,50 @@ const OnboardingHeader = ({ steps: stepsProp, currentKey, percent }) => {
 
       <div className="mx-auto flex h-full items-center justify-between px-[54px] max-md:hidden">
         {/* Breadcrumbs */}
-        <nav
+        <ScrollChevronRow
+          as="nav"
           aria-label="Onboarding progress"
-          className="flex items-center gap-2 overflow-x-auto text-[14px] leading-4 capitalize"
+          wrapperClassName="min-w-0 flex-1"
+          className="relative flex items-center gap-2 text-[14px] leading-4 capitalize"
+          focusSelector='[aria-current="step"]'
+          focusKey={currentKey}
           style={{ letterSpacing: '0.14px' }}
         >
           {steps.map((step, index) => {
             const isActive = step.key === currentKey;
             const isCompleted = currentIndex >= 0 && index < currentIndex;
-            const isUpcoming = currentIndex >= 0 && index > currentIndex;
+            // Figma: done AND current steps carry the green check-circle, upcoming the grey one.
+            const reached = isActive || isCompleted;
             return (
               <div key={step.key} className="flex shrink-0 items-center gap-2">
-                {index > 0 && <ChevronRight />}
-                {isCompleted && <CompletedCheck />}
-                <span
-                  className={
-                    isActive
-                      ? 'font-semibold text-brand-green'
-                      : isCompleted
-                        ? 'font-medium text-[#575755]'
-                        : 'font-medium text-[#BABAB7]'
-                  }
-                  aria-current={isActive ? 'step' : undefined}
-                >
-                  {step.label}
+                {index > 0 && (
+                  <img src={separator} alt="" aria-hidden="true" className="size-6 shrink-0" />
+                )}
+                {/* icon + label: 16px glyph, 12px gap (Figma "Breadcrumbs" instance) */}
+                <span className="inline-flex items-center gap-3">
+                  <img
+                    src={reached ? checkGreen : checkGrey}
+                    alt=""
+                    aria-hidden="true"
+                    className="size-4 shrink-0"
+                  />
+                  <span
+                    className={
+                      isActive
+                        ? 'font-semibold text-brand-green'
+                        : isCompleted && completedTone === 'brand'
+                          ? 'font-medium text-brand-green'
+                          : 'font-medium text-[#BABAB7]'
+                    }
+                    aria-current={isActive ? 'step' : undefined}
+                  >
+                    {step.label}
+                  </span>
                 </span>
-                {/* Reserved width when step is upcoming so widths stay
-                    stable as a user advances through the trail. */}
-                {isUpcoming && null}
               </div>
             );
           })}
-        </nav>
+        </ScrollChevronRow>
 
         {/* Completion meter */}
         <div className="flex w-[245px] shrink-0 flex-col gap-2 pl-6">

@@ -1,0 +1,2270 @@
+{
+  "id": "7873:53961",
+  "label": "Education - IN PROGRESS (all answers; Figma also shows a retry branch the app lacks)",
+  "group": "Educational Background",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -1.7,
+    "derived": 53.7
+  },
+  "offsetUsed": 54,
+  "counts": {
+    "figmaTexts": 79,
+    "matched": 70,
+    "unmatched": 9,
+    "layoutMismatch": 60,
+    "fontMetric": 28,
+    "widthOver15": 4
+  },
+  "worstLayoutPx": 2237.7,
+  "unmatched": [
+    {
+      "text": "Avatar",
+      "figma": {
+        "x": 82,
+        "y": 121
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 118
+      },
+      "closestDom": "Step 3 of 9 ·"
+    },
+    {
+      "text": "I pursued 16 degrees",
+      "figma": {
+        "x": 848,
+        "y": 587
+      },
+      "closestDom": null
+    },
+    {
+      "text": "I am sorry but you did not answer the question.",
+      "figma": {
+        "x": 142,
+        "y": 672
+      },
+      "closestDom": null
+    },
+    {
+      "text": "My bad, I studied for a Bachelor of Science in Computer Science.",
+      "figma": {
+        "x": 577,
+        "y": 757
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Excellent choice! And what was your field of study or specialization within Computer Science?",
+      "figma": {
+        "x": 142,
+        "y": 842
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Yes, I have a PDF copy — I’ve attached it.",
+      "figma": {
+        "x": 722,
+        "y": 1527
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Emma",
+      "figma": {
+        "x": 1019,
+        "y": 1503
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Switch Modes ",
+      "figma": {
+        "x": 1265,
+        "y": 32
+      },
+      "closestDom": null
+    }
+  ],
+  "layout": [
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -2237.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -1513.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -1511.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 2.8,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -1151.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -1149.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -815.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -813.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "The information gathered from the our interaction on your ed",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -709.2,
+      "dh": -6,
+      "wPct": -4.4
+    },
+    {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -657.2,
+      "dh": -6,
+      "wPct": 9.8
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -655.7,
+      "dh": -3,
+      "wPct": 7.7
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -653.2,
+      "dh": -6,
+      "wPct": 7.5
+    },
+    {
+      "text": "Transcr... .pdf",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": 2,
+      "dy": -652.7,
+      "dh": 3,
+      "wPct": -3.7
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": 5,
+      "dy": -652.7,
+      "dh": 1,
+      "wPct": -68
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -651.7,
+      "dh": -3,
+      "wPct": 8.6
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -649.2,
+      "dh": -6,
+      "wPct": 8.5
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -647.7,
+      "dh": -3,
+      "wPct": 7.2
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 434.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Personal area of interest",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 434.3,
+      "dh": 3,
+      "wPct": 6.5
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 433.3,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Personality",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.8,
+      "dy": 432.8,
+      "dh": 3,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 431.3,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Work Experience",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 431.3,
+      "dh": 3,
+      "wPct": 5.1
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 431.3,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 431.3,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 430.3,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Career Options",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.6,
+      "dy": 429.8,
+      "dh": 3,
+      "wPct": 4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 427.3,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": 426.8,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Got it — University of Cape Coast. What degree did you pursu",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -305.2,
+      "dh": -6,
+      "wPct": 7.8
+    },
+    {
+      "text": "I went to the University of Cape Coast.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -303.7,
+      "dh": -3,
+      "wPct": 7.9
+    },
+    {
+      "text": "To start, what school or institution did you attend most rec",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -301.2,
+      "dh": -6,
+      "wPct": 9.3
+    },
+    {
+      "text": "Sounds great. Let’s do that.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -299.7,
+      "dh": -3,
+      "wPct": 8.5
+    },
+    {
+      "text": "Focused",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.7,
+      "dy": 0.4,
+      "dh": 2,
+      "wPct": 0.3
+    },
+    {
+      "text": "Playful",
+      "sel": "span.max-[480px]:sr-only",
+      "dx": 198.3,
+      "dy": 0.4,
+      "dh": 2,
+      "wPct": 5.2
+    },
+    {
+      "text": "Certs",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 58,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 1.2
+    },
+    {
+      "text": "Goals",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 56.4,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Pitch",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 55.5,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 1.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 46.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 44.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 37.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 35.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 32.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 30.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 28.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 26.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 24,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 7.7
+    },
+    {
+      "text": "Skills",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.7,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.2
+    },
+    {
+      "text": "Work",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.7,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.8
+    },
+    {
+      "text": "Personality",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 22.1,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 5.2
+    },
+    {
+      "text": "Interests ",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 21.2,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 5.3
+    },
+    {
+      "text": "Education",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 20.9,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 3.8
+    },
+    {
+      "text": "Save & Exit",
+      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
+      "dx": -4.4,
+      "dy": -0.1,
+      "dh": -5,
+      "wPct": 5.6
+    },
+    {
+      "text": "Write a message…",
+      "sel": "input.flex-1.min-w-0.border-none",
+      "dx": 1,
+      "dy": -4,
+      "dh": 4,
+      "wPct": -82.6
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -0.1,
+      "dh": 1,
+      "wPct": -4.7
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Skills",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.7,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.2,
+      "severe": false
+    },
+    {
+      "text": "Work",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.7,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 24,
+      "dy": 0.3,
+      "dh": 2,
+      "wPct": 7.7,
+      "severe": false
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 2.8,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 0.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "Sounds great. Let’s do that.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -299.7,
+      "dh": -3,
+      "wPct": 8.5,
+      "severe": false
+    },
+    {
+      "text": "To start, what school or institution did you attend most rec",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -301.2,
+      "dh": -6,
+      "wPct": 9.3,
+      "severe": false
+    },
+    {
+      "text": "I went to the University of Cape Coast.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -303.7,
+      "dh": -3,
+      "wPct": 7.9,
+      "severe": false
+    },
+    {
+      "text": "Got it — University of Cape Coast. What degree did you pursu",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -305.2,
+      "dh": -6,
+      "wPct": 7.8,
+      "severe": false
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -647.7,
+      "dh": -3,
+      "wPct": 7.2,
+      "severe": false
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -649.2,
+      "dh": -6,
+      "wPct": 8.5,
+      "severe": false
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -651.7,
+      "dh": -3,
+      "wPct": 8.6,
+      "severe": false
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -653.2,
+      "dh": -6,
+      "wPct": 7.5,
+      "severe": false
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -655.7,
+      "dh": -3,
+      "wPct": 7.7,
+      "severe": false
+    },
+    {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -657.2,
+      "dh": -6,
+      "wPct": 9.8,
+      "severe": false
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": 5,
+      "dy": -652.7,
+      "dh": 1,
+      "wPct": -68,
+      "severe": true
+    },
+    {
+      "text": "Write a message…",
+      "sel": "input.flex-1.min-w-0.border-none",
+      "dx": 1,
+      "dy": -4,
+      "dh": 4,
+      "wPct": -82.6,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 0.3,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 0.8,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Personal area of interest",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 434.3,
+      "dh": 3,
+      "wPct": 6.5,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 434.8,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 433.3,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": 431.3,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": 431.8,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 430.3,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 427.3,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    }
+  ],
+  "medianDx": 0.9,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 224.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 224.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 54,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "summaryLine": "96 style mismatches (colour:10 radius:12 shadow:6 stroke:12 opacity:2 typography:54); shapes 15/192 matched",
+    "counts": {
+      "colour": 10,
+      "radius": 12,
+      "shadow": 6,
+      "stroke": 12,
+      "opacity": 2,
+      "typography": 54,
+      "gradient": 0,
+      "mixedRuns": 2
+    },
+    "shapes": {
+      "total": 192,
+      "matched": 15
+    },
+    "textStyleMatched": 70,
+    "unmatchedShapes": [
+      {
+        "node": "Background",
+        "nodeId": "7873:53992",
+        "type": "RECTANGLE",
+        "box": [1351, 125, 5, 5]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:53996",
+        "type": "FRAME",
+        "box": [1351, 141, 323, 6]
+      },
+      {
+        "node": "Container",
+        "nodeId": "7873:53997",
+        "type": "FRAME",
+        "box": [1351, 141, 62, 6]
+      },
+      {
+        "node": "grid",
+        "nodeId": "7873:54006",
+        "type": "RECTANGLE",
+        "box": [754, 658, 358, 405]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54012;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [793, 233, 202, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54012;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 233, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54012;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 389, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54012;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 389, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54012;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 389, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54012;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 233, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54012;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 287, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54013;5132:42683",
+        "type": "FRAME",
+        "box": [60, 318, 48, 48]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54013;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 474, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54013;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 474, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54013;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 474, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54013;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 318, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:54013;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 324, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54013;5132:42710",
+        "type": "FRAME",
+        "box": [54, 372, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:54013;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 318, 427, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54014;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [724, 403, 271, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54014;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 403, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54014;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 81, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54014;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 559, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54014;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 559, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54014;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 559, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54014;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 403, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54014;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 457, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54015;5132:42683",
+        "type": "FRAME",
+        "box": [60, 488, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54015;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 166, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54015;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 644, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54015;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 644, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54015;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 644, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54015;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 488, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:54015;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 494, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54015;5132:42710",
+        "type": "FRAME",
+        "box": [54, 542, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:54015;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 488, 468, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54016;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [832, 573, 163, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54016;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 573, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54016;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 251, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54016;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 729, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54016;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 729, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54016;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 729, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54016;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 573, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54016;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 627, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54017;5132:42683",
+        "type": "FRAME",
+        "box": [60, 658, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54017;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 336, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54017;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 814, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54017;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 814, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54017;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 814, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54017;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 658, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:54017;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 664, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54017;5132:42710",
+        "type": "FRAME",
+        "box": [54, 712, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:54017;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 658, 322, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54018;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [561, 743, 434, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54018;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 743, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54018;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 421, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54018;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 899, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54018;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 899, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54018;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 899, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54018;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 743, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54018;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 797, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54019;5132:42683",
+        "type": "FRAME",
+        "box": [60, 828, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54019;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 506, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54019;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 984, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54019;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 984, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54019;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 984, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54019;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 828, 48, 48]
+      },
+      {
+        "node": "image 9",
+        "nodeId": "I7873:54019;5132:42709",
+        "type": "RECTANGLE",
+        "box": [66, 834, 37, 38]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54019;5132:42710",
+        "type": "FRAME",
+        "box": [54, 882, 60, 13]
+      },
+      {
+        "node": "Component 26",
+        "nodeId": "I7873:54019;5132:42712",
+        "type": "INSTANCE",
+        "box": [126, 828, 698, 54]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54020;5132:42797;5132:43038",
+        "type": "FRAME",
+        "box": [456, 913, 539, 51]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54020;5132:42799",
+        "type": "FRAME",
+        "box": [1009, 913, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54020;5132:42800",
+        "type": "RECTANGLE",
+        "box": [687, 591, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54020;5132:42801",
+        "type": "RECTANGLE",
+        "box": [982, 1069, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54020;5132:42802",
+        "type": "RECTANGLE",
+        "box": [982, 1069, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54020;5132:42803",
+        "type": "RECTANGLE",
+        "box": [982, 1069, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54020;5132:42824",
+        "type": "VECTOR",
+        "box": [1009, 913, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54020;5132:42861",
+        "type": "FRAME",
+        "box": [1019, 967, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54021;5132:42683",
+        "type": "FRAME",
+        "box": [60, 998, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54021;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 676, 693, 693]
+      }
+    ],
+    "unmatchedShapesCount": 177,
+    "mismatches": [
+      {
+        "cat": "opacity",
+        "prop": "opacity",
+        "node": "Ellipse 1",
+        "nodeId": "7873:53964",
+        "figma": 0.15000000596046448,
+        "app": 1,
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Ellipse 1",
+        "nodeId": "7873:53964",
+        "figma": "rgba(255,216,107,0.35)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "opacity",
+        "prop": "opacity",
+        "node": "Ellipse 3",
+        "nodeId": "7873:53965",
+        "figma": 0.10000000149011612,
+        "app": 1,
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Ellipse 3",
+        "nodeId": "7873:53965",
+        "figma": "rgba(255,216,107,0.35)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "border-colour",
+        "node": "GTHInput",
+        "nodeId": "7873:54033",
+        "figma": "rgba(193,212,196,1)",
+        "app": "rgba(50,104,58,1)",
+        "sel": "div.flex.items-center.gap-[8px].h-[72px]"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "GTHInput",
+        "nodeId": "7873:54033",
+        "figma": "none",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | -0.0783003 0.0506745 0.4 0 none | 0 0 0 0 rgba(0,0,0,0)",
+        "sel": "div.flex.items-center.gap-[8px].h-[72px]"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Frame 14226",
+        "nodeId": "7873:54035",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 10 12 0 rgba(28,42,33,0.06) | 5 5 0 0 rgba(28,42,33,0.55)",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85668",
+        "figma": "rgba(255,216,107,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85668",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85668",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85668",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "genz:doodle · star",
+        "nodeId": "7878:85668",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "span.pointer-events-none.absolute.z-0.hidden"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:54047",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Component 18",
+        "nodeId": "7873:54048",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": "rgba(255,255,255,1)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-top",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-right",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-bottom",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "stroke",
+        "prop": "border-width-left",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 1.5,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": 20,
+        "app": 0,
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "div.svc-row",
+        "nodeId": "7873:54080",
+        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
+        "app": "none",
+        "sel": "div.flex.cursor-pointer.items-center.justify-between"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "Nav",
+        "nodeId": "7873:54090",
+        "figma": "0 1 2 0 rgba(27,36,44,0.12)",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 1 1 0 rgba(27,36,44,0.12)",
+        "sel": "header.w-full.bg-neutral.border-b.border-border-default"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Avatar",
+        "nodeId": "I7873:53968;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Avatar",
+        "nodeId": "I7873:53968;2263:8185",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Avatar",
+        "nodeId": "I7873:53968;2263:8185",
+        "figma": "rgba(56,116,64,1)",
+        "app": "rgba(186,186,183,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Personal Info",
+        "nodeId": "I7873:53970;2263:8185",
+        "figma": 600,
+        "app": "500",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Personal Info",
+        "nodeId": "I7873:53970;2263:8185",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Personal Info",
+        "nodeId": "I7873:53970;2263:8185",
+        "figma": "rgba(56,116,64,1)",
+        "app": "rgba(186,186,183,1)",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Education",
+        "nodeId": "I7873:53972;2263:8176",
+        "figma": 500,
+        "app": "600",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Education",
+        "nodeId": "I7873:53972;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Interests ",
+        "nodeId": "I7873:53974;2263:8176",
+        "figma": 500,
+        "app": "600",
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Interests ",
+        "nodeId": "I7873:53974;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Personality",
+        "nodeId": "I7873:53976;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Skills",
+        "nodeId": "I7873:53978;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Work",
+        "nodeId": "I7873:53980;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Portfolio",
+        "nodeId": "I7873:53982;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Certs",
+        "nodeId": "I7873:53983;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Goals",
+        "nodeId": "I7873:53985;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Pitch",
+        "nodeId": "I7873:53987;2263:8176",
+        "figma": 16.71,
+        "app": 24,
+        "sel": "span.font-sans.text-[14px].leading-[24px].tracking-[0.14px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "· 0% profile complete · auto-saved",
+        "nodeId": "7873:53995",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.shrink-0.whitespace-nowrap.pl-3.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54012;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54013;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54014;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54015;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54016;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54017;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54018;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54019;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54020;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54021;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54022;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54023;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Emma",
+        "nodeId": "I7873:54024;5132:42862",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54025;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-family (fallback?)",
+        "node": "Transcr... .pdf",
+        "nodeId": "I7873:54026;5132:42869",
+        "figma": "Raleway",
+        "app": "\"SF Pro Rounded\", -apple-system, BlinkMacSystemFon",
+        "sel": "span.font-sans.text-[12px].font-medium.text-content-primary"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Transcr... .pdf",
+        "nodeId": "I7873:54026;5132:42869",
+        "figma": 600,
+        "app": "400",
+        "sel": "span.font-sans.text-[12px].font-medium.text-content-primary"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-family (fallback?)",
+        "node": "6MB",
+        "nodeId": "I7873:54026;5132:42870",
+        "figma": "Raleway",
+        "app": "\"SF Pro Rounded\", -apple-system, BlinkMacSystemFon",
+        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-weight",
+        "node": "Career Buddy",
+        "nodeId": "I7873:54027;5132:42711",
+        "figma": 500,
+        "app": "400",
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Write a message…",
+        "nodeId": "I7873:54033;5132:42718",
+        "figma": 20,
+        "app": 24,
+        "sel": "input.flex-1.min-w-0.border-none.outline-none"
+      },
+      {
+        "cat": "colour",
+        "prop": "text-colour",
+        "node": "Write a message…",
+        "nodeId": "I7873:54033;5132:42718",
+        "figma": "rgba(153,153,153,1)",
+        "app": "rgba(28,42,33,1)",
+        "sel": "input.flex-1.min-w-0.border-none.outline-none"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "New Chat",
+        "nodeId": "7873:54038",
+        "figma": "left",
+        "app": "center",
+        "sel": "button.pointer-events-auto.inline-flex.items-center.gap-[4px]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: 80%",
+        "nodeId": "I7873:54047;5132:40727",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personal-info-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: In Progress",
+        "nodeId": "I7873:54048;5132:42171",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-educational-background-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:54049;5132:42280",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:54050;5132:42368",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: 48%",
+        "nodeId": "7873:54057",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:54060;5132:42454",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:54067",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:54076",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "I7873:54079;5132:42586",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Completion: Not Started",
+        "nodeId": "7873:54087",
+        "figma": "center",
+        "app": "start",
+        "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "+20 XP PER SECTION",
+        "nodeId": "7878:85672",
+        "figma": 13.13,
+        "app": 16.5,
+        "sel": "span.absolute.right-[3px].top-[5px].inline-flex"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Focused",
+        "nodeId": "I7878:85673;7875:85648",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.max-[480px]:sr-only"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "Playful",
+        "nodeId": "I7878:85673;7875:85653",
+        "figma": "left",
+        "app": "center",
+        "sel": "span.max-[480px]:sr-only"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "Save & Exit",
+        "nodeId": "7873:54107",
+        "figma": 24,
+        "app": 20,
+        "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-decoration",
+        "node": "Save & Exit",
+        "nodeId": "7873:54107",
+        "figma": "none",
+        "app": "underline",
+        "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center.font-sans"
+      },
+      {
+        "cat": "typography",
+        "prop": "font-family (fallback?)",
+        "node": "KA",
+        "nodeId": "7873:54116",
+        "figma": "Instrument Sans",
+        "app": "\"SF Pro Rounded\", -apple-system, BlinkMacSystemFon",
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "KA",
+        "nodeId": "7873:54116",
+        "figma": 12.2,
+        "app": 15,
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      },
+      {
+        "cat": "typography",
+        "prop": "text-align",
+        "node": "KA",
+        "nodeId": "7873:54116",
+        "figma": "center",
+        "app": "start",
+        "sel": "span.inline-flex.size-[24px].items-center.justify-center"
+      }
+    ],
+    "byProp": {
+      "opacity": 2,
+      "fill": 6,
+      "border-colour": 1,
+      "shadow-count": 6,
+      "border-width-top": 3,
+      "border-width-right": 3,
+      "border-width-bottom": 3,
+      "border-width-left": 3,
+      "radius-tl": 3,
+      "radius-tr": 3,
+      "radius-br": 3,
+      "radius-bl": 3,
+      "font-weight": 20,
+      "line-height": 15,
+      "text-colour": 3,
+      "text-align": 15,
+      "font-family (fallback?)": 3,
+      "text-decoration": 1
+    }
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

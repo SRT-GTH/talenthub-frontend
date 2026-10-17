@@ -78,3 +78,8 @@ below 18 onboarding raw code/
 
 # responsive/visual test artifacts
 tests/e2e/.visual-baseline/
+
+# playful audit caches (regenerable)
+tests/playful/figma-nodes/
+tests/playful/figma-images/
+tests/playful/shots/

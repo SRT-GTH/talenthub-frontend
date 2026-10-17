@@ -66,6 +66,10 @@ const Field = ({
   // AlertIcon + danger/neutral text. Pages with non-default tones (e.g. the
   // brand-green "Email verification" hint or the success-green "Verrifed
   // input" message on the Contact step) override individually.
+  // Opt-in (talent Figma 8027): show the asterisk even when `optional`/no `required`, and
+  // override its classes. Defaults leave every existing caller unchanged.
+  forceAsterisk = false,
+  asteriskClassName = 'font-ui font-semibold text-[#2E8B57] text-[14px] leading-[21px]',
   helperIcon,
   helperIconClassName,
   helperTextClassName,
@@ -99,11 +103,8 @@ const Field = ({
               className="inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary"
             >
               {label}
-              {required && (
-                <span
-                  className="font-semibold text-brand-green text-[14px] leading-[21px]"
-                  aria-hidden="true"
-                >
+              {(required || forceAsterisk) && (
+                <span className={asteriskClassName} aria-hidden="true">
                   *
                 </span>
               )}
@@ -137,6 +138,8 @@ const Field = ({
 
       {message && (
         <div
+          // Target of the controls' aria-describedby (`${inputId}-msg`).
+          id={htmlFor ? `${htmlFor}-msg` : undefined}
           className={classNames('flex items-center gap-2 px-2', defaultToneClass)}
           role={error ? 'alert' : undefined}
         >

@@ -29,6 +29,7 @@ const isFixedShellPath = (pathname) =>
   pathname.startsWith('/onboarding/institution') ||
   pathname.startsWith('/onboarding/parent') ||
   pathname.startsWith('/onboarding/talent') ||
+  pathname.startsWith('/onboarding/recruiter') ||
   pathname === '/login';
 
 // Returns a stable key for the current layout family. Using the full pathname as
@@ -39,6 +40,7 @@ const getLayoutFamily = (pathname) => {
   if (pathname.startsWith('/onboarding/institution')) return 'institution';
   if (pathname.startsWith('/onboarding/parent')) return 'parent';
   if (pathname.startsWith('/onboarding/talent')) return 'talent';
+  if (pathname.startsWith('/onboarding/recruiter')) return 'recruiter';
   return pathname;
 };
 

@@ -1,6 +1,11 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { debug } from '../../utils/debug.js';
+import { useUiStyle } from '../../hooks/useUiStyle.js';
+import playfulSuccessIcon from '../../assets/playful/overlays/toast-success.svg';
+import playfulErrorIcon from '../../assets/playful/overlays/toast-error.svg';
+import playfulWarningIcon from '../../assets/playful/overlays/toast-warning.svg';
+import playfulCloseIcon from '../../assets/playful/overlays/toast-close.svg';
 import {
   ToastSuccessIcon,
   ToastErrorIcon,
@@ -53,6 +58,27 @@ const log = debug('Toast');
  *
  * Portal target: <div id="toast-root"> in index.html.
  */
+
+/*
+ * Playful appearance (Figma 7873:52957 / 53228 / 53502, Component 31). Added as
+ * `playful:` classes only — they apply solely under <html data-ui-style="playful">.
+ * `!` is needed where the compact banner sets the same property inline.
+ */
+const PLAYFUL_BANNER =
+  'playful:rounded-[16px] playful:min-w-[300px] playful:max-w-[650px] ' +
+  'playful:border-[1.5px]! playful:border-[rgba(28,42,33,0.55)]! ' +
+  'playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]! ' +
+  'max-sm:playful:min-w-0 max-sm:playful:w-full max-sm:playful:max-w-none';
+const PLAYFUL_TITLE = {
+  error: 'playful:text-[#902b20]',
+  warning: 'playful:text-[#b8712a]',
+};
+const PLAYFUL_ICONS = {
+  success: playfulSuccessIcon,
+  error: playfulErrorIcon,
+  warning: playfulWarningIcon,
+};
+const PLAYFUL_MIN_DURATION = 6000;
 
 const EXIT_MS = 300;
 const ENTER_MS = 300;
@@ -194,6 +220,7 @@ const ToastItem = React.forwardRef(function ToastItem(
     gapClassName = 'gap-[48px]',
     exitSignal = 0,
     onPhaseChange,
+    xpBadge,
     ...props
   },
   ref
@@ -204,6 +231,13 @@ const ToastItem = React.forwardRef(function ToastItem(
   const onDismissRef = useRef(onDismiss);
   const onPhaseChangeRef = useRef(onPhaseChange);
   const cfg = VARIANTS[variant] ?? VARIANTS.success;
+  const { uiStyle } = useUiStyle();
+  const playful = uiStyle === 'playful';
+  const [paused, setPaused] = useState(false);
+  // Playful: never auto-dismiss faster than 6s, pause while hovered/focused.
+  const effectiveDuration =
+    playful && duration ? Math.max(duration, PLAYFUL_MIN_DURATION) : duration;
+  const xpText = playful && variant === 'success' && xpBadge ? xpBadge : null;
 
   onDismissRef.current = onDismiss;
   onPhaseChangeRef.current = onPhaseChange;
@@ -282,11 +316,21 @@ const ToastItem = React.forwardRef(function ToastItem(
 
   // Auto-dismiss after duration once fully shown.
   useEffect(() => {
-    if (!duration || phase !== 'shown') return;
-    log('branch', { autoDismissIn: duration, id });
-    const timer = setTimeout(() => beginExit(), duration);
+    if (!effectiveDuration || phase !== 'shown' || (playful && paused)) return;
+    log('branch', { autoDismissIn: effectiveDuration, id, playful });
+    const timer = setTimeout(() => beginExit(), effectiveDuration);
     return () => clearTimeout(timer);
-  }, [duration, phase, beginExit, id]);
+  }, [effectiveDuration, phase, beginExit, id, playful, paused]);
+
+  // Playful: Esc dismisses (the portal layer is click-through there).
+  useEffect(() => {
+    if (!playful) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') beginExit();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [playful, beginExit]);
 
   // Overlay / Escape bumps exitSignal to request the same animated exit.
   useEffect(() => {
@@ -296,11 +340,13 @@ const ToastItem = React.forwardRef(function ToastItem(
 
   if (compact || variant === 'welcome') {
     const isWelcome = variant === 'welcome';
+    const playfulRole = variant === 'error' || variant === 'warning' ? 'alert' : 'status';
+    const playfulIcon = playful ? PLAYFUL_ICONS[variant] : undefined;
     // Whether title/body stack as two lines (Career Buddy welcome banner,
     // GuidelinesToast) vs render as one "Title, body" line (the plain
     // Success/Error confirmations elsewhere) — defaults to the welcome
     // variant's own shape, but any compact toast can force it explicitly.
-    const useStackedLayout = stacked ?? isWelcome;
+    const useStackedLayout = stacked ?? (isWelcome || playful);
     const bannerStyle = {
       backgroundColor: cfg.compactBg,
       borderBottom: `1px solid ${cfg.compactBorder}`,
@@ -310,25 +356,40 @@ const ToastItem = React.forwardRef(function ToastItem(
     return (
       <div
         ref={setRefs}
-        role="alert"
-        aria-live="assertive"
-        className={`inline-flex items-center ${gapClassName} rounded-[12px] pl-[16px] pr-[14px] py-[12px] ${className}`}
+        role={playful && playfulRole === 'status' ? 'status' : 'alert'}
+        aria-live={playful && playfulRole === 'status' ? 'polite' : 'assertive'}
+        className={`playful:relative inline-flex items-center ${gapClassName} rounded-[12px] pl-[16px] pr-[14px] py-[12px] ${PLAYFUL_BANNER} ${className}`}
         style={bannerStyle}
+        onMouseEnter={() => playful && setPaused(true)}
+        onMouseLeave={() => playful && setPaused(false)}
+        onFocus={() => playful && setPaused(true)}
+        onBlur={() => playful && setPaused(false)}
         {...props}
       >
-        <span className="inline-flex min-w-0 flex-1 items-center gap-[11px]">
+        <span
+          className={`inline-flex min-w-0 flex-1 items-center gap-[11px] ${variant === 'warning' ? 'playful:gap-[12px]' : ''}`}
+        >
           {(icon ?? cfg.compactIcon) && (
             <span
               aria-hidden="true"
               className="flex shrink-0"
               style={{ width: isWelcome ? 24 : 22, height: isWelcome ? 24 : 22 }}
             >
-              {icon ?? cfg.compactIcon}
+              {icon ??
+                (playfulIcon ? (
+                  <img src={playfulIcon} alt="" className="size-full" />
+                ) : (
+                  cfg.compactIcon
+                ))}
             </span>
           )}
           {useStackedLayout ? (
             <span className="flex min-w-0 flex-col items-start gap-[4px] font-sans leading-normal">
-              <span className="font-semibold text-[14px] text-[#2a5730]">{title}</span>
+              <span
+                className={`font-semibold text-[14px] text-[#2a5730] ${PLAYFUL_TITLE[variant] ?? ''}`}
+              >
+                {title}
+              </span>
               {body && <span className="font-normal text-[13px] text-[#595959]">{body}</span>}
             </span>
           ) : (
@@ -343,20 +404,32 @@ const ToastItem = React.forwardRef(function ToastItem(
         </span>
         <button
           type="button"
-          className="flex size-5 shrink-0 items-center justify-center hover:opacity-70 transition-opacity max-lg:size-6 max-sm:size-11"
+          className="flex size-5 shrink-0 items-center justify-center hover:opacity-70 transition-opacity max-lg:size-6 max-sm:size-11 playful:-mx-[2px] playful:size-6 playful:rounded-full playful:focus-visible:outline-[3px] playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21] max-sm:playful:size-11 max-sm:playful:m-0"
           onClick={beginExit}
           aria-label="Dismiss notification"
           style={{ color: '#404040' }}
         >
-          <svg width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path
-              d="M1 1l8 8M9 1l-8 8"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
+          {playful ? (
+            <img src={playfulCloseIcon} alt="" aria-hidden="true" className="size-5" />
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path
+                d="M1 1l8 8M9 1l-8 8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
         </button>
+        {xpText && (
+          <span
+            data-testid="toast-xp"
+            className="pointer-events-none absolute -top-[10px] -right-[4px] translate-x-1/2 max-sm:right-2 max-sm:translate-x-0 -rotate-6 rounded-full border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] text-[11px] font-bold leading-normal whitespace-nowrap text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]"
+          >
+            {xpText}
+          </span>
+        )}
       </div>
     );
   }
@@ -438,7 +511,12 @@ const POSITIONS = {
   'top-center': 'top-6 left-1/2 -translate-x-1/2',
 };
 
-const TOAST_OVERLAY_CLASS = 'fixed inset-0 z-[99] bg-black/[0.05]';
+const TOAST_OVERLAY_CLASS =
+  'fixed inset-0 z-[99] bg-black/[0.05] playful:bg-[rgba(28,42,33,0.03)] playful:backdrop-blur-[0.65px]';
+
+// Playful top-center sits at Figma x=406/1728, y=74-52 (browser chrome); full-width on phones.
+const PLAYFUL_TOP_CENTER =
+  'playful:top-[22px] max-sm:playful:left-4 max-sm:playful:right-4 max-sm:playful:top-3 max-sm:playful:translate-x-0';
 
 const Toast = ({ position = 'top-right', offsetClassName, onDismiss, ...props }) => {
   log('portal', { position, variant: props.variant, compact: props.compact });
@@ -469,7 +547,7 @@ const Toast = ({ position = 'top-right', offsetClassName, onDismiss, ...props })
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-[99]"
+      className="fixed inset-0 z-[99] playful:pointer-events-none"
       onClick={requestExit}
       onKeyDown={(e) => {
         if (e.key === 'Escape') {
@@ -486,7 +564,7 @@ const Toast = ({ position = 'top-right', offsetClassName, onDismiss, ...props })
         aria-hidden="true"
       />
       <div
-        className={`fixed z-[100] ${POSITIONS[position] ?? POSITIONS['top-right']} ${offsetClassName ?? ''}`}
+        className={`fixed z-[100] playful:pointer-events-auto ${POSITIONS[position] ?? POSITIONS['top-right']} ${position === 'top-center' ? PLAYFUL_TOP_CENTER : ''} ${offsetClassName ?? ''}`}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
       >

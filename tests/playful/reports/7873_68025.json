@@ -1,0 +1,925 @@
+{
+  "id": "7873:68025",
+  "label": "All Games dialog",
+  "group": "Personality",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": 34.3,
+    "derived": 17.8
+  },
+  "offsetUsed": 18,
+  "counts": {
+    "figmaTexts": 70,
+    "matched": 67,
+    "unmatched": 3,
+    "layoutMismatch": 63,
+    "fontMetric": 35,
+    "widthOver15": 28
+  },
+  "worstLayoutPx": 1348.1,
+  "unmatched": [
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 154
+      },
+      "closestDom": "Step 4 of 9 ·"
+    },
+    {
+      "text": "Text",
+      "figma": {
+        "x": 952.5,
+        "y": 342.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 68
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -33.2,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": 130.3,
+      "dh": 2,
+      "wPct": 0.4
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 126.3,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 92.8,
+      "dh": 2,
+      "wPct": -66.1
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 88.8,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -87.2,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 86.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -46.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -45.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -43.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -41.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -41.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -41.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -41.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -41.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -41.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -36.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": -36.1,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -35.7,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -35.2,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": -35.2,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -35.2,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": 24,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 23,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 21,
+      "dh": 2,
+      "wPct": -64.5
+    },
+    {
+      "text": "Game Store",
+      "sel": "h2#pf-game-store-title.font-sans.text-[16px].font-bold",
+      "dx": -0.2,
+      "dy": -20.5,
+      "dh": 3,
+      "wPct": 2
+    },
+    {
+      "text": "The Pitch",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 19,
+      "dh": 2,
+      "wPct": -72.3
+    },
+    {
+      "text": "Sell an unusual idea in 60 seconds — shows bravery, communic",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -2,
+      "dy": 19,
+      "dh": -2,
+      "wPct": -0.6
+    },
+    {
+      "text": "Pick a game — we'll figure out your personality from how you",
+      "sel": "p.font-sans.text-[12px].leading-[normal]",
+      "dx": -1,
+      "dy": -18,
+      "dh": 2,
+      "wPct": 9.6
+    },
+    {
+      "text": "Creativity",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -1,
+      "dy": 17.8,
+      "dh": -1,
+      "wPct": -0.2
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": 15.3,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -2.4,
+      "dy": 15.3,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "Find a game...",
+      "sel": "input.w-full.border-none.bg-transparent",
+      "dx": 1,
+      "dy": -15,
+      "dh": 0,
+      "wPct": 15.3
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 14.3,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 14.3,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 12.3,
+      "dh": 2,
+      "wPct": -64.5
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 12.3,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Speed Sort",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 10.3,
+      "dh": 2,
+      "wPct": -67.6
+    },
+    {
+      "text": "Sort items into categories as fast as you can — reveals how ",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -2,
+      "dy": 10.3,
+      "dh": -2,
+      "wPct": -4.6
+    },
+    {
+      "text": "Monopoly",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 10.3,
+      "dh": 2,
+      "wPct": -71
+    },
+    {
+      "text": "A classic property game that shows how you think about wealt",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -3,
+      "dy": 10.3,
+      "dh": -2,
+      "wPct": -1
+    },
+    {
+      "text": "Speed",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -1,
+      "dy": 9,
+      "dh": -1,
+      "wPct": -2.2
+    },
+    {
+      "text": "Strategy",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -2,
+      "dy": 9,
+      "dh": -1,
+      "wPct": -1.7
+    },
+    {
+      "text": "Strategy",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -1,
+      "dy": -8.5,
+      "dh": -1,
+      "wPct": -1.7
+    },
+    {
+      "text": "Decision Making",
+      "sel": "span.inline-flex.w-fit.items-center",
+      "dx": -2,
+      "dy": -8.5,
+      "dh": -1,
+      "wPct": -0.2
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": -7.2,
+      "dh": 2,
+      "wPct": -48.3
+    },
+    {
+      "text": "Solve a series of puzzles under time pressure — reveals how ",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -2,
+      "dy": -7.2,
+      "dh": -2,
+      "wPct": -1.9
+    },
+    {
+      "text": "Desert Island",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": -7.2,
+      "dh": 2,
+      "wPct": -61.9
+    },
+    {
+      "text": "You're stranded — what do you take, who do you save?",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -3,
+      "dy": -7.2,
+      "dh": -2,
+      "wPct": -3.9
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": 6.5,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -2.4,
+      "dy": 6.5,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 5.5,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 5.5,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Difficulty: Easy",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 3.5,
+      "dh": 2,
+      "wPct": -65.2
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 3.5,
+      "dh": 2,
+      "wPct": -64.5
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "The Negotiation",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 1.5,
+      "dh": 2,
+      "wPct": -53.3
+    },
+    {
+      "text": "Two sides, one deal — how you handle conflict and compromise",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -3,
+      "dy": 1.5,
+      "dh": -2,
+      "wPct": -16.9
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -2.4,
+      "dy": -2.2,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": -2.2,
+      "dh": 2,
+      "wPct": 1.6
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -33.2,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -35.2,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 126.3,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 88.8,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 92.8,
+      "dh": 2,
+      "wPct": -66.1,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -35.7,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -35.2,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -41.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -41.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -41.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -45.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Pick a game — we'll figure out your personality from how you",
+      "sel": "p.font-sans.text-[12px].leading-[normal]",
+      "dx": -1,
+      "dy": -18,
+      "dh": 2,
+      "wPct": 9.6,
+      "severe": false
+    },
+    {
+      "text": "Find a game...",
+      "sel": "input.w-full.border-none.bg-transparent",
+      "dx": 1,
+      "dy": -15,
+      "dh": 0,
+      "wPct": 15.3,
+      "severe": true
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": -7.2,
+      "dh": 2,
+      "wPct": -48.3,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": -57.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "Desert Island",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": -7.2,
+      "dh": 2,
+      "wPct": -61.9,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": -5.2,
+      "dh": 2,
+      "wPct": -57.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": -3.2,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "Tower Builder",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 1.5,
+      "dh": 2,
+      "wPct": -60.6,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Easy",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 3.5,
+      "dh": 2,
+      "wPct": -65.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 5.5,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "The Negotiation",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 1.5,
+      "dh": 2,
+      "wPct": -53.3,
+      "severe": true
+    },
+    {
+      "text": "Two sides, one deal — how you handle conflict and compromise",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -3,
+      "dy": 1.5,
+      "dh": -2,
+      "wPct": -16.9,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 3.5,
+      "dh": 2,
+      "wPct": -64.5,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 5.5,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "Speed Sort",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 10.3,
+      "dh": 2,
+      "wPct": -67.6,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 12.3,
+      "dh": 2,
+      "wPct": -64.5,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 14.3,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "Monopoly",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -3,
+      "dy": 10.3,
+      "dh": 2,
+      "wPct": -71,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 12.3,
+      "dh": 2,
+      "wPct": -57.2,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 14.3,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    },
+    {
+      "text": "The Pitch",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
+      "dx": -2,
+      "dy": 19,
+      "dh": 2,
+      "wPct": -72.3,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Hard",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 21,
+      "dh": 2,
+      "wPct": -64.5,
+      "severe": true
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 23,
+      "dh": 2,
+      "wPct": 90.4,
+      "severe": true
+    }
+  ],
+  "medianDx": -2,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 188.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 188.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 18,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

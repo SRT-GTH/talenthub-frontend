@@ -1,0 +1,400 @@
+{
+  "id": "7873:65225",
+  "label": "MCQ IN PROGRESS",
+  "group": "Personality",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": -7.2,
+    "derived": 59.2
+  },
+  "offsetUsed": 59,
+  "counts": {
+    "figmaTexts": 30,
+    "matched": 27,
+    "unmatched": 3,
+    "layoutMismatch": 21,
+    "fontMetric": 14,
+    "widthOver15": 6
+  },
+  "worstLayoutPx": 1576.2,
+  "unmatched": [
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 113
+      },
+      "closestDom": "Step 4 of 9 ·"
+    },
+    {
+      "text": "Option B",
+      "figma": {
+        "x": 924,
+        "y": 1123.5
+      },
+      "closestDom": "Option A"
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 27
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -178.9,
+      "dy": -1576.2,
+      "dh": 2,
+      "wPct": -39.8
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -1407.2,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 7.8,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": -646.7,
+      "dh": 2,
+      "wPct": 8.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -424.2,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -2.7,
+      "dy": -421.7,
+      "dh": 2,
+      "wPct": -38.7
+    },
+    {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": 62.8,
+      "dh": 2,
+      "wPct": 8.3
+    },
+    {
+      "text": "MCQs (Assessment)",
+      "sel": "span.block",
+      "dx": -0.6,
+      "dy": 61.3,
+      "dh": 2,
+      "wPct": 5.5
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -1.7,
+      "dy": 58.8,
+      "dh": 2,
+      "wPct": -39.8
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -4.2,
+      "dy": 57.3,
+      "dh": 2,
+      "wPct": -74.2
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 56.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 54.8,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 5.8,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": 5.8,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 5.8,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 5.3,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -5.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 4.9,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": 4.9,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -4.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -2.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": 7.8,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": 5.8,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -4.2,
+      "dy": 57.3,
+      "dh": 2,
+      "wPct": -74.2,
+      "severe": true
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -1.7,
+      "dy": 58.8,
+      "dh": 2,
+      "wPct": -39.8,
+      "severe": true
+    },
+    {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": 62.8,
+      "dh": 2,
+      "wPct": 8.3,
+      "severe": false
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -2.7,
+      "dy": -421.7,
+      "dh": 2,
+      "wPct": -38.7,
+      "severe": true
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -178.9,
+      "dy": -1576.2,
+      "dh": 2,
+      "wPct": -39.8,
+      "severe": true
+    },
+    {
+      "text": "Option A",
+      "sel": "span.block",
+      "dx": 0.7,
+      "dy": -646.7,
+      "dh": 2,
+      "wPct": 8.3,
+      "severe": false
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 5.3,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 5.8,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -0.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -0.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -0.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -4.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    }
+  ],
+  "medianDx": -0.5,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 229.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 229.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 59,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

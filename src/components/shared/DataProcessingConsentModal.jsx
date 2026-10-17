@@ -2,8 +2,9 @@ import LegalModalShell from './LegalModalShell.jsx';
 
 /*
  * DataProcessingConsentModal — bottom-sheet modal for explicit data-
- * processing consent during onboarding Step 07. Source: Figma node
- * 2846:30205.
+ * processing consent during onboarding Step 07. Restyled to Figma
+ * 8027:211943 (dialog 8027:212304): highlighted points 1/2/6. Points 5 and
+ * the blue callout keep the app copy (Figma has copy-paste artefacts there).
  *
  * Adds a SECOND callout that the other two modals don't carry — an
  * informational blue panel about withdrawal mechanics — for a total
@@ -42,6 +43,7 @@ const POINTS = [
     n: 6,
     title: 'You can withdraw consent at any time',
     body: 'Go to Settings → Privacy → Withdraw Data Processing Consent. Your account stays active but you will no longer appear in recruiter searches or receive personalised matches.',
+    highlight: true,
   },
   {
     n: 7,

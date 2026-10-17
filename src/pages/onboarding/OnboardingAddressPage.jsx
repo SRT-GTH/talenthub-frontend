@@ -1,3 +1,4 @@
+import addrCheck from '../../assets/talent-onboarding/addr-check-circle.svg';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
@@ -7,17 +8,21 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
-import OnboardingRightPanel from '../../components/shared/OnboardingRightPanel.jsx';
-import TalentContactPanelContent from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
+import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import {
-  ArrowRightIcon,
+  TALENT_CONTACT_PHOTO_CARDS,
+  TalentContactOverlay,
+} from '../../components/sections/talentAuth/TalentContactPanelContent.jsx';
+import { ArrowRightIcon, LoadingSpinner } from '../../components/shared/assets.jsx';
+import {
   CloseIcon,
-  LoadingSpinner,
   MapIcon,
   MapPinIcon,
   ShieldCheckIcon,
   SuccessCheckIcon,
-} from '../../components/shared/assets.jsx';
+  TALENT_ASTERISK,
+  AlertDiamondIcon,
+} from '../../components/sections/talentAuth/talentIcons.jsx';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('OnboardingAddressPage');
@@ -132,7 +137,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
       aria-modal="true"
       aria-labelledby="address-confirmed-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(34, 70, 38, 0.45)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
     >
       <div
         className="relative w-full max-w-[440px] rounded-[24px] bg-white px-10 py-10 max-sm:px-4 max-sm:pt-4 shadow-[0_24px_64px_rgba(0,0,0,0.12),0_4px_0_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.04)] max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:[&_button.w-full]:h-11 max-sm:[&_button.w-full]:min-h-11 max-sm:[&_button.w-full]:py-0 max-sm:[&_button.w-full]:rounded-[10px] max-sm:[&_button.w-full]:text-[14px]! max-sm:[&_button.w-full]:whitespace-nowrap max-sm:[&_button.w-full]:drop-shadow-none! max-sm:[&_button.w-full]:shadow-none! max-sm:rounded-b-none max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
@@ -175,10 +180,10 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
           </span>
           <h2
             id="address-confirmed-title"
-            className="font-display font-normal text-[#111111] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
-            style={{ fontSize: 32, lineHeight: '32px', letterSpacing: '-1.2px' }}
+            className="font-heading font-semibold text-[#1C2A21] max-sm:text-[22px]! max-sm:leading-7! max-sm:tracking-normal!"
+            style={{ fontSize: 29, lineHeight: '34.8px', letterSpacing: '-0.64px' }}
           >
-            Address <span className="italic text-brand-green">confirmed.</span>
+            Address <span className="text-brand-green">confirmed</span>
           </h2>
           <p
             className="text-[12px] leading-[18px] text-[#959592]"
@@ -207,16 +212,14 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
               </span>
               {row.verified ? (
                 <span className="inline-flex items-center gap-1 font-semibold text-brand-green">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" />
-                    <path
-                      d="M4 6.2 5.6 7.8 8.4 4.6"
-                      stroke="currentColor"
-                      strokeWidth="1.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img
+                    src={addrCheck}
+                    alt=""
+                    aria-hidden="true"
+                    width="12"
+                    height="12"
+                    draggable={false}
+                  />
                   {row.value}
                 </span>
               ) : (
@@ -366,7 +369,7 @@ const OnboardingAddressPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="address" />
+      <OnboardingHeader currentKey="address" percent={78} />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
@@ -374,7 +377,7 @@ const OnboardingAddressPage = () => {
           <div className="flex flex-1 items-start justify-center px-6 pt-12 pb-12 md:pt-16 max-md:px-4 max-md:pt-3 max-md:pb-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full max-w-[698px] flex-col items-center gap-6 text-center max-md:gap-3"
+              className="my-auto flex w-full max-w-[739px] flex-col items-center gap-6 text-center max-md:gap-3"
               noValidate
               aria-busy={isSubmitting}
             >
@@ -396,8 +399,8 @@ const OnboardingAddressPage = () => {
                   }}
                 />
                 <span
-                  className="font-display italic text-[#B5B5B5]"
-                  style={{ fontSize: 16, lineHeight: 'normal' }}
+                  className="font-heading font-semibold text-[#B5B5B5]"
+                  style={{ fontSize: 15, lineHeight: 'normal' }}
                 >
                   04
                 </span>
@@ -410,10 +413,10 @@ const OnboardingAddressPage = () => {
               </span>
 
               <h1
-                className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
-                style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.1 }}
+                className="max-w-[554px] font-heading font-semibold text-[#1C2A21] max-md:text-[24px]! max-md:leading-tight!"
+                style={{ fontSize: 'clamp(2.25rem, 5vw, 3.375rem)', lineHeight: 1.1 }}
               >
-                Where are you <span className="italic text-brand-green">located?</span>
+                Where are you <span className="text-brand-green">located?</span>
               </h1>
 
               <p
@@ -427,8 +430,10 @@ const OnboardingAddressPage = () => {
 
               {/* Form grid — 6 fields in 2x3 layout (collapses to single column
                 on narrow viewports). Optional fields drop their asterisk. */}
-              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 max-md:gap-y-3">
+              <div className="grid w-full grid-cols-1 gap-x-4 gap-y-3 text-left md:grid-cols-2 md:px-5 max-md:gap-y-3">
                 <Select
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Region"
                   required
                   placeholder="Select Region"
@@ -440,6 +445,8 @@ const OnboardingAddressPage = () => {
                   searchable
                 />
                 <Select
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="District"
                   required
                   placeholder="Select District"
@@ -452,7 +459,9 @@ const OnboardingAddressPage = () => {
                   error={districtError}
                 />
                 <Select
-                  label="Town / City"
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
+                  label="Town/City"
                   required
                   placeholder="Select town/city"
                   options={availableTowns}
@@ -463,6 +472,8 @@ const OnboardingAddressPage = () => {
                   helperText={district ? 'Pick your town or city' : 'Select a district first'}
                 />
                 <TextInput
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Digital Address"
                   required
                   placeholder="eg:GH-123-4567"
@@ -476,17 +487,25 @@ const OnboardingAddressPage = () => {
                   maxLength={11}
                 />
                 <TextInput
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Community / Area"
-                  optional
-                  placeholder="Eg. East Legon"
+                  forceAsterisk
+                  labelTrailing="Optional"
+                  labelTrailingClassName="text-[#595959]"
+                  placeholder="Eg. Near amasaman"
                   value={community}
                   onChange={(e) => setCommunity(e.target.value)}
                   leftIcon={<MapPinIcon />}
-                  helperText="Optional — helps us localise opportunities"
+                  helperText="Helps recruiters and schools find you more precisely"
                 />
                 <TextInput
+                  asteriskClassName={TALENT_ASTERISK}
+                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Nearby Landmark"
-                  optional
+                  forceAsterisk
+                  labelTrailing="Optional"
+                  labelTrailingClassName="text-[#595959]"
                   placeholder="Eg. Near amasaman"
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
@@ -528,7 +547,11 @@ const OnboardingAddressPage = () => {
           </div>
         </div>
 
-        <OnboardingRightPanel panelContent={<TalentContactPanelContent />} />
+        <TalentOnboardingPanel
+          photoCards={TALENT_CONTACT_PHOTO_CARDS}
+          overlayContent={<TalentContactOverlay />}
+          showWatchTutorial={false}
+        />
       </div>
 
       {showSuccess && (

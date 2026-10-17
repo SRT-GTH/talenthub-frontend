@@ -114,9 +114,11 @@ export const fillAddress = async (page) => {
   await digital.fill('GA-123-4567');
   // The field can drop a keystroke under slowMo; make sure the full code landed.
   await expect(digital).toHaveValue('GA-123-4567');
-  const community = page.getByPlaceholder('Eg. East Legon');
-  if (await community.isVisible().catch(() => false)) await community.fill('Miotso');
-  await page.getByPlaceholder('Eg. Near amasaman').fill('Near Central University');
+  // Figma gives Community and Landmark the same placeholder; Community only renders for some
+  // regions, and Landmark is always the last of the two.
+  const nearFields = page.getByPlaceholder('Eg. Near amasaman');
+  if ((await nearFields.count()) > 1) await nearFields.first().fill('Miotso');
+  await nearFields.last().fill('Near Central University');
   await page.getByRole('button', { name: /confirm address/i }).click();
   await page.getByRole('button', { name: /continue to education/i }).click({ timeout: 60_000 });
   await page.waitForURL('**/onboarding/talent/education');
@@ -148,7 +150,7 @@ export const fillParent = async (page, g) => {
 /** Tick all consents (each checkbox opens its legal modal; accept; repeat). */
 export const acceptConsentsAndActivate = async (page) => {
   await page.waitForURL('**/onboarding/talent/review');
-  const activate = page.getByRole('button', { name: /activate my account/i });
+  const activate = page.getByRole('button', { name: /complete registration/i });
   const boxes = page.locator('main label:has(input[type="checkbox"])'); // scoped: the DemoNavigator bar has its own "Minor" checkbox
   // The review page is lazy-loaded; wait for the consent rows before looping.
   await expect(boxes.first()).toBeAttached({ timeout: 30_000 });

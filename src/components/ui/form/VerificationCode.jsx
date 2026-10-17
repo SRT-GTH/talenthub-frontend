@@ -77,6 +77,10 @@ const VerificationCode = ({
   // the general OTP input. Pass a smaller value (e.g. 52) for compact modals
   // without breaking any existing usage.
   boxSize = 62,
+  // Opt-in (talent Figma 8027 OTP): gap between boxes in px (default: Tailwind gap-2.5) and a
+  // placeholder glyph for empty boxes (Figma shows '-'). Both default to unset = unchanged.
+  cellGap,
+  emptyPlaceholder,
   className,
   name,
   id,
@@ -234,7 +238,14 @@ const VerificationCode = ({
       error={error}
       className={className}
     >
-      <div className="flex items-center gap-2.5 max-md:gap-1.5" {...rest}>
+      <div
+        className={classNames(
+          'flex items-center',
+          cellGap === undefined && 'gap-2.5 max-md:gap-1.5'
+        )}
+        style={cellGap === undefined ? undefined : { gap: cellGap }}
+        {...rest}
+      >
         {Array.from({ length }, (_, index) => {
           const isFocused = focusedIndex === index && !isForced;
           const boxState = resolveBoxState(index, isFocused);
@@ -264,6 +275,7 @@ const VerificationCode = ({
                 aria-invalid={Boolean(error) || undefined}
                 aria-label={`Digit ${index + 1} of ${length}`}
                 value={digits[index]}
+                placeholder={emptyPlaceholder}
                 onChange={(e) => handleInput(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 onPaste={(e) => handlePaste(e, index)}
@@ -277,6 +289,7 @@ const VerificationCode = ({
                   BOX_BASE,
                   stateClasses,
                   textClass,
+                  emptyPlaceholder && 'placeholder:font-semibold placeholder:text-[#595959]',
                   // Phones: boxes shrink to fit the row (6 × 62px cannot fit 320) and stay square.
                   'max-md:h-auto! max-md:min-w-0 max-md:aspect-square max-md:shadow-none!'
                 )}

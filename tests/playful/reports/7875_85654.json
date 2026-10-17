@@ -1,0 +1,79 @@
+{
+  "id": "7875:85654",
+  "label": "GTH Style switch component",
+  "group": "Style switch",
+  "width": 1728,
+  "offset": {
+    "fixed": 52,
+    "medianDy": 0,
+    "derived": 52
+  },
+  "offsetUsed": 52,
+  "counts": {
+    "figmaTexts": 0,
+    "matched": 0,
+    "unmatched": 0,
+    "layoutMismatch": 0,
+    "fontMetric": 0,
+    "widthOver15": 0
+  },
+  "worstLayoutPx": 0,
+  "unmatched": [],
+  "layout": [],
+  "fontMetric": [],
+  "medianDx": 0,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 222.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 222.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 52,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
+}

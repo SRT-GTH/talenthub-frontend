@@ -3,6 +3,46 @@
 Append-only chronological record. Each entry: `## [YYYY-MM-DD] action | subject`.
 Actions: `create`, `update`, `verify`, `fix`, `ingest`, `deprecate`.
 
+## [2026-10-16] create | Recruiter onboarding flow + talent/entry screen corrections (Figma 7356:96249 + 8027:\*)
+
+Built the recruiter onboarding flow (R01-R09: profile + OTP, type, organisation search/create, plan, payment,
+preferences, review, done) as a frontend-only mock under `/onboarding/recruiter/*`, and audited/corrected the
+role-selection, login, login-tutorial and talent onboarding screens against the redesigned `8027:*` frames. Full
+detail, node map, demo triggers and open items: [onboarding-redesign.md](onboarding-redesign.md).
+
+Key points: (1) the parent flow's panel became the shared responsive `OnboardingPanel` (cards = % of panel width,
+overlays = % of panel, short-panel scaling, a11y fix) and the talent/recruiter panels were rebuilt on it; (2) owner
+rule: ALL icons/images are Figma exports, nothing remade (supersedes the old hand-craft rule); (3) headlines are
+Bricolage Grotesque 600 (`font-heading`) - resolve `characterStyleOverrides` before reading sizes (64 -> 54px);
+(4) new `ScrollChevronRow` replaces visible scrollbars on the three breadcrumbs; (5) `MainLayout` fixed-shell now
+includes `/onboarding/recruiter`; (6) talent success page `/onboarding/talent/done` added and Review now navigates
+to it (e2e updated; Review CTA copy "Complete Registration"); (7) DemoNavigator gained a recruiter flow tab and a
+talent Done step. Gates: `responsive-audit` 215/215 (5 widths, all `/onboarding/` routes) and 129/129 at 560px tall;
+`npm run lint` 0 errors (1 pre-existing warning); `npm run build` passes. NOT run: the e2e suite (needs staging
+API) and `npm run test:visual` (baselines intentionally changed - refresh deliberately). Security note: `.mcp.json`
+in this repo contains a committed Figma token (pushed to origin) - revoke it and read the token from an env var.
+
+## [2026-10-16] update | Onboarding redesign follow-up: audits, legal modals, decisions
+
+Owner decisions applied (Education CTA stays "Continue"; Review CTA "Complete Registration" + loader "One Sec"; Terms
+Accepted CTA "I'm Ready"; old `OnboardingRightPanel` deleted but recoverable from git `49c3192`; local visual baselines
+refreshed). Deferred audits done: OTP empty/ready/verified/soft-wrong states, address + education modals, Review page
+with mocked data, shared legal modals (Terms / Privacy / Data Consent / Terms Accepted) restyled to Figma, form kit
+extended with opt-in props only. States with no Figma frame (OTP attempts 2-3, expired, lockout) left as built. Final
+checks: `npm run lint` clean, `npm run build` passes, responsive sweeps green (see
+[onboarding-redesign.md](onboarding-redesign.md) for the open items).
+
+## [2026-10-16] update | Wiki sync after backend wiring (origin/main 3e03afa)
+
+Pulled `cfbf1d2`, `cc291e3`, `3e03afa` (PRs #1-#3 by emmanuel197), built on the responsive commit `ce9f340`:
+talent onboarding + login, photo upload / institution / graduation year / live review page, institution
+registration and bulk upload — all wired to the staging API (`srt-backend-m5mc.onrender.com`) through new
+`src/services/*` modules, a Vite `/api` dev proxy, `VITE_TENANT_ORG_ID` / `VITE_LOGIN_IDENTIFIER`, and five
+headed e2e specs. Updated `api.md` (proxy, modules, endpoint table, env, tests), `routing.md` (wiring table),
+`architecture.md`, `INDEX.md` (responsive plan now EXECUTED). Still static: parent flows (unmerged branch
+`feat/parent-invited-flow`), recruiter, community, profile filling, Career Buddy, Skills Lab, messages.
+Refresh-token handling is not implemented. Wiki pages not listed here were not re-verified in this pass.
+
 ## [2026-10-10] update | Responsive pass executed (320px floor) — plan phases 0-4 + perf
 
 Executed `wiki/responsive-plan.md`. Result on the integrated build: the 5-width gate
@@ -2459,3 +2499,14 @@ Open follow-ups:
 - Ingest the full typography ramp (Inter Strong/Medium/Regular at all sizes) into `--text-*` tokens.
 - Verify radii/gaps/shadows/overlays against the Figma design system (currently still elysium placeholders).
 - Identify the actual onboarding screen frames in this Figma file and add to `wiki/figma-node-map.md`.
+
+## [2026-10-17] verify | Playful mode (Career Buddy) audited against Figma 7958:212035
+
+Built the Playful theme layer and audited all 65 frames with `npm run audit:figma` plus Figma MCP screenshot
+comparisons. Fixed copy (emoji, apostrophes, step counter, XP badges), hero/sticker offsets, toast centring,
+Game Store card text, opt-out body text, in-bubble guidance chips. Gates: lint/build/leak/responsive pass, strict
+Focused visual pass. Remaining differences and owner decisions: [playful-mode.md](playful-mode.md) (final audit bullet).
+
+## [2026-10-17] create | Talent home `/home` (Focused + Playful) — Figma "Talents dashboard" 5686:95479
+
+New talent home built in both styles with mock URL-param state (`?state=`, `?tab=`, `?search=`, `?edit=`, `?loading=`, `?new=`, `?a11y=`): talent shell (add-only talent variant of the dashboard chrome), five home states, MyAssessment / Recruiter activity / Global search / Edit home, new-user flows (welcome, tour step 1, chat, gate, Ask Buddy FAB), loading skeleton, A11Y-01/02. Full detail, route table, ownership, decisions and open items: [talent-home.md](talent-home.md). Leak check now allows `/home`.

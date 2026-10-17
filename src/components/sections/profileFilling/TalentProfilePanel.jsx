@@ -4,6 +4,9 @@ import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
 import { LoadingSpinner, ArrowRightIcon, PanelModifyIcon } from '../../shared/assets.jsx';
 
+import PlayfulProfilePanel from './PlayfulProfilePanel.jsx';
+import { usePlayfulScopeActive } from './PlayfulScopeState.js';
+
 const log = debug('TalentProfilePanel');
 
 // "+" glyph inside the 36px row-action button — two straight lines, not a
@@ -173,6 +176,23 @@ const TalentProfilePanel = ({
   // null, which re-triggered the "default first entry" branch and made the
   // chevron look broken (Experience 1 could never stay closed).
   const [expandedEntryId, setExpandedEntryId] = useState(null);
+  // Playful appearance (talent Career Buddy only — see PlayfulScopeState.js).
+  // All hooks above run every render, so this early return is hook-safe.
+  const playfulActive = usePlayfulScopeActive();
+  if (playfulActive) {
+    log('branch', { playful: true });
+    return (
+      <PlayfulProfilePanel
+        stages={stages}
+        expandedId={expandedId}
+        onToggleExpand={onToggleExpand}
+        onConfirm={onConfirm}
+        onModify={onModify}
+        confirming={confirming}
+        className={className}
+      />
+    );
+  }
 
   log('render', { stageCount: stages.length, expandedId, editingId, expandedEntryId, confirming });
 

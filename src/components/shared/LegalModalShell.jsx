@@ -1,94 +1,97 @@
-import { useEffect } from 'react';
-import { CloseIcon } from './assets.jsx';
+import { useEffect, useRef } from 'react';
 import { debug } from '../../utils/debug.js';
+import { classNames } from '../../utils/classNames.js';
+import pillIcon from '../../assets/legal/legal-pill.svg';
+import closeIcon from '../../assets/legal/legal-close.svg';
+import bannerDocIcon from '../../assets/legal/legal-banner-doc.svg';
+import bannerShieldIcon from '../../assets/legal/legal-banner-shield.svg';
+import calloutInfoIcon from '../../assets/legal/legal-callout-info.svg';
+import calloutWarnIcon from '../../assets/legal/legal-callout-warn.svg';
+import calloutCheckIcon from '../../assets/legal/legal-callout-check.svg';
+import ctaCheckIcon from '../../assets/legal/legal-cta-check.svg';
 
 const log = debug('LegalModalShell');
 
 /*
- * LegalModalShell — bottom-sheet style overlay used for Terms & Conditions,
- * Privacy Policy, and Data Processing Consent during onboarding Step 07.
+ * LegalModalShell — bottom-sheet overlay used for Terms & Conditions,
+ * Privacy Policy and Data Processing Consent (talent Review step 07).
  *
- * Figma sources:
- *   2837:28954 — Terms & Conditions modal
- *   2846:29512 — Privacy Policy modal
- *   2846:30205 — Data Processing Consent modal
+ * Figma (restyled to the talent Review frames, owner order "100% Figma"):
+ *   8027:211051 — Terms & Conditions dialog   (8027:211412)
+ *   8027:211501 — Privacy Policy dialog       (8027:211862)
+ *   8027:211943 — Data Processing Consent     (8027:212304)
+ * Older frames 2837:28954 / 2846:29512 / 2846:30205 are superseded.
  *
- * All three share the same chrome — top-rounded card, drag-handle pip,
- * "Summary" pill + title + ✕ close, green intro banner, scrollable
- * numbered body, optional bottom callouts, and a green
- * "I understand and Accept" CTA. Wrapper components in the same folder
- * pass `title`, `introTitle`, `introSubtitle`, `points`, and `callouts`.
+ * Chrome (680 wide, top radius 24, scrim #1C2A21 @ .70):
+ *   drag pip -> "Summary" pill + close X -> Bricolage 22/600 title
+ *   (dark + green second word, NOT Instrument Serif) -> green intro banner
+ *   -> scrollable numbered points -> callouts -> footer (helper copy,
+ *   "Read full document" secondary button, green "I understand and Accept").
+ * Figma insets all content 14px from the left edge and 0 on the right
+ * (asymmetric); that is reproduced at md+ and made symmetric on phones.
  *
- * The dim scrim is full-viewport `rgba(17,17,17,0.7)` and traps focus
- * inside the dialog via aria attributes + the close-on-Escape listener.
- * No Decline button exists in any of the three modals — the ✕ close
- * button is the implicit decline path, matching the Figma spec.
+ * Props are unchanged: title {before, after}, introTitle, introSubtitle,
+ * points [{n,title,body,highlight}], callouts [{variant,title,body}],
+ * footerHelper, readFullHref, ctaLabel, onAccept, onClose. Callout variants:
+ * 'amber' | 'blue' | 'blueSoft' (Terms) | 'green' (Privacy).
+ *
+ * A11y: role=dialog aria-modal aria-labelledby, focus moves into the dialog,
+ * Tab/Shift+Tab are trapped, Esc and the X close, focus returns to the
+ * element that opened it, backdrop click closes (as before).
  */
 
 const POINT_VARIANT_STYLES = {
-  // Highlighted (active/important) row — light-green bubble + green digit
-  // + green title. Used for the "core" points in each modal (1-2 in
-  // consent, 3 in terms, etc.).
+  // Highlighted row: light-green bubble, green digit + title.
   highlight: {
     bubble: { background: '#EBF1EC', borderColor: '#C1D4C4' },
     digit: '#2A5730',
     title: '#387440',
   },
-  // Default row — neutral grey bubble + black title.
+  // Default row: neutral bubble, dark title (#1C2A21 per Figma).
   default: {
     bubble: { background: '#F8F8F4', borderColor: '#C6C6C3' },
     digit: '#70706E',
-    title: '#111111',
+    title: '#1C2A21',
   },
 };
 
 const CALLOUT_VARIANT_STYLES = {
-  // "Under 18?" amber callout used in Terms + DPC.
+  // Figma 8027:212370 (DPC "Important if you are under 18").
   amber: {
     container: { background: '#FFF8F0', borderColor: '#EEDEB8' },
-    iconBox: { background: '#C8951A' },
+    iconBox: '#C8951A',
+    icon: calloutWarnIcon,
     titleColor: '#967014',
     bodyColor: '#A07715',
-    iconPath: (
-      <>
-        <path
-          d="M5.5 1.5L10 9.5H1L5.5 1.5Z"
-          stroke="white"
-          strokeWidth="1.1"
-          strokeLinejoin="round"
-        />
-        <path d="M5.5 5V7" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-        <circle cx="5.5" cy="8.2" r="0.55" fill="white" />
-      </>
-    ),
   },
-  // "Protected by Ghanaian law" / "Withdrawing consent" blue callout used
-  // in Privacy + DPC.
+  // Figma 8027:212379 (DPC "Withdrawing consent ...").
   blue: {
     container: { background: '#EAEFFB', borderColor: '#BFCEF2' },
-    iconBox: { background: '#3062D4' },
+    iconBox: '#3062D4',
+    icon: calloutInfoIcon,
     titleColor: '#244A9F',
     bodyColor: '#3062D4',
-    iconPath: (
-      <>
-        <circle cx="5.5" cy="5.5" r="5" stroke="white" strokeWidth="1.1" />
-        <path d="M5.5 4V6.5" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-        <circle cx="5.5" cy="8" r="0.55" fill="white" />
-      </>
-    ),
+  },
+  // Figma 8027:211483 (Terms "Under 18?"): bg #EAEFFB @ .4, border #BDD7F0.
+  blueSoft: {
+    container: { background: 'rgba(234,239,251,0.4)', borderColor: '#BDD7F0' },
+    iconBox: '#3062D4',
+    icon: calloutInfoIcon,
+    titleColor: '#3062D4',
+    bodyColor: '#3062D4',
+  },
+  // Figma 8027:211927 (Privacy "Protected by Ghanaian law").
+  green: {
+    container: { background: 'rgba(235,241,236,0.5)', borderColor: '#C1D4C4' },
+    iconBox: '#387440',
+    icon: calloutCheckIcon,
+    titleColor: '#165D3A',
+    bodyColor: '#165D3A',
   },
 };
 
-// 11×11 inline glyph rendered inside the small coloured icon box on each
-// callout. Each variant supplies its own paths via `iconPath`.
-const CalloutIcon = ({ variant }) => {
-  const { iconPath } = CALLOUT_VARIANT_STYLES[variant];
-  return (
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
-      {iconPath}
-    </svg>
-  );
-};
+const FOCUSABLE =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
 const LegalModalShell = ({
   title,
@@ -101,15 +104,51 @@ const LegalModalShell = ({
   ctaLabel = 'I understand and Accept',
   onAccept,
   onClose,
+  bannerIcon = 'shield',
 }) => {
   log('mount', { title, points: points.length, callouts: callouts.length });
+  const dialogRef = useRef(null);
+  const titleId = 'legal-modal-title';
 
-  // Close on Escape — same affordance as the personal-info modal.
+  // Focus in on mount, restore on unmount.
+  useEffect(() => {
+    const previous = document.activeElement;
+    dialogRef.current?.focus({ preventScroll: true });
+    log('focus moved into dialog');
+    return () => {
+      if (previous && typeof previous.focus === 'function') {
+        previous.focus({ preventScroll: true });
+        log('focus restored');
+      }
+    };
+  }, []);
+
+  // Esc closes; Tab is trapped inside the dialog.
   useEffect(() => {
     const handleKey = (event) => {
       if (event.key === 'Escape') {
         log('escape pressed, closing');
         onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const nodes = Array.from(dialogRef.current.querySelectorAll(FOCUSABLE));
+      if (nodes.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || active === dialogRef.current)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (!dialogRef.current.contains(active)) {
+        event.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -120,166 +159,132 @@ const LegalModalShell = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="legal-modal-title"
+      aria-labelledby={titleId}
       className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: 'rgba(17,17,17,0.7)' }}
+      style={{ background: 'rgba(28,42,33,0.7)' }}
       onClick={onClose}
     >
       <div
-        className="relative flex w-full max-w-[680px] flex-col bg-white max-md:max-h-[90dvh]!"
+        ref={dialogRef}
+        tabIndex={-1}
+        className="relative flex w-full max-w-[680px] flex-col bg-white outline-none max-md:max-h-[90dvh]!"
         style={{
           maxHeight: 'min(90vh, 1126px)',
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
-          boxShadow: '0 -16px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.04)',
+          boxShadow: '0 -16px 48px rgba(0,0,0,0.22)',
         }}
         onClick={(event) => event.stopPropagation()}
       >
-        {/* Drag handle — visual affordance for mobile bottom-sheet feel. */}
+        {/* Drag pip — Figma 36x4 #C6C6C3 r2, 16px from top. */}
         <span
           aria-hidden="true"
           className="absolute left-1/2 top-4 h-1 w-9 -translate-x-1/2 rounded-full bg-[#C6C6C3]"
         />
 
-        {/* Header */}
-        <div
-          className="flex items-start justify-between px-6 pb-4 pt-9 max-md:px-4 max-md:pb-3 max-md:pt-7"
-          style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
-        >
-          <div className="flex flex-col gap-2">
-            <span
-              className="inline-flex h-[21px] w-fit items-center gap-1.5 rounded-[4px] px-2"
+        {/* Header: pill + close, then the title (Figma 632x77). */}
+        <div className="mx-6 mt-[41px] shrink-0 max-md:mx-4 max-md:mt-9">
+          <div
+            className="pb-[9px] pl-[14px] pt-3 max-md:pl-0"
+            style={{ borderBottom: '1px solid rgba(28,42,33,0.07)' }}
+          >
+            <div className="flex items-start justify-between">
+              <span
+                className="inline-flex h-[21px] w-fit items-center gap-[5px] rounded-[4px] px-[10px]"
+                style={{ background: 'rgba(248,248,244,0.5)', border: '1px solid #C6C6C3' }}
+              >
+                <img src={pillIcon} alt="" aria-hidden="true" width={9} height={9} />
+                <span
+                  className="font-ui text-[10px] font-bold uppercase leading-3 text-[#70706E]"
+                  style={{ letterSpacing: '0.6px' }}
+                >
+                  Summary
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="flex size-[27px] shrink-0 items-center justify-center rounded-full bg-[#F8F8F4] transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <img src={closeIcon} alt="" aria-hidden="true" width={8} height={8} />
+              </button>
+            </div>
+            <h2
+              id={titleId}
+              className="font-heading font-semibold"
               style={{
-                background: 'rgba(248,248,244,0.5)',
-                border: '1px solid #C6C6C3',
+                fontSize: 22,
+                lineHeight: '27.5px',
+                letterSpacing: '-0.44px',
+                color: '#1C2A21',
               }}
             >
-              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
-                <rect
-                  x="1"
-                  y="1"
-                  width="7"
-                  height="7"
-                  rx="1.5"
-                  stroke="#70706E"
-                  strokeWidth="1.1"
-                />
-                <path d="M3 3h3M3 4.5h3M3 6h2" stroke="#70706E" strokeLinecap="round" />
-              </svg>
-              <span
-                className="font-bold uppercase text-[#70706E]"
-                style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.6px' }}
-              >
-                Summary
-              </span>
-            </span>
-            <h2
-              id="legal-modal-title"
-              className="font-display font-normal"
-              style={{ fontSize: 24, lineHeight: '23.1px', color: '#111111' }}
-            >
               {title.before}
-              <span className="italic text-brand-green">{title.after}</span>
+              <span style={{ color: '#387440' }}>{title.after}</span>
             </h2>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="flex size-[27px] shrink-0 items-center justify-center rounded-full bg-[#F8F8F4] text-[#111111] transition-colors hover:bg-brand-green-light"
+          {/* Intro banner — Figma 632x68, bg #EBF1EC @ .6, bottom border #C1D4C4. */}
+          <div
+            className="flex items-center gap-4 py-[15px] pl-[14px] max-md:pl-0"
+            style={{
+              background: 'rgba(235,241,236,0.6)',
+              borderBottom: '1px solid #C1D4C4',
+            }}
           >
-            <CloseIcon />
-          </button>
-        </div>
-
-        {/* Intro banner — green-tinted with a shield/book glyph */}
-        <div
-          className="flex items-center gap-4 px-6 py-4"
-          style={{
-            background: 'rgba(235,241,236,0.6)',
-            borderBottom: '1px solid #C1D4C4',
-          }}
-        >
-          <span
-            className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-brand-green"
-            style={{ boxShadow: '0 3px 0 #2A5730' }}
-            aria-hidden="true"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path
-                d="M10 1.54 16.92 5.4v5.38c0 3.85-3.08 6.92-6.92 7.7C3.85 17.7.77 14.62.77 10.77V5.4L10 1.54Z"
-                stroke="white"
-                strokeWidth="1.2"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <div className="flex flex-col gap-1">
-            <p className="font-bold text-[#2A5730]" style={{ fontSize: 14, lineHeight: '20px' }}>
-              {introTitle}
-            </p>
-            <p
-              className="text-[#2A5730]"
-              style={{
-                fontSize: 12,
-                fontWeight: 500,
-                lineHeight: '17px',
-                opacity: 0.8,
-              }}
+            <span
+              className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-brand-green"
+              style={{ boxShadow: '0 3px 0 #2A5730' }}
+              aria-hidden="true"
             >
-              {introSubtitle}
-            </p>
+              <img
+                src={bannerIcon === 'doc' ? bannerDocIcon : bannerShieldIcon}
+                alt=""
+                width={20}
+                height={20}
+              />
+            </span>
+            <div className="flex flex-col gap-1 pr-3">
+              <p className="text-[14px] font-bold leading-[17px] text-[#2A5730]">{introTitle}</p>
+              <p className="text-[12px] font-medium leading-[17px] text-[#2A5730]">
+                {introSubtitle}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        {/* Scrollable body — rows 12px pad, 1px rule rgba(28,42,33,.06). */}
+        <div className="no-scrollbar mx-6 min-h-0 flex-1 overflow-y-auto pb-4 pl-[14px] pt-4 max-md:mx-4 max-md:pl-0">
           <ol className="flex flex-col">
-            {points.map((point, index) => {
+            {points.map((point) => {
               const variant = point.highlight ? 'highlight' : 'default';
               const styles = POINT_VARIANT_STYLES[variant];
-              const isLast = index === points.length - 1 && callouts.length === 0;
               return (
                 <li
                   key={point.n}
-                  className="flex gap-3 py-4"
-                  style={isLast ? undefined : { borderBottom: '1px solid rgba(0,0,0,0.06)' }}
+                  className="flex items-start gap-3 pb-[11px] pt-3"
+                  style={{ borderBottom: '1px solid rgba(28,42,33,0.06)' }}
                 >
                   <span
-                    className="flex size-[26px] shrink-0 items-center justify-center rounded-full"
+                    className="mt-px flex size-[26px] shrink-0 items-center justify-center rounded-full"
                     style={{
                       background: styles.bubble.background,
                       border: `1px solid ${styles.bubble.borderColor}`,
                     }}
                   >
                     <span
-                      className="font-bold"
-                      style={{ fontSize: 'var(--fs-11)', color: styles.digit }}
+                      className="font-ui text-[11px] font-bold leading-[13px]"
+                      style={{ color: styles.digit }}
                     >
                       {point.n}
                     </span>
                   </span>
-                  <div className="flex flex-col gap-1">
-                    <h3
-                      className="font-bold"
-                      style={{
-                        fontSize: 13,
-                        lineHeight: '16px',
-                        color: styles.title,
-                      }}
-                    >
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <h3 className="text-[13px] font-bold leading-4" style={{ color: styles.title }}>
                       {point.title}
                     </h3>
-                    <p
-                      className="text-[#737373]"
-                      style={{
-                        fontSize: 12,
-                        lineHeight: '19.8px',
-                      }}
-                    >
-                      {point.body}
-                    </p>
+                    <p className="text-[12px] leading-5 text-[#737373]">{point.body}</p>
                   </div>
                 </li>
               );
@@ -287,48 +292,36 @@ const LegalModalShell = ({
           </ol>
 
           {callouts.length > 0 && (
-            <div className="mt-4 flex flex-col gap-3">
+            <div className="mt-4 flex flex-col gap-4">
               {callouts.map((callout) => {
-                const styles = CALLOUT_VARIANT_STYLES[callout.variant];
+                const styles =
+                  CALLOUT_VARIANT_STYLES[callout.variant] ?? CALLOUT_VARIANT_STYLES.blue;
                 return (
                   <div
                     key={callout.title}
-                    className="relative flex items-start gap-3 rounded-[12px] px-4 py-3"
+                    className="flex items-start gap-[11px] rounded-[12px] py-2 pl-1 pr-3"
                     style={{
                       background: styles.container.background,
                       border: `1px solid ${styles.container.borderColor}`,
                     }}
                   >
                     <span
-                      className="flex size-[22px] shrink-0 items-center justify-center rounded-[6px]"
-                      style={{
-                        background: styles.iconBox.background,
-                        boxShadow: '0 1px 0 rgba(0,0,0,0.1)',
-                      }}
+                      className="mt-1 flex size-[22px] shrink-0 items-center justify-center rounded-[6px]"
+                      style={{ background: styles.iconBox, boxShadow: '0 1px 0 rgba(0,0,0,0.1)' }}
                       aria-hidden="true"
                     >
-                      <CalloutIcon variant={callout.variant} />
+                      <img src={styles.icon} alt="" width={11} height={11} />
                     </span>
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex min-w-0 flex-col">
                       <p
-                        className="font-semibold"
-                        style={{
-                          fontSize: 14,
-                          lineHeight: '24px',
-                          letterSpacing: '0.2px',
-                          color: styles.titleColor,
-                        }}
+                        className="text-[14px] font-semibold leading-6"
+                        style={{ letterSpacing: '0.2px', color: styles.titleColor }}
                       >
                         {callout.title}
                       </p>
                       <p
-                        style={{
-                          fontSize: 12,
-                          lineHeight: '18px',
-                          letterSpacing: '0.2px',
-                          color: styles.bodyColor,
-                          opacity: 0.85,
-                        }}
+                        className="text-[12px] leading-[18px]"
+                        style={{ letterSpacing: '0.2px', color: styles.bodyColor }}
                       >
                         {callout.body}
                       </p>
@@ -340,75 +333,58 @@ const LegalModalShell = ({
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer — Figma 680x128, top rule rgba(28,42,33,.07). */}
         <div
-          className="flex flex-col gap-4 px-6 pb-6 pt-3 max-md:gap-2 max-md:px-4 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-md:pt-2"
-          style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
+          className="shrink-0 pb-2 pl-[37px] pr-[25px] pt-[13px] max-md:px-4 max-md:pb-[max(0.75rem,env(safe-area-inset-bottom))] max-md:pt-3"
+          style={{ borderTop: '1px solid rgba(28,42,33,0.07)' }}
         >
-          <div className="flex items-center justify-between gap-4">
-            <p
-              className="max-w-[401px] text-[#BABAB7]"
-              style={{ fontSize: 'var(--fs-11)', lineHeight: '15.4px' }}
-            >
-              {footerHelper}
-            </p>
-            {readFullHref && (
-              <a
-                href={readFullHref}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-[35px] shrink-0 items-center gap-2 whitespace-nowrap rounded-[4px] border px-4 transition-colors hover:bg-brand-green-light max-md:h-8 max-md:px-3"
-                style={{ borderColor: '#C1D4C4' }}
+          <div className="flex flex-col gap-4 max-md:gap-3">
+            <div className="flex items-start justify-between gap-[60px] max-md:items-center max-md:gap-3">
+              <p
+                className={classNames(
+                  'font-ui max-w-[401px] text-[11px] leading-[15px] text-[#BABAB7]',
+                  'max-md:text-[12px]'
+                )}
               >
-                <span
-                  className="font-semibold text-brand-green"
-                  style={{ fontSize: 12, lineHeight: '20px', letterSpacing: '0.2px' }}
+                {footerHelper}
+              </p>
+              {readFullHref && (
+                <a
+                  href={readFullHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-[35px] min-w-[159px] shrink-0 items-center justify-center whitespace-nowrap rounded-[14px] bg-white px-3 text-[12px] font-bold leading-6 text-[#1C2A21] transition-transform hover:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green max-md:h-9 max-md:min-w-0"
+                  style={{
+                    border: '2px solid rgba(28,42,33,0.3)',
+                    borderTopWidth: 1,
+                    letterSpacing: '0.1px',
+                    boxShadow: '0 4px 0 rgba(17,17,17,0.25)',
+                  }}
                 >
                   Read full document
-                </span>
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path
-                    d="M2 5h6M5 8l3-3-3-3"
-                    stroke="#387440"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
-            )}
-          </div>
+                </a>
+              )}
+            </div>
 
-          <button
-            type="button"
-            onClick={onAccept}
-            className="flex h-14 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[14px] bg-brand-green transition-transform hover:translate-y-px max-md:h-11 max-md:rounded-[10px] max-md:shadow-none!"
-            style={{
-              border: '1px solid #2A5730',
-              borderLeftWidth: 2,
-              borderRightWidth: 2,
-              borderBottomWidth: 2,
-              boxShadow: '0 4px 0 #224626',
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path
-                d="M16.77 5.21a.97.97 0 0 1 .02 1.06l-8.25 8.5a.97.97 0 0 1-1.4-.02l-4.25-4.5a.97.97 0 1 1 1.41-1.33l3.55 3.76 7.55-7.78a.97.97 0 0 1 1.37-.03Z"
-                fill="#EBF1EC"
-              />
-            </svg>
-            <span
-              className="font-bold max-md:text-[14px]!"
+            <button
+              type="button"
+              onClick={onAccept}
+              className="flex h-14 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[14px] bg-brand-green px-10 transition-transform hover:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green max-md:h-11 max-md:rounded-[10px] max-md:px-4 max-md:shadow-none!"
               style={{
-                fontSize: 16,
-                lineHeight: '24px',
-                letterSpacing: '0.1px',
-                color: '#FEF1E7',
+                border: '2px solid #2A5730',
+                borderTopWidth: 1,
+                boxShadow: '0 4px 0 #224626',
               }}
             >
-              {ctaLabel}
-            </span>
-          </button>
+              <img src={ctaCheckIcon} alt="" aria-hidden="true" width={20} height={20} />
+              <span
+                className="text-[16px] font-bold leading-6 max-md:text-[14px]"
+                style={{ letterSpacing: '0.1px', color: '#FEF1E7' }}
+              >
+                {ctaLabel}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -70,9 +70,9 @@ test('minor signs up with parent details and activates', async ({ page }) => {
   const res = await activated;
   expect(res.status(), await res.text()).toBeLessThan(300);
   await page
-    .getByRole('button', { name: /continue/i })
+    .getByRole('button', { name: /i'm ready/i })
     .last()
     .click({ timeout: 30_000 });
-  await page.waitForURL('**/login');
+  await page.waitForURL('**/onboarding/talent/done');
   await page.waitForTimeout(1500);
 });
