@@ -6,7 +6,7 @@ import { chromium } from '@playwright/test';
 import { ROUTES } from '../tests/e2e/helpers/responsive.js';
 
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
-const ALLOWED = ['/profile/filling/career-buddy'];
+const ALLOWED = ['/profile/filling/career-buddy', '/home'];
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM_PATH || undefined,
@@ -19,7 +19,7 @@ await ctx.addInitScript(() => {
 });
 const page = await ctx.newPage();
 let leaks = 0;
-for (const route of ['/', ...ROUTES.filter((r) => r !== '/')]) {
+for (const route of ['/', '/home', ...ROUTES.filter((r) => r !== '/' && r !== '/home')]) {
   try {
     await page.goto(BASE + route, { waitUntil: 'load', timeout: 30000 });
     await page.waitForSelector('[data-route-fallback]', { state: 'detached', timeout: 20000 });
@@ -40,6 +40,8 @@ for (const route of ['/', ...ROUTES.filter((r) => r !== '/')]) {
 }
 await browser.close();
 console.log(
-  leaks ? `\n${leaks} problem(s)` : '\nno leaks: Playful is confined to the Career Buddy route'
+  leaks
+    ? `\n${leaks} problem(s)`
+    : '\nno leaks: Playful is confined to the Career Buddy + talent home routes'
 );
 process.exit(leaks ? 1 : 0);

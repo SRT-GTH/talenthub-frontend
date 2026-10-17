@@ -6,6 +6,7 @@ import DashboardSidebar from './DashboardSidebar.jsx';
 import DashboardMobileTabBar from './DashboardMobileTabBar.jsx';
 import DashboardPageBackground from './DashboardPageBackground.jsx';
 import CareerBuddyFloatingButton from '../community/CareerBuddyFloatingButton.jsx';
+import TalentDashboardShell from '../talentHome/TalentDashboardShell.jsx';
 
 const log = debug('DashboardShell');
 
@@ -56,12 +57,28 @@ const DashboardShell = ({
      tab bar (phones) and the Career Buddy launcher (< lg) — both would sit on
      top of the composer. No effect at >= lg. */
   immersiveOnMobile = false,
+  /* Talent variant (`/home`): role="talent" + the useTalentHomeState() object. Renders
+     TalentDashboardShell (talent nav, rail, phone nav); recruiter pages never pass these. */
+  role,
+  talentHome,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
 
   useEffect(() => {
     log('mount', { role: 'recruiter', defaultSidebarCollapsed });
   }, [defaultSidebarCollapsed]);
+
+  if (role === 'talent') {
+    return (
+      <TalentDashboardShell
+        talentHome={talentHome}
+        contentClassName={contentClassName}
+        mainClassName={mainClassName}
+      >
+        {children}
+      </TalentDashboardShell>
+    );
+  }
 
   return (
     /* Fixed viewport shell — nav + rail are chrome, only the content column

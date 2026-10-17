@@ -104,6 +104,7 @@ const SkillsLabPage = lazy(() => import('./pages/skillsLab/SkillsLabPage.jsx'));
 const CommunityHomePage = lazy(() => import('./pages/community/CommunityHomePage.jsx'));
 const CommunityDetailPage = lazy(() => import('./pages/community/CommunityDetailPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
+const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -867,6 +868,18 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <CommunityDetailPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent home — Figma "Talents dashboard" 5686:95479 (Focused + Playful).
+            Outside MainLayout like the other dashboard screens; state is chosen by
+            query params (see talentHomeState.js / wiki/talent-home.md). */}
+                <Route
+                  path={'/home'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentHomePage />
                     </Suspense>
                   }
                 />
