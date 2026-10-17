@@ -57,7 +57,7 @@ const TalentDashboardShell = ({ children, talentHome, contentClassName, mainClas
         className="fixed top-[12px] left-[46px] z-[100] flex items-center gap-[8px] rounded-[12px] border-[3px] border-solid border-[#ffd86b] bg-[#1c2a21] py-[10px] pr-[16px] pl-[14px] text-[14px] leading-[normal] font-bold whitespace-nowrap text-white opacity-0 pointer-events-none focus:opacity-100 focus:pointer-events-auto"
       >
         Skip to main content
-        <span className="rounded-full border border-solid border-[rgba(28,42,33,0.35)] bg-[#ffd86b] px-[10px] py-[4px] text-[11px] leading-[normal] font-semibold text-[#1c2a21]">
+        <span className="max-lg:hidden rounded-full border border-solid border-[rgba(28,42,33,0.35)] bg-[#ffd86b] px-[10px] py-[4px] text-[11px] leading-[normal] font-semibold text-[#1c2a21]">
           Enter
         </span>
       </a>

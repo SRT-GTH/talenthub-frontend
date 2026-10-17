@@ -85,6 +85,7 @@ export const ROUTES = [
   '/skills-lab/team-leadership',
   '/community',
   '/community/frontend-devs-ghana',
+  '/home',
   '/recruiter/home',
   '/recruiter/talent-search',
   '/recruiter/job-templates',

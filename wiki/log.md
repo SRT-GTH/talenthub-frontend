@@ -2506,3 +2506,7 @@ Built the Playful theme layer and audited all 65 frames with `npm run audit:figm
 comparisons. Fixed copy (emoji, apostrophes, step counter, XP badges), hero/sticker offsets, toast centring,
 Game Store card text, opt-out body text, in-bubble guidance chips. Gates: lint/build/leak/responsive pass, strict
 Focused visual pass. Remaining differences and owner decisions: [playful-mode.md](playful-mode.md) (final audit bullet).
+
+## [2026-10-17] create | Talent home `/home` (Focused + Playful) — Figma "Talents dashboard" 5686:95479
+
+New talent home built in both styles with mock URL-param state (`?state=`, `?tab=`, `?search=`, `?edit=`, `?loading=`, `?new=`, `?a11y=`): talent shell (add-only talent variant of the dashboard chrome), five home states, MyAssessment / Recruiter activity / Global search / Edit home, new-user flows (welcome, tour step 1, chat, gate, Ask Buddy FAB), loading skeleton, A11Y-01/02. Full detail, route table, ownership, decisions and open items: [talent-home.md](talent-home.md). Leak check now allows `/home`.

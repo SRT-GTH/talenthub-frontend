@@ -36,6 +36,8 @@ Every claim in this wiki carries a tag:
 - [pre-commit-workflow.md](pre-commit-workflow.md) — Lint, format, build, husky hooks
 - [onboarding-redesign.md](onboarding-redesign.md) — Recruiter onboarding flow (R01-R09, mock), shared responsive `OnboardingPanel`, talent/entry corrections to the 8027 frames, Figma-export asset rule, demo triggers, **open items** (read this first when resuming)
 - [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — EXECUTED 2026-10-10
+- [playful-mode.md](playful-mode.md) — Playful visual theme layer (Career Buddy + talent home): plumbing, rules, ownership, final Figma audit, accepted differences
+- [talent-home.md](talent-home.md) — Talent home `/home` (Focused + Playful): state→URL→Figma table, file ownership, status, decisions, a11y
 
 ### External
 

@@ -44,9 +44,28 @@ Other nodes: `Sidebar · talent` `7740:11213`, `Nav` `8315:461634`, `GTH · Ask 
 
 Each section component receives `home` (see `useTalentHomeState`): `{ snapshot, stateKey, tab, loading, newUser, journeyMin, searchOpen, editOpen, a11yMode, update(patch) }`. Add fields to `SNAPSHOTS` only by appending; never rename. `update({ key: value })` edits the URL.
 
-## Status
+## Status (2026-10-17)
 
-| Piece                                                     | Status                                                                        |
-| --------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Route, page, state source, scope, font loader, leak check | ✅ VERIFIED (2026-10-17: `/home` renders, `data-ui-style` set, console clean) |
-| All section components                                    | stubs (`data-stub`) — being built                                             |
+| Piece                                                                                                        | Status                                                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route `/home`, page, state source, scope, font loader, leak check                                            | `✅ VERIFIED` (`/home` renders, `data-ui-style` set, console clean; leak check allows Career Buddy + `/home` only)                                                            |
+| Chrome — `TalentDashboardShell`, top nav (add-only in `DashboardTopNav`), `TalentSidebar`, `TalentMobileNav` | built; Playful HM-01/02 + Focused HM-03 chrome compared by eye `✅ VERIFIED`; Focused sidebar white backing block unconfirmed `🔶 LIKELY`                                     |
+| Home states Day 1 / Discoverable / minimised / complete / Top Talent                                         | built; Day 1 Playful + Focused compared by eye `✅ VERIFIED`; others by agents only `🔶 LIKELY`                                                                               |
+| MyAssessment, Recruiter activity, Global search                                                              | built, compared by eye (1728) `✅ VERIFIED`                                                                                                                                   |
+| Edit home (HM-05)                                                                                            | wired on complete/top states only; Playful compared `✅ VERIFIED`, Focused not compared. Defaults: all cards shown (the frame's hidden Recent activity/Badges are not seeded) |
+| NU-01 welcome, NU-03 gate, NU-04 chat, Ask Buddy FAB                                                         | built, compared by eye `✅ VERIFIED`                                                                                                                                          |
+| NU-02 guided tour                                                                                            | step 1 of 4 only — Figma draws only step 1 (`TOUR_STEPS` in `GuidedTour.jsx`) — NOT BUILT beyond step 1                                                                       |
+| HM-04 loading                                                                                                | skeleton built `✅ VERIFIED`; per-card empty/error NOT drawn in Figma — pieces exist (`TalentHomeStates.jsx`, no default copy), not mounted                                   |
+| A11Y-01/02                                                                                                   | built (below)                                                                                                                                                                 |
+| Gates (2026-10-17)                                                                                           | lint 0 errors, build OK, leak check clean, `/home` responsive 10/10, strict recruiter+community visual pass (exit 0 on a quiet tree)                                          |
+
+**Decisions / assumptions for the owner:** Playful Top Talent/complete sidebar frames show a flat lime sidebar while Day 1/2 use the shelf look — shelf used everywhere; Skills Lab / My Learning nav icons hand-drawn (Figma export empty); phone layouts are our design (no phone frames); nav destinations other than Home/My Assessment only log; "Create my avatar" -> `/profile/engagement/identity`, "Continue: Interests" -> `/profile/filling/interests`, "Start chat"/"Continue" -> Career Buddy; percentile copy "72th"/"41th" is verbatim Figma; the skip-link "Enter" chip is hidden below lg (11px < the 12px mobile floor).
+
+**Assets:** SVGs are named components in `src/components/shared/assets.jsx` under five `// ---- Talent home · …` headers; media are descriptive kebab-case files in `src/assets/talent-home/{home,tabs,flows,a11y}/` plus the shared `career-buddy-robot.png`.
+
+## A11Y (A11Y-01 / A11Y-02) — built 2026-10-17
+
+- Landmarks `✅ VERIFIED`: `<header>` (top nav), `<nav aria-label="Main">` (+ "More") in the rail, `<main id="main" tabIndex=-1>`, `<aside aria-label="For you">` (right column, `HomeColumns.jsx`). Skip link "Skip to main content · Enter" is the first tab stop (`TalentDashboardShell.jsx`, Figma 7751:3305).
+- Focus ring `✅ VERIFIED`: 3px `#111`, 2px offset, keyboard only, `html[data-talent-home]` (`src/styles/talentA11y.css`). The 2px white gap is an outline-offset (not a white box-shadow).
+- A11Y-02 (`?a11y=1`): `TalentA11yMenu.jsx` (trigger ring + panel, prefs in `useA11yPrefs.js`, localStorage `gth:a11y-prefs`). Shell sets `data-a11y-contrast|motion|links`; CSS sweeps in `talentA11y.css`: text `#595959`→`#2b2b2b` (not chips), `#e7e7e7` borders→`#767676` + no soft shadow, links underlined (`data-link`), blobs/doodle stars hidden, stickers upright, animations off. `prefers-reduced-motion` honoured for all talent-home motion.
+- Not applied: text-size A/small/large has no drawn page effect (control stores the choice only); the stray 38px trigger drawn above the panel in the frame is omitted.
