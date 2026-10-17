@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -6.2,
-    "derived": 58.2
+    "medianDy": -5.7,
+    "derived": 57.7
   },
   "offsetUsed": 58,
   "counts": {
     "figmaTexts": 71,
-    "matched": 63,
-    "unmatched": 8,
-    "layoutMismatch": 48,
+    "matched": 64,
+    "unmatched": 7,
+    "layoutMismatch": 46,
     "fontMetric": 26,
     "widthOver15": 4
   },
@@ -57,7 +57,7 @@
         "x": 908,
         "y": 755
       },
-      "closestDom": null
+      "closestDom": "Transcr... .pdf"
     },
     {
       "text": "Yes, I have a PDF copy — I’ve attached it.",
@@ -74,14 +74,6 @@
         "y": 28
       },
       "closestDom": null
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 688.8,
-        "y": 4.9
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -94,68 +86,36 @@
       "wPct": 15.9
     },
     {
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 313.7,
+      "dy": 13.2,
+      "dh": 1.9,
+      "wPct": -1.1
+    },
+    {
+      "text": "Educational background saved",
+      "sel": "span.font-normal.text-[13px].text-[#595959]",
+      "dx": 303.7,
+      "dy": 12,
+      "dh": 2,
+      "wPct": 6.4
+    },
+    {
+      "text": "Success",
+      "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
+      "dx": 301.2,
+      "dy": 9,
+      "dh": 2,
+      "wPct": -4.6
+    },
+    {
       "text": "The information gathered from the our interaction on your ed",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -279.2,
+      "dy": -246.2,
       "dh": -6,
       "wPct": -4.4
-    },
-    {
-      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -216.2,
-      "dh": -6,
-      "wPct": 9.8
-    },
-    {
-      "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
-      "dx": 3,
-      "dy": -214.7,
-      "dh": -3,
-      "wPct": 7.7
-    },
-    {
-      "text": "6MB",
-      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": -213.7,
-      "dh": -1,
-      "wPct": -70.8
-    },
-    {
-      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -212.2,
-      "dh": -6,
-      "wPct": 7.5
-    },
-    {
-      "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
-      "dx": 3,
-      "dy": -210.7,
-      "dh": -3,
-      "wPct": 8.6
-    },
-    {
-      "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -208.2,
-      "dh": -6,
-      "wPct": 8.5
-    },
-    {
-      "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
-      "dx": 3,
-      "dy": -206.7,
-      "dh": -3,
-      "wPct": 7.2
     },
     {
       "text": "Focused",
@@ -174,10 +134,66 @@
       "wPct": 5.2
     },
     {
+      "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -183.2,
+      "dh": -6,
+      "wPct": 9.8
+    },
+    {
+      "text": "Yes, I graduated with a Second Class Upper Division.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -181.7,
+      "dh": -3,
+      "wPct": 7.7
+    },
+    {
+      "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -179.2,
+      "dh": -6,
+      "wPct": 7.5
+    },
+    {
+      "text": "I started in 2018 and graduated in 2022.",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -177.7,
+      "dh": -3,
+      "wPct": 8.6
+    },
+    {
+      "text": "6MB",
+      "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
+      "dx": -4,
+      "dy": -175.7,
+      "dh": 1,
+      "wPct": -65
+    },
+    {
+      "text": "Perfect. Can you tell me the years you started and finished ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -175.2,
+      "dh": -6,
+      "wPct": 8.5
+    },
+    {
+      "text": " Mostly software engineering — we focused on programming and",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -173.7,
+      "dh": -3,
+      "wPct": 7.2
+    },
+    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -98.7,
+      "dy": -65.7,
       "dh": 1,
       "wPct": 0.9
     },
@@ -185,7 +201,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -95.2,
+      "dy": -62.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -212,86 +228,6 @@
       "dy": 4.3,
       "dh": 2,
       "wPct": 1.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -42.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -40.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -38.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -37.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -36.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -35.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -34.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -33.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -31.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 29.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Portfolio",
@@ -342,20 +278,20 @@
       "wPct": 3.8
     },
     {
-      "text": "Educational background saved",
-      "sel": "span.font-normal.text-[13px].text-[#595959]",
-      "dx": 1.1,
-      "dy": 12,
-      "dh": 2,
-      "wPct": 6.4
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -9.7,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
-      "text": "Success",
-      "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
-      "dx": -0.1,
-      "dy": 9,
-      "dh": 2,
-      "wPct": -4.6
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -7.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Career Pitch",
@@ -366,12 +302,28 @@
       "wPct": 3.9
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -5.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
       "dy": -5.7,
       "dh": 2,
       "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 5.4,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "· 0% profile complete · auto-saved",
@@ -387,7 +339,7 @@
       "dx": -0.5,
       "dy": 4.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -396,6 +348,14 @@
       "dy": 4.8,
       "dh": 4,
       "wPct": 7.1
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -4.7,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Save & Exit",
@@ -438,6 +398,14 @@
       "wPct": 5.9
     },
     {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -3.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
       "text": "Completion: 80%",
       "sel": "span#_r_5_-personal-info-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": 1,
@@ -460,6 +428,14 @@
       "dy": 2.8,
       "dh": 3,
       "wPct": 5.1
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -2.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Completion: Not Started",
@@ -518,54 +494,54 @@
     },
     {
       "text": " Mostly software engineering — we focused on programming and",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -206.7,
+      "dy": -173.7,
       "dh": -3,
       "wPct": 7.2,
       "severe": false
     },
     {
       "text": "Perfect. Can you tell me the years you started and finished ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -208.2,
+      "dy": -175.2,
       "dh": -6,
       "wPct": 8.5,
       "severe": false
     },
     {
       "text": "I started in 2018 and graduated in 2022.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -210.7,
+      "dy": -177.7,
       "dh": -3,
       "wPct": 8.6,
       "severe": false
     },
     {
       "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -212.2,
+      "dy": -179.2,
       "dh": -6,
       "wPct": 7.5,
       "severe": false
     },
     {
       "text": "Yes, I graduated with a Second Class Upper Division.",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 3,
-      "dy": -214.7,
+      "dy": -181.7,
       "dh": -3,
       "wPct": 7.7,
       "severe": false
     },
     {
       "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -216.2,
+      "dy": -183.2,
       "dh": -6,
       "wPct": 9.8,
       "severe": false
@@ -573,10 +549,10 @@
     {
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
-      "dx": 2,
-      "dy": -213.7,
-      "dh": -1,
-      "wPct": -70.8,
+      "dx": -4,
+      "dy": -175.7,
+      "dh": 1,
+      "wPct": -65,
       "severe": true
     },
     {
@@ -699,14 +675,14 @@
     {
       "text": "Educational background saved",
       "sel": "span.font-normal.text-[13px].text-[#595959]",
-      "dx": 1.1,
+      "dx": 303.7,
       "dy": 12,
       "dh": 2,
       "wPct": 6.4,
       "severe": false
     }
   ],
-  "medianDx": 0.1,
+  "medianDx": 0.6,
   "containers": {
     "chatPane": {
       "figma": {
@@ -755,22 +731,22 @@
     }
   },
   "style": {
-    "summaryLine": "136 style mismatches (colour:16 radius:40 shadow:11 stroke:16 opacity:2 typography:51); shapes 27/148 matched",
+    "summaryLine": "168 style mismatches (colour:19 radius:68 shadow:11 stroke:16 opacity:2 typography:52); shapes 37/148 matched",
     "counts": {
-      "colour": 16,
-      "radius": 40,
+      "colour": 19,
+      "radius": 68,
       "shadow": 11,
       "stroke": 16,
       "opacity": 2,
-      "typography": 51,
+      "typography": 52,
       "gradient": 0,
       "mixedRuns": 2
     },
     "shapes": {
       "total": 148,
-      "matched": 27
+      "matched": 37
     },
-    "textStyleMatched": 63,
+    "textStyleMatched": 64,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -845,12 +821,6 @@
         "box": [561, 39, 434, 51]
       },
       {
-        "node": "avatar showcase",
-        "nodeId": "I7873:53014;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 39, 48, 48]
-      },
-      {
         "node": "Background",
         "nodeId": "I7873:53014;5132:42801",
         "type": "RECTANGLE",
@@ -867,12 +837,6 @@
         "nodeId": "I7873:53014;5132:42803",
         "type": "RECTANGLE",
         "box": [982, 195, 8, 8]
-      },
-      {
-        "node": "Vector",
-        "nodeId": "I7873:53014;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 39, 48, 48]
       },
       {
         "node": "Frame 14175",
@@ -1025,12 +989,6 @@
         "box": [712, 379, 283, 51]
       },
       {
-        "node": "avatar showcase",
-        "nodeId": "I7873:53018;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 379, 48, 48]
-      },
-      {
         "node": "Border",
         "nodeId": "I7873:53018;5132:42800",
         "type": "RECTANGLE",
@@ -1055,22 +1013,10 @@
         "box": [982, 535, 8, 8]
       },
       {
-        "node": "Vector",
-        "nodeId": "I7873:53018;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 379, 48, 48]
-      },
-      {
         "node": "Frame 14175",
         "nodeId": "I7873:53018;5132:42861",
         "type": "FRAME",
         "box": [1019, 433, 28, 13]
-      },
-      {
-        "node": "avatar showcase",
-        "nodeId": "I7873:53019;5132:42683",
-        "type": "FRAME",
-        "box": [60, 464, 48, 48]
       },
       {
         "node": "Border",
@@ -1097,24 +1043,6 @@
         "box": [33, 620, 8, 8]
       },
       {
-        "node": "Vector",
-        "nodeId": "I7873:53019;5132:42708",
-        "type": "VECTOR",
-        "box": [60, 464, 48, 48]
-      },
-      {
-        "node": "image 9",
-        "nodeId": "I7873:53019;5132:42709",
-        "type": "RECTANGLE",
-        "box": [66, 470, 37, 38]
-      },
-      {
-        "node": "Frame 14175",
-        "nodeId": "I7873:53019;5132:42710",
-        "type": "FRAME",
-        "box": [54, 518, 60, 13]
-      },
-      {
         "node": "Component 26",
         "nodeId": "I7873:53019;5132:42712",
         "type": "INSTANCE",
@@ -1125,12 +1053,6 @@
         "nodeId": "I7873:53020;5132:42797;5132:43038",
         "type": "FRAME",
         "box": [635, 562, 360, 51]
-      },
-      {
-        "node": "avatar showcase",
-        "nodeId": "I7873:53020;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 562, 48, 48]
       },
       {
         "node": "Border",
@@ -1155,12 +1077,6 @@
         "nodeId": "I7873:53020;5132:42803",
         "type": "RECTANGLE",
         "box": [982, 718, 8, 8]
-      },
-      {
-        "node": "Vector",
-        "nodeId": "I7873:53020;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 562, 48, 48]
       },
       {
         "node": "Frame 14175",
@@ -1251,9 +1167,69 @@
         "nodeId": "I7873:53022;5132:42962",
         "type": "RECTANGLE",
         "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53022;5132:42963",
+        "type": "RECTANGLE",
+        "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53022;5132:42964",
+        "type": "RECTANGLE",
+        "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53022;5132:42985",
+        "type": "VECTOR",
+        "box": [1009, 804, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:53022;5132:43022",
+        "type": "FRAME",
+        "box": [1019, 858, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:53023;5132:42683",
+        "type": "FRAME",
+        "box": [60, 889, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:53023;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 567, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53023;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53023;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:53023;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:53023;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 889, 48, 48]
       }
     ],
-    "unmatchedShapesCount": 121,
+    "unmatchedShapesCount": 111,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1290,6 +1266,294 @@
         "figma": "rgba(255,216,107,0.35)",
         "app": "rgba(0,0,0,0)",
         "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53014;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53014;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53014;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53014;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:53014;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:53014;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:53014;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:53014;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:53014;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53018;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53018;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53018;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53018;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:53018;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(255,255,255,0.22)",
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:53018;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:53018;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:53018;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:53018;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:53019;5132:42708",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "span.relative.inline-flex.shrink-0.items-center"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Frame 14175",
+        "nodeId": "I7873:53019;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Frame 14175",
+        "nodeId": "I7873:53019;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Frame 14175",
+        "nodeId": "I7873:53019;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Frame 14175",
+        "nodeId": "I7873:53019;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53020;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53020;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53020;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:53020;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:53020;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:53020;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:53020;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:53020;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:53020;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
       },
       {
         "cat": "colour",
@@ -2229,20 +2493,11 @@
       },
       {
         "cat": "typography",
-        "prop": "line-height",
+        "prop": "font-size",
         "node": "6MB",
         "nodeId": "I7873:53022;5132:42956",
-        "figma": 15,
-        "app": 12.5,
-        "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
-      },
-      {
-        "cat": "colour",
-        "prop": "text-colour",
-        "node": "6MB",
-        "nodeId": "I7873:53022;5132:42956",
-        "figma": "rgba(153,153,153,1)",
-        "app": "rgba(126,139,153,1)",
+        "figma": 10,
+        "app": 12,
         "sel": "span.font-sans.text-[10px].max-lg:text-[12px].text-content-tertiary"
       },
       {
@@ -2478,24 +2733,34 @@
         "figma": 15.51,
         "app": 19.5,
         "sel": "span.font-normal.text-[13px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "+20 XP",
+        "nodeId": "7881:86256",
+        "figma": 13.13,
+        "app": 16.5,
+        "sel": "span.pointer-events-none.absolute.-top-[10px].-right-[4px]"
       }
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 12,
+      "fill": 16,
+      "radius-tl": 17,
+      "radius-tr": 17,
+      "radius-br": 17,
+      "radius-bl": 17,
       "border-width-top": 4,
       "border-width-right": 4,
       "border-width-bottom": 4,
       "border-width-left": 4,
-      "radius-tl": 10,
-      "radius-tr": 10,
-      "radius-br": 10,
-      "radius-bl": 10,
       "shadow-count": 11,
       "font-weight": 15,
       "line-height": 18,
-      "text-colour": 4,
+      "text-colour": 3,
       "text-align": 16,
+      "font-size": 1,
       "text-decoration": 1,
       "font-family (fallback?)": 1
     }

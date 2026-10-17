@@ -15,13 +15,10 @@ import ClampText from '../../components/ui/ClampText.jsx';
 import { StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
-import {
-  ArrowRightIcon,
-  LoadingSpinner,
-  IdCardIcon,
-  SummaryPhotoIcon,
-  UserIcon,
-} from '../../components/shared/assets.jsx';
+import { ArrowRightIcon, LoadingSpinner, UserIcon } from '../../components/shared/assets.jsx';
+import idTile from '../../assets/talent-onboarding/review-id-tile.svg';
+import photoTile from '../../assets/talent-onboarding/review-photo-tile.svg';
+import checkboxTick from '../../assets/talent-onboarding/review-checkbox-tick.svg';
 import {
   ReviewAddressIcon,
   ReviewCheckIcon,
@@ -309,14 +306,8 @@ const IdentitySection = ({ data }) => (
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0 max-sm:flex-wrap"
       style={{ minHeight: 52 }}
     >
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-[6px] bg-brand-green-light"
-        aria-hidden="true"
-      >
-        <span className="inline-flex size-[14px] items-center justify-center text-brand-green">
-          <IdCardIcon />
-        </span>
-      </span>
+      {/* Figma export 8027:210911 (32x32 tile incl. card glyph). */}
+      <img src={idTile} alt="" aria-hidden="true" width={32} height={32} className="shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5 max-sm:min-w-[9rem]">
         <CellLabel>Ghana Card Number</CellLabel>
         <span
@@ -334,30 +325,16 @@ const IdentitySection = ({ data }) => (
       className="flex items-center gap-3 rounded-[10px] bg-[#F8F8F4] px-3 py-2.5 max-md:min-h-0! max-md:rounded-none max-md:border-b max-md:border-black/5 max-md:bg-transparent max-md:px-0"
       style={{ minHeight: 52 }}
     >
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-brand-green-light"
-        aria-hidden="true"
-      >
-        <span className="inline-flex size-[14px] items-center justify-center text-brand-green">
-          <SummaryPhotoIcon />
-        </span>
-      </span>
+      {/* Figma export 8027:210924 (32x32 tile incl. person glyph). */}
+      <img src={photoTile} alt="" aria-hidden="true" width={32} height={32} className="shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5">
         <CellLabel>Profile photo</CellLabel>
         <span
           className="inline-flex items-center gap-1 font-semibold text-[#1D7C4D]"
           style={{ fontSize: 12, lineHeight: '16px' }}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M3 6.2 5 8l4-4.5"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {data.photoUploaded ? 'Uploaded' : 'Not added'}
+          {/* Figma text node 8027:212637 is the literal string "✓ Uploaded & confirmed". */}
+          {data.photoUploaded ? '✓ Uploaded & confirmed' : 'Not added'}
         </span>
       </div>
     </div>
@@ -486,15 +463,15 @@ const ConsentCheckbox = ({ checked, onToggle, children }) => {
         }
       >
         {checked && (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M5 12.5l4.5 4.5L19 7"
-              stroke="#FFFEFC"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          /* Figma GTHCheckbox active variant, tick-01 node 2019:14108 (24x24 in a 20 box). */
+          <img
+            src={checkboxTick}
+            alt=""
+            aria-hidden="true"
+            width={24}
+            height={24}
+            className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
+          />
         )}
       </span>
       <span

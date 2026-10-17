@@ -2,7 +2,8 @@ import LegalModalShell from './LegalModalShell.jsx';
 
 /*
  * TermsModal — bottom-sheet modal for Terms & Conditions during
- * onboarding Step 07. Source: Figma node 2837:28954.
+ * onboarding Step 07. Restyled to Figma 8027:211051 (dialog 8027:211412):
+ * 'Under 18?' callout is the soft-blue variant, banner uses the document glyph.
  *
  * Copy is Figma-verbatim except where the design carried obvious
  * artefacts: the original "agreement s" typo on the page subhead is
@@ -56,7 +57,7 @@ const POINTS = [
 
 const CALLOUTS = [
   {
-    variant: 'amber',
+    variant: 'blueSoft',
     title: 'Under 18?',
     body: 'If you are under 18, you can still register. A parent or guardian will be notified after you complete registration and can opt out on your behalf within 7 days.',
   },
@@ -65,6 +66,7 @@ const CALLOUTS = [
 const TermsModal = ({ onAccept, onClose }) => (
   <LegalModalShell
     title={{ before: 'Terms & ', after: 'Conditions' }}
+    bannerIcon="doc"
     introTitle="What you are agreeing to"
     introSubtitle="8 key points. This is what these terms actually mean for you as a GTH user."
     points={POINTS}

@@ -5,8 +5,8 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -4.4,
-    "derived": 56.4
+    "medianDy": -3.7,
+    "derived": 55.7
   },
   "offsetUsed": 56,
   "counts": {
@@ -17,7 +17,7 @@
     "fontMetric": 13,
     "widthOver15": 3
   },
-  "worstLayoutPx": 100.2,
+  "worstLayoutPx": 22.5,
   "unmatched": [
     {
       "text": "Button → Save & exit",
@@ -30,31 +30,6 @@
   ],
   "layout": [
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -100.2,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Nicely done! Your avatar is all set. That's your first step ",
-      "sel": "div",
-      "dx": -0.6,
-      "dy": -97.7,
-      "dh": -6,
-      "wPct": 15
-    },
-    {
-      "text": "MEET YOUR CAREER BUDDY",
-      "sel": "span.z-[1].inline-block.rotate-[3deg]",
-      "dx": 34.3,
-      "dy": -11.1,
-      "dh": 2.6,
-      "wPct": 4.6,
-      "lines": "dom 1 vs figma ~2"
-    },
-    {
       "text": "Your accessibility settings stay the sam",
       "sel": "p#_r_3_.flex.min-w-0.flex-1",
       "dx": -22.5,
@@ -63,36 +38,45 @@
       "wPct": -18.1
     },
     {
-      "text": "Let's build a profile that gets you seen.",
-      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
-      "dx": 0.5,
-      "dy": -21.1,
-      "dh": 5,
-      "wPct": -5.5
+      "text": "Career Buddy, your personal career mentor",
+      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "dx": 2.8,
+      "dy": 14.3,
+      "dh": -26,
+      "wPct": 4.1
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 18.9,
-      "dh": 2.2,
-      "wPct": 3.1
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -11.5,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Ghana Talent AI · your career buddy from SHS to your first b",
       "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -17.7,
+      "dy": 10.3,
       "dh": 3,
       "wPct": -39.7
     },
     {
-      "text": "Career Buddy, your personal career mentor",
-      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
-      "dx": 2.7,
-      "dy": -13.7,
-      "dh": -26,
-      "wPct": 4
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": -0.6,
+      "dy": -9,
+      "dh": -6,
+      "wPct": 15
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "sel": "span.z-[1].inline-block.rotate-[3deg]",
+      "dx": 5.5,
+      "dy": 8.6,
+      "dh": 2.6,
+      "wPct": 4.6,
+      "lines": "dom 1 vs figma ~2"
     },
     {
       "text": "Career Pitch",
@@ -111,6 +95,14 @@
       "wPct": 7.4
     },
     {
+      "text": "Let's build a profile that gets you seen.",
+      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
+      "dx": 0.5,
+      "dy": 6.9,
+      "dh": 5,
+      "wPct": -5.4
+    },
+    {
       "text": "RECOMMENDED",
       "sel": "span.inline-flex.items-center.rounded-full",
       "dx": -2.4,
@@ -125,6 +117,14 @@
       "dy": -5.6,
       "dh": 2.2,
       "wPct": 4.5
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -5.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Stickers, bold colour, XP and little cel",
@@ -196,7 +196,7 @@
       "dx": -0.5,
       "dy": -3.2,
       "dh": -1,
-      "wPct": -0.9
+      "wPct": -1
     },
     {
       "text": "Step 1 of 9 ·",
@@ -236,7 +236,7 @@
       "dx": -0.5,
       "dy": 2.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -278,16 +278,16 @@
       "text": "Ghana Talent AI · your career buddy from SHS to your first b",
       "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -17.7,
+      "dy": 10.3,
       "dh": 3,
       "wPct": -39.7,
       "severe": true
     },
     {
       "text": "Nicely done! Your avatar is all set. That's your first step ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": -0.6,
-      "dy": -97.7,
+      "dy": -9,
       "dh": -6,
       "wPct": 15,
       "severe": true

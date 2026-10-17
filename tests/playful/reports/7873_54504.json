@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -6,
-    "derived": 58
+    "medianDy": -5.7,
+    "derived": 57.7
   },
   "offsetUsed": 58,
   "counts": {
     "figmaTexts": 71,
     "matched": 64,
     "unmatched": 7,
-    "layoutMismatch": 49,
+    "layoutMismatch": 46,
     "fontMetric": 26,
     "widthOver15": 4
   },
@@ -113,7 +113,7 @@
       "text": "The information gathered from the our interaction on your ed",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -259.2,
+      "dy": -246.2,
       "dh": -6,
       "wPct": -4.4
     },
@@ -137,7 +137,7 @@
       "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -196.2,
+      "dy": -183.2,
       "dh": -6,
       "wPct": 9.8
     },
@@ -145,7 +145,7 @@
       "text": "Yes, I graduated with a Second Class Upper Division.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -194.7,
+      "dy": -181.7,
       "dh": -3,
       "wPct": 7.7
     },
@@ -153,7 +153,7 @@
       "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -192.2,
+      "dy": -179.2,
       "dh": -6,
       "wPct": 7.5
     },
@@ -161,7 +161,7 @@
       "text": "I started in 2018 and graduated in 2022.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -190.7,
+      "dy": -177.7,
       "dh": -3,
       "wPct": 8.6
     },
@@ -169,7 +169,7 @@
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
       "dx": -4,
-      "dy": -188.7,
+      "dy": -175.7,
       "dh": 1,
       "wPct": -65
     },
@@ -177,7 +177,7 @@
       "text": "Perfect. Can you tell me the years you started and finished ",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -188.2,
+      "dy": -175.2,
       "dh": -6,
       "wPct": 8.5
     },
@@ -185,7 +185,7 @@
       "text": " Mostly software engineering — we focused on programming and",
       "sel": "span.block",
       "dx": 3,
-      "dy": -186.7,
+      "dy": -173.7,
       "dh": -3,
       "wPct": 7.2
     },
@@ -193,7 +193,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -78.7,
+      "dy": -65.7,
       "dh": 1,
       "wPct": 0.9
     },
@@ -201,7 +201,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -75.2,
+      "dy": -62.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -254,14 +254,6 @@
       "wPct": 6.8
     },
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -22.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 22.1,
@@ -286,26 +278,10 @@
       "wPct": 3.8
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -20.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -18.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -17.7,
+      "dy": -9.7,
       "dh": 1,
       "wPct": 2.3
     },
@@ -313,39 +289,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -16.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -15.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -14.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -13.7,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -11.7,
+      "dy": -7.7,
       "dh": 1,
       "wPct": 0.9
     },
@@ -356,6 +300,14 @@
       "dy": -6.2,
       "dh": 3,
       "wPct": 3.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -5.7,
+      "dh": 1,
+      "wPct": 2.3
     },
     {
       "text": "Completion: Not Started",
@@ -398,6 +350,14 @@
       "wPct": 7.1
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -4.7,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
       "text": "Save & Exit",
       "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
       "dx": -4.4,
@@ -438,6 +398,14 @@
       "wPct": 5.9
     },
     {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -3.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
       "text": "Completion: 80%",
       "sel": "span#_r_5_-personal-info-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": 1,
@@ -460,6 +428,14 @@
       "dy": 2.8,
       "dh": 3,
       "wPct": 5.1
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -2.7,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Completion: Not Started",
@@ -520,7 +496,7 @@
       "text": " Mostly software engineering — we focused on programming and",
       "sel": "span.block",
       "dx": 3,
-      "dy": -186.7,
+      "dy": -173.7,
       "dh": -3,
       "wPct": 7.2,
       "severe": false
@@ -529,7 +505,7 @@
       "text": "Perfect. Can you tell me the years you started and finished ",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -188.2,
+      "dy": -175.2,
       "dh": -6,
       "wPct": 8.5,
       "severe": false
@@ -538,7 +514,7 @@
       "text": "I started in 2018 and graduated in 2022.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -190.7,
+      "dy": -177.7,
       "dh": -3,
       "wPct": 8.6,
       "severe": false
@@ -547,7 +523,7 @@
       "text": "Nice — 2018 to 2022. That must’ve been quite a journey! Do y",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -192.2,
+      "dy": -179.2,
       "dh": -6,
       "wPct": 7.5,
       "severe": false
@@ -556,7 +532,7 @@
       "text": "Yes, I graduated with a Second Class Upper Division.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -194.7,
+      "dy": -181.7,
       "dh": -3,
       "wPct": 7.7,
       "severe": false
@@ -565,7 +541,7 @@
       "text": "That’s a strong result, Andrew  Lastly, do you have a transc",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -196.2,
+      "dy": -183.2,
       "dh": -6,
       "wPct": 9.8,
       "severe": false
@@ -574,7 +550,7 @@
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
       "dx": -4,
-      "dy": -188.7,
+      "dy": -175.7,
       "dh": 1,
       "wPct": -65,
       "severe": true
@@ -755,10 +731,10 @@
     }
   },
   "style": {
-    "summaryLine": "136 style mismatches (colour:15 radius:40 shadow:11 stroke:16 opacity:2 typography:52); shapes 27/148 matched",
+    "summaryLine": "168 style mismatches (colour:19 radius:68 shadow:11 stroke:16 opacity:2 typography:52); shapes 37/148 matched",
     "counts": {
-      "colour": 15,
-      "radius": 40,
+      "colour": 19,
+      "radius": 68,
       "shadow": 11,
       "stroke": 16,
       "opacity": 2,
@@ -768,7 +744,7 @@
     },
     "shapes": {
       "total": 148,
-      "matched": 27
+      "matched": 37
     },
     "textStyleMatched": 64,
     "unmatchedShapes": [
@@ -845,12 +821,6 @@
         "box": [561, 39, 434, 51]
       },
       {
-        "node": "avatar showcase",
-        "nodeId": "I7873:54561;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 39, 48, 48]
-      },
-      {
         "node": "Background",
         "nodeId": "I7873:54561;5132:42801",
         "type": "RECTANGLE",
@@ -867,12 +837,6 @@
         "nodeId": "I7873:54561;5132:42803",
         "type": "RECTANGLE",
         "box": [982, 195, 8, 8]
-      },
-      {
-        "node": "Vector",
-        "nodeId": "I7873:54561;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 39, 48, 48]
       },
       {
         "node": "Frame 14175",
@@ -1025,12 +989,6 @@
         "box": [712, 379, 283, 51]
       },
       {
-        "node": "avatar showcase",
-        "nodeId": "I7873:54565;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 379, 48, 48]
-      },
-      {
         "node": "Border",
         "nodeId": "I7873:54565;5132:42800",
         "type": "RECTANGLE",
@@ -1055,22 +1013,10 @@
         "box": [982, 535, 8, 8]
       },
       {
-        "node": "Vector",
-        "nodeId": "I7873:54565;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 379, 48, 48]
-      },
-      {
         "node": "Frame 14175",
         "nodeId": "I7873:54565;5132:42861",
         "type": "FRAME",
         "box": [1019, 433, 28, 13]
-      },
-      {
-        "node": "avatar showcase",
-        "nodeId": "I7873:54566;5132:42683",
-        "type": "FRAME",
-        "box": [60, 464, 48, 48]
       },
       {
         "node": "Border",
@@ -1097,24 +1043,6 @@
         "box": [33, 620, 8, 8]
       },
       {
-        "node": "Vector",
-        "nodeId": "I7873:54566;5132:42708",
-        "type": "VECTOR",
-        "box": [60, 464, 48, 48]
-      },
-      {
-        "node": "image 9",
-        "nodeId": "I7873:54566;5132:42709",
-        "type": "RECTANGLE",
-        "box": [66, 470, 37, 38]
-      },
-      {
-        "node": "Frame 14175",
-        "nodeId": "I7873:54566;5132:42710",
-        "type": "FRAME",
-        "box": [54, 518, 60, 13]
-      },
-      {
         "node": "Component 26",
         "nodeId": "I7873:54566;5132:42712",
         "type": "INSTANCE",
@@ -1125,12 +1053,6 @@
         "nodeId": "I7873:54567;5132:42797;5132:43038",
         "type": "FRAME",
         "box": [635, 562, 360, 51]
-      },
-      {
-        "node": "avatar showcase",
-        "nodeId": "I7873:54567;5132:42799",
-        "type": "FRAME",
-        "box": [1009, 562, 48, 48]
       },
       {
         "node": "Border",
@@ -1155,12 +1077,6 @@
         "nodeId": "I7873:54567;5132:42803",
         "type": "RECTANGLE",
         "box": [982, 718, 8, 8]
-      },
-      {
-        "node": "Vector",
-        "nodeId": "I7873:54567;5132:42824",
-        "type": "VECTOR",
-        "box": [1009, 562, 48, 48]
       },
       {
         "node": "Frame 14175",
@@ -1251,9 +1167,69 @@
         "nodeId": "I7873:54569;5132:42962",
         "type": "RECTANGLE",
         "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54569;5132:42963",
+        "type": "RECTANGLE",
+        "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54569;5132:42964",
+        "type": "RECTANGLE",
+        "box": [982, 960, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54569;5132:42985",
+        "type": "VECTOR",
+        "box": [1009, 804, 48, 48]
+      },
+      {
+        "node": "Frame 14175",
+        "nodeId": "I7873:54569;5132:43022",
+        "type": "FRAME",
+        "box": [1019, 858, 28, 13]
+      },
+      {
+        "node": "avatar showcase",
+        "nodeId": "I7873:54570;5132:42683",
+        "type": "FRAME",
+        "box": [60, 889, 48, 48]
+      },
+      {
+        "node": "Border",
+        "nodeId": "I7873:54570;5132:42684",
+        "type": "RECTANGLE",
+        "box": [-262, 567, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54570;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54570;5132:42686",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:54570;5132:42687",
+        "type": "RECTANGLE",
+        "box": [33, 1045, 8, 8]
+      },
+      {
+        "node": "Vector",
+        "nodeId": "I7873:54570;5132:42708",
+        "type": "VECTOR",
+        "box": [60, 889, 48, 48]
       }
     ],
-    "unmatchedShapesCount": 121,
+    "unmatchedShapesCount": 111,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1290,6 +1266,294 @@
         "figma": "rgba(255,216,107,0.35)",
         "app": "rgba(0,0,0,0)",
         "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54561;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54561;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54561;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54561;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:54561;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:54561;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:54561;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:54561;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:54561;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54565;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54565;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54565;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54565;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:54565;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(255,255,255,0.22)",
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:54565;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:54565;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:54565;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:54565;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "div.absolute.inset-0"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:54566;5132:42708",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "span.relative.inline-flex.shrink-0.items-center"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Frame 14175",
+        "nodeId": "I7873:54566;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Frame 14175",
+        "nodeId": "I7873:54566;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Frame 14175",
+        "nodeId": "I7873:54566;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Frame 14175",
+        "nodeId": "I7873:54566;5132:42710",
+        "figma": 6.5,
+        "app": 0,
+        "sel": "span.font-sans.text-[10px].max-lg:sr-only.leading-[1.3]"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54567;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54567;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54567;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "avatar showcase",
+        "nodeId": "I7873:54567;5132:42799",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "colour",
+        "prop": "fill",
+        "node": "Vector",
+        "nodeId": "I7873:54567;5132:42824",
+        "figma": "rgba(56,116,64,0.06)",
+        "app": "rgba(0,0,0,0)",
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tl",
+        "node": "Vector",
+        "nodeId": "I7873:54567;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-tr",
+        "node": "Vector",
+        "nodeId": "I7873:54567;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-br",
+        "node": "Vector",
+        "nodeId": "I7873:54567;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
+      },
+      {
+        "cat": "radius",
+        "prop": "radius-bl",
+        "node": "Vector",
+        "nodeId": "I7873:54567;5132:42824",
+        "figma": 24,
+        "app": 0,
+        "sel": "svg"
       },
       {
         "cat": "colour",
@@ -2482,15 +2746,15 @@
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 12,
+      "fill": 16,
+      "radius-tl": 17,
+      "radius-tr": 17,
+      "radius-br": 17,
+      "radius-bl": 17,
       "border-width-top": 4,
       "border-width-right": 4,
       "border-width-bottom": 4,
       "border-width-left": 4,
-      "radius-tl": 10,
-      "radius-tr": 10,
-      "radius-br": 10,
-      "radius-bl": 10,
       "shadow-count": 11,
       "font-weight": 15,
       "line-height": 18,
@@ -2502,7 +2766,6 @@
     }
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_54504-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

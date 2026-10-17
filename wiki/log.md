@@ -22,6 +22,16 @@ talent Done step. Gates: `responsive-audit` 215/215 (5 widths, all `/onboarding/
 API) and `npm run test:visual` (baselines intentionally changed - refresh deliberately). Security note: `.mcp.json`
 in this repo contains a committed Figma token (pushed to origin) - revoke it and read the token from an env var.
 
+## [2026-10-16] update | Onboarding redesign follow-up: audits, legal modals, decisions
+
+Owner decisions applied (Education CTA stays "Continue"; Review CTA "Complete Registration" + loader "One Sec"; Terms
+Accepted CTA "I'm Ready"; old `OnboardingRightPanel` deleted but recoverable from git `49c3192`; local visual baselines
+refreshed). Deferred audits done: OTP empty/ready/verified/soft-wrong states, address + education modals, Review page
+with mocked data, shared legal modals (Terms / Privacy / Data Consent / Terms Accepted) restyled to Figma, form kit
+extended with opt-in props only. States with no Figma frame (OTP attempts 2-3, expired, lockout) left as built. Final
+checks: `npm run lint` clean, `npm run build` passes, responsive sweeps green (see
+[onboarding-redesign.md](onboarding-redesign.md) for the open items).
+
 ## [2026-10-16] update | Wiki sync after backend wiring (origin/main 3e03afa)
 
 Pulled `cfbf1d2`, `cc291e3`, `3e03afa` (PRs #1-#3 by emmanuel197), built on the responsive commit `ce9f340`:
@@ -2489,3 +2499,10 @@ Open follow-ups:
 - Ingest the full typography ramp (Inter Strong/Medium/Regular at all sizes) into `--text-*` tokens.
 - Verify radii/gaps/shadows/overlays against the Figma design system (currently still elysium placeholders).
 - Identify the actual onboarding screen frames in this Figma file and add to `wiki/figma-node-map.md`.
+
+## [2026-10-17] verify | Playful mode (Career Buddy) audited against Figma 7958:212035
+
+Built the Playful theme layer and audited all 65 frames with `npm run audit:figma` plus Figma MCP screenshot
+comparisons. Fixed copy (emoji, apostrophes, step counter, XP badges), hero/sticker offsets, toast centring,
+Game Store card text, opt-out body text, in-bubble guidance chips. Gates: lint/build/leak/responsive pass, strict
+Focused visual pass. Remaining differences and owner decisions: [playful-mode.md](playful-mode.md) (final audit bullet).

@@ -114,14 +114,23 @@ Folders: `src/assets/recruiter-onboarding/{panel,profile,organisation,billing,cl
 - Preferences: the CTA is **not** `disabled` (so it stays focusable); it uses `aria-disabled` + the pinned grey state; submitting without a scope shows Figma's error frame `9556`.
 - Copy typos kept as Figma (recruiter): "Hub,Kwame." (no space), missing em dashes ("organisation you approve", Done banners), "Pending approval : post…". Em-dash versions used on plan/payment where noted in the agents' notes.
 
-## Open items / decisions pending
+## Decisions made (owner, 2026-10-16)
 
-1. **Education CTA** — Figma says "Your Education Level" (looks like a placeholder, not a button label); app keeps **"Continue"** (also e2e regex `/^continue/`). Confirm with the owner.
-2. **Review loader** — Figma shows loader label "One Sec" on the talent Review CTA; not applied.
-3. **Login tutorial steps 2–4** — Figma text layers are empty; chapter title/description reused. Watch Tutorial in the login panel is `visible:false` in Figma but kept (only trigger).
-4. **talentB deferred audits** — OTP error / expired / lockout frames (`8027:207001`), address + education modals, Review page body pixel diff, OTP cell "-" placeholder + 4px gap (form kit), `*` on optional address fields, helper diamond icon (TextInput uses a circle), `Select` does not forward `helperIcon/helperTextClassName`.
-5. **Org logos for unknown orgs** fall back to an initials tile; MTN Foundation / MoMo have no admin/plan in Figma (derived copy "the Primary Admin").
-6. **Visual baselines** (`npm run test:visual`, desktop-visual) were **not refreshed** — talent pages and the breadcrumb changed on purpose; refresh deliberately.
-7. **Cleanup**: delete `OnboardingRightPanel.jsx` (unused); two comments still mention it. `.mcp.json` in this repo contains a committed Figma token (rotate/remove — see log).
-8. Mobile layouts for every new screen are **derived** from desktop (Figma has no mobile frames).
-9. Figma token note: never put the PAT in a tracked file; use an env var.
+- **Education CTA stays "Continue"** (production-standard; Figma's "Your Education Level" reads as a placeholder; e2e relies on `/^continue/`).
+- **Review CTA** reads "Complete Registration", its loading label is **"One Sec"**; the Terms Accepted modal CTA is **"I'm Ready"** (Figma "Im Ready" typo corrected); e2e helpers/specs updated to match. After activation the flow goes to `/onboarding/talent/done`.
+- **Old `OnboardingRightPanel` deleted** (kept recoverable: `git show 49c3192:src/components/shared/OnboardingRightPanel.jsx`, plus a copy and a note in the assistant memory folder).
+- **Visual baselines refreshed locally** (86 onboarding, 2 get-started, 4 login). They live in `tests/e2e/.visual-baseline`, which is **git-ignored and machine-specific**, so teammates/CI generate their own. Before the refresh the parent flow still matched 30/32 (the 2 misses, `/onboarding/parent-invited`, are the earlier API wiring now showing "This link is incomplete" without a token) - the parent panel is unchanged.
+- Shared form kit got **opt-in** props only: `VerificationCode` (`cellGap`, `emptyPlaceholder`), `Field` (`forceAsterisk`, `asteriskClassName`), `TextInput`/`Select` forward them and `Select` forwards `labelTrailing(ClassName)`, `helperIcon`, `helperIconClassName`, `helperTextClassName`. Parent, institution and recruiter gates re-run green afterwards.
+- Shared legal modals restyled to Figma `8027:211051` (Terms), `211501` (Privacy), `211943` (Data Processing Consent), `213119` (Terms Accepted): `LegalModalShell` has a real focus trap, `bannerIcon` prop and `blueSoft`/`green` callout variants. Institution Activate uses its own `LegalDocModal`/`TermsAcceptedModal` and is unaffected.
+- Address placeholder is Figma's "Eg. Near amasaman" for both Community and Landmark; the e2e helper uses `.first()/.last()`.
+
+## Still open
+
+1. **Not in Figma / not reachable** - OTP attempts 2-3, expired and lockout modals have **no Figma frame** (contact.json has only three modal frames); left as built. Figma's address error frame `8027:209325` is a designer mock (placeholder words) so the app's own error state stays. Talent Score strip on Review is not rendered (the app has no score before activation); Ghana Card "Verified" badge, "Phone & WhatsApp" and the nationality flag need data the app does not hold; the avatar fallback stays `UserIcon` (Figma's upload-icon node is hidden).
+2. **Education recorded** modal: Figma also lists Curriculum; the app does not collect it.
+3. **Login tutorial steps 2-4** have empty text layers in Figma (chapter text reused). Watch Tutorial in the login panel is `visible:false` in Figma but kept (only trigger).
+4. **Unverified**: the e2e suite (needs the staging API) was **not run**; talent submit flows and the "Almost there." interstitial run only after a staging call; mobile layouts for every new screen are derived (no Figma mobile frames); institution Activate modals were not screenshot-checked after the shared-modal restyle (they do not use the shared ones).
+5. **Org logos**: organisations without a logo file fall back to an initials tile; MTN Foundation / MoMo have no admin/plan in Figma (derived copy "the Primary Admin").
+6. **PhotoCard** clipped in-card corner ellipse (`cornerEllipseInside`) exists but no panel uses it.
+7. **Security**: `.mcp.json` in this repo contains a committed Figma token (pushed to origin) - revoke it and read the token from an env var; never put the PAT in a tracked file.
+8. **Machine**: the C: drive was 100% full during this work (~300 MB free at the end) - free space before builds/e2e.

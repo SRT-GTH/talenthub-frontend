@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -326.2,
-    "derived": 378.2
+    "medianDy": -7.2,
+    "derived": 59.2
   },
-  "offsetUsed": 378,
+  "offsetUsed": 59,
   "counts": {
     "figmaTexts": 22,
-    "matched": 18,
-    "unmatched": 4,
-    "layoutMismatch": 17,
+    "matched": 20,
+    "unmatched": 2,
+    "layoutMismatch": 14,
     "fontMetric": 9,
     "widthOver15": 3
   },
@@ -23,33 +23,17 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": -206
+        "y": 113
       },
       "closestDom": "Step 5 of 9 ·"
-    },
-    {
-      "text": "Open Chat",
-      "figma": {
-        "x": 910,
-        "y": -85
-      },
-      "closestDom": "[Auto]Open Chat"
     },
     {
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": -292
+        "y": 27
       },
       "closestDom": "Save & Exit"
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 688.2,
-        "y": -309.9
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -57,55 +41,87 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 326.8,
+      "dy": 7.8,
       "dh": -1,
       "wPct": 15.9
     },
     {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -2,
-      "dy": -604.7,
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 308.9,
+      "dy": 8.9,
+      "dh": 1.9,
+      "wPct": -1.1
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -0.4,
+      "dy": -287.2,
       "dh": 2,
-      "wPct": 7.4
+      "wPct": -51.1
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 340.9,
-      "dh": 2.2,
-      "wPct": 3.1
+      "text": "Open Chat",
+      "sel": "span.block",
+      "dx": -0.4,
+      "dy": -283.2,
+      "dh": 2,
+      "wPct": 5
     },
     {
-      "text": "Career Pitch",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.1,
-      "dy": -327.2,
-      "dh": 3,
-      "wPct": 3.9
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -79.2,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 324.8,
+      "dy": 5.8,
       "dh": -2,
       "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": 5.8,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": 5.8,
+      "dh": 4,
+      "wPct": 7.1
     },
     {
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 324.3,
+      "dy": 5.3,
       "dh": -2,
       "wPct": 44.9
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -5.2,
+      "dh": 3,
+      "wPct": 3.9
     },
     {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": 323.9,
+      "dy": 4.9,
       "dh": 1,
       "wPct": -4.7
     },
@@ -113,81 +129,25 @@
       "text": "Kofi A.",
       "sel": "span.max-md:sr-only.font-sans.font-semibold",
       "dx": -1,
-      "dy": 323.9,
+      "dy": 4.9,
       "dh": -5,
       "wPct": 5.9
     },
     {
-      "text": "Skills (Competencies)",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -322.7,
-      "dh": 3,
-      "wPct": 2.7
-    },
-    {
-      "text": "Project Portfolio",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -322.7,
-      "dh": 3,
-      "wPct": 6.8
-    },
-    {
-      "text": "Certifications",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -322.7,
-      "dh": 3,
-      "wPct": 2.6
-    },
-    {
-      "text": "Completion: 48%",
-      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -322.2,
-      "dh": 2,
-      "wPct": 5.8
-    },
-    {
-      "text": "Your profile, live",
-      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
-      "dx": -0.5,
-      "dy": -316.2,
-      "dh": 0,
-      "wPct": -0.6
-    },
-    {
-      "text": "Lock in each section to level up your matches.",
-      "sel": "p.m-0.font-sans.text-[16px]",
-      "dx": -0.5,
-      "dy": -316.2,
-      "dh": 4,
-      "wPct": 7.1
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -44.2,
-      "dh": 2,
-      "wPct": 7.4
-    },
-    {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -44.2,
+      "dx": -2,
+      "dy": -4.7,
       "dh": 2,
       "wPct": 7.4
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -2.7,
-      "dh": 1,
-      "wPct": 0.9
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -2.1,
+      "dh": 2.2,
+      "wPct": 3.1
     }
   ],
   "fontMetric": [
@@ -195,7 +155,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 326.8,
+      "dy": 7.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -204,7 +164,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 324.8,
+      "dy": 5.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -213,7 +173,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -0.4,
-      "dy": -0.2,
+      "dy": -287.2,
       "dh": 2,
       "wPct": -51.1,
       "severe": true
@@ -222,7 +182,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 324.3,
+      "dy": 5.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -231,7 +191,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": -316.2,
+      "dy": 5.8,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -240,25 +200,16 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -322.7,
+      "dy": -0.7,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
     },
     {
       "text": "Completion: Not Started",
-      "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -44.2,
-      "dh": 2,
-      "wPct": 7.4,
-      "severe": false
-    },
-    {
-      "text": "Completion: Not Started",
-      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -44.2,
+      "dy": -0.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -266,8 +217,17 @@
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -0.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -604.7,
+      "dy": -4.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -284,7 +244,7 @@
       },
       "app": {
         "x": 0,
-        "y": 548.8,
+        "y": 229.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -299,7 +259,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 548.8,
+        "y": 229.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -314,7 +274,7 @@
       },
       "app": {
         "x": 0,
-        "y": 378,
+        "y": 59,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"

@@ -13,11 +13,11 @@
     "figmaTexts": 33,
     "matched": 28,
     "unmatched": 5,
-    "layoutMismatch": 22,
+    "layoutMismatch": 21,
     "fontMetric": 13,
     "widthOver15": 6
   },
-  "worstLayoutPx": 2611.2,
+  "worstLayoutPx": 2598.2,
   "unmatched": [
     {
       "text": "Step 1 of 9 ·",
@@ -65,7 +65,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -174.5,
-      "dy": -2611.2,
+      "dy": -2598.2,
       "dh": 2,
       "wPct": -38.7
     },
@@ -156,14 +156,6 @@
       "dy": 87.8,
       "dh": 1,
       "wPct": 0.9
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 22.9,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Emma",
@@ -297,7 +289,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -174.5,
-      "dy": -2611.2,
+      "dy": -2598.2,
       "dh": 2,
       "wPct": -38.7,
       "severe": true

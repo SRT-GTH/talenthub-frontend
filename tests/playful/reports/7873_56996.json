@@ -17,7 +17,7 @@
     "fontMetric": 15,
     "widthOver15": 7
   },
-  "worstLayoutPx": 5202.2,
+  "worstLayoutPx": 5189.2,
   "unmatched": [
     {
       "text": "Step 1 of 9 ·",
@@ -57,7 +57,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -56.5,
-      "dy": -5202.2,
+      "dy": -5189.2,
       "dh": 2,
       "wPct": -80.5
     },
@@ -339,7 +339,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -56.5,
-      "dy": -5202.2,
+      "dy": -5189.2,
       "dh": 2,
       "wPct": -80.5,
       "severe": true
@@ -451,7 +451,6 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_56996-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

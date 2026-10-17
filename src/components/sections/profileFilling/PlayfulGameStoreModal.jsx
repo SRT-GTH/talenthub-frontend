@@ -86,7 +86,7 @@ const GameCard = ({ game, onSelect, stretch }) => (
           <span className={`${UI} text-[14px] font-semibold leading-[16px] text-[#1c2a21]`}>
             {game.title}
           </span>
-          <span className="font-sans text-[12px] leading-[1.3] text-[#70706e]">
+          <span className={`${UI} text-[11px] leading-[16px] text-[#70706e]`}>
             {game.description}
           </span>
         </span>
@@ -358,7 +358,7 @@ const PlayfulGameStoreModal = ({ open, onClose, onPlayGame }) => {
     open,
     dialogRef,
     onEscape: onClose,
-    initialFocus: () => searchRef.current,
+    initialFocus: () => dialogRef.current, // no focus ring on open (Figma shows none); Tab reaches the search
     lockScroll: true,
   });
 

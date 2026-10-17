@@ -40,6 +40,7 @@ const RecruiterOnboardingShell = ({
           steps={RECRUITER_ONBOARDING_STEPS}
           currentKey={route?.stepKey}
           percent={route?.percent}
+          completedTone="brand"
         />
       )}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">

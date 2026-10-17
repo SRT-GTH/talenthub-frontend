@@ -2275,7 +2275,7 @@ const CareerBuddySection = () => {
           variant={toast.variant}
           title={toast.title}
           body={toast.body}
-          xpBadge={/^Educational background saved/i.test(toast.body ?? '') ? '+20 XP' : undefined}
+          xpBadge={String(toast.id ?? '').endsWith('-saved') ? '+20 XP' : undefined}
           duration={toast.variant === 'welcome' ? 5000 : 4000}
           onDismiss={() => setToast(null)}
         />

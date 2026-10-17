@@ -5,8 +5,8 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -4.2,
-    "derived": 56.2
+    "medianDy": -3.7,
+    "derived": 55.7
   },
   "offsetUsed": 56,
   "counts": {
@@ -27,23 +27,6 @@
       "dy": -3.5,
       "dh": 3,
       "wPct": 8.4
-    },
-    {
-      "text": "MEET YOUR CAREER BUDDY",
-      "sel": "span.z-[1].inline-block.rotate-[3deg]",
-      "dx": 31.3,
-      "dy": -20.2,
-      "dh": 2.6,
-      "wPct": 4.6,
-      "lines": "dom 1 vs figma ~2"
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 27.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",
@@ -70,14 +53,6 @@
       "wPct": 1.2
     },
     {
-      "text": "Let's build a profile that gets you seen.",
-      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
-      "dx": 0.5,
-      "dy": -21.1,
-      "dh": 5,
-      "wPct": -5.4
-    },
-    {
       "text": "How does GTH match me with opportunities?",
       "sel": "button.inline-flex.shrink-0.cursor-pointer",
       "dx": 18.4,
@@ -94,20 +69,20 @@
       "wPct": 7.7
     },
     {
-      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
-      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
-      "dx": 0.5,
-      "dy": -17.7,
-      "dh": 3,
-      "wPct": -39.7
-    },
-    {
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.8,
       "dy": 2.3,
       "dh": 2,
       "wPct": 6.8
+    },
+    {
+      "text": "Career Buddy,  your personal career mentor",
+      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "dx": 2.8,
+      "dy": 14.3,
+      "dh": -26,
+      "wPct": 4.1
     },
     {
       "text": "Skills",
@@ -118,12 +93,12 @@
       "wPct": 6.2
     },
     {
-      "text": "Career Buddy,  your personal career mentor",
-      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
-      "dx": 2.8,
-      "dy": -13.7,
-      "dh": -26,
-      "wPct": 4.1
+      "text": "Ghana Talent AI · your career buddy from SHS to your first b",
+      "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
+      "dx": 0.5,
+      "dy": 10.3,
+      "dh": 3,
+      "wPct": -39.7
     },
     {
       "text": "Personality",
@@ -198,6 +173,14 @@
       "wPct": 15
     },
     {
+      "text": "Let's build a profile that gets you seen.",
+      "sel": "h1.text-[#1c2a21].font-[family-name:var(--pf-font-display)].[font-variation-settings:'wdth",
+      "dx": 0.5,
+      "dy": 6.9,
+      "dh": 5,
+      "wPct": -5.4
+    },
+    {
       "text": "Education",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 6.1,
@@ -270,6 +253,14 @@
       "wPct": 9.5
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 3.4,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
@@ -340,6 +331,15 @@
       "dy": 2.8,
       "dh": 4,
       "wPct": 7.1
+    },
+    {
+      "text": "MEET YOUR CAREER BUDDY",
+      "sel": "span.z-[1].inline-block.rotate-[3deg]",
+      "dx": 2.7,
+      "dy": -0.6,
+      "dh": 2.6,
+      "wPct": 4.6,
+      "lines": "dom 1 vs figma ~2"
     },
     {
       "text": "Avatar",
@@ -424,7 +424,7 @@
       "text": "Ghana Talent AI · your career buddy from SHS to your first b",
       "sel": "p.font-sans.text-[clamp(14px,1.04vw,18px)].leading-normal",
       "dx": 0.5,
-      "dy": -17.7,
+      "dy": 10.3,
       "dh": 3,
       "wPct": -39.7,
       "severe": true
@@ -623,7 +623,7 @@
     }
   },
   "style": {
-    "summaryLine": "124 style mismatches (colour:12 radius:40 shadow:11 stroke:16 opacity:2 typography:43); shapes 24/82 matched",
+    "summaryLine": "124 style mismatches (colour:12 radius:40 shadow:11 stroke:16 opacity:2 typography:43); shapes 25/82 matched",
     "counts": {
       "colour": 12,
       "radius": 40,
@@ -636,7 +636,7 @@
     },
     "shapes": {
       "total": 82,
-      "matched": 24
+      "matched": 25
     },
     "textStyleMatched": 53,
     "unmatchedShapes": [
@@ -839,12 +839,6 @@
         "box": [24, 849, 24, 24]
       },
       {
-        "node": "genz:sticker · Meet your Career Buddy",
-        "nodeId": "7881:86247",
-        "type": "FRAME",
-        "box": [208, 410, 180, 56]
-      },
-      {
         "node": "Vector",
         "nodeId": "I7873:52095;5132:42159",
         "type": "VECTOR",
@@ -989,7 +983,7 @@
         "box": [1586, 30, 24, 24]
       }
     ],
-    "unmatchedShapesCount": 58,
+    "unmatchedShapesCount": 57,
     "mismatches": [
       {
         "cat": "opacity",

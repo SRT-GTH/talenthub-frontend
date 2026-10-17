@@ -3,5 +3,729 @@
   "label": "Game details (The Escape Room)",
   "group": "Personality",
   "width": 1728,
-  "error": "clickText: no button \"Tell me more about GTH\""
+  "offset": {
+    "fixed": 52,
+    "medianDy": 25.1,
+    "derived": 26.9
+  },
+  "offsetUsed": 27,
+  "counts": {
+    "figmaTexts": 54,
+    "matched": 51,
+    "unmatched": 3,
+    "layoutMismatch": 45,
+    "fontMetric": 29,
+    "widthOver15": 12
+  },
+  "worstLayoutPx": 1348.1,
+  "unmatched": [
+    {
+      "text": "Step 1 of 9 ·",
+      "figma": {
+        "x": 1365,
+        "y": 145
+      },
+      "closestDom": "Step 4 of 9 ·"
+    },
+    {
+      "text": "Text",
+      "figma": {
+        "x": 952.5,
+        "y": 333.5
+      },
+      "closestDom": null
+    },
+    {
+      "text": "Button → Save & exit",
+      "figma": {
+        "x": 1416,
+        "y": 59
+      },
+      "closestDom": "Save & Exit"
+    }
+  ],
+  "layout": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -24.2,
+      "dh": -1,
+      "wPct": 15.9
+    },
+    {
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": 139.3,
+      "dh": 2,
+      "wPct": 0.4
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 135.3,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 101.8,
+      "dh": 2,
+      "wPct": -66.1
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 97.8,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 95.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -78.2,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Your decisions are tracked not your score",
+      "sel": "span.flex.min-w-0.flex-col",
+      "dx": 0,
+      "dy": 43.5,
+      "dh": 26.3,
+      "wPct": 9.1,
+      "lines": "dom 2 vs figma ~1"
+    },
+    {
+      "text": "Career Pitch",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.1,
+      "dy": -37.2,
+      "dh": 3,
+      "wPct": 3.9
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -36.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Winning doesn't matter here — your choices are what build yo",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 36.7,
+      "dh": 2,
+      "wPct": 9.1
+    },
+    {
+      "text": "No right answers — just make your choice",
+      "sel": "span.flex.min-w-0.flex-col",
+      "dx": 0,
+      "dy": 35.3,
+      "dh": 26.3,
+      "wPct": 13.2,
+      "lines": "dom 4 vs figma ~1"
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -34.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "4",
+      "sel": "span.flex.size-[28px].shrink-0",
+      "dx": 0,
+      "dy": 33.9,
+      "dh": -1,
+      "wPct": -10
+    },
+    {
+      "text": "Skills (Competencies)",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -32.7,
+      "dh": 3,
+      "wPct": 2.7
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -32.7,
+      "dh": 3,
+      "wPct": 6.8
+    },
+    {
+      "text": "Certifications",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -32.7,
+      "dh": 3,
+      "wPct": 2.6
+    },
+    {
+      "text": "Completion: 48%",
+      "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -32.2,
+      "dh": 2,
+      "wPct": 5.8
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -32.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -32.2,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Every option is valid — we're watching how you decide, not w",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 28.4,
+      "dh": 2,
+      "wPct": 8.7
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -27.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": -27.1,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -26.7,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -26.2,
+      "dh": -2,
+      "wPct": 8
+    },
+    {
+      "text": "Your profile, live",
+      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
+      "dx": -0.5,
+      "dy": -26.2,
+      "dh": 0,
+      "wPct": -0.5
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -26.2,
+      "dh": 4,
+      "wPct": 7.1
+    },
+    {
+      "text": "3",
+      "sel": "span.flex.size-[28px].shrink-0",
+      "dx": 0,
+      "dy": 25.7,
+      "dh": -1,
+      "wPct": -1.6
+    },
+    {
+      "text": "Work through each challenge one at a time — no skipping ahea",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 20.2,
+      "dh": 2,
+      "wPct": 8.3
+    },
+    {
+      "text": "Use arrow keys to navigate through the game",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": -17.5,
+      "dh": 2,
+      "wPct": 8.4
+    },
+    {
+      "text": "2",
+      "sel": "span.flex.size-[28px].shrink-0",
+      "dx": 0,
+      "dy": 17.4,
+      "dh": -1,
+      "wPct": -2.8
+    },
+    {
+      "text": "Solve each puzzle in order",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[13.5px].font-semibold",
+      "dx": 0,
+      "dy": 15.9,
+      "dh": 0,
+      "wPct": -47.3
+    },
+    {
+      "text": "Don't overthink it — quick decisions reveal more than carefu",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 11.9,
+      "dh": 2,
+      "wPct": 8.3
+    },
+    {
+      "text": "Game Store",
+      "sel": "h2#pf-game-store-title.font-sans.text-[16px].font-bold",
+      "dx": -0.2,
+      "dy": -11.5,
+      "dh": 3,
+      "wPct": 2
+    },
+    {
+      "text": "1",
+      "sel": "span.flex.size-[28px].shrink-0",
+      "dx": 0,
+      "dy": 9.2,
+      "dh": -1,
+      "wPct": -3.1
+    },
+    {
+      "text": "Pick a game — we'll figure out your personality from how you",
+      "sel": "p.font-sans.text-[12px].leading-[normal]",
+      "dx": -1,
+      "dy": -9,
+      "dh": 2,
+      "wPct": 9.6
+    },
+    {
+      "text": "You have 5 minutes",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[13.5px].font-semibold",
+      "dx": 0,
+      "dy": 7.7,
+      "dh": 0,
+      "wPct": -62.7
+    },
+    {
+      "text": "Back to Game Store",
+      "sel": "button.inline-flex.w-fit.shrink-0",
+      "dx": 5.4,
+      "dy": -5,
+      "dh": 2,
+      "wPct": 21.2
+    },
+    {
+      "text": "3:12",
+      "sel": "span.font-sans.text-[10px].font-bold",
+      "dx": -2.1,
+      "dy": 5.2,
+      "dh": 2,
+      "wPct": 3.3
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-badge)].text-[19px].font-semibold",
+      "dx": -1,
+      "dy": 4.2,
+      "dh": -3,
+      "wPct": -34.3
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "h3.font-[family-name:var(--pf-font-ui)].text-[20px].font-semibold",
+      "dx": 0,
+      "dy": -3.9,
+      "dh": 8,
+      "wPct": -30.9
+    },
+    {
+      "text": "How to play",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[12px].font-medium",
+      "dx": 0,
+      "dy": 3.7,
+      "dh": 0,
+      "wPct": -0.8
+    },
+    {
+      "text": "GAMEPLAY PREVIEW · Coming soon",
+      "sel": "span.font-sans.text-[10px].font-semibold",
+      "dx": -1,
+      "dy": 3.4,
+      "dh": 0,
+      "wPct": -7
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 2.6,
+      "dy": 1,
+      "dh": 2,
+      "wPct": 6.1
+    },
+    {
+      "text": "• Problem solving approach • Stress tolerance",
+      "sel": "div.flex.gap-[12px].font-sans",
+      "dx": 0,
+      "dy": 2.4,
+      "dh": 0.5,
+      "wPct": 103.9
+    }
+  ],
+  "fontMetric": [
+    {
+      "text": "Avatar",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": -1348.1,
+      "dy": -24.2,
+      "dh": -1,
+      "wPct": 15.9,
+      "severe": true
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -26.2,
+      "dh": -2,
+      "wPct": 8,
+      "severe": false
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 2.1,
+      "dy": 135.3,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -43.5,
+      "dy": 97.8,
+      "dh": 2,
+      "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 101.8,
+      "dh": 2,
+      "wPct": -66.1,
+      "severe": true
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -26.7,
+      "dh": -2,
+      "wPct": 44.9,
+      "severe": true
+    },
+    {
+      "text": "Lock in each section to level up your matches.",
+      "sel": "p.m-0.font-sans.text-[16px]",
+      "dx": -0.5,
+      "dy": -26.2,
+      "dh": 4,
+      "wPct": 7.1,
+      "severe": false
+    },
+    {
+      "text": "Project Portfolio",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": -0.5,
+      "dy": -32.7,
+      "dh": 3,
+      "wPct": 6.8,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -32.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -0.5,
+      "dy": -32.2,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": -36.7,
+      "dh": 2,
+      "wPct": 7.4,
+      "severe": false
+    },
+    {
+      "text": "Pick a game — we'll figure out your personality from how you",
+      "sel": "p.font-sans.text-[12px].leading-[normal]",
+      "dx": -1,
+      "dy": -9,
+      "dh": 2,
+      "wPct": 9.6,
+      "severe": false
+    },
+    {
+      "text": "Back to Game Store",
+      "sel": "button.inline-flex.w-fit.shrink-0",
+      "dx": 5.4,
+      "dy": -5,
+      "dh": 2,
+      "wPct": 21.2,
+      "severe": true
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "h3.font-[family-name:var(--pf-font-ui)].text-[20px].font-semibold",
+      "dx": 0,
+      "dy": -3.9,
+      "dh": 8,
+      "wPct": -30.9,
+      "severe": true
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 2.6,
+      "dy": 1,
+      "dh": 2,
+      "wPct": 6.1,
+      "severe": false
+    },
+    {
+      "text": "• Problem solving approach • Stress tolerance",
+      "sel": "div.flex.gap-[12px].font-sans",
+      "dx": 0,
+      "dy": 2.4,
+      "dh": 0.5,
+      "wPct": 103.9,
+      "severe": true
+    },
+    {
+      "text": "• Decision speed • Planning vs. improvising",
+      "sel": "p.min-w-0.flex-1.whitespace-pre-line",
+      "dx": -1,
+      "dy": 1.8,
+      "dh": -2.7,
+      "wPct": -38.9,
+      "severe": true
+    },
+    {
+      "text": "The Escape Room",
+      "sel": "span.font-[family-name:var(--pf-font-badge)].text-[19px].font-semibold",
+      "dx": -1,
+      "dy": 4.2,
+      "dh": -3,
+      "wPct": -34.3,
+      "severe": true
+    },
+    {
+      "text": "GAMEPLAY PREVIEW · Coming soon",
+      "sel": "span.font-sans.text-[10px].font-semibold",
+      "dx": -1,
+      "dy": 3.4,
+      "dh": 0,
+      "wPct": -7,
+      "severe": false
+    },
+    {
+      "text": "You have 5 minutes",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[13.5px].font-semibold",
+      "dx": 0,
+      "dy": 7.7,
+      "dh": 0,
+      "wPct": -62.7,
+      "severe": true
+    },
+    {
+      "text": "Don't overthink it — quick decisions reveal more than carefu",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 11.9,
+      "dh": 2,
+      "wPct": 8.3,
+      "severe": false
+    },
+    {
+      "text": "Solve each puzzle in order",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[13.5px].font-semibold",
+      "dx": 0,
+      "dy": 15.9,
+      "dh": 0,
+      "wPct": -47.3,
+      "severe": true
+    },
+    {
+      "text": "Work through each challenge one at a time — no skipping ahea",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 20.2,
+      "dh": 2,
+      "wPct": 8.3,
+      "severe": false
+    },
+    {
+      "text": "No right answers — just make your choice",
+      "sel": "span.flex.min-w-0.flex-col",
+      "dx": 0,
+      "dy": 35.3,
+      "dh": 26.3,
+      "wPct": 13.2,
+      "lines": "dom 4 vs figma ~1",
+      "severe": false
+    },
+    {
+      "text": "Every option is valid — we're watching how you decide, not w",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 28.4,
+      "dh": 2,
+      "wPct": 8.7,
+      "severe": false
+    },
+    {
+      "text": "4",
+      "sel": "span.flex.size-[28px].shrink-0",
+      "dx": 0,
+      "dy": 33.9,
+      "dh": -1,
+      "wPct": -10,
+      "severe": false
+    },
+    {
+      "text": "Your decisions are tracked not your score",
+      "sel": "span.flex.min-w-0.flex-col",
+      "dx": 0,
+      "dy": 43.5,
+      "dh": 26.3,
+      "wPct": 9.1,
+      "lines": "dom 2 vs figma ~1",
+      "severe": false
+    },
+    {
+      "text": "Winning doesn't matter here — your choices are what build yo",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": 36.7,
+      "dh": 2,
+      "wPct": 9.1,
+      "severe": false
+    },
+    {
+      "text": "Use arrow keys to navigate through the game",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": 0,
+      "dy": -17.5,
+      "dh": 2,
+      "wPct": 8.4,
+      "severe": false
+    }
+  ],
+  "medianDx": 0,
+  "containers": {
+    "chatPane": {
+      "figma": {
+        "x": 0,
+        "y": 224,
+        "w": 1112,
+        "h": 893
+      },
+      "app": {
+        "x": 0,
+        "y": 197.8,
+        "w": 1112,
+        "h": 894.2,
+        "sel": "div.relative.flex-1.min-h-0"
+      }
+    },
+    "panel": {
+      "figma": {
+        "x": 1112,
+        "y": 224,
+        "w": 616,
+        "h": 893
+      },
+      "app": {
+        "x": 1112,
+        "y": 197.8,
+        "w": 616,
+        "h": 894.2,
+        "sel": "aside.relative.flex.flex-col"
+      }
+    },
+    "topBar": {
+      "figma": {
+        "x": 0,
+        "y": 53,
+        "w": 1728,
+        "h": 90
+      },
+      "app": {
+        "x": 0,
+        "y": 27,
+        "w": 1728,
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
+      }
+    }
+  },
+  "style": {
+    "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
+  },
+  "consoleErrors": [],
+  "imageDiff": {
+    "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
+  }
 }

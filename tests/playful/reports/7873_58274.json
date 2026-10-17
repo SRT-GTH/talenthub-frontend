@@ -11,9 +11,9 @@
   "offsetUsed": 694,
   "counts": {
     "figmaTexts": 20,
-    "matched": 16,
-    "unmatched": 4,
-    "layoutMismatch": 14,
+    "matched": 17,
+    "unmatched": 3,
+    "layoutMismatch": 15,
     "fontMetric": 8,
     "widthOver15": 2
   },
@@ -42,14 +42,6 @@
         "y": -617.5
       },
       "closestDom": "Work experience saved"
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 710.2,
-        "y": -623.9
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -60,6 +52,14 @@
       "dy": 642.8,
       "dh": -1,
       "wPct": 15.9
+    },
+    {
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 286.9,
+      "dy": 641.9,
+      "dh": 1.9,
+      "wPct": -1.1
     },
     {
       "text": "· 0% profile complete · auto-saved",
@@ -292,7 +292,6 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_58274-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

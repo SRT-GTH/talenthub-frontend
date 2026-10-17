@@ -11,11 +11,11 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 25,
-    "matched": 20,
-    "unmatched": 5,
-    "layoutMismatch": 16,
-    "fontMetric": 10,
-    "widthOver15": 4
+    "matched": 22,
+    "unmatched": 3,
+    "layoutMismatch": 18,
+    "fontMetric": 11,
+    "widthOver15": 5
   },
   "worstLayoutPx": 1348.1,
   "unmatched": [
@@ -28,28 +28,12 @@
       "closestDom": "Step 4 of 9 ·"
     },
     {
-      "text": "Personal Area of Interest confirmed",
-      "figma": {
-        "x": 742,
-        "y": 265
-      },
-      "closestDom": "Emma[Auto]Personal Area of Interest confirmed"
-    },
-    {
       "text": "Text",
       "figma": {
         "x": 952.5,
         "y": 306.5
       },
       "closestDom": null
-    },
-    {
-      "text": "Play Games",
-      "figma": {
-        "x": 742,
-        "y": 679
-      },
-      "closestDom": "Emma[Auto]Play Games"
     },
     {
       "text": "Button → Save & exit",
@@ -70,18 +54,34 @@
       "wPct": 15.9
     },
     {
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": 166.3,
+      "dh": 2,
+      "wPct": 0.4
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 2.1,
-      "dy": 142.3,
+      "dy": 162.3,
       "dh": 2,
       "wPct": -85.8
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 128.8,
+      "dh": 2,
+      "wPct": -66.1
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -43.5,
-      "dy": 104.8,
+      "dy": 124.8,
       "dh": 2,
       "wPct": -85.8
     },
@@ -89,7 +89,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 102.3,
+      "dy": -82.7,
       "dh": 1,
       "wPct": 0.9
     },
@@ -97,17 +97,9 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -71.2,
+      "dy": -51.2,
       "dh": 1,
       "wPct": 0.9
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 16.9,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Career Pitch",
@@ -124,6 +116,14 @@
       "dy": -9.7,
       "dh": 2,
       "wPct": 7.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -7.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Skills (Competencies)",
@@ -213,7 +213,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 2.1,
-      "dy": 142.3,
+      "dy": 162.3,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -222,9 +222,18 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -43.5,
-      "dy": 104.8,
+      "dy": 124.8,
       "dh": 2,
       "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 128.8,
+      "dh": 2,
+      "wPct": -66.1,
       "severe": true
     },
     {

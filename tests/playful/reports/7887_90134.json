@@ -17,7 +17,7 @@
     "fontMetric": 8,
     "widthOver15": 1
   },
-  "worstLayoutPx": 93.2,
+  "worstLayoutPx": 5.8,
   "unmatched": [
     {
       "text": "Ghana Talent AI — AI-powered talent guidance and mentorship hub.",
@@ -46,38 +46,6 @@
   ],
   "layout": [
     {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": -93.2,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Nicely done! Your avatar is all set. That's your first step ",
-      "sel": "div",
-      "dx": 1.4,
-      "dy": -92.7,
-      "dh": -6,
-      "wPct": 15
-    },
-    {
-      "text": "Career Buddy, your personal career mentor",
-      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
-      "dx": 2.7,
-      "dy": -28.7,
-      "dh": -26,
-      "wPct": 4
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 21.9,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -91,7 +59,7 @@
       "dx": -0.5,
       "dy": 5.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -134,6 +102,22 @@
       "wPct": 7.4
     },
     {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": -4.5,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Nicely done! Your avatar is all set. That's your first step ",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -4,
+      "dh": -6,
+      "wPct": 15
+    },
+    {
       "text": "Step 1 of 9 ·",
       "sel": "span.shrink-0.whitespace-nowrap.font-sans",
       "dx": -3,
@@ -148,6 +132,22 @@
       "dy": 3.3,
       "dh": -4,
       "wPct": 2.3
+    },
+    {
+      "text": "Career Buddy, your personal career mentor",
+      "sel": "p.text-left.text-[clamp(15px,1.04vw,18px)].leading-normal",
+      "dx": 2.8,
+      "dy": -0.7,
+      "dh": -26,
+      "wPct": 4.1
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -2.1,
+      "dh": 2.2,
+      "wPct": 3.1
     }
   ],
   "fontMetric": [
@@ -171,9 +171,9 @@
     },
     {
       "text": "Nicely done! Your avatar is all set. That's your first step ",
-      "sel": "div",
+      "sel": "span.block",
       "dx": 1.4,
-      "dy": -92.7,
+      "dy": -4,
       "dh": -6,
       "wPct": 15,
       "severe": true
@@ -275,7 +275,7 @@
   "style": {
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
-  "consoleErrors": ["[useVoiceCapture] getUserMedia NotAllowedError: Permission denied"],
+  "consoleErrors": ["[useVoiceCapture] speechRecognition not-allowed"],
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

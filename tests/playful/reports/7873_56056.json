@@ -5,16 +5,16 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -2.1,
-    "derived": 54.1
+    "medianDy": -2.7,
+    "derived": 54.7
   },
-  "offsetUsed": 54,
+  "offsetUsed": 55,
   "counts": {
     "figmaTexts": 70,
-    "matched": 62,
-    "unmatched": 8,
-    "layoutMismatch": 54,
-    "fontMetric": 26,
+    "matched": 66,
+    "unmatched": 4,
+    "layoutMismatch": 55,
+    "fontMetric": 27,
     "widthOver15": 6
   },
   "worstLayoutPx": 1348.1,
@@ -23,7 +23,7 @@
       "text": "Avatar",
       "figma": {
         "x": 82,
-        "y": 121
+        "y": 120
       },
       "closestDom": null
     },
@@ -31,7 +31,7 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 118
+        "y": 117
       },
       "closestDom": "Step 4 of 9 ·"
     },
@@ -39,49 +39,17 @@
       "text": "1/2",
       "figma": {
         "x": 952.5,
-        "y": 106.5
+        "y": 105.5
       },
       "closestDom": null
-    },
-    {
-      "text": "Saved! Your education section is  locked in. Ready to move on to your  personal area of interest?",
-      "figma": {
-        "x": 142,
-        "y": 167
-      },
-      "closestDom": "Saved! ✅ Your education section is locked in. Ready to move on to your personal "
-    },
-    {
-      "text": "That’s great! So your educational interests include technology, programming, and data analysis — noted  Outside the classroom, what do you usually like doing? Any hobbies or extracurricular activities?",
-      "figma": {
-        "x": 142,
-        "y": 527
-      },
-      "closestDom": "That's great! So your educational interests include technology, programming, and"
-    },
-    {
-      "text": "Excellent vision, Emma  Review what I’ve gathered from our chat on the Talent Profile Panel to confirm or make changes.",
-      "figma": {
-        "x": 142,
-        "y": 907
-      },
-      "closestDom": "Excellent vision, Emma 🌟\nReview what I've gathered from our chat on the Talent "
     },
     {
       "text": "Switch Modes ",
       "figma": {
         "x": 1265,
-        "y": 32
+        "y": 31
       },
       "closestDom": null
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 688.8,
-        "y": 8.9
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -89,7 +57,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 2.8,
+      "dy": 3.8,
       "dh": -1,
       "wPct": 15.9
     },
@@ -97,7 +65,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -909.2,
+      "dy": -908.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -105,7 +73,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -900.2,
+      "dy": -899.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -113,7 +81,7 @@
       "text": "I’ve always enjoyed subjects related to technology and probl",
       "sel": "span.block",
       "dx": -84.6,
-      "dy": -341.4,
+      "dy": -340.4,
       "dh": -3.5,
       "wPct": 3
     },
@@ -121,7 +89,7 @@
       "text": "Let’s talk about your interests so I can better tailor your ",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -338.7,
+      "dy": -337.7,
       "dh": -6,
       "wPct": 8.8
     },
@@ -129,31 +97,40 @@
       "text": "I’d love to talk about that",
       "sel": "span.block",
       "dx": 3,
-      "dy": -337.2,
+      "dy": -336.2,
       "dh": -3,
       "wPct": 11.2
     },
     {
-      "text": "[Auto]",
-      "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 7.5,
-      "dy": -314.2,
-      "dh": 2,
-      "wPct": -85.8
+      "text": "Saved! Your education section is  locked in. Ready to move o",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -333.7,
+      "dh": -6,
+      "wPct": -5.3
     },
     {
-      "text": "Educational background confirmed",
+      "text": "That’s great! So your educational interests include technolo",
       "sel": "span.block",
-      "dx": 3,
-      "dy": -310.2,
-      "dh": 2,
-      "wPct": -1.9
+      "dx": 1.4,
+      "dy": -316.7,
+      "dh": 46,
+      "wPct": -4.6,
+      "lines": "dom 4 vs figma ~2"
+    },
+    {
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 314.6,
+      "dy": 10.2,
+      "dh": 1.9,
+      "wPct": -1.1
     },
     {
       "text": "Personal area of interest saved",
       "sel": "span.font-normal.text-[13px].text-[#595959]",
       "dx": 302.8,
-      "dy": 8,
+      "dy": 9,
       "dh": 2,
       "wPct": 8.7
     },
@@ -161,15 +138,31 @@
       "text": "Success",
       "sel": "span.font-semibold.text-[14px].text-[#2a5730]",
       "dx": 300.3,
-      "dy": 5,
+      "dy": 6,
       "dh": 2,
       "wPct": -4.6
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 7.5,
+      "dy": -300.2,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Educational background confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -296.2,
+      "dh": 2,
+      "wPct": -1.9
     },
     {
       "text": "Yes, I love coding personal projects, playing chess, and vol",
       "sel": "span.block",
       "dx": -12.9,
-      "dy": -294.4,
+      "dy": -293.4,
       "dh": -3.5,
       "wPct": 15.9
     },
@@ -177,7 +170,7 @@
       "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -283.7,
+      "dy": -282.7,
       "dh": 20,
       "wPct": -10.1,
       "lines": "dom 3 vs figma ~2"
@@ -186,15 +179,24 @@
       "text": "I’m really drawn to software development, maybe even becomin",
       "sel": "span.block",
       "dx": -10.5,
-      "dy": -273.4,
+      "dy": -272.4,
       "dh": -3.5,
       "wPct": 16.3
+    },
+    {
+      "text": "Excellent vision, Emma  Review what I’ve gathered from our c",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -261.7,
+      "dh": 20,
+      "wPct": -12.4,
+      "lines": "dom 3 vs figma ~2"
     },
     {
       "text": "Focused",
       "sel": "span.max-[480px]:sr-only",
       "dx": 198.7,
-      "dy": 0.4,
+      "dy": 1.4,
       "dh": 2,
       "wPct": 0.3
     },
@@ -202,7 +204,7 @@
       "text": "Playful",
       "sel": "span.max-[480px]:sr-only",
       "dx": 198.3,
-      "dy": 0.4,
+      "dy": 1.4,
       "dh": 2,
       "wPct": 5.2
     },
@@ -210,7 +212,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 127.8,
+      "dy": 128.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -218,7 +220,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 124.3,
+      "dy": 125.3,
       "dh": 1,
       "wPct": 2.3
     },
@@ -226,7 +228,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 106.8,
+      "dy": 107.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -234,7 +236,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 103.8,
+      "dy": 104.8,
       "dh": 1,
       "wPct": 2.3
     },
@@ -242,7 +244,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 82.8,
+      "dy": 83.8,
       "dh": 1,
       "wPct": 2.3
     },
@@ -250,7 +252,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 78.8,
+      "dy": 79.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -258,7 +260,7 @@
       "text": "Certs",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 58.1,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 1.2
     },
@@ -266,7 +268,7 @@
       "text": "Goals",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 56.5,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 3.1
     },
@@ -274,7 +276,7 @@
       "text": "Pitch",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 55.6,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 1.3
     },
@@ -282,7 +284,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 46.8,
+      "dy": 47.8,
       "dh": 1,
       "wPct": 0.9
     },
@@ -290,7 +292,7 @@
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 24.1,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 7.7
     },
@@ -298,7 +300,7 @@
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.2
     },
@@ -306,7 +308,7 @@
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.8
     },
@@ -314,7 +316,7 @@
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 21.5,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.3
     },
@@ -322,7 +324,7 @@
       "text": "Education",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 20.9,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 2.8
     },
@@ -330,7 +332,7 @@
       "text": "Interests ",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 20.6,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 5.3
     },
@@ -338,7 +340,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": 15.8,
+      "dy": 16.8,
       "dh": 1,
       "wPct": 2.3
     },
@@ -346,7 +348,7 @@
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": -10.2,
+      "dy": -9.2,
       "dh": 3,
       "wPct": 3.9
     },
@@ -354,7 +356,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -9.7,
+      "dy": -8.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -362,7 +364,7 @@
       "text": "Career Options",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.6,
-      "dy": -7.2,
+      "dy": -6.2,
       "dh": 3,
       "wPct": 4
     },
@@ -370,7 +372,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -6.7,
+      "dy": -5.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -378,7 +380,7 @@
       "text": "Skills (Competencies)",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -5.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 2.7
     },
@@ -386,7 +388,7 @@
       "text": "Work Experience",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -5.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 5.1
     },
@@ -394,7 +396,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -5.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 6.8
     },
@@ -402,15 +404,23 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -5.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 2.6
+    },
+    {
+      "text": "Save & Exit",
+      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
+      "dx": -4.4,
+      "dy": 0.9,
+      "dh": -5,
+      "wPct": 5.6
     },
     {
       "text": "Completion: 48%",
       "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 5.8
     },
@@ -418,7 +428,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -426,7 +436,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -434,23 +444,31 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4
     },
     {
-      "text": "Save & Exit",
-      "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
-      "dx": -4.4,
-      "dy": -0.1,
-      "dh": -5,
-      "wPct": 5.6
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": 1.3,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": 0.9,
+      "dh": 1,
+      "wPct": -4.7
     },
     {
       "text": "Personality",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.8,
-      "dy": -4.2,
+      "dy": -3.2,
       "dh": 3,
       "wPct": 5.8
     },
@@ -458,65 +476,25 @@
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -4,
+      "dy": -3,
       "dh": 4,
       "wPct": -82.6
-    },
-    {
-      "text": "New Chat",
-      "sel": "button.pointer-events-auto.inline-flex.items-center",
-      "dx": 3.8,
-      "dy": 0.3,
-      "dh": -2,
-      "wPct": 44.9
     },
     {
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -3.7,
+      "dy": -2.7,
       "dh": 2,
       "wPct": 7.4
     },
     {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": -0.1,
-      "dh": 1,
-      "wPct": -4.7
-    },
-    {
-      "text": "Educational Background",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -2.7,
-      "dh": 3,
-      "wPct": 4.4
-    },
-    {
-      "text": "Personal area of interest",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": -0.5,
-      "dy": -2.7,
-      "dh": 3,
-      "wPct": 6.5
-    },
-    {
-      "text": "Completion: 100%",
-      "sel": "span#_r_5_-educational-background-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -2.2,
-      "dh": 2,
-      "wPct": 6.7
-    },
-    {
-      "text": "Completion: 100%",
-      "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": -0.5,
-      "dy": -2.2,
-      "dh": 2,
-      "wPct": 6.7
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.9,
+      "dy": 2.4,
+      "dh": 2.2,
+      "wPct": 3.1
     }
   ],
   "fontMetric": [
@@ -524,7 +502,7 @@
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 21.5,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.3,
       "severe": false
@@ -533,7 +511,7 @@
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.2,
       "severe": false
@@ -542,7 +520,7 @@
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 23.8,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 6.8,
       "severe": false
@@ -551,7 +529,7 @@
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 24.1,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": 2,
       "wPct": 7.7,
       "severe": false
@@ -560,7 +538,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": 2.8,
+      "dy": 3.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -569,7 +547,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": 0.8,
+      "dy": 1.8,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -578,7 +556,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 7.5,
-      "dy": -314.2,
+      "dy": -300.2,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -587,7 +565,7 @@
       "text": "I’d love to talk about that",
       "sel": "span.block",
       "dx": 3,
-      "dy": -337.2,
+      "dy": -336.2,
       "dh": -3,
       "wPct": 11.2,
       "severe": false
@@ -596,7 +574,7 @@
       "text": "Let’s talk about your interests so I can better tailor your ",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -338.7,
+      "dy": -337.7,
       "dh": -6,
       "wPct": 8.8,
       "severe": false
@@ -605,7 +583,7 @@
       "text": "Yes, I love coding personal projects, playing chess, and vol",
       "sel": "span.block",
       "dx": -12.9,
-      "dy": -294.4,
+      "dy": -293.4,
       "dh": -3.5,
       "wPct": 15.9,
       "severe": true
@@ -614,7 +592,7 @@
       "text": "Wow, that’s awesome — coding, chess, and mentoring others sh",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -283.7,
+      "dy": -282.7,
       "dh": 20,
       "wPct": -10.1,
       "lines": "dom 3 vs figma ~2",
@@ -624,16 +602,26 @@
       "text": "I’m really drawn to software development, maybe even becomin",
       "sel": "span.block",
       "dx": -10.5,
-      "dy": -273.4,
+      "dy": -272.4,
       "dh": -3.5,
       "wPct": 16.3,
       "severe": true
     },
     {
+      "text": "Excellent vision, Emma  Review what I’ve gathered from our c",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -261.7,
+      "dh": 20,
+      "wPct": -12.4,
+      "lines": "dom 3 vs figma ~2",
+      "severe": false
+    },
+    {
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -4,
+      "dy": -3,
       "dh": 4,
       "wPct": -82.6,
       "severe": true
@@ -642,7 +630,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": 0.3,
+      "dy": 1.3,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -651,7 +639,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": 0.8,
+      "dy": 1.8,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -660,7 +648,7 @@
       "text": "Completion: 100%",
       "sel": "span#_r_5_-educational-background-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -2.2,
+      "dy": -1.2,
       "dh": 2,
       "wPct": 6.7,
       "severe": false
@@ -669,7 +657,7 @@
       "text": "Personal area of interest",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -2.7,
+      "dy": -1.7,
       "dh": 3,
       "wPct": 6.5,
       "severe": false
@@ -678,7 +666,7 @@
       "text": "Completion: 100%",
       "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -2.2,
+      "dy": -1.2,
       "dh": 2,
       "wPct": 6.7,
       "severe": false
@@ -687,7 +675,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -3.7,
+      "dy": -2.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -696,7 +684,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -705,7 +693,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": -5.7,
+      "dy": -4.7,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -714,7 +702,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -723,7 +711,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": -5.2,
+      "dy": -4.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -732,7 +720,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -6.7,
+      "dy": -5.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -741,7 +729,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": -9.7,
+      "dy": -8.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -750,13 +738,13 @@
       "text": "Personal area of interest saved",
       "sel": "span.font-normal.text-[13px].text-[#595959]",
       "dx": 302.8,
-      "dy": 8,
+      "dy": 9,
       "dh": 2,
       "wPct": 8.7,
       "severe": false
     }
   ],
-  "medianDx": 0,
+  "medianDx": 0.6,
   "containers": {
     "chatPane": {
       "figma": {
@@ -767,7 +755,7 @@
       },
       "app": {
         "x": 0,
-        "y": 224.8,
+        "y": 225.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -782,7 +770,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 224.8,
+        "y": 225.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -797,7 +785,7 @@
       },
       "app": {
         "x": 0,
-        "y": 54,
+        "y": 55,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -805,505 +793,505 @@
     }
   },
   "style": {
-    "summaryLine": "143 style mismatches (colour:18 radius:40 shadow:12 stroke:20 opacity:2 typography:51); shapes 23/142 matched",
+    "summaryLine": "144 style mismatches (colour:18 radius:40 shadow:12 stroke:20 opacity:2 typography:52); shapes 24/142 matched",
     "counts": {
       "colour": 18,
       "radius": 40,
       "shadow": 12,
       "stroke": 20,
       "opacity": 2,
-      "typography": 51,
+      "typography": 52,
       "gradient": 0,
       "mixedRuns": 3
     },
     "shapes": {
       "total": 142,
-      "matched": 23
+      "matched": 24
     },
-    "textStyleMatched": 62,
+    "textStyleMatched": 66,
     "unmatchedShapes": [
       {
         "node": "Background",
         "nodeId": "7873:56087",
         "type": "RECTANGLE",
-        "box": [1351, 125, 5, 5]
-      },
-      {
-        "node": "Container",
-        "nodeId": "7873:56091",
-        "type": "FRAME",
-        "box": [1351, 141, 323, 6]
+        "box": [1351, 124, 5, 5]
       },
       {
         "node": "Container",
         "nodeId": "7873:56092",
         "type": "FRAME",
-        "box": [1351, 141, 62, 6]
+        "box": [1351, 140, 62, 6]
       },
       {
         "node": "grid",
         "nodeId": "7873:56101",
         "type": "RECTANGLE",
-        "box": [754, 658, 358, 405]
+        "box": [754, 657, 358, 405]
       },
       {
         "node": "Frame 14175",
         "nodeId": "7873:56110",
         "type": "FRAME",
-        "box": [726, 33, 269, 64]
+        "box": [726, 32, 269, 64]
       },
       {
         "node": "Frame 14573",
         "nodeId": "7873:56125",
         "type": "FRAME",
-        "box": [934, 106, 11, 24]
+        "box": [934, 105, 11, 24]
       },
       {
         "node": "avatar showcase",
         "nodeId": "7873:56130",
         "type": "FRAME",
-        "box": [1009, 33, 48, 48]
+        "box": [1009, 32, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "7873:56132",
         "type": "RECTANGLE",
-        "box": [982, 189, 8, 8]
+        "box": [982, 188, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:56133",
         "type": "RECTANGLE",
-        "box": [982, 189, 8, 8]
+        "box": [982, 188, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "7873:56134",
         "type": "RECTANGLE",
-        "box": [982, 189, 8, 8]
+        "box": [982, 188, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "7873:56155",
         "type": "VECTOR",
-        "box": [1009, 33, 48, 48]
+        "box": [1009, 32, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "7873:56192",
         "type": "FRAME",
-        "box": [1019, 87, 28, 13]
+        "box": [1019, 86, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56194;5132:42683",
         "type": "FRAME",
-        "box": [60, 153, 48, 48]
+        "box": [60, 152, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56194;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 309, 8, 8]
+        "box": [33, 308, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56194;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 309, 8, 8]
+        "box": [33, 308, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56194;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 309, 8, 8]
+        "box": [33, 308, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56194;5132:42708",
         "type": "VECTOR",
-        "box": [60, 153, 48, 48]
+        "box": [60, 152, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:56194;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 159, 37, 38]
+        "box": [66, 158, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56194;5132:42710",
         "type": "FRAME",
-        "box": [54, 207, 60, 13]
+        "box": [54, 206, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:56194;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 153, 698, 54]
+        "box": [126, 152, 698, 54]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56195;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [812, 238, 183, 51]
+        "box": [812, 237, 183, 51]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56195;5132:42799",
         "type": "FRAME",
-        "box": [1009, 238, 48, 48]
+        "box": [1009, 237, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56195;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 394, 8, 8]
+        "box": [982, 393, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56195;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 394, 8, 8]
+        "box": [982, 393, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56195;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 394, 8, 8]
+        "box": [982, 393, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56195;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 238, 48, 48]
+        "box": [1009, 237, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56195;5132:42861",
         "type": "FRAME",
-        "box": [1019, 292, 28, 13]
+        "box": [1019, 291, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56196;5132:42683",
         "type": "FRAME",
-        "box": [60, 323, 48, 48]
+        "box": [60, 322, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56196;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 1, 693, 693]
+        "box": [-262, 0, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56196;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 479, 8, 8]
+        "box": [33, 478, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56196;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 479, 8, 8]
+        "box": [33, 478, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56196;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 479, 8, 8]
+        "box": [33, 478, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56196;5132:42708",
         "type": "VECTOR",
-        "box": [60, 323, 48, 48]
+        "box": [60, 322, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:56196;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 329, 37, 38]
+        "box": [66, 328, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56196;5132:42710",
         "type": "FRAME",
-        "box": [54, 377, 60, 13]
+        "box": [54, 376, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:56196;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 323, 489, 80]
+        "box": [126, 322, 489, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56197;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 421, 586, 74]
+        "box": [409, 420, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56197;5132:42799",
         "type": "FRAME",
-        "box": [1009, 421, 48, 48]
+        "box": [1009, 420, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56197;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 99, 693, 693]
+        "box": [687, 98, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56197;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 577, 8, 8]
+        "box": [982, 576, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56197;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 577, 8, 8]
+        "box": [982, 576, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56197;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 577, 8, 8]
+        "box": [982, 576, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56197;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 421, 48, 48]
+        "box": [1009, 420, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56197;5132:42861",
         "type": "FRAME",
-        "box": [1019, 475, 28, 13]
+        "box": [1019, 474, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56198;5132:42683",
         "type": "FRAME",
-        "box": [60, 513, 48, 48]
+        "box": [60, 512, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56198;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 191, 693, 693]
+        "box": [-262, 190, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56198;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 669, 8, 8]
+        "box": [33, 668, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56198;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 669, 8, 8]
+        "box": [33, 668, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56198;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 669, 8, 8]
+        "box": [33, 668, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56198;5132:42708",
         "type": "VECTOR",
-        "box": [60, 513, 48, 48]
+        "box": [60, 512, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:56198;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 519, 37, 38]
+        "box": [66, 518, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56198;5132:42710",
         "type": "FRAME",
-        "box": [54, 567, 60, 13]
+        "box": [54, 566, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:56198;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 513, 698, 80]
+        "box": [126, 512, 698, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56199;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 611, 586, 74]
+        "box": [409, 610, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56199;5132:42799",
         "type": "FRAME",
-        "box": [1009, 611, 48, 48]
+        "box": [1009, 610, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56199;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 289, 693, 693]
+        "box": [687, 288, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56199;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 767, 8, 8]
+        "box": [982, 766, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56199;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 767, 8, 8]
+        "box": [982, 766, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56199;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 767, 8, 8]
+        "box": [982, 766, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56199;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 611, 48, 48]
+        "box": [1009, 610, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56199;5132:42861",
         "type": "FRAME",
-        "box": [1019, 665, 28, 13]
+        "box": [1019, 664, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56200;5132:42683",
         "type": "FRAME",
-        "box": [60, 703, 48, 48]
+        "box": [60, 702, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56200;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 381, 693, 693]
+        "box": [-262, 380, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56200;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 859, 8, 8]
+        "box": [33, 858, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56200;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 859, 8, 8]
+        "box": [33, 858, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56200;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 859, 8, 8]
+        "box": [33, 858, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56200;5132:42708",
         "type": "VECTOR",
-        "box": [60, 703, 48, 48]
+        "box": [60, 702, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:56200;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 709, 37, 38]
+        "box": [66, 708, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56200;5132:42710",
         "type": "FRAME",
-        "box": [54, 757, 60, 13]
+        "box": [54, 756, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:56200;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 703, 698, 80]
+        "box": [126, 702, 698, 80]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56201;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [409, 801, 586, 74]
+        "box": [409, 800, 586, 74]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56201;5132:42799",
         "type": "FRAME",
-        "box": [1009, 801, 48, 48]
+        "box": [1009, 800, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56201;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 479, 693, 693]
+        "box": [687, 478, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56201;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 957, 8, 8]
+        "box": [982, 956, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56201;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 957, 8, 8]
+        "box": [982, 956, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:56201;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 957, 8, 8]
+        "box": [982, 956, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:56201;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 801, 48, 48]
+        "box": [1009, 800, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:56201;5132:42861",
         "type": "FRAME",
-        "box": [1019, 855, 28, 13]
+        "box": [1019, 854, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:56202;5132:42683",
         "type": "FRAME",
-        "box": [60, 893, 48, 48]
+        "box": [60, 892, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:56202;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 571, 693, 693]
+        "box": [-262, 570, 693, 693]
+      },
+      {
+        "node": "Background",
+        "nodeId": "I7873:56202;5132:42685",
+        "type": "RECTANGLE",
+        "box": [33, 1048, 8, 8]
       }
     ],
-    "unmatchedShapesCount": 119,
+    "unmatchedShapesCount": 118,
     "mismatches": [
       {
         "cat": "opacity",
@@ -2591,6 +2579,15 @@
         "figma": 15.51,
         "app": 19.5,
         "sel": "span.font-normal.text-[13px].text-[#595959]"
+      },
+      {
+        "cat": "typography",
+        "prop": "line-height",
+        "node": "+20 XP",
+        "nodeId": "7881:86260",
+        "figma": 13.13,
+        "app": 16.5,
+        "sel": "span.pointer-events-none.absolute.-top-[10px].-right-[4px]"
       }
     ],
     "byProp": {
@@ -2606,7 +2603,7 @@
       "radius-br": 10,
       "radius-bl": 10,
       "font-weight": 14,
-      "line-height": 19,
+      "line-height": 20,
       "text-colour": 5,
       "text-align": 16,
       "text-decoration": 1,
@@ -2614,7 +2611,6 @@
     }
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_56056-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

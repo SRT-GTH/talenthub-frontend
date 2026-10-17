@@ -417,7 +417,6 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_59686-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

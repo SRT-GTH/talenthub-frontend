@@ -5,16 +5,16 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -4.7,
-    "derived": 56.7
+    "medianDy": -5.4,
+    "derived": 57.4
   },
   "offsetUsed": 57,
   "counts": {
     "figmaTexts": 75,
-    "matched": 68,
-    "unmatched": 7,
-    "layoutMismatch": 59,
-    "fontMetric": 25,
+    "matched": 71,
+    "unmatched": 4,
+    "layoutMismatch": 62,
+    "fontMetric": 26,
     "widthOver15": 6
   },
   "worstLayoutPx": 1348.1,
@@ -44,30 +44,6 @@
       "closestDom": null
     },
     {
-      "text": "Saved! Your education section is  locked in. Ready to move on to your  personal area of interest?",
-      "figma": {
-        "x": 142,
-        "y": 164
-      },
-      "closestDom": "Saved! ✅ Your education section is locked in. Ready to move on to your personal "
-    },
-    {
-      "text": "That’s great! So your educational interests include technology, programming, and data analysis — noted  Outside the classroom, what do you usually like doing? Any hobbies or extracurricular activities?",
-      "figma": {
-        "x": 142,
-        "y": 524
-      },
-      "closestDom": "That's great! So your educational interests include technology, programming, and"
-    },
-    {
-      "text": "Excellent vision, Emma  Review what I’ve gathered from our chat on the Talent Profile Panel to confirm or make changes.",
-      "figma": {
-        "x": 142,
-        "y": 904
-      },
-      "closestDom": "Excellent vision, Emma 🌟\nReview what I've gathered from our chat on the Talent "
-    },
-    {
       "text": "Switch Modes ",
       "figma": {
         "x": 1265,
@@ -89,7 +65,7 @@
       "text": "Career Buddy",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0,
-      "dy": -856.2,
+      "dy": -843.2,
       "dh": 1,
       "wPct": 2.3
     },
@@ -174,28 +150,21 @@
       "wPct": 11.2
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -84.7,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "[Auto]",
-      "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": 7.5,
-      "dy": -82.2,
-      "dh": 2,
-      "wPct": -85.8
-    },
-    {
-      "text": "Educational background confirmed",
+      "text": "Saved! Your education section is  locked in. Ready to move o",
       "sel": "span.block",
-      "dx": 3,
-      "dy": -78.2,
-      "dh": 2,
-      "wPct": -1.9
+      "dx": 1.4,
+      "dy": -102.7,
+      "dh": -6,
+      "wPct": -5.3
+    },
+    {
+      "text": "That’s great! So your educational interests include technolo",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -85.7,
+      "dh": 46,
+      "wPct": -4.6,
+      "lines": "dom 4 vs figma ~2"
     },
     {
       "text": "Career Buddy",
@@ -212,6 +181,30 @@
       "dy": 73.8,
       "dh": 1,
       "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -71.7,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": 7.5,
+      "dy": -69.2,
+      "dh": 2,
+      "wPct": -85.8
+    },
+    {
+      "text": "Educational background confirmed",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": -65.2,
+      "dh": 2,
+      "wPct": -1.9
     },
     {
       "text": "Career Buddy",
@@ -333,6 +326,15 @@
       "dy": -30.8,
       "dh": 3,
       "wPct": 2.6
+    },
+    {
+      "text": "Excellent vision, Emma  Review what I’ve gathered from our c",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -30.7,
+      "dh": 20,
+      "wPct": -12.4,
+      "lines": "dom 3 vs figma ~2"
     },
     {
       "text": "Completion: 48%",
@@ -611,7 +613,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 7.5,
-      "dy": -82.2,
+      "dy": -69.2,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -661,6 +663,16 @@
       "dh": -3.5,
       "wPct": 16.3,
       "severe": true
+    },
+    {
+      "text": "Excellent vision, Emma  Review what I’ve gathered from our c",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": -30.7,
+      "dh": 20,
+      "wPct": -12.4,
+      "lines": "dom 3 vs figma ~2",
+      "severe": false
     },
     {
       "text": "Write a message…",
@@ -845,7 +857,7 @@
       "total": 142,
       "matched": 15
     },
-    "textStyleMatched": 68,
+    "textStyleMatched": 71,
     "unmatchedShapes": [
       {
         "node": "Background",
@@ -2055,7 +2067,6 @@
     }
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_55534-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

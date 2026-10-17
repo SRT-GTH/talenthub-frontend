@@ -11,22 +11,14 @@
   "offsetUsed": 56,
   "counts": {
     "figmaTexts": 22,
-    "matched": 19,
-    "unmatched": 3,
-    "layoutMismatch": 17,
-    "fontMetric": 9,
+    "matched": 20,
+    "unmatched": 2,
+    "layoutMismatch": 18,
+    "fontMetric": 10,
     "widthOver15": 1
   },
-  "worstLayoutPx": 196.4,
+  "worstLayoutPx": 397.5,
   "unmatched": [
-    {
-      "text": "Upload resume to automatically populate profile",
-      "figma": {
-        "x": 682,
-        "y": 263
-      },
-      "closestDom": "Emma[Auto]Upload resume to automatically populate profile"
-    },
     {
       "text": "New Chat",
       "figma": {
@@ -46,10 +38,18 @@
   ],
   "layout": [
     {
+      "text": "Upload resume to automatically populate profile",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 397.5,
+      "dh": 2,
+      "wPct": 9.5
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -25.2,
-      "dy": 196.4,
+      "dy": 393.5,
       "dh": 2,
       "wPct": -88.6
     },
@@ -57,7 +57,7 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 193.9,
+      "dy": 391,
       "dh": 1,
       "wPct": 0.9
     },
@@ -129,7 +129,7 @@
       "text": "+20 XP PER SECTION",
       "sel": "span.absolute.right-[3px].top-[5px]",
       "dx": -0.5,
-      "dy": 18.9,
+      "dy": -5.1,
       "dh": 2.2,
       "wPct": 3.1
     },
@@ -205,10 +205,19 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -25.2,
-      "dy": 196.4,
+      "dy": 393.5,
       "dh": 2,
       "wPct": -88.6,
       "severe": true
+    },
+    {
+      "text": "Upload resume to automatically populate profile",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 397.5,
+      "dh": 2,
+      "wPct": 9.5,
+      "severe": false
     },
     {
       "text": "TALI",

@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": 0.8,
-    "derived": 51.2
+    "medianDy": -0.6,
+    "derived": 52.6
   },
-  "offsetUsed": 51,
+  "offsetUsed": 53,
   "counts": {
     "figmaTexts": 62,
     "matched": 56,
     "unmatched": 6,
-    "layoutMismatch": 56,
+    "layoutMismatch": 49,
     "fontMetric": 23,
     "widthOver15": 4
   },
@@ -23,7 +23,7 @@
       "text": "Avatar",
       "figma": {
         "x": 82,
-        "y": 124
+        "y": 122
       },
       "closestDom": null
     },
@@ -31,7 +31,7 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 121
+        "y": 119
       },
       "closestDom": "Step 3 of 9 ·"
     },
@@ -39,7 +39,7 @@
       "text": "1/2",
       "figma": {
         "x": 952.5,
-        "y": 466.5
+        "y": 464.5
       },
       "closestDom": null
     },
@@ -47,7 +47,7 @@
       "text": "Yes, I have a PDF copy — I’ve attached it.",
       "figma": {
         "x": 722,
-        "y": 837
+        "y": 835
       },
       "closestDom": null
     },
@@ -55,7 +55,7 @@
       "text": "Completion: Not Started",
       "figma": {
         "x": 1247.5,
-        "y": 1629.5
+        "y": 1627.5
       },
       "closestDom": "CertificationsCompletion: Not Started"
     },
@@ -63,7 +63,7 @@
       "text": "Switch Modes ",
       "figma": {
         "x": 1265,
-        "y": 35
+        "y": 33
       },
       "closestDom": null
     }
@@ -73,7 +73,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -0.2,
+      "dy": 1.8,
       "dh": -1,
       "wPct": 15.9
     },
@@ -81,7 +81,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 708.3,
+      "dy": 710.3,
       "dh": 2,
       "wPct": 7.4
     },
@@ -89,7 +89,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 570.8,
+      "dy": 572.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -97,7 +97,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 570.8,
+      "dy": 572.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -105,7 +105,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -113,7 +113,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -121,7 +121,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4
     },
@@ -129,7 +129,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 566.3,
+      "dy": 568.3,
       "dh": 2,
       "wPct": 7.4
     },
@@ -137,7 +137,7 @@
       "text": "Personal area of interest",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 431.3,
+      "dy": 433.3,
       "dh": 3,
       "wPct": 6.5
     },
@@ -145,7 +145,7 @@
       "text": "Personality",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.8,
-      "dy": 429.8,
+      "dy": 431.8,
       "dh": 3,
       "wPct": 5.8
     },
@@ -153,7 +153,7 @@
       "text": "Completion: 48%",
       "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 428.8,
+      "dy": 430.8,
       "dh": 2,
       "wPct": 5.8
     },
@@ -161,7 +161,7 @@
       "text": "Skills (Competencies)",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 428.3,
+      "dy": 430.3,
       "dh": 3,
       "wPct": 2.7
     },
@@ -169,7 +169,7 @@
       "text": "Work Experience",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 428.3,
+      "dy": 430.3,
       "dh": 3,
       "wPct": 5.1
     },
@@ -177,7 +177,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 428.3,
+      "dy": 430.3,
       "dh": 3,
       "wPct": 6.8
     },
@@ -185,7 +185,7 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 428.3,
+      "dy": 430.3,
       "dh": 3,
       "wPct": 2.6
     },
@@ -193,7 +193,7 @@
       "text": "Career Options",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.6,
-      "dy": 426.8,
+      "dy": 428.8,
       "dh": 3,
       "wPct": 4
     },
@@ -201,7 +201,7 @@
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": 423.8,
+      "dy": 425.8,
       "dh": 3,
       "wPct": 3.9
     },
@@ -209,7 +209,7 @@
       "text": "Got it — University of Cape Coast. What degree did you pursu",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -328.2,
+      "dy": -306.2,
       "dh": -6,
       "wPct": 7.8
     },
@@ -217,7 +217,7 @@
       "text": "I went to the University of Cape Coast.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -326.7,
+      "dy": -304.7,
       "dh": -3,
       "wPct": 7.9
     },
@@ -225,7 +225,7 @@
       "text": "To start, what school or institution did you attend most rec",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -324.2,
+      "dy": -302.2,
       "dh": -6,
       "wPct": 9.3
     },
@@ -233,15 +233,23 @@
       "text": "Sounds great. Let’s do that.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -322.7,
+      "dy": -300.7,
       "dh": -3,
       "wPct": 8.5
+    },
+    {
+      "text": "The information gathered from the our interaction on your ed",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 213.8,
+      "dh": -6,
+      "wPct": -4.4
     },
     {
       "text": "Focused",
       "sel": "span.max-[480px]:sr-only",
       "dx": 198.7,
-      "dy": -2.6,
+      "dy": -0.6,
       "dh": 2,
       "wPct": 0.3
     },
@@ -249,71 +257,23 @@
       "text": "Playful",
       "sel": "span.max-[480px]:sr-only",
       "dx": 198.3,
-      "dy": -2.6,
+      "dy": -0.6,
       "dh": 2,
       "wPct": 5.2
-    },
-    {
-      "text": "The information gathered from the our interaction on your ed",
-      "sel": "span.block",
-      "dx": 1.4,
-      "dy": 191.8,
-      "dh": -6,
-      "wPct": -4.4
     },
     {
       "text": "I started in 2018 and graduated in 2022.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -164.7,
+      "dy": -142.7,
       "dh": -3,
       "wPct": 8.6
-    },
-    {
-      "text": "Pitch",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 23.5,
-      "dy": -2.7,
-      "dh": 2,
-      "wPct": 1.3
-    },
-    {
-      "text": "Goals",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 22.4,
-      "dy": -2.7,
-      "dh": 2,
-      "wPct": 3.1
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 22.4,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
-      "text": "Certs",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 22,
-      "dy": -2.7,
-      "dh": 2,
-      "wPct": 1.2
-    },
-    {
-      "text": "Portfolio",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 18,
-      "dy": -2.7,
-      "dh": 2,
-      "wPct": 7.7
     },
     {
       "text": "Transcr... .pdf",
       "sel": "span.font-sans.text-[12px].font-medium",
       "dx": 2,
-      "dy": 17.3,
+      "dy": 39.3,
       "dh": 3,
       "wPct": -3.7
     },
@@ -321,79 +281,127 @@
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
       "dx": 5,
-      "dy": 17.3,
+      "dy": 39.3,
       "dh": 1,
       "wPct": -68
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 36.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 34.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 32.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 31.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 29.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": 27.3,
+      "dh": 1,
+      "wPct": 0.9
+    },
+    {
+      "text": "Career Buddy",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0,
+      "dy": 25.3,
+      "dh": 1,
+      "wPct": 2.3
+    },
+    {
+      "text": "Pitch",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 23.5,
+      "dy": -0.7,
+      "dh": 2,
+      "wPct": 1.3
+    },
+    {
+      "text": "Goals",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 22.4,
+      "dy": -0.7,
+      "dh": 2,
+      "wPct": 3.1
+    },
+    {
+      "text": "Certs",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 22,
+      "dy": -0.7,
+      "dh": 2,
+      "wPct": 1.2
+    },
+    {
+      "text": "Portfolio",
+      "sel": "span.font-sans.text-[14px].leading-[24px]",
+      "dx": 18,
+      "dy": -0.7,
+      "dh": 2,
+      "wPct": 7.7
     },
     {
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.7,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 6.8
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 14.3,
-      "dh": 1,
-      "wPct": 0.9
     },
     {
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 13.7,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 6.2
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 12.3,
-      "dh": 1,
-      "wPct": 2.3
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 10.3,
-      "dh": 1,
-      "wPct": 0.9
     },
     {
       "text": "Personality",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 10.1,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 5.2
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 9.3,
-      "dh": 1,
-      "wPct": 0.9
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 7.3,
-      "dh": 1,
-      "wPct": 2.3
     },
     {
       "text": "Interests ",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 7.2,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 5.3
     },
@@ -401,121 +409,57 @@
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -7,
+      "dy": -5,
       "dh": 4,
       "wPct": -82.6
-    },
-    {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": 5.3,
-      "dh": 1,
-      "wPct": 0.9
     },
     {
       "text": "Education",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 4.9,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 3.8
-    },
-    {
-      "text": "Educational Background",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 0.5,
-      "dy": -4.7,
-      "dh": 3,
-      "wPct": 4.4
     },
     {
       "text": "Save & Exit",
       "sel": "button.max-md:inline-flex.max-md:min-h-11.max-md:items-center",
       "dx": -4.4,
-      "dy": -3.1,
+      "dy": -1.1,
       "dh": -5,
       "wPct": 5.6
-    },
-    {
-      "text": "Personal Info.",
-      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
-      "dx": 1,
-      "dy": -4.2,
-      "dh": 3,
-      "wPct": 5.1
     },
     {
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": -2,
       "wPct": 44.9
-    },
-    {
-      "text": "Completion: 80%",
-      "sel": "span#_r_5_-personal-info-status.whitespace-nowrap.text-[14px].leading-[17px]",
-      "dx": 1,
-      "dy": -3.7,
-      "dh": 2,
-      "wPct": 5.8
-    },
-    {
-      "text": "Career Buddy",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0,
-      "dy": 3.3,
-      "dh": 1,
-      "wPct": 2.3
     },
     {
       "text": "KA",
       "sel": "span.inline-flex.size-[24px].items-center",
       "dx": -3.3,
-      "dy": -3.1,
+      "dy": -1.1,
       "dh": 1,
       "wPct": -4.7
     },
     {
-      "text": "Kofi A.",
-      "sel": "span.max-md:sr-only.font-sans.font-semibold",
-      "dx": -1,
-      "dy": -3.1,
-      "dh": -5,
-      "wPct": 5.9
-    },
-    {
-      "text": "Personal Info",
-      "sel": "span.font-sans.text-[14px].leading-[24px]",
-      "dx": 1.9,
+      "text": "Educational Background",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 0.5,
       "dy": -2.7,
-      "dh": 2,
-      "wPct": 3.6
+      "dh": 3,
+      "wPct": 4.4
     },
     {
-      "text": "· 0% profile complete · auto-saved",
-      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
-      "dx": 0,
+      "text": "Personal Info.",
+      "sel": "span.whitespace-nowrap.text-[20px].font-medium",
+      "dx": 1,
       "dy": -2.2,
-      "dh": -2,
-      "wPct": 8
-    },
-    {
-      "text": "Your profile, live",
-      "sel": "h2.m-0.font-[family-name:var(--pf-font-display)].text-[clamp(24px,1.736vw,30px)]",
-      "dx": -0.5,
-      "dy": -2.2,
-      "dh": 0,
-      "wPct": -0.5
-    },
-    {
-      "text": "Lock in each section to level up your matches.",
-      "sel": "p.m-0.font-sans.text-[16px]",
-      "dx": -0.5,
-      "dy": -2.2,
-      "dh": 4,
-      "wPct": 7.1
+      "dh": 3,
+      "wPct": 5.1
     }
   ],
   "fontMetric": [
@@ -523,7 +467,7 @@
       "text": "Skills",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 13.7,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 6.2,
       "severe": false
@@ -532,7 +476,7 @@
       "text": "Work",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 15.7,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 6.8,
       "severe": false
@@ -541,7 +485,7 @@
       "text": "Portfolio",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": 18,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": 2,
       "wPct": 7.7,
       "severe": false
@@ -550,7 +494,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -0.2,
+      "dy": 1.8,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -559,7 +503,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": -2.2,
+      "dy": -0.2,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -568,7 +512,7 @@
       "text": "Sounds great. Let’s do that.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -322.7,
+      "dy": -300.7,
       "dh": -3,
       "wPct": 8.5,
       "severe": false
@@ -577,7 +521,7 @@
       "text": "To start, what school or institution did you attend most rec",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -324.2,
+      "dy": -302.2,
       "dh": -6,
       "wPct": 9.3,
       "severe": false
@@ -586,7 +530,7 @@
       "text": "I went to the University of Cape Coast.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -326.7,
+      "dy": -304.7,
       "dh": -3,
       "wPct": 7.9,
       "severe": false
@@ -595,7 +539,7 @@
       "text": "Got it — University of Cape Coast. What degree did you pursu",
       "sel": "span.block",
       "dx": 1.4,
-      "dy": -328.2,
+      "dy": -306.2,
       "dh": -6,
       "wPct": 7.8,
       "severe": false
@@ -604,7 +548,7 @@
       "text": "I started in 2018 and graduated in 2022.",
       "sel": "span.block",
       "dx": 3,
-      "dy": -164.7,
+      "dy": -142.7,
       "dh": -3,
       "wPct": 8.6,
       "severe": false
@@ -613,7 +557,7 @@
       "text": "6MB",
       "sel": "span.font-sans.text-[10px].max-lg:text-[12px]",
       "dx": 5,
-      "dy": 17.3,
+      "dy": 39.3,
       "dh": 1,
       "wPct": -68,
       "severe": true
@@ -622,7 +566,7 @@
       "text": "Write a message…",
       "sel": "input.flex-1.min-w-0.border-none",
       "dx": 1,
-      "dy": -7,
+      "dy": -5,
       "dh": 4,
       "wPct": -82.6,
       "severe": true
@@ -631,7 +575,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -2.7,
+      "dy": -0.7,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -640,7 +584,7 @@
       "text": "Lock in each section to level up your matches.",
       "sel": "p.m-0.font-sans.text-[16px]",
       "dx": -0.5,
-      "dy": -2.2,
+      "dy": -0.2,
       "dh": 4,
       "wPct": 7.1,
       "severe": false
@@ -649,7 +593,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personal-interests-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 570.8,
+      "dy": 572.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -658,7 +602,7 @@
       "text": "Personal area of interest",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 431.3,
+      "dy": 433.3,
       "dh": 3,
       "wPct": 6.5,
       "severe": false
@@ -667,7 +611,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-personality-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 570.8,
+      "dy": 572.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -676,7 +620,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 708.3,
+      "dy": 710.3,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -685,7 +629,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -694,7 +638,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 428.3,
+      "dy": 430.3,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -703,7 +647,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -712,7 +656,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-desired-career-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 567.8,
+      "dy": 569.8,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -721,7 +665,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-talent-pitch-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 566.3,
+      "dy": 568.3,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -738,7 +682,7 @@
       },
       "app": {
         "x": 0,
-        "y": 221.8,
+        "y": 223.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -753,7 +697,7 @@
       },
       "app": {
         "x": 1112,
-        "y": 221.8,
+        "y": 223.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -768,7 +712,7 @@
       },
       "app": {
         "x": 0,
-        "y": 51,
+        "y": 53,
         "w": 1728,
         "h": 89.8,
         "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
@@ -776,12 +720,12 @@
     }
   },
   "style": {
-    "summaryLine": "95 style mismatches (colour:10 radius:16 shadow:6 stroke:16 opacity:2 typography:45); shapes 12/117 matched",
+    "summaryLine": "87 style mismatches (colour:10 radius:12 shadow:6 stroke:12 opacity:2 typography:45); shapes 13/117 matched",
     "counts": {
       "colour": 10,
-      "radius": 16,
+      "radius": 12,
       "shadow": 6,
-      "stroke": 16,
+      "stroke": 12,
       "opacity": 2,
       "typography": 45,
       "gradient": 0,
@@ -789,7 +733,7 @@
     },
     "shapes": {
       "total": 117,
-      "matched": 12
+      "matched": 13
     },
     "textStyleMatched": 56,
     "unmatchedShapes": [
@@ -797,484 +741,484 @@
         "node": "teenyicons:left-outline",
         "nodeId": "7873:52810",
         "type": "FRAME",
-        "box": [1055, 111, 58, 44]
+        "box": [1055, 109, 58, 44]
       },
       {
         "node": "Background",
         "nodeId": "7873:52816",
         "type": "RECTANGLE",
-        "box": [1351, 128, 5, 5]
+        "box": [1351, 126, 5, 5]
       },
       {
         "node": "Container",
         "nodeId": "7873:52820",
         "type": "FRAME",
-        "box": [1351, 144, 323, 6]
+        "box": [1351, 142, 323, 6]
       },
       {
         "node": "Container",
         "nodeId": "7873:52821",
         "type": "FRAME",
-        "box": [1351, 144, 62, 6]
+        "box": [1351, 142, 62, 6]
       },
       {
         "node": "grid",
         "nodeId": "7873:52830",
         "type": "RECTANGLE",
-        "box": [754, 661, 358, 405]
+        "box": [754, 659, 358, 405]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52836;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [793, 236, 202, 51]
+        "box": [793, 234, 202, 51]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52836;5132:42799",
         "type": "FRAME",
-        "box": [1009, 236, 48, 48]
+        "box": [1009, 234, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52836;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 392, 8, 8]
+        "box": [982, 390, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52836;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 392, 8, 8]
+        "box": [982, 390, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52836;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 392, 8, 8]
+        "box": [982, 390, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52836;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 236, 48, 48]
+        "box": [1009, 234, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52836;5132:42861",
         "type": "FRAME",
-        "box": [1019, 290, 28, 13]
+        "box": [1019, 288, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52837;5132:42683",
         "type": "FRAME",
-        "box": [60, 321, 48, 48]
+        "box": [60, 319, 48, 48]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52837;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 477, 8, 8]
+        "box": [33, 475, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52837;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 477, 8, 8]
+        "box": [33, 475, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52837;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 477, 8, 8]
+        "box": [33, 475, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52837;5132:42708",
         "type": "VECTOR",
-        "box": [60, 321, 48, 48]
+        "box": [60, 319, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:52837;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 327, 37, 38]
+        "box": [66, 325, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52837;5132:42710",
         "type": "FRAME",
-        "box": [54, 375, 60, 13]
+        "box": [54, 373, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:52837;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 321, 427, 54]
+        "box": [126, 319, 427, 54]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52838;5132:42797;5132:43041",
         "type": "FRAME",
-        "box": [724, 406, 271, 51]
+        "box": [724, 404, 271, 51]
       },
       {
         "node": "Frame 14573",
         "nodeId": "I7873:52838;5132:42797;5132:43055",
         "type": "FRAME",
-        "box": [934, 466, 11, 24]
+        "box": [934, 464, 11, 24]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52838;5132:42799",
         "type": "FRAME",
-        "box": [1009, 406, 48, 48]
+        "box": [1009, 404, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:52838;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 84, 693, 693]
+        "box": [687, 82, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52838;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 562, 8, 8]
+        "box": [982, 560, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52838;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 562, 8, 8]
+        "box": [982, 560, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52838;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 562, 8, 8]
+        "box": [982, 560, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52838;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 406, 48, 48]
+        "box": [1009, 404, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52838;5132:42861",
         "type": "FRAME",
-        "box": [1019, 460, 28, 13]
+        "box": [1019, 458, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52839;5132:42683",
         "type": "FRAME",
-        "box": [60, 491, 48, 48]
+        "box": [60, 489, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:52839;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 169, 693, 693]
+        "box": [-262, 167, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52839;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 647, 8, 8]
+        "box": [33, 645, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52839;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 647, 8, 8]
+        "box": [33, 645, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52839;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 647, 8, 8]
+        "box": [33, 645, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52839;5132:42708",
         "type": "VECTOR",
-        "box": [60, 491, 48, 48]
+        "box": [60, 489, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:52839;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 497, 37, 38]
+        "box": [66, 495, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52839;5132:42710",
         "type": "FRAME",
-        "box": [54, 545, 60, 13]
+        "box": [54, 543, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:52839;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 491, 468, 54]
+        "box": [126, 489, 468, 54]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52840;5132:42797;5132:43038",
         "type": "FRAME",
-        "box": [712, 576, 283, 51]
+        "box": [712, 574, 283, 51]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52840;5132:42799",
         "type": "FRAME",
-        "box": [1009, 576, 48, 48]
+        "box": [1009, 574, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:52840;5132:42800",
         "type": "RECTANGLE",
-        "box": [687, 254, 693, 693]
+        "box": [687, 252, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52840;5132:42801",
         "type": "RECTANGLE",
-        "box": [982, 732, 8, 8]
+        "box": [982, 730, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52840;5132:42802",
         "type": "RECTANGLE",
-        "box": [982, 732, 8, 8]
+        "box": [982, 730, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52840;5132:42803",
         "type": "RECTANGLE",
-        "box": [982, 732, 8, 8]
+        "box": [982, 730, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52840;5132:42824",
         "type": "VECTOR",
-        "box": [1009, 576, 48, 48]
+        "box": [1009, 574, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52840;5132:42861",
         "type": "FRAME",
-        "box": [1019, 630, 28, 13]
+        "box": [1019, 628, 28, 13]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52841;5132:42683",
         "type": "FRAME",
-        "box": [60, 661, 48, 48]
+        "box": [60, 659, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:52841;5132:42684",
         "type": "RECTANGLE",
-        "box": [-262, 339, 693, 693]
+        "box": [-262, 337, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52841;5132:42685",
         "type": "RECTANGLE",
-        "box": [33, 817, 8, 8]
+        "box": [33, 815, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52841;5132:42686",
         "type": "RECTANGLE",
-        "box": [33, 817, 8, 8]
+        "box": [33, 815, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52841;5132:42687",
         "type": "RECTANGLE",
-        "box": [33, 817, 8, 8]
+        "box": [33, 815, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52841;5132:42708",
         "type": "VECTOR",
-        "box": [60, 661, 48, 48]
+        "box": [60, 659, 48, 48]
       },
       {
         "node": "image 9",
         "nodeId": "I7873:52841;5132:42709",
         "type": "RECTANGLE",
-        "box": [66, 667, 37, 38]
+        "box": [66, 665, 37, 38]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52841;5132:42710",
         "type": "FRAME",
-        "box": [54, 715, 60, 13]
+        "box": [54, 713, 60, 13]
       },
       {
         "node": "Component 26",
         "nodeId": "I7873:52841;5132:42712",
         "type": "INSTANCE",
-        "box": [126, 661, 698, 80]
+        "box": [126, 659, 698, 80]
       },
       {
         "node": "Frame 14118",
         "nodeId": "I7873:52842;5132:42866",
         "type": "FRAME",
-        "box": [857, 759, 138, 54]
+        "box": [857, 757, 138, 54]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52842;5132:42871;5132:43038",
         "type": "FRAME",
-        "box": [706, 823, 289, 51]
+        "box": [706, 821, 289, 51]
       },
       {
         "node": "avatar showcase",
         "nodeId": "I7873:52842;5132:42885",
         "type": "FRAME",
-        "box": [1009, 759, 48, 48]
+        "box": [1009, 757, 48, 48]
       },
       {
         "node": "Border",
         "nodeId": "I7873:52842;5132:42886",
         "type": "RECTANGLE",
-        "box": [687, 437, 693, 693]
+        "box": [687, 435, 693, 693]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52842;5132:42887",
         "type": "RECTANGLE",
-        "box": [982, 915, 8, 8]
+        "box": [982, 913, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52842;5132:42888",
         "type": "RECTANGLE",
-        "box": [982, 915, 8, 8]
+        "box": [982, 913, 8, 8]
       },
       {
         "node": "Background",
         "nodeId": "I7873:52842;5132:42889",
         "type": "RECTANGLE",
-        "box": [982, 915, 8, 8]
+        "box": [982, 913, 8, 8]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52842;5132:42910",
         "type": "VECTOR",
-        "box": [1009, 759, 48, 48]
+        "box": [1009, 757, 48, 48]
       },
       {
         "node": "Frame 14175",
         "nodeId": "I7873:52842;5132:42947",
         "type": "FRAME",
-        "box": [1019, 813, 28, 13]
-      },
-      {
-        "node": "GTHInput",
-        "nodeId": "7873:52848",
-        "type": "INSTANCE",
-        "box": [54, 976, 1005, 72]
+        "box": [1019, 811, 28, 13]
       },
       {
         "node": "majesticons:attachment-line",
         "nodeId": "I7873:52848;5132:42717",
         "type": "INSTANCE",
-        "box": [70, 992, 40, 40]
+        "box": [70, 990, 40, 40]
       },
       {
         "node": "ant-design:audio-outlined",
         "nodeId": "I7873:52848;5132:42720",
         "type": "INSTANCE",
-        "box": [950, 991, 43, 43]
+        "box": [950, 989, 43, 43]
       },
       {
         "node": "ant-design:audio-outlined",
         "nodeId": "I7873:52848;5132:42721",
         "type": "INSTANCE",
-        "box": [1001, 991, 43, 43]
+        "box": [1001, 989, 43, 43]
       },
       {
         "node": "Frame 14227",
         "nodeId": "7873:52854",
         "type": "FRAME",
-        "box": [1049, 189, 44, 40]
+        "box": [1049, 187, 44, 40]
       },
       {
         "node": "genz:doodle · star",
         "nodeId": "7878:85909",
         "type": "STAR",
-        "box": [509, 217, 20, 20]
+        "box": [509, 215, 20, 20]
       },
       {
         "node": "genz:doodle · star",
         "nodeId": "7878:85910",
         "type": "STAR",
-        "box": [24, 854, 24, 24]
+        "box": [24, 852, 24, 24]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:52862;5132:40728",
         "type": "FRAME",
-        "box": [1617, 345, 36, 36]
+        "box": [1617, 343, 36, 36]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52863;5132:42159",
         "type": "VECTOR",
-        "box": [1191, 491, 30, 25]
+        "box": [1191, 489, 30, 25]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:52863;5132:42163",
         "type": "FRAME",
-        "box": [1618, 486, 36, 36]
+        "box": [1618, 484, 36, 36]
       },
       {
         "node": "Component 17",
         "nodeId": "7873:52864",
         "type": "INSTANCE",
-        "box": [1166, 579, 508, 127]
+        "box": [1166, 577, 508, 127]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52864;5132:42277",
         "type": "VECTOR",
-        "box": [1191, 627, 31, 29]
+        "box": [1191, 625, 31, 29]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:52864;5132:42281",
         "type": "FRAME",
-        "box": [1618, 625, 36, 36]
+        "box": [1618, 623, 36, 36]
       },
       {
         "node": "div.svc-row",
         "nodeId": "7873:52865",
         "type": "INSTANCE",
-        "box": [1166, 718, 508, 130]
+        "box": [1166, 716, 508, 130]
       },
       {
         "node": "Vector",
         "nodeId": "I7873:52865;5132:42365",
         "type": "VECTOR",
-        "box": [1191, 766, 30, 35]
+        "box": [1191, 764, 30, 35]
       },
       {
         "node": "div#svc-icon-0",
         "nodeId": "I7873:52865;5132:42369",
         "type": "FRAME",
-        "box": [1617, 765, 36, 36]
+        "box": [1617, 763, 36, 36]
+      },
+      {
+        "node": "Component 9",
+        "nodeId": "7873:52866",
+        "type": "FRAME",
+        "box": [1166, 858, 508, 127]
       }
     ],
-    "unmatchedShapesCount": 105,
+    "unmatchedShapesCount": 104,
     "mismatches": [
       {
         "cat": "opacity",
@@ -1311,6 +1255,24 @@
         "figma": "rgba(255,216,107,0.35)",
         "app": "rgba(0,0,0,0)",
         "sel": "div.pointer-events-none.absolute"
+      },
+      {
+        "cat": "colour",
+        "prop": "border-colour",
+        "node": "GTHInput",
+        "nodeId": "7873:52848",
+        "figma": "rgba(193,212,196,1)",
+        "app": "rgba(50,104,58,1)",
+        "sel": "div.flex.items-center.gap-[8px].h-[72px]"
+      },
+      {
+        "cat": "shadow",
+        "prop": "shadow-count",
+        "node": "GTHInput",
+        "nodeId": "7873:52848",
+        "figma": "none",
+        "app": "0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | 0 0 0 0 rgba(0,0,0,0) | -0.0783003 0.0506745 0.4 0 none | 0 0 0 0 rgba(0,0,0,0)",
+        "sel": "div.flex.items-center.gap-[8px].h-[72px]"
       },
       {
         "cat": "shadow",
@@ -1506,96 +1468,6 @@
         "prop": "shadow-count",
         "node": "Component 18",
         "nodeId": "7873:52863",
-        "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
-        "app": "none",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "colour",
-        "prop": "fill",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": "rgba(255,255,255,1)",
-        "app": "rgba(0,0,0,0)",
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-top",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-right",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-bottom",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "stroke",
-        "prop": "border-width-left",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 1.5,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tl",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-tr",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-br",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "radius",
-        "prop": "radius-bl",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
-        "figma": 20,
-        "app": 0,
-        "sel": "div.flex.cursor-pointer.items-center.justify-between"
-      },
-      {
-        "cat": "shadow",
-        "prop": "shadow-count",
-        "node": "div.svc-row",
-        "nodeId": "7873:52894",
         "figma": "5 5 0 0 rgba(28,42,33,0.55) | 0 10 24 0 rgba(28,42,33,0.06)",
         "app": "none",
         "sel": "div.flex.cursor-pointer.items-center.justify-between"
@@ -2134,16 +2006,17 @@
     ],
     "byProp": {
       "opacity": 2,
-      "fill": 7,
+      "fill": 6,
+      "border-colour": 1,
       "shadow-count": 6,
-      "border-width-top": 4,
-      "border-width-right": 4,
-      "border-width-bottom": 4,
-      "border-width-left": 4,
-      "radius-tl": 4,
-      "radius-tr": 4,
-      "radius-br": 4,
-      "radius-bl": 4,
+      "border-width-top": 3,
+      "border-width-right": 3,
+      "border-width-bottom": 3,
+      "border-width-left": 3,
+      "radius-tl": 3,
+      "radius-tr": 3,
+      "radius-br": 3,
+      "radius-bl": 3,
       "font-weight": 12,
       "line-height": 15,
       "text-colour": 3,

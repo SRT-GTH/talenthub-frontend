@@ -11,11 +11,11 @@
   "offsetUsed": 36,
   "counts": {
     "figmaTexts": 41,
-    "matched": 36,
-    "unmatched": 5,
-    "layoutMismatch": 34,
-    "fontMetric": 19,
-    "widthOver15": 12
+    "matched": 38,
+    "unmatched": 3,
+    "layoutMismatch": 37,
+    "fontMetric": 20,
+    "widthOver15": 13
   },
   "worstLayoutPx": 1348.1,
   "unmatched": [
@@ -28,28 +28,12 @@
       "closestDom": "Step 4 of 9 ·"
     },
     {
-      "text": "Personal Area of Interest confirmed",
-      "figma": {
-        "x": 742,
-        "y": 283
-      },
-      "closestDom": "Emma[Auto]Personal Area of Interest confirmed"
-    },
-    {
       "text": "Text",
       "figma": {
         "x": 952.5,
         "y": 324.5
       },
       "closestDom": null
-    },
-    {
-      "text": "Play Games",
-      "figma": {
-        "x": 742,
-        "y": 697
-      },
-      "closestDom": "Emma[Auto]Play Games"
     },
     {
       "text": "Button → Save & exit",
@@ -70,26 +54,34 @@
       "wPct": 15.9
     },
     {
+      "text": "Personal Area of Interest confirmed",
+      "sel": "span.block",
+      "dx": 2.1,
+      "dy": 148.3,
+      "dh": 2,
+      "wPct": 0.4
+    },
+    {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 2.1,
-      "dy": 124.3,
+      "dy": 144.3,
       "dh": 2,
       "wPct": -85.8
     },
     {
-      "text": "Emma",
-      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
-      "dx": 0.9,
-      "dy": -89.2,
-      "dh": 1,
-      "wPct": 0.9
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 110.8,
+      "dh": 2,
+      "wPct": -66.1
     },
     {
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -43.5,
-      "dy": 86.8,
+      "dy": 106.8,
       "dh": 2,
       "wPct": -85.8
     },
@@ -97,41 +89,17 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": 84.3,
+      "dy": -100.7,
       "dh": 1,
       "wPct": 0.9
     },
     {
-      "text": "~4 min",
-      "sel": "span.font-sans.text-[12px].font-medium",
-      "dx": -1.4,
-      "dy": 30.5,
-      "dh": 2,
-      "wPct": 1.6
-    },
-    {
-      "text": "~4 min",
-      "sel": "span.font-sans.text-[12px].font-medium",
-      "dx": -2.4,
-      "dy": 30.5,
-      "dh": 2,
-      "wPct": 1.6
-    },
-    {
-      "text": "Play",
-      "sel": "span.inline-flex.items-center.gap-[4px]",
-      "dx": -2.8,
-      "dy": 29.5,
-      "dh": 2,
-      "wPct": 90.4
-    },
-    {
-      "text": "Play",
-      "sel": "span.inline-flex.items-center.gap-[4px]",
-      "dx": -3.8,
-      "dy": 29.5,
-      "dh": 2,
-      "wPct": 90.4
+      "text": "Emma",
+      "sel": "span.font-sans.text-[10px].max-lg:sr-only",
+      "dx": 0.9,
+      "dy": -69.2,
+      "dh": 1,
+      "wPct": 0.9
     },
     {
       "text": "Career Pitch",
@@ -150,20 +118,12 @@
       "wPct": 7.4
     },
     {
-      "text": "Difficulty: Medium",
-      "sel": "span.font-sans.text-[12px].text-[#70706e]",
-      "dx": -2,
-      "dy": 27.5,
-      "dh": 2,
-      "wPct": -57.2
-    },
-    {
-      "text": "Difficulty: Medium",
-      "sel": "span.font-sans.text-[12px].text-[#70706e]",
-      "dx": -3,
-      "dy": 27.5,
-      "dh": 2,
-      "wPct": -57.2
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -25.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Skills (Competencies)",
@@ -238,24 +198,6 @@
       "wPct": 44.9
     },
     {
-      "text": "Solve a series of puzzles under time pressure — reveals how ",
-      "sel": "span.font-sans.text-[12px].leading-[1.3]",
-      "dx": -2,
-      "dy": 17.3,
-      "dh": 15.2,
-      "wPct": -5,
-      "lines": "dom 3 vs figma ~2"
-    },
-    {
-      "text": "A classic property game that shows how you think about wealt",
-      "sel": "span.font-sans.text-[12px].leading-[1.3]",
-      "dx": -3,
-      "dy": 17.3,
-      "dh": 15.2,
-      "wPct": -3.9,
-      "lines": "dom 3 vs figma ~2"
-    },
-    {
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
@@ -269,7 +211,7 @@
       "dx": -0.5,
       "dy": -17.2,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -280,12 +222,68 @@
       "wPct": 7.1
     },
     {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -1.4,
+      "dy": 15.8,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "~4 min",
+      "sel": "span.font-sans.text-[12px].font-medium",
+      "dx": -2.4,
+      "dy": 15.8,
+      "dh": 2,
+      "wPct": 1.6
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -2.8,
+      "dy": 14.8,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Play",
+      "sel": "span.inline-flex.items-center.gap-[4px]",
+      "dx": -3.8,
+      "dy": 14.8,
+      "dh": 2,
+      "wPct": 90.4
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -2,
+      "dy": 12.8,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
+      "text": "Difficulty: Medium",
+      "sel": "span.font-sans.text-[12px].text-[#70706e]",
+      "dx": -3,
+      "dy": 12.8,
+      "dh": 2,
+      "wPct": -57.2
+    },
+    {
       "text": "The Escape Room",
       "sel": "span.font-[family-name:var(--pf-font-ui)].text-[14px].font-semibold",
       "dx": -2,
       "dy": 10.8,
       "dh": 2,
       "wPct": -48.3
+    },
+    {
+      "text": "Solve a series of puzzles under time pressure — reveals how ",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -2,
+      "dy": 10.8,
+      "dh": -2,
+      "wPct": -1.9
     },
     {
       "text": "Monopoly",
@@ -296,12 +294,20 @@
       "wPct": -71
     },
     {
+      "text": "A classic property game that shows how you think about wealt",
+      "sel": "span.font-[family-name:var(--pf-font-ui)].text-[11px].leading-[16px]",
+      "dx": -3,
+      "dy": 10.8,
+      "dh": -2,
+      "wPct": -1
+    },
+    {
       "text": "Strategy",
       "sel": "span.inline-flex.w-fit.items-center",
       "dx": -1,
       "dy": 9.5,
       "dh": -1,
-      "wPct": -1.8
+      "wPct": -1.7
     },
     {
       "text": "Strategy",
@@ -309,7 +315,7 @@
       "dx": -2,
       "dy": 9.5,
       "dh": -1,
-      "wPct": -1.8
+      "wPct": -1.7
     },
     {
       "text": "SHOWING RESULTS FOR ‘sTRATEGY’",
@@ -359,7 +365,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 2.1,
-      "dy": 124.3,
+      "dy": 144.3,
       "dh": 2,
       "wPct": -85.8,
       "severe": true
@@ -368,9 +374,18 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -43.5,
-      "dy": 86.8,
+      "dy": 106.8,
       "dh": 2,
       "wPct": -85.8,
+      "severe": true
+    },
+    {
+      "text": "Play Games",
+      "sel": "span.block",
+      "dx": 3,
+      "dy": 110.8,
+      "dh": 2,
+      "wPct": -66.1,
       "severe": true
     },
     {
@@ -467,7 +482,7 @@
       "text": "Difficulty: Medium",
       "sel": "span.font-sans.text-[12px].text-[#70706e]",
       "dx": -2,
-      "dy": 27.5,
+      "dy": 12.8,
       "dh": 2,
       "wPct": -57.2,
       "severe": true
@@ -476,7 +491,7 @@
       "text": "Play",
       "sel": "span.inline-flex.items-center.gap-[4px]",
       "dx": -2.8,
-      "dy": 29.5,
+      "dy": 14.8,
       "dh": 2,
       "wPct": 90.4,
       "severe": true
@@ -494,7 +509,7 @@
       "text": "Difficulty: Medium",
       "sel": "span.font-sans.text-[12px].text-[#70706e]",
       "dx": -3,
-      "dy": 27.5,
+      "dy": 12.8,
       "dh": 2,
       "wPct": -57.2,
       "severe": true
@@ -503,7 +518,7 @@
       "text": "Play",
       "sel": "span.inline-flex.items-center.gap-[4px]",
       "dx": -3.8,
-      "dy": 29.5,
+      "dy": 14.8,
       "dh": 2,
       "wPct": 90.4,
       "severe": true

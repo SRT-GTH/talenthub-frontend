@@ -13,7 +13,7 @@
     "figmaTexts": 49,
     "matched": 48,
     "unmatched": 1,
-    "layoutMismatch": 41,
+    "layoutMismatch": 40,
     "fontMetric": 20,
     "widthOver15": 3
   },
@@ -92,14 +92,6 @@
       "dy": -190.1,
       "dh": 3,
       "wPct": -28.3
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.9,
-      "dy": 25.4,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Pitch",

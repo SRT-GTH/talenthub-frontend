@@ -11,10 +11,10 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 55,
-    "matched": 49,
-    "unmatched": 6,
-    "layoutMismatch": 41,
-    "fontMetric": 19,
+    "matched": 50,
+    "unmatched": 5,
+    "layoutMismatch": 42,
+    "fontMetric": 20,
     "widthOver15": 2
   },
   "worstLayoutPx": 390.3,
@@ -34,14 +34,6 @@
         "y": 332
       },
       "closestDom": "Your information is encrypted and never sold to third partiesRecruiters only see"
-    },
-    {
-      "text": "You're already ahead, Emma — your personal info came through from onboarding. \nWant to jump into your educational background, or review your personal details first?",
-      "figma": {
-        "x": 142,
-        "y": 671
-      },
-      "closestDom": "You're already ahead, Emma — your personal info came through from onboarding ✅\nW"
     },
     {
       "text": "Emma",
@@ -164,6 +156,14 @@
       "dy": 51.3,
       "dh": -3,
       "wPct": 9.6
+    },
+    {
+      "text": "You're already ahead, Emma — your personal info came through",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 49.8,
+      "dh": -6,
+      "wPct": 9.2
     },
     {
       "text": "Career Buddy",
@@ -454,6 +454,15 @@
       "severe": false
     },
     {
+      "text": "You're already ahead, Emma — your personal info came through",
+      "sel": "span.block",
+      "dx": 1.4,
+      "dy": 49.8,
+      "dh": -6,
+      "wPct": 9.2,
+      "severe": false
+    },
+    {
       "text": "Sounds great. Let’s do that.",
       "sel": "span.block",
       "dx": 3,
@@ -635,7 +644,7 @@
       "total": 98,
       "matched": 23
     },
-    "textStyleMatched": 49,
+    "textStyleMatched": 50,
     "unmatchedShapes": [
       {
         "node": "teenyicons:left-outline",
@@ -2228,7 +2237,6 @@
     }
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_51787-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

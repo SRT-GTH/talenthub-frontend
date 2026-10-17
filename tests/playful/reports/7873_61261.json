@@ -11,9 +11,9 @@
   "offsetUsed": 54,
   "counts": {
     "figmaTexts": 21,
-    "matched": 16,
-    "unmatched": 5,
-    "layoutMismatch": 8,
+    "matched": 17,
+    "unmatched": 4,
+    "layoutMismatch": 9,
     "fontMetric": 7,
     "widthOver15": 2
   },
@@ -33,7 +33,7 @@
         "x": 142,
         "y": 791
       },
-      "closestDom": "Perfect, Emma — I've recorded that. Just to confirm, kindly cross-check on your "
+      "closestDom": "Perfect, Emma — I’ve recorded that. Just to confirm, kindly cross-check on your "
     },
     {
       "text": "Button → Save & exit",
@@ -50,14 +50,6 @@
         "y": 22.5
       },
       "closestDom": "Career options saved"
-    },
-    {
-      "text": "+20 XP",
-      "figma": {
-        "x": 702.2,
-        "y": 16.1
-      },
-      "closestDom": "+20 XP PER SECTION"
     }
   ],
   "layout": [
@@ -76,6 +68,14 @@
       "dy": -648.1,
       "dh": 2.2,
       "wPct": 3.1
+    },
+    {
+      "text": "+20 XP",
+      "sel": "span.pointer-events-none.absolute.-top-[10px]",
+      "dx": 294.9,
+      "dy": 1.9,
+      "dh": 1.9,
+      "wPct": -1.1
     },
     {
       "text": "Career Buddy",
@@ -243,7 +243,6 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_61261-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }

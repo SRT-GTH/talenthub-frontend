@@ -62,10 +62,18 @@
       "wPct": 15.9
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -648.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -359.2,
+      "dy": -352.2,
       "dh": 1,
       "wPct": 0.9
     },
@@ -73,17 +81,9 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 3.8,
-      "dy": -356.7,
+      "dy": -349.7,
       "dh": 2,
       "wPct": -80.5
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 16.9,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Career Pitch",
@@ -141,7 +141,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": 3.8,
-      "dy": -356.7,
+      "dy": -349.7,
       "dh": 2,
       "wPct": -80.5,
       "severe": true

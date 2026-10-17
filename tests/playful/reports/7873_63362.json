@@ -5,15 +5,15 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": 369.2,
-    "derived": -317.2
+    "medianDy": 0.8,
+    "derived": 51.2
   },
-  "offsetUsed": -317,
+  "offsetUsed": 51,
   "counts": {
     "figmaTexts": 19,
-    "matched": 16,
-    "unmatched": 3,
-    "layoutMismatch": 15,
+    "matched": 17,
+    "unmatched": 2,
+    "layoutMismatch": 17,
     "fontMetric": 8,
     "widthOver15": 3
   },
@@ -23,23 +23,15 @@
       "text": "Step 1 of 9 ·",
       "figma": {
         "x": 1365,
-        "y": 489
+        "y": 121
       },
       "closestDom": "Step 5 of 9 ·"
-    },
-    {
-      "text": "Open Chat",
-      "figma": {
-        "x": 910,
-        "y": 610
-      },
-      "closestDom": "[Auto]Open Chat"
     },
     {
       "text": "Button → Save & exit",
       "figma": {
         "x": 1416,
-        "y": 403
+        "y": 35
       },
       "closestDom": "Save & Exit"
     }
@@ -49,63 +41,15 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -368.2,
+      "dy": -0.2,
       "dh": -1,
       "wPct": 15.9
-    },
-    {
-      "text": "[Auto]",
-      "sel": "p.text-[12px].leading-normal.text-[#595959]",
-      "dx": -0.4,
-      "dy": -427.2,
-      "dh": 2,
-      "wPct": -51.1
-    },
-    {
-      "text": "KA",
-      "sel": "span.inline-flex.size-[24px].items-center",
-      "dx": -3.3,
-      "dy": -371.1,
-      "dh": 1,
-      "wPct": -4.7
-    },
-    {
-      "text": "Kofi A.",
-      "sel": "span.max-md:sr-only.font-sans.font-semibold",
-      "dx": -1,
-      "dy": -371.1,
-      "dh": -5,
-      "wPct": 5.9
-    },
-    {
-      "text": "New Chat",
-      "sel": "button.pointer-events-auto.inline-flex.items-center",
-      "dx": 3.8,
-      "dy": -370.7,
-      "dh": -2,
-      "wPct": 44.9
-    },
-    {
-      "text": "· 0% profile complete · auto-saved",
-      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
-      "dx": 0,
-      "dy": -370.2,
-      "dh": -2,
-      "wPct": 8
-    },
-    {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": -354.1,
-      "dh": 2.2,
-      "wPct": 3.1
     },
     {
       "text": "Completion: 48%",
       "sel": "span#_r_5_-skills-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 282.7,
+      "dy": 650.7,
       "dh": 2,
       "wPct": 5.8
     },
@@ -113,7 +57,7 @@
       "text": "Skills (Competencies)",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 282.2,
+      "dy": 650.2,
       "dh": 3,
       "wPct": 2.7
     },
@@ -121,7 +65,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 282.2,
+      "dy": 650.2,
       "dh": 3,
       "wPct": 6.8
     },
@@ -129,7 +73,7 @@
       "text": "Certifications",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 282.2,
+      "dy": 650.2,
       "dh": 3,
       "wPct": 2.6
     },
@@ -137,7 +81,7 @@
       "text": "Career Pitch",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": 0.1,
-      "dy": 277.7,
+      "dy": 645.7,
       "dh": 3,
       "wPct": 3.9
     },
@@ -145,7 +89,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 143.7,
+      "dy": 511.7,
       "dh": 2,
       "wPct": 7.4
     },
@@ -153,7 +97,15 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 143.7,
+      "dy": 511.7,
+      "dh": 2,
+      "wPct": 7.4
+    },
+    {
+      "text": "Completion: Not Started",
+      "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
+      "dx": -2,
+      "dy": 368.2,
       "dh": 2,
       "wPct": 7.4
     },
@@ -161,9 +113,65 @@
       "text": "Emma",
       "sel": "span.font-sans.text-[10px].max-lg:sr-only",
       "dx": 0.9,
-      "dy": -14.2,
+      "dy": -41.7,
       "dh": 1,
       "wPct": 0.9
+    },
+    {
+      "text": "[Auto]",
+      "sel": "p.text-[12px].leading-normal.text-[#595959]",
+      "dx": -0.4,
+      "dy": -39.2,
+      "dh": 2,
+      "wPct": -51.1
+    },
+    {
+      "text": "Open Chat",
+      "sel": "span.block",
+      "dx": -0.4,
+      "dy": -35.2,
+      "dh": 2,
+      "wPct": 5
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -10.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
+      "text": "New Chat",
+      "sel": "button.pointer-events-auto.inline-flex.items-center",
+      "dx": 3.8,
+      "dy": -2.7,
+      "dh": -2,
+      "wPct": 44.9
+    },
+    {
+      "text": "KA",
+      "sel": "span.inline-flex.size-[24px].items-center",
+      "dx": -3.3,
+      "dy": -3.1,
+      "dh": 1,
+      "wPct": -4.7
+    },
+    {
+      "text": "Kofi A.",
+      "sel": "span.max-md:sr-only.font-sans.font-semibold",
+      "dx": -1,
+      "dy": -3.1,
+      "dh": -5,
+      "wPct": 5.9
+    },
+    {
+      "text": "· 0% profile complete · auto-saved",
+      "sel": "span.shrink-0.whitespace-nowrap.pl-3",
+      "dx": 0,
+      "dy": -2.2,
+      "dh": -2,
+      "wPct": 8
     }
   ],
   "fontMetric": [
@@ -171,7 +179,7 @@
       "text": "Avatar",
       "sel": "span.font-sans.text-[14px].leading-[24px]",
       "dx": -1348.1,
-      "dy": -368.2,
+      "dy": -0.2,
       "dh": -1,
       "wPct": 15.9,
       "severe": true
@@ -180,7 +188,7 @@
       "text": "· 0% profile complete · auto-saved",
       "sel": "span.shrink-0.whitespace-nowrap.pl-3",
       "dx": 0,
-      "dy": -370.2,
+      "dy": -2.2,
       "dh": -2,
       "wPct": 8,
       "severe": false
@@ -189,7 +197,7 @@
       "text": "[Auto]",
       "sel": "p.text-[12px].leading-normal.text-[#595959]",
       "dx": -0.4,
-      "dy": -427.2,
+      "dy": -39.2,
       "dh": 2,
       "wPct": -51.1,
       "severe": true
@@ -198,7 +206,7 @@
       "text": "New Chat",
       "sel": "button.pointer-events-auto.inline-flex.items-center",
       "dx": 3.8,
-      "dy": -370.7,
+      "dy": -2.7,
       "dh": -2,
       "wPct": 44.9,
       "severe": true
@@ -207,7 +215,7 @@
       "text": "Project Portfolio",
       "sel": "span.whitespace-nowrap.text-[20px].font-medium",
       "dx": -0.5,
-      "dy": 282.2,
+      "dy": 650.2,
       "dh": 3,
       "wPct": 6.8,
       "severe": false
@@ -216,7 +224,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-work-experience-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 143.7,
+      "dy": 511.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -225,7 +233,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-project-portfolio-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -0.5,
-      "dy": 143.7,
+      "dy": 511.7,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -234,7 +242,7 @@
       "text": "Completion: Not Started",
       "sel": "span#_r_5_-certifications-status.whitespace-nowrap.text-[14px].leading-[17px]",
       "dx": -2,
-      "dy": 0.2,
+      "dy": 368.2,
       "dh": 2,
       "wPct": 7.4,
       "severe": false
@@ -251,7 +259,7 @@
       },
       "app": {
         "x": 0,
-        "y": -146.2,
+        "y": 221.8,
         "w": 1112,
         "h": 894.2,
         "sel": "div.relative.flex-1.min-h-0"
@@ -266,7 +274,7 @@
       },
       "app": {
         "x": 1112,
-        "y": -146.2,
+        "y": 221.8,
         "w": 616,
         "h": 894.2,
         "sel": "aside.relative.flex.flex-col"
@@ -281,10 +289,10 @@
       },
       "app": {
         "x": 0,
-        "y": -227.2,
+        "y": 51,
         "w": 1728,
-        "h": 81,
-        "sel": "div.shrink-0.h-[clamp(60px,4.46vw,77px)].flex"
+        "h": 89.8,
+        "sel": "div.shrink-0.h-[clamp(64px,5.2vw,90px)].flex"
       }
     }
   },

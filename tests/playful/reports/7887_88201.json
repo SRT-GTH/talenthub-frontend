@@ -176,7 +176,7 @@
     {
       "text": "20",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149.8,
+      "dx": -150.2,
       "dy": 31.2,
       "dh": 2,
       "wPct": -1.1
@@ -184,7 +184,7 @@
     {
       "text": "6",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149.6,
+      "dx": -150,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6
@@ -192,39 +192,47 @@
     {
       "text": "27",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149.5,
+      "dx": -149.9,
       "dy": 31.2,
       "dh": 2,
       "wPct": 5.1
     },
     {
-      "text": "13",
-      "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149,
-      "dy": 31.2,
-      "dh": 2,
-      "wPct": 12.1
-    },
-    {
       "text": "26",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -148.6,
+      "dx": -149.5,
       "dy": 31.2,
       "dh": 2,
       "wPct": -1.1
     },
     {
+      "text": "13",
+      "sel": "button.pf-ov-focus.flex.size-[22px]",
+      "dx": -149.4,
+      "dy": 31.2,
+      "dh": 2,
+      "wPct": 12.1
+    },
+    {
       "text": "5",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -148.4,
+      "dx": -149.3,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6
     },
     {
+      "text": "25",
+      "sel": "button.pf-ov-focus.flex.size-[22px]",
+      "dx": -148.8,
+      "dy": 31.2,
+      "dh": 2,
+      "wPct": -1.1
+    },
+    {
       "text": "12",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.8,
+      "dx": -148.7,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1
@@ -232,23 +240,15 @@
     {
       "text": "19",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.8,
+      "dx": -148.7,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1
     },
     {
-      "text": "25",
-      "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.5,
-      "dy": 31.2,
-      "dh": 2,
-      "wPct": -1.1
-    },
-    {
       "text": "4",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.3,
+      "dx": -148.6,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6
@@ -256,7 +256,7 @@
     {
       "text": "18",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -146.7,
+      "dx": -148,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1
@@ -264,7 +264,7 @@
     {
       "text": "11",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -145.7,
+      "dx": -147,
       "dy": 31.2,
       "dh": 2,
       "wPct": 29.3
@@ -312,7 +312,7 @@
     {
       "text": "29",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 111.3,
+      "dx": 111.7,
       "dy": 0.2,
       "dh": 2,
       "wPct": -1.1
@@ -320,7 +320,7 @@
     {
       "text": "8",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 111,
+      "dx": 111.5,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6
@@ -328,7 +328,7 @@
     {
       "text": "22",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 110.9,
+      "dx": 111.4,
       "dy": 0.2,
       "dh": 2,
       "wPct": 5.1
@@ -336,7 +336,7 @@
     {
       "text": "1",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 110.6,
+      "dx": 111.1,
       "dy": 0.2,
       "dh": 2,
       "wPct": 20.1
@@ -344,7 +344,7 @@
     {
       "text": "15",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 110.4,
+      "dx": 110.9,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1
@@ -352,7 +352,7 @@
     {
       "text": "23",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 108.6,
+      "dx": 109.5,
       "dy": 0.2,
       "dh": 2,
       "wPct": -1.1
@@ -360,7 +360,7 @@
     {
       "text": "30",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 108.6,
+      "dx": 109.5,
       "dy": 0.2,
       "dh": 2,
       "wPct": -1.1
@@ -368,7 +368,7 @@
     {
       "text": "2",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 108.5,
+      "dx": 109.4,
       "dy": 0.2,
       "dh": 2,
       "wPct": 5.1
@@ -376,7 +376,7 @@
     {
       "text": "9",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 108.4,
+      "dx": 109.3,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6
@@ -384,7 +384,7 @@
     {
       "text": "16",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 107.8,
+      "dx": 108.7,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1
@@ -392,7 +392,7 @@
     {
       "text": "24",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 106,
+      "dx": 107.3,
       "dy": 0.2,
       "dh": 2,
       "wPct": -1.1
@@ -400,7 +400,7 @@
     {
       "text": "3",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 105.8,
+      "dx": 107,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6
@@ -408,7 +408,7 @@
     {
       "text": "10",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 105.2,
+      "dx": 106.4,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1
@@ -416,7 +416,7 @@
     {
       "text": "17",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 103.2,
+      "dx": 104.4,
       "dy": -0.8,
       "dh": 5,
       "wPct": 29.3
@@ -486,6 +486,14 @@
       "wPct": 7.4
     },
     {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -34.1,
+      "dh": 2.2,
+      "wPct": 3.1
+    },
+    {
       "text": "Step 1 of 9 ·",
       "sel": "span.shrink-0.whitespace-nowrap.font-sans",
       "dx": -3,
@@ -542,17 +550,9 @@
       "wPct": 7.1
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": -10.1,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
       "text": "Sa",
       "sel": "span",
-      "dx": -6.4,
+      "dx": -5.1,
       "dy": 0.2,
       "dh": 2,
       "wPct": 0.8
@@ -560,7 +560,7 @@
     {
       "text": "Su",
       "sel": "span",
-      "dx": 6.2,
+      "dx": 4.9,
       "dy": 0.2,
       "dh": 2,
       "wPct": -2.6
@@ -568,7 +568,7 @@
     {
       "text": "Fr",
       "sel": "span",
-      "dx": -5.1,
+      "dx": -4.3,
       "dy": 0.2,
       "dh": 2,
       "wPct": -2.4
@@ -576,7 +576,7 @@
     {
       "text": "Th",
       "sel": "span",
-      "dx": -4.1,
+      "dx": -3.7,
       "dy": 0.2,
       "dh": 2,
       "wPct": -0.2
@@ -584,7 +584,7 @@
     {
       "text": "Mo",
       "sel": "span",
-      "dx": 3.7,
+      "dx": 2.8,
       "dy": 0.2,
       "dh": 2,
       "wPct": -0.7
@@ -673,7 +673,7 @@
     },
     {
       "text": "Select a date when you'd like to resume your profile plannin",
-      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.leading-[1.5]",
+      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.text-[#575755]",
       "dx": -1,
       "dy": -0.8,
       "dh": -2,
@@ -701,7 +701,7 @@
     {
       "text": "1",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 110.6,
+      "dx": 111.1,
       "dy": 0.2,
       "dh": 2,
       "wPct": 20.1,
@@ -710,7 +710,7 @@
     {
       "text": "8",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 111,
+      "dx": 111.5,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6,
@@ -719,7 +719,7 @@
     {
       "text": "15",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 110.4,
+      "dx": 110.9,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1,
@@ -728,7 +728,7 @@
     {
       "text": "9",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 108.4,
+      "dx": 109.3,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6,
@@ -737,7 +737,7 @@
     {
       "text": "16",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 107.8,
+      "dx": 108.7,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1,
@@ -755,7 +755,7 @@
     {
       "text": "3",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 105.8,
+      "dx": 107,
       "dy": 0.2,
       "dh": 2,
       "wPct": -6.6,
@@ -764,7 +764,7 @@
     {
       "text": "10",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 105.2,
+      "dx": 106.4,
       "dy": 0.2,
       "dh": 2,
       "wPct": 12.1,
@@ -773,7 +773,7 @@
     {
       "text": "17",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": 103.2,
+      "dx": 104.4,
       "dy": -0.8,
       "dh": 5,
       "wPct": 29.3,
@@ -782,7 +782,7 @@
     {
       "text": "4",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.3,
+      "dx": -148.6,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6,
@@ -791,7 +791,7 @@
     {
       "text": "11",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -145.7,
+      "dx": -147,
       "dy": 31.2,
       "dh": 2,
       "wPct": 29.3,
@@ -800,7 +800,7 @@
     {
       "text": "18",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -146.7,
+      "dx": -148,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1,
@@ -809,7 +809,7 @@
     {
       "text": "5",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -148.4,
+      "dx": -149.3,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6,
@@ -818,7 +818,7 @@
     {
       "text": "12",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.8,
+      "dx": -148.7,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1,
@@ -827,7 +827,7 @@
     {
       "text": "19",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -147.8,
+      "dx": -148.7,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1,
@@ -836,7 +836,7 @@
     {
       "text": "6",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149.6,
+      "dx": -150,
       "dy": 31.2,
       "dh": 2,
       "wPct": -6.6,
@@ -845,7 +845,7 @@
     {
       "text": "13",
       "sel": "button.pf-ov-focus.flex.size-[22px]",
-      "dx": -149,
+      "dx": -149.4,
       "dy": 31.2,
       "dh": 2,
       "wPct": 12.1,

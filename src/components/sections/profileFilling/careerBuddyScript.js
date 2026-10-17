@@ -1027,11 +1027,16 @@ export const CAREER_BUDDY_NODES = {
  * Playful is active, so Focused copy and the script itself stay untouched.
  */
 const PLAYFUL_COPY_REPLACEMENTS = [
-  [/^👋 Nicely done!/, 'Nicely done!'],
-  [/options below👇/g, 'options below'],
-  [/confirmed ✅/g, 'confirmed'],
-  [/^Great 👌/, 'Great'],
-  [/^(That's a strong result), \S+?👋/, '$1, Andrew'],
+  // Figma's Playful frames render no emoji in chat copy.
+  [/from onboarding ✅/, 'from onboarding.'],
+  [/\s*(?:✅|🌟|🎉|👋|👌|👇)️?/gu, ''],
+  [/^\s+/, ''],
+  [/^(That's a strong result), \S+?$/m, '$1, Andrew'],
+  // Figma uses typographic apostrophes in these lines.
+  [/That's great! So your educational interests/, 'That’s great! So your educational interests'],
+  [/review what I've gathered/i, (m) => m.replace("'", '’')],
+  [/I've recorded that/, 'I’ve recorded that'],
+  [/I've attached it/, 'I’ve attached it'],
 ];
 
 export const toPlayfulCopy = (text) =>

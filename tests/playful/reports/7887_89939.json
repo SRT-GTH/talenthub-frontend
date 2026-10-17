@@ -5,8 +5,8 @@
   "width": 1728,
   "offset": {
     "fixed": 52,
-    "medianDy": -2.2,
-    "derived": 54.2
+    "medianDy": -2.1,
+    "derived": 54.1
   },
   "offsetUsed": 54,
   "counts": {
@@ -102,18 +102,10 @@
       "wPct": 7.4
     },
     {
-      "text": "+20 XP PER SECTION",
-      "sel": "span.absolute.right-[3px].top-[5px]",
-      "dx": -0.5,
-      "dy": 16.9,
-      "dh": 2.2,
-      "wPct": 3.1
-    },
-    {
       "text": "Sol",
       "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
       "dx": 11.2,
-      "dy": -0.2,
+      "dy": 0,
       "dh": -2,
       "wPct": -1.6
     },
@@ -121,7 +113,7 @@
       "text": "Cancel",
       "sel": "span.max-sm:hidden",
       "dx": 0.3,
-      "dy": 9.3,
+      "dy": 9.5,
       "dh": -5,
       "wPct": -3.5
     },
@@ -129,7 +121,7 @@
       "text": "Bruce",
       "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
       "dx": -9.1,
-      "dy": -0.2,
+      "dy": 0,
       "dh": -2,
       "wPct": -0.6
     },
@@ -137,15 +129,23 @@
       "text": "Jovial and cheerful",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -0.5,
-      "dy": 7.3,
+      "dy": 7.5,
       "dh": 3,
       "wPct": 6.4
+    },
+    {
+      "text": "+20 XP PER SECTION",
+      "sel": "span.absolute.right-[3px].top-[5px]",
+      "dx": -0.5,
+      "dy": -7.1,
+      "dh": 2.2,
+      "wPct": 3.1
     },
     {
       "text": "Choose a voice",
       "sel": "h2#_r_4_.pf-ov-display.text-center.text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)]",
       "dx": -0.5,
-      "dy": -7,
+      "dy": -6.7,
       "dh": 0,
       "wPct": -56.3
     },
@@ -153,7 +153,7 @@
       "text": "Savvy ad relaxed",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": 6.5,
-      "dy": 2.8,
+      "dy": 3,
       "dh": 3,
       "wPct": 8.9
     },
@@ -161,7 +161,7 @@
       "text": "Calm and affirming",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -4.5,
-      "dy": 2.8,
+      "dy": 3,
       "dh": 3,
       "wPct": 7.6
     },
@@ -169,7 +169,7 @@
       "text": "Tali",
       "sel": "span.pf-ov-display.text-[clamp(1.125rem,1rem+0.5vw,1.375rem)].leading-[1.25]",
       "dx": -0.3,
-      "dy": 4.3,
+      "dy": 4.5,
       "dh": -2,
       "wPct": 0.9
     },
@@ -221,7 +221,7 @@
       "text": "Choose a voice",
       "sel": "h2#_r_4_.pf-ov-display.text-center.text-[clamp(1.5rem,1.1rem+0.9vw,1.8125rem)]",
       "dx": -0.5,
-      "dy": -7,
+      "dy": -6.7,
       "dh": 0,
       "wPct": -56.3,
       "severe": true
@@ -230,7 +230,7 @@
       "text": "Savvy ad relaxed",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": 6.5,
-      "dy": 2.8,
+      "dy": 3,
       "dh": 3,
       "wPct": 8.9,
       "severe": false
@@ -239,7 +239,7 @@
       "text": "Calm and affirming",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -4.5,
-      "dy": 2.8,
+      "dy": 3,
       "dh": 3,
       "wPct": 7.6,
       "severe": false
@@ -248,7 +248,7 @@
       "text": "Jovial and cheerful",
       "sel": "span.font-sans.text-[16px].leading-normal",
       "dx": -0.5,
-      "dy": 7.3,
+      "dy": 7.5,
       "dh": 3,
       "wPct": 6.4,
       "severe": false

@@ -465,8 +465,9 @@ const PlayfulOptOutModal = ({
         <p
           id={`${uid}-desc`}
           className={classNames(
-            'max-w-[432px] font-normal leading-[1.5] text-[#575755]',
-            isSchedule ? 'text-[14px]' : 'text-[16px]'
+            'max-w-[432px] font-normal text-[#575755]',
+            // Figma 7887:87870: 432x72 box = 3 lines at 24px; 14px puts "Before you" on line 1
+            isSchedule ? 'text-[14px] leading-[1.5]' : 'text-[14px] leading-[24px]'
           )}
         >
           {copy.body}

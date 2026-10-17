@@ -14,7 +14,7 @@
     "matched": 20,
     "unmatched": 7,
     "layoutMismatch": 19,
-    "fontMetric": 10,
+    "fontMetric": 9,
     "widthOver15": 2
   },
   "worstLayoutPx": 270.5,
@@ -151,11 +151,11 @@
     },
     {
       "text": "Before you leave, we'd like to know—do you have a time you'd",
-      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.leading-[1.5]",
+      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.text-[#575755]",
       "dx": -1,
-      "dy": 30.2,
-      "dh": -2,
-      "wPct": -6.4
+      "dy": 29.7,
+      "dh": -5,
+      "wPct": -3.6
     },
     {
       "text": "No, take me to dashboard",
@@ -172,13 +172,13 @@
       "dx": -1,
       "dy": 29.3,
       "dh": 1,
-      "wPct": 2
+      "wPct": 2.1
     },
     {
       "text": "+20 XP PER SECTION",
       "sel": "span.absolute.right-[3px].top-[5px]",
       "dx": -0.5,
-      "dy": 18.9,
+      "dy": -5.1,
       "dh": 2.2,
       "wPct": 3.1
     },
@@ -212,7 +212,7 @@
       "dx": -0.5,
       "dy": 2.8,
       "dh": 0,
-      "wPct": -0.6
+      "wPct": -0.5
     },
     {
       "text": "Lock in each section to level up your matches.",
@@ -302,15 +302,6 @@
       "dy": -68.7,
       "dh": 2,
       "wPct": 7.4,
-      "severe": false
-    },
-    {
-      "text": "Before you leave, we'd like to know—do you have a time you'd",
-      "sel": "p#_r_0_-desc.max-w-[432px].font-normal.leading-[1.5]",
-      "dx": -1,
-      "dy": 30.2,
-      "dh": -2,
-      "wPct": -6.4,
       "severe": false
     },
     {

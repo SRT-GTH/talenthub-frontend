@@ -33,7 +33,7 @@
         "x": 142,
         "y": 791
       },
-      "closestDom": "Perfect, Emma — I've recorded that. Just to confirm, kindly cross-check on your "
+      "closestDom": "Perfect, Emma — I’ve recorded that. Just to confirm, kindly cross-check on your "
     },
     {
       "text": "Button → Save & exit",
@@ -242,7 +242,6 @@
     "skipped": "no REST node JSON cached (npm run audit:figma:fetch)"
   },
   "consoleErrors": [],
-  "shot": "tests\\playful\\shots\\7873_60736-app.png",
   "imageDiff": {
     "skipped": "no Figma PNG in tests/playful/figma-images (Figma REST API blocked/not fetched)"
   }
