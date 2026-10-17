@@ -140,6 +140,8 @@ const PracticeReviewCard = ({ review }) => {
 
   const mock = review.mode === 'mock';
   const partial = !review.completed || review.answered < review.total;
+  // Every answer unscored (grader unavailable): no fake 0/100.
+  const noneScored = items.every((it) => it.ungraded);
 
   return (
     <div
@@ -165,7 +167,7 @@ const PracticeReviewCard = ({ review }) => {
               scoreTone(review.overall)
             )}
           >
-            {review.overall}
+            {noneScored ? '\u2014' : review.overall}
             <span className="text-[16px] text-[#8a8a8a]">/100</span>
           </span>
           {review.verdict && (
