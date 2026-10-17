@@ -275,6 +275,17 @@ export function savedStageData(p, extras = {}) {
  * this conversation's live state - in progress, or awaiting review with the
  * pending card's fields (Modify / Confirm).
  */
+/**
+ * Personality completion against the tests the backend requires
+ * (2026-10-17: PERSONALITY_ASSESSMENTS). { done, total } or null when the
+ * backend didn't say which tests are required.
+ */
+export function personalityProgress(results = [], required = null) {
+  if (!Array.isArray(required) || required.length === 0) return null;
+  const taken = new Set(results.map((r) => r?.assessmentType).filter(Boolean));
+  return { done: required.filter((t) => taken.has(t)).length, total: required.length };
+}
+
 export function buildPanelStages(baseStages, profile, live = {}, extras = {}) {
   const saved = savedStageData(profile, extras);
   return baseStages
@@ -292,6 +303,25 @@ export function buildPanelStages(baseStages, profile, live = {}, extras = {}) {
           fields: pending.fields.map((f) => ({ key: f.key, label: f.label, value: f.value })),
           entries: undefined,
           readOnly: false,
+        };
+      }
+      // Personality is complete only when every required test is taken - a
+      // newly enabled test shows as in progress until the talent takes it.
+      const req = s.id === 'personality' ? extras.personalityProgress : null;
+      if (req && req.total > 0) {
+        const pct = Math.round((req.done / req.total) * 100);
+        return {
+          ...s,
+          status:
+            liveState === 'in-progress' || (req.done > 0 && req.done < req.total)
+              ? 'in-progress'
+              : req.done >= req.total
+                ? 'done'
+                : 'not-started',
+          completionPct: pct,
+          fields: data?.fields,
+          entries: data?.entries,
+          readOnly: true,
         };
       }
       return {
@@ -497,6 +527,7 @@ export function personalityFromResults(results = []) {
     if (bars.length)
       out.riasec = [...(code ? [{ label: 'Career-interest code', value: code }] : []), ...bars];
   }
-  if (latest.mbti?.mbtiType) out.mbti = [{ label: 'MBTI type', value: latest.mbti.mbtiType }];
+  if (latest.mbti?.mbtiType)
+    out.mbti = [{ label: 'Personality type', value: latest.mbti.mbtiType }];
   return out;
 }

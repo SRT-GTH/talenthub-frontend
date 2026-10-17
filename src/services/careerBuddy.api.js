@@ -182,7 +182,13 @@ export const fetchAssessmentResults = async (entityId) => {
       params: { pageSize: 50 },
     });
     const rows = data?.rows || data?.data?.rows || [];
-    return Array.isArray(rows) ? rows : [];
+    // required: the assessments the backend expects (PERSONALITY_ASSESSMENTS
+    // + the career-interest quiz). Older backends don't send it.
+    const required = data?.required || data?.data?.required || null;
+    return {
+      rows: Array.isArray(rows) ? rows : [],
+      required: Array.isArray(required) ? required : null,
+    };
   } catch (err) {
     log.error('assessment results failed', err?.message);
     return null;
