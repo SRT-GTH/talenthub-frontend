@@ -10,10 +10,12 @@ import { TALENT_PROFILE } from './talentShellData.js';
 const log = debug('TalentPublicProfileCard');
 
 /* "Recruiter view link" card — Figma 7740:11313 (Playful, with LIVE sticker) / 8097:4868 (Focused). */
-const TalentPublicProfileCard = ({ className }) => (
+const TalentPublicProfileCard = ({ className, shelf = true }) => (
   <div
     className={classNames(
-      'relative flex w-full shrink-0 flex-col items-start gap-[10px] rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px] playful:rounded-[20px] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]',
+      'relative flex w-full shrink-0 flex-col items-start gap-[10px] rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px]',
+      shelf &&
+        'playful:rounded-[20px] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]',
       className
     )}
   >
@@ -34,16 +36,18 @@ const TalentPublicProfileCard = ({ className }) => (
       <span className="whitespace-nowrap">Preview as recruiter</span>
       <TalentSidebarPreviewArrowUpRightIcon className="size-[20px] shrink-0" />
     </button>
-    {/* genz:sticker · LIVE (8262:3154) — Playful only */}
-    <span
-      aria-hidden="true"
-      className="absolute -top-[17px] right-[4px] hidden -rotate-6 items-center gap-[4px] overflow-hidden rounded-[8px] border-[1.2px] border-solid border-[#1c2a21] bg-[#ffd86b] px-[8px] py-[3px] shadow-[2px_2px_0_#1c2a21] playful:flex"
-    >
-      <TalentSidebarLiveStickerDot className="size-[6px] shrink-0" />
-      <span className="font-sans text-[10px] font-bold leading-[normal] tracking-[0.6px] text-[#1c2a21]">
-        LIVE
+    {/* genz:sticker · LIVE (8262:3154) — Playful shelf frames only (absent from complete/top) */}
+    {shelf && (
+      <span
+        aria-hidden="true"
+        className="absolute -top-[17px] right-[4px] hidden -rotate-6 items-center gap-[4px] overflow-hidden rounded-[8px] border-[1.2px] border-solid border-[#1c2a21] bg-[#ffd86b] px-[8px] py-[3px] shadow-[2px_2px_0_#1c2a21] playful:flex"
+      >
+        <TalentSidebarLiveStickerDot className="size-[6px] shrink-0" />
+        <span className="font-sans text-[10px] font-bold leading-[normal] tracking-[0.6px] text-[#1c2a21]">
+          LIVE
+        </span>
       </span>
-    </span>
+    )}
   </div>
 );
 

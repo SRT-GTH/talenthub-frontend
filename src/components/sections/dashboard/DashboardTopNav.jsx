@@ -13,7 +13,7 @@ import {
   TalentNavStreakPlayfulFigureIcon,
 } from '../../shared/assets.jsx';
 import StyleSwitch from '../../ui/StyleSwitch.jsx';
-import { getTalentNavData } from '../talentHome/talentShellData.js';
+import { getTalentNavData, getTalentSidebarData } from '../talentHome/talentShellData.js';
 import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
 
 const log = debug('DashboardTopNav');
@@ -63,6 +63,8 @@ const NavIconButton = ({ src, label, badge, onClick, className }) => (
  */
 const DashboardTopNav = ({ className, talentHome }) => {
   const isTalent = Boolean(talentHome);
+  // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
+  const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
   const nav = isTalent ? { ...TOP_NAV, ...getTalentNavData(talentHome.stateKey) } : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
   // button that opens DashboardSearchSheet instead.
@@ -152,8 +154,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
 
           <span
             className={classNames(
-              'inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] bg-accent-light px-[12px] py-[8px] max-md:py-[2px]',
-              isTalent && 'playful:bg-[#faf4e8]'
+              'inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] px-[12px] py-[8px] max-md:py-[2px]',
+              isTalent ? 'bg-[#faf4e8]' : 'bg-accent-light'
             )}
           >
             <CommunityIcon
@@ -166,8 +168,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
             )}
             <span
               className={classNames(
-                'font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-accent',
-                isTalent && 'playful:text-[#c8951a]'
+                'font-sans text-[14px] font-semibold leading-6 tracking-[0.1px]',
+                isTalent ? 'text-[#c8951a]' : 'text-accent'
               )}
             >
               {nav.streakCount}
@@ -236,7 +238,9 @@ const DashboardTopNav = ({ className, talentHome }) => {
             className={classNames(
               'relative size-[24px] shrink-0 overflow-hidden rounded-[12px]',
               isTalent &&
-                'bg-[linear-gradient(135deg,#387440_14.637%,#84cc16_85.349%)] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]'
+                (talentFlat
+                  ? 'bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#84cc16_85.349%)]'
+                  : 'bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]')
             )}
             style={
               isTalent

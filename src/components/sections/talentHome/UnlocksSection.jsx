@@ -14,9 +14,13 @@ import {
   TalentHomeUnlockChatIcon,
   TalentHomeUnlockSearchIcon,
   TalentHomeUnlockTargetIcon,
+  AddCardPersonalityLightbulbIcon,
+  AddCardProfileCompletenessChartIcon,
+  AddCardVerifiedSkillsShieldIcon,
 } from '../../shared/assets.jsx';
 import { Bar, CARD_DASHED, CARD_SOFT, Chip, HEAD, Photo } from './coreUi.jsx';
-import { CORE_CONTENT, UNLOCKS } from './talentHomeCoreData.js';
+import { CORE_CONTENT, HERO, JOURNEY_COPY, UNLOCKS } from './talentHomeCoreData.js';
+import { PERSONALITY, SKILLS_EVIDENCE } from './talentHomeTabsData.js';
 import { HomeCardChrome } from './EditHomePanel.jsx';
 import { useHomeLayout } from './TabsHomeLayoutStore.js';
 
@@ -81,10 +85,12 @@ const MoreCard = ({ icon, title, link, children }) => (
       <h3 className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">{title}</h3>
     </div>
     {children}
-    <span className="mt-[2px] inline-flex w-fit items-center gap-[4px] text-[13px] leading-[normal] font-semibold text-[#387440]">
-      {link}
-      <TalentHomeArrowRightGreenSmallIcon className="size-[14px]" />
-    </span>
+    {link ? (
+      <span className="mt-[2px] inline-flex w-fit items-center gap-[4px] text-[13px] leading-[normal] font-semibold text-[#387440]">
+        {link}
+        <TalentHomeArrowRightGreenSmallIcon className="size-[14px]" />
+      </span>
+    ) : null}
   </article>
 );
 
@@ -144,6 +150,41 @@ const MoreForYou = ({ more, editing }) => {
           ))}
         </span>
         <Row a={more.community.row[0]} b={more.community.row[1]} />
+      </MoreCard>
+    ),
+    // Cards added from the Edit-home tray. Figma has no card frames for these; they reuse the
+    // sibling "More for you" shell with strings/values already drawn elsewhere (hero stat,
+    // MyAssessment, journey-complete card). See wiki/talent-home.md.
+    'verified-skills': (
+      <MoreCard
+        icon={<AddCardVerifiedSkillsShieldIcon className="size-[17px]" />}
+        title={HERO.complete.stats[3].label}
+        link={SKILLS_EVIDENCE.manage}
+      >
+        <Row a={SKILLS_EVIDENCE.count} b={HERO.complete.stats[3].note} />
+      </MoreCard>
+    ),
+    personality: (
+      <MoreCard
+        icon={<AddCardPersonalityLightbulbIcon className="size-[17px]" />}
+        title={PERSONALITY.title}
+      >
+        <Chip tone="green" className="w-fit">
+          {PERSONALITY.status}
+        </Chip>
+        <Row a={`${PERSONALITY.lead}${PERSONALITY.type}`} b={PERSONALITY.sub} />
+      </MoreCard>
+    ),
+    'profile-completeness': (
+      <MoreCard
+        icon={<AddCardProfileCompletenessChartIcon className="size-[17px]" />}
+        title={layout.cards.find((c) => c.id === 'profile-completeness').label}
+      >
+        <Bar pct={100} height={8} to="playful:to-[#84cc16]" />
+        <Row
+          a={JOURNEY_COPY.complete.sticker}
+          b={JOURNEY_COPY.complete.title.map(([t]) => t).join('')}
+        />
       </MoreCard>
     ),
     badges: (

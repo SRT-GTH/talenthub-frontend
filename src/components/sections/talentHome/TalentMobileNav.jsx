@@ -190,7 +190,7 @@ const TalentMobileNav = ({ home, className }) => {
           </nav>
 
           <StyleSwitch className="self-start" />
-          <TalentPublicProfileCard />
+          <TalentPublicProfileCard shelf={!data.flat} />
         </div>
       </Modal>
     </>

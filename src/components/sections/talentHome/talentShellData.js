@@ -72,15 +72,19 @@ const DISCOVERABLE = {
   streak: '3',
 };
 
+/* `flat`: Playful complete/top frames (7756:182929, 7740:11537) draw the Focused layout with lime accents. */
 const TOP = {
+  flat: true,
   chip: 'Verified',
   status: 'Open to opportunities',
   /* XP variant: the progress block reads "Level 5 · Standout / 1,240 XP / 260 XP to Level 6 →" */
   journey: {
     label: 'Level 5 · Standout',
-    count: '1,240 XP',
+    count: '1,240 pts',
+    countPlayful: '1,240 XP',
     percent: 82.8,
-    caption: '260 XP to Level 6 →',
+    caption: '260 pts to Level 6 →',
+    captionPlayful: '260 XP to Level 6 →',
     xp: true,
   },
   stats: [
