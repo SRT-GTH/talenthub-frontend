@@ -77,6 +77,8 @@ export function turnToBubbles(turn) {
       'Check the details in your profile panel, then tap Confirm - or Modify to change something.';
   }
   if (turn?.report) cur.report = turn.report;
+  // 2026-10-17 (practice interview Phase B): the review card.
+  if (turn?.practiceReview?.items?.length) cur.practiceReview = turn.practiceReview;
   const last = bubbles[bubbles.length - 1];
   last.meta = meta;
   last.showActions = true;
@@ -95,6 +97,22 @@ export const fileBubble = (file) => ({
 });
 
 export const localBotBubble = (text) => ({ ...tidy(newBubble()), text });
+
+/**
+ * Read-aloud text for the voice call: "(2/5)" -> "Question 2 of 5.",
+ * no list dashes or markdown symbols.
+ */
+export const speakable = (text) =>
+  String(text || '')
+    .replace(/\((\d+)\/(\d+)\)/g, 'Question $1 of $2.')
+    .replace(/^\s*[-\u2022]\s+/gm, '')
+    .replace(/[*_#>]/g, '');
+
+/** True while a practice / mock interview is waiting for an answer (its Stop chip is showing). */
+export const isPracticeTurn = (turn) =>
+  (turn?.chipActions || []).some((c) =>
+    (c.slots || []).some((s) => s.name === 'practice_interview' && s.value === 'stop')
+  );
 
 /** The chipAction to send for a tapped label (null = send as plain text). */
 export const chipActionFor = (label, chipActions = []) =>

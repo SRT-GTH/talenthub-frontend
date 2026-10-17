@@ -12,6 +12,7 @@ import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
 import VoiceCallOverlay from './VoiceCallOverlay.jsx';
 import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import AssessmentReportCard from './AssessmentReportCard.jsx';
+import PracticeReviewCard from './PracticeReviewCard.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -53,6 +54,8 @@ import {
   fileBubble,
   localBotBubble,
   chipActionFor,
+  speakable,
+  isPracticeTurn,
   stageForSection,
   buildPanelStages,
   changedCardFields,
@@ -192,7 +195,7 @@ const speak = (text, voiceId, onEnd) => {
     return;
   }
   synth.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/[*_#>]/g, ''));
+  const u = new SpeechSynthesisUtterance(speakable(text));
   const t = VOICE_TUNING[voiceId] || VOICE_TUNING.tali;
   u.rate = t.rate;
   u.pitch = t.pitch;
@@ -238,6 +241,9 @@ const CareerBuddyLiveSection = () => {
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
   const [speaking, setSpeaking] = useState(false);
+  // 2026-10-17: a practice / mock interview is waiting for an answer - the
+  // voice call waits longer before sending (people pause mid-answer).
+  const [practiceActive, setPracticeActive] = useState(false);
   const [optOutOpen, setOptOutOpen] = useState(false);
   const [personality, setPersonality] = useState(() =>
     entityId ? readJson(PERSONALITY_KEY(entityId), null) : null
@@ -328,7 +334,10 @@ const CareerBuddyLiveSection = () => {
   );
 
   const runTurn = useCallback(
-    async (text, { chipAction = null, showUser = true, autoText = null } = {}) => {
+    async (
+      text,
+      { chipAction = null, showUser = true, autoText = null, inputMode = null } = {}
+    ) => {
       if (!entityId || busy) return;
       lastTurnRef.current = { text, chipAction };
       setBusy(true);
@@ -339,7 +348,8 @@ const CareerBuddyLiveSection = () => {
         chipActions: [],
       }));
       try {
-        const turn = await sendTurn({ entityId, message: text, history, chipAction });
+        const turn = await sendTurn({ entityId, message: text, history, chipAction, inputMode });
+        setPracticeActive(isPracticeTurn(turn));
         log('turn', {
           routedTo: turn.routedTo,
           reason: turn.routeReason,
@@ -596,6 +606,9 @@ const CareerBuddyLiveSection = () => {
         ),
       };
     }
+    if (m.practiceReview) {
+      out = { ...out, content: <PracticeReviewCard review={m.practiceReview} /> };
+    }
     if (m.reviewSection) {
       const stage = stageForSection(m.reviewSection);
       out = {
@@ -749,7 +762,8 @@ const CareerBuddyLiveSection = () => {
               open={voiceCallOpen && !voiceSettingsOpen}
               voiceId={voiceId}
               userName={me.name}
-              onUtterance={(text) => runTurn(text)}
+              onUtterance={(text) => runTurn(text, { inputMode: 'voice' })}
+              pauseMs={practiceActive ? 3500 : 1500}
               paused={busy || speaking}
               status={
                 busy ? 'Career Buddy is thinking…' : speaking ? 'Career Buddy is speaking…' : ''
