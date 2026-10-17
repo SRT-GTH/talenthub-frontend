@@ -43,6 +43,7 @@ import {
 } from '../../../services/careerBuddy.api.js';
 import {
   personalityFromResults,
+  personalityProgress,
   threadFromSession,
   sessionMatchesThread,
   sessionGroups,
@@ -241,6 +242,7 @@ const CareerBuddyLiveSection = () => {
   const [personality, setPersonality] = useState(() =>
     entityId ? readJson(PERSONALITY_KEY(entityId), null) : null
   );
+  const [personalityReq, setPersonalityReq] = useState(null);
   const lastTurnRef = useRef(null);
   const openedRef = useRef(false);
   const voiceOpenRef = useRef(false);
@@ -263,8 +265,10 @@ const CareerBuddyLiveSection = () => {
       log.error('profile refresh failed', err?.message);
     }
     // Personality rows come from the saved assessment results (any device).
-    const results = entityId ? await fetchAssessmentResults(entityId) : null;
-    if (results) {
+    const res = entityId ? await fetchAssessmentResults(entityId) : null;
+    if (res) {
+      const results = res.rows;
+      setPersonalityReq(personalityProgress(results, res.required));
       const fromServer = personalityFromResults(results);
       setPersonality((prev) => {
         const next = { ...(prev || {}), ...fromServer };
@@ -545,8 +549,11 @@ const CareerBuddyLiveSection = () => {
           ]
         : null,
     };
-    return buildPanelStages(BASE_STAGES, profile, live, extras);
-  }, [profile, live, personality]);
+    return buildPanelStages(BASE_STAGES, profile, live, {
+      ...extras,
+      personalityProgress: personalityReq,
+    });
+  }, [profile, live, personality, personalityReq]);
   const pct =
     typeof profile?.profileCompletion === 'number' ? Math.round(profile.profileCompletion) : 0;
   const trailIndex = useMemo(() => {
