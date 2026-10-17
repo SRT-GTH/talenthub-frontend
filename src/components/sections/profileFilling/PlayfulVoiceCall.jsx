@@ -5,6 +5,7 @@ import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
 import useVoiceCapture from '../../../hooks/useVoiceCapture.js';
+import useUtteranceSender, { DEFAULT_PAUSE_MS } from '../../../hooks/useUtteranceSender.js';
 import usePlayfulOverlayA11y, { usePlayfulPaneReach } from '../../ui/PlayfulOverlayA11y.js';
 import { getVoiceById } from './careerBuddyVoices.js';
 import { ChatMicIcon, ChatSettingsSlidersIcon, ChatVoiceCloseIcon } from '../../shared/assets.jsx';
@@ -21,15 +22,35 @@ const log = debug('PlayfulVoiceCall');
  * a11y: inert background + focus trap + Esc ends the call; state changes
  * (started / muted / unmuted / mic unavailable) go through a polite live region;
  * the speaking pulse is dropped under prefers-reduced-motion.
+ *
+ * 2026-10-17: live like Focused - with onUtterance, speech is transcribed and
+ * sent as a turn after a pause (pauseMs; longer during a practice interview);
+ * paused holds the mic while Career Buddy thinks or speaks; status shows under
+ * the name. Without onUtterance it stays the demo.
  */
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-const PlayfulVoiceCall = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSettings }) => {
+const PlayfulVoiceCall = ({
+  open,
+  voiceId,
+  userName = 'Emma',
+  onHangUp,
+  onOpenSettings,
+  onUtterance,
+  paused = false,
+  status,
+  pauseMs = DEFAULT_PAUSE_MS,
+}) => {
   const [muted, setMutedLocal] = useState(false);
   const [announce, setAnnounce] = useState('');
   const rootRef = useRef(null);
-  const { level, setMuted, active, error } = useVoiceCapture({ enabled: open, listen: false });
+  const live = typeof onUtterance === 'function';
+  const { level, setMuted, active, error, transcript } = useVoiceCapture({
+    enabled: open && !(live && paused),
+    listen: live,
+  });
+  useUtteranceSender({ live, open, paused, muted, transcript, onUtterance, pauseMs });
 
   const voice = getVoiceById(voiceId);
   const reach = usePlayfulPaneReach(rootRef, open);
@@ -89,6 +110,14 @@ const PlayfulVoiceCall = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
           <p className="font-sans text-[clamp(1.5rem,1.2rem+1vw,2rem)] font-medium leading-normal text-[#1c2a21]">
             {voice.callLabel}
           </p>
+          {live && (
+            <p
+              className="max-w-[420px] px-4 text-center font-sans text-[15px] text-[#595959]"
+              aria-live="polite"
+            >
+              {status || (paused ? '' : transcript || 'Listening\u2026')}
+            </p>
+          )}
         </div>
 
         <div className="mt-[clamp(1rem,2.3vw,2.5rem)] flex items-center gap-[22px]">

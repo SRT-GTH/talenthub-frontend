@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
@@ -7,6 +7,7 @@ import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
 import useVoiceCapture from '../../../hooks/useVoiceCapture.js';
+import useUtteranceSender, { DEFAULT_PAUSE_MS } from '../../../hooks/useUtteranceSender.js';
 import { getVoiceById } from './careerBuddyVoices.js';
 import { ChatMicIcon, ChatSettingsSlidersIcon, ChatVoiceCloseIcon } from '../../shared/assets.jsx';
 
@@ -23,8 +24,9 @@ const log = debug('VoiceCallOverlay');
  * caller (which sends it as a turn and speaks the reply). paused stops the
  * mic while Career Buddy is thinking or speaking; status is shown under
  * the name. Without onUtterance it behaves exactly as before (demo).
+ * pauseMs (2026-10-17): silence before a turn is sent - longer during a
+ * practice interview.
  */
-const PAUSE_MS = 1500;
 
 const FocusedVoiceCallOverlay = ({
   open,
@@ -35,6 +37,7 @@ const FocusedVoiceCallOverlay = ({
   onUtterance,
   paused = false,
   status,
+  pauseMs = DEFAULT_PAUSE_MS,
 }) => {
   const [muted, setMutedLocal] = useState(false);
   const live = typeof onUtterance === 'function';
@@ -42,23 +45,7 @@ const FocusedVoiceCallOverlay = ({
     enabled: open && !(live && paused),
     listen: live,
   });
-  const sentRef = useRef('');
-
-  useEffect(() => {
-    if (!live || !open || paused || muted) return undefined;
-    const text = (transcript || '').trim();
-    if (!text || text === sentRef.current) return undefined;
-    const timer = setTimeout(() => {
-      sentRef.current = text;
-      log('branch', { utterance: text.length });
-      onUtterance(text);
-    }, PAUSE_MS);
-    return () => clearTimeout(timer);
-  }, [live, open, paused, muted, transcript, onUtterance]);
-
-  useEffect(() => {
-    if (paused) sentRef.current = '';
-  }, [paused]);
+  useUtteranceSender({ live, open, paused, muted, transcript, onUtterance, pauseMs });
 
   useEffect(() => {
     if (open) {

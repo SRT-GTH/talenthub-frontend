@@ -66,7 +66,7 @@ export class AgentError extends Error {
  * Send one turn. `history` is the client-side transcript ({role, content}[]),
  * oldest first, NOT including `message`.
  */
-export const sendTurn = async ({ entityId, message, history = [], chipAction }) => {
+export const sendTurn = async ({ entityId, message, history = [], chipAction, inputMode }) => {
   const body = {
     resourceId: entityId,
     inputData: {
@@ -74,6 +74,8 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction }) 
       message,
       history,
       ...(chipAction ? { chipAction } : {}),
+      // 2026-10-17: 'voice' when the turn came from the live voice call.
+      ...(inputMode ? { inputMode } : {}),
     },
   };
   log('turn ->', { message, chipAction: chipAction?.label, historyLen: history.length });
