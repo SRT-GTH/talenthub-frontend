@@ -105,9 +105,20 @@ const STAGE_ROUTES = {
 
 // Playful progress block (Figma 7873:50517): same copy/logic as
 // EngagementProgressIndicator, but the track carries a 1px ink border.
-const PlayfulProgress = ({ currentIndex, totalSteps, label, completionPct }) => {
+const PlayfulProgress = ({
+  currentIndex,
+  totalSteps,
+  label,
+  completionPct,
+  trackPct: trackPctOverride,
+}) => {
   const safeIndex = Math.max(0, Math.min(currentIndex, totalSteps - 1));
-  const trackPct = Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
+  // trackPct (optional) fills the bar by real completion - same contract as
+  // EngagementProgressIndicator - so the bar agrees with the % in the label.
+  const trackPct =
+    typeof trackPctOverride === 'number'
+      ? Math.max(0, Math.min(100, trackPctOverride))
+      : Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
   return (
     <div className="flex w-full flex-col gap-[4px]">
       <div className="flex items-center justify-between">
@@ -368,6 +379,7 @@ const EngagementTopBar = ({
             totalSteps={stages.length}
             label={currentStage?.trailLabel || currentStage?.title}
             completionPct={completionPct}
+            trackPct={trackPct}
           />
         ) : (
           <EngagementProgressIndicator

@@ -59,7 +59,7 @@ const CareerBuddyHistoryDrawer = ({ open, onClose, groups, onSelect, activeId })
             type="button"
             onClick={onClose}
             aria-label="Close history"
-            className="text-content-tertiary hover:text-brand-green max-lg:-ml-3 max-lg:inline-flex max-lg:size-11 max-lg:items-center max-lg:justify-center playful:text-[#777] playful:hover:text-[#1c2a21] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
+            className="text-content-tertiary hover:text-brand-green max-lg:-ml-3 max-lg:inline-flex max-lg:size-11 max-lg:items-center max-lg:justify-center playful:text-[#777] playful:hover:text-[#1c2a21] playful:hover:shadow-[0_4px_12.7px_rgba(254,254,254,0.65)] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
           >
             {/* Playful: » (Figma mynaui:chevron-double-right, 24px #777) */}
             <ChevronDoubleLeftIcon className="size-4 playful:size-6 playful:rotate-180" />
