@@ -22,13 +22,19 @@ const EngagementProgressIndicator = ({
   currentStepLabel,
   completionPct = 0,
   autoSaved = true,
+  trackPct: trackPctOverride,
   className,
 }) => {
   const safeIndex = Math.max(0, Math.min(currentIndex, totalSteps - 1));
   // Bar reflects "you've reached step N of total" → fill = N/total.
   // Step 1 → 11%, Step 5 → 56%, Step 9 → 100%. completionPct is the
   // separate "profile strength" percentage shown in the label.
-  const trackPct = Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
+  // trackPct (optional) lets a caller fill the bar by real completion instead
+  // (live Career Buddy: completed stages / total).
+  const trackPct =
+    typeof trackPctOverride === 'number'
+      ? Math.max(0, Math.min(100, trackPctOverride))
+      : Math.min(100, ((safeIndex + 1) / totalSteps) * 100);
 
   return (
     <div className={classNames('w-full flex flex-col gap-[4px]', className)}>

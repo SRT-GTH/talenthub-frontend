@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -15,13 +15,48 @@ const log = debug('VoiceCallOverlay');
  * AI: CareerBuddyVoiceAvatar (5146:76042 — no badge fill).
  * User: AvatarPreview badgeBg="voice" (5146:76040 radial #387440).
  * Controls reuse Button icon/ghost-icon (hover gradient from design system).
+ *
+ * 2026-10-16 (live Career Buddy): pass onUtterance(text) to make the call
+ * real - speech is transcribed and, after a short pause, handed to the
+ * caller (which sends it as a turn and speaks the reply). paused stops the
+ * mic while Career Buddy is thinking or speaking; status is shown under
+ * the name. Without onUtterance it behaves exactly as before (demo).
  */
-const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSettings }) => {
+const PAUSE_MS = 1500;
+
+const VoiceCallOverlay = ({
+  open,
+  voiceId,
+  userName = 'Emma',
+  onHangUp,
+  onOpenSettings,
+  onUtterance,
+  paused = false,
+  status,
+}) => {
   const [muted, setMutedLocal] = useState(false);
-  const { level, setMuted, active, error } = useVoiceCapture({
-    enabled: open,
-    listen: false,
+  const live = typeof onUtterance === 'function';
+  const { level, setMuted, active, error, transcript } = useVoiceCapture({
+    enabled: open && !(live && paused),
+    listen: live,
   });
+  const sentRef = useRef('');
+
+  useEffect(() => {
+    if (!live || !open || paused || muted) return undefined;
+    const text = (transcript || '').trim();
+    if (!text || text === sentRef.current) return undefined;
+    const timer = setTimeout(() => {
+      sentRef.current = text;
+      log('branch', { utterance: text.length });
+      onUtterance(text);
+    }, PAUSE_MS);
+    return () => clearTimeout(timer);
+  }, [live, open, paused, muted, transcript, onUtterance]);
+
+  useEffect(() => {
+    if (paused) sentRef.current = '';
+  }, [paused]);
 
   useEffect(() => {
     if (open) {
@@ -62,6 +97,14 @@ const VoiceCallOverlay = ({ open, voiceId, userName = 'Emma', onHangUp, onOpenSe
           <p className="font-sans text-[clamp(1.5rem,2.5vw,2rem)] font-medium leading-none tracking-[0.02em] text-[#111]">
             {voice.callLabel}
           </p>
+          {live && (
+            <p
+              className="max-w-[420px] px-4 text-center font-sans text-[15px] text-[#595959]"
+              aria-live="polite"
+            >
+              {status || (paused ? '' : transcript || 'Listening…')}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-[22px]">
