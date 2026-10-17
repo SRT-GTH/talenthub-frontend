@@ -79,6 +79,7 @@ const IdentityMapPage = () => {
   const handleChatWithAi = () => {
     log('entry method: chat with AI');
     closeEntryModal();
+    navigate('/profile/filling/career-buddy');
   };
   const handleUploadCv = () => {
     log('entry method: upload CV');

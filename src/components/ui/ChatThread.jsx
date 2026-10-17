@@ -116,6 +116,8 @@ const log = debug('ChatThread');
  *                    (recruiter KYB / job JD upload); default false (decorative only)
  *   onAttach         ({name,size,sizeLabel}) => void — called with selected file metadata
  *   onAttachRejected (name: string) => void — called when selected file exceeds 10 MB
+ *   onFeedback       (message, rating: 'up'|'down'|null) => void — thumbs changed (live mode persists it)
+ *   onRegenerate     (message) => void — the retry icon on a bot message
  *                    (same KYB-style "File too large" toast in CareerBuddySection)
  */
 
@@ -139,7 +141,7 @@ const UserAvatar = ({ src, size = 48 }) =>
 const ACTION_BTN =
   'max-lg:relative max-lg:inline-flex max-lg:size-8 max-lg:items-center max-lg:justify-center max-lg:after:absolute max-lg:after:-inset-1';
 
-const MessageBubble = ({ message, onRetry, onSelectOption }) => {
+const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
   // Phones/tablets: smaller avatars + no persona caption (the left/right
   // alignment already says who spoke); >= lg keeps the Figma 48px column.
   const avatarSize = useIsDesktop() ? 48 : 32;
@@ -147,7 +149,18 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
   const isBot = message.sender === 'bot';
   const versions = message.versions ?? (message.text ? [message.text] : []);
   const [versionIndex, setVersionIndex] = useState(message.versionIndex ?? versions.length - 1);
-  const [feedback, setFeedback] = useState(null); // 'up' | 'down' | null — real toggle state, not persisted
+  // 'up' | 'down' | null. Live Career Buddy persists it via onFeedback (2026-10-16).
+  const [feedback, setFeedbackState] = useState(message.feedback ?? null);
+  // Side effect OUTSIDE the state updater: calling the parent's setState from
+  // inside setFeedbackState's updater triggered React's "Cannot update a
+  // component while rendering a different component" warning, and StrictMode
+  // double-invokes updaters (double feedback POST). 2026-10-17.
+  const setFeedback = (update) => {
+    const next = typeof update === 'function' ? update(feedback) : update;
+    if (next === feedback) return;
+    setFeedbackState(next);
+    onFeedback?.(message, next);
+  };
   const activeText = versions[versionIndex] ?? message.text;
   const hasMultipleVersions = versions.length > 1;
 
@@ -223,6 +236,8 @@ const MessageBubble = ({ message, onRetry, onSelectOption }) => {
                 </ul>
               )}
               {message.followUp && <p className="mt-1">{message.followUp}</p>}
+              {/* Rich content under the text (live report widget, 2026-10-16). */}
+              {message.content}
             </div>
             {message.linkButton && (
               // Figma 5166:48026 — px 8 / py 5 / gap 3 / 13.5px Regular /
@@ -393,6 +408,8 @@ const ChatThread = ({
   enableAttach = false,
   onAttach,
   onAttachRejected,
+  onFeedback,
+  onRegenerate,
   className,
 }) => {
   const playful = usePlayfulScope();
@@ -718,7 +735,13 @@ const ChatThread = ({
           }`}
         >
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} onSelectOption={onSelectOption} />
+            <MessageBubble
+              key={message.id}
+              message={message}
+              onSelectOption={onSelectOption}
+              onRetry={onRegenerate ? () => onRegenerate(message) : undefined}
+              onFeedback={onFeedback}
+            />
           ))}
         </div>
       </div>

@@ -94,6 +94,7 @@ const ProfileEngagementPage = () => {
   const handleChatWithAi = () => {
     log('entry method: chat with AI');
     closeEntryModal();
+    navigate('/profile/filling/career-buddy');
   };
 
   const handleUploadCv = () => {

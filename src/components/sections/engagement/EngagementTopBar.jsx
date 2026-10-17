@@ -151,6 +151,13 @@ const EngagementTopBar = ({
   completionPct = 0,
   stages = PROFILE_STAGES,
   interactive = true,
+  // Optional real per-stage state ({ [stageId]: 'completed' | 'not-started' }).
+  // Without it, every stage before the current one reads as completed (the
+  // scripted wizard). Live Career Buddy passes it so the trail matches the
+  // Talent Profile Panel instead of a position.
+  stageStatuses,
+  trackPct,
+  progressWidthClass = 'w-[323px]',
   className,
 }) => {
   const { uiStyle } = useUiStyle();
@@ -222,8 +229,10 @@ const EngagementTopBar = ({
         >
           {stages.map((stage, index) => {
             const isCurrent = index === currentStageIndex;
-            const isCompleted = index < currentStageIndex;
-            const isFuture = index > currentStageIndex;
+            const isCompleted = stageStatuses
+              ? !isCurrent && stageStatuses[stage.id] === 'completed'
+              : index < currentStageIndex;
+            const isFuture = !isCurrent && !isCompleted;
             const route = STAGE_ROUTES[stage.id];
             // In interactive mode (the default, used by the multi-page profile-
             // filling wizard) a stage without a registered route is skipped.
@@ -347,7 +356,12 @@ const EngagementTopBar = ({
       </div>
 
       {/* Right: step counter + progress bar, right-aligned (items-end in flex-col) */}
-      <div className="w-[323px] shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden playful:w-auto playful:min-w-[323px]">
+      <div
+        className={classNames(
+          progressWidthClass,
+          'shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden pl-4 playful:w-auto playful:min-w-[323px]'
+        )}
+      >
         {isPlayful ? (
           <PlayfulProgress
             currentIndex={currentStageIndex}
@@ -361,6 +375,7 @@ const EngagementTopBar = ({
             totalSteps={stages.length}
             currentStepLabel={currentStage?.trailLabel || currentStage?.title}
             completionPct={completionPct}
+            trackPct={trackPct}
           />
         )}
       </div>
@@ -385,12 +400,18 @@ const EngagementTopBar = ({
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={Math.round(((currentStageIndex + 1) / stages.length) * 100)}
+          aria-valuenow={Math.round(
+            typeof trackPct === 'number'
+              ? trackPct
+              : ((currentStageIndex + 1) / stages.length) * 100
+          )}
           aria-label="Profile engagement progress"
         >
           <div
             className="h-full rounded-pill bg-brand-green"
-            style={{ width: `${Math.min(100, ((currentStageIndex + 1) / stages.length) * 100)}%` }}
+            style={{
+              width: `${Math.min(100, typeof trackPct === 'number' ? trackPct : ((currentStageIndex + 1) / stages.length) * 100)}%`,
+            }}
           />
         </div>
       </div>

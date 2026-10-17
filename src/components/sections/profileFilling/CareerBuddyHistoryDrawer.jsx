@@ -25,9 +25,15 @@ const ChevronDoubleLeftIcon = ({ className }) => (
  * Renders CHAT_HISTORY_GROUPS verbatim, grouped by date. Presentational
  * only — entries are inert in this slice (no navigation back into old
  * conversations yet, since there's no real chat persistence).
+ *
+ * 2026-10-16 (live Career Buddy): optional groups ({ label, entries:
+ * Array<string | { id, label }> }[]) + onSelect(entry) + activeId render
+ * the talent's real saved conversations; without them the canned Figma
+ * groups render as before (scripted demo unchanged).
  */
-const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
-  log('render', { open });
+const CareerBuddyHistoryDrawer = ({ open, onClose, groups, onSelect, activeId }) => {
+  log('render', { open, live: Boolean(groups) });
+  const shown = groups ?? CHAT_HISTORY_GROUPS;
 
   return (
     <div
@@ -64,22 +70,40 @@ const CareerBuddyHistoryDrawer = ({ open, onClose }) => {
         </h3>
 
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 pb-4 flex flex-col gap-4 playful:px-[22px] playful:pb-[22px] playful:gap-5">
-          {CHAT_HISTORY_GROUPS.map((group) => (
+          {shown.length === 0 && (
+            <p className="font-sans text-[12px] text-content-tertiary">
+              No earlier conversations yet.
+            </p>
+          )}
+          {shown.map((group) => (
             <div key={group.label} className="flex flex-col gap-1 playful:gap-3">
               <span className="font-sans text-[10px] max-lg:text-[12px] font-medium text-content-tertiary uppercase tracking-wide playful:flex playful:items-center playful:gap-[6px] playful:text-[12px] playful:font-normal playful:normal-case playful:tracking-normal playful:text-[#999] playful:after:block playful:after:h-px playful:after:flex-1 playful:after:bg-[#999] playful:after:content-['']">
                 {group.label}
               </span>
               <div className="flex flex-col border-t border-border-default playful:gap-1 playful:border-t-0">
-                {group.entries.map((entry) => (
-                  <button
-                    key={entry}
-                    type="button"
-                    onClick={() => log('branch', { historyEntryClicked: entry })}
-                    className="text-left font-sans text-[12px] text-content-primary py-2 border-b border-border-default hover:text-brand-green max-lg:min-h-11 max-lg:text-[14px] playful:rounded-[8px] playful:border playful:border-transparent playful:px-[14px] playful:py-[9px] playful:text-[14px] playful:text-[#1c2a21] playful:hover:border-[rgba(89,89,89,0.15)] playful:hover:bg-[rgba(28,42,33,0.04)] playful:hover:text-[#1c2a21] playful:hover:shadow-[0_4px_12.7px_rgba(254,254,254,0.65)] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
-                  >
-                    {entry}
-                  </button>
-                ))}
+                {group.entries.map((entry) => {
+                  const id = typeof entry === 'string' ? entry : entry.id;
+                  const label = typeof entry === 'string' ? entry : entry.label;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-current={id === activeId ? 'true' : undefined}
+                      onClick={() => {
+                        log('branch', { historyEntryClicked: id });
+                        onSelect?.(entry);
+                      }}
+                      className={classNames(
+                        'text-left font-sans text-[12px] py-2 border-b border-border-default hover:text-brand-green max-lg:min-h-11 max-lg:text-[14px] playful:rounded-[8px] playful:border playful:border-transparent playful:px-[14px] playful:py-[9px] playful:text-[14px] playful:hover:border-[rgba(89,89,89,0.15)] playful:hover:bg-[rgba(28,42,33,0.04)] playful:hover:text-[#1c2a21] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]',
+                        id === activeId
+                          ? 'text-brand-green font-medium'
+                          : 'text-content-primary playful:text-[#1c2a21]'
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}

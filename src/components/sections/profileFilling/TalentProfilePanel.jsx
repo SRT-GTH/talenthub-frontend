@@ -117,7 +117,8 @@ const CheckBadgeIcon = ({ className }) => (
  * fabricating data that hasn't been collected.
  *
  * Props:
- *   stages       Array<{ id, panelLabel, completionPct, status, Icon, fields? }>
+ *   stages       Array<{ id, panelLabel, completionPct, status, Icon, fields?, entries?, readOnly? }>
+ *                readOnly (2026-10-16, live Career Buddy): saved data - shown without Modify/Confirm
  *                status: 'not-started' | 'in-progress' | 'awaiting-review' | 'done'
  *   expandedId   string | null
  *   onToggleExpand (id) => void
@@ -448,62 +449,64 @@ const TalentProfilePanel = ({
                         </button>
                       )}
 
-                      <div
-                        className={classNames(
-                          'flex w-full',
-                          isEditing ? 'justify-end' : 'items-center justify-end gap-4'
-                        )}
-                      >
-                        {isEditing ? (
-                          <Button
-                            variant="primary"
-                            size="md"
-                            className="h-[48px]"
-                            onClick={() => {
-                              log('branch', { update: stage.id });
-                              setEditingId(null);
-                            }}
-                          >
-                            Update
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              variant="tertiary"
-                              size="md"
-                              className="!rounded-[14px]"
-                              disabled={isConfirming}
-                              rightIcon={<PanelModifyIcon className="size-full" />}
-                              onClick={() => {
-                                log('branch', { modify: stage.id });
-                                setEditingId(stage.id);
-                                onModify?.(stage.id);
-                              }}
-                            >
-                              Modify
-                            </Button>
+                      {!stage.readOnly && (
+                        <div
+                          className={classNames(
+                            'flex w-full',
+                            isEditing ? 'justify-end' : 'items-center justify-end gap-4'
+                          )}
+                        >
+                          {isEditing ? (
                             <Button
                               variant="primary"
                               size="md"
                               className="h-[48px]"
-                              disabled={isConfirming}
-                              rightIcon={!isConfirming && <ArrowRightIcon />}
-                              onClick={() => onConfirm?.(stage.id, stage.entries)}
+                              onClick={() => {
+                                log('branch', { update: stage.id });
+                                setEditingId(null);
+                              }}
                             >
-                              {isConfirming ? (
-                                <span className="inline-flex items-center gap-2">
-                                  <LoadingSpinner stroke="white" /> Saving
-                                </span>
-                              ) : (
-                                'Confirm'
-                              )}
+                              Update
                             </Button>
-                          </>
-                        )}
-                      </div>
+                          ) : (
+                            <>
+                              <Button
+                                variant="tertiary"
+                                size="md"
+                                className="!rounded-[14px]"
+                                disabled={isConfirming}
+                                rightIcon={<PanelModifyIcon className="size-full" />}
+                                onClick={() => {
+                                  log('branch', { modify: stage.id });
+                                  setEditingId(stage.id);
+                                  onModify?.(stage.id);
+                                }}
+                              >
+                                Modify
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="md"
+                                className="h-[48px]"
+                                disabled={isConfirming}
+                                rightIcon={!isConfirming && <ArrowRightIcon />}
+                                onClick={() => onConfirm?.(stage.id, stage.entries)}
+                              >
+                                {isConfirming ? (
+                                  <span className="inline-flex items-center gap-2">
+                                    <LoadingSpinner stroke="white" /> Saving
+                                  </span>
+                                ) : (
+                                  'Confirm'
+                                )}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </>
                   ) : fields ? (
-                    isEditing ? (
+                    isEditing && !stage.readOnly ? (
                       <>
                         {/* edit-details (Figma 5132:47182) — editable boxes for
                             every field except Transcript, which stays a
@@ -587,38 +590,40 @@ const TalentProfilePanel = ({
                             </div>
                           ))}
                         </div>
-                        <div className="flex items-center justify-end gap-[16px] w-full">
-                          <Button
-                            variant="tertiary"
-                            size="md"
-                            className="!rounded-[14px]"
-                            disabled={isConfirming}
-                            rightIcon={<PanelModifyIcon className="size-full" />}
-                            onClick={() => {
-                              log('branch', { modify: stage.id });
-                              setEditingId(stage.id);
-                              onModify?.(stage.id);
-                            }}
-                          >
-                            Modify
-                          </Button>
-                          <Button
-                            variant="primary"
-                            size="md"
-                            className="h-[48px]"
-                            disabled={isConfirming}
-                            rightIcon={!isConfirming && <ArrowRightIcon />}
-                            onClick={() => onConfirm?.(stage.id, fields)}
-                          >
-                            {isConfirming ? (
-                              <span className="inline-flex items-center gap-2">
-                                <LoadingSpinner stroke="white" /> Saving
-                              </span>
-                            ) : (
-                              'Confirm'
-                            )}
-                          </Button>
-                        </div>
+                        {!stage.readOnly && (
+                          <div className="flex items-center justify-end gap-[16px] w-full">
+                            <Button
+                              variant="tertiary"
+                              size="md"
+                              className="!rounded-[14px]"
+                              disabled={isConfirming}
+                              rightIcon={<PanelModifyIcon className="size-full" />}
+                              onClick={() => {
+                                log('branch', { modify: stage.id });
+                                setEditingId(stage.id);
+                                onModify?.(stage.id);
+                              }}
+                            >
+                              Modify
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="md"
+                              className="h-[48px]"
+                              disabled={isConfirming}
+                              rightIcon={!isConfirming && <ArrowRightIcon />}
+                              onClick={() => onConfirm?.(stage.id, fields)}
+                            >
+                              {isConfirming ? (
+                                <span className="inline-flex items-center gap-2">
+                                  <LoadingSpinner stroke="white" /> Saving
+                                </span>
+                              ) : (
+                                'Confirm'
+                              )}
+                            </Button>
+                          </div>
+                        )}
                       </>
                     )
                   ) : stage.previewFields ? (
