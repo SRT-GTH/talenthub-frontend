@@ -7584,3 +7584,147 @@ export const SpinnerArcIcon = ({ className = '' }) => (
     />
   </svg>
 );
+
+// ---- Talent home · accessibility panel (A11Y-02, Figma 7752:3735) ----
+
+export const A11yContrastIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M14.6667 8C14.6667 11.6819 11.6819 14.6667 8 14.6667C4.3181 14.6667 1.33333 11.6819 1.33333 8C1.33333 4.3181 4.3181 1.33333 8 1.33333C11.6819 1.33333 14.6667 4.3181 14.6667 8Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M8 1.33333V14.6667C9.76811 14.6667 11.4638 13.9643 12.714 12.714C13.9643 11.4638 14.6667 9.76811 14.6667 8C14.6667 6.23189 13.9643 4.5362 12.714 3.28595C11.4638 2.03571 9.76811 1.33333 8 1.33333Z"
+      fill="#1C2A21"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const A11yTextSizeIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M2.66667 4.66667V2.66667H13.3333V4.66667"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M6 13.3333H10"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M8 2.66667V13.3333"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const A11yMotionIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M8.66667 1.33333L2 9.33333H8L7.33333 14.6667L14 6.66667H8L8.66667 1.33333Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const A11yLinkIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M6.66667 8.66667C6.95297 9.04942 7.31824 9.36612 7.7377 9.59529C8.15716 9.82446 8.621 9.96074 9.09777 9.99489C9.57453 10.029 10.0531 9.96024 10.5009 9.79319C10.9487 9.62613 11.3554 9.36471 11.6933 9.02667L13.6933 7.02667C14.3005 6.39799 14.6365 5.55599 14.6289 4.682C14.6213 3.80801 14.2708 2.97196 13.6527 2.35394C13.0347 1.73591 12.1987 1.38535 11.3247 1.37775C10.4507 1.37016 9.60867 1.70614 8.98 2.31333L7.83333 3.45333"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M9.33333 7.33333C9.04703 6.95058 8.68176 6.63388 8.2623 6.40471C7.84284 6.17554 7.37899 6.03926 6.90223 6.00511C6.42547 5.97097 5.94694 6.03976 5.4991 6.20681C5.05126 6.37387 4.64459 6.63529 4.30667 6.97333L2.30667 8.97333C1.69947 9.60201 1.36349 10.444 1.37109 11.318C1.37868 12.192 1.72924 13.028 2.34727 13.6461C2.9653 14.2641 3.80134 14.6147 4.67533 14.6222C5.54932 14.6298 6.39133 14.2939 7.02 13.6867L8.16 12.5467"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const A11yPanelCheckIcon = ({ className = '' }) => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M9.54094 3.12491C9.78262 3.32011 9.82029 3.67426 9.62509 3.91594L5.68759 8.79094C5.58506 8.91788 5.43247 8.99404 5.26939 8.99966C5.10632 9.00529 4.94883 8.93982 4.8378 8.82025L2.4003 6.19525C2.18891 5.9676 2.2021 5.61169 2.42975 5.4003C2.6574 5.18891 3.01331 5.2021 3.2247 5.42975L5.22038 7.57895L8.74991 3.20906C8.94511 2.96738 9.29926 2.92971 9.54094 3.12491Z"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="#1C2A21"
+    />
+  </svg>
+);
+
+export const A11yPanelSparkleIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M8 1L9.73333 6.26667L15 8L9.73333 9.73333L8 15L6.26667 9.73333L1 8L6.26667 6.26667L8 1Z"
+      fill="#FFD86B"
+      strokeWidth="0.933333"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);

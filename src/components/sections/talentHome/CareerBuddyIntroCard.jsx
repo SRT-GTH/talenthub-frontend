@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
-import careerBuddyTile from '../../../assets/talent-home/home/career-buddy-tile.png';
+import careerBuddyTile from '../../../assets/talent-home/career-buddy-robot.png';
 import { CARD_SOFT, Chip, CtaButton } from './coreUi.jsx';
 import HomeColumns from './HomeColumns.jsx';
 import { BUDDY_INTRO, CORE_CONTENT } from './talentHomeCoreData.js';

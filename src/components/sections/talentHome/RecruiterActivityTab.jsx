@@ -16,7 +16,7 @@ import Button from '../../ui/Button.jsx';
 import TalentHomeHero from './TalentHomeHero.jsx';
 import { CARD, LIFT, DISPLAY, Chip, Sticker, HomeTabs } from './TabsParts.jsx';
 import { RECRUITER_FEED, THIS_WEEK, VISIBILITY, BUDDY_TIP } from './talentHomeTabsData.js';
-import careerBuddy from '../../../assets/talent-home/tabs/career-buddy-avatar.png';
+import careerBuddy from '../../../assets/talent-home/career-buddy-robot.png';
 
 const log = debug('RecruiterActivityTab');
 

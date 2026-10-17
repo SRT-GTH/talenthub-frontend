@@ -44,6 +44,7 @@ export const AccentText = ({ parts, accent = 'text-[#387440]', base = 'text-[#1c
 // Sticker (Playful only, `genz:` layers in Figma): hidden in Focused.
 export const Sticker = ({ children, className, color = 'bg-[#ffd86b]', rotate = 'rotate-6' }) => (
   <span
+    data-sticker=""
     aria-hidden="true"
     className={classNames(
       'pointer-events-none absolute z-10 hidden playful:block',
@@ -68,6 +69,7 @@ export const Doodle = ({ icon, className }) => {
   const Star = icon;
   return (
     <span
+      data-doodle=""
       aria-hidden="true"
       className={classNames('pointer-events-none absolute hidden playful:block', className)}
     >
@@ -187,6 +189,7 @@ export const LinkLabel = ({ children, onClick, Icon }) => (
   <button
     type="button"
     onClick={onClick}
+    data-link=""
     className="inline-flex shrink-0 cursor-pointer items-center gap-[4px] text-[14px] font-semibold whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
   >
     {children}

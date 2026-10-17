@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
-import careerBuddyTile from '../../../assets/talent-home/home/career-buddy-tile.png';
+import careerBuddyTile from '../../../assets/talent-home/career-buddy-robot.png';
 import {
   TalentHomeActivityCheckCircleIcon,
   TalentHomeApplicationsSuitcaseIcon,
@@ -636,12 +636,12 @@ const HomeColumns = ({ home, content }) => {
           <MatchesCard data={content.matches} variant={variant} />
           <ApplicationsEmpty data={content.applications} />
         </div>
-        <div className="flex min-w-0 flex-col gap-[16px]">
+        <aside aria-label="For you" className="flex min-w-0 flex-col gap-[16px]">
           <BuddyCard data={content.buddy} />
           <StreakCard data={content.streak} />
           <ReadinessLocked data={content.readiness} />
           <WhoLooking data={content.looking} />
-        </div>
+        </aside>
       </div>
     );
   }
@@ -667,7 +667,9 @@ const HomeColumns = ({ home, content }) => {
   return (
     <div className="grid min-w-0 gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
       <div className="flex min-w-0 flex-col gap-[16px]">{column(LEFT_IDS)}</div>
-      <div className="flex min-w-0 flex-col gap-[16px]">{column(RIGHT_IDS)}</div>
+      <aside aria-label="For you" className="flex min-w-0 flex-col gap-[16px]">
+        {column(RIGHT_IDS)}
+      </aside>
     </div>
   );
 };

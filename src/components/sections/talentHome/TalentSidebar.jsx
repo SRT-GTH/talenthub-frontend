@@ -102,8 +102,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
 
   if (compact) {
     return (
-      <aside
-        aria-label="Talent navigation"
+      <div
         className={classNames(
           'flex w-[72px] shrink-0 flex-col items-center gap-[16px] overflow-y-auto bg-white px-[8px] py-[16px] playful:bg-transparent',
           className
@@ -136,13 +135,12 @@ const TalentSidebar = ({ home, compact = false, className }) => {
             <NavItem key={item.id} item={item} compact onSelect={select} />
           ))}
         </nav>
-      </aside>
+      </div>
     );
   }
 
   return (
-    <aside
-      aria-label="Talent navigation"
+    <div
       className={classNames(
         'flex w-[clamp(240px,17.53vw,303px)] shrink-0 flex-col items-center gap-[40px] overflow-y-auto bg-white py-[22px] playful:bg-transparent',
         className
@@ -252,7 +250,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
 
         <PublicProfileCard />
       </div>
-    </aside>
+    </div>
   );
 };
 

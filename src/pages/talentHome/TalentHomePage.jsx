@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
 import { ensurePlayfulFont } from '../../utils/ensurePlayfulFont.js';
 import DashboardShell from '../../components/sections/dashboard/DashboardShell.jsx';
@@ -37,6 +38,13 @@ const TalentHomePage = () => {
 
   useEffect(() => {
     ensurePlayfulFont();
+  }, []);
+
+  // Marks <html> while /home is mounted so talentA11y.css (focus ring, reduced motion) also
+  // covers portaled dialogs; removed on unmount so no other route is affected.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-talent-home', '');
+    return () => document.documentElement.removeAttribute('data-talent-home');
   }, []);
 
   useEffect(() => {

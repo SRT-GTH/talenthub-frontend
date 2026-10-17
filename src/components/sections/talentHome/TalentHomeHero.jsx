@@ -295,7 +295,13 @@ const TalentHomeHero = ({ home }) => {
   };
   const scrollToJourney = () => {
     log('scroll to journey');
-    document.getElementById('talent-home-journey')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('talent-home-journey')?.scrollIntoView({
+      behavior:
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        document.querySelector('[data-a11y-motion]')
+          ? 'auto'
+          : 'smooth',
+    });
   };
 
   if (copy.kind === 'welcome')

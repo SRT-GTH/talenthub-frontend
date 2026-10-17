@@ -1,5 +1,5 @@
 import { debug } from '../../../utils/debug.js';
-import fabBuddy from '../../../assets/talent-home/flows/ask-buddy-fab-robot.png';
+import fabBuddy from '../../../assets/talent-home/career-buddy-robot.png';
 
 const log = debug('AskBuddyFab');
 

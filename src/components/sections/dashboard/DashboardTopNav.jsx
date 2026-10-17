@@ -14,6 +14,7 @@ import {
 } from '../../shared/assets.jsx';
 import StyleSwitch from '../../ui/StyleSwitch.jsx';
 import { getTalentNavData } from '../talentHome/talentShellData.js';
+import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
 
 const log = debug('DashboardTopNav');
 
@@ -207,19 +208,18 @@ const DashboardTopNav = ({ className, talentHome }) => {
               <CommunityIcon src={icons.navCaret} size={14} />
             </button>
 
-            <button
-              type="button"
-              onClick={() =>
-                isTalent
-                  ? talentHome.update({ a11y: !talentHome.a11yMode })
-                  : handleAction('accessibility')
-              }
-              aria-label="Accessibility mode"
-              aria-pressed={isTalent ? Boolean(talentHome.a11yMode) : undefined}
-              className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-            >
-              <CommunityIcon src={icons.navAccessibility} size={20} />
-            </button>
+            {isTalent ? (
+              <TalentA11yMenu home={talentHome} />
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleAction('accessibility')}
+                aria-label="Accessibility mode"
+                className="inline-flex size-[38px] items-center justify-center overflow-hidden rounded-[99px] bg-[#f8fafc] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <CommunityIcon src={icons.navAccessibility} size={20} />
+              </button>
+            )}
           </div>
         </div>
 
