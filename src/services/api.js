@@ -23,14 +23,73 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response: log + surface errors. Refresh-token logic lands here when auth ships.
+// Response: log, and renew an expired access token once with the stored refresh
+// token (POST /auth/refresh-token -> { accessToken }), then retry the request.
+// Calls that fail together share one refresh. If the refresh itself fails the
+// session is over: tokens are cleared and the original 401 is passed on, so the
+// page can send the user to login.
+const NO_REFRESH = [
+  '/auth/login',
+  '/auth/verify-otp',
+  '/auth/resend-otp',
+  '/auth/refresh-token',
+  '/auth/register',
+];
+let refreshing = null;
+
+const refreshAccessToken = () => {
+  if (!refreshing) {
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.refreshToken);
+    refreshing = (
+      refreshToken
+        ? axios.post(`${baseURL}/auth/refresh-token`, { refreshToken }, { timeout: 15_000 })
+        : Promise.reject(new Error('No refresh token'))
+    )
+      .then(({ data }) => {
+        const token = data?.accessToken || data?.data?.accessToken;
+        if (!token) throw new Error('No access token in refresh response');
+        localStorage.setItem(STORAGE_KEYS.authToken, token);
+        log('access token renewed');
+        return token;
+      })
+      .catch((err) => {
+        log.error('refresh failed; session over:', err?.response?.status || err?.message);
+        localStorage.removeItem(STORAGE_KEYS.authToken);
+        localStorage.removeItem(STORAGE_KEYS.refreshToken);
+        throw err;
+      })
+      .finally(() => {
+        refreshing = null;
+      });
+  }
+  return refreshing;
+};
+
 api.interceptors.response.use(
   (response) => {
     log('←', response.status, response.config.url);
     return response;
   },
-  (error) => {
-    log.error('×', error.response?.status, error.config?.url, error.message);
+  async (error) => {
+    const { config, response } = error;
+    const url = config?.url || '';
+    const canRefresh =
+      response?.status === 401 &&
+      config &&
+      !config._retried &&
+      !NO_REFRESH.some((p) => url.includes(p)) &&
+      Boolean(localStorage.getItem(STORAGE_KEYS.refreshToken));
+    if (canRefresh) {
+      try {
+        const token = await refreshAccessToken();
+        config._retried = true;
+        config.headers = { ...config.headers, Authorization: `Bearer ${token}` };
+        return api(config);
+      } catch {
+        // fall through with the original 401
+      }
+    }
+    log.error('×', response?.status, url, error.message);
     return Promise.reject(error);
   }
 );
