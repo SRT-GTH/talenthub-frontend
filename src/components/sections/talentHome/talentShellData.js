@@ -99,12 +99,80 @@ const TOP = {
 
 const BY_STATE = { day1: DAY1, discoverable: DISCOVERABLE, complete: TOP, top: TOP };
 
-export const getTalentSidebarData = (stateKey = 'day1') => BY_STATE[stateKey] ?? DAY1;
+const STAGE_LABEL = {
+  avatar: 'Avatar',
+  interests: 'Interests',
+  personality: 'Personality',
+  skills: 'Skills',
+  work: 'Work',
+  portfolio: 'Portfolio',
+  certs: 'Certs',
+  goals: 'Goals',
+  pitch: 'Pitch',
+};
+const STATUS_BY_MILESTONE = {
+  none: (n) => `${n} of 9 stages complete`,
+  discoverable: (n) => `${n} of 9 · recruiters can find you`,
+  top_20: (n) => `${n} of 9 · Top 20%`,
+  top_talent: () => 'Profile complete · Top Talent',
+};
+
+/**
+ * Sidebar data. With `live` (useTalentHomeState().live, real /home data) the
+ * Figma demo numbers are replaced by real ones; numbers with no backend yet
+ * (views, streak, XP level) show "–".
+ */
+export const getTalentSidebarData = (stateKey = 'day1', live = null) => {
+  const base = BY_STATE[stateKey] ?? DAY1;
+  if (!live) return base;
+  const j = live.journey || { doneCount: 0, milestone: 'none', nextStage: 'avatar' };
+  const next = j.nextStage ? STAGE_LABEL[j.nextStage] : null;
+  const matches = live.matches?.total ?? 0;
+  return {
+    ...base,
+    status: (STATUS_BY_MILESTONE[j.milestone] || STATUS_BY_MILESTONE.none)(j.doneCount),
+    journey: {
+      label: 'Profile journey',
+      count: `${j.doneCount} of 9`,
+      done: j.doneCount,
+      caption: next ? `Continue: ${next} →` : 'View my profile →',
+    },
+    stats: [
+      { id: 'views', value: '–', label: 'Views' },
+      { id: 'matches', value: String(matches), label: 'Matches' },
+      { id: 'messages', value: '–', label: 'Messages' },
+      { id: 'skills', value: String(live.verifiedSkills ?? 0), label: 'Skills' },
+    ],
+    badges: matches ? { opportunities: String(matches) } : {},
+    streak: '–',
+  };
+};
+
+/** Name / headline for the sidebar and phone nav (real when `live` is given). */
+export const getTalentProfile = (live = null) => {
+  if (!live || !live.firstName) return TALENT_PROFILE;
+  const name = [live.firstName, live.lastName].filter(Boolean).join(' ');
+  return {
+    ...TALENT_PROFILE,
+    name,
+    headline: [live.targetCareer, live.city].filter(Boolean).join(' · ') || 'Talent',
+    url: '',
+    navName: `${live.firstName}${live.lastName ? ` ${live.lastName[0]}.` : ''}`,
+  };
+};
 
 /* Top nav counts (Nav 8315:461634: bell 5, messages 5; streak per state). */
-export const getTalentNavData = (stateKey = 'day1') => ({
-  streakCount: getTalentSidebarData(stateKey).streak,
-  notificationCount: '5',
-  messageCount: '5',
-  profileName: TALENT_PROFILE.navName,
-});
+export const getTalentNavData = (stateKey = 'day1', live = null) =>
+  live
+    ? {
+        streakCount: '–',
+        notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
+        messageCount: '',
+        profileName: getTalentProfile(live).navName,
+      }
+    : {
+        streakCount: getTalentSidebarData(stateKey).streak,
+        notificationCount: '5',
+        messageCount: '5',
+        profileName: TALENT_PROFILE.navName,
+      };

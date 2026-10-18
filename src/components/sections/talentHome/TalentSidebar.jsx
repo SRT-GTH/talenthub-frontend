@@ -8,7 +8,7 @@ import TalentNavIcon from './TalentNavIcon.jsx';
 import {
   TALENT_NAV_MAIN,
   TALENT_NAV_SECONDARY,
-  TALENT_PROFILE,
+  getTalentProfile,
   getTalentSidebarData,
 } from './talentShellData.js';
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
@@ -123,7 +123,8 @@ const avatarClass = (shelf) =>
 
 const TalentSidebar = ({ home, compact = false, className }) => {
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey);
+  const data = getTalentSidebarData(stateKey, home?.live);
+  const profile = getTalentProfile(home?.live);
   const { journey } = data;
   const shelf = !data.flat;
   const percent = journey.percent ?? ((journey.done ?? 0) / 9) * 100;
@@ -208,7 +209,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
         <div className="flex max-w-full flex-col items-center gap-[7px] px-[8px]">
           <div className="flex max-w-full items-center gap-[5px]">
             <p className="truncate font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#1c2a21]">
-              {TALENT_PROFILE.name}
+              {profile.name}
             </p>
             <span className="inline-flex h-[18px] shrink-0 items-center gap-[3px] overflow-hidden rounded-[4px] bg-[#eaeffb] py-[2px] pl-[6px] pr-[7px]">
               <TalentSidebarVerifiedChipIcon className="size-[8px] shrink-0" />
@@ -218,7 +219,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
             </span>
           </div>
           <p className="max-w-full truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
-            {TALENT_PROFILE.headline}
+            {profile.headline}
           </p>
           <div className="flex max-w-full items-center gap-[5px]">
             <span aria-hidden="true" className="size-[4px] shrink-0 rounded-full bg-[#387440]" />
@@ -315,7 +316,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
           </nav>
         </div>
 
-        <PublicProfileCard shelf={shelf} />
+        <PublicProfileCard url={profile.url} shelf={shelf} />
       </div>
     </div>
   );

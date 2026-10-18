@@ -246,8 +246,11 @@ const MoreForYou = ({ more, editing }) => {
 // Day 1: "What you unlock as you go". Discoverable: nothing. Complete / Top Talent: "More for you".
 const UnlocksSection = ({ home }) => {
   log('render', { state: home.stateKey });
-  if (home.stateKey === 'complete' || home.stateKey === 'top')
+  if (home.stateKey === 'complete' || home.stateKey === 'top') {
+    // Real data: "More for you" (learning, saved roles, badges...) is not wired yet.
+    if (home.live) return null;
     return <MoreForYou more={CORE_CONTENT[home.stateKey].more} editing={home.editOpen} />;
+  }
   if (home.stateKey !== 'day1') return null;
   return (
     <section aria-label="What you unlock as you go" className="flex flex-col gap-[16px]">

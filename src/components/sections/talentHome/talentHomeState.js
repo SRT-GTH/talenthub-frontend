@@ -1,12 +1,16 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { fetchTalentHome } from '../../../services/talentHome.api.js';
+import { buildLiveContent, stateKeyFor } from './talentHomeLive.js';
 
 const log = debug('talentHomeState');
 
 /*
- * Talent home — mock progress source (frontend-only; swap `getTalentHomeSnapshot`
- * for an API call later and keep the snapshot shape).
+ * Talent home — progress source. Since 2026-10-18 the page loads real data
+ * (services/talentHome.api.js -> talentHomeLive.js) and picks the home state
+ * from the real journey. An explicit `?state=` still shows the Figma demo state
+ * with mock content (design review), as below.
  *
  * Which Figma state renders is chosen with the URL, so every frame is reachable:
  *   /home                       -> day1
@@ -66,13 +70,83 @@ export const getTalentHomeSnapshot = (stateKey = 'day1') => {
   };
 };
 
+// Snapshot from the real journey (GET /api/profiles/journey).
+const liveSnapshot = (stateKey, data) => {
+  const j = data.journey;
+  const doneById = Object.fromEntries((j?.stages || []).map((s) => [s.id, s.done]));
+  // The stepper fills stages in order, so stages done = the leading run of done stages
+  // shown as doneCount; the real per-stage flags ride along as `done`.
+  const stages = JOURNEY_STAGES.map((s) => ({ ...s, done: Boolean(doneById[s.id]) }));
+  const doneCount = j?.doneCount ?? 0;
+  const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
+  return {
+    ...(SNAPSHOTS[stateKey] ?? SNAPSHOTS.day1),
+    doneCount,
+    profile: {
+      name,
+      firstName: data.firstName,
+      headline: [data.targetCareer, data.city].filter(Boolean).join(' · '),
+    },
+    stages,
+    currentStageIndex: Math.max(
+      0,
+      stages.findIndex((s) => !s.done)
+    ),
+    live: true,
+  };
+};
+
+const WELCOMED_KEY = 'th:home-welcomed';
+const welcomedAlready = () => {
+  try {
+    return localStorage.getItem(WELCOMED_KEY) === '1';
+  } catch {
+    return true;
+  }
+};
+
 const TABS = ['home', 'assessment', 'recruiter'];
 
 export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
-  const stateKey = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : 'day1';
+  const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
+  const [live, setLive] = useState(null); // null = loading, false = failed
+  useEffect(() => {
+    if (demoState) return undefined;
+    let alive = true;
+    fetchTalentHome()
+      .then((data) => {
+        if (!alive) return;
+        setLive(data);
+        // First visit after the first login: open the NU-01 welcome once (via the URL, so
+        // the existing welcome -> tour -> close flow works unchanged).
+        if (data.loginCount !== null && data.loginCount <= 1 && !welcomedAlready()) {
+          try {
+            localStorage.setItem(WELCOMED_KEY, '1');
+          } catch {
+            /* private mode: the welcome may show again */
+          }
+          setParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              if (!next.get('new')) next.set('new', 'welcome');
+              return next;
+            },
+            { replace: true }
+          );
+        }
+      })
+      .catch((err) => {
+        log.error('home data failed:', err?.message);
+        if (alive) setLive(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [demoState, setParams]);
+  const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
-  const loading = params.get('loading'); // null | '1' | 'empty' | 'error'
+  const loading = params.get('loading') || (!demoState && live === null ? '1' : null); // null | '1' | 'empty' | 'error'
   const newUser = params.get('new'); // null | welcome | tour | chat | gate
   const journeyMin = params.get('journey') === 'min';
   const searchOpen = params.get('search') === '1';
@@ -91,7 +165,9 @@ export const useTalentHomeState = () => {
       setParams(next, { replace: true });
     };
     return {
-      snapshot: getTalentHomeSnapshot(stateKey),
+      snapshot: live && !demoState ? liveSnapshot(stateKey, live) : getTalentHomeSnapshot(stateKey),
+      content: live && !demoState ? buildLiveContent(stateKey, live) : null,
+      live: !demoState && live ? live : null,
       stateKey,
       tab,
       loading,
@@ -105,6 +181,8 @@ export const useTalentHomeState = () => {
   }, [
     params,
     setParams,
+    live,
+    demoState,
     stateKey,
     tab,
     loading,
