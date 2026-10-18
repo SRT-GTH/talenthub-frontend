@@ -52,7 +52,12 @@ export const AboutCard = ({ go, readOnly = false }) => (
   >
     <div className="flex flex-col gap-[16px]">
       <p className="text-[15px] leading-[23px] text-[#595959]">{OVERVIEW_ABOUT.text}</p>
-      <div className="flex flex-wrap items-center gap-[8px]">
+      <div
+        className={classNames(
+          'flex flex-wrap items-center gap-[8px]',
+          OVERVIEW_ABOUT.vibe.length ? null : 'hidden'
+        )}
+      >
         <span className="text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#737373]">
           {OVERVIEW_ABOUT.vibeLabel}
         </span>
@@ -97,11 +102,15 @@ export const SkillsCard = ({ go, readOnly = false }) => (
     onEdit={readOnly ? undefined : () => go({ tab: 'skills' })}
     editLabel="Edit skills"
   >
-    <ul className="grid grid-cols-1 gap-[12px] @2xl:grid-cols-2">
-      {OVERVIEW_SKILLS.items.map((item) => (
-        <SkillCard key={item.key} item={item} />
-      ))}
-    </ul>
+    {OVERVIEW_SKILLS.items.length ? (
+      <ul className="grid grid-cols-1 gap-[12px] @2xl:grid-cols-2">
+        {OVERVIEW_SKILLS.items.map((item) => (
+          <SkillCard key={item.key} item={item} />
+        ))}
+      </ul>
+    ) : (
+      <p className="text-[14px] leading-[1.5] text-[#737373]">{OVERVIEW_SKILLS.empty}</p>
+    )}
   </ProfileCard>
 );
 
@@ -113,7 +122,15 @@ export const ExperienceCard = ({ go, readOnly = false }) => (
     onEdit={readOnly ? undefined : () => go({ tab: 'experience' })}
     editLabel="Edit experience"
   >
-    <ul className="flex flex-col gap-[16px]">
+    {OVERVIEW_EXPERIENCE.items.length ? null : (
+      <p className="text-[14px] leading-[1.5] text-[#737373]">{OVERVIEW_EXPERIENCE.empty}</p>
+    )}
+    <ul
+      className={classNames(
+        'flex flex-col gap-[16px]',
+        OVERVIEW_EXPERIENCE.items.length ? null : 'hidden'
+      )}
+    >
       {OVERVIEW_EXPERIENCE.items.map((exp, i) => {
         const Glyph = GLYPHS[exp.icon];
         return (
@@ -134,8 +151,15 @@ export const ExperienceCard = ({ go, readOnly = false }) => (
                 <p className="text-[13px] leading-[normal] whitespace-pre-wrap text-[#737373]">
                   {exp.meta}
                 </p>
-                <p className="text-[14px] leading-[normal] text-[#595959]">{exp.text}</p>
-                <div className="flex flex-wrap gap-[6px] pt-[6px]">
+                {exp.text ? (
+                  <p className="text-[14px] leading-[normal] text-[#595959]">{exp.text}</p>
+                ) : null}
+                <div
+                  className={classNames(
+                    'flex flex-wrap gap-[6px] pt-[6px]',
+                    exp.tags.length ? null : 'hidden'
+                  )}
+                >
                   {exp.tags.map((t) => (
                     <ProfileChip key={t}>{t}</ProfileChip>
                   ))}
@@ -176,11 +200,15 @@ export const PortfolioCard = ({ go, readOnly = false }) => (
     onEdit={readOnly ? undefined : () => go({ tab: 'portfolio' })}
     editLabel="Edit portfolio"
   >
-    <ul className="grid grid-cols-1 gap-[16px] @lg:grid-cols-2 @3xl:grid-cols-3">
-      {OVERVIEW_PORTFOLIO.items.map((item) => (
-        <ProjectTile key={item.key} item={item} />
-      ))}
-    </ul>
+    {OVERVIEW_PORTFOLIO.items.length ? (
+      <ul className="grid grid-cols-1 gap-[16px] @lg:grid-cols-2 @3xl:grid-cols-3">
+        {OVERVIEW_PORTFOLIO.items.map((item) => (
+          <ProjectTile key={item.key} item={item} />
+        ))}
+      </ul>
+    ) : (
+      <p className="text-[14px] leading-[1.5] text-[#737373]">{OVERVIEW_PORTFOLIO.empty}</p>
+    )}
   </ProfileCard>
 );
 
@@ -249,7 +277,7 @@ const StrengthCard = ({ go }) => {
           </li>
         ))}
       </ul>
-      <div>
+      <div className={s.cta ? null : 'hidden'}>
         <Button
           variant="primary"
           size="sm"
@@ -289,7 +317,13 @@ const ViewsCard = () => {
           </div>
         </div>
         <div className="flex items-center gap-[12px]">
-          <div className="flex shrink-0 items-center" aria-hidden="true">
+          <div
+            className={classNames(
+              'flex shrink-0 items-center',
+              v.showFaces === false ? 'hidden' : null
+            )}
+            aria-hidden="true"
+          >
             {FACES.map((src, i) => (
               <img
                 key={src}
@@ -307,7 +341,12 @@ const ViewsCard = () => {
           </div>
           <p className="min-w-0 text-[13px] leading-[1.4] text-[#595959]">{v.who}</p>
         </div>
-        <div className="flex items-center gap-[8px] rounded-[12px] bg-[#faf4e8] px-[12px] py-[10px]">
+        <div
+          className={classNames(
+            'flex items-center gap-[8px] rounded-[12px] bg-[#faf4e8] px-[12px] py-[10px]',
+            v.searchNote ? null : 'hidden'
+          )}
+        >
           <span className="flex size-[15px] shrink-0 items-center justify-center">
             <ProfileSearchNoteIcon className="block size-[12px]" />
           </span>
@@ -322,6 +361,7 @@ const ViewsCard = () => {
 
 const GoalCard = ({ go }) => {
   const g = PROFILE_GOAL;
+  if (!g) return null;
   return (
     <ProfileCard title={g.title} onEdit={() => go({ tab: 'about' })} editLabel="Edit goal">
       <div className="flex flex-col items-start gap-[10px] rounded-[14px] bg-[#ebf1ec] p-[16px]">
@@ -329,7 +369,9 @@ const GoalCard = ({ go }) => {
           <ProfileTargetGlyph className="size-[18px] shrink-0" />
           {g.headline}
         </p>
-        <p className="text-[13px] leading-[normal] text-[#2d5d33]">{g.detail}</p>
+        {g.detail ? (
+          <p className="text-[13px] leading-[normal] text-[#2d5d33]">{g.detail}</p>
+        ) : null}
         <Meter pct={g.pct} height={8} track="#ffffff" className="w-full" />
         <p className="text-[12px] leading-[normal] font-medium text-[#595959]">{g.progress}</p>
       </div>
@@ -337,42 +379,43 @@ const GoalCard = ({ go }) => {
   );
 };
 
-export const BadgesCard = ({ preview = false }) => (
-  <ProfileCard
-    title={PROFILE_BADGES.title}
-    link={PROFILE_BADGES.link}
-    onLink={() => log('badges: all 9')}
-  >
-    <ul className="flex flex-wrap justify-between gap-x-[6px] gap-y-[12px]">
-      {PROFILE_BADGES.items
-        .filter((b) => !(preview && b.key === 'streak'))
-        .map((b) => {
-          const Icon = BADGE_ICONS[b.icon];
-          return (
-            <li key={b.key} className="flex w-[88px] flex-col items-center gap-[6px]">
-              <span
-                aria-hidden="true"
-                className={classNames(
-                  'flex size-[56px] items-center justify-center rounded-full',
-                  SHELF
-                )}
-                style={{ background: b.bg }}
-              >
-                {b.icon === 'streak' ? (
-                  <StreakMark className="size-[34px]" />
-                ) : (
-                  <Icon className="size-[25px]" />
-                )}
-              </span>
-              <span className="text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#595959]">
-                {b.label}
-              </span>
-            </li>
-          );
-        })}
-    </ul>
-  </ProfileCard>
-);
+export const BadgesCard = ({ preview = false }) =>
+  PROFILE_BADGES.items.length === 0 ? null : (
+    <ProfileCard
+      title={PROFILE_BADGES.title}
+      link={PROFILE_BADGES.link}
+      onLink={() => log('badges: all 9')}
+    >
+      <ul className="flex flex-wrap justify-between gap-x-[6px] gap-y-[12px]">
+        {PROFILE_BADGES.items
+          .filter((b) => !(preview && b.key === 'streak'))
+          .map((b) => {
+            const Icon = BADGE_ICONS[b.icon];
+            return (
+              <li key={b.key} className="flex w-[88px] flex-col items-center gap-[6px]">
+                <span
+                  aria-hidden="true"
+                  className={classNames(
+                    'flex size-[56px] items-center justify-center rounded-full',
+                    SHELF
+                  )}
+                  style={{ background: b.bg }}
+                >
+                  {b.icon === 'streak' ? (
+                    <StreakMark className="size-[34px]" />
+                  ) : (
+                    <Icon className="size-[25px]" />
+                  )}
+                </span>
+                <span className="text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#595959]">
+                  {b.label}
+                </span>
+              </li>
+            );
+          })}
+      </ul>
+    </ProfileCard>
+  );
 
 /*
  * ProfileOverviewTab — P-01 (Figma Focused 8110:368104 / Playful 7570:105): About, Top skills,

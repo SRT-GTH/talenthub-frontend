@@ -82,7 +82,16 @@ const Avatar = ({ editable = true }) => (
   >
     <span className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
       <span className="relative block size-[89.4%] overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
-        <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
+        {PROFILE_HERO.photo ? (
+          // Live profile photo (2026-10-18); the illustration stays for the demo / no photo.
+          <img
+            src={PROFILE_HERO.photo}
+            alt=""
+            className="absolute inset-0 size-full object-cover"
+          />
+        ) : (
+          <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
+        )}
       </span>
     </span>
     {editable ? (
@@ -181,9 +190,9 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
           </Tag>
           {mode === 'public' ? null : pitchHidden ? (
             <PitchHiddenTag />
-          ) : (
+          ) : h.pitch ? (
             <PitchChip onClick={openPitch} />
-          )}
+          ) : null}
         </div>
 
         <div className="flex flex-col px-[clamp(12px,1.85vw,32px)] pb-[clamp(16px,1.56vw,27px)] @5xl:flex-row @5xl:items-start">
@@ -200,13 +209,17 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
                 >
                   {h.name}
                 </h1>
-                <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] playful:border playful:border-[rgba(28,42,33,0.35)]">
-                  <ProfileVerifiedCheckIcon className="size-[13px]" />
-                  {h.verified}
-                </span>
-                {owner ? <Tag className="playful:-rotate-3">{h.level}</Tag> : null}
+                {h.verified ? (
+                  <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] playful:border playful:border-[rgba(28,42,33,0.35)]">
+                    <ProfileVerifiedCheckIcon className="size-[13px]" />
+                    {h.verified}
+                  </span>
+                ) : null}
+                {owner && h.level ? <Tag className="playful:-rotate-3">{h.level}</Tag> : null}
               </div>
-              <p className="text-[13px] leading-[normal] text-[#737373]">{h.handle}</p>
+              {h.handle ? (
+                <p className="text-[13px] leading-[normal] text-[#737373]">{h.handle}</p>
+              ) : null}
               <p className="flex items-center gap-[6px] text-[16px] leading-[normal] font-medium text-[#1c2a21]">
                 <span>{h.headline}</span>
                 <ProfileGhanaFlagIcon className="size-[18px] shrink-0" />

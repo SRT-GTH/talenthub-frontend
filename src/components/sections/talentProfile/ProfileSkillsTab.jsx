@@ -212,12 +212,19 @@ const ProfileSkillsTab = ({ profile }) => {
           {groups.map((g) => (
             <SkillGroup key={g.key} group={g} />
           ))}
+          {groups.length === 0 ? (
+            <p className="px-[4px] text-[14px] leading-[1.5] text-[#737373]">
+              {filter === 'all'
+                ? 'No skills yet. Tell Career Buddy what you can do, then prove it in Skills Lab.'
+                : 'No skills in this group yet.'}
+            </p>
+          ) : null}
         </>
       }
       right={
         <>
           <VerificationCard />
-          <InDemandCard />
+          {SKILLS_IN_DEMAND ? <InDemandCard /> : null}
         </>
       }
     />
