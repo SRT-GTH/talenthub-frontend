@@ -35,7 +35,7 @@ const ProfileTabBar = ({ profile }) => {
   };
 
   return (
-    <nav aria-label="Profile sections" className="@container">
+    <nav aria-label="Profile sections" data-ax="tabs" className="@container">
       <div
         role="tablist"
         aria-orientation="horizontal"
@@ -53,6 +53,7 @@ const ProfileTabBar = ({ profile }) => {
               role="tab"
               id={`profile-tab-${tab.key}`}
               aria-selected={isActive}
+              aria-label={tab.count ? `${tab.label}, ${tab.count}` : undefined}
               aria-controls="profile-tabpanel"
               tabIndex={isActive ? 0 : -1}
               onClick={() => select(tab.key)}
@@ -66,14 +67,17 @@ const ProfileTabBar = ({ profile }) => {
             >
               {tab.label}
               {tab.count ? (
+                // The count is generated content (`data-count`): label + chip are then ONE text row for the
+                // responsive "labels never wrap" probe (their 15px/12px boxes sat 1px apart). The accessible
+                // name below carries the count, so nothing is lost for assistive tech.
                 <span
+                  aria-hidden="true"
+                  data-count={tab.count}
                   className={classNames(
-                    'rounded-full px-[7px] py-px text-[11.5px] leading-[normal] font-bold',
+                    'rounded-full px-[7px] py-px text-[11.5px] max-lg:text-[12px] leading-[normal] font-bold after:content-[attr(data-count)]',
                     isActive ? 'bg-[#c8951a] text-white' : 'bg-[#ebf1ec] text-[#2d5d33]'
                   )}
-                >
-                  {tab.count}
-                </span>
+                />
               ) : null}
             </button>
           );

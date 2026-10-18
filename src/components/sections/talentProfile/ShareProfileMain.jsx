@@ -28,6 +28,7 @@ import {
 import { FOCUS_RING, SHARE_INPUT_CLASS } from './ShareProfileUi.js';
 import { copyText, downloadQrPng, readSavedSlug } from './ShareProfileFile.js';
 import { PROFILE_HOST, PROFILE_SLUG, SHARE_MAIN } from './talentProfileShareData.js';
+import { ShareKeyboardHints } from './ProfileAxKeyboardHints.jsx';
 
 const log = debug('ShareProfileMain');
 
@@ -44,7 +45,12 @@ const CHANNEL_TILE = {
   more: { bg: '#f8f8f4', icon: <ShareMoreDotsIcon className="size-[28px]" /> },
 };
 
-const ShareProfileMain = ({ profile, copied = false }) => {
+/* `keyboardHints` (AX-08, `?ax=share-modal`): adds the "Tab move · Enter copy / open · ← → channels · Esc close" row. */
+const ShareProfileMain = ({
+  profile,
+  copied = false,
+  keyboardHints = profile?.ax === 'share-modal',
+}) => {
   const slug = readSavedSlug(PROFILE_SLUG);
   const url = `${PROFILE_HOST}${slug}`;
   const fullUrl = `https://${url}`;
@@ -115,7 +121,7 @@ const ShareProfileMain = ({ profile, copied = false }) => {
               <span className="text-[14px] font-semibold text-white">{SHARE_MAIN.toast.title}</span>
               <span className="text-[12px] text-[#bfbfbf]">{SHARE_MAIN.toast.body}</span>
             </span>
-            <span className="shrink-0 rounded-full bg-brand-green-light px-[10px] py-[5px] text-[11px] font-bold whitespace-nowrap text-[#1f4d26]">
+            <span className="shrink-0 rounded-full bg-brand-green-light px-[10px] py-[5px] text-[11px] max-lg:text-[12px] font-bold whitespace-nowrap text-[#1f4d26]">
               {SHARE_MAIN.toast.sticker}
             </span>
           </ShareToast>
@@ -152,11 +158,16 @@ const ShareProfileMain = ({ profile, copied = false }) => {
         </div>
         <div className="flex shrink-0 flex-col items-stretch sm:pb-[26px]">
           {copied ? (
-            <Button variant="tertiary-subtle" size="lg" onClick={handleCopy}>
+            <Button
+              variant="tertiary-subtle"
+              size="lg"
+              data-ax="share-copy-link"
+              onClick={handleCopy}
+            >
               {SHARE_MAIN.copiedLabel}
             </Button>
           ) : (
-            <Button variant="primary" size="md" onClick={handleCopy}>
+            <Button variant="primary" size="md" data-ax="share-copy-link" onClick={handleCopy}>
               {SHARE_MAIN.copyLabel}
             </Button>
           )}
@@ -331,6 +342,8 @@ const ShareProfileMain = ({ profile, copied = false }) => {
           {SHARE_MAIN.pdf}
         </Button>
       </div>
+
+      {keyboardHints ? <ShareKeyboardHints /> : null}
     </ShareDialog>
   );
 };

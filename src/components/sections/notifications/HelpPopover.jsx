@@ -3,6 +3,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import NotifButton from './NotifButton.jsx';
 import { HELP_COPY as HELP_COPY_DEFAULT, HELP_COPY_PROFILE } from './notificationsData.js';
+import { JobsHelpCopy } from '../talentJobs/talentJobsData.js';
 import rowHelp from '../../../assets/notifications/help/row-help.svg';
 import rowShield from '../../../assets/notifications/help/row-shield.svg';
 import rowInfo from '../../../assets/notifications/help/row-info.svg';
@@ -56,7 +57,12 @@ const Section = ({ label, rows }) => (
 const HelpPopover = ({ home, anchorRef }) => {
   const open = Boolean(home?.helpOpen);
   // /profile (Figma HP 8376:19219 / 8376:19339) swaps only the page section; `home.helpPage` is set by the shell.
-  const HELP_COPY = home?.helpPage === 'profile' ? HELP_COPY_PROFILE : HELP_COPY_DEFAULT;
+  const HELP_COPY =
+    home?.helpPage === 'profile'
+      ? HELP_COPY_PROFILE
+      : home?.helpPage === 'jobs'
+        ? JobsHelpCopy
+        : HELP_COPY_DEFAULT;
   const ref = useRef(null);
   const [pos, setPos] = useState({ top: 74, right: 24 });
   const close = () => {

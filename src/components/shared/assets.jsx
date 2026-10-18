@@ -11643,3 +11643,2438 @@ export const ProfileFileDarkGlyph = ({ className = '' }) => (
     />
   </svg>
 );
+
+// ---- Talent profile · accessibility ----
+
+export const ProfileA11yVolumeGlyph = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M7.33337 3.33301L4.00004 5.99967H1.33337V9.99967H4.00004L7.33337 12.6663V3.33301Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+    <path
+      d="M10.36 5.64044C10.9849 6.26554 11.3359 7.11323 11.3359 7.99711C11.3359 8.88099 10.9849 9.72868 10.36 10.3538M12.7133 3.28711C13.9631 4.53729 14.6652 6.23268 14.6652 8.00044C14.6652 9.7682 13.9631 11.4636 12.7133 12.7138"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const ProfileA11yTextSizeGlyph = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M2.66663 4.66699V2.66699H13.3333V4.66699"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M6 13.333H10"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M8 2.66699V13.3337"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const ProfileA11ySparkGlyph = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M8.00004 2L9.26671 5.4L12.6667 6.66667L9.26671 7.93333L8.00004 11.3333L6.73337 7.93333L3.33337 6.66667L6.73337 5.4L8.00004 2Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const ProfileA11yCloudGlyph = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M11.6666 12.6663H5.99994C5.13452 12.6661 4.28621 12.4253 3.54979 11.9707C2.81338 11.5161 2.21789 10.8656 1.82986 10.0921C1.44183 9.31853 1.27654 8.45231 1.35247 7.59022C1.4284 6.72814 1.74256 5.90415 2.25984 5.21033C2.77712 4.51651 3.47714 3.9802 4.28168 3.66133C5.08622 3.34246 5.96357 3.25359 6.81571 3.40465C7.66785 3.55571 8.4612 3.94075 9.1071 4.51675C9.753 5.09274 10.226 5.83699 10.4733 6.66634H11.6666C12.4623 6.66634 13.2253 6.98241 13.7879 7.54502C14.3505 8.10763 14.6666 8.87069 14.6666 9.66634C14.6666 10.462 14.3505 11.2251 13.7879 11.7877C13.2253 12.3503 12.4623 12.6663 11.6666 12.6663Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const ProfileA11yColumnsGlyph = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <mask id="stroke0_0_81" fill="white">
+      <path d="M2 3C2 2.44772 2.44772 2 3 2H13C13.5523 2 14 2.44772 14 3V4C14 4.55228 13.5523 5 13 5H3C2.44772 5 2 4.55228 2 4V3Z" />
+    </mask>
+    <path
+      d="M3 5H13C13.5523 5 14 4.55228 14 4V3C14 2.44772 13.5523 2 13 2H3C2.44772 2 2 2.44772 2 3V4C2 4.55228 2.44772 5 3 5Z"
+      strokeWidth="2.6"
+      stroke="#387440"
+      mask="url(#stroke0_0_81)"
+    />
+    <mask id="stroke1_0_81" fill="white">
+      <path d="M2 8C2 7.44772 2.44772 7 3 7H13C13.5523 7 14 7.44772 14 8V9C14 9.55228 13.5523 10 13 10H3C2.44772 10 2 9.55228 2 9V8Z" />
+    </mask>
+    <path
+      d="M3 10H13C13.5523 10 14 9.55228 14 9V8C14 7.44772 13.5523 7 13 7H3C2.44772 7 2 7.44772 2 8V9C2 9.55228 2.44772 10 3 10Z"
+      strokeWidth="2.6"
+      stroke="#387440"
+      mask="url(#stroke1_0_81)"
+    />
+    <mask id="stroke2_0_81" fill="white">
+      <path d="M2 13C2 12.4477 2.44772 12 3 12H13C13.5523 12 14 12.4477 14 13V14C14 14.5523 13.5523 15 13 15H3C2.44772 15 2 14.5523 2 14V13Z" />
+    </mask>
+    <path
+      d="M3 15H13C13.5523 15 14 14.5523 14 14V13C14 12.4477 13.5523 12 13 12H3C2.44772 12 2 12.4477 2 13V14C2 14.5523 2.44772 15 3 15Z"
+      strokeWidth="2.6"
+      stroke="#387440"
+      mask="url(#stroke2_0_81)"
+    />
+  </svg>
+);
+
+export const ProfileA11yPillCloudIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M7.5 4.125C5.91334 4.125 4.58115 5.22042 4.22099 6.69694C4.16105 6.94269 3.94445 7.1182 3.69162 7.12589C2.68328 7.15656 1.875 7.98399 1.875 9C1.875 10.0355 2.71447 10.875 3.75 10.875H12C12.6213 10.875 13.125 10.3713 13.125 9.75C13.125 9.12868 12.6213 8.625 12 8.625C11.8528 8.625 11.7134 8.653 11.586 8.70345C11.3968 8.77841 11.1818 8.74525 11.0239 8.61676C10.866 8.48826 10.7898 8.28448 10.8248 8.08393C10.8577 7.89463 10.875 7.69956 10.875 7.5C10.875 5.63604 9.36396 4.125 7.5 4.125ZM3.24128 6.04299C3.84677 4.27299 5.52412 3 7.5 3C9.98528 3 12 5.01472 12 7.5C13.2426 7.5 14.25 8.50736 14.25 9.75C14.25 10.9926 13.2426 12 12 12H3.75C2.09315 12 0.75 10.6569 0.75 9C0.75 7.51654 1.82658 6.28471 3.24128 6.04299Z"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="white"
+    />
+  </svg>
+);
+
+export const ProfileA11yPillRowsIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <g clipPath="url(#ProfileA11yPillRowsIcon-clip0_7603_6277)">
+      <path
+        d="M0.75 2.8125C0.75 1.67341 1.67341 0.75 2.8125 0.75H12.1875C13.3266 0.75 14.25 1.67341 14.25 2.8125V12.1875C14.25 13.3266 13.3266 14.25 12.1875 14.25H2.8125C1.67341 14.25 0.75 13.3266 0.75 12.1875V2.8125ZM1.875 8.0625V12.1875C1.875 12.7053 2.29473 13.125 2.8125 13.125H12.1875C12.7053 13.125 13.125 12.7053 13.125 12.1875V8.0625H1.875ZM13.125 6.9375H1.875V2.8125C1.875 2.29473 2.29473 1.875 2.8125 1.875H12.1875C12.7053 1.875 13.125 2.29473 13.125 2.8125V6.9375Z"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="white"
+      />
+    </g>
+    <defs>
+      <clipPath id="ProfileA11yPillRowsIcon-clip0_7603_6277">
+        <rect width="15" height="15" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+);
+
+// ---- Talent job postings ----
+// View-toggle glyphs use currentColor (white on the selected segment, grey otherwise).
+
+export const JobBookmarkIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M11.875 13.125L7.5 10.625L3.125 13.125V3.125C3.125 2.79348 3.2567 2.47554 3.49112 2.24112C3.72554 2.0067 4.04348 1.875 4.375 1.875H10.625C10.9565 1.875 11.2745 2.0067 11.5089 2.24112C11.7433 2.47554 11.875 2.79348 11.875 3.125V13.125Z"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+  </svg>
+);
+
+export const JobPinIcon = ({ className = '' }) => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 13 13"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M10.8334 5.41683C10.8334 8.66683 6.50002 11.9168 6.50002 11.9168C6.50002 11.9168 2.16669 8.66683 2.16669 5.41683C2.16669 4.26756 2.62323 3.16536 3.43589 2.3527C4.24855 1.54004 5.35075 1.0835 6.50002 1.0835C7.64929 1.0835 8.75149 1.54004 9.56415 2.3527C10.3768 3.16536 10.8334 4.26756 10.8334 5.41683Z"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+    <path
+      d="M8.125 5.4165C8.125 6.31397 7.39746 7.0415 6.5 7.0415C5.60254 7.0415 4.875 6.31397 4.875 5.4165C4.875 4.51904 5.60254 3.7915 6.5 3.7915C7.39746 3.7915 8.125 4.51904 8.125 5.4165Z"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+  </svg>
+);
+
+export const JobBriefIcon = ({ className = '' }) => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 13 13"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M2.16665 3.7915H10.8333C11.4316 3.7915 11.9166 4.27653 11.9166 4.87484V10.2915C11.9166 10.8898 11.4316 11.3748 10.8333 11.3748H2.16665C1.56834 11.3748 1.08331 10.8898 1.08331 10.2915V4.87484C1.08331 4.27653 1.56834 3.7915 2.16665 3.7915Z"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+    <path
+      d="M8.66665 11.375V2.70833C8.66665 2.42102 8.55251 2.14547 8.34935 1.9423C8.14618 1.73914 7.87063 1.625 7.58331 1.625H5.41665C5.12933 1.625 4.85378 1.73914 4.65061 1.9423C4.44745 2.14547 4.33331 2.42102 4.33331 2.70833V11.375"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+  </svg>
+);
+
+export const JobCashIcon = ({ className = '' }) => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 13 13"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M2.16665 3.25H10.8333C11.4316 3.25 11.9166 3.73502 11.9166 4.33333V8.66667C11.9166 9.26498 11.4316 9.75 10.8333 9.75H2.16665C1.56834 9.75 1.08331 9.26498 1.08331 8.66667V4.33333C1.08331 3.73502 1.56834 3.25 2.16665 3.25Z"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+    <path
+      d="M7.58335 6.49984C7.58335 7.09815 7.09833 7.58317 6.50002 7.58317C5.90171 7.58317 5.41669 7.09815 5.41669 6.49984C5.41669 5.90153 5.90171 5.4165 6.50002 5.4165C7.09833 5.4165 7.58335 5.90153 7.58335 6.49984Z"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+    <path
+      d="M3.25 6.5H3.25542M9.75 6.5H9.75542"
+      strokeWidth="1.08333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+  </svg>
+);
+
+export const JobWhyCheckIcon = ({ className = '' }) => (
+  <svg
+    width="11"
+    height="11"
+    viewBox="0 0 11 11"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M9.16665 2.75L4.12498 7.79167L1.83331 5.5"
+      strokeWidth="1.375"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const JobConfidentialLockIcon = ({ className = '' }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M3.75 8.25H14.25C15.0784 8.25 15.75 8.92157 15.75 9.75V15C15.75 15.8284 15.0784 16.5 14.25 16.5H3.75C2.92157 16.5 2.25 15.8284 2.25 15V9.75C2.25 8.92157 2.92157 8.25 3.75 8.25Z"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M5.25 8.25V5.25C5.25 4.25544 5.64509 3.30161 6.34835 2.59835C7.05161 1.89509 8.00544 1.5 9 1.5C9.99456 1.5 10.9484 1.89509 11.6517 2.59835C12.3549 3.30161 12.75 4.25544 12.75 5.25V8.25"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const JobViewGridIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+    <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+    <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
+    <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
+  </svg>
+);
+
+export const JobViewListIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <rect x="1" y="1.75" width="2.5" height="2.5" rx="1.25" fill="currentColor" />
+    <rect x="5" y="2" width="10" height="2" rx="1" fill="currentColor" />
+    <rect x="1" y="6.75" width="2.5" height="2.5" rx="1.25" fill="currentColor" />
+    <rect x="5" y="7" width="10" height="2" rx="1" fill="currentColor" />
+    <rect x="1" y="11.75" width="2.5" height="2.5" rx="1.25" fill="currentColor" />
+    <rect x="5" y="12" width="10" height="2" rx="1" fill="currentColor" />
+  </svg>
+);
+
+// ---- Talent job postings · list icons (Figma 7503… exports) ----
+
+export const JobArrowIcon = ({ className = '' }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M3.3335 8.00001H12.6668M8.00016 12.6667L12.6668 8.00001L8.00016 3.33334"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const JobClockIcon = ({ className = '' }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#967014"
+    />
+    <path
+      d="M9 4.5V9L12 10.5"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#967014"
+    />
+  </svg>
+);
+
+export const JobEyeIcon = ({ className = '' }) => (
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 13 13"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M4.55627 4.5077C3.82779 5.11918 3.25403 5.84816 2.931 6.30213C2.87839 6.37607 2.85369 6.41136 2.83715 6.4394C2.82682 6.45692 2.82486 6.46307 2.82378 6.46727C2.82365 6.46801 2.82325 6.47034 2.82282 6.47434C2.82208 6.48121 2.82155 6.49007 2.82155 6.49998C2.82155 6.50988 2.82208 6.51874 2.82282 6.52561C2.82325 6.52961 2.82365 6.53194 2.82378 6.53268C2.82486 6.53688 2.82682 6.54304 2.83715 6.56055C2.85369 6.58859 2.87839 6.62388 2.931 6.69782C3.25403 7.15179 3.82779 7.88077 4.55627 8.49225C5.2912 9.10915 6.13316 9.56426 7.00013 9.56426C7.86709 9.56426 8.70905 9.10915 9.44398 8.49225C10.1725 7.88077 10.7462 7.15179 11.0692 6.69782C11.1219 6.62388 11.1466 6.58859 11.1631 6.56055C11.1734 6.54303 11.1754 6.53687 11.1765 6.53267C11.1766 6.53193 11.177 6.5296 11.1774 6.52561C11.1782 6.51874 11.1787 6.50988 11.1787 6.49998C11.1787 6.49007 11.1782 6.48121 11.1774 6.47434C11.177 6.47035 11.1766 6.46802 11.1765 6.46728C11.1754 6.46308 11.1734 6.45692 11.1631 6.4394C11.1466 6.41136 11.1219 6.37607 11.0692 6.30213C10.7462 5.84816 10.1725 5.11918 9.44398 4.5077C8.70905 3.8908 7.86709 3.43569 7.00013 3.43569C6.13316 3.43569 5.2912 3.8908 4.55627 4.5077ZM4.01897 3.8676C4.81715 3.19761 5.84678 2.59998 7.00013 2.59998C8.15347 2.59998 9.1831 3.19761 9.98128 3.8676C10.7859 4.543 11.4068 5.33504 11.7502 5.81761C11.7558 5.82553 11.7615 5.8335 11.7673 5.84154C11.8498 5.95696 11.9419 6.08571 11.9869 6.26315C12.0236 6.40785 12.0236 6.5921 11.9869 6.7368C11.9419 6.91424 11.8498 7.043 11.7673 7.15841C11.7615 7.16645 11.7558 7.17442 11.7502 7.18234C11.4068 7.66491 10.7859 8.45695 9.98128 9.13235C9.1831 9.80234 8.15347 10.4 7.00013 10.4C5.84678 10.4 4.81715 9.80234 4.01897 9.13236C3.21434 8.45695 2.59346 7.66492 2.25008 7.18234C2.24444 7.17442 2.23874 7.16645 2.23299 7.15841C2.15047 7.043 2.0584 6.91424 2.01338 6.7368C1.97666 6.5921 1.97666 6.40785 2.01338 6.26315C2.0584 6.08571 2.15047 5.95695 2.23299 5.84154C2.23874 5.8335 2.24444 5.82553 2.25008 5.81761C2.59346 5.33504 3.21434 4.543 4.01897 3.8676ZM7.00013 5.66426C6.53857 5.66426 6.16441 6.03842 6.16441 6.49998C6.16441 6.96153 6.53857 7.33569 7.00013 7.33569C7.46168 7.33569 7.83584 6.96153 7.83584 6.49998C7.83584 6.03842 7.46168 5.66426 7.00013 5.66426ZM5.3287 6.49998C5.3287 5.57687 6.07702 4.82855 7.00013 4.82855C7.92323 4.82855 8.67155 5.57687 8.67155 6.49998C8.67155 7.42308 7.92323 8.1714 7.00013 8.1714C6.07702 8.1714 5.3287 7.42308 5.3287 6.49998Z"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="#1C2A21"
+    />
+  </svg>
+);
+
+export const JobSearchIcon = ({ className = '' }) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M14.1665 14.1667L17.4998 17.5"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667Z"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const JobChevronIcon = ({ className = '' }) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M7 10C6.68524 10 6.38885 9.85181 6.2 9.6L3.20001 5.6C2.97274 5.29698 2.93619 4.89157 3.10558 4.55279C3.27497 4.214 3.62123 4 4 4H10C10.3788 4 10.725 4.214 10.8944 4.55279C11.0638 4.89157 11.0273 5.29698 10.8 5.6L7.8 9.6C7.61115 9.85181 7.31476 10 7 10Z"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="#595959"
+    />
+  </svg>
+);
+
+export const JobPlusIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M7.5 3.125V7.5M7.5 7.5V11.875M7.5 7.5H3.125M7.5 7.5H11.875"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const JobSparkIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M7.5 1.875L8.6875 5.0625L11.875 6.25L8.6875 7.4375L7.5 10.625L6.3125 7.4375L3.125 6.25L6.3125 5.0625L7.5 1.875Z"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const JobUserIcon = ({ className = '' }) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M12.5 13.125V11.875C12.5 11.212 12.2366 10.5761 11.7678 10.1072C11.2989 9.63839 10.663 9.375 10 9.375H5C4.33696 9.375 3.70107 9.63839 3.23223 10.1072C2.76339 10.5761 2.5 11.212 2.5 11.875V13.125"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+    <path
+      d="M10 4.375C10 5.75571 8.88071 6.875 7.5 6.875C6.11929 6.875 5 5.75571 5 4.375C5 2.99429 6.11929 1.875 7.5 1.875C8.88071 1.875 10 2.99429 10 4.375Z"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+export const JobStepCheckIcon = ({ className = '' }) => (
+  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M7.5 2.25L3.375 6.375L1.5 4.5"
+      strokeWidth="1.3125"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="white"
+    />
+  </svg>
+);
+
+export const JobNoteSparkIcon = ({ className = '' }) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path
+      d="M6.99984 1.75L8.10817 4.725L11.0832 5.83333L8.10817 6.94167L6.99984 9.91667L5.8915 6.94167L2.9165 5.83333L5.8915 4.725L6.99984 1.75Z"
+      strokeWidth="1.16667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#2D5D33"
+    />
+  </svg>
+);
+
+// ---- Talent learning · explore ----
+// Cover art for PowerBi courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverPowerBi = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#FFCB05" />
+      <path
+        d="M190.083 63H182.583C180.512 63 178.833 64.6789 178.833 66.75V89.25C178.833 91.3211 180.512 93 182.583 93H190.083C192.154 93 193.833 91.3211 193.833 89.25V66.75C193.833 64.6789 192.154 63 190.083 63Z"
+        fill="#1C2A21"
+      />
+      <path
+        d="M212.583 45H205.083C203.012 45 201.333 46.6789 201.333 48.75V89.25C201.333 91.3211 203.012 93 205.083 93H212.583C214.654 93 216.333 91.3211 216.333 89.25V48.75C216.333 46.6789 214.654 45 212.583 45Z"
+        fill="#1C2A21"
+      />
+      <path
+        d="M235.083 30H227.583C225.512 30 223.833 31.6789 223.833 33.75V89.25C223.833 91.3211 225.512 93 227.583 93H235.083C237.154 93 238.833 91.3211 238.833 89.25V33.75C238.833 31.6789 237.154 30 235.083 30Z"
+        fill="#1C2A21"
+      />
+      <path d="M172.833 96H250.833Z" fill="#1C2A21" />
+      <path d="M172.833 96H250.833" strokeWidth="4.5" strokeLinecap="round" stroke="#1C2A21" />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="white"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Figma courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverFigma = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#7C3AED" />
+      <path d="M214.833 30L240.333 55.5L214.833 93L189.333 55.5L214.833 30Z" fill="white" />
+      <path
+        d="M214.833 69.75C218.561 69.75 221.583 66.7279 221.583 63C221.583 59.2721 218.561 56.25 214.833 56.25C211.105 56.25 208.083 59.2721 208.083 63C208.083 66.7279 211.105 69.75 214.833 69.75Z"
+        fill="#7C3AED"
+      />
+      <path d="M214.833 69.75V93Z" fill="#1C2A21" />
+      <path d="M214.833 69.75V93" strokeWidth="3.75" stroke="#7C3AED" />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="#FFD86B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Python courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverPython = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#244A9F" />
+      <path
+        d="M199.833 37.5H220.833C223.22 37.5 225.509 38.4482 227.197 40.136C228.885 41.8239 229.833 44.1131 229.833 46.5V60H199.833C197.446 60 195.157 60.9482 193.469 62.636C191.781 64.3239 190.833 66.6131 190.833 69V79.5"
+        strokeWidth="6.75"
+        strokeLinecap="round"
+        stroke="#FFD86B"
+      />
+      <path
+        d="M229.833 82.5H208.833C206.446 82.5 204.157 81.5518 202.469 79.864C200.781 78.1761 199.833 75.8869 199.833 73.5V60H229.833C232.22 60 234.509 59.0518 236.197 57.364C237.885 55.6761 238.833 53.3869 238.833 51V40.5"
+        strokeWidth="6.75"
+        strokeLinecap="round"
+        stroke="white"
+      />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="#C9F27B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Interview courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverInterview = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#0E3B2E" />
+      <path
+        d="M214.833 73.5C226.431 73.5 235.833 64.098 235.833 52.5C235.833 40.902 226.431 31.5 214.833 31.5C203.235 31.5 193.833 40.902 193.833 52.5C193.833 64.098 203.235 73.5 214.833 73.5Z"
+        fill="#FFD86B"
+      />
+      <path
+        d="M222.333 73.5H207.333C205.676 73.5 204.333 74.8431 204.333 76.5V84C204.333 85.6569 205.676 87 207.333 87H222.333C223.99 87 225.333 85.6569 225.333 84V76.5C225.333 74.8431 223.99 73.5 222.333 73.5Z"
+        fill="white"
+      />
+      <path d="M208.833 91.5H220.833Z" fill="#1C2A21" />
+      <path d="M208.833 91.5H220.833" strokeWidth="3.75" strokeLinecap="round" stroke="white" />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="#C9F27B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Agribusiness courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverAgribusiness = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#C9F27B" />
+      <path d="M214.833 93V52.5Z" fill="#1C2A21" />
+      <path d="M214.833 93V52.5" strokeWidth="4.5" strokeLinecap="round" stroke="#1C2A21" />
+      <path
+        d="M214.833 60C214.833 46.5 223.833 37.5 237.333 37.5C237.333 51 228.333 60 214.833 60Z"
+        fill="#2F7A3B"
+        strokeWidth="2.25"
+        stroke="#1C2A21"
+      />
+      <path
+        d="M214.833 72C214.833 60 207.333 52.5 195.333 52.5C195.333 64.5 202.833 72 214.833 72Z"
+        fill="white"
+        strokeWidth="2.25"
+        stroke="#1C2A21"
+      />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="white"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Speaker courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverSpeaker = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-215 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#C0392B" />
+      <path
+        d="M225.333 40.5C225.333 34.701 220.632 30 214.833 30C209.034 30 204.333 34.701 204.333 40.5V61.5C204.333 67.299 209.034 72 214.833 72C220.632 72 225.333 67.299 225.333 61.5V40.5Z"
+        fill="white"
+      />
+      <path
+        d="M192.333 63C192.333 68.9674 194.704 74.6903 198.923 78.9099C203.143 83.1295 208.866 85.5 214.833 85.5M214.833 85.5C220.8 85.5 226.523 83.1295 230.743 78.9099C234.962 74.6903 237.333 68.9674 237.333 63M214.833 85.5V96"
+        strokeWidth="5.25"
+        strokeLinecap="round"
+        stroke="white"
+      />
+      <path
+        d="M291.333 16.5L294.333 25.5L303.333 28.5L294.333 31.5L291.333 40.5L288.333 31.5L279.333 28.5L288.333 25.5L291.333 16.5Z"
+        fill="#FFD86B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Sql courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverSql = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-170 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#1D4ED8" />
+      <path
+        d="M169.833 49.5C188.058 49.5 202.833 44.799 202.833 39C202.833 33.201 188.058 28.5 169.833 28.5C151.608 28.5 136.833 33.201 136.833 39C136.833 44.799 151.608 49.5 169.833 49.5Z"
+        fill="white"
+      />
+      <path
+        d="M136.833 39V81C136.833 87 151.833 91.5 169.833 91.5C187.833 91.5 202.833 87 202.833 81V39"
+        strokeWidth="5.25"
+        stroke="white"
+      />
+      <path
+        d="M136.833 60C136.833 66 151.833 70.5 169.833 70.5C187.833 70.5 202.833 66 202.833 60"
+        strokeWidth="5.25"
+        stroke="#93C5FD"
+      />
+      <path
+        d="M246.333 16.5L249.333 25.5L258.333 28.5L249.333 31.5L246.333 40.5L243.333 31.5L234.333 28.5L243.333 25.5L246.333 16.5Z"
+        fill="#FFD86B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Excel courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverExcel = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-170 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#2F7A3B" />
+      <path
+        d="M201.333 33H138.333C134.191 33 130.833 36.3579 130.833 40.5V85.5C130.833 89.6421 134.191 93 138.333 93H201.333C205.475 93 208.833 89.6421 208.833 85.5V40.5C208.833 36.3579 205.475 33 201.333 33Z"
+        fill="white"
+      />
+      <path
+        d="M130.833 52.5H208.833ZM130.833 72H208.833ZM157.083 33V93ZM183.333 33V93Z"
+        fill="#1C2A21"
+      />
+      <path
+        d="M130.833 52.5H208.833M130.833 72H208.833M157.083 33V93M183.333 33V93"
+        strokeWidth="3"
+        stroke="#2F7A3B"
+      />
+      <path d="M183.333 52.5H157.083V72H183.333V52.5Z" fill="#C9F27B" />
+      <path
+        d="M246.333 16.5L249.333 25.5L258.333 28.5L249.333 31.5L246.333 40.5L243.333 31.5L234.333 28.5L243.333 25.5L246.333 16.5Z"
+        fill="#FFD86B"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+// Cover art for Statistics courses (Figma cover frame, 430x120, centred on x=0 so it crops evenly at any card width).
+export const ExploreCoverStatistics = ({ className = '' }) => (
+  <svg
+    className={className}
+    viewBox="-215 0 430 120"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g transform="translate(-170 0)">
+      <rect x="-600" y="-40" width="1600" height="200" fill="#F68B1E" />
+      <path
+        d="M121.833 90C136.833 45 151.833 30 169.833 30C187.833 30 202.833 45 217.833 90"
+        strokeWidth="6"
+        strokeLinecap="round"
+        stroke="white"
+      />
+      <path d="M169.833 30V90Z" fill="#1C2A21" />
+      <path
+        d="M169.833 30V32.1429M169.833 90V87.8571M169.833 36.4286V40.7143M169.833 45V49.2857M169.833 53.5714V57.8571M169.833 62.1429V66.4286M169.833 70.7143V75M169.833 79.2857V83.5714"
+        strokeWidth="3"
+        stroke="#1C2A21"
+      />
+      <path
+        d="M246.333 16.5L249.333 25.5L258.333 28.5L249.333 31.5L246.333 40.5L243.333 31.5L234.333 28.5L243.333 25.5L246.333 16.5Z"
+        fill="white"
+        strokeWidth="1.5"
+        stroke="#1C2A21"
+      />
+    </g>
+  </svg>
+);
+
+export const ExploreCategoryChartIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M2 2V14H14"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M11.9997 11.333V5.99967M8.66634 11.333V3.33301M5.33301 11.333V9.33301"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryCodeIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M10.6663 12L14.6663 8L10.6663 4M5.33301 4L1.33301 8L5.33301 12"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryPenIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 12.6667L12.6667 8L14.6667 10L10 14.6667L8 12.6667Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M11.9997 8.66634L10.9997 3.66634L1.33301 1.33301L3.66634 10.9997L8.66634 11.9997L11.9997 8.66634Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryBriefcaseIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M2.66634 4.66699H13.333C14.0694 4.66699 14.6663 5.26395 14.6663 6.00033V12.667C14.6663 13.4034 14.0694 14.0003 13.333 14.0003H2.66634C1.92996 14.0003 1.33301 13.4034 1.33301 12.667V6.00033C1.33301 5.26395 1.92996 4.66699 2.66634 4.66699Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M10.6663 14V3.33333C10.6663 2.97971 10.5259 2.64057 10.2758 2.39052C10.0258 2.14048 9.68663 2 9.33301 2H6.66634C6.31272 2 5.97358 2.14048 5.72353 2.39052C5.47348 2.64057 5.33301 2.97971 5.33301 3.33333V14"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryHeartIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M12.6663 9.33333C13.6597 8.36 14.6663 7.19333 14.6663 5.66667C14.6663 4.69421 14.28 3.76158 13.5924 3.07394C12.9048 2.38631 11.9721 2 10.9997 2C9.82634 2 8.99967 2.33333 7.99967 3.33333C6.99967 2.33333 6.17301 2 4.99967 2C4.02721 2 3.09458 2.38631 2.40695 3.07394C1.71932 3.76158 1.33301 4.69421 1.33301 5.66667C1.33301 7.2 2.33301 8.36667 3.33301 9.33333L7.99967 14L12.6663 9.33333Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryMicIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 1.333C6.895 1.333 6 2.229 6 3.333V6c0 1.105.895 2 2 2s2-.895 2-2V3.333c0-1.104-.895-2-2-2Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M12.667 6.667V8a4.667 4.667 0 0 1-9.334 0V6.667M8 12.667v2"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreCategoryLeafIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M7.33316 13.333C6.16253 13.3366 5.03333 12.9 4.1695 12.11C3.30568 11.3199 2.77033 10.234 2.66965 9.06775C2.56896 7.90145 2.91028 6.73991 3.62592 5.8135C4.34156 4.88709 5.37924 4.26347 6.53316 4.06634C10.3332 3.33301 11.3332 2.98634 12.6665 1.33301C13.3332 2.66634 13.9998 4.11967 13.9998 6.66634C13.9998 10.333 10.8132 13.333 7.33316 13.333Z"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M1.33301 14C1.33301 12 2.56634 10.4267 4.71967 10"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+  </svg>
+);
+
+export const ExploreTargetIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M11 6C11 8.76142 8.76142 11 6 11C3.23858 11 1 8.76142 1 6C1 3.23858 3.23858 1 6 1C8.76142 1 11 3.23858 11 6Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M9 6C9 7.65685 7.65685 9 6 9C4.34315 9 3 7.65685 3 6C3 4.34315 4.34315 3 6 3C7.65685 3 9 4.34315 9 6Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+    <path
+      d="M7 6C7 6.55228 6.55228 7 6 7C5.44772 7 5 6.55228 5 6C5 5.44772 5.44772 5 6 5C6.55228 5 7 5.44772 7 6Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#387440"
+    />
+  </svg>
+);
+
+export const ExploreUsersIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 10.5V9.5C8 8.96957 7.78929 8.46086 7.41421 8.08579C7.03914 7.71071 6.53043 7.5 6 7.5H3C2.46957 7.5 1.96086 7.71071 1.58579 8.08579C1.21071 8.46086 1 8.96957 1 9.5V10.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#967014"
+    />
+    <path
+      d="M6.5 3.5C6.5 4.60457 5.60457 5.5 4.5 5.5C3.39543 5.5 2.5 4.60457 2.5 3.5C2.5 2.39543 3.39543 1.5 4.5 1.5C5.60457 1.5 6.5 2.39543 6.5 3.5Z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#967014"
+    />
+    <path
+      d="M11 10.5004V9.50043C10.9997 9.05729 10.8522 8.62682 10.5807 8.27659C10.3092 7.92636 9.92906 7.67621 9.5 7.56543M8 1.56543C8.43021 1.67558 8.81152 1.92578 9.08382 2.27658C9.35612 2.62739 9.50392 3.05884 9.50392 3.50293C9.50392 3.94701 9.35612 4.37847 9.08382 4.72927C8.81152 5.08008 8.43021 5.33028 8 5.44043"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#967014"
+    />
+  </svg>
+);
+
+export const ExploreSearchIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+    <path
+      d="M17.5003 17.5003L13.917 13.917"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#595959"
+    />
+  </svg>
+);
+
+export const ExploreClearIcon = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M12 4L8 8M8 8L4 12M8 8L4 4M8 8L12 12"
+      strokeWidth="1.33333"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#737373"
+    />
+  </svg>
+);
+
+export const ExploreNoResultsSpot = ({ className = '' }) => (
+  <svg
+    className={className}
+    width="130"
+    height="130"
+    viewBox="0 0 130 130"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M14.6241 68.2498C11.3741 40.6248 34.1241 16.2498 63.3741 14.6248C92.6241 12.9998 116.999 34.1248 115.374 64.9998C113.749 95.8748 90.9991 117 61.7491 113.75C34.1241 110.5 17.8741 94.2498 14.6241 68.2498Z"
+      fill="#FAF4E8"
+    />
+    <path d="M82.875 82.875L110.5 110.5" strokeWidth="13" strokeLinecap="round" stroke="#1C2A21" />
+    <path
+      d="M79.625 79.625L107.25 107.25"
+      strokeWidth="9.75"
+      strokeLinecap="round"
+      stroke="#387440"
+    />
+    <path
+      d="M30.875 60.125C30.875 64.1796 31.6736 68.1944 33.2252 71.9403C34.7768 75.6863 37.0511 79.0899 39.9181 81.9569C42.7851 84.8239 46.1887 87.0982 49.9347 88.6498C53.6806 90.2014 57.6954 91 61.75 91C65.8046 91 69.8194 90.2014 73.5653 88.6498C77.3113 87.0982 80.7149 84.8239 83.5819 81.9569C86.4489 79.0899 88.7232 75.6863 90.2748 71.9403C91.8264 68.1944 92.625 64.1796 92.625 60.125C92.625 56.0704 91.8264 52.0556 90.2748 48.3097C88.7232 44.5637 86.4489 41.1601 83.5819 38.2931C80.7149 35.4261 77.3113 33.1518 73.5653 31.6002C69.8194 30.0486 65.8046 29.25 61.75 29.25C57.6954 29.25 53.6806 30.0486 49.9347 31.6002C46.1887 33.1518 42.7851 35.4261 39.9181 38.2931C37.0511 41.1601 34.7768 44.5637 33.2252 48.3097C31.6736 52.0556 30.875 56.0704 30.875 60.125Z"
+      fill="#1C2A21"
+    />
+    <path
+      d="M27.625 56.875C27.625 60.9296 28.4236 64.9444 29.9752 68.6903C31.5268 72.4363 33.8011 75.8399 36.6681 78.7069C39.5351 81.5739 42.9387 83.8482 46.6847 85.3998C50.4306 86.9514 54.4454 87.75 58.5 87.75C62.5546 87.75 66.5694 86.9514 70.3153 85.3998C74.0613 83.8482 77.4649 81.5739 80.3319 78.7069C83.1989 75.8399 85.4732 72.4363 87.0248 68.6903C88.5764 64.9444 89.375 60.9296 89.375 56.875C89.375 52.8204 88.5764 48.8056 87.0248 45.0597C85.4732 41.3137 83.1989 37.9101 80.3319 35.0431C77.4649 32.1761 74.0613 29.9018 70.3153 28.3502C66.5694 26.7986 62.5546 26 58.5 26C54.4454 26 50.4306 26.7986 46.6847 28.3502C42.9387 29.9018 39.5351 32.1761 36.6681 35.0431C33.8011 37.9101 31.5268 41.3137 29.9752 45.0597C28.4236 48.8056 27.625 52.8204 27.625 56.875Z"
+      fill="white"
+      strokeWidth="2.4375"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M81.25 56.875C81.25 69.4395 71.0645 79.625 58.5 79.625C45.9355 79.625 35.75 69.4395 35.75 56.875C35.75 44.3105 45.9355 34.125 58.5 34.125C71.0645 34.125 81.25 44.3105 81.25 56.875Z"
+      strokeWidth="4.875"
+      stroke="#E1EAE2"
+    />
+    <path
+      d="M50.375 48.7501C50.375 40.6251 66.625 39.0001 66.625 48.7501C66.625 55.2501 58.5 55.2501 58.5 63.3751"
+      strokeWidth="4.0625"
+      strokeLinecap="round"
+      stroke="#1C2A21"
+    />
+    <path
+      d="M58.5 75.9688C60.0706 75.9688 61.3438 74.6956 61.3438 73.125C61.3438 71.5544 60.0706 70.2812 58.5 70.2812C56.9294 70.2812 55.6562 71.5544 55.6562 73.125C55.6562 74.6956 56.9294 75.9688 58.5 75.9688Z"
+      fill="#1C2A21"
+    />
+    <path
+      d="M105.625 18.6875C106.502 25.1225 106.502 25.1225 112.938 26C106.502 26.8775 106.502 26.8775 105.625 33.3125C104.747 26.8775 104.747 26.8775 98.3125 26C104.747 25.1225 104.747 25.1225 105.625 18.6875Z"
+      fill="#C8951A"
+    />
+    <path
+      d="M21.125 92.625C21.71 96.915 21.71 96.915 26 97.5C21.71 98.085 21.71 98.085 21.125 102.375C20.54 98.085 20.54 98.085 16.25 97.5C20.54 96.915 20.54 96.915 21.125 92.625Z"
+      fill="#387440"
+    />
+    <path
+      d="M114.562 66.625C114.562 68.8687 112.744 70.6875 110.5 70.6875C108.256 70.6875 106.438 68.8687 106.438 66.625C106.438 64.3813 108.256 62.5625 110.5 62.5625C112.744 62.5625 114.562 64.3813 114.562 66.625Z"
+      strokeWidth="2.4375"
+      stroke="#C8951A"
+    />
+  </svg>
+);
+
+// ---- Talent learning · course ----
+// Outline glyphs share one 24-unit grid (stroke 2, round caps) and inherit `currentColor`.
+const CourseOutlineSvg = ({ className = '', children }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    {children}
+  </svg>
+);
+
+export const CourseLayersIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74Z" />
+    <path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845" />
+  </CourseOutlineSvg>
+);
+
+export const CourseSignalBarsIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 4v16" />
+  </CourseOutlineSvg>
+);
+
+export const CourseGiftIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <rect x="3" y="8" width="18" height="4" rx="1" />
+    <path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+    <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
+  </CourseOutlineSvg>
+);
+
+export const CourseAwardIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+  </CourseOutlineSvg>
+);
+
+export const CourseHammerIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9M18 15l4-4" />
+    <path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5" />
+  </CourseOutlineSvg>
+);
+
+export const CourseQuizHelpIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+  </CourseOutlineSvg>
+);
+
+export const CourseZapIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
+  </CourseOutlineSvg>
+);
+
+export const CoursePlayOutlineIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M6 3 20 12 6 21Z" />
+  </CourseOutlineSvg>
+);
+
+export const CourseCaptionsIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <rect x="2" y="5" width="20" height="14" rx="3" />
+    <path d="M10.5 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3" />
+  </CourseOutlineSvg>
+);
+
+export const CourseVolumeIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+  </CourseOutlineSvg>
+);
+
+export const CourseExpandIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+  </CourseOutlineSvg>
+);
+
+export const CourseNoteIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" />
+    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+  </CourseOutlineSvg>
+);
+
+export const CourseSendPlaneIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13" />
+  </CourseOutlineSvg>
+);
+
+export const CourseBulbIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4" />
+  </CourseOutlineSvg>
+);
+
+export const CourseTargetRingsIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </CourseOutlineSvg>
+);
+
+export const CourseChevronUpIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="m18 15-6-6-6 6" />
+  </CourseOutlineSvg>
+);
+
+export const CourseShieldOutlineIcon = ({ className = '' }) => (
+  <CourseOutlineSvg className={className}>
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z" />
+  </CourseOutlineSvg>
+);
+
+// 40px scalloped certificate seal (Figma `seal`): gold rosette, green disc, white tick.
+export const CourseCertSealIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M20 0L24.375 3.75L30 2.5L31.875 8.125L37.5 10L36.25 15.625L40 20L36.25 24.375L37.5 30L31.875 31.875L30 37.5L24.375 36.25L20 40L15.625 36.25L10 37.5L8.125 31.875L2.5 30L3.75 24.375L0 20L3.75 15.625L2.5 10L8.125 8.125L10 2.5L15.625 3.75L20 0Z"
+      fill="#FFD86B"
+      stroke="#1C2A21"
+      strokeWidth="1.25"
+    />
+    <circle cx="20" cy="18.75" r="10" fill="#387440" stroke="#1C2A21" strokeWidth="1.25" />
+    <path
+      d="M15.6 18.7 18.7 21.8 25 15.6"
+      stroke="#FFFFFF"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Course banner art (Figma `banner art`, 420x170): three ink bars, baseline, trend curve, node, sparkle.
+export const CourseBannerChartArt = ({ className = '' }) => (
+  <svg viewBox="0 0 420 170" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M47 96h20a7 7 0 0 1 7 7v42a7 7 0 0 1-7 7H47a7 7 0 0 1-7-7v-42a7 7 0 0 1 7-7ZM95 66h20a7 7 0 0 1 7 7v72a7 7 0 0 1-7 7H95a7 7 0 0 1-7-7V73a7 7 0 0 1 7-7ZM143 36h20a7 7 0 0 1 7 7v102a7 7 0 0 1-7 7h-20a7 7 0 0 1-7-7V43a7 7 0 0 1 7-7Z"
+      fill="#1C2A21"
+    />
+    <path d="M31.5 152H194.5" stroke="#1C2A21" strokeWidth="7" strokeLinecap="round" />
+    <path
+      d="M230 120C258 68 288 62 320 80C345 98 375 90 390 50"
+      stroke="#1C2A21"
+      strokeWidth="7"
+      strokeLinecap="round"
+    />
+    <circle cx="390" cy="50" r="10" fill="#FFFFFF" stroke="#1C2A21" strokeWidth="4" />
+    <path
+      d="M300 22L305 36L319 41L305 46L300 60L295 46L281 41L295 36L300 22Z"
+      fill="#FFFFFF"
+      stroke="#1C2A21"
+      strokeWidth="2.5"
+    />
+  </svg>
+);
+
+export const CourseRoleMarkHexIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 30 30" fill="none" aria-hidden="true" className={className}>
+    <rect width="30" height="30" rx="7.5" fill="#1D4ED8" />
+    <path
+      d="M15 6.875 21.875 10.94V19.06L15 23.125 8.125 19.06V10.94Z"
+      stroke="#FFFFFF"
+      strokeWidth="1.875"
+      strokeLinejoin="round"
+    />
+    <circle cx="15" cy="15" r="2.5" fill="#93C5FD" />
+  </svg>
+);
+
+export const CourseRoleMarkChatIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 30 30" fill="none" aria-hidden="true" className={className}>
+    <rect width="30" height="30" rx="7.5" fill="#0E3B2E" />
+    <path
+      d="M8.125 10C8.125 9.337 8.388 8.701 8.857 8.232C9.326 7.763 9.962 7.5 10.625 7.5H19.375C20.038 7.5 20.674 7.763 21.143 8.232C21.612 8.701 21.875 9.337 21.875 10V16.25C21.875 16.913 21.612 17.549 21.143 18.018C20.674 18.487 20.038 18.75 19.375 18.75H14.375L10.625 21.875V18.75C9.962 18.75 9.326 18.487 8.857 18.018C8.388 17.549 8.125 16.913 8.125 16.25V10Z"
+      fill="#FFFFFF"
+    />
+    <circle cx="11.875" cy="13" r="1.125" fill="#0E3B2E" />
+    <circle cx="15" cy="13" r="1.125" fill="#0E3B2E" />
+    <circle cx="18.125" cy="13" r="1.125" fill="#F5B700" />
+  </svg>
+);
+// ---- Talent learning · hub ----
+// Course cover art is height-normalised (viewBox -300 0 600 140, centred, slice) so it scales by
+// height and stays centre-anchored in any box (Figma cover frames 260x170 / 84x84 / 309x140 / 429x130).
+
+export const LearningCoverSql = ({ className = '', viewBox = '-300 0 600 140', bare = false }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#1d4ed8" />
+    <g transform="scale(0.8235) translate(-130 0)">
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-11.31 28.69)"
+      />
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(20.56 134.94)"
+      />
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(254.31 39.31)"
+      />
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(222.44 124.31)"
+      />
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-21.94 92.44)"
+      />
+      <path
+        d="M3.19 6.38C4.95 6.38 6.38 4.95 6.38 3.19C6.38 1.43 4.95 0 3.19 0C1.43 0 0 1.43 0 3.19C0 4.95 1.43 6.38 3.19 6.38Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(275.56 92.44)"
+      />
+      <path
+        d="M46.75 29.75C72.57 29.75 93.5 23.09 93.5 14.88C93.5 6.66 72.57 0 46.75 0C20.93 0 0 6.66 0 14.88C0 23.09 20.93 29.75 46.75 29.75Z"
+        fill="#ffffff"
+        transform="translate(83.25 40.38)"
+      />
+      <path
+        d="M0 0L-3.72 0L-3.72 59.5L0 59.5L3.72 59.5L3.72 0L0 0ZM0 59.5L-3.72 59.5C-3.72 63.31 -1.33 66.27 1.49 68.39C4.35 70.53 8.25 72.28 12.7 73.67C21.66 76.47 33.74 78.09 46.75 78.09L46.75 74.38L46.75 70.66C34.26 70.66 22.97 69.09 14.92 66.58C10.88 65.31 7.87 63.87 5.95 62.44C3.98 60.96 3.72 59.94 3.72 59.5L0 59.5ZM46.75 74.38L46.75 78.09C59.76 78.09 71.84 76.47 80.8 73.67C85.25 72.28 89.15 70.53 92.01 68.39C94.83 66.27 97.22 63.31 97.22 59.5L93.5 59.5L89.78 59.5C89.78 59.94 89.52 60.96 87.55 62.44C85.63 63.87 82.62 65.31 78.58 66.58C70.53 69.09 59.24 70.66 46.75 70.66L46.75 74.38ZM93.5 59.5L97.22 59.5L97.22 0L93.5 0L89.78 0L89.78 59.5L93.5 59.5Z"
+        fill="#ffffff"
+        transform="translate(83.25 55.25)"
+      />
+      <path
+        d="M0 0L-3.72 0C-3.72 3.81 -1.33 6.77 1.49 8.89C4.35 11.03 8.25 12.78 12.7 14.17C21.66 16.97 33.74 18.59 46.75 18.59L46.75 14.88L46.75 11.16C34.26 11.16 22.97 9.59 14.92 7.08C10.88 5.81 7.87 4.37 5.95 2.94C3.98 1.46 3.72 0.44 3.72 0L0 0ZM46.75 14.88L46.75 18.59C59.76 18.59 71.84 16.97 80.8 14.17C85.25 12.78 89.15 11.03 92.01 8.89C94.83 6.77 97.22 3.81 97.22 0L93.5 0L89.78 0C89.78 0.44 89.52 1.46 87.55 2.94C85.63 4.37 82.62 5.81 78.58 7.08C70.53 9.59 59.24 11.16 46.75 11.16L46.75 14.88Z"
+        fill="#93c5fd"
+        transform="translate(83.25 85)"
+      />
+      <path
+        d="M17 0L21.25 12.75L34 17L21.25 21.25L17 34L12.75 21.25L0 17L12.75 12.75L17 0Z"
+        fill="#ffd86b"
+        transform="translate(221.38 23.38)"
+      />
+      <path
+        d="M17 0L18.01 -0.34L17 -3.36L15.99 -0.34L17 0ZM21.25 12.75L20.24 13.09L20.41 13.59L20.91 13.76L21.25 12.75ZM34 17L34.34 18.01L37.36 17L34.34 15.99L34 17ZM21.25 21.25L20.91 20.24L20.41 20.41L20.24 20.91L21.25 21.25ZM17 34L15.99 34.34L17 37.36L18.01 34.34L17 34ZM12.75 21.25L13.76 20.91L13.59 20.41L13.09 20.24L12.75 21.25ZM0 17L-0.34 15.99L-3.36 17L-0.34 18.01L0 17ZM12.75 12.75L13.09 13.76L13.59 13.59L13.76 13.09L12.75 12.75ZM17 0L15.99 0.34L20.24 13.09L21.25 12.75L22.26 12.41L18.01 -0.34L17 0ZM21.25 12.75L20.91 13.76L33.66 18.01L34 17L34.34 15.99L21.59 11.74L21.25 12.75ZM34 17L33.66 15.99L20.91 20.24L21.25 21.25L21.59 22.26L34.34 18.01L34 17ZM21.25 21.25L20.24 20.91L15.99 33.66L17 34L18.01 34.34L22.26 21.59L21.25 21.25ZM17 34L18.01 33.66L13.76 20.91L12.75 21.25L11.74 21.59L15.99 34.34L17 34ZM12.75 21.25L13.09 20.24L0.34 15.99L0 17L-0.34 18.01L12.41 22.26L12.75 21.25ZM0 17L0.34 18.01L13.09 13.76L12.75 12.75L12.41 11.74L-0.34 15.99L0 17ZM12.75 12.75L13.76 13.09L18.01 0.34L17 0L15.99 -0.34L11.74 12.41L12.75 12.75Z"
+        fill="#1c2a21"
+        transform="translate(221.38 23.38)"
+      />
+      {!bare && (
+        <path
+          d="M-1.7 1.18C-2.4 2.12 -2.21 3.45 -1.27 4.15C-0.34 4.86 1 4.67 1.7 3.73L0 2.45L-1.7 1.18ZM39.95 3.73C40.65 2.79 40.46 1.46 39.53 0.75C38.59 0.05 37.25 0.24 36.55 1.18L38.25 2.45L39.95 3.73ZM0 2.45L1.7 3.73C2.35 2.86 2.89 2.47 3.28 2.29C3.64 2.13 4 2.09 4.43 2.16C5.48 2.33 6.67 3.08 8.38 4.22C9.86 5.21 11.86 6.58 13.99 6.94C15.16 7.13 16.39 7.04 17.62 6.48C18.82 5.93 19.88 4.99 20.83 3.73L19.13 2.45L17.43 1.18C16.78 2.04 16.24 2.44 15.85 2.61C15.49 2.78 15.13 2.82 14.69 2.75C13.64 2.57 12.45 1.83 10.74 0.69C9.27 -0.3 7.27 -1.68 5.13 -2.03C3.97 -2.23 2.74 -2.13 1.51 -1.57C0.3 -1.02 -0.75 -0.08 -1.7 1.18L0 2.45ZM19.13 2.45L20.83 3.73C21.47 2.86 22.01 2.47 22.4 2.29C22.76 2.13 23.12 2.09 23.56 2.16C24.61 2.33 25.8 3.08 27.51 4.22C28.98 5.21 30.98 6.58 33.12 6.94C34.28 7.13 35.51 7.04 36.74 6.48C37.95 5.93 39 4.99 39.95 3.73L38.25 2.45L36.55 1.18C35.9 2.04 35.36 2.44 34.97 2.61C34.61 2.78 34.25 2.82 33.82 2.75C32.77 2.57 31.58 1.83 29.87 0.69C28.39 -0.3 26.39 -1.68 24.26 -2.03C23.09 -2.23 21.86 -2.13 20.63 -1.57C19.43 -1.02 18.37 -0.08 17.43 1.18L19.13 2.45Z"
+          fill="#ffd86b"
+          transform="translate(-1.75 133.55)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverFrontend = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#1c2a21" />
+    <g transform="scale(1.6667) translate(-42 0)">
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-27.83 14.17)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-12.08 66.67)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(103.42 19.42)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(87.67 61.42)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-33.08 45.67)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(113.92 45.67)"
+      />
+      <path
+        d="M16.37 6.92C17.29 6 17.29 4.5 16.37 3.58C15.45 2.66 13.95 2.66 13.03 3.58L14.7 5.25L16.37 6.92ZM0 19.95L-1.67 18.28C-2.59 19.2 -2.59 20.7 -1.67 21.62L0 19.95ZM13.03 36.32C13.95 37.24 15.45 37.24 16.37 36.32C17.29 35.4 17.29 33.9 16.37 32.98L14.7 34.65L13.03 36.32ZM49.97 3.58C49.05 2.66 47.55 2.66 46.63 3.58C45.71 4.5 45.71 6 46.63 6.92L48.3 5.25L49.97 3.58ZM63 19.95L64.67 21.62C65.59 20.7 65.59 19.2 64.67 18.28L63 19.95ZM46.63 32.98C45.71 33.9 45.71 35.4 46.63 36.32C47.55 37.24 49.05 37.24 49.97 36.32L48.3 34.65L46.63 32.98ZM40.05 0.71C40.45 -0.53 39.76 -1.86 38.51 -2.25C37.27 -2.65 35.94 -1.96 35.55 -0.71L37.8 0L40.05 0.71ZM22.95 39.19C22.55 40.43 23.24 41.76 24.49 42.15C25.73 42.55 27.06 41.86 27.45 40.61L25.2 39.9L22.95 39.19ZM14.7 5.25L13.03 3.58L-1.67 18.28L0 19.95L1.67 21.62L16.37 6.92L14.7 5.25ZM0 19.95L-1.67 21.62L13.03 36.32L14.7 34.65L16.37 32.98L1.67 18.28L0 19.95ZM48.3 5.25L46.63 6.92L61.33 21.62L63 19.95L64.67 18.28L49.97 3.58L48.3 5.25ZM63 19.95L61.33 18.28L46.63 32.98L48.3 34.65L49.97 36.32L64.67 21.62L63 19.95ZM37.8 0L35.55 -0.71L22.95 39.19L25.2 39.9L27.45 40.61L40.05 0.71L37.8 0Z"
+        fill="#84cc16"
+        transform="translate(10.5 24.15)"
+      />
+      <path
+        d="M8.4 0L10.5 6.3L16.8 8.4L10.5 10.5L8.4 16.8L6.3 10.5L0 8.4L6.3 6.3L8.4 0Z"
+        fill="#ffd86b"
+        transform="translate(87.15 11.55)"
+      />
+      <path
+        d="M8.4 0L8.9 -0.17L8.4 -1.66L7.9 -0.17L8.4 0ZM10.5 6.3L10 6.47L10.09 6.72L10.33 6.8L10.5 6.3ZM16.8 8.4L16.97 8.9L18.46 8.4L16.97 7.9L16.8 8.4ZM10.5 10.5L10.33 10L10.09 10.09L10 10.33L10.5 10.5ZM8.4 16.8L7.9 16.97L8.4 18.46L8.9 16.97L8.4 16.8ZM6.3 10.5L6.8 10.33L6.72 10.09L6.47 10L6.3 10.5ZM0 8.4L-0.17 7.9L-1.66 8.4L-0.17 8.9L0 8.4ZM6.3 6.3L6.47 6.8L6.72 6.72L6.8 6.47L6.3 6.3ZM8.4 0L7.9 0.17L10 6.47L10.5 6.3L11 6.13L8.9 -0.17L8.4 0ZM10.5 6.3L10.33 6.8L16.63 8.9L16.8 8.4L16.97 7.9L10.67 5.8L10.5 6.3ZM16.8 8.4L16.63 7.9L10.33 10L10.5 10.5L10.67 11L16.97 8.9L16.8 8.4ZM10.5 10.5L10 10.33L7.9 16.63L8.4 16.8L8.9 16.97L11 10.67L10.5 10.5ZM8.4 16.8L8.9 16.63L6.8 10.33L6.3 10.5L5.8 10.67L7.9 16.97L8.4 16.8ZM6.3 10.5L6.47 10L0.17 7.9L0 8.4L-0.17 8.9L6.13 11L6.3 10.5ZM0 8.4L0.17 8.9L6.47 6.8L6.3 6.3L6.13 5.8L-0.17 7.9L0 8.4ZM6.3 6.3L6.8 6.47L8.9 0.17L8.4 0L7.9 -0.17L5.8 6.13L6.3 6.3Z"
+        fill="#1c2a21"
+        transform="translate(87.15 11.55)"
+      />
+      {!bare && (
+        <path
+          d="M-0.84 0.58C-1.19 1.05 -1.09 1.7 -0.63 2.05C-0.17 2.4 0.49 2.31 0.84 1.84L0 1.21L-0.84 0.58ZM19.74 1.84C20.09 1.38 19.99 0.72 19.53 0.37C19.07 0.02 18.41 0.12 18.06 0.58L18.9 1.21L19.74 1.84ZM0 1.21L0.84 1.84C1.16 1.42 1.43 1.22 1.62 1.13C1.8 1.05 1.98 1.03 2.19 1.07C2.71 1.15 3.3 1.52 4.14 2.09C4.87 2.57 5.86 3.25 6.91 3.43C7.49 3.52 8.1 3.48 8.71 3.2C9.3 2.93 9.82 2.47 10.29 1.84L9.45 1.21L8.61 0.58C8.29 1.01 8.02 1.2 7.83 1.29C7.65 1.37 7.47 1.39 7.26 1.36C6.74 1.27 6.15 0.9 5.31 0.34C4.58 -0.15 3.59 -0.83 2.54 -1C1.96 -1.1 1.35 -1.05 0.74 -0.78C0.15 -0.5 -0.37 -0.04 -0.84 0.58L0 1.21ZM9.45 1.21L10.29 1.84C10.61 1.42 10.88 1.22 11.07 1.13C11.25 1.05 11.43 1.03 11.64 1.07C12.16 1.15 12.75 1.52 13.59 2.09C14.32 2.57 15.31 3.25 16.36 3.43C16.94 3.52 17.55 3.48 18.16 3.2C18.75 2.93 19.27 2.47 19.74 1.84L18.9 1.21L18.06 0.58C17.74 1.01 17.47 1.2 17.28 1.29C17.1 1.37 16.92 1.39 16.71 1.36C16.19 1.27 15.6 0.9 14.76 0.34C14.03 -0.15 13.04 -0.83 11.99 -1C11.41 -1.1 10.8 -1.05 10.19 -0.78C9.6 -0.5 9.08 -0.04 8.61 0.58L9.45 1.21Z"
+          fill="#ffd86b"
+          transform="translate(-23.1 65.99)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverExcel = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#2f7a3b" />
+    <g transform="scale(1.6667) translate(-42 0)">
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-27.83 14.17)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-12.08 66.67)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(103.42 19.42)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(87.67 61.42)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(-33.08 45.67)"
+      />
+      <path
+        d="M1.58 3.15C2.44 3.15 3.15 2.44 3.15 1.58C3.15 0.71 2.44 0 1.58 0C0.71 0 0 0.71 0 1.58C0 2.44 0.71 3.15 1.58 3.15Z"
+        fill="#ffffff"
+        fillOpacity="0.18"
+        transform="translate(113.92 45.67)"
+      />
+      <path
+        d="M49.35 0L5.25 0C2.35 0 0 2.35 0 5.25L0 36.75C0 39.65 2.35 42 5.25 42L49.35 42C52.25 42 54.6 39.65 54.6 36.75L54.6 5.25C54.6 2.35 52.25 0 49.35 0Z"
+        fill="#ffffff"
+        transform="translate(14.7 23.1)"
+      />
+      <path
+        d="M0 13.65L54.6 13.65ZM0 27.3L54.6 27.3ZM18.38 0L18.38 42ZM36.75 0L36.75 42Z"
+        fill="#1c2a21"
+        transform="translate(14.7 23.1)"
+      />
+      <path
+        d="M0 13.65L0 14.7L54.6 14.7L54.6 13.65L54.6 12.6L0 12.6L0 13.65ZM0 27.3L0 28.35L54.6 28.35L54.6 27.3L54.6 26.25L0 26.25L0 27.3ZM18.38 0L17.33 0L17.33 42L18.38 42L19.43 42L19.43 0L18.38 0ZM36.75 0L35.7 0L35.7 42L36.75 42L37.8 42L37.8 0L36.75 0Z"
+        fill="#2f7a3b"
+        transform="translate(14.7 23.1)"
+      />
+      <path
+        d="M18.38 0L0 0L0 13.65L18.38 13.65L18.38 0Z"
+        fill="#c9f27b"
+        transform="translate(33.08 36.75)"
+      />
+      <path
+        d="M8.4 0L10.5 6.3L16.8 8.4L10.5 10.5L8.4 16.8L6.3 10.5L0 8.4L6.3 6.3L8.4 0Z"
+        fill="#ffd86b"
+        transform="translate(87.15 11.55)"
+      />
+      <path
+        d="M8.4 0L8.9 -0.17L8.4 -1.66L7.9 -0.17L8.4 0ZM10.5 6.3L10 6.47L10.09 6.72L10.33 6.8L10.5 6.3ZM16.8 8.4L16.97 8.9L18.46 8.4L16.97 7.9L16.8 8.4ZM10.5 10.5L10.33 10L10.09 10.09L10 10.33L10.5 10.5ZM8.4 16.8L7.9 16.97L8.4 18.46L8.9 16.97L8.4 16.8ZM6.3 10.5L6.8 10.33L6.72 10.09L6.47 10L6.3 10.5ZM0 8.4L-0.17 7.9L-1.66 8.4L-0.17 8.9L0 8.4ZM6.3 6.3L6.47 6.8L6.72 6.72L6.8 6.47L6.3 6.3ZM8.4 0L7.9 0.17L10 6.47L10.5 6.3L11 6.13L8.9 -0.17L8.4 0ZM10.5 6.3L10.33 6.8L16.63 8.9L16.8 8.4L16.97 7.9L10.67 5.8L10.5 6.3ZM16.8 8.4L16.63 7.9L10.33 10L10.5 10.5L10.67 11L16.97 8.9L16.8 8.4ZM10.5 10.5L10 10.33L7.9 16.63L8.4 16.8L8.9 16.97L11 10.67L10.5 10.5ZM8.4 16.8L8.9 16.63L6.8 10.33L6.3 10.5L5.8 10.67L7.9 16.97L8.4 16.8ZM6.3 10.5L6.47 10L0.17 7.9L0 8.4L-0.17 8.9L6.13 11L6.3 10.5ZM0 8.4L0.17 8.9L6.47 6.8L6.3 6.3L6.13 5.8L-0.17 7.9L0 8.4ZM6.3 6.3L6.8 6.47L8.9 0.17L8.4 0L7.9 -0.17L5.8 6.13L6.3 6.3Z"
+        fill="#1c2a21"
+        transform="translate(87.15 11.55)"
+      />
+      {!bare && (
+        <path
+          d="M-0.84 0.58C-1.19 1.05 -1.09 1.7 -0.63 2.05C-0.17 2.4 0.49 2.31 0.84 1.84L0 1.21L-0.84 0.58ZM19.74 1.84C20.09 1.38 19.99 0.72 19.53 0.37C19.07 0.02 18.41 0.12 18.06 0.58L18.9 1.21L19.74 1.84ZM0 1.21L0.84 1.84C1.16 1.42 1.43 1.22 1.62 1.13C1.8 1.05 1.98 1.03 2.19 1.07C2.71 1.15 3.3 1.52 4.14 2.09C4.87 2.57 5.86 3.25 6.91 3.43C7.49 3.52 8.1 3.48 8.71 3.2C9.3 2.93 9.82 2.47 10.29 1.84L9.45 1.21L8.61 0.58C8.29 1.01 8.02 1.2 7.83 1.29C7.65 1.37 7.47 1.39 7.26 1.36C6.74 1.27 6.15 0.9 5.31 0.34C4.58 -0.15 3.59 -0.83 2.54 -1C1.96 -1.1 1.35 -1.05 0.74 -0.78C0.15 -0.5 -0.37 -0.04 -0.84 0.58L0 1.21ZM9.45 1.21L10.29 1.84C10.61 1.42 10.88 1.22 11.07 1.13C11.25 1.05 11.43 1.03 11.64 1.07C12.16 1.15 12.75 1.52 13.59 2.09C14.32 2.57 15.31 3.25 16.36 3.43C16.94 3.52 17.55 3.48 18.16 3.2C18.75 2.93 19.27 2.47 19.74 1.84L18.9 1.21L18.06 0.58C17.74 1.01 17.47 1.2 17.28 1.29C17.1 1.37 16.92 1.39 16.71 1.36C16.19 1.27 15.6 0.9 14.76 0.34C14.03 -0.15 13.04 -0.83 11.99 -1C11.41 -1.1 10.8 -1.05 10.19 -0.78C9.6 -0.5 9.08 -0.04 8.61 0.58L9.45 1.21Z"
+          fill="#ffd86b"
+          transform="translate(-23.1 65.99)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverPowerBi = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#ffcb05" />
+    <g transform="scale(1) translate(-154.5 0)">
+      <path
+        d="M13.13 0L4.38 0C1.96 0 0 1.96 0 4.38L0 30.63C0 33.04 1.96 35 4.38 35L13.13 35C15.54 35 17.5 33.04 17.5 30.63L17.5 4.38C17.5 1.96 15.54 0 13.13 0Z"
+        fill="#1c2a21"
+        transform="translate(112.5 73.5)"
+      />
+      <path
+        d="M13.13 0L4.38 0C1.96 0 0 1.96 0 4.38L0 51.63C0 54.04 1.96 56 4.38 56L13.13 56C15.54 56 17.5 54.04 17.5 51.63L17.5 4.38C17.5 1.96 15.54 0 13.13 0Z"
+        fill="#1c2a21"
+        transform="translate(138.75 52.5)"
+      />
+      <path
+        d="M13.13 0L4.38 0C1.96 0 0 1.96 0 4.38L0 69.13C0 71.54 1.96 73.5 4.38 73.5L13.13 73.5C15.54 73.5 17.5 71.54 17.5 69.13L17.5 4.38C17.5 1.96 15.54 0 13.13 0Z"
+        fill="#1c2a21"
+        transform="translate(165 35)"
+      />
+      <path d="M0 0L91 0Z" fill="#1c2a21" transform="translate(105.5 112)" />
+      <path
+        d="M0 -2.62C-1.45 -2.62 -2.62 -1.45 -2.62 0C-2.62 1.45 -1.45 2.63 0 2.63L0 0L0 -2.62ZM91 2.63C92.45 2.63 93.63 1.45 93.63 0C93.63 -1.45 92.45 -2.62 91 -2.62L91 0L91 2.63ZM0 0L0 2.63L91 2.63L91 0L91 -2.62L0 -2.62L0 0Z"
+        fill="#1c2a21"
+        transform="translate(105.5 112)"
+      />
+      <path
+        d="M14 0L17.5 10.5L28 14L17.5 17.5L14 28L10.5 17.5L0 14L10.5 10.5L14 0Z"
+        fill="#ffffff"
+        transform="translate(229.75 19.25)"
+      />
+      <path
+        d="M14 0L14.83 -0.28L14 -2.77L13.17 -0.28L14 0ZM17.5 10.5L16.67 10.78L16.81 11.19L17.22 11.33L17.5 10.5ZM28 14L28.28 14.83L30.77 14L28.28 13.17L28 14ZM17.5 17.5L17.22 16.67L16.81 16.81L16.67 17.22L17.5 17.5ZM14 28L13.17 28.28L14 30.77L14.83 28.28L14 28ZM10.5 17.5L11.33 17.22L11.19 16.81L10.78 16.67L10.5 17.5ZM0 14L-0.28 13.17L-2.77 14L-0.28 14.83L0 14ZM10.5 10.5L10.78 11.33L11.19 11.19L11.33 10.78L10.5 10.5ZM14 0L13.17 0.28L16.67 10.78L17.5 10.5L18.33 10.22L14.83 -0.28L14 0ZM17.5 10.5L17.22 11.33L27.72 14.83L28 14L28.28 13.17L17.78 9.67L17.5 10.5ZM28 14L27.72 13.17L17.22 16.67L17.5 17.5L17.78 18.33L28.28 14.83L28 14ZM17.5 17.5L16.67 17.22L13.17 27.72L14 28L14.83 28.28L18.33 17.78L17.5 17.5ZM14 28L14.83 27.72L11.33 17.22L10.5 17.5L9.67 17.78L13.17 28.28L14 28ZM10.5 17.5L10.78 16.67L0.28 13.17L0 14L-0.28 14.83L10.22 18.33L10.5 17.5ZM0 14L0.28 14.83L10.78 11.33L10.5 10.5L10.22 9.67L-0.28 13.17L0 14ZM10.5 10.5L11.33 10.78L14.83 0.28L14 0L13.17 -0.28L9.67 10.22L10.5 10.5Z"
+        fill="#1c2a21"
+        transform="translate(229.75 19.25)"
+      />
+      {!bare && (
+        <path
+          d="M-1.4 0.97C-1.98 1.74 -1.82 2.84 -1.05 3.42C-0.28 4 0.82 3.84 1.4 3.07L0 2.02L-1.4 0.97ZM32.9 3.07C33.48 2.3 33.32 1.2 32.55 0.62C31.78 0.04 30.68 0.2 30.1 0.97L31.5 2.02L32.9 3.07ZM0 2.02L1.4 3.07C1.93 2.36 2.38 2.04 2.7 1.89C3 1.75 3.29 1.72 3.65 1.78C4.52 1.92 5.49 2.54 6.9 3.48C8.12 4.29 9.77 5.42 11.52 5.72C12.48 5.87 13.5 5.8 14.51 5.33C15.5 4.88 16.37 4.11 17.15 3.07L15.75 2.02L14.35 0.97C13.82 1.68 13.37 2.01 13.05 2.15C12.75 2.29 12.46 2.32 12.1 2.26C11.23 2.12 10.26 1.5 8.85 0.56C7.63 -0.25 5.98 -1.38 4.23 -1.67C3.27 -1.83 2.25 -1.76 1.24 -1.29C0.25 -0.84 -0.62 -0.07 -1.4 0.97L0 2.02ZM15.75 2.02L17.15 3.07C17.68 2.36 18.13 2.04 18.45 1.89C18.75 1.75 19.04 1.72 19.4 1.78C20.27 1.92 21.24 2.54 22.65 3.48C23.87 4.29 25.52 5.42 27.27 5.72C28.23 5.87 29.25 5.8 30.26 5.33C31.25 4.88 32.12 4.11 32.9 3.07L31.5 2.02L30.1 0.97C29.57 1.68 29.12 2.01 28.8 2.15C28.5 2.29 28.21 2.32 27.85 2.26C26.98 2.12 26.01 1.5 24.6 0.56C23.38 -0.25 21.73 -1.38 19.98 -1.67C19.02 -1.83 18 -1.76 16.99 -1.29C16 -0.84 15.13 -0.07 14.35 0.97L15.75 2.02Z"
+          fill="#ffffff"
+          transform="translate(46 109.98)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverFigma = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#7c3aed" />
+    <g transform="scale(1) translate(-154.5 0)">
+      <path
+        d="M29.75 0L59.5 29.75L29.75 73.5L0 29.75L29.75 0Z"
+        fill="#ffffff"
+        transform="translate(124.75 35)"
+      />
+      <path
+        d="M7.88 15.75C12.22 15.75 15.75 12.22 15.75 7.88C15.75 3.53 12.22 0 7.88 0C3.53 0 0 3.53 0 7.88C0 12.22 3.53 15.75 7.88 15.75Z"
+        fill="#7c3aed"
+        transform="translate(146.63 65.63)"
+      />
+      <path d="M0 0L0 27.13Z" fill="#1c2a21" transform="translate(154.5 81.38)" />
+      <path
+        d="M0 0L-2.19 0L-2.19 27.13L0 27.13L2.19 27.13L2.19 0L0 0Z"
+        fill="#7c3aed"
+        transform="translate(154.5 81.38)"
+      />
+      <path
+        d="M14 0L17.5 10.5L28 14L17.5 17.5L14 28L10.5 17.5L0 14L10.5 10.5L14 0Z"
+        fill="#ffd86b"
+        transform="translate(229.75 19.25)"
+      />
+      <path
+        d="M14 0L14.83 -0.28L14 -2.77L13.17 -0.28L14 0ZM17.5 10.5L16.67 10.78L16.81 11.19L17.22 11.33L17.5 10.5ZM28 14L28.28 14.83L30.77 14L28.28 13.17L28 14ZM17.5 17.5L17.22 16.67L16.81 16.81L16.67 17.22L17.5 17.5ZM14 28L13.17 28.28L14 30.77L14.83 28.28L14 28ZM10.5 17.5L11.33 17.22L11.19 16.81L10.78 16.67L10.5 17.5ZM0 14L-0.28 13.17L-2.77 14L-0.28 14.83L0 14ZM10.5 10.5L10.78 11.33L11.19 11.19L11.33 10.78L10.5 10.5ZM14 0L13.17 0.28L16.67 10.78L17.5 10.5L18.33 10.22L14.83 -0.28L14 0ZM17.5 10.5L17.22 11.33L27.72 14.83L28 14L28.28 13.17L17.78 9.67L17.5 10.5ZM28 14L27.72 13.17L17.22 16.67L17.5 17.5L17.78 18.33L28.28 14.83L28 14ZM17.5 17.5L16.67 17.22L13.17 27.72L14 28L14.83 28.28L18.33 17.78L17.5 17.5ZM14 28L14.83 27.72L11.33 17.22L10.5 17.5L9.67 17.78L13.17 28.28L14 28ZM10.5 17.5L10.78 16.67L0.28 13.17L0 14L-0.28 14.83L10.22 18.33L10.5 17.5ZM0 14L0.28 14.83L10.78 11.33L10.5 10.5L10.22 9.67L-0.28 13.17L0 14ZM10.5 10.5L11.33 10.78L14.83 0.28L14 0L13.17 -0.28L9.67 10.22L10.5 10.5Z"
+        fill="#1c2a21"
+        transform="translate(229.75 19.25)"
+      />
+      {!bare && (
+        <path
+          d="M-1.4 0.97C-1.98 1.74 -1.82 2.84 -1.05 3.42C-0.28 4 0.82 3.84 1.4 3.07L0 2.02L-1.4 0.97ZM32.9 3.07C33.48 2.3 33.32 1.2 32.55 0.62C31.78 0.04 30.68 0.2 30.1 0.97L31.5 2.02L32.9 3.07ZM0 2.02L1.4 3.07C1.93 2.36 2.38 2.04 2.7 1.89C3 1.75 3.29 1.72 3.65 1.78C4.52 1.92 5.49 2.54 6.9 3.48C8.12 4.29 9.77 5.42 11.52 5.72C12.48 5.87 13.5 5.8 14.51 5.33C15.5 4.88 16.37 4.11 17.15 3.07L15.75 2.02L14.35 0.97C13.82 1.68 13.37 2.01 13.05 2.15C12.75 2.29 12.46 2.32 12.1 2.26C11.23 2.12 10.26 1.5 8.85 0.56C7.63 -0.25 5.98 -1.38 4.23 -1.67C3.27 -1.83 2.25 -1.76 1.24 -1.29C0.25 -0.84 -0.62 -0.07 -1.4 0.97L0 2.02ZM15.75 2.02L17.15 3.07C17.68 2.36 18.13 2.04 18.45 1.89C18.75 1.75 19.04 1.72 19.4 1.78C20.27 1.92 21.24 2.54 22.65 3.48C23.87 4.29 25.52 5.42 27.27 5.72C28.23 5.87 29.25 5.8 30.26 5.33C31.25 4.88 32.12 4.11 32.9 3.07L31.5 2.02L30.1 0.97C29.57 1.68 29.12 2.01 28.8 2.15C28.5 2.29 28.21 2.32 27.85 2.26C26.98 2.12 26.01 1.5 24.6 0.56C23.38 -0.25 21.73 -1.38 19.98 -1.67C19.02 -1.83 18 -1.76 16.99 -1.29C16 -0.84 15.13 -0.07 14.35 0.97L15.75 2.02Z"
+          fill="#ffd86b"
+          transform="translate(46 109.98)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverStatistics = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#f68b1e" />
+    <g transform="scale(1) translate(-154.5 0)">
+      <path
+        d="M-3.32 68.89C-3.93 70.73 -2.94 72.71 -1.11 73.32C0.73 73.93 2.71 72.94 3.32 71.11L0 70L-3.32 68.89ZM108.68 71.11C109.29 72.94 111.27 73.93 113.11 73.32C114.94 72.71 115.93 70.73 115.32 68.89L112 70L108.68 71.11ZM0 70L3.32 71.11C12.02 45 20.6 28 29.37 17.56C38 7.29 46.69 3.5 56 3.5L56 0L56 -3.5C44.31 -3.5 33.75 1.46 24.01 13.06C14.4 24.5 5.48 42.5 -3.32 68.89L0 70ZM56 0L56 3.5C65.31 3.5 74 7.29 82.63 17.56C91.4 28 99.98 45 108.68 71.11L112 70L115.32 68.89C106.52 42.5 97.6 24.5 87.99 13.06C78.25 1.46 67.69 -3.5 56 -3.5L56 0Z"
+        fill="#ffffff"
+        transform="translate(98.5 35)"
+      />
+      <path d="M0 0L0 70Z" fill="#1c2a21" transform="translate(154.5 35)" />
+      <path
+        d="M0 0L-1.75 0L-1.75 2.5L0 2.5L1.75 2.5L1.75 0L0 0ZM0 7.5L-1.75 7.5L-1.75 12.5L0 12.5L1.75 12.5L1.75 7.5L0 7.5ZM0 17.5L-1.75 17.5L-1.75 22.5L0 22.5L1.75 22.5L1.75 17.5L0 17.5ZM0 27.5L-1.75 27.5L-1.75 32.5L0 32.5L1.75 32.5L1.75 27.5L0 27.5ZM0 37.5L-1.75 37.5L-1.75 42.5L0 42.5L1.75 42.5L1.75 37.5L0 37.5ZM0 47.5L-1.75 47.5L-1.75 52.5L0 52.5L1.75 52.5L1.75 47.5L0 47.5ZM0 57.5L-1.75 57.5L-1.75 62.5L0 62.5L1.75 62.5L1.75 57.5L0 57.5ZM0 67.5L-1.75 67.5L-1.75 70L0 70L1.75 70L1.75 67.5L0 67.5Z"
+        fill="#1c2a21"
+        transform="translate(154.5 35)"
+      />
+      <path
+        d="M14 0L17.5 10.5L28 14L17.5 17.5L14 28L10.5 17.5L0 14L10.5 10.5L14 0Z"
+        fill="#ffffff"
+        transform="translate(229.75 19.25)"
+      />
+      <path
+        d="M14 0L14.83 -0.28L14 -2.77L13.17 -0.28L14 0ZM17.5 10.5L16.67 10.78L16.81 11.19L17.22 11.33L17.5 10.5ZM28 14L28.28 14.83L30.77 14L28.28 13.17L28 14ZM17.5 17.5L17.22 16.67L16.81 16.81L16.67 17.22L17.5 17.5ZM14 28L13.17 28.28L14 30.77L14.83 28.28L14 28ZM10.5 17.5L11.33 17.22L11.19 16.81L10.78 16.67L10.5 17.5ZM0 14L-0.28 13.17L-2.77 14L-0.28 14.83L0 14ZM10.5 10.5L10.78 11.33L11.19 11.19L11.33 10.78L10.5 10.5ZM14 0L13.17 0.28L16.67 10.78L17.5 10.5L18.33 10.22L14.83 -0.28L14 0ZM17.5 10.5L17.22 11.33L27.72 14.83L28 14L28.28 13.17L17.78 9.67L17.5 10.5ZM28 14L27.72 13.17L17.22 16.67L17.5 17.5L17.78 18.33L28.28 14.83L28 14ZM17.5 17.5L16.67 17.22L13.17 27.72L14 28L14.83 28.28L18.33 17.78L17.5 17.5ZM14 28L14.83 27.72L11.33 17.22L10.5 17.5L9.67 17.78L13.17 28.28L14 28ZM10.5 17.5L10.78 16.67L0.28 13.17L0 14L-0.28 14.83L10.22 18.33L10.5 17.5ZM0 14L0.28 14.83L10.78 11.33L10.5 10.5L10.22 9.67L-0.28 13.17L0 14ZM10.5 10.5L11.33 10.78L14.83 0.28L14 0L13.17 -0.28L9.67 10.22L10.5 10.5Z"
+        fill="#1c2a21"
+        transform="translate(229.75 19.25)"
+      />
+      {!bare && (
+        <path
+          d="M-1.4 0.97C-1.98 1.74 -1.82 2.84 -1.05 3.42C-0.28 4 0.82 3.84 1.4 3.07L0 2.02L-1.4 0.97ZM32.9 3.07C33.48 2.3 33.32 1.2 32.55 0.62C31.78 0.04 30.68 0.2 30.1 0.97L31.5 2.02L32.9 3.07ZM0 2.02L1.4 3.07C1.93 2.36 2.38 2.04 2.7 1.89C3 1.75 3.29 1.72 3.65 1.78C4.52 1.92 5.49 2.54 6.9 3.48C8.12 4.29 9.77 5.42 11.52 5.72C12.48 5.87 13.5 5.8 14.51 5.33C15.5 4.88 16.37 4.11 17.15 3.07L15.75 2.02L14.35 0.97C13.82 1.68 13.37 2.01 13.05 2.15C12.75 2.29 12.46 2.32 12.1 2.26C11.23 2.12 10.26 1.5 8.85 0.56C7.63 -0.25 5.98 -1.38 4.23 -1.67C3.27 -1.83 2.25 -1.76 1.24 -1.29C0.25 -0.84 -0.62 -0.07 -1.4 0.97L0 2.02ZM15.75 2.02L17.15 3.07C17.68 2.36 18.13 2.04 18.45 1.89C18.75 1.75 19.04 1.72 19.4 1.78C20.27 1.92 21.24 2.54 22.65 3.48C23.87 4.29 25.52 5.42 27.27 5.72C28.23 5.87 29.25 5.8 30.26 5.33C31.25 4.88 32.12 4.11 32.9 3.07L31.5 2.02L30.1 0.97C29.57 1.68 29.12 2.01 28.8 2.15C28.5 2.29 28.21 2.32 27.85 2.26C26.98 2.12 26.01 1.5 24.6 0.56C23.38 -0.25 21.73 -1.38 19.98 -1.67C19.02 -1.83 18 -1.76 16.99 -1.29C16 -0.84 15.13 -0.07 14.35 0.97L15.75 2.02Z"
+          fill="#ffffff"
+          transform="translate(46 109.98)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverInterview = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#0e3b2e" />
+    <g transform="scale(1.0769) translate(-214.8333282470703 0)">
+      <path
+        d="M22.75 45.5C35.31 45.5 45.5 35.31 45.5 22.75C45.5 10.19 35.31 0 22.75 0C10.19 0 0 10.19 0 22.75C0 35.31 10.19 45.5 22.75 45.5Z"
+        fill="#ffd86b"
+        transform="translate(192.08 34.13)"
+      />
+      <path
+        d="M19.5 0L3.25 0C1.46 0 0 1.46 0 3.25L0 11.38C0 13.17 1.46 14.63 3.25 14.63L19.5 14.63C21.29 14.63 22.75 13.17 22.75 11.38L22.75 3.25C22.75 1.46 21.29 0 19.5 0Z"
+        fill="#ffffff"
+        transform="translate(203.46 79.63)"
+      />
+      <path d="M0 0L13 0Z" fill="#1c2a21" transform="translate(208.33 99.13)" />
+      <path
+        d="M0 -2.03C-1.12 -2.03 -2.03 -1.12 -2.03 0C-2.03 1.12 -1.12 2.03 0 2.03L0 0L0 -2.03ZM13 2.03C14.12 2.03 15.03 1.12 15.03 0C15.03 -1.12 14.12 -2.03 13 -2.03L13 0L13 2.03ZM0 0L0 2.03L13 2.03L13 0L13 -2.03L0 -2.03L0 0Z"
+        fill="#ffffff"
+        transform="translate(208.33 99.13)"
+      />
+      <path
+        d="M13 0L16.25 9.75L26 13L16.25 16.25L13 26L9.75 16.25L0 13L9.75 9.75L13 0Z"
+        fill="#c9f27b"
+        transform="translate(284.71 17.88)"
+      />
+      <path
+        d="M13 0L13.77 -0.26L13 -2.57L12.23 -0.26L13 0ZM16.25 9.75L15.48 10.01L15.61 10.39L15.99 10.52L16.25 9.75ZM26 13L26.26 13.77L28.57 13L26.26 12.23L26 13ZM16.25 16.25L15.99 15.48L15.61 15.61L15.48 15.99L16.25 16.25ZM13 26L12.23 26.26L13 28.57L13.77 26.26L13 26ZM9.75 16.25L10.52 15.99L10.39 15.61L10.01 15.48L9.75 16.25ZM0 13L-0.26 12.23L-2.57 13L-0.26 13.77L0 13ZM9.75 9.75L10.01 10.52L10.39 10.39L10.52 10.01L9.75 9.75ZM13 0L12.23 0.26L15.48 10.01L16.25 9.75L17.02 9.49L13.77 -0.26L13 0ZM16.25 9.75L15.99 10.52L25.74 13.77L26 13L26.26 12.23L16.51 8.98L16.25 9.75ZM26 13L25.74 12.23L15.99 15.48L16.25 16.25L16.51 17.02L26.26 13.77L26 13ZM16.25 16.25L15.48 15.99L12.23 25.74L13 26L13.77 26.26L17.02 16.51L16.25 16.25ZM13 26L13.77 25.74L10.52 15.99L9.75 16.25L8.98 16.51L12.23 26.26L13 26ZM9.75 16.25L10.01 15.48L0.26 12.23L0 13L-0.26 13.77L9.49 17.02L9.75 16.25ZM0 13L0.26 13.77L10.01 10.52L9.75 9.75L9.49 8.98L-0.26 12.23L0 13ZM9.75 9.75L10.52 10.01L13.77 0.26L13 0L12.23 -0.26L8.98 9.49L9.75 9.75Z"
+        fill="#1c2a21"
+        transform="translate(284.71 17.88)"
+      />
+      {!bare && (
+        <path
+          d="M-1.3 0.9C-1.84 1.62 -1.69 2.64 -0.97 3.18C-0.26 3.71 0.76 3.57 1.3 2.85L0 1.88L-1.3 0.9ZM30.55 2.85C31.09 2.13 30.94 1.11 30.23 0.58C29.51 0.04 28.49 0.18 27.95 0.9L29.25 1.88L30.55 2.85ZM0 1.88L1.3 2.85C1.8 2.19 2.21 1.89 2.51 1.75C2.78 1.63 3.06 1.6 3.39 1.65C4.19 1.79 5.1 2.36 6.41 3.23C7.54 3.98 9.07 5.04 10.7 5.31C11.59 5.46 12.53 5.38 13.47 4.95C14.39 4.53 15.2 3.81 15.93 2.85L14.63 1.88L13.33 0.9C12.83 1.56 12.42 1.86 12.12 2C11.84 2.13 11.57 2.16 11.24 2.1C10.43 1.97 9.52 1.4 8.21 0.52C7.09 -0.23 5.56 -1.28 3.92 -1.55C3.04 -1.7 2.09 -1.63 1.15 -1.2C0.23 -0.78 -0.58 -0.06 -1.3 0.9L0 1.88ZM14.63 1.88L15.93 2.85C16.42 2.19 16.83 1.89 17.13 1.75C17.41 1.63 17.68 1.6 18.01 1.65C18.82 1.79 19.73 2.36 21.04 3.23C22.16 3.98 23.69 5.04 25.33 5.31C26.21 5.46 27.16 5.38 28.1 4.95C29.02 4.53 29.83 3.81 30.55 2.85L29.25 1.88L27.95 0.9C27.45 1.56 27.04 1.86 26.74 2C26.47 2.13 26.19 2.16 25.86 2.1C25.06 1.97 24.15 1.4 22.84 0.52C21.71 -0.23 20.18 -1.28 18.55 -1.55C17.66 -1.7 16.72 -1.63 15.78 -1.2C14.86 -0.78 14.05 -0.06 13.33 0.9L14.63 1.88Z"
+          fill="#c9f27b"
+          transform="translate(114.08 102.12)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningCoverPython = ({
+  className = '',
+  viewBox = '-300 0 600 140',
+  bare = false,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox}
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <rect x="-1000" y="-300" width="2000" height="740" fill="#244a9f" />
+    <g transform="scale(1.0769) translate(-214.8333282470703 0)">
+      <path
+        d="M9.75 -3.66C7.73 -3.66 6.09 -2.02 6.09 5.77e-15C6.09 2.02 7.73 3.66 9.75 3.66L9.75 5.77e-15L9.75 -3.66ZM32.5 5.77e-15L32.5 3.66L32.5 5.77e-15ZM42.25 24.38L42.25 28.03L45.91 28.03L45.91 24.38L42.25 24.38ZM9.75 24.38L9.75 20.72L9.75 24.38ZM0 34.13L-3.66 34.13L0 34.13ZM-3.66 45.5C-3.66 47.52 -2.02 49.16 0 49.16C2.02 49.16 3.66 47.52 3.66 45.5L0 45.5L-3.66 45.5ZM9.75 5.77e-15L9.75 3.66L32.5 3.66L32.5 5.77e-15L32.5 -3.66L9.75 -3.66L9.75 5.77e-15ZM32.5 5.77e-15L32.5 3.66C34.12 3.66 35.67 4.3 36.81 5.44L39.39 2.86L41.98 0.27C39.47 -2.24 36.06 -3.66 32.5 -3.66L32.5 5.77e-15ZM39.39 2.86L36.81 5.44C37.95 6.58 38.59 8.13 38.59 9.75L42.25 9.75L45.91 9.75C45.91 6.19 44.49 2.78 41.98 0.27L39.39 2.86ZM42.25 9.75L38.59 9.75L38.59 24.38L42.25 24.38L45.91 24.38L45.91 9.75L42.25 9.75ZM42.25 24.38L42.25 20.72L9.75 20.72L9.75 24.38L9.75 28.03L42.25 28.03L42.25 24.38ZM9.75 24.38L9.75 20.72C6.19 20.72 2.78 22.13 0.27 24.65L2.86 27.23L5.44 29.82C6.58 28.67 8.13 28.03 9.75 28.03L9.75 24.38ZM2.86 27.23L0.27 24.65C-2.24 27.16 -3.66 30.57 -3.66 34.13L0 34.13L3.66 34.13C3.66 32.51 4.3 30.96 5.44 29.82L2.86 27.23ZM0 34.13L-3.66 34.13L-3.66 45.5L0 45.5L3.66 45.5L3.66 34.13L0 34.13Z"
+        fill="#ffd86b"
+        transform="translate(188.83 40.63)"
+      />
+      <path
+        d="M32.5 49.16C34.52 49.16 36.16 47.52 36.16 45.5C36.16 43.48 34.52 41.84 32.5 41.84L32.5 45.5L32.5 49.16ZM9.75 45.5L9.75 49.16L9.75 45.5ZM0 21.13L0 17.47L-3.66 17.47L-3.66 21.13L0 21.13ZM32.5 21.13L32.5 24.78L32.5 21.13ZM45.91 0C45.91 -2.02 44.27 -3.66 42.25 -3.66C40.23 -3.66 38.59 -2.02 38.59 0L42.25 0L45.91 0ZM32.5 45.5L32.5 41.84L9.75 41.84L9.75 45.5L9.75 49.16L32.5 49.16L32.5 45.5ZM9.75 45.5L9.75 41.84C8.13 41.84 6.58 41.2 5.44 40.06L2.86 42.64L0.27 45.23C2.78 47.74 6.19 49.16 9.75 49.16L9.75 45.5ZM2.86 42.64L5.44 40.06C4.3 38.92 3.66 37.37 3.66 35.75L0 35.75L-3.66 35.75C-3.66 39.31 -2.24 42.72 0.27 45.23L2.86 42.64ZM0 35.75L3.66 35.75L3.66 21.13L0 21.13L-3.66 21.13L-3.66 35.75L0 35.75ZM0 21.13L0 24.78L32.5 24.78L32.5 21.13L32.5 17.47L0 17.47L0 21.13ZM32.5 21.13L32.5 24.78C36.06 24.78 39.47 23.37 41.98 20.85L39.39 18.27L36.81 15.68C35.67 16.83 34.12 17.47 32.5 17.47L32.5 21.13ZM39.39 18.27L41.98 20.85C44.49 18.34 45.91 14.93 45.91 11.38L42.25 11.38L38.59 11.38C38.59 12.99 37.95 14.54 36.81 15.68L39.39 18.27ZM42.25 11.38L45.91 11.38L45.91 0L42.25 0L38.59 0L38.59 11.38L42.25 11.38Z"
+        fill="#ffffff"
+        transform="translate(198.58 43.88)"
+      />
+      <path
+        d="M13 0L16.25 9.75L26 13L16.25 16.25L13 26L9.75 16.25L0 13L9.75 9.75L13 0Z"
+        fill="#c9f27b"
+        transform="translate(284.71 17.88)"
+      />
+      <path
+        d="M13 0L13.77 -0.26L13 -2.57L12.23 -0.26L13 0ZM16.25 9.75L15.48 10.01L15.61 10.39L15.99 10.52L16.25 9.75ZM26 13L26.26 13.77L28.57 13L26.26 12.23L26 13ZM16.25 16.25L15.99 15.48L15.61 15.61L15.48 15.99L16.25 16.25ZM13 26L12.23 26.26L13 28.57L13.77 26.26L13 26ZM9.75 16.25L10.52 15.99L10.39 15.61L10.01 15.48L9.75 16.25ZM0 13L-0.26 12.23L-2.57 13L-0.26 13.77L0 13ZM9.75 9.75L10.01 10.52L10.39 10.39L10.52 10.01L9.75 9.75ZM13 0L12.23 0.26L15.48 10.01L16.25 9.75L17.02 9.49L13.77 -0.26L13 0ZM16.25 9.75L15.99 10.52L25.74 13.77L26 13L26.26 12.23L16.51 8.98L16.25 9.75ZM26 13L25.74 12.23L15.99 15.48L16.25 16.25L16.51 17.02L26.26 13.77L26 13ZM16.25 16.25L15.48 15.99L12.23 25.74L13 26L13.77 26.26L17.02 16.51L16.25 16.25ZM13 26L13.77 25.74L10.52 15.99L9.75 16.25L8.98 16.51L12.23 26.26L13 26ZM9.75 16.25L10.01 15.48L0.26 12.23L0 13L-0.26 13.77L9.49 17.02L9.75 16.25ZM0 13L0.26 13.77L10.01 10.52L9.75 9.75L9.49 8.98L-0.26 12.23L0 13ZM9.75 9.75L10.52 10.01L13.77 0.26L13 0L12.23 -0.26L8.98 9.49L9.75 9.75Z"
+        fill="#1c2a21"
+        transform="translate(284.71 17.88)"
+      />
+      {!bare && (
+        <path
+          d="M-1.3 0.9C-1.84 1.62 -1.69 2.64 -0.97 3.18C-0.26 3.71 0.76 3.57 1.3 2.85L0 1.88L-1.3 0.9ZM30.55 2.85C31.09 2.13 30.94 1.11 30.23 0.58C29.51 0.04 28.49 0.18 27.95 0.9L29.25 1.88L30.55 2.85ZM0 1.88L1.3 2.85C1.8 2.19 2.21 1.89 2.51 1.75C2.78 1.63 3.06 1.6 3.39 1.65C4.19 1.79 5.1 2.36 6.41 3.23C7.54 3.98 9.07 5.04 10.7 5.31C11.59 5.46 12.53 5.38 13.47 4.95C14.39 4.53 15.2 3.81 15.93 2.85L14.63 1.88L13.33 0.9C12.83 1.56 12.42 1.86 12.12 2C11.84 2.13 11.57 2.16 11.24 2.1C10.43 1.97 9.52 1.4 8.21 0.52C7.09 -0.23 5.56 -1.28 3.92 -1.55C3.04 -1.7 2.09 -1.63 1.15 -1.2C0.23 -0.78 -0.58 -0.06 -1.3 0.9L0 1.88ZM14.63 1.88L15.93 2.85C16.42 2.19 16.83 1.89 17.13 1.75C17.41 1.63 17.68 1.6 18.01 1.65C18.82 1.79 19.73 2.36 21.04 3.23C22.16 3.98 23.69 5.04 25.33 5.31C26.21 5.46 27.16 5.38 28.1 4.95C29.02 4.53 29.83 3.81 30.55 2.85L29.25 1.88L27.95 0.9C27.45 1.56 27.04 1.86 26.74 2C26.47 2.13 26.19 2.16 25.86 2.1C25.06 1.97 24.15 1.4 22.84 0.52C21.71 -0.23 20.18 -1.28 18.55 -1.55C17.66 -1.7 16.72 -1.63 15.78 -1.2C14.86 -0.78 14.05 -0.06 13.33 0.9L14.63 1.88Z"
+          fill="#c9f27b"
+          transform="translate(114.08 102.12)"
+        />
+      )}
+    </g>
+  </svg>
+);
+
+export const LearningStreakFlameIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M4.64 0C6.04 2.84 9.29 4.9 9.29 8.51C9.29 11.09 7.25 12.9 4.64 12.9C2.04 12.9 0 11.09 0 8.51C0 6.45 1.11 5.16 2.04 3.35C2.42 4.9 2.97 5.68 3.72 5.93C3.16 3.61 3.9 1.55 4.64 0Z"
+      fill="#ff7a1e"
+      transform="translate(2.86 1.2)"
+    />
+    <path
+      d="M2.42 0C3.14 1.48 4.83 2.55 4.83 4.43C4.83 5.77 3.77 6.71 2.42 6.71C1.06 6.71 0 5.77 0 4.43C0 3.35 0.58 2.68 1.06 1.74C1.26 2.55 1.55 2.95 1.93 3.09C1.64 1.88 2.03 0.81 2.42 0Z"
+      fill="#ffffff"
+      fillOpacity="0.55"
+      transform="translate(5.08 6.62)"
+    />
+  </svg>
+);
+
+export const LearningTargetIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M10 5L9.5 5C9.5 7.49 7.49 9.5 5 9.5L5 10L5 10.5C8.04 10.5 10.5 8.04 10.5 5L10 5ZM5 10L5 9.5C2.51 9.5 0.5 7.49 0.5 5L0 5L-0.5 5C-0.5 8.04 1.96 10.5 5 10.5L5 10ZM0 5L0.5 5C0.5 2.51 2.51 0.5 5 0.5L5 0L5 -0.5C1.96 -0.5 -0.5 1.96 -0.5 5L0 5ZM5 0L5 0.5C7.49 0.5 9.5 2.51 9.5 5L10 5L10.5 5C10.5 1.96 8.04 -0.5 5 -0.5L5 0Z"
+      fill="#387440"
+      transform="translate(1 1)"
+    />
+    <path
+      d="M6 3L5.5 3C5.5 4.38 4.38 5.5 3 5.5L3 6L3 6.5C4.93 6.5 6.5 4.93 6.5 3L6 3ZM3 6L3 5.5C1.62 5.5 0.5 4.38 0.5 3L0 3L-0.5 3C-0.5 4.93 1.07 6.5 3 6.5L3 6ZM0 3L0.5 3C0.5 1.62 1.62 0.5 3 0.5L3 0L3 -0.5C1.07 -0.5 -0.5 1.07 -0.5 3L0 3ZM3 0L3 0.5C4.38 0.5 5.5 1.62 5.5 3L6 3L6.5 3C6.5 1.07 4.93 -0.5 3 -0.5L3 0Z"
+      fill="#387440"
+      transform="translate(3 3)"
+    />
+    <path
+      d="M2 1L1.5 1C1.5 1.28 1.28 1.5 1 1.5L1 2L1 2.5C1.83 2.5 2.5 1.83 2.5 1L2 1ZM1 2L1 1.5C0.72 1.5 0.5 1.28 0.5 1L0 1L-0.5 1C-0.5 1.83 0.17 2.5 1 2.5L1 2ZM0 1L0.5 1C0.5 0.72 0.72 0.5 1 0.5L1 0L1 -0.5C0.17 -0.5 -0.5 0.17 -0.5 1L0 1ZM1 0L1 0.5C1.28 0.5 1.5 0.72 1.5 1L2 1L2.5 1C2.5 0.17 1.83 -0.5 1 -0.5L1 0Z"
+      fill="#387440"
+      transform="translate(5 5)"
+    />
+  </svg>
+);
+
+export const LearningZapIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="21.98"
+    height="21.98"
+    viewBox="0 0 21.98 21.98"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M8.33 0L9.16 0.1C9.21 -0.26 9 -0.62 8.67 -0.76C8.33 -0.91 7.93 -0.82 7.69 -0.53L8.33 0ZM0 10L-0.64 9.47C-0.85 9.71 -0.89 10.06 -0.75 10.35C-0.62 10.65 -0.32 10.83 -1.42e-16 10.83L0 10ZM7.5 10L8.33 10.1C8.36 9.87 8.28 9.63 8.12 9.45C7.97 9.27 7.74 9.17 7.5 9.17L7.5 10ZM6.67 16.67L5.84 16.56C5.79 16.93 6 17.28 6.33 17.43C6.67 17.58 7.07 17.48 7.31 17.2L6.67 16.67ZM15 6.67L15.64 7.2C15.85 6.95 15.89 6.61 15.75 6.31C15.62 6.02 15.32 5.83 15 5.83L15 6.67ZM7.5 6.67L6.67 6.56C6.64 6.8 6.72 7.04 6.88 7.22C7.03 7.4 7.26 7.5 7.5 7.5L7.5 6.67ZM8.33 0L7.69 -0.53L-0.64 9.47L0 10L0.64 10.53L8.97 0.53L8.33 0ZM0 10L0 10.83L7.5 10.83L7.5 10L7.5 9.17L0 9.17L0 10ZM7.5 10L6.67 9.9L5.84 16.56L6.67 16.67L7.49 16.77L8.33 10.1L7.5 10ZM6.67 16.67L7.31 17.2L15.64 7.2L15 6.67L14.36 6.13L6.03 16.13L6.67 16.67ZM15 6.67L15 5.83L7.5 5.83L7.5 6.67L7.5 7.5L15 7.5L15 6.67ZM7.5 6.67L8.33 6.77L9.16 0.1L8.33 0L7.51 -0.1L6.67 6.56L7.5 6.67Z"
+      fill="#1c2a21"
+      transform="translate(2.66 1.92)"
+    />
+  </svg>
+);
+
+export const LearningAwardIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 18 18"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M9 4.5L8.25 4.5C8.25 6.57 6.57 8.25 4.5 8.25L4.5 9L4.5 9.75C7.4 9.75 9.75 7.4 9.75 4.5L9 4.5ZM4.5 9L4.5 8.25C2.43 8.25 0.75 6.57 0.75 4.5L0 4.5L-0.75 4.5C-0.75 7.4 1.6 9.75 4.5 9.75L4.5 9ZM0 4.5L0.75 4.5C0.75 2.43 2.43 0.75 4.5 0.75L4.5 0L4.5 -0.75C1.6 -0.75 -0.75 1.6 -0.75 4.5L0 4.5ZM4.5 0L4.5 0.75C6.57 0.75 8.25 2.43 8.25 4.5L9 4.5L9.75 4.5C9.75 1.6 7.4 -0.75 4.5 -0.75L4.5 0Z"
+      fill="#967014"
+      transform="translate(4.5 1.5)"
+    />
+    <path
+      d="M7.11 -0.12C7.05 -0.53 6.66 -0.81 6.25 -0.74C5.84 -0.67 5.57 -0.29 5.64 0.12L6.38 0L7.11 -0.12ZM7.5 6.75L7.11 7.39C7.36 7.54 7.68 7.53 7.92 7.37C8.16 7.21 8.29 6.92 8.24 6.63L7.5 6.75ZM3.75 4.5L4.14 3.86C3.9 3.71 3.6 3.71 3.36 3.86L3.75 4.5ZM0 6.75L-0.74 6.63C-0.79 6.92 -0.66 7.21 -0.42 7.37C-0.18 7.53 0.14 7.54 0.39 7.39L0 6.75ZM1.86 0.12C1.93 -0.29 1.66 -0.67 1.25 -0.74C0.84 -0.81 0.45 -0.53 0.39 -0.12L1.13 0L1.86 0.12ZM6.38 0L5.64 0.12L6.76 6.87L7.5 6.75L8.24 6.63L7.11 -0.12L6.38 0ZM7.5 6.75L7.89 6.11L4.14 3.86L3.75 4.5L3.36 5.14L7.11 7.39L7.5 6.75ZM3.75 4.5L3.36 3.86L-0.39 6.11L0 6.75L0.39 7.39L4.14 5.14L3.75 4.5ZM0 6.75L0.74 6.87L1.86 0.12L1.13 0L0.39 -0.12L-0.74 6.63L0 6.75Z"
+      fill="#967014"
+      transform="translate(5.25 9.75)"
+    />
+  </svg>
+);
+
+export const LearningBannerSparkIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="17"
+    height="17"
+    viewBox="0 0 17 17"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M4.96 0L5.62 -0.25C5.52 -0.52 5.25 -0.71 4.96 -0.71C4.66 -0.71 4.4 -0.52 4.29 -0.25L4.96 0ZM6.3 3.61L5.64 3.86C5.71 4.05 5.86 4.2 6.06 4.28L6.3 3.61ZM9.92 4.96L10.16 5.62C10.44 5.52 10.63 5.25 10.63 4.96C10.63 4.66 10.44 4.4 10.16 4.29L9.92 4.96ZM6.3 6.3L6.06 5.64C5.86 5.71 5.71 5.86 5.64 6.06L6.3 6.3ZM4.96 9.92L4.29 10.16C4.4 10.44 4.66 10.63 4.96 10.63C5.25 10.63 5.52 10.44 5.62 10.16L4.96 9.92ZM3.61 6.3L4.28 6.06C4.2 5.86 4.05 5.71 3.86 5.64L3.61 6.3ZM0 4.96L-0.25 4.29C-0.52 4.4 -0.71 4.66 -0.71 4.96C-0.71 5.25 -0.52 5.52 -0.25 5.62L0 4.96ZM3.61 3.61L3.86 4.28C4.05 4.2 4.2 4.05 4.28 3.86L3.61 3.61ZM4.96 0L4.29 0.25L5.64 3.86L6.3 3.61L6.97 3.37L5.62 -0.25L4.96 0ZM6.3 3.61L6.06 4.28L9.67 5.62L9.92 4.96L10.16 4.29L6.55 2.95L6.3 3.61ZM9.92 4.96L9.67 4.29L6.06 5.64L6.3 6.3L6.55 6.97L10.16 5.62L9.92 4.96ZM6.3 6.3L5.64 6.06L4.29 9.67L4.96 9.92L5.62 10.16L6.97 6.55L6.3 6.3ZM4.96 9.92L5.62 9.67L4.28 6.06L3.61 6.3L2.95 6.55L4.29 10.16L4.96 9.92ZM3.61 6.3L3.86 5.64L0.25 4.29L0 4.96L-0.25 5.62L3.37 6.97L3.61 6.3ZM0 4.96L0.25 5.62L3.86 4.28L3.61 3.61L3.37 2.95L-0.25 4.29L0 4.96ZM3.61 3.61L4.28 3.86L5.62 0.25L4.96 0L4.29 -0.25L2.95 3.37L3.61 3.61Z"
+      fill="#2d5d33"
+      transform="translate(3.54 2.13)"
+    />
+  </svg>
+);
+
+export const LearningUsersIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M6.5 3C6.5 3.28 6.72 3.5 7 3.5C7.28 3.5 7.5 3.28 7.5 3L7 3L6.5 3ZM7 2L7.5 2L7 2ZM5 0L5 -0.5L5 0ZM2 0L2 -0.5L2 0ZM0 2L-0.5 2L0 2ZM-0.5 3C-0.5 3.28 -0.28 3.5 0 3.5C0.28 3.5 0.5 3.28 0.5 3L0 3L-0.5 3ZM7 3L7.5 3L7.5 2L7 2L6.5 2L6.5 3L7 3ZM7 2L7.5 2C7.5 1.34 7.24 0.7 6.77 0.23L6.41 0.59L6.06 0.94C6.34 1.22 6.5 1.6 6.5 2L7 2ZM6.41 0.59L6.77 0.23C6.3 -0.24 5.66 -0.5 5 -0.5L5 0L5 0.5C5.4 0.5 5.78 0.66 6.06 0.94L6.41 0.59ZM5 0L5 -0.5L2 -0.5L2 0L2 0.5L5 0.5L5 0ZM2 0L2 -0.5C1.34 -0.5 0.7 -0.24 0.23 0.23L0.59 0.59L0.94 0.94C1.22 0.66 1.6 0.5 2 0.5L2 0ZM0.59 0.59L0.23 0.23C-0.24 0.7 -0.5 1.34 -0.5 2L0 2L0.5 2C0.5 1.6 0.66 1.22 0.94 0.94L0.59 0.59ZM0 2L-0.5 2L-0.5 3L0 3L0.5 3L0.5 2L0 2Z"
+      fill="#967014"
+      transform="translate(1 7.5)"
+    />
+    <path
+      d="M4 2L3.5 2C3.5 2.83 2.83 3.5 2 3.5L2 4L2 4.5C3.38 4.5 4.5 3.38 4.5 2L4 2ZM2 4L2 3.5C1.17 3.5 0.5 2.83 0.5 2L0 2L-0.5 2C-0.5 3.38 0.62 4.5 2 4.5L2 4ZM0 2L0.5 2C0.5 1.17 1.17 0.5 2 0.5L2 0L2 -0.5C0.62 -0.5 -0.5 0.62 -0.5 2L0 2ZM2 0L2 0.5C2.83 0.5 3.5 1.17 3.5 2L4 2L4.5 2C4.5 0.62 3.38 -0.5 2 -0.5L2 0Z"
+      fill="#967014"
+      transform="translate(2.5 1.5)"
+    />
+    <path
+      d="M2.5 8.94C2.5 9.21 2.72 9.44 3 9.44C3.28 9.44 3.5 9.21 3.5 8.94L3 8.94L2.5 8.94ZM3 7.94L3.5 7.94L3.5 7.93L3 7.94ZM1.63 5.52C1.36 5.45 1.08 5.61 1.02 5.88C0.95 6.14 1.11 6.42 1.38 6.48L1.5 6L1.63 5.52ZM0.12 -0.48C-0.14 -0.55 -0.42 -0.39 -0.48 -0.12C-0.55 0.14 -0.39 0.42 -0.12 0.48L0 0L0.12 -0.48ZM1.5 1.94L2 1.94L1.5 1.94ZM-0.12 3.39C-0.39 3.46 -0.55 3.73 -0.48 4C-0.42 4.27 -0.14 4.43 0.12 4.36L0 3.88L-0.12 3.39ZM3 8.94L3.5 8.94L3.5 7.94L3 7.94L2.5 7.94L2.5 8.94L3 8.94ZM3 7.94L3.5 7.93C3.5 7.38 3.32 6.84 2.98 6.4L2.58 6.71L2.19 7.02C2.39 7.28 2.5 7.6 2.5 7.94L3 7.94ZM2.58 6.71L2.98 6.4C2.64 5.97 2.16 5.65 1.63 5.52L1.5 6L1.38 6.48C1.7 6.57 1.98 6.75 2.19 7.02L2.58 6.71ZM0 0L-0.12 0.48C0.2 0.57 0.48 0.75 0.69 1.02L1.08 0.71L1.48 0.4C1.14 -0.03 0.66 -0.35 0.12 -0.48L0 0ZM1.08 0.71L0.69 1.02C0.89 1.28 1 1.6 1 1.94L1.5 1.94L2 1.94C2 1.38 1.82 0.84 1.48 0.4L1.08 0.71ZM1.5 1.94L1 1.94C1 2.27 0.89 2.59 0.69 2.86L1.08 3.16L1.48 3.47C1.82 3.03 2 2.49 2 1.94L1.5 1.94ZM1.08 3.16L0.69 2.86C0.48 3.12 0.2 3.31 -0.12 3.39L0 3.88L0.12 4.36C0.66 4.22 1.14 3.91 1.48 3.47L1.08 3.16Z"
+      fill="#967014"
+      transform="translate(8 1.56)"
+    />
+  </svg>
+);
+
+export const LearningSearchIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M0.44 -0.44C0.2 -0.69 -0.2 -0.69 -0.44 -0.44C-0.69 -0.2 -0.69 0.2 -0.44 0.44L0 0L0.44 -0.44ZM2.89 3.78C3.14 4.02 3.53 4.02 3.78 3.78C4.02 3.53 4.02 3.14 3.78 2.89L3.33 3.33L2.89 3.78ZM0 0L-0.44 0.44L2.89 3.78L3.33 3.33L3.78 2.89L0.44 -0.44L0 0Z"
+      fill="#387440"
+      transform="translate(14.17 14.17)"
+    />
+    <path
+      d="M13.33 6.67L13.96 6.67C13.96 2.64 10.69 -0.62 6.67 -0.62L6.67 0L6.67 0.63C10 0.63 12.71 3.33 12.71 6.67L13.33 6.67ZM6.67 0L6.67 -0.62C2.64 -0.62 -0.62 2.64 -0.62 6.67L0 6.67L0.63 6.67C0.63 3.33 3.33 0.63 6.67 0.63L6.67 0ZM0 6.67L-0.62 6.67C-0.62 10.69 2.64 13.96 6.67 13.96L6.67 13.33L6.67 12.71C3.33 12.71 0.63 10 0.63 6.67L0 6.67ZM6.67 13.33L6.67 13.96C10.69 13.96 13.96 10.69 13.96 6.67L13.33 6.67L12.71 6.67C12.71 10 10 12.71 6.67 12.71L6.67 13.33Z"
+      fill="#387440"
+      transform="translate(2.5 2.5)"
+    />
+  </svg>
+);
+
+export const LearningBellIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="17"
+    height="17"
+    viewBox="0 0 17 17"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M2.13 4.25L1.42 4.25L2.13 4.25ZM6.38 0L6.38 -0.71L6.38 0ZM10.63 4.25L11.33 4.25L10.63 4.25ZM12.75 10.63L12.75 11.33C13.06 11.33 13.34 11.13 13.43 10.83C13.52 10.53 13.4 10.21 13.14 10.04L12.75 10.63ZM0 10.63L-0.39 10.04C-0.65 10.21 -0.77 10.53 -0.68 10.83C-0.59 11.13 -0.31 11.33 3.49e-16 11.33L0 10.63ZM5.79 13.12C5.6 12.77 5.17 12.65 4.83 12.84C4.49 13.03 4.36 13.46 4.55 13.8L5.17 13.46L5.79 13.12ZM8.2 13.8C8.39 13.46 8.26 13.03 7.92 12.84C7.58 12.65 7.15 12.77 6.96 13.12L7.58 13.46L8.2 13.8ZM2.13 4.25L2.83 4.25C2.83 3.31 3.21 2.41 3.87 1.75L3.37 1.24L2.87 0.74C1.94 1.67 1.42 2.93 1.42 4.25L2.13 4.25ZM3.37 1.24L3.87 1.75C4.53 1.08 5.44 0.71 6.38 0.71L6.38 0L6.38 -0.71C5.06 -0.71 3.8 -0.19 2.87 0.74L3.37 1.24ZM6.38 0L6.38 0.71C7.31 0.71 8.22 1.08 8.88 1.75L9.38 1.24L9.88 0.74C8.95 -0.19 7.69 -0.71 6.38 -0.71L6.38 0ZM9.38 1.24L8.88 1.75C9.54 2.41 9.92 3.31 9.92 4.25L10.63 4.25L11.33 4.25C11.33 2.93 10.81 1.67 9.88 0.74L9.38 1.24ZM10.63 4.25L9.92 4.25C9.92 6.83 10.47 8.55 11.07 9.64C11.36 10.18 11.66 10.56 11.9 10.81C12.02 10.94 12.13 11.03 12.21 11.1C12.24 11.13 12.28 11.16 12.3 11.18C12.32 11.19 12.33 11.19 12.34 11.2C12.34 11.2 12.34 11.21 12.35 11.21C12.35 11.21 12.35 11.21 12.35 11.21C12.35 11.21 12.35 11.21 12.36 11.21C12.36 11.21 12.36 11.21 12.36 11.21C12.36 11.21 12.36 11.21 12.75 10.63C13.14 10.04 13.14 10.04 13.14 10.04C13.14 10.04 13.14 10.04 13.14 10.04C13.15 10.04 13.15 10.04 13.15 10.04C13.15 10.04 13.15 10.04 13.15 10.04C13.15 10.04 13.15 10.04 13.15 10.04C13.15 10.04 13.15 10.04 13.15 10.04C13.14 10.04 13.13 10.03 13.11 10.01C13.07 9.98 13.01 9.92 12.93 9.84C12.77 9.67 12.54 9.39 12.31 8.96C11.84 8.1 11.33 6.62 11.33 4.25L10.63 4.25ZM12.75 10.63L12.75 9.92L0 9.92L0 10.63L0 11.33L12.75 11.33L12.75 10.63ZM0 10.63C0.39 11.21 0.39 11.21 0.39 11.21C0.39 11.21 0.39 11.21 0.39 11.21C0.4 11.21 0.4 11.21 0.4 11.21C0.4 11.21 0.4 11.21 0.4 11.21C0.41 11.21 0.41 11.2 0.41 11.2C0.42 11.19 0.43 11.19 0.45 11.18C0.47 11.16 0.51 11.13 0.54 11.1C0.62 11.03 0.73 10.94 0.85 10.81C1.09 10.56 1.39 10.18 1.68 9.64C2.28 8.55 2.83 6.83 2.83 4.25L2.13 4.25L1.42 4.25C1.42 6.62 0.91 8.1 0.44 8.96C0.21 9.39 -0.02 9.67 -0.18 9.84C-0.26 9.92 -0.32 9.98 -0.36 10.01C-0.38 10.03 -0.39 10.04 -0.4 10.04C-0.4 10.04 -0.4 10.04 -0.4 10.04C-0.4 10.04 -0.4 10.04 -0.4 10.04C-0.4 10.04 -0.4 10.04 -0.4 10.04C-0.4 10.04 -0.4 10.04 -0.39 10.04C-0.39 10.04 -0.39 10.04 -0.39 10.04C-0.39 10.04 -0.39 10.04 0 10.63ZM5.17 13.46L4.55 13.8C4.73 14.13 4.99 14.4 5.31 14.59L5.68 13.98L6.04 13.37C5.93 13.31 5.85 13.22 5.79 13.12L5.17 13.46ZM5.68 13.98L5.31 14.59C5.64 14.78 6 14.88 6.38 14.88L6.38 14.17L6.38 13.46C6.26 13.46 6.14 13.43 6.04 13.37L5.68 13.98ZM6.38 14.17L6.38 14.88C6.75 14.88 7.11 14.78 7.44 14.59L7.07 13.98L6.71 13.37C6.61 13.43 6.49 13.46 6.38 13.46L6.38 14.17ZM7.07 13.98L7.44 14.59C7.76 14.4 8.02 14.13 8.2 13.8L7.58 13.46L6.96 13.12C6.9 13.22 6.82 13.31 6.71 13.37L7.07 13.98Z"
+      fill="#967014"
+      transform="translate(2.13 1.42)"
+    />
+  </svg>
+);
+
+export const LearningClockIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="13"
+    height="13"
+    viewBox="0 0 13 13"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M10.83 5.42L10.29 5.42C10.29 8.11 8.11 10.29 5.42 10.29L5.42 10.83L5.42 11.38C8.71 11.38 11.38 8.71 11.38 5.42L10.83 5.42ZM5.42 10.83L5.42 10.29C2.72 10.29 0.54 8.11 0.54 5.42L0 5.42L-0.54 5.42C-0.54 8.71 2.13 11.38 5.42 11.38L5.42 10.83ZM0 5.42L0.54 5.42C0.54 2.72 2.72 0.54 5.42 0.54L5.42 0L5.42 -0.54C2.13 -0.54 -0.54 2.13 -0.54 5.42L0 5.42ZM5.42 0L5.42 0.54C8.11 0.54 10.29 2.72 10.29 5.42L10.83 5.42L11.38 5.42C11.38 2.13 8.71 -0.54 5.42 -0.54L5.42 0Z"
+      fill="#737373"
+      transform="translate(1.08 1.08)"
+    />
+    <path
+      d="M0.54 0C0.54 -0.3 0.3 -0.54 0 -0.54C-0.3 -0.54 -0.54 -0.3 -0.54 0L0 0L0.54 0ZM0 3.25L-0.54 3.25C-0.54 3.46 -0.43 3.64 -0.24 3.73L0 3.25ZM1.92 4.82C2.19 4.95 2.52 4.84 2.65 4.58C2.78 4.31 2.68 3.98 2.41 3.85L2.17 4.33L1.92 4.82ZM0 0L-0.54 0L-0.54 3.25L0 3.25L0.54 3.25L0.54 0L0 0ZM0 3.25L-0.24 3.73L1.92 4.82L2.17 4.33L2.41 3.85L0.24 2.77L0 3.25Z"
+      fill="#737373"
+      transform="translate(6.5 3.25)"
+    />
+  </svg>
+);
+
+export const LearningBookmarkIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M9.33 12L4.67 9.33L0 12L0 1.33C0 0.98 0.14 0.64 0.39 0.39C0.64 0.14 0.98 2.96e-16 1.33 0L8 0C8.35 2.96e-16 8.69 0.14 8.94 0.39C9.19 0.64 9.33 0.98 9.33 1.33L9.33 12Z"
+      fill="#ffffff"
+      transform="translate(3.33 2)"
+    />
+    <path
+      d="M9.33 12L9 12.58C9.21 12.7 9.46 12.7 9.67 12.58C9.87 12.46 10 12.24 10 12L9.33 12ZM4.67 9.33L5 8.75C4.79 8.64 4.54 8.64 4.34 8.75L4.67 9.33ZM0 12L-0.67 12C-0.67 12.24 -0.54 12.46 -0.33 12.58C-0.13 12.7 0.12 12.7 0.33 12.58L0 12ZM1.33 0L1.33 -0.67L1.33 0ZM8 0L8 -0.67L8 0ZM9.33 12L9.66 11.42L5 8.75L4.67 9.33L4.34 9.91L9 12.58L9.33 12ZM4.67 9.33L4.34 8.75L-0.33 11.42L0 12L0.33 12.58L5 9.91L4.67 9.33ZM0 12L0.67 12L0.67 1.33L0 1.33L-0.67 1.33L-0.67 12L0 12ZM0 1.33L0.67 1.33C0.67 1.16 0.74 0.99 0.86 0.86L0.39 0.39L-0.08 -0.08C-0.46 0.29 -0.67 0.8 -0.67 1.33L0 1.33ZM0.39 0.39L0.86 0.86C0.99 0.74 1.16 0.67 1.33 0.67L1.33 0L1.33 -0.67C0.8 -0.67 0.29 -0.46 -0.08 -0.08L0.39 0.39ZM1.33 0L1.33 0.67L8 0.67L8 0L8 -0.67L1.33 -0.67L1.33 0ZM8 0L8 0.67C8.18 0.67 8.35 0.74 8.47 0.86L8.94 0.39L9.41 -0.08C9.04 -0.46 8.53 -0.67 8 -0.67L8 0ZM8.94 0.39L8.47 0.86C8.6 0.99 8.67 1.16 8.67 1.33L9.33 1.33L10 1.33C10 0.8 9.79 0.29 9.41 -0.08L8.94 0.39ZM9.33 1.33L8.67 1.33L8.67 12L9.33 12L10 12L10 1.33L9.33 1.33Z"
+      fill="#ffffff"
+      transform="translate(3.33 2)"
+    />
+  </svg>
+);
+
+export const LearningToastBookmarkIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M8.75 11.25L4.38 8.75L0 11.25L0 1.25C0 0.92 0.13 0.6 0.37 0.37C0.6 0.13 0.92 2.78e-16 1.25 0L7.5 0C7.83 2.78e-16 8.15 0.13 8.38 0.37C8.62 0.6 8.75 0.92 8.75 1.25L8.75 11.25Z"
+      fill="#1c2a21"
+      transform="translate(3.13 1.88)"
+    />
+    <path
+      d="M8.75 11.25L8.36 11.93C8.6 12.07 8.9 12.07 9.14 11.93C9.38 11.79 9.53 11.53 9.53 11.25L8.75 11.25ZM4.38 8.75L4.76 8.07C4.52 7.93 4.23 7.93 3.99 8.07L4.38 8.75ZM0 11.25L-0.78 11.25C-0.78 11.53 -0.63 11.79 -0.39 11.93C-0.15 12.07 0.15 12.07 0.39 11.93L0 11.25ZM1.25 0L1.25 -0.78L1.25 0ZM7.5 0L7.5 -0.78L7.5 0ZM8.75 11.25L9.14 10.57L4.76 8.07L4.38 8.75L3.99 9.43L8.36 11.93L8.75 11.25ZM4.38 8.75L3.99 8.07L-0.39 10.57L0 11.25L0.39 11.93L4.76 9.43L4.38 8.75ZM0 11.25L0.78 11.25L0.78 1.25L0 1.25L-0.78 1.25L-0.78 11.25L0 11.25ZM0 1.25L0.78 1.25C0.78 1.13 0.83 1.01 0.92 0.92L0.37 0.37L-0.19 -0.19C-0.57 0.19 -0.78 0.71 -0.78 1.25L0 1.25ZM0.37 0.37L0.92 0.92C1.01 0.83 1.13 0.78 1.25 0.78L1.25 0L1.25 -0.78C0.71 -0.78 0.19 -0.57 -0.19 -0.19L0.37 0.37ZM1.25 0L1.25 0.78L7.5 0.78L7.5 0L7.5 -0.78L1.25 -0.78L1.25 0ZM7.5 0L7.5 0.78C7.62 0.78 7.74 0.83 7.83 0.92L8.38 0.37L8.94 -0.19C8.56 -0.57 8.04 -0.78 7.5 -0.78L7.5 0ZM8.38 0.37L7.83 0.92C7.92 1.01 7.97 1.13 7.97 1.25L8.75 1.25L9.53 1.25C9.53 0.71 9.32 0.19 8.94 -0.19L8.38 0.37ZM8.75 1.25L7.97 1.25L7.97 11.25L8.75 11.25L9.53 11.25L9.53 1.25L8.75 1.25Z"
+      fill="#1c2a21"
+      transform="translate(3.13 1.88)"
+    />
+  </svg>
+);
+
+export const LearningHeaderSparkleIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="15.17"
+    height="15.17"
+    viewBox="0 0 15.17 15.17"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M7 0C7.58 4.08 9.92 6.42 14 7C9.92 7.58 7.58 9.92 7 14C6.42 9.92 4.08 7.58 0 7C4.08 6.42 6.42 4.08 7 0Z"
+      fill="#f3c84b"
+    />
+  </svg>
+);
+
+export const LearningHeaderFlameIcon = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14.94"
+    height="14.94"
+    viewBox="0 0 14.94 14.94"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M3.5 0C4.08 2.33 7 3.5 7 7C7 7.93 6.63 8.82 5.97 9.47C5.32 10.13 4.43 10.5 3.5 10.5C2.57 10.5 1.68 10.13 1.03 9.47C0.37 8.82 1.04e-15 7.93 0 7C0 5.25 1.17 4.08 1.75 3.5C1.75 4.67 2.33 5.25 2.92 5.25C2.92 3.5 2.33 1.75 3.5 0Z"
+      fill="#e8672a"
+      transform="translate(3.57 1.41)"
+    />
+  </svg>
+);
+
+export const LearningDoodleSparkleGold = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="22"
+    height="22"
+    viewBox="0 0 22 22"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M11 0C11.92 6.42 15.58 10.08 22 11C15.58 11.92 11.92 15.58 11 22C10.08 15.58 6.42 11.92 0 11C6.42 10.08 10.08 6.42 11 0Z"
+      fill="#c8951a"
+    />
+  </svg>
+);
+
+export const LearningDoodleSparkleGreen = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M6 0C6.5 3.5 8.5 5.5 12 6C8.5 6.5 6.5 8.5 6 12C5.5 8.5 3.5 6.5 0 6C3.5 5.5 5.5 3.5 6 0Z"
+      fill="#387440"
+    />
+  </svg>
+);
+
+export const LearningSpotBookIllustration = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="140"
+    height="140"
+    viewBox="0 0 140 140"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M0.33 57.84C-3.17 28.09 21.33 1.84 52.83 0.09C84.33 -1.66 110.58 21.09 108.83 54.34C107.08 87.59 82.58 110.34 51.08 106.84C21.33 103.34 3.83 85.84 0.33 57.84Z"
+      fill="#e1eae2"
+      transform="translate(15.42 15.66)"
+    />
+    <path
+      d="M47.25 8.69C35 -0.06 17.5 -1.81 0 1.69L0 71.69C17.5 68.19 35 69.94 47.25 78.69L47.25 8.69Z"
+      fill="#1c2a21"
+      transform="translate(29.75 40.31)"
+    />
+    <path
+      d="M47.25 8.69C35 -0.06 17.5 -1.81 0 1.69L0 71.69C17.5 68.19 35 69.94 47.25 78.69L47.25 8.69Z"
+      fill="#ffffff"
+      transform="translate(22.75 36.81)"
+    />
+    <path
+      d="M47.25 8.69L48.56 8.69C48.56 8.27 48.36 7.87 48.01 7.62L47.25 8.69ZM0 1.69L-0.26 0.4C-0.87 0.53 -1.31 1.06 -1.31 1.69L0 1.69ZM0 71.69L-1.31 71.69C-1.31 72.08 -1.14 72.46 -0.83 72.71C-0.53 72.95 -0.13 73.05 0.26 72.98L0 71.69ZM47.25 78.69L46.49 79.76C46.89 80.04 47.41 80.08 47.85 79.86C48.29 79.63 48.56 79.18 48.56 78.69L47.25 78.69ZM47.25 8.69L48.01 7.62C35.36 -1.42 17.44 -3.14 -0.26 0.4L0 1.69L0.26 2.98C17.56 -0.48 34.64 1.3 46.49 9.76L47.25 8.69ZM0 1.69L-1.31 1.69L-1.31 71.69L0 71.69L1.31 71.69L1.31 1.69L0 1.69ZM0 71.69L0.26 72.98C17.56 69.52 34.64 71.3 46.49 79.76L47.25 78.69L48.01 77.62C35.36 68.58 17.44 66.86 -0.26 70.4L0 71.69ZM47.25 78.69L48.56 78.69L48.56 8.69L47.25 8.69L45.94 8.69L45.94 78.69L47.25 78.69Z"
+      fill="#1c2a21"
+      transform="translate(22.75 36.81)"
+    />
+    <path
+      d="M0 8.69C12.25 -0.06 29.75 -1.81 47.25 1.69L47.25 71.69C29.75 68.19 12.25 69.94 0 78.69L0 8.69Z"
+      fill="#f3c84b"
+      transform="translate(70 36.81)"
+    />
+    <path
+      d="M0 8.69L-0.76 7.62C-1.11 7.87 -1.31 8.27 -1.31 8.69L0 8.69ZM47.25 1.69L48.56 1.69C48.56 1.06 48.12 0.53 47.51 0.4L47.25 1.69ZM47.25 71.69L46.99 72.98C47.38 73.05 47.78 72.95 48.08 72.71C48.39 72.46 48.56 72.08 48.56 71.69L47.25 71.69ZM0 78.69L-1.31 78.69C-1.31 79.18 -1.04 79.63 -0.6 79.86C-0.16 80.08 0.36 80.04 0.76 79.76L0 78.69ZM0 8.69L0.76 9.76C12.61 1.3 29.69 -0.48 46.99 2.98L47.25 1.69L47.51 0.4C29.81 -3.14 11.89 -1.42 -0.76 7.62L0 8.69ZM47.25 1.69L45.94 1.69L45.94 71.69L47.25 71.69L48.56 71.69L48.56 1.69L47.25 1.69ZM47.25 71.69L47.51 70.4C29.81 66.86 11.89 68.58 -0.76 77.62L0 78.69L0.76 79.76C12.61 71.3 29.69 69.52 46.99 72.98L47.25 71.69ZM0 78.69L1.31 78.69L1.31 8.69L0 8.69L-1.31 8.69L-1.31 78.69L0 78.69Z"
+      fill="#1c2a21"
+      transform="translate(70 36.81)"
+    />
+    <path
+      d="M-0.22 -0.61C-0.93 -0.49 -1.41 0.19 -1.29 0.9C-1.18 1.62 -0.5 2.1 0.22 1.98L0 0.69L-0.22 -0.61ZM25.66 5.36C26.31 5.68 27.1 5.42 27.42 4.77C27.75 4.13 27.49 3.34 26.84 3.01L26.25 4.19L25.66 5.36ZM-0.22 13.39C-0.93 13.51 -1.41 14.19 -1.29 14.9C-1.18 15.62 -0.5 16.1 0.22 15.98L0 14.69L-0.22 13.39ZM25.66 19.36C26.31 19.68 27.1 19.42 27.42 18.77C27.75 18.13 27.49 17.34 26.84 17.01L26.25 18.19L25.66 19.36ZM-0.22 27.39C-0.93 27.51 -1.41 28.19 -1.29 28.9C-1.18 29.62 -0.5 30.1 0.22 29.98L0 28.69L-0.22 27.39ZM25.66 33.36C26.31 33.68 27.1 33.42 27.42 32.77C27.75 32.13 27.49 31.34 26.84 31.01L26.25 32.19L25.66 33.36ZM0 0.69L0.22 1.98C10.44 0.28 18.91 1.98 25.66 5.36L26.25 4.19L26.84 3.01C19.59 -0.61 10.56 -2.4 -0.22 -0.61L0 0.69ZM0 14.69L0.22 15.98C10.44 14.28 18.91 15.98 25.66 19.36L26.25 18.19L26.84 17.01C19.59 13.39 10.56 11.6 -0.22 13.39L0 14.69ZM0 28.69L0.22 29.98C10.44 28.28 18.91 29.98 25.66 33.36L26.25 32.19L26.84 31.01C19.59 27.39 10.56 25.6 -0.22 27.39L0 28.69Z"
+      fill="#387440"
+      transform="translate(35 55.31)"
+    />
+    <path
+      d="M10.5 0C11.76 9.24 11.76 9.24 21 10.5C11.76 11.76 11.76 11.76 10.5 21C9.24 11.76 9.24 11.76 0 10.5C9.24 9.24 9.24 9.24 10.5 0Z"
+      fill="#1c2a21"
+      transform="translate(84 61.25)"
+    />
+    <path
+      d="M8.75 0C9.8 7.7 9.8 7.7 17.5 8.75C9.8 9.8 9.8 9.8 8.75 17.5C7.7 9.8 7.7 9.8 0 8.75C7.7 7.7 7.7 7.7 8.75 0Z"
+      fill="#c8951a"
+      transform="translate(61.25 12.25)"
+    />
+    <path
+      d="M5.25 0C5.88 4.62 5.88 4.62 10.5 5.25C5.88 5.88 5.88 5.88 5.25 10.5C4.62 5.88 4.62 5.88 0 5.25C4.62 4.62 4.62 4.62 5.25 0Z"
+      fill="#387440"
+      transform="translate(108.5 17.5)"
+    />
+    <path
+      d="M-1.05 2.71C-1.48 3.29 -1.37 4.12 -0.79 4.55C-0.21 4.98 0.62 4.87 1.05 4.29L0 3.5L-1.05 2.71ZM22.05 4.29C22.48 3.71 22.37 2.88 21.79 2.45C21.21 2.02 20.38 2.13 19.95 2.71L21 3.5L22.05 4.29ZM0 3.5L1.05 4.29C2.72 2.07 4.13 1.31 5.25 1.31C6.37 1.31 7.78 2.07 9.45 4.29L10.5 3.5L11.55 2.71C9.72 0.27 7.63 -1.31 5.25 -1.31C2.87 -1.31 0.78 0.27 -1.05 2.71L0 3.5ZM10.5 3.5L9.45 4.29C11.28 6.73 13.37 8.31 15.75 8.31C18.13 8.31 20.22 6.73 22.05 4.29L21 3.5L19.95 2.71C18.28 4.93 16.87 5.69 15.75 5.69C14.63 5.69 13.22 4.93 11.55 2.71L10.5 3.5Z"
+      fill="#c8951a"
+      transform="translate(17.5 119)"
+    />
+  </svg>
+);
+
+export const LearningSpotBookmarkIllustration = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="140"
+    height="140"
+    viewBox="0 0 140 140"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M0.33 57.84C-3.17 28.09 21.33 1.84 52.83 0.09C84.33 -1.66 110.58 21.09 108.83 54.34C107.08 87.59 82.58 110.34 51.08 106.84C21.33 103.34 3.83 85.84 0.33 57.84Z"
+      fill="#faf4e8"
+      transform="translate(15.42 15.66)"
+    />
+    <path
+      d="M0 0L49 0L49 94.5L24.5 75.25L0 94.5L0 0Z"
+      fill="#1c2a21"
+      transform="translate(49 26.25)"
+    />
+    <path
+      d="M0 0L49 0L49 94.5L24.5 75.25L0 94.5L0 0Z"
+      fill="#387440"
+      transform="translate(45.5 22.75)"
+    />
+    <path
+      d="M0 0L0 -1.31C-0.72 -1.31 -1.31 -0.72 -1.31 2.91e-16L0 0ZM49 0L50.31 0C50.31 -0.72 49.72 -1.31 49 -1.31L49 0ZM49 94.5L48.19 95.53C48.58 95.84 49.12 95.9 49.57 95.68C50.03 95.46 50.31 95 50.31 94.5L49 94.5ZM24.5 75.25L25.31 74.22C24.84 73.84 24.17 73.84 23.69 74.22L24.5 75.25ZM0 94.5L-1.31 94.5C-1.31 95 -1.03 95.46 -0.57 95.68C-0.12 95.9 0.42 95.84 0.81 95.53L0 94.5ZM0 0L0 1.31L49 1.31L49 0L49 -1.31L0 -1.31L0 0ZM49 0L47.69 0L47.69 94.5L49 94.5L50.31 94.5L50.31 0L49 0ZM49 94.5L49.81 93.47L25.31 74.22L24.5 75.25L23.69 76.28L48.19 95.53L49 94.5ZM24.5 75.25L23.69 74.22L-0.81 93.47L0 94.5L0.81 95.53L25.31 76.28L24.5 75.25ZM0 94.5L1.31 94.5L1.31 0L0 0L-1.31 0L-1.31 94.5L0 94.5Z"
+      fill="#1c2a21"
+      transform="translate(45.5 22.75)"
+    />
+    <path
+      d="M10.69 17.73C-6.46 7.93 -0.34 -5.55 10.69 2.41C21.71 -5.55 27.84 7.93 10.69 17.73Z"
+      fill="#ffffff"
+      transform="translate(59.31 49.3)"
+    />
+    <path
+      d="M10.69 17.73L10.04 18.86C10.44 19.1 10.94 19.1 11.34 18.86L10.69 17.73ZM10.69 2.41L9.92 3.48C10.38 3.81 11 3.81 11.46 3.48L10.69 2.41ZM10.69 17.73L11.34 16.59C7.19 14.21 4.52 11.66 3 9.35C1.46 7.03 1.12 5.03 1.41 3.68C1.68 2.4 2.52 1.57 3.83 1.36C5.22 1.14 7.33 1.6 9.92 3.48L10.69 2.41L11.46 1.35C8.54 -0.76 5.74 -1.6 3.42 -1.23C1.01 -0.84 -0.67 0.82 -1.16 3.14C-1.64 5.38 -0.98 8.09 0.81 10.8C2.61 13.53 5.61 16.34 10.04 18.86L10.69 17.73ZM10.69 2.41L11.46 3.48C14.05 1.6 16.15 1.14 17.54 1.36C18.85 1.57 19.7 2.4 19.97 3.68C20.26 5.03 19.92 7.03 18.38 9.35C16.85 11.66 14.19 14.21 10.04 16.59L10.69 17.73L11.34 18.86C15.76 16.34 18.76 13.53 20.57 10.8C22.36 8.09 23.02 5.38 22.54 3.14C22.04 0.82 20.36 -0.84 17.96 -1.23C15.64 -1.6 12.84 -0.76 9.92 1.35L10.69 2.41Z"
+      fill="#1c2a21"
+      transform="translate(59.31 49.3)"
+    />
+    <path
+      d="M7.88 0C8.82 6.93 8.82 6.93 15.75 7.88C8.82 8.82 8.82 8.82 7.88 15.75C6.93 8.82 6.93 8.82 0 7.88C6.93 6.93 6.93 6.93 7.88 0Z"
+      fill="#c8951a"
+      transform="translate(102.38 21.88)"
+    />
+    <path
+      d="M5.25 0C5.88 4.62 5.88 4.62 10.5 5.25C5.88 5.88 5.88 5.88 5.25 10.5C4.62 5.88 4.62 5.88 0 5.25C4.62 4.62 4.62 4.62 5.25 0Z"
+      fill="#387440"
+      transform="translate(22.75 35)"
+    />
+    <path
+      d="M-1.05 2.71C-1.48 3.29 -1.37 4.12 -0.79 4.55C-0.21 4.98 0.62 4.87 1.05 4.29L0 3.5L-1.05 2.71ZM22.05 4.29C22.48 3.71 22.37 2.88 21.79 2.45C21.21 2.02 20.38 2.13 19.95 2.71L21 3.5L22.05 4.29ZM0 3.5L1.05 4.29C2.72 2.07 4.13 1.31 5.25 1.31C6.37 1.31 7.78 2.07 9.45 4.29L10.5 3.5L11.55 2.71C9.72 0.27 7.63 -1.31 5.25 -1.31C2.87 -1.31 0.78 0.27 -1.05 2.71L0 3.5ZM10.5 3.5L9.45 4.29C11.28 6.73 13.37 8.31 15.75 8.31C18.13 8.31 20.22 6.73 22.05 4.29L21 3.5L19.95 2.71C18.28 4.93 16.87 5.69 15.75 5.69C14.63 5.69 13.22 4.93 11.55 2.71L10.5 3.5Z"
+      fill="#c8951a"
+      transform="translate(19.25 110.25)"
+    />
+    <path
+      d="M8.75 4.38L7.44 4.38C7.44 6.07 6.07 7.44 4.38 7.44L4.38 8.75L4.38 10.06C7.52 10.06 10.06 7.52 10.06 4.38L8.75 4.38ZM4.38 8.75L4.38 7.44C2.68 7.44 1.31 6.07 1.31 4.38L0 4.38L-1.31 4.38C-1.31 7.52 1.23 10.06 4.38 10.06L4.38 8.75ZM0 4.38L1.31 4.38C1.31 2.68 2.68 1.31 4.38 1.31L4.38 0L4.38 -1.31C1.23 -1.31 -1.31 1.23 -1.31 4.38L0 4.38ZM4.38 0L4.38 1.31C6.07 1.31 7.44 2.68 7.44 4.38L8.75 4.38L10.06 4.38C10.06 1.23 7.52 -1.31 4.38 -1.31L4.38 0Z"
+      fill="#c8951a"
+      transform="translate(112.88 104.13)"
+    />
+  </svg>
+);
+
+export const LearningDoodleSquiggle = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="48"
+    height="21"
+    viewBox="0 0 48 21"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <path
+      d="M2.70447 9.28741C6.79012 4.41926 10.1257 4.88804 12.7112 10.6938C15.2968 16.4995 18.6324 16.9683 22.718 12.1001C26.8036 7.23197 30.1392 7.70076 32.7248 13.5065C35.3103 19.3122 38.6459 19.781 42.7315 14.9128"
+      stroke="#349643"
+      strokeWidth="2.52628"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const LearningDoodleRing = ({ className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+  >
+    <circle cx="7" cy="7" r="6" stroke="#c8951a" strokeWidth="2" />
+  </svg>
+);

@@ -83,3 +83,6 @@ tests/e2e/.visual-baseline/
 tests/playful/figma-nodes/
 tests/playful/figma-images/
 tests/playful/shots/
+
+# local Figma token (never commit)
+.figma-token.local

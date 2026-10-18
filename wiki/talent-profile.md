@@ -5,56 +5,56 @@
 ## Decisions (made by the lead, same pattern as talent home — 2026-10-18)
 
 - Both styles in one build (Focused default, Playful via the style switch). Route **`/profile`**, outside `MainLayout`, `DashboardShell role="talent" activeNav="profile"` (reuses the talent shell; Profile nav item active).
-- Frame states are chosen by query params (`talentProfileState.js`), shaped so an API can replace them. `?view=public` (PR-02/03/04, the logged-out public link) renders WITHOUT the talent shell.
+- Frame states are chosen by query params (`talentProfileState.js`), shaped so an API can replace them. `?view=recruiter|public` (P-07, PR-02, PR-04) render INSIDE the talent shell — corrected 2026-10-18: the Figma frames carry the sidebar + nav, so the earlier "no shell" decision was wrong.
 - No backend. Share/copy/download/card generation are local mock behaviour driven by what the frames show.
 
 ## State → URL → Figma frame (Playful / Focused)
 
-| URL                      | Frame                                              | Playful      | Focused       |
-| ------------------------ | -------------------------------------------------- | ------------ | ------------- |
-| `/profile`               | P-01 Overview                                      | `7570:105`   | `8110:368104` |
-| `?tab=skills`            | P-02 Skills                                        | `7571:190`   | `8110:368724` |
-| `?tab=experience`        | P-03 Experience                                    | `7571:1007`  | `8110:369265` |
-| `?tab=portfolio`         | P-04 Portfolio                                     | `7572:359`   | `8110:369743` |
-| `?tab=certs`             | P-05 Certs                                         | `7572:1128`  | `8110:370237` |
-| `?tab=about`             | P-06 About me                                      | `7572:1869`  | `8110:370695` |
-| `?view=recruiter`        | P-07 Preview as recruiter                          | `7573:602`   | `8110:371211` |
-| `?edit=about`            | P-08 Edit About (in place)                         | `7573:1385`  | `8110:371805` |
-| `?modal=experience`      | P-09 Add experience (modal)                        | `7574:775`   | `8110:372451` |
-| `?empty=1`               | P-10 New profile (mostly empty)                    | `7574:1412`  | `8110:373025` |
-| `?share=open`            | SH-01 Share profile                                | `7579:1032`  | `8110:374965` |
-| `?share=copied`          | SH-02 Link copied                                  | `7579:2095`  | `8110:375987` |
-| `?share=link`            | SH-04 Customise link                               | `7579:3164`  | `8110:377014` |
-| `?share=link-available`  | SH-04b Customise link · available                  | `7579:3864`  | `8110:377666` |
-| `?share=card`            | SH-03 Make a share card                            | `7582:1464`  | `8110:378305` |
-| `?share=pdf`             | SH-05 Download PDF / CV                            | `7582:2554`  | `8110:379364` |
-| `?share=card-midnight`   | SH-03b Share card · Midnight · Post 1:1            | `7599:4793`  | `8110:380074` |
-| `?share=card-sunshine`   | SH-03c Share card · Sunshine · LinkedIn banner     | `7599:6039`  | `8110:381133` |
-| `?share=card-making`     | SH-03d Share card · making your card               | `7599:7590`  | `8110:382138` |
-| `?share=card-saved`      | SH-03e Share card · saved                          | `7599:8850`  | `8110:383205` |
-| `?share=whatsapp`        | SH-03f Post to WhatsApp Status from your phone     | `7599:10159` | `8110:384232` |
-| `?view=public`           | PR-02 Preview · Public link (logged out)           | `7584:1691`  | `8110:387366` |
-| `?view=public&manage=1`  | PR-03 Manage what's visible (drawer)               | `7584:2347`  | `8110:387950` |
-| `?view=public&updated=1` | PR-04 Preview updated (pitch hidden)               | `7584:3137`  | `8110:388716` |
-| `?card=pick`             | SC-01 Create card · Pick a look                    | `7608:6178`  | `8110:398249` |
-| `?card=customise`        | SC-02 Customise                                    | `7608:8914`  | `8110:400322` |
-| `?card=text`             | SC-03 Edit text                                    | `7608:10210` | `8110:401398` |
-| `?card=post`             | SC-04 Post 1:1                                     | `7608:11582` | `8110:402417` |
-| `?card=banner`           | SC-05 LinkedIn banner                              | `7609:7041`  | `8110:403481` |
-| `?card=making`           | SC-06 Making it                                    | `7609:8624`  | `8110:404513` |
-| `?card=ready`            | SC-07 Ready to share                               | `7609:9928`  | `8110:405536` |
-| `?card=error`            | SC-08 Couldn't make it                             | `7609:11287` | `8110:406584` |
-| `?ax=panel`              | AX-01 Accessibility panel · On Profile             | `7590:1952`  | `8110:389972` |
-| `?ax=calm`               | AX-02 Calm + Large text + One column (applied)     | `7590:2746`  | `8110:390599` |
-| `?ax=contrast`           | AX-03 High contrast (applied)                      | `7590:3461`  | `8110:391217` |
-| `?ax=aloud`              | AX-04 Read my profile aloud (playing)              | `7591:2279`  | `8110:391845` |
-| `?ax=pitch`              | AX-05 Pitch video · captions, transcript, controls | `7591:3047`  | `8110:392527` |
-| `?ax=images`             | AX-06 Portfolio · image descriptions check         | `7591:3728`  | `8110:393111` |
-| `?ax=alt`                | AX-06b Describe this image (alt text)              | `7591:4339`  | `8110:393635` |
-| `?ax=focus`              | AX-07a Keyboard focus order                        | `7592:2619`  | `8110:394214` |
-| `?ax=landmarks`          | AX-07b Landmarks & headings                        | `7592:3287`  | `8110:394869` |
-| `?ax=share-modal`        | AX-08 Share modal · keyboard & screen reader       | `7592:4005`  | `8110:395519` |
-| `?help=1`                | HP Help pop-over overlay                           | `8376:19219` | `8376:19339`  |
+| URL                         | Frame                                                                                                                    | Playful      | Focused       |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------ | ------------- |
+| `/profile`                  | P-01 Overview                                                                                                            | `7570:105`   | `8110:368104` |
+| `?tab=skills`               | P-02 Skills                                                                                                              | `7571:190`   | `8110:368724` |
+| `?tab=experience`           | P-03 Experience                                                                                                          | `7571:1007`  | `8110:369265` |
+| `?tab=portfolio`            | P-04 Portfolio                                                                                                           | `7572:359`   | `8110:369743` |
+| `?tab=certs`                | P-05 Certs                                                                                                               | `7572:1128`  | `8110:370237` |
+| `?tab=about`                | P-06 About me                                                                                                            | `7572:1869`  | `8110:370695` |
+| `?view=recruiter`           | P-07 Preview as recruiter                                                                                                | `7573:602`   | `8110:371211` |
+| `?edit=about`               | P-08 Edit About (in place)                                                                                               | `7573:1385`  | `8110:371805` |
+| `?modal=experience`         | P-09 Add experience (modal)                                                                                              | `7574:775`   | `8110:372451` |
+| `?empty=1`                  | P-10 New profile (mostly empty)                                                                                          | `7574:1412`  | `8110:373025` |
+| `?share=open`               | SH-01 Share profile                                                                                                      | `7579:1032`  | `8110:374965` |
+| `?share=copied`             | SH-02 Link copied                                                                                                        | `7579:2095`  | `8110:375987` |
+| `?share=link`               | SH-04 Customise link                                                                                                     | `7579:3164`  | `8110:377014` |
+| `?share=link-available`     | SH-04b Customise link · available                                                                                        | `7579:3864`  | `8110:377666` |
+| `?share=card`               | SH-03 Make a share card                                                                                                  | `7582:1464`  | `8110:378305` |
+| `?share=pdf`                | SH-05 Download PDF / CV                                                                                                  | `7582:2554`  | `8110:379364` |
+| `?share=card-midnight`      | SH-03b Share card · Midnight · Post 1:1                                                                                  | `7599:4793`  | `8110:380074` |
+| `?share=card-sunshine`      | SH-03c Share card · Sunshine · LinkedIn banner                                                                           | `7599:6039`  | `8110:381133` |
+| `?share=card-making`        | SH-03d Share card · making your card                                                                                     | `7599:7590`  | `8110:382138` |
+| `?share=card-saved`         | SH-03e Share card · saved                                                                                                | `7599:8850`  | `8110:383205` |
+| `?share=whatsapp`           | SH-03f Post to WhatsApp Status from your phone                                                                           | `7599:10159` | `8110:384232` |
+| `?view=public`              | PR-02 Preview · Public link (logged out), drawn in the talent shell                                                      | `7584:1691`  | `8110:387366` |
+| `?view=recruiter&manage=1`  | PR-03 Manage what's visible (drawer over the recruiter preview; `?manage=1` opens it anywhere)                           | `7584:2347`  | `8110:387950` |
+| `?view=recruiter&updated=1` | PR-04 Recruiter preview after hiding the pitch (cover chip, "Just now" row, info bar + Undo toast) — NOT the public view | `7584:3137`  | `8110:388716` |
+| `?card=pick`                | SC-01 Create card · Pick a look                                                                                          | `7608:6178`  | `8110:398249` |
+| `?card=customise`           | SC-02 Customise                                                                                                          | `7608:8914`  | `8110:400322` |
+| `?card=text`                | SC-03 Edit text                                                                                                          | `7608:10210` | `8110:401398` |
+| `?card=post`                | SC-04 Post 1:1                                                                                                           | `7608:11582` | `8110:402417` |
+| `?card=banner`              | SC-05 LinkedIn banner                                                                                                    | `7609:7041`  | `8110:403481` |
+| `?card=making`              | SC-06 Making it                                                                                                          | `7609:8624`  | `8110:404513` |
+| `?card=ready`               | SC-07 Ready to share                                                                                                     | `7609:9928`  | `8110:405536` |
+| `?card=error`               | SC-08 Couldn't make it                                                                                                   | `7609:11287` | `8110:406584` |
+| `?ax=panel`                 | AX-01 Accessibility panel · On Profile                                                                                   | `7590:1952`  | `8110:389972` |
+| `?ax=calm`                  | AX-02 Calm + Large text + One column (applied)                                                                           | `7590:2746`  | `8110:390599` |
+| `?ax=contrast`              | AX-03 High contrast (applied)                                                                                            | `7590:3461`  | `8110:391217` |
+| `?ax=aloud`                 | AX-04 Read my profile aloud (playing)                                                                                    | `7591:2279`  | `8110:391845` |
+| `?ax=pitch`                 | AX-05 Pitch video · captions, transcript, controls                                                                       | `7591:3047`  | `8110:392527` |
+| `?ax=images`                | AX-06 Portfolio · image descriptions check                                                                               | `7591:3728`  | `8110:393111` |
+| `?ax=alt`                   | AX-06b Describe this image (alt text)                                                                                    | `7591:4339`  | `8110:393635` |
+| `?ax=focus`                 | AX-07a Keyboard focus order                                                                                              | `7592:2619`  | `8110:394214` |
+| `?ax=landmarks`             | AX-07b Landmarks & headings                                                                                              | `7592:3287`  | `8110:394869` |
+| `?ax=share-modal`           | AX-08 Share modal · keyboard & screen reader                                                                             | `7592:4005`  | `8110:395519` |
+| `?help=1`                   | HP Help pop-over overlay                                                                                                 | `8376:19219` | `8376:19339`  |
 
 Other nodes: `_base (Profile template)` `7568:2044` (shell/base: Main Content Canvas, Sidebar, `GTH · Top bar` `8343:519757`, `avatar showcase`, `Ask Buddy · FAB` `7862:59733`).
 
@@ -74,9 +74,47 @@ All under `src/components/sections/talentProfile/` unless noted.
 
 Each section component receives `profile` (see `useTalentProfileState`): `{ tab, view, share, card, ax, edit, modal, empty, manage, updated, help, a11yMode, update(patch) }`. `update({ key: value })` edits the URL (null removes a key).
 
-## Status
+## Built (2026-10-18)
 
-| Piece                                                               | Status                                                              |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Route `/profile`, page, state source, scope, leak check, route list | `✅ VERIFIED` (2026-10-18: renders in Playful scope, console clean) |
-| All section components                                              | stubs (`data-stub`) — being built                                   |
+| Piece                                                                                                                     | Where                                                                                                                                                                                                                                                                                                   | Notes                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route, page, state, scope, leak check                                                                                     | `TalentProfilePage.jsx`, `talentProfileState.js`                                                                                                                                                                                                                                                        | `✅ VERIFIED`; state gains `a11yParam` (raw `?a11y=1`)                                                                                                                          |
+| Overview / Skills / Experience / Portfolio / Certs / About tabs, header, tab bar, edit About, add experience, empty state | `Profile*Tab.jsx`, `ProfileHeader.jsx`, `ProfileTabBar.jsx`, …                                                                                                                                                                                                                                          | built; responsive audit 108/108                                                                                                                                                 |
+| Recruiter preview (P-07) + banner                                                                                         | `ProfilePreviewBanner.jsx`, `PublicProfileView.jsx` (mode from `profile.view`), `ProfileHeader` `mode` prop, `ProfileOverviewTab` exports read-only cards (`readOnly`, `BadgesCard preview`)                                                                                                            | data in `talentProfilePreviewData.js`; Focused says "pts" not "XP"                                                                                                              |
+| Public link preview (PR-02)                                                                                               | same                                                                                                                                                                                                                                                                                                    | Copy link / Join GTH, "Find talent like Kofi", "Also hidden on the public link"; Playful cover stripes                                                                          |
+| Pitch hidden (PR-04) + visibility drawer (PR-03)                                                                          | `PublicProfileView.jsx`, `ManageVisibilityDrawer.jsx`                                                                                                                                                                                                                                                   | drawer = 560px, 3-way audience control per setting, "1 unsaved change"; Save with the pitch hidden opens PR-04                                                                  |
+| Share modal, card builder, WhatsApp sheet                                                                                 | `Share*.jsx`                                                                                                                                                                                                                                                                                            | built earlier                                                                                                                                                                   |
+| Accessibility settings popover (AX-01)                                                                                    | `ProfileA11yPopover.jsx`, `useProfileA11y.js`, `profileA11yData.js`; nav button opens it via `TalentA11yMenu` (`profileA11y`)                                                                                                                                                                           | settings stored in `gth:profile-a11y`                                                                                                                                           |
+| Calm / Large text / One column / High contrast (AX-02, AX-03)                                                             | `src/styles/profileA11y.css` + `data-profile-*` attributes on the page wrapper; pills in `ProfileA11yPills.jsx`                                                                                                                                                                                         | high-contrast colours measured from the frame (text #737373/#595959 -> #212630, green text -> #1f4423, card borders -> #8c94a0 1.5px)                                           |
+| AX-04 read aloud (`?ax=aloud`)                                                                                            | `ProfileReadAloud.jsx`; `AboutCard` `reading` prop in `ProfileOverviewTab.jsx`                                                                                                                                                                                                                          | highlighted About card + "Reading now" tag, "Reading order" popover, bottom player; speed / next only log                                                                       |
+| AX-05 pitch captions + transcript (`?ax=pitch`, page forces the About tab)                                                | `ProfilePitchAccessibility.jsx` (+ `ProfilePitchAccessibilityData.js`, `PitchAccessibilityIcons.jsx`); `ProfileAboutTab.jsx` renders it                                                                                                                                                                 | mock timeline: play/pause, speed cycle (1×/1.25×/1.5×/2× ⚠️ ASSUMPTION), CC toggle, scrubber, transcript seek, "Download .txt"                                                  |
+| AX-06 / AX-06b image descriptions (`?ax=images` / `?ax=alt`, page forces the Portfolio tab)                               | `ProfileImageDescriptions.jsx`, `ProfileAltTextModal.jsx`, `ProfileImageDescriptionsData.js` (`useImageDescriptions`), `ImageDescriptionIcons.jsx`; `ProfilePortfolioTab.jsx`                                                                                                                           | alt modal edits the live "Screen readers will say…" preview, Save & next / Skip, focus trap; Trotro's draft is not drawn in Figma so it starts empty (save blocked while empty) |
+| AX-07a focus order, AX-07b landmarks, AX-08 share-modal notes (`?ax=focus` / `landmarks` / `share-modal`)                 | `ProfileFocusOrderOverlay.jsx`, `ProfileLandmarksOverlay.jsx`, `ProfileShareModalNotes.jsx`, `ProfileAxKeyboardHints.jsx`, `ProfileAxData.js`, `ProfileAxUtils.js`, `AxAnnotationIcons.jsx`; add-only `data-ax` hooks in header / tab bar / `TabLayout` (`rightLabel` → `<aside>`) / `ShareProfileMain` | overlays measure the real elements (no hard-coded coordinates), annotation only, portalled to `body`                                                                            |
+
+## Known gaps / assumptions
+
+0. **Landmarks overlay `<main>` box** is drawn opaque #387440 in BOTH Figma frames (the other four boxes are 8%), so it covers the left cards as drawn; `MAIN_FILL_ALPHA` in `ProfileLandmarksOverlay.jsx` makes it translucent if the owner decides it is a Figma bug.
+1. **Share modal** is ~14px taller than Figma's (831px) and its Playful scrim is 0.7 vs 0.55 in AX-08 (not changed — shared modal).
+2. **Verified by eye** (Playful, side by side at 1728): AX-01..AX-08 + PR/P-07; Focused was compared side by side for P-07 / PR-02 / PR-03 / PR-04 / AX-01 and implemented from frame diffs elsewhere (Focused wording: "pts" for XP, Calm row has no subtitle).
+
+3. The "Everywhere" scope tab has no frame of its own; it is a stored choice only (`⚠️ ASSUMPTION`).
+4. Large text uses CSS `zoom` (Chromium, Safari, Firefox 126+); Calm resets the Playful ink shelf with attribute selectors on `playful:` classes.
+5. `icon/video` in Figma is an empty instance (nothing is drawn) — slots are kept, no glyph is invented.
+6. Tab-bar counts and the phone tab-bar badges are CSS generated content with the count in the accessible name, so the responsive "labels never wrap" probe sees one text row.
+
+## Status from session A (the session that built the shell/tabs/edit/share/card files) — 2026-10-18, paused on Figma rate limit
+
+> Two sessions worked on `/profile` at the same time (session B wrote the preview/public/drawer/a11y rows above). This section records only what session A verified or could not verify.
+
+| Piece                                                                                                     | Session A status                                                                                                                           |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Route, page, state, scope, leak check (allows /home, /profile, /notifications)                            | `✅ VERIFIED` — leak check passes (re-run 16:30)                                                                                           |
+| Shell `activeNav="profile"`, profile sidebar data, help pop-over (shared `notifications/HelpPopover.jsx`) | built; by-eye only `🔶 LIKELY`                                                                                                             |
+| Header, tab bar, Overview / Skills / Experience / Portfolio / Certs / About                               | built; **only Playful Overview compared with Figma by eye**; Focused P-02..P-06 inferred `⚠️ ASSUMPTION`                                   |
+| P-08 Edit About, P-09 Add experience, P-10 empty profile                                                  | built from Figma reads; never compared by eye; Save/Cancel only close (no shared store)                                                    |
+| SH-01..05, SH-03b..f share modal + WhatsApp sheet                                                         | built; Focused read from Figma; **Playful values not read** (assumed from the Playful overlay system)                                      |
+| SC-01..08 share-card builder                                                                              | built; Playful colours pixel-sampled from screenshots; hand-drawn icons approximate; SC-03..08 not compared                                |
+| Build                                                                                                     | `npm run build` fails in `src/pages/onboarding/OnboardingEducationPage.jsx` (duplicate `helperIcon` at lines 708–709 — not a profile file) |
+
+**Needs Figma access:** Focused P-02..P-06 reads; Playful by-eye pass of every frame; all 390/320 layouts (no phone frames — our own design); Playful SH-\* reads; SC-03..08.
+**Deviations:** share dialog centred in the viewport (Figma frame offset looks like an artefact); verbatim Figma typos kept ("Pay hope", "Taken. Someone got there first Try one of these:"); unused `ShareKofiAvatarIllustration` in `assets.jsx` can be deleted.

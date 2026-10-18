@@ -33,7 +33,12 @@ export const TALENT_NAV_MAIN = [
     icon: TalentSidebarMyAssessmentNavIcon,
     tab: 'assessment',
   },
-  { id: 'opportunities', label: 'Opportunities', icon: TalentSidebarOpportunitiesNavIcon },
+  {
+    id: 'opportunities',
+    label: 'Opportunities',
+    icon: TalentSidebarOpportunitiesNavIcon,
+    route: '/job-postings',
+  },
   {
     id: 'community',
     label: 'Community',
@@ -45,7 +50,12 @@ export const TALENT_NAV_MAIN = [
 
 export const TALENT_NAV_SECONDARY = [
   { id: 'skills-lab', label: 'Skills Lab', icon: TalentSidebarSkillsLabNavIcon },
-  { id: 'my-learning', label: 'My Learning', icon: TalentSidebarMyLearningNavIcon },
+  {
+    id: 'my-learning',
+    label: 'My Learning',
+    icon: TalentSidebarMyLearningNavIcon,
+    route: '/learning',
+  },
   {
     id: 'profile',
     label: 'Profile',
@@ -131,6 +141,46 @@ const PROFILE_PAGE = {
   streak: '12',
 };
 
+/*
+ * /learning chrome (Figma ML-01 Playful 7522:104 sidebar 7522:147 / Focused 8110:10737 sidebar
+ * 8110:10989): "New" chip, "1 of 5 steps complete", a "Getting started 1 of 5" bar, 47/142/4/7 stats,
+ * "Job Postings" label. Playful keeps the shelf. `softBadges`: Focused draws the Messages badge as a
+ * light pill (#ebf1ec / #2d5d33, 12px), the others solid green.
+ */
+const LEARNING_PAGE = {
+  chip: 'New',
+  headline: 'Tertiary (BSc) · Accra, Ghana',
+  status: '1 of 5 steps complete',
+  journey: { label: 'Getting started', count: '1 of 5', percent: 20, caption: 'Continue setup →' },
+  stats: [
+    { id: 'views', value: '47', label: 'Views' },
+    { id: 'matches', value: '142', label: 'Matches' },
+    { id: 'messages', value: '4', label: 'Messages' },
+    { id: 'skills', value: '7', label: 'Skills' },
+  ],
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
+  softBadges: ['messages'],
+  // Figma strokes sit INSIDE the boxes: trim padding so the card is 327px and the nav starts at 529.
+  tight: true,
+  labels: { opportunities: 'Job Postings' },
+  streak: '12',
+};
+
+/*
+ * /job-postings chrome (Figma J-01 7503:104 / Focused 8110:409276): the rail card reads "New" ·
+ * "Tertiary (BSc) · Accra, Ghana" · "1 of 5 steps complete" with a "Getting started 1 of 5" bar.
+ */
+const JOBS_PAGE = {
+  chip: 'New',
+  headline: 'Tertiary (BSc) · Accra, Ghana',
+  status: '1 of 5 steps complete',
+  journey: { label: 'Getting started', count: '1 of 5', percent: 20, caption: 'Continue setup →' },
+  stats: PROFILE_PAGE.stats,
+  badges: { assessment: '142', opportunities: '2', messages: '6' },
+  labels: { opportunities: 'Job Postings' },
+  streak: '12',
+};
+
 const STAGE_LABEL = {
   avatar: 'Avatar',
   interests: 'Interests',
@@ -157,6 +207,8 @@ const STATUS_BY_MILESTONE = {
 export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) => {
   // `activeNav` ('profile' on /profile) swaps in the profile-page rail card; omitted = home data.
   if (activeNav === 'profile') return PROFILE_PAGE;
+  if (activeNav === 'jobs') return JOBS_PAGE;
+  if (activeNav === 'learning') return LEARNING_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;
   if (live.placeholder) {

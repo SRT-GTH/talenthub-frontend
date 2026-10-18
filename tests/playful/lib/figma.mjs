@@ -10,7 +10,13 @@ export const SAFARI_BAR = 52;
 
 const ATTR = /([\w-]+)="([^"]*)"/g;
 const unesc = (s) =>
-  s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+  s
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
 
 /** Parse the one-element-per-line structure XML into { frames: {id: node} }. Coordinates become absolute within each top-level frame. */
 export function parseStructure(file = path.join(PLAYFUL_DIR, 'figma-structure.xml')) {
@@ -114,8 +120,16 @@ export function loadRestFrame(id) {
 export function getToken() {
   if (process.env.FIGMA_TOKEN) return process.env.FIGMA_TOKEN;
   try {
+    // Local, git-ignored token file (never committed); preferred over the shared .mcp.json token.
+    const local = fs
+      .readFileSync(path.resolve(PLAYFUL_DIR, '../../.figma-token.local'), 'utf8')
+      .trim();
+    if (local) return local;
+  } catch {}
+  try {
     const j = JSON.parse(fs.readFileSync(path.resolve(PLAYFUL_DIR, '../../.mcp.json'), 'utf8'));
-    for (const s of Object.values(j.mcpServers || {})) if (s.env?.FIGMA_ACCESS_TOKEN) return s.env.FIGMA_ACCESS_TOKEN;
+    for (const s of Object.values(j.mcpServers || {}))
+      if (s.env?.FIGMA_ACCESS_TOKEN) return s.env.FIGMA_ACCESS_TOKEN;
   } catch {}
   return null;
 }

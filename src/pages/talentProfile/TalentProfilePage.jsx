@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import '../../styles/talentA11y.css';
+import '../../styles/profileA11y.css';
 import { debug } from '../../utils/debug.js';
 import { ensurePlayfulFont } from '../../utils/ensurePlayfulFont.js';
 import DashboardShell from '../../components/sections/dashboard/DashboardShell.jsx';
@@ -22,9 +23,14 @@ import ManageVisibilityDrawer from '../../components/sections/talentProfile/Mana
 import ShareProfileModal from '../../components/sections/talentProfile/ShareProfileModal.jsx';
 import WhatsAppStatusSheet from '../../components/sections/talentProfile/WhatsAppStatusSheet.jsx';
 import ShareCardBuilder from '../../components/sections/talentProfile/ShareCardBuilder.jsx';
+import ProfileA11yPills from '../../components/sections/talentProfile/ProfileA11yPills.jsx';
+import { useProfileA11y } from '../../components/sections/talentProfile/useProfileA11y.js';
 import ProfileAccessibilityPanel from '../../components/sections/talentProfile/ProfileAccessibilityPanel.jsx';
 
 const log = debug('TalentProfilePage');
+
+// AX frames that are drawn on a specific tab / with the share modal open (wiki/talent-profile.md).
+const AX_TAB = { pitch: 'about', images: 'portfolio', alt: 'portfolio' };
 
 const TAB_BODIES = {
   overview: ProfileOverviewTab,
@@ -62,37 +68,75 @@ const TalentProfilePage = () => {
     });
   }, [profile.tab, profile.view, profile.share, profile.card]);
 
-  const Body = TAB_BODIES[profile.tab] ?? ProfileOverviewTab;
+  const { prefs, setPref, effective } = useProfileA11y(profile);
+
+  // What the page renders: the AX frames force the tab / the share modal they show.
+  const forcedTab = AX_TAB[profile.ax];
+  const page =
+    forcedTab || profile.ax === 'share-modal'
+      ? {
+          ...profile,
+          tab: forcedTab ?? profile.tab,
+          share: profile.ax === 'share-modal' ? 'open' : profile.share,
+        }
+      : profile;
+
+  useEffect(() => {
+    log('a11y', effective);
+  }, [effective]);
+
+  const Body = TAB_BODIES[page.tab] ?? ProfileOverviewTab;
+  const openPanel = (scope) => {
+    setPref('scope', scope);
+    profile.update({ ax: 'panel' });
+  };
 
   return (
     <DashboardShell role="talent" activeNav="profile" talentHome={profile}>
       <UiStyleScope enabled />
       <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] px-[clamp(12px,1.4vw,24px)] py-[clamp(12px,1.2vw,20px)]">
-        {profile.view ? <ProfilePreviewBanner profile={profile} /> : null}
-        {profile.view ? (
-          // P-07 / PR-02 / PR-04: recruiter + public-link previews live INSIDE the talent shell (Figma frames
-          // carry the sidebar + nav); `PublicProfileView` renders the previewed profile.
-          <PublicProfileView profile={profile} />
-        ) : profile.empty ? (
-          <ProfileEmptyState profile={profile} />
-        ) : (
-          <>
-            <ProfileHeader profile={profile} />
-            <ProfileTabBar profile={profile} />
-            {profile.edit === 'about' ? (
-              <ProfileEditAbout profile={profile} />
-            ) : (
-              <Body profile={profile} />
-            )}
-          </>
-        )}
+        <ProfileA11yPills effective={effective} onOpenPanel={openPanel} />
+        <div
+          className="flex flex-col gap-[clamp(12px,0.926vw,16px)]"
+          data-profile-calm={effective.calm ? '' : undefined}
+          data-profile-text={effective.size !== 'medium' ? effective.size : undefined}
+          data-profile-onecol={effective.oneColumn ? '' : undefined}
+          data-profile-contrast={effective.contrast ? '' : undefined}
+          data-profile-links={effective.links ? '' : undefined}
+        >
+          {profile.view ? <ProfilePreviewBanner profile={profile} /> : null}
+          {profile.view ? (
+            // P-07 / PR-02 / PR-04: recruiter + public-link previews live INSIDE the talent shell (Figma frames
+            // carry the sidebar + nav); `PublicProfileView` renders the previewed profile.
+            <PublicProfileView profile={profile} />
+          ) : profile.empty ? (
+            <ProfileEmptyState profile={profile} />
+          ) : (
+            <>
+              <ProfileHeader profile={page} />
+              <ProfileTabBar profile={page} />
+              {profile.edit === 'about' ? (
+                <ProfileEditAbout profile={profile} />
+              ) : (
+                <Body profile={page} />
+              )}
+            </>
+          )}
+        </div>
       </div>
       {profile.modal === 'experience' && <AddExperienceModal profile={profile} />}
       {profile.manage && <ManageVisibilityDrawer profile={profile} />}
-      {profile.share && profile.share !== 'whatsapp' && <ShareProfileModal profile={profile} />}
+      {page.share && page.share !== 'whatsapp' && <ShareProfileModal profile={page} />}
       {profile.share === 'whatsapp' && <WhatsAppStatusSheet profile={profile} />}
       {profile.card && <ShareCardBuilder profile={profile} />}
-      {profile.ax && <ProfileAccessibilityPanel profile={profile} />}
+      {profile.ax && (
+        <ProfileAccessibilityPanel
+          profile={page}
+          prefs={prefs}
+          setPref={setPref}
+          effective={effective}
+        />
+      )}
     </DashboardShell>
   );
 };

@@ -51,7 +51,7 @@ const WhatsAppStatusSheet = ({ profile }) => {
             logoRadius={12.857}
             flag={48.462}
           />
-          <span className="text-[11px] font-medium whitespace-nowrap text-[#737373]">
+          <span className="text-[11px] max-lg:text-[12px] font-medium whitespace-nowrap text-[#737373]">
             {SHARE_WHATSAPP.expires}
           </span>
         </div>

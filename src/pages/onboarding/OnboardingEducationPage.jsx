@@ -705,8 +705,6 @@ const OnboardingEducationPage = () => {
                   onChange={handleInstitutionChange}
                   leftIcon={<SearchIcon />}
                   leftIconClassName="text-brand-green"
-                  helperIcon={<SearchIcon />}
-                  helperIconClassName="text-brand-green"
                   disabled={!level}
                   helperText={institutionHelper}
                   error={institutionError}

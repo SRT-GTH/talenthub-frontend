@@ -69,7 +69,7 @@ const LookTile = ({ look, selected, onSelect }) => (
         {look.label}
       </span>
       {look.tag && (
-        <span className="rounded-full border border-[rgba(28,42,33,0.12)] bg-[#ffd86b] px-[8px] py-[3px] text-[11px] leading-[normal] font-bold whitespace-nowrap text-[#1c2a21] playful:border-[1.2px] playful:border-[#1c2a21]">
+        <span className="rounded-full border border-[rgba(28,42,33,0.12)] bg-[#ffd86b] px-[8px] py-[3px] text-[11px] max-lg:text-[12px] leading-[normal] font-bold whitespace-nowrap text-[#1c2a21] playful:border-[1.2px] playful:border-[#1c2a21]">
           {look.tag}
         </span>
       )}

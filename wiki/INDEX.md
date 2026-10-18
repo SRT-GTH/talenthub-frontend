@@ -38,7 +38,9 @@ Every claim in this wiki carries a tag:
 - [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — EXECUTED 2026-10-10
 - [playful-mode.md](playful-mode.md) — Playful visual theme layer (Career Buddy + talent home): plumbing, rules, ownership, final Figma audit, accepted differences
 - [talent-home.md](talent-home.md) — Talent home `/home` (Focused + Playful): state→URL→Figma table, file ownership, status, decisions, a11y
+- [talent-my-learning.md](talent-my-learning.md) — Talent My Learning `/learning` (Focused + Playful): frame↔URL table, Figma cache + helper scripts, flow, status, gaps
 - [talent-notifications.md](talent-notifications.md) — Talent notifications `/notifications` + bell pop-up + Help overlay: frame→URL table, Focused/Playful diff, known gaps
+- [talent-jobs.md](talent-jobs.md) — Talent Job Postings `/job-postings`: lists (matched/browse/saved/applied/empty/loading), frame→URL table, decisions
 
 ### External
 

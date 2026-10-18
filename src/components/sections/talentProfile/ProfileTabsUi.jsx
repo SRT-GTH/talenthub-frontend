@@ -109,11 +109,12 @@ const TAG_TONE = {
 };
 export const Tag = ({ tone = 'yellow', size = 11, className, children }) => (
   <span
+    data-sticker=""
     className={classNames(
       'inline-flex items-center gap-[6px] rounded-full bg-[#ebf1ec] px-[10px] py-[5px] leading-[normal] font-bold whitespace-nowrap text-[#1f4d26]',
       'playful:border-[1.2px] playful:border-[#1c2a21] playful:text-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]',
       TAG_TONE[tone],
-      size === 13 ? 'text-[13px]' : size === 12 ? 'text-[12px]' : 'text-[11px]',
+      size === 13 ? 'text-[13px]' : size === 12 ? 'text-[12px]' : 'text-[11px] max-lg:text-[12px]',
       className
     )}
   >
@@ -140,6 +141,7 @@ export const EditButton = ({ label, onClick }) => (
 export const HeadLink = ({ children, onClick, className }) => (
   <button
     type="button"
+    data-link=""
     onClick={onClick}
     className={classNames(
       'shrink-0 cursor-pointer text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#387440] hover:underline',
@@ -194,6 +196,7 @@ export const ProfileCard = ({
   tint,
   className,
   bodyClassName,
+  titleAddon,
   children,
 }) => (
   <section
@@ -208,6 +211,7 @@ export const ProfileCard = ({
   >
     <header className="flex items-center gap-[10px]">
       <h2 className={classNames(TITLE, 'min-w-0 truncate')}>{title}</h2>
+      {titleAddon}
       <span aria-hidden="true" className="h-px min-w-px flex-1" />
       {link ? <HeadLink onClick={onLink}>{link}</HeadLink> : null}
       {onEdit ? <EditButton label={editLabel ?? `Edit ${title}`} onClick={onEdit} /> : null}
@@ -217,7 +221,7 @@ export const ProfileCard = ({
 );
 
 /* Two-column page body (left 880 / right 425 at 1329) that stacks below 896px of content width. */
-export const TabLayout = ({ tab, left, right, className }) => (
+export const TabLayout = ({ tab, left, right, className, rightLabel }) => (
   <div
     id="profile-tabpanel"
     role="tabpanel"
@@ -225,13 +229,23 @@ export const TabLayout = ({ tab, left, right, className }) => (
     className="@container"
   >
     <div
+      data-tab-layout=""
       className={classNames(
         'grid grid-cols-1 items-start gap-[clamp(16px,1.39vw,24px)] @4xl:grid-cols-[minmax(0,880fr)_minmax(0,425fr)]',
         className
       )}
     >
-      <div className="flex min-w-0 flex-col gap-[clamp(14px,1.16vw,20px)]">{left}</div>
-      <div className="flex min-w-0 flex-col gap-[clamp(14px,1.16vw,20px)]">{right}</div>
+      <div data-ax="main-col" className="flex min-w-0 flex-col gap-[clamp(14px,1.16vw,20px)]">
+        {left}
+      </div>
+      <div
+        data-ax="rail"
+        role={rightLabel ? 'complementary' : undefined}
+        aria-label={rightLabel}
+        className="flex min-w-0 flex-col gap-[clamp(14px,1.16vw,20px)]"
+      >
+        {right}
+      </div>
     </div>
   </div>
 );

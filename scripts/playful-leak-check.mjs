@@ -6,7 +6,14 @@ import { chromium } from '@playwright/test';
 import { ROUTES } from '../tests/e2e/helpers/responsive.js';
 
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
-const ALLOWED = ['/profile/filling/career-buddy', '/home', '/profile', '/notifications'];
+const ALLOWED = [
+  '/profile/filling/career-buddy',
+  '/home',
+  '/profile',
+  '/notifications',
+  '/job-postings',
+  '/learning',
+];
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM_PATH || undefined,
@@ -23,7 +30,8 @@ for (const route of [
   '/',
   '/home',
   '/profile',
-  ...ROUTES.filter((r) => !['/', '/home', '/profile'].includes(r)),
+  '/learning',
+  ...ROUTES.filter((r) => !['/', '/home', '/profile', '/learning'].includes(r)),
 ]) {
   try {
     await page.goto(BASE + route, { waitUntil: 'load', timeout: 30000 });

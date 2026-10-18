@@ -86,6 +86,10 @@ const DashboardTopNav = ({ className, talentHome }) => {
         ...(talentHome.navStreak && !talentHome.live
           ? { streakCount: talentHome.navStreak }
           : null),
+        // /learning frames (7522:104 / 8110:10737): bell 5, messages 4.
+        ...(talentHome.navMessageCount && !talentHome.live
+          ? { messageCount: talentHome.navMessageCount }
+          : null),
       }
     : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
