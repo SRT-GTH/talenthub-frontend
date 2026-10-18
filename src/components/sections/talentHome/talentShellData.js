@@ -46,7 +46,12 @@ export const TALENT_NAV_MAIN = [
 export const TALENT_NAV_SECONDARY = [
   { id: 'skills-lab', label: 'Skills Lab', icon: TalentSidebarSkillsLabNavIcon },
   { id: 'my-learning', label: 'My Learning', icon: TalentSidebarMyLearningNavIcon },
-  { id: 'profile', label: 'Profile', icon: TalentSidebarProfileNavIcon },
+  {
+    id: 'profile',
+    label: 'Profile',
+    icon: TalentSidebarProfileNavIcon,
+    route: '/profile',
+  },
 ];
 
 const DAY1 = {

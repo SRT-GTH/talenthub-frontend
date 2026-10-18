@@ -6,7 +6,7 @@ import { chromium } from '@playwright/test';
 import { ROUTES } from '../tests/e2e/helpers/responsive.js';
 
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
-const ALLOWED = ['/profile/filling/career-buddy', '/home', '/notifications'];
+const ALLOWED = ['/profile/filling/career-buddy', '/home', '/profile', '/notifications'];
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM_PATH || undefined,
@@ -19,7 +19,12 @@ await ctx.addInitScript(() => {
 });
 const page = await ctx.newPage();
 let leaks = 0;
-for (const route of ['/', '/home', ...ROUTES.filter((r) => r !== '/' && r !== '/home')]) {
+for (const route of [
+  '/',
+  '/home',
+  '/profile',
+  ...ROUTES.filter((r) => !['/', '/home', '/profile'].includes(r)),
+]) {
   try {
     await page.goto(BASE + route, { waitUntil: 'load', timeout: 30000 });
     await page.waitForSelector('[data-route-fallback]', { state: 'detached', timeout: 20000 });
@@ -42,6 +47,6 @@ await browser.close();
 console.log(
   leaks
     ? `\n${leaks} problem(s)`
-    : '\nno leaks: Playful is confined to the Career Buddy + talent home/notifications routes'
+    : '\nno leaks: Playful is confined to the Career Buddy + talent home/profile/notifications routes'
 );
 process.exit(leaks ? 1 : 0);

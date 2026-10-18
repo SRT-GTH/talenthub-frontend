@@ -94,6 +94,7 @@ export const ROUTES = [
   '/notifications',
   '/notifications?filter=unread&read=all',
   '/notifications?rail=expanded',
+  '/profile',
   '/recruiter/home',
   '/recruiter/talent-search',
   '/recruiter/job-templates',

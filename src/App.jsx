@@ -108,6 +108,7 @@ const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'
 const TalentNotificationsPage = lazy(
   () => import('./pages/talentHome/TalentNotificationsPage.jsx')
 );
+const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -871,6 +872,18 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <CommunityDetailPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent profile — Figma "Talent - Profile" 7500:92566 (Focused + Playful).
+            Outside MainLayout like /home; state is chosen by query params (see
+            talentProfileState.js / wiki/talent-profile.md). */}
+                <Route
+                  path={'/profile'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentProfilePage />
                     </Suspense>
                   }
                 />

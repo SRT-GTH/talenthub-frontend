@@ -341,9 +341,10 @@ const OnboardingPanel = ({
       ref={asideRef}
       // Decorative layers carry their own aria-hidden wrapper; the aside itself
       // is exposed on desktop so the Watch Tutorial button is not focusable
-      // inside a hidden subtree. Sub-lg (faded corner) stays hidden + inert.
+      // inside a hidden subtree. Sub-lg (faded corner) stays hidden + inert; phones (< md) drop the corner entirely
+      // (owner decision 2026-10-18: it covered over half of a 320px login screen).
       aria-hidden={isDesktop ? undefined : 'true'}
-      className="relative hidden shrink-0 self-stretch overflow-hidden lg:block max-lg:pointer-events-none max-lg:absolute max-lg:right-0 max-lg:top-0 max-lg:z-0 max-lg:block max-lg:aspect-[739/973] max-lg:w-[180px]! max-lg:self-auto max-lg:rounded-bl-[32px] max-lg:opacity-30 max-lg:blur-[3px] max-lg:[&_button]:invisible max-lg:[&_a]:invisible max-lg:[&_[role=button]]:invisible"
+      className="relative hidden shrink-0 self-stretch overflow-hidden lg:block max-lg:pointer-events-none max-lg:absolute max-lg:right-0 max-lg:top-0 max-lg:z-0 max-lg:block max-lg:aspect-[739/973] max-lg:w-[180px]! max-lg:self-auto max-lg:rounded-bl-[32px] max-lg:opacity-30 max-lg:blur-[3px] max-md:hidden! max-lg:[&_button]:invisible max-lg:[&_a]:invisible max-lg:[&_[role=button]]:invisible"
       style={{
         width: 'clamp(360px, 42vw, 739px)',
         backgroundColor: bgColor,
