@@ -83,7 +83,7 @@ const CreateRow = ({ id, label, active, onSelect, onHover }) => (
 
 const RecruiterOrganisationPage = () => {
   const navigate = useNavigate();
-  const { setSection } = useRecruiterOnboarding();
+  const { data, setSection } = useRecruiterOnboarding();
   const inputId = useId();
   const listboxId = `${inputId}-listbox`;
   const helperId = `${inputId}-help`;
@@ -241,7 +241,9 @@ const RecruiterOrganisationPage = () => {
         setSection('organisation', {
           mode: 'existing',
           id: target.id,
-          name: target.name,
+          name: target.legalName || target.name,
+          tradingName: target.legalName ? target.name : '',
+          primaryAdmin: target.admin,
           affiliation: 'pending',
         });
         setRequested(true);
@@ -270,7 +272,18 @@ const RecruiterOrganisationPage = () => {
     <RecruiterOnboardingShell
       routeKey="organisation"
       // Figma 7374:5519 (request sent) swaps the panel chips to the "Fuzzy match on" copy.
-      panel={<RecruiterOnboardingPanel variant={modalOpen ? 'affiliation' : 'profile'} />}
+      panel={
+        <RecruiterOnboardingPanel
+          variant={modalOpen ? 'affiliation' : 'profile'}
+          {...(modalOpen
+            ? {
+                copy: {
+                  cardSub: `${data?.profile?.fullName || 'Your profile'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
+                },
+              }
+            : {})}
+        />
+      }
     >
       <form
         onSubmit={handleSubmit}

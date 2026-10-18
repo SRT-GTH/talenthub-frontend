@@ -1,4 +1,5 @@
 import { debug } from '../../../../utils/debug.js';
+import { renewalDate } from '../billing/billingData.js';
 
 const log = debug('closingSummary');
 
@@ -72,6 +73,7 @@ export const buildSummary = (data = {}, { defaultAffiliation = 'pending' } = {})
     isNewOrg ? 'Kente Labs Ghana' : 'MTN Ghana'
   );
   const orgLegal = first(org, ['legalName'], '');
+  const orgTrading = first(org, ['tradingName'], '');
   const primaryAdmin = first(org, ['primaryAdmin', 'adminName'], 'Ama Owusu');
 
   const tierKey = String(
@@ -81,7 +83,8 @@ export const buildSummary = (data = {}, { defaultAffiliation = 'pending' } = {})
   const billing = String(first(plan, ['billing', 'cycle'], 'monthly')).toLowerCase();
   const monthly = tierKey === 'free' ? 0 : Number(first(plan, ['price', 'amount'], 50));
 
-  const brand = first(pay, ['brand'], 'Visa');
+  const rawBrand = String(first(pay, ['brand'], 'Visa'));
+  const brand = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
   const last4 = first(pay, ['last4'], '4081');
 
   const scope = SCOPE_LABEL[prefs.scope] || SCOPE_LABEL.local;
@@ -95,11 +98,16 @@ export const buildSummary = (data = {}, { defaultAffiliation = 'pending' } = {})
     phone,
     type,
     orgName,
-    orgFull: orgLegal
-      ? `${orgName} (${orgLegal})`
-      : orgName === 'MTN Ghana'
-        ? 'MTN Ghana (Scancom PLC)'
-        : orgName,
+    // Legal name with the trading name in brackets; skip the brackets when they
+    // would only repeat the name.
+    orgFull:
+      orgTrading && orgTrading !== orgName
+        ? `${orgName} (${orgTrading})`
+        : orgLegal && orgLegal !== orgName
+          ? `${orgName} (${orgLegal})`
+          : orgName === 'MTN Ghana'
+            ? 'MTN Ghana (Scancom PLC)'
+            : orgName,
     role: first(org, ['role', 'yourRole'], isNewOrg ? 'Primary Admin' : 'Recruiter'),
     primaryAdmin: isNewOrg ? fullName : primaryAdmin,
     affiliation,
@@ -114,7 +122,10 @@ export const buildSummary = (data = {}, { defaultAffiliation = 'pending' } = {})
     planText: `${tier} · ${billing.charAt(0).toUpperCase() + billing.slice(1)}`,
     amountText: monthly ? `$${monthly.toFixed(2)} / month` : '$0.00 / month',
     paymentText: monthly ? `${brand} •••• ${last4}` : 'No payment needed',
-    nextBilling: first(plan, ['nextBilling'], '12 Nov 2026 · cancel anytime'),
+    nextBilling:
+      tierKey === 'free'
+        ? 'No billing on the Free plan'
+        : `${first(plan, ['nextBilling'], renewalDate(billing))} · cancel anytime`,
     scope,
     experienceText: experience.join(', '),
     industriesText: industries.join(', '),

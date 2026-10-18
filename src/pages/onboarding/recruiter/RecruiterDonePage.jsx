@@ -21,6 +21,13 @@ import { debug } from '../../../utils/debug.js';
 
 const log = debug('RecruiterDonePage');
 
+// Monthly job-post allowance per plan (backend PLAN_CATALOGUE / plan cards).
+const JOB_POSTS = {
+  free: '1 job post',
+  professional: '20 job posts',
+  enterprise: 'unlimited job posts',
+};
+
 /*
  * RecruiterDonePage - /onboarding/recruiter/done (R09)
  * Figma: 7374:10419 Active (Professional plan), 7374:10565 Active - affiliation
@@ -58,7 +65,7 @@ const buildVariant = (s) => {
         {
           icon: iconTrend,
           title: 'Post your first job',
-          body: `Your ${s.tier} plan includes 1 job post this month.`,
+          body: `Your ${s.tier} plan includes ${JOB_POSTS[s.tierKey] || '1 job post'} this month.`,
           cta: 'Post a job',
           to: '/recruiter/job-postings',
         },

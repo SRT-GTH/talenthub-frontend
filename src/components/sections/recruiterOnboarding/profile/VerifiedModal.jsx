@@ -40,7 +40,7 @@ const VerifiedModal = ({ phoneMasked, emailMasked, onClose, onContinue }) => {
           You’re <span className="text-brand-green">Verified</span>
         </h2>
         <p className="text-[12px] leading-[18px] text-[#959592]" style={{ letterSpacing: '0.2px' }}>
-          Your phone and email have been confirmed. Here&apos;s what we verified.
+          Your email has been confirmed. We&apos;ll confirm your phone number by SMS later.
         </p>
       </div>
 

@@ -78,7 +78,7 @@ const FIELD_MESSAGE_TONE =
 const RecruiterCreateOrganisationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setSection } = useRecruiterOnboarding();
+  const { data, setSection } = useRecruiterOnboarding();
 
   const [values, setValues] = useState(() => ({
     ...EMPTY,
@@ -185,7 +185,18 @@ const RecruiterCreateOrganisationPage = () => {
     <RecruiterOnboardingShell
       routeKey="createOrganisation"
       // Figma 7374:6478 (created) swaps the panel chips to "You become Primary Admin".
-      panel={<RecruiterOnboardingPanel variant={modalOpen ? 'orgCreated' : 'profile'} />}
+      panel={
+        <RecruiterOnboardingPanel
+          variant={modalOpen ? 'orgCreated' : 'profile'}
+          {...(modalOpen
+            ? {
+                copy: {
+                  cardSub: `${data?.profile?.fullName || 'Your profile'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
+                },
+              }
+            : {})}
+        />
+      }
     >
       <form
         onSubmit={handleSubmit}

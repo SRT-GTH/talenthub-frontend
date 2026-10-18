@@ -52,7 +52,7 @@ const SECTIONS = (s) => [
       ['Full name', s.fullName],
       ['Profile type', `Recruiter · ${s.type}`],
       ['Email address', `${s.email} ✓ verified`],
-      ['Phone number', `${s.phone} ✓ verified`],
+      ['Phone number', s.phone],
     ],
   },
   {
