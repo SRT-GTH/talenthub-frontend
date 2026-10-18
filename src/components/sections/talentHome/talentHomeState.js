@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { fetchTalentAssessment, fetchTalentHome } from '../../../services/talentHome.api.js';
-import { buildAssessmentContent, buildLiveContent, stateKeyFor } from './talentHomeLive.js';
+import {
+  buildAssessmentContent,
+  buildLiveContent,
+  buildRecruiterActivity,
+  stateKeyFor,
+} from './talentHomeLive.js';
 import { HOME_TABS } from './talentHomeTabsData.js';
 
 const log = debug('talentHomeState');
@@ -206,10 +211,17 @@ export const useTalentHomeState = () => {
       // MyAssessment content (null in demo mode or while loading).
       assessment:
         live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
-      // Tabs: on real data the Recruiter activity tab waits for phase 3 (no backend yet).
+      // Recruiter activity tab: who viewed you this week (/activity/me), real data only.
+      recruiterActivity: live && !demoState ? buildRecruiterActivity(live.views) : null,
       tabs:
         live && !demoState
-          ? HOME_TABS.filter((t) => t.id !== 'recruiter').map((t) => ({ ...t, chip: null }))
+          ? HOME_TABS.map((t) => ({
+              ...t,
+              chip:
+                t.id === 'recruiter' && live.views?.uniqueViewers
+                  ? String(live.views.uniqueViewers)
+                  : null,
+            }))
           : HOME_TABS,
       live: demoState ? null : live || placeholderFromStoredUser(),
       stateKey,

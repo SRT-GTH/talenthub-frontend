@@ -14,6 +14,7 @@ const log = debug('talentHome.api');
  *   GET /notifications                    recent activity
  *   GET /engagement/skills/verifications/me   verified skills count
  *   GET /guidance/readiness/:career       job readiness (only at Top 20%+)
+ *   GET /activity/me?period=7d            who viewed me this week (backend #156)
  *
  * MyAssessment tab (fetchTalentAssessment, loaded when the tab opens):
  *   GET /engagement/summary                    Big Five + RIASEC summary
@@ -55,7 +56,7 @@ export const fetchTalentHome = async () => {
   // The journey is the one call the page cannot do without: a 401 means the
   // session expired (go to login), any other failure shows the error state.
   let journeyError = null;
-  const [journey, profileRes, opps, apps, notifs, verifs] = await Promise.all([
+  const [journey, profileRes, opps, apps, notifs, verifs, activity] = await Promise.all([
     (async () => {
       try {
         return unwrap(await api.get('/profiles/journey'));
@@ -75,6 +76,9 @@ export const fetchTalentHome = async () => {
     ),
     settle('verifications', async () =>
       unwrap(await api.get('/engagement/skills/verifications/me'))
+    ),
+    settle('activity', async () =>
+      unwrap(await api.get('/activity/me', { params: { verb: 'view', period: '7d' } }))
     ),
   ]);
   if (journeyError || !journey) {
@@ -103,6 +107,8 @@ export const fetchTalentHome = async () => {
     applications: { total: apps?.total ?? apps?.count ?? 0, items: apps?.applications || [] },
     notifications: { unread: notifs?.unreadCount ?? 0, items: notifs?.notifications || [] },
     verifiedSkills: verifs?.total ?? 0,
+    // Profile views this week (company level on the free tier); null if it failed.
+    views: activity || null,
     readiness,
     loginCount: user.loginCount ?? null,
     // Kept for the MyAssessment tab (fetchTalentAssessment adds the rest).

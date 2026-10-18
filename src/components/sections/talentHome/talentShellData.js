@@ -148,7 +148,7 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null) => {
       caption: next ? `Continue: ${next} →` : 'View my profile →',
     },
     stats: [
-      { id: 'views', value: '–', label: 'Views' },
+      { id: 'views', value: live.views ? String(live.views.uniqueViewers) : '–', label: 'Views' },
       { id: 'matches', value: String(matches), label: 'Matches' },
       { id: 'messages', value: '–', label: 'Messages' },
       { id: 'skills', value: String(live.verifiedSkills ?? 0), label: 'Skills' },

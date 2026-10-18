@@ -172,17 +172,30 @@ export const CtaButton = ({ children, size = 'sm', className, ...rest }) => (
 );
 
 // Round avatar-ish photo.
-export const Photo = ({ src, size = 36, className }) => (
-  <img
-    src={src}
-    alt=""
-    width={size}
-    height={size}
-    draggable="false"
-    className={classNames('shrink-0 rounded-full object-cover', className)}
-    style={{ width: size, height: size }}
-  />
-);
+// Real viewers have no photo on the free tier: `initials` (company) shows instead.
+export const Photo = ({ src, size = 36, className, initials }) =>
+  src ? (
+    <img
+      src={src}
+      alt=""
+      width={size}
+      height={size}
+      draggable="false"
+      className={classNames('shrink-0 rounded-full object-cover', className)}
+      style={{ width: size, height: size }}
+    />
+  ) : (
+    <span
+      aria-hidden="true"
+      className={classNames(
+        'flex shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#ebf1ec] font-bold text-[#387440]',
+        className
+      )}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.34) }}
+    >
+      {initials || '•'}
+    </span>
+  );
 
 // Card header with title + optional "link →" on the right (Figma "Card head").
 export const LinkLabel = ({ children, onClick, Icon }) => (
