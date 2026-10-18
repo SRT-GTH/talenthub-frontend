@@ -161,6 +161,7 @@ const RecruiterCreateOrganisationPage = () => {
         setCreated({ ...org, name });
         setModalOpen(true);
       })
+      .catch((err) => log('create organisation failed', err?.code))
       .finally(() => setSubmitting(false));
   };
 

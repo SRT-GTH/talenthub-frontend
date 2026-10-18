@@ -13,6 +13,7 @@ import { StickyActionBar } from '../../../components/ui/form';
 import { ArrowRightIcon } from '../../../components/shared/assets.jsx';
 import { RECRUITER_ROUTES } from '../../../components/shared/recruiterOnboardingSteps.js';
 import { useRecruiterOnboarding } from '../../../hooks/useRecruiterOnboarding.js';
+import { setRecruiterType } from '../../../services/recruiterOnboarding.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('RecruiterTypePage');
@@ -91,8 +92,12 @@ const RecruiterTypePage = () => {
     e.preventDefault();
     if (!selected) return;
     log('continue', selected.value, '->', selected.next);
-    setSection('recruiterType', selected.value);
-    navigate(selected.next);
+    setRecruiterType(selected.value)
+      .then(() => {
+        setSection('recruiterType', selected.value);
+        navigate(selected.next);
+      })
+      .catch((err) => log('save type failed', err?.code));
   };
 
   return (

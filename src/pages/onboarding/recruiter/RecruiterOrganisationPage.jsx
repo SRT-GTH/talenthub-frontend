@@ -111,15 +111,17 @@ const RecruiterOrganisationPage = () => {
     const token = (searchToken.current += 1);
     const timer = setTimeout(() => {
       log('search fire', q);
-      searchOrganisations(q).then((res) => {
-        if (token !== searchToken.current) {
-          log('search stale, dropped', q);
-          return;
-        }
-        log('search result', res.status, res.results.length);
-        setSearch(res);
-        setActiveIndex(-1);
-      });
+      searchOrganisations(q)
+        .then((res) => {
+          if (token !== searchToken.current) {
+            log('search stale, dropped', q);
+            return;
+          }
+          log('search result', res.status, res.results.length);
+          setSearch(res);
+          setActiveIndex(-1);
+        })
+        .catch((err) => log('search failed', err?.code));
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [query, selected]);
@@ -245,6 +247,7 @@ const RecruiterOrganisationPage = () => {
         setRequested(true);
         setModalOpen(true);
       })
+      .catch((err) => log('affiliation request failed', err?.code))
       .finally(() => setSubmitting(false));
   };
 

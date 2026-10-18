@@ -19,6 +19,7 @@ import {
 import Button from '../../../components/ui/Button.jsx';
 import { RECRUITER_ROUTES } from '../../../components/shared/recruiterOnboardingSteps.js';
 import { useRecruiterOnboarding } from '../../../hooks/useRecruiterOnboarding.js';
+import { selectPlan } from '../../../services/recruiterOnboarding.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('RecruiterPlanPage');
@@ -82,7 +83,9 @@ const RecruiterPlanPage = () => {
     persist(tier, billing);
     const next = free ? RECRUITER_ROUTES.preferences.path : RECRUITER_ROUTES.payment.path;
     log('continue', { tier, billing, next });
-    navigate(next);
+    selectPlan({ tier, billing })
+      .then(() => navigate(next))
+      .catch((err) => log('save plan failed', err?.code));
   };
 
   return (

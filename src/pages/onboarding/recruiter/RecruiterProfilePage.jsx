@@ -159,7 +159,12 @@ const RecruiterProfilePage = () => {
     const id = ++runId.current;
     log('submit -> captured (loader)');
     setStage('captured');
-    submitProfile({ fullName: fullName.trim(), email: email.trim(), phone: phoneDigits(phone) })
+    submitProfile({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      phone: phoneDigits(phone),
+      password,
+    })
       .then(() => {
         if (id !== runId.current) return;
         setSection('profile', {
