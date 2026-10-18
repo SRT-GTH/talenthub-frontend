@@ -6,6 +6,16 @@ import { debug } from '../utils/debug.js';
 
 const log = debug('parentInvite.api');
 
+// Ward education level -> readable text (Programme fallback when none given).
+const EDUCATION_LEVEL_TEXT = {
+  jhs: 'Junior High School',
+  post_bece: 'Completed BECE',
+  shs: 'Senior High School',
+  post_shs: 'Completed WASSCE',
+  technical: 'Technical / TVET',
+  tertiary: 'Tertiary',
+};
+
 /*
  * Invited parent (flow B). The parent notice email links to
  * /onboarding/parent-invited?token=<ward token>.
@@ -228,7 +238,8 @@ export const wardDisplay = (invite = getInvite()?.invite) => {
     fullName,
     initials,
     school: w.school || '—',
-    curriculum: w.curriculum || '—',
+    // Education v2: curriculum retired - show the programme, else the level.
+    programme: w.fieldOfStudy || EDUCATION_LEVEL_TEXT[w.educationLevel] || w.curriculum || '—',
     createdLabel,
     status: w.status || null,
     statusLabel,
