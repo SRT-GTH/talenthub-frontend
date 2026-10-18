@@ -111,6 +111,7 @@ const TalentNotificationsPage = lazy(
 );
 const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentJobsPage = lazy(() => import('./pages/talentJobs/TalentJobsPage.jsx'));
+const TalentStreakPage = lazy(() => import('./pages/talentStreak/TalentStreakPage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -910,6 +911,18 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent streak — Figma "Talent Streaks" 7532:2: S-07 "Your streak" full page (+ S-08 milestone
+            modal via ?milestone=15). The pop-up (S-01..S-06) opens from the nav streak pill on any talent page
+            (?streak=…). Outside MainLayout like /job-postings. */}
+                <Route
+                  path={'/streak'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentStreakPage />
                     </Suspense>
                   }
                 />

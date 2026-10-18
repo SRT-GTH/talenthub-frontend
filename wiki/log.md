@@ -2530,3 +2530,7 @@ New route `/job-postings`: Matched (cards + list), Browse all, Saved, Applied, e
 ## [2026-10-18] create | Talent My Learning `/learning` (Focused + Playful)
 
 Built from cached Figma node JSON/PNGs (new token stored in the git-ignored `.figma-token.local`): My Learning hub (in progress / recommended / empty / loading / saved + toast), course detail, lesson player, 5-state quick check, course complete, certificates, explore (4 states), `activeNav="learning"` in the talent shell. Responsive audit 60/60 across 12 states. Helpers: `scripts/figma-node-tree.mjs`, `scripts/figma-export-nodes.mjs`. Status, flow, gaps: [talent-my-learning.md](talent-my-learning.md).
+
+## [2026-10-18] create | Talent streaks — `/streak` page, 15-day milestone modal, nav streak pop-up (6 states)
+
+S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=open|done|risk|freeze|lost|new` on any talent page); `activeNav="streak"` in the shell; `/streak` route. Gates: lint 0, build ✓, leak check clean, responsive audit streak 40/40. Details: [talent-streak.md](talent-streak.md).

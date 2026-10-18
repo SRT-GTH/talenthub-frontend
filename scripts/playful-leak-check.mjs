@@ -12,6 +12,7 @@ const ALLOWED = [
   '/profile',
   '/notifications',
   '/job-postings',
+  '/streak',
   '/learning',
 ];
 

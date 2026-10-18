@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
@@ -17,6 +17,7 @@ import { getTalentNavData, getTalentSidebarData } from '../talentHome/talentShel
 import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
 import NotificationPopover from '../notifications/NotificationPopover.jsx';
 import HelpPopover from '../notifications/HelpPopover.jsx';
+import StreakPopover from '../talentStreak/StreakPopover.jsx';
 
 const log = debug('DashboardTopNav');
 
@@ -67,6 +68,27 @@ const NavIconButton = ({ src, label, badge, onClick, className, active }) => (
   </button>
 );
 
+/* Streak pill: a plain span on recruiter pages, a button that opens the Streak pop-up on talent pages. */
+const StreakPillTag = (props) => {
+  const { as, pillRef, open, count, onClick, className, children } = props;
+  if (as !== 'button') return <span className={className}>{children}</span>;
+  return (
+    <button
+      ref={pillRef}
+      type="button"
+      aria-label={`Streak, ${count} days`}
+      aria-expanded={open}
+      onClick={onClick}
+      className={classNames(
+        className,
+        'cursor-pointer border-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
+      )}
+    >
+      {children}
+    </button>
+  );
+};
+
 /*
  * Talent variant (`/home`, Figma `Nav` 8315:461634): pass `talentHome` (useTalentHomeState()).
  * Everything talent-specific is gated on it — recruiter/community pages never pass it and render
@@ -113,12 +135,31 @@ const DashboardTopNav = ({ className, talentHome }) => {
   // (Figma 7471:53182 / 8376:10396). Recruiter + community pages keep the presentational buttons.
   const { pathname } = useLocation();
   const bellRef = useRef(null);
+  const streakRef = useRef(null);
+  // Streak pop-up (Figma 7532:2): `?streak=open|done|risk|freeze|lost|new` works on every talent page, whichever
+  // page-state hook owns the URL, so it is read from the query string here.
+  const [streakParams] = useSearchParams();
+  const streakState = ['open', 'done', 'risk', 'freeze', 'lost', 'new'].includes(
+    streakParams.get('streak')
+  )
+    ? streakParams.get('streak')
+    : null;
   const helpRef = useRef(null);
 
   const handleAction = (action) => {
     if (isTalent && action === 'notifications') {
       log('toggle notifications pop-up');
       talentHome.update({ notif: talentHome.notif ? null : 'open', tip: null, help: null });
+      return;
+    }
+    if (isTalent && action === 'streak') {
+      log('toggle streak pop-up');
+      talentHome.update({
+        streak: streakState ? null : 'open',
+        notif: null,
+        tip: null,
+        help: null,
+      });
       return;
     }
     if (isTalent && action === 'help') {
@@ -194,7 +235,13 @@ const DashboardTopNav = ({ className, talentHome }) => {
             <CommunityIcon src={icons.navSearch} size={20} />
           </button>
 
-          <span
+          <StreakPillTag
+            as={isTalent ? 'button' : 'span'}
+            isTalent={isTalent}
+            pillRef={streakRef}
+            open={Boolean(streakState)}
+            count={nav.streakCount}
+            onClick={() => handleAction('streak')}
             className={classNames(
               'inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] px-[12px] py-[8px] max-md:py-[2px]',
               isTalent ? 'bg-[#faf4e8]' : 'bg-accent-light'
@@ -216,7 +263,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
             >
               {nav.streakCount}
             </span>
-          </span>
+          </StreakPillTag>
 
           {/* md–lg keeps only notifications + messages (help / language / accessibility
               stay lg+); phones reach them through the tab bar's More sheet. */}
@@ -323,6 +370,9 @@ const DashboardTopNav = ({ className, talentHome }) => {
       <DashboardSearchSheet isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       {isTalent && <NotificationPopover home={talentHome} anchorRef={bellRef} />}
       {isTalent && <HelpPopover home={talentHome} anchorRef={helpRef} />}
+      {isTalent && (
+        <StreakPopover home={{ ...talentHome, streak: streakState }} anchorRef={streakRef} />
+      )}
     </header>
   );
 };
