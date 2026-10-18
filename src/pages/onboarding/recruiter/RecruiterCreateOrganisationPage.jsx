@@ -309,9 +309,9 @@ const RecruiterCreateOrganisationPage = () => {
             </div>
 
             <InfoNote icon={<BuildingIcon size={20} className="size-5" />}>
-              You&apos;ll be auto-assigned Primary Admin of this organisation you approve recruiters
-              who ask to join, manage the subscription and billing. You can transfer this role
-              later.
+              You&apos;ll be auto-assigned Primary Admin of this organisation: you approve
+              recruiters who ask to join, manage the subscription and billing. You can transfer this
+              role later.
             </InfoNote>
           </div>
         </div>
@@ -337,7 +337,7 @@ const RecruiterCreateOrganisationPage = () => {
         <OrganisationResultModal
           title="Organisation created."
           caption="Primary Admin assigned"
-          description={`${created.name} is live. Recruiters can now request to join you approve them.`}
+          description={`${created.name} is live. Recruiters can now request to join, and you approve them.`}
           rows={[
             {
               icon: <BuildingIcon className="size-4" />,

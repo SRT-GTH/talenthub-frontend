@@ -59,7 +59,7 @@ const buildVariant = (s) => {
       },
       banner: {
         tone: 'ok',
-        text: `You're the Primary Admin of ${org}  approve recruiters, manage billing and analytics.`,
+        text: `You're the Primary Admin of ${org}. Approve recruiters, manage billing and analytics.`,
       },
       cards: [
         {
@@ -92,7 +92,7 @@ const buildVariant = (s) => {
       badge: { eyebrow: 'Recruiter', mark: orgMark(org), sub: 'awaiting admin', pill: 'Pending' },
       banner: {
         tone: 'warn',
-        text: `Waiting for ${s.primaryAdmin} to approve you joining ${org}  you can post under your own name now.`,
+        text: `Waiting for ${s.primaryAdmin} to approve you joining ${org}. You can post under your own name now.`,
       },
       cards: [
         {
@@ -235,7 +235,7 @@ const RecruiterDonePage = () => {
               >
                 Welcome to
                 <br />
-                Ghana Talent Hub,{s.firstName}.
+                Ghana Talent Hub, {s.firstName}.
               </h1>
               <p className="m-0 max-w-[420px] text-[14px] leading-6 text-white/60">
                 Your account is live.{' '}
