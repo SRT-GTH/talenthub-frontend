@@ -20,6 +20,9 @@ import careerBuddy from '../../../assets/talent-home/career-buddy-robot.png';
 
 const log = debug('RecruiterActivityTab');
 
+// Figma demo content; real data comes from home.recruiterActivity (/activity/me).
+const DEMO = { demo: true, feed: RECRUITER_FEED, thisWeek: THIS_WEEK, tip: BUDDY_TIP };
+
 /*
  * RecruiterActivityTab — HM-07. Figma Playful 7742:3439 / Focused 8097:8716.
  * Page body for `?tab=recruiter`: hero (Core) + Home tabs + activity feed (left) +
@@ -65,7 +68,22 @@ const ActivityRow = ({ item }) => {
       )}
     >
       <span className="relative flex shrink-0 items-center">
-        <img src={item.photo} alt="" width="44" height="44" className="size-[44px] rounded-full" />
+        {item.photo ? (
+          <img
+            src={item.photo}
+            alt=""
+            width="44"
+            height="44"
+            className="size-[44px] rounded-full"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="flex size-[44px] items-center justify-center rounded-full bg-[#ebf1ec] text-[15px] font-bold text-[#387440]"
+          >
+            {item.initials}
+          </span>
+        )}
         <span
           className={classNames(
             'absolute left-[28px] top-[26px] flex size-[22px] items-center justify-center rounded-[11px] border-2 border-solid border-white',
@@ -80,7 +98,7 @@ const ActivityRow = ({ item }) => {
           <span className="whitespace-nowrap text-[15px] font-semibold text-[#1c2a21]">
             {item.name}
           </span>
-          <RecruiterVerifiedCheckIcon className="size-[14px]" />
+          {item.verified === false ? null : <RecruiterVerifiedCheckIcon className="size-[14px]" />}
           <span className="text-[13px] text-[#595959]">{item.role}</span>
         </div>
         <p
@@ -93,7 +111,7 @@ const ActivityRow = ({ item }) => {
         </p>
         <div className="flex flex-wrap items-center gap-[8px]">
           <span className="whitespace-nowrap text-[12px] text-[#595959]">{item.when}</span>
-          <Chip>{item.tag}</Chip>
+          {item.tag ? <Chip>{item.tag}</Chip> : null}
         </div>
       </div>
       {item.action ? (
@@ -116,8 +134,7 @@ const ActivityRow = ({ item }) => {
   );
 };
 
-const FeedCard = () => {
-  const f = RECRUITER_FEED;
+const FeedCard = ({ f }) => {
   const [filter, setFilter] = useState('all');
   const rows = useMemo(
     () => (filter === 'all' ? f.items : f.items.filter((i) => i.filter === filter)),
@@ -168,18 +185,25 @@ const FeedCard = () => {
           />
         ))}
       </div>
-      <ul className="flex flex-col gap-[16px] playful:gap-[16px]">
-        {rows.map((it) => (
-          <ActivityRow key={it.id} item={it} />
-        ))}
-      </ul>
+      {rows.length ? (
+        <ul className="flex flex-col gap-[16px] playful:gap-[16px]">
+          {rows.map((it) => (
+            <ActivityRow key={it.id} item={it} />
+          ))}
+        </ul>
+      ) : (
+        <p className="rounded-[16px] border border-dashed border-[#c1d4c4] bg-[#f7f8f4] p-[16px] text-[13px] leading-[19px] text-[#595959]">
+          {f.empty}
+        </p>
+      )}
+      {f.note ? <p className="text-[12px] font-medium text-[#595959]">{f.note}</p> : null}
     </section>
   );
 };
 
 const STAT_BG = { white: 'bg-white', gold: 'bg-[#faf4e8]', mint: 'bg-[#e8f2ed]' };
 
-const ThisWeekCard = () => (
+const ThisWeekCard = ({ w }) => (
   <section
     aria-labelledby="ra-week"
     className={classNames(CARD, 'flex flex-col gap-[16px] p-[clamp(14px,1.6vw,22px)]')}
@@ -188,10 +212,10 @@ const ThisWeekCard = () => (
       id="ra-week"
       className={classNames('text-[19px] font-semibold leading-[1.25] text-[#1c2a21]', DISPLAY)}
     >
-      {THIS_WEEK.title}
+      {w.title}
     </h2>
     <div className="grid grid-cols-2 gap-x-[10px] gap-y-[16px]">
-      {THIS_WEEK.stats.map((s) => (
+      {w.stats.map((s) => (
         <div
           key={s.label}
           className={classNames(
@@ -213,7 +237,7 @@ const ThisWeekCard = () => (
         </div>
       ))}
     </div>
-    <p className="text-[12px] font-medium text-[#595959]">{THIS_WEEK.footer}</p>
+    {w.footer ? <p className="text-[12px] font-medium text-[#595959]">{w.footer}</p> : null}
   </section>
 );
 
@@ -265,7 +289,7 @@ const VisibilityCard = () => {
   );
 };
 
-const BuddyTip = () => (
+const BuddyTip = ({ text }) => (
   <div className="flex items-center gap-[12px] rounded-[20px] border border-[#c1d4c4] bg-[#ebf1ec] p-[16px]">
     <span className="flex size-[44px] shrink-0 items-center justify-center overflow-hidden rounded-[22px] bg-white">
       <span className="relative size-[40px] overflow-hidden">
@@ -277,7 +301,7 @@ const BuddyTip = () => (
         />
       </span>
     </span>
-    <p className="min-w-0 text-[13px] font-medium leading-[19px] text-[#1c2a21]">{BUDDY_TIP}</p>
+    <p className="min-w-0 text-[13px] font-medium leading-[19px] text-[#1c2a21]">{text}</p>
   </div>
 );
 
@@ -291,16 +315,19 @@ const RecruiterActivityTab = ({ home }) => {
     home.update({ tab: id === 'home' ? null : id });
   };
 
+  // Real data on a live account; the Figma demo only in demo mode (?state=...).
+  const data = home.recruiterActivity || DEMO;
+
   return (
     <>
       <TalentHomeHero home={home} />
-      <HomeTabs active="recruiter" onSelect={selectTab} />
+      <HomeTabs active="recruiter" tabs={home.tabs} onSelect={selectTab} />
       <div className="grid items-start gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
-        <FeedCard />
+        <FeedCard f={data.feed} />
         <div className="flex min-w-0 flex-col gap-[16px]">
-          <ThisWeekCard />
-          <VisibilityCard />
-          <BuddyTip />
+          <ThisWeekCard w={data.thisWeek} />
+          {data.demo ? <VisibilityCard /> : null}
+          <BuddyTip text={data.tip} />
         </div>
       </div>
     </>

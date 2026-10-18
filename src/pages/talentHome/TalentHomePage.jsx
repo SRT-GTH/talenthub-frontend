@@ -54,8 +54,7 @@ const TalentHomePage = () => {
   const renderBody = () => {
     if (home.loading) return <TalentHomeLoading home={home} />;
     if (home.tab === 'assessment') return <MyAssessmentTab home={home} />;
-    // Recruiter activity has no backend yet (phase 3): demo mode only.
-    if (home.tab === 'recruiter' && !home.live) return <RecruiterActivityTab home={home} />;
+    if (home.tab === 'recruiter') return <RecruiterActivityTab home={home} />;
     return (
       <>
         {home.editOpen && <EditHomeBanner home={home} />}

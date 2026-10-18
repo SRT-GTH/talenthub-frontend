@@ -86,7 +86,7 @@ const CompanyTile = ({ company, initials, size = 44, radius = 12 }) => {
 const CARD_PAD = 'p-[clamp(14px,1.4vw,24px)]';
 
 // Card header: [tile] title ... [link]
-const CardHead = ({ tile, title, link, trailing, h2 = 'text-[17px]' }) => (
+const CardHead = ({ tile, title, link, onLink, trailing, h2 = 'text-[17px]' }) => (
   <div className="flex items-center gap-[10px]">
     {tile ? (
       <span
@@ -100,7 +100,11 @@ const CardHead = ({ tile, title, link, trailing, h2 = 'text-[17px]' }) => (
       {title}
     </h2>
     <span className="flex-1" />
-    {link ? <LinkLabel Icon={TalentHomeArrowRightGreenIcon}>{link}</LinkLabel> : null}
+    {link ? (
+      <LinkLabel Icon={TalentHomeArrowRightGreenIcon} onClick={onLink}>
+        {link}
+      </LinkLabel>
+    ) : null}
     {trailing}
   </div>
 );
@@ -575,8 +579,14 @@ const WhoLooking = ({ data }) => (
     />
     <div className="flex items-center gap-[14px]">
       <span aria-hidden="true" className="flex">
-        {data.photos.map((src, i) => (
-          <Photo key={i} src={src} size={40} className={i === 0 ? '-mr-[10px]' : ''} />
+        {data.photos.map((p, i) => (
+          <Photo
+            key={i}
+            src={typeof p === 'string' ? p : null}
+            initials={p?.initials}
+            size={40}
+            className={i === 0 && data.photos.length > 1 ? '-mr-[10px]' : ''}
+          />
         ))}
       </span>
       <span className="flex flex-col gap-[2px] leading-[normal]">
@@ -587,7 +597,7 @@ const WhoLooking = ({ data }) => (
   </section>
 );
 
-const RecruiterCard = ({ data }) => (
+const RecruiterCard = ({ data, onSeeAll }) => (
   <section
     aria-label="Recruiter activity"
     className={classNames(
@@ -599,15 +609,16 @@ const RecruiterCard = ({ data }) => (
       tile={<TalentHomeEyeGreenIcon className="h-[16.15px] w-[17px]" />}
       title={data.title}
       link={data.link}
+      onLink={onSeeAll}
     />
     <p className="text-[13px] leading-[normal] font-medium text-[#595959]">{data.sub}</p>
     <ul className="m-0 flex list-none flex-col p-0">
-      {data.rows.map((r) => (
+      {data.rows.map((r, i) => (
         <li
-          key={r.name}
+          key={`${r.name}-${i}`}
           className="flex items-start gap-[10px] border-b border-[#e7e7e7] py-[10px]"
         >
-          <Photo src={r.photo} size={36} />
+          <Photo src={r.photo} initials={r.initials} size={36} />
           <span className="flex min-w-0 flex-col gap-[6px] playful:gap-[2px]">
             <span className="text-[13px] leading-[normal] font-semibold text-[#1c2a21]">
               {r.name}
@@ -682,7 +693,9 @@ const HomeColumns = ({ home, content }) => {
       ) : (
         <ReadinessScore data={content.readiness} />
       ),
-    'recruiter-activity': content.recruiters ? <RecruiterCard data={content.recruiters} /> : null,
+    'recruiter-activity': content.recruiters ? (
+      <RecruiterCard data={content.recruiters} onSeeAll={() => home.update({ tab: 'recruiter' })} />
+    ) : null,
   };
   const column = (ids) =>
     layout.onPage

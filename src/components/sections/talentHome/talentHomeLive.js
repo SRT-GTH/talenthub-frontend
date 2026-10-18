@@ -6,8 +6,8 @@ import { CORE_CONTENT, HERO, JOURNEY_COPY } from './talentHomeCoreData.js';
  * HERO, JOURNEY_COPY), so the Figma layout is unchanged.
  *
  * Rule: real numbers or an honest empty state, never the Figma demo numbers.
- * Cards with no backend yet (who's looking, recruiter activity, streak) are
- * returned as null and the layout skips them.
+ * Cards with no backend yet (streak) are returned as null and the layout
+ * skips them. Who's looking and recruiter activity come from /activity/me.
  */
 
 // Same ids/labels as JOURNEY_STAGES in talentHomeState.js (kept here to avoid an import cycle).
@@ -127,6 +127,165 @@ const activityRows = (items) =>
     .map((n) => ({ kind: 'check', text: n.title || n.message, when: relativeTime(n.createdAt) }));
 
 /** Content in the CORE_CONTENT shape for the given state, from real data. */
+/* ---------------- Who's looking / recruiter activity (Phase 3, 2026-10-18) ---------------- */
+// From GET /activity/me (backend #156). Free tier is company level: never a viewer's name.
+
+const PRIVATE_NOTE =
+  'You browse in private mode, so who viewed you is hidden. Switch to company mode to see it.';
+
+const viewTrend = (v) => {
+  if (!v) return 'This week';
+  const cur = v.uniqueViewers || 0;
+  const prev = v.previousPeriod || 0;
+  if (!prev) return cur ? 'New this week' : 'None yet';
+  const pct = Math.round(((cur - prev) / prev) * 100);
+  return `${pct >= 0 ? '+' : ''}${pct}% vs last week`;
+};
+
+// "2 recruiters from Kumasi Steel Works", "1 independent recruiter", "3 talents"
+const viewerGroup = (g) => {
+  if (g.entityType === 'recruiter') {
+    return g.orgName === 'Independent recruiters'
+      ? plural(g.count, 'independent recruiter')
+      : `${plural(g.count, 'recruiter')} from ${g.orgName}`;
+  }
+  const word = String(g.orgName || 'members').toLowerCase();
+  return `${g.count} ${g.count === 1 ? word.replace(/s$/, '') : word}`;
+};
+
+const lookingCard = (v) => {
+  const n = v?.uniqueViewers || 0;
+  if (!n) {
+    return {
+      title: 'Who’s looking',
+      headline: 'No profile views yet this week',
+      sub: 'When recruiters open your profile, their company shows here.',
+      photos: [],
+    };
+  }
+  const groups = v.privateMode ? [] : v.byCompany || [];
+  const single = groups.length === 1 && !v.anonymous;
+  const parts = single ? [] : groups.slice(0, 2).map(viewerGroup);
+  if (v.anonymous) parts.push(plural(v.anonymous, 'private viewer'));
+  if (v.privateMode) parts.splice(0, parts.length, PRIVATE_NOTE);
+  if (!parts.length) parts.push(v.previousPeriod ? `This week · ${viewTrend(v)}` : 'This week');
+  return {
+    title: 'Who’s looking',
+    headline: single
+      ? `${viewerGroup(groups[0])} viewed your profile`
+      : `${plural(n, 'person', 'people')} viewed your profile`,
+    sub: parts.join(' · '),
+    photos: groups.slice(0, 2).map((g) => ({ initials: initials(g.orgName) })),
+  };
+};
+
+const recruitersCard = (v, now) => {
+  const n = v?.uniqueViewers || 0;
+  return {
+    title: 'Recruiter activity',
+    link: 'See all',
+    sub: n
+      ? `${plural(n, 'viewer')} this week${v.searchAppearances ? ` · ${plural(v.searchAppearances, 'search appearance')}` : ''}`
+      : 'No profile views this week yet.',
+    rows: (v?.items || []).slice(0, 3).map((it) => ({
+      photo: null,
+      initials: initials(it.label),
+      name: [it.label, it.title].filter(Boolean).join(' · '),
+      what: 'Viewed your profile',
+      when: relativeTime(it.when, now),
+      role: it.roleTitle || 'Profile',
+    })),
+    privacy: v?.privateMode
+      ? PRIVATE_NOTE
+      : 'You see companies, not names. Viewers who browse privately show as “A recruiter”.',
+  };
+};
+
+/** Recruiter activity tab (?tab=recruiter) from the same /activity/me summary. */
+export const buildRecruiterActivity = (views, now = new Date()) => {
+  const v = views || {
+    uniqueViewers: 0,
+    previousPeriod: 0,
+    byCompany: [],
+    anonymous: 0,
+    searchAppearances: 0,
+    items: [],
+    locked: [],
+    privateMode: false,
+  };
+  const known = (it) =>
+    it.entityType === 'recruiter' && !['A recruiter', 'Independent recruiters'].includes(it.label);
+  const items = (v.items || []).map((it, i) => ({
+    id: `view-${i}`,
+    name: it.label,
+    role: it.title || '',
+    text: it.roleTitle ? `Viewed your profile for a ${it.roleTitle} role` : 'Viewed your profile',
+    when: relativeTime(it.when, now),
+    tag: it.roleTitle || null,
+    kind: 'eye',
+    filter: 'viewed',
+    photo: null,
+    initials: initials(it.label),
+    verified: known(it),
+  }));
+  const companies = (v.byCompany || []).filter(
+    (g) => g.entityType === 'recruiter' && g.orgName !== 'Independent recruiters'
+  );
+  const premiumLocked = (v.locked || []).includes('names');
+  return {
+    demo: false,
+    feed: {
+      title: 'Who viewed your profile',
+      range: 'Last 7 days',
+      filters: [
+        { id: 'all', label: 'All', count: items.length },
+        { id: 'viewed', label: 'Viewed', count: items.length },
+      ],
+      items,
+      empty: v.privateMode
+        ? PRIVATE_NOTE
+        : 'No one has viewed your profile this week yet. Each stage you finish puts you in more recruiter searches.',
+      note:
+        premiumLocked && items.length
+          ? 'Free accounts see the latest 5 visits by company. Names and repeat visits come with Premium, coming soon.'
+          : null,
+    },
+    thisWeek: {
+      title: 'This week',
+      stats: [
+        {
+          value: String(v.uniqueViewers || 0),
+          label: 'Profile viewers',
+          note: viewTrend(v),
+          tone: 'white',
+        },
+        {
+          value: String(v.searchAppearances || 0),
+          label: 'Search appearances',
+          note: v.searchAppearances ? 'You showed in results' : 'None yet',
+          tone: 'white',
+        },
+        {
+          value: String(companies.length),
+          label: companies.length === 1 ? 'Company' : 'Companies',
+          note: companies[0]?.orgName || 'None yet',
+          tone: 'gold',
+        },
+        {
+          value: String(v.anonymous || 0),
+          label: 'Private viewers',
+          note: 'Browsing privately',
+          tone: 'mint',
+        },
+      ],
+      footer: '',
+    },
+    tip: v.uniqueViewers
+      ? `${companies[0] ? `${companies[0].orgName} is looking. ` : ''}Keep your skills and pitch up to date so the next visit counts.`
+      : 'Recruiters find talents through search. Finish your profile stages to show up more often.',
+  };
+};
+
 export const buildLiveContent = (stateKey, data, now = new Date()) => {
   const j = data.journey || { doneCount: 0, total: 9, percent: 0, stages: [], nextStage: 'avatar' };
   const first = data.firstName || 'there';
@@ -192,17 +351,18 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
       body: `${data.matches.total ? `${plural(data.matches.total, 'role')} match your profile` : 'No roles match your profile yet'}${data.applications.total ? ` and you have ${plural(data.applications.total, 'application')} in progress` : ''}. Here’s what matters today.`,
       stats: [
         {
+          n: String(data.views?.uniqueViewers ?? 0),
+          label: 'Profile views',
+          note: viewTrend(data.views),
+          tone: 'white',
+        },
+        {
           n: String(data.matches.total),
           label: 'Matches',
           note: data.targetCareer ? `For ${data.targetCareer}` : 'Roles for you',
           tone: 'white',
         },
-        {
-          n: String(data.applications.total),
-          label: 'Applications',
-          note: data.applications.total ? 'In progress' : 'None yet',
-          tone: 'white',
-        },
+
         {
           n: String(data.notifications.unread),
           label: 'Notifications',
@@ -302,8 +462,8 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
     buddy,
     readiness,
     streak: null,
-    looking: null,
-    recruiters: null,
+    looking: lookingCard(data.views),
+    recruiters: recruitersCard(data.views, now),
     exploreChip: data.matches.total
       ? `Explore ${plural(data.matches.total, 'role')} for you`
       : 'Explore roles in Ghana',
