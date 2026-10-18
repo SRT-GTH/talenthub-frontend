@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
@@ -15,6 +15,8 @@ import {
 import StyleSwitch from '../../ui/StyleSwitch.jsx';
 import { getTalentNavData, getTalentSidebarData } from '../talentHome/talentShellData.js';
 import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
+import NotificationPopover from '../notifications/NotificationPopover.jsx';
+import HelpPopover from '../notifications/HelpPopover.jsx';
 
 const log = debug('DashboardTopNav');
 
@@ -36,18 +38,28 @@ const log = debug('DashboardTopNav');
  * Horizontal padding + logo height are clamped so the bar scales down.
  */
 
-const NavIconButton = ({ src, label, badge, onClick, className }) => (
+/* `active` (talent bell only, Figma 8315:464138 / 8315:463694): 'page' = on /notifications — green
+   face, ink ring, white glyph, no badge; 'open' = the pop-up is open — mint face, green ring. */
+const NavIconButton = ({ src, label, badge, onClick, className, active }) => (
   <button
     type="button"
     onClick={onClick}
     aria-label={label}
     className={classNames(
-      'relative inline-flex size-[36px] max-lg:size-[40px] shrink-0 items-center justify-center rounded-[18px] max-lg:rounded-[20px] bg-[#f8fafc] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      'relative inline-flex size-[36px] max-lg:size-[40px] shrink-0 items-center justify-center rounded-[18px] max-lg:rounded-[20px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+      active === 'page' && 'border border-solid border-[#1c2a21] bg-[#387440]',
+      active === 'open' && 'border border-solid border-[#387440] bg-[#ebf1ec]',
+      !active && 'bg-[#f8fafc] hover:bg-[#eef2f6]',
       className
     )}
   >
-    <CommunityIcon src={src} size={src === icons.navMessage ? 18 : 16} />
-    {badge && (
+    <span
+      style={active === 'page' ? { filter: 'brightness(0) invert(1)' } : undefined}
+      className="inline-flex"
+    >
+      <CommunityIcon src={src} size={src === icons.navMessage ? 18 : 16} />
+    </span>
+    {badge && active !== 'page' && (
       <span className="absolute -top-[1.5px] left-[22.67px] max-lg:left-[26px] max-lg:top-[2px] inline-flex size-[16px] max-lg:size-auto max-lg:h-[18px] max-lg:min-w-[18px] max-lg:px-[4px] max-lg:leading-none items-center justify-center overflow-hidden rounded-[100px] border-[1.5px] border-white bg-danger font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-white">
         {badge}
       </span>
@@ -65,7 +77,14 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const isTalent = Boolean(talentHome);
   // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
   const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
-  const nav = isTalent ? { ...TOP_NAV, ...getTalentNavData(talentHome.stateKey) } : TOP_NAV;
+  const nav = isTalent
+    ? {
+        ...TOP_NAV,
+        ...getTalentNavData(talentHome.stateKey),
+        // Optional per-page override (the Notifications frames show streak 12 on the day-1 shell).
+        ...(talentHome.navStreak ? { streakCount: talentHome.navStreak } : null),
+      }
+    : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
   // button that opens DashboardSearchSheet instead.
   const [searchOpen, setSearchOpen] = useState(false);
@@ -83,7 +102,23 @@ const DashboardTopNav = ({ className, talentHome }) => {
     return () => window.removeEventListener('keydown', onKey);
   }, [isTalent, talentHome]);
 
+  // Talent only: the bell / help buttons anchor the Notifications pop-up and the Help pop-over
+  // (Figma 7471:53182 / 8376:10396). Recruiter + community pages keep the presentational buttons.
+  const { pathname } = useLocation();
+  const bellRef = useRef(null);
+  const helpRef = useRef(null);
+
   const handleAction = (action) => {
+    if (isTalent && action === 'notifications') {
+      log('toggle notifications pop-up');
+      talentHome.update({ notif: talentHome.notif ? null : 'open', tip: null, help: null });
+      return;
+    }
+    if (isTalent && action === 'help') {
+      log('toggle help pop-over');
+      talentHome.update({ help: talentHome.helpOpen ? null : true, notif: null, tip: null });
+      return;
+    }
     // Every control here is presentational in this build — no destination
     // screens exist yet — so log the intent instead of silently doing nothing.
     log('nav action (no destination wired yet):', action);
@@ -179,18 +214,30 @@ const DashboardTopNav = ({ className, talentHome }) => {
           {/* md–lg keeps only notifications + messages (help / language / accessibility
               stay lg+); phones reach them through the tab bar's More sheet. */}
           <div className="hidden items-center gap-[8px] md:flex">
-            <NavIconButton
-              src={icons.navHelp}
-              label="Help"
-              className="max-lg:hidden"
-              onClick={() => handleAction('help')}
-            />
-            <NavIconButton
-              src={icons.navNotification}
-              label={`Notifications, ${nav.notificationCount} unread`}
-              badge={nav.notificationCount}
-              onClick={() => handleAction('notifications')}
-            />
+            <span ref={helpRef} className="inline-flex max-lg:hidden">
+              <NavIconButton
+                src={icons.navHelp}
+                label="Help"
+                onClick={() => handleAction('help')}
+              />
+            </span>
+            <span ref={bellRef} className="inline-flex">
+              <NavIconButton
+                src={icons.navNotification}
+                label={`Notifications, ${nav.notificationCount} unread`}
+                badge={nav.notificationCount}
+                active={
+                  isTalent
+                    ? talentHome.notif
+                      ? 'open'
+                      : pathname === '/notifications'
+                        ? 'page'
+                        : undefined
+                    : undefined
+                }
+                onClick={() => handleAction('notifications')}
+              />
+            </span>
             <NavIconButton
               src={icons.navMessage}
               label={`Messages, ${nav.messageCount} unread`}
@@ -267,6 +314,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
       </div>
 
       <DashboardSearchSheet isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      {isTalent && <NotificationPopover home={talentHome} anchorRef={bellRef} />}
+      {isTalent && <HelpPopover home={talentHome} anchorRef={helpRef} />}
     </header>
   );
 };

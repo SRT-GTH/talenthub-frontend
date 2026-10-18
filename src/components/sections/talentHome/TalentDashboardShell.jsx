@@ -4,11 +4,14 @@ import {
   TalentPageBackgroundBlobCenterIllustration,
 } from '../../shared/assets.jsx';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useA11yPrefs } from './useA11yPrefs.js';
 import DashboardTopNav from '../dashboard/DashboardTopNav.jsx';
 import TalentSidebar from './TalentSidebar.jsx';
+import TalentRailCollapsed from './TalentRailCollapsed.jsx';
+import toggleIcon from '../../../assets/notifications/rail/toggle.svg';
 import TalentMobileNav from './TalentMobileNav.jsx';
 import bgGrid from '../../../assets/community/bg-grid.png';
 
@@ -20,9 +23,39 @@ const log = debug('TalentDashboardShell');
  * scrolls. Rail: >= lg full TalentSidebar, md–lg compact icon rail, < md TalentMobileNav.
  * Background (Figma HM-01 grid + `bg blob` x3): grid texture in both styles; the three blobs are
  * Playful only (hidden in the Focused frames). The Ask Buddy FAB belongs to the Flows agent.
+ *
+ * Optional `rail` ('collapsed' | 'expanded'): the Notifications frames (7471:53182) draw the
+ * 126px collapsed rail (TalentRailCollapsed) or the full sidebar from lg up. Omitted = the
+ * original behaviour, byte-for-byte (home etc.). `onToggleRail` flips between the two; the
+ * expanded state's « button is not in Figma (⚠️ ASSUMPTION — needed to get back).
  */
-const TalentDashboardShell = ({ children, talentHome, contentClassName, mainClassName }) => {
+const TalentDashboardShell = ({
+  children,
+  talentHome,
+  contentClassName,
+  mainClassName,
+  rail,
+  onToggleRail,
+  railActiveId,
+  railBadges,
+  activeNav,
+}) => {
   const [prefs] = useA11yPrefs();
+  const [params] = useSearchParams();
+  /* `activeNav="profile"` (/profile): the profile state names the help flag `help`; the chrome's
+     pop-overs read the home names (`helpOpen`, `notif`, `tip`), so mirror them from the URL. */
+  const chrome =
+    activeNav === 'profile' && talentHome
+      ? {
+          ...talentHome,
+          helpOpen: params.get('help') === '1',
+          helpPage: 'profile',
+          notif: ['open', 'empty', 'loading'].includes(params.get('notif'))
+            ? params.get('notif')
+            : null,
+          notifTip: params.get('tip') === '1',
+        }
+      : talentHome;
   const on = Boolean(talentHome?.a11yMode);
   // A11Y-02: accessibility mode applies whichever panel toggles are on (styles: talentA11y.css).
   const a11yAttrs = {
@@ -81,11 +114,52 @@ const TalentDashboardShell = ({ children, talentHome, contentClassName, mainClas
       </div>
 
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
-        <DashboardTopNav className="shrink-0" talentHome={talentHome} />
+        <DashboardTopNav className="shrink-0" talentHome={chrome} />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
-          <TalentSidebar home={talentHome} className="hidden h-full lg:flex" />
-          <TalentSidebar home={talentHome} compact className="hidden h-full md:flex lg:hidden" />
+          {rail === 'collapsed' ? (
+            <TalentRailCollapsed
+              activeId={railActiveId}
+              badges={railBadges}
+              onToggle={onToggleRail}
+              className="hidden h-full lg:flex"
+            />
+          ) : (
+            <div className="relative hidden h-full lg:flex">
+              <TalentSidebar
+                home={chrome}
+                className="h-full"
+                activeId={railActiveId}
+                activeNav={activeNav}
+              />
+              {rail === 'expanded' && (
+                <button
+                  type="button"
+                  aria-label="Collapse sidebar"
+                  aria-expanded="true"
+                  onClick={() => {
+                    log('toggle -> collapsed');
+                    onToggleRail?.();
+                  }}
+                  className="absolute right-[14px] top-[6px] flex size-[28px] items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                >
+                  <img
+                    src={toggleIcon}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-[16px] w-[19px] rotate-180"
+                  />
+                </button>
+              )}
+            </div>
+          )}
+          <TalentSidebar
+            home={chrome}
+            compact
+            className="hidden h-full md:flex lg:hidden"
+            activeId={railActiveId}
+            activeNav={activeNav}
+          />
           <main
             id="main"
             tabIndex={-1}
@@ -99,7 +173,7 @@ const TalentDashboardShell = ({ children, talentHome, contentClassName, mainClas
           </main>
         </div>
 
-        <TalentMobileNav home={talentHome} />
+        <TalentMobileNav home={chrome} activeNav={activeNav} />
       </div>
     </div>
   );

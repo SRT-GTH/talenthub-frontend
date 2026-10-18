@@ -156,6 +156,10 @@ Wrapped in `AvatarSelectionProvider` so picks survive navigation.
 
 `src/constants/authRoutes.js` — `AUTH_ROUTES` map (talent/institution/parent → signIn/signUp) + `getNavAuthCta(pathname)`. `OnboardingNavbar` shows "Create Account" on sign-in pages and "Log In" on sign-up pages, per role. `⚠️ ASSUMPTION` institution has no dedicated sign-in page yet — `institution.signIn` falls back to `/login`.
 
+## Talent notifications — `/notifications` `✅ VERIFIED` (2026-10-18)
+
+`pages/talentHome/TalentNotificationsPage.jsx`, outside `MainLayout`, uses `DashboardShell role="talent"`. The pop-up and Help overlay are opened from the top nav by query params on any talent page. See [talent-notifications.md](talent-notifications.md).
+
 ## Talent home — `/home` `✅ VERIFIED` (2026-10-17)
 
 `TalentHomePage` (lazy), outside `MainLayout`, `DashboardShell role="talent"`; Focused + Playful via `UiStyleScope`. Every Figma state is a query param (`?state=`, `?tab=`, `?search=1`, `?edit=1`, `?loading=1`, `?new=welcome|tour|chat|gate`, `&a11y=1`) — table in [talent-home.md](talent-home.md).

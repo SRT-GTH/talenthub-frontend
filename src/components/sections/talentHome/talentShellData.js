@@ -34,7 +34,12 @@ export const TALENT_NAV_MAIN = [
     tab: 'assessment',
   },
   { id: 'opportunities', label: 'Opportunities', icon: TalentSidebarOpportunitiesNavIcon },
-  { id: 'community', label: 'Community', icon: TalentSidebarCommunityNavIcon },
+  {
+    id: 'community',
+    label: 'Community',
+    icon: TalentSidebarCommunityNavIcon,
+    route: '/community',
+  },
   { id: 'messages', label: 'Messages', icon: TalentSidebarMessagesNavIcon },
 ];
 
@@ -99,7 +104,31 @@ const TOP = {
 
 const BY_STATE = { day1: DAY1, discoverable: DISCOVERABLE, complete: TOP, top: TOP };
 
-export const getTalentSidebarData = (stateKey = 'day1') => BY_STATE[stateKey] ?? DAY1;
+/*
+ * /profile chrome (Figma `_base (Profile template)` 7568:2044, P-01 Focused 8110:368104 / Playful
+ * 7570:105): the rail card reads "Tertiary (BSc) · Accra, Ghana", "3 steps to Top Talent", a
+ * "Profile strength 82%" bar and 47/142/4/7 stats; "Opportunities" is labelled "Job Postings".
+ * Playful keeps the shelf (ink borders + LIVE sticker) here, unlike the home `top` state.
+ */
+const PROFILE_PAGE = {
+  chip: 'Verified',
+  headline: 'Tertiary (BSc) · Accra, Ghana',
+  status: '3 steps to Top Talent',
+  journey: { label: 'Profile strength', count: '82%', percent: 82, caption: 'Finish profile →' },
+  stats: [
+    { id: 'views', value: '47', label: 'Views' },
+    { id: 'matches', value: '142', label: 'Matches' },
+    { id: 'messages', value: '4', label: 'Messages' },
+    { id: 'skills', value: '7', label: 'Skills' },
+  ],
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
+  labels: { opportunities: 'Job Postings' },
+  streak: '12',
+};
+
+/* `activeNav` ('profile') swaps in the profile-page rail data; omitted = the home data, unchanged. */
+export const getTalentSidebarData = (stateKey = 'day1', activeNav) =>
+  activeNav === 'profile' ? PROFILE_PAGE : (BY_STATE[stateKey] ?? DAY1);
 
 /* Top nav counts (Nav 8315:461634: bell 5, messages 5; streak per state). */
 export const getTalentNavData = (stateKey = 'day1') => ({

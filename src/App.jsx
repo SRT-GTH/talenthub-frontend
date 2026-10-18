@@ -105,6 +105,9 @@ const CommunityHomePage = lazy(() => import('./pages/community/CommunityHomePage
 const CommunityDetailPage = lazy(() => import('./pages/community/CommunityDetailPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
 const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
+const TalentNotificationsPage = lazy(
+  () => import('./pages/talentHome/TalentNotificationsPage.jsx')
+);
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -880,6 +883,19 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent notifications full screen — Figma "Talent Notification Screens"
+            7471:53182 (N-05 / N-06, Playful + Focused, collapsed + expanded rail). The pop-up and
+            Help overlay open from the top-nav bell / help buttons (query params, see
+            talentHomeState.js). Outside MainLayout like /home. */}
+                <Route
+                  path={'/notifications'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentNotificationsPage />
                     </Suspense>
                   }
                 />

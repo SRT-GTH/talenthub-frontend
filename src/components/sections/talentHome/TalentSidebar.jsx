@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TalentSidebarProfileAvatarIllustration,
   TalentSidebarVerifiedChipIcon,
@@ -22,7 +23,8 @@ const log = debug('TalentSidebar');
  *   Playful complete / top (flat)       7756:182929 / 7740:11537 — the Focused layout with lime-gradient
  *                                        accents (avatar, active Home, badges, XP bar), no shelves, no LIVE sticker.
  * `data.flat` (talentShellData.js) picks the Playful flavour; Playful styling is `playful:` variants only.
- * Props: home (useTalentHomeState object), compact (md–lg icon rail), className.
+ * Props: home (useTalentHomeState object), compact (md–lg icon rail), className, activeId (nav id drawn
+ * active; defaults to 'home' — the Notifications screens pass 'messages' like their collapsed rail).
  * Home stays the current page on every home tab (HM-06/07 keep Home active); Home and My Assessment
  * call `home.update({ tab })`; the other destinations have no screen yet (logged).
  */
@@ -121,9 +123,13 @@ const avatarClass = (shelf) =>
       : 'playful:bg-[linear-gradient(135deg,#387440_14.637%,#84cc16_85.349%)]'
   );
 
-const TalentSidebar = ({ home, compact = false, className }) => {
+const TalentSidebar = ({ home, compact = false, className, activeId: activeIdProp, activeNav }) => {
+  // `activeNav` ('profile' on /profile) draws that item active; default (home) is unchanged.
+  const activeId = activeIdProp ?? (activeNav === 'profile' ? 'profile' : 'home');
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey);
+  const data = getTalentSidebarData(stateKey, activeNav);
   const { journey } = data;
   const shelf = !data.flat;
   const percent = journey.percent ?? ((journey.done ?? 0) / 9) * 100;
@@ -132,11 +138,18 @@ const TalentSidebar = ({ home, compact = false, className }) => {
 
   const select = (item) => {
     log('nav select:', item.id);
-    if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
+    if (item.route) {
+      if (pathname !== item.route) navigate(item.route);
+    } else if (item.tab && pathname !== '/home') {
+      // Off the home screen (e.g. /notifications) Home / My Assessment must route back to /home.
+      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
+    } else if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
     else log('nav: no destination wired yet:', item.id);
   };
 
   const navBadge = (id) => data.badges[id];
+  const withLabel = (item) =>
+    data.labels?.[item.id] ? { ...item, label: data.labels[item.id] } : item;
 
   if (compact) {
     return (
@@ -157,10 +170,10 @@ const TalentSidebar = ({ home, compact = false, className }) => {
           {TALENT_NAV_MAIN.map((item) => (
             <NavItem
               key={item.id}
-              item={item}
+              item={withLabel(item)}
               compact
               shelf={shelf}
-              active={item.id === 'home'}
+              active={item.id === activeId}
               badge={navBadge(item.id)}
               onSelect={select}
             />
@@ -175,7 +188,14 @@ const TalentSidebar = ({ home, compact = false, className }) => {
         />
         <nav aria-label="More" className="flex w-full flex-col gap-[4px]">
           {TALENT_NAV_SECONDARY.map((item) => (
-            <NavItem key={item.id} item={item} compact shelf={shelf} onSelect={select} />
+            <NavItem
+              key={item.id}
+              item={item}
+              compact
+              shelf={shelf}
+              active={item.id === activeId}
+              onSelect={select}
+            />
           ))}
         </nav>
       </div>
@@ -218,7 +238,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
             </span>
           </div>
           <p className="max-w-full truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
-            {TALENT_PROFILE.headline}
+            {data.headline ?? TALENT_PROFILE.headline}
           </p>
           <div className="flex max-w-full items-center gap-[5px]">
             <span aria-hidden="true" className="size-[4px] shrink-0 rounded-full bg-[#387440]" />
@@ -293,9 +313,9 @@ const TalentSidebar = ({ home, compact = false, className }) => {
             {TALENT_NAV_MAIN.map((item) => (
               <NavItem
                 key={item.id}
-                item={item}
+                item={withLabel(item)}
                 shelf={shelf}
-                active={item.id === 'home'}
+                active={item.id === activeId}
                 badge={navBadge(item.id)}
                 onSelect={select}
               />
@@ -310,7 +330,13 @@ const TalentSidebar = ({ home, compact = false, className }) => {
           />
           <nav aria-label="More" className="flex w-full flex-col gap-[4px]">
             {TALENT_NAV_SECONDARY.map((item) => (
-              <NavItem key={item.id} item={item} shelf={shelf} onSelect={select} />
+              <NavItem
+                key={item.id}
+                item={item}
+                shelf={shelf}
+                active={item.id === activeId}
+                onSelect={select}
+              />
             ))}
           </nav>
         </div>

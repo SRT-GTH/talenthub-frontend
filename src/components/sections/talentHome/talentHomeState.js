@@ -21,6 +21,10 @@ const log = debug('talentHomeState');
  *   /home?loading=1             -> HM-04 loading (+ &loading=empty|error for the card states)
  *   /home?new=welcome|tour|chat|gate -> NU-01 / NU-02 / NU-04 / NU-03
  *   &a11y=1                     -> A11Y-02 accessibility mode (also toggled from the top nav)
+ *   &notif=open|empty|loading   -> Notifications pop-up N-01 / N-03 / N-04 (&tip=1 = N-02 tooltip)
+ *   &help=1                     -> Help pop-over HP (8376:10396)
+ *   /notifications              -> N-05 full screen (&filter=unread&read=all = N-06 inbox zero,
+ *                                  &rail=expanded = the "e" frames with the full sidebar)
  *
  * Ownership: the lead owns this file. Section agents may ADD fields to a snapshot
  * but must not rename existing ones (others render from them).
@@ -78,9 +82,31 @@ export const useTalentHomeState = () => {
   const searchOpen = params.get('search') === '1';
   const editOpen = params.get('edit') === '1';
   const a11yMode = params.get('a11y') === '1';
+  // Notifications (Figma 7471:53182): pop-up state, tooltip, help overlay, full-screen filter/rail.
+  const notif = ['open', 'empty', 'loading'].includes(params.get('notif'))
+    ? params.get('notif')
+    : null;
+  const notifTip = params.get('tip') === '1';
+  const helpOpen = params.get('help') === '1';
+  const filter = params.get('filter') || 'all';
+  const readAll = params.get('read') === 'all';
+  const rail = params.get('rail') === 'expanded' ? 'expanded' : 'collapsed';
 
   return useMemo(() => {
-    log('state', { stateKey, tab, loading, newUser, journeyMin, searchOpen, editOpen, a11yMode });
+    log('state', {
+      stateKey,
+      tab,
+      loading,
+      newUser,
+      journeyMin,
+      searchOpen,
+      editOpen,
+      a11yMode,
+      notif,
+      helpOpen,
+      filter,
+      rail,
+    });
     // Merge a patch into the query string (null/undefined removes a key).
     const update = (patch) => {
       const next = new URLSearchParams(params);
@@ -100,6 +126,12 @@ export const useTalentHomeState = () => {
       searchOpen,
       editOpen,
       a11yMode,
+      notif,
+      notifTip,
+      helpOpen,
+      filter,
+      readAll,
+      rail,
       update,
     };
   }, [
@@ -113,5 +145,11 @@ export const useTalentHomeState = () => {
     searchOpen,
     editOpen,
     a11yMode,
+    notif,
+    notifTip,
+    helpOpen,
+    filter,
+    readAll,
+    rail,
   ]);
 };

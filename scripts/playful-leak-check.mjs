@@ -6,7 +6,7 @@ import { chromium } from '@playwright/test';
 import { ROUTES } from '../tests/e2e/helpers/responsive.js';
 
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
-const ALLOWED = ['/profile/filling/career-buddy', '/home'];
+const ALLOWED = ['/profile/filling/career-buddy', '/home', '/notifications'];
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM_PATH || undefined,
@@ -29,7 +29,7 @@ for (const route of ['/', '/home', ...ROUTES.filter((r) => r !== '/' && r !== '/
     continue;
   }
   const attr = await page.evaluate(() => document.documentElement.getAttribute('data-ui-style'));
-  const allowed = ALLOWED.includes(route);
+  const allowed = ALLOWED.includes(route.split('?')[0]);
   if (attr && !allowed) {
     leaks += 1;
     console.log(`LEAK  ${route} has data-ui-style="${attr}"`);
@@ -42,6 +42,6 @@ await browser.close();
 console.log(
   leaks
     ? `\n${leaks} problem(s)`
-    : '\nno leaks: Playful is confined to the Career Buddy + talent home routes'
+    : '\nno leaks: Playful is confined to the Career Buddy + talent home/notifications routes'
 );
 process.exit(leaks ? 1 : 0);

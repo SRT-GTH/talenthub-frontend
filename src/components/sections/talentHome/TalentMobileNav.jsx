@@ -1,5 +1,6 @@
 import { TalentSidebarProfileAvatarIllustration } from '../../shared/assets.jsx';
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Modal from '../../ui/Modal.jsx';
@@ -37,10 +38,16 @@ const Badge = ({ count }) => (
   </span>
 );
 
-const TalentMobileNav = ({ home, className }) => {
+const TalentMobileNav = ({ home, className, activeNav }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey);
+  const data = getTalentSidebarData(stateKey, activeNav);
+  // Home tab is the current page on /home only; on /profile the Profile row (More sheet) is.
+  // /notifications highlights Messages, like the desktop rails (Figma 7471:54993 draws Messages active).
+  const activeId =
+    activeNav === 'profile' ? 'profile' : pathname === '/notifications' ? 'messages' : 'home';
   const navData = getTalentNavData(stateKey);
 
   useEffect(() => {
@@ -49,7 +56,11 @@ const TalentMobileNav = ({ home, className }) => {
 
   const select = (item) => {
     log('select:', item.id);
-    if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
+    if (item.route) {
+      if (pathname !== item.route) navigate(item.route);
+    } else if (item.tab && pathname !== '/home') {
+      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
+    } else if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
     else log('no destination wired yet:', item.id);
     setMoreOpen(false);
   };
@@ -67,13 +78,13 @@ const TalentMobileNav = ({ home, className }) => {
       >
         <div className="flex h-[56px] w-full items-stretch">
           {tabs.map((item) => {
-            const active = item.id === 'home';
+            const active = item.id === activeId;
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => select(item)}
-                aria-label={item.label}
+                aria-label={data.labels?.[item.id] ?? item.label}
                 aria-current={active ? 'page' : undefined}
                 className="group flex min-w-[48px] flex-1 flex-col items-center justify-center gap-[1px] px-[2px] py-[4px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
               >
@@ -102,7 +113,7 @@ const TalentMobileNav = ({ home, className }) => {
                     active ? 'font-semibold text-[#387440]' : 'font-medium text-[#70706e]'
                   )}
                 >
-                  {item.label}
+                  {data.labels?.[item.id] ?? item.label}
                 </span>
               </button>
             );
@@ -146,26 +157,43 @@ const TalentMobileNav = ({ home, className }) => {
                 {TALENT_PROFILE.name}
               </span>
               <span className="truncate font-sans text-[14px] leading-5 text-[#babab7]">
-                {TALENT_PROFILE.headline}
+                {data.headline ?? TALENT_PROFILE.headline}
               </span>
             </div>
           </div>
 
           <nav aria-label="More destinations" className="flex flex-col gap-[2px]">
             {[TALENT_NAV_MAIN[1], ...TALENT_NAV_SECONDARY].map((item) => (
-              <button key={item.id} type="button" className={rowClass} onClick={() => select(item)}>
+              <button
+                key={item.id}
+                type="button"
+                className={classNames(
+                  rowClass,
+                  item.id === activeId && 'bg-[#ebf1ec] font-semibold'
+                )}
+                aria-current={item.id === activeId ? 'page' : undefined}
+                onClick={() => select(item)}
+              >
                 <TalentNavIcon
                   icon={item.icon}
                   size={18}
                   className="text-[#999999] playful:text-[#46524a]"
                 />
                 <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">
-                  {item.label}
+                  {data.labels?.[item.id] ?? item.label}
                 </span>
               </button>
             ))}
             <div className="my-[6px] h-px w-full bg-[#e1eae2]" />
-            <button type="button" className={rowClass} onClick={() => log('sheet: notifications')}>
+            <button
+              type="button"
+              className={rowClass}
+              onClick={() => {
+                log('sheet: notifications -> /notifications');
+                setMoreOpen(false);
+                if (pathname !== '/notifications') navigate('/notifications');
+              }}
+            >
               <CommunityIcon src={icons.navNotification} size={18} />
               <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">
                 Notifications

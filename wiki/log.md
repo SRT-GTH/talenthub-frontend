@@ -2510,3 +2510,7 @@ Focused visual pass. Remaining differences and owner decisions: [playful-mode.md
 ## [2026-10-17] create | Talent home `/home` (Focused + Playful) — Figma "Talents dashboard" 5686:95479
 
 New talent home built in both styles with mock URL-param state (`?state=`, `?tab=`, `?search=`, `?edit=`, `?loading=`, `?new=`, `?a11y=`): talent shell (add-only talent variant of the dashboard chrome), five home states, MyAssessment / Recruiter activity / Global search / Edit home, new-user flows (welcome, tour step 1, chat, gate, Ask Buddy FAB), loading skeleton, A11Y-01/02. Full detail, route table, ownership, decisions and open items: [talent-home.md](talent-home.md). Leak check now allows `/home`.
+
+## [2026-10-18] create | Talent notifications — Figma "Talent Notification Screens" 7471:53182
+
+Built the notification pop-up (populated / empty / loading / tooltip), the full-screen page (`/notifications`, All + Unread inbox-zero), the Help pop-over and the 126px collapsed rail, in Playful + Focused. Details, URL params and known gaps: [talent-notifications.md](talent-notifications.md). Shared edits are opt-in (`rail`, `activeId`, `navStreak`, `active` on the nav bell) so `/home` and `/profile` render as before. Fixed along the way: the sidebar's Home item now routes back to `/home` from other screens; the phone More sheet's Notifications row routes to `/notifications`. 66 assets exported from Figma (`src/assets/notifications/`).

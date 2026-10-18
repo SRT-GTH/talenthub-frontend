@@ -1961,3 +1961,7 @@ Content canvases: `7249:74314` (talent search), `:75078` (templates), `:75849` (
 ## Onboarding redesign (2026-10-16)
 
 Recruiter onboarding page `7356:96249` "onboarding screens - Recruiter" (sections `7374:*`; panel frame `7991:60605`) and the `8027:*` role-selection / login / tutorial / talent onboarding / success frames are mapped frame-by-frame to pages in [onboarding-redesign.md](onboarding-redesign.md). Every state frame is a state of ONE page (not a separate route).
+
+## Talent notifications (2026-10-18)
+
+Page "Talent Notification Screens" `7471:53182`. Pop-up component `GTH · Notification pop-up` `7471:54994` (440x692; empty `7471:55560` 547; loading `7471:55840` 560; tooltip `7471:55275` at +298,-10 of the pop-up). Full-screen canvas `7471:55872` (filter rail `7477:84429` 248, feed `7471:55946` 876, right column `7471:56124` 340). Collapsed rail `7471:54993` (126px), expanded `7519:26594` (303px). Help overlay `8376:10399` (400px). Focused twins: `8110:*`. Full table: [talent-notifications.md](talent-notifications.md).

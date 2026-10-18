@@ -61,6 +61,13 @@ const DashboardShell = ({
      TalentDashboardShell (talent nav, rail, phone nav); recruiter pages never pass these. */
   role,
   talentHome,
+  /* Talent Notifications only: 'collapsed' | 'expanded' sidebar at lg+ (see TalentDashboardShell). */
+  rail,
+  onToggleRail,
+  railActiveId,
+  railBadges,
+  /* Talent only: which rail item is the current page ('profile' on /profile; default home). */
+  activeNav,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
 
@@ -74,6 +81,11 @@ const DashboardShell = ({
         talentHome={talentHome}
         contentClassName={contentClassName}
         mainClassName={mainClassName}
+        rail={rail}
+        onToggleRail={onToggleRail}
+        railActiveId={railActiveId}
+        railBadges={railBadges}
+        activeNav={activeNav}
       >
         {children}
       </TalentDashboardShell>
