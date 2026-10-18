@@ -31,7 +31,11 @@ const FOCUS =
    PR-02 and PR-04 frames only, 70x150 = 7 bars of 10px). */
 const COVER_STRIPES = ['#ffd86b', '#1c2a21', '#84cc16', '#c0392b', '#ffd86b', '#1c2a21', '#84cc16'];
 const CoverDoodles = ({ stripes = false }) => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden playful:block">
+  <div
+    aria-hidden="true"
+    data-doodle=""
+    className="pointer-events-none absolute inset-0 hidden playful:block"
+  >
     <img
       src={ringDoodle}
       alt=""
@@ -56,6 +60,7 @@ const CoverDoodles = ({ stripes = false }) => (
 const PitchChip = ({ onClick }) => (
   <button
     type="button"
+    data-ax="pitch"
     onClick={onClick}
     className={classNames(
       'absolute right-[12px] bottom-[10px] flex cursor-pointer items-center gap-[10px] rounded-full bg-white py-[8px] pr-[14px] pl-[8px] text-left @5xl:top-[24px] @5xl:right-[7.07%] @5xl:bottom-auto',
@@ -67,7 +72,9 @@ const PitchChip = ({ onClick }) => (
     <ProfilePitchPlayIcon className="size-[28px] shrink-0" />
     <span className="flex flex-col leading-[normal] whitespace-nowrap">
       <span className="text-[13px] font-semibold text-[#1c2a21]">{PROFILE_HERO.pitch.title}</span>
-      <span className="text-[11px] text-[#737373]">{PROFILE_HERO.pitch.meta}</span>
+      <span className="text-[11px] max-lg:text-[12px] text-[#737373]">
+        {PROFILE_HERO.pitch.meta}
+      </span>
     </span>
   </button>
 );
@@ -82,12 +89,22 @@ const Avatar = ({ editable = true }) => (
   >
     <span className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
       <span className="relative block size-[89.4%] overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
-        <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
+        {PROFILE_HERO.photo ? (
+          // Live profile photo (2026-10-18); the illustration stays for the demo / no photo.
+          <img
+            src={PROFILE_HERO.photo}
+            alt=""
+            className="absolute inset-0 size-full object-cover"
+          />
+        ) : (
+          <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
+        )}
       </span>
     </span>
     {editable ? (
       <button
         type="button"
+        data-ax="photo"
         aria-label="Change photo"
         onClick={() => log('change photo clicked (no backend)')}
         className={classNames(
@@ -126,7 +143,7 @@ const Stat = ({ value, label, streak }) => (
         {value}
       </span>
     </div>
-    <span className="text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#737373]">
+    <span className="text-[11px] max-lg:text-[12px] leading-[normal] font-medium whitespace-nowrap text-[#737373]">
       {label}
     </span>
   </div>
@@ -181,9 +198,9 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
           </Tag>
           {mode === 'public' ? null : pitchHidden ? (
             <PitchHiddenTag />
-          ) : (
+          ) : h.pitch ? (
             <PitchChip onClick={openPitch} />
-          )}
+          ) : null}
         </div>
 
         <div className="flex flex-col px-[clamp(12px,1.85vw,32px)] pb-[clamp(16px,1.56vw,27px)] @5xl:flex-row @5xl:items-start">
@@ -200,13 +217,17 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
                 >
                   {h.name}
                 </h1>
-                <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] playful:border playful:border-[rgba(28,42,33,0.35)]">
-                  <ProfileVerifiedCheckIcon className="size-[13px]" />
-                  {h.verified}
-                </span>
-                {owner ? <Tag className="playful:-rotate-3">{h.level}</Tag> : null}
+                {h.verified ? (
+                  <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] playful:border playful:border-[rgba(28,42,33,0.35)]">
+                    <ProfileVerifiedCheckIcon className="size-[13px]" />
+                    {h.verified}
+                  </span>
+                ) : null}
+                {owner && h.level ? <Tag className="playful:-rotate-3">{h.level}</Tag> : null}
               </div>
-              <p className="text-[13px] leading-[normal] text-[#737373]">{h.handle}</p>
+              {h.handle ? (
+                <p className="text-[13px] leading-[normal] text-[#737373]">{h.handle}</p>
+              ) : null}
               <p className="flex items-center gap-[6px] text-[16px] leading-[normal] font-medium text-[#1c2a21]">
                 <span>{h.headline}</span>
                 <ProfileGhanaFlagIcon className="size-[18px] shrink-0" />
@@ -225,10 +246,10 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
             <div className="flex flex-wrap items-center gap-[10px] pb-[4px]">
               {owner ? (
                 <>
-                  <Button variant="tertiary" size="sm" onClick={openPreview}>
+                  <Button variant="tertiary" size="sm" data-ax="preview" onClick={openPreview}>
                     {h.actions.preview}
                   </Button>
-                  <Button variant="primary" size="sm" onClick={openShare}>
+                  <Button variant="primary" size="sm" data-ax="share" onClick={openShare}>
                     {h.actions.share}
                   </Button>
                 </>

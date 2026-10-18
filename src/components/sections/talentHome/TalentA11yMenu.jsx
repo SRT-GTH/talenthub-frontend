@@ -23,7 +23,7 @@ const log = debug('TalentA11yMenu');
  * ink borders + shelf + stickers via `playful:` in Playful. Copy is verbatim from the frame.
  */
 
-const Toggle = ({ on, onChange, label }) => (
+export const Toggle = ({ on, onChange, label }) => (
   <button
     type="button"
     role="switch"
@@ -168,7 +168,10 @@ const A11yPanel = ({ id, onClose }) => {
 };
 
 const TalentA11yMenu = ({ home }) => {
-  const open = Boolean(home.a11yMode);
+  // On /profile (`home.profileA11y`, set by the shell) the trigger opens the profile's own "Accessibility ·
+  // your way" popover (`?ax=panel`, rendered by the profile page) instead of this panel.
+  const profileMode = Boolean(home.profileA11y);
+  const open = profileMode ? Boolean(home.ax) : Boolean(home.a11yMode);
   const panelId = 'talent-a11y-panel';
   log('render', { open });
 
@@ -177,8 +180,9 @@ const TalentA11yMenu = ({ home }) => {
       <button
         type="button"
         onClick={() => {
-          log('toggle a11y mode ->', !open);
-          home.update({ a11y: !open });
+          log('toggle a11y mode ->', !open, profileMode ? '(profile panel)' : '');
+          if (profileMode) home.update({ ax: open ? null : 'panel' });
+          else home.update({ a11y: !open });
         }}
         aria-label="Accessibility mode"
         aria-pressed={open}
@@ -193,7 +197,9 @@ const TalentA11yMenu = ({ home }) => {
             aria-hidden="true"
             className="pointer-events-none absolute top-1/2 left-1/2 size-[46px] -translate-x-1/2 -translate-y-1/2 rounded-[23px] border-[2.5px] border-solid border-[#1c2a21]"
           />
-          <A11yPanel id={panelId} onClose={() => home.update({ a11y: false })} />
+          {profileMode ? null : (
+            <A11yPanel id={panelId} onClose={() => home.update({ a11y: false })} />
+          )}
         </>
       )}
     </div>

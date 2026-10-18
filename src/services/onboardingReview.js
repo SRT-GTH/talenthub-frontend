@@ -99,7 +99,7 @@ export const buildReviewProfile = (summary) => {
     education: {
       level: show(EDUCATION_LEVEL_LABELS[education.educationLevel] || education.educationLevel),
       grade: show(formatGrade(education.educationGrade)),
-      curriculum: show(education.educationCurriculum),
+      programme: show(education.educationFieldOfStudy || education.educationCurriculum),
       graduation: education.expectedGraduationYear
         ? `Class of ${education.expectedGraduationYear}`
         : EMPTY,

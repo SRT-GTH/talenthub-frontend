@@ -1,0 +1,77 @@
+/* === talent profile · accessibility modes (AX-01 .. AX-03) ===
+ * Unlayered on purpose (beats the Tailwind utility layer without !important where possible).
+ * Everything is keyed to attributes that exist only on the profile content wrapper
+ * (`data-profile-*`, set by TalentProfilePage from the effective settings), so no other route is affected. */
+
+/* Calm profile — "Hides stickers, doodles, tilt & motion": cover doodles go, stickers sit upright and flat,
+ * the Playful ink shelf becomes the Focused hairline card (Figma AX-02 hero: 1px #1c2a21 @ .10, no shelf). */
+[data-profile-calm] [data-doodle] {
+  display: none !important;
+}
+[data-profile-calm],
+[data-profile-calm] *,
+[data-profile-calm] *::before,
+[data-profile-calm] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+[data-profile-calm] [data-sticker] {
+  rotate: none !important;
+  box-shadow: none !important;
+}
+[data-profile-calm] [class*='playful:shadow'] {
+  box-shadow:
+    0 1px 2px rgba(28, 42, 33, 0.04),
+    0 2px 8px rgba(28, 42, 33, 0.04) !important;
+}
+[data-profile-calm] [class*='playful:border-[1.5px]'] {
+  border-width: 1px !important;
+  border-color: rgba(28, 42, 33, 0.1) !important;
+}
+
+/* Profile text size — whole profile content scales (Figma AX-02: 13px meta -> 15px). `zoom` keeps
+ * layout honest (unlike transform) and is supported by Chromium, Safari and Firefox 126+. */
+[data-profile-text='large'] {
+  zoom: 1.15;
+}
+[data-profile-text='small'] {
+  zoom: 0.92;
+}
+
+/* One-column layout — "Bigger tap targets, no side rail": the right rail drops under the main column and
+ * grids collapse to one column (Figma AX-02 Top skills list is a single column). */
+[data-profile-onecol] [data-tab-layout] {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+[data-profile-onecol] [data-skill-grid] {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* High contrast (AX-03) — text #737373 / #595959 -> #212630, green text -> #1f4423, plain card borders
+ * #e6e6e6 -> #8c94a0 at 1.5px (values measured from Figma 7590:3461 vs 7590:1952). */
+[data-profile-contrast] .text-\[\#737373\],
+[data-profile-contrast] .text-\[\#595959\]:not(.rounded-full) {
+  color: #212630;
+}
+[data-profile-contrast] .text-\[\#2d5d33\]:not(.rounded-full),
+[data-profile-contrast] .text-\[\#387440\]:not(.rounded-full):not(button) {
+  color: #1f4423;
+}
+[data-profile-contrast] .border-\[\#e6e6e6\] {
+  border-color: #8c94a0;
+  border-width: 1.5px;
+}
+
+/* Underline links (AX-03 pill "Underline links") — the head links ("Read more →", "See all →", "All 9 →"); Figma underlines only those (AX-03). */
+[data-profile-links] [data-link] {
+  text-decoration: underline solid;
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+}
+
+/* High contrast: the head links read #1f4423 too (Figma AX-03 link text colour). */
+[data-profile-contrast] [data-link] {
+  color: #1f4423;
+}

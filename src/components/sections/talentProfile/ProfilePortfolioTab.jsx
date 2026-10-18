@@ -14,6 +14,10 @@ import {
 import { EditButton, ProfileChip, ProjectCoverArt, Tag, TabPanel } from './ProfileTabsUi.jsx';
 import { LINK_ICONS, SHELF, TITLE_SM, coverBg } from './profileTabsStyles.js';
 
+import ImageDescriptionsCheck, { AltChip } from './ProfileImageDescriptions.jsx';
+import { useImageDescriptions } from './ProfileImageDescriptionsData.js';
+import ProfileAltTextModal from './ProfileAltTextModal.jsx';
+
 const log = debug('ProfilePortfolioTab');
 
 const FOCUS =
@@ -60,7 +64,7 @@ const LinkPill = ({ link, project }) => {
   );
 };
 
-const ProjectCard = ({ project }) => (
+const ProjectCard = ({ project, alt }) => (
   <li
     className={classNames(
       'flex min-w-0 flex-col gap-[12px] overflow-hidden rounded-[20px] bg-white pb-[20px]',
@@ -72,6 +76,9 @@ const ProjectCard = ({ project }) => (
       style={{ background: coverBg(project.cover) }}
     >
       <ProjectCoverArt kind={project.cover} fixed />
+      {alt ? (
+        <AltChip described={alt.described} title={project.title} onClick={alt.onOpen} />
+      ) : null}
       <Tag tone="white" className="absolute top-[12px] left-[11px] playful:rotate-3">
         {project.tag}
       </Tag>
@@ -145,6 +152,8 @@ const AddProjectCard = ({ onAdd }) => (
  */
 const ProfilePortfolioTab = ({ profile }) => {
   const [filter, setFilter] = useState('all');
+  const imageDesc = useImageDescriptions();
+  const altMode = profile?.ax === 'images' || profile?.ax === 'alt';
 
   useEffect(() => {
     log('mount', { tab: profile?.tab });
@@ -157,9 +166,21 @@ const ProfilePortfolioTab = ({ profile }) => {
   return (
     <TabPanel tab="portfolio">
       <FilterBar active={filter} onSelect={setFilter} onAdd={onAdd} />
+      {altMode ? <ImageDescriptionsCheck onDescribe={() => profile.update({ ax: 'alt' })} /> : null}
       <ul className="grid grid-cols-1 items-start gap-[clamp(14px,1.16vw,20px)] @3xl:grid-cols-2 @5xl:grid-cols-3">
         {projects.map((p) => (
-          <ProjectCard key={p.key} project={p} />
+          <ProjectCard
+            key={p.key}
+            project={p}
+            alt={
+              altMode
+                ? {
+                    described: imageDesc.described.includes(p.key),
+                    onOpen: () => profile.update({ ax: 'alt' }),
+                  }
+                : null
+            }
+          />
         ))}
         <AddProjectCard onAdd={onAdd} />
       </ul>
@@ -171,6 +192,9 @@ const ProfilePortfolioTab = ({ profile }) => {
         <ProfileBulbGlyph className="size-[17px] shrink-0" />
         {PORTFOLIO_TIP}
       </p>
+      {profile?.ax === 'alt' ? (
+        <ProfileAltTextModal profile={profile} onDescribed={imageDesc.markDescribed} />
+      ) : null}
     </TabPanel>
   );
 };

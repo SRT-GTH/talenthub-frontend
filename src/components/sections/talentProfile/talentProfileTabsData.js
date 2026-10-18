@@ -8,7 +8,7 @@
  */
 
 /* ------------------------------ header (all tabs) ------------------------------ */
-export const PROFILE_HERO = {
+export let PROFILE_HERO = {
   name: 'Kofi Agyekum',
   openToWork: 'Open to work',
   verified: 'Verified',
@@ -30,7 +30,7 @@ export const PROFILE_HERO = {
 };
 
 /* Tab bar. `count` chips: Overview (6) and About me (142) are hidden in every frame. */
-export const PROFILE_TAB_LIST = [
+export let PROFILE_TAB_LIST = [
   { key: 'overview', label: 'Overview' },
   { key: 'skills', label: 'Skills', count: '7' },
   { key: 'experience', label: 'Experience', count: '2' },
@@ -40,7 +40,7 @@ export const PROFILE_TAB_LIST = [
 ];
 
 /* ------------------------------ P-01 Overview ------------------------------ */
-export const OVERVIEW_ABOUT = {
+export let OVERVIEW_ABOUT = {
   title: 'About',
   link: 'Read more →',
   text: "Final-year Statistics student who turns messy data into clear decisions. I build dashboards in Power BI, clean data in Python and SQL, and I'm happiest when a chart finally makes a trotro route make sense. Looking for my first analyst role in Accra.",
@@ -54,7 +54,7 @@ export const OVERVIEW_ABOUT = {
 };
 
 /* Skill rows. `pct` = meter fill (Figma px / 300 on Overview, / 180 on the Skills tab). */
-export const OVERVIEW_SKILLS = {
+export let OVERVIEW_SKILLS = {
   title: 'Top skills',
   link: 'See all 7 →',
   items: [
@@ -93,7 +93,7 @@ export const OVERVIEW_SKILLS = {
   ],
 };
 
-export const OVERVIEW_EXPERIENCE = {
+export let OVERVIEW_EXPERIENCE = {
   title: 'Experience',
   link: 'See all 2 →',
   items: [
@@ -119,7 +119,7 @@ export const OVERVIEW_EXPERIENCE = {
 };
 
 /* Portfolio covers are drawn in code (Figma "cover/bars | line | dots"). */
-export const OVERVIEW_PORTFOLIO = {
+export let OVERVIEW_PORTFOLIO = {
   title: 'Portfolio',
   link: 'See all 3 →',
   items: [
@@ -147,7 +147,7 @@ export const OVERVIEW_PORTFOLIO = {
   ],
 };
 
-export const PROFILE_STRENGTH = {
+export let PROFILE_STRENGTH = {
   title: 'Profile strength',
   pct: 82,
   sub: '3 steps to Top Talent',
@@ -160,7 +160,7 @@ export const PROFILE_STRENGTH = {
   cta: 'Finish my profile',
 };
 
-export const PROFILE_VIEWS = {
+export let PROFILE_VIEWS = {
   title: 'Who’s looking',
   link: 'See all →',
   count: '47',
@@ -170,7 +170,7 @@ export const PROFILE_VIEWS = {
   searchNote: 'You showed up in 34 recruiter searches',
 };
 
-export const PROFILE_GOAL = {
+export let PROFILE_GOAL = {
   title: 'My goal',
   headline: 'Land a Data Analyst role in Accra',
   detail: 'By June 2027 · GHS 4,000+ / month · hybrid',
@@ -178,7 +178,7 @@ export const PROFILE_GOAL = {
   progress: '3 of 5 milestones · next: get shortlisted once',
 };
 
-export const PROFILE_BADGES = {
+export let PROFILE_BADGES = {
   title: 'Badges',
   link: 'All 9 →',
   items: [
@@ -190,15 +190,15 @@ export const PROFILE_BADGES = {
 };
 
 /* ------------------------------ P-02 Skills ------------------------------ */
-export const SKILLS_FILTERS = [
+export let SKILLS_FILTERS = [
   { key: 'all', label: 'All 7' },
   { key: 'verified', label: 'Verified 5', icon: 'check' },
   { key: 'endorsed', label: 'Endorsed 1' },
   { key: 'self', label: 'Self-added 1' },
 ];
-export const SKILLS_ADD = '+ Add a skill';
+export let SKILLS_ADD = '+ Add a skill';
 
-export const SKILL_GROUPS = [
+export let SKILL_GROUPS = [
   {
     key: 'verified',
     title: 'Verified',
@@ -291,7 +291,7 @@ export const SKILL_GROUPS = [
   },
 ];
 
-export const SKILLS_VERIFICATION = {
+export let SKILLS_VERIFICATION = {
   title: 'How skills get the tick',
   rows: [
     { chip: { label: 'Assessed', tone: 'green', icon: true }, text: 'Passed a GTH assessment' },
@@ -310,7 +310,7 @@ export const SKILLS_VERIFICATION = {
   ],
 };
 
-export const SKILLS_IN_DEMAND = {
+export let SKILLS_IN_DEMAND = {
   title: 'Recruiters want',
   sub: 'Most searched skills for Data Analyst roles in Accra this month',
   rows: [
@@ -323,7 +323,7 @@ export const SKILLS_IN_DEMAND = {
 };
 
 /* ------------------------------ P-03 Experience ------------------------------ */
-export const EXPERIENCE_WORK = {
+export let EXPERIENCE_WORK = {
   title: 'Work & volunteering',
   add: '+ Add',
   items: [
@@ -373,7 +373,7 @@ export const EXPERIENCE_WORK = {
   ],
 };
 
-export const EXPERIENCE_EDUCATION = {
+export let EXPERIENCE_EDUCATION = {
   title: 'Education',
   add: '+ Add',
   items: [
@@ -396,35 +396,35 @@ export const EXPERIENCE_EDUCATION = {
   ],
 };
 
-export const EXPERIENCE_ADD = 'Add a role, gig, side hustle or volunteering';
+export let EXPERIENCE_ADD = 'Add a role, gig, side hustle or volunteering';
 
-export const EXPERIENCE_TIP = {
+export let EXPERIENCE_TIP = {
   sticker: 'Buddy tip',
   title: 'Numbers get noticed',
   text: 'Roles with a result in them (“cut re-sits from 18% to 11%”) get 2× more recruiter clicks. Your TA role already has one, your volunteer role doesn’t yet.',
   cta: 'Improve with Career Buddy',
 };
-export const EXPERIENCE_IMPORT = {
+export let EXPERIENCE_IMPORT = {
   title: 'Import from CV',
   text: 'Upload a PDF or Word CV and we’ll fill in roles and dates for you to check. Nothing is published until you say so.',
   cta: 'Upload CV',
 };
-export const EXPERIENCE_GAPS = {
+export let EXPERIENCE_GAPS = {
   title: 'Career gaps?',
   text: 'Gaps are normal: NSS, exams, family, a break. Add a short note if you want; recruiters on GTH never see an unexplained-gap warning.',
 };
 
 /* ------------------------------ P-04 Portfolio ------------------------------ */
-export const PORTFOLIO_FILTERS = [
+export let PORTFOLIO_FILTERS = [
   { key: 'all', label: 'All 3' },
   { key: 'dashboards', label: 'Dashboards 1' },
   { key: 'code', label: 'Code 1' },
   { key: 'research', label: 'Research 1' },
 ];
-export const PORTFOLIO_SORT = 'Sort: Pinned first';
-export const PORTFOLIO_ADD = '+ Add project';
+export let PORTFOLIO_SORT = 'Sort: Pinned first';
+export let PORTFOLIO_ADD = '+ Add project';
 
-export const PORTFOLIO_PROJECTS = [
+export let PORTFOLIO_PROJECTS = [
   {
     key: 'traffic',
     cover: 'bars',
@@ -466,15 +466,15 @@ export const PORTFOLIO_PROJECTS = [
     stats: '87 views',
   },
 ];
-export const PORTFOLIO_ADD_CARD = {
+export let PORTFOLIO_ADD_CARD = {
   title: 'Add a project',
   text: 'Dashboards, code, designs, research, a video, a side hustle. If you made it, it counts.',
 };
-export const PORTFOLIO_TIP =
+export let PORTFOLIO_TIP =
   'Pin your best project. Pinned projects show first on your recruiter card and get ~3× more clicks.';
 
 /* ------------------------------ P-05 Certs ------------------------------ */
-export const CERTS_LIST = {
+export let CERTS_LIST = {
   title: 'Certifications',
   add: '+ Add',
   items: [
@@ -500,7 +500,7 @@ export const CERTS_LIST = {
     },
   ],
 };
-export const CERTS_IN_PROGRESS = {
+export let CERTS_IN_PROGRESS = {
   title: 'In progress',
   hint: 'Only you can see these',
   item: {
@@ -511,7 +511,7 @@ export const CERTS_IN_PROGRESS = {
     cta: 'Continue',
   },
 };
-export const CERTS_VERIFICATION = {
+export let CERTS_VERIFICATION = {
   title: 'How we check certs',
   rows: [
     {
@@ -529,7 +529,7 @@ export const CERTS_VERIFICATION = {
     },
   ],
 };
-export const CERTS_SUGGESTED = {
+export let CERTS_SUGGESTED = {
   title: 'Worth adding',
   rows: [
     {
@@ -548,14 +548,14 @@ export const CERTS_SUGGESTED = {
 };
 
 /* ------------------------------ P-06 About me ------------------------------ */
-export const ABOUT_PITCH = {
+export let ABOUT_PITCH = {
   title: 'My 60-sec pitch',
   link: 'Re-record',
   caption: '“Hi, I’m Kofi. I make numbers make sense…”',
   chip: '0:58 · CC on',
   stats: ['112 plays', 'Avg watch 47s (81%)', 'Transcript on for screen readers'],
 };
-export const ABOUT_BIO = {
+export let ABOUT_BIO = {
   title: 'Bio',
   paragraphs: [
     "Final-year Statistics student at KNUST who turns messy data into clear decisions. I build dashboards in Power BI, clean data in Python and SQL, and I'm happiest when a chart finally makes a trotro route make sense.",
@@ -563,7 +563,7 @@ export const ABOUT_BIO = {
   ],
 };
 /* `pos` = marker position along the track (Figma px / 562 minus the 22px marker). */
-export const ABOUT_TRAITS = {
+export let ABOUT_TRAITS = {
   title: 'How I work',
   chip: 'From your personality quiz',
   rows: [
@@ -573,7 +573,7 @@ export const ABOUT_TRAITS = {
     { key: 'detail', left: 'Detail-focused', right: 'Big picture', pos: 186.6 / 540 },
   ],
 };
-export const ABOUT_GOALS = {
+export let ABOUT_GOALS = {
   title: 'Goals',
   items: [
     {
@@ -587,7 +587,7 @@ export const ABOUT_GOALS = {
   ],
   salary: 'Pay hope: GHS 4,000+ / mo · only you see this',
 };
-export const ABOUT_INTERESTS = {
+export let ABOUT_INTERESTS = {
   title: 'Into',
   chips: [
     { label: 'Data & analytics', icon: 'data' },
@@ -599,7 +599,7 @@ export const ABOUT_INTERESTS = {
     { label: 'Afrobeats', icon: 'music' },
   ],
 };
-export const ABOUT_WORK_STYLE = {
+export let ABOUT_WORK_STYLE = {
   title: 'Work style',
   rows: [
     { label: 'Looking for', value: 'Internships · Graduate roles' },
@@ -607,4 +607,92 @@ export const ABOUT_WORK_STYLE = {
     { label: 'Start', value: 'From Jul 2026 (after NSS)' },
     { label: 'Languages', value: 'English (fluent) · Twi (native) · French (basic)' },
   ],
+};
+
+/* ------------------------------ live data (2026-10-18) ------------------------------
+ * The constants above are the Figma demo (`?demo=1`, logged-out previews). For a logged-in
+ * talent, TalentProfilePage loads the real profile and calls applyProfileData() with the same
+ * shapes (talentProfileLive.js), so every tab keeps importing the names above unchanged
+ * (ES module live bindings). Missing keys fall back to the demo value.
+ */
+export const DEMO_PROFILE_DATA = Object.freeze({
+  PROFILE_HERO,
+  PROFILE_TAB_LIST,
+  OVERVIEW_ABOUT,
+  OVERVIEW_SKILLS,
+  OVERVIEW_EXPERIENCE,
+  OVERVIEW_PORTFOLIO,
+  PROFILE_STRENGTH,
+  PROFILE_VIEWS,
+  PROFILE_GOAL,
+  PROFILE_BADGES,
+  SKILLS_FILTERS,
+  SKILLS_ADD,
+  SKILL_GROUPS,
+  SKILLS_VERIFICATION,
+  SKILLS_IN_DEMAND,
+  EXPERIENCE_WORK,
+  EXPERIENCE_EDUCATION,
+  EXPERIENCE_ADD,
+  EXPERIENCE_TIP,
+  EXPERIENCE_IMPORT,
+  EXPERIENCE_GAPS,
+  PORTFOLIO_FILTERS,
+  PORTFOLIO_SORT,
+  PORTFOLIO_ADD,
+  PORTFOLIO_PROJECTS,
+  PORTFOLIO_ADD_CARD,
+  PORTFOLIO_TIP,
+  CERTS_LIST,
+  CERTS_IN_PROGRESS,
+  CERTS_VERIFICATION,
+  CERTS_SUGGESTED,
+  ABOUT_PITCH,
+  ABOUT_BIO,
+  ABOUT_TRAITS,
+  ABOUT_GOALS,
+  ABOUT_INTERESTS,
+  ABOUT_WORK_STYLE,
+});
+
+export const applyProfileData = (data) => {
+  const d = data || DEMO_PROFILE_DATA;
+  const pick = (k) => (d[k] !== undefined ? d[k] : DEMO_PROFILE_DATA[k]);
+  PROFILE_HERO = pick('PROFILE_HERO');
+  PROFILE_TAB_LIST = pick('PROFILE_TAB_LIST');
+  OVERVIEW_ABOUT = pick('OVERVIEW_ABOUT');
+  OVERVIEW_SKILLS = pick('OVERVIEW_SKILLS');
+  OVERVIEW_EXPERIENCE = pick('OVERVIEW_EXPERIENCE');
+  OVERVIEW_PORTFOLIO = pick('OVERVIEW_PORTFOLIO');
+  PROFILE_STRENGTH = pick('PROFILE_STRENGTH');
+  PROFILE_VIEWS = pick('PROFILE_VIEWS');
+  PROFILE_GOAL = pick('PROFILE_GOAL');
+  PROFILE_BADGES = pick('PROFILE_BADGES');
+  SKILLS_FILTERS = pick('SKILLS_FILTERS');
+  SKILLS_ADD = pick('SKILLS_ADD');
+  SKILL_GROUPS = pick('SKILL_GROUPS');
+  SKILLS_VERIFICATION = pick('SKILLS_VERIFICATION');
+  SKILLS_IN_DEMAND = pick('SKILLS_IN_DEMAND');
+  EXPERIENCE_WORK = pick('EXPERIENCE_WORK');
+  EXPERIENCE_EDUCATION = pick('EXPERIENCE_EDUCATION');
+  EXPERIENCE_ADD = pick('EXPERIENCE_ADD');
+  EXPERIENCE_TIP = pick('EXPERIENCE_TIP');
+  EXPERIENCE_IMPORT = pick('EXPERIENCE_IMPORT');
+  EXPERIENCE_GAPS = pick('EXPERIENCE_GAPS');
+  PORTFOLIO_FILTERS = pick('PORTFOLIO_FILTERS');
+  PORTFOLIO_SORT = pick('PORTFOLIO_SORT');
+  PORTFOLIO_ADD = pick('PORTFOLIO_ADD');
+  PORTFOLIO_PROJECTS = pick('PORTFOLIO_PROJECTS');
+  PORTFOLIO_ADD_CARD = pick('PORTFOLIO_ADD_CARD');
+  PORTFOLIO_TIP = pick('PORTFOLIO_TIP');
+  CERTS_LIST = pick('CERTS_LIST');
+  CERTS_IN_PROGRESS = pick('CERTS_IN_PROGRESS');
+  CERTS_VERIFICATION = pick('CERTS_VERIFICATION');
+  CERTS_SUGGESTED = pick('CERTS_SUGGESTED');
+  ABOUT_PITCH = pick('ABOUT_PITCH');
+  ABOUT_BIO = pick('ABOUT_BIO');
+  ABOUT_TRAITS = pick('ABOUT_TRAITS');
+  ABOUT_GOALS = pick('ABOUT_GOALS');
+  ABOUT_INTERESTS = pick('ABOUT_INTERESTS');
+  ABOUT_WORK_STYLE = pick('ABOUT_WORK_STYLE');
 };

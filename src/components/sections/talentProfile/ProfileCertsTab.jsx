@@ -160,19 +160,24 @@ const ProfileCertsTab = ({ profile }) => {
             link={CERTS_LIST.add}
             onLink={() => log('add certification (no frame)')}
           >
+            {CERTS_LIST.items.length ? null : (
+              <p className="text-[14px] leading-[1.5] text-[#737373]">
+                No certificates yet. NVTI, school awards, first aid and online courses all count.
+              </p>
+            )}
             <ul className="flex flex-col gap-[16px]">
               {CERTS_LIST.items.map((item) => (
                 <CertItem key={item.key} item={item} />
               ))}
             </ul>
           </ProfileCard>
-          <InProgress />
+          {CERTS_IN_PROGRESS ? <InProgress /> : null}
         </>
       }
       right={
         <>
           <VerificationCard />
-          <SuggestedCard />
+          {CERTS_SUGGESTED ? <SuggestedCard /> : null}
         </>
       }
     />

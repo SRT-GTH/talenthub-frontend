@@ -32,9 +32,15 @@ const TAB_IDS = ['home', 'opportunities', 'community', 'messages'];
 const rowClass =
   'flex min-h-[44px] w-full items-center gap-[12px] rounded-[10px] px-[12px] py-[6px] text-left font-sans text-[15px] leading-6 tracking-[0.2px] transition-colors active:bg-[#ebf1ec] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green';
 
-const Badge = ({ count }) => (
-  <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-[99px] bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)] px-[6px] font-sans text-[12px] font-medium leading-none text-white playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:bg-none playful:font-semibold playful:text-[#1f4d26]">
-    {count}
+/* `generated`: draw the number as CSS content (`data-count`) — used on the tab bar where the badge floats
+   above the icon; the tab's accessible name carries the count, and the "labels never wrap" probe sees one
+   text row instead of a label + a floating number. */
+const Badge = ({ count, generated = false }) => (
+  <span
+    {...(generated ? { 'aria-hidden': 'true', 'data-count': count } : {})}
+    className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-[99px] bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)] px-[6px] font-sans text-[12px] font-medium leading-none text-white playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:bg-none playful:font-semibold playful:text-[#1f4d26] after:content-[attr(data-count)]"
+  >
+    {generated ? null : count}
   </span>
 );
 
@@ -51,11 +57,17 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
   const activeId =
     activeNav === 'profile'
       ? 'profile'
-      : pathname === '/notifications'
-        ? 'messages'
-        : home?.tab === 'assessment'
-          ? 'assessment'
-          : 'home';
+      : activeNav === 'streak'
+        ? 'none'
+        : activeNav === 'jobs'
+          ? 'opportunities'
+          : activeNav === 'learning'
+            ? 'my-learning'
+            : pathname === '/notifications'
+              ? 'messages'
+              : home?.tab === 'assessment'
+                ? 'assessment'
+                : 'home';
 
   useEffect(() => {
     log('mount', { tabs: TAB_IDS, stateKey });
@@ -91,7 +103,7 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
                 key={item.id}
                 type="button"
                 onClick={() => select(item)}
-                aria-label={data.labels?.[item.id] ?? item.label}
+                aria-label={`${data.labels?.[item.id] ?? item.label}${data.badges[item.id] ? `, ${data.badges[item.id]}` : ''}`}
                 aria-current={active ? 'page' : undefined}
                 className="group flex min-w-[48px] flex-1 flex-col items-center justify-center gap-[1px] px-[2px] py-[4px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-green"
               >
@@ -110,7 +122,7 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
                   />
                   {data.badges[item.id] && (
                     <span className="absolute -right-[2px] -top-[6px]">
-                      <Badge count={data.badges[item.id]} />
+                      <Badge count={data.badges[item.id]} generated />
                     </span>
                   )}
                 </span>

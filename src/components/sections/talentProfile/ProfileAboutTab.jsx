@@ -17,6 +17,7 @@ import {
 } from './talentProfileTabsData.js';
 import { EditButton, HeadLink, ProfileCard, ProfileChip, TabLayout } from './ProfileTabsUi.jsx';
 import { CARD_PLAIN, GLYPHS, PAD, TITLE } from './profileTabsStyles.js';
+import ProfilePitchAccessibility from './ProfilePitchAccessibility.jsx';
 
 const log = debug('ProfileAboutTab');
 
@@ -164,10 +165,17 @@ const GoalsCard = ({ onEdit }) => {
             </div>
           );
         })}
-        <p className="flex items-center gap-[8px] rounded-[12px] bg-[#faf4e8] px-[12px] py-[10px] text-[13px] leading-[normal] font-medium text-[#463409]">
-          <ProfileLockGlyph className="size-[14px] shrink-0" />
-          {g.salary}
-        </p>
+        {g.items.length ? null : (
+          <p className="text-[14px] leading-[1.5] text-[#737373]">
+            No goal yet. Tell Career Buddy a career you’re aiming for.
+          </p>
+        )}
+        {g.salary ? (
+          <p className="flex items-center gap-[8px] rounded-[12px] bg-[#faf4e8] px-[12px] py-[10px] text-[13px] leading-[normal] font-medium text-[#463409]">
+            <ProfileLockGlyph className="size-[14px] shrink-0" />
+            {g.salary}
+          </p>
+        ) : null}
       </div>
     </ProfileCard>
   );
@@ -223,7 +231,13 @@ const ProfileAboutTab = ({ profile }) => {
       tab="about"
       left={
         <>
-          <PitchCard />
+          {ABOUT_PITCH ? (
+            profile?.ax === 'pitch' ? (
+              <ProfilePitchAccessibility />
+            ) : (
+              <PitchCard />
+            )
+          ) : null}
           <BioCard onEdit={editAbout} />
           <TraitsCard onEdit={edit('traits')} />
         </>
