@@ -321,9 +321,12 @@ const JourneyCard = ({ home }) => {
   const key = home.stateKey;
   log('render', { key, min: home.journeyMin });
 
-  // Real data: MyAssessment / Recruiter activity are not wired yet (Phase 2/3), so no tab bar.
-  const tabs = home.live ? null : (
-    <HomeTabs active="home" onSelect={(id) => home.update({ tab: id === 'home' ? null : id })} />
+  const tabs = (
+    <HomeTabs
+      active="home"
+      tabs={home.tabs}
+      onSelect={(id) => home.update({ tab: id === 'home' ? null : id })}
+    />
   );
 
   // HM-05 Edit home: tab bar dimmed, no "Profile complete" banner.

@@ -309,3 +309,207 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
       : 'Explore roles in Ghana',
   };
 };
+
+/* ---------------- MyAssessment tab (Phase 2, 2026-10-18) ---------------- */
+
+// Short, plain descriptions of the six RIASEC (Holland) interest types.
+const RIASEC_TEXT = {
+  R: 'You like hands-on, practical work with tools, materials and things you can see and touch.',
+  I: 'You like to understand how things work: research, analysis and solving puzzles.',
+  A: 'You like to create: designing, making and expressing ideas in your own way.',
+  S: 'You like to help, teach and work closely with people.',
+  E: 'You like to lead, persuade and get things moving.',
+  C: 'You like order: clear processes, careful detail and getting things exactly right.',
+};
+const TRAIT_NAME = {
+  openness: 'Openness',
+  conscientiousness: 'Conscientiousness',
+  extraversion: 'Extraversion',
+  agreeableness: 'Agreeableness',
+  stability: 'Emotional stability',
+};
+const ordinal = (n) => {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+};
+const titleCase = (t) => String(t || '').replace(/\b\w/g, (c) => c.toUpperCase());
+const shortDate = (iso) =>
+  iso
+    ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
+
+const evidenceOf = (v) => {
+  if (!v) return 'self';
+  const type = String(v.evidenceType || '').toLowerCase();
+  const status = String(v.validationStatus || '').toLowerCase();
+  if (type.includes('game') || v.gameSessionId) return 'game';
+  if (type.includes('assessment') || type.includes('certificate')) return 'assessment';
+  if (status.includes('conversation') || type.includes('conversation')) return 'ai';
+  if (status === 'verified') return 'assessment';
+  return 'self';
+};
+
+/** Content for MyAssessmentTab (same shapes as talentHomeTabsData.js). */
+export const buildAssessmentContent = (data) => {
+  const a = data.assessment || {};
+  const results = a.results || [];
+  const byType = Object.fromEntries(results.map((r) => [r.assessmentType, r]));
+  const bigFive = byType.big_five?.bigFiveScores || null;
+  const riasec = byType.riasec?.riasecScores || a.summary?.careerInterestProfile || null;
+  const required = a.required || ['big_five', 'riasec'];
+  const skills = [];
+  const seen = new Set();
+  for (const s of [...(a.technicalSkills || []), ...(a.softSkills || [])]) {
+    const name = typeof s === 'string' ? s : s?.name;
+    if (!name || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    skills.push(name);
+  }
+  const verifByKey = Object.fromEntries(
+    (a.verifications || []).map((v) => [String(v.skillKey || '').toLowerCase(), v])
+  );
+  const games = a.games || [];
+
+  // 4 parts, as designed: Personality, Skills, Skills Lab games, Full assessment.
+  const parts = [
+    { label: 'Personality', done: Boolean(bigFive) },
+    { label: 'Skills', done: skills.length > 0 },
+    { label: 'Skills Lab games', done: games.length > 0 },
+    { label: 'Full assessment', done: required.every((t) => byType[t]) },
+  ];
+  const doneCount = parts.filter((p) => p.done).length;
+  const pending = parts.filter((p) => !p.done).map((p) => p.label);
+
+  const summary = {
+    done: String(doneCount),
+    doneLabel: 'OF 4 DONE',
+    title:
+      doneCount === 4
+        ? 'Assessment profile: complete'
+        : doneCount >= 3
+          ? 'Assessment profile: strong foundation'
+          : doneCount >= 1
+            ? 'Assessment profile: getting started'
+            : 'Assessment profile: not started',
+    body: pending.length
+      ? `${
+          parts
+            .filter((p) => p.done)
+            .map((p) => p.label)
+            .join(', ') || 'Nothing'
+        } ${doneCount === 1 ? 'is' : 'are'} done. Next: ${pending[0].toLowerCase()}.`
+      : 'Everything is done. Recruiters see the full picture.',
+    chips: parts.filter((p) => p.done).map((p) => p.label),
+    pending: pending[0] || null,
+    cta: 'Preview recruiter view',
+  };
+
+  let personality = null;
+  if (bigFive || riasec) {
+    const pct = bigFive?.percentiles || {};
+    const traits = bigFive
+      ? [
+          ['openness', pct.openness],
+          ['conscientiousness', pct.conscientiousness],
+          ['extraversion', pct.extraversion],
+          ['agreeableness', pct.agreeableness],
+          ['stability', Number.isFinite(pct.neuroticism) ? 100 - pct.neuroticism : undefined],
+        ]
+          .filter(([, v]) => Number.isFinite(v))
+          .sort((x, y) => y[1] - x[1])
+          .map(([k, v], i) => ({
+            name: TRAIT_NAME[k],
+            label: `${ordinal(Math.round(v))} percentile`,
+            pct: v,
+            strong: v >= 70,
+            gradient: i < 4,
+          }))
+      : [];
+    const primary = riasec?.primary;
+    const labels = [riasec?.primary, riasec?.secondary, riasec?.tertiary]
+      .filter(Boolean)
+      .map((x) => x.label);
+    const careers = (a.desiredCareers || [])
+      .map((c) => (typeof c === 'string' ? c : c?.careerName || c?.title))
+      .filter(Boolean)
+      .slice(0, 5)
+      .map(titleCase);
+    personality = {
+      title: 'Personality',
+      status: 'Completed',
+      lead: primary ? 'You’re ' : 'Your strongest trait: ',
+      type: primary ? `${primary.label}.` : `${traits[0]?.name || 'Personality'}.`,
+      sub: riasec?.code
+        ? `Holland code ${riasec.code} · ${labels.join(', ')}`
+        : 'Big Five personality profile',
+      body: primary ? RIASEC_TEXT[primary.key] || '' : '',
+      affinityLabel: careers.length ? 'Careers you’re aiming for' : 'Career affinity',
+      affinity: careers.length ? careers : labels,
+      traits,
+      lock: `System-generated from your answers${a.lastAssessedAt ? ` on ${shortDate(a.lastAssessedAt)}` : ''}. Results can’t be edited.`,
+    };
+  }
+
+  const skillRows = skills.map((name) => {
+    const v = verifByKey[name.toLowerCase()];
+    return {
+      name,
+      level: v?.claimedLevel ? titleCase(v.claimedLevel) : '',
+      evidence: evidenceOf(v),
+    };
+  });
+  const verified = skillRows.filter((s) => s.evidence !== 'self').length;
+  const skillsEvidence = {
+    title: 'Skills evidence',
+    count: `${plural(skillRows.length, 'skill')} · ${verified} verified`,
+    intro: skillRows.length
+      ? 'How each skill was proven. Recruiters see the same labels.'
+      : 'No skills on your profile yet.',
+    skills: skillRows.slice(0, 6),
+    more: skillRows.length > 6 ? `${plural(skillRows.length - 6, 'more skill')}` : null,
+    manage: 'Manage skills',
+  };
+
+  const firstSelf = skillRows.find((s) => s.evidence === 'self');
+  const next = firstSelf
+    ? {
+        title: `Prove your ${firstSelf.name} skill`,
+        meta: () => 'About 5 minutes with Career Buddy',
+        body: `Tell Career Buddy how you use ${firstSelf.name}. A short conversation moves it from Self-reported to AI-validated, which recruiters trust more.`,
+        cta: 'Validate with Career Buddy',
+        sticker: 'BIGGEST BOOST',
+        to: '/profile/filling/career-buddy',
+      }
+    : !bigFive
+      ? {
+          title: 'Take the personality quiz',
+          meta: () => 'About 8 minutes',
+          body: 'See your strongest traits and the careers that suit them. Recruiters see your result too.',
+          cta: 'Start quiz',
+          sticker: 'BIGGEST BOOST',
+          to: '/profile/filling/career-buddy',
+        }
+      : null;
+
+  const lab = {
+    title: 'Skills Lab',
+    more: 'Play more',
+    games: games.slice(0, 4).map((g, i) => {
+      const score = Math.round(g.score ?? g.normalizedScore ?? g.result?.score ?? 0);
+      const pctl = g.percentile ?? g.result?.percentile;
+      return {
+        name: g.gameName || g.title || g.gameKey || `Game ${i + 1}`,
+        when: shortDate(g.completedAt || g.createdAt),
+        score,
+        top: Number.isFinite(pctl) ? `Top ${Math.max(1, 100 - Math.round(pctl))}%` : '',
+        strong: score >= 85,
+      };
+    }),
+    empty: games.length
+      ? null
+      : 'No Skills Lab games yet. A short game proves a skill and earns the Game-evidenced label.',
+  };
+
+  return { summary, personality, skillsEvidence, next, lab, chip: `${doneCount} of 4` };
+};

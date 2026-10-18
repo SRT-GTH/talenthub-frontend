@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
-import { fetchTalentHome } from '../../../services/talentHome.api.js';
-import { buildLiveContent, stateKeyFor } from './talentHomeLive.js';
+import { fetchTalentAssessment, fetchTalentHome } from '../../../services/talentHome.api.js';
+import { buildAssessmentContent, buildLiveContent, stateKeyFor } from './talentHomeLive.js';
+import { HOME_TABS } from './talentHomeTabsData.js';
 
 const log = debug('talentHomeState');
 
@@ -146,6 +147,18 @@ export const useTalentHomeState = () => {
   }, [demoState, setParams]);
   const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
+  // MyAssessment data loads the first time the tab opens (real data only).
+  const [assessment, setAssessment] = useState(null);
+  useEffect(() => {
+    if (demoState || !live || tab !== 'assessment' || assessment) return undefined;
+    let alive = true;
+    fetchTalentAssessment(live)
+      .then((a) => alive && setAssessment(a))
+      .catch((err) => log.error('assessment data failed:', err?.message));
+    return () => {
+      alive = false;
+    };
+  }, [demoState, live, tab, assessment]);
   const loading = params.get('loading') || (!demoState && live === null ? '1' : null); // null | '1' | 'empty' | 'error'
   const newUser = params.get('new'); // null | welcome | tour | chat | gate
   const journeyMin = params.get('journey') === 'min';
@@ -167,6 +180,14 @@ export const useTalentHomeState = () => {
     return {
       snapshot: live && !demoState ? liveSnapshot(stateKey, live) : getTalentHomeSnapshot(stateKey),
       content: live && !demoState ? buildLiveContent(stateKey, live) : null,
+      // MyAssessment content (null in demo mode or while loading).
+      assessment:
+        live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
+      // Tabs: on real data the Recruiter activity tab waits for phase 3 (no backend yet).
+      tabs:
+        live && !demoState
+          ? HOME_TABS.filter((t) => t.id !== 'recruiter').map((t) => ({ ...t, chip: null }))
+          : HOME_TABS,
       live: !demoState && live ? live : null,
       stateKey,
       tab,
@@ -183,6 +204,7 @@ export const useTalentHomeState = () => {
     setParams,
     live,
     demoState,
+    assessment,
     stateKey,
     tab,
     loading,
