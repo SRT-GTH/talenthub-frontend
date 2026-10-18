@@ -65,7 +65,9 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const isTalent = Boolean(talentHome);
   // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
   const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
-  const nav = isTalent ? { ...TOP_NAV, ...getTalentNavData(talentHome.stateKey) } : TOP_NAV;
+  const nav = isTalent
+    ? { ...TOP_NAV, ...getTalentNavData(talentHome.stateKey, talentHome.live) }
+    : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
   // button that opens DashboardSearchSheet instead.
   const [searchOpen, setSearchOpen] = useState(false);

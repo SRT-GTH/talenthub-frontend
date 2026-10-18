@@ -11,7 +11,7 @@ import TalentPublicProfileCard from './TalentPublicProfileCard.jsx';
 import {
   TALENT_NAV_MAIN,
   TALENT_NAV_SECONDARY,
-  TALENT_PROFILE,
+  getTalentProfile,
   getTalentNavData,
   getTalentSidebarData,
 } from './talentShellData.js';
@@ -40,8 +40,9 @@ const Badge = ({ count }) => (
 const TalentMobileNav = ({ home, className }) => {
   const [moreOpen, setMoreOpen] = useState(false);
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey);
-  const navData = getTalentNavData(stateKey);
+  const data = getTalentSidebarData(stateKey, home?.live);
+  const navData = getTalentNavData(stateKey, home?.live);
+  const profile = getTalentProfile(home?.live);
 
   useEffect(() => {
     log('mount', { tabs: TAB_IDS, stateKey });
@@ -143,10 +144,10 @@ const TalentMobileNav = ({ home, className }) => {
             </span>
             <div className="flex min-w-0 flex-col">
               <span className="truncate font-sans text-[16px] font-semibold leading-6 text-[#1c2a21]">
-                {TALENT_PROFILE.name}
+                {profile.name}
               </span>
               <span className="truncate font-sans text-[14px] leading-5 text-[#babab7]">
-                {TALENT_PROFILE.headline}
+                {profile.headline}
               </span>
             </div>
           </div>
@@ -190,7 +191,7 @@ const TalentMobileNav = ({ home, className }) => {
           </nav>
 
           <StyleSwitch className="self-start" />
-          <TalentPublicProfileCard shelf={!data.flat} />
+          <TalentPublicProfileCard shelf={!data.flat} url={profile.url} />
         </div>
       </Modal>
     </>
