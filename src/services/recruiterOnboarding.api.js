@@ -8,7 +8,8 @@ const log = debug('recruiterOnboarding.api');
 /*
  * Recruiter self-serve onboarding API (backend: /api/recruiter, 2026-10-18).
  *
- *   POST /recruiter/signup/send-code  { email, firstName }   -> emails a 6-digit code
+ *   POST /recruiter/signup/send-code  { email, firstName, phone } -> emails a 6-digit code
+ *        (409 EMAIL_EXISTS / PHONE_EXISTS before any code is sent)
  *   POST /auth/contact-verification/verify { challengeToken, otp } -> verificationToken
  *   POST /recruiter/signup  { fullName, email, phone, password, verificationToken }
  *        -> creates the account (email verified) + returns a login session
@@ -72,7 +73,11 @@ export const startSignup = async ({ fullName, email, phone, password }) => {
   // EMAIL_TAKEN is shown inline by the profile form, so no banner for it.
   let data;
   try {
-    ({ data } = await api.post(`${BASE}/signup/send-code`, { email: email.trim(), firstName }));
+    ({ data } = await api.post(`${BASE}/signup/send-code`, {
+      email: email.trim(),
+      firstName,
+      phone,
+    }));
   } catch (err) {
     throw fail(err, { announce: getApiErrorCode(err) !== 'EMAIL_EXISTS' });
   }
@@ -196,6 +201,8 @@ export const onboardingToSections = (o) => {
       mode: o.organisation.affiliation === 'admin' ? 'new' : 'existing',
       id: o.organisation.id,
       name: o.organisation.name,
+      tradingName: o.organisation.tradingName || '',
+      primaryAdmin: o.organisation.primaryAdmin || '',
       affiliation: o.organisation.affiliation,
     };
   }

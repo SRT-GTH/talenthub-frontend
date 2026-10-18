@@ -78,7 +78,7 @@ const FIELD_MESSAGE_TONE =
 const RecruiterCreateOrganisationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setSection } = useRecruiterOnboarding();
+  const { data, setSection } = useRecruiterOnboarding();
 
   const [values, setValues] = useState(() => ({
     ...EMPTY,
@@ -185,7 +185,18 @@ const RecruiterCreateOrganisationPage = () => {
     <RecruiterOnboardingShell
       routeKey="createOrganisation"
       // Figma 7374:6478 (created) swaps the panel chips to "You become Primary Admin".
-      panel={<RecruiterOnboardingPanel variant={modalOpen ? 'orgCreated' : 'profile'} />}
+      panel={
+        <RecruiterOnboardingPanel
+          variant={modalOpen ? 'orgCreated' : 'profile'}
+          {...(modalOpen
+            ? {
+                copy: {
+                  cardSub: `${data?.profile?.fullName || 'Your profile'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
+                },
+              }
+            : {})}
+        />
+      }
     >
       <form
         onSubmit={handleSubmit}
@@ -298,9 +309,9 @@ const RecruiterCreateOrganisationPage = () => {
             </div>
 
             <InfoNote icon={<BuildingIcon size={20} className="size-5" />}>
-              You&apos;ll be auto-assigned Primary Admin of this organisation you approve recruiters
-              who ask to join, manage the subscription and billing. You can transfer this role
-              later.
+              You&apos;ll be auto-assigned Primary Admin of this organisation: you approve
+              recruiters who ask to join, manage the subscription and billing. You can transfer this
+              role later.
             </InfoNote>
           </div>
         </div>
@@ -326,7 +337,7 @@ const RecruiterCreateOrganisationPage = () => {
         <OrganisationResultModal
           title="Organisation created."
           caption="Primary Admin assigned"
-          description={`${created.name} is live. Recruiters can now request to join you approve them.`}
+          description={`${created.name} is live. Recruiters can now request to join, and you approve them.`}
           rows={[
             {
               icon: <BuildingIcon className="size-4" />,
