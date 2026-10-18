@@ -330,7 +330,7 @@ const MyAssessmentTab = ({ home }) => {
     <>
       <TalentHomeHero home={home} />
       <HomeTabs active="assessment" tabs={home.tabs} onSelect={selectTab} />
-      {waiting ? <PlainCard title="MyAssessment" body="Loading your resultsâ€¦" /> : null}
+      {waiting ? <PlainCard title="MyAssessment" body="Loading your results…" /> : null}
       {waiting ? null : (
         <section
           aria-label={sum.title}
