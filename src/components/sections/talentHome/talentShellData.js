@@ -125,6 +125,16 @@ const STATUS_BY_MILESTONE = {
 export const getTalentSidebarData = (stateKey = 'day1', live = null) => {
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;
+  if (live.placeholder) {
+    return {
+      ...base,
+      status: '',
+      journey: { label: 'Profile journey', count: '–', done: 0, caption: '' },
+      stats: base.stats.map((s) => ({ ...s, value: '–' })),
+      badges: {},
+      streak: '–',
+    };
+  }
   const j = live.journey || { doneCount: 0, milestone: 'none', nextStage: 'avatar' };
   const next = j.nextStage ? STAGE_LABEL[j.nextStage] : null;
   const matches = live.matches?.total ?? 0;

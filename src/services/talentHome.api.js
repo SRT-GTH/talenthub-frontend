@@ -52,8 +52,19 @@ export const targetCareerOf = (profile) => {
 };
 
 export const fetchTalentHome = async () => {
+  // The journey is the one call the page cannot do without: a 401 means the
+  // session expired (go to login), any other failure shows the error state.
+  let journeyError = null;
   const [journey, profileRes, opps, apps, notifs, verifs] = await Promise.all([
-    settle('journey', async () => unwrap(await api.get('/profiles/journey'))),
+    (async () => {
+      try {
+        return unwrap(await api.get('/profiles/journey'));
+      } catch (err) {
+        journeyError = err;
+        log.error('journey failed:', err?.response?.status || err?.message);
+        return null;
+      }
+    })(),
     settle('profile', async () => unwrap(await api.get('/profiles/me'))),
     settle('opportunities', async () =>
       unwrap(await api.get('/guidance/opportunities', { params: { pageSize: 3 } }))
@@ -66,6 +77,11 @@ export const fetchTalentHome = async () => {
       unwrap(await api.get('/engagement/skills/verifications/me'))
     ),
   ]);
+  if (journeyError || !journey) {
+    const err = new Error('Talent home data unavailable');
+    err.code = journeyError?.response?.status === 401 ? 'UNAUTHORIZED' : 'UNAVAILABLE';
+    throw err;
+  }
   const profile = profileRes?.profile || profileRes || {};
   const user = storedUser() || {};
   const targetCareer = targetCareerOf(profile);
