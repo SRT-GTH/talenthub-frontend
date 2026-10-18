@@ -54,6 +54,18 @@ export const verifyLoginOtp = async ({ identity, otp }) => {
   return { accessToken, refreshToken, user };
 };
 
+/**
+ * Where a user lands after login: talents on their dashboard, recruiters on
+ * the recruiter home. Other account types keep the engagement hub until they
+ * have a home of their own.
+ */
+export const homePathFor = (user) => {
+  const type = String(user?.entityType || user?.type || '').toLowerCase();
+  if (type === 'talent') return '/home';
+  if (type === 'recruiter') return '/recruiter/home';
+  return '/profile/engagement';
+};
+
 export const resendLoginOtp = async ({ identity }) => {
   log('resend-otp via', describe(identity));
   const { data } = await api.post('/auth/resend-otp', { ...identity });
