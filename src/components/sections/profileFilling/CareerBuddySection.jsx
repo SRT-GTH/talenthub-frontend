@@ -23,6 +23,7 @@ import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
 import ShareMilestoneModal from '../community/ShareMilestoneModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
+import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
 import {
   CAREER_BUDDY_NODES,
   FIRST_TIME_HERO,
@@ -550,7 +551,15 @@ const PlayfulStars = () => (
   </>
 );
 
-const CareerBuddySection = () => {
+/*
+ * `live` (2026-10-18): a logged-in talent gets the REAL Career Buddy (V2 turn
+ * controller, useCareerBuddyLive) inside this screen's Focused / Playful
+ * design. Only the data changes: chat, profile panel, stage trail, hero,
+ * history, voice, toasts and Save & Exit come from the hook; the page chrome,
+ * Playful decoration and "Pick your vibe" stay as designed. Without `live`
+ * (recruiter, parent, DemoNavigator, logged out) the scripted demo runs as before.
+ */
+const CareerBuddySection = ({ live: liveMode = false }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { role } = useCareerBuddyRole();
@@ -594,6 +603,13 @@ const CareerBuddySection = () => {
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
   const [startDictation, setStartDictation] = useState(false);
+  // Live talent conversation (inert unless liveMode).
+  const L = useCareerBuddyLive({
+    enabled: liveMode,
+    voiceCallOpen,
+    voiceId,
+    onShowProfile: () => setMobilePane('profile'),
+  });
   // Milestone-share — Figma 7025:89274, opened from handleConfirmStage on
   // any talent stage in STAGE_MILESTONE_LABELS. Null when closed; the
   // stage id when open, so ShareMilestoneModal knows which label to show.
@@ -2192,9 +2208,32 @@ const CareerBuddySection = () => {
     submit(optionId);
   };
 
+  // Live talent screen: same layout, real data. Hero shows only on a first visit.
+  const viewHeroMode = liveMode ? (L.showHero ? 'first-time' : null) : heroMode;
+  const viewToast = liveMode ? L.toast : toast;
+  const dismissToast = () => (liveMode ? L.setToast(null) : setToast(null));
+  const viewPersonaName = liveMode ? L.me.name : personaName;
+
+  if (liveMode && !L.loggedIn) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral p-6 text-center font-sans">
+        <CareerBuddyAvatar size={80} />
+        <p className="text-[16px] text-[#595959]">Log in to talk to Career Buddy.</p>
+        <button
+          type="button"
+          onClick={() => navigate('/login')}
+          className="cursor-pointer rounded-full bg-brand-green px-6 py-2 text-white"
+        >
+          Log in
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={shellRef}
+      data-testid={liveMode ? 'career-buddy-live' : undefined}
       className="flex flex-col h-screen overflow-hidden bg-white playful:bg-[#f8f8f4] max-lg:h-[var(--cb-vvh,100dvh)]"
     >
       {/* Playful appearance is talent-only (Figma "Playful mode" is the talent flow). */}
@@ -2203,11 +2242,14 @@ const CareerBuddySection = () => {
         <EngagementTopNav
           styleSwitch={!isRecruiter && !isParent ? <StyleSwitch /> : null}
           bgClass="bg-neutral"
+          userName={liveMode ? L.me.name : undefined}
+          userInitials={liveMode ? L.me.initials : undefined}
           onSaveExit={handleSaveExit}
           showSwitchModes={
-            Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
-            // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
-            (playful && heroMode === 'first-time')
+            !liveMode &&
+            (Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
+              // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
+              (playful && heroMode === 'first-time'))
           }
           onSwitchModes={handleSwitchModes}
           className="w-full h-full"
@@ -2215,13 +2257,26 @@ const CareerBuddySection = () => {
       </div>
 
       <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto playful:lg:h-[clamp(60px,4.69vw,81px)]">
-        <EngagementTopBar
-          stages={trailStages}
-          currentStageIndex={trailStageIndex}
-          completionPct={isRecruiter ? 16 : 0}
-          interactive={false}
-          className="w-full h-full"
-        />
+        {liveMode ? (
+          <EngagementTopBar
+            stages={L.stages}
+            currentStageIndex={L.trailIndex}
+            completionPct={L.pct}
+            stageStatuses={L.stageStatuses}
+            trackPct={L.pct}
+            progressWidthClass="w-[380px]"
+            interactive={false}
+            className="w-full h-full"
+          />
+        ) : (
+          <EngagementTopBar
+            stages={trailStages}
+            currentStageIndex={trailStageIndex}
+            completionPct={isRecruiter ? 16 : 0}
+            interactive={false}
+            className="w-full h-full"
+          />
+        )}
       </div>
 
       {/* Chat | Profile switch — below lg only one pane shows at a time. */}
@@ -2239,8 +2294,9 @@ const CareerBuddySection = () => {
             const showDot =
               tab.id === 'profile' &&
               mobilePane === 'chat' &&
-              Boolean(expandedPanelId) &&
-              expandedPanelId !== seenPanelId;
+              (liveMode
+                ? L.pendingCard
+                : Boolean(expandedPanelId) && expandedPanelId !== seenPanelId);
             return (
               <button
                 key={tab.id}
@@ -2267,17 +2323,17 @@ const CareerBuddySection = () => {
         </div>
       </div>
 
-      {toast && (
+      {viewToast && (
         <Toast
-          key={toast.id}
-          compact={toast.variant !== 'welcome'}
+          key={viewToast.id}
+          compact={viewToast.variant !== 'welcome'}
           position="top-center"
-          variant={toast.variant}
-          title={toast.title}
-          body={toast.body}
-          xpBadge={String(toast.id ?? '').endsWith('-saved') ? '+20 XP' : undefined}
-          duration={toast.variant === 'welcome' ? 5000 : 4000}
-          onDismiss={() => setToast(null)}
+          variant={viewToast.variant}
+          title={viewToast.title}
+          body={viewToast.body}
+          xpBadge={String(viewToast.id ?? '').endsWith('-saved') ? '+20 XP' : undefined}
+          duration={viewToast.variant === 'welcome' ? 5000 : 4000}
+          onDismiss={dismissToast}
         />
       )}
 
@@ -2448,7 +2504,7 @@ const CareerBuddySection = () => {
               pointer-events-none so they never intercept clicks. */}
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute z-0 ${heroMode === 'first-time' ? '' : 'playful:hidden'}`}
+            className={`pointer-events-none absolute z-0 ${viewHeroMode === 'first-time' ? '' : 'playful:hidden'}`}
             style={{
               left: '20.32%',
               top: '14.4%',
@@ -2461,7 +2517,7 @@ const CareerBuddySection = () => {
           </span>
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute z-0 ${heroMode === 'first-time' ? '' : 'playful:hidden'}`}
+            className={`pointer-events-none absolute z-0 ${viewHeroMode === 'first-time' ? '' : 'playful:hidden'}`}
             style={{
               left: '91.7%',
               top: '23.6%',
@@ -2535,7 +2591,17 @@ const CareerBuddySection = () => {
             />
           </div>
 
-          <CareerBuddyHistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} />
+          {liveMode ? (
+            <CareerBuddyHistoryDrawer
+              open={L.historyOpen}
+              onClose={() => L.setHistoryOpen(false)}
+              groups={L.historyList}
+              activeId={L.activeHistoryId}
+              onSelect={L.handleSelectHistory}
+            />
+          ) : (
+            <CareerBuddyHistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} />
+          )}
           <GameStoreModal
             open={gameStoreOpen}
             onClose={() => setGameStoreOpen(false)}
@@ -2595,9 +2661,16 @@ const CareerBuddySection = () => {
             open={optOutOpen}
             initialStep={optOutStep}
             onClose={handleOptOutClose}
-            onChooseDifferentMode={handleReturnToModeListing}
-            onGoToDashboard={handleGoToDashboard}
-            onConfirmSchedule={handleConfirmSchedule}
+            onChooseDifferentMode={liveMode ? handleOptOutClose : handleReturnToModeListing}
+            onGoToDashboard={liveMode ? () => navigate('/home') : handleGoToDashboard}
+            onConfirmSchedule={
+              liveMode
+                ? (date) => {
+                    setOptOutOpen(false);
+                    L.handleConfirmSchedule(date);
+                  }
+                : handleConfirmSchedule
+            }
           />
 
           {/* First-visit "Pick your vibe" (Figma 7883:86839) — talent only, until answered */}
@@ -2606,8 +2679,8 @@ const CareerBuddySection = () => {
           <ShareMilestoneModal
             isOpen={Boolean(milestoneStageId)}
             stageLabel={milestoneStageId ? STAGE_MILESTONE_LABELS[milestoneStageId] : undefined}
-            authorName={personaName}
-            authorInitials={personaName.slice(0, 2).toUpperCase()}
+            authorName={viewPersonaName}
+            authorInitials={viewPersonaName.slice(0, 2).toUpperCase()}
             onClose={() => setMilestoneStageId(null)}
             onShare={(payload) => log('milestone share acknowledged (no backend):', payload)}
             onDecline={() => log('milestone share declined')}
@@ -2621,47 +2694,87 @@ const CareerBuddySection = () => {
                 : 'contents'
             }
           >
-            {heroMode === 'first-time' && <FirstTimeHero hero={firstTimeHero} playful={playful} />}
-            {heroMode === 'returning' && <ReturningHero name={personaName} />}
+            {liveMode ? (
+              viewHeroMode === 'first-time' && <FirstTimeHero hero={L.hero} playful={playful} />
+            ) : (
+              <>
+                {heroMode === 'first-time' && (
+                  <FirstTimeHero hero={firstTimeHero} playful={playful} />
+                )}
+                {heroMode === 'returning' && <ReturningHero name={personaName} />}
+              </>
+            )}
           </div>
 
           <div className="relative flex flex-1 min-h-0 flex-col">
-            <ChatThread
-              messages={enrichedMessages}
-              onSend={submit}
-              suggestedReplies={activeSuggestedReplies}
-              onSelectOption={handleSelectMcqOption}
-              onSelectModeCard={handleSelectModeCard}
-              onNewChat={showNewChat ? handleNewChat : undefined}
-              onOpenHistory={showChrome ? () => setHistoryOpen(true) : undefined}
-              onOpenVoiceSettings={
-                showChrome
-                  ? () => {
-                      log('branch', { openVoiceSettings: true });
-                      setVoiceSettingsOpen(true);
-                    }
-                  : undefined
-              }
-              onOpenVoiceCall={
-                showChrome
-                  ? () => {
-                      log('branch', { openVoiceCall: true });
-                      setVoiceCallOpen(true);
-                    }
-                  : undefined
-              }
-              startDictation={startDictation}
-              enableAttach={enableAttach}
-              onAttach={handleAttach}
-              onAttachRejected={handleAttachRejected}
-            />
+            {liveMode ? (
+              <ChatThread
+                messages={L.enrichedMessages}
+                onSend={L.handleSend}
+                suggestedReplies={L.suggestedReplies}
+                disabled={L.busy}
+                onNewChat={L.handleNewChat}
+                onOpenHistory={() => L.setHistoryOpen(true)}
+                onOpenVoiceSettings={() => setVoiceSettingsOpen(true)}
+                onOpenVoiceCall={() => setVoiceCallOpen(true)}
+                enableAttach
+                onAttach={L.handleAttach}
+                onAttachRejected={L.handleAttachRejected}
+                onFeedback={L.handleFeedback}
+                onRegenerate={L.handleRegenerate}
+                className="min-h-0 flex-1"
+              />
+            ) : (
+              <ChatThread
+                messages={enrichedMessages}
+                onSend={submit}
+                suggestedReplies={activeSuggestedReplies}
+                onSelectOption={handleSelectMcqOption}
+                onSelectModeCard={handleSelectModeCard}
+                onNewChat={showNewChat ? handleNewChat : undefined}
+                onOpenHistory={showChrome ? () => setHistoryOpen(true) : undefined}
+                onOpenVoiceSettings={
+                  showChrome
+                    ? () => {
+                        log('branch', { openVoiceSettings: true });
+                        setVoiceSettingsOpen(true);
+                      }
+                    : undefined
+                }
+                onOpenVoiceCall={
+                  showChrome
+                    ? () => {
+                        log('branch', { openVoiceCall: true });
+                        setVoiceCallOpen(true);
+                      }
+                    : undefined
+                }
+                startDictation={startDictation}
+                enableAttach={enableAttach}
+                onAttach={handleAttach}
+                onAttachRejected={handleAttachRejected}
+              />
+            )}
 
             <VoiceCallOverlay
               open={voiceCallOpen && !voiceSettingsOpen}
               voiceId={voiceId}
-              userName={personaName}
+              userName={viewPersonaName}
+              {...(liveMode
+                ? {
+                    onUtterance: L.handleUtterance,
+                    pauseMs: L.practiceActive ? 3500 : 1500,
+                    paused: L.busy || L.speaking,
+                    status: L.busy
+                      ? 'Career Buddy is thinking…'
+                      : L.speaking
+                        ? 'Career Buddy is speaking…'
+                        : '',
+                  }
+                : {})}
               onHangUp={() => {
                 log('branch', { hangUpVoiceCall: true });
+                if (liveMode) L.stopSpeaking();
                 setVoiceCallOpen(false);
               }}
               onOpenSettings={() => {
@@ -2705,12 +2818,16 @@ const CareerBuddySection = () => {
             className={`w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
               mobilePane === 'chat' ? 'max-lg:hidden' : ''
             }`}
-            stages={panelStages}
-            expandedId={expandedPanelId}
-            onToggleExpand={(id) => setExpandedPanelId((prev) => (prev === id ? null : id))}
-            onConfirm={handleConfirmStage}
-            onModify={handleModifyStage}
-            confirming={confirmingStageId}
+            stages={liveMode ? L.panelStages : panelStages}
+            expandedId={liveMode ? L.expandedPanelId : expandedPanelId}
+            onToggleExpand={(id) =>
+              (liveMode ? L.setExpandedPanelId : setExpandedPanelId)((prev) =>
+                prev === id ? null : id
+              )
+            }
+            onConfirm={liveMode ? L.handleConfirmStage : handleConfirmStage}
+            onModify={liveMode ? (id) => log('modify', id) : handleModifyStage}
+            confirming={liveMode ? L.confirming : confirmingStageId}
             title={isParent ? 'Talent Profile Panel' : undefined}
             subtitle={isParent ? PARENT_PANEL_SUBTITLE : undefined}
             ariaLabel={isParent ? 'Parent talent profile panel' : undefined}
