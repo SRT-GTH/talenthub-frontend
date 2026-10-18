@@ -384,9 +384,11 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
     link: data.matches.total ? `See all ${data.matches.total}` : null,
     ...(complete
       ? {
-          sub: data.targetCareer
-            ? `Based on your profile and your goal: ${data.targetCareer}.`
-            : 'Based on your profile.',
+          sub: !data.matches.total
+            ? `No open roles fit ${data.targetCareer ? `your goal (${data.targetCareer})` : 'your profile'} yet. New roles show here as soon as recruiters post them.`
+            : data.targetCareer
+              ? `Based on your profile and your goal: ${data.targetCareer}.`
+              : 'Based on your profile.',
         }
       : {
           note: data.matches.total
