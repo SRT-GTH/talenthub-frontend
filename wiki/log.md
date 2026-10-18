@@ -2534,3 +2534,7 @@ Built from cached Figma node JSON/PNGs (new token stored in the git-ignored `.fi
 ## [2026-10-18] create | Talent streaks — `/streak` page, 15-day milestone modal, nav streak pop-up (6 states)
 
 S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=open|done|risk|freeze|lost|new` on any talent page); `activeNav="streak"` in the shell; `/streak` route. Gates: lint 0, build ✓, leak check clean, responsive audit streak 40/40. Details: [talent-streak.md](talent-streak.md).
+
+## [2026-10-18] wire | Talent notifications on the real API
+
+The pop-up and `/notifications` now read `GET /api/notifications` and write `PUT /:id/read` / `PUT /mark-all-read` (`src/services/notifications.api.js`, `notificationsMappers.js`, `useNotificationFeed.js`). Rail / chip / group counts, the "N new" stickers, the "N new since you left" pill, the rail badge and the top-nav bell are live; reads are optimistic and broadcast so the bell count follows. Real loading / empty / error states added (the Figma `?notif=` params still force the frames). Tested locally against the Moleculer backend in Chrome; two backend bugs in `notifications.markAsRead` (422 on the gateway's `id`, 403 for the owner on a same-node ObjectId compare) fixed on backend branch `fix/notifications-mark-read`. Details: [talent-notifications.md](talent-notifications.md) → Data.

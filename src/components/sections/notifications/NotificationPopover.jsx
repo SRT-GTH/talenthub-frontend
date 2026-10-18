@@ -81,7 +81,8 @@ const NotificationPopover = ({ home, anchorRef }) => {
   const mode = home?.notif;
   const navigate = useNavigate();
   const ref = useRef(null);
-  const feed = useNotificationFeed({ startRead: Boolean(home?.readAll) });
+  // Only fetch while open: the pop-up is mounted on every talent page.
+  const feed = useNotificationFeed({ startRead: Boolean(home?.readAll), enabled: Boolean(mode) });
   const [tab, setTab] = useState('all');
   const [pos, setPos] = useState({ top: 74, right: 24 });
 
@@ -93,6 +94,16 @@ const NotificationPopover = ({ home, anchorRef }) => {
     log('open full view');
     home.update({ notif: null, tip: null });
     navigate('/notifications');
+  };
+  // Row action with a destination (backend actionUrl): in-app path or external link.
+  const onAction = (action) => {
+    if (!action?.to) return;
+    log('action →', action.to);
+    if (/^https?:\/\//i.test(action.to)) window.open(action.to, '_blank', 'noopener');
+    else {
+      close();
+      navigate(action.to);
+    }
   };
 
   // Anchor under the bell (Figma geometry above); re-measure on resize.
@@ -149,8 +160,9 @@ const NotificationPopover = ({ home, anchorRef }) => {
 
   if (!mode) return null;
 
-  const empty = mode === 'empty';
-  const loading = mode === 'loading';
+  // `?notif=empty|loading` force the Figma states; otherwise the real feed decides.
+  const loading = mode === 'loading' || (mode === 'open' && feed.loading);
+  const empty = mode === 'empty' || (mode === 'open' && feed.ready && feed.items.length === 0);
   const visible = (tab === 'all' ? feed.select('all') : feed.select(TAB_TYPES[tab] ?? tab)).filter(
     (n) => n.popover !== false
   );
@@ -290,7 +302,10 @@ const NotificationPopover = ({ home, anchorRef }) => {
         <div className="relative">
           <ul className="m-0 flex h-[480px] flex-col gap-[12px] overflow-y-auto p-0 px-[8px] pb-[8px]">
             {POPOVER_GROUPS.map((g) => {
-              const rows = items.filter((n) => n.group === g.id);
+              // Pop-up only has TODAY / EARLIER: yesterday's rows sit under EARLIER.
+              const rows = items.filter((n) =>
+                g.id === 'today' ? n.group === 'today' : n.group !== 'today'
+              );
               if (!rows.length) return null;
               return (
                 <li key={g.id} className="list-none">
@@ -314,13 +329,22 @@ const NotificationPopover = ({ home, anchorRef }) => {
                         item={n}
                         unread={feed.isUnread(n)}
                         onRead={feed.markRead}
+                        onAction={onAction}
                       />
                     ))}
                   </ul>
                 </li>
               );
             })}
-            {items.length === 0 && (
+            {feed.error && (
+              <li className="flex list-none flex-col items-start gap-[8px] px-[12px] py-[24px] font-sans text-[13px] text-[#737373]">
+                {POPOVER_COPY.error}
+                <NotifButton size="xs" tone="secondary" onClick={feed.refresh}>
+                  {POPOVER_COPY.retry}
+                </NotifButton>
+              </li>
+            )}
+            {!feed.error && items.length === 0 && (
               <li className="list-none px-[12px] py-[24px] font-sans text-[13px] text-[#737373]">
                 {POPOVER_COPY.empty.title}
               </li>
