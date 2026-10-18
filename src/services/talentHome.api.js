@@ -15,6 +15,11 @@ const log = debug('talentHome.api');
  *   GET /engagement/skills/verifications/me   verified skills count
  *   GET /guidance/readiness/:career       job readiness (only at Top 20%+)
  *
+ * MyAssessment tab (fetchTalentAssessment, loaded when the tab opens):
+ *   GET /engagement/summary                    Big Five + RIASEC summary
+ *   GET /engagement/assessments/results/me     assessment results (+ required types)
+ *   GET /engagement/games/sessions/me          Skills Lab games
+ *
  * Every call is independent: one failing card shows its empty state, the
  * rest still render.
  */
@@ -84,6 +89,14 @@ export const fetchTalentHome = async () => {
     verifiedSkills: verifs?.total ?? 0,
     readiness,
     loginCount: user.loginCount ?? null,
+    // Kept for the MyAssessment tab (fetchTalentAssessment adds the rest).
+    profileSkills: {
+      technicalSkills: profile.technicalSkills || [],
+      softSkills: profile.softSkills || [],
+      desiredCareers: profile.desiredCareers || [],
+      lastAssessedAt: profile.personalitySnapshot?.lastAssessedAt || null,
+    },
+    verifications: verifs?.rows || [],
   };
   log('loaded', {
     stages: journey?.doneCount,
@@ -92,4 +105,25 @@ export const fetchTalentHome = async () => {
     readiness: Boolean(readiness),
   });
   return data;
+};
+
+/** MyAssessment tab data; merges into the home data as `assessment`. */
+export const fetchTalentAssessment = async (home) => {
+  const [summary, results, games] = await Promise.all([
+    settle('summary', async () => unwrap(await api.get('/engagement/summary'))),
+    settle('assessment results', async () =>
+      unwrap(await api.get('/engagement/assessments/results/me'))
+    ),
+    settle('games', async () => unwrap(await api.get('/engagement/games/sessions/me'))),
+  ]);
+  const assessment = {
+    ...(home?.profileSkills || {}),
+    summary,
+    results: results?.rows || [],
+    required: results?.required || null,
+    games: games?.rows || [],
+    verifications: home?.verifications || [],
+  };
+  log('assessment loaded', { results: assessment.results.length, games: assessment.games.length });
+  return assessment;
 };
