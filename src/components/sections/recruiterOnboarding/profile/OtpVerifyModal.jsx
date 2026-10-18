@@ -167,10 +167,13 @@ const OtpVerifyModal = ({ phoneMasked, emailMasked, onClose, onChangeContact, on
       log('verified');
       if (mounted.current) onVerified();
     } catch (err) {
-      log('wrong code', err?.code);
+      log('verify failed', err?.code);
       if (!mounted.current) return;
-      setInvalid(true);
-      setAttempts((a) => Math.max(0, a - 1));
+      // Only a wrong code marks the cells; other failures show the page banner.
+      if (err?.code === 'OTP_INVALID') {
+        setInvalid(true);
+        setAttempts((a) => Math.max(0, a - 1));
+      }
     } finally {
       if (mounted.current) setBusy(false);
     }
@@ -179,7 +182,12 @@ const OtpVerifyModal = ({ phoneMasked, emailMasked, onClose, onChangeContact, on
   const handleResend = async () => {
     if (!resendReady) return;
     log('resend');
-    await resendOtp();
+    try {
+      await resendOtp();
+    } catch (err) {
+      log('resend failed', err?.code);
+      return;
+    }
     if (!mounted.current) return;
     setCode('');
     setInvalid(false);
@@ -217,7 +225,7 @@ const OtpVerifyModal = ({ phoneMasked, emailMasked, onClose, onChangeContact, on
           Check your <span className="text-brand-green">messages.</span>
         </h2>
         <p className="text-[14px] leading-5 text-[#70706E]" style={{ letterSpacing: '0.2px' }}>
-          We sent a 6-digit code to confirm your contact details.
+          We sent a 6-digit code to your email to confirm it&apos;s you.
         </p>
         <p
           className="text-[12px] font-semibold leading-5 text-[#575755]"

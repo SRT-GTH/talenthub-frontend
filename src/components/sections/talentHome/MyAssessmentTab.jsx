@@ -9,6 +9,7 @@ import {
   SkillsLabControllerIcon,
 } from '../../shared/assets.jsx';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
@@ -43,8 +44,8 @@ const log = debug('MyAssessmentTab');
  * assessment + label legend + Skills Lab (right). Mock content: talentHomeTabsData.js.
  */
 
-const PersonalityCard = () => {
-  const p = PERSONALITY;
+const PersonalityCard = ({ data = PERSONALITY }) => {
+  const p = data;
   return (
     <section
       aria-labelledby="ma-personality"
@@ -129,8 +130,8 @@ const PersonalityCard = () => {
   );
 };
 
-const SkillsEvidenceCard = () => {
-  const s = SKILLS_EVIDENCE;
+const SkillsEvidenceCard = ({ data = SKILLS_EVIDENCE }) => {
+  const s = data;
   return (
     <section
       aria-labelledby="ma-skills"
@@ -163,7 +164,7 @@ const SkillsEvidenceCard = () => {
         ))}
       </ul>
       <div className="flex items-center justify-between pt-[10px] text-[13px]">
-        <span className="font-medium text-[#595959]">{s.more}</span>
+        <span className="font-medium text-[#595959]">{s.more || ''}</span>
         <button
           type="button"
           onClick={() => log('manage skills')}
@@ -176,8 +177,9 @@ const SkillsEvidenceCard = () => {
   );
 };
 
-const NextAssessmentCard = () => {
-  const n = NEXT_ASSESSMENT;
+const NextAssessmentCard = ({ data = NEXT_ASSESSMENT }) => {
+  const n = data;
+  const navigate = useNavigate();
   return (
     <section
       aria-labelledby="ma-next"
@@ -205,7 +207,10 @@ const NextAssessmentCard = () => {
         size="md"
         className="w-full"
         rightIcon={<ArrowRightIcon />}
-        onClick={() => log('start assessment')}
+        onClick={() => {
+          log('start assessment');
+          if (n.to) navigate(n.to);
+        }}
       >
         {n.cta}
       </Button>
@@ -233,26 +238,27 @@ const LegendCard = () => (
   </section>
 );
 
-const SkillsLabCard = () => (
+const SkillsLabCard = ({ data = SKILLS_LAB }) => (
   <section
     aria-labelledby="ma-lab"
     className={classNames(CARD, 'flex flex-col gap-[8px] p-[clamp(14px,1.6vw,22px)]')}
   >
     <CardHead
       icon={SkillsLabControllerIcon}
-      title={<span id="ma-lab">{SKILLS_LAB.title}</span>}
+      title={<span id="ma-lab">{data.title}</span>}
       trailing={
         <button
           type="button"
           onClick={() => log('play more')}
           className="cursor-pointer whitespace-nowrap text-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
-          {SKILLS_LAB.more}
+          {data.more}
         </button>
       }
     />
+    {data.empty ? <p className="text-[13px] leading-[19px] text-[#595959]">{data.empty}</p> : null}
     <ul>
-      {SKILLS_LAB.games.map((g) => (
+      {data.games.map((g) => (
         <li
           key={g.name}
           className="flex items-center gap-[10px] border-b border-[#e7e7e7] py-[10px] first:mt-[6px] playful:first:mt-[6px]"
@@ -298,8 +304,19 @@ const SkillsLabCard = () => (
   </section>
 );
 
+// Shown on real data before the tab's data arrives, or when a part has no result yet.
+const PlainCard = ({ title, body }) => (
+  <section className={classNames(CARD, 'flex flex-col gap-[8px] p-[clamp(14px,1.6vw,22px)]')}>
+    <h3 className="text-[17px] font-semibold text-[#1c2a21]">{title}</h3>
+    <p className="text-[14px] leading-[21px] text-[#595959]">{body}</p>
+  </section>
+);
+
 const MyAssessmentTab = ({ home }) => {
-  const sum = ASSESSMENT_SUMMARY;
+  // Real data (talentHomeLive.buildAssessmentContent) or the Figma demo content.
+  const real = home?.live ? home.assessment : null;
+  const waiting = Boolean(home?.live && !home.assessment);
+  const sum = real?.summary ?? ASSESSMENT_SUMMARY;
   useEffect(() => {
     log('mount', { stateKey: home?.stateKey, tab: home?.tab });
   }, [home?.stateKey, home?.tab]);
@@ -312,55 +329,69 @@ const MyAssessmentTab = ({ home }) => {
   return (
     <>
       <TalentHomeHero home={home} />
-      <HomeTabs active="assessment" onSelect={selectTab} />
-      <section
-        aria-label={sum.title}
-        className={classNames(
-          'flex flex-col items-start gap-[clamp(12px,1.6vw,22px)] rounded-[22px] bg-gradient-to-r from-[#ebf1ec] to-[#f4fbe8] px-[clamp(14px,1.75vw,24px)] py-[20px] lg:flex-row lg:items-center',
-          LIFT
-        )}
-      >
-        <div className="flex shrink-0 items-center gap-[12px] text-[#387440] lg:flex-col lg:gap-0">
-          <span
-            className={classNames(
-              'text-[44px] font-semibold leading-[1.1] lg:w-full lg:text-center',
-              DISPLAY
-            )}
-          >
-            {sum.done}
-          </span>
-          <span className="whitespace-nowrap text-[12px] font-bold">{sum.doneLabel}</span>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
-          <p className="text-[17px] font-semibold text-[#1c2a21]">{sum.title}</p>
-          <p className="text-[14px] text-[#595959]">{sum.body}</p>
-          <div className="flex flex-wrap items-center gap-[6px] playful:gap-[6px]">
-            {sum.chips.map((c) => (
-              <CheckChip key={c}>{c}</CheckChip>
-            ))}
-            <span className="inline-flex h-[32px] items-center whitespace-nowrap rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold text-[#595959]">
-              {sum.pending}
-            </span>
-          </div>
-        </div>
-        <Button
-          variant="tertiary-subtle"
-          size="lg"
-          className="w-full lg:w-auto"
-          onClick={() => log('preview recruiter view')}
+      <HomeTabs active="assessment" tabs={home.tabs} onSelect={selectTab} />
+      {waiting ? <PlainCard title="MyAssessment" body="Loading your results…" /> : null}
+      {waiting ? null : (
+        <section
+          aria-label={sum.title}
+          className={classNames(
+            'flex flex-col items-start gap-[clamp(12px,1.6vw,22px)] rounded-[22px] bg-gradient-to-r from-[#ebf1ec] to-[#f4fbe8] px-[clamp(14px,1.75vw,24px)] py-[20px] lg:flex-row lg:items-center',
+            LIFT
+          )}
         >
-          {sum.cta}
-        </Button>
-      </section>
+          <div className="flex shrink-0 items-center gap-[12px] text-[#387440] lg:flex-col lg:gap-0">
+            <span
+              className={classNames(
+                'text-[44px] font-semibold leading-[1.1] lg:w-full lg:text-center',
+                DISPLAY
+              )}
+            >
+              {sum.done}
+            </span>
+            <span className="whitespace-nowrap text-[12px] font-bold">{sum.doneLabel}</span>
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
+            <p className="text-[17px] font-semibold text-[#1c2a21]">{sum.title}</p>
+            <p className="text-[14px] text-[#595959]">{sum.body}</p>
+            <div className="flex flex-wrap items-center gap-[6px] playful:gap-[6px]">
+              {sum.chips.map((c) => (
+                <CheckChip key={c}>{c}</CheckChip>
+              ))}
+              {sum.pending ? (
+                <span className="inline-flex h-[32px] items-center whitespace-nowrap rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold text-[#595959]">
+                  {sum.pending}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <Button
+            variant="tertiary-subtle"
+            size="lg"
+            className="w-full lg:w-auto"
+            onClick={() => log('preview recruiter view')}
+          >
+            {sum.cta}
+          </Button>
+        </section>
+      )}
       <div className="grid items-start gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
         <div className="flex min-w-0 flex-col gap-[16px]">
-          <PersonalityCard />
-          <SkillsEvidenceCard />
+          {real && !real.personality ? (
+            <PlainCard
+              title="Personality"
+              body="No result yet. Take the personality quiz with Career Buddy to see your strongest traits and the careers that suit them."
+            />
+          ) : waiting ? null : (
+            <PersonalityCard data={real?.personality ?? undefined} />
+          )}
+          {waiting ? null : <SkillsEvidenceCard data={real?.skillsEvidence ?? undefined} />}
         </div>
         <div className="flex min-w-0 flex-col gap-[16px]">
-          <NextAssessmentCard />
+          {waiting || (real && !real.next) ? null : (
+            <NextAssessmentCard data={real?.next ?? undefined} />
+          )}
           <LegendCard />
-          <SkillsLabCard />
+          {waiting ? null : <SkillsLabCard data={real?.lab ?? undefined} />}
         </div>
       </div>
     </>

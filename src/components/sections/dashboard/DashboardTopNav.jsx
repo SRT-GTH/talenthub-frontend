@@ -80,9 +80,12 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const nav = isTalent
     ? {
         ...TOP_NAV,
-        ...getTalentNavData(talentHome.stateKey),
+        ...getTalentNavData(talentHome.stateKey, talentHome.live),
         // Optional per-page override (the Notifications frames show streak 12 on the day-1 shell).
-        ...(talentHome.navStreak ? { streakCount: talentHome.navStreak } : null),
+        // Demo data only: with real data (`live`) the streak stays "–" until a backend exists.
+        ...(talentHome.navStreak && !talentHome.live
+          ? { streakCount: talentHome.navStreak }
+          : null),
       }
     : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon

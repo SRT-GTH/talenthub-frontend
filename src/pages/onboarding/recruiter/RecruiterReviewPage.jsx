@@ -17,6 +17,7 @@ import StickyActionBar from '../../../components/ui/form/StickyActionBar.jsx';
 import { ArrowRightIcon, LoadingSpinner } from '../../../components/shared/assets.jsx';
 import { RECRUITER_ROUTES } from '../../../components/shared/recruiterOnboardingSteps.js';
 import { useRecruiterOnboarding } from '../../../hooks/useRecruiterOnboarding.js';
+import { activateAccount } from '../../../services/recruiterOnboarding.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 
@@ -51,7 +52,7 @@ const SECTIONS = (s) => [
       ['Full name', s.fullName],
       ['Profile type', `Recruiter · ${s.type}`],
       ['Email address', `${s.email} ✓ verified`],
-      ['Phone number', `${s.phone} ✓ verified`],
+      ['Phone number', s.phone],
     ],
   },
   {
@@ -92,12 +93,13 @@ const SECTIONS = (s) => [
   },
 ];
 
-const createRecruiterAccount = (payload) =>
-  // API-shaped seam: swap the body for the real call later.
-  new Promise((resolve) => {
-    log('createRecruiterAccount (mock)', Object.keys(payload));
-    setTimeout(() => resolve({ ok: true }), 1200);
-  });
+// POST /api/recruiter/activate (2026-10-18): records the terms + privacy
+// consents and makes the account active. The account itself was created at
+// the Verify step.
+const createRecruiterAccount = () => {
+  log('activate recruiter account');
+  return activateAccount();
+};
 
 const Cell = ({ label, value, strong }) => (
   <div className="flex min-w-0 flex-col gap-0.5 rounded-[10px] bg-[#f8f8f4] px-3 py-2">
@@ -170,11 +172,16 @@ const RecruiterReviewPage = () => {
     if (!allAccepted || busy) return;
     setBusy(true);
     setSection('terms', { accepted: true });
-    createRecruiterAccount({ profile: data.profile, organisation: data.organisation }).then(() => {
-      if (!alive.current) return;
-      log('navigate -> done');
-      navigate(RECRUITER_ROUTES.done.path);
-    });
+    createRecruiterAccount()
+      .then(() => {
+        if (!alive.current) return;
+        log('navigate -> done');
+        navigate(RECRUITER_ROUTES.done.path);
+      })
+      .catch((err) => {
+        log('activate failed', err?.code);
+        if (alive.current) setBusy(false);
+      });
   };
 
   return (

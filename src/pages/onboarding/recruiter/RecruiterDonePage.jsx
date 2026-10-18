@@ -21,6 +21,13 @@ import { debug } from '../../../utils/debug.js';
 
 const log = debug('RecruiterDonePage');
 
+// Monthly job-post allowance per plan (backend PLAN_CATALOGUE / plan cards).
+const JOB_POSTS = {
+  free: '1 job post',
+  professional: '20 job posts',
+  enterprise: 'unlimited job posts',
+};
+
 /*
  * RecruiterDonePage - /onboarding/recruiter/done (R09)
  * Figma: 7374:10419 Active (Professional plan), 7374:10565 Active - affiliation
@@ -52,13 +59,13 @@ const buildVariant = (s) => {
       },
       banner: {
         tone: 'ok',
-        text: `You're the Primary Admin of ${org}  approve recruiters, manage billing and analytics.`,
+        text: `You're the Primary Admin of ${org}. Approve recruiters, manage billing and analytics.`,
       },
       cards: [
         {
           icon: iconTrend,
           title: 'Post your first job',
-          body: `Your ${s.tier} plan includes 1 job post this month.`,
+          body: `Your ${s.tier} plan includes ${JOB_POSTS[s.tierKey] || '1 job post'} this month.`,
           cta: 'Post a job',
           to: '/recruiter/job-postings',
         },
@@ -85,7 +92,7 @@ const buildVariant = (s) => {
       badge: { eyebrow: 'Recruiter', mark: orgMark(org), sub: 'awaiting admin', pill: 'Pending' },
       banner: {
         tone: 'warn',
-        text: `Waiting for ${s.primaryAdmin} to approve you joining ${org}  you can post under your own name now.`,
+        text: `Waiting for ${s.primaryAdmin} to approve you joining ${org}. You can post under your own name now.`,
       },
       cards: [
         {
@@ -228,7 +235,7 @@ const RecruiterDonePage = () => {
               >
                 Welcome to
                 <br />
-                Ghana Talent Hub,{s.firstName}.
+                Ghana Talent Hub, {s.firstName}.
               </h1>
               <p className="m-0 max-w-[420px] text-[14px] leading-6 text-white/60">
                 Your account is live.{' '}

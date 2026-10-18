@@ -13,6 +13,7 @@ import iconAlert from '../../../assets/recruiter-onboarding/closing/icon-alert.s
 import iconShield from '../../../assets/recruiter-onboarding/closing/icon-shield.svg';
 import { RECRUITER_ROUTES } from '../../../components/shared/recruiterOnboardingSteps.js';
 import { useRecruiterOnboarding } from '../../../hooks/useRecruiterOnboarding.js';
+import { savePreferences } from '../../../services/recruiterOnboarding.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 
@@ -102,12 +103,11 @@ const Chip = ({ label, selected, onToggle }) => (
   </button>
 );
 
-const saveRecruiterPreferences = (payload) =>
-  // API-shaped seam: swap the body for the real call later.
-  new Promise((resolve) => {
-    log('saveRecruiterPreferences (mock)', payload);
-    setTimeout(() => resolve({ ok: true }), 900);
-  });
+// POST /api/recruiter/hiring-preferences (2026-10-18).
+const saveRecruiterPreferences = (payload) => {
+  log('saveRecruiterPreferences', { scope: payload.scope });
+  return savePreferences(payload);
+};
 
 const RecruiterPreferencesPage = () => {
   const navigate = useNavigate();
@@ -146,11 +146,16 @@ const RecruiterPreferencesPage = () => {
     setSaving(true);
     const payload = { scope, experience, industries };
     setSection('preferences', payload);
-    saveRecruiterPreferences(payload).then(() => {
-      if (!alive.current) return;
-      log('navigate -> review');
-      navigate(RECRUITER_ROUTES.review.path);
-    });
+    saveRecruiterPreferences(payload)
+      .then(() => {
+        if (!alive.current) return;
+        log('navigate -> review');
+        navigate(RECRUITER_ROUTES.review.path);
+      })
+      .catch((err) => {
+        log('save preferences failed', err?.code);
+        if (alive.current) setSaving(false);
+      });
   };
 
   const invalid = showError && !scope;

@@ -57,8 +57,20 @@ const INDUSTRY_ICON = {
   telecom: TalentHomeIndustryTelecomIcon,
 };
 
-const CompanyTile = ({ company, size = 44, radius = 12 }) => {
+const CompanyTile = ({ company, initials, size = 44, radius = 12 }) => {
   const c = COMPANIES[company];
+  // Real organisations have no Figma tile: show their initials instead.
+  if (!c) {
+    return (
+      <span
+        aria-hidden="true"
+        className="flex shrink-0 items-center justify-center bg-[#ebf1ec] text-[14px] font-bold text-[#387440]"
+        style={{ width: size, height: size, borderRadius: radius }}
+      >
+        {initials || '•'}
+      </span>
+    );
+  }
   const Icon = INDUSTRY_ICON[c.icon];
   return (
     <span
@@ -74,7 +86,7 @@ const CompanyTile = ({ company, size = 44, radius = 12 }) => {
 const CARD_PAD = 'p-[clamp(14px,1.4vw,24px)]';
 
 // Card header: [tile] title ... [link]
-const CardHead = ({ tile, title, link, trailing, h2 = 'text-[17px]' }) => (
+const CardHead = ({ tile, title, link, onLink, trailing, h2 = 'text-[17px]' }) => (
   <div className="flex items-center gap-[10px]">
     {tile ? (
       <span
@@ -88,7 +100,11 @@ const CardHead = ({ tile, title, link, trailing, h2 = 'text-[17px]' }) => (
       {title}
     </h2>
     <span className="flex-1" />
-    {link ? <LinkLabel Icon={TalentHomeArrowRightGreenIcon}>{link}</LinkLabel> : null}
+    {link ? (
+      <LinkLabel Icon={TalentHomeArrowRightGreenIcon} onClick={onLink}>
+        {link}
+      </LinkLabel>
+    ) : null}
     {trailing}
   </div>
 );
@@ -117,7 +133,7 @@ const MatchCard = ({ card, variant, viewRole }) => {
       )}
     >
       <div className="flex items-center gap-[10px]">
-        <CompanyTile company={card.company} />
+        <CompanyTile company={card.company} initials={card.initials} />
         <span className="flex-1" />
         {complete ? (
           <>
@@ -176,7 +192,7 @@ const MatchesCard = ({ data, variant }) => (
     <div className="flex items-center gap-[10px]">
       <SectionTitle parts={data.title} />
       <span className="flex-1" />
-      <LinkLabel Icon={TalentHomeArrowRightGreenIcon}>{data.link}</LinkLabel>
+      {data.link ? <LinkLabel Icon={TalentHomeArrowRightGreenIcon}>{data.link}</LinkLabel> : null}
     </div>
     {data.note ? (
       <p className="flex items-start gap-[10px] rounded-[14px] bg-[#faf4e8] px-[14px] py-[12px] text-[13px] leading-[18px] font-medium text-[#1c2a21]">
@@ -227,7 +243,7 @@ const ApplicationsList = ({ data }) => (
               : 'border border-[#e7e7e7] bg-white'
           )}
         >
-          <CompanyTile company={item.company} size={40} />
+          <CompanyTile company={item.company} initials={item.initials} size={40} />
           <span className="flex min-w-[140px] flex-1 flex-col gap-[2px]">
             <span className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">
               {item.title}
@@ -296,6 +312,11 @@ const ActivityCard = ({ data }) => (
       title={data.title}
       link={data.link}
     />
+    {data.rows.length === 0 ? (
+      <p className="mt-[8px] text-[14px] leading-[20px] text-[#595959]">
+        Nothing yet. Updates on your applications and profile show up here.
+      </p>
+    ) : null}
     <ul className="m-0 mt-[8px] flex list-none flex-col p-0">
       {data.rows.map((row, i) => (
         <li
@@ -532,9 +553,11 @@ const ReadinessScore = ({ data }) => (
         <span className="text-[12px] leading-[normal] font-bold tracking-[1.2px] text-[#c8951a] playful:text-[#785910]">
           {data.gapLabel}
         </span>
-        <DualPill focused="whiteGold" playful="white">
-          <Points n={data.gapPts} />
-        </DualPill>
+        {data.gapPts ? (
+          <DualPill focused="whiteGold" playful="white">
+            <Points n={data.gapPts} />
+          </DualPill>
+        ) : null}
       </div>
       <p className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">{data.gapTitle}</p>
       <p className="text-[13px] leading-[normal] text-[#595959]">{data.gapBody}</p>
@@ -556,8 +579,14 @@ const WhoLooking = ({ data }) => (
     />
     <div className="flex items-center gap-[14px]">
       <span aria-hidden="true" className="flex">
-        {data.photos.map((src, i) => (
-          <Photo key={i} src={src} size={40} className={i === 0 ? '-mr-[10px]' : ''} />
+        {data.photos.map((p, i) => (
+          <Photo
+            key={i}
+            src={typeof p === 'string' ? p : null}
+            initials={p?.initials}
+            size={40}
+            className={i === 0 && data.photos.length > 1 ? '-mr-[10px]' : ''}
+          />
         ))}
       </span>
       <span className="flex flex-col gap-[2px] leading-[normal]">
@@ -568,7 +597,7 @@ const WhoLooking = ({ data }) => (
   </section>
 );
 
-const RecruiterCard = ({ data }) => (
+const RecruiterCard = ({ data, onSeeAll }) => (
   <section
     aria-label="Recruiter activity"
     className={classNames(
@@ -580,15 +609,16 @@ const RecruiterCard = ({ data }) => (
       tile={<TalentHomeEyeGreenIcon className="h-[16.15px] w-[17px]" />}
       title={data.title}
       link={data.link}
+      onLink={onSeeAll}
     />
     <p className="text-[13px] leading-[normal] font-medium text-[#595959]">{data.sub}</p>
     <ul className="m-0 flex list-none flex-col p-0">
-      {data.rows.map((r) => (
+      {data.rows.map((r, i) => (
         <li
-          key={r.name}
+          key={`${r.name}-${i}`}
           className="flex items-start gap-[10px] border-b border-[#e7e7e7] py-[10px]"
         >
-          <Photo src={r.photo} size={36} />
+          <Photo src={r.photo} initials={r.initials} size={36} />
           <span className="flex min-w-0 flex-col gap-[6px] playful:gap-[2px]">
             <span className="text-[13px] leading-[normal] font-semibold text-[#1c2a21]">
               {r.name}
@@ -638,9 +668,9 @@ const HomeColumns = ({ home, content }) => {
         </div>
         <aside aria-label="For you" className="flex min-w-0 flex-col gap-[16px]">
           <BuddyCard data={content.buddy} />
-          <StreakCard data={content.streak} />
+          {content.streak ? <StreakCard data={content.streak} /> : null}
           <ReadinessLocked data={content.readiness} />
-          <WhoLooking data={content.looking} />
+          {content.looking ? <WhoLooking data={content.looking} /> : null}
         </aside>
       </div>
     );
@@ -649,16 +679,27 @@ const HomeColumns = ({ home, content }) => {
   // Complete / Top Talent: cards are reorderable / hideable (HM-05 Edit home).
   const cards = {
     matched: <MatchesCard data={content.matches} variant={variant} />,
-    applications: <ApplicationsList data={content.applications} />,
+    applications: content.applications.items?.length ? (
+      <ApplicationsList data={content.applications} />
+    ) : (
+      <ApplicationsEmpty data={content.applications} />
+    ),
     'recent-activity': <ActivityCard data={content.activity} />,
     'career-buddy': <BuddyCard data={content.buddy} />,
-    streak: <StreakCard data={content.streak} />,
-    'job-readiness': <ReadinessScore data={content.readiness} />,
-    'recruiter-activity': <RecruiterCard data={content.recruiters} />,
+    streak: content.streak ? <StreakCard data={content.streak} /> : null,
+    'job-readiness':
+      content.readiness?.kind === 'locked' ? (
+        <ReadinessLocked data={content.readiness} />
+      ) : (
+        <ReadinessScore data={content.readiness} />
+      ),
+    'recruiter-activity': content.recruiters ? (
+      <RecruiterCard data={content.recruiters} onSeeAll={() => home.update({ tab: 'recruiter' })} />
+    ) : null,
   };
   const column = (ids) =>
     layout.onPage
-      .filter((c) => ids.includes(c.id))
+      .filter((c) => ids.includes(c.id) && cards[c.id])
       .map((c) => (
         <HomeCardChrome key={c.id} id={c.id} editing={home.editOpen}>
           {cards[c.id]}

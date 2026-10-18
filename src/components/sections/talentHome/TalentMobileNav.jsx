@@ -12,7 +12,7 @@ import TalentPublicProfileCard from './TalentPublicProfileCard.jsx';
 import {
   TALENT_NAV_MAIN,
   TALENT_NAV_SECONDARY,
-  TALENT_PROFILE,
+  getTalentProfile,
   getTalentNavData,
   getTalentSidebarData,
 } from './talentShellData.js';
@@ -43,12 +43,19 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey, activeNav);
-  // Home tab is the current page on /home only; on /profile the Profile row (More sheet) is.
-  // /notifications highlights Messages, like the desktop rails (Figma 7471:54993 draws Messages active).
+  const data = getTalentSidebarData(stateKey, home?.live, activeNav);
+  const navData = getTalentNavData(stateKey, home?.live);
+  const profile = getTalentProfile(home?.live);
+  // Current item: /profile -> Profile row (More sheet); /notifications -> Messages (like the desktop
+  // rails, Figma 7471:54993); otherwise My Assessment while its tab is open, Home else (as TalentSidebar).
   const activeId =
-    activeNav === 'profile' ? 'profile' : pathname === '/notifications' ? 'messages' : 'home';
-  const navData = getTalentNavData(stateKey);
+    activeNav === 'profile'
+      ? 'profile'
+      : pathname === '/notifications'
+        ? 'messages'
+        : home?.tab === 'assessment'
+          ? 'assessment'
+          : 'home';
 
   useEffect(() => {
     log('mount', { tabs: TAB_IDS, stateKey });
@@ -154,10 +161,10 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
             </span>
             <div className="flex min-w-0 flex-col">
               <span className="truncate font-sans text-[16px] font-semibold leading-6 text-[#1c2a21]">
-                {TALENT_PROFILE.name}
+                {profile.name}
               </span>
               <span className="truncate font-sans text-[14px] leading-5 text-[#babab7]">
-                {data.headline ?? TALENT_PROFILE.headline}
+                {data.headline ?? profile.headline}
               </span>
             </div>
           </div>
@@ -218,7 +225,7 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
           </nav>
 
           <StyleSwitch className="self-start" />
-          <TalentPublicProfileCard shelf={!data.flat} />
+          <TalentPublicProfileCard shelf={!data.flat} url={profile.url} />
         </div>
       </Modal>
     </>

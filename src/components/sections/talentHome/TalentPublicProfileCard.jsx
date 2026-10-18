@@ -10,7 +10,7 @@ import { TALENT_PROFILE } from './talentShellData.js';
 const log = debug('TalentPublicProfileCard');
 
 /* "Recruiter view link" card — Figma 7740:11313 (Playful, with LIVE sticker) / 8097:4868 (Focused). */
-const TalentPublicProfileCard = ({ className, shelf = true }) => (
+const TalentPublicProfileCard = ({ className, shelf = true, url = TALENT_PROFILE.url }) => (
   <div
     className={classNames(
       'relative flex w-full shrink-0 flex-col items-start gap-[10px] rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px]',
@@ -25,9 +25,11 @@ const TalentPublicProfileCard = ({ className, shelf = true }) => (
         Your public profile
       </p>
     </div>
-    <p className="w-full break-all font-mono text-[10px] leading-4 tracking-[0.2px] text-[#32683a]">
-      {TALENT_PROFILE.url}
-    </p>
+    {url ? (
+      <p className="w-full break-all font-mono text-[10px] leading-4 tracking-[0.2px] text-[#32683a]">
+        {url}
+      </p>
+    ) : null}
     <button
       type="button"
       onClick={() => log('preview as recruiter clicked (no destination wired yet)')}

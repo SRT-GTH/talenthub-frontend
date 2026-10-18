@@ -1,12 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isLoggedIn } from '../services/auth.api.js';
+import { getOnboarding, onboardingToSections } from '../services/recruiterOnboarding.api.js';
 import { RecruiterOnboardingContext } from './RecruiterOnboardingContext.js';
 import { debug } from '../utils/debug.js';
 
 const log = debug('RecruiterOnboardingProvider');
 
 /*
- * RecruiterOnboardingProvider - in-memory MOCK state for the recruiter
- * onboarding flow (frontend only: nothing here calls an API).
+ * RecruiterOnboardingProvider - in-memory state for the recruiter onboarding
+ * flow. Since 2026-10-18 each step also saves to the backend
+ * (services/recruiterOnboarding.api.js); this context is the UI copy, and is
+ * restored from GET /api/recruiter/onboarding after a refresh.
  *
  * Shape is a plain object keyed by step section, e.g.
  *   data.profile       { fullName, email, phone, passwordSet }
@@ -29,6 +33,24 @@ const log = debug('RecruiterOnboardingProvider');
  */
 export const RecruiterOnboardingProvider = ({ children }) => {
   const [data, setData] = useState({});
+
+  // 2026-10-18: resume after a refresh - a logged-in recruiter's progress is
+  // loaded from GET /api/recruiter/onboarding (sections typed this session win).
+  useEffect(() => {
+    if (!isLoggedIn()) return;
+    let alive = true;
+    getOnboarding()
+      .then((o) => {
+        if (!alive || !o) return;
+        const restored = onboardingToSections(o);
+        log('restored from backend', Object.keys(restored));
+        setData((prev) => ({ ...restored, ...prev }));
+      })
+      .catch((err) => log('no onboarding to restore', err?.code));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const setSection = useCallback((key, patch) => {
     log('setSection', { key, patchType: Array.isArray(patch) ? 'array' : typeof patch });

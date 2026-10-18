@@ -1,48 +1,43 @@
-import { DEMO_TAKEN_EMAIL, DEMO_VALID_OTP } from './profileValidation.js';
+import {
+  resendSignupCode,
+  startSignup,
+  verifySignupCode,
+} from '../../../../services/recruiterOnboarding.api.js';
 import { debug } from '../../../../utils/debug.js';
 
 const log = debug('recruiterProfileApi');
 
 /*
- * Mock "API" for the recruiter profile step. FRONTEND ONLY: every function
- * returns a Promise and resolves/rejects after a short timer, so wiring the
- * real backend = swap each body, nothing else changes. Never sends/stores the
- * password.
+ * Recruiter profile step -> backend (2026-10-18, services/recruiterOnboarding.api.js).
+ * Same signatures as the old mock, so the page and the OTP modal are unchanged:
  *
- * Rejections are plain objects { code, message }:
- *   EMAIL_TAKEN   (checkEmailAvailable / submitProfile) - demo email taken@example.com
- *   OTP_INVALID   (verifyOtp) - anything but 123456
+ *   submitProfile({ fullName, email, phone, password })  sends the 6-digit email code
+ *   verifyOtp(code)  verifies it, then creates the account and logs in
+ *   resendOtp()      sends a new code (60 s cooldown on the backend)
+ *
+ * Rejections carry { code, message }: EMAIL_TAKEN (email already registered),
+ * OTP_INVALID (wrong code) - other failures are also shown as a banner.
+ * The password stays in memory only until the account is created.
+ * Staging: the code 123456 works while ENABLE_TEST_OTP_BYPASS=1.
  */
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// No separate "is this email free?" endpoint (it would let anyone list
+// accounts) - a taken email is reported when the code is requested.
+export const checkEmailAvailable = async () => true;
 
-export const checkEmailAvailable = async (email) => {
-  log('checkEmailAvailable', email);
-  await wait(250);
-  if (email.trim().toLowerCase() === DEMO_TAKEN_EMAIL) {
-    throw { code: 'EMAIL_TAKEN', message: 'This email is already registered.' };
-  }
-  return true;
-};
-
-export const submitProfile = async ({ fullName, email, phone }) => {
-  log('submitProfile', { fullName, email, phone });
-  await wait(1200); // Figma 7374:2251 loader ("Sending verification code")
-  if (email.trim().toLowerCase() === DEMO_TAKEN_EMAIL) {
-    throw { code: 'EMAIL_TAKEN', message: 'This email is already registered.' };
-  }
-  return { ok: true };
+export const submitProfile = async ({ fullName, email, phone, password }) => {
+  log('submitProfile -> send code');
+  return startSignup({ fullName, email, phone, password });
 };
 
 export const verifyOtp = async (code) => {
-  log('verifyOtp', code.length);
-  await wait(600);
-  if (code !== DEMO_VALID_OTP) throw { code: 'OTP_INVALID', message: 'Wrong code' };
+  log('verifyOtp', String(code).length);
+  await verifySignupCode(code);
   return { verified: true };
 };
 
 export const resendOtp = async () => {
   log('resendOtp');
-  await wait(400);
+  await resendSignupCode();
   return { ok: true };
 };

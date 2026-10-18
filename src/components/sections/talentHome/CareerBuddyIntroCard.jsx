@@ -21,7 +21,7 @@ const CareerBuddyIntroCard = ({ home }) => {
   if (home.stateKey !== 'day1') {
     return (
       <div className="min-w-0 lg:col-span-2">
-        <HomeColumns home={home} content={CORE_CONTENT[home.stateKey]} />
+        <HomeColumns home={home} content={home.content ?? CORE_CONTENT[home.stateKey]} />
       </div>
     );
   }

@@ -111,7 +111,7 @@ const WelcomeHero = ({ copy, scrollToJourney, goOn }) => (
         <p
           className={classNames(HEAD, 'text-[clamp(22px,1.6vw,27px)] leading-[1.2] text-[#387440]')}
         >
-          <Points n={copy.xp.n} />
+          {copy.xp.big ?? <Points n={copy.xp.n} />}
         </p>
         <p className="text-[12px] leading-[normal] font-semibold text-[#595959]">
           {copy.xp.caption}
@@ -175,9 +175,11 @@ const RingHero = ({ copy, goOn, goProfile }) => (
         <p className="text-[13px] leading-[normal] font-semibold text-[#1c2a21]">
           {copy.ring.label}
         </p>
-        <p className="text-[12px] leading-[normal] font-medium text-[#387440]">
-          <Points n={copy.ring.xp} /> {copy.ring.xpTail}
-        </p>
+        {copy.ring.xp ? (
+          <p className="text-[12px] leading-[normal] font-medium text-[#387440]">
+            <Points n={copy.ring.xp} /> {copy.ring.xpTail}
+          </p>
+        ) : null}
       </div>
     </div>
     <Sticker className="top-[18px] left-[30%] max-lg:hidden" rotate="rotate-[5deg]">
@@ -286,7 +288,8 @@ const StatsHero = ({ copy, home }) => (
 
 const TalentHomeHero = ({ home }) => {
   const navigate = useNavigate();
-  const copy = HERO[home.stateKey] ?? HERO.day1;
+  // Real data (talentHomeLive.js) when loaded; the Figma copy in demo mode (?state=).
+  const copy = home.content?.hero ?? HERO[home.stateKey] ?? HERO.day1;
   log('render', { state: home.stateKey, kind: copy.kind });
 
   const goOn = () => {

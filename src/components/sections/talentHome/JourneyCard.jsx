@@ -53,7 +53,8 @@ const Milestone = ({ label, reached }) => {
 };
 
 const Stage = ({ stage, index, doneCount, currentIndex }) => {
-  const done = index < doneCount;
+  // Real data carries a per-stage flag (stages can be done out of order); demo data does not.
+  const done = typeof stage.done === 'boolean' ? stage.done : index < doneCount;
   const current = index === currentIndex && !done;
   return (
     <li
@@ -178,7 +179,7 @@ const Minimized = ({ home }) => {
   const navigate = useNavigate();
   const { snapshot } = home;
   const { stages, doneCount } = snapshot;
-  const copy = JOURNEY_COPY.min;
+  const copy = (home.content?.journeyCopy ?? JOURNEY_COPY).min;
   const r = 21.36; // 48px ring, 5.28 stroke
   const c = 2 * Math.PI * r;
   const pct = (doneCount / stages.length) * 100;
@@ -321,7 +322,11 @@ const JourneyCard = ({ home }) => {
   log('render', { key, min: home.journeyMin });
 
   const tabs = (
-    <HomeTabs active="home" onSelect={(id) => home.update({ tab: id === 'home' ? null : id })} />
+    <HomeTabs
+      active="home"
+      tabs={home.tabs}
+      onSelect={(id) => home.update({ tab: id === 'home' ? null : id })}
+    />
   );
 
   // HM-05 Edit home: tab bar dimmed, no "Profile complete" banner.
@@ -340,7 +345,8 @@ const JourneyCard = ({ home }) => {
       </>
     );
   if (home.journeyMin) return <Minimized home={home} />;
-  return <Expanded home={home} copy={JOURNEY_COPY[key] ?? JOURNEY_COPY.day1} />;
+  const J = home.content?.journeyCopy ?? JOURNEY_COPY;
+  return <Expanded home={home} copy={J[key] ?? J.day1} />;
 };
 
 export default JourneyCard;

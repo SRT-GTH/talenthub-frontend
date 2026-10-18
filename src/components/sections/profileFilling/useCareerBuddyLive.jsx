@@ -1,16 +1,8 @@
+/* Hook module (not a component): it exports the hook plus shared constants, so
+   fast refresh reloads it fully on edit - fine. */
+/* eslint-disable react-refresh/only-export-components */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
-import EngagementTopBar from '../engagement/EngagementTopBar.jsx';
-import ChatThread from '../../ui/ChatThread.jsx';
-import Toast from '../../ui/Toast.jsx';
-import CareerBuddyAvatar from '../../shared/CareerBuddyAvatar.jsx';
-import TalentProfilePanel from './TalentProfilePanel.jsx';
-import CareerBuddyHero from './CareerBuddyHero.jsx';
-import CareerBuddyHistoryDrawer from './CareerBuddyHistoryDrawer.jsx';
-import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
-import VoiceCallOverlay from './VoiceCallOverlay.jsx';
-import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
+import { useNavigate } from 'react-router-dom';
 import AssessmentReportCard from './AssessmentReportCard.jsx';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
@@ -69,31 +61,44 @@ import {
 const log = debug('CareerBuddyLive');
 
 /*
- * Career Buddy - LIVE (talent). The real screen: talks to the V2 turn
- * controller; the scripted CareerBuddySection stays for demos (recruiter,
- * parent, DemoNavigator).
+ * useCareerBuddyLive - the LIVE talent Career Buddy (V2 turn controller).
  *
- * 2026-10-16 integration of the Figma screen pieces (Quazor's decisions):
- *   - Talent Profile Panel with the 6-state rows; a pending confirm card is
- *     reviewed IN THE PANEL with Modify / Update / Confirm (Figma 5132:46916-
- *     47617). Confirm sends "Yes, save it"; edited fields travel as a
- *     structured `card_edits` slot so the agent saves exactly what was typed.
- *   - Stage trail top bar + completion %, first-visit hero.
- *   - Success / error toasts; "[Auto] ... confirmed ✅" bubble.
- *   - New Chat + History drawer: conversations kept in this browser per
- *     talent (the agent's own memory is untouched - a new chat simply starts
- *     with an empty transcript, which the agent greets as a returning user).
- *   - Thumbs up/down stored by the agent (/career-buddy/feedback); Regenerate
- *     re-words the reply (never re-runs the turn, so it can't double-save).
- *   - Dictation (mic), attach, voice call (speech in, spoken replies) and
- *     voice settings are shown.
+ * 2026-10-18: moved out of CareerBuddyLiveSection (which was laid out from the
+ * earlier Figma frames) so the newest screen - CareerBuddySection with the
+ * Focused / Playful design - renders the real conversation, and the dashboard
+ * "Ask Buddy" panel shares the same one. Behaviour is unchanged from the
+ * 2026-10-16/17 integration:
+ *   - Talent Profile Panel rows; a pending confirm card is reviewed in the
+ *     panel with Modify / Update / Confirm. Confirm sends "Yes, save it";
+ *     edited fields travel as a `card_edits` slot.
+ *   - Stage trail + completion %, first-visit hero.
+ *   - Success / error toasts; "[Auto] ... confirmed" bubble.
+ *   - New Chat + History (agent sessions, falling back to this browser).
+ *   - Thumbs up/down, Regenerate (re-words, never re-runs the turn).
+ *   - Attach, voice call (speech in, spoken replies), practice interviews.
  *   - Personality / career-interests report with "Add your comment".
- *   - Save & Exit -> the opt-out modal; a scheduled return asks the agent to
- *     remind the talent.
+ *   - Save & Exit schedule -> the agent reminds the talent.
+ *
+ * Options:
+ *   enabled          false = inert (no requests), for the scripted demo.
+ *   voiceCallOpen    the screen's voice-call state (replies are spoken).
+ *   onShowProfile    called when a reply points at the profile panel
+ *                    (small screens switch to the Profile pane).
  */
-const OPENER = 'Hi';
+export const OPENER = 'Hi';
 
-const BASE_STAGES = [
+/**
+ * Whether this build can reach the agent: local dev proxies /agent, a deployed
+ * build needs VITE_AGENT_BASE_URL (or VITE_CAREER_BUDDY_LIVE=1). Without it the
+ * screens keep the scripted demo instead of showing "Couldn't reach Career Buddy".
+ * VITE_CAREER_BUDDY_LIVE=0 turns live off everywhere.
+ */
+const ENV = import.meta.env || {};
+export const LIVE_AVAILABLE =
+  ENV.VITE_CAREER_BUDDY_LIVE !== '0' &&
+  Boolean(ENV.DEV || ENV.VITE_AGENT_BASE_URL || ENV.VITE_CAREER_BUDDY_LIVE === '1');
+
+export const LIVE_STAGES = [
   { id: 'avatar', trailLabel: 'Avatar', Icon: AvatarStepIcon },
   {
     id: 'personal-info',
@@ -156,10 +161,11 @@ const BASE_STAGES = [
     Icon: PanelMicrophoneIcon,
   },
 ];
-const stageLabel = (id) => BASE_STAGES.find((s) => s.id === id)?.panelLabel ?? 'Section';
+const stageLabel = (id) => LIVE_STAGES.find((s) => s.id === id)?.panelLabel ?? 'Section';
 
+export const THINKING_ID = 'cb-thinking';
 const ThinkingBubble = {
-  id: 'cb-thinking',
+  id: THINKING_ID,
   sender: 'bot',
   personaLabel: 'Career Buddy',
   text: 'Thinking…',
@@ -205,9 +211,14 @@ const speak = (text, voiceId, onEnd) => {
   synth.speak(u);
 };
 
-const CareerBuddyLiveSection = () => {
+export function useCareerBuddyLive({
+  enabled = true,
+  voiceCallOpen = false,
+  voiceId = DEFAULT_VOICE_ID,
+  onShowProfile,
+} = {}) {
   const navigate = useNavigate();
-  const entityId = currentEntityId();
+  const entityId = enabled ? currentEntityId() : null;
   const me = currentUserLabel();
   const firstName = currentFirstName();
 
@@ -233,18 +244,13 @@ const CareerBuddyLiveSection = () => {
   }, [live, patchThread]);
   const [expandedPanelId, setExpandedPanelId] = useState(null);
   const [confirming, setConfirming] = useState(null);
-  const [mobilePane, setMobilePane] = useState('chat');
   const [historyOpen, setHistoryOpen] = useState(false);
   // Past conversations from the agent (null until loaded / agent unreachable).
   const [serverSessions, setServerSessions] = useState(null);
-  const [voiceCallOpen, setVoiceCallOpen] = useState(false);
-  const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
-  const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
   const [speaking, setSpeaking] = useState(false);
-  // 2026-10-17: a practice / mock interview is waiting for an answer - the
-  // voice call waits longer before sending (people pause mid-answer).
+  // A practice / mock interview is waiting for an answer - the voice call
+  // waits longer before sending (people pause mid-answer).
   const [practiceActive, setPracticeActive] = useState(false);
-  const [optOutOpen, setOptOutOpen] = useState(false);
   const [personality, setPersonality] = useState(() =>
     entityId ? readJson(PERSONALITY_KEY(entityId), null) : null
   );
@@ -253,25 +259,28 @@ const CareerBuddyLiveSection = () => {
   const openedRef = useRef(false);
   const voiceOpenRef = useRef(false);
   voiceOpenRef.current = voiceCallOpen;
+  const voiceIdRef = useRef(voiceId);
+  voiceIdRef.current = voiceId;
 
   // Persist the conversation whenever it changes (thinking bubble excluded).
   useEffect(() => {
     if (!entityId || !thread.messages.length) return;
     const clean = {
       ...thread,
-      messages: thread.messages.filter((m) => m.id !== ThinkingBubble.id),
+      messages: thread.messages.filter((m) => m.id !== THINKING_ID),
     };
     setThreads(saveThread(entityId, { ...clean, title: threadTitle(clean) }));
   }, [entityId, thread]);
 
   const refreshProfile = useCallback(async () => {
+    if (!entityId) return;
     try {
       setProfile(await fetchMyProfile());
     } catch (err) {
       log.error('profile refresh failed', err?.message);
     }
     // Personality rows come from the saved assessment results (any device).
-    const res = entityId ? await fetchAssessmentResults(entityId) : null;
+    const res = await fetchAssessmentResults(entityId);
     if (res) {
       const results = res.rows;
       setPersonalityReq(personalityProgress(results, res.required));
@@ -356,10 +365,7 @@ const CareerBuddyLiveSection = () => {
           state: turn.sectionState,
         });
         patchThread((t) => ({
-          messages: [
-            ...t.messages.filter((x) => x.id !== ThinkingBubble.id),
-            ...turnToBubbles(turn),
-          ],
+          messages: [...t.messages.filter((x) => x.id !== THINKING_ID), ...turnToBubbles(turn)],
           history: [
             ...t.history,
             { role: 'user', content: text },
@@ -372,11 +378,11 @@ const CareerBuddyLiveSection = () => {
         refreshProfile();
         if (voiceOpenRef.current) {
           setSpeaking(true);
-          speak(turn.reply, voiceId, () => setSpeaking(false));
+          speak(turn.reply, voiceIdRef.current, () => setSpeaking(false));
         }
       } catch (err) {
         patchThread((t) => ({
-          messages: t.messages.filter((x) => x.id !== ThinkingBubble.id),
+          messages: t.messages.filter((x) => x.id !== THINKING_ID),
           chips: ['Try again'],
           chipActions: [],
         }));
@@ -391,8 +397,10 @@ const CareerBuddyLiveSection = () => {
         setConfirming(null);
       }
     },
-    [entityId, busy, history, patchThread, applyTurnToPanel, refreshProfile, voiceId]
+    [entityId, busy, history, patchThread, applyTurnToPanel, refreshProfile]
   );
+  const runTurnRef = useRef(runTurn);
+  runTurnRef.current = runTurn;
 
   // First open: restore the last conversation, or greet in a new one.
   useEffect(() => {
@@ -413,7 +421,7 @@ const CareerBuddyLiveSection = () => {
     runTurn(trimmed, { chipAction: chipActionFor(trimmed, chipActions) });
   };
 
-  // ---- panel: Modify / Update / Confirm (Figma 5132:46916-47617) ----
+  // ---- panel: Modify / Update / Confirm ----
   const handleConfirmStage = (stageId, updatedFields) => {
     const card = live.card;
     if (!card || stageForSection(card.section) !== stageId) return;
@@ -487,6 +495,8 @@ const CareerBuddyLiveSection = () => {
       ],
     }));
   };
+  const handleAttachRejected = (name) =>
+    showToast('error', 'File too large', `${name} is over 10 MB.`);
 
   // ---- new chat / history ----
   const handleNewChat = () => {
@@ -494,14 +504,11 @@ const CareerBuddyLiveSection = () => {
     window.speechSynthesis?.cancel();
     setLive({ states: {}, card: null });
     setExpandedPanelId(null);
-    const fresh = newThread();
-    setThread(fresh);
+    setThread(newThread());
     setHistoryOpen(false);
     // Greet in the new conversation (empty transcript -> returning greeting).
     setTimeout(() => runTurnRef.current?.(OPENER, { showUser: false }), 0);
   };
-  const runTurnRef = useRef(runTurn);
-  runTurnRef.current = runTurn;
   const handleSelectHistory = (entry) => {
     const session = serverSessions?.find((s) => s.id === entry.id);
     if (session) {
@@ -521,7 +528,7 @@ const CareerBuddyLiveSection = () => {
     setHistoryOpen(false);
   };
 
-  // ---- save & exit / opt out ----
+  // ---- save & exit: schedule a return ----
   const handleConfirmSchedule = (date) => {
     const when = date.toLocaleDateString('en-GB', {
       weekday: 'long',
@@ -544,8 +551,14 @@ const CareerBuddyLiveSection = () => {
         slots: [{ name: 'scheduledFor', value: scheduledFor }],
       },
     }).catch(() => undefined);
-    setOptOutOpen(false);
-    navigate('/profile/engagement');
+    navigate('/home');
+  };
+
+  // ---- voice ----
+  const handleUtterance = (text) => runTurn(text, { inputMode: 'voice' });
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
   };
 
   // ---- derived ----
@@ -559,7 +572,7 @@ const CareerBuddyLiveSection = () => {
           ]
         : null,
     };
-    return buildPanelStages(BASE_STAGES, profile, live, {
+    return buildPanelStages(LIVE_STAGES, profile, live, {
       ...extras,
       personalityProgress: personalityReq,
     });
@@ -567,11 +580,11 @@ const CareerBuddyLiveSection = () => {
   const pct =
     typeof profile?.profileCompletion === 'number' ? Math.round(profile.profileCompletion) : 0;
   const trailIndex = useMemo(() => {
-    const active = BASE_STAGES.findIndex(
+    const active = LIVE_STAGES.findIndex(
       (s) => live.states[s.id] || (live.card && stageForSection(live.card.section) === s.id)
     );
     if (active >= 0) return active;
-    const firstOpen = BASE_STAGES.findIndex(
+    const firstOpen = LIVE_STAGES.findIndex(
       (s, i) => i > 0 && panelStages.find((p) => p.id === s.id)?.status === 'not-started'
     );
     return firstOpen >= 0 ? firstOpen : 0;
@@ -587,11 +600,9 @@ const CareerBuddyLiveSection = () => {
   const activeHistoryId =
     serverSessions?.find((s) => sessionMatchesThread(s, thread))?.id ?? thread.id;
 
-  const lastBot = [...messages]
-    .reverse()
-    .find((m) => m.sender === 'bot' && m.id !== ThinkingBubble.id);
+  const lastBot = [...messages].reverse().find((m) => m.sender === 'bot' && m.id !== THINKING_ID);
   const reportPending = Boolean(lastBot?.report && !lastBot.reportAnswer);
-  const enriched = messages.map((m) => {
+  const enrichedMessages = messages.map((m) => {
     let out = m;
     if (m.report) {
       out = {
@@ -617,7 +628,7 @@ const CareerBuddyLiveSection = () => {
           label: 'Review in profile panel',
           onClick: () => {
             setExpandedPanelId(stage);
-            setMobilePane('profile');
+            onShowProfile?.(stage);
           },
         },
       };
@@ -631,188 +642,59 @@ const CareerBuddyLiveSection = () => {
     );
   const showHero =
     !hasHistory && messages.filter((m) => m.sender === 'user' && !m.auto).length === 0;
+  const hero = {
+    ...FIRST_TIME_HERO,
+    buddyCardLabel: firstName
+      ? `Hi ${firstName}, I'm Career Buddy,`
+      : FIRST_TIME_HERO.buddyCardLabel,
+  };
 
-  if (!isLoggedIn() || !entityId) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral p-6 text-center font-sans">
-        <CareerBuddyAvatar size={80} />
-        <p className="text-[16px] text-[#595959]">Log in to talk to Career Buddy.</p>
-        <Link to="/login" className="rounded-full bg-[#387440] px-6 py-2 text-white">
-          Log in
-        </Link>
-      </div>
-    );
-  }
+  return {
+    loggedIn: isLoggedIn() && Boolean(entityId),
+    me,
+    firstName,
+    // conversation
+    messages,
+    enrichedMessages,
+    suggestedReplies: busy || reportPending ? [] : chips,
+    busy,
+    handleSend,
+    handleFeedback,
+    handleRegenerate,
+    handleAttach,
+    handleAttachRejected,
+    // hero
+    showHero,
+    hero,
+    // history
+    historyOpen,
+    setHistoryOpen,
+    historyList,
+    activeHistoryId,
+    handleNewChat,
+    handleSelectHistory,
+    // panel + trail
+    stages: LIVE_STAGES,
+    panelStages,
+    pendingCard: Boolean(live.card),
+    expandedPanelId,
+    setExpandedPanelId,
+    confirming,
+    handleConfirmStage,
+    trailIndex,
+    pct,
+    stageStatuses,
+    // toast
+    toast,
+    setToast,
+    // voice
+    speaking,
+    practiceActive,
+    handleUtterance,
+    stopSpeaking,
+    // save & exit
+    handleConfirmSchedule,
+  };
+}
 
-  return (
-    <div
-      className="flex h-screen flex-col overflow-hidden bg-white font-sans max-lg:h-[100dvh]"
-      data-testid="career-buddy-live"
-    >
-      <div className="shrink-0 h-[clamp(64px,5.2vw,90px)] flex items-stretch max-lg:h-auto">
-        <EngagementTopNav
-          userName={me.name}
-          userInitials={me.initials}
-          bgClass="bg-neutral"
-          onSaveExit={() => setOptOutOpen(true)}
-          className="w-full h-full"
-        />
-      </div>
-      <div className="shrink-0 h-[clamp(60px,4.46vw,77px)] flex items-stretch max-lg:h-auto">
-        <EngagementTopBar
-          stages={BASE_STAGES}
-          currentStageIndex={trailIndex}
-          completionPct={pct}
-          stageStatuses={stageStatuses}
-          trackPct={pct}
-          progressWidthClass="w-[380px]"
-          interactive={false}
-          className="w-full h-full"
-        />
-      </div>
-
-      {/* Chat | Profile switch - below lg only one pane shows at a time. */}
-      <div className="lg:hidden shrink-0 border-b border-border-default bg-white px-4 py-1.5">
-        <div
-          role="group"
-          aria-label="Career Buddy view"
-          className="grid grid-cols-2 gap-1 rounded-[10px] bg-neutral p-0.5"
-        >
-          {[
-            { id: 'chat', label: 'Chat' },
-            { id: 'profile', label: 'Profile' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              aria-pressed={mobilePane === tab.id}
-              onClick={() => setMobilePane(tab.id)}
-              className={`relative inline-flex min-h-8 items-center justify-center gap-2 rounded-[8px] text-[14px] font-semibold ${
-                mobilePane === tab.id
-                  ? 'bg-white text-brand-green shadow-sm'
-                  : 'text-content-secondary'
-              }`}
-            >
-              {tab.label}
-              {tab.id === 'profile' && mobilePane === 'chat' && live.card && (
-                <span
-                  aria-label="Waiting for your review"
-                  className="size-2 rounded-full bg-accent"
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {toast && (
-        <Toast
-          key={toast.id}
-          compact
-          position="top-center"
-          variant={toast.variant}
-          title={toast.title}
-          body={toast.body}
-          duration={4000}
-          onDismiss={() => setToast(null)}
-        />
-      )}
-
-      <main className="relative z-0 flex-1 min-h-0 overflow-clip flex bg-neutral">
-        <div
-          className={`relative flex min-w-0 flex-1 flex-col ${mobilePane === 'profile' ? 'max-lg:hidden' : ''}`}
-        >
-          <CareerBuddyHistoryDrawer
-            open={historyOpen}
-            onClose={() => setHistoryOpen(false)}
-            groups={historyList}
-            activeId={activeHistoryId}
-            onSelect={handleSelectHistory}
-          />
-          {showHero && !voiceCallOpen && (
-            <CareerBuddyHero
-              hero={{
-                ...FIRST_TIME_HERO,
-                buddyCardLabel: firstName
-                  ? `Hi ${firstName}, I'm Career Buddy,`
-                  : FIRST_TIME_HERO.buddyCardLabel,
-              }}
-            />
-          )}
-          <div className="relative flex flex-1 min-h-0 flex-col">
-            <ChatThread
-              messages={enriched}
-              onSend={handleSend}
-              suggestedReplies={busy || reportPending ? [] : chips}
-              disabled={busy}
-              onNewChat={handleNewChat}
-              onOpenHistory={() => setHistoryOpen(true)}
-              onOpenVoiceSettings={() => setVoiceSettingsOpen(true)}
-              onOpenVoiceCall={() => setVoiceCallOpen(true)}
-              enableAttach
-              onAttach={handleAttach}
-              onAttachRejected={(name) =>
-                showToast('error', 'File too large', `${name} is over 10 MB.`)
-              }
-              onFeedback={handleFeedback}
-              onRegenerate={handleRegenerate}
-              className="min-h-0 flex-1"
-            />
-            <VoiceCallOverlay
-              open={voiceCallOpen && !voiceSettingsOpen}
-              voiceId={voiceId}
-              userName={me.name}
-              onUtterance={(text) => runTurn(text, { inputMode: 'voice' })}
-              pauseMs={practiceActive ? 3500 : 1500}
-              paused={busy || speaking}
-              status={
-                busy ? 'Career Buddy is thinking…' : speaking ? 'Career Buddy is speaking…' : ''
-              }
-              onHangUp={() => {
-                window.speechSynthesis?.cancel();
-                setSpeaking(false);
-                setVoiceCallOpen(false);
-              }}
-              onOpenSettings={() => setVoiceSettingsOpen(true)}
-            />
-            <VoiceSettingsOverlay
-              open={voiceSettingsOpen}
-              voiceId={voiceId}
-              onDone={(id) => {
-                setVoiceId(id);
-                setVoiceSettingsOpen(false);
-              }}
-              onCancel={() => setVoiceSettingsOpen(false)}
-            />
-          </div>
-        </div>
-
-        <TalentProfilePanel
-          className={`w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
-            mobilePane === 'chat' ? 'max-lg:hidden' : ''
-          }`}
-          stages={panelStages}
-          expandedId={expandedPanelId}
-          onToggleExpand={(id) => setExpandedPanelId((prev) => (prev === id ? null : id))}
-          onConfirm={handleConfirmStage}
-          onModify={(id) => log('modify', id)}
-          confirming={confirming}
-        />
-      </main>
-
-      <CareerBuddyOptOutModal
-        open={optOutOpen}
-        initialStep="journey"
-        onClose={() => setOptOutOpen(false)}
-        onChooseDifferentMode={() => setOptOutOpen(false)}
-        onGoToDashboard={() => {
-          setOptOutOpen(false);
-          navigate('/profile/engagement');
-        }}
-        onConfirmSchedule={handleConfirmSchedule}
-      />
-    </div>
-  );
-};
-
-export default CareerBuddyLiveSection;
+export default useCareerBuddyLive;

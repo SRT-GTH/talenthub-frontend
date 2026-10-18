@@ -155,7 +155,7 @@ export const Sticker = ({ children, rotate = '-5deg', className }) => (
 );
 
 /* Overview | MyAssessment | Recruiter activity switcher (Figma "Home tabs"). */
-export const HomeTabs = ({ active, onSelect }) => {
+export const HomeTabs = ({ active, onSelect, tabs = HOME_TABS }) => {
   const icon = (id) => {
     if (id === 'home') return HomeTabHouseIcon;
     if (id === 'assessment')
@@ -168,7 +168,7 @@ export const HomeTabs = ({ active, onSelect }) => {
       aria-label="Home sections"
       className="flex gap-[6px] overflow-x-auto rounded-[16px] border border-[#e7e7e7] bg-[#f7f8f4] p-[6px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {HOME_TABS.map((tab) => {
+      {tabs.map((tab) => {
         const on = tab.id === active;
         const TabIcon = icon(tab.id);
         return (

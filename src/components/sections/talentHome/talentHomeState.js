@@ -1,12 +1,22 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { fetchTalentAssessment, fetchTalentHome } from '../../../services/talentHome.api.js';
+import {
+  buildAssessmentContent,
+  buildLiveContent,
+  buildRecruiterActivity,
+  stateKeyFor,
+} from './talentHomeLive.js';
+import { HOME_TABS } from './talentHomeTabsData.js';
 
 const log = debug('talentHomeState');
 
 /*
- * Talent home — mock progress source (frontend-only; swap `getTalentHomeSnapshot`
- * for an API call later and keep the snapshot shape).
+ * Talent home — progress source. Since 2026-10-18 the page loads real data
+ * (services/talentHome.api.js -> talentHomeLive.js) and picks the home state
+ * from the real journey. An explicit `?state=` still shows the Figma demo state
+ * with mock content (design review), as below.
  *
  * Which Figma state renders is chosen with the URL, so every frame is reachable:
  *   /home                       -> day1
@@ -70,13 +80,118 @@ export const getTalentHomeSnapshot = (stateKey = 'day1') => {
   };
 };
 
+// Snapshot from the real journey (GET /api/profiles/journey).
+const liveSnapshot = (stateKey, data) => {
+  const j = data.journey;
+  const doneById = Object.fromEntries((j?.stages || []).map((s) => [s.id, s.done]));
+  // The stepper fills stages in order, so stages done = the leading run of done stages
+  // shown as doneCount; the real per-stage flags ride along as `done`.
+  const stages = JOURNEY_STAGES.map((s) => ({ ...s, done: Boolean(doneById[s.id]) }));
+  const doneCount = j?.doneCount ?? 0;
+  const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
+  return {
+    ...(SNAPSHOTS[stateKey] ?? SNAPSHOTS.day1),
+    doneCount,
+    profile: {
+      name,
+      firstName: data.firstName,
+      headline: [data.targetCareer, data.city].filter(Boolean).join(' · '),
+    },
+    stages,
+    currentStageIndex: Math.max(
+      0,
+      stages.findIndex((s) => !s.done)
+    ),
+    live: true,
+  };
+};
+
+// Before the data arrives (or if it failed) the chrome shows the signed-in user's
+// own name with no numbers, never the Figma demo person.
+const placeholderFromStoredUser = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem('th:user-profile') || 'null') || {};
+    return {
+      firstName: u.firstName || '',
+      lastName: u.lastName || '',
+      city: u.locality || '',
+      placeholder: true,
+    };
+  } catch {
+    return { firstName: '', lastName: '', city: '', placeholder: true };
+  }
+};
+
+const WELCOMED_KEY = 'th:home-welcomed';
+const welcomedAlready = () => {
+  try {
+    return localStorage.getItem(WELCOMED_KEY) === '1';
+  } catch {
+    return true;
+  }
+};
+
 const TABS = ['home', 'assessment', 'recruiter'];
 
 export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
-  const stateKey = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : 'day1';
+  const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
+  const navigate = useNavigate();
+  const [live, setLive] = useState(null); // null = loading, false = failed
+  useEffect(() => {
+    if (demoState) return undefined;
+    let alive = true;
+    fetchTalentHome()
+      .then((data) => {
+        if (!alive) return;
+        setLive(data);
+        // First visit after the first login: open the NU-01 welcome once (via the URL, so
+        // the existing welcome -> tour -> close flow works unchanged).
+        if (data.loginCount !== null && data.loginCount <= 1 && !welcomedAlready()) {
+          try {
+            localStorage.setItem(WELCOMED_KEY, '1');
+          } catch {
+            /* private mode: the welcome may show again */
+          }
+          setParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              if (!next.get('new')) next.set('new', 'welcome');
+              return next;
+            },
+            { replace: true }
+          );
+        }
+      })
+      .catch((err) => {
+        log.error('home data failed:', err?.code || err?.message);
+        if (!alive) return;
+        // Expired session: sign in again rather than showing anyone else's (demo) data.
+        if (err?.code === 'UNAUTHORIZED') navigate('/login', { replace: true });
+        else setLive(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [demoState, setParams, navigate]);
+  const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
-  const loading = params.get('loading'); // null | '1' | 'empty' | 'error'
+  // MyAssessment data loads the first time the tab opens (real data only).
+  const [assessment, setAssessment] = useState(null);
+  useEffect(() => {
+    if (demoState || !live || tab !== 'assessment' || assessment) return undefined;
+    let alive = true;
+    fetchTalentAssessment(live)
+      .then((a) => alive && setAssessment(a))
+      .catch((err) => log.error('assessment data failed:', err?.message));
+    return () => {
+      alive = false;
+    };
+  }, [demoState, live, tab, assessment]);
+  // Real data: spinner while loading, the designed error state if it failed (never the demo).
+  const loading =
+    params.get('loading') ||
+    (!demoState && live === null ? '1' : !demoState && live === false ? 'error' : null); // null | '1' | 'empty' | 'error'
   const newUser = params.get('new'); // null | welcome | tour | chat | gate
   const journeyMin = params.get('journey') === 'min';
   const searchOpen = params.get('search') === '1';
@@ -117,7 +232,24 @@ export const useTalentHomeState = () => {
       setParams(next, { replace: true });
     };
     return {
-      snapshot: getTalentHomeSnapshot(stateKey),
+      snapshot: live && !demoState ? liveSnapshot(stateKey, live) : getTalentHomeSnapshot(stateKey),
+      content: live && !demoState ? buildLiveContent(stateKey, live) : null,
+      // MyAssessment content (null in demo mode or while loading).
+      assessment:
+        live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
+      // Recruiter activity tab: who viewed you this week (/activity/me), real data only.
+      recruiterActivity: live && !demoState ? buildRecruiterActivity(live.views) : null,
+      tabs:
+        live && !demoState
+          ? HOME_TABS.map((t) => ({
+              ...t,
+              chip:
+                t.id === 'recruiter' && live.views?.uniqueViewers
+                  ? String(live.views.uniqueViewers)
+                  : null,
+            }))
+          : HOME_TABS,
+      live: demoState ? null : live || placeholderFromStoredUser(),
       stateKey,
       tab,
       loading,
@@ -137,6 +269,9 @@ export const useTalentHomeState = () => {
   }, [
     params,
     setParams,
+    live,
+    demoState,
+    assessment,
     stateKey,
     tab,
     loading,

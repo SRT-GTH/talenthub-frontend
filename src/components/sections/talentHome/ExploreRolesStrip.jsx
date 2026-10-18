@@ -20,7 +20,7 @@ const ExploreRolesStrip = ({ home }) => {
           icon={<TalentHomeExploreCompassIcon className="size-[14px]" />}
           onClick={() => log('explore roles')}
         >
-          {EXPLORE.chip}
+          {home.content?.exploreChip ?? EXPLORE.chip}
         </Chip>
       </div>
     );

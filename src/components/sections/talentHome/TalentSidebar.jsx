@@ -9,7 +9,7 @@ import TalentNavIcon from './TalentNavIcon.jsx';
 import {
   TALENT_NAV_MAIN,
   TALENT_NAV_SECONDARY,
-  TALENT_PROFILE,
+  getTalentProfile,
   getTalentSidebarData,
 } from './talentShellData.js';
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
@@ -23,9 +23,10 @@ const log = debug('TalentSidebar');
  *   Playful complete / top (flat)       7756:182929 / 7740:11537 — the Focused layout with lime-gradient
  *                                        accents (avatar, active Home, badges, XP bar), no shelves, no LIVE sticker.
  * `data.flat` (talentShellData.js) picks the Playful flavour; Playful styling is `playful:` variants only.
- * Props: home (useTalentHomeState object), compact (md–lg icon rail), className, activeId (nav id drawn
- * active; defaults to 'home' — the Notifications screens pass 'messages' like their collapsed rail).
- * Home stays the current page on every home tab (HM-06/07 keep Home active); Home and My Assessment
+ * Props: home (useTalentHomeState object), compact (md–lg icon rail), className, activeId / activeNav
+ * (override which item is current: the Notifications screens pass activeId 'messages' like their
+ * collapsed rail, /profile passes activeNav 'profile'; omitted = the open home tab decides, see isActive).
+ * The open home tab picks the current item (see isActive); Home and My Assessment
  * call `home.update({ tab })`; the other destinations have no screen yet (logged).
  */
 
@@ -52,6 +53,11 @@ const Badge = ({ count, shelf }) => (
     {count}
   </span>
 );
+
+// Which rail item is current: My Assessment while its tab is open, Home on every other
+// home tab. (Figma keeps Home active on every tab; changed at Quazor's request, 2026-10-18.)
+const isActive = (item, home) =>
+  home?.tab === 'assessment' ? item.id === 'assessment' : item.id === 'home';
 
 const NavItem = ({ item, active, badge, compact, onSelect, shelf }) => (
   <button
@@ -126,10 +132,13 @@ const avatarClass = (shelf) =>
 const TalentSidebar = ({ home, compact = false, className, activeId: activeIdProp, activeNav }) => {
   // `activeNav` ('profile' on /profile) draws that item active; default (home) is unchanged.
   const activeId = activeIdProp ?? (activeNav === 'profile' ? 'profile' : 'home');
+  const isCurrent = (item) =>
+    activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey, activeNav);
+  const data = getTalentSidebarData(stateKey, home?.live, activeNav);
+  const profile = getTalentProfile(home?.live);
   const { journey } = data;
   const shelf = !data.flat;
   const percent = journey.percent ?? ((journey.done ?? 0) / 9) * 100;
@@ -173,7 +182,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
               item={withLabel(item)}
               compact
               shelf={shelf}
-              active={item.id === activeId}
+              active={isCurrent(item)}
               badge={navBadge(item.id)}
               onSelect={select}
             />
@@ -228,7 +237,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
         <div className="flex max-w-full flex-col items-center gap-[7px] px-[8px]">
           <div className="flex max-w-full items-center gap-[5px]">
             <p className="truncate font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#1c2a21]">
-              {TALENT_PROFILE.name}
+              {profile.name}
             </p>
             <span className="inline-flex h-[18px] shrink-0 items-center gap-[3px] overflow-hidden rounded-[4px] bg-[#eaeffb] py-[2px] pl-[6px] pr-[7px]">
               <TalentSidebarVerifiedChipIcon className="size-[8px] shrink-0" />
@@ -238,7 +247,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
             </span>
           </div>
           <p className="max-w-full truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
-            {data.headline ?? TALENT_PROFILE.headline}
+            {data.headline ?? profile.headline}
           </p>
           <div className="flex max-w-full items-center gap-[5px]">
             <span aria-hidden="true" className="size-[4px] shrink-0 rounded-full bg-[#387440]" />
@@ -315,7 +324,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
                 key={item.id}
                 item={withLabel(item)}
                 shelf={shelf}
-                active={item.id === activeId}
+                active={isCurrent(item)}
                 badge={navBadge(item.id)}
                 onSelect={select}
               />
@@ -341,7 +350,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           </nav>
         </div>
 
-        <PublicProfileCard shelf={shelf} />
+        <PublicProfileCard url={profile.url} shelf={shelf} />
       </div>
     </div>
   );
