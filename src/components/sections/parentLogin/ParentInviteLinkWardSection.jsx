@@ -218,14 +218,14 @@ const ParentInviteLinkWardSection = () => {
           <ParentDefRows
             rows={[
               { label: 'School', value: ward.school },
-              { label: 'Curriculum', value: ward.curriculum },
+              { label: 'Programme', value: ward.programme },
               { label: 'Account created', value: ward.createdLabel },
               { label: 'Account status', value: ward.statusLabel, valueColor: ward.statusColor },
             ]}
           />
           <div className="grid grid-cols-1 gap-[10px] max-md:hidden sm:grid-cols-2">
             <PreviewField label="School" value={ward.school} valueColor="#111" />
-            <PreviewField label="Curriculum" value={ward.curriculum} valueColor="#111" />
+            <PreviewField label="Programme" value={ward.programme} valueColor="#111" />
             <PreviewField label="Account created" value={ward.createdLabel} valueColor="#111" />
             <PreviewField
               label="Account status"

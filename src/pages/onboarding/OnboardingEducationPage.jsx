@@ -86,8 +86,8 @@ const LEVEL_OPTIONS = [
 
 const SUB_JHS_LEVELS = new Set(['primary']);
 
-// Grade/Year options are level-dependent. Stub data — real backend wires
-// these to a curriculum service later.
+// Grade/Year (class) options are level-dependent. Stub data - the backend
+// validates against `education_grade` platform enums once they are seeded.
 const GRADES_BY_LEVEL = {
   jhs: [
     { value: 'jhs-1', label: 'JHS 1' },
@@ -117,6 +117,21 @@ const GRADES_BY_LEVEL = {
   ],
   none: [{ value: 'gap', label: 'Gap year / Not studying' }],
 };
+
+// Programme / course (optional, education v2 -> profile education[].fieldOfStudy).
+// SHS picks one of the 7 WAEC programmes; tertiary levels type their course.
+const SHS_PROGRAMMES = [
+  'General Science',
+  'General Arts',
+  'Business',
+  'Visual Arts',
+  'Home Economics',
+  'Agricultural Science',
+  'Technical',
+].map((p) => ({ value: p, label: p }));
+const TYPED_PROGRAMME_LEVELS = new Set(['tertiary', 'university', 'postgrad']);
+const programmeKind = (level) =>
+  level === 'shs' ? 'select' : TYPED_PROGRAMME_LEVELS.has(level) ? 'text' : null;
 
 // Expected-graduation years — current year + 6 forward. Avoids a date
 // picker dependency for a simple "yyyy" field.
@@ -413,6 +428,7 @@ const OnboardingEducationPage = () => {
   const [grade, setGrade] = useState('');
   const [institution, setInstitution] = useState('');
   const [graduation, setGraduation] = useState('');
+  const [programme, setProgramme] = useState('');
   const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -426,6 +442,7 @@ const OnboardingEducationPage = () => {
     setLevel(value);
     setGrade('');
     setGraduation('');
+    setProgramme('');
     if (showLevelGate && !SUB_JHS_LEVELS.has(value)) {
       setShowLevelGate(false);
     }
@@ -531,6 +548,9 @@ const OnboardingEducationPage = () => {
       ...(grade ? { educationGrade: grade } : {}),
       ...(institution.trim() ? { educationInstitution: institution.trim() } : {}),
       ...(graduation ? { expectedGraduationYear: graduation } : {}),
+      ...(programmeKind(level) && programme.trim()
+        ? { educationFieldOfStudy: programme.trim() }
+        : {}),
     })
       .then(() => setShowSuccess(true))
       .catch((err) => setApiError(getApiErrorMessage(err)))
@@ -573,6 +593,9 @@ const OnboardingEducationPage = () => {
       value: institution || '—',
       icon: <SearchIcon />,
     },
+    ...(programmeKind(level) && programme.trim()
+      ? [{ label: 'Programme', value: programme.trim(), icon: <MortarboardIcon /> }]
+      : []),
     {
       label: 'Graduating',
       value: graduation ? `Class of ${graduation}` : '—',
@@ -731,6 +754,38 @@ const OnboardingEducationPage = () => {
                   state={graduationBoxState}
                   verified={Boolean(graduation)}
                 />
+                {/* Optional programme / course (education v2). Full width under
+                  the 2x2 grid; only for levels that have a programme. */}
+                {programmeKind(level) === 'select' && (
+                  <div className="md:col-span-2">
+                    <Select
+                      label="Programme (optional)"
+                      placeholder="Select your programme"
+                      options={SHS_PROGRAMMES}
+                      value={programme}
+                      onChange={setProgramme}
+                      leftIcon={<MortarboardIcon />}
+                      leftIconClassName="text-brand-green"
+                      helperText="e.g. General Science - helps Career Buddy suggest courses and careers"
+                      verified={Boolean(programme)}
+                    />
+                  </div>
+                )}
+                {programmeKind(level) === 'text' && (
+                  <div className="md:col-span-2">
+                    <TextInput
+                      label="Programme / course (optional)"
+                      placeholder="e.g. BSc Computer Science"
+                      value={programme}
+                      onChange={(e) => setProgramme(e.target.value.slice(0, 120))}
+                      leftIcon={<MortarboardIcon />}
+                      leftIconClassName="text-brand-green"
+                      helperText="The course you're studying"
+                      verified={programme.trim().length > 0}
+                      autoComplete="off"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Continue stays clickable even when the form is invalid — the
