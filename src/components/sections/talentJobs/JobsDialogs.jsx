@@ -6,7 +6,7 @@ import { FOCUS_RING } from './jobsDialogUtils.js';
 import JobsNotifPopover from './JobsNotifPopover.jsx';
 import { AlertsPopover, MatchPopover } from './JobsPopovers.jsx';
 import { NotForMeDialog, ReportDialog, WithdrawDialog } from './JobsReasonDialogs.jsx';
-import { JOB_DIALOGS } from './talentJobsData.js';
+import { JOB_DIALOGS, JOBS_LIVE } from './talentJobsData.js';
 
 const log = debug('JobsDialogs');
 
@@ -57,18 +57,23 @@ const WithdrawnToast = ({ jobs }) => {
         <span className="font-sans text-[14.5px] font-semibold leading-[17px] text-white">
           {copy.title}
         </span>
-        <span className="font-sans text-[12.5px] leading-[15px] text-[#c1d4c4]">{copy.body}</span>
+        <span className="font-sans text-[12.5px] leading-[15px] text-[#c1d4c4]">
+          {JOBS_LIVE ? 'The recruiter has been told.' : copy.body}
+        </span>
       </span>
-      <button
-        type="button"
-        onClick={() => {
-          log('undo withdraw');
-          dismiss();
-        }}
-        className={`shrink-0 rounded-[6px] font-sans text-[13.5px] font-bold leading-[16px] text-[#ffd86b] ${FOCUS_RING}`}
-      >
-        {copy.undo}
-      </button>
+      {/* Live: a real withdrawal can't be undone from here (apply again instead), so no Undo. */}
+      {JOBS_LIVE ? null : (
+        <button
+          type="button"
+          onClick={() => {
+            log('undo withdraw');
+            dismiss();
+          }}
+          className={`shrink-0 rounded-[6px] font-sans text-[13.5px] font-bold leading-[16px] text-[#ffd86b] ${FOCUS_RING}`}
+        >
+          {copy.undo}
+        </button>
+      )}
     </div>,
     document.body
   );

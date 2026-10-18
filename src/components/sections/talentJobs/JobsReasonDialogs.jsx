@@ -16,7 +16,7 @@ import {
   ReasonChip,
 } from './JobsDialogParts.jsx';
 import { FOCUS_RING, HEADING, fill, findJob, useMount } from './jobsDialogUtils.js';
-import { JOB_DIALOGS } from './talentJobsData.js';
+import { JOB_DIALOGS, JOBS_LIVE } from './talentJobsData.js';
 
 const log = debug('JobsReasonDialogs');
 
@@ -243,8 +243,33 @@ export const WithdrawDialog = ({ jobs }) => {
   const uid = useId();
   const job = findJob(jobs.job, copy.defaultJob);
   const [reason, setReason] = useState(copy.selected);
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState(null);
   const close = () => jobs.update({ modal: null });
   useMount('WithdrawDialog', { job: job.id });
+  const done = () =>
+    jobs.update({ modal: null, job: null, tab: 'applied', withdrawn: true, wd: true });
+  // Live: POST /applications/:id/withdraw, then the feed reloads (the row moves to Closed).
+  const confirm = async () => {
+    log('withdraw', { job: job.id, reason });
+    if (!JOBS_LIVE) {
+      done();
+      return;
+    }
+    setBusy(true);
+    setFailure(null);
+    try {
+      const label = copy.reasons?.find((r) => r.id === reason)?.label;
+      await jobs.data.withdraw(job.id, label || reason || undefined);
+      done();
+    } catch (err) {
+      log.error('withdraw failed:', err?.response?.status || err?.message);
+      setFailure(
+        err?.response?.data?.message || 'We couldn’t withdraw your application. Please try again.'
+      );
+      setBusy(false);
+    }
+  };
 
   return (
     <DialogFrame kind="modal" onClose={close} labelId={`${uid}-title`} cardClassName={MODAL_CARD}>
@@ -292,16 +317,14 @@ export const WithdrawDialog = ({ jobs }) => {
         <JobsLockGlyph className="size-[14px] shrink-0 text-[#595959]" />
         <p className="m-0 font-sans text-[12.5px] leading-[15px] text-[#595959]">{copy.note}</p>
       </div>
+      {failure ? (
+        <p role="alert" className="m-0 font-sans text-[13px] leading-[18px] text-[#c0392b]">
+          {failure}
+        </p>
+      ) : null}
       <DialogActions pad="playful:pb-[7px]">
-        <ActionButton
-          size="lg"
-          className="!text-[#c0392b]"
-          onClick={() => {
-            log('withdraw', { job: job.id, reason });
-            jobs.update({ modal: null, job: null, tab: 'applied', withdrawn: true, wd: true });
-          }}
-        >
-          {copy.confirm}
+        <ActionButton size="lg" className="!text-[#c0392b]" onClick={confirm} disabled={busy}>
+          {busy ? 'Withdrawing…' : copy.confirm}
         </ActionButton>
         <ActionButton variant="primary" size="lg" onClick={close}>
           {copy.keep}
