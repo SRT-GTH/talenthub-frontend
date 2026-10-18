@@ -17,6 +17,8 @@ import { getTalentNavData, getTalentSidebarData } from '../talentHome/talentShel
 import TalentA11yMenu from '../talentHome/TalentA11yMenu.jsx';
 import NotificationPopover from '../notifications/NotificationPopover.jsx';
 import HelpPopover from '../notifications/HelpPopover.jsx';
+import { NOTIFICATIONS_CHANGED } from '../notifications/useNotificationFeed.js';
+import { fetchNotifications } from '../../../services/notifications.api.js';
 
 const log = debug('DashboardTopNav');
 
@@ -110,6 +112,29 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const { pathname } = useLocation();
   const bellRef = useRef(null);
   const helpRef = useRef(null);
+
+  // Bell count: the page load gives it (talentHomeState live.notifications.unread); after a read
+  // in the pop-up / full screen the feed broadcasts and the count is re-read here.
+  const [liveUnread, setLiveUnread] = useState(null);
+  useEffect(() => {
+    if (!isTalent) return undefined;
+    const onChange = () => {
+      fetchNotifications({ limit: 1 })
+        .then(({ unreadCount }) => {
+          log('bell count →', unreadCount);
+          setLiveUnread(unreadCount);
+        })
+        .catch((err) => log.error('bell count refresh failed:', err?.message));
+    };
+    window.addEventListener(NOTIFICATIONS_CHANGED, onChange);
+    return () => window.removeEventListener(NOTIFICATIONS_CHANGED, onChange);
+  }, [isTalent]);
+  const bellCount =
+    isTalent && liveUnread !== null
+      ? liveUnread > 0
+        ? String(liveUnread)
+        : ''
+      : nav.notificationCount;
 
   const handleAction = (action) => {
     if (isTalent && action === 'notifications') {
@@ -227,8 +252,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
             <span ref={bellRef} className="inline-flex">
               <NavIconButton
                 src={icons.navNotification}
-                label={`Notifications, ${nav.notificationCount} unread`}
-                badge={nav.notificationCount}
+                label={`Notifications, ${bellCount || 0} unread`}
+                badge={bellCount}
                 active={
                   isTalent
                     ? talentHome.notif

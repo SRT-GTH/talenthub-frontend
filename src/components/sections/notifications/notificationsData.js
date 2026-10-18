@@ -1,5 +1,7 @@
 /*
- * Talent Notifications — mock data + asset map (frontend-only).
+ * Talent Notifications — copy, filters + asset map. NOTIFICATIONS below is the Figma mock feed,
+ * kept for the mapper's reference and the playful-leak check; the screens read the real feed
+ * through useNotificationFeed (GET /api/notifications, notificationsMappers.js).
  * Every string is verbatim from Figma file Bin8roWL8sloyc36IgFMuT, section "Talent Notification
  * Screens" (7471:53182): pop-up N-01..N-04 (7471:54715…), full screen N-05/N-06 (7471:55841/56304),
  * Help overlay HP (8376:10396). Swap the arrays for an API call later and keep the shapes.
@@ -50,6 +52,8 @@ export const NOTIFICATION_TYPES = {
   application: { badge: '#387440', icon: typeFile },
   community: { badge: '#967014', icon: typeUsers },
   buddy: { badge: '#387440', icon: typeSpark },
+  // Backend-only types (system / alert / reminder / security) — no Figma row, ink badge ⚠️ ASSUMPTION.
+  system: { badge: '#1c2a21', icon: typeSpark },
 };
 
 // action tone: 'primary' (green) | 'secondary' (white, ink border)
@@ -204,7 +208,7 @@ export const PAGE_HEADER = {
   title: 'Notifications',
   subtitle: 'Everything happening on your career side, in one feed.',
   faces: [face1, face2, face3, face4],
-  inbox: '4 new since you left',
+  inbox: (n) => `${n} new since you left`, // Figma: '4 new since you left'
   inboxCaughtUp: 'All caught up',
   sticker: 'Seen by 9 recruiters',
   streak: '5-day streak',
@@ -225,6 +229,9 @@ export const POPOVER_COPY = {
     secondary: 'Notification settings',
   },
   tooltip: { label: 'Open full view', keys: '⇧ N' },
+  // Not in Figma (no error frame) ⚠️ ASSUMPTION.
+  error: 'We couldn’t load your notifications.',
+  retry: 'Try again',
 };
 
 export const FEED_COPY = {
@@ -234,6 +241,9 @@ export const FEED_COPY = {
   sort: 'Newest first',
   markAllRead: 'Mark all read',
   railTitle: 'Show me',
+  // Not in Figma (no error frame) ⚠️ ASSUMPTION.
+  error: 'We couldn’t load your notifications. Check your connection and try again.',
+  retry: 'Try again',
   inboxZero: {
     sticker: 'inbox zero',
     title: 'Main character energy',

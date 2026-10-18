@@ -7,6 +7,7 @@ import UiStyleScope from '../../components/shared/UiStyleScope.jsx';
 import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
 import AskBuddyFab from '../../components/sections/talentHome/AskBuddyFab.jsx';
 import NotificationsScreen from '../../components/sections/notifications/NotificationsScreen.jsx';
+import { useNotificationFeed } from '../../components/sections/notifications/useNotificationFeed.js';
 
 const log = debug('TalentNotificationsPage');
 
@@ -22,6 +23,8 @@ const TalentNotificationsPage = () => {
   const base = useTalentHomeState();
   // Figma's notification frames show streak 12 in the top nav (the day-1 shell otherwise).
   const home = useMemo(() => ({ ...base, navStreak: '12' }), [base]);
+  // One feed for the screen and the rail badge (GET /api/notifications).
+  const feed = useNotificationFeed({ startRead: Boolean(base.readAll) });
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -44,10 +47,10 @@ const TalentNotificationsPage = () => {
       rail={home.rail}
       onToggleRail={() => home.update({ rail: home.rail === 'collapsed' ? 'expanded' : null })}
       railActiveId="messages"
-      railBadges={{ messages: '4' }}
+      railBadges={feed.unreadCount > 0 ? { messages: String(feed.unreadCount) } : {}}
     >
       <UiStyleScope enabled />
-      <NotificationsScreen home={home} />
+      <NotificationsScreen home={home} feed={feed} />
       <AskBuddyFab home={home} />
     </DashboardShell>
   );
