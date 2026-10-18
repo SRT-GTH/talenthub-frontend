@@ -68,7 +68,9 @@ const TalentMobileNav = ({ home, className }) => {
       >
         <div className="flex h-[56px] w-full items-stretch">
           {tabs.map((item) => {
-            const active = item.id === 'home';
+            // My Assessment is current while its tab is open, Home otherwise (as in TalentSidebar).
+            const active =
+              home?.tab === 'assessment' ? item.id === 'assessment' : item.id === 'home';
             return (
               <button
                 key={item.id}

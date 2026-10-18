@@ -23,7 +23,7 @@ const log = debug('TalentSidebar');
  *                                        accents (avatar, active Home, badges, XP bar), no shelves, no LIVE sticker.
  * `data.flat` (talentShellData.js) picks the Playful flavour; Playful styling is `playful:` variants only.
  * Props: home (useTalentHomeState object), compact (md–lg icon rail), className.
- * Home stays the current page on every home tab (HM-06/07 keep Home active); Home and My Assessment
+ * The open home tab picks the current item (see isActive); Home and My Assessment
  * call `home.update({ tab })`; the other destinations have no screen yet (logged).
  */
 
@@ -50,6 +50,11 @@ const Badge = ({ count, shelf }) => (
     {count}
   </span>
 );
+
+// Which rail item is current: My Assessment while its tab is open, Home on every other
+// home tab. (Figma keeps Home active on every tab; changed at Quazor's request, 2026-10-18.)
+const isActive = (item, home) =>
+  home?.tab === 'assessment' ? item.id === 'assessment' : item.id === 'home';
 
 const NavItem = ({ item, active, badge, compact, onSelect, shelf }) => (
   <button
@@ -161,7 +166,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
               item={item}
               compact
               shelf={shelf}
-              active={item.id === 'home'}
+              active={isActive(item, home)}
               badge={navBadge(item.id)}
               onSelect={select}
             />
@@ -296,7 +301,7 @@ const TalentSidebar = ({ home, compact = false, className }) => {
                 key={item.id}
                 item={item}
                 shelf={shelf}
-                active={item.id === 'home'}
+                active={isActive(item, home)}
                 badge={navBadge(item.id)}
                 onSelect={select}
               />
