@@ -81,7 +81,8 @@ export const useTalentProfileState = () => {
   const updated = params.get('updated') === '1';
   const help = params.get('help') === '1';
   // Accessibility mode (shared with the talent home shell; toggled from the nav button).
-  const a11yMode = params.get('a11y') === '1' || Boolean(ax && ax !== 'panel');
+  const a11yParam = params.get('a11y') === '1';
+  const a11yMode = a11yParam || Boolean(ax && ax !== 'panel');
 
   return useMemo(() => {
     log('state', { tab, view, share, card, ax, edit, modal, empty, manage, updated, help });
@@ -110,6 +111,8 @@ export const useTalentProfileState = () => {
       updated,
       help,
       a11yMode,
+      // raw `?a11y=1` (talent accessibility mode); `a11yMode` also covers the AX frame states
+      a11yParam,
       update,
       // The shell's search / edit hooks (unused on the profile, present for the shared nav).
       searchOpen: params.get('search') === '1',
@@ -133,5 +136,6 @@ export const useTalentProfileState = () => {
     updated,
     help,
     a11yMode,
+    a11yParam,
   ]);
 };

@@ -36,22 +36,60 @@ import {
 } from './ProfileTabsUi.jsx';
 import { BADGE_ICONS, CARD_PLAIN, GLYPHS, SHELF, TITLE_SM, coverBg } from './profileTabsStyles.js';
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
+import { ProfileAxVolumeIcon } from './AxAnnotationIcons.jsx';
+import { AX_RAIL_LABEL, AX_READING_NOW } from './ProfileAxData.js';
 
 const log = debug('ProfileOverviewTab');
 
 const FACES = [whoLookingFace1, whoLookingFace2, whoLookingFace3, whoLookingFace4];
 
 /* ------------------------------ left column ------------------------------ */
-export const AboutCard = ({ go, readOnly = false }) => (
+/*
+ * AX-04 (read aloud): `reading` marks this card as the one being read — green border + shelf, the dark
+ * "Reading now" tag next to the title, the first sentence underlined (Figma 7591:2434 / 8110:391982).
+ */
+const READING_CARD =
+  '!border-[#387440] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] playful:!border-[1.5px] playful:shadow-[4px_4px_0_rgba(56,116,64,0.65),0_10px_24px_rgba(56,116,64,0.15)]';
+const FIRST_SENTENCE_LEN = OVERVIEW_ABOUT.text.indexOf('. ') + 1;
+
+export const AboutCard = ({ go, readOnly = false, reading = false }) => (
   <ProfileCard
     title={OVERVIEW_ABOUT.title}
     link={OVERVIEW_ABOUT.link}
     onLink={() => go({ tab: 'about' })}
     onEdit={readOnly ? undefined : () => go({ edit: 'about' })}
     editLabel="Edit About"
+    className={reading ? READING_CARD : undefined}
+    titleAddon={
+      reading ? (
+        <span
+          data-ax="reading-now"
+          className="inline-flex shrink-0 items-center gap-[6px] rounded-full bg-[#1c2a21] px-[10px] py-[6px] text-[12px] leading-[14px] font-semibold whitespace-nowrap text-white playful:border playful:border-[rgba(28,42,33,0.35)]"
+        >
+          <ProfileAxVolumeIcon className="size-[14px] shrink-0" />
+          {AX_READING_NOW}
+        </span>
+      ) : null
+    }
   >
     <div className="flex flex-col gap-[16px]">
-      <p className="text-[15px] leading-[23px] text-[#595959]">{OVERVIEW_ABOUT.text}</p>
+      <p
+        className={classNames(
+          'text-[15px] leading-[23px]',
+          reading ? 'text-[#737373]' : 'text-[#595959]'
+        )}
+      >
+        {reading ? (
+          <>
+            <span className="font-semibold text-[#1c2a21] underline">
+              {OVERVIEW_ABOUT.text.slice(0, FIRST_SENTENCE_LEN)}
+            </span>
+            {OVERVIEW_ABOUT.text.slice(FIRST_SENTENCE_LEN)}
+          </>
+        ) : (
+          OVERVIEW_ABOUT.text
+        )}
+      </p>
       <div
         className={classNames(
           'flex flex-wrap items-center gap-[8px]',
@@ -103,7 +141,7 @@ export const SkillsCard = ({ go, readOnly = false }) => (
     editLabel="Edit skills"
   >
     {OVERVIEW_SKILLS.items.length ? (
-      <ul className="grid grid-cols-1 gap-[12px] @2xl:grid-cols-2">
+      <ul data-skill-grid="" className="grid grid-cols-1 gap-[12px] @2xl:grid-cols-2">
         {OVERVIEW_SKILLS.items.map((item) => (
           <SkillCard key={item.key} item={item} />
         ))}
@@ -407,7 +445,7 @@ export const BadgesCard = ({ preview = false }) =>
                     <Icon className="size-[25px]" />
                   )}
                 </span>
-                <span className="text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#595959]">
+                <span className="text-[11px] max-lg:text-[12px] leading-[normal] font-medium whitespace-nowrap text-[#595959]">
                   {b.label}
                 </span>
               </li>
@@ -436,9 +474,10 @@ const ProfileOverviewTab = ({ profile }) => {
   return (
     <TabLayout
       tab="overview"
+      rightLabel={AX_RAIL_LABEL}
       left={
         <>
-          <AboutCard go={go} />
+          <AboutCard go={go} reading={profile?.ax === 'aloud'} />
           <SkillsCard go={go} />
           <ExperienceCard go={go} />
           <PortfolioCard go={go} />

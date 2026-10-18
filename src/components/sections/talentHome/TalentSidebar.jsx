@@ -41,10 +41,13 @@ const Dual = ({ focused, playful }) =>
     focused
   );
 
-const Badge = ({ count, shelf }) => (
+const Badge = ({ count, shelf, soft }) => (
   <span
     className={classNames(
-      'inline-flex h-[18px] shrink-0 items-center justify-center overflow-hidden rounded-[99px] bg-[#387440] px-[6px] py-[2px] font-sans text-[10px] font-medium text-white',
+      'inline-flex h-[18px] shrink-0 items-center justify-center overflow-hidden rounded-[99px] px-[6px] py-[2px] font-sans text-[10px] font-medium',
+      soft
+        ? 'h-[20px] bg-[#ebf1ec] px-[6px] py-[3px] text-[12px] text-[#2d5d33]'
+        : 'bg-[#387440] text-white',
       shelf
         ? 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#1f4d26]'
         : 'playful:bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)]'
@@ -59,7 +62,7 @@ const Badge = ({ count, shelf }) => (
 const isActive = (item, home) =>
   home?.tab === 'assessment' ? item.id === 'assessment' : item.id === 'home';
 
-const NavItem = ({ item, active, badge, compact, onSelect, shelf }) => (
+const NavItem = ({ item, active, badge, soft, compact, onSelect, shelf }) => (
   <button
     type="button"
     onClick={() => onSelect(item)}
@@ -98,16 +101,23 @@ const NavItem = ({ item, active, badge, compact, onSelect, shelf }) => (
       )}
     </span>
     {!compact && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
-    {!compact && badge && <Badge count={badge} shelf={shelf} />}
+    {!compact && badge && <Badge count={badge} shelf={shelf} soft={soft} />}
   </button>
 );
 
-const Stat = ({ value, label }) => (
+const Stat = ({ value, label, tight }) => (
   <div className="flex min-w-0 flex-1 flex-col items-center justify-center text-center">
     <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#387440]">
       {value}
     </span>
-    <span className="font-sans text-[10px] leading-[normal] text-[#999999]">{label}</span>
+    <span
+      className={classNames(
+        'font-sans text-[10px] text-[#999999]',
+        tight ? 'leading-[11.9px]' : 'leading-[normal]'
+      )}
+    >
+      {label}
+    </span>
   </div>
 );
 
@@ -130,8 +140,18 @@ const avatarClass = (shelf) =>
   );
 
 const TalentSidebar = ({ home, compact = false, className, activeId: activeIdProp, activeNav }) => {
-  // `activeNav` ('profile' on /profile) draws that item active; default (home) is unchanged.
-  const activeId = activeIdProp ?? (activeNav === 'profile' ? 'profile' : 'home');
+  // `activeNav` ('profile' on /profile, 'learning' on /learning) draws that item active; default (home) is unchanged.
+  const activeId =
+    activeIdProp ??
+    (activeNav === 'profile'
+      ? 'profile'
+      : activeNav === 'streak'
+        ? 'none'
+        : activeNav === 'jobs'
+          ? 'opportunities'
+          : activeNav === 'learning'
+            ? 'my-learning'
+            : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
@@ -223,6 +243,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
       <div
         className={classNames(
           'flex w-[calc(100%-24px)] shrink-0 flex-col items-center gap-[16px] overflow-clip rounded-[16px] border-[1.4px] border-solid border-[#e1eae2] bg-white py-[19px]',
+          data.tight && '!py-[16px]',
           shelf &&
             'playful:rounded-[20px] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]'
         )}
@@ -258,7 +279,12 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
         </div>
 
         {/* Journey / XP progress */}
-        <div className="flex w-[calc(100%-40px)] flex-col justify-center gap-[6px] overflow-clip border-t border-solid border-[#fefefe]">
+        <div
+          className={classNames(
+            'flex w-[calc(100%-40px)] flex-col justify-center gap-[6px] overflow-clip border-t border-solid border-[#fefefe]',
+            data.tight && 'h-[55px]'
+          )}
+        >
           <div className="flex items-center justify-between gap-[8px] font-sans font-semibold tracking-[0.2px]">
             <p className="truncate text-[12px] leading-5 text-[#1c2a21]">{journey.label}</p>
             <p className="shrink-0 text-[10px] leading-4 text-[#babab7]">
@@ -302,6 +328,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
         <div
           className={classNames(
             'flex w-[calc(100%-22px)] shrink-0 items-center justify-center gap-[4px] rounded-[10px] border border-solid border-[#faf4e8] bg-[rgba(235,241,236,0.5)] px-[6px] py-[10px]',
+            data.tight && 'h-[56px] !py-0',
             shelf &&
               'playful:rounded-[14px] playful:border-[rgba(28,42,33,0.35)] playful:bg-[#faf4e8]'
           )}
@@ -309,7 +336,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           {data.stats.map((stat, index) => (
             <div key={stat.id} className="flex min-w-0 flex-1 items-center gap-[4px]">
               {index > 0 && <Divider shelf={shelf} />}
-              <Stat value={stat.value} label={stat.label} />
+              <Stat value={stat.value} label={stat.label} tight={data.tight} />
             </div>
           ))}
         </div>
@@ -326,6 +353,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
                 shelf={shelf}
                 active={isCurrent(item)}
                 badge={navBadge(item.id)}
+                soft={data.softBadges?.includes(item.id)}
                 onSelect={select}
               />
             ))}

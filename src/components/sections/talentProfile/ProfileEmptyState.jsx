@@ -47,7 +47,7 @@ const Tag = ({ size = 11, className, children }) => (
     className={classNames(
       'inline-flex items-center gap-[6px] rounded-full bg-[#ebf1ec] px-[10px] py-[5px] leading-[normal] font-bold whitespace-nowrap text-[#1f4d26]',
       'playful:border-[1.2px] playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:text-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]',
-      size === 12 ? 'text-[12px]' : 'text-[11px]',
+      size === 12 ? 'text-[12px]' : 'text-[11px] max-lg:text-[12px]',
       className
     )}
   >
@@ -193,7 +193,7 @@ const EmptyHero = ({ profile }) => {
             <ProfilePitchPlayIcon className="size-[28px] shrink-0" />
             <span className="flex flex-col leading-[normal] whitespace-nowrap">
               <span className="text-[13px] font-semibold text-[#1c2a21]">{p.pitch.title}</span>
-              <span className="text-[11px] text-[#737373]">{p.pitch.meta}</span>
+              <span className="text-[11px] max-lg:text-[12px] text-[#737373]">{p.pitch.meta}</span>
             </span>
           </button>
         </div>
@@ -293,7 +293,7 @@ const EmptyTabs = ({ profile }) => {
               {tab.count ? (
                 <span
                   className={classNames(
-                    'rounded-full px-[7px] py-px text-[11.5px] leading-[normal] font-bold',
+                    'rounded-full px-[7px] py-px text-[11.5px] max-lg:text-[12px] leading-[normal] font-bold',
                     isActive ? 'bg-[#c8951a] text-white' : 'bg-[#ebf1ec] text-[#2d5d33]'
                   )}
                 >

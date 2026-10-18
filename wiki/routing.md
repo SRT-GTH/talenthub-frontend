@@ -160,6 +160,10 @@ Wrapped in `AvatarSelectionProvider` so picks survive navigation.
 
 `pages/talentHome/TalentNotificationsPage.jsx`, outside `MainLayout`, uses `DashboardShell role="talent"`. The pop-up and Help overlay are opened from the top nav by query params on any talent page. See [talent-notifications.md](talent-notifications.md).
 
+## Talent My Learning — `/learning` `✅ VERIFIED` (2026-10-18)
+
+`TalentLearningPage` (lazy), outside `MainLayout`, `DashboardShell role="talent" activeNav="learning"`; Focused + Playful via `UiStyleScope`. States are query params (`?view=course|lesson|complete|certificates|recommended|explore`, `?quick=…`, `?tab=saved`, `?empty=1`, `?loading=1`, `?toast=saved`, `&ex=category|search|none`) — table in [talent-my-learning.md](talent-my-learning.md).
+
 ## Talent home — `/home` `✅ VERIFIED` (2026-10-17)
 
 `TalentHomePage` (lazy), outside `MainLayout`, `DashboardShell role="talent"`; Focused + Playful via `UiStyleScope`. Every Figma state is a query param (`?state=`, `?tab=`, `?search=1`, `?edit=1`, `?loading=1`, `?new=welcome|tour|chat|gate`, `&a11y=1`) — table in [talent-home.md](talent-home.md).
@@ -227,3 +231,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 3. Add the step to `DemoNavigator` if it's an onboarding step; update the layout's step-path list / panel switch if needed.
 4. Append a Playwright spec under `tests/e2e/` if non-trivial.
 5. Update `wiki/figma-node-map.md` (Figma-sourced screens) and `wiki/log.md`.
+
+`/job-postings` → `pages/talentJobs/TalentJobsPage.jsx`, outside `MainLayout`, `DashboardShell role="talent" activeNav="jobs"`; frames are query params. See [talent-jobs.md](talent-jobs.md).

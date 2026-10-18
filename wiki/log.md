@@ -2514,3 +2514,23 @@ New talent home built in both styles with mock URL-param state (`?state=`, `?tab
 ## [2026-10-18] create | Talent notifications — Figma "Talent Notification Screens" 7471:53182
 
 Built the notification pop-up (populated / empty / loading / tooltip), the full-screen page (`/notifications`, All + Unread inbox-zero), the Help pop-over and the 126px collapsed rail, in Playful + Focused. Details, URL params and known gaps: [talent-notifications.md](talent-notifications.md). Shared edits are opt-in (`rail`, `activeId`, `navStreak`, `active` on the nav bell) so `/home` and `/profile` render as before. Fixed along the way: the sidebar's Home item now routes back to `/home` from other screens; the phone More sheet's Notifications row routes to `/notifications`. 66 assets exported from Figma (`src/assets/notifications/`).
+
+## [2026-10-18] create | Talent profile `/profile` (partial — paused on Figma rate limit)
+
+Built the profile shell integration, header/tabs, edit/modal/empty states, share modal, share-card builder (both styles); accessibility frames and Figma verification pending. Status, gaps and assumptions: [talent-profile.md](talent-profile.md).
+
+## [2026-10-18] create | Talent profile — recruiter / public previews, visibility drawer, accessibility (AX-01..AX-08)
+
+Finished the talent profile: P-07 recruiter preview, PR-02 public-link preview (corrected: drawn inside the talent shell), PR-04 (recruiter preview with the pitch hidden — the old URL map was wrong), PR-03 "Who sees what" drawer, and the whole AX set (settings popover + stored prefs, Calm / Large text / One column / High contrast modes and pills, read-aloud player, pitch captions + transcript, portfolio image descriptions + alt-text modal, focus-order / landmarks / share-modal annotation overlays). Parallel agents built the AX features; the lead integrated and verified. Phone fixes: 12px text floor below lg, tab counts and tab-bar badges as generated content so labels never wrap. Gates: lint 0, build ✓, leak check clean, responsive audit profile 135/135 (+81/81 short screens), strict Focused visual (recruiter|community) 16/16. Details and open items: [talent-profile.md](talent-profile.md).
+
+## [2026-10-18] create | Talent job postings — pass (a) list screens
+
+New route `/job-postings`: Matched (cards + list), Browse all, Saved, Applied, empty and loading states in Playful + Focused, expanded + collapsed sidebar (Job Postings nav item, JOBS_PAGE rail data, `opportunities` nav now routes). Gates: lint 0, build ✓, leak check clean, responsive audit job-postings 55/55. Details: [talent-jobs.md](talent-jobs.md).
+
+## [2026-10-18] create | Talent My Learning `/learning` (Focused + Playful)
+
+Built from cached Figma node JSON/PNGs (new token stored in the git-ignored `.figma-token.local`): My Learning hub (in progress / recommended / empty / loading / saved + toast), course detail, lesson player, 5-state quick check, course complete, certificates, explore (4 states), `activeNav="learning"` in the talent shell. Responsive audit 60/60 across 12 states. Helpers: `scripts/figma-node-tree.mjs`, `scripts/figma-export-nodes.mjs`. Status, flow, gaps: [talent-my-learning.md](talent-my-learning.md).
+
+## [2026-10-18] create | Talent streaks — `/streak` page, 15-day milestone modal, nav streak pop-up (6 states)
+
+S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=open|done|risk|freeze|lost|new` on any talent page); `activeNav="streak"` in the shell; `/streak` route. Gates: lint 0, build ✓, leak check clean, responsive audit streak 40/40. Details: [talent-streak.md](talent-streak.md).

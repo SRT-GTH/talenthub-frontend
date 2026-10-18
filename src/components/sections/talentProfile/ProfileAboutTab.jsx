@@ -17,6 +17,7 @@ import {
 } from './talentProfileTabsData.js';
 import { EditButton, HeadLink, ProfileCard, ProfileChip, TabLayout } from './ProfileTabsUi.jsx';
 import { CARD_PLAIN, GLYPHS, PAD, TITLE } from './profileTabsStyles.js';
+import ProfilePitchAccessibility from './ProfilePitchAccessibility.jsx';
 
 const log = debug('ProfileAboutTab');
 
@@ -230,7 +231,13 @@ const ProfileAboutTab = ({ profile }) => {
       tab="about"
       left={
         <>
-          {ABOUT_PITCH ? <PitchCard /> : null}
+          {ABOUT_PITCH ? (
+            profile?.ax === 'pitch' ? (
+              <ProfilePitchAccessibility />
+            ) : (
+              <PitchCard />
+            )
+          ) : null}
           <BioCard onEdit={editAbout} />
           <TraitsCard onEdit={edit('traits')} />
         </>

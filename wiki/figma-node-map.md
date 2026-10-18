@@ -1965,3 +1965,7 @@ Recruiter onboarding page `7356:96249` "onboarding screens - Recruiter" (section
 ## Talent notifications (2026-10-18)
 
 Page "Talent Notification Screens" `7471:53182`. Pop-up component `GTH · Notification pop-up` `7471:54994` (440x692; empty `7471:55560` 547; loading `7471:55840` 560; tooltip `7471:55275` at +298,-10 of the pop-up). Full-screen canvas `7471:55872` (filter rail `7477:84429` 248, feed `7471:55946` 876, right column `7471:56124` 340). Collapsed rail `7471:54993` (126px), expanded `7519:26594` (303px). Help overlay `8376:10399` (400px). Focused twins: `8110:*`. Full table: [talent-notifications.md](talent-notifications.md).
+
+## Talent profile — previews + accessibility (2026-10-18)
+
+P-07 recruiter preview `7573:602` / `8110:371211`; PR-02 public link `7584:1691` / `8110:387366` (drawn WITH the talent shell); PR-03 drawer `7584:2347` / `8110:387950` (drawer node `7584:2961`, over the recruiter preview); PR-04 `7584:3137` / `8110:388716` (recruiter preview after hiding the pitch — not the public view). Accessibility: popover component `8343:520316`; AX-01 `7590:1952`, AX-02 `7590:2746`, AX-03 `7590:3461`, AX-04 `7591:2279`, AX-05 `7591:3047`, AX-06 `7591:3728`, AX-06b `7591:4339`, AX-07a `7592:2619`, AX-07b `7592:3287`, AX-08 `7592:4005` (Focused twins in `wiki/talent-profile.md`). Quirks: `icon/video` is an EMPTY instance (nothing drawn), the landmarks `<main>` box is opaque in both frames.
