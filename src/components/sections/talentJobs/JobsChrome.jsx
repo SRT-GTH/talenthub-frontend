@@ -48,21 +48,26 @@ const HeaderDecor = () => (
     aria-hidden="true"
     data-doodle=""
   >
-    <span className="absolute left-[27px] top-[34px] flex">
-      {FACES.map((src, i) => (
-        <img
-          key={src}
-          src={src}
-          alt=""
-          className="-ml-[12px] size-[40px] rounded-full border-[3px] border-solid border-white object-cover first:ml-0"
-          style={{ zIndex: 4 - i }}
-        />
-      ))}
-    </span>
-    <span className="absolute left-[163px] top-[42px] inline-flex whitespace-nowrap items-center gap-[6px] rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[normal] text-[#1c2a21]">
-      <span className="size-[8px] rounded-full bg-[#349643]" />
-      {JOBS_HEADER.decor.viewed}
-    </span>
+    {/* Live: the faces + "N recruiters viewed you" pair only shows when we have that number. */}
+    {JOBS_HEADER.decor.viewed ? (
+      <>
+        <span className="absolute left-[27px] top-[34px] flex">
+          {FACES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className="-ml-[12px] size-[40px] rounded-full border-[3px] border-solid border-white object-cover first:ml-0"
+              style={{ zIndex: 4 - i }}
+            />
+          ))}
+        </span>
+        <span className="absolute left-[163px] top-[42px] inline-flex whitespace-nowrap items-center gap-[6px] rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[normal] text-[#1c2a21]">
+          <span className="size-[8px] rounded-full bg-[#349643]" />
+          {JOBS_HEADER.decor.viewed}
+        </span>
+      </>
+    ) : null}
     <span
       className="absolute left-[372px] top-[10px] inline-flex items-center gap-[6px] rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white"
       style={{ transform: 'rotate(2deg)' }}
@@ -70,13 +75,15 @@ const HeaderDecor = () => (
       <img src={headSparkle} alt="" className="size-[15px]" />
       {JOBS_HEADER.decor.daily}
     </span>
-    <span
-      className="absolute left-[464px] top-[43px] inline-flex whitespace-nowrap items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[normal] text-[#8a6410]"
-      style={{ transform: 'rotate(2deg)' }}
-    >
-      <img src={headFlame} alt="" className="size-[15px]" />
-      {JOBS_HEADER.decor.week}
-    </span>
+    {JOBS_HEADER.decor.week ? (
+      <span
+        className="absolute left-[464px] top-[43px] inline-flex whitespace-nowrap items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[normal] text-[#8a6410]"
+        style={{ transform: 'rotate(2deg)' }}
+      >
+        <img src={headFlame} alt="" className="size-[15px]" />
+        {JOBS_HEADER.decor.week}
+      </span>
+    ) : null}
     <img src={headDoodleGold} alt="" className="absolute left-[574px] top-0 size-[22px]" />
     <img src={headDoodleGreen} alt="" className="absolute left-[316px] top-[46px] size-[12px]" />
     <img

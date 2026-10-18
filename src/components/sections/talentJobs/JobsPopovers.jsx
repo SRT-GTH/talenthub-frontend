@@ -21,7 +21,7 @@ import {
   useAnchor,
   useMount,
 } from './jobsDialogUtils.js';
-import { JOB_DIALOGS } from './talentJobsData.js';
+import { JOB_DETAILS, JOB_DIALOGS } from './talentJobsData.js';
 
 const log = debug('JobsPopovers');
 
@@ -248,6 +248,7 @@ export const MatchPopover = ({ jobs }) => {
   const uid = useId();
   const job = findJob(jobs.job, 'data-analyst');
   const data =
+    JOB_DETAILS[job.id]?.matchBreakdown ??
     JOB_DIALOGS.matchBreakdown[job.id] ??
     JOB_DIALOGS.matchBreakdown[Object.keys(JOB_DIALOGS.matchBreakdown)[0]];
   const pos = useAnchor(measureHow);
