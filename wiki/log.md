@@ -2538,3 +2538,7 @@ S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=
 ## [2026-10-18] wire | Talent notifications on the real API
 
 The pop-up and `/notifications` now read `GET /api/notifications` and write `PUT /:id/read` / `PUT /mark-all-read` (`src/services/notifications.api.js`, `notificationsMappers.js`, `useNotificationFeed.js`). Rail / chip / group counts, the "N new" stickers, the "N new since you left" pill, the rail badge and the top-nav bell are live; reads are optimistic and broadcast so the bell count follows. Real loading / empty / error states added (the Figma `?notif=` params still force the frames). Tested locally against the Moleculer backend in Chrome; two backend bugs in `notifications.markAsRead` (422 on the gateway's `id`, 403 for the owner on a same-node ObjectId compare) fixed on backend branch `fix/notifications-mark-read`. Details: [talent-notifications.md](talent-notifications.md) → Data.
+
+## [2026-10-18] wire | My Learning on the training API
+
+`/learning` reads `GET /guidance/training/courses`, `/training/history`, `/guidance/bookmarks` and writes enrol / progress / bookmarks through `LearningDataProvider` (screens keep their Figma markup; `?demo=1` keeps the mock). Tested in Chrome as an e2e talent: recommended → course → save (+ undo) → start (enrol) → mark modules 1-4 → auto-complete → certificate. Lesson content and quiz are interim (no backend), certificate download disabled (no PDF). Details + backend gaps: [talent-my-learning.md](talent-my-learning.md) → Live data.

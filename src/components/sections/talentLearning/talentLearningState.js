@@ -27,6 +27,10 @@ const log = debug('talentLearningState');
  *   /learning?view=explore&ex=category|search|none
  *                                    EX-02 Explore · Data & analytics · EX-03 search results · EX-04 no results
  *
+ * Live data (2026-10-18): the screens read the training API through LearningDataProvider.
+ *   &course=<courseId>               the course open in Course detail / Lesson player (live)
+ *   &demo=1                          force the Figma mock data (design QA); `empty` / `loading` imply it
+ *
  * The lead owns this file. Section agents may ADD derived fields but must not rename existing ones.
  */
 
@@ -55,6 +59,8 @@ export const useTalentLearningState = () => {
   const loading = params.get('loading') === '1';
   const toast = params.get('toast') === 'saved' ? 'saved' : null;
   const a11yMode = params.get('a11y') === '1';
+  const course = params.get('course') || null;
+  const demo = params.get('demo') === '1';
 
   return useMemo(() => {
     log('state', { view, tab, quick, ex, empty, loading, toast });
@@ -79,6 +85,8 @@ export const useTalentLearningState = () => {
       loading,
       toast,
       a11yMode,
+      course,
+      demo,
       update,
       // Shell hooks (search/edit are unused here but present for the shared nav).
       searchOpen: params.get('search') === '1',
@@ -86,5 +94,5 @@ export const useTalentLearningState = () => {
       newUser: null,
       journeyMin: false,
     };
-  }, [params, setParams, view, tab, quick, ex, empty, loading, toast, a11yMode]);
+  }, [params, setParams, view, tab, quick, ex, empty, loading, toast, a11yMode, course, demo]);
 };

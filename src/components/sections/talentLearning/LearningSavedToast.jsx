@@ -3,6 +3,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { LearningToastBookmarkIcon } from '../../shared/assets.jsx';
 import { SAVED_TOAST } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LearningSavedToast');
 
@@ -15,6 +16,7 @@ const AUTO_DISMISS_MS = 10000;
  * whichever view is showing. Dark pill, gold bookmark disc, "View" opens the Saved tab, "Undo" closes it.
  */
 const LearningSavedToast = ({ learning }) => {
+  const data = useLearningData();
   useEffect(() => {
     log('mount', { view: learning.view });
     const t = setTimeout(() => {
@@ -60,6 +62,8 @@ const LearningSavedToast = ({ learning }) => {
         type="button"
         onClick={() => {
           log('click', 'undo');
+          // Live: the course was bookmarked when Save was tapped, so Undo removes the bookmark.
+          if (data.live && learning.course) data.unsave(learning.course);
           learning.update({ toast: null });
         }}
         className="shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13.5px] leading-[16.1px] font-bold text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"

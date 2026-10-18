@@ -22,7 +22,10 @@ import face2 from '../../../assets/talent-learning/course/social-proof-face-2.pn
 import face3 from '../../../assets/talent-learning/course/social-proof-face-3.png';
 import face4 from '../../../assets/talent-learning/course/social-proof-face-4.png';
 import { BackRow, CARD_INK, CARD_SOFT, CourseSticker, DualText, FOCUS, HEAD } from './CourseUi.jsx';
-import { COURSE } from './talentLearningCourseData.js';
+import { COURSE as MOCK_COURSE } from './talentLearningCourseData.js';
+import { useLearningData } from './useLearningData.js';
+import { toCourseView } from './learningMappers.js';
+import LearningLoading from './LearningLoading.jsx';
 
 const log = debug('CourseDetail');
 
@@ -107,9 +110,13 @@ const ModuleRow = ({ module: m, onStart }) => {
  * Focused 8110:11212 / Playful 7523:227. Content column only (the shell is the Shell agent's).
  */
 const CourseDetail = ({ learning }) => {
+  const data = useLearningData();
+  const card = data.live ? data.selectedCourse : null;
+  const enrolment = card ? data.enrolmentFor(card.id) : null;
+  const COURSE = card ? toCourseView(card, enrolment, MOCK_COURSE) : MOCK_COURSE;
   useEffect(() => {
-    log('mount', { view: learning?.view, modules: COURSE.modules.length });
-  }, [learning?.view]);
+    log('mount', { view: learning?.view, live: data.live, course: card?.id, modules: COURSE.modules.length });
+  }, [learning?.view, data.live, card?.id, COURSE.modules.length]);
 
   // Saved state: follows the click AND `?toast=saved`. A toast that closes early (Undo) un-saves;
   // the toast's own 10s auto-dismiss keeps the course saved.
@@ -127,13 +134,26 @@ const CourseDetail = ({ learning }) => {
     }
     toastSince.current = null;
   }, [toastOn]);
-  const saved = savedLocal || toastOn;
+  const saved = data.live ? data.isSaved(card?.id) : savedLocal || toastOn;
 
   const startCourse = () => {
+    if (data.live) {
+      if (!card || COURSE.finished) return;
+      log(enrolment ? 'resume -> lesson' : 'enrol -> lesson', card.id);
+      if (enrolment) data.resume(card.id);
+      else data.startCourse(card.id);
+      return;
+    }
     log('start course -> lesson');
     learning.update({ view: 'lesson', quick: null });
   };
   const saveForLater = () => {
+    if (data.live) {
+      if (!card) return;
+      if (saved) data.unsave(card.id);
+      else data.save(card.id);
+      return;
+    }
     if (saved) {
       log('unsave');
       setSavedLocal(false);
@@ -148,6 +168,18 @@ const CourseDetail = ({ learning }) => {
     log('back to My Learning');
     learning.update({ view: null, quick: null });
   };
+
+  if (data.live && data.loading) return <LearningLoading learning={learning} />;
+  if (data.live && !card) {
+    return (
+      <section className="flex flex-col gap-[16px]">
+        <BackRow label={MOCK_COURSE.backLabel} crumb="" onClick={goBack} />
+        <p className="m-0 font-sans text-[15px] text-[#595959]">
+          We couldn’t find that course. It may have been retired.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -168,7 +200,7 @@ const CourseDetail = ({ learning }) => {
                 <span className="text-[11.5px] max-lg:text-[12px] leading-[13.7px] font-bold whitespace-nowrap text-[#2d5d33]">
                   {COURSE.provider}
                 </span>
-                <CourseSticker>{COURSE.sticker}</CourseSticker>
+                {COURSE.sticker && <CourseSticker>{COURSE.sticker}</CourseSticker>}
               </div>
               <h1
                 className={classNames(
@@ -196,7 +228,12 @@ const CourseDetail = ({ learning }) => {
                 })}
               </ul>
               <div className="flex flex-wrap items-center gap-[10px]">
-                <Button variant="primary" size="lg" onClick={startCourse}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={startCourse}
+                  disabled={Boolean(COURSE.finished) || (data.live && data.busy === card?.id)}
+                >
                   {COURSE.start}
                 </Button>
                 {saved ? (
@@ -252,6 +289,7 @@ const CourseDetail = ({ learning }) => {
 
         {/* right column */}
         <aside className="flex min-w-0 flex-col gap-[16px] lg:w-[clamp(300px,20.83vw,360px)] lg:shrink-0">
+          {COURSE.why && (
           <section
             className={classNames(
               'flex flex-col gap-[12px] rounded-[26px] bg-[#387440] p-[clamp(16px,1.27vw,22px)]',
@@ -292,6 +330,7 @@ const CourseDetail = ({ learning }) => {
               })}
             </ul>
           </section>
+          )}
 
           <section
             className={classNames('flex flex-col gap-[24px] rounded-[22px] p-[20px]', CARD_SOFT)}
@@ -323,6 +362,7 @@ const CourseDetail = ({ learning }) => {
             ))}
           </section>
 
+          {COURSE.proof && (
           <section
             className={classNames('flex flex-col gap-[10px] rounded-[22px] p-[18px]', CARD_SOFT)}
           >
@@ -344,6 +384,7 @@ const CourseDetail = ({ learning }) => {
               {COURSE.proof}
             </p>
           </section>
+          )}
         </aside>
       </div>
     </section>
