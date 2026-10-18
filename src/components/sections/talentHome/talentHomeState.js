@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { fetchTalentAssessment, fetchTalentHome } from '../../../services/talentHome.api.js';
 import { buildAssessmentContent, buildLiveContent, stateKeyFor } from './talentHomeLive.js';
@@ -97,6 +97,22 @@ const liveSnapshot = (stateKey, data) => {
   };
 };
 
+// Before the data arrives (or if it failed) the chrome shows the signed-in user's
+// own name with no numbers, never the Figma demo person.
+const placeholderFromStoredUser = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem('th:user-profile') || 'null') || {};
+    return {
+      firstName: u.firstName || '',
+      lastName: u.lastName || '',
+      city: u.locality || '',
+      placeholder: true,
+    };
+  } catch {
+    return { firstName: '', lastName: '', city: '', placeholder: true };
+  }
+};
+
 const WELCOMED_KEY = 'th:home-welcomed';
 const welcomedAlready = () => {
   try {
@@ -111,6 +127,7 @@ const TABS = ['home', 'assessment', 'recruiter'];
 export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
   const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
+  const navigate = useNavigate();
   const [live, setLive] = useState(null); // null = loading, false = failed
   useEffect(() => {
     if (demoState) return undefined;
@@ -138,13 +155,16 @@ export const useTalentHomeState = () => {
         }
       })
       .catch((err) => {
-        log.error('home data failed:', err?.message);
-        if (alive) setLive(false);
+        log.error('home data failed:', err?.code || err?.message);
+        if (!alive) return;
+        // Expired session: sign in again rather than showing anyone else's (demo) data.
+        if (err?.code === 'UNAUTHORIZED') navigate('/login', { replace: true });
+        else setLive(false);
       });
     return () => {
       alive = false;
     };
-  }, [demoState, setParams]);
+  }, [demoState, setParams, navigate]);
   const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
   // MyAssessment data loads the first time the tab opens (real data only).
@@ -159,7 +179,10 @@ export const useTalentHomeState = () => {
       alive = false;
     };
   }, [demoState, live, tab, assessment]);
-  const loading = params.get('loading') || (!demoState && live === null ? '1' : null); // null | '1' | 'empty' | 'error'
+  // Real data: spinner while loading, the designed error state if it failed (never the demo).
+  const loading =
+    params.get('loading') ||
+    (!demoState && live === null ? '1' : !demoState && live === false ? 'error' : null); // null | '1' | 'empty' | 'error'
   const newUser = params.get('new'); // null | welcome | tour | chat | gate
   const journeyMin = params.get('journey') === 'min';
   const searchOpen = params.get('search') === '1';
@@ -188,7 +211,7 @@ export const useTalentHomeState = () => {
         live && !demoState
           ? HOME_TABS.filter((t) => t.id !== 'recruiter').map((t) => ({ ...t, chip: null }))
           : HOME_TABS,
-      live: !demoState && live ? live : null,
+      live: demoState ? null : live || placeholderFromStoredUser(),
       stateKey,
       tab,
       loading,
