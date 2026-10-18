@@ -13,7 +13,11 @@ import {
   WhiteArrowRightIcon,
 } from '../../shared/assets.jsx';
 import FlowPortal from './FlowPortal.jsx';
-import { useCareerBuddyLive, THINKING_ID } from '../profileFilling/useCareerBuddyLive.jsx';
+import {
+  useCareerBuddyLive,
+  THINKING_ID,
+  LIVE_AVAILABLE,
+} from '../profileFilling/useCareerBuddyLive.jsx';
 import buddy42 from '../../../assets/talent-home/flows/career-buddy-avatar-42.png';
 import buddy26 from '../../../assets/talent-home/flows/career-buddy-avatar-26.png';
 
@@ -130,7 +134,7 @@ const CareerBuddyFirstChat = ({ home }) => {
   const navigate = useNavigate();
   const [draft, setDraft] = useState('');
   // Real account -> real Career Buddy; demo states (?state=...) keep the Figma script.
-  const live = Boolean(home?.live);
+  const live = Boolean(home?.live) && LIVE_AVAILABLE;
   const L = useCareerBuddyLive({ enabled: live });
   log('mount', { live });
 

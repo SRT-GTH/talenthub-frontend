@@ -87,6 +87,17 @@ const log = debug('CareerBuddyLive');
  */
 export const OPENER = 'Hi';
 
+/**
+ * Whether this build can reach the agent: local dev proxies /agent, a deployed
+ * build needs VITE_AGENT_BASE_URL (or VITE_CAREER_BUDDY_LIVE=1). Without it the
+ * screens keep the scripted demo instead of showing "Couldn't reach Career Buddy".
+ * VITE_CAREER_BUDDY_LIVE=0 turns live off everywhere.
+ */
+const ENV = import.meta.env || {};
+export const LIVE_AVAILABLE =
+  ENV.VITE_CAREER_BUDDY_LIVE !== '0' &&
+  Boolean(ENV.DEV || ENV.VITE_AGENT_BASE_URL || ENV.VITE_CAREER_BUDDY_LIVE === '1');
+
 export const LIVE_STAGES = [
   { id: 'avatar', trailLabel: 'Avatar', Icon: AvatarStepIcon },
   {
