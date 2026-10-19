@@ -153,7 +153,9 @@ export const MembersPanel = ({ detail }) => {
   const [follows, setFollows] = useState(() =>
     Object.fromEntries(detail.people.map((person) => [person.id, person.following]))
   );
-  const [more, setMore] = useState(true);
+  // Live pages set `moreMembers: false` (the API returns the members it has) and `membersSearch` (real count).
+  const [more, setMore] = useState(detail.moreMembers !== false);
+  const searchLabel = detail.membersSearch || copy.search;
 
   const shown = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -173,8 +175,8 @@ export const MembersPanel = ({ detail }) => {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={copy.search}
-            aria-label={copy.search}
+            placeholder={searchLabel}
+            aria-label={searchLabel}
             className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:text-[#595959] max-sm:text-[16px]"
           />
         </label>
@@ -227,6 +229,9 @@ export const MembersPanel = ({ detail }) => {
                 ))}
               </div>
             </div>
+            {person.me ? (
+              <span className="font-sans text-[12px] font-semibold text-[#737373]">You</span>
+            ) : (
             <div className="flex items-center gap-[14px] max-sm:basis-full max-sm:gap-[10px] max-sm:pl-[58px]">
               <button
                 type="button"
@@ -251,6 +256,7 @@ export const MembersPanel = ({ detail }) => {
                 {follows[person.id] ? copy.following : copy.follow}
               </PageButton>
             </div>
+            )}
           </div>
         ))}
       </div>

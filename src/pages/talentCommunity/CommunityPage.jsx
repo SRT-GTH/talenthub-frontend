@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
+import CommunityPageLive from './live/CommunityPageLive.jsx';
 import CommunityDialogs from '../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../components/sections/talentCommunity/CommunityFrame.jsx';
 import {
@@ -52,7 +53,7 @@ const log = debug('CommunityPage');
  * (CommunityDialogs). Joined = `?joined=1` OR a real Join click (which sets it); leaving removes it.
  * Detail data: the `page` block of communityData.js (⚠️ ASSUMPTIONS listed there).
  */
-const CommunityPage = () => {
+const CommunityPageDemo = () => {
   const community = useCommunityState();
   const { communityId } = useParams();
   const navigate = useNavigate();
@@ -218,6 +219,12 @@ const CommunityPage = () => {
       <CommunityDialogs community={community} communityName={detail.name} />
     </CommunityFrame>
   );
+};
+
+/* Live data by default; `?demo=1` (or a demo-only state key, see communityState.js) shows the drawn mock. */
+const CommunityPage = () => {
+  const community = useCommunityState();
+  return community.demo ? <CommunityPageDemo /> : <CommunityPageLive community={community} />;
 };
 
 export default CommunityPage;

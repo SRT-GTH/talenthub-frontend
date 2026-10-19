@@ -34,6 +34,7 @@ import {
   SIDE_RIGHT,
 } from '../../components/sections/talentCommunity/communityPageStyles.js';
 import { debug } from '../../utils/debug.js';
+import CommunityPostLive from './live/CommunityPostLive.jsx';
 
 const log = debug('CommunityPostPage');
 
@@ -44,7 +45,7 @@ const log = debug('CommunityPostPage');
  * (Yaa Asantewaa, id `yaa-first-pr`) has a drawn thread: every other post id opens that one (⚠️ ASSUMPTION, see POST_DETAIL).
  * Mounts CommunityDialogs (create / report / leave / milestone) and, with `?pending=1`, the C-13 pending post + toast.
  */
-const CommunityPostPage = () => {
+const CommunityPostDemo = () => {
   const community = useCommunityState();
   const { communityId, postId } = useParams();
   const navigate = useNavigate();
@@ -152,6 +153,12 @@ const CommunityPostPage = () => {
       />
     </CommunityFrame>
   );
+};
+
+/* Live data by default; `?demo=1` (or a demo-only state key, see communityState.js) shows the drawn mock. */
+const CommunityPostPage = () => {
+  const community = useCommunityState();
+  return community.demo ? <CommunityPostDemo /> : <CommunityPostLive community={community} />;
 };
 
 export default CommunityPostPage;

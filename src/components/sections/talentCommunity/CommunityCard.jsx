@@ -20,6 +20,8 @@ const log = debug('CommunityCard');
  *   joined      boolean — picks the Joined variant (button opens the menu, cover tag "You’re in")
  *   showTag     false hides the cover tag (C-16 "Closest communities" draws plain cards). Default true
  *   activity    overrides `community.activity` (C-16 draws Hackathons Ghana as "Active daily")
+ *   faces       avatar URLs for the "+ friends here" row (default: the three drawn faces); null hides the row (live
+ *               data has no friends graph yet)
  *   muted       boolean — only changes the menu label ("Unmute notifications")
  *   menuOpen    boolean — the "Joined" menu is open (controlled by the page: only one card has it open at a time)
  *   to          href of the community page (default `/community/<id>`, `?joined=1` when joined)
@@ -48,6 +50,7 @@ const CommunityCard = ({
   joined = false,
   showTag = true,
   activity,
+  faces = COMMUNITY_CARD_FACES,
   muted = false,
   menuOpen = false,
   to,
@@ -116,8 +119,10 @@ const CommunityCard = ({
           {community.description}
         </p>
         <div className={classNames('flex items-center gap-[8px]', joined ? '' : 'py-[5px]')}>
+          {faces ? (
+          <>
           <span className="flex shrink-0 items-center" aria-hidden="true">
-            {COMMUNITY_CARD_FACES.map((src, i) => (
+            {faces.map((src, i) => (
               <img
                 key={src}
                 src={src}
@@ -130,6 +135,8 @@ const CommunityCard = ({
           <span className="whitespace-nowrap font-sans text-[11px] font-medium leading-[13px] text-[#737373] max-lg:text-[12px]">
             {COMMUNITY_BROWSE_COPY.friendsHere}
           </span>
+          </>
+          ) : null}
           <span className="min-w-0 flex-1" aria-hidden="true" />
           {joined ? (
             <span className="relative z-10 shrink-0">

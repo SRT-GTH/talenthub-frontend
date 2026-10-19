@@ -8,21 +8,15 @@ import {
   CommunityPostChevronSmallGlyph,
   CommunityPostThumbUpSmallGlyph,
 } from './CommunityPostIcons.jsx';
-import { FOCUS_RING } from './communityDialogUtils.js';
+import { INPUT, LINK_BTN } from './postCommentStyles.js';
 import { POST_DETAIL } from './communityData.js';
 
 const log = debug('PostComments');
 
 const AVATARS = { akosua: akosuaAvatar };
 
-/* GTHInput of the comment composers: white, 1px #ccc, r10, hard 4px shadow + soft lift (Figma draws it in the active state). */
-const INPUT =
-  'block min-w-0 flex-1 rounded-[10px] border border-solid border-[#ccc] bg-white py-[13px] pl-[20px] pr-[16px] font-sans font-medium text-[14px] tracking-[0.2px] text-[#1c2a21] shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)] outline-none placeholder:text-[#595959] max-sm:px-[14px]';
-
-const LINK_BTN = `cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-semibold leading-[14px] ${FOCUS_RING}`;
-
 /* One comment: avatar + grey bubble + like / Reply row (+ optional "View n replies" and inline reply composer). */
-const Comment = ({ comment, onLike, liked, replyOpen, onReply, children }) => {
+export const Comment = ({ comment, onLike, liked, replyOpen, onReply, children }) => {
   const avatar = AVATARS[comment.id] ?? comment.avatar;
   const likes = comment.likes + (liked ? 1 : 0);
   return (
@@ -61,14 +55,16 @@ const Comment = ({ comment, onLike, liked, replyOpen, onReply, children }) => {
             <CommunityPostThumbUpSmallGlyph className="size-[13px]" />
             <span>{likes}</span>
           </button>
-          <button
-            type="button"
-            aria-expanded={replyOpen}
-            onClick={onReply}
-            className={classNames(LINK_BTN, 'text-[#595959]')}
-          >
-            {POST_DETAIL.reply}
-          </button>
+          {onReply ? (
+            <button
+              type="button"
+              aria-expanded={replyOpen}
+              onClick={onReply}
+              className={classNames(LINK_BTN, 'text-[#595959]')}
+            >
+              {POST_DETAIL.reply}
+            </button>
+          ) : null}
         </div>
         {children}
       </div>

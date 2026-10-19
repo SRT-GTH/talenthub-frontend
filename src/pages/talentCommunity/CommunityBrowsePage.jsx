@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
+import CommunityBrowseLive from './live/CommunityBrowseLive.jsx';
 import CommunityCard from '../../components/sections/talentCommunity/CommunityCard.jsx';
 import CommunityDialogs from '../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../components/sections/talentCommunity/CommunityFrame.jsx';
@@ -44,7 +45,7 @@ const log = debug('CommunityBrowsePage');
  */
 const categoryLabel = (id) => COMMUNITY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 
-const CommunityBrowsePage = () => {
+const CommunityBrowseDemo = () => {
   const community = useCommunityState();
   const { cat, q, view, state, menu, update } = community;
   const navigate = useNavigate();
@@ -238,6 +239,12 @@ const CommunityBrowsePage = () => {
       <CommunityDialogs community={community} />
     </CommunityFrame>
   );
+};
+
+/* Live data by default; `?demo=1` (or a demo-only state key, see communityState.js) shows the drawn mock. */
+const CommunityBrowsePage = () => {
+  const community = useCommunityState();
+  return community.demo ? <CommunityBrowseDemo /> : <CommunityBrowseLive community={community} />;
 };
 
 export default CommunityBrowsePage;
