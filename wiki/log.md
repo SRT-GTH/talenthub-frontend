@@ -2534,3 +2534,11 @@ Built from cached Figma node JSON/PNGs (new token stored in the git-ignored `.fi
 ## [2026-10-18] create | Talent streaks — `/streak` page, 15-day milestone modal, nav streak pop-up (6 states)
 
 S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=open|done|risk|freeze|lost|new` on any talent page); `activeNav="streak"` in the shell; `/streak` route. Gates: lint 0, build ✓, leak check clean, responsive audit streak 40/40. Details: [talent-streak.md](talent-streak.md).
+
+## [2026-10-19] create | Talent Skills Lab — hub, lab details, 8 lab flows, 20 games, dialogs/toasts, Help
+
+New routes `/skills-lab`, `/skills-lab/lab/:labId[/play]`, `/skills-lab/games/:gameId` (Figma canvas 7500:92564, 102 screens x Playful + Focused). Built with parallel agents on a shared engine (`LabPlayChrome` + `useLabAttempt` + auto-merged `labFlows/` / `labKinds/` / `games/`). Verified: every frame pixel-diffed against its Figma export in both styles (median 2.5%), lint 0, build ok, responsive audit, runtime-error scan. Lots of content is invented to complete the loops (tagged ASSUMPTION) — see [talent-skills-lab.md](talent-skills-lab.md).
+
+## [2026-10-19] delete | Old Skills Lab quiz (redundant)
+
+Removed the first Skills Lab build: route `/skills-lab/:skillSlug`, `src/pages/skillsLab/`, `src/components/sections/skillsLab/`, `src/constants/skillLabQuizzes.js`, `src/hooks/useQuizEngine.js` — the new Figma canvas (7500:92564) has a lab for every skill it had (Python, Data analysis, UI/UX = creative design, Engineering/Product planning = project management, Public speaking, Strategic thinking = the chess quiz) plus more. Old-only questions (e.g. dictionary methods, string slicing, lambdas, typography hierarchy, risk assessment) are gone with it; they live in git history. The profile-filling "verify in lab" button now opens `/skills-lab/lab/<skill id>`.

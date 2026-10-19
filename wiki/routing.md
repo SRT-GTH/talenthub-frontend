@@ -102,14 +102,6 @@ Two entry flows defined in `src/constants/parentFlows.js`:
 | `/profile/filling/skills`               | `SkillsIntroPage`     |
 | `/profile/filling/skills/categories`    | `SkillsStage2Page`    |
 
-### Skills Lab — no layout wrapper (standalone game shell)
-
-Single-page state machine quiz for skill verification. Route param `:skillSlug` selects the quiz config from `src/constants/skillLabQuizzes.js`. Currently mocked with Python.
-
-| Path                     | Element         |
-| ------------------------ | --------------- |
-| `/skills-lab/:skillSlug` | `SkillsLabPage` |
-
 ### Talent Community Engagement — no layout wrapper (own dashboard chrome) `✅ VERIFIED` (2026-09-17)
 
 Community/feed area. `CommunityShell` supplies the chrome (top nav with global search + notification cluster, collapsible left rail, grid/ellipse page background) as a **fixed viewport shell** — only the content column scrolls, which the two Figma "remains fixed on scroll" annotations require. Mounted outside `MainLayout` for the same reason `/profile/engagement/*` is.
@@ -233,3 +225,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 5. Update `wiki/figma-node-map.md` (Figma-sourced screens) and `wiki/log.md`.
 
 `/job-postings` → `pages/talentJobs/TalentJobsPage.jsx`, outside `MainLayout`, `DashboardShell role="talent" activeNav="jobs"`; frames are query params. See [talent-jobs.md](talent-jobs.md).
+
+`/skills-lab` (hub + `?tab=`/`?modal=`/`?toast=`), `/skills-lab/lab/:labId` (details), `/skills-lab/lab/:labId/play` (lab flow), `/skills-lab/games/:gameId` — outside `MainLayout`, see [talent-skills-lab.md](talent-skills-lab.md). The old `/skills-lab/:skillSlug` quiz page was removed.

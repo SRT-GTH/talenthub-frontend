@@ -558,7 +558,7 @@ const SkillsStage2Section = () => {
                   key={skill.id}
                   skill={skill}
                   onEdit={() => openEditModal(skill)}
-                  onVerifyInLab={() => navigate(`/skills-lab/${skill.id}`)}
+                  onVerifyInLab={() => navigate(`/skills-lab/lab/${skill.id}`)}
                 />
               ))}
             </div>

@@ -100,7 +100,6 @@ const GoalsStage2Page = lazy(() => import('./pages/profileFilling/GoalsStage2Pag
 const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.jsx'));
 const PitchStage2Page = lazy(() => import('./pages/profileFilling/PitchStage2Page.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
-const SkillsLabPage = lazy(() => import('./pages/skillsLab/SkillsLabPage.jsx'));
 const CommunityHomePage = lazy(() => import('./pages/community/CommunityHomePage.jsx'));
 const CommunityDetailPage = lazy(() => import('./pages/community/CommunityDetailPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
@@ -112,6 +111,10 @@ const TalentNotificationsPage = lazy(
 const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentJobsPage = lazy(() => import('./pages/talentJobs/TalentJobsPage.jsx'));
 const TalentStreakPage = lazy(() => import('./pages/talentStreak/TalentStreakPage.jsx'));
+const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHubPage.jsx'));
+const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
+const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
+const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -837,16 +840,6 @@ function App() {
                   element={<LegacyRecruiterBuddyRedirect />}
                 />
 
-                {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
-                <Route
-                  path={'/skills-lab/:skillSlug'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <SkillsLabPage />
-                    </Suspense>
-                  }
-                />
-
                 {/* Talent Community Engagement — the community/feed area.
             Mounted outside MainLayout (same as /profile/engagement/*) because
             Figma's frames carry their own dashboard chrome: a top nav with
@@ -911,6 +904,42 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent Skills Lab — Figma canvas "Talent - Skills Lab" 7500:92564 (hub, lab details, lab flow, games).
+            Frames are query params (see skillsLabState.js / wiki/talent-skills-lab.md). The old quiz page at
+            /skills-lab/:skillSlug was removed. Outside MainLayout like /job-postings. */}
+                <Route
+                  path={'/skills-lab'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SkillsLabHubPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/lab/:labId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <LabDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/lab/:labId/play'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <LabPlayPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/games/:gameId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GamePage />
                     </Suspense>
                   }
                 />

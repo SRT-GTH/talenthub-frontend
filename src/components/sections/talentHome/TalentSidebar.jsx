@@ -145,13 +145,15 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     activeIdProp ??
     (activeNav === 'profile'
       ? 'profile'
-      : activeNav === 'streak'
-        ? 'none'
-        : activeNav === 'jobs'
-          ? 'opportunities'
-          : activeNav === 'learning'
-            ? 'my-learning'
-            : 'home');
+      : activeNav === 'skills-lab'
+        ? 'skills-lab'
+        : activeNav === 'streak'
+          ? 'none'
+          : activeNav === 'jobs'
+            ? 'opportunities'
+            : activeNav === 'learning'
+              ? 'my-learning'
+              : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
