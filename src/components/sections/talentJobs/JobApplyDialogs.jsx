@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
@@ -27,7 +27,7 @@ import {
   JobDetailWifiOffIcon,
 } from './JobDetailIcons.jsx';
 import { FOCUS_RING, INK_CARD, PILL_OUTLINE, fill } from './jobDetailStyles.js';
-import { APPLY_COPY as COPY, PROFILE_PREVIEW } from './talentJobsData.js';
+import { APPLY_COPY as COPY, JOBS_LIVE, PROFILE_PREVIEW } from './talentJobsData.js';
 
 const log = debug('JobApplyDialogs');
 
@@ -162,14 +162,39 @@ const PreviewDialog = ({ jobs, view, kind, projects, onClose }) => {
   const pct = projects && flow ? raised : base;
   const vars = { company: view.short, from: base, to: raised, loss: d.preview?.hiddenLoss };
 
+  const [sending, setSending] = useState(false);
+  const [failure, setFailure] = useState(null);
+  // Live: send through POST /guidance/jobs/:id/apply. No response at all = the offline frame (J-14);
+  // a refusal (role closed, adults only, already applied) is shown as a message in the dialog.
+  const send = async () => {
+    setSending(true);
+    setFailure(null);
+    try {
+      await jobs.data.apply(job.id, flow && !projects ? ['projects'] : []);
+      jobs.update({ state: null, apply: 'sent' });
+    } catch (err) {
+      const status = err?.response?.status;
+      log.error('apply failed:', status || err?.message);
+      if (!status) jobs.update({ state: 'offline', apply: null });
+      else
+        setFailure(
+          err?.response?.data?.message || 'We couldn’t send your application. Please try again.'
+        );
+    } finally {
+      setSending(false);
+    }
+  };
   const cont = () => {
     log('continue application', job.id);
-    jobs.update({ apply: 'sent' });
+    if (JOBS_LIVE) send();
+    else jobs.update({ apply: 'sent' });
   };
   const tryAgain = () => {
     const online = typeof navigator === 'undefined' || navigator.onLine !== false;
     log('try again', { online });
-    if (online) jobs.update({ state: null, apply: 'sent' });
+    if (!online) return;
+    if (JOBS_LIVE) send();
+    else jobs.update({ state: null, apply: 'sent' });
   };
   const sendLater = () => {
     log('queued until online', job.id);
@@ -326,6 +351,14 @@ const PreviewDialog = ({ jobs, view, kind, projects, onClose }) => {
             </Button>
           </div>
         ) : null}
+        {failure ? (
+          <p
+            role="alert"
+            className="m-0 mb-[14px] rounded-[16px] border-[1.2px] border-solid border-[#c0392b] bg-[#f9ebea] px-[14px] py-[12px] font-sans text-[13.5px] leading-[18px] text-[#1c2a21]"
+          >
+            {failure}
+          </p>
+        ) : null}
       </div>
 
       <footer className="flex flex-wrap items-center gap-x-[10px] gap-y-[12px] border-0 border-t border-solid border-[#e1eae2] pt-[16px] pr-[24px] pb-[22px] pl-[28px] max-sm:px-[16px]">
@@ -337,8 +370,14 @@ const PreviewDialog = ({ jobs, view, kind, projects, onClose }) => {
           <Button variant="tertiary" size="lg" onClick={onClose}>
             {COPY.cancel}
           </Button>
-          <Button variant="primary" size="lg" onClick={offline ? sendLater : cont}>
-            {offline ? COPY.sendLater : COPY.cont}
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={offline ? sendLater : cont}
+            disabled={sending}
+            aria-busy={sending || undefined}
+          >
+            {sending ? 'Sending…' : offline ? COPY.sendLater : COPY.cont}
           </Button>
         </div>
       </footer>
@@ -366,7 +405,8 @@ const SentDialog = ({ jobs, view, onClose }) => {
   const { job, d } = view;
   const r = d.recruiter;
   const vars = { company: view.short, title: job.title, recruiter: r?.first ?? 'the recruiter' };
-  const rows = COPY.next.filter((_, i) => (i === 0 ? Boolean(r) : true));
+  // Row 0 is a recruiter reply-time promise; live data has no reply-time yet, so it is left out.
+  const rows = COPY.next.filter((_, i) => (i === 0 ? Boolean(r) && !JOBS_LIVE : true));
   const leave = (extra) => {
     log('leave sent dialog', extra);
     jobs.update({ job: null, apply: null, state: null, ...extra });

@@ -65,7 +65,7 @@ const Sticker = ({ tone = 'mint', children, className }) => (
   </span>
 );
 
-const FilterRail = ({ active, onSelect, unreadCount, className }) => {
+const FilterRail = ({ active, onSelect, counts, className }) => {
   const [quiet, setQuiet] = useState(true);
   return (
     <aside
@@ -81,7 +81,7 @@ const FilterRail = ({ active, onSelect, unreadCount, className }) => {
       <nav className="flex flex-col gap-[12px] playful:gap-[12px]">
         {FILTERS.map((f) => {
           const on = active === f.id;
-          const count = f.id === 'unread' ? String(unreadCount) : f.count;
+          const count = String(counts?.[f.id] ?? 0);
           // Figma only ships white-on-dark for "All" and grey for the rest; the opposite state is
           // the same glyph recoloured with a filter (⚠️ ASSUMPTION — no active frame for the others).
           const whiteGlyph = f.id === 'all';
@@ -163,7 +163,7 @@ const FilterRail = ({ active, onSelect, unreadCount, className }) => {
   );
 };
 
-const PageHeader = ({ caughtUp }) => (
+const PageHeader = ({ caughtUp, unreadCount }) => (
   <div className="flex items-start justify-between gap-[24px]">
     <div className="flex flex-col gap-[3px]">
       <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1c2a21] playful:font-heading">
@@ -191,7 +191,7 @@ const PageHeader = ({ caughtUp }) => (
       </span>
       <span className="absolute left-[136px] top-[36px] inline-flex items-center gap-[6px] rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[14px] tracking-[0.2px] text-[#1c2a21] shadow-[0_1px_2px_rgba(28,42,33,0.06)]">
         <span className="size-[8px] rounded-full bg-[#349643]" />
-        {caughtUp ? PAGE_HEADER.inboxCaughtUp : PAGE_HEADER.inbox}
+        {caughtUp ? PAGE_HEADER.inboxCaughtUp : PAGE_HEADER.inbox(unreadCount)}
       </span>
       <span
         className="absolute left-[337px] top-[2px] inline-flex items-center gap-[6px] rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white shadow-[0_4px_0_#224626]"
@@ -242,13 +242,57 @@ const InboxZero = ({ onExplore, onAll }) => (
   </div>
 );
 
-const NotificationsScreen = ({ home }) => {
+/* Loading rows (no Figma frame for the full screen; mirrors the pop-up's N-04 skeleton ⚠️ ASSUMPTION). */
+const FeedSkeleton = () => (
+  <div
+    aria-busy="true"
+    aria-label="Loading notifications"
+    className="flex flex-col gap-[10px] px-[16px] pb-[16px] pt-[8px]"
+  >
+    {[0, 1, 2, 3, 4].map((i) => (
+      <div key={i} className="flex gap-[16px] rounded-[18px] px-[16px] py-[16px]">
+        <span className="size-[48px] shrink-0 rounded-full bg-[#eeeeea]" />
+        <div className="flex flex-1 flex-col gap-[8px] pt-[4px]">
+          <span className="h-[12px] w-[320px] max-w-full rounded-[6px] bg-[#e7e7e7]" />
+          <span className="h-[10px] w-[220px] max-w-full rounded-[6px] bg-[#e1eae2]" />
+          <span
+            className="h-[10px] rounded-[6px] bg-[#e7e7e7]"
+            style={{ width: i % 2 ? 99 : 148 }}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* Load failure (no Figma frame ⚠️ ASSUMPTION). */
+const FeedError = ({ onRetry }) => (
+  <div className="flex flex-col items-start gap-[12px] px-[24px] py-[32px]">
+    <p className="m-0 font-sans text-[14px] leading-[20px] text-[#595959]">{FEED_COPY.error}</p>
+    <NotifButton size="sm" tone="secondary" onClick={onRetry}>
+      {FEED_COPY.retry}
+    </NotifButton>
+  </div>
+);
+
+const NotificationsScreen = ({ home, feed: sharedFeed }) => {
   const navigate = useNavigate();
   const { uiStyle } = useUiStyle();
   const filter = home?.filter ?? 'all';
-  const feed = useNotificationFeed({ startRead: Boolean(home?.readAll) });
+  // The page owns the feed (it also feeds the rail badge); a bare mount fetches its own.
+  const ownFeed = useNotificationFeed({
+    startRead: Boolean(home?.readAll),
+    enabled: !sharedFeed,
+  });
+  const feed = sharedFeed ?? ownFeed;
   const items = feed.select(filter);
-  const empty = items.length === 0;
+  const empty = feed.ready && items.length === 0;
+  const onAction = (action) => {
+    if (!action?.to) return;
+    log('action →', action.to);
+    if (/^https?:\/\//i.test(action.to)) window.open(action.to, '_blank', 'noopener');
+    else navigate(action.to);
+  };
   const setFilter = (id) => {
     log('filter', id);
     home.update({ filter: id === 'all' ? null : id });
@@ -259,13 +303,13 @@ const NotificationsScreen = ({ home }) => {
 
   return (
     <div className="flex flex-col gap-[24px] px-[clamp(16px,2.31vw,40px)] pb-[32px] pt-[32px] max-md:gap-[16px] max-md:px-[12px] max-md:pt-[16px]">
-      <PageHeader caughtUp={feed.unreadCount === 0} />
+      <PageHeader caughtUp={feed.ready && feed.unreadCount === 0} unreadCount={feed.unreadCount} />
 
       <div className="grid items-start gap-[24px] max-md:gap-[12px] lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[248px_minmax(0,1fr)_340px]">
         <FilterRail
           active={filter}
           onSelect={setFilter}
-          unreadCount={feed.unreadCount}
+          counts={feed.counts}
           className="max-lg:hidden"
         />
 
@@ -290,9 +334,7 @@ const NotificationsScreen = ({ home }) => {
               )}
             >
               {f.label}
-              <span className="text-[13px] font-bold opacity-70">
-                {f.id === 'unread' ? feed.unreadCount : f.count}
-              </span>
+              <span className="text-[13px] font-bold opacity-70">{feed.counts?.[f.id] ?? 0}</span>
             </button>
           ))}
         </div>
@@ -340,7 +382,11 @@ const NotificationsScreen = ({ home }) => {
             </button>
           </div>
 
-          {empty ? (
+          {feed.loading ? (
+            <FeedSkeleton />
+          ) : feed.error ? (
+            <FeedError onRetry={feed.refresh} />
+          ) : empty ? (
             <InboxZero onExplore={() => navigate('/home')} onAll={() => setFilter('all')} />
           ) : (
             <>
@@ -355,7 +401,7 @@ const NotificationsScreen = ({ home }) => {
                           {g.label}
                         </span>
                         <span className="font-sans text-[12px] font-medium leading-[14px] text-[#737373]">
-                          {g.count}
+                          {rows.length}
                         </span>
                         {g.squiggle && (
                           <img
@@ -374,6 +420,7 @@ const NotificationsScreen = ({ home }) => {
                             variant="page"
                             unread={feed.isUnread(n)}
                             onRead={feed.markRead}
+                            onAction={onAction}
                           />
                         ))}
                       </ul>

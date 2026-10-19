@@ -407,7 +407,7 @@ const EducationSection = ({ data }) => (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Education level" value={data.level} />
       <Cell label="Grade / Year" value={data.grade} />
-      <Cell label="Curriculum" value={data.curriculum} />
+      <Cell label="Programme / Course" value={data.programme} />
       <Cell label="Expected graduation" value={data.graduation} />
     </div>
 

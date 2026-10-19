@@ -13,7 +13,7 @@ import face3 from '../../../assets/talent-jobs/faces/banner-face-3.png';
  * `{ id, company: {name, logo, confidential, sector}, title, location, type, pay, match, why[], posted,
  *   signal, isNew }` — swap `JOB_LIST` for a fetch and nothing else changes.
  */
-export const JOBS_HEADER = {
+export let JOBS_HEADER = {
   title: 'Job Postings',
   subtitle: 'Roles where recruiters are already seeing you, plus everything else that’s open.',
   stickers: {
@@ -30,7 +30,7 @@ export const JOBS_HEADER = {
   },
 };
 
-export const JOB_TAB_LIST = [
+export let JOB_TAB_LIST = [
   { id: 'matched', label: 'Matched to you', count: '6', amber: true },
   { id: 'browse', label: 'Browse all', count: '142' },
   { id: 'saved', label: 'Saved', count: '3' },
@@ -46,14 +46,14 @@ export const SORTS = {
 };
 export const ALERTS_BUTTON = 'Match alerts · 75%+';
 
-export const DISCOVERY = {
+export let DISCOVERY = {
   faces: [face1, face2, face3],
   title: 'Recruiters can already see you for these 6 roles',
   body: 'You don’t need to apply to be discovered. Applying puts you at the top of their list.',
   sticker: 'no CV needed',
 };
 
-export const JOB_LIST = [
+export let JOB_LIST = [
   {
     id: 'data-science-intern',
     company: { name: 'Farmerline', logo: farmerline },
@@ -140,14 +140,14 @@ export const JOB_LIST = [
 ];
 
 /* Browse all (J-18) rows — "Not matched yet" rows have no match %. */
-export const BROWSE_COPY = {
+export let BROWSE_COPY = {
   search: 'Search roles, companies or skills…',
   filters: ['Location', 'Job type', 'Pay', 'Industry'],
   count: '142 open roles in Ghana',
   onlyMine: 'Only show my matches',
   unmatched: 'Not matched yet',
 };
-export const BROWSE_ROWS = [
+export let BROWSE_ROWS = [
   {
     id: 'data-science-intern',
     title: 'Data Science Intern',
@@ -200,7 +200,7 @@ export const BROWSE_ROWS = [
 ];
 
 /* Saved (J-19) */
-export const SAVED_COPY = {
+export let SAVED_COPY = {
   filters: [
     { id: 'all', label: 'All', count: '3' },
     { id: 'open', label: 'Open', count: '2' },
@@ -213,14 +213,14 @@ export const SAVED_COPY = {
   view: 'View opportunity',
 };
 /* id -> status ("closing" = closes in 2 days, "closed"), in Figma order */
-export const SAVED_JOBS = [
+export let SAVED_JOBS = [
   { id: 'data-science-intern', status: 'open' },
   { id: 'graduate-data-analyst', status: 'closing' },
   { id: 'junior-data-engineer', status: 'closed' },
 ];
 
 /* Applied (J-10) */
-export const APPLIED_COPY = {
+export let APPLIED_COPY = {
   filters: [
     { id: 'all', label: 'All', count: '4' },
     { id: 'active', label: 'Active', count: '3' },
@@ -233,7 +233,7 @@ export const APPLIED_COPY = {
   tip: 'Tip: recruiters reply faster to talents with a verified skill. You have 1.',
 };
 /* step = index of the reached step in APPLIED_COPY.steps; tone good|plain|closed */
-export const APPLIED_ROWS = [
+export let APPLIED_ROWS = [
   {
     id: 'data-science-intern',
     title: 'Data Science Intern',
@@ -277,7 +277,7 @@ export const APPLIED_ROWS = [
 ];
 
 /* Empty matches (J-07) */
-export const EMPTY_COPY = {
+export let EMPTY_COPY = {
   title: 'No matches… yet',
   body: 'Recruiters find talent by skills and location. Give them more to go on and matches start rolling in, usually within a day.',
   steps: [
@@ -290,7 +290,7 @@ export const EMPTY_COPY = {
 };
 
 export const LOADING_COPY = 'Finding roles that fit you…';
-export const MATCH_FOOTER = {
+export let MATCH_FOOTER = {
   done: "That's all 6 for today",
   sub: 'New matches land every morning.',
   link: 'Browse all 142 roles →',
@@ -589,7 +589,7 @@ export const APPLY_COPY = {
   track: 'Track in Applied',
 };
 
-export const PROFILE_PREVIEW = {
+export let PROFILE_PREVIEW = {
   name: 'Kofi Agyekum',
   line: 'Tertiary (BSc) · Accra, Ghana',
   status: 'Open to work',
@@ -602,7 +602,7 @@ export const PROFILE_PREVIEW = {
   ],
 };
 
-export const JOB_DETAILS = {
+export let JOB_DETAILS = {
   'data-analyst': {
     company: { short: 'Accra Tech', line: 'Fintech · Accra · 200+ people', verified: true },
     sticker: 'New today',
@@ -697,4 +697,55 @@ export const JOB_DETAILS = {
       learn: 'Learn it',
     },
   },
+};
+
+/* ---- live data (2026-10-18) ----------------------------------------------------------------------
+ * The exports above are ES live bindings: TalentJobsPage swaps them for the talent's real feed
+ * (talentJobsLive.js builds the same shapes from GET /guidance/jobs) and `applyJobsData(null)` restores
+ * the Figma demo (`?demo=1` or logged out). `JOB_INDEX` is every job the screens can open (matched +
+ * browse + saved + applied); in the demo it is JOB_LIST. `JOBS_LIVE` tells components which mode they
+ * are in (real mutations vs mock-only URL state).
+ */
+export let JOB_INDEX = JOB_LIST;
+export let JOBS_LIVE = false;
+export const jobById = (id) =>
+  JOB_INDEX.find((j) => j.id === id) || JOB_LIST.find((j) => j.id === id);
+
+export const DEMO_JOBS_DATA = Object.freeze({
+  JOBS_HEADER,
+  JOB_TAB_LIST,
+  DISCOVERY,
+  JOB_LIST,
+  JOB_INDEX: JOB_LIST,
+  BROWSE_COPY,
+  BROWSE_ROWS,
+  SAVED_COPY,
+  SAVED_JOBS,
+  APPLIED_COPY,
+  APPLIED_ROWS,
+  EMPTY_COPY,
+  MATCH_FOOTER,
+  JOB_DETAILS,
+  PROFILE_PREVIEW,
+});
+
+export const applyJobsData = (data) => {
+  const d = data || DEMO_JOBS_DATA;
+  const pick = (k) => (d[k] !== undefined ? d[k] : DEMO_JOBS_DATA[k]);
+  JOBS_LIVE = Boolean(data);
+  JOBS_HEADER = pick('JOBS_HEADER');
+  JOB_TAB_LIST = pick('JOB_TAB_LIST');
+  DISCOVERY = pick('DISCOVERY');
+  JOB_LIST = pick('JOB_LIST');
+  JOB_INDEX = pick('JOB_INDEX');
+  BROWSE_COPY = pick('BROWSE_COPY');
+  BROWSE_ROWS = pick('BROWSE_ROWS');
+  SAVED_COPY = pick('SAVED_COPY');
+  SAVED_JOBS = pick('SAVED_JOBS');
+  APPLIED_COPY = pick('APPLIED_COPY');
+  APPLIED_ROWS = pick('APPLIED_ROWS');
+  EMPTY_COPY = pick('EMPTY_COPY');
+  MATCH_FOOTER = pick('MATCH_FOOTER');
+  JOB_DETAILS = pick('JOB_DETAILS');
+  PROFILE_PREVIEW = pick('PROFILE_PREVIEW');
 };

@@ -29,7 +29,7 @@ const Logo = ({ company, size = 40 }) =>
     >
       <JobConfidentialLockIcon className="size-[19px]" />
     </span>
-  ) : (
+  ) : company.logo ? (
     <img
       src={company.logo}
       alt=""
@@ -37,6 +37,18 @@ const Logo = ({ company, size = 40 }) =>
       className="shrink-0 rounded-[12px]"
       style={{ width: size, height: size }}
     />
+  ) : (
+    // Live postings without a logo: initials tile (never a borrowed brand mark).
+    <span
+      aria-hidden="true"
+      className="flex shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec] font-sans text-[14px] font-bold text-[#2d5d33]"
+      style={{ width: size, height: size }}
+    >
+      {company.initials ||
+        String(company.name || '?')
+          .slice(0, 1)
+          .toUpperCase()}
+    </span>
   );
 
 export const BookmarkButton = ({ on, onClick, title }) => (
@@ -307,8 +319,10 @@ export const JobListRow = ({ job, saved, onSave, onOpen }) => {
 };
 
 /* J-18 browse row: no logo in the Figma rows, a leading marker tile instead. */
-export const BrowseRow = ({ row, onOpen }) => {
-  const [saved, setSaved] = useState(false);
+export const BrowseRow = ({ row, onOpen, saved: savedProp, onSave }) => {
+  // Live: saved state + toggle come from the screen (real bookmarks); demo: local only.
+  const [localSaved, setSaved] = useState(false);
+  const saved = onSave ? Boolean(savedProp) : localSaved;
   return (
     <RowShell>
       <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-[2px] pl-[2px]">
@@ -326,7 +340,11 @@ export const BrowseRow = ({ row, onOpen }) => {
           </span>
         )}
         <Age>{row.age}</Age>
-        <BookmarkButton on={saved} onClick={() => setSaved((s) => !s)} title={row.title} />
+        <BookmarkButton
+          on={saved}
+          onClick={onSave ?? (() => setSaved((s) => !s))}
+          title={row.title}
+        />
         <ArrowButton label={`View ${row.title}`} onClick={() => onOpen?.(row)} />
       </div>
     </RowShell>

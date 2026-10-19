@@ -16,12 +16,13 @@ const log = debug('NotificationRow');
  * Unread rows sit on #ebf1ec (the page's hovered row is #e1eae2); read rows are transparent.
  * Focused wording: the badge row says "pts" not "XP" (8110:662).
  *
- * Props: item (notificationsData row), unread (bool), variant, onRead(id).
+ * Props: item (notificationsData row), unread (bool), variant, onRead(id), onAction(action) —
+ * called after onRead when an action has a destination (`to`, from the backend actionUrl).
  */
 const BADGE_RING = '#ffffff';
 
 const AvatarCluster = ({ item, size }) => {
-  const type = NOTIFICATION_TYPES[item.type];
+  const type = NOTIFICATION_TYPES[item.type] || NOTIFICATION_TYPES.system;
   const page = size === 'page';
   const box = page ? 52 : 48;
   const badge = page ? 24 : 22;
@@ -94,7 +95,7 @@ const AvatarCluster = ({ item, size }) => {
   );
 };
 
-const NotificationRow = ({ item, unread, variant = 'popover', onRead }) => {
+const NotificationRow = ({ item, unread, variant = 'popover', onRead, onAction }) => {
   const { uiStyle } = useUiStyle();
   const page = variant === 'page';
   const focused = uiStyle !== 'playful';
@@ -180,7 +181,8 @@ const NotificationRow = ({ item, unread, variant = 'popover', onRead }) => {
                 tone={a.tone}
                 onClick={() => {
                   log('action', item.id, a.label);
-                  onRead?.(item.id);
+                  if (unread) onRead?.(item.id);
+                  onAction?.(a, item);
                 }}
               >
                 {a.label}
@@ -197,6 +199,7 @@ const NotificationRow = ({ item, unread, variant = 'popover', onRead }) => {
             <button
               type="button"
               aria-label="Mark as read"
+              disabled={!unread}
               onClick={() => onRead?.(item.id)}
               className="flex size-[32px] items-center justify-center rounded-full border border-solid border-[#c1d4c4] bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >

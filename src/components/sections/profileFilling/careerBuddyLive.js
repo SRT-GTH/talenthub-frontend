@@ -13,6 +13,11 @@
  * ChatThread renders a bubble as `text`, then `bullets`, then `followUp`, so
  * blocks are packed into as few bubbles as that shape allows.
  */
+import {
+  readEducationEntry,
+  classYearLabel,
+  overallResultLabel,
+} from '../../../utils/education.js';
 
 let seq = 0;
 const nextId = (prefix) => `${prefix}-${Date.now().toString(36)}-${(seq += 1)}`;
@@ -185,21 +190,26 @@ export function savedStageData(p, extras = {}) {
   );
   if (edu.length) {
     out['educational-background'] = {
-      entries: edu.map((e, i) =>
-        entry(
+      entries: edu.map((raw, i) => {
+        // Education v2: read classYear/qualification/subjects with v1 fallbacks.
+        const e = readEducationEntry(raw);
+        return entry(
           `edu-${i}`,
           e.institution,
           rows(
-            row('Level', e.educationLevel),
-            row('Programme', e.fieldOfStudy || e.degree),
-            row('Year / grade', e.grade),
+            row('Level', e.levelLabel),
+            row('Programme', e.fieldOfStudy),
+            row('Class', e.isCurrent ? classYearLabel(e.classYear) : null),
+            row('Qualification', e.qualification),
+            row('Subjects', e.subjects.map((s) => (s.enjoys ? `${s.name} ★` : s.name)).join(', ')),
+            row('Result', overallResultLabel(e.overallResult)),
             row(
               'Years',
               [e.startYear, e.isCurrent ? 'Present' : e.endYear].filter(Boolean).join(' - ')
             )
           )
-        )
-      ),
+        );
+      }),
     };
   }
 

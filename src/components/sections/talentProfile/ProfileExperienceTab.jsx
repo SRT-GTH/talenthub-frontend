@@ -78,6 +78,18 @@ const EducationItem = ({ item, onEdit }) => (
       <h3 className="text-[17px] leading-[normal] font-semibold text-[#1c2a21]">{item.title}</h3>
       <p className="text-[14px] leading-[normal] font-medium text-[#595959]">{item.org}</p>
       <p className="text-[13px] leading-[normal] whitespace-pre-wrap text-[#737373]">{item.meta}</p>
+      {/* Education v2 subjects (live data): electives first, ★ = enjoys. */}
+      {item.subjects?.length ? (
+        <div className="flex flex-wrap gap-[6px] pt-[6px]">
+          {[...item.subjects]
+            .sort((a, b) => (a.kind === 'elective' ? -1 : 1) - (b.kind === 'elective' ? -1 : 1))
+            .map((sub) => (
+              <ProfileChip key={sub.name} tone={sub.enjoys ? 'green' : 'white'}>
+                {sub.enjoys ? `${sub.name} ★` : sub.name}
+              </ProfileChip>
+            ))}
+        </div>
+      ) : null}
     </div>
     <EditButton label={`Edit ${item.title}`} onClick={onEdit} />
   </li>
@@ -130,6 +142,12 @@ const ProfileExperienceTab = ({ profile }) => {
       left={
         <>
           <ProfileCard title={work.title} link={work.add} onLink={openModal}>
+            {work.items.length ? null : (
+              <p className="text-[14px] leading-[1.5] text-[#737373]">
+                Nothing here yet. Jobs, gigs, apprenticeships, side hustles and volunteering all
+                count.
+              </p>
+            )}
             <ul className="flex flex-col">
               {work.items.map((item, i) => (
                 <WorkItem
@@ -143,6 +161,11 @@ const ProfileExperienceTab = ({ profile }) => {
           </ProfileCard>
 
           <ProfileCard title={edu.title} link={edu.add} onLink={openModal}>
+            {edu.items.length ? null : (
+              <p className="text-[14px] leading-[1.5] text-[#737373]">
+                Add your school or college.
+              </p>
+            )}
             <ul className="flex flex-col gap-[16px]">
               {edu.items.map((item) => (
                 <EducationItem key={item.key} item={item} onEdit={openModal} />

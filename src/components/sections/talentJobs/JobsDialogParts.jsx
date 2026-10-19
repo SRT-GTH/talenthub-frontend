@@ -89,6 +89,7 @@ export const ActionButton = ({
   size = 'sm',
   className,
   onClick,
+  disabled,
   children,
 }) => (
   <div className="min-w-0 flex-1">
@@ -96,6 +97,7 @@ export const ActionButton = ({
       variant={variant}
       size={size}
       onClick={onClick}
+      disabled={disabled}
       className={classNames('w-full max-lg:whitespace-normal', className)}
     >
       {children}

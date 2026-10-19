@@ -40,8 +40,9 @@ import {
   APPLIED_ROWS,
   JOB_DETAILS,
   JOB_DETAIL_COPY as COPY,
-  JOB_LIST,
   JOB_TAB_LIST,
+  JOBS_LIVE,
+  jobById,
 } from './talentJobsData.js';
 
 const log = debug('JobDetailScreen');
@@ -67,7 +68,7 @@ const log = debug('JobDetailScreen');
  * recruiter). Below xl the two columns collapse into one stack ordered hero, match, boost/similar, about,
  * skills, recruiter. Focused is the default look; Playful only through `playful:` variants.
  */
-const byId = (id) => JOB_LIST.find((j) => j.id === id);
+const byId = jobById;
 
 const parseWhy = (why) => {
   const verified = /\(verified\)/i.test(why);
@@ -201,8 +202,16 @@ const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
       : null,
   ].filter(Boolean);
 
+  // Live: roles the talent cannot apply to (adults-only for a minor, or a higher education level).
+  const blocked = JOBS_LIVE && !closed && !applied && !sent && job.eligible === false;
   let primary;
-  if (closed) {
+  if (blocked) {
+    primary = (
+      <Button variant="primary" size="lg" disabled>
+        {job.ineligibleReason === 'adults_only' ? 'Open to adults only' : 'Not open to you yet'}
+      </Button>
+    );
+  } else if (closed) {
     primary = (
       <Button variant="primary" size="lg" disabled>
         {COPY.closedButton}
@@ -224,11 +233,15 @@ const Hero = ({ view, mode, saved, onSave, onApply, jobs }) => {
       </Button>
     );
   }
-  const hint = closed
-    ? (d.closedNote ?? null)
-    : applied && !sent
-      ? view.application.note
-      : COPY.hint;
+  const hint = blocked
+    ? job.ineligibleReason === 'adults_only'
+      ? 'Internships and training programmes are open to you now.'
+      : 'This role asks for a higher education level than yours.'
+    : closed
+      ? (d.closedNote ?? null)
+      : applied && !sent
+        ? view.application.note
+        : COPY.hint;
 
   return (
     <article
@@ -642,12 +655,21 @@ const RecruiterCard = ({ view }) => {
       </span>
       <div className="flex items-center gap-[12px]">
         <span className="relative block size-[48px] shrink-0">
-          <img
-            src={recruiterPhoto}
-            alt=""
-            aria-hidden="true"
-            className="size-[48px] rounded-full object-cover"
-          />
+          {r.photo === null ? (
+            <span
+              aria-hidden="true"
+              className="flex size-[48px] items-center justify-center rounded-full bg-[#ebf1ec] font-sans text-[16px] font-bold text-[#2d5d33]"
+            >
+              {r.initials}
+            </span>
+          ) : (
+            <img
+              src={r.photo || recruiterPhoto}
+              alt=""
+              aria-hidden="true"
+              className="size-[48px] rounded-full object-cover"
+            />
+          )}
           <span className="absolute -right-[2px] -bottom-[2px] flex size-[18px] items-center justify-center rounded-full border-2 border-solid border-white bg-[#224626] text-white">
             <JobDetailCheckIcon className="size-[10px]" />
           </span>
@@ -661,15 +683,17 @@ const RecruiterCard = ({ view }) => {
           </span>
         </span>
       </div>
-      <span
-        className={classNames(
-          'inline-flex w-fit items-center gap-[6px] rounded-full bg-[#f8f8f4] px-[10px] py-[6px] font-sans text-[12.5px] leading-[15px] font-medium text-[#595959] max-lg:text-[13px]',
-          PILL_OUTLINE
-        )}
-      >
-        <JobDetailClockIcon className="size-[13px]" />
-        {r.reply}
-      </span>
+      {r.reply ? (
+        <span
+          className={classNames(
+            'inline-flex w-fit items-center gap-[6px] rounded-full bg-[#f8f8f4] px-[10px] py-[6px] font-sans text-[12.5px] leading-[15px] font-medium text-[#595959] max-lg:text-[13px]',
+            PILL_OUTLINE
+          )}
+        >
+          <JobDetailClockIcon className="size-[13px]" />
+          {r.reply}
+        </span>
+      ) : null}
     </section>
   );
 };
@@ -699,14 +723,24 @@ const JobDetailScreen = ({ jobs }) => {
   const job = useMemo(() => byId(jobs.job), [jobs.job]);
   const stateRaw = params.get('state');
   const offline = jobs.state === 'offline';
-  const closed = stateRaw === 'closed';
-  const applied = stateRaw === 'applied';
+  // Live: closed / applied come from the feed; the URL `state` still forces the Figma frames.
+  const closed = stateRaw === 'closed' || Boolean(JOBS_LIVE && job?.closed);
+  const applied =
+    stateRaw === 'applied' ||
+    Boolean(JOBS_LIVE && job?.application && job.application.stage !== 'withdrawn');
   const apply = ['preview', 'projects', 'sent'].includes(jobs.apply)
     ? jobs.apply
     : offline
       ? 'preview'
       : null;
-  const [saved, setSaved] = useState(false);
+  const [demoSaved, setDemoSaved] = useState(false);
+  const saved = JOBS_LIVE ? Boolean(job?.bookmarkId) : demoSaved;
+
+  // Live: fetch the full posting once (about, requirements, recruiter's display name).
+  useEffect(() => {
+    if (JOBS_LIVE && job?.id) jobs.data?.loadDetail(job.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job?.id]);
 
   useEffect(() => {
     log('mount', { job: jobs.job, apply, closed, applied, offline });
@@ -731,7 +765,11 @@ const JobDetailScreen = ({ jobs }) => {
   };
   const toggleSave = () => {
     log('toggle save', job.id, !saved);
-    setSaved((s) => !s);
+    if (JOBS_LIVE) {
+      jobs.data?.toggleSave(job.id).catch((err) => log.error('save failed:', err?.message));
+      return;
+    }
+    setDemoSaved((s) => !s);
   };
   const startApply = () => {
     log('apply -> preview', job.id);

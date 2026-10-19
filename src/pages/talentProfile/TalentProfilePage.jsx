@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import '../../styles/profileA11y.css';
 import { debug } from '../../utils/debug.js';
@@ -26,6 +27,10 @@ import ShareCardBuilder from '../../components/sections/talentProfile/ShareCardB
 import ProfileA11yPills from '../../components/sections/talentProfile/ProfileA11yPills.jsx';
 import { useProfileA11y } from '../../components/sections/talentProfile/useProfileA11y.js';
 import ProfileAccessibilityPanel from '../../components/sections/talentProfile/ProfileAccessibilityPanel.jsx';
+import { applyProfileData } from '../../components/sections/talentProfile/talentProfileTabsData.js';
+import { buildProfileData } from '../../components/sections/talentProfile/talentProfileLive.js';
+import { fetchTalentProfile } from '../../services/talentProfile.api.js';
+import { isLoggedIn } from '../../services/auth.api.js';
 
 const log = debug('TalentProfilePage');
 
@@ -46,8 +51,44 @@ const TAB_BODIES = {
  * Frame <-> URL table and file ownership: wiki/talent-profile.md. State is chosen from the URL
  * (talentProfileState.js). `?view=recruiter|public` (P-07 / PR-02 / PR-04) render inside the talent shell.
  */
+/*
+ * Live data (2026-10-18): a logged-in talent sees their real profile (talentProfileLive.js maps it
+ * onto the same shapes as the Figma demo). `?demo=1` or a logged-out visit keeps the demo data.
+ */
+const useLiveProfileData = () => {
+  const [params] = useSearchParams();
+  const live = params.get('demo') !== '1' && isLoggedIn();
+  const [state, setState] = useState({ status: live ? 'loading' : 'demo', version: 0 });
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!live) {
+      applyProfileData(null);
+      setState((s) => ({ status: 'demo', version: s.version + 1 }));
+      return undefined;
+    }
+    let cancelled = false;
+    setState((s) => ({ ...s, status: 'loading' }));
+    fetchTalentProfile()
+      .then((raw) => {
+        if (cancelled) return;
+        applyProfileData(buildProfileData(raw));
+        setState((s) => ({ status: 'live', version: s.version + 1 }));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        log.error('profile load failed:', err?.code || err?.message);
+        setState((s) => ({ ...s, status: 'error' }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [live, attempt]);
+  return { ...state, retry: () => setAttempt((n) => n + 1) };
+};
+
 const TalentProfilePage = () => {
   const profile = useTalentProfileState();
+  const data = useLiveProfileData();
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -105,7 +146,25 @@ const TalentProfilePage = () => {
           data-profile-links={effective.links ? '' : undefined}
         >
           {profile.view ? <ProfilePreviewBanner profile={profile} /> : null}
-          {profile.view ? (
+          {data.status === 'loading' ? (
+            <p role="status" className="px-[8px] py-[40px] text-center text-[15px] text-[#737373]">
+              Loading your profile…
+            </p>
+          ) : data.status === 'error' ? (
+            <div
+              role="alert"
+              className="flex flex-col items-center gap-[12px] py-[40px] text-center"
+            >
+              <p className="text-[15px] text-[#1c2a21]">We couldn’t load your profile.</p>
+              <button
+                type="button"
+                onClick={data.retry}
+                className="rounded-full border border-[#1c2a21] px-[16px] py-[8px] text-[14px] font-semibold"
+              >
+                Try again
+              </button>
+            </div>
+          ) : profile.view ? (
             // P-07 / PR-02 / PR-04: recruiter + public-link previews live INSIDE the talent shell (Figma frames
             // carry the sidebar + nav); `PublicProfileView` renders the previewed profile.
             <PublicProfileView profile={profile} />
@@ -113,12 +172,12 @@ const TalentProfilePage = () => {
             <ProfileEmptyState profile={profile} />
           ) : (
             <>
-              <ProfileHeader profile={page} />
-              <ProfileTabBar profile={page} />
+              <ProfileHeader key={`h-${data.version}`} profile={page} />
+              <ProfileTabBar key={`t-${data.version}`} profile={page} />
               {profile.edit === 'about' ? (
                 <ProfileEditAbout profile={profile} />
               ) : (
-                <Body profile={page} />
+                <Body key={`b-${data.version}`} profile={page} />
               )}
             </>
           )}

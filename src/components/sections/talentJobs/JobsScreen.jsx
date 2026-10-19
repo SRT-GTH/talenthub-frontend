@@ -37,16 +37,19 @@ import {
   DISCOVERY,
   EMPTY_COPY,
   JOBS_HEADER,
+  JOB_INDEX,
   JOB_LIST,
+  JOBS_LIVE,
   LOADING_COPY,
   MATCH_FOOTER,
   SAVED_COPY,
   SAVED_JOBS,
   SORTS,
+  jobById,
 } from './talentJobsData.js';
 
 const log = debug('JobsScreen');
-const byId = (id) => JOB_LIST.find((j) => j.id === id);
+const byId = jobById;
 
 const Banner = ({ dim }) => (
   <div
@@ -166,7 +169,8 @@ const MatchedTab = ({ jobs, saved, toggle }) => {
   const open = (job) => jobs.update({ job: job.id });
   const dismiss = (job) => jobs.update({ modal: 'not-for-me', dismiss: job.id });
   const shown = JOB_LIST.filter((j) => !jobs.hidden.includes(j.id));
-  const pending = jobs.modal === 'not-for-me' ? (jobs.dismiss ?? 'bi-intern') : null;
+  const pending =
+    jobs.modal === 'not-for-me' ? (jobs.dismiss ?? (JOBS_LIVE ? null : 'bi-intern')) : null;
   const list = jobs.view === 'list';
   return (
     <>
@@ -213,9 +217,13 @@ const MatchedTab = ({ jobs, saved, toggle }) => {
   );
 };
 
-const BrowseTab = ({ jobs }) => {
+const BrowseTab = ({ jobs, saved, toggle }) => {
   const [mine, setMine] = useState(false);
-  const rows = mine ? BROWSE_ROWS.filter((r) => r.match) : BROWSE_ROWS;
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const rows = (mine ? BROWSE_ROWS.filter((r) => r.match) : BROWSE_ROWS).filter(
+    (r) => !q || `${r.title} ${r.meta}`.toLowerCase().includes(q)
+  );
   const open = (r) => jobs.update({ job: r.id });
   return (
     <>
@@ -224,6 +232,8 @@ const BrowseTab = ({ jobs }) => {
           <JobSearchIcon className="size-[20px] shrink-0" />
           <input
             type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder={BROWSE_COPY.search}
             aria-label={BROWSE_COPY.search}
             className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[13px] text-[#1c2a21] outline-none placeholder:text-[#999999] max-lg:text-[14px]"
@@ -279,7 +289,13 @@ const BrowseTab = ({ jobs }) => {
               posted: r.age,
             };
             return r.match || full ? (
-              <MatchCard key={r.id} job={job} saved={false} onSave={() => {}} onOpen={open} />
+              <MatchCard
+                key={r.id}
+                job={job}
+                saved={saved.has(r.id)}
+                onSave={() => toggle(r.id)}
+                onOpen={open}
+              />
             ) : (
               <UnmatchedCard key={r.id} row={r} company={company} meta={rest} onOpen={open} />
             );
@@ -288,7 +304,12 @@ const BrowseTab = ({ jobs }) => {
       ) : (
         <ListCard>
           {rows.map((r) => (
-            <BrowseRow key={r.id} row={r} onOpen={open} />
+            <BrowseRow
+              key={r.id}
+              row={r}
+              onOpen={open}
+              {...(JOBS_LIVE ? { saved: saved.has(r.id), onSave: () => toggle(r.id) } : {})}
+            />
           ))}
         </ListCard>
       )}
@@ -327,10 +348,12 @@ const SubFilters = ({ items, value, onChange }) => (
   </div>
 );
 
-const SavedTab = ({ jobs }) => {
+const SavedTab = ({ jobs, toggle }) => {
   const [removed, setRemoved] = useState([]);
+  // Live: Remove unsaves through the API (the feed reload drops the row); demo: hide it locally.
+  const remove = (id) => (JOBS_LIVE ? toggle(id) : setRemoved((r) => [...r, id]));
   const sub = jobs.sub ?? 'all';
-  const items = SAVED_JOBS.filter((s) => !removed.includes(s.id)).filter((s) =>
+  const items = SAVED_JOBS.filter((s) => !removed.includes(s.id) && byId(s.id)).filter((s) =>
     sub === 'all' ? true : sub === 'closed' ? s.status === 'closed' : s.status !== 'closed'
   );
   const open = (j) => jobs.update({ job: j.id });
@@ -361,7 +384,7 @@ const SavedTab = ({ jobs }) => {
               key={s.id}
               job={byId(s.id)}
               saved
-              onSave={() => setRemoved((r) => [...r, s.id])}
+              onSave={() => remove(s.id)}
               onOpen={open}
             />
           ))}
@@ -373,7 +396,7 @@ const SavedTab = ({ jobs }) => {
               key={s.id}
               job={byId(s.id)}
               status={s.status}
-              onRemove={() => setRemoved((r) => [...r, s.id])}
+              onRemove={() => remove(s.id)}
               onOpen={open}
             />
           ))}
@@ -386,7 +409,7 @@ const SavedTab = ({ jobs }) => {
 const AppliedTab = ({ jobs }) => {
   const sub = jobs.sub ?? 'all';
   // J-21: a withdrawn application stays in the list, dimmed, with "Apply again" (Active 3 → 2, Closed 1 → 2).
-  const withdrawn = jobs.withdrawn || jobs.wd;
+  const withdrawn = !JOBS_LIVE && (jobs.withdrawn || jobs.wd);
   const all = APPLIED_ROWS.map((r) =>
     withdrawn && r.id === 'data-analyst'
       ? {
@@ -438,9 +461,11 @@ const AppliedTab = ({ jobs }) => {
                   />
                 ) : (
                   <span
-                    className="size-[40px] shrink-0 rounded-[12px] bg-[#8b5cf6]"
+                    className="flex size-[40px] shrink-0 items-center justify-center rounded-[12px] bg-[#8b5cf6] font-sans text-[14px] font-bold text-white"
                     aria-hidden="true"
-                  />
+                  >
+                    {j?.company.initials ?? ''}
+                  </span>
                 )
               }
               onAction={() => jobs.update({ job: r.id })}
@@ -459,10 +484,18 @@ const AppliedTab = ({ jobs }) => {
 };
 
 const JobsScreen = ({ jobs }) => {
-  const [saved, setSaved] = useState(() => new Set());
+  const [demoSaved, setDemoSaved] = useState(() => new Set());
+  // Live: saved = the talent's bookmarks; toggling calls the API and the feed reloads.
+  const saved = JOBS_LIVE
+    ? new Set(JOB_INDEX.filter((j) => j.bookmarkId).map((j) => j.id))
+    : demoSaved;
   const toggle = (id) => {
     log('toggle save', id);
-    setSaved((s) => {
+    if (JOBS_LIVE) {
+      jobs.data?.toggleSave(id).catch((err) => log.error('save failed:', err?.message));
+      return;
+    }
+    setDemoSaved((s) => {
       const next = new Set(s);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -494,9 +527,9 @@ const JobsScreen = ({ jobs }) => {
       ) : jobs.tab === 'matched' ? (
         <MatchedTab jobs={jobs} saved={saved} toggle={toggle} />
       ) : jobs.tab === 'browse' ? (
-        <BrowseTab jobs={jobs} />
+        <BrowseTab jobs={jobs} saved={saved} toggle={toggle} />
       ) : jobs.tab === 'saved' ? (
-        <SavedTab jobs={jobs} />
+        <SavedTab jobs={jobs} toggle={toggle} />
       ) : (
         <AppliedTab jobs={jobs} />
       )}
