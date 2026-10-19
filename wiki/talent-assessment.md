@@ -2,7 +2,7 @@
 
 Figma file `Bin8roWL8sloyc36IgFMuT`, canvas **Talent My Assessment** `7962:530` (Playful `79xx:*`, Focused `8110:28603…`). 17 screens, every one has a Focused twin; components `GTH · Evidence rung` (set), `GTH · Trait card`, `GTH · Assessment history row` (section 0, `7990:10805`); Help overlay `8376:503889` / `8376:504009`; section 5 holds REFERENCE COPIES for prototype links (Home MyAssessment tab HM-06, Skills Lab hub SL-01, Personality PA-00) — not new screens.
 
-This is a NEW standalone page. The Home tab `/home?tab=assessment` (HM-06, `MyAssessmentTab.jsx`) is untouched (compared with the REF copy: ~7.7% whole-frame diff, mostly sidebar width); the sidebar item "My Assessment" now opens `/my-assessment` (`talentShellData.js`). Mock data only, shaped for an API swap (`assessmentData.js`).
+This is a NEW standalone page. The Home tab `/home?tab=assessment` (HM-06, `MyAssessmentTab.jsx`) is untouched (compared with the REF copy: ~7.7% whole-frame diff, mostly sidebar width); the sidebar item "My Assessment" now opens `/my-assessment` (`talentShellData.js`). ~~Mock data only~~ **Live since 2026-10-19** on the six server-scored assessments (see "Live data" below); `?demo=1` (and the `?state=` / `?view=recruiter` frames) keep the drawn mock.
 
 ## Status (2026-10-19)
 
@@ -45,3 +45,22 @@ URL scheme: overview / details / library sit in the talent shell (`AssessmentFra
 - **Shell vs Figma (not fixed):** top nav 91px tall vs 88px; Playful sidebar profile card lacks the hard shadow; "Preview as recruiter" / "Preview as talent" wording and URL follow the data block per state.
 - **Not verified by eye:** Playful MA-07, MA-08 beyond the diff %, Focused Firebase illustration (reused from Playful), the Help pop-over copy (not compared), the sidebar badge/label changes on the other pages that use the shared sidebar (spot-check Home, Job Postings, Skills Lab).
 - The responsive audit does not catch a crashing page; every assessment URL was scanned for page errors (clean). First load after a dev-server edit can render blank for a moment — reload.
+
+## Live data (2026-10-19)
+
+Owner decision: My Assessment runs on the six assessments the backend already scores, **Big Five, MBTI, RIASEC, numerical reasoning, logical reasoning, situational judgement**, instead of the per-skill (TypeScript) mock. The drawn screens are reused unchanged through adapters.
+
+| Piece | Where |
+| --- | --- |
+| API | `src/services/assessment.api.js`: `GET /engagement/assessments/templates` (answer keys stripped server-side), `GET …/results/me`, `POST /engagement/start` (the talent's engagement, get-or-create), `POST …/assessments/score` (server scores + saves). |
+| Flows | `liveAssessments.js`: template → flow in the `FULL_ASSESSMENT_*` shape (`questions` in FullQuestion shape; 1–5 scale for Big Five / RIASEC as five A–E answers; MBTI options send their letter; reasoning/SJT send the option text). Slugs: `big-five`, `mbti`, `riasec`, `numerical-reasoning`, `logical-reasoning`, `situational-judgement` → `/my-assessment/full/<slug>`. Aptitude is timed (template minutes); personality is untimed. No hints (no answer keys in the browser), no invented XP/streak. |
+| Run engine | `fullFlow.js`: live flows are not scored in the browser; on finish `flow.submit(answers)` posts to the server and the result dialog shows the server's score (`SubmitDialog` while scoring / on failure, with retry; answers stay in localStorage until scored). |
+| Library (MA-09) | `buildLiveLibrary`: To take / Done / All with each test's latest result. |
+| Overview (MA-01/01b) | `liveOverview.js` reshapes `talentHomeLive.buildAssessmentContent` (same source as Home → My Assessment): steps Personality · Skills added · Skills Lab · Aptitude assessments; personality card, skills evidence, next test, history from real results. "Preview recruiter view" is demo-only (MA-07 not wired). |
+| Personality (MA-02) | `buildLivePersonalityDetail`: real Big Five percentiles, RIASEC code, MBTI type; "Where you do your best work" hidden (no data). |
+| Shell | `AssessmentFrame` takes `home` (live sidebar / nav / bell); `talentShellData` returns the Figma card only without live data. |
+| Not wired | Per-skill evidence pages (`/my-assessment/skills/:id`, MA-03) and the recruiter preview (MA-07) stay mock; the TypeScript flow (`/my-assessment/full/typescript`) stays as the drawn demo. |
+
+Routes fixed: `OVERVIEW_ROUTES.personalityQuiz` now opens the Big Five test (it pointed at the results page).
+
+Backend PR SRT-ELYSIUMTOURS/srt-backend#164 is required: it fixes the 403 every talent got on `/assessments/score` (engagement owner = user id vs guard = entity id) and stops `/assessments/templates` sending `correctAnswer` / `scoring` to talents.

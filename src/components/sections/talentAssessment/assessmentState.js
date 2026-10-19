@@ -18,6 +18,8 @@ const log = debug('assessmentState');
  *   /my-assessment/full/:skillId?f=MA-04…    full assessment flow (TypeScript): MA-04 intro · MA-05 question 12 · MA-06 passed ·
  *                                            MA-10 not passed · MA-11 connection lost · MA-12 time up · MA-13 leave confirm
  *   &rail=collapsed | &help=1                icon rail / Help pop-over (HP)
+ *   &demo=1                                  the drawn mock data (design QA). Live data otherwise (2026-10-19,
+ *                                            liveAssessments.js / liveOverview.js); `state` / `view` frames imply demo.
  *
  * The lead owns this file. Section agents may ADD derived fields but must not rename existing ones.
  */
@@ -35,6 +37,8 @@ export const useAssessmentState = () => {
   const rail = params.get('rail') === 'collapsed' ? 'collapsed' : 'expanded';
   const help = params.get('help') === '1';
   const a11yParam = params.get('a11y') === '1';
+  // Figma state frames (first / loading / error) and the recruiter preview are mock-only.
+  const demo = params.get('demo') === '1' || Boolean(state) || view === 'recruiter';
 
   return useMemo(() => {
     log('state', { state, view, modal, rail });
@@ -58,6 +62,7 @@ export const useAssessmentState = () => {
       help,
       a11yMode: a11yParam,
       a11yParam,
+      demo,
       update,
       searchOpen: params.get('search') === '1',
       editOpen: false,
@@ -65,5 +70,5 @@ export const useAssessmentState = () => {
       newUser: null,
       journeyMin: false,
     };
-  }, [params, setParams, state, view, modal, rail, help, a11yParam]);
+  }, [params, setParams, state, view, modal, rail, help, a11yParam, demo]);
 };

@@ -65,7 +65,7 @@ const FullQuestion = ({ question, eyebrow, selected, removed, locked = false, on
       <p className="m-0 font-sans text-[15px] leading-[18px] font-normal text-[#595959]">
         {question.prompt}
       </p>
-      <CodeBlock lines={question.code} />
+      {question.code?.length ? <CodeBlock lines={question.code} /> : null}
       <OptionList
         options={question.options}
         states={states}

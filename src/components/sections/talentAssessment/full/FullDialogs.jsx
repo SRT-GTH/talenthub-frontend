@@ -237,3 +237,40 @@ export const LeaveDialog = ({ copy, onLeave, onKeep }) => {
     </Shell>
   );
 };
+
+/*
+ * SubmitDialog — live runs only (server-scored assessments): "Scoring your answers…" while POST
+ * /engagement/assessments/score is in flight, then an error state with a retry if it fails. Same shell as the
+ * MA-11/12/13 dialogs. ⚠️ ASSUMPTION: no Figma frame (the drawn TypeScript run scored in the browser).
+ */
+export const SubmitDialog = ({ error = null, onRetry, onExit }) => {
+  const titleId = useId();
+  return (
+    <Shell labelId={titleId} onClose={null}>
+      <Title id={titleId} size="lg">
+        {error ? "We couldn't submit your answers" : 'Scoring your answers'}
+      </Title>
+      <Body>
+        {error
+          ? 'Your answers are still saved on this device. Check your connection and try again.'
+          : 'This takes a few seconds. Please keep this page open.'}
+      </Body>
+      {error ? (
+        <div className="flex w-full flex-col gap-[10px]">
+          <Button variant="primary" size="lg" onClick={onRetry} className="w-full">
+            Try again
+          </Button>
+          <Tertiary onClick={onExit}>Save and exit</Tertiary>
+        </div>
+      ) : (
+        <div
+          role="progressbar"
+          aria-label="Scoring your answers"
+          className="h-[8px] w-full overflow-hidden rounded-full bg-[#ebebe3]"
+        >
+          <div className="h-full w-1/3 animate-pulse rounded-full bg-[#387440]" />
+        </div>
+      )}
+    </Shell>
+  );
+};

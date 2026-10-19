@@ -264,7 +264,7 @@ export const SkillsEvidenceCard = ({ data }) => (
       {data.skills.map((skill) => (
         <li key={skill.id} className="m-0 p-0">
           <Link
-            to={resolveRoute(null, skill.id)}
+            to={skill.to ?? resolveRoute(null, skill.id)}
             onClick={() => log('skill ->', skill.id)}
             className={classNames(
               'flex items-center gap-[12px] border-0 border-b border-solid border-[#e7e7e7] py-[11px] no-underline max-sm:flex-wrap',
@@ -399,6 +399,9 @@ export const SkillsLabCard = ({ data }) => (
       </OvLink>
     </div>
     <ul className="m-0 flex list-none flex-col p-0">
+      {!data.games.length && data.empty ? (
+        <li className="m-0 p-0 font-sans text-[13.5px] leading-[19px] text-[#595959]">{data.empty}</li>
+      ) : null}
       {data.games.map((game) => (
         <li key={game.id} className="m-0 p-0">
           <Link

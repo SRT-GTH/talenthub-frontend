@@ -193,7 +193,7 @@ const PersonalityDetail = ({ data }) => {
       <Archetype data={data} />
       <Traits traits={data.traits} />
       <div className="grid grid-cols-1 items-start gap-[16px] lg:grid-cols-2">
-        <BestWork bestWork={data.bestWork} />
+        {data.bestWork ? <BestWork bestWork={data.bestWork} /> : null}
         <Recruiters recruiters={data.recruiters} />
       </div>
     </div>

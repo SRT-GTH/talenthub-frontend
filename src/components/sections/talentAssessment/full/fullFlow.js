@@ -27,6 +27,9 @@ const log = debug('fullFlow');
  */
 const STORE = 'gth:assessment:';
 
+/* Live flows (liveAssessments.js) carry their own questions; the drawn TypeScript run uses the mock bank. */
+const questionsOf = (flow) => flow.questions || FULL_TYPESCRIPT_QUESTIONS;
+
 export const fmtClock = (seconds) => {
   const s = Math.max(0, Math.round(seconds));
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -38,7 +41,7 @@ export const isStrong = (right, total) => right / total >= 0.7;
 export const scoreRun = (flow, committed) => {
   const perTopic = {};
   let correct = 0;
-  const dots = FULL_TYPESCRIPT_QUESTIONS.map((q, i) => {
+  const dots = questionsOf(flow).map((q, i) => {
     const bucket = (perTopic[q.topic] ??= { right: 0, total: 0 });
     bucket.total += 1;
     const ok = committed[i] === q.answer;
@@ -71,6 +74,23 @@ const finishRun = (flow, state, extra = {}) => {
   const committed = [...state.committed];
   if (state.pending !== null && committed[state.index] === null)
     committed[state.index] = state.pending;
+  // Live (server-scored) runs are not scored here: `pending` until POST /assessments/score answers.
+  if (flow.live) {
+    return {
+      ...state,
+      committed,
+      pending: null,
+      phase: 'finished',
+      dialog: null,
+      index: flow.total - 1,
+      finished: {
+        pending: true,
+        outcome: 'pass',
+        elapsedMin: Math.max(1, Math.round((flow.totalSeconds - state.secondsLeft) / 60)),
+        ...extra,
+      },
+    };
+  }
   const scored = scoreRun(flow, committed);
   const earned = scored.outcome === 'pass' ? flow.passXp : flow.practiceXp;
   return {
@@ -215,7 +235,8 @@ const reducer = (state, action) => {
     }
     case 'hint': {
       if (state.phase !== 'playing' || state.hints[state.index] !== undefined) return state;
-      const q = FULL_TYPESCRIPT_QUESTIONS[state.index];
+      if (flow.hintCost == null) return state; // no answer keys in the browser for live runs
+      const q = questionsOf(flow)[state.index];
       const wrong = q.options.map((_, i) => i).filter((i) => i !== q.answer && i !== state.pending);
       const removed = wrong[wrong.length - 1];
       return {
@@ -233,6 +254,7 @@ const reducer = (state, action) => {
           : { ...state, resumeLeft };
       }
       if (state.dialog === 'timeup') return state;
+      if (flow.live && !flow.timed) return state; // untimed (personality): no countdown
       const secondsLeft = state.secondsLeft - 1;
       return secondsLeft <= 0
         ? { ...state, secondsLeft: 0, dialog: 'timeup' }
@@ -246,6 +268,18 @@ const reducer = (state, action) => {
         : state;
     case 'resume':
       return { ...state, dialog: null, resumeLeft: flow.resumeWindowSeconds };
+    case 'scored':
+      return state.finished
+        ? { ...state, finished: { ...state.finished, pending: false, error: null, view: action.view } }
+        : state;
+    case 'scoreFailed':
+      return state.finished
+        ? { ...state, finished: { ...state.finished, pending: false, error: action.error } }
+        : state;
+    case 'retryScore':
+      return state.finished
+        ? { ...state, finished: { ...state.finished, pending: true, error: null } }
+        : state;
     case 'finish':
       return state.phase === 'playing' ? finishRun(flow, state) : state;
     default:
@@ -296,7 +330,8 @@ export const useFullAssessment = ({ flow, frame = null, resume = false }) => {
     if (!live) return;
     try {
       if (state.phase === 'finished') {
-        window.localStorage.removeItem(STORE + flow.id);
+        // Live runs keep the answers until the server has scored them.
+        if (!flow.live || state.finished?.view) window.localStorage.removeItem(STORE + flow.id);
         return;
       }
       const { committed, index, pending, hints, secondsLeft, baseXp } = state;
@@ -313,10 +348,32 @@ export const useFullAssessment = ({ flow, frame = null, resume = false }) => {
     }
     // The clock itself is not a dependency on purpose: the snapshot is relative to `savedAt`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, state.committed, state.index, state.pending, state.hints, state.phase, state.dialog]);
+  }, [live, state.committed, state.index, state.pending, state.hints, state.phase, state.dialog, state.finished]);
+
+  // Live runs: send the answers to the server once finished; it scores and saves the result.
+  const pendingScore = flow.live && state.phase === 'finished' && state.finished?.pending;
+  useEffect(() => {
+    if (!pendingScore || !flow.submit) return undefined;
+    let cancelled = false;
+    log('submitting', { id: flow.id, answered: answeredCount(state) });
+    flow
+      .submit(state.committed)
+      .then((view) => {
+        if (!cancelled) dispatch({ type: 'scored', flow, view });
+      })
+      .catch((err) => {
+        log.error('score failed:', err?.response?.status || err?.message);
+        if (!cancelled) dispatch({ type: 'scoreFailed', flow, error: err?.message || 'failed' });
+      });
+    return () => {
+      cancelled = true;
+    };
+    // state.committed is final once finished; re-run only when a (re)submit is requested.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingScore, flow]);
 
   return useMemo(() => {
-    const q = FULL_TYPESCRIPT_QUESTIONS[state.index];
+    const q = questionsOf(flow)[state.index];
     const finished = state.phase === 'finished';
     const used = hintsUsed(state);
     const hintRemoved = state.hints[state.index];
@@ -333,7 +390,9 @@ export const useFullAssessment = ({ flow, frame = null, resume = false }) => {
       hintRemoved,
       hintUsedHere: hintRemoved !== undefined,
       xp:
-        state.baseXp -
+        flow.startXp == null
+          ? null
+          : state.baseXp -
         used * flow.hintCost +
         (finished && !state.finished?.frame ? state.finished.earned : 0),
       isLast: state.index >= flow.total - 1,
@@ -345,6 +404,7 @@ export const useFullAssessment = ({ flow, frame = null, resume = false }) => {
       closeDialog: () => act('dialog', { name: null }),
       resumeRun: () => act('resume'),
       finish: () => act('finish'),
+      retryScore: () => act('retryScore'),
     };
   }, [state, flow, act]);
 };
