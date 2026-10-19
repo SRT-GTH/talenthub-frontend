@@ -7,7 +7,7 @@ import { LabFooterBar, LabHeaderBar, LabTopBar } from '../../talentSkillsLab/Lab
 import { fillTokens, useLabText } from '../../talentSkillsLab/labFormat.js';
 import { DOODLE_STAR_PATH } from '../../talentSkillsLab/labPlayStyles.js';
 import { FULL_TOPIC_LABELS } from '../assessmentData.js';
-import { LeaveDialog, ResumeDialog, TimeUpDialog } from './FullDialogs.jsx';
+import { LeaveDialog, ResumeDialog, SubmitDialog, TimeUpDialog } from './FullDialogs.jsx';
 import FullQuestion from './FullQuestion.jsx';
 import FullResultDialog from './FullResultDialog.jsx';
 import { buildResultView, fmtClock, useFullAssessment } from './fullFlow.js';
@@ -52,10 +52,14 @@ const ProgressStrip = ({ countLabel, summary, pct, passMark }) => (
     >
       <div className="h-full rounded-full bg-[#387440]" style={{ width: `${pct}%` }} />
     </div>
-    <span className="inline-flex items-center gap-[5px] rounded-full bg-[#ebf1ec] py-[5px] pr-[10px] pl-[8px] font-sans text-[12px] leading-[14px] font-semibold text-[#387440] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]">
-      <LabFlagIcon className="size-[14px]" />
-      {passMark}
-    </span>
+    {passMark ? (
+      <span className="inline-flex items-center gap-[5px] rounded-full bg-[#ebf1ec] py-[5px] pr-[10px] pl-[8px] font-sans text-[12px] leading-[14px] font-semibold text-[#387440] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]">
+        <LabFlagIcon className="size-[14px]" />
+        {passMark}
+      </span>
+    ) : (
+      <span />
+    )}
   </section>
 );
 
@@ -76,7 +80,7 @@ const FullPlayScreen = ({ flow, frame, resume = false }) => {
       if (dialog || finished || event.metaKey || event.ctrlKey || event.altKey) return;
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName)) return;
       const key = event.key.toLowerCase();
-      const pick = '1234'.indexOf(key) >= 0 ? '1234'.indexOf(key) : 'abcd'.indexOf(key);
+      const pick = '12345'.indexOf(key) >= 0 ? '12345'.indexOf(key) : 'abcde'.indexOf(key);
       if (key.length === 1 && pick >= 0 && pick < question.options.length) {
         if (pick !== run.hintRemoved) run.select(pick);
       } else if (event.key === 'Enter' && event.target?.tagName !== 'BUTTON') {
@@ -98,10 +102,12 @@ const FullPlayScreen = ({ flow, frame, resume = false }) => {
   const pct = finished ? 100 : ((state.index + 1) / flow.total) * 100;
   const eyebrow = fillTokens(copy.eyebrow, {
     n: question.n,
-    topic: FULL_TOPIC_LABELS[question.topic].toUpperCase(),
+    topic: (question.topicLabel ?? FULL_TOPIC_LABELS[question.topic] ?? '').toUpperCase(),
   });
 
-  const hint = run.hintUsedHere
+  const hint = flow.hintCost == null
+    ? { mode: 'none' } // live runs: no answer keys in the browser, so no hint
+    : run.hintUsedHere
     ? {
         mode: 'used',
         usedLabel: copy.hintUsed,
@@ -123,7 +129,25 @@ const FullPlayScreen = ({ flow, frame, resume = false }) => {
       };
 
   let overlay = null;
-  if (finished && result) {
+  if (finished && result && flow.live && !result.view) {
+    overlay = (
+      <SubmitDialog
+        error={result.error}
+        onRetry={run.retryScore}
+        onExit={() => navigate(exitPath)}
+      />
+    );
+  } else if (finished && result && flow.live) {
+    overlay = (
+      <FullResultDialog
+        result={result.view}
+        onClose={() => navigate(exitPath)}
+        onSecondary={() => navigate(exitPath)}
+        onPrimary={() => navigate(flow.resultsTo || exitPath)}
+        onRefresher={() => navigate('/learning')}
+      />
+    );
+  } else if (finished && result) {
     overlay = (
       <FullResultDialog
         result={buildResultView(flow, result)}
@@ -182,7 +206,9 @@ const FullPlayScreen = ({ flow, frame, resume = false }) => {
     ? fillTokens(copy.doneLabel, { total: flow.total })
     : fillTokens(copy.countLabel, { n: state.index + 1, total: flow.total });
   const summary = finished
-    ? fillTokens(copy.doneSummary, {
+    ? flow.live
+      ? copy.doneSummary
+      : fillTokens(copy.doneSummary, {
         correct: result?.correct,
         review: flow.total - result?.correct,
       })
@@ -203,8 +229,8 @@ const FullPlayScreen = ({ flow, frame, resume = false }) => {
           title={flow.headerTitle}
           subtitle={subtitle}
           sticker={sticker}
-          xp={`${run.xp} ${xpWord}`}
-          streak={`${flow.streakDays}-day streak`}
+          xp={run.xp == null ? null : `${run.xp} ${xpWord}`}
+          streak={flow.streakDays ? `${flow.streakDays}-day streak` : null}
           onExit={() => run.openDialog('leave')}
         />
         <ProgressStrip

@@ -116,7 +116,7 @@ const TopicRow = ({ topic }) => (
       aria-hidden="true"
       className={classNames(
         'size-[8px] shrink-0 rounded-full',
-        topic.strong ? 'bg-[#387440]' : 'bg-[#c0392b]'
+        topic.strong ? 'bg-[#387440]' : topic.tag !== undefined ? 'bg-[#a3a3a3]' : 'bg-[#c0392b]'
       )}
     />
     <span className="min-w-0 flex-1 text-[14px] leading-[17px] font-medium text-[#1c2a21]">
@@ -128,10 +128,15 @@ const TopicRow = ({ topic }) => (
     <span
       className={classNames(
         'inline-flex items-center rounded-full px-[9px] py-[3px] text-[11px] leading-[13px] font-semibold max-lg:text-[12px] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]',
-        topic.strong ? 'bg-[#e8f2ed] text-[#165d3a]' : 'bg-[#f9ebea] text-[#902b20]'
+        topic.tag !== undefined
+          ? 'bg-[#efefea] text-[#3f3f3f]'
+          : topic.strong
+            ? 'bg-[#e8f2ed] text-[#165d3a]'
+            : 'bg-[#f9ebea] text-[#902b20]'
       )}
     >
-      {topic.strong ? 'Strong' : 'Review'}
+      {/* Personality rows carry a neutral `tag` (no right answers); graded rows say Strong / Review. */}
+      {topic.tag !== undefined ? topic.tag : topic.strong ? 'Strong' : 'Review'}
     </span>
   </li>
 );

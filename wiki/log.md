@@ -2550,3 +2550,7 @@ Removed the first Skills Lab build: route `/skills-lab/:skillSlug`, `src/pages/s
 ## [2026-10-19] create | Talent My Assessment — overview, details, library, full assessment flow
 
 New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId` (Figma canvas 7962:530, 17 screens x Playful + Focused + Help). Sidebar "My Assessment" now opens the new page; the Home tab `/home?tab=assessment` is unchanged. Shell: `activeNav="assessment"`, `ASSESSMENT_PAGE` rail data, sidebar add-only options. Verified: every frame pixel-diffed in both styles (1.3-4.2%), audit, runtime-error scan. Questions, scoring and many destinations are assumptions — see [talent-assessment.md](talent-assessment.md).
+
+## [2026-10-19] wire | My Assessment on the six server-scored assessments
+
+`/my-assessment` runs Big Five, MBTI, RIASEC, numerical / logical reasoning and situational judgement from the backend templates; the server scores and saves (`POST /engagement/assessments/score`). Library, overview, personality detail and the live shell read real results; `?demo=1` keeps the drawn mock. Tested as an e2e talent on the backend fix branch: numerical reasoning (5/10, Medium) and MBTI (INFP) scored and saved. Needs srt-backend#164. Details: [talent-assessment.md](talent-assessment.md) → Live data.
