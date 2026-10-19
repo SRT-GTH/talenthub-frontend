@@ -391,6 +391,7 @@ const COMPLETE_BASE = {
     freeze: '1 streak freeze left this week',
     days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
     status: ['done', 'done', 'done', 'done', 'done', 'done', 'today'],
+    week: { label: 'This week', done: '3 of 6 steps done', pct: 50 },
     questsTitle: 'THIS WEEK’S QUESTS',
     questsPts: '+90',
     quests: [

@@ -14,6 +14,8 @@ const ALLOWED = [
   '/job-postings',
   '/streak',
   '/learning',
+  '/settings',
+  '/logged-out',
 ];
 
 const browser = await chromium.launch({
@@ -47,7 +49,8 @@ for (const route of [
     ALLOWED.includes(route.split('?')[0]) ||
     /^\/skills-lab(\?|$|\/(lab|games)\/)/.test(route) ||
     route.startsWith('/my-assessment') ||
-    route.startsWith('/community');
+    route.startsWith('/community') ||
+    route.startsWith('/settings');
   if (attr && !allowed) {
     leaks += 1;
     console.log(`LEAK  ${route} has data-ui-style="${attr}"`);

@@ -140,7 +140,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const streakRef = useRef(null);
   // Streak pop-up (Figma 7532:2): `?streak=open|done|risk|freeze|lost|new` works on every talent page, whichever
   // page-state hook owns the URL, so it is read from the query string here.
-  const [streakParams] = useSearchParams();
+  const [streakParams, setNavParams] = useSearchParams();
   const streakState = ['open', 'done', 'risk', 'freeze', 'lost', 'new'].includes(
     streakParams.get('streak')
   )
@@ -190,6 +190,19 @@ const DashboardTopNav = ({ className, talentHome }) => {
     if (isTalent && action === 'help') {
       log('toggle help pop-over');
       talentHome.update({ help: talentHome.helpOpen ? null : true, notif: null, tip: null });
+      return;
+    }
+    // Talent profile chip: toggles the Profile menu (`?menu=open`, PM-01) — read by the talent shell on any page.
+    if (isTalent && action === 'profile-menu') {
+      const menuOpen = Boolean(streakParams.get('menu'));
+      log('toggle profile menu ->', menuOpen ? 'closed' : 'open');
+      const next = new URLSearchParams(streakParams);
+      if (menuOpen) next.delete('menu');
+      else {
+        next.set('menu', 'open');
+        ['notif', 'tip', 'help', 'streak'].forEach((key) => next.delete(key));
+      }
+      setNavParams(next, { replace: true });
       return;
     }
     // Every control here is presentational in this build — no destination
@@ -355,6 +368,9 @@ const DashboardTopNav = ({ className, talentHome }) => {
           type="button"
           onClick={() => handleAction('profile-menu')}
           aria-label={`Profile menu, ${nav.profileName}`}
+          data-profile-chip={isTalent ? '' : undefined}
+          aria-haspopup={isTalent ? 'menu' : undefined}
+          aria-expanded={isTalent ? Boolean(streakParams.get('menu')) : undefined}
           /* Phones: collapse to a 44px avatar-only button (the name + caret
              don't fit beside the logo, search and streak at 320). */
           className="inline-flex shrink-0 items-center gap-[7px] rounded-[10px] border border-brand-green-light-active bg-[#fffefc] px-[16px] py-[8px] max-md:relative max-md:size-[32px] max-md:justify-center max-md:rounded-[16px] max-md:p-0 max-md:after:absolute max-md:after:-inset-2 transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"

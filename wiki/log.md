@@ -2554,3 +2554,29 @@ New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skill
 ## [2026-10-19] create | Talent Community v2 (replaces the old Community); rename Opportunities -> Job Postings
 
 New talent Community at `/community`, `/community/:communityId`, `/community/:communityId/post/:postId` (Figma 5456:19207 section "Community v2 · Talent", 17 screens x Playful + Focused). The designer cancelled the old recruiter-chrome Community: removed `src/pages/community/` + 16 old components (shared icon files and CareerBuddyFloatingButton kept); the recruiter sidebar's Community item no longer navigates (until recruiter screens exist); Career Buddy uses the new `MilestoneShareModal`. Sidebar item "Opportunities" is now "Job Postings" everywhere. Details: [talent-community.md](talent-community.md).
+
+## [2026-10-19] create | Talent Settings · Help set (HS-01, HP-01…HP-08, FB-01, IV-01)
+
+Built `/settings/help` (HS-01) plus the URL-driven Help states: pop-over `?help=page|searching|none` (typing in the
+field rewrites `help` + `q`), modal `?help=shortcuts`, pages `?help=article|contact` with modals `?help=report|sent`
+(on `/settings/help`; other talent pages redirect there), and the shell dialogs `?dialog=feedback|invite`.
+`notifications/HelpPopover.jsx` extended add-only (`?help=1` unchanged; typing in it hands over to HP-02/03; global
+`?` key opens HP-08). Copy: `talentSettings/helpData.js` (Figma strings only). Icons: `assets.jsx` under
+`// ---- Talent settings · help ----`; spot art in `src/assets/talent-settings/help/`. Compared by eye vs Figma MCP
+screenshots, both styles at 1728 + 390/320.
+
+## [2026-10-19] create | Talent Settings B pages (ST-05..ST-10, Appearance) - Language, Security, Data, Guardian, Appearance
+
+Built `SettingsLanguage/Security/Data/Guardian/Appearance` (+ `SettingsBUi/Dialogs/Fields/SecurityDialogs.jsx`,
+`talentSettingsBData.js`, 15 `Settings*Icon` SVGs under `// ---- Talent settings · B ----` in `assets.jsx`, two appearance
+preview PNGs in `src/assets/talent-settings/b/`). Every Focused + Playful frame (ST-05, 06, 06b, 06c, 06d, 07, 07b, 07c,
+10, 08, 08b, 09) read through the Figma MCP, Focused default, Playful via `playful:` variants only. Behaviour: real
+password rules/strength, 6-digit code entry with resend timer, device log-out (row removed + toast), pause toggle,
+DELETE-to-confirm, guardian invite form, Appearance style cards call `setUiStyle` (theme switches live).
+
+## 2026-10-19 — Home: Wallet nav item + tab-bar wrap fix
+
+- `talentShellData.js`: Home states (day1/discoverable/complete/top) now carry `wallet: true` (every Home frame draws Wallet).
+- `TabsParts.jsx`: HomeTabs label/chip as generated content + aria-label (responsive audit); `Chip` forwards extra props.
+- Settings overlay URLs moved to `/home?state=complete&…` (the HM frame has the 9-of-9 banner).
+- `HomeColumns.jsx` StreakCard + `talentHomeCoreData.js` `streak.week`: Focused shows "This week · 3 of 6 steps done" bar (Figma 8097:6860/7535, HM); quests list stays Playful-only.

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import NotifButton from './NotifButton.jsx';
@@ -18,8 +19,18 @@ import iconBulb from '../../../assets/notifications/help/bulb.svg';
 import iconWhatsapp from '../../../assets/notifications/help/whatsapp.svg';
 import iconPlay from '../../../assets/notifications/help/play.svg';
 import iconArrow from '../../../assets/notifications/help/arrow-right.svg';
+// Talent Settings & Account · Help set (HP-01…HP-08): extra pop-over / modal states driven by `?help=<state>`.
+import HelpPopoverFlow from '../talentSettings/HelpPopoverFlow.jsx';
+import KeyboardShortcutsModal from '../talentSettings/KeyboardShortcutsModal.jsx';
+import { HELP_ROUTE, searchHelp } from '../talentSettings/helpData.js';
 
 const log = debug('HelpPopover');
+
+// `?help=1` is the original pop-over (below, unchanged). These states are the extended Help set.
+const HELP_FLOW_POPOVER = ['page', 'searching', 'none'];
+const HELP_FLOW_MODAL = ['shortcuts'];
+// Full-page / modal-over-page states live on /settings/help (HelpSupportPage).
+const HELP_FLOW_PAGE = ['article', 'report', 'contact', 'sent'];
 
 /*
  * HelpPopover — Figma "HP · Help pop-over overlay" (Playful 8376:10396, Focused 8376:10516;
@@ -35,13 +46,16 @@ const ROW_ICONS = { help: rowHelp, shield: rowShield, info: rowInfo, verified: r
 const HelpRow = ({ label, icon }) => (
   <button
     type="button"
+    aria-label={label}
     onClick={() => log('help row', label)}
     className="flex w-full items-center gap-[10px] rounded-[12px] border border-solid border-[#387440] bg-[#f7f8f4] py-[10px] pl-[12px] pr-[10px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
   >
     <img src={ROW_ICONS[icon]} alt="" aria-hidden="true" className="size-[16px] shrink-0" />
-    <span className="min-w-0 flex-1 font-sans text-[14px] font-medium leading-[17px] text-[#1c2a21]">
-      {label}
-    </span>
+    <span
+      aria-hidden="true"
+      data-count={label}
+      className="min-w-0 flex-1 font-sans text-[14px] font-medium leading-[17px] text-[#1c2a21] after:content-[attr(data-count)]"
+    />
     <img src={rowChevron} alt="" aria-hidden="true" className="size-[16px] shrink-0" />
   </button>
 );
@@ -58,7 +72,16 @@ const Section = ({ label, rows }) => (
 );
 
 const HelpPopover = ({ home, anchorRef }) => {
-  const open = Boolean(home?.helpOpen);
+  // Extended Help set (add-only): the raw `?help=` value, read from the URL.
+  const [flowParams] = useSearchParams();
+  const { pathname: flowPath } = useLocation();
+  const navigate = useNavigate();
+  const flowParam = flowParams.get('help');
+  const flowQuery = flowParams.get('q');
+  const flow = HELP_FLOW_POPOVER.includes(flowParam) ? flowParam : null;
+  const flowModal = HELP_FLOW_MODAL.includes(flowParam) ? flowParam : null;
+  const flowPage = HELP_FLOW_PAGE.includes(flowParam) ? flowParam : null;
+  const open = Boolean(home?.helpOpen) || Boolean(flow);
   // /profile (Figma HP 8376:19219 / 8376:19339) swaps only the page section; `home.helpPage` is set by the shell.
   const HELP_COPY =
     home?.helpPage === 'profile'
@@ -76,7 +99,7 @@ const HelpPopover = ({ home, anchorRef }) => {
   const [pos, setPos] = useState({ top: 74, right: 24 });
   const close = () => {
     log('close');
-    home.update({ help: null });
+    home.update({ help: null, q: null });
   };
 
   useLayoutEffect(() => {
@@ -104,7 +127,44 @@ const HelpPopover = ({ home, anchorRef }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // Extended Help set: article / report / contact / sent are pages (with modals) of the Help centre.
+  useEffect(() => {
+    if (!flowPage || flowPath === HELP_ROUTE) return;
+    log('redirect to the Help centre', flowPage);
+    navigate(`${HELP_ROUTE}?help=${flowPage}`, { replace: true });
+  }, [flowPage, flowPath, navigate]);
+
+  // Extended Help set: "Press ? any time" opens the keyboard-shortcuts modal (HP-08).
+  useEffect(() => {
+    if (!home?.update) return undefined;
+    const onKey = (e) => {
+      if (e.key !== '?' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = e.target;
+      const tag = el?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el?.isContentEditable)
+        return;
+      log('? pressed -> shortcuts');
+      home.update({ help: 'shortcuts' });
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [home]);
+
+  if (flowModal) return <KeyboardShortcutsModal onClose={close} />;
+  if (flowPage) return null;
   if (!open) return null;
+  if (flow) {
+    return (
+      <HelpPopoverFlow
+        home={home}
+        flow={flow}
+        q={flowQuery}
+        pos={pos}
+        cardRef={ref}
+        close={close}
+      />
+    );
+  }
 
   return (
     <>
@@ -145,6 +205,12 @@ const HelpPopover = ({ home, anchorRef }) => {
             type="search"
             placeholder={HELP_COPY.search}
             aria-label="Search help"
+            onChange={(e) => {
+              // Extended Help set: typing in the original pop-over hands over to HP-02 / HP-03.
+              const v = e.target.value;
+              if (!v.trim()) return;
+              home.update({ help: searchHelp(v).length > 0 ? 'searching' : 'none', q: v });
+            }}
             className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:text-[#bfbfbf]"
           />
         </label>
@@ -173,10 +239,10 @@ const HelpPopover = ({ home, anchorRef }) => {
           </NotifButton>
         </div>
 
-        <div className="-mt-[8px] flex items-center justify-between gap-[8px] border-t border-solid border-[rgba(28,42,33,0.08)] pt-[24px]">
+        <div className="-mt-[8px] flex flex-wrap items-center justify-between gap-x-[8px] gap-y-[6px] border-t border-solid border-[rgba(28,42,33,0.08)] pt-[24px]">
           <button
             type="button"
-            className="inline-flex items-center gap-[6px] font-sans text-[13px] font-semibold leading-[16px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="inline-flex items-center gap-[6px] font-sans text-[13px] font-semibold leading-[16px] whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <img src={iconPlay} alt="" aria-hidden="true" className="size-[16px]" />
             {HELP_COPY.replay}
@@ -189,7 +255,7 @@ const HelpPopover = ({ home, anchorRef }) => {
           </span>
           <button
             type="button"
-            className="inline-flex items-center gap-[4px] font-sans text-[13px] font-semibold leading-[16px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="inline-flex items-center gap-[4px] font-sans text-[13px] font-semibold leading-[16px] whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             {HELP_COPY.help}
             <img src={iconArrow} alt="" aria-hidden="true" className="size-[14px]" />

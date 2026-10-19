@@ -2,6 +2,7 @@ import {
   TalentSidebarHomeNavIcon,
   TalentSidebarMyAssessmentNavIcon,
   TalentSidebarOpportunitiesNavIcon,
+  TalentSidebarWalletNavIcon,
   TalentSidebarCommunityNavIcon,
   TalentSidebarMessagesNavIcon,
   TalentSidebarSkillsLabNavIcon,
@@ -47,6 +48,17 @@ export const TALENT_NAV_MAIN = [
   },
   { id: 'messages', label: 'Messages', icon: TalentSidebarMessagesNavIcon },
 ];
+
+/* The Home and Settings frames (Figma 8097:*, 7849:530) draw a "Wallet" item between Job Postings and Community. No wallet
+   screens exist yet, so it has no destination. Added only where `data.wallet` is set (Home + settings pages) — the other
+   frames (My Assessment, Skills Lab, Community…) do not draw it. */
+export const TALENT_NAV_WALLET = {
+  id: 'wallet',
+  label: 'Wallet',
+  icon: TalentSidebarWalletNavIcon,
+};
+export const withWalletItem = (items) =>
+  items.flatMap((item) => (item.id === 'opportunities' ? [item, TALENT_NAV_WALLET] : [item]));
 
 export const TALENT_NAV_SECONDARY = [
   {
@@ -122,7 +134,13 @@ const TOP = {
   streak: '12',
 };
 
-const BY_STATE = { day1: DAY1, discoverable: DISCOVERABLE, complete: TOP, top: TOP };
+/* Every Home frame (Day 1 → Top Talent, Figma 8097:4669 / 6075 / 6860 / 7535 and the Settings-flow HM frame) draws a Wallet item. */
+const BY_STATE = {
+  day1: { ...DAY1, wallet: true },
+  discoverable: { ...DISCOVERABLE, wallet: true },
+  complete: { ...TOP, wallet: true },
+  top: { ...TOP, wallet: true },
+};
 
 /*
  * /profile chrome (Figma `_base (Profile template)` 7568:2044, P-01 Focused 8110:368104 / Playful
@@ -256,6 +274,16 @@ const COMMUNITY_PAGE = {
   gradientBadges: ['messages'],
 };
 
+/*
+ * /settings chrome (Figma ST-01 7838:13009 / Focused 8110:44072): rail card "Getting started 1 of 5" like Job Postings,
+ * badges My Assessment 142 · Job Postings 2 · Messages 4, a Wallet item, and NO nav item active.
+ */
+const SETTINGS_PAGE = {
+  ...JOBS_PAGE,
+  wallet: true,
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
+};
+
 const STAGE_LABEL = {
   avatar: 'Avatar',
   interests: 'Interests',
@@ -285,6 +313,7 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   if (activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab')
     return JOBS_PAGE;
   if (activeNav === 'assessment') return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
+  if (activeNav === 'settings') return SETTINGS_PAGE;
   if (activeNav === 'learning') return LEARNING_PAGE;
   if (activeNav === 'community') return COMMUNITY_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;

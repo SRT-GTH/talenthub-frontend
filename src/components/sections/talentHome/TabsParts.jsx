@@ -47,10 +47,11 @@ const CHIP_TONES = {
 };
 
 /* Pill chip. `icon` = [focusedSrc, playfulSrc]. */
-export const Chip = ({ tone = 'soft', icon, className, children }) => {
+export const Chip = ({ tone = 'soft', icon, className, children, ...rest }) => {
   const [FocusedIcon, PlayfulIcon] = icon ?? [];
   return (
     <span
+      {...rest}
       className={classNames(
         'inline-flex shrink-0 items-center whitespace-nowrap rounded-full font-semibold',
         'px-[10px] py-[4px] text-[12px] leading-normal',
@@ -177,6 +178,7 @@ export const HomeTabs = ({ active, onSelect, tabs = HOME_TABS }) => {
             type="button"
             role="tab"
             aria-selected={on}
+            aria-label={tab.chip ? `${tab.label}, ${tab.chip}` : tab.label}
             onClick={() => onSelect(tab.id)}
             className={classNames(
               'flex min-w-0 shrink-0 cursor-pointer items-center justify-center gap-[8px] whitespace-nowrap rounded-[12px] px-[clamp(10px,1.2vw,16px)] py-[12px] text-[15px] leading-normal md:flex-1',
@@ -187,11 +189,18 @@ export const HomeTabs = ({ active, onSelect, tabs = HOME_TABS }) => {
             )}
           >
             <TabIcon className={tab.id === 'recruiter' ? 'h-[17.1px] w-[18px]' : 'size-[18px]'} />
-            {tab.label}
+            <span
+              aria-hidden="true"
+              data-count={tab.label}
+              className="after:content-[attr(data-count)]"
+            />
             {tab.chip ? (
-              <Chip tone={on ? 'solid' : 'soft'} className="max-[360px]:hidden">
-                {tab.chip}
-              </Chip>
+              <Chip
+                tone={on ? 'solid' : 'soft'}
+                aria-hidden="true"
+                data-count={tab.chip}
+                className="after:content-[attr(data-count)] max-[360px]:hidden"
+              />
             ) : null}
           </button>
         );

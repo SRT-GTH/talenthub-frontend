@@ -13,9 +13,23 @@ import TalentSidebar from './TalentSidebar.jsx';
 import TalentRailCollapsed from './TalentRailCollapsed.jsx';
 import toggleIcon from '../../../assets/notifications/rail/toggle.svg';
 import TalentMobileNav from './TalentMobileNav.jsx';
+import TalentRailHome from './TalentRailHome.jsx';
+import TalentShellOverlays from '../talentSettings/TalentShellOverlays.jsx';
+import { TalentRailToggleChevronsIcon } from '../../shared/assets.jsx';
 import bgGrid from '../../../assets/community/bg-grid.png';
 
 const log = debug('TalentDashboardShell');
+
+// Which rail item is current per page (mirrors TalentSidebar's activeNav mapping) for the collapsed rail.
+const RAIL_ID_BY_NAV = {
+  profile: 'profile',
+  community: 'community',
+  assessment: 'assessment',
+  'skills-lab': 'skills-lab',
+  streak: 'none',
+  jobs: 'opportunities',
+  learning: 'my-learning',
+};
 
 /*
  * TalentDashboardShell — the `role="talent"` branch of DashboardShell (it dispatches here, so the
@@ -41,7 +55,19 @@ const TalentDashboardShell = ({
   activeNav,
 }) => {
   const [prefs] = useA11yPrefs();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
+  /* `?collapsed=1` (HMc): URL-driven collapsed rail on every talent page that doesn't pass its own `rail`
+     prop (Notifications keeps its state). The « toggle is drawn on /home and /settings (Figma HMc / PM). */
+  const urlRail = rail === undefined;
+  const collapsedByUrl = urlRail && params.get('collapsed') === '1';
+  const showUrlToggle = urlRail && (!activeNav || activeNav === 'settings');
+  const setCollapsed = (next) => {
+    log('toggle ->', next ? 'collapsed' : 'expanded');
+    const nextParams = new URLSearchParams(params);
+    if (next) nextParams.set('collapsed', '1');
+    else nextParams.delete('collapsed');
+    setParams(nextParams, { replace: true });
+  };
   /* `activeNav="profile"` (/profile): the profile state names the help flag `help`; the chrome's
      pop-overs read the home names (`helpOpen`, `notif`, `tip`), so mirror them from the URL. */
   const chrome =
@@ -140,7 +166,20 @@ const TalentDashboardShell = ({
         <DashboardTopNav className="shrink-0" talentHome={chrome} />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
-          {rail === 'collapsed' ? (
+          {collapsedByUrl ? (
+            <TalentRailHome
+              home={chrome}
+              activeNav={activeNav}
+              activeId={
+                railActiveId ??
+                (!activeNav && chrome?.tab === 'assessment'
+                  ? 'assessment'
+                  : (RAIL_ID_BY_NAV[activeNav] ?? 'home'))
+              }
+              onToggle={() => setCollapsed(false)}
+              className="hidden h-full lg:flex"
+            />
+          ) : rail === 'collapsed' ? (
             <TalentRailCollapsed
               activeId={railActiveId}
               badges={railBadges}
@@ -155,6 +194,17 @@ const TalentDashboardShell = ({
                 activeId={railActiveId}
                 activeNav={activeNav}
               />
+              {showUrlToggle && (
+                <button
+                  type="button"
+                  aria-label="Collapse sidebar"
+                  aria-expanded="true"
+                  onClick={() => setCollapsed(true)}
+                  className="absolute top-[32px] right-[22px] flex size-[28px] cursor-pointer items-center justify-center overflow-clip rounded-[8px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                >
+                  <TalentRailToggleChevronsIcon />
+                </button>
+              )}
               {rail === 'expanded' && (
                 <button
                   type="button"
@@ -197,6 +247,7 @@ const TalentDashboardShell = ({
         </div>
 
         <TalentMobileNav home={chrome} activeNav={activeNav} />
+        <TalentShellOverlays />
       </div>
     </div>
   );

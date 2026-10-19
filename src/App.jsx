@@ -105,6 +105,8 @@ const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.j
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
 const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
+const TalentSettingsRoute = lazy(() => import('./pages/talentSettings/TalentSettingsRoute.jsx'));
+const TalentLoggedOutPage = lazy(() => import('./pages/talentSettings/TalentLoggedOutPage.jsx'));
 const TalentLearningPage = lazy(() => import('./pages/talentLearning/TalentLearningPage.jsx'));
 const TalentNotificationsPage = lazy(
   () => import('./pages/talentHome/TalentNotificationsPage.jsx')
@@ -899,6 +901,33 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentLearningPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent Settings & Account — Figma 7849:530 (Focused + Playful). Section = path param,
+            states = query params (talentSettingsState.js / wiki/talent-settings.md). */}
+                <Route
+                  path={'/settings'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentSettingsRoute />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/settings/:section'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentSettingsRoute />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/logged-out'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentLoggedOutPage />
                     </Suspense>
                   }
                 />

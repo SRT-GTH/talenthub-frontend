@@ -1,0 +1,50 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
+const ctx = await browser.newContext({ viewport: { width: 1728, height: 1300 } });
+await ctx.addInitScript(() => { localStorage.setItem('gth:hide-demo', '1'); localStorage.setItem('gth:ui-style-chosen', '1'); localStorage.setItem('gth:ui-style', 'focused'); });
+const page = await ctx.newPage();
+const url = () => new URL(page.url()).search || '(none)';
+const B = 'http://127.0.0.1:5199';
+// Account email validation
+await page.goto(B + '/settings/account', { waitUntil: 'networkidle' });
+const email = page.getByLabel('Email');
+await email.fill('kofi@gmail');
+await page.waitForTimeout(200);
+console.log('email invalid ->', url(), await page.getByText('Add the end of the email').count());
+await email.fill('kofi@gmail.com');
+await page.waitForTimeout(200);
+console.log('email valid ->', url(), await page.getByText('Add the end of the email').count());
+// Privacy: choose Hidden
+await page.goto(B + '/settings/privacy', { waitUntil: 'networkidle' });
+await page.getByRole('radio', { name: /^Hidden/ }).click();
+await page.waitForTimeout(200);
+console.log('hidden ->', url(), 'warning', await page.getByText('Recruiters will not find you').count(), 'bar', await page.getByText('You have 1 unsaved change').count());
+await page.getByRole('button', { name: 'Discard' }).click();
+await page.waitForTimeout(200);
+console.log('discard ->', url(), await page.getByText('Recruiters will not find you').count());
+await page.getByRole('button', { name: 'Manage' }).click();
+await page.waitForTimeout(300);
+console.log('manage ->', url(), 'dialog', await page.getByRole('dialog').count());
+await page.keyboard.press('Escape');
+await page.waitForTimeout(200);
+console.log('esc ->', url(), await page.getByRole('dialog').count());
+// Notifications pause
+await page.goto(B + '/settings/notifications', { waitUntil: 'networkidle' });
+await page.getByRole('button', { name: 'Turn everything off for 24 hours' }).click();
+await page.waitForTimeout(200);
+console.log('pause ->', url(), await page.getByText('All notifications paused').count());
+await page.getByRole('button', { name: 'Resume now' }).click();
+await page.waitForTimeout(200);
+console.log('resume ->', url(), await page.getByText('All notifications paused').count());
+// Accessibility change + save + undo
+await page.goto(B + '/settings/accessibility', { waitUntil: 'networkidle' });
+await page.getByRole('switch', { name: 'High contrast' }).click();
+await page.waitForTimeout(250);
+console.log('toggle ->', url(), await page.getByText('You have 1 unsaved change').count());
+await page.getByRole('button', { name: 'Save changes' }).click();
+await page.waitForTimeout(250);
+console.log('save ->', url(), await page.getByText('Accessibility settings saved').count());
+await page.getByRole('button', { name: 'Undo' }).click();
+await page.waitForTimeout(250);
+console.log('undo ->', url(), await page.getByText('Accessibility settings saved').count(), 'contrast', await page.getByRole('switch', { name: 'High contrast' }).getAttribute('aria-checked'));
+await browser.close();

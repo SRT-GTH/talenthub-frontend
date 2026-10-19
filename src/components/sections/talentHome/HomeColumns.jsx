@@ -466,8 +466,22 @@ const StreakCard = ({ data }) => (
         </li>
       ))}
     </ol>
+    {data.week ? (
+      /* Focused frames (Figma 8097:6860 / 7535 / HM): a "This week · N of M steps done" bar; Playful keeps the quest list below. */
+      <div className="flex flex-col gap-[8px] playful:hidden">
+        <div className="flex items-baseline justify-between gap-[8px]">
+          <span className="text-[14px] leading-[normal] font-medium text-[#1c2a21]">
+            {data.week.label}
+          </span>
+          <span className="text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#387440]">
+            {data.week.done}
+          </span>
+        </div>
+        <Bar pct={data.week.pct} height={8} />
+      </div>
+    ) : null}
     {data.quests ? (
-      <>
+      <div className={classNames('flex flex-col gap-[14px]', data.week && 'hidden playful:flex')}>
         <p className="text-[12px] leading-[normal] font-bold tracking-[1.2px] text-[#595959]">
           {data.questsTitle} · <Points n={data.questsPts} />
         </p>
@@ -491,7 +505,7 @@ const StreakCard = ({ data }) => (
             </li>
           ))}
         </ul>
-      </>
+      </div>
     ) : null}
   </section>
 );

@@ -8,6 +8,7 @@ import { debug } from '../../../utils/debug.js';
 import TalentNavIcon from './TalentNavIcon.jsx';
 import {
   TALENT_NAV_MAIN,
+  withWalletItem,
   TALENT_NAV_SECONDARY,
   getTalentProfile,
   getTalentSidebarData,
@@ -172,19 +173,21 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     activeIdProp ??
     (activeNav === 'profile'
       ? 'profile'
-      : activeNav === 'community'
-        ? 'community'
-        : activeNav === 'assessment'
-          ? 'assessment'
-          : activeNav === 'skills-lab'
-            ? 'skills-lab'
-            : activeNav === 'streak'
-              ? 'none'
-              : activeNav === 'jobs'
-                ? 'opportunities'
-                : activeNav === 'learning'
-                  ? 'my-learning'
-                  : 'home');
+      : activeNav === 'settings'
+        ? 'none'
+        : activeNav === 'community'
+          ? 'community'
+          : activeNav === 'assessment'
+            ? 'assessment'
+            : activeNav === 'skills-lab'
+              ? 'skills-lab'
+              : activeNav === 'streak'
+                ? 'none'
+                : activeNav === 'jobs'
+                  ? 'opportunities'
+                  : activeNav === 'learning'
+                    ? 'my-learning'
+                    : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
@@ -209,6 +212,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     else log('nav: no destination wired yet:', item.id);
   };
 
+  const mainItems = data.wallet ? withWalletItem(TALENT_NAV_MAIN) : TALENT_NAV_MAIN;
   const navBadge = (id) => data.badges[id];
   const withLabel = (item) =>
     data.labels?.[item.id] ? { ...item, label: data.labels[item.id] } : item;
@@ -229,7 +233,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           <TalentSidebarProfileAvatarIllustration className="absolute -top-[3px] left-1/2 h-[45px] w-[44px] max-w-none -translate-x-1/2 select-none" />
         </span>
         <nav aria-label="Main" className="flex w-full flex-col gap-[4px]">
-          {TALENT_NAV_MAIN.map((item) => (
+          {mainItems.map((item) => (
             <NavItem
               key={item.id}
               item={withLabel(item)}
@@ -379,7 +383,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
       <div className="flex min-h-px w-full flex-1 flex-col items-start gap-[16px] pl-[clamp(14px,1.27vw,22px)] pr-[clamp(10px,0.7vw,12px)]">
         <div className="flex w-full flex-col gap-[12px] pt-[6px]">
           <nav aria-label="Main" className="flex w-full flex-col gap-[4px]">
-            {TALENT_NAV_MAIN.map((item) => (
+            {mainItems.map((item) => (
               <NavItem
                 key={item.id}
                 item={withLabel(item)}
