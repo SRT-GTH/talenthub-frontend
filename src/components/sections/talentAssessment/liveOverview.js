@@ -28,6 +28,40 @@ const latestByType = (results) => {
   return out;
 };
 
+const STEP_SHORT = {
+  personality: 'Personality',
+  'skills-added': 'Skills',
+  labs: 'Skills Lab games',
+  full: 'Aptitude assessments',
+};
+
+const joinList = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+/**
+ * Summary copy from the four live steps. The home-tab summary (c.summary) counts
+ * "full assessment" differently, so its text contradicted the step cards.
+ */
+function summarise(steps, done, fallback) {
+  if (!done) return { headline: fallback?.title || 'Assessment profile: not started', body: fallback?.body || '' };
+  const doneNames = steps.filter((s) => s.status === 'done').map((s) => STEP_SHORT[s.id] || s.title);
+  // Skills Lab has no live games yet, so point "Next" at a step the talent can actually take.
+  const pending = steps
+    .filter((s) => s.status !== 'done')
+    .sort((a, b) => (a.id === 'labs') - (b.id === 'labs'))
+    .map((s) => STEP_SHORT[s.id] || s.title);
+  const headline =
+    done === steps.length
+      ? 'Assessment profile: complete'
+      : done >= 2
+        ? 'Assessment profile: strong foundation'
+        : 'Assessment profile: getting started';
+  const verb = doneNames.length > 1 ? 'are' : 'is';
+  const body = pending.length
+    ? `${joinList(doneNames)} ${verb} done. Next: ${pending[0].toLowerCase()}.`
+    : 'Every part of your assessment profile is done.';
+  return { headline, body };
+}
+
 /** Overview data (ASSESSMENT_OVERVIEW shape) + `first` (nothing done yet → MA-01b). */
 export const buildLiveOverview = (live, assessment) => {
   const c = buildAssessmentContent({ ...live, assessment });
@@ -85,6 +119,7 @@ export const buildLiveOverview = (live, assessment) => {
     },
   ];
   const done = steps.filter((s) => s.status === 'done').length;
+  const summaryText = summarise(steps, done, c.summary);
 
   const personality = c.personality
     ? {
@@ -149,8 +184,8 @@ export const buildLiveOverview = (live, assessment) => {
         total: 4,
         sticker: `${done} of 4 done`,
         numberCaption: 'OF 4 DONE',
-        headline: c.summary.title,
-        body: c.summary.body,
+        headline: summaryText.headline,
+        body: summaryText.body,
         percent: done * 25,
       },
       steps,
@@ -159,8 +194,8 @@ export const buildLiveOverview = (live, assessment) => {
         ...ASSESSMENT_OVERVIEW.skillsEvidence,
         chip: c.skillsEvidence.count,
         sub: c.skillsEvidence.intro,
-        skills: (c.skillsEvidence.skills || []).map((s) => ({
-          id: null,
+        skills: (c.skillsEvidence.skills || []).map((s, i) => ({
+          id: `${slugify(s.name) || 'skill'}-${i}`,
           to: '/profile',
           name: s.name,
           level: s.level,
@@ -208,7 +243,9 @@ export const buildLivePersonalityDetail = (live, assessment) => {
   const bf = latest.big_five;
   const rs = latest.riasec;
   const code = rs?.riasecScores?.code || rs?.interpretation?.code || null;
-  const when = shortDate((bf || rs)?.completedAt || (bf || rs)?.createdAt);
+  const stamp = (r) => (r ? new Date(r.completedAt || r.createdAt).getTime() || 0 : 0);
+  const newest = [bf, rs, latest.mbti].filter(Boolean).sort((a, b) => stamp(b) - stamp(a))[0];
+  const when = newest ? shortDate(newest.completedAt || newest.createdAt) : null;
   const sources = [bf && 'Big Five', rs && 'career interests', latest.mbti && 'personality type'].filter(Boolean);
   const items = (p.traits || []).map((t) => {
     const v = Math.round(t.pct);
@@ -226,7 +263,7 @@ export const buildLivePersonalityDetail = (live, assessment) => {
   });
   return {
     ...PERSONALITY_DETAIL,
-    subtitle: `Measured${when ? ` on ${when}` : ''} from your ${sources.join(', ') || 'assessment'} answers. Recruiters see your summary and trait scores, never your answers.`,
+    subtitle: `Measured${when ? ` on ${when}` : ''} from your ${joinList(sources) || 'assessment'} answers. Recruiters see your summary and trait scores, never your answers.`,
     retake: { label: bf ? 'Retake Big Five' : 'Take Big Five', to: '/my-assessment/full/big-five' },
     archetype: {
       ...PERSONALITY_DETAIL.archetype,
@@ -242,7 +279,7 @@ export const buildLivePersonalityDetail = (live, assessment) => {
       rows: [
         bf && { icon: 'list-bullet', text: `Big Five questionnaire · ${shortDate(bf.completedAt || bf.createdAt)}` },
         rs && { icon: 'list-bullet', text: `Career interests (RIASEC)${code ? ` · ${code}` : ''} · ${shortDate(rs.completedAt || rs.createdAt)}` },
-        latest.mbti && { icon: 'list-bullet', text: `Personality type · ${latest.mbti.mbtiType}` },
+        latest.mbti && { icon: 'list-bullet', text: `Personality type · ${latest.mbti.mbtiType} · ${shortDate(latest.mbti.completedAt || latest.mbti.createdAt)}` },
         { icon: 'refresh', text: 'Retake any time; the latest result shows' },
       ].filter(Boolean),
       link: latest.mbti
