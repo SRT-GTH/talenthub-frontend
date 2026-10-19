@@ -108,6 +108,97 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
   return json.result;
 };
 
+/**
+ * Same turn as sendTurn, over the agent's event stream (2026-10-19): `onStatus(text)` is called
+ * as Career Buddy works ("Looking up careers…"), so the wait never looks frozen. Falls back to
+ * sendTurn when the stream can't be opened, so older agent builds keep working.
+ */
+export const sendTurnStream = async ({ onStatus, ...args }) => {
+  const { entityId, message, history = [], chipAction, inputMode } = args;
+  const body = {
+    resourceId: entityId,
+    inputData: {
+      userId: entityId,
+      message,
+      history,
+      ...(chipAction ? { chipAction } : {}),
+      ...(inputMode ? { inputMode } : {}),
+    },
+  };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TURN_TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(`${AGENT_BASE}/career-buddy/turn-stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    if (err?.name === 'AbortError')
+      throw new AgentError('Career Buddy took too long to answer.', err);
+    return sendTurn(args);
+  }
+  if (
+    !res.ok ||
+    !res.body ||
+    !String(res.headers.get('content-type') || '').includes('text/event-stream')
+  ) {
+    clearTimeout(timer);
+    return sendTurn(args);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let cut;
+      while ((cut = buffer.indexOf('\n\n')) !== -1) {
+        const frame = buffer.slice(0, cut);
+        buffer = buffer.slice(cut + 2);
+        const event = (frame.match(/^event: (.+)$/m) || [])[1];
+        const dataLine = (frame.match(/^data: (.*)$/m) || [])[1];
+        let data = null;
+        try {
+          data = dataLine ? JSON.parse(dataLine) : null;
+        } catch {
+          data = null;
+        }
+        if (event === 'status' && data?.text) onStatus?.(data.text);
+        if (event === 'error')
+          throw new AgentError(data?.error || 'Career Buddy had a problem answering that.');
+        if (event === 'result') {
+          if (data?.status !== 'success' || !data.result) {
+            log.error('turn failed', data?.status, data?.error);
+            throw new AgentError('Career Buddy had a problem answering that.', data?.error);
+          }
+          log('turn <-', data.result.routedTo, data.result.routeReason);
+          return data.result;
+        }
+      }
+    }
+  } catch (err) {
+    if (err instanceof AgentError) throw err;
+    throw new AgentError(
+      err?.name === 'AbortError'
+        ? 'Career Buddy took too long to answer.'
+        : "Couldn't reach Career Buddy.",
+      err
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+  throw new AgentError(
+    'Career Buddy had a problem answering that.',
+    'stream ended without a result'
+  );
+};
+
 /** GET /profiles/me - the live profile shown next to the chat. */
 export const fetchMyProfile = async () => {
   const { data } = await api.get('/profiles/me');
