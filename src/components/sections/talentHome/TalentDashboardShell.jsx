@@ -45,7 +45,13 @@ const TalentDashboardShell = ({
   /* `activeNav="profile"` (/profile): the profile state names the help flag `help`; the chrome's
      pop-overs read the home names (`helpOpen`, `notif`, `tip`), so mirror them from the URL. */
   const chrome =
-    (activeNav === 'profile' || activeNav === 'jobs' || activeNav === 'streak') && talentHome
+    (activeNav === 'profile' ||
+      activeNav === 'jobs' ||
+      activeNav === 'streak' ||
+      activeNav === 'assessment' ||
+      activeNav === 'community' ||
+      activeNav === 'skills-lab') &&
+    talentHome
       ? {
           ...talentHome,
           helpOpen: params.get('help') === '1',
@@ -54,9 +60,15 @@ const TalentDashboardShell = ({
               ? 'profile'
               : activeNav === 'jobs'
                 ? 'jobs'
-                : activeNav === 'streak'
-                  ? 'streak'
-                  : undefined,
+                : activeNav === 'community'
+                  ? 'community'
+                  : activeNav === 'assessment'
+                    ? 'assessment'
+                    : activeNav === 'skills-lab'
+                      ? 'skills-lab'
+                      : activeNav === 'streak'
+                        ? 'streak'
+                        : undefined,
           // the nav accessibility button opens the profile's own panel (see TalentA11yMenu)
           profileA11y: activeNav === 'profile',
           notif: ['open', 'empty', 'loading'].includes(params.get('notif'))

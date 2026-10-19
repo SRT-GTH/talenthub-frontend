@@ -41,16 +41,24 @@ const Dual = ({ focused, playful }) =>
     focused
   );
 
-const Badge = ({ count, shelf, soft }) => (
+/* `active`: the badge on the current (green) item is a white pill with a green count (Figma MA frames); `gradient`: the
+   Focused Messages badge drawn with the green→lime gradient (data.gradientBadges). Both are opt-in, default look unchanged. */
+const Badge = ({ count, shelf, soft, active = false, gradient = false }) => (
   <span
     className={classNames(
       'inline-flex h-[18px] shrink-0 items-center justify-center overflow-hidden rounded-[99px] px-[6px] py-[2px] font-sans text-[10px] font-medium',
-      soft
-        ? 'h-[20px] bg-[#ebf1ec] px-[6px] py-[3px] text-[12px] text-[#2d5d33]'
-        : 'bg-[#387440] text-white',
+      active
+        ? 'bg-white text-[#387440]'
+        : gradient
+          ? 'bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)] text-white'
+          : soft
+            ? 'h-[20px] bg-[#ebf1ec] px-[6px] py-[3px] text-[12px] text-[#2d5d33]'
+            : 'bg-[#387440] text-white',
       shelf
-        ? 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#1f4d26]'
-        : 'playful:bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)]'
+        ? active
+          ? 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-white playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#387440]'
+          : 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:bg-none playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#1f4d26]'
+        : !active && 'playful:bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)]'
     )}
   >
     {count}
@@ -62,7 +70,17 @@ const Badge = ({ count, shelf, soft }) => (
 const isActive = (item, home) =>
   home?.tab === 'assessment' ? item.id === 'assessment' : item.id === 'home';
 
-const NavItem = ({ item, active, badge, soft, compact, onSelect, shelf }) => (
+const NavItem = ({
+  item,
+  active,
+  badge,
+  soft,
+  gradient,
+  mutedActive,
+  compact,
+  onSelect,
+  shelf,
+}) => (
   <button
     type="button"
     onClick={() => onSelect(item)}
@@ -76,7 +94,8 @@ const NavItem = ({ item, active, badge, soft, compact, onSelect, shelf }) => (
       compact && 'justify-center px-0',
       active
         ? classNames(
-            'bg-[#387440] font-semibold text-[#ebf1ec]',
+            'bg-[#387440] font-semibold',
+            mutedActive ? 'text-[#70706e]' : 'text-[#ebf1ec]',
             shelf
               ? 'playful:text-white playful:shadow-[inset_0_0_0_1.5px_rgba(28,42,33,0.55),4px_4px_0_rgba(28,42,33,0.55)]'
               : 'playful:bg-[linear-gradient(170.71deg,#387440_14.637%,#84cc16_85.349%)]'
@@ -101,7 +120,15 @@ const NavItem = ({ item, active, badge, soft, compact, onSelect, shelf }) => (
       )}
     </span>
     {!compact && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
-    {!compact && badge && <Badge count={badge} shelf={shelf} soft={soft} />}
+    {!compact && badge && (
+      <Badge
+        count={badge}
+        shelf={shelf}
+        soft={soft}
+        active={active && !!mutedActive}
+        gradient={gradient}
+      />
+    )}
   </button>
 );
 
@@ -145,13 +172,19 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     activeIdProp ??
     (activeNav === 'profile'
       ? 'profile'
-      : activeNav === 'streak'
-        ? 'none'
-        : activeNav === 'jobs'
-          ? 'opportunities'
-          : activeNav === 'learning'
-            ? 'my-learning'
-            : 'home');
+      : activeNav === 'community'
+        ? 'community'
+        : activeNav === 'assessment'
+          ? 'assessment'
+          : activeNav === 'skills-lab'
+            ? 'skills-lab'
+            : activeNav === 'streak'
+              ? 'none'
+              : activeNav === 'jobs'
+                ? 'opportunities'
+                : activeNav === 'learning'
+                  ? 'my-learning'
+                  : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
@@ -354,6 +387,8 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
                 active={isCurrent(item)}
                 badge={navBadge(item.id)}
                 soft={data.softBadges?.includes(item.id)}
+                gradient={data.gradientBadges?.includes(item.id)}
+                mutedActive={data.activeLabelMuted}
                 onSelect={select}
               />
             ))}
@@ -378,7 +413,12 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           </nav>
         </div>
 
-        <PublicProfileCard url={profile.url} shelf={shelf} />
+        <PublicProfileCard
+          url={data.publicUrl ?? profile.url}
+          shelf={shelf}
+          label={data.previewLabel}
+          onPreview={data.preview ? () => home?.update?.(data.preview) : undefined}
+        />
       </div>
     </div>
   );

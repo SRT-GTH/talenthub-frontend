@@ -43,7 +43,11 @@ for (const route of [
     continue;
   }
   const attr = await page.evaluate(() => document.documentElement.getAttribute('data-ui-style'));
-  const allowed = ALLOWED.includes(route.split('?')[0]);
+  const allowed =
+    ALLOWED.includes(route.split('?')[0]) ||
+    /^\/skills-lab(\?|$|\/(lab|games)\/)/.test(route) ||
+    route.startsWith('/my-assessment') ||
+    route.startsWith('/community');
   if (attr && !allowed) {
     leaks += 1;
     console.log(`LEAK  ${route} has data-ui-style="${attr}"`);

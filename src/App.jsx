@@ -100,9 +100,9 @@ const GoalsStage2Page = lazy(() => import('./pages/profileFilling/GoalsStage2Pag
 const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.jsx'));
 const PitchStage2Page = lazy(() => import('./pages/profileFilling/PitchStage2Page.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
-const SkillsLabPage = lazy(() => import('./pages/skillsLab/SkillsLabPage.jsx'));
-const CommunityHomePage = lazy(() => import('./pages/community/CommunityHomePage.jsx'));
-const CommunityDetailPage = lazy(() => import('./pages/community/CommunityDetailPage.jsx'));
+const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
+const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
+const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
 const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
 const TalentLearningPage = lazy(() => import('./pages/talentLearning/TalentLearningPage.jsx'));
@@ -112,6 +112,20 @@ const TalentNotificationsPage = lazy(
 const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentJobsPage = lazy(() => import('./pages/talentJobs/TalentJobsPage.jsx'));
 const TalentStreakPage = lazy(() => import('./pages/talentStreak/TalentStreakPage.jsx'));
+const AssessmentOverviewPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentOverviewPage.jsx')
+);
+const AssessmentDetailPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentDetailPage.jsx')
+);
+const AssessmentLibraryPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentLibraryPage.jsx')
+);
+const AssessmentFullPage = lazy(() => import('./pages/talentAssessment/AssessmentFullPage.jsx'));
+const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHubPage.jsx'));
+const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
+const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
+const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -837,36 +851,14 @@ function App() {
                   element={<LegacyRecruiterBuddyRedirect />}
                 />
 
-                {/* Skills Lab — standalone quiz game shell, outside MainLayout. */}
-                <Route
-                  path={'/skills-lab/:skillSlug'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <SkillsLabPage />
-                    </Suspense>
-                  }
-                />
-
-                {/* Talent Community Engagement — the community/feed area.
-            Mounted outside MainLayout (same as /profile/engagement/*) because
-            Figma's frames carry their own dashboard chrome: a top nav with
-            global search + notification cluster and a collapsible left rail,
-            both provided by DashboardShell rather than by a shared layout.
-
-            ONE route pair, not a talent/recruiter split: Figma ships a single
-            set of screens ("Recruiter Home") whose feed content is identical
-            regardless of viewer, so DashboardShell reads the app-root
-            CareerBuddyRoleContext for the (currently recruiter-only) sidebar
-            dataset instead of the routes forking by role.
-
-            NB deliberately NOT under /profile/engagement/* or
-            src/components/sections/engagement/ — that namespace is the
-            unrelated 9-stage profile-completion feature. */}
+                {/* Talent Community v2 — Figma canvas "Talent - community Engagement" 5456:19207, section "Community v2 · Talent"
+            (C-01 … C-17, Playful + Focused). Replaces the old recruiter-chrome Community (cancelled by design).
+            Frames are query params (see communityState.js / wiki/talent-community.md). Outside MainLayout. */}
                 <Route
                   path={'/community'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <CommunityHomePage />
+                      <CommunityBrowsePage />
                     </Suspense>
                   }
                 />
@@ -874,7 +866,15 @@ function App() {
                   path={'/community/:communityId'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <CommunityDetailPage />
+                      <CommunityPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/community/:communityId/post/:postId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityPostPage />
                     </Suspense>
                   }
                 />
@@ -911,6 +911,86 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent My Assessment — Figma canvas "Talent My Assessment" 7962:530 (overview, details, library, full
+            assessment flow). Frames are query params (see assessmentState.js / wiki/talent-assessment.md). The Home tab
+            /home?tab=assessment (HM-06) is unchanged. Outside MainLayout like /job-postings. */}
+                <Route
+                  path={'/my-assessment'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentOverviewPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/personality'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/skills/:skillId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/library'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentLibraryPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/full/:skillId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentFullPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent Skills Lab — Figma canvas "Talent - Skills Lab" 7500:92564 (hub, lab details, lab flow, games).
+            Frames are query params (see skillsLabState.js / wiki/talent-skills-lab.md). The old quiz page at
+            /skills-lab/:skillSlug was removed. Outside MainLayout like /job-postings. */}
+                <Route
+                  path={'/skills-lab'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SkillsLabHubPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/lab/:labId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <LabDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/lab/:labId/play'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <LabPlayPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/skills-lab/games/:gameId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GamePage />
                     </Suspense>
                   }
                 />

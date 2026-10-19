@@ -2539,6 +2539,22 @@ S-01..S-08 + HP in Playful + Focused. Nav streak pill is now a button (`?streak=
 
 The pop-up and `/notifications` now read `GET /api/notifications` and write `PUT /:id/read` / `PUT /mark-all-read` (`src/services/notifications.api.js`, `notificationsMappers.js`, `useNotificationFeed.js`). Rail / chip / group counts, the "N new" stickers, the "N new since you left" pill, the rail badge and the top-nav bell are live; reads are optimistic and broadcast so the bell count follows. Real loading / empty / error states added (the Figma `?notif=` params still force the frames). Tested locally against the Moleculer backend in Chrome; two backend bugs in `notifications.markAsRead` (422 on the gateway's `id`, 403 for the owner on a same-node ObjectId compare) fixed on backend branch `fix/notifications-mark-read`. Details: [talent-notifications.md](talent-notifications.md) → Data.
 
+## [2026-10-19] create | Talent Skills Lab — hub, lab details, 8 lab flows, 20 games, dialogs/toasts, Help
+
+New routes `/skills-lab`, `/skills-lab/lab/:labId[/play]`, `/skills-lab/games/:gameId` (Figma canvas 7500:92564, 102 screens x Playful + Focused). Built with parallel agents on a shared engine (`LabPlayChrome` + `useLabAttempt` + auto-merged `labFlows/` / `labKinds/` / `games/`). Verified: every frame pixel-diffed against its Figma export in both styles (median 2.5%), lint 0, build ok, responsive audit, runtime-error scan. Lots of content is invented to complete the loops (tagged ASSUMPTION) — see [talent-skills-lab.md](talent-skills-lab.md).
+
+## [2026-10-19] delete | Old Skills Lab quiz (redundant)
+
+Removed the first Skills Lab build: route `/skills-lab/:skillSlug`, `src/pages/skillsLab/`, `src/components/sections/skillsLab/`, `src/constants/skillLabQuizzes.js`, `src/hooks/useQuizEngine.js` — the new Figma canvas (7500:92564) has a lab for every skill it had (Python, Data analysis, UI/UX = creative design, Engineering/Product planning = project management, Public speaking, Strategic thinking = the chess quiz) plus more. Old-only questions (e.g. dictionary methods, string slicing, lambdas, typography hierarchy, risk assessment) are gone with it; they live in git history. The profile-filling "verify in lab" button now opens `/skills-lab/lab/<skill id>`.
+
+## [2026-10-19] create | Talent My Assessment — overview, details, library, full assessment flow
+
+New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId` (Figma canvas 7962:530, 17 screens x Playful + Focused + Help). Sidebar "My Assessment" now opens the new page; the Home tab `/home?tab=assessment` is unchanged. Shell: `activeNav="assessment"`, `ASSESSMENT_PAGE` rail data, sidebar add-only options. Verified: every frame pixel-diffed in both styles (1.3-4.2%), audit, runtime-error scan. Questions, scoring and many destinations are assumptions — see [talent-assessment.md](talent-assessment.md).
+
+## [2026-10-19] create | Talent Community v2 (replaces the old Community); rename Opportunities -> Job Postings
+
+New talent Community at `/community`, `/community/:communityId`, `/community/:communityId/post/:postId` (Figma 5456:19207 section "Community v2 · Talent", 17 screens x Playful + Focused). The designer cancelled the old recruiter-chrome Community: removed `src/pages/community/` + 16 old components (shared icon files and CareerBuddyFloatingButton kept); the recruiter sidebar's Community item no longer navigates (until recruiter screens exist); Career Buddy uses the new `MilestoneShareModal`. Sidebar item "Opportunities" is now "Job Postings" everywhere. Details: [talent-community.md](talent-community.md).
+
 ## [2026-10-18] wire | My Learning on the training API
 
 `/learning` reads `GET /guidance/training/courses`, `/training/history`, `/guidance/bookmarks` and writes enrol / progress / bookmarks through `LearningDataProvider` (screens keep their Figma markup; `?demo=1` keeps the mock). Tested in Chrome as an e2e talent: recommended → course → save (+ undo) → start (enrol) → mark modules 1-4 → auto-complete → certificate. Lesson content and quiz are interim (no backend), certificate download disabled (no PDF). Details + backend gaps: [talent-my-learning.md](talent-my-learning.md) → Live data.

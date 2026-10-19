@@ -42,6 +42,9 @@ Every claim in this wiki carries a tag:
 - [talent-notifications.md](talent-notifications.md) — Talent notifications `/notifications` + bell pop-up + Help overlay: frame→URL table, Focused/Playful diff, known gaps
 - [talent-jobs.md](talent-jobs.md) — Talent Job Postings `/job-postings`: lists (matched/browse/saved/applied/empty/loading), frame→URL table, decisions
 - [talent-streak.md](talent-streak.md) — Talent Streaks: `/streak` page, 15-day milestone modal, nav streak pop-up states, frame→URL table
+- [talent-skills-lab.md](talent-skills-lab.md) — Talent Skills Lab `/skills-lab`: hub, lab details, 8 lab flows, games, dialogs; per-frame checklist with diff %, known gaps
+- [talent-assessment.md](talent-assessment.md) — Talent My Assessment `/my-assessment`: overview + states, personality / skill-evidence details, library, full TypeScript assessment flow; per-frame checklist, known gaps
+- [talent-community.md](talent-community.md) — Talent Community v2 `/community`: browse, community page (feed / about / members), post + comments, dialogs; replaces the cancelled recruiter-chrome Community
 
 ### External
 

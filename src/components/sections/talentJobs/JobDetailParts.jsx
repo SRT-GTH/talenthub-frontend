@@ -38,7 +38,7 @@ export const CompanyLogo = ({ company, size = 56, radius = 16, className }) =>
     >
       <JobDetailLockXlIcon className="size-[24px]" />
     </span>
-  ) : (
+  ) : company.logo ? (
     <img
       src={company.logo}
       alt=""
@@ -46,6 +46,20 @@ export const CompanyLogo = ({ company, size = 56, radius = 16, className }) =>
       className={classNames('shrink-0 object-cover', className)}
       style={{ width: size, height: size, borderRadius: radius }}
     />
+  ) : (
+    <span
+      aria-hidden="true"
+      className={classNames(
+        'flex shrink-0 items-center justify-center bg-[#ebf1ec] font-sans font-bold text-[#2d5d33]',
+        className
+      )}
+      style={{ width: size, height: size, borderRadius: radius, fontSize: Math.round(size * 0.34) }}
+    >
+      {company.initials ||
+        String(company.name || '?')
+          .slice(0, 1)
+          .toUpperCase()}
+    </span>
   );
 
 export const KofiAvatar = () => (

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { debug } from '../../../utils/debug.js';
-import { JOB_LIST } from './talentJobsData.js';
+import { JOB_INDEX, JOB_LIST, JOBS_LIVE, jobById } from './talentJobsData.js';
 
 const log = debug('jobsDialogUtils');
 
@@ -14,8 +14,10 @@ export const INK_CHIP =
 
 export const HEADING = 'font-sans playful:font-heading';
 
+// Live: the talent's own jobs only (first one if the id is unknown); demo: the Figma fallback job.
 export const findJob = (id, fallbackId) =>
-  JOB_LIST.find((job) => job.id === id) ?? JOB_LIST.find((job) => job.id === fallbackId);
+  jobById(id) ??
+  (JOBS_LIVE ? (JOB_INDEX[0] ?? null) : JOB_LIST.find((job) => job.id === fallbackId));
 
 export const fill = (template, values) =>
   template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
