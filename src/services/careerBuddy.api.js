@@ -137,9 +137,13 @@ export const sendTurnStream = async ({ onStatus, ...args }) => {
     });
   } catch (err) {
     clearTimeout(timer);
-    if (err?.name === 'AbortError')
-      throw new AgentError('Career Buddy took too long to answer.', err);
-    return sendTurn(args);
+    // Review: never re-send after a network error - the agent may already be running this turn.
+    throw new AgentError(
+      err?.name === 'AbortError'
+        ? 'Career Buddy took too long to answer.'
+        : "Couldn't reach Career Buddy.",
+      err
+    );
   }
   if (
     !res.ok ||
@@ -147,7 +151,9 @@ export const sendTurnStream = async ({ onStatus, ...args }) => {
     !String(res.headers.get('content-type') || '').includes('text/event-stream')
   ) {
     clearTimeout(timer);
-    return sendTurn(args);
+    // An agent without the stream route (404): the turn never started, so the classic call is safe.
+    if (res.status === 404 || res.status === 405) return sendTurn(args);
+    throw new AgentError('Career Buddy had a problem answering that.', res.status);
   }
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -161,8 +167,8 @@ export const sendTurnStream = async ({ onStatus, ...args }) => {
       while ((cut = buffer.indexOf('\n\n')) !== -1) {
         const frame = buffer.slice(0, cut);
         buffer = buffer.slice(cut + 2);
-        const event = (frame.match(/^event: (.+)$/m) || [])[1];
-        const dataLine = (frame.match(/^data: (.*)$/m) || [])[1];
+        const event = (frame.match(/^event: (.+?)\r?$/m) || [])[1];
+        const dataLine = (frame.match(/^data: (.*?)\r?$/m) || [])[1];
         let data = null;
         try {
           data = dataLine ? JSON.parse(dataLine) : null;
@@ -192,6 +198,7 @@ export const sendTurnStream = async ({ onStatus, ...args }) => {
     );
   } finally {
     clearTimeout(timer);
+    reader.cancel().catch(() => undefined);
   }
   throw new AgentError(
     'Career Buddy had a problem answering that.',
