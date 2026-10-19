@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { debug } from '../../../utils/debug.js';
 import { fetchTalentAssessment } from '../../../services/talentHome.api.js';
 import { useTalentHomeState } from '../talentHome/talentHomeState.js';
@@ -14,11 +14,16 @@ export const useAssessmentHome = ({ enabled = true } = {}) => {
   const home = useTalentHomeState();
   const live = home?.live && !home.live.placeholder ? home.live : null;
   const [assessment, setAssessment] = useState(null);
+  // Wait for the verified skills (the assessment uses them). Later /home
+  // sections arriving update `live` but must not restart this fetch.
+  const ready = Boolean(live) && !live.pending?.verifiedSkills;
+  const liveRef = useRef(live);
+  liveRef.current = live;
   const [failed, setFailed] = useState(false);
   useEffect(() => {
-    if (!enabled || !live || assessment) return undefined;
+    if (!enabled || !ready || assessment) return undefined;
     let alive = true;
-    fetchTalentAssessment(live)
+    fetchTalentAssessment(liveRef.current)
       .then((a) => {
         log('assessment', { results: a.results.length, games: a.games.length });
         if (alive) setAssessment(a);
@@ -30,6 +35,6 @@ export const useAssessmentHome = ({ enabled = true } = {}) => {
     return () => {
       alive = false;
     };
-  }, [enabled, live, assessment]);
+  }, [enabled, ready, assessment]);
   return { home, live, assessment, failed, reload: () => setAssessment(null) };
 };

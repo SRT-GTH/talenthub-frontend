@@ -44,6 +44,7 @@ import {
 import { COMPANIES } from './talentHomeCoreData.js';
 import { HomeCardChrome } from './EditHomePanel.jsx';
 import { useHomeLayout } from './TabsHomeLayoutStore.js';
+import { CardSkeleton, ShimmerStyle } from './TalentHomeStates.jsx';
 
 const log = debug('HomeColumns');
 
@@ -653,6 +654,12 @@ const RecruiterCard = ({ data, onSeeAll }) => (
 const LEFT_IDS = ['matched', 'applications', 'recent-activity'];
 const RIGHT_IDS = ['career-buddy', 'streak', 'job-readiness', 'recruiter-activity'];
 
+// A section whose data is still on the way shows the Figma loading skeleton
+// (HM-04), never an empty state the data has not confirmed yet.
+const isPending = (section) => Boolean(section && section.pending);
+const anyPending = (content) =>
+  ['matches', 'activity', 'readiness', 'looking', 'recruiters'].some((k) => isPending(content[k]));
+
 const HomeColumns = ({ home, content }) => {
   const layout = useHomeLayout();
   log('render', { state: home.stateKey, editing: home.editOpen });
@@ -662,15 +669,28 @@ const HomeColumns = ({ home, content }) => {
   if (!complete) {
     return (
       <div className="grid min-w-0 gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
+        {anyPending(content) ? <ShimmerStyle /> : null}
         <div className="flex min-w-0 flex-col gap-[16px]">
-          <MatchesCard data={content.matches} variant={variant} />
+          {isPending(content.matches) ? (
+            <CardSkeleton bodyH="h-[220px]" />
+          ) : (
+            <MatchesCard data={content.matches} variant={variant} />
+          )}
           <ApplicationsEmpty data={content.applications} />
         </div>
         <aside aria-label="For you" className="flex min-w-0 flex-col gap-[16px]">
           <BuddyCard data={content.buddy} />
           {content.streak ? <StreakCard data={content.streak} /> : null}
-          <ReadinessLocked data={content.readiness} />
-          {content.looking ? <WhoLooking data={content.looking} /> : null}
+          {isPending(content.readiness) ? (
+            <CardSkeleton bodyH="h-[160px]" />
+          ) : (
+            <ReadinessLocked data={content.readiness} />
+          )}
+          {isPending(content.looking) ? (
+            <CardSkeleton bodyH="h-[140px]" />
+          ) : content.looking ? (
+            <WhoLooking data={content.looking} />
+          ) : null}
         </aside>
       </div>
     );
@@ -678,22 +698,33 @@ const HomeColumns = ({ home, content }) => {
 
   // Complete / Top Talent: cards are reorderable / hideable (HM-05 Edit home).
   const cards = {
-    matched: <MatchesCard data={content.matches} variant={variant} />,
+    matched: isPending(content.matches) ? (
+      <CardSkeleton bodyH="h-[220px]" />
+    ) : (
+      <MatchesCard data={content.matches} variant={variant} />
+    ),
     applications: content.applications.items?.length ? (
       <ApplicationsList data={content.applications} />
     ) : (
       <ApplicationsEmpty data={content.applications} />
     ),
-    'recent-activity': <ActivityCard data={content.activity} />,
+    'recent-activity': isPending(content.activity) ? (
+      <CardSkeleton bodyH="h-[180px]" />
+    ) : (
+      <ActivityCard data={content.activity} />
+    ),
     'career-buddy': <BuddyCard data={content.buddy} />,
     streak: content.streak ? <StreakCard data={content.streak} /> : null,
-    'job-readiness':
-      content.readiness?.kind === 'locked' ? (
-        <ReadinessLocked data={content.readiness} />
-      ) : (
-        <ReadinessScore data={content.readiness} />
-      ),
-    'recruiter-activity': content.recruiters ? (
+    'job-readiness': isPending(content.readiness) ? (
+      <CardSkeleton bodyH="h-[160px]" />
+    ) : content.readiness?.kind === 'locked' ? (
+      <ReadinessLocked data={content.readiness} />
+    ) : (
+      <ReadinessScore data={content.readiness} />
+    ),
+    'recruiter-activity': isPending(content.recruiters) ? (
+      <CardSkeleton bodyH="h-[140px]" />
+    ) : content.recruiters ? (
       <RecruiterCard data={content.recruiters} onSeeAll={() => home.update({ tab: 'recruiter' })} />
     ) : null,
   };
@@ -707,6 +738,7 @@ const HomeColumns = ({ home, content }) => {
       ));
   return (
     <div className="grid min-w-0 gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
+      {anyPending(content) ? <ShimmerStyle /> : null}
       <div className="flex min-w-0 flex-col gap-[16px]">{column(LEFT_IDS)}</div>
       <aside aria-label="For you" className="flex min-w-0 flex-col gap-[16px]">
         {column(RIGHT_IDS)}

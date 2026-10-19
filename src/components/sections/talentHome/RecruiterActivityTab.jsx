@@ -14,6 +14,7 @@ import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
 import TalentHomeHero from './TalentHomeHero.jsx';
+import { CardSkeleton, ShimmerStyle } from './TalentHomeStates.jsx';
 import { CARD, LIFT, DISPLAY, Chip, Sticker, HomeTabs } from './TabsParts.jsx';
 import { RECRUITER_FEED, THIS_WEEK, VISIBILITY, BUDDY_TIP } from './talentHomeTabsData.js';
 import careerBuddy from '../../../assets/talent-home/career-buddy-robot.png';
@@ -316,6 +317,21 @@ const RecruiterActivityTab = ({ home }) => {
   };
 
   // Real data on a live account; the Figma demo only in demo mode (?state=...).
+  // While the views call is still on the way, show the loading skeleton,
+  // never the Figma demo numbers.
+  if (home.recruiterPending) {
+    return (
+      <>
+        <TalentHomeHero home={home} />
+        <HomeTabs active="recruiter" tabs={home.tabs} onSelect={selectTab} />
+        <ShimmerStyle />
+        <div className="grid items-start gap-[16px] lg:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
+          <CardSkeleton bodyH="h-[320px]" />
+          <CardSkeleton bodyH="h-[180px]" />
+        </div>
+      </>
+    );
+  }
   const data = home.recruiterActivity || DEMO;
 
   return (
