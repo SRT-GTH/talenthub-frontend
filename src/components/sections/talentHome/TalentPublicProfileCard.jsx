@@ -10,7 +10,13 @@ import { TALENT_PROFILE } from './talentShellData.js';
 const log = debug('TalentPublicProfileCard');
 
 /* "Recruiter view link" card — Figma 7740:11313 (Playful, with LIVE sticker) / 8097:4868 (Focused). */
-const TalentPublicProfileCard = ({ className, shelf = true, url = TALENT_PROFILE.url }) => (
+const TalentPublicProfileCard = ({
+  className,
+  shelf = true,
+  url = TALENT_PROFILE.url,
+  label = 'Preview as recruiter',
+  onPreview,
+}) => (
   <div
     className={classNames(
       'relative flex w-full shrink-0 flex-col items-start gap-[10px] rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px]',
@@ -32,10 +38,15 @@ const TalentPublicProfileCard = ({ className, shelf = true, url = TALENT_PROFILE
     ) : null}
     <button
       type="button"
-      onClick={() => log('preview as recruiter clicked (no destination wired yet)')}
+      onClick={() => {
+        if (onPreview) {
+          log('preview clicked:', label);
+          onPreview();
+        } else log('preview as recruiter clicked (no destination wired yet)');
+      }}
       className="flex h-[36px] w-full items-center justify-center gap-[6px] rounded-[14px] border-x-2 border-b-2 border-t border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] font-bold leading-6 tracking-[0.1px] text-[#1c2a21] drop-shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
     >
-      <span className="whitespace-nowrap">Preview as recruiter</span>
+      <span className="whitespace-nowrap">{label}</span>
       <TalentSidebarPreviewArrowUpRightIcon className="size-[20px] shrink-0" />
     </button>
     {/* genz:sticker · LIVE (8262:3154) — Playful shelf frames only (absent from complete/top) */}

@@ -111,6 +111,16 @@ const TalentNotificationsPage = lazy(
 const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentJobsPage = lazy(() => import('./pages/talentJobs/TalentJobsPage.jsx'));
 const TalentStreakPage = lazy(() => import('./pages/talentStreak/TalentStreakPage.jsx'));
+const AssessmentOverviewPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentOverviewPage.jsx')
+);
+const AssessmentDetailPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentDetailPage.jsx')
+);
+const AssessmentLibraryPage = lazy(
+  () => import('./pages/talentAssessment/AssessmentLibraryPage.jsx')
+);
+const AssessmentFullPage = lazy(() => import('./pages/talentAssessment/AssessmentFullPage.jsx'));
 const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHubPage.jsx'));
 const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
 const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
@@ -904,6 +914,50 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentHomePage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Talent My Assessment — Figma canvas "Talent My Assessment" 7962:530 (overview, details, library, full
+            assessment flow). Frames are query params (see assessmentState.js / wiki/talent-assessment.md). The Home tab
+            /home?tab=assessment (HM-06) is unchanged. Outside MainLayout like /job-postings. */}
+                <Route
+                  path={'/my-assessment'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentOverviewPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/personality'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/skills/:skillId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentDetailPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/library'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentLibraryPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/my-assessment/full/:skillId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AssessmentFullPage />
                     </Suspense>
                   }
                 />

@@ -2546,3 +2546,7 @@ New routes `/skills-lab`, `/skills-lab/lab/:labId[/play]`, `/skills-lab/games/:g
 ## [2026-10-19] delete | Old Skills Lab quiz (redundant)
 
 Removed the first Skills Lab build: route `/skills-lab/:skillSlug`, `src/pages/skillsLab/`, `src/components/sections/skillsLab/`, `src/constants/skillLabQuizzes.js`, `src/hooks/useQuizEngine.js` — the new Figma canvas (7500:92564) has a lab for every skill it had (Python, Data analysis, UI/UX = creative design, Engineering/Product planning = project management, Public speaking, Strategic thinking = the chess quiz) plus more. Old-only questions (e.g. dictionary methods, string slicing, lambdas, typography hierarchy, risk assessment) are gone with it; they live in git history. The profile-filling "verify in lab" button now opens `/skills-lab/lab/<skill id>`.
+
+## [2026-10-19] create | Talent My Assessment — overview, details, library, full assessment flow
+
+New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId` (Figma canvas 7962:530, 17 screens x Playful + Focused + Help). Sidebar "My Assessment" now opens the new page; the Home tab `/home?tab=assessment` is unchanged. Shell: `activeNav="assessment"`, `ASSESSMENT_PAGE` rail data, sidebar add-only options. Verified: every frame pixel-diffed in both styles (1.3-4.2%), audit, runtime-error scan. Questions, scoring and many destinations are assumptions — see [talent-assessment.md](talent-assessment.md).

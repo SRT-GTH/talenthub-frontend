@@ -6,6 +6,7 @@ import { HELP_COPY as HELP_COPY_DEFAULT, HELP_COPY_PROFILE } from './notificatio
 import { JobsHelpCopy } from '../talentJobs/talentJobsData.js';
 import { STREAK_HELP_COPY } from '../talentStreak/talentStreakData.js';
 import { SKILLS_LAB_HELP_COPY } from '../talentSkillsLab/skillsLabData.js';
+import { ASSESSMENT_HELP_COPY } from '../talentAssessment/assessmentData.js';
 import rowHelp from '../../../assets/notifications/help/row-help.svg';
 import rowShield from '../../../assets/notifications/help/row-shield.svg';
 import rowInfo from '../../../assets/notifications/help/row-info.svg';
@@ -68,7 +69,9 @@ const HelpPopover = ({ home, anchorRef }) => {
           ? STREAK_HELP_COPY
           : home?.helpPage === 'skills-lab'
             ? SKILLS_LAB_HELP_COPY
-            : HELP_COPY_DEFAULT;
+            : home?.helpPage === 'assessment'
+              ? ASSESSMENT_HELP_COPY
+              : HELP_COPY_DEFAULT;
   const ref = useRef(null);
   const [pos, setPos] = useState({ top: 74, right: 24 });
   const close = () => {

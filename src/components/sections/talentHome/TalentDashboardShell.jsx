@@ -48,6 +48,7 @@ const TalentDashboardShell = ({
     (activeNav === 'profile' ||
       activeNav === 'jobs' ||
       activeNav === 'streak' ||
+      activeNav === 'assessment' ||
       activeNav === 'skills-lab') &&
     talentHome
       ? {
@@ -58,11 +59,13 @@ const TalentDashboardShell = ({
               ? 'profile'
               : activeNav === 'jobs'
                 ? 'jobs'
-                : activeNav === 'skills-lab'
-                  ? 'skills-lab'
-                  : activeNav === 'streak'
-                    ? 'streak'
-                    : undefined,
+                : activeNav === 'assessment'
+                  ? 'assessment'
+                  : activeNav === 'skills-lab'
+                    ? 'skills-lab'
+                    : activeNav === 'streak'
+                      ? 'streak'
+                      : undefined,
           // the nav accessibility button opens the profile's own panel (see TalentA11yMenu)
           profileA11y: activeNav === 'profile',
           notif: ['open', 'empty', 'loading'].includes(params.get('notif'))

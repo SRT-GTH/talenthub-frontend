@@ -31,7 +31,7 @@ export const TALENT_NAV_MAIN = [
     id: 'assessment',
     label: 'My Assessment',
     icon: TalentSidebarMyAssessmentNavIcon,
-    tab: 'assessment',
+    route: '/my-assessment',
   },
   {
     id: 'opportunities',
@@ -186,6 +186,64 @@ const JOBS_PAGE = {
   streak: '12',
 };
 
+/*
+ * /my-assessment chrome (Figma MA-01 Playful 7963:9352 sidebar 7963:9604 / Focused 8110:28604 sidebar 8110:28910; same card in
+ * MA-01b/c/d/MA-07/MA-08): "Frontend developer · Accra", "Open to opportunities", "Level 5 · Standout" with the XP bar filled
+ * 48 of 239px (20%), "1,240 XP/pts", "260 XP/pts to Level 6 →", 47 / 142 / 4 / 7; badges My Assessment 142, Job Postings 2,
+ * Messages 4 (label "Job Postings" for Opportunities). ✅ every value read off the nodes (the lead's first pass said 82.8% and
+ * Level 6 from the 0.5x image). Playful keeps the shelf here (ink borders, LIVE sticker) except in MA-07/MA-08 (flat).
+ * `tight`: the card is 327px tall in both styles (Figma strokes sit inside the boxes) so the nav starts at y=529.
+ * `gradientBadges`: Focused draws the Messages badge with the green->lime gradient. (`activeLabelMuted`, which draws the active label dark grey as the Focused Figma frame
+ * does, was removed on request: the active label is white like every other page). `preview`: what the rail's "Preview as …" button does (patch for home.update).
+ */
+const ASSESSMENT_PAGE = {
+  tight: true,
+  chip: 'Verified',
+  headline: 'Frontend developer · Accra',
+  status: 'Open to opportunities',
+  journey: {
+    label: 'Level 5 · Standout',
+    count: '1,240 pts',
+    countPlayful: '1,240 XP',
+    percent: 20.1,
+    caption: '260 pts to Level 6 →',
+    captionPlayful: '260 XP to Level 6 →',
+    xp: true,
+  },
+  stats: [
+    { id: 'views', value: '47', label: 'Views' },
+    { id: 'matches', value: '142', label: 'Matches' },
+    { id: 'messages', value: '4', label: 'Messages' },
+    { id: 'skills', value: '7', label: 'Skills' },
+  ],
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
+  gradientBadges: ['messages'],
+  labels: { opportunities: 'Job Postings' },
+  streak: '12',
+  preview: { view: 'recruiter' },
+};
+
+/* MA-01b first visit: same card, the progress block is titled "Getting started" (7965:9771). */
+const ASSESSMENT_FIRST = {
+  ...ASSESSMENT_PAGE,
+  journey: { ...ASSESSMENT_PAGE.journey, label: 'Getting started' },
+};
+
+/* MA-07 / MA-08 recruiter preview (7970:10350 / 8110:32746): flat Playful, "Preview as talent", recruiter public URL. */
+const ASSESSMENT_RECRUITER = {
+  ...ASSESSMENT_PAGE,
+  flat: true,
+  publicUrl: 'gth.com/recruiter/kofi-agyekum',
+  previewLabel: 'Preview as talent',
+  preview: { view: null },
+};
+
+const ASSESSMENT_BY_STATE = {
+  assessment: ASSESSMENT_PAGE,
+  'assessment-first': ASSESSMENT_FIRST,
+  'assessment-recruiter': ASSESSMENT_RECRUITER,
+};
+
 const STAGE_LABEL = {
   avatar: 'Avatar',
   interests: 'Interests',
@@ -214,6 +272,7 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   if (activeNav === 'profile') return PROFILE_PAGE;
   if (activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab')
     return JOBS_PAGE;
+  if (activeNav === 'assessment') return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
   if (activeNav === 'learning') return LEARNING_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;

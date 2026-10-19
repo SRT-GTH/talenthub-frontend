@@ -227,3 +227,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 `/job-postings` → `pages/talentJobs/TalentJobsPage.jsx`, outside `MainLayout`, `DashboardShell role="talent" activeNav="jobs"`; frames are query params. See [talent-jobs.md](talent-jobs.md).
 
 `/skills-lab` (hub + `?tab=`/`?modal=`/`?toast=`), `/skills-lab/lab/:labId` (details), `/skills-lab/lab/:labId/play` (lab flow), `/skills-lab/games/:gameId` — outside `MainLayout`, see [talent-skills-lab.md](talent-skills-lab.md). The old `/skills-lab/:skillSlug` quiz page was removed.
+
+`/my-assessment` (+ `?state=first|loading|error`, `?view=recruiter`, `?modal=retake`), `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId[?step=play|?f=MA-xx]` — outside `MainLayout`, see [talent-assessment.md](talent-assessment.md).
