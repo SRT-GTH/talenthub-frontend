@@ -6,7 +6,7 @@
 
 - Route **`/learning`** (confirmed by the owner 2026-10-18), outside `MainLayout`, `DashboardShell role="talent" activeNav="learning"`.
 - Both styles in one build; each frame checked against its own Figma frame.
-- No backend: state is mock, chosen by URL params (`talentLearningState.js`).
+- ~~No backend~~ **Live since 2026-10-18** — see "Live data" below. The Figma mock is still reachable with `?demo=1` (and `?empty=1` / `?loading=1`, which imply it).
 
 ## Figma access — USE THE CACHE, NOT THE API
 
@@ -77,3 +77,24 @@ Each section component receives `learning` (see `useTalentLearningState`): `{ vi
 **Assumptions / gaps (Figma doesn't draw them):** only question 1 of 3 exists, so "Got it, next" -> `retry`, "Try again" -> `question`, "Start module 5" -> lesson are assumptions; Transcript/Resources tabs render nothing; Completed tab has no frame (inert); "Need a hint?", "Ask Career Buddy to explain it differently", "Ask Career Buddy what to learn" and the video controls are visual only; two Figma strings look truncated but kept verbatim ("Shows on your profile with a", "Recruiters see the . Verified by GTH, not self-reported."); Explore: only the Data & analytics chip works, sort/See all/Request this course/"Closest we have" are inert, "View course" -> `?view=course` is an assumption, search keywords are ours; SV-01 toast overlays Course detail in Figma (`?view=course&toast=saved`); mobile/tablet layouts derived from desktop (no phone frames); SF Pro Rounded not installed (Nunito fallback, text widths differ).
 
 **Not yet done:** strict recruiter/community visual gate result (run after the shared nav/shell edits), by-eye comparison of every remaining frame at 390/320, hover/focus states, real screen-reader and forced-colors checks.
+
+## Live data (2026-10-18)
+
+`LearningDataProvider` (`LearningDataContext.jsx`, hook in `useLearningData.js`) is the one source for every screen. Live by default; `?demo=1` / `?empty=1` / `?loading=1` serve the Figma mock unchanged (design QA keeps every frame in the table above).
+
+| Screen | Live source | Notes |
+| --- | --- | --- |
+| Tabs + counts, header art | `GET /guidance/training/courses`, `/training/history`, `/guidance/bookmarks?contentType=course` | In progress / Recommended / Saved / Completed / Certificates counts are real; "N courses in progress" art is real. |
+| In progress (ML-01) | history + catalogue | Continue card = first unfinished enrolment ("Module n of N", %, provider). ⚠️ "N% done" sticker replaces "18 min left" (no time data). **Weekly goal + Level cards are hidden in live** (no backend). |
+| Empty (ML-07) | not-started courses ranked by `skillGapIndicator` | |
+| Recommended (ML-06) | catalogue, gap-ranked | Filters: Free = `cost 0`, Under 2 hours = parsed `duration`, With certificate = `providerType gth_native` ⚠️, Popular = rating ≥ 4.5 ⚠️. Live banner copy ⚠️. |
+| Saved (SV-01..03) | bookmarks | Save / unsave / toast Undo write through. |
+| Course detail (ML-02) | `?course=<id>` | Real title, provider · level, duration, modules, price, skills ("The skills it builds" ⚠️), earn items. Start = `POST /training/enrol` (409 = already enrolled → resume). Module rows "Module n" ⚠️ (no module titles in the API). Role readiness deltas, points and social proof hidden (no data). |
+| Lesson player (ML-03) | enrolment progress | **⚠️ INTERIM**: no lesson media or quiz questions in the API, so live shows the real course / module / progress panel, a "videos aren't published yet" panel (or "Open on {provider}" for external courses) and **"Mark module n done"** → `POST /training/progress/:id` (`moduleId: module-n`). The last module auto-completes the course (backend `markComplete`) and opens Certificates. Quick check (QC-01..05) stays demo-only. |
+| Certificates (ML-05) | completed enrolments | Real course, date, talent name. **Download is disabled**: the API's "signed" `certificateUrl` points back at the authenticated JSON endpoint (401 in a new tab) and no PDF is rendered. |
+| Explore (EX-01..04) | catalogue (client-side search) | Live = search over title / skills / categories / provider + chips from real categories + course cards. The Figma rows / category page assume a 142-course catalogue (5 exist). |
+| Shell | `useTalentHomeState()` (live) | Sidebar / nav / bell are the talent's real data on `/learning` (talentShellData: the Figma LEARNING_PAGE card only without live data). |
+
+Mapping lives in `learningMappers.js` (cover art picked by topic from the 8 Figma covers; duration / cost / certificate meta; gap chip "Builds N skills you're missing" ⚠️).
+
+**Backend gaps found** (not fixed here): no lesson content / quiz questions per module; `updateProgress` accepts any `moduleId` (progress can pass 100% with bogus ids); enrolments never move to `in_progress`; `enrol` stores `courseName: course.name` (courses have `title`, so it's undefined); certificate PDF / public verify link not implemented; `getEnrolmentHistory`'s doc says it includes course info but it doesn't (frontend joins the catalogue).

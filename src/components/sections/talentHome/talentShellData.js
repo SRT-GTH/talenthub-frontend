@@ -35,7 +35,7 @@ export const TALENT_NAV_MAIN = [
   },
   {
     id: 'opportunities',
-    label: 'Opportunities',
+    label: 'Job Postings',
     icon: TalentSidebarOpportunitiesNavIcon,
     route: '/job-postings',
   },
@@ -142,7 +142,6 @@ const PROFILE_PAGE = {
     { id: 'skills', value: '7', label: 'Skills' },
   ],
   badges: { assessment: '142', opportunities: '2', messages: '4' },
-  labels: { opportunities: 'Job Postings' },
   streak: '12',
 };
 
@@ -167,7 +166,6 @@ const LEARNING_PAGE = {
   softBadges: ['messages'],
   // Figma strokes sit INSIDE the boxes: trim padding so the card is 327px and the nav starts at 529.
   tight: true,
-  labels: { opportunities: 'Job Postings' },
   streak: '12',
 };
 
@@ -182,7 +180,6 @@ const JOBS_PAGE = {
   journey: { label: 'Getting started', count: '1 of 5', percent: 20, caption: 'Continue setup →' },
   stats: PROFILE_PAGE.stats,
   badges: { assessment: '142', opportunities: '2', messages: '6' },
-  labels: { opportunities: 'Job Postings' },
   streak: '12',
 };
 
@@ -218,7 +215,6 @@ const ASSESSMENT_PAGE = {
   ],
   badges: { assessment: '142', opportunities: '2', messages: '4' },
   gradientBadges: ['messages'],
-  labels: { opportunities: 'Job Postings' },
   streak: '12',
   preview: { view: 'recruiter' },
 };
@@ -242,6 +238,22 @@ const ASSESSMENT_BY_STATE = {
   assessment: ASSESSMENT_PAGE,
   'assessment-first': ASSESSMENT_FIRST,
   'assessment-recruiter': ASSESSMENT_RECRUITER,
+};
+
+/*
+ * /community chrome (Figma C-01 Playful 7625:4354 sidebar 7625:4376 / Focused 8110:460141 sidebar 8110:460193; same card in every
+ * Community v2 frame): "New" · "Tertiary (BSc) · Accra, Ghana" · "1 of 5 steps complete", "Getting started 1 of 5" bar filled 48 of
+ * 239px (20%) with "Continue setup →", 47 / 142 / 4 / 7; badges My Assessment 142, Job Postings 2, Messages 4 (label "Job Postings"
+ * for Opportunities), nav streak 12. ✅ every value read off the nodes (the lead's first pass came from the 0.5x image).
+ * `tight`: the card is 327px tall in both styles (strokes sit inside the boxes) so the nav starts at y=529.
+ * `gradientBadges`: Focused draws the Messages badge with the green->lime gradient, My Assessment / Job Postings solid green;
+ * Playful draws all three as soft #ebf1ec pills.
+ */
+const COMMUNITY_PAGE = {
+  ...JOBS_PAGE,
+  tight: true,
+  badges: { assessment: '142', opportunities: '2', messages: '4' },
+  gradientBadges: ['messages'],
 };
 
 const STAGE_LABEL = {
@@ -272,9 +284,10 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   if (activeNav === 'profile') return PROFILE_PAGE;
   if (activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab')
     return JOBS_PAGE;
-  // My Assessment: the Figma rail card in demo mode; the talent's live card once live data exists.
+  // My Assessment / My Learning: the Figma rail card in demo mode; the talent's live card once live data exists.
   if (activeNav === 'assessment' && !live) return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
-  if (activeNav === 'learning') return LEARNING_PAGE;
+  if (activeNav === 'learning' && !live) return LEARNING_PAGE;
+  if (activeNav === 'community') return COMMUNITY_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;
   if (live.placeholder) {

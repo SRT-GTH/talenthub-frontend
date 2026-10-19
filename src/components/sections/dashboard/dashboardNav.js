@@ -42,7 +42,8 @@ export const NAV_ITEMS = [
     label: 'Community',
     icon: icons.navCommunityActive,
     collapsedIcon: icons.navCommunityActiveCollapsed,
-    to: '/community',
+    // No destination on purpose: the recruiter Community screens are not designed yet (the talent Community v2 lives at
+    // /community inside the talent shell). Add `to` back when the recruiter version is built.
   },
   {
     id: 'messages',
@@ -69,8 +70,8 @@ export const SECONDARY_NAV_ITEMS = [
 export const TAB_BAR_IDS = ['home', 'talent-search', 'job-postings', 'messages'];
 
 /* `active` is derived from the route (never hardcoded): an item is active on
-   its own path and on any nested path beneath it, so /community and
-   /community/:id both light up Community. Items with no `to` stay inactive. */
+   its own path and on any nested path beneath it, so nested
+   routes light up their parent. Items with no `to` (Community, Profile) stay inactive and do not navigate. */
 const markActive = (items, pathname) =>
   items.map((item) => ({
     ...item,

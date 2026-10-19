@@ -4,7 +4,8 @@ import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
 import { LearningSpotBookIllustration } from '../../shared/assets.jsx';
 import { CourseChip, HEAD, LearningCover, PLAIN } from './LearningHubParts.jsx';
-import { COURSES, EMPTY } from './talentLearningHubData.js';
+import { EMPTY } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LearningEmptyState');
 
@@ -13,6 +14,7 @@ const log = debug('LearningEmptyState');
  * Focused 8110:13310): spot illustration, headline, two suggested courses, Explore / Ask Career Buddy.
  */
 const LearningEmptyState = ({ learning }) => {
+  const data = useLearningData();
   useEffect(() => {
     log('mount', { empty: learning.empty });
   }, [learning.empty]);
@@ -37,8 +39,8 @@ const LearningEmptyState = ({ learning }) => {
         {EMPTY.body}
       </p>
       <ul className="m-0 flex list-none flex-wrap justify-center gap-[16px] p-0">
-        {EMPTY.picks.map((key) => {
-          const course = COURSES[key];
+        {data.emptyPicks.map((key) => {
+          const course = data.courses[key];
           return (
             <li
               key={key}

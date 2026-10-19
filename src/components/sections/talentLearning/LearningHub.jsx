@@ -4,7 +4,8 @@ import { debug } from '../../../utils/debug.js';
 import { LearningStreakFlameIcon } from '../../shared/assets.jsx';
 import LearningHubArt from './LearningHubArt.jsx';
 import { HEAD, HubSticker } from './LearningHubParts.jsx';
-import { HEADER, TABS, tabCounts, useRemovedSaved } from './talentLearningHubData.js';
+import { HEADER, TABS } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LearningHub');
 
@@ -34,15 +35,11 @@ const PATCH = {
 
 const LearningHub = ({ learning, children }) => {
   const active = activeTabKey(learning);
-  const removed = useRemovedSaved();
+  const data = useLearningData();
   const refs = useRef({});
-  const showEmpty = learning.empty && !learning.loading;
-  const counts = tabCounts({
-    empty: showEmpty,
-    activeTab: active,
-    savedEmpty: learning.empty,
-    removedCount: removed.length,
-  });
+  const showEmpty = !data.loading && !data.hasProgress;
+  // Live counts from the API (mock: the Figma numbers via tabCounts, see LearningDataContext).
+  const counts = data.counts;
   const newHere = showEmpty && active === 'progress';
 
   log('render', { active, counts, newHere });
@@ -100,7 +97,13 @@ const LearningHub = ({ learning, children }) => {
             {HEADER.subtitle}
           </p>
         </div>
-        <LearningHubArt />
+        <LearningHubArt
+          inbox={
+            data.live
+              ? `${counts.progress} course${counts.progress === 1 ? '' : 's'} in progress`
+              : undefined
+          }
+        />
       </div>
 
       {/* Tabs + body */}

@@ -2551,6 +2551,14 @@ Removed the first Skills Lab build: route `/skills-lab/:skillSlug`, `src/pages/s
 
 New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId` (Figma canvas 7962:530, 17 screens x Playful + Focused + Help). Sidebar "My Assessment" now opens the new page; the Home tab `/home?tab=assessment` is unchanged. Shell: `activeNav="assessment"`, `ASSESSMENT_PAGE` rail data, sidebar add-only options. Verified: every frame pixel-diffed in both styles (1.3-4.2%), audit, runtime-error scan. Questions, scoring and many destinations are assumptions — see [talent-assessment.md](talent-assessment.md).
 
+## [2026-10-19] create | Talent Community v2 (replaces the old Community); rename Opportunities -> Job Postings
+
+New talent Community at `/community`, `/community/:communityId`, `/community/:communityId/post/:postId` (Figma 5456:19207 section "Community v2 · Talent", 17 screens x Playful + Focused). The designer cancelled the old recruiter-chrome Community: removed `src/pages/community/` + 16 old components (shared icon files and CareerBuddyFloatingButton kept); the recruiter sidebar's Community item no longer navigates (until recruiter screens exist); Career Buddy uses the new `MilestoneShareModal`. Sidebar item "Opportunities" is now "Job Postings" everywhere. Details: [talent-community.md](talent-community.md).
+
+## [2026-10-18] wire | My Learning on the training API
+
+`/learning` reads `GET /guidance/training/courses`, `/training/history`, `/guidance/bookmarks` and writes enrol / progress / bookmarks through `LearningDataProvider` (screens keep their Figma markup; `?demo=1` keeps the mock). Tested in Chrome as an e2e talent: recommended → course → save (+ undo) → start (enrol) → mark modules 1-4 → auto-complete → certificate. Lesson content and quiz are interim (no backend), certificate download disabled (no PDF). Details + backend gaps: [talent-my-learning.md](talent-my-learning.md) → Live data.
+
 ## [2026-10-19] wire | My Assessment on the six server-scored assessments
 
 `/my-assessment` runs Big Five, MBTI, RIASEC, numerical / logical reasoning and situational judgement from the backend templates; the server scores and saves (`POST /engagement/assessments/score`). Library, overview, personality detail and the live shell read real results; `?demo=1` keeps the drawn mock. Tested as an e2e talent on the backend fix branch: numerical reasoning (5/10, Medium) and MBTI (INFP) scored and saved. Needs srt-backend#164. Details: [talent-assessment.md](talent-assessment.md) → Live data. Browser check: overview summary now built from the four live steps (the home-tab copy called aptitude "done" at 1 of 3), skill rows get unique keys, personality date is the newest result.

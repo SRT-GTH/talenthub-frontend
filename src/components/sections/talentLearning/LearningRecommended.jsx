@@ -4,7 +4,11 @@ import { debug } from '../../../utils/debug.js';
 import { LearningBannerSparkIcon, LearningSearchIcon } from '../../shared/assets.jsx';
 import LearningHub from './LearningHub.jsx';
 import { RecCard } from './LearningHubParts.jsx';
-import { COURSES, RECOMMENDED, matchesFilter } from './talentLearningHubData.js';
+import { RECOMMENDED, matchesFilter } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
+
+// ⚠️ ASSUMPTION: live banner — the API ranks by missing skills, not by matched roles (Figma: "6 matched roles").
+const LIVE_BANNER = 'Ranked by the skills your target career needs that your profile doesn’t show yet.';
 
 const log = debug('LearningRecommended');
 
@@ -27,9 +31,11 @@ const PLAYFUL_CHIP = {
 const LearningRecommended = ({ learning }) => {
   const [filter, setFilter] = useState('matches');
   const [query, setQuery] = useState('');
+  const data = useLearningData();
+  const COURSES = data.courses;
 
   const needle = query.trim().toLowerCase();
-  const items = RECOMMENDED.items.filter((key) => {
+  const items = data.recommended.filter((key) => {
     const course = COURSES[key];
     return (
       matchesFilter(course, filter) && (!needle || course.title.toLowerCase().includes(needle))
@@ -89,7 +95,7 @@ const LearningRecommended = ({ learning }) => {
 
         <p className="m-0 flex items-center gap-[12px] rounded-[18px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[12px] pr-[16px] pl-[14px] font-sans text-[14px] leading-[16.7px] font-medium text-[#2d5d33]">
           <LearningBannerSparkIcon className="size-[17px] shrink-0" />
-          <span className="min-w-0">{RECOMMENDED.banner}</span>
+          <span className="min-w-0">{data.live ? LIVE_BANNER : RECOMMENDED.banner}</span>
         </p>
 
         <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] items-start gap-[20px]">
@@ -99,15 +105,20 @@ const LearningRecommended = ({ learning }) => {
               size="lg"
               course={COURSES[key]}
               meta={COURSES[key].metaFull}
-              playfulChip={PLAYFUL_CHIP[key]}
+              playfulChip={PLAYFUL_CHIP[key] ?? 'default'}
               buttonLabel={RECOMMENDED.start}
               onStart={() => {
                 log('click', 'start course', key);
-                learning.update({ view: 'course' });
+                data.openCourse(key);
               }}
             />
           ))}
         </div>
+        {items.length === 0 && (
+          <p className="m-0 py-[24px] font-sans text-[14px] text-[#737373]">
+            {data.loading ? 'Loading courses…' : 'No courses match that yet.'}
+          </p>
+        )}
       </div>
     </LearningHub>
   );

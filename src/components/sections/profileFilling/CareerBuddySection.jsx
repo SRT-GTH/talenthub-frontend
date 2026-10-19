@@ -21,7 +21,7 @@ import CareerBuddyHero from './CareerBuddyHero.jsx';
 import VoiceCallOverlay from './VoiceCallOverlay.jsx';
 import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
-import ShareMilestoneModal from '../community/ShareMilestoneModal.jsx';
+import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
 import {
@@ -391,7 +391,7 @@ const STAGE_SAVE_META = {
   },
 };
 
-// Milestone-share labels — feeds ShareMilestoneModal's `stageLabel` prop
+// Milestone-share labels — feeds MilestoneShareModal's `stageLabel` prop
 // after a talent stage is confirmed (see handleConfirmStage). Only
 // Personality's wording is `✅ VERIFIED` (Figma 7025:89865 says "Personality
 // Assessment" specifically, not just "Personality"); every other label here
@@ -612,7 +612,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   });
   // Milestone-share — Figma 7025:89274, opened from handleConfirmStage on
   // any talent stage in STAGE_MILESTONE_LABELS. Null when closed; the
-  // stage id when open, so ShareMilestoneModal knows which label to show.
+  // stage id when open, so MilestoneShareModal knows which label to show.
   const [milestoneStageId, setMilestoneStageId] = useState(null);
   // Opt-out flow — Figma 5146:74705 / 75029 / 75353 (Save & Exit)
   const [optOutOpen, setOptOutOpen] = useState(false);
@@ -2676,11 +2676,11 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
           {/* First-visit "Pick your vibe" (Figma 7883:86839) — talent only, until answered */}
           {isTalent && <PickYourVibeModal open={!vibeChosen} />}
 
-          <ShareMilestoneModal
+          <MilestoneShareModal
+            key={milestoneStageId ?? 'closed'}
             isOpen={Boolean(milestoneStageId)}
             stageLabel={milestoneStageId ? STAGE_MILESTONE_LABELS[milestoneStageId] : undefined}
             authorName={viewPersonaName}
-            authorInitials={viewPersonaName.slice(0, 2).toUpperCase()}
             onClose={() => setMilestoneStageId(null)}
             onShare={(payload) => log('milestone share acknowledged (no backend):', payload)}
             onDecline={() => log('milestone share declined')}
