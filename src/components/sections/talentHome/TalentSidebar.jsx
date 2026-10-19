@@ -57,7 +57,7 @@ const Badge = ({ count, shelf, soft, active = false, gradient = false }) => (
       shelf
         ? active
           ? 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-white playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#387440]'
-          : 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#1f4d26]'
+          : 'playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)] playful:bg-[#ebf1ec] playful:bg-none playful:px-[7px] playful:text-[11px] playful:font-semibold playful:text-[#1f4d26]'
         : !active && 'playful:bg-[linear-gradient(136.548deg,#387440_14.637%,#84cc16_85.349%)]'
     )}
   >
@@ -172,17 +172,19 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     activeIdProp ??
     (activeNav === 'profile'
       ? 'profile'
-      : activeNav === 'assessment'
-        ? 'assessment'
-        : activeNav === 'skills-lab'
-          ? 'skills-lab'
-          : activeNav === 'streak'
-            ? 'none'
-            : activeNav === 'jobs'
-              ? 'opportunities'
-              : activeNav === 'learning'
-                ? 'my-learning'
-                : 'home');
+      : activeNav === 'community'
+        ? 'community'
+        : activeNav === 'assessment'
+          ? 'assessment'
+          : activeNav === 'skills-lab'
+            ? 'skills-lab'
+            : activeNav === 'streak'
+              ? 'none'
+              : activeNav === 'jobs'
+                ? 'opportunities'
+                : activeNav === 'learning'
+                  ? 'my-learning'
+                  : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
