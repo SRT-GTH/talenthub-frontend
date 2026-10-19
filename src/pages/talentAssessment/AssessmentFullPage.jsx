@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
@@ -6,12 +6,15 @@ import { ensurePlayfulFont } from '../../utils/ensurePlayfulFont.js';
 import UiStyleScope from '../../components/shared/UiStyleScope.jsx';
 import AssessmentFrame from '../../components/sections/talentAssessment/AssessmentFrame.jsx';
 import { useAssessmentState } from '../../components/sections/talentAssessment/assessmentState.js';
+import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
 import {
   FULL_FRAMES,
   getFullAssessment,
 } from '../../components/sections/talentAssessment/assessmentData.js';
 import FullIntroScreen from '../../components/sections/talentAssessment/full/FullIntroScreen.jsx';
 import FullPlayScreen from '../../components/sections/talentAssessment/full/FullPlayScreen.jsx';
+import { LIVE_TYPES } from '../../components/sections/talentAssessment/liveAssessments.js';
+import { useLiveAssessments } from '../../components/sections/talentAssessment/useLiveAssessments.js';
 
 const log = debug('AssessmentFullPage');
 
@@ -32,8 +35,17 @@ const AssessmentFullPage = () => {
   const { skillId } = useParams();
   const [params] = useSearchParams();
   const assessment = useAssessmentState();
-  const flow = getFullAssessment(skillId);
+  const home = useTalentHomeState(); // live sidebar / nav (AssessmentFrame)
   const frame = params.get('f');
+  // The six server-scored assessments (liveAssessments.js); `typescript` stays the drawn mock for design QA.
+  const isLive = Boolean(LIVE_TYPES[skillId]) && !frame;
+  const live = useLiveAssessments({ enabled: isLive });
+  const { flowFor } = live;
+  const flow = useMemo(
+    () =>
+      isLive ? (live.status === 'ready' ? flowFor(skillId) : null) : getFullAssessment(skillId),
+    [isLive, live.status, flowFor, skillId]
+  );
   const seed = frame ? FULL_FRAMES[frame] : null;
   const playing = params.get('step') === 'play' || seed?.screen === 'play';
 
@@ -47,6 +59,16 @@ const AssessmentFullPage = () => {
     document.documentElement.setAttribute('data-talent-home', '');
     return () => document.documentElement.removeAttribute('data-talent-home');
   }, []);
+
+  if (isLive && live.status === 'loading') {
+    return (
+      <AssessmentFrame assessment={assessment} home={home}>
+        <p className="m-0 py-[40px] font-sans text-[15px] text-[#595959]">
+          Loading the assessment…
+        </p>
+      </AssessmentFrame>
+    );
+  }
 
   if (!flow) {
     return (
@@ -69,8 +91,12 @@ const AssessmentFullPage = () => {
   }
 
   return (
-    <AssessmentFrame assessment={assessment}>
-      <FullIntroScreen flow={flow} startTo="?step=play" />
+    <AssessmentFrame assessment={assessment} home={home}>
+      <FullIntroScreen
+        flow={flow}
+        startTo="?step=play"
+        practiseTo={flow.live ? '/profile/filling/career-buddy' : undefined}
+      />
     </AssessmentFrame>
   );
 };

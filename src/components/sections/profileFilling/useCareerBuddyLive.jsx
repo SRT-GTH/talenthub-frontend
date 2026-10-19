@@ -24,6 +24,7 @@ import { debug } from '../../../utils/debug.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import {
   sendTurn,
+  sendTurnStream,
   fetchMyProfile,
   currentEntityId,
   currentFirstName,
@@ -357,7 +358,33 @@ export function useCareerBuddyLive({
         chipActions: [],
       }));
       try {
-        const turn = await sendTurn({ entityId, message: text, history, chipAction, inputMode });
+        // 2026-10-19: the thinking bubble shows what Career Buddy is doing while it works.
+        const onStatus = (status) =>
+          patchThread((t) => ({
+            messages: t.messages.map((m) => (m.id === THINKING_ID ? { ...m, text: status } : m)),
+          }));
+        // Reply words as Career Buddy writes them; the finished turn replaces this bubble.
+        let streamed = '';
+        const onDelta = (chunk) => {
+          streamed += chunk;
+          const shownText = streamed;
+          patchThread((t) => ({
+            messages: t.messages.map((m) =>
+              m.id === THINKING_ID ? { ...m, text: shownText, streaming: true } : m
+            ),
+          }));
+        };
+        const turn = await sendTurnStream({
+          entityId,
+          message: text,
+          history,
+          chipAction,
+          inputMode,
+          onStatus: (status) => {
+            if (!streamed) onStatus(status);
+          },
+          onDelta,
+        });
         setPracticeActive(isPracticeTurn(turn));
         log('turn', {
           routedTo: turn.routedTo,

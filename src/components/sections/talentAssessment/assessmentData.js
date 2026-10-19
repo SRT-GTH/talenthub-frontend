@@ -853,7 +853,9 @@ export const ASSESSMENT_HELP_COPY = {
 export const OVERVIEW_ROUTES = {
   full: '/my-assessment/full/typescript',
   personality: '/my-assessment/personality',
-  personalityQuiz: '/my-assessment/personality',
+  // Was '/my-assessment/personality' (the results page): "Start with personality" now opens the Big Five test.
+  personalityQuiz: '/my-assessment/full/big-five',
+  library: '/my-assessment/library',
   skillsLab: '/skills-lab',
   skills: '/profile',
   home: '/home',

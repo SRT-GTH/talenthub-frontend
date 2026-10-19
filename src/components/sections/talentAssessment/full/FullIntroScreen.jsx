@@ -127,9 +127,11 @@ const FullIntroScreen = ({ flow, startTo, practiseTo = '/skills-lab' }) => {
           <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] leading-[1.2] font-semibold tracking-[-0.02em] text-[#1c2a21] playful:font-heading">
             {intro.title}
           </h1>
-          <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b] playful:rotate-[6deg] playful:border-[1.2px] playful:border-solid playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:text-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]">
-            {intro.sticker}
-          </span>
+          {intro.sticker ? (
+            <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b] playful:rotate-[6deg] playful:border-[1.2px] playful:border-solid playful:border-[#1c2a21] playful:bg-[#ffd86b] playful:text-[#1c2a21] playful:shadow-[2px_2px_0_#1c2a21]">
+              {intro.sticker}
+            </span>
+          ) : null}
         </div>
         <p className="m-0 font-sans text-[16px] leading-[24px] font-normal tracking-[0.2px] text-[#595959]">
           {intro.lede}

@@ -108,6 +108,107 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
   return json.result;
 };
 
+/**
+ * Same turn as sendTurn, over the agent's event stream (2026-10-19): `onStatus(text)` is called
+ * as Career Buddy works ("Looking up careers…"), and `onDelta(text)` with reply text as it is
+ * written (append it; the returned turn's reply is authoritative). Falls back to
+ * sendTurn when the stream can't be opened, so older agent builds keep working.
+ */
+export const sendTurnStream = async ({ onStatus, onDelta, ...args }) => {
+  const { entityId, message, history = [], chipAction, inputMode } = args;
+  const body = {
+    resourceId: entityId,
+    inputData: {
+      userId: entityId,
+      message,
+      history,
+      ...(chipAction ? { chipAction } : {}),
+      ...(inputMode ? { inputMode } : {}),
+    },
+  };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TURN_TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(`${AGENT_BASE}/career-buddy/turn-stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    // Review: never re-send after a network error - the agent may already be running this turn.
+    throw new AgentError(
+      err?.name === 'AbortError'
+        ? 'Career Buddy took too long to answer.'
+        : "Couldn't reach Career Buddy.",
+      err
+    );
+  }
+  if (
+    !res.ok ||
+    !res.body ||
+    !String(res.headers.get('content-type') || '').includes('text/event-stream')
+  ) {
+    clearTimeout(timer);
+    // An agent without the stream route (404): the turn never started, so the classic call is safe.
+    if (res.status === 404 || res.status === 405) return sendTurn(args);
+    throw new AgentError('Career Buddy had a problem answering that.', res.status);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let cut;
+      while ((cut = buffer.indexOf('\n\n')) !== -1) {
+        const frame = buffer.slice(0, cut);
+        buffer = buffer.slice(cut + 2);
+        const event = (frame.match(/^event: (.+?)\r?$/m) || [])[1];
+        const dataLine = (frame.match(/^data: (.*?)\r?$/m) || [])[1];
+        let data = null;
+        try {
+          data = dataLine ? JSON.parse(dataLine) : null;
+        } catch {
+          data = null;
+        }
+        if (event === 'status' && data?.text) onStatus?.(data.text);
+        // Reply text as it is written; the result's reply replaces it.
+        if (event === 'delta' && data?.text) onDelta?.(data.text);
+        if (event === 'error')
+          throw new AgentError(data?.error || 'Career Buddy had a problem answering that.');
+        if (event === 'result') {
+          if (data?.status !== 'success' || !data.result) {
+            log.error('turn failed', data?.status, data?.error);
+            throw new AgentError('Career Buddy had a problem answering that.', data?.error);
+          }
+          log('turn <-', data.result.routedTo, data.result.routeReason);
+          return data.result;
+        }
+      }
+    }
+  } catch (err) {
+    if (err instanceof AgentError) throw err;
+    throw new AgentError(
+      err?.name === 'AbortError'
+        ? 'Career Buddy took too long to answer.'
+        : "Couldn't reach Career Buddy.",
+      err
+    );
+  } finally {
+    clearTimeout(timer);
+    reader.cancel().catch(() => undefined);
+  }
+  throw new AgentError(
+    'Career Buddy had a problem answering that.',
+    'stream ended without a result'
+  );
+};
+
 /** GET /profiles/me - the live profile shown next to the chat. */
 export const fetchMyProfile = async () => {
   const { data } = await api.get('/profiles/me');

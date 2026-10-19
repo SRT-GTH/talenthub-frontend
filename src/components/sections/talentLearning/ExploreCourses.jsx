@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLearningData } from './useLearningData.js';
+import { RecCard } from './LearningHubParts.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -437,7 +439,103 @@ const stateForQuery = (q) => {
   return searchCourses(q).length ? 'search' : 'none';
 };
 
+/*
+ * LiveExplore — Explore on the training API (GET /guidance/training/courses, already loaded by
+ * LearningDataProvider). The Figma Explore rows / category page / search sets are built around a
+ * 142-course catalogue that doesn't exist yet, so live mode is: real search (title, skills,
+ * categories, provider) + chips from the real categories + the same course cards. ⚠️ ASSUMPTION
+ * layout; copy reused from Figma where it fits.
+ */
+const LiveExplore = ({ data }) => {
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState(null);
+  const inputRef = useRef(null);
+  const all = Object.values(data.courses);
+  const categories = [...new Set(all.flatMap((c) => c.categories))].sort();
+  const q = query.trim().toLowerCase();
+  const results = all.filter((c) => {
+    if (cat && !c.categories.includes(cat)) return false;
+    if (!q) return true;
+    return [c.title, c.provider, ...c.skills, ...c.categories].some((t) =>
+      String(t).toLowerCase().includes(q)
+    );
+  });
+  const free = all.filter((c) => c.tags.free).length;
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-[24px]">
+      <ExploreHeader
+        title={EXPLORE_HEADER.title}
+        count={`${free} free`}
+        subtitle={`${all.length} course${all.length === 1 ? '' : 's'} picked for young Ghanaian talent. Learn anything, 15 minutes at a time.`}
+      />
+      <div className="flex flex-col gap-[18px]">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          onClear={() => {
+            setQuery('');
+            inputRef.current?.focus();
+          }}
+          inputRef={inputRef}
+        />
+        <div role="group" aria-label="Categories" className="flex flex-wrap gap-[8px]">
+          {[null, ...categories].map((c) => (
+            <button
+              key={c ?? 'all'}
+              type="button"
+              aria-pressed={cat === c}
+              onClick={() => setCat(c)}
+              className={classNames(
+                'h-[34px] rounded-full border border-solid px-[14px] font-sans text-[13px] font-semibold',
+                cat === c
+                  ? 'border-[#1c2a21] bg-[#1c2a21] text-white'
+                  : 'border-[#e1eae2] bg-white text-[#595959] hover:bg-[#f4f7f4]'
+              )}
+            >
+              {c ?? 'All'}
+            </button>
+          ))}
+        </div>
+        {q || cat ? (
+          <p className="m-0 font-sans text-[15px] font-semibold text-[#1c2a21]">
+            {q ? resultsHeading(results.length, query) : `${results.length} in ${cat}`}
+          </p>
+        ) : null}
+        {results.length ? (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] items-start gap-[20px]">
+            {results.map((c) => (
+              <RecCard
+                key={c.id}
+                size="lg"
+                course={c}
+                meta={c.metaFull}
+                buttonLabel="View course"
+                onStart={() => data.openCourse(c.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-start gap-[6px] py-[16px]">
+            <p className="m-0 font-sans text-[18px] font-semibold text-[#1c2a21]">
+              {NO_RESULTS.title}
+            </p>
+            <p className="m-0 max-w-[560px] font-sans text-[14px] text-[#595959]">
+              {NO_RESULTS.body}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const ExploreCourses = ({ learning }) => {
+  const data = useLearningData();
+  if (data.live) return <LiveExplore data={data} />;
+  return <MockExplore learning={learning} />;
+};
+
+const MockExplore = ({ learning }) => {
   const ex = learning?.ex ?? null;
   const [query, setQuery] = useState(() =>
     ex === 'search' ? DEMO_QUERY_SEARCH : ex === 'none' ? DEMO_QUERY_NONE : ''

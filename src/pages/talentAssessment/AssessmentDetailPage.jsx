@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import { RetakeCooldownDialog } from '../../components/sections/talentAssessment/AssessmentDialogs.jsx';
 import AssessmentFrame from '../../components/sections/talentAssessment/AssessmentFrame.jsx';
 import PersonalityDetail from '../../components/sections/talentAssessment/PersonalityDetail.jsx';
 import SkillEvidence from '../../components/sections/talentAssessment/SkillEvidence.jsx';
+import { buildLivePersonalityDetail } from '../../components/sections/talentAssessment/liveOverview.js';
+import { useAssessmentHome } from '../../components/sections/talentAssessment/useAssessmentHome.js';
 import { useAssessmentState } from '../../components/sections/talentAssessment/assessmentState.js';
 import {
   PERSONALITY_DETAIL,
@@ -22,15 +24,42 @@ const AssessmentDetailPage = () => {
   const assessment = useAssessmentState();
   const { skillId } = useParams();
   const skill = skillId ? getSkillEvidence(skillId) : null;
+  // Personality is live (latest Big Five / RIASEC / MBTI); per-skill evidence pages stay the drawn mock.
+  const { demo } = assessment;
+  const data = useAssessmentHome({ enabled: !demo && !skillId });
+  const personality = useMemo(
+    () =>
+      !demo && data.live && data.assessment
+        ? buildLivePersonalityDetail(data.live, data.assessment)
+        : null,
+    [demo, data.live, data.assessment]
+  );
+  const waiting = !demo && !skillId && !data.assessment && !data.failed;
 
   useEffect(() => {
     log('mount', { skillId: skillId ?? 'personality', found: skillId ? Boolean(skill) : true });
   }, [skillId, skill]);
 
   return (
-    <AssessmentFrame assessment={assessment}>
-      {!skillId ? (
-        <PersonalityDetail data={PERSONALITY_DETAIL} />
+    <AssessmentFrame assessment={assessment} home={demo ? null : data.home}>
+      {!skillId && waiting ? (
+        <p className="m-0 px-[clamp(12px,3vw,52px)] pt-[32px] font-sans text-[15px] text-[#595959]">
+          Loading your results…
+        </p>
+      ) : !skillId && !demo && !personality ? (
+        <div className="mx-auto flex w-full max-w-[1433px] flex-col items-start gap-[12px] px-[clamp(12px,3vw,52px)] pt-[32px] font-sans">
+          <p className="m-0 text-[16px] text-[#1c2a21]">
+            You haven’t taken a personality assessment yet.
+          </p>
+          <Link
+            to="/my-assessment/full/big-five"
+            className="text-[14px] font-semibold text-[#387440] underline"
+          >
+            Take the Big Five (about 8 minutes)
+          </Link>
+        </div>
+      ) : !skillId ? (
+        <PersonalityDetail data={demo ? PERSONALITY_DETAIL : personality} />
       ) : skill ? (
         <SkillEvidence key={skill.id} data={skill} />
       ) : (

@@ -6,6 +6,28 @@ import { CheckIcon, CourseShieldOutlineIcon, ProfileTrophyIcon } from '../../sha
 import LearningHub from './LearningHub.jsx';
 import { CertCard, CourseSticker } from './CourseUi.jsx';
 import { CERTIFICATES } from './talentLearningCourseData.js';
+import { useLearningData } from './useLearningData.js';
+
+const LONG_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+const certDate = (iso) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ''
+    : `${d.getDate()} ${LONG_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+};
 
 const log = debug('LearningCertificates');
 
@@ -15,9 +37,20 @@ const log = debug('LearningCertificates');
  * LearningHub (Hub agent); this is the body below the tabs.
  */
 const LearningCertificates = ({ learning }) => {
+  const data = useLearningData();
+  const items = data.live
+    ? data.certificates.map((c, i) => ({
+        id: c.enrolmentId,
+        enrolmentId: c.enrolmentId,
+        course: c.title,
+        date: certDate(c.completedAt),
+        link: '', // ⚠️ the API has no public verify link yet (signed URL only, 24h)
+        isNew: i === 0,
+      }))
+    : CERTIFICATES.items;
   useEffect(() => {
-    log('mount', { certificates: CERTIFICATES.items.length });
-  }, []);
+    log('mount', { certificates: items.length, live: data.live });
+  }, [items.length, data.live]);
 
   return (
     <LearningHub learning={learning}>
@@ -28,15 +61,20 @@ const LearningCertificates = ({ learning }) => {
             {CERTIFICATES.banner}
           </p>
           <CourseSticker rotate="playful:rotate-[4deg]" className="gap-[4px]">
-            {CERTIFICATES.earned}
+            {data.live ? `${items.length} earned` : CERTIFICATES.earned}
             <ProfileTrophyIcon className="size-[13px]" />
           </CourseSticker>
         </div>
 
         <ul className="grid gap-[22px] sm:grid-cols-2 xl:grid-cols-3">
-          {CERTIFICATES.items.map((c) => (
+          {items.map((c) => (
             <li key={c.id} className="flex min-w-0 flex-col gap-[12px]">
-              <CertCard course={c.course} date={c.date} link={c.link}>
+              <CertCard
+                course={c.course}
+                date={c.date}
+                link={c.link}
+                name={data.live ? data.talentName : undefined}
+              >
                 {c.isNew ? (
                   <CourseSticker
                     rotate="playful:-rotate-[6deg]"
@@ -50,7 +88,15 @@ const LearningCertificates = ({ learning }) => {
                 <Button variant="primary" size="sm" onClick={() => log('share', c.id)}>
                   {CERTIFICATES.share}
                 </Button>
-                <Button variant="tertiary" size="sm" onClick={() => log('download', c.id)}>
+                {/* Live: the API's "signed" certificateUrl points back at the authenticated JSON endpoint
+                    (401 in a new tab) and no PDF is rendered yet, so Download waits for the backend. */}
+                <Button
+                  variant="tertiary"
+                  size="sm"
+                  disabled={Boolean(c.enrolmentId)}
+                  title={c.enrolmentId ? 'Certificate PDFs are coming soon' : undefined}
+                  onClick={() => log('download', c.id)}
+                >
                   {CERTIFICATES.download}
                 </Button>
                 <span
@@ -66,6 +112,11 @@ const LearningCertificates = ({ learning }) => {
             </li>
           ))}
         </ul>
+        {data.live && items.length === 0 ? (
+          <p className="m-0 font-sans text-[14px] text-[#737373]">
+            Finish a course to earn your first certificate.
+          </p>
+        ) : null}
       </div>
     </LearningHub>
   );

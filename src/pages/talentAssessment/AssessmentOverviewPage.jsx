@@ -18,6 +18,8 @@ import {
 } from '../../components/sections/talentAssessment/OverviewStates.jsx';
 import { RecruiterView } from '../../components/sections/talentAssessment/RecruiterView.jsx';
 import { HubButton } from '../../components/sections/talentSkillsLab/HubParts.jsx';
+import { buildLiveOverview } from '../../components/sections/talentAssessment/liveOverview.js';
+import { useAssessmentHome } from '../../components/sections/talentAssessment/useAssessmentHome.js';
 
 const log = debug('AssessmentOverviewPage');
 
@@ -31,9 +33,17 @@ const RETRY_MS = 1200;
 
 const AssessmentOverviewPage = () => {
   const assessment = useAssessmentState();
-  const { state, view, modal, update } = assessment;
+  const { state, view, modal, update, demo } = assessment;
   const recruiter = view === 'recruiter';
-  const first = !recruiter && state === 'first';
+  // Live data (results / skills / games) unless a Figma frame or ?demo=1 is asked for.
+  const data = useAssessmentHome({ enabled: !demo });
+  const liveOverview = useMemo(
+    () =>
+      !demo && data.live && data.assessment ? buildLiveOverview(data.live, data.assessment) : null,
+    [demo, data.live, data.assessment]
+  );
+  const liveLoading = !demo && !liveOverview && !data.failed;
+  const first = !recruiter && (state === 'first' || Boolean(liveOverview?.first));
   const timer = useRef(null);
 
   useEffect(() => {
@@ -45,9 +55,13 @@ const AssessmentOverviewPage = () => {
   const railKey = recruiter ? 'assessment-recruiter' : first ? 'assessment-first' : 'assessment';
   const frameState = useMemo(() => ({ ...assessment, stateKey: railKey }), [assessment, railKey]);
 
-  // "Try again": no network call exists yet, so re-run the loading skeleton and land on the overview.
+  // "Try again": live -> refetch; demo -> re-run the loading skeleton and land on the overview.
   const retry = () => {
     log('retry');
+    if (!demo) {
+      data.reload();
+      return;
+    }
     update({ state: 'loading' });
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => update({ state: null }), RETRY_MS);
@@ -58,12 +72,13 @@ const AssessmentOverviewPage = () => {
     body = <RecruiterView data={RECRUITER_VIEW} onExit={() => update({ view: null })} />;
   } else {
     let inner;
-    if (state === 'loading') inner = <LoadingBody />;
-    else if (state === 'error') inner = <ErrorBody onRetry={retry} />;
-    else if (first) inner = <FirstVisitBody data={FIRST_VISIT} />;
-    else inner = <OverviewBody data={ASSESSMENT_OVERVIEW} />;
+    const overview = liveOverview?.overview ?? ASSESSMENT_OVERVIEW;
+    if (state === 'loading' || liveLoading) inner = <LoadingBody />;
+    else if (state === 'error' || (!demo && data.failed)) inner = <ErrorBody onRetry={retry} />;
+    else if (first) inner = <FirstVisitBody data={liveOverview?.firstVisit ?? FIRST_VISIT} />;
+    else inner = <OverviewBody data={overview} />;
     const done =
-      state === 'loading' || state === 'error' || first ? null : ASSESSMENT_OVERVIEW.summary;
+      state === 'loading' || state === 'error' || liveLoading || first ? null : overview.summary;
     body = (
       <>
         <OvHeader
@@ -71,7 +86,8 @@ const AssessmentOverviewPage = () => {
           sticker={first ? FIRST_VISIT.sticker : done?.sticker}
           subtitle={OVERVIEW_PAGE.subtitle}
           action={
-            done ? (
+            // The recruiter preview (MA-07) is still the drawn mock: offered in demo mode only.
+            done && demo ? (
               <HubButton
                 tone="secondary"
                 size="lg"
@@ -89,7 +105,7 @@ const AssessmentOverviewPage = () => {
   }
 
   return (
-    <AssessmentFrame assessment={frameState}>
+    <AssessmentFrame assessment={frameState} home={demo ? null : data.home}>
       <div className="mx-auto flex w-full max-w-[1425px] flex-col gap-[24px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)]">
         {body}
       </div>

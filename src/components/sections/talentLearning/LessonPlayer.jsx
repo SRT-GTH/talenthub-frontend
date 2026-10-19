@@ -17,6 +17,7 @@ import buddyRobot from '../../../assets/talent-home/career-buddy-robot.png';
 import QuickCheck from './QuickCheck.jsx';
 import { BackRow, CARD_INK, CARD_SOFT, CourseSticker, FOCUS, HEAD } from './CourseUi.jsx';
 import { LESSON } from './talentLearningCourseData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LessonPlayer');
 
@@ -126,8 +127,7 @@ const QuickCheckGate = ({ onTake }) => (
   </div>
 );
 
-const ModuleList = () => {
-  const { progress } = LESSON;
+const ModuleList = ({ progress = LESSON.progress }) => {
   return (
     <section
       className={classNames(
@@ -193,7 +193,7 @@ const ModuleList = () => {
   );
 };
 
-const AskBuddy = () => (
+const AskBuddy = ({ placeholder = LESSON.buddy.placeholder }) => (
   <section
     className={classNames(
       'flex flex-col gap-[10px] rounded-[22px] bg-[#387440] p-[16px]',
@@ -217,7 +217,7 @@ const AskBuddy = () => (
       <input
         type="text"
         aria-label={LESSON.buddy.title}
-        placeholder={LESSON.buddy.placeholder}
+        placeholder={placeholder}
         className="min-w-0 flex-1 bg-transparent text-[13px] leading-[15.5px] text-[#1c2a21] outline-none placeholder:text-[#737373]"
       />
       <button
@@ -238,12 +238,126 @@ const AskBuddy = () => (
  * LessonPlayer — ML-03 "Lesson player · SQL Module 4" (`?view=lesson`); hosts QuickCheck (`?quick=…`).
  * Focused 8110:11625 / Playful 7524:306.
  */
+/*
+ * Live lesson (training API). Courses carry only `totalModules` — no lesson media and no quick-check
+ * questions — so the player shows the real course / module / progress and an honest "no content yet"
+ * panel. ⚠️ INTERIM: "Mark module done" records progress (POST /training/progress) until the backend
+ * serves quiz questions; Figma's rule is "marked done when you pass the check".
+ */
+const LiveLesson = ({ learning, data }) => {
+  const card = data.selectedCourse;
+  const e = card ? data.enrolmentFor(card.id) : null;
+  const [saving, setSaving] = useState(false);
+  const goBack = () => learning.update({ view: 'course', quick: null });
+
+  if (data.loading) return null;
+  if (!card || !e) {
+    return (
+      <section className="flex flex-col gap-[16px]">
+        <BackRow
+          label="Back to My Learning"
+          crumb=""
+          onClick={() => learning.update({ view: null })}
+        />
+        <p className="m-0 font-sans text-[15px] text-[#595959]">
+          Start this course from its overview to open the lessons.
+        </p>
+      </section>
+    );
+  }
+  const total = e.totalModules || card.totalModules || 1;
+  const finished = e.status === 'completed' || e.completedCount >= total;
+  const current = finished ? total : e.nextModule || 1;
+  const progress = {
+    title: LESSON.progress.title,
+    pct: e.pct,
+    summary: `${e.completedCount} of ${total} modules done · ${e.pct}%`,
+    modules: Array.from({ length: total }, (_, i) => {
+      const n = i + 1;
+      const state =
+        n <= e.completedCount ? 'done' : n === current && !finished ? 'current' : 'todo';
+      return { n, title: `Module ${n}`, state };
+    }),
+  };
+  const markDone = async () => {
+    setSaving(true);
+    const res = await data.completeModule(card.id);
+    setSaving(false);
+    if (res?.isComplete) learning.update({ view: 'certificates' });
+  };
+
+  return (
+    <section
+      className="flex min-w-0 flex-col gap-[clamp(12px,0.93vw,16px)]"
+      data-testid="lesson-player"
+    >
+      <BackRow
+        label={card.title}
+        crumb={finished ? '·  Completed' : `·  Module ${current} of ${total}`}
+        onClick={goBack}
+      />
+      <div className="flex min-w-0 flex-col gap-[16px] lg:flex-row lg:items-start lg:gap-[clamp(16px,1.39vw,24px)]">
+        <div className="flex min-w-0 flex-1 flex-col gap-[16px]">
+          <div className="flex min-h-[220px] flex-col items-center justify-center gap-[10px] rounded-[26px] bg-[#1c2a21] p-[24px] text-center">
+            <p className="m-0 font-sans text-[16px] font-semibold text-white">
+              {finished ? 'You finished this course' : `Module ${current}`}
+            </p>
+            <p className="m-0 max-w-[460px] font-sans text-[13.5px] leading-[1.45] text-[#c1d4c4]">
+              {card.externalUrl
+                ? `This course is hosted by ${card.provider}. Learn there, then come back to record your progress.`
+                : 'Lesson videos for this course aren’t published yet.'}
+            </p>
+            {card.externalUrl ? (
+              <a
+                href={card.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classNames(
+                  'mt-[4px] rounded-full bg-[#ffd86b] px-[18px] py-[10px] font-sans text-[14px] font-semibold text-[#1c2a21]',
+                  FOCUS
+                )}
+              >
+                Open on {card.provider}
+              </a>
+            ) : null}
+          </div>
+          <h1
+            className={classNames(
+              HEAD,
+              'm-0 text-[clamp(22px,1.62vw,28px)] leading-[1.25] tracking-[-0.01em] text-[#1c2a21]'
+            )}
+          >
+            {card.title}
+          </h1>
+          {!finished ? (
+            <div className="flex flex-wrap items-center gap-[12px] rounded-[18px] border border-[#eedeb8] bg-[#faf4e8] px-[16px] py-[14px]">
+              <span className="min-w-0 flex-1 font-sans text-[13.5px] leading-[1.4] text-[#595959]">
+                Done with module {current}? Record it to move your progress on.
+              </span>
+              <Button variant="primary" size="sm" onClick={markDone} disabled={saving}>
+                {saving ? 'Saving…' : `Mark module ${current} done`}
+              </Button>
+            </div>
+          ) : null}
+        </div>
+        <aside className="flex min-w-0 flex-col gap-[16px] lg:w-[clamp(300px,20.83vw,360px)] lg:shrink-0">
+          <ModuleList progress={progress} />
+          <AskBuddy placeholder={`“Explain module ${current} of ${card.title} simply”`} />
+        </aside>
+      </div>
+    </section>
+  );
+};
+
 const LessonPlayer = ({ learning }) => {
+  const data = useLearningData();
   const [tab, setTab] = useState(LESSON.tabs[0]);
 
   useEffect(() => {
     log('mount', { quick: learning?.quick });
   }, [learning?.quick]);
+
+  if (data.live && !learning?.quick) return <LiveLesson learning={learning} data={data} />;
 
   if (learning?.quick) {
     log('branch: quick check', learning.quick);

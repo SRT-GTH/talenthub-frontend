@@ -78,7 +78,7 @@ export const Flame = ({ className }) => <ShareStreakFlameIcon className={classNa
  * Certificate card (Figma `certificate · …`): cream paper, seal top-right, name, course, date + link.
  * Playful tilts the card 2deg only where the Figma frame does (`tilt`).
  */
-export const CertCard = ({ course, date, link, tilt, children, className }) => (
+export const CertCard = ({ course, date, link, tilt, children, className, name = CERT_NAME }) => (
   <div
     className={classNames(
       'relative flex flex-col gap-[8px] rounded-[16px] bg-[#fffefc] px-[20px] py-[18px]',
@@ -96,9 +96,7 @@ export const CertCard = ({ course, date, link, tilt, children, className }) => (
     <span className="text-[11.5px] max-lg:text-[12px] leading-[13.7px] text-[#737373]">
       {CERT_LEAD}
     </span>
-    <span className={classNames(HEAD, 'text-[22px] leading-[27.5px] text-[#1c2a21]')}>
-      {CERT_NAME}
-    </span>
+    <span className={classNames(HEAD, 'text-[22px] leading-[27.5px] text-[#1c2a21]')}>{name}</span>
     <span className="text-[12.5px] leading-[14.9px] font-semibold text-[#1c2a21]">
       completed {course}
     </span>
