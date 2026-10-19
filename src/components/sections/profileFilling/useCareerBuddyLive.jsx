@@ -363,13 +363,27 @@ export function useCareerBuddyLive({
           patchThread((t) => ({
             messages: t.messages.map((m) => (m.id === THINKING_ID ? { ...m, text: status } : m)),
           }));
+        // Reply words as Career Buddy writes them; the finished turn replaces this bubble.
+        let streamed = '';
+        const onDelta = (chunk) => {
+          streamed += chunk;
+          const shownText = streamed;
+          patchThread((t) => ({
+            messages: t.messages.map((m) =>
+              m.id === THINKING_ID ? { ...m, text: shownText, streaming: true } : m
+            ),
+          }));
+        };
         const turn = await sendTurnStream({
           entityId,
           message: text,
           history,
           chipAction,
           inputMode,
-          onStatus,
+          onStatus: (status) => {
+            if (!streamed) onStatus(status);
+          },
+          onDelta,
         });
         setPracticeActive(isPracticeTurn(turn));
         log('turn', {

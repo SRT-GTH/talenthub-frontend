@@ -110,10 +110,11 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
 
 /**
  * Same turn as sendTurn, over the agent's event stream (2026-10-19): `onStatus(text)` is called
- * as Career Buddy works ("Looking up careers…"), so the wait never looks frozen. Falls back to
+ * as Career Buddy works ("Looking up careers…"), and `onDelta(text)` with reply text as it is
+ * written (append it; the returned turn's reply is authoritative). Falls back to
  * sendTurn when the stream can't be opened, so older agent builds keep working.
  */
-export const sendTurnStream = async ({ onStatus, ...args }) => {
+export const sendTurnStream = async ({ onStatus, onDelta, ...args }) => {
   const { entityId, message, history = [], chipAction, inputMode } = args;
   const body = {
     resourceId: entityId,
@@ -176,6 +177,8 @@ export const sendTurnStream = async ({ onStatus, ...args }) => {
           data = null;
         }
         if (event === 'status' && data?.text) onStatus?.(data.text);
+        // Reply text as it is written; the result's reply replaces it.
+        if (event === 'delta' && data?.text) onDelta?.(data.text);
         if (event === 'error')
           throw new AgentError(data?.error || 'Career Buddy had a problem answering that.');
         if (event === 'result') {
