@@ -18,14 +18,12 @@ import {
   Unit,
 } from './LearningHubParts.jsx';
 import {
-  ALSO_IN_PROGRESS,
-  CERTS,
-  CONTINUE,
-  COURSES,
   LEVEL,
   SKILL_GAPS,
   WEEKLY,
+  ALSO_IN_PROGRESS,
 } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LearningInProgress');
 
@@ -52,7 +50,7 @@ const Pct = ({ children, size = 14 }) => (
   </span>
 );
 
-const ContinueCard = ({ learning }) => (
+const ContinueCard = ({ item: CONTINUE, data }) => (
   <section
     aria-label={CONTINUE.label}
     className={classNames(
@@ -91,7 +89,7 @@ const ContinueCard = ({ learning }) => (
           size="lg"
           onClick={() => {
             log('click', 'resume module');
-            learning.update({ view: 'lesson' });
+            data.resume(CONTINUE.courseId);
           }}
         >
           {CONTINUE.resume}
@@ -102,7 +100,7 @@ const ContinueCard = ({ learning }) => (
           className="!text-[#1c2a21]"
           onClick={() => {
             log('click', 'course overview');
-            learning.update({ view: 'course' });
+            data.openCourse(CONTINUE.courseId);
           }}
         >
           {CONTINUE.overview}
@@ -112,13 +110,13 @@ const ContinueCard = ({ learning }) => (
   </section>
 );
 
-const AlsoInProgress = ({ learning }) => (
+const AlsoInProgress = ({ items, data }) => (
   <section className="flex min-w-0 flex-col gap-[18px]">
     <h2 className={classNames('m-0 text-[22px] leading-[27.5px] text-[#1c2a21]', HEAD)}>
       {ALSO_IN_PROGRESS.heading}
     </h2>
     <div className="grid grid-cols-[minmax(0,1fr)] gap-[16px] md:grid-cols-2">
-      {ALSO_IN_PROGRESS.items.map((item) => (
+      {items.map((item) => (
         <article
           key={item.id}
           className={classNames(
@@ -152,7 +150,7 @@ const AlsoInProgress = ({ learning }) => (
             className="max-sm:w-full"
             onClick={() => {
               log('click', 'resume', item.id);
-              learning.update({ view: 'lesson' });
+              data.resume(item.courseId);
             }}
           >
             {ALSO_IN_PROGRESS.resume}
@@ -163,7 +161,7 @@ const AlsoInProgress = ({ learning }) => (
   </section>
 );
 
-const SkillGaps = ({ learning }) => (
+const SkillGaps = ({ learning, data }) => (
   <section className="flex min-w-0 flex-col gap-[18px]">
     <div className="flex items-center gap-[8px]">
       <h2
@@ -186,20 +184,20 @@ const SkillGaps = ({ learning }) => (
           learning.update({ view: 'recommended' });
         }}
       >
-        {SKILL_GAPS.seeAll}
+        {data.live ? `See all ${data.gapsTotal} →` : SKILL_GAPS.seeAll}
       </button>
     </div>
     <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] items-start gap-[16px]">
-      {SKILL_GAPS.items.map((key) => (
+      {data.gaps.map((key, i) => (
         <RecCard
           key={key}
-          course={COURSES[key]}
-          meta={COURSES[key].metaShort}
-          playfulChip={GAP_CHIP[key]}
+          course={data.courses[key]}
+          meta={data.courses[key].metaShort}
+          playfulChip={GAP_CHIP[key] ?? (i === 0 ? 'default' : 'ink')}
           buttonLabel={SKILL_GAPS.start}
           onStart={() => {
             log('click', 'start course', key);
-            learning.update({ view: 'course' });
+            data.openCourse(key);
           }}
         />
       ))}
@@ -324,7 +322,7 @@ const SkillChip = ({ children }) => (
   </>
 );
 
-const CertificatesMini = ({ learning }) => (
+const CertificatesMini = ({ learning, certs: CERTS }) => (
   <section className={classNames('flex flex-col gap-[16px] rounded-[22px] p-[18px]', PLAIN)}>
     <div className="flex items-center gap-[8px]">
       <LearningAwardIcon className="size-[18px] shrink-0" />
@@ -354,21 +352,25 @@ const CertificatesMini = ({ learning }) => (
 );
 
 const LearningInProgress = ({ learning }) => {
+  const data = useLearningData();
   useEffect(() => {
-    log('mount', { view: learning.view, tab: learning.tab });
-  }, [learning.view, learning.tab]);
+    log('mount', { view: learning.view, tab: learning.tab, live: data.live });
+  }, [learning.view, learning.tab, data.live]);
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-[24px] xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-w-0 flex-col gap-[18px]">
-        <ContinueCard learning={learning} />
-        <AlsoInProgress learning={learning} />
-        <SkillGaps learning={learning} />
+        {data.continueItem && (
+          <ContinueCard item={data.continueItem} data={data} />
+        )}
+        {data.also.length > 0 && <AlsoInProgress items={data.also} data={data} />}
+        {data.gaps.length > 0 && <SkillGaps learning={learning} data={data} />}
       </div>
       <aside className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] items-start gap-[16px] xl:grid-cols-1">
-        <WeeklyGoal />
-        <LevelCard />
-        <CertificatesMini learning={learning} />
+        {/* No backend for weekly lessons or levels yet: Figma copy in demo mode only. */}
+        {!data.live && <WeeklyGoal />}
+        {!data.live && <LevelCard />}
+        <CertificatesMini learning={learning} certs={data.certs} />
       </aside>
     </div>
   );

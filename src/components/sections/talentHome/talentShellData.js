@@ -285,7 +285,8 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   if (activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab')
     return JOBS_PAGE;
   if (activeNav === 'assessment') return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
-  if (activeNav === 'learning') return LEARNING_PAGE;
+  // My Learning: the Figma rail card in demo mode; the talent's live card once live data exists.
+  if (activeNav === 'learning' && !live) return LEARNING_PAGE;
   if (activeNav === 'community') return COMMUNITY_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;

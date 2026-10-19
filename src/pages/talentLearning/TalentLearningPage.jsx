@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
@@ -7,6 +7,7 @@ import DashboardShell from '../../components/sections/dashboard/DashboardShell.j
 import UiStyleScope from '../../components/shared/UiStyleScope.jsx';
 import { useTalentLearningState } from '../../components/sections/talentLearning/talentLearningState.js';
 import AskBuddyFab from '../../components/sections/talentHome/AskBuddyFab.jsx';
+import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
 import LearningHub from '../../components/sections/talentLearning/LearningHub.jsx';
 import LearningInProgress from '../../components/sections/talentLearning/LearningInProgress.jsx';
 import LearningRecommended from '../../components/sections/talentLearning/LearningRecommended.jsx';
@@ -19,6 +20,8 @@ import LessonPlayer from '../../components/sections/talentLearning/LessonPlayer.
 import CourseComplete from '../../components/sections/talentLearning/CourseComplete.jsx';
 import LearningCertificates from '../../components/sections/talentLearning/LearningCertificates.jsx';
 import ExploreCourses from '../../components/sections/talentLearning/ExploreCourses.jsx';
+import { LearningDataProvider } from '../../components/sections/talentLearning/LearningDataContext.jsx';
+import { useLearningData } from '../../components/sections/talentLearning/useLearningData.js';
 
 const log = debug('TalentLearningPage');
 
@@ -30,7 +33,23 @@ const log = debug('TalentLearningPage');
  */
 const TalentLearningPage = () => {
   const learning = useTalentLearningState();
+  return (
+    <LearningDataProvider learning={learning}>
+      <TalentLearningBody learning={learning} />
+    </LearningDataProvider>
+  );
+};
+
+const TalentLearningBody = ({ learning }) => {
   const navigate = useNavigate();
+  const data = useLearningData();
+  // Shell (sidebar, top nav, bell): the talent's live home data, as on /home and /notifications.
+  // Demo mode keeps the Figma shell (learning state, stateKey 'top').
+  const home = useTalentHomeState();
+  const shellHome = useMemo(
+    () => (data.live ? { ...home, update: learning.update } : learning),
+    [data.live, home, learning]
+  );
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -52,9 +71,9 @@ const TalentLearningPage = () => {
   }, [learning.view, learning.tab, learning.quick, learning.ex]);
 
   const renderHubBody = () => {
-    if (learning.loading) return <LearningLoading learning={learning} />;
+    if (data.loading) return <LearningLoading learning={learning} />;
     if (learning.tab === 'saved') return <LearningSavedTab learning={learning} />;
-    if (learning.empty) return <LearningEmptyState learning={learning} />;
+    if (!data.hasProgress) return <LearningEmptyState learning={learning} />;
     return <LearningInProgress learning={learning} />;
   };
 
@@ -78,7 +97,7 @@ const TalentLearningPage = () => {
   };
 
   return (
-    <DashboardShell role="talent" activeNav="learning" talentHome={learning}>
+    <DashboardShell role="talent" activeNav="learning" talentHome={shellHome}>
       <UiStyleScope enabled />
       <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] pl-[clamp(12px,2.315vw,40px)] pr-[clamp(12px,3.241vw,56px)] py-[clamp(12px,1.2vw,20px)]">
         {renderBody()}

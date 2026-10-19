@@ -199,7 +199,8 @@ export const RECOMMENDED = {
 
 // Every Figma course is free; the others are real flags (see COURSES[*].tags).
 export const matchesFilter = (course, filter) => {
-  if (filter === 'free') return true;
+  // Every Figma course is free (no `free` tag); live cards carry tags.free from the API cost.
+  if (filter === 'free') return course.tags.free ?? true;
   if (filter === 'short') return Boolean(course.tags.underTwoHours);
   if (filter === 'certificate') return Boolean(course.tags.certificate);
   if (filter === 'popular') return Boolean(course.tags.popular);

@@ -2554,3 +2554,7 @@ New routes `/my-assessment`, `/my-assessment/personality`, `/my-assessment/skill
 ## [2026-10-19] create | Talent Community v2 (replaces the old Community); rename Opportunities -> Job Postings
 
 New talent Community at `/community`, `/community/:communityId`, `/community/:communityId/post/:postId` (Figma 5456:19207 section "Community v2 · Talent", 17 screens x Playful + Focused). The designer cancelled the old recruiter-chrome Community: removed `src/pages/community/` + 16 old components (shared icon files and CareerBuddyFloatingButton kept); the recruiter sidebar's Community item no longer navigates (until recruiter screens exist); Career Buddy uses the new `MilestoneShareModal`. Sidebar item "Opportunities" is now "Job Postings" everywhere. Details: [talent-community.md](talent-community.md).
+
+## [2026-10-18] wire | My Learning on the training API
+
+`/learning` reads `GET /guidance/training/courses`, `/training/history`, `/guidance/bookmarks` and writes enrol / progress / bookmarks through `LearningDataProvider` (screens keep their Figma markup; `?demo=1` keeps the mock). Tested in Chrome as an e2e talent: recommended → course → save (+ undo) → start (enrol) → mark modules 1-4 → auto-complete → certificate. Lesson content and quiz are interim (no backend), certificate download disabled (no PDF). Details + backend gaps: [talent-my-learning.md](talent-my-learning.md) → Live data.

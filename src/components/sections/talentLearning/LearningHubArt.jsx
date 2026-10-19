@@ -15,7 +15,7 @@ import { HEADER } from './talentLearningHubData.js';
  * the title row has no room for it. Decorative only (aria-hidden). Positions are Figma offsets from
  * the art's top-left.
  */
-const LearningHubArt = () => (
+const LearningHubArt = ({ inbox = HEADER.art.inbox }) => (
   <div
     aria-hidden="true"
     className="relative -mt-[2px] hidden h-[84px] w-[600px] shrink-0 select-none xl:playful:block"
@@ -34,7 +34,7 @@ const LearningHubArt = () => (
 
     <span className="absolute top-[36px] left-[136px] inline-flex items-center gap-[6px] rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[14.3px] tracking-[0.2px] whitespace-nowrap text-[#1c2a21] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
       <span className="size-[8px] rounded-full bg-[#349643]" />
-      {HEADER.art.inbox}
+      {inbox}
     </span>
 
     <span className="absolute top-[2px] left-[298px]">

@@ -10,12 +10,10 @@ import {
 } from '../../shared/assets.jsx';
 import { CourseChip, HEAD, HubSticker, LearningCover, LIFT, PLAIN } from './LearningHubParts.jsx';
 import {
-  COURSES,
   SAVED,
   SAVED_EMPTY,
-  savedStore,
-  useRemovedSaved,
 } from './talentLearningHubData.js';
+import { useLearningData } from './useLearningData.js';
 
 const log = debug('LearningSavedTab');
 
@@ -72,9 +70,10 @@ const EmptySaved = ({ learning }) => (
 );
 
 const LearningSavedTab = ({ learning }) => {
-  const removed = useRemovedSaved();
-  const rows = SAVED.items.filter((item) => !removed.includes(item.course));
-  const empty = learning.empty || rows.length === 0;
+  const data = useLearningData();
+  const COURSES = data.courses;
+  const rows = data.saved;
+  const empty = data.savedEmpty || rows.length === 0;
 
   useEffect(() => {
     log('mount', { empty, rows: rows.length });
@@ -131,7 +130,7 @@ const LearningSavedTab = ({ learning }) => {
                   aria-label="Saved"
                   onClick={() => {
                     log('click', 'unsave', item.course);
-                    savedStore.remove(item.course);
+                    data.unsave(item.course);
                   }}
                   className="flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-[#1c2a21] p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
                 >
@@ -142,7 +141,7 @@ const LearningSavedTab = ({ learning }) => {
                   size="sm"
                   onClick={() => {
                     log('click', 'start course', item.course);
-                    learning.update({ view: 'course', tab: null });
+                    data.openCourse(item.course);
                   }}
                 >
                   {SAVED.start}
