@@ -309,8 +309,9 @@ const STATUS_BY_MILESTONE = {
  */
 export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) => {
   // `activeNav` ('profile' on /profile) swaps in the profile-page rail card; omitted = home data.
-  if (activeNav === 'profile') return PROFILE_PAGE;
-  if (activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab')
+  // The page-specific Figma cards are demo data; with live data every page draws the talent's own card.
+  if (activeNav === 'profile' && !live) return PROFILE_PAGE;
+  if ((activeNav === 'jobs' || activeNav === 'streak' || activeNav === 'skills-lab') && !live)
     return JOBS_PAGE;
   // My Assessment / My Learning / Community: the Figma rail card in demo mode; the talent's live card once live data exists.
   if (activeNav === 'assessment' && !live) return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
