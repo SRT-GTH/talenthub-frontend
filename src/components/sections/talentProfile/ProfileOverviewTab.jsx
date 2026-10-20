@@ -5,7 +5,6 @@ import Button from '../../ui/Button.jsx';
 import {
   ProfileCheckWhiteIcon,
   ProfileSearchNoteIcon,
-  ProfileStrengthRingProgressIcon,
   ProfileStrengthRingTrackIcon,
   ProfileTargetGlyph,
   ProfileTrophyIcon,
@@ -251,6 +250,32 @@ export const PortfolioCard = ({ go, readOnly = false }) => (
 );
 
 /* ------------------------------ right rail ------------------------------ */
+/*
+ * The progress arc of the strength ring, drawn from the real percentage (the exported Figma arc was a fixed ~70%, so
+ * 100% showed an open ring). Same geometry as ProfileStrengthRingTrackIcon: 84px box, 8.4px stroke, starts at 12 o'clock.
+ */
+const RING_R = 37.8;
+const RING_C = 2 * Math.PI * RING_R;
+const StrengthArc = ({ pct, className }) => {
+  const value = Math.max(0, Math.min(100, Number(pct) || 0));
+  return (
+    <svg viewBox="0 0 84 84" fill="none" aria-hidden="true" className={className}>
+      {value > 0 ? (
+        <circle
+          cx="42"
+          cy="42"
+          r={RING_R}
+          stroke="#387440"
+          strokeWidth="8.4"
+          strokeLinecap={value >= 100 ? 'butt' : 'round'}
+          strokeDasharray={`${(RING_C * value) / 100} ${RING_C}`}
+          transform="rotate(-90 42 42)"
+        />
+      ) : null}
+    </svg>
+  );
+};
+
 const StrengthCard = ({ go }) => {
   const s = PROFILE_STRENGTH;
   const next = s.steps.find((st) => !st.done);
@@ -270,7 +295,7 @@ const StrengthCard = ({ go }) => {
           className="relative size-[84px] shrink-0 overflow-hidden"
         >
           <ProfileStrengthRingTrackIcon className="absolute top-0 left-0 size-[84px]" />
-          <ProfileStrengthRingProgressIcon className="absolute top-0 left-0 size-[84px]" />
+          <StrengthArc pct={s.pct} className="absolute top-0 left-0 size-[84px]" />
           <span
             className={classNames(
               DISPLAY,
