@@ -25,6 +25,22 @@ const log = debug('ExtLabScreen');
  */
 const EMPTY = {};
 
+/*
+ * Progress line under the dots. Local flows pass `ui.summary(results)`; live flows come from the API as plain data, so
+ * they carry the wording instead: ui.okWord ('correct' | 'solved' | 'strong') and, optionally, ui.okAllWord
+ * ('strong answer') for a run with nothing to review yet.
+ */
+const summarize = (results, ui) => {
+  if (typeof ui.summary === 'function') return ui.summary(results);
+  const ok = results.filter((r) => r === 'ok').length;
+  const bad = results.filter((r) => r === 'bad').length;
+  if (!ok && !bad) return 'Just started';
+  if (!bad && ui.okAllWord) return `${ok} ${ui.okAllWord}${ok === 1 ? '' : 's'}`;
+  return [ok ? `${ok} ${ui.okWord ?? 'correct'}` : null, bad ? `${bad} to review` : null]
+    .filter(Boolean)
+    .join(' · ');
+};
+
 const ExtLabScreen = ({ flow, frame }) => {
   const attempt = useLabAttempt({ flow, frame });
   const navigate = useNavigate();
@@ -166,7 +182,7 @@ const ExtLabScreen = ({ flow, frame }) => {
         countLabel: attempt.finished
           ? `All ${flow.total} done`
           : `${ui.unit} ${attempt.index + 1} of ${flow.total}`,
-        summary: ui.summary(attempt.state.results),
+        summary: summarize(attempt.state.results, ui),
         dots: attempt.dots,
         passMark: attempt.passMark,
       }}

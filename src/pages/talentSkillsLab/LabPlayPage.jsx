@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
@@ -14,7 +14,10 @@ import {
 import '../../components/sections/talentSkillsLab/labQuestionKinds.jsx';
 import { getQuestionKind } from '../../components/sections/talentSkillsLab/labQuestionRegistry.js';
 import { useLabText } from '../../components/sections/talentSkillsLab/labFormat.js';
-import { getLabFlow } from '../../components/sections/talentSkillsLab/skillsLabLabsData.js';
+import {
+  LOCAL_LAB_FLOWS_AVAILABLE,
+  loadLocalLabFlow,
+} from '../../components/sections/talentSkillsLab/skillsLabLabsData.js';
 import { useLabAttempt } from '../../components/sections/talentSkillsLab/useLabAttempt.js';
 import { useLiveLabFlow } from '../../components/sections/talentSkillsLab/useLiveLabFlow.js';
 import { isSkillsLabDemo } from '../../components/sections/talentSkillsLab/skillsLabHubData.js';
@@ -29,7 +32,10 @@ const log = debug('LabPlayPage');
  *           /skills-lab/lab/:labId/play?f=<code>   boots in the exact state a Figma frame draws (L05, L06 … L11b for Python)
  *           ?modal=restart | leave                 SL-M5 / SL-M6 confirm dialogs (SkillsLabLabDialogs.jsx)
  *
- *  1. DATA   in skillsLabLabsData.js add a block `/* ---- <lab> ---- *\/` that builds a flow object (shape = PYTHON_FLOW):
+ *  0. LIVE   real users never load these files: the lab (copy + questions without answers) comes from the API
+ *            (useLiveLabFlow.js) and is seeded in srt-backend scripts/seedScripts/skills-lab-content.json — add new labs
+ *            THERE for production. The local flow below only drives `?demo=1` / `?f=` frames in dev builds.
+ *  1. DATA   add `labFlows/<lab>.js` exporting FLOWS = { '<labId>': flow } (shape = PYTHON_FLOW in labFlows/python.js):
  *              { id, title, headerTitle, subtitle, sticker, total, passMark, hintCost, correctXp,
  *                session:{ index, results:['ok'|'bad'…], xp, streakDays },
  *                questions:[{ id, kind, topic, title:[[text, accent?]], prompt, body:{…kind specific}, options:[…],
@@ -225,17 +231,27 @@ const LabFlowScreen = ({ flow, frame }) => {
 const LabPlayPage = () => {
   const { labId } = useParams();
   const [params, setParams] = useSearchParams();
-  const frame = params.get('f');
-  const localFlow = getLabFlow(labId);
-  // Live by default: the server starts / resumes the run and checks every answer. `?demo=1` and Figma frames (`?f=`)
-  // keep the local flow.
+  // Live by default: the server starts / resumes the run, sends the questions without answers and checks every answer.
+  // `?demo=1` and the Figma frames (`?f=`) play the local flow files, which hold the answer keys and therefore exist in
+  // dev builds only (LOCAL_LAB_FLOWS_AVAILABLE); in production those URLs simply run live.
+  const local = LOCAL_LAB_FLOWS_AVAILABLE && (Boolean(params.get('f')) || isSkillsLabDemo(params));
+  const frame = local ? params.get('f') : null;
+  const [localFlow, setLocalFlow] = useState({ labId: null, flow: null });
+  useEffect(() => {
+    if (!local) return undefined;
+    let alive = true;
+    loadLocalLabFlow(labId).then((f) => alive && setLocalFlow({ labId, flow: f }));
+    return () => {
+      alive = false;
+    };
+  }, [local, labId]);
   const liveRun = useLiveLabFlow({
     labId,
-    flow: localFlow,
-    enabled: Boolean(localFlow) && !frame && !isSkillsLabDemo(params),
+    enabled: !local,
     restart: params.get('restart') === '1',
   });
-  const flow = liveRun.status === 'off' ? localFlow : liveRun.flow;
+  const localLoading = local && localFlow.labId !== labId;
+  const flow = local ? localFlow.flow : liveRun.flow;
 
   // "Start over" lands here with ?restart=1: once the fresh run is loaded, drop it so a refresh resumes instead.
   useEffect(() => {
@@ -265,7 +281,7 @@ const LabPlayPage = () => {
   return (
     <>
       <UiStyleScope enabled />
-      {liveRun.status === 'loading' ? (
+      {liveRun.status === 'loading' || localLoading ? (
         <div role="status" className="flex min-h-screen items-center justify-center bg-[#f7f8f4] font-sans text-[15px] text-[#595959]">
           Loading your lab…
         </div>

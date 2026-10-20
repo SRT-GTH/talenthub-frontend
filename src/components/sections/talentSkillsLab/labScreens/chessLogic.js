@@ -1,5 +1,5 @@
 import { debug } from '../../../../utils/debug.js';
-import { CHESS_PUZZLES, PIECE_NAME, applyMove, encodeMove } from './chessData.js';
+import { PIECE_NAME, applyMove, encodeMove } from './chessData.js';
 
 const log = debug('chessLogic');
 
@@ -11,8 +11,8 @@ const log = debug('chessLogic');
  * ⚠️ ASSUMPTION: Figma draws "Your move · Rook on e1 selected", "Your move · Hint shown", "Checkmate · Re8#" and
  * "Not mate · 1 try left" only. The other status lines below are invented in the same voice.
  */
-/* The puzzle on screen: the server's (live, no answer until revealed) or the local one (demo / Figma frames). */
-export const puzzleFor = (attempt) => attempt.question?.body?.puzzle ?? CHESS_PUZZLES[attempt.index];
+/* The puzzle on screen: question.body.puzzle — from the API (no solution until revealed) or the dev-only demo flow. */
+export const puzzleFor = (attempt) => attempt.question?.body?.puzzle;
 
 const YELLOW_FROM = 'rgba(255,216,107,0.55)';
 const YELLOW_TO = 'rgba(255,216,107,0.75)';
