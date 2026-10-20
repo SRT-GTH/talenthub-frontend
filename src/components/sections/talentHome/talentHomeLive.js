@@ -294,6 +294,9 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
   const toNext = nm ? nm.at - j.doneCount : 0;
   const complete = stateKey === 'complete' || stateKey === 'top';
   const base = CORE_CONTENT[stateKey] || CORE_CONTENT.day1;
+  // Sections whose call has not returned yet (see loadTalentHome). They show a
+  // skeleton or a neutral line, never a zero the data has not confirmed.
+  const pending = data.pending || {};
 
   const journeyCopy = {
     ...JOURNEY_COPY,
@@ -348,31 +351,41 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
       ...HERO.complete,
       eyebrow: `${WEEKDAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`,
       headline: [[`${greeting(now)}, `], [`${first}.`, true]],
-      body: `${data.matches.total ? `${plural(data.matches.total, 'role')} match your profile` : 'No roles match your profile yet'}${data.applications.total ? ` and you have ${plural(data.applications.total, 'application')} in progress` : ''}. Here’s what matters today.`,
+      body: pending.matches
+        ? `${data.applications.total ? `You have ${plural(data.applications.total, 'application')} in progress. ` : ''}Here’s what matters today.`
+        : `${data.matches.total ? `${plural(data.matches.total, 'role')} match your profile` : 'No roles match your profile yet'}${data.applications.total ? ` and you have ${plural(data.applications.total, 'application')} in progress` : ''}. Here’s what matters today.`,
       stats: [
         {
-          n: String(data.views?.uniqueViewers ?? 0),
+          n: pending.views ? '…' : String(data.views?.uniqueViewers ?? 0),
           label: 'Profile views',
-          note: viewTrend(data.views),
+          note: pending.views ? 'Loading' : viewTrend(data.views),
           tone: 'white',
         },
         {
-          n: String(data.matches.total),
+          n: pending.matches ? '…' : String(data.matches.total),
           label: 'Matches',
           note: data.targetCareer ? `For ${data.targetCareer}` : 'Roles for you',
           tone: 'white',
         },
 
         {
-          n: String(data.notifications.unread),
+          n: pending.notifications ? '…' : String(data.notifications.unread),
           label: 'Notifications',
-          note: data.notifications.unread ? 'Unread' : 'All caught up',
+          note: pending.notifications
+            ? 'Loading'
+            : data.notifications.unread
+              ? 'Unread'
+              : 'All caught up',
           tone: 'amber',
         },
         {
-          n: String(data.verifiedSkills),
+          n: pending.verifiedSkills ? '…' : String(data.verifiedSkills),
           label: 'Verified skills',
-          note: data.verifiedSkills ? 'Proven on GTH' : 'Prove one in Skills Lab',
+          note: pending.verifiedSkills
+            ? 'Loading'
+            : data.verifiedSkills
+              ? 'Proven on GTH'
+              : 'Prove one in Skills Lab',
           tone: 'mint',
         },
       ],
@@ -398,6 +411,7 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
             : 'No matching roles yet. Add skills and goals and we’ll find some.',
         }),
     cards: matchCards(data.matches.items, complete),
+    pending: Boolean(pending.matches),
   };
 
   const applications = data.applications.total
@@ -460,15 +474,17 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
       ...CORE_CONTENT.complete.activity,
       link: null,
       rows: activityRows(data.notifications.items),
+      pending: Boolean(pending.notifications),
     },
     buddy,
-    readiness,
+    readiness: pending.readiness ? { ...readiness, pending: true } : readiness,
     streak: null,
-    looking: lookingCard(data.views),
-    recruiters: recruitersCard(data.views, now),
-    exploreChip: data.matches.total
-      ? `Explore ${plural(data.matches.total, 'role')} for you`
-      : 'Explore roles in Ghana',
+    looking: pending.views ? { pending: true } : lookingCard(data.views),
+    recruiters: pending.views ? { pending: true } : recruitersCard(data.views, now),
+    exploreChip:
+      !pending.matches && data.matches.total
+        ? `Explore ${plural(data.matches.total, 'role')} for you`
+        : 'Explore roles in Ghana',
   };
 };
 

@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
-import { fetchTalentAssessment, fetchTalentHome } from '../../../services/talentHome.api.js';
+import {
+  clearTalentHomeCache,
+  fetchTalentAssessment,
+  loadTalentHome,
+  peekTalentHome,
+  rememberTalentAssessment,
+} from '../../../services/talentHome.api.js';
 import {
   buildAssessmentContent,
   buildLiveContent,
@@ -137,11 +143,21 @@ export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
   const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
   const navigate = useNavigate();
-  const [live, setLive] = useState(null); // null = loading, false = failed
+  // null = loading, false = failed. Starts from this tab's cached copy when
+  // there is one, so returning to /home shows the data at once.
+  const [live, setLive] = useState(() => (demoState ? null : (peekTalentHome()?.data ?? null)));
   useEffect(() => {
     if (demoState) return undefined;
     let alive = true;
-    fetchTalentHome()
+    const hadCache = Boolean(peekTalentHome()?.data);
+    loadTalentHome({
+      // First load: render as soon as the core is in, then let sections fill in.
+      // With a cached copy on screen, wait for the complete refresh instead of
+      // swapping finished cards back to skeletons.
+      onUpdate: (data) => {
+        if (alive && !hadCache) setLive(data);
+      },
+    })
       .then((data) => {
         if (!alive) return;
         setLive(data);
@@ -167,8 +183,13 @@ export const useTalentHomeState = () => {
         log.error('home data failed:', err?.code || err?.message);
         if (!alive) return;
         // Expired session: sign in again rather than showing anyone else's (demo) data.
-        if (err?.code === 'UNAUTHORIZED') navigate('/login', { replace: true });
-        else setLive(false);
+        if (err?.code === 'UNAUTHORIZED') {
+          clearTalentHomeCache();
+          navigate('/login', { replace: true });
+        } else if (!hadCache) {
+          setLive(false);
+        }
+        // Otherwise keep showing the cached copy; only the refresh failed.
       });
     return () => {
       alive = false;
@@ -176,18 +197,38 @@ export const useTalentHomeState = () => {
   }, [demoState, setParams, navigate]);
   const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
-  // MyAssessment data loads the first time the tab opens (real data only).
-  const [assessment, setAssessment] = useState(null);
+  // MyAssessment data: shown from this tab's cache at once, and fetched the first
+  // time the tab opens, once the verified skills (which it uses) have arrived.
+  // Later sections arriving must not restart the fetch.
+  const [assessment, setAssessment] = useState(() =>
+    demoState ? null : (peekTalentHome()?.assessment ?? null)
+  );
+  const liveRef = useRef(live);
+  liveRef.current = live;
+  const mounted = useRef(true);
   useEffect(() => {
-    if (demoState || !live || tab !== 'assessment' || assessment) return undefined;
-    let alive = true;
-    fetchTalentAssessment(live)
-      .then((a) => alive && setAssessment(a))
-      .catch((err) => log.error('assessment data failed:', err?.message));
+    mounted.current = true;
     return () => {
-      alive = false;
+      mounted.current = false;
     };
-  }, [demoState, live, tab, assessment]);
+  }, []);
+  const assessmentReady = Boolean(live) && !live.pending?.verifiedSkills;
+  const assessmentFetched = useRef(false);
+  useEffect(() => {
+    if (demoState || !assessmentReady || tab !== 'assessment' || assessmentFetched.current) {
+      return;
+    }
+    assessmentFetched.current = true;
+    fetchTalentAssessment(liveRef.current)
+      .then((a) => {
+        rememberTalentAssessment(a);
+        if (mounted.current) setAssessment(a);
+      })
+      .catch((err) => {
+        assessmentFetched.current = false;
+        log.error('assessment data failed:', err?.message);
+      });
+  }, [demoState, assessmentReady, tab]);
   // Real data: spinner while loading, the designed error state if it failed (never the demo).
   const loading =
     params.get('loading') ||
@@ -238,7 +279,10 @@ export const useTalentHomeState = () => {
       assessment:
         live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
       // Recruiter activity tab: who viewed you this week (/activity/me), real data only.
-      recruiterActivity: live && !demoState ? buildRecruiterActivity(live.views) : null,
+      recruiterActivity:
+        live && !demoState && !live.pending?.views ? buildRecruiterActivity(live.views) : null,
+      // True while the views call is still on the way (the tab shows a skeleton).
+      recruiterPending: Boolean(live && !demoState && live.pending?.views),
       tabs:
         live && !demoState
           ? HOME_TABS.map((t) => ({
