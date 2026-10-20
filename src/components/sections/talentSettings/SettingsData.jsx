@@ -1,3 +1,5 @@
+import { logout as clearLocalSession } from '../../../services/auth.api.js';
+import { deactivateAccount, downloadMyData, settingsError } from '../../../services/settings.api.js';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
@@ -22,13 +24,38 @@ const DeleteListItem = ({ children }) => (
   </li>
 );
 
+/*
+ * Live copy: "Delete account" turns the account OFF — nothing is deleted (product decision 2026-10-20). Logging back in
+ * turns it on again (backend users.verifyOTP). The drawn "permanently delete after 30 days" copy stays in `?demo=1`.
+ */
+const LIVE_DANGER = {
+  title: 'Turn off your account',
+  description:
+    'Recruiters can’t find or message you and you’re logged out everywhere. Nothing is deleted: log back in any time to turn it back on.',
+  rowTitle: 'Your profile, applications, skills and messages are kept.',
+  rowDescription: 'Download your data first if you want a copy.',
+  cta: 'Turn off my account',
+};
+const LIVE_DELETE = {
+  ...DELETE_COPY,
+  title: 'Turn off your account?',
+  intro: 'While your account is off:',
+  items: [
+    'Recruiters can’t find you or message you',
+    'You’re logged out on every device',
+    'Your profile, applications, skills and messages are kept',
+  ],
+  info: 'Changed your mind? Log back in with your email and password and everything comes back.',
+  confirm: 'Turn off my account',
+};
+
 // ---- ST-10 Delete account · Confirm ------------------------------------------------------------
-const DeleteAccountDialog = ({ onClose, onConfirm }) => {
+const DeleteAccountDialog = ({ onClose, onConfirm, live = false, busy = false, error = null }) => {
   // Figma draws the field already filled with DELETE; the button only works while it matches.
-  const [typed, setTyped] = useState(DELETE_COPY.confirmWord);
+  const [typed, setTyped] = useState(live ? '' : DELETE_COPY.confirmWord);
   const keepRef = useRef(null);
   const ready = typed === DELETE_COPY.confirmWord;
-  const copy = DELETE_COPY;
+  const copy = live ? LIVE_DELETE : DELETE_COPY;
 
   return (
     <SettingsDialog
@@ -48,10 +75,12 @@ const DeleteAccountDialog = ({ onClose, onConfirm }) => {
         {copy.items.map((item) => (
           <DeleteListItem key={item}>{item}</DeleteListItem>
         ))}
-        <DeleteListItem>
-          <span className="playful:hidden">{copy.streakFocused}</span>
-          <span className="hidden playful:inline">{copy.streakPlayful}</span>
-        </DeleteListItem>
+        {live ? null : (
+          <DeleteListItem>
+            <span className="playful:hidden">{copy.streakFocused}</span>
+            <span className="hidden playful:inline">{copy.streakPlayful}</span>
+          </DeleteListItem>
+        )}
       </ul>
       <div className="flex w-full items-center gap-[10px] rounded-[12px] bg-[#faf4e8] p-[12px]">
         <SettingsInfoCircleIcon className="size-[18px] shrink-0 text-[#463409]" />
@@ -66,6 +95,11 @@ const DeleteAccountDialog = ({ onClose, onConfirm }) => {
         autoComplete="off"
         spellCheck={false}
       />
+      {error ? (
+        <p role="alert" className="m-0 w-full text-[13.5px] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
       <div className="flex w-full items-center gap-[12px]">
         <Button
           ref={keepRef}
@@ -79,7 +113,7 @@ const DeleteAccountDialog = ({ onClose, onConfirm }) => {
         <DeleteAccountButton
           tone="white"
           className="min-w-0 flex-1"
-          disabled={!ready}
+          disabled={!ready || busy}
           onClick={() => {
             log('dispatch delete account', { ready });
             onConfirm?.();
@@ -99,12 +133,62 @@ const DeleteAccountDialog = ({ onClose, onConfirm }) => {
 const SettingsData = ({ settings }) => {
   const { state, update } = settings;
   const navigate = useNavigate();
-  const copy = DATA_COPY;
-  const paused = state === 'paused';
+  // Live: GET /settings/export, PUT /settings/pause, POST /settings/deactivate. No verified-skills PDF backend yet.
+  const live = settings?.live?.overview ? settings.live : null;
+  const copy = live ? { ...DATA_COPY, danger: LIVE_DANGER } : DATA_COPY;
+  const paused = live ? Boolean(live.overview.paused) : state === 'paused';
+  const [toast, setToast] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
 
-  const onPauseToggle = (next) => {
+  const onPauseToggle = async (next) => {
     log('dispatch pause profile', { next });
-    update({ state: next ? 'paused' : null });
+    if (!live) {
+      update({ state: next ? 'paused' : null });
+      return;
+    }
+    setError(null);
+    try {
+      await live.setPaused(next);
+      setToast(next ? { title: 'Profile paused', body: 'Recruiters can’t find you until you unpause.' } : { title: 'Welcome back', body: 'Recruiters can find you again.' });
+    } catch (err) {
+      setError(settingsError(err));
+    }
+  };
+
+  const onDownload = async () => {
+    if (!live) {
+      update({ state: 'download' });
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      await downloadMyData();
+      setToast({ title: 'Your data is downloading', body: 'A JSON file with your profile, applications, posts and results.' });
+    } catch (err) {
+      setError(settingsError(err, 'Could not prepare your data. Try again.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onTurnOff = async () => {
+    if (!live) {
+      update({ state: null });
+      navigate('/logged-out');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await deactivateAccount();
+      clearLocalSession();
+      navigate('/logged-out', { replace: true });
+    } catch (err) {
+      setError(settingsError(err, 'Could not turn your account off. Try again.'));
+      setBusy(false);
+    }
   };
 
   return (
@@ -119,7 +203,9 @@ const SettingsData = ({ settings }) => {
             <p className="text-[16px] leading-[normal] font-semibold lg:whitespace-nowrap">
               {copy.paused.title}
             </p>
-            <p className="text-[13.5px] leading-[1.45]">{copy.paused.description}</p>
+            <p className="text-[13.5px] leading-[1.45]">
+              {live ? 'Recruiters cannot find you. Unpause any time.' : copy.paused.description}
+            </p>
           </div>
           <Button variant="primary" size="sm" onClick={() => onPauseToggle(false)}>
             {copy.paused.cta}
@@ -131,13 +217,18 @@ const SettingsData = ({ settings }) => {
         <SettingRow
           nowrapControl={false}
           title={copy.yourData.download.title}
-          description={copy.yourData.download.description}
+          description={
+            live
+              ? 'Your profile, applications, community posts, results and settings as a file you can keep.'
+              : copy.yourData.download.description
+          }
           control={
-            <Button variant="tertiary" size="lg" onClick={() => update({ state: 'download' })}>
-              {copy.yourData.download.cta}
+            <Button variant="tertiary" size="lg" disabled={busy} onClick={onDownload}>
+              {live ? 'Download' : copy.yourData.download.cta}
             </Button>
           }
         />
+        {live ? null : (
         <SettingRow
           top={false}
           nowrapControl={false}
@@ -153,6 +244,7 @@ const SettingsData = ({ settings }) => {
             </Button>
           }
         />
+        )}
       </GroupCard>
 
       <GroupCard title={copy.takeABreak.title}>
@@ -160,7 +252,9 @@ const SettingsData = ({ settings }) => {
           top={false}
           title={copy.takeABreak.pause.title}
           titleId="data-pause"
-          description={copy.takeABreak.pause.description}
+          description={
+            live ? 'Recruiters cannot find you while paused. Come back any time.' : copy.takeABreak.pause.description
+          }
           control={
             <SettingsToggle labelledBy="data-pause" checked={paused} onChange={onPauseToggle} />
           }
@@ -184,21 +278,30 @@ const SettingsData = ({ settings }) => {
         </div>
       </GroupCard>
 
+      {error && state !== 'delete' ? (
+        <p role="alert" className="m-0 text-[14px] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
+
       {state === 'delete' && (
         <DeleteAccountDialog
-          onClose={() => update({ state: null })}
-          onConfirm={() => {
+          live={Boolean(live)}
+          busy={busy}
+          error={error}
+          onClose={() => {
+            setError(null);
             update({ state: null });
-            navigate('/logged-out');
           }}
+          onConfirm={onTurnOff}
         />
       )}
       <SettingsToast
-        open={state === 'download'}
-        title={DOWNLOAD_TOAST.title}
-        body={DOWNLOAD_TOAST.body}
+        open={live ? Boolean(toast) : state === 'download'}
+        title={live ? toast?.title : DOWNLOAD_TOAST.title}
+        body={live ? toast?.body : DOWNLOAD_TOAST.body}
         elevated
-        onDismiss={() => update({ state: null })}
+        onDismiss={() => (live ? setToast(null) : update({ state: null }))}
       />
     </div>
   );

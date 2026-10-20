@@ -1,3 +1,5 @@
+import { savePreferences } from '../../../services/settings.api.js';
+import { invalidateAccountOverview, useAccountOverview } from './useLiveSettings.js';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
@@ -102,7 +104,10 @@ const MenuItem = ({ icon, label, value, chevron, hot, onActivate, onHot, expande
 
 const Divider = () => <div aria-hidden="true" className="h-px w-full shrink-0 bg-[#e7e7e7]" />;
 
-const LanguageSubmenu = ({ onPick }) => (
+// Settings stores the language as en | tw | ga | ee | dag | ha (talentSettingsBData LANGUAGES).
+const toSettingsLang = (id) => (id === 'en-GH' ? 'en' : id);
+
+const LanguageSubmenu = ({ onPick, current = 'en-GH' }) => (
   <div
     role="menu"
     aria-label="App language"
@@ -114,8 +119,8 @@ const LanguageSubmenu = ({ onPick }) => (
         Career Buddy replies in this language too.
       </p>
     </div>
-    {LANGUAGES.map((lang, index) => {
-      const selected = index === 0;
+    {LANGUAGES.map((lang) => {
+      const selected = toSettingsLang(lang.id) === toSettingsLang(current);
       return (
         <button
           key={lang.id}
@@ -155,6 +160,24 @@ const LanguageSubmenu = ({ onPick }) => (
 
 const ProfileMenu = ({ settings }) => {
   const navigate = useNavigate();
+  // Live account figures (GET /settings/overview, cached); the drawn Kofi values with `?demo=1` or while loading.
+  const overview = useAccountOverview({ enabled: !settings.demo });
+  const me = overview?.account;
+  const langId = overview?.preferences?.language?.language || 'en';
+  const langLabel = (LANGUAGES.find((l) => toSettingsLang(l.id) === langId) || LANGUAGES[0]).label;
+  const view = me
+    ? {
+        name: [me.firstName, me.lastName].filter(Boolean).join(' ') || TALENT_PROFILE.name,
+        email: me.email,
+        photo: me.profilePhoto,
+        strength: overview.summary?.profileCompletion,
+        tier: overview.summary?.profileCompletion === 100 ? 'Profile complete' : null,
+        applications: overview.summary?.applications,
+        savedJobs: overview.summary?.savedJobs,
+        language: langId === 'en' ? 'English (GH)' : langLabel,
+        langId,
+      }
+    : { ...ACCOUNT, name: TALENT_PROFILE.name, photo: null, langId: 'en' };
   const cardRef = useRef(null);
   const rootRef = useRef(null);
   const languageOpen = settings.menu === 'language';
@@ -287,17 +310,21 @@ const ProfileMenu = ({ settings }) => {
               aria-hidden="true"
               className="relative size-[48px] shrink-0 overflow-hidden rounded-[24px] bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]"
             >
-              <img
-                src={avatarPortrait}
-                alt=""
-                draggable="false"
-                className="absolute -bottom-[6px] left-1/2 h-[56px] w-[54px] max-w-none -translate-x-1/2 select-none"
-              />
+              {view.photo ? (
+                <img src={view.photo} alt="" draggable="false" className="size-full object-cover select-none" />
+              ) : (
+                <img
+                  src={avatarPortrait}
+                  alt=""
+                  draggable="false"
+                  className="absolute -bottom-[6px] left-1/2 h-[56px] w-[54px] max-w-none -translate-x-1/2 select-none"
+                />
+              )}
             </span>
             <div className="flex min-w-0 flex-1 flex-col items-start gap-[2px]">
               <div className="flex max-w-full items-center gap-[6px]">
                 <p className="m-0 truncate font-sans text-[16px] font-semibold text-[#1c2a21]">
-                  {TALENT_PROFILE.name}
+                  {view.name}
                 </p>
                 <span className="flex shrink-0 items-center gap-[6px] rounded-[999px] bg-[#ebf1ec] px-[7px] py-[2px]">
                   <ProfileMenuVerifiedCheckIcon className="size-[14px] shrink-0" />
@@ -307,7 +334,7 @@ const ProfileMenu = ({ settings }) => {
                 </span>
               </div>
               <p className="m-0 max-w-full truncate font-sans text-[13px] font-normal text-[#595959]">
-                {ACCOUNT.email}
+                {view.email}
               </p>
             </div>
           </div>
@@ -315,15 +342,21 @@ const ProfileMenu = ({ settings }) => {
             <div className="relative flex h-[8px] min-w-px flex-1 items-start overflow-clip rounded-[999px] bg-[#e7e7e7]">
               <span
                 className="absolute top-0 left-0 h-[8px] rounded-[999px] bg-[#387440]"
-                style={{ right: '0.2px' }}
+                style={
+                  typeof view.strength === 'number' && view.strength < 100
+                    ? { width: `${Math.max(0, view.strength)}%` }
+                    : { right: '0.2px' }
+                }
               />
             </div>
             <p className="m-0 shrink-0 font-sans text-[12.5px] font-semibold whitespace-nowrap text-[#387440]">
-              Profile {ACCOUNT.strength}%
+              {typeof view.strength === 'number' ? `Profile ${view.strength}%` : 'Profile'}
             </p>
-            <span className="flex shrink-0 items-center rounded-[999px] border border-solid border-[rgba(28,42,33,0.12)] bg-[#387440] px-[7px] py-[2px] font-sans text-[11px] max-lg:text-[12px] font-bold whitespace-nowrap text-[#1c2a21] playful:border-[#1c2a21] playful:bg-[#ebf1ec]">
-              {ACCOUNT.tier}
-            </span>
+            {view.tier ? (
+              <span className="flex shrink-0 items-center rounded-[999px] border border-solid border-[rgba(28,42,33,0.12)] bg-[#387440] px-[7px] py-[2px] font-sans text-[11px] max-lg:text-[12px] font-bold whitespace-nowrap text-[#1c2a21] playful:border-[#1c2a21] playful:bg-[#ebf1ec]">
+                {view.tier}
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -341,13 +374,13 @@ const ProfileMenu = ({ settings }) => {
           {item('applications', {
             icon: <ProfileMenuSuitcaseIcon className="size-[20px]" />,
             label: 'My applications',
-            value: String(ACCOUNT.applications),
+            value: view.applications == null ? '–' : String(view.applications),
             onActivate: () => noDestination('my-applications'),
           })}
           {item('saved', {
             icon: <ProfileMenuBookmarkIcon className="size-[20px]" />,
             label: 'Saved jobs',
-            value: String(ACCOUNT.savedJobs),
+            value: view.savedJobs == null ? '–' : String(view.savedJobs),
             onActivate: () => noDestination('saved-jobs'),
           })}
         </div>
@@ -373,7 +406,7 @@ const ProfileMenu = ({ settings }) => {
           {item('language', {
             icon: <ProfileMenuGlobeIcon className="size-[20px]" />,
             label: 'Language',
-            value: ACCOUNT.language,
+            value: view.language,
             chevron: true,
             expanded: languageOpen,
             onActivate: () => settings.update({ menu: languageOpen ? 'open' : 'language' }),
@@ -440,8 +473,15 @@ const ProfileMenu = ({ settings }) => {
 
       {languageOpen && (
         <LanguageSubmenu
+          current={view.langId}
           onPick={(lang) => {
-            log('language pick', lang.id, lang.beta ? '(beta, no-op)' : '');
+            log('language pick', lang.id);
+            // Saved to the account (Settings → Language); the app copy itself is English-only for now.
+            if (me) {
+              savePreferences({ language: { language: toSettingsLang(lang.id) } })
+                .then(() => invalidateAccountOverview())
+                .catch((err) => log('language not saved', err?.response?.status));
+            }
             close();
           }}
         />

@@ -6,6 +6,9 @@ import { LogoutConfirmBoltIcon, LogoutConfirmTileIcon } from '../../shared/asset
 import Button from '../../ui/Button.jsx';
 import { usePlayfulDialogA11y } from '../../ui/PlayfulDialogA11y.js';
 import FlowPortal from '../talentHome/FlowPortal.jsx';
+import { logout as clearLocalSession } from '../../../services/auth.api.js';
+import { logOutOtherDevices, serverLogout } from '../../../services/settings.api.js';
+import { invalidateAccountOverview, useAccountOverview } from './useLiveSettings.js';
 
 const log = debug('LogoutConfirm');
 
@@ -27,6 +30,16 @@ const LogoutConfirm = ({ settings }) => {
   const dialogRef = useRef(null);
   const stayRef = useRef(null);
   const [allDevices, setAllDevices] = useState(false);
+  const [busy, setBusy] = useState(false);
+  // Live: real email + other signed-in devices (GET /settings/overview). No streak backend yet: that line is demo-only.
+  const overview = useAccountOverview({ enabled: !settings.demo });
+  const live = Boolean(overview);
+  const view = live
+    ? {
+        email: overview.account?.email || '',
+        otherDevices: (overview.sessions || []).filter((d) => !d.thisDevice).length,
+      }
+    : SESSION;
 
   const close = () => {
     log('close (stay logged in)');
@@ -41,9 +54,17 @@ const LogoutConfirm = ({ settings }) => {
     lockScroll: true,
   });
 
-  const confirm = () => {
-    log('log out', { allDevices });
-    navigate('/logged-out');
+  const confirm = async () => {
+    log('log out', { allDevices, live });
+    if (!settings.demo) {
+      setBusy(true);
+      // Ends this device's session on the server (and the others when ticked), then clears this browser.
+      if (allDevices && view.otherDevices) await logOutOtherDevices().catch((err) => log('others not logged out', err?.response?.status));
+      await serverLogout();
+      clearLocalSession();
+      invalidateAccountOverview();
+    }
+    navigate('/logged-out', { replace: true });
   };
 
   return (
@@ -79,9 +100,10 @@ const LogoutConfirm = ({ settings }) => {
           id="logout-confirm-desc"
           className="m-0 w-full font-sans text-[15px] leading-[1.5] font-normal text-[#1c2a21]"
         >
-          Your profile, matches and progress are saved. Log back in any time with {SESSION.email}.
+          Your profile, matches and progress are saved. Log back in any time with {view.email}.
         </p>
 
+        {live ? null : (
         <div className="flex w-full items-center gap-[10px] rounded-[12px] bg-[#f9ebea] p-[12px]">
           <LogoutConfirmBoltIcon className="size-[18px] shrink-0" />
           <p className="m-0 min-w-0 flex-1 font-sans text-[13.5px] leading-[1.45] font-medium text-[#c0392b]">
@@ -89,7 +111,9 @@ const LogoutConfirm = ({ settings }) => {
             going.
           </p>
         </div>
+        )}
 
+        {live && !view.otherDevices ? null : (
         <label className="flex min-h-[24px] cursor-pointer items-center gap-[10px]">
           <input
             type="checkbox"
@@ -121,9 +145,10 @@ const LogoutConfirm = ({ settings }) => {
             )}
           </span>
           <span className="font-sans text-[14px] font-medium text-[#1c2a21]">
-            Also log out on my {SESSION.otherDevices} other devices
+            Also log out on my {view.otherDevices} other {view.otherDevices === 1 ? 'device' : 'devices'}
           </span>
         </label>
+        )}
 
         <div className="flex w-full items-center gap-[12px] max-sm:flex-col-reverse max-sm:items-stretch">
           <Button
@@ -138,6 +163,7 @@ const LogoutConfirm = ({ settings }) => {
           <Button
             variant="danger"
             size="sm"
+            disabled={busy}
             onClick={confirm}
             className="h-[56px] min-w-px flex-1 !drop-shadow-[0_4px_0_#c0392b] max-lg:h-auto"
           >

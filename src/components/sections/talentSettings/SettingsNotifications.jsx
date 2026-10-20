@@ -1,3 +1,4 @@
+import { settingsError } from '../../../services/settings.api.js';
 import { useState } from 'react';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -60,13 +61,44 @@ const TimePill = ({ value, onChange, label }) => (
  * by the "Turn everything off for 24 hours" link; "Resume now" returns). While paused the matrix is
  * dimmed (50 %) with every box off and not editable — the previous choices come back on resume.
  */
-const SettingsNotifications = ({ settings }) => {
-  const paused = settings?.state === 'paused';
+const pausedUntilLabel = (iso) =>
+  `All notifications paused until ${new Date(iso).toLocaleString('en-GB', {
+    weekday: 'long',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })}`;
+
+const SettingsNotificationsBody = ({ settings }) => {
+  // Live (GET/PUT /settings/notifications) unless `?demo=1`; the demo keeps `?state=paused`.
+  const live = settings?.live?.notifications ? settings.live : null;
+  const ln = live?.notifications;
+  const paused = live ? Boolean(ln.pausedUntil) : settings?.state === 'paused';
   const [matrix, setMatrix] = useState(() =>
-    Object.fromEntries(NOTIF_MATRIX.rows.map((r) => [r.id, [...r.on]]))
+    ln ? { ...ln.rows } : Object.fromEntries(NOTIF_MATRIX.rows.map((r) => [r.id, [...r.on]]))
   );
-  const [quiet, setQuiet] = useState({ on: true, from: NOTIF_QUIET.from, to: NOTIF_QUIET.to });
-  const [weekly, setWeekly] = useState(true);
+  const [quiet, setQuiet] = useState(() =>
+    ln ? { ...ln.quiet } : { on: true, from: NOTIF_QUIET.from, to: NOTIF_QUIET.to }
+  );
+  const [weekly, setWeekly] = useState(ln ? ln.weekly : true);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const run = async (body, okText) => {
+    setBusy(true);
+    setStatus(null);
+    try {
+      await live.saveNotifications(body);
+      setStatus({ tone: 'ok', text: okText });
+    } catch (err) {
+      setStatus({ tone: 'error', text: settingsError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const pause = () => (live ? run({ pause: true }, 'Paused for 24 hours') : settings?.update?.({ state: 'paused' }));
+  const resume = () => (live ? run({ pause: false }, 'Notifications are back on') : settings?.update?.({ state: null }));
+  const save = () => (live ? run({ rows: matrix, quiet, weekly }, 'Saved') : log('save notifications'));
 
   log('render', { paused });
 
@@ -84,16 +116,19 @@ const SettingsNotifications = ({ settings }) => {
         >
           <SettingsANotificationIcon className="block size-[22px] shrink-0" />
           <div className="flex min-w-[60%] flex-1 flex-col gap-[2px] text-[#1c2a21]">
-            <p className="leading-[19px] text-[16px] font-semibold">{NOTIF_PAUSED.title}</p>
+            <p className="leading-[19px] text-[16px] font-semibold">
+              {ln?.pausedUntil ? pausedUntilLabel(ln.pausedUntil) : NOTIF_PAUSED.title}
+            </p>
             <p className="text-[13.5px]">{NOTIF_PAUSED.desc}</p>
           </div>
           <Button
             variant="tertiary"
             size="lg"
             className="shrink-0"
+            disabled={busy}
             onClick={() => {
               log('resume now');
-              settings?.update?.({ state: null });
+              resume();
             }}
           >
             {NOTIF_PAUSED.resume}
@@ -184,18 +219,36 @@ const SettingsNotifications = ({ settings }) => {
           tone="grey"
           onClick={() => {
             log('turn everything off for 24 hours');
-            settings?.update?.({ state: 'paused' });
+            if (!paused) pause();
           }}
         >
           {NOTIF_ACTIONS.pause}
         </SettingsALink>
         <span aria-hidden="true" className="h-px min-w-px flex-1" />
-        <Button variant="primary" size="sm" onClick={() => log('save notifications')}>
-          {NOTIF_ACTIONS.save}
+        {status ? (
+          <p
+            role={status.tone === 'error' ? 'alert' : 'status'}
+            className={classNames('m-0 text-[14px] font-medium', status.tone === 'error' ? 'text-[#c0392b]' : 'text-[#387440]')}
+          >
+            {status.text}
+          </p>
+        ) : null}
+        <Button variant="primary" size="sm" disabled={busy || paused} onClick={save}>
+          {busy ? 'Saving…' : NOTIF_ACTIONS.save}
         </Button>
       </div>
     </>
   );
 };
+
+/* Live page whose notification settings failed to load: say so (never the drawn values in their place). */
+const SettingsNotifications = ({ settings }) =>
+  settings?.live && !settings.live.notifications ? (
+    <p role="alert" className="m-0 rounded-[20px] bg-white p-[24px] text-[15px] font-medium text-[#c0392b]">
+      Couldn’t load your notification settings. Refresh the page to try again.
+    </p>
+  ) : (
+    <SettingsNotificationsBody settings={settings} />
+  );
 
 export default SettingsNotifications;

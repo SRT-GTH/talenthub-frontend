@@ -12,6 +12,24 @@ import {
 } from '../../shared/assets.jsx';
 import { PRIVACY_BLOCKED, PRIVACY_SEE, PRIVACY_VISIBILITY } from './talentSettingsAData.js';
 import SettingsABlockedDialog from './SettingsABlockedDialog.jsx';
+import { blockSomeone, settingsError, unblock as unblockApi } from '../../../services/settings.api.js';
+
+/* Live privacy (GET /settings/overview `privacy`) -> this screen's local shape, and the blocked list -> dialog rows. */
+const fromLive = (p) => ({
+  visibility: p.visibility,
+  employer: p.see.employer,
+  salary: p.see.salary,
+  city: p.see.city,
+  message: p.see.message,
+  companies: [...(p.employerCompanies || [])],
+});
+const blockedRows = (list = []) =>
+  list.map((b) => ({
+    id: b.id,
+    kind: b.kind === 'company' ? 'company' : 'user',
+    name: b.name,
+    meta: `${b.kind === 'company' ? 'Company' : 'Recruiter'} · blocked ${new Date(b.blockedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
+  }));
 import {
   SettingsACard,
   SettingsALink,
@@ -81,18 +99,29 @@ const VisibilityOption = ({ option, selected, onSelect }) => (
 const SettingsPrivacy = ({ settings }) => {
   const urlHidden = settings?.state === 'hidden';
   const blockedOpen = settings?.state === 'blocked';
+  // Live (PUT /settings/privacy, /settings/blocked) unless `?demo=1`.
+  const live = settings?.live?.overview ? settings.live : null;
 
-  const initial = () => ({
-    visibility: 'verified',
-    ...PRIVACY_SEE.defaults,
-    companies: [...PRIVACY_SEE.employer.companies],
-  });
+  const initial = () =>
+    live
+      ? fromLive(live.overview.privacy)
+      : {
+          visibility: 'verified',
+          ...PRIVACY_SEE.defaults,
+          companies: [...PRIVACY_SEE.employer.companies],
+        };
   const [saved, setSaved] = useState(initial);
   const [cur, setCur] = useState(() => ({
     ...initial(),
-    visibility: urlHidden ? 'hidden' : 'verified',
+    visibility: urlHidden ? 'hidden' : initial().visibility,
   }));
-  const [people, setPeople] = useState(PRIVACY_BLOCKED.dialog.people);
+  const [people, setPeople] = useState(() =>
+    live ? blockedRows(live.overview.privacy.blocked) : PRIVACY_BLOCKED.dialog.people
+  );
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [addingCompany, setAddingCompany] = useState(false);
+  const [companyDraft, setCompanyDraft] = useState('');
 
   useEffect(() => {
     log('mount', { state: settings?.state, visibility: cur.visibility });
@@ -129,12 +158,67 @@ const SettingsPrivacy = ({ settings }) => {
   const discard = () => {
     log('discard');
     setCur(saved);
+    setError(null);
     if (settings?.state === 'hidden') settings?.update?.({ state: null });
   };
-  const save = () => {
+  const save = async () => {
     log('save', cur);
-    setSaved(cur);
+    if (live) {
+      setBusy(true);
+      setError(null);
+      try {
+        const next = fromLive(
+          await live.savePrivacy({
+            visibility: cur.visibility,
+            see: { employer: cur.employer, salary: cur.salary, city: cur.city, message: cur.message },
+            employerCompanies: cur.companies,
+          })
+        );
+        setSaved(next);
+        setCur(next);
+      } catch (err) {
+        setError(settingsError(err));
+        return;
+      } finally {
+        setBusy(false);
+      }
+    } else setSaved(cur);
     if (settings?.state === 'hidden') settings?.update?.({ state: null });
+  };
+
+  const addCompany = () => {
+    const name = companyDraft.trim();
+    if (name && !cur.companies.some((c) => c.toLowerCase() === name.toLowerCase())) {
+      set({ companies: [...cur.companies, name].slice(0, 10) });
+    }
+    setCompanyDraft('');
+    setAddingCompany(false);
+  };
+
+  const onUnblock = async (id) => {
+    if (!live) {
+      setPeople((list) => list.filter((p) => p.id !== id));
+      return;
+    }
+    try {
+      const blocked = await unblockApi(id);
+      setPeople(blockedRows(blocked));
+      live.patch('privacy', { ...live.overview.privacy, blocked });
+    } catch (err) {
+      setError(settingsError(err, 'Could not unblock. Try again.'));
+    }
+  };
+
+  const onBlockCompany = async (name) => {
+    try {
+      const blocked = await blockSomeone({ kind: 'company', name });
+      setPeople(blockedRows(blocked));
+      live.patch('privacy', { ...live.overview.privacy, blocked });
+      return true;
+    } catch (err) {
+      log('block failed', err?.response?.status);
+      return false;
+    }
   };
 
   const hiddenSelected = cur.visibility === 'hidden';
@@ -208,13 +292,27 @@ const SettingsPrivacy = ({ settings }) => {
               <span className="text-[13px] leading-[16px] font-semibold whitespace-pre text-[#595959] max-lg:text-[13px]">{`${name}  ×`}</span>
             </button>
           ))}
+          {live && addingCompany ? (
+            <input
+              autoFocus
+              aria-label="Company to hide from"
+              placeholder="Company name"
+              value={companyDraft}
+              maxLength={80}
+              onChange={(e) => setCompanyDraft(e.target.value)}
+              onBlur={addCompany}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCompany())}
+              className="h-[32px] w-[200px] rounded-[14px] border border-solid border-[#ccc] bg-white px-[12px] text-[13px] text-[#1c2a21] outline-none focus:border-[#387440]"
+            />
+          ) : null}
           <Button
             variant="tertiary"
             size="lg"
             className="h-[32px] gap-[6px]! rounded-[14px]! px-[12px]! py-0! text-[13px]!"
             onClick={() => {
               log('add a company');
-              if (!cur.companies.length) set({ companies: [...see.employer.companies] });
+              if (live) setAddingCompany(true);
+              else if (!cur.companies.length) set({ companies: [...see.employer.companies] });
             }}
           >
             <span className="inline-flex items-center gap-[6px]">
@@ -240,8 +338,8 @@ const SettingsPrivacy = ({ settings }) => {
       <SettingsACard title={PRIVACY_BLOCKED.title} desc={PRIVACY_BLOCKED.desc} gap="gap-[4px]">
         <SettingsARow
           first
-          title={`${people.length} blocked`}
-          desc={people.map((p) => p.name).join(' · ')}
+          title={people.length ? `${people.length} blocked` : 'Nobody blocked'}
+          desc={people.length ? people.map((p) => p.name).join(' · ') : 'Use Manage to block a company. They are not told.'}
           className="max-sm:flex-wrap"
         >
           <Button
@@ -255,6 +353,12 @@ const SettingsPrivacy = ({ settings }) => {
         </SettingsARow>
       </SettingsACard>
 
+      {error ? (
+        <p role="alert" className="m-0 text-[14px] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
+
       {dirty && !blockedOpen ? (
         <SettingsASaveBar
           icon={<SettingsAInfoCircleIcon className="block size-[20px] shrink-0" />}
@@ -262,8 +366,8 @@ const SettingsPrivacy = ({ settings }) => {
           discardLabel={PRIVACY_BLOCKED.discard}
           onDiscard={discard}
           saveLabel={
-            <Button variant="primary" size="sm" onClick={save}>
-              {PRIVACY_BLOCKED.save}
+            <Button variant="primary" size="sm" disabled={busy} onClick={save}>
+              {busy ? 'Saving…' : PRIVACY_BLOCKED.save}
             </Button>
           }
         />
@@ -272,7 +376,8 @@ const SettingsPrivacy = ({ settings }) => {
       {blockedOpen ? (
         <SettingsABlockedDialog
           people={people}
-          onUnblock={(id) => setPeople((list) => list.filter((p) => p.id !== id))}
+          onUnblock={onUnblock}
+          onBlockCompany={live ? onBlockCompany : undefined}
           onClose={() => settings?.update?.({ state: null })}
         />
       ) : null}

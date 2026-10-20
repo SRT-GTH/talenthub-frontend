@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import LiveSaveStatus from './LiveSaveStatus.jsx';
+import { useSaveAction } from './useSaveAction.js';
+import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
@@ -67,14 +69,28 @@ const StyleCard = ({ option, image, selected, onSelect }) => (
  * Choosing a style really switches the theme (useUiStyle().setUiStyle — same logic as the top-bar
  * StyleSwitch). The other controls are local state; Save changes / Reset to default log their payload.
  */
-const SettingsAppearance = () => {
+const SettingsAppearance = ({ settings }) => {
   const { uiStyle, setUiStyle } = useUiStyle();
   const copy = APPEARANCE_COPY;
-  const [stickers, setStickers] = useState(APPEARANCE_DEFAULTS.stickers);
-  const [xp, setXp] = useState(APPEARANCE_DEFAULTS.xp);
-  const [popups, setPopups] = useState(APPEARANCE_DEFAULTS.popups);
-  const [workHours, setWorkHours] = useState(APPEARANCE_DEFAULTS.workHours);
-  const [sync, setSync] = useState(APPEARANCE_DEFAULTS.sync);
+  // Live: saved on the account (PUT /settings/preferences `appearance`, incl. the chosen style).
+  const live = settings?.live?.overview ? settings.live : null;
+  const start = { ...APPEARANCE_DEFAULTS, ...(live?.overview.preferences?.appearance || {}) };
+  const [stickers, setStickers] = useState(start.stickers);
+  const [xp, setXp] = useState(start.xp);
+  const [popups, setPopups] = useState(start.popups);
+  const [workHours, setWorkHours] = useState(start.workHours);
+  const [sync, setSync] = useState(start.sync);
+  const { busy, status, run } = useSaveAction();
+
+  // "Same style on all my devices": the style saved on the account wins over this browser's choice.
+  const accountStyle = live?.overview.preferences?.appearance?.style;
+  useEffect(() => {
+    if (accountStyle && start.sync && accountStyle !== uiStyle) {
+      log('apply account style', accountStyle);
+      setUiStyle(accountStyle);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountStyle]);
 
   const choose = (id) => {
     log('dispatch setUiStyle', { id });
@@ -93,6 +109,7 @@ const SettingsAppearance = () => {
 
   const save = () => {
     log('dispatch save', { uiStyle, stickers, xp, popups, workHours, sync });
+    if (live) run(() => live.savePreferences('appearance', { style: uiStyle, stickers, xp, popups, workHours, sync }));
   };
 
   return (
@@ -240,7 +257,8 @@ const SettingsAppearance = () => {
             {copy.reset}
           </TextAction>
           <span className="h-px min-w-px flex-[1_0_0]" />
-          <Button variant="primary" size="sm" onClick={save}>
+          <LiveSaveStatus status={status} />
+          <Button variant="primary" size="sm" disabled={busy} onClick={save}>
             {copy.save}
           </Button>
         </div>

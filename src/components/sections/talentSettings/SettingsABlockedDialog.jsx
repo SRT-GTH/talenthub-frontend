@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -20,7 +20,21 @@ const log = debug('SettingsABlockedDialog');
  * Focused 8110:49745) over the rgba(28,42,33,.55) scrim. Esc / scrim / close / Done close it
  * (`?state=blocked` is removed by the caller). Unblock removes a row from the local list.
  */
-const SettingsABlockedDialog = ({ people, onUnblock, onClose }) => {
+/* `onBlockCompany(name)` (live pages): "Block someone else" opens a company-name field; resolves true when blocked. */
+const SettingsABlockedDialog = ({ people, onUnblock, onClose, onBlockCompany }) => {
+  const [adding, setAdding] = useState(false);
+  const [company, setCompany] = useState('');
+  const [addError, setAddError] = useState(null);
+  const submitCompany = async () => {
+    const name = company.trim();
+    if (!name || !onBlockCompany) return;
+    setAddError(null);
+    const ok = await onBlockCompany(name);
+    if (ok) {
+      setCompany('');
+      setAdding(false);
+    } else setAddError('Could not block. Try again.');
+  };
   const dialogRef = useRef(null);
   const copy = PRIVACY_BLOCKED.dialog;
 
@@ -121,9 +135,32 @@ const SettingsABlockedDialog = ({ people, onUnblock, onClose }) => {
           );
         })}
 
+        {adding ? (
+          <div className="flex w-full flex-col gap-[6px]">
+            <div className="flex w-full items-center gap-[8px]">
+              <input
+                autoFocus
+                aria-label="Company to block"
+                placeholder="Company name, for example Sample Ventures Ltd"
+                value={company}
+                maxLength={80}
+                onChange={(e) => setCompany(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitCompany()}
+                className="h-[44px] min-w-0 flex-1 rounded-[10px] border border-solid border-[#ccc] bg-white px-[14px] text-[14px] text-[#1c2a21] outline-none focus:border-[#387440]"
+              />
+              <Button variant="tertiary" size="sm" disabled={!company.trim()} onClick={submitCompany}>
+                Block
+              </Button>
+            </div>
+            {addError ? <p role="alert" className="m-0 text-[13px] text-[#c0392b]">{addError}</p> : null}
+          </div>
+        ) : null}
         <button
           type="button"
-          onClick={() => log('block someone else')}
+          onClick={() => {
+            log('block someone else');
+            if (onBlockCompany) setAdding(true);
+          }}
           className="flex cursor-pointer items-center gap-[8px] self-start text-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <SettingsAPlusSmallIcon className="block size-[18px] shrink-0" />
