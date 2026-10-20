@@ -1,3 +1,4 @@
+import HomeLogoLink from './HomeLogoLink.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import gthLogoStacked from '../../assets/brand/gth-logo-stacked.webp';
 import { classNames } from '../../utils/classNames.js';
@@ -67,7 +68,7 @@ const OnboardingNavbar = () => {
       }}
     >
       <div className="flex items-center justify-between px-4 py-3 max-md:py-1.5 md:px-16">
-        <Link to={'/'} aria-label="Ghana Talent Hub home">
+        <HomeLogoLink>
           {/* Single composed 71×66 PNG per Figma node 3052:74371 — mark sits
               tight above the two-line "GHANA / TALENT HUB" wordmark with no
               separator gap. Pulled fresh from the Figma Dev Mode MCP rather
@@ -77,7 +78,7 @@ const OnboardingNavbar = () => {
             alt="Ghana Talent Hub"
             className="h-[66px] w-[71px] max-md:h-10 max-md:w-[43px]"
           />
-        </Link>
+        </HomeLogoLink>
 
         {showCreate ? (
           <Link to={cta.to} className={CREATE_ACCOUNT_CLASSES}>

@@ -2596,3 +2596,7 @@ DELETE-to-confirm, guardian invite form, Appearance style cards call `setUiStyle
 ## [2026-10-20] wire | Talent Settings & Account on the API
 
 `/settings/*`, the profile menu and log out read and save through `/api/settings` (account, privacy + blocks, notifications, accessibility / appearance / language, devices + password, data export, pause, turn account off, guardian status); `?demo=1` keeps the drawn mock. Delete account only turns the account off; logging back in turns it on. Help / feedback / invite stay on screen only. Needs the srt-backend talent-settings PR. Details: [talent-settings.md](talent-settings.md) → Live data.
+
+## [2026-10-20] fix | Navbar logo goes to your own home when signed in
+
+The logo in the talent / dashboard, engagement and onboarding navbars (`HomeLogoLink`) now opens the signed-in user's home (`homePathFor`: talent `/home`, recruiter `/recruiter/home`, …) and only the landing page `/` when nobody is signed in. Clicking it on that page scrolls back to the top.

@@ -1,5 +1,5 @@
+import HomeLogoLink from '../../shared/HomeLogoLink.jsx';
 import { cloneElement, isValidElement, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import navHelp from '../../../assets/playful/nav-help.svg';
@@ -226,18 +226,14 @@ const EngagementTopNav = ({
         className
       )}
     >
-      <Link
-        to={'/'}
-        aria-label="Ghana Talent Hub home"
-        className="inline-flex items-center shrink-0"
-      >
+      <HomeLogoLink className="inline-flex items-center shrink-0">
         <img
           src={gthLogo}
           alt="Ghana Talent Hub"
           className="block h-9 w-auto select-none md:h-[clamp(40px,3.82vw,66px)]"
           draggable="false"
         />
-      </Link>
+      </HomeLogoLink>
 
       <div className="flex items-center gap-2 shrink-0 md:gap-3 playful:md:gap-[clamp(10px,1.39vw,24px)]">
         {/* Appearance switch (Focused / Playful) — inline from md; inside the "…" menu on phones. */}
