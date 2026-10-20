@@ -15,7 +15,8 @@ import { STREAK_PAGE_COPY } from './talentStreakData.js';
 const pad2 = (n) => String(n).padStart(2, '0');
 export const toIso = (year, month, day) => `${year}-${pad2(month)}-${pad2(day)}`;
 
-export const buildStreakMonth = ({ year, month, today, litDates = [], goalDate = null }) => {
+// `since` (live data): the talent's first streak day — earlier days are not counted as missed.
+export const buildStreakMonth = ({ year, month, today, litDates = [], goalDate = null, since = null }) => {
   const lit = new Set(litDates);
   const daysInMonth = new Date(year, month, 0).getDate();
   // getDay(): 0 = Sunday … 6 = Saturday; Monday-first offset.
@@ -34,7 +35,8 @@ export const buildStreakMonth = ({ year, month, today, litDates = [], goalDate =
     else if (isLit) status = 'lit';
     else if (isToday) status = 'today';
     else if (isGoal && iso > today) status = 'goal';
-    else if (iso < today) status = 'missed';
+    else if (iso < today && (!since || iso >= since)) status = 'missed';
+    else if (iso < today) status = 'future';
     else status = 'future';
     if (isLit) litCount += 1;
     if (status === 'missed') missedCount += 1;

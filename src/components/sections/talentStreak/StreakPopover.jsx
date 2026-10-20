@@ -8,6 +8,7 @@ import {
   STREAK_POPOVER_PARAM_TO_KIND,
   STREAK_POPOVER_STATES,
 } from './talentStreakData.js';
+import { startFreshStreak } from '../../../services/streak.api.js';
 import mascotActive from '../../../assets/talent-streak/popover/mascot-active.svg';
 import mascotDone from '../../../assets/talent-streak/popover/mascot-done.svg';
 import mascotRisk from '../../../assets/talent-streak/popover/mascot-risk.svg';
@@ -44,6 +45,8 @@ const log = debug('StreakPopover');
  * (the Focused frames swap the mascot for a flame and drop the sparkle; the S-frame instances carry these
  * overrides, the Focused component sheet 8256:90621 predates them).
  *
+ * Live: `live` = useLiveStreak() result. With live data, `?streak=open` (the nav pill) shows the talent's real card
+ * (GET /streak → popover); the other `?streak=` values stay the drawn Figma states. "Start fresh" posts /streak/fresh.
  * Props: home (useTalentHomeState object: reads `home.streak`, closes with `home.update({ streak: null })`),
  *        anchorRef (optional; the nav streak pill. Without it the pill is found as `header [aria-label^="Streak,"]`).
  */
@@ -191,10 +194,11 @@ const PopButton = ({ tone, onClick, children }) => {
   );
 };
 
-const StreakPopover = ({ home, anchorRef }) => {
+const StreakPopover = ({ home, anchorRef, live = null }) => {
   const param = home?.streak;
-  const kind = STREAK_POPOVER_PARAM_TO_KIND[param];
-  const state = kind ? STREAK_POPOVER_STATES[kind] : null;
+  const livePopover = param === 'open' && live?.data?.popover ? live.data.popover : null;
+  const kind = livePopover ? livePopover.kind : STREAK_POPOVER_PARAM_TO_KIND[param];
+  const state = livePopover ?? (kind ? STREAK_POPOVER_STATES[kind] : null);
   const open = Boolean(state);
   const navigate = useNavigate();
   const ref = useRef(null);
@@ -261,8 +265,14 @@ const StreakPopover = ({ home, anchorRef }) => {
   const runAction = (action) => {
     log('action', action.id, action.intent);
     close();
-    // Only "learn" CTAs have a destination (My Learning); repair / start-fresh flows are not drawn in Figma.
-    if (action.intent === 'learn') navigate('/learning');
+    // ⚠️ ASSUMPTION (not drawn): "Repair my streak" also goes to My Learning (2 lessons today repair it, server side);
+    // "Start fresh" tells the server to drop the repair offer.
+    if (action.intent === 'learn' || action.intent === 'repair') navigate('/learning');
+    if (action.intent === 'fresh' && live) {
+      startFreshStreak()
+        .then(() => live.reload())
+        .catch((err) => log('start fresh failed', err?.response?.status || err?.message));
+    }
   };
   const openDetails = () => {
     log('see streak details');
@@ -349,7 +359,9 @@ const StreakPopover = ({ home, anchorRef }) => {
 
         <div className="flex justify-between px-[18px] pb-[4px] pt-[14px]">
           {state.week.map((day, i) => {
-            const today = i === TODAY_INDEX;
+            // Live weeks put "today" on the real weekday; the drawn frames always have it on Friday.
+            const todayAt = state.week.findIndex((d) => String(d.kind).startsWith('today'));
+            const today = i === (todayAt >= 0 ? todayAt : TODAY_INDEX);
             return (
               <div key={i} className="flex flex-col items-center gap-[4px]">
                 <DayDot kind={day.kind} today={today} />

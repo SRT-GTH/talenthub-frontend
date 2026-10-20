@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { STREAK_PAGE_COPY } from './talentStreakData.js';
+import { saveStreakReminders } from '../../../services/streak.api.js';
 import flameSm from '../../../assets/talent-streak/page/flame-sm.svg';
 import iconBook from '../../../assets/talent-streak/page/icon-book.svg';
 import iconQuiz from '../../../assets/talent-streak/page/icon-quiz.svg';
@@ -142,13 +143,22 @@ const Toggle = (props) => {
   );
 };
 
+// `live`: each switch saves (PUT /streak/reminders) and rolls back if the save fails.
 export const StreakRemindersCard = (props) => {
   const [items, setItems] = useState(props.reminders);
   useEffect(() => {
     log('reminders', items.map((r) => `${r.id}:${r.enabled}`).join(' '));
   }, [items]);
-  const flip = (id) =>
-    setItems((list) => list.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
+  const flip = (id) => {
+    const target = items.find((r) => r.id === id);
+    const enabled = !target?.enabled;
+    setItems((list) => list.map((r) => (r.id === id ? { ...r, enabled } : r)));
+    if (!props.live) return;
+    saveStreakReminders({ [id]: { enabled } }).catch((err) => {
+      log('save reminders failed', err?.response?.status || err?.message);
+      setItems((list) => list.map((r) => (r.id === id ? { ...r, enabled: !enabled } : r)));
+    });
+  };
   return (
     <section
       aria-label={STREAK_PAGE_COPY.remindersTitle}
@@ -175,12 +185,19 @@ export const StreakRemindersCard = (props) => {
 
 export const StreakLeaderboardCard = (props) => {
   const rows = props.rows;
+  // Live: "Top streaks in <your community>" from the API; the drawn frame says Data Gang GH.
+  const title = props.title ?? STREAK_PAGE_COPY.leaderboardTitle;
   return (
     <section
-      aria-label={STREAK_PAGE_COPY.leaderboardTitle}
+      aria-label={title}
       className={classNames(CARD, 'flex flex-col gap-[6px] p-[20px]')}
     >
-      <h2 className={classNames(TITLE_19, 'pb-[4px]')}>{STREAK_PAGE_COPY.leaderboardTitle}</h2>
+      <h2 className={classNames(TITLE_19, 'pb-[4px]')}>{title}</h2>
+      {!rows.length ? (
+        <p className="m-0 font-sans text-[13.5px] leading-[19px] text-[#595959]">
+          No streaks here yet. Yours could be first.
+        </p>
+      ) : null}
       <ol className="m-0 flex list-none flex-col gap-[6px] p-0">
         {rows.map((row) => (
           <li

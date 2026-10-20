@@ -21,6 +21,8 @@ import HelpPopover from '../notifications/HelpPopover.jsx';
 import { NOTIFICATIONS_CHANGED } from '../notifications/useNotificationFeed.js';
 import { fetchNotifications } from '../../../services/notifications.api.js';
 import StreakPopover from '../talentStreak/StreakPopover.jsx';
+import { useLiveStreak } from '../talentStreak/useLiveStreak.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 
 const log = debug('DashboardTopNav');
 
@@ -147,6 +149,14 @@ const DashboardTopNav = ({ className, talentHome }) => {
   )
     ? streakParams.get('streak')
     : null;
+  // Live streak (GET /streak) for a signed-in talent; `?demo=1` keeps the drawn numbers.
+  const liveStreakOn = isTalent && isLoggedIn() && streakParams.get('demo') !== '1';
+  const liveStreak = useLiveStreak({ enabled: liveStreakOn });
+  const streakCount = liveStreakOn
+    ? liveStreak.data
+      ? String(liveStreak.data.summary.current)
+      : '–'
+    : nav.streakCount;
   const helpRef = useRef(null);
 
   // Bell count: the page load gives it (talentHomeState live.notifications.unread); after a read
@@ -275,7 +285,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
             isTalent={isTalent}
             pillRef={streakRef}
             open={Boolean(streakState)}
-            count={nav.streakCount}
+            count={streakCount}
             onClick={() => handleAction('streak')}
             className={classNames(
               'inline-flex items-center gap-[6px] overflow-hidden rounded-[100px] px-[12px] py-[8px] max-md:py-[2px]',
@@ -296,7 +306,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
                 isTalent ? 'text-[#c8951a]' : 'text-accent'
               )}
             >
-              {nav.streakCount}
+              {streakCount}
             </span>
           </StreakPillTag>
 
@@ -409,7 +419,11 @@ const DashboardTopNav = ({ className, talentHome }) => {
       {isTalent && <NotificationPopover home={talentHome} anchorRef={bellRef} />}
       {isTalent && <HelpPopover home={talentHome} anchorRef={helpRef} />}
       {isTalent && (
-        <StreakPopover home={{ ...talentHome, streak: streakState }} anchorRef={streakRef} />
+        <StreakPopover
+          home={{ ...talentHome, streak: streakState }}
+          anchorRef={streakRef}
+          live={liveStreakOn ? liveStreak : null}
+        />
       )}
     </header>
   );

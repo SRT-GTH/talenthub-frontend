@@ -2,11 +2,14 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { getStreakPageData } from './talentStreakData.js';
+import { useLiveStreak } from './useLiveStreak.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 
 const log = debug('streakPageState');
 
 /*
- * `/streak` URL state (mock data now, API later):
+ * `/streak` URL state. Live by default for a signed-in talent (GET /streak via useLiveStreak: `streakLive` = { status,
+ * data, reload }, `data` = the page payload in the same shape as the mock); `?demo=1` or `?milestone=15` keep the drawn mock:
  *   /streak                 S-07 Your streak (full page, streak 12)
  *   /streak?milestone=15    S-08 the 15-day modal over the page (streak 15)
  *   /streak?rail=collapsed  icon rail     /streak?help=1  help pop-over     /streak?search=1  global search
@@ -20,9 +23,11 @@ export const useStreakPageState = () => {
   const help = params.get('help') === '1';
   const a11yParam = params.get('a11y') === '1';
   const searchOpen = params.get('search') === '1';
+  const liveOn = isLoggedIn() && params.get('demo') !== '1' && !milestone;
+  const live = useLiveStreak({ enabled: liveOn });
 
   return useMemo(() => {
-    const data = getStreakPageData({ milestone });
+    const data = live.data ?? getStreakPageData({ milestone });
     log('state', { milestone, rail, streak: data.summary.current });
     const update = (patch) => {
       const next = new URLSearchParams(params);
@@ -46,7 +51,9 @@ export const useStreakPageState = () => {
       journeyMin: false,
       navStreak: data.summary.navStreak,
       data,
+      // Not `live`: the shared talent chrome reads talentHome.live as the home-page payload.
+      streakLive: liveOn ? live : null,
       update,
     };
-  }, [params, setParams, milestone, rail, help, a11yParam, searchOpen]);
+  }, [params, setParams, milestone, rail, help, a11yParam, searchOpen, live, liveOn]);
 };
