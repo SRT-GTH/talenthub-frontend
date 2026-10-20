@@ -16,6 +16,8 @@ import { getQuestionKind } from '../../components/sections/talentSkillsLab/labQu
 import { useLabText } from '../../components/sections/talentSkillsLab/labFormat.js';
 import { getLabFlow } from '../../components/sections/talentSkillsLab/skillsLabLabsData.js';
 import { useLabAttempt } from '../../components/sections/talentSkillsLab/useLabAttempt.js';
+import { useLiveLabFlow } from '../../components/sections/talentSkillsLab/useLiveLabFlow.js';
+import { isSkillsLabDemo } from '../../components/sections/talentSkillsLab/skillsLabHubData.js';
 
 const log = debug('LabPlayPage');
 
@@ -108,7 +110,11 @@ const LabFlowScreen = ({ flow, frame }) => {
         label: attempt.isLast ? 'See results' : 'Next challenge',
         onClick: attempt.next,
       }
-    : { label: 'Check answer', onClick: attempt.check, disabled: !attempt.canCheck };
+    : {
+        label: attempt.checking ? 'Checking…' : 'Check answer',
+        onClick: attempt.check,
+        disabled: !attempt.canCheck,
+      };
 
   const hint = attempt.hintUsed
     ? { mode: 'used', usedLabel: 'Hint used', cost: t('−{cost} {xp}', { cost: hintCost }) }
@@ -178,7 +184,7 @@ const LabFlowScreen = ({ flow, frame }) => {
         subtitle={flow.subtitle}
         sticker={flow.sticker}
         xp={`${attempt.xp} ${xpWord}`}
-        streak={`${attempt.streakDays}-day streak`}
+        streak={attempt.streakDays ? `${attempt.streakDays}-day streak` : null}
         onExit={() => setModal('leave')}
         onSaveExit={() => navigate(hubPath)}
         onHelp={() => {
@@ -198,6 +204,11 @@ const LabFlowScreen = ({ flow, frame }) => {
         }}
         overlay={overlay}
       >
+        {attempt.error ? (
+          <p role="alert" className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+            {attempt.error}
+          </p>
+        ) : null}
         {Question ? (
           <Question attempt={attempt} t={t} />
         ) : (
@@ -213,9 +224,26 @@ const LabFlowScreen = ({ flow, frame }) => {
 
 const LabPlayPage = () => {
   const { labId } = useParams();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const frame = params.get('f');
-  const flow = getLabFlow(labId);
+  const localFlow = getLabFlow(labId);
+  // Live by default: the server starts / resumes the run and checks every answer. `?demo=1` and Figma frames (`?f=`)
+  // keep the local flow.
+  const liveRun = useLiveLabFlow({
+    labId,
+    flow: localFlow,
+    enabled: Boolean(localFlow) && !frame && !isSkillsLabDemo(params),
+    restart: params.get('restart') === '1',
+  });
+  const flow = liveRun.status === 'off' ? localFlow : liveRun.flow;
+
+  // "Start over" lands here with ?restart=1: once the fresh run is loaded, drop it so a refresh resumes instead.
+  useEffect(() => {
+    if (liveRun.status !== 'ready' || params.get('restart') !== '1') return;
+    const next = new URLSearchParams(params);
+    next.delete('restart');
+    setParams(next, { replace: true });
+  }, [liveRun.status, params, setParams]);
   // A flow may bring its own screen (labScreens/ExtLabScreen.jsx: Public speaking, Team leadership, Strategic thinking).
   const FlowScreen = flow?.Screen ?? LabFlowScreen;
 
@@ -237,8 +265,19 @@ const LabPlayPage = () => {
   return (
     <>
       <UiStyleScope enabled />
-      {flow ? (
-        <FlowScreen key={`${labId}:${frame ?? ''}`} flow={flow} frame={frame} />
+      {liveRun.status === 'loading' ? (
+        <div role="status" className="flex min-h-screen items-center justify-center bg-[#f7f8f4] font-sans text-[15px] text-[#595959]">
+          Loading your lab…
+        </div>
+      ) : flow ? (
+        <FlowScreen key={`${labId}:${frame ?? ''}:${liveRun.status}`} flow={flow} frame={frame} />
+      ) : liveRun.status === 'error' && liveRun.error !== 'missing' ? (
+        <div className="flex min-h-screen flex-col items-center justify-center gap-[12px] bg-[#f7f8f4] p-[24px] font-sans text-[#1c2a21]">
+          <p className="m-0 text-[16px]">Could not load this lab. Check your connection and try again.</p>
+          <Link to="/skills-lab" className="text-[14px] font-semibold text-[#387440] underline">
+            Back to Skills Lab
+          </Link>
+        </div>
       ) : (
         <div className="flex min-h-screen flex-col items-center justify-center gap-[12px] bg-[#f7f8f4] p-[24px] font-sans text-[#1c2a21]">
           <p className="m-0 text-[16px]">This lab flow is not available yet.</p>

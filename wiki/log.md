@@ -2600,3 +2600,7 @@ DELETE-to-confirm, guardian invite form, Appearance style cards call `setUiStyle
 ## [2026-10-20] fix | Navbar logo goes to your own home when signed in
 
 The logo in the talent / dashboard, engagement and onboarding navbars (`HomeLogoLink`) now opens the signed-in user's home (`homePathFor`: talent `/home`, recruiter `/recruiter/home`, …) and only the landing page `/` when nobody is signed in. Clicking it on that page scrolls back to the top.
+
+## [2026-10-20] wire | Skills Lab on the API (labs scored on the server, game results saved)
+
+Hub, lab details, all 8 lab flows and the arcade now use `/api/skills-lab` (backend `skillsLab.service.js`, questions + answer keys seeded by `scripts/seedScripts/seed-skills-lab.js`). The server sends questions without answers, checks each one and reveals the answer after it is recorded; a pass adds a verified skill, a passed skill game a Game-evidenced one. `?demo=1` and `?f=` frames keep the local mock. Details: [talent-skills-lab.md](talent-skills-lab.md#live-data-2026-10-20). Checked live as Kwame: Python 7/8 verified (resume mid-run), Public speaking 6/6 (phrases), Team leadership 4/5 (scenario), Strategic thinking 3/5 (free try, missed, give up), Crisis Room result saved, score show/hide toggle, details page. ⚠️ answers still ship in the bundle for demo mode (follow-up).

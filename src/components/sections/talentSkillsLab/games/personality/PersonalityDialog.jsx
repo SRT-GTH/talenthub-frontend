@@ -13,6 +13,7 @@ import {
 import { useLabText } from '../../labFormat.js';
 import { DOODLE_STAR_PATH, FOCUS_RING, INK_CARD } from '../../labPlayStyles.js';
 import { CONFETTI } from '../../skillsLabLabsData.js';
+import { useReportGameResult } from '../../useReportGameResult.js';
 
 const log = debug('PersonalityDialog');
 
@@ -94,6 +95,8 @@ const GameCompleteDialog = ({ result, onClose, onSecondary, onPrimary, onNext })
   const dialogRef = useRef(null);
   const titleId = useId();
   const { t } = useLabText();
+  // The dialog opens once a personality game is finished: save the run (no skill is verified by these games).
+  useReportGameResult(result, { kind: 'personality' });
   usePlayfulDialogA11y({
     open: true,
     dialogRef,

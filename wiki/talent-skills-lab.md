@@ -2,6 +2,16 @@
 
 Figma file `Bin8roWL8sloyc36IgFMuT`, canvas **Talent - Skills Lab** `7500:92564` (Playful `78xx:*`, Focused `8110:47…`). 102 screens + the Help overlay; every frame has a Focused twin. Mock data only, shaped for an API swap (`skillsLabData.js`, `skillsLabLabsData.js`, `skillsLabGamesData.js`, `labFlows/*`, `labKinds/*`, `games/*`).
 
+## Live data (2026-10-20)
+
+Skills Lab now runs on the backend (`srt-backend` `services/skillsLab.service.js`, gateway `/api/skills-lab`, client `src/services/skillsLab.api.js`). Live is the default; **`?demo=1` keeps the drawn mock** (Kofi's labs) on the hub, details and play pages, and every `?f=<frame>` URL still boots the local Figma state — use `?demo=1` for the pixel comparisons below.
+
+- **Hub** (`skillsLabHubData.js` → `useLiveHub`, `SkillsLabHubDataProvider.jsx`, read by HubScreens via `useHubData()`): `GET /labs` (cards with this talent's status: `in_progress` / `verified` / `ready` = matches a profile skill or was tried / `explore`), `GET /attempts` (History), `GET|PUT /profile-scores`. No weekly challenge or "Top 15%" ranking yet (hidden when null).
+- **Labs** (`useLiveLabFlow.js` + `useLabAttempt.js`): `GET /labs/:id/play` starts or resumes a run with the questions **without answers**; every Check posts `/answer` and the reply's `reveal` (answer, explanation, weaker-answer notes, phrase order, chess solution) is merged into that question only (`withReveal`). Chess sends moves as `final:false` tries — the server allows one free wrong move per puzzle. Finishing posts `/finish`; a pass records a verified skill (`skillVerification`, status `verified`, evidence `test`). "Start over" on the details page → `/play?restart=1`.
+- **Details** (`liveLabDetail.js`): the lab's copy with this talent's sticker, attempts, start card (resume | ready / retake) and recruiter line.
+- **Games** (`useReportGameResult.js`): skill games (`GameFrame`, `buildGameResult` now adds `meta: { correct, total, passed }`) and personality games (`GameCompleteDialog`) post `POST /games/:id/result` once per finished run → a `gameSession`; a passed skill game adds a **Game-evidenced** skill (the server re-checks the pass mark where the units allow). The Games tab reads `GET /games` (new | played | soon).
+- ⚠️ The lab flow files still contain the answers (needed for `?demo=1` and the Figma frames), so they ship in the bundle; only the server's checking counts toward Verified. Follow-up: load demo answers only in dev builds.
+
 ## Status (2026-10-19)
 
 Every frame below renders at its URL in Playful and Focused and was compared by pixel diff against the Figma 0.5x export at viewport = frame height − 52 (`scratchpad/fullcmp.mjs`: diff % of the whole frame; about 2–4% is font metrics alone because SF Pro Rounded is not installed here). Median over all 204 comparisons: **2.5%**; highest: toast T3 7.7% / 6.4%, Games tab 7.1% / 6.4% (tall frame), hub empty 6.7% / 5.3%, Start-over dialog 6.6% / 6.1%. ✅ = renders, no runtime errors, compared in both styles. A low % does not prove copy or state is right — see _Known gaps_ for what was NOT checked by eye.

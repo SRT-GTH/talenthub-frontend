@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import LabDetailScreen from '../../components/sections/talentSkillsLab/LabDetailScreen.jsx';
 import { RestartLabDialog } from '../../components/sections/talentSkillsLab/SkillsLabLabDialogs.jsx';
@@ -7,6 +7,8 @@ import SkillsLabDialogs from '../../components/sections/talentSkillsLab/SkillsLa
 import SkillsLabFrame from '../../components/sections/talentSkillsLab/SkillsLabFrame.jsx';
 import { useSkillsLabState } from '../../components/sections/talentSkillsLab/skillsLabState.js';
 import { getLabDetail } from '../../components/sections/talentSkillsLab/skillsLabData.js';
+import { isSkillsLabDemo, useLiveHub } from '../../components/sections/talentSkillsLab/skillsLabHubData.js';
+import { liveLabDetail } from '../../components/sections/talentSkillsLab/liveLabDetail.js';
 
 const log = debug('LabDetailPage');
 
@@ -19,7 +21,14 @@ const log = debug('LabDetailPage');
 const LabDetailPage = () => {
   const skills = useSkillsLabState();
   const { labId } = useParams();
-  const detail = getLabDetail(labId);
+  const [params] = useSearchParams();
+  // Live by default: this talent's status and attempts for the lab; `?demo=1` keeps the drawn detail frames.
+  const live = useLiveHub({ enabled: !isSkillsLabDemo(params) });
+  const detail = live
+    ? live.status === 'ready'
+      ? liveLabDetail(labId, live.labById(labId), live.attempts)
+      : null
+    : getLabDetail(labId);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +37,11 @@ const LabDetailPage = () => {
 
   return (
     <SkillsLabFrame skills={skills}>
-      {detail ? (
+      {live && live.status === 'loading' ? (
+        <p role="status" className="mx-auto w-full max-w-[1433px] px-[clamp(12px,3vw,52px)] pt-[32px] font-sans text-[15px] text-[#595959]">
+          Loading the lab…
+        </p>
+      ) : detail ? (
         <LabDetailScreen key={detail.id} detail={detail} />
       ) : (
         <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[12px] px-[clamp(12px,3vw,52px)] pt-[32px] font-sans">
@@ -43,7 +56,7 @@ const LabDetailPage = () => {
         <RestartLabDialog
           lab={detail.title.replace(/ lab$/, '')}
           onClose={() => skills.update({ modal: null })}
-          onConfirm={() => navigate(`/skills-lab/lab/${labId}/play`)}
+          onConfirm={() => navigate(`/skills-lab/lab/${labId}/play${live ? '?restart=1' : ''}`)}
         />
       ) : null}
     </SkillsLabFrame>

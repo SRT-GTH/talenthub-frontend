@@ -68,7 +68,7 @@ const ExtLabScreen = ({ flow, frame }) => {
         onClick: attempt.next,
       }
     : {
-        label: 'Check answer',
+        label: attempt.checking ? 'Checking…' : 'Check answer',
         onClick: attempt.check,
         disabled: !attempt.canCheck && !(attempt.finished && attempt.selected != null),
       };
@@ -154,7 +154,7 @@ const ExtLabScreen = ({ flow, frame }) => {
       subtitle={flow.subtitle}
       sticker={flow.sticker}
       xp={`${attempt.xp} ${t('{xp}')}`}
-      streak={`${attempt.streakDays}-day streak`}
+      streak={attempt.streakDays ? `${attempt.streakDays}-day streak` : null}
       onExit={() => setModal('leave')}
       onSaveExit={() => navigate(hubPath)}
       onHelp={() => {
@@ -179,6 +179,11 @@ const ExtLabScreen = ({ flow, frame }) => {
         </>
       }
     >
+      {attempt.error ? (
+        <p role="alert" className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+          {attempt.error}
+        </p>
+      ) : null}
       <kind.Body ctx={ctx} />
     </LabPlayChrome>
   );

@@ -100,8 +100,11 @@ export const buildGameResult = (cfg) => {
           cta: 'Open',
         }
       : null);
+  // Numbers the server stores for this run (useReportGameResult). `correct` is in the game's own unit.
+  const meta = { correct, total, passed: Boolean(passed) };
   if (passed) {
     return {
+      meta,
       id: 'verified',
       tone: 'pass',
       medallion: 'check',
@@ -123,6 +126,7 @@ export const buildGameResult = (cfg) => {
     };
   }
   return {
+    meta,
     id: 'fail',
     tone: 'retry',
     medallion: 'refresh',

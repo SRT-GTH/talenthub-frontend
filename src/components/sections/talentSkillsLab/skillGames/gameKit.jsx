@@ -5,6 +5,7 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import LabPlayChrome from '../LabPlayChrome.jsx';
 import LabResultsDialog from '../LabResultsDialog.jsx';
+import { useReportGameResult } from '../useReportGameResult.js';
 import { LabArrowRightIcon } from '../LabPlayIcons.jsx';
 import { LeaveLabDialog, RestartLabDialog } from '../SkillsLabLabDialogs.jsx';
 import { useLabText } from '../labFormat.js';
@@ -172,6 +173,7 @@ export const GameFrame = (props) => {
   const [params, setParams] = useSearchParams();
   const { t } = useLabText();
   log('render', { game: game.label, hasResult: Boolean(result) });
+  useReportGameResult(result, { kind: 'skill' });
   const modal = params.get('modal');
   const arcadePath = '/skills-lab?tab=games';
 
