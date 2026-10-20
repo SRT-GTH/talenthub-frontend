@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import { HubHeader, HubTabs } from '../../components/sections/talentSkillsLab/HubChrome.jsx';
 import {
@@ -12,10 +13,12 @@ import {
 import SkillsLabDialogs from '../../components/sections/talentSkillsLab/SkillsLabDialogs.jsx';
 import SkillsLabFrame from '../../components/sections/talentSkillsLab/SkillsLabFrame.jsx';
 import { useSkillsLabState } from '../../components/sections/talentSkillsLab/skillsLabState.js';
+import { HUB_COPY, HUB_LABS_RESPONSE } from '../../components/sections/talentSkillsLab/skillsLabData.js';
+import HubDataProvider from '../../components/sections/talentSkillsLab/SkillsLabHubDataProvider.jsx';
 import {
-  HUB_COPY,
-  HUB_LABS_RESPONSE,
-} from '../../components/sections/talentSkillsLab/skillsLabData.js';
+  isSkillsLabDemo,
+  useLiveHub,
+} from '../../components/sections/talentSkillsLab/skillsLabHubData.js';
 import GamesTabSlot from '../../components/sections/talentSkillsLab/HubGamesSlot.jsx';
 
 const log = debug('SkillsLabHubPage');
@@ -27,8 +30,11 @@ const log = debug('SkillsLabHubPage');
  */
 const SkillsLabHubPage = () => {
   const skills = useSkillsLabState();
-  const { summary } = HUB_LABS_RESPONSE;
-  const loading = skills.state === 'loading';
+  const [params] = useSearchParams();
+  // Live by default (GET /skills-lab/labs …); `?demo=1` keeps the drawn mock.
+  const live = useLiveHub({ enabled: !isSkillsLabDemo(params) });
+  const summary = live ? live.response.summary : HUB_LABS_RESPONSE.summary;
+  const loading = skills.state === 'loading' || live?.status === 'loading';
   const empty = skills.state === 'empty';
 
   useEffect(() => {
@@ -74,6 +80,7 @@ const SkillsLabHubPage = () => {
     skills.tab === 'history' && !loading && !empty ? HUB_COPY.historySubtitle : HUB_COPY.subtitle;
 
   return (
+    <HubDataProvider value={live}>
     <SkillsLabFrame skills={skills}>
       <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[24px] px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
         <HubHeader
@@ -88,10 +95,16 @@ const SkillsLabHubPage = () => {
           onTab={onTab}
           disabled={loading}
         />
+        {live?.status === 'error' ? (
+          <p role="alert" className="m-0 rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+            Could not load your labs. Check your connection and refresh.
+          </p>
+        ) : null}
         {body}
       </div>
       <SkillsLabDialogs skills={skills} />
     </SkillsLabFrame>
+    </HubDataProvider>
   );
 };
 

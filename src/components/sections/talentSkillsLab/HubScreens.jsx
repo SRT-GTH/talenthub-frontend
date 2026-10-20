@@ -38,15 +38,8 @@ import {
 } from './HubParts.jsx';
 import { LAB_ICONS, useXpWord } from './hubShared.js';
 import LabCard from './LabCard.jsx';
-import {
-  HUB_ATTEMPTS,
-  HUB_CATEGORIES,
-  HUB_HOW_LABS_WORK,
-  HUB_HOW_LABS_WORK_NEW,
-  HUB_LABS_RESPONSE,
-  HUB_PROFILE_SCORES,
-  hubLabById,
-} from './skillsLabData.js';
+import { HUB_CATEGORIES, HUB_HOW_LABS_WORK, HUB_HOW_LABS_WORK_NEW } from './skillsLabData.js';
+import { useHubData } from './skillsLabHubData.js';
 
 const log = debug('HubScreens');
 
@@ -60,8 +53,8 @@ const Columns = ({ left, right }) => (
   </div>
 );
 
-const labsByStatus = (...statuses) =>
-  HUB_LABS_RESPONSE.labs.filter((l) => statuses.includes(l.status));
+// Labs come from useHubData(): the live API response, or the drawn mock with `?demo=1`.
+const labsByStatus = (labs, ...statuses) => labs.filter((l) => statuses.includes(l.status));
 
 /* ---------- shared tiles ---------- */
 
@@ -295,9 +288,10 @@ const NoLabResult = ({ skills }) => (
 );
 
 export const HubAllTab = ({ skills }) => {
-  const { labs, summary, weekly, closeMatches } = HUB_LABS_RESPONSE;
+  const hub = useHubData();
+  const { labs, summary, weekly, closeMatches } = hub.response;
   const xp = useXpWord();
-  const python = hubLabById('python');
+  const continueLab = labs.find((l) => l.status === 'in_progress');
   const searching = skills.q.trim() !== '' || skills.searchOpen;
   const q = skills.q.trim().toLowerCase();
 
@@ -329,7 +323,7 @@ export const HubAllTab = ({ skills }) => {
             <ExploreBlock
               skills={skills}
               title="Close matches"
-              labs={closeMatches.map(hubLabById)}
+              labs={closeMatches.map(hub.labById).filter(Boolean)}
             />
           </>
         ) : (
@@ -338,12 +332,12 @@ export const HubAllTab = ({ skills }) => {
       </>
     );
   } else {
-    const ready = labsByStatus('ready');
-    const verified = labsByStatus('verified', 'cooldown');
-    const explore = labsByStatus('explore', 'new');
+    const ready = labsByStatus(labs, 'ready');
+    const verified = labsByStatus(labs, 'verified', 'cooldown');
+    const explore = labsByStatus(labs, 'explore', 'new');
     left = (
       <>
-        <ContinueCard lab={python} />
+        {continueLab ? <ContinueCard lab={continueLab} /> : null}
         <section className="flex flex-col gap-[16px]" aria-label="Ready to verify">
           <HubSectionHead
             title="Ready to verify"
@@ -386,7 +380,9 @@ export const HubAllTab = ({ skills }) => {
     ) : (
       <>
         <VerificationCard summary={summary} />
-        <WeeklyCard weekly={weekly} onJoin={() => skills.update({ modal: 'weekly' })} />
+        {weekly ? (
+          <WeeklyCard weekly={weekly} onJoin={() => skills.update({ modal: 'weekly' })} />
+        ) : null}
         <HowLabsWorkCard rows={HUB_HOW_LABS_WORK} />
       </>
     );
@@ -397,13 +393,22 @@ export const HubAllTab = ({ skills }) => {
 /* ---------- In progress ---------- */
 
 export const HubProgressTab = ({ skills }) => {
-  const { summary, nudge } = HUB_LABS_RESPONSE;
-  const python = hubLabById('python');
+  const { response } = useHubData();
+  const { summary, nudge, labs } = response;
+  const open = labsByStatus(labs, 'in_progress');
   return (
     <Columns
       left={
         <>
-          <ContinueCard lab={python} />
+          {open.map((lab) => (
+            <ContinueCard key={lab.id} lab={lab} />
+          ))}
+          {!open.length ? (
+            <p className="m-0 rounded-[20px] bg-white p-[24px] font-sans text-[15px] leading-[22px] text-[#595959]">
+              Nothing in progress. Start a lab from All labs; it saves after every answer.
+            </p>
+          ) : null}
+          {nudge ? (
           <section
             aria-label={nudge.title}
             className="flex flex-wrap items-center gap-[14px] rounded-[20px] bg-[#fbf4e0] p-[20px]"
@@ -423,6 +428,7 @@ export const HubProgressTab = ({ skills }) => {
               Remind me
             </HubButton>
           </section>
+          ) : null}
         </>
       }
       right={
@@ -438,19 +444,25 @@ export const HubProgressTab = ({ skills }) => {
 /* ---------- Verified ---------- */
 
 const useScores = (skills) => {
-  const [scores, setScores] = useState(HUB_PROFILE_SCORES);
+  const hub = useHubData();
+  const [mockScores, setMockScores] = useState(hub.profileScores);
+  const scores = hub.live ? hub.profileScores : mockScores;
   const onToggle = (s, next) => {
-    setScores((cur) => cur.map((x) => (x.labId === s.labId ? { ...x, shown: next } : x)));
+    if (hub.live) {
+      hub.setScoreShown(s.labId, next).catch(() => log('score toggle failed', s.labId));
+    } else {
+      setMockScores((cur) => cur.map((x) => (x.labId === s.labId ? { ...x, shown: next } : x)));
+    }
     if (!next) skills.update({ toast: 'hidden' });
   };
   return [scores, onToggle];
 };
 
 export const HubVerifiedTab = ({ skills }) => {
-  const { summary } = HUB_LABS_RESPONSE;
+  const { summary, labs } = useHubData().response;
   const [scores, onToggle] = useScores(skills);
-  const verified = labsByStatus('verified', 'cooldown');
-  const next = labsByStatus('in_progress', 'ready');
+  const verified = labsByStatus(labs, 'verified', 'cooldown');
+  const next = labsByStatus(labs, 'in_progress', 'ready');
   return (
     <Columns
       left={
@@ -484,16 +496,18 @@ export const HubVerifiedTab = ({ skills }) => {
               <LabCard key={lab.id} lab={lab} context="verifiedTab" />
             ))}
           </div>
-          <section className="flex flex-col gap-[16px]" aria-label="Next up">
-            <HubSectionHead
-              title={`Verify ${summary.total - summary.verified} more to reach ${summary.total} of ${summary.total}`}
-            />
-            <div className={GRID}>
-              {next.map((lab) => (
-                <LabCard key={lab.id} lab={lab} />
-              ))}
-            </div>
-          </section>
+          {next.length ? (
+            <section className="flex flex-col gap-[16px]" aria-label="Next up">
+              <HubSectionHead
+                title={`Verify ${summary.total - summary.verified} more to reach ${summary.total} of ${summary.total}`}
+              />
+              <div className={GRID}>
+                {next.map((lab) => (
+                  <LabCard key={lab.id} lab={lab} />
+                ))}
+              </div>
+            </section>
+          ) : null}
         </>
       }
       right={<ScoresCard scores={scores} onToggle={onToggle} />}
@@ -551,7 +565,8 @@ const ROW_GRID =
   'grid items-center gap-[12px] [grid-template-columns:minmax(150px,1.9fr)_minmax(70px,1fr)_64px_minmax(110px,1.2fr)_minmax(86px,1fr)_minmax(96px,1fr)]';
 
 const AttemptRow = ({ a }) => {
-  const lab = hubLabById(a.labId);
+  const lab = useHubData().labById(a.labId);
+  if (!lab) return null;
   const Glyph = LAB_ICONS[lab.icon];
   const verified = a.result === 'verified' || a.result === 'perfect';
   const Vis = a.onProfile ? HubEyeIcon : HubEyeOffIcon;
@@ -617,10 +632,11 @@ const AttemptRow = ({ a }) => {
 
 export const HubHistoryTab = ({ skills }) => {
   const xp = useXpWord();
-  const { summary } = HUB_LABS_RESPONSE;
+  const hub = useHubData();
+  const { summary } = hub.response;
   const [filter, setFilter] = useState('all');
   const [scores, onToggle] = useScores(skills);
-  const rows = HUB_ATTEMPTS.filter(
+  const rows = hub.attempts.filter(
     (a) =>
       filter === 'all' ||
       (filter === 'verified' && (a.result === 'verified' || a.result === 'perfect')) ||
@@ -733,7 +749,8 @@ export const HubHistoryTab = ({ skills }) => {
 /* ---------- Empty (new talent) ---------- */
 
 export const HubEmptyTab = ({ skills }) => {
-  const { popularForNewTalent } = HUB_LABS_RESPONSE;
+  const hub = useHubData();
+  const { popularForNewTalent } = hub.response;
   return (
     <Columns
       left={
@@ -797,13 +814,14 @@ export const HubEmptyTab = ({ skills }) => {
                 <HubLink
                   onClick={() => skills.update({ state: null, tab: null, cat: null, q: null })}
                 >
-                  {`See all ${HUB_LABS_RESPONSE.summary.labsTotal} labs`}
+                  {`See all ${hub.response.summary.labsTotal} labs`}
                 </HubLink>
               }
             />
             <div className={GRID}>
               {popularForNewTalent.map(({ id, badge }) => {
-                const lab = { ...hubLabById(id), status: 'explore' };
+                if (!hub.labById(id)) return null;
+                const lab = { ...hub.labById(id), status: 'explore' };
                 return <LabCard key={id} lab={lab} context="popular" badge={badge} />;
               })}
             </div>

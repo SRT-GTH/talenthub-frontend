@@ -178,9 +178,12 @@ export const PhrasesBody = ({ ctx }) => {
     setDraft({ placed: placed.filter((x) => x !== id) });
   };
   // "Structure guide" chips fill in order as the phrases for credibility → problem → solution → outcome → when are placed.
-  const guideDone = guide.map((g, i) =>
-    guide.slice(0, i + 1).every((x) => placed.includes(correct[guide.indexOf(x)]))
-  );
+  // Live runs don't know the order until it is checked: the chips then fill as slots fill.
+  const guideDone = correct
+    ? guide.map((g, i) =>
+        guide.slice(0, i + 1).every((x) => placed.includes(correct[guide.indexOf(x)]))
+      )
+    : guide.map((g, i) => i < placed.length);
   const feedback = answered
     ? status === 'correct'
       ? {

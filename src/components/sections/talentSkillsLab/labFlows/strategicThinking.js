@@ -1,5 +1,5 @@
 import ExtLabScreen from '../labScreens/ExtLabScreen.jsx';
-import { CHESS_PUZZLES } from '../labScreens/chessData.js';
+import { CHESS_PUZZLES } from './chessPuzzles.js';
 
 /*
  * Strategic thinking lab flow — five chess puzzles (Figma SL-L18a … L18h, Playful 7851:13321 … 7851:15065 / Focused 8110:485250 …
@@ -14,6 +14,7 @@ const QUESTIONS = CHESS_PUZZLES.map((puzzle, i) => ({
   kind: 'chess',
   topic: puzzle.topic,
   options: [],
+  body: { puzzle },
   answer: puzzle.answer,
   hint: puzzle.hint,
   explain: { right: puzzle.explain, wrong: puzzle.explain },

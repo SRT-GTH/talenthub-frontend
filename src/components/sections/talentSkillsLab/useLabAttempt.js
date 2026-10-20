@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { debug } from '../../../utils/debug.js';
 import { RESULT_SCENARIOS, earnedXp, pickScenario } from './skillsLabLabsData.js';
 import { OPTION_LETTERS, fillTokens } from './labFormat.js';
@@ -14,6 +14,9 @@ const log = debug('useLabAttempt');
  *
  * Input   { flow, frame }  flow = a LAB_FLOWS entry; frame = the `?f=` code (or null). A known frame boots the engine in the
  *         exact state the Figma frame draws (flow.frames[frame]); anything else boots from flow.session (challenge 5, Resume).
+ * Live    flow.live = { answer(body), finish(), restart() } (useLiveLabFlow.js): the server holds the answer keys. check()
+ *         posts the pick and waits ('checking'); the reply's `reveal` (answer, explain, …) is merged into that question only
+ *         then. Finishing posts /finish once. Without flow.live (demo, ?f= frames) everything is decided locally as before.
  * Output  everything a screen needs: question, dots, countLabel, summary, optionStates, feedback, footer flags, result view,
  *         plus the actions select(i) check() hint() next() restart(). Copy strings still contain the {xp} token.
  */
@@ -29,6 +32,8 @@ const initialState = (flow, frame) => {
       xp: seed.xp,
       scenario: seed.scenario ?? null,
       fromFrame: true,
+      revealed: {},
+      error: null,
     };
   }
   return {
@@ -40,6 +45,8 @@ const initialState = (flow, frame) => {
     xp: flow.session.xp,
     scenario: null,
     fromFrame: false,
+    revealed: {},
+    error: null,
   };
 };
 
@@ -52,7 +59,41 @@ const freshRun = (flow) => ({
   xp: flow.session.xp,
   scenario: null,
   fromFrame: false,
+  revealed: {},
+  error: null,
 });
+
+/* A question with the server's reveal merged in (answer, explanation, phrase order, chess solution). */
+export const withReveal = (question, reveal) => {
+  if (!question || !reveal) return question;
+  const merged = {
+    ...question,
+    answer: reveal.answer,
+    explain: reveal.explain ?? { right: '', wrong: '' },
+  };
+  if (reveal.weaker) merged.weaker = reveal.weaker;
+  if (reveal.answerLabel) merged.answerLabel = reveal.answerLabel;
+  if (reveal.correct || reveal.marksByArrangement) {
+    merged.body = {
+      ...question.body,
+      correct: reveal.correct ?? undefined,
+      marksByArrangement: reveal.marksByArrangement ?? undefined,
+    };
+  }
+  if (question.body?.puzzle) {
+    merged.body = {
+      ...question.body,
+      puzzle: {
+        ...question.body.puzzle,
+        answer: reveal.answer,
+        san: reveal.san,
+        mateSq: reveal.mateSq,
+        explain: reveal.puzzleExplain ?? '',
+      },
+    };
+  }
+  return merged;
+};
 
 const countOk = (results) => results.filter((r) => r === 'ok').length;
 
@@ -61,7 +102,28 @@ const reducer = (state, action) => {
   switch (action.type) {
     case 'select':
       if (state.status !== 'playing' && state.status !== 'selected') return state;
-      return { ...state, status: 'selected', selected: action.optionIndex };
+      return { ...state, status: 'selected', selected: action.optionIndex, error: null };
+    case 'checking':
+      if (state.status !== 'selected') return state;
+      return { ...state, status: 'checking', error: null };
+    case 'checkFailed':
+      return { ...state, status: state.selected === null ? 'playing' : 'selected', error: action.error };
+    case 'probeMissed':
+      // Chess: a wrong first move the server did not count yet; back to playing (the board shows "1 try left").
+      return { ...state, status: 'playing', selected: null };
+    case 'revealed': {
+      if (state.status !== 'checking' && state.status !== 'selected' && state.status !== 'playing') return state;
+      const results = [...state.results];
+      results[state.index] = action.ok ? 'ok' : 'bad';
+      return {
+        ...state,
+        results,
+        selected: action.selected ?? state.selected,
+        revealed: { ...state.revealed, [action.questionId]: action.reveal },
+        status: action.ok ? 'correct' : 'wrong',
+        xp: action.ok ? state.xp + flow.correctXp : state.xp,
+      };
+    }
     case 'hint':
       if (state.hintUsed || (state.status !== 'playing' && state.status !== 'selected'))
         return state;
@@ -103,6 +165,8 @@ const reducer = (state, action) => {
     }
     case 'restart':
       return freshRun(flow);
+    case 'restartLive':
+      return { ...freshRun(flow), index: 0, results: [], xp: 0 };
     default:
       return state;
   }
@@ -181,8 +245,21 @@ export const useLabAttempt = ({ flow, frame = null }) => {
     [flow]
   );
 
+  // The latest pick, readable right after select() in the same tick (chess "give up", phrases: select then check).
+  const pickRef = useRef(state.selected);
+  pickRef.current = state.status === 'selected' ? state.selected : pickRef.current;
+  const finishSent = useRef(false);
+  const live = flow.live ?? null;
+
+  useEffect(() => {
+    if (!live || state.status !== 'finished' || finishSent.current) return;
+    finishSent.current = true;
+    live.finish().catch((err) => log('finish failed', err?.response?.status || err?.message));
+  }, [live, state.status]);
+
   return useMemo(() => {
-    const question = flow.questions[state.index];
+    const base = flow.questions[state.index];
+    const question = withReveal(base, state.revealed?.[base?.id]);
     const finished = state.status === 'finished';
     const answered = state.status === 'correct' || state.status === 'wrong';
     const correctCount = countOk(state.results);
@@ -252,11 +329,56 @@ export const useLabAttempt = ({ flow, frame = null }) => {
       optionStates,
       feedback,
       result: finished ? buildResultView(flow, state) : null,
-      select: (optionIndex) => act('select', { optionIndex }),
-      check: () => act('check'),
+      live: Boolean(live),
+      checking: state.status === 'checking',
+      error: state.error,
+      select: (optionIndex) => {
+        pickRef.current = optionIndex;
+        act('select', { optionIndex });
+      },
+      check: () => {
+        if (!live) return act('check');
+        const selected = pickRef.current;
+        if (selected === null || selected === undefined || answered || state.status === 'checking') return undefined;
+        act('checking');
+        return live
+          .answer({ questionId: base.id, selected, hintUsed: state.hintUsed, final: true })
+          .then((r) => act('revealed', { ok: r.ok, reveal: r.reveal, questionId: base.id, selected }))
+          .catch((err) => {
+            log('check failed', err?.response?.status || err?.message);
+            act('checkFailed', { error: 'Could not check that answer. Try again.' });
+          });
+      },
+      // Chess (live): a move that may be a counted miss or a free first try. Resolves { final } so the board can react.
+      tryMove: async (move, { final = false } = {}) => {
+        if (!live) return null;
+        pickRef.current = move;
+        act('select', { optionIndex: move });
+        act('checking');
+        try {
+          const r = await live.answer({ questionId: base.id, selected: move, hintUsed: state.hintUsed, final });
+          if (r.final === false) {
+            act('probeMissed');
+            return r;
+          }
+          act('revealed', { ok: r.ok, reveal: r.reveal, questionId: base.id, selected: r.ok ? move : `miss:${move}` });
+          return r;
+        } catch (err) {
+          log('move failed', err?.response?.status || err?.message);
+          act('checkFailed', { error: 'Could not check that move. Try again.' });
+          return null;
+        }
+      },
       hint: () => act('hint'),
       next: () => act('next'),
-      restart: () => act('restart'),
+      restart: () => {
+        if (!live) return act('restart');
+        finishSent.current = false;
+        return live
+          .restart()
+          .then(() => act('restartLive'))
+          .catch((err) => log('restart failed', err?.response?.status || err?.message));
+      },
     };
-  }, [flow, state, act]);
+  }, [flow, state, act, live]);
 };

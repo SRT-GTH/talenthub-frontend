@@ -5,8 +5,8 @@ import { LabCheckIcon } from '../LabPlayIcons.jsx';
 import { INK_CARD } from '../labPlayStyles.js';
 import playerKofi from '../../../../assets/talent-skills-lab/labs/player-kofi.png';
 import ChessBoard from './ChessBoard.jsx';
-import { CHESS_PUZZLES, CHESS_RULES_TAIL, CHESS_WHY } from './chessData.js';
-import { chessView, tapSquare } from './chessLogic.js';
+import { CHESS_RULES_TAIL, CHESS_WHY } from './chessData.js';
+import { chessView, puzzleFor, tapSquare } from './chessLogic.js';
 import { useBoardFont } from './extHooks.js';
 import { LabCompassIcon } from './ExtIcons.jsx';
 import { ExtFeedback } from './ExtParts.jsx';
@@ -53,7 +53,7 @@ const PlayerBar = ({ name, sub, avatar }) => (
 const ChessQuestion = ({ ctx }) => {
   const { attempt, draft, setDraft, t } = ctx;
   useBoardFont();
-  const puzzle = CHESS_PUZZLES[attempt.index];
+  const puzzle = puzzleFor(attempt);
   const view = chessView({ attempt, draft, puzzle, t });
   const tone = STATUS_TONE[view.status.tone];
   const playing = view.state === 'play';

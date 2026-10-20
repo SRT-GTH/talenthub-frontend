@@ -25,6 +25,22 @@ const log = debug('ExtLabScreen');
  */
 const EMPTY = {};
 
+/*
+ * Progress line under the dots. Local flows pass `ui.summary(results)`; live flows come from the API as plain data, so
+ * they carry the wording instead: ui.okWord ('correct' | 'solved' | 'strong') and, optionally, ui.okAllWord
+ * ('strong answer') for a run with nothing to review yet.
+ */
+const summarize = (results, ui) => {
+  if (typeof ui.summary === 'function') return ui.summary(results);
+  const ok = results.filter((r) => r === 'ok').length;
+  const bad = results.filter((r) => r === 'bad').length;
+  if (!ok && !bad) return 'Just started';
+  if (!bad && ui.okAllWord) return `${ok} ${ui.okAllWord}${ok === 1 ? '' : 's'}`;
+  return [ok ? `${ok} ${ui.okWord ?? 'correct'}` : null, bad ? `${bad} to review` : null]
+    .filter(Boolean)
+    .join(' · ');
+};
+
 const ExtLabScreen = ({ flow, frame }) => {
   const attempt = useLabAttempt({ flow, frame });
   const navigate = useNavigate();
@@ -68,7 +84,7 @@ const ExtLabScreen = ({ flow, frame }) => {
         onClick: attempt.next,
       }
     : {
-        label: 'Check answer',
+        label: attempt.checking ? 'Checking…' : 'Check answer',
         onClick: attempt.check,
         disabled: !attempt.canCheck && !(attempt.finished && attempt.selected != null),
       };
@@ -154,7 +170,7 @@ const ExtLabScreen = ({ flow, frame }) => {
       subtitle={flow.subtitle}
       sticker={flow.sticker}
       xp={`${attempt.xp} ${t('{xp}')}`}
-      streak={`${attempt.streakDays}-day streak`}
+      streak={attempt.streakDays ? `${attempt.streakDays}-day streak` : null}
       onExit={() => setModal('leave')}
       onSaveExit={() => navigate(hubPath)}
       onHelp={() => {
@@ -166,7 +182,7 @@ const ExtLabScreen = ({ flow, frame }) => {
         countLabel: attempt.finished
           ? `All ${flow.total} done`
           : `${ui.unit} ${attempt.index + 1} of ${flow.total}`,
-        summary: ui.summary(attempt.state.results),
+        summary: summarize(attempt.state.results, ui),
         dots: attempt.dots,
         passMark: attempt.passMark,
       }}
@@ -179,6 +195,11 @@ const ExtLabScreen = ({ flow, frame }) => {
         </>
       }
     >
+      {attempt.error ? (
+        <p role="alert" className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+          {attempt.error}
+        </p>
+      ) : null}
       <kind.Body ctx={ctx} />
     </LabPlayChrome>
   );

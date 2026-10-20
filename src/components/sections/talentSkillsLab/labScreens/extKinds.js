@@ -1,8 +1,7 @@
 import { debug } from '../../../../utils/debug.js';
 import ChessQuestion from './ChessQuestion.jsx';
 import { encodeMove } from './chessData.js';
-import { chessView } from './chessLogic.js';
-import { CHESS_PUZZLES } from './chessData.js';
+import { chessView, puzzleFor } from './chessLogic.js';
 import { ChoiceBody, PhrasesBody, ScenarioBody } from './ExtQuestions.jsx';
 
 const log = debug('extKinds');
@@ -26,11 +25,12 @@ const phrasesFooter = ({ attempt, draft, setDraft }) => {
   return {
     note: left > 0 ? `Place ${left} more to check` : null,
     action: {
-      label: 'Check answer',
-      disabled: left > 0,
+      label: attempt.checking ? 'Checking…' : 'Check answer',
+      disabled: left > 0 || attempt.checking,
       onClick: () => {
         if (left > 0) return;
-        log('check arrangement', placed.join('|'), 'expected', correct.join('|'));
+        // Live runs have no `correct` until the server reveals it.
+        log('check arrangement', placed.join('|'), 'expected', correct?.join('|') ?? '(server)');
         attempt.select(placed.join('|'));
         attempt.check();
         setDraft({ placed });
@@ -50,7 +50,7 @@ const phrasesDigit = (n, { attempt, draft, setDraft }) => {
 const chessFooter = (ctx) => {
   const { attempt, draft, setDraft, t } = ctx;
   if (attempt.answered) return { nextLabel: 'Next puzzle' };
-  const puzzle = CHESS_PUZZLES[attempt.index];
+  const puzzle = puzzleFor(attempt);
   const view = chessView({ attempt, draft, puzzle, t });
   const giveUp = {
     label: 'Give up and see the answer',
@@ -74,10 +74,21 @@ const chessFooter = (ctx) => {
     link: giveUp,
     action: {
       label: 'Play move',
-      disabled: !ready,
+      disabled: !ready || attempt.checking,
       onClick: () => {
         if (!ready) return;
         const move = encodeMove(draft.from, draft.to);
+        if (attempt.live) {
+          // Live: the server knows the answer. A wrong first move comes back { final: false } (one free try).
+          const fails = draft.fails ?? 0;
+          attempt.tryMove(move, { final: fails >= 1 }).then((r) => {
+            if (r && r.final === false) {
+              log('wrong move (live)', move);
+              setDraft({ from: draft.from, to: draft.to, fails: fails + 1, shown: true });
+            }
+          });
+          return;
+        }
         if (move === puzzle.answer) {
           log('solved', move);
           attempt.select(move);

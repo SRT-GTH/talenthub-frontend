@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -11,6 +11,8 @@ import {
   SkillsLabTargetGlyph,
 } from './SkillsLabDialogIcons.jsx';
 import { ARCADE_GAMES, GAMES_ARCADE } from './skillsLabGamesData.js';
+import { useHubData } from './skillsLabHubData.js';
+import { fetchGames } from '../../../services/skillsLab.api.js';
 import { FOCUS_RING, HEADING, fill, unitFor } from './skillsLabDialogUtils.js';
 
 const log = debug('SkillsLabGamesTab');
@@ -185,16 +187,41 @@ const SkillsLabGamesTab = () => {
   const unit = unitFor(uiStyle);
   const featured = GAMES_ARCADE.featured;
 
+  const hub = useHubData();
+  // Live: each game's status for this talent (GET /skills-lab/games); `?demo=1` keeps the drawn statuses.
+  const [mine, setMine] = useState(null);
   useEffect(() => {
-    log('mount', { games: ARCADE_GAMES.length });
-  }, []);
+    log('mount', { games: ARCADE_GAMES.length, live: hub.live });
+    if (!hub.live) return undefined;
+    let alive = true;
+    fetchGames()
+      .then((rows) => alive && setMine(new Map(rows.map((r) => [r.id, r]))))
+      .catch((err) => log('games failed', err?.response?.status));
+    return () => {
+      alive = false;
+    };
+  }, [hub.live]);
+  const games = useMemo(
+    () =>
+      ARCADE_GAMES.map((g) => {
+        const row = mine?.get(g.id);
+        return row ? { ...g, status: row.status, passed: row.passed, xp: row.xp || g.xp } : g;
+      }),
+    [mine]
+  );
+  const skillSubtitle = useMemo(() => {
+    if (!hub.live || !mine) return GAMES_ARCADE.skillSection.subtitle;
+    const skill = games.filter((g) => g.skill && g.status !== 'soon');
+    const passed = skill.filter((g) => g.passed).length;
+    return `Pass to verify a skill. ${passed} of ${skill.length} skill games passed.`;
+  }, [hub.live, mine, games]);
 
   const open = (game) => {
     log('open game', game.id);
     navigate(`/skills-lab/games/${game.id}`);
   };
-  const skillGames = ARCADE_GAMES.filter((g) => g.skill);
-  const personalityGames = ARCADE_GAMES.filter((g) => !g.skill);
+  const skillGames = games.filter((g) => g.skill);
+  const personalityGames = games.filter((g) => !g.skill);
 
   return (
     <div className="flex flex-col gap-[28px]">
@@ -237,7 +264,7 @@ const SkillsLabGamesTab = () => {
 
       <SectionHead
         title={GAMES_ARCADE.skillSection.title}
-        subtitle={GAMES_ARCADE.skillSection.subtitle}
+        subtitle={skillSubtitle}
       />
       <div className={GRID}>
         {skillGames.map((game) => (
