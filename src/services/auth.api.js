@@ -80,3 +80,30 @@ export const logout = () => {
 };
 
 export const isLoggedIn = () => Boolean(localStorage.getItem(STORAGE_KEYS.authToken));
+
+/* entityType from the stored access token, for sessions whose stored profile lacks it. */
+const tokenEntityType = () => {
+  try {
+    const part = (localStorage.getItem(STORAGE_KEYS.authToken) || '').split('.')[1];
+    if (!part) return null;
+    return JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/'))).entityType || null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Where the navbar logo goes: the signed-in user's own home (homePathFor — a talent's
+ * dashboard, the recruiter home …), or the public landing page when nobody is signed in.
+ */
+export const logoHomePath = () => {
+  if (!isLoggedIn()) return '/';
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null');
+  } catch {
+    user = null;
+  }
+  const entityType = user?.entityType || user?.type || tokenEntityType();
+  return homePathFor({ ...(user || {}), entityType });
+};

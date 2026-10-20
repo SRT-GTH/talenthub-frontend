@@ -1,5 +1,6 @@
+import HomeLogoLink from '../../shared/HomeLogoLink.jsx';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
@@ -220,18 +221,14 @@ const DashboardTopNav = ({ className, talentHome }) => {
     >
       {/* Left: logo + global search */}
       <div className="flex min-w-0 flex-1 items-center gap-[clamp(16px,1.97vw,34px)]">
-        <Link
-          to={'/'}
-          aria-label="Ghana Talent Hub home"
-          className="inline-flex shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-        >
+        <HomeLogoLink className="inline-flex shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green">
           <img
             src={gthLogo}
             alt="Ghana Talent Hub"
             draggable="false"
             className="block h-[clamp(44px,3.82vw,66px)] max-md:h-[36px] w-auto select-none"
           />
-        </Link>
+        </HomeLogoLink>
 
         <label className="relative hidden min-w-0 max-w-[553px] flex-1 items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
           <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
