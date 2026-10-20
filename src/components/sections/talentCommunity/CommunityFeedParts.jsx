@@ -175,8 +175,10 @@ export const PreviewBanner = ({ onJoin }) => (
   </div>
 );
 
-export const Guidelines = ({ onGotIt, onReadAll }) => {
+/* `rules` / `note` (optional) replace the drawn Frontend copy — live pages pass the community's own house rules. */
+export const Guidelines = ({ onGotIt, onReadAll, rules, note }) => {
   const copy = COMMUNITY_PAGE_COPY.guidelines;
+  const list = rules?.length ? rules : copy.rules;
   return (
     <section className="flex flex-col gap-[12px] rounded-[16px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] p-[18px] playful:border-[1.5px] playful:border-[#387440]">
       <div className="flex items-center gap-[10px]">
@@ -186,7 +188,7 @@ export const Guidelines = ({ onGotIt, onReadAll }) => {
         </h2>
       </div>
       <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
-        {copy.rules.map((rule) => (
+        {list.map((rule) => (
           <li key={rule} className="flex items-start gap-[8px]">
             <CmCheckIcon className="mt-[1px] size-[14px] shrink-0 text-[#387440]" />
             <span className="font-sans text-[13px] font-medium leading-[16px] text-[#2d5d33]">
@@ -195,7 +197,9 @@ export const Guidelines = ({ onGotIt, onReadAll }) => {
           </li>
         ))}
       </ul>
-      <p className="m-0 font-sans text-[12px] leading-[14px] text-[#2d5d33]">{copy.note}</p>
+      {(note ?? copy.note) ? (
+        <p className="m-0 font-sans text-[12px] leading-[14px] text-[#2d5d33]">{note ?? copy.note}</p>
+      ) : null}
       <div className="flex flex-wrap items-center gap-[10px] py-[4px]">
         <PageButton onClick={onGotIt}>{copy.gotIt}</PageButton>
         <button
@@ -215,7 +219,8 @@ export const Guidelines = ({ onGotIt, onReadAll }) => {
 
 const IDEA_ICONS = { help: CmHelpIcon, star: CmStarIcon, users: CmUsersIcon };
 
-export const EmptyFeed = ({ onWrite }) => {
+/* `body` (optional) replaces the drawn line (live pages drop the "Founding Voice badge" promise: no badge backend yet). */
+export const EmptyFeed = ({ onWrite, body }) => {
   const copy = COMMUNITY_PAGE_COPY.empty;
   return (
     <section className="relative flex flex-col items-center gap-[14px] rounded-[20px] bg-white px-[32px] py-[40px] text-center max-sm:px-[16px] max-sm:py-[28px]">
@@ -244,7 +249,7 @@ export const EmptyFeed = ({ onWrite }) => {
         {copy.title}
       </h2>
       <p className="m-0 max-w-[440px] font-sans text-[14px] leading-[21px] text-[#595959]">
-        {copy.body}
+        {body ?? copy.body}
       </p>
       <div className="flex flex-wrap items-center justify-center gap-[8px]">
         {copy.ideas.map((idea) => {

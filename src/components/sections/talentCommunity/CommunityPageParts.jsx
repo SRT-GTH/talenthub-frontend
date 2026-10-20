@@ -101,7 +101,7 @@ const Faces = ({ faces }) => (
   <span className="inline-flex shrink-0 items-center" aria-hidden="true">
     {faces.map((face, index) => (
       <img
-        key={face}
+        key={`${index}-${face}`}
         src={face}
         alt=""
         className={classNames(
@@ -159,10 +159,12 @@ export const CommunityHero = ({ detail, joined, faces, onJoin, onLeave, onShare,
           <CmTrendUpIcon className="size-[14px]" />
           {detail.activity}
         </span>
-        <span className={classNames(META_ROW, 'text-[#595959]')}>
-          <CmCalendarIcon className="size-[14px]" />
-          {detail.events}
-        </span>
+        {detail.events ? (
+          <span className={classNames(META_ROW, 'text-[#595959]')}>
+            <CmCalendarIcon className="size-[14px]" />
+            {detail.events}
+          </span>
+        ) : null}
       </div>
       <p className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">
         {detail.description}

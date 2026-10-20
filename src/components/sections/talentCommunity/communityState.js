@@ -44,9 +44,13 @@ export const useCommunityState = () => {
   const rail = params.get('rail') === 'collapsed' ? 'collapsed' : 'expanded';
   const help = params.get('help') === '1';
   const a11yParam = params.get('a11y') === '1';
+  // Demo = GubliAS's drawn mock (Figma states driven by the URL). Live data otherwise; the demo-only state keys switch it on
+  // so every frame URL in wiki/talent-community.md keeps rendering the drawn screen.
+  const demo =
+    params.get('demo') === '1' || params.has('state') || params.get('joined') === '1' || params.get('pending') === '1';
 
   return useMemo(() => {
-    log('state', { cat, q, menu, view, state, tab, joined, modal, rail });
+    log('state', { demo, cat, q, menu, view, state, tab, joined, modal, rail });
     // Merge a patch into the query string (null/undefined/false/'' removes a key).
     const update = (patch) => {
       const next = new URLSearchParams(params);
@@ -72,6 +76,7 @@ export const useCommunityState = () => {
       modal,
       rail,
       help,
+      demo,
       a11yMode: a11yParam,
       a11yParam,
       update,
@@ -96,6 +101,7 @@ export const useCommunityState = () => {
     modal,
     rail,
     help,
+    demo,
     a11yParam,
   ]);
 };

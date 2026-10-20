@@ -2588,3 +2588,7 @@ DELETE-to-confirm, guardian invite form, Appearance style cards call `setUiStyle
 ## [2026-10-19] wire | My Assessment on the six server-scored assessments
 
 `/my-assessment` runs Big Five, MBTI, RIASEC, numerical / logical reasoning and situational judgement from the backend templates; the server scores and saves (`POST /engagement/assessments/score`). Library, overview, personality detail and the live shell read real results; `?demo=1` keeps the drawn mock. Tested as an e2e talent on the backend fix branch: numerical reasoning (5/10, Medium) and MBTI (INFP) scored and saved. Needs srt-backend#164. Details: [talent-assessment.md](talent-assessment.md) → Live data. Browser check: overview summary now built from the four live steps (the home-tab copy called aptitude "done" at 1 of 3), skill rows get unique keys, personality date is the newest result.
+
+## [2026-10-19] wire | Talent Community on the API, with profile-based recommendations
+
+`/community`, the community page and the post page read and write `/api/community` (join, leave, posts, likes, comments, reports, members, about); `?demo=1` keeps the drawn mock. "Picked for you" is scored from the talent's profile (school, career goals, interests, industries, skills, location) with the reason on each card. Needs the srt-backend community PR and `seed-communities.js`. Details: [talent-community.md](talent-community.md) → Live data.

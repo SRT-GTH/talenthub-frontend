@@ -29,6 +29,21 @@ Every frame renders at its URL in Playful and Focused, no runtime errors, and wa
 | C-06 · Community · Feed (joined)                      | `7626:6896`  | `8110:466316` | `/community/frontend-devs-ghana?joined=1&rail=collapsed`                   | 3.6%   | 3.2%   | ✅                                                                                           |
 | HP · Help pop-over (Community)                        | —            | —             | `?help=1`                                                                  | —      | —      | ⚠️ the Figma frames `8376:504261` / `8376:504381` no longer exist; default Help copy is used |
 
+## Live data (2026-10-19)
+
+`/community`, `/community/:communityId` and `/community/:communityId/post/:postId` run on the API by default (`src/services/community.api.js` → gateway `/api/community`, backend `community.service.js` + `mixins/community/community.talent.mixin.js`, srt-backend PR "community talent API"). **`?demo=1` shows GubliAS's drawn mock**, and so does any demo-only state key (`?state=`, `?joined=1`, `?pending=1`), so every frame URL in the table above still renders the drawing.
+
+- Pages: `src/pages/talentCommunity/live/` (`CommunityBrowseLive`, `CommunityPageLive`, `CommunityPostLive`); each page file picks demo vs live. Data: `useLiveCommunity.js` (hooks) + `liveCommunity.js` (API → the drawn component shapes). Comments: `LivePostComments.jsx`.
+- **Recommendations ("Picked for you")** — US-2.3.11-01 "personalised based on career interests and PAOI", extended to every profile area: the backend scores each community against the talent's profile — school (`education[].institution`) 5, career goals / desired careers 4, interests (PAOI) 3, target industries 3, skills 2, location 1 — using the community's `match` keywords. Recommended communities come first with the reason on the cover pill ("Your school", "Fits your career goals", …) and the section note says which areas matched ("Based on your school, career goals and skills"). A school community is only recommended on a school match. No match → the most-joined communities.
+- Real: browse + search + category chips, join (→ house rules), leave, feed with kind filters, create post (Update / Achievement / Question / Resource + tags + link), like, comments + replies, report (reason + note), members tab (name, school, town, skills; minors never show a location), about tab (purpose, audience, house rules, moderators).
+- Data: the catalogue is seeded by `srt-backend scripts/seedScripts/seed-communities.js` (the 11 Figma communities + PRESEC Legon and Central University for school matching). No people or posts are seeded.
+
+⚠️ ASSUMPTIONS / not on the backend yet:
+- Posts go live at once; the drawn "pending review" card needs a moderation queue the backend doesn't expose. An off-purpose post is flagged for moderators and the toast says so.
+- Mute, Follow, Events, "Request a community", photo upload, "Help me write it" and comment likes have no backend: mute stays in the tab, the others are hidden or local.
+- Card "activity" = "New community" under 25 members, else "Public" (no activity metric). Covers / collages are the bundled Figma images by slug.
+- Join limit (20 communities), post limit (10/day) and the 1000-character post cap from US-2.3.11-01 are not enforced yet.
+
 ## Code map
 
 - Foundation: `communityState.js` (URL hook), `CommunityFrame.jsx` (talent shell, Community active, `?rail=collapsed`), `communityMembership.js` (join / mute state in sessionStorage; default: Frontend Devs / Software Engineering Ghana joined), `communityData.js` (blocks: browse · page · posts).

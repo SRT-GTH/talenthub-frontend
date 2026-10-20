@@ -414,7 +414,7 @@ export const getCommunityById = (id) =>
   COMMUNITIES_RESPONSE.communities.find((c) => c.id === id) ?? null;
 
 /* "2,400 members" — thousands separator like Figma. */
-export const formatMembers = (count) => `${count.toLocaleString('en-US')} members`;
+export const formatMembers = (count) => `${count.toLocaleString('en-US')} ${count === 1 ? 'member' : 'members'}`;
 /* ---- /browse ---- */
 
 /* ---- page ---- */

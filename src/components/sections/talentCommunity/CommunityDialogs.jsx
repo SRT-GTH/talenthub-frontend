@@ -49,17 +49,21 @@ const Footer = ({ note, children }) => (
 );
 
 /* C-08 · Create post — Playful 7628:6479 (modal 7628:6863) / Focused 8110:462216 (modal 8110:462600). */
-export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
+/*
+ * `live` (talent Community on the API): the form opens empty, photo upload and "Help me write it" are hidden (no backend
+ * for either yet), `busy` disables Post while the request runs and `error` shows the failure above the footer.
+ */
+export const CreatePostDialog = ({ onClose, onPost, communityName, live = false, busy = false, error = null }) => {
   const titleId = useId();
   const fieldId = useId();
   const fileRef = useRef(null);
   const copy = CREATE_POST;
   const [type, setType] = useState(copy.seed.type);
-  const [text, setText] = useState(copy.seed.text);
-  const [tags, setTags] = useState(copy.seed.tags);
-  const [link, setLink] = useState(copy.seed.link);
+  const [text, setText] = useState(live ? '' : copy.seed.text);
+  const [tags, setTags] = useState(live ? [] : copy.seed.tags);
+  const [link, setLink] = useState(live ? '' : copy.seed.link);
   const [draft, setDraft] = useState(null); // { kind: 'tag' | 'link', value }
-  const [files, setFiles] = useState(1);
+  const [files, setFiles] = useState(live ? 0 : 1);
 
   const commitDraft = () => {
     const value = draft?.value.trim();
@@ -71,7 +75,7 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
   };
 
   const submit = () => {
-    if (!text.trim()) return;
+    if (!text.trim() || busy) return;
     log('post', { type, tags: tags.length, link: Boolean(link), files });
     onPost?.({ type, text: text.trim(), tags, link });
   };
@@ -124,6 +128,7 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-[8px]">
+        {live ? null : (
         <button
           type="button"
           onClick={() => log('help me write it')}
@@ -135,6 +140,7 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
           <CommunityBulbGlyph className="size-[14px] text-[#1c2a21]" />
           {copy.assist}
         </button>
+        )}
         {tags.map((tag) => (
           <button
             key={tag}
@@ -173,6 +179,8 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
         )}
       </div>
 
+      {live ? null : (
+      <>
       <button
         type="button"
         onClick={() => fileRef.current?.click()}
@@ -211,6 +219,8 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
         hidden
         onChange={(e) => setFiles(e.target.files?.length || files)}
       />
+      </>
+      )}
 
       <div className="flex flex-wrap items-center gap-[8px]">
         {link ? (
@@ -254,18 +264,23 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
         )}
       </div>
 
+      {error ? (
+        <p role="alert" className="m-0 font-sans text-[13px] font-medium leading-[16px] text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
       <Footer
         note={
           <>
             <CommunityShieldGlyph className="size-[14px] shrink-0" />
-            {copy.note}
+            {live ? 'Off-topic posts are reviewed by a moderator' : copy.note}
           </>
         }
       >
         <Button variant="tertiary" size="sm" onClick={onClose}>
           {copy.cancel}
         </Button>
-        <Button variant="primary" size="sm" onClick={submit} disabled={!text.trim()}>
+        <Button variant="primary" size="sm" onClick={submit} disabled={!text.trim() || busy}>
           {copy.post}
         </Button>
       </Footer>
@@ -274,12 +289,13 @@ export const CreatePostDialog = ({ onClose, onPost, communityName }) => {
 };
 
 /* C-10 · Report post — Playful 7628:6979 (modal 7628:7363) / Focused 8110:462663 (modal 8110:463047). */
-export const ReportPostDialog = ({ onClose, onSubmit, communityName }) => {
+/* `live`: opens with nothing picked; `author` is the reported post's author (first name); `busy` while submitting. */
+export const ReportPostDialog = ({ onClose, onSubmit, communityName, live = false, author, busy = false }) => {
   const titleId = useId();
   const fieldId = useId();
   const copy = REPORT_POST;
-  const [reason, setReason] = useState(copy.seed.reason);
-  const [note, setNote] = useState(copy.seed.note);
+  const [reason, setReason] = useState(live ? null : copy.seed.reason);
+  const [note, setNote] = useState(live ? '' : copy.seed.note);
 
   return (
     <DialogShell width={560} onClose={onClose} labelId={titleId}>
@@ -345,7 +361,7 @@ export const ReportPostDialog = ({ onClose, onSubmit, communityName }) => {
         note={
           <>
             <CommunityLockGlyph className="size-[14px] shrink-0" />
-            {fillCopy(copy.note, { author: copy.author })}
+            {fillCopy(copy.note, { author: author || copy.author })}
           </>
         }
       >
@@ -355,6 +371,7 @@ export const ReportPostDialog = ({ onClose, onSubmit, communityName }) => {
         <Button
           variant="primary"
           size="sm"
+          disabled={!reason || busy}
           onClick={() => {
             log('report', reason);
             onSubmit?.({ reason, note });
@@ -368,7 +385,8 @@ export const ReportPostDialog = ({ onClose, onSubmit, communityName }) => {
 };
 
 /* C-17 · Leave confirm — Playful 7628:7443 (modal 7628:7827) / Focused 8110:463098 (modal 8110:463482). */
-export const LeaveCommunityDialog = ({ onClose, onLeave, communityName }) => {
+/* `onMute` (optional): "Mute" mutes instead of leaving and closes the dialog. `busy` disables "Leave community". */
+export const LeaveCommunityDialog = ({ onClose, onLeave, onMute, communityName, busy = false }) => {
   const titleId = useId();
   const copy = LEAVE_COMMUNITY;
   return (
@@ -406,7 +424,10 @@ export const LeaveCommunityDialog = ({ onClose, onLeave, communityName }) => {
         </span>
         <button
           type="button"
-          onClick={() => log('mute instead')}
+          onClick={() => {
+            log('mute instead');
+            onMute?.();
+          }}
           className={classNames(
             'shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440]',
             FOCUS_RING
@@ -423,6 +444,7 @@ export const LeaveCommunityDialog = ({ onClose, onLeave, communityName }) => {
           variant="tertiary"
           size="sm"
           className="!text-[#c0392b]"
+          disabled={busy}
           onClick={() => {
             log('leave confirmed');
             onLeave?.();
