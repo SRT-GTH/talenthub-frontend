@@ -2,6 +2,17 @@
 
 Figma file `Bin8roWL8sloyc36IgFMuT`, canvas "Talent Streaks" `7532:2` (Playful `7533:*`, Focused `8110:21905…`). Mock data only (`talentStreakData.js`), shaped for an API.
 
+
+## Live data (2026-10-20)
+
+Live by default for a signed-in talent: `GET /api/streak` (srt-backend `services/streaks.service.js`, rules in `utils/streaks.js`) through `useLiveStreak.js` — one cached request shared by the nav pill (DashboardTopNav), the pop-up (`?streak=open` shows the real card) and `/streak` (`streakPageState.js` → `streakLive`). `?demo=1`, `/streak?milestone=15` and the pop-up's other `?streak=` frames keep the drawn mock below.
+
+- **What counts:** any learning action — a lesson module (`training.updateProgress`), a Skills Lab answer or game, an assessment — recorded server-side (`streaks.record`, one `streakDays` row per talent per Ghana day). Screens call `notifyStreakActivity()` so the pill refreshes.
+- **Freezes:** +1 every 7 days in a row, hold 2; a missed day uses one (pop-up "freeze" state). **Lost:** 2 actions the next day repair it ("Repair my streak" → My Learning), "Start fresh" posts `/streak/fresh`.
+- **XP:** 10 per streak day + milestone bonus (3:+10, 7:+20, 15:+50, 30:+100, 60:+200, 100:+300) ⚠️ ASSUMPTION. **Risk:** under 6 hours left in the day.
+- **Page:** hero / calendar (`month.since` stops days before the first streak day showing as missed; freeze days count as lit) / milestones / reminders (switches save, `PUT /streak/reminders`) / "Top streaks in <first community>" (or across GTH). The milestone modal opens by itself the day a milestone is reached, once (`POST /streak/milestones/:id/seen`); copy for milestones other than 15 is invented (`streakLiveCopy.js`).
+- **Not built yet:** sending the daily / warning reminders, the header's "N courses in progress" chip (hidden live).
+
 ## URL → Figma
 
 | URL                                                 | Frame                                                                                    | Playful / Focused                                                         |

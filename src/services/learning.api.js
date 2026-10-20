@@ -1,5 +1,6 @@
 import api from './api.js';
 import { debug } from '../utils/debug.js';
+import { notifyStreakActivity } from './streak.api.js';
 
 const log = debug('learning.api');
 
@@ -59,6 +60,7 @@ export const completeModule = async (enrolmentId, moduleId) => {
     await api.post(`/guidance/training/progress/${encodeURIComponent(enrolmentId)}`, { moduleId })
   );
   log('module done', { enrolmentId, moduleId, pct: data?.progress?.progressPercent });
+  notifyStreakActivity(); // a finished lesson is a streak day (recorded server-side)
   return data;
 };
 

@@ -1,5 +1,6 @@
 import api from './api.js';
 import { debug } from '../utils/debug.js';
+import { notifyStreakActivity } from './streak.api.js';
 
 const log = debug('skillsLab.api');
 
@@ -42,7 +43,12 @@ export const playLab = async (labId) => unwrap(await api.get(`/skills-lab/labs/$
 
 export const restartLab = async (labId) => unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/restart`, {}));
 
-export const answerLab = async (labId, body) => unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/answer`, body));
+// Each recorded answer / game counts as a streak day on the server; tell the nav pill to refresh.
+export const answerLab = async (labId, body) => {
+  const data = unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/answer`, body));
+  if (data?.final !== false) notifyStreakActivity();
+  return data;
+};
 
 export const finishLab = async (labId, attemptId) =>
   unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/finish`, { attemptId }));
@@ -52,5 +58,6 @@ export const fetchGames = async () => unwrap(await api.get('/skills-lab/games'))
 export const postGameResult = async (gameId, body) => {
   const data = unwrap(await api.post(`/skills-lab/games/${enc(gameId)}/result`, body));
   log('game result', gameId, { passed: data?.passed, verified: data?.verified });
+  notifyStreakActivity();
   return data;
 };

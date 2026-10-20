@@ -11,7 +11,6 @@ import modalTitleFlameFocused from '../../../assets/talent-streak/page/modal-tit
 import shieldSm from '../../../assets/talent-streak/page/shield-sm.svg';
 
 const log = debug('StreakMilestoneModal');
-const COPY = STREAK_MILESTONE_MODAL;
 
 /* Confetti chips as drawn (Figma rotation is counter-clockwise, CSS is clockwise: signs flipped). */
 const CONFETTI = [
@@ -37,6 +36,8 @@ const REWARD_TONE = {
  */
 const StreakMilestoneModal = (props) => {
   const onClose = props.onClose;
+  // Live milestones pass their own copy (streakLiveCopy.js); the drawn S-08 frame uses the 15-day copy.
+  const COPY = props.content ?? STREAK_MILESTONE_MODAL;
   const { uiStyle } = useUiStyle();
   const playful = uiStyle === 'playful';
   const keepRef = useRef(null);

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
 import { ensurePlayfulFont } from '../../utils/ensurePlayfulFont.js';
@@ -16,6 +16,8 @@ import {
   StreakRemindersCard,
 } from '../../components/sections/talentStreak/StreakPageCards.jsx';
 import { useStreakPageState } from '../../components/sections/talentStreak/streakPageState.js';
+import { milestoneModalContent } from '../../components/sections/talentStreak/streakLiveCopy.js';
+import { markMilestoneSeen } from '../../services/streak.api.js';
 
 const log = debug('TalentStreakPage');
 
@@ -27,8 +29,12 @@ const log = debug('TalentStreakPage');
  */
 const TalentStreakPage = () => {
   const streak = useStreakPageState();
-  const { data } = streak;
+  const { data, streakLive } = streak;
   const current = data.summary.current;
+  const waiting = Boolean(streakLive) && streakLive.status !== 'ready';
+  // Live: the milestone modal opens by itself the day a milestone is reached (once — POST …/seen on close).
+  const liveModal = streakLive?.status === 'ready' ? data.milestoneModal : null;
+  const [modalClosed, setModalClosed] = useState(false);
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -54,7 +60,21 @@ const TalentStreakPage = () => {
     >
       <UiStyleScope enabled />
       <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[24px] px-[clamp(12px,3vw,52px)] pb-[24px] pt-[clamp(16px,1.85vw,32px)] max-sm:gap-[18px]">
-        <StreakPageHeader sticker={data.summary.headerSticker} />
+        <StreakPageHeader
+          sticker={data.summary.headerSticker}
+          week={streakLive ? data.header?.week : undefined}
+          inbox={streakLive ? null : undefined}
+        />
+        {waiting ? (
+          <p
+            role={streakLive.status === 'error' ? 'alert' : 'status'}
+            className="m-0 rounded-[16px] bg-white p-[20px] font-sans text-[15px] text-[#595959]"
+          >
+            {streakLive.status === 'error'
+              ? 'Could not load your streak. Check your connection and refresh.'
+              : 'Loading your streak…'}
+          </p>
+        ) : (
         <div className="grid grid-cols-1 items-start gap-[24px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,22.2vw)] max-lg:gap-[18px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="flex min-w-0 flex-col gap-[18px]">
             <StreakPageHero summary={data.summary} />
@@ -63,13 +83,25 @@ const TalentStreakPage = () => {
           </div>
           <div className="flex min-w-0 flex-col gap-[16px]">
             <StreakMilestonesCard milestones={data.milestones} />
-            <StreakRemindersCard reminders={data.reminders} />
-            <StreakLeaderboardCard rows={data.leaderboard} />
+            <StreakRemindersCard reminders={data.reminders} live={Boolean(streakLive)} />
+            <StreakLeaderboardCard
+              rows={Array.isArray(data.leaderboard) ? data.leaderboard : data.leaderboard.rows}
+              title={Array.isArray(data.leaderboard) ? undefined : data.leaderboard.title}
+            />
           </div>
         </div>
+        )}
       </div>
       {streak.milestone ? (
         <StreakMilestoneModal onClose={() => streak.update({ milestone: null })} />
+      ) : liveModal && !modalClosed ? (
+        <StreakMilestoneModal
+          content={milestoneModalContent(liveModal)}
+          onClose={() => {
+            setModalClosed(true);
+            markMilestoneSeen(liveModal.id).catch(() => {});
+          }}
+        />
       ) : null}
       <AskBuddyFab home={streak} />
     </DashboardShell>

@@ -1,5 +1,6 @@
 import api from './api.js';
 import { debug } from '../utils/debug.js';
+import { notifyStreakActivity } from './streak.api.js';
 
 const log = debug('assessment.api');
 
@@ -56,5 +57,6 @@ export const scoreAssessment = async ({ assessmentType, rawResponses }) => {
     await api.post('/engagement/assessments/score', { engagementId, assessmentType, rawResponses })
   );
   log('scored', { assessmentType, keys: data ? Object.keys(data) : null });
+  notifyStreakActivity(); // a finished assessment is a streak day (recorded server-side)
   return data;
 };
