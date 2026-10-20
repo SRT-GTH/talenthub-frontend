@@ -1,5 +1,8 @@
+import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import StyleDial from './StyleDial.jsx';
+import CareerBuddyFirstChat from './CareerBuddyFirstChat.jsx';
 import fabBuddy from '../../../assets/talent-home/career-buddy-robot.png';
 
 const log = debug('AskBuddyFab');
@@ -9,14 +12,42 @@ const log = debug('AskBuddyFab');
  * 7862:59667 Playful). Figma note: bottom-right of every talent dashboard screen, 40px from the
  * right edge, 28px from the bottom of the viewport, fixed while scrolling, opens Ask Buddy.
  * Shadow differs by style: Focused 0 5 15 rgba(41,71,46,.17), Playful 0 8 22 rgba(41,71,46,.34).
- * Mount once in the talent home page: <AskBuddyFab home={home} /> (opens ?new=chat).
  * z-40 keeps it under the overlays (z-60); the overlays also make the app root inert.
+ *
+ * Opening the chat (2026-10-20 fix): the button sets `?new=chat` on the CURRENT page.
+ *  - /home renders the chat panel itself (it owns the other `?new=` overlays), so it mounts
+ *    <AskBuddyFab home={home} rendersChat />.
+ *  - Every other page (jobs, assessment, community, skills lab, streak, notifications, learning)
+ *    gets the panel from here. Before this, those pages set `?new=chat` but nothing rendered it,
+ *    so the button did nothing off /home.
+ * The panel is the same live Career Buddy thread on every page; `?demo=1` / `?state=` keep the
+ * scripted Figma conversation.
  */
-const AskBuddyFab = ({ home, onClick }) => {
+const AskBuddyFab = ({ home, onClick, rendersChat = false }) => {
+  const [params, setParams] = useSearchParams();
+  const chatOpen = !rendersChat && params.get('new') === 'chat';
+
+  // Merge a patch into the query string (null removes a key), keeping the page's own params.
+  const setNew = (value) => {
+    const next = new URLSearchParams(params);
+    if (value) next.set('new', value);
+    else next.delete('new');
+    setParams(next, { replace: true });
+  };
+
   const handle = () => {
-    log('click');
+    log('click', { rendersChat });
     if (onClick) onClick();
-    else home?.update?.({ new: 'chat' });
+    else if (rendersChat) home?.update?.({ new: 'chat' });
+    else setNew('chat');
+  };
+
+  const demo = params.get('demo') === '1' || params.has('state');
+  const chatHost = {
+    live: !demo && isLoggedIn(),
+    update: (patch) => {
+      if (patch && 'new' in patch) setNew(patch.new);
+    },
   };
 
   return (
@@ -38,6 +69,7 @@ const AskBuddyFab = ({ home, onClick }) => {
         </span>
         <span className="whitespace-nowrap">Ask Buddy</span>
       </button>
+      {chatOpen && <CareerBuddyFirstChat home={chatHost} />}
     </>
   );
 };

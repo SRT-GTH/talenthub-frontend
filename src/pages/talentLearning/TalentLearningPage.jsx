@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import { debug } from '../../utils/debug.js';
 import { ensurePlayfulFont } from '../../utils/ensurePlayfulFont.js';
@@ -41,7 +40,6 @@ const TalentLearningPage = () => {
 };
 
 const TalentLearningBody = ({ learning }) => {
-  const navigate = useNavigate();
   const data = useLearningData();
   // Shell (sidebar, top nav, bell): the talent's live home data, as on /home and /notifications.
   // Demo mode keeps the Figma shell (learning state, stateKey 'top').
@@ -103,14 +101,8 @@ const TalentLearningBody = ({ learning }) => {
         {renderBody()}
       </div>
       {learning.toast === 'saved' && <LearningSavedToast learning={learning} />}
-      {/* Figma: the Ask Buddy FAB sits bottom-right on every talent dashboard screen; the chat overlay lives on /home. */}
-      <AskBuddyFab
-        home={learning}
-        onClick={() => {
-          log('Ask Buddy -> /home?new=chat');
-          navigate('/home?new=chat');
-        }}
-      />
+      {/* Figma: the Ask Buddy FAB sits bottom-right on every talent dashboard screen; it opens the chat on this page. */}
+      <AskBuddyFab home={learning} />
     </DashboardShell>
   );
 };

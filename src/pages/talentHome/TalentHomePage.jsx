@@ -82,7 +82,7 @@ const TalentHomePage = () => {
       {home.newUser === 'tour' && <GuidedTour home={home} />}
       {home.newUser === 'chat' && <CareerBuddyFirstChat home={home} />}
       {home.newUser === 'gate' && <ApplyGateModal home={home} />}
-      <AskBuddyFab home={home} />
+      <AskBuddyFab home={home} rendersChat />
     </DashboardShell>
   );
 };
