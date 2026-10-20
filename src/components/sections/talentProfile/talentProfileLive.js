@@ -309,7 +309,66 @@ export const buildProfileData = (raw) => {
     certs: certs.length,
   };
 
+  // Recruiter / public-link previews (talentProfilePreviewData.js shapes). ⚠️ No reply-time or last-active data
+  // yet, so those slots show skills / profile strength; the role-match box is hidden (it needs a recruiter's posting).
+  const firstName = p.firstName || name.split(' ')[0] || 'me';
+  const stat = (n, one, many) => ({ value: String(n), label: n === 1 ? one : many });
+  const previewStats = [
+    stat(verified.length, 'verified skill', 'verified skills'),
+    stat(endorsed.length, 'endorsement', 'endorsements'),
+  ];
+  const PREVIEW = {
+    banner: {
+      public: {
+        title: 'This is what anyone with your public link sees',
+        sub: 'Logged-out visitors: no match score, no CV download, no endorser names. Messaging needs a GTH account.',
+      },
+    },
+    hero: {
+      recruiter: {
+        sticker: 'Recruiters see these buttons',
+        actions: [
+          { key: 'shortlist', label: 'Shortlist', tone: 'tertiary' },
+          { key: 'cv', label: 'Download CV', tone: 'tertiary' },
+          { key: 'message', label: `Message ${firstName}`, tone: 'primary' },
+        ],
+        stats: [...previewStats, stat(counts.skills, 'skill', 'skills')],
+      },
+      public: {
+        sticker: 'Visitors see these buttons',
+        actions: [
+          { key: 'copy', label: 'Copy link', tone: 'tertiary' },
+          { key: 'join', label: `Join GTH to message ${firstName}`, tone: 'primary' },
+        ],
+        stats: [...previewStats, { value: `${strengthPct}%`, label: 'profile strength' }],
+      },
+    },
+    recruiterRail: {
+      match: null,
+      hidden: {
+        title: 'Only you see',
+        rows: [
+          { icon: 'wallet', label: 'Pay hope' },
+          { icon: 'target', label: 'Your goals & milestones' },
+          { icon: 'eye', label: `Who viewed you · ${views?.uniqueViewers ?? 0} this week` },
+          { icon: 'streak', label: 'Streak, XP and level', labelFocused: 'Streak, pts and level' },
+          { icon: 'hourglass', label: 'In-progress certs' },
+        ],
+        link: 'Manage what’s visible →',
+      },
+    },
+    publicRail: {
+      join: {
+        sticker: 'Hiring in Ghana?',
+        title: `Find talent like ${firstName}`,
+        body: 'Free recruiter account. Search verified skills, message talent, and post roles.',
+        cta: 'Create recruiter account',
+      },
+    },
+  };
+
   return {
+    PREVIEW,
     PROFILE_HERO: {
       name,
       photo: p.profilePhoto || p.avatar?.url || null,

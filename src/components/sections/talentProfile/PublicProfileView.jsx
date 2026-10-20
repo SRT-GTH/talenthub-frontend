@@ -243,7 +243,7 @@ const PublicProfileView = ({ profile }) => {
             </>
           ) : (
             <>
-              <MatchCard />
+              {RECRUITER_RAIL.match ? <MatchCard /> : null}
               <HiddenCard
                 data={RECRUITER_RAIL.hidden}
                 manage={manage}

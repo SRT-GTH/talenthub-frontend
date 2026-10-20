@@ -7,6 +7,8 @@
  * Strings keep Figma's double spaces ("  ·  ") — render with `whitespace-pre-wrap`.
  */
 
+import { applyPreviewData } from './talentProfilePreviewData.js';
+
 /* ------------------------------ header (all tabs) ------------------------------ */
 export let PROFILE_HERO = {
   name: 'Kofi Agyekum',
@@ -686,6 +688,7 @@ export const applyProfileData = (data) => {
   PORTFOLIO_ADD_CARD = pick('PORTFOLIO_ADD_CARD');
   PORTFOLIO_TIP = pick('PORTFOLIO_TIP');
   CERTS_LIST = pick('CERTS_LIST');
+  applyPreviewData(data ? data.PREVIEW : null);
   CERTS_IN_PROGRESS = pick('CERTS_IN_PROGRESS');
   CERTS_VERIFICATION = pick('CERTS_VERIFICATION');
   CERTS_SUGGESTED = pick('CERTS_SUGGESTED');

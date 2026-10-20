@@ -4,10 +4,11 @@
  *   PR-02 public link preview   Playful 7584:1691 / Focused 8110:387366
  *   PR-04 recruiter preview, pitch hidden ("updated")  Playful 7584:3137 / Focused 8110:388716
  *   PR-03 "Who sees what" drawer                       Playful 7584:2347 / Focused 8110:387950
- * Mock only (no backend): swap for an API call and keep the shapes.
+ * Demo copy below; a signed-in talent's preview swaps in their own name / numbers through applyPreviewData()
+ * (called from applyProfileData with talentProfileLive.js `PREVIEW`). ES module bindings are live, so importers see it.
  */
 
-export const PREVIEW_BANNER = {
+const DEMO_PREVIEW_BANNER = {
   recruiter: {
     title: 'You’re seeing your profile the way recruiters do',
     sub: 'Edit buttons, your goals, pay hope, streak and who viewed you are hidden.',
@@ -24,7 +25,7 @@ export const PREVIEW_BANNER = {
 };
 
 /* Hero variants (the owner hero lives in talentProfileTabsData.js `PROFILE_HERO`). */
-export const PREVIEW_HERO = {
+const DEMO_PREVIEW_HERO = {
   recruiter: {
     sticker: 'Recruiters see these buttons',
     actions: [
@@ -55,7 +56,7 @@ export const PREVIEW_HERO = {
 };
 
 /* Right rail — recruiter preview (P-07 / PR-04). */
-export const RECRUITER_RAIL = {
+const DEMO_RECRUITER_RAIL = {
   match: {
     eyebrow: 'For your Data Analyst role',
     pct: '82%',
@@ -80,7 +81,7 @@ export const RECRUITER_RAIL = {
 };
 
 /* Right rail — public link preview (PR-02). */
-export const PUBLIC_RAIL = {
+const DEMO_PUBLIC_RAIL = {
   join: {
     sticker: 'Hiring in Ghana?',
     title: 'Find talent like Kofi',
@@ -165,4 +166,18 @@ export const VISIBILITY = {
   changed: (was) => `Changed: was ${was}`,
   cancel: 'Cancel',
   save: 'Save changes',
+};
+
+/* ---- live swap ---- */
+export let PREVIEW_BANNER = DEMO_PREVIEW_BANNER;
+export let PREVIEW_HERO = DEMO_PREVIEW_HERO;
+export let RECRUITER_RAIL = DEMO_RECRUITER_RAIL;
+export let PUBLIC_RAIL = DEMO_PUBLIC_RAIL;
+
+/* d = talentProfileLive.js `PREVIEW` ({ banner, hero, recruiterRail, publicRail }), or null for the demo. */
+export const applyPreviewData = (d) => {
+  PREVIEW_BANNER = d?.banner ? { ...DEMO_PREVIEW_BANNER, ...d.banner } : DEMO_PREVIEW_BANNER;
+  PREVIEW_HERO = d?.hero ? { ...DEMO_PREVIEW_HERO, ...d.hero } : DEMO_PREVIEW_HERO;
+  RECRUITER_RAIL = d?.recruiterRail ? { ...DEMO_RECRUITER_RAIL, ...d.recruiterRail } : DEMO_RECRUITER_RAIL;
+  PUBLIC_RAIL = d?.publicRail ? { ...DEMO_PUBLIC_RAIL, ...d.publicRail } : DEMO_PUBLIC_RAIL;
 };

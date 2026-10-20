@@ -369,7 +369,7 @@ const ProfileMenu = ({ settings }) => {
           {item('preview', {
             icon: <ProfileMenuEyeIcon className="h-[19px] w-[20px]" />,
             label: 'Preview as recruiter',
-            onActivate: () => noDestination('preview-as-recruiter'),
+            onActivate: () => go('/profile?view=recruiter'),
           })}
           {item('applications', {
             icon: <ProfileMenuSuitcaseIcon className="size-[20px]" />,
