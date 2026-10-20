@@ -26,6 +26,7 @@ import {
   sendTurn,
   sendTurnStream,
   fetchMyProfile,
+  fetchMyJourney,
   currentEntityId,
   currentFirstName,
   currentUserLabel,
@@ -238,6 +239,7 @@ export function useCareerBuddyLive({
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [journeyPct, setJourneyPct] = useState(null);
   const [live, setLive] = useState(() => thread.live || { states: {}, card: null });
   // A pending review survives a reload / history switch with its conversation.
   useEffect(() => {
@@ -280,6 +282,12 @@ export function useCareerBuddyLive({
     } catch (err) {
       log.error('profile refresh failed', err?.message);
     }
+    // The profile % shown everywhere else (home, profile page, account menu) is the 9-stage journey.
+    fetchMyJourney()
+      .then((j) => {
+        if (typeof j?.percent === 'number') setJourneyPct(j.percent);
+      })
+      .catch((err) => log.error('journey refresh failed', err?.message));
     // Personality rows come from the saved assessment results (any device).
     const res = await fetchAssessmentResults(entityId);
     if (res) {
@@ -605,7 +613,11 @@ export function useCareerBuddyLive({
     });
   }, [profile, live, personality, personalityReq]);
   const pct =
-    typeof profile?.profileCompletion === 'number' ? Math.round(profile.profileCompletion) : 0;
+    typeof journeyPct === 'number'
+      ? journeyPct
+      : typeof profile?.profileCompletion === 'number'
+        ? Math.round(profile.profileCompletion)
+        : 0;
   const trailIndex = useMemo(() => {
     const active = LIVE_STAGES.findIndex(
       (s) => live.states[s.id] || (live.card && stageForSection(live.card.section) === s.id)

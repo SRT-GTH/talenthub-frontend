@@ -209,6 +209,12 @@ export const sendTurnStream = async ({ onStatus, onDelta, ...args }) => {
   );
 };
 
+/** GET /profiles/journey - the 9-stage journey; its `percent` is the profile % shown everywhere. */
+export const fetchMyJourney = async () => {
+  const { data } = await api.get('/profiles/journey');
+  return data?.data || data || null;
+};
+
 /** GET /profiles/me - the live profile shown next to the chat. */
 export const fetchMyProfile = async () => {
   const { data } = await api.get('/profiles/me');

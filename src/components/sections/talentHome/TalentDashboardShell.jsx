@@ -8,6 +8,9 @@ import { useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useA11yPrefs } from './useA11yPrefs.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
+import { useTalentShellLive } from './useTalentShellLive.js';
+import { stateKeyFor } from './talentHomeLive.js';
 import DashboardTopNav from '../dashboard/DashboardTopNav.jsx';
 import TalentSidebar from './TalentSidebar.jsx';
 import TalentRailCollapsed from './TalentRailCollapsed.jsx';
@@ -70,7 +73,7 @@ const TalentDashboardShell = ({
   };
   /* `activeNav="profile"` (/profile): the profile state names the help flag `help`; the chrome's
      pop-overs read the home names (`helpOpen`, `notif`, `tip`), so mirror them from the URL. */
-  const chrome =
+  const pageChrome =
     (activeNav === 'profile' ||
       activeNav === 'jobs' ||
       activeNav === 'streak' ||
@@ -105,6 +108,27 @@ const TalentDashboardShell = ({
       : activeNav === 'learning' && talentHome
         ? { ...talentHome, navMessageCount: '4' }
         : talentHome;
+  /* The signed-in talent's own name, counts and progress card on every page, not just /home.
+     Pages whose state hook carries no `live` (jobs, skills lab, streak, profile, learning,
+     notifications) get it here; /home and live Community pass their own. Demo pages
+     (`?demo=1`, `?state=`, the page's own `demo` flag) and logged-out visits keep the drawn shell. */
+  const needsShellLive =
+    Boolean(talentHome) &&
+    !Object.prototype.hasOwnProperty.call(talentHome, 'live') &&
+    !talentHome.demo &&
+    params.get('demo') !== '1' &&
+    !params.has('state') &&
+    isLoggedIn();
+  const shellLive = useTalentShellLive(needsShellLive);
+  const chrome = shellLive
+    ? {
+        ...pageChrome,
+        live: shellLive,
+        ...(shellLive.placeholder || !shellLive.journey
+          ? null
+          : { stateKey: stateKeyFor(shellLive) }),
+      }
+    : pageChrome;
   const on = Boolean(talentHome?.a11yMode);
   // A11Y-02: accessibility mode applies whichever panel toggles are on (styles: talentA11y.css).
   const a11yAttrs = {

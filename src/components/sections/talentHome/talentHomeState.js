@@ -114,7 +114,7 @@ const liveSnapshot = (stateKey, data) => {
 
 // Before the data arrives (or if it failed) the chrome shows the signed-in user's
 // own name with no numbers, never the Figma demo person.
-const placeholderFromStoredUser = () => {
+export const placeholderFromStoredUser = () => {
   try {
     const u = JSON.parse(localStorage.getItem('th:user-profile') || 'null') || {};
     return {
