@@ -1,3 +1,4 @@
+import { settingsError } from '../../../services/settings.api.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -44,15 +45,25 @@ const ChangedChip = () => (
  */
 const SettingsAccessibility = ({ settings }) => {
   const urlState = settings?.state;
-  const [saved, setSaved] = useState(() => ({
-    ...A11Y_DEFAULTS,
-    ...(urlState === 'saved' ? { contrast: true } : null),
-  }));
-  const [prefs, setPrefs] = useState(() => ({
-    ...A11Y_DEFAULTS,
-    ...(urlState === 'saved' || urlState === 'unsaved' ? { contrast: true } : null),
-  }));
-  const previous = useRef(A11Y_DEFAULTS);
+  // Live: saved on the account (PUT /settings/preferences `accessibility`); the demo keeps the drawn states.
+  const live = settings?.live?.overview ? settings.live : null;
+  const isLive = Boolean(live);
+  const accountPrefs = live ? { ...A11Y_DEFAULTS, ...(live.overview.preferences?.accessibility || {}) } : null;
+  const [saved, setSaved] = useState(() =>
+    accountPrefs || {
+      ...A11Y_DEFAULTS,
+      ...(urlState === 'saved' ? { contrast: true } : null),
+    }
+  );
+  const [prefs, setPrefs] = useState(() =>
+    accountPrefs || {
+      ...A11Y_DEFAULTS,
+      ...(urlState === 'saved' || urlState === 'unsaved' ? { contrast: true } : null),
+    }
+  );
+  const previous = useRef(accountPrefs || A11Y_DEFAULTS);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     log('mount', { state: urlState });
@@ -63,6 +74,7 @@ const SettingsAccessibility = ({ settings }) => {
   useEffect(() => {
     if (lastUrl.current === urlState) return;
     lastUrl.current = urlState;
+    if (isLive) return; // live values come from the account, not the frame
     if (urlState === 'saved') {
       setPrefs((p) => {
         const next = { ...p, contrast: true };
@@ -72,7 +84,7 @@ const SettingsAccessibility = ({ settings }) => {
     } else if (urlState === 'unsaved') {
       setPrefs((p) => (p.contrast ? p : { ...p, contrast: true }));
     }
-  }, [urlState]);
+  }, [urlState, isLive]);
 
   const changed = KEYS.filter((k) => prefs[k] !== saved[k]);
   const dirty = changed.length > 0;
@@ -89,8 +101,20 @@ const SettingsAccessibility = ({ settings }) => {
     setPrefs((p) => ({ ...p, ...patch }));
   };
 
-  const save = () => {
+  const save = async () => {
     log('save', prefs);
+    if (live) {
+      setBusy(true);
+      setError(null);
+      try {
+        await live.savePreferences('accessibility', prefs);
+      } catch (err) {
+        setError(settingsError(err));
+        return;
+      } finally {
+        setBusy(false);
+      }
+    }
     previous.current = saved;
     setSaved(prefs);
     settings?.update?.({ state: 'saved' });
@@ -105,6 +129,7 @@ const SettingsAccessibility = ({ settings }) => {
   };
   const undo = () => {
     log('undo save');
+    if (live) live.savePreferences('accessibility', previous.current).catch((err) => setError(settingsError(err)));
     setPrefs(previous.current);
     setSaved(previous.current);
     settings?.update?.({ state: null });
@@ -133,6 +158,11 @@ const SettingsAccessibility = ({ settings }) => {
 
   return (
     <>
+      {error ? (
+        <p role="alert" className="m-0 text-[14px] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
       <div className="flex items-start gap-[20px] max-xl:flex-col">
         <div className="flex w-full min-w-0 flex-1 flex-col gap-[20px]">
           <SettingsACard title={A11Y_READING.title} desc={A11Y_READING.desc}>
@@ -187,7 +217,7 @@ const SettingsAccessibility = ({ settings }) => {
           discardLabel="Discard"
           onDiscard={discard}
           saveLabel={
-            <Button variant="primary" size="sm" onClick={save}>
+            <Button variant="primary" size="sm" disabled={busy} onClick={save}>
               {A11Y_ACTIONS.save}
             </Button>
           }
@@ -198,7 +228,7 @@ const SettingsAccessibility = ({ settings }) => {
             {A11Y_ACTIONS.reset}
           </SettingsALink>
           <span aria-hidden="true" className="h-px min-w-px flex-1" />
-          <Button variant="primary" size="sm" onClick={save}>
+          <Button variant="primary" size="sm" disabled={busy} onClick={save}>
             {A11Y_ACTIONS.save}
           </Button>
         </div>

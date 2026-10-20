@@ -105,6 +105,8 @@ export const useTalentSettingsState = () => {
       dialog,
       collapsed,
       a11yMode,
+      // `?demo=1` = GubliAS's drawn mock (Figma values, nothing saved). Live data otherwise (useLiveSettings).
+      demo: params.get('demo') === '1',
       update,
       // Shell hooks (search/edit unused here but present for the shared nav).
       searchOpen: params.get('search') === '1',

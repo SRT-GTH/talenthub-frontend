@@ -1,3 +1,5 @@
+import LiveSaveStatus from './LiveSaveStatus.jsx';
+import { useSaveAction } from './useSaveAction.js';
 import { useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -41,15 +43,20 @@ const Radio = ({ on }) => (
  * Local state reproduces the drawn state: English (Ghana) selected, Data saver on, Wi-Fi-only off,
  * Videos "Ask first". Frontend-only; Save changes logs the payload.
  */
-const SettingsLanguage = () => {
-  const [language, setLanguage] = useState(LANGUAGE_DEFAULTS.language);
-  const [dataSaver, setDataSaver] = useState(LANGUAGE_DEFAULTS.dataSaver);
-  const [wifiOnly, setWifiOnly] = useState(LANGUAGE_DEFAULTS.wifiOnly);
-  const [videos, setVideos] = useState(LANGUAGE_DEFAULTS.videos);
+const SettingsLanguage = ({ settings }) => {
+  // Live: saved on the account (PUT /settings/preferences `language`). The app copy itself is English-only for now.
+  const live = settings?.live?.overview ? settings.live : null;
+  const start = { ...LANGUAGE_DEFAULTS, ...(live?.overview.preferences?.language || {}) };
+  const [language, setLanguage] = useState(start.language);
+  const [dataSaver, setDataSaver] = useState(start.dataSaver);
+  const [wifiOnly, setWifiOnly] = useState(start.wifiOnly);
+  const [videos, setVideos] = useState(start.videos);
+  const { busy, status, run } = useSaveAction();
   const copy = LANGUAGE_COPY;
 
   const onSave = () => {
     log('dispatch save', { language, dataSaver, wifiOnly, videos });
+    if (live) run(() => live.savePreferences('language', { language, dataSaver, wifiOnly, videos }));
   };
 
   return (
@@ -153,7 +160,8 @@ const SettingsLanguage = () => {
       </GroupCard>
 
       <div className="flex w-full items-center justify-end gap-[12px]">
-        <Button variant="primary" size="sm" onClick={onSave}>
+        <LiveSaveStatus status={status} className="mr-auto" />
+        <Button variant="primary" size="sm" disabled={busy} onClick={onSave}>
           {copy.save}
         </Button>
       </div>

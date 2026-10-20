@@ -56,10 +56,11 @@ const Rule = ({ ok, children }) => (
   </li>
 );
 
-export const ChangePasswordDialog = ({ open, onClose, onSubmit }) => {
-  const [current, setCurrent] = useState(PASSWORD_SEED.current);
-  const [next, setNext] = useState(PASSWORD_SEED.next);
-  const [confirm, setConfirm] = useState(PASSWORD_SEED.confirm);
+/* `live`: empty fields (not the Figma seed); `busy` disables Update; `error` is the server's answer (wrong password …). */
+export const ChangePasswordDialog = ({ open, onClose, onSubmit, live = false, busy = false, error = null }) => {
+  const [current, setCurrent] = useState(live ? '' : PASSWORD_SEED.current);
+  const [next, setNext] = useState(live ? '' : PASSWORD_SEED.next);
+  const [confirm, setConfirm] = useState(live ? '' : PASSWORD_SEED.confirm);
   const [logOutOthers, setLogOutOthers] = useState(true);
   const newRef = useRef(null);
   const rulesId = useId();
@@ -77,7 +78,7 @@ export const ChangePasswordDialog = ({ open, onClose, onSubmit }) => {
       return;
     }
     log('dispatch update password', { logOutOthers });
-    onSubmit?.({ logOutOthers });
+    onSubmit?.({ logOutOthers, currentPassword: current, newPassword: next });
   };
 
   return (
@@ -137,6 +138,11 @@ export const ChangePasswordDialog = ({ open, onClose, onSubmit }) => {
         <CheckboxB checked={logOutOthers} onChange={setLogOutOthers}>
           {copy.logOutOthers}
         </CheckboxB>
+        {error ? (
+          <p role="alert" className="m-0 text-[13.5px] font-medium text-[#c0392b]">
+            {error}
+          </p>
+        ) : null}
         <div className="flex w-full items-start gap-[12px]">
           <Button variant="tertiary" size="lg" className="min-w-0 flex-1" onClick={onClose}>
             {copy.cancel}
@@ -146,9 +152,9 @@ export const ChangePasswordDialog = ({ open, onClose, onSubmit }) => {
             variant="primary"
             size="sm"
             className="min-w-0 flex-1"
-            disabled={!valid}
+            disabled={!valid || busy}
           >
-            {copy.submit}
+            {busy ? 'Updating…' : copy.submit}
           </Button>
         </div>
       </form>

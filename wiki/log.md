@@ -2592,3 +2592,7 @@ DELETE-to-confirm, guardian invite form, Appearance style cards call `setUiStyle
 ## [2026-10-19] wire | Talent Community on the API, with profile-based recommendations
 
 `/community`, the community page and the post page read and write `/api/community` (join, leave, posts, likes, comments, reports, members, about); `?demo=1` keeps the drawn mock. "Picked for you" is scored from the talent's profile (school, career goals, interests, industries, skills, location) with the reason on each card. Needs the srt-backend community PR and `seed-communities.js`. Details: [talent-community.md](talent-community.md) → Live data.
+
+## [2026-10-20] wire | Talent Settings & Account on the API
+
+`/settings/*`, the profile menu and log out read and save through `/api/settings` (account, privacy + blocks, notifications, accessibility / appearance / language, devices + password, data export, pause, turn account off, guardian status); `?demo=1` keeps the drawn mock. Delete account only turns the account off; logging back in turns it on. Help / feedback / invite stay on screen only. Needs the srt-backend talent-settings PR. Details: [talent-settings.md](talent-settings.md) → Live data.

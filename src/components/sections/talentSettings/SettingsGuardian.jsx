@@ -80,7 +80,87 @@ const InviteCard = ({ onSent }) => {
  * NOTE: the page subtitle for this section ("Shown to talents under 18. …") is drawn in the frame
  * header — see GUARDIAN_COPY.subtitle; SettingsLayout owns the heading.
  */
+/*
+ * Live (GET /settings/overview `guardian`): talents 18+ get a short "not needed" note; under-18s see the parent email
+ * from onboarding and whether their parent has linked. Changing the guardian and the approval toggles have no
+ * talent-side backend yet (the parent is invited at onboarding), so on live pages they are read-only notes.
+ */
+const GuardianLive = ({ guardian, isMinor }) => {
+  if (!isMinor) {
+    return (
+      <div className="flex w-full flex-col gap-[20px]" data-settings-section="guardian">
+        <GroupCard title="Parent or guardian">
+          <SettingRow
+            top={false}
+            title="Not needed for your account"
+            description="Only talents under 18 link a parent or guardian. You manage your account yourself."
+          />
+        </GroupCard>
+      </div>
+    );
+  }
+  return (
+    <div className="flex w-full flex-col gap-[20px]" data-settings-section="guardian">
+      <GroupCard title={GUARDIAN_COPY.linked.title}>
+        <div className="flex w-full items-center gap-[14px] border-t border-[rgba(28,42,33,0.08)] py-[14px]">
+          <span
+            aria-hidden="true"
+            className="flex size-[44px] shrink-0 items-center justify-center rounded-[13px] bg-[#ffd86b] text-[#1c2a21]"
+          >
+            <SettingsPersonIcon className="size-[21px]" />
+          </span>
+          <div className="flex min-w-0 flex-[1_0_0] flex-col items-start gap-[2px]">
+            <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[2px]">
+              <p className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">
+                {guardian.email || 'No parent or guardian email yet'}
+              </p>
+              {guardian.linked ? (
+                <StatusPill tone="on">
+                  <SettingsChipCheckIcon className="size-[14px]" />
+                  {GUARDIAN_COPY.linked.chip}
+                </StatusPill>
+              ) : null}
+            </div>
+            <p className="text-[13px] leading-[normal] text-[#595959]">
+              {guardian.linked
+                ? 'Your parent or guardian has set up their account.'
+                : 'We sent them an invite. They can approve with one tap.'}
+            </p>
+          </div>
+        </div>
+      </GroupCard>
+      <GroupCard title={GUARDIAN_COPY.approves.title} description={GUARDIAN_COPY.approves.description}>
+        <SettingRow
+          title={GUARDIAN_COPY.approves.certificates.title}
+          description={GUARDIAN_COPY.approves.certificates.description}
+          control={<Chip icon={<TalentHomeChipLockIcon />}>{GUARDIAN_COPY.approves.certificates.chip}</Chip>}
+        />
+        <SettingRow
+          top={false}
+          title="Need to change your parent or guardian?"
+          description="Contact support from Help and support and we will help you switch."
+        />
+      </GroupCard>
+      <GroupCard title={GUARDIAN_COPY.turning18.title}>
+        <SettingRow top={false} title={GUARDIAN_COPY.turning18.rowTitle} description={GUARDIAN_COPY.turning18.rowDescription} />
+      </GroupCard>
+    </div>
+  );
+};
+
 const SettingsGuardian = ({ settings }) => {
+  if (settings?.live?.overview) {
+    return (
+      <GuardianLive
+        guardian={settings.live.overview.guardian || {}}
+        isMinor={Boolean(settings.live.overview.account?.isMinor)}
+      />
+    );
+  }
+  return <SettingsGuardianDemo settings={settings} />;
+};
+
+const SettingsGuardianDemo = ({ settings }) => {
   const { state, update } = settings;
   const copy = GUARDIAN_COPY;
   const [wallet, setWallet] = useState(true);

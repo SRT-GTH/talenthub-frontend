@@ -9,6 +9,23 @@
 - The Help pop-over already exists (`src/components/sections/notifications/HelpPopover.jsx`, built by the notifications session, `?help=1` = "For this page"). **Extend it add-only** (new HP states); do not rewrite or restyle what exists. That session's files (`notifications/*`, `NotifButton`, the top-nav notification popover) are off-limits.
 - Figma access: the REST token is rate-limited (retry ~2026-10-20); read frames through the **Figma MCP** (`get_design_context` / `get_screenshot` / `get_metadata` per node, never the whole canvas) and **sequentially, one call per frame, reusing what you extracted** — the MCP ran out of quota once after heavy use. If it answers "Rate limit exceeded", STOP, do not guess, and report which frames remain.
 
+## Live data (2026-10-20)
+
+`/settings/*`, the profile menu and log out run on the API by default (`src/services/settings.api.js` → gateway `/api/settings`, backend `services/talentSettings.service.js`, srt-backend PR "talent settings and account"). **`?demo=1` shows the drawn mock** (Kofi, Figma values, nothing saved). The `?state=` keys still open the same dialogs on live pages.
+
+| Section | Live behaviour |
+| --- | --- |
+| Account | Real details. Saves name, phone, region and town. Email and date of birth are read-only (email change needs re-verification; date of birth sets under-18 rules). |
+| Profile and privacy | 4 visibility levels, "what recruiters see" toggles, companies to hide from. Block / unblock companies. Recruiter search and profile views respect blocks and hiding from an employer; "applied" / "hidden" / paused take the talent out of recruiter search (`isProfilePublic`). |
+| Notifications | 7 rows × In GTH / Email / SMS / WhatsApp, quiet hours, weekly summary, "Turn everything off for 24 hours" (real `pausedUntil`). Rows mirror the backend's legacy categories, so today's senders respect them. |
+| Accessibility / Appearance / Language | Saved on the account (`user.metadata.settings`). Appearance applies the saved style when "Same style on all my devices" is on. App copy is still English-only. |
+| Security | Real devices (one session per login), log one out / all others, change password (wrong-password error, optional log out of other devices). A logged-out token stops working within 60s. Two-step and Google sign-in are hidden (no backend). |
+| Data and account | Download my data (instant JSON file), pause profile, **Delete account = turn off**: nothing is deleted, the talent is logged out everywhere and hidden; logging back in turns it on (decided 2026-10-20). Verified-skills PDF hidden (no backend). |
+| Parent or guardian | 18+: "not needed" note. Under 18: parent email from onboarding + linked status. Changing the guardian and the approval toggles have no talent-side backend (read-only notes). |
+| Profile menu / log out | Real name, email, photo, profile % (same journey as the sidebar), application and saved-job counts, language. Log out ends the session on the server (and other devices if ticked). |
+
+Not live yet: Help and support, Send feedback, Invite a friend (stay on screen only, by decision 2026-10-20).
+
 ## State → URL → Figma frame (Playful / Focused)
 
 | URL                                          | Frame                                          | Playful       | Focused       |

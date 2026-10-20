@@ -20,6 +20,8 @@ import SettingsData from '../../components/sections/talentSettings/SettingsData.
 import SettingsGuardian from '../../components/sections/talentSettings/SettingsGuardian.jsx';
 import SettingsAppearance from '../../components/sections/talentSettings/SettingsAppearance.jsx';
 import HelpSupportPage from '../../components/sections/talentSettings/HelpSupportPage.jsx';
+import { useLiveSettings } from '../../components/sections/talentSettings/useLiveSettings.js';
+import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
 
 const log = debug('TalentSettingsPage');
 
@@ -41,8 +43,32 @@ const SECTION_BODIES = {
  * The profile menu, log-out confirm, help pop-over set and feedback / invite dialogs are SHELL-level
  * overlays (any talent page can open them from the URL) — they are mounted by the talent shell, not here.
  */
+/* Live data loading / failed (never the drawn mock in its place). */
+const LiveSettingsStatus = ({ live }) =>
+  live.status === 'error' ? (
+    <div role="alert" className="flex flex-col items-start gap-[12px] rounded-[20px] bg-white p-[24px]">
+      <p className="m-0 text-[15px] font-medium text-[#c0392b]">Couldn’t load your settings. Check your connection and try again.</p>
+      <button
+        type="button"
+        onClick={live.reload}
+        className="cursor-pointer rounded-[10px] border border-solid border-[#ccc] bg-white px-[16px] py-[8px] text-[14px] font-semibold text-[#1c2a21]"
+      >
+        Try again
+      </button>
+    </div>
+  ) : (
+    <p aria-live="polite" className="m-0 py-[40px] text-center text-[14px] text-[#737373]">
+      Loading your settings…
+    </p>
+  );
+
 const TalentSettingsPage = ({ sectionParam }) => {
-  const settings = useTalentSettingsState();
+  const base = useTalentSettingsState();
+  // Live by default (`?demo=1` keeps the drawn mock): every section reads and saves through `settings.live`.
+  const live = useLiveSettings({ enabled: !base.demo });
+  const settings = live ? { ...base, live } : base;
+  const home = useTalentHomeState();
+  const liveShell = !base.demo && Boolean(home?.live);
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -65,14 +91,22 @@ const TalentSettingsPage = ({ sectionParam }) => {
   const Body = SECTION_BODIES[settings.section];
 
   return (
-    <DashboardShell role="talent" activeNav="settings" talentHome={settings}>
+    <DashboardShell
+      role="talent"
+      activeNav="settings"
+      talentHome={liveShell ? { ...home, update: base.update, collapsed: base.collapsed } : settings}
+    >
       <UiStyleScope enabled />
       <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] px-[clamp(12px,1.4vw,24px)] py-[clamp(12px,1.2vw,20px)]">
         {settings.section === 'help' ? (
           <HelpSupportPage settings={settings} />
         ) : (
           <SettingsLayout settings={settings}>
-            {Body ? <Body settings={settings} /> : null}
+            {live && live.status !== 'ready' ? (
+              <LiveSettingsStatus live={live} />
+            ) : Body ? (
+              <Body settings={settings} />
+            ) : null}
           </SettingsLayout>
         )}
       </div>
