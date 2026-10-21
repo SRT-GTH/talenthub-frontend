@@ -383,6 +383,12 @@ const COMPLETE_BASE = {
     message:
       'Your Zeepay interview is on Thursday. Want a 10-minute mock with the React questions they usually ask?',
     cta: 'Start mock interview',
+    prompt: 'Start a mock interview with me.',
+    chipAction: {
+      label: 'Start a mock interview with me.',
+      intent: 'interview',
+      slots: [{ name: 'practice_interview', value: JSON.stringify({ mode: 'mock' }) }],
+    },
     sticker: 'NEW',
   },
   streak: {

@@ -2,7 +2,7 @@
    fast refresh reloads it fully on edit - fine. */
 /* eslint-disable react-refresh/only-export-components */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AssessmentReportCard from './AssessmentReportCard.jsx';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
@@ -220,6 +220,10 @@ export function useCareerBuddyLive({
   onShowProfile,
 } = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
+  // 2026-10-21: a CTA elsewhere (home "Start mock interview") can hand Career Buddy a prompt via
+  // router state: { prompt, chipAction? }. Read once; it is cleared after it is sent.
+  const handoffRef = useRef(location.state?.prompt ? location.state : null);
   const entityId = enabled ? currentEntityId() : null;
   const me = currentUserLabel();
   const firstName = currentFirstName();
@@ -437,13 +441,28 @@ export function useCareerBuddyLive({
   const runTurnRef = useRef(runTurn);
   runTurnRef.current = runTurn;
 
-  // First open: restore the last conversation, or greet in a new one.
+  // First open: restore the last conversation, or greet in a new one. A handed-off prompt is
+  // then sent as the talent's own message (after the greeting in a new conversation - the
+  // agent always greets on a session's first turn).
   useEffect(() => {
     if (!entityId || openedRef.current) return;
     openedRef.current = true;
     refreshProfile();
-    if (!thread.messages.length) runTurn(OPENER, { showUser: false });
-  }, [entityId, runTurn, refreshProfile, thread.messages.length]);
+    const handoff = handoffRef.current;
+    handoffRef.current = null;
+    if (handoff) navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+    const sendHandoff = async () => {
+      if (!handoff) return;
+      // Let the greeting's state (history, busy) settle before the next turn.
+      await new Promise((r) => setTimeout(r, 50));
+      runTurnRef.current?.(
+        handoff.prompt,
+        handoff.chipAction ? { chipAction: handoff.chipAction } : {}
+      );
+    };
+    if (!thread.messages.length) runTurn(OPENER, { showUser: false }).then(sendHandoff);
+    else sendHandoff();
+  }, [entityId, runTurn, refreshProfile, thread.messages.length, navigate, location]);
 
   const handleSend = (text) => {
     const trimmed = String(text || '').trim();

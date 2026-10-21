@@ -389,7 +389,14 @@ const BuddyCard = ({ data }) => {
       <CtaButton
         size="lg"
         className="w-full"
-        onClick={() => navigate('/profile/filling/career-buddy')}
+        onClick={() =>
+          navigate('/profile/filling/career-buddy', {
+            // 2026-10-21: the CTA's request goes to Career Buddy as the talent's message.
+            state: data.prompt
+              ? { prompt: data.prompt, chipAction: data.chipAction || null }
+              : null,
+          })
+        }
       >
         {data.cta}
       </CtaButton>
