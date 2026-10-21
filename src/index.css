@@ -602,3 +602,54 @@ body {
     transform: translateX(-33.333%);
   }
 }
+
+/* Career Buddy thinking states (Figma 8988:509558): spinner ring, skeleton shimmer, orbiting sparkles. Off under reduced motion. */
+@keyframes buddySpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes buddyShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+@keyframes buddyTwinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+.buddy-spin {
+  animation: buddySpin 1.1s linear infinite;
+}
+.buddy-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    #ebf1ec 0%,
+    #ebf1ec 40%,
+    #c1d4c4 50%,
+    #ebf1ec 60%,
+    #ebf1ec 100%
+  );
+  background-size: 250% 100%;
+  animation: buddyShimmer 1.6s linear infinite;
+}
+.buddy-twinkle {
+  animation: buddyTwinkle 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .buddy-spin,
+  .buddy-shimmer,
+  .buddy-twinkle {
+    animation: none;
+  }
+}

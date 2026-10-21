@@ -1,9 +1,17 @@
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '../../../../../utils/debug.js';
 import { PLAY_ORDER } from './personalityData.js';
+import { markArcadePlayed } from '../../../engagementV2/arcade/arcadePlayed.js';
 
 const log = debug('usePersonalityRun');
+const readPlayed = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem('gth:arcade-played') || '[]').length;
+  } catch {
+    return 0;
+  }
+};
 
 /*
  * usePersonalityRun — the tiny state machine every round-based personality game shares (Makola Haggle, Escape Room,
@@ -23,6 +31,7 @@ const log = debug('usePersonalityRun');
  */
 export const usePersonalityRun = ({ total, seed, gameId }) => {
   const navigate = useNavigate();
+  const inArcade = useLocation().pathname.startsWith('/profile/filling/personality/arcade');
   const [state, setState] = useState(() => ({
     index: seed?.index ?? 0,
     pick: seed?.pick ?? null,
@@ -43,12 +52,13 @@ export const usePersonalityRun = ({ total, seed, gameId }) => {
       const picks = [...s.picks, s.pick];
       if (s.index + 1 >= total) {
         log('finished', picks);
+        if (inArcade) markArcadePlayed(gameId);
         return { ...s, picks, finished: true };
       }
       log('next round', s.index + 1);
       return { ...s, picks, index: s.index + 1, pick: null };
     });
-  }, [total]);
+  }, [total, inArcade, gameId]);
 
   const finish = useCallback(() => {
     log('finish early');
@@ -65,13 +75,21 @@ export const usePersonalityRun = ({ total, seed, gameId }) => {
     return i === state.index ? 'now' : 'todo';
   });
 
-  const goArcade = useCallback(() => navigate('/skills-lab?tab=games'), [navigate]);
+  const goArcade = useCallback(
+    () =>
+      navigate(
+        inArcade
+          ? `/profile/filling/personality/arcade${readPlayed() >= 3 ? '?modal=archetype' : ''}`
+          : '/skills-lab?tab=games'
+      ),
+    [navigate, inArcade]
+  );
   const goNext = useCallback(() => {
     const at = PLAY_ORDER.indexOf(gameId);
     const next = PLAY_ORDER[(at + 1) % PLAY_ORDER.length];
     log('go next', { from: gameId, next });
-    navigate(`/skills-lab/games/${next}`);
-  }, [gameId, navigate]);
+    navigate(`${inArcade ? '/profile/filling/personality/arcade' : '/skills-lab/games'}/${next}`);
+  }, [gameId, navigate, inArcade]);
 
   return {
     ...state,

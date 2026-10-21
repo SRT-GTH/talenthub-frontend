@@ -1,0 +1,1326 @@
+[
+  {
+    "section": "Profile journey (hub)",
+    "playfulSection": "3384:76827",
+    "focusedSection": "8285:530",
+    "frames": [
+      {
+        "code": "J-01",
+        "name": "J-01 · Journey map · 1 of 9",
+        "playfulId": "7640:13290",
+        "focusedId": "8285:531",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-05",
+        "name": "J-05 · Journey map · 3 of 9 · Discoverable unlocked",
+        "playfulId": "7642:13401",
+        "focusedId": "8285:868",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-06",
+        "name": "J-06 · Milestone 2 · Top 20%",
+        "playfulId": "7642:13846",
+        "focusedId": "8285:1213",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-07",
+        "name": "J-07 · Milestone 3 · Top Talent",
+        "playfulId": "7642:14295",
+        "focusedId": "8285:1635",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-02",
+        "name": "J-02 · Journey map · Hover a stage",
+        "playfulId": "7643:2",
+        "focusedId": "8285:2062",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-03",
+        "name": "J-03 · How do you want to add your work?",
+        "playfulId": "7643:431",
+        "focusedId": "8285:2415",
+        "w": 1728,
+        "h": 1560
+      },
+      {
+        "code": "J-04",
+        "name": "J-04 · Milestone 1 · You’re discoverable",
+        "playfulId": "7646:2",
+        "focusedId": "8285:2850",
+        "w": 1728,
+        "h": 1560
+      }
+    ]
+  },
+  {
+    "section": "Avatar selection",
+    "playfulSection": "3218:2745",
+    "focusedSection": "8285:3264",
+    "frames": [
+      {
+        "code": "Avatar section-style",
+        "name": "Avatar section-style",
+        "playfulId": "3218:2746",
+        "focusedId": "8285:3265",
+        "w": 1728,
+        "h": 1101
+      },
+      {
+        "code": "Switch Modes",
+        "name": "Switch Modes",
+        "playfulId": "3326:10936",
+        "focusedId": "8285:4307",
+        "w": 1728,
+        "h": 1101
+      },
+      {
+        "code": "Skin selection",
+        "name": "Skin selection",
+        "playfulId": "3317:5244",
+        "focusedId": "8285:5468",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "Hair",
+        "name": "Hair",
+        "playfulId": "3326:7171",
+        "focusedId": "8285:6524",
+        "w": 1728,
+        "h": 1101
+      },
+      {
+        "code": "Extra",
+        "name": "Extra",
+        "playfulId": "3326:9698",
+        "focusedId": "8285:7628",
+        "w": 1728,
+        "h": 1243
+      },
+      {
+        "code": "Outfit",
+        "name": "Outfit",
+        "playfulId": "3331:12922",
+        "focusedId": "8285:8765",
+        "w": 1728,
+        "h": 1119
+      }
+    ]
+  },
+  {
+    "section": "Interests",
+    "playfulSection": "3384:131875",
+    "focusedSection": "8285:9859",
+    "frames": [
+      {
+        "code": "IN-01",
+        "name": "IN-01 · Interests · Pick your areas",
+        "playfulId": "7706:2",
+        "focusedId": "8285:9860",
+        "w": 1728,
+        "h": 1258
+      },
+      {
+        "code": "IN-02",
+        "name": "IN-02 · Interests · Your areas",
+        "playfulId": "7706:270",
+        "focusedId": "8285:10051",
+        "w": 1728,
+        "h": 1241
+      },
+      {
+        "code": "IN-03",
+        "name": "IN-03 · Interests · Add specifics",
+        "playfulId": "7706:544",
+        "focusedId": "8285:10263",
+        "w": 1728,
+        "h": 1332
+      },
+      {
+        "code": "IN-04",
+        "name": "IN-04 · Interests · Add an area",
+        "playfulId": "7706:184989",
+        "focusedId": "8285:10479",
+        "w": 1728,
+        "h": 1241
+      },
+      {
+        "code": "IN-05",
+        "name": "IN-05 · Interests · Stage complete",
+        "playfulId": "7706:185309",
+        "focusedId": "8285:10755",
+        "w": 1728,
+        "h": 1241
+      }
+    ]
+  },
+  {
+    "section": "Personality + Arcade",
+    "playfulSection": "3576:89637",
+    "focusedSection": "8285:11029",
+    "frames": [
+      {
+        "code": "PE-01",
+        "name": "PE-01 · Personality · Intro",
+        "playfulId": "7659:19366",
+        "focusedId": "8285:11030",
+        "w": 1728,
+        "h": 1123
+      },
+      {
+        "code": "PE-02",
+        "name": "PE-02 · Personality quiz · Question 7",
+        "playfulId": "7659:19623",
+        "focusedId": "8285:11238",
+        "w": 1728,
+        "h": 1180
+      },
+      {
+        "code": "PE-03",
+        "name": "PE-03 · Personality quiz · Answer selected",
+        "playfulId": "7659:19809",
+        "focusedId": "8285:11406",
+        "w": 1728,
+        "h": 1180
+      },
+      {
+        "code": "interests(intro page(optional)",
+        "name": "interests(intro page(optional)",
+        "playfulId": "7660:21908",
+        "focusedId": "8285:11574",
+        "w": 1728,
+        "h": 1101
+      },
+      {
+        "code": "PE-05",
+        "name": "PE-05 · Personality · Your result",
+        "playfulId": "7662:273",
+        "focusedId": "8285:11819",
+        "w": 1728,
+        "h": 1451
+      },
+      {
+        "code": "PE-04",
+        "name": "PE-04 · Personality · Working out your result",
+        "playfulId": "7662:65",
+        "focusedId": "8285:12019",
+        "w": 1728,
+        "h": 1000
+      },
+      {
+        "code": "PA-00",
+        "name": "PA-00 · Personality · Choose your path",
+        "playfulId": "7945:31864",
+        "focusedId": "8285:12125",
+        "w": 1728,
+        "h": 1123
+      },
+      {
+        "code": "PA-01",
+        "name": "PA-01 · Personality Arcade · Hub (0 of 3)",
+        "playfulId": "7945:32049",
+        "focusedId": "8285:12292",
+        "w": 1728,
+        "h": 2353
+      },
+      {
+        "code": "PA-02",
+        "name": "PA-02 · Personality Arcade · Game details (Makola Haggle)",
+        "playfulId": "7945:32238",
+        "focusedId": "8285:12477",
+        "w": 1728,
+        "h": 1123
+      },
+      {
+        "code": "PA-03",
+        "name": "PA-03 · Makola Haggle · Round 3",
+        "playfulId": "7945:32509",
+        "focusedId": "8285:12735",
+        "w": 1728,
+        "h": 1181
+      },
+      {
+        "code": "PA-03b",
+        "name": "PA-03b · Makola Haggle · Round 2 · Move picked",
+        "playfulId": "7945:32614",
+        "focusedId": "8285:12833",
+        "w": 1728,
+        "h": 1183
+      },
+      {
+        "code": "PA-05",
+        "name": "PA-05 · The Escape Room · Room 2",
+        "playfulId": "7945:32850",
+        "focusedId": "8285:12931",
+        "w": 1728,
+        "h": 1224
+      },
+      {
+        "code": "PA-06",
+        "name": "PA-06 · Desert Island · Pack your bag",
+        "playfulId": "7945:32954",
+        "focusedId": "8285:13029",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PA-07",
+        "name": "PA-07 · Trotro Rush · Plan your route",
+        "playfulId": "7945:33056",
+        "focusedId": "8285:13127",
+        "w": 1728,
+        "h": 1279
+      },
+      {
+        "code": "PA-08",
+        "name": "PA-08 · Group Chat Drama · Your reply",
+        "playfulId": "7945:33160",
+        "focusedId": "8285:13225",
+        "w": 1728,
+        "h": 1347
+      },
+      {
+        "code": "PA-09",
+        "name": "PA-09 · Speed Sort · In play",
+        "playfulId": "7945:33261",
+        "focusedId": "8285:13323",
+        "w": 1728,
+        "h": 1227
+      },
+      {
+        "code": "PA-10",
+        "name": "PA-10 · Tower Builder · New rule",
+        "playfulId": "7945:33365",
+        "focusedId": "8285:13421",
+        "w": 1728,
+        "h": 1227
+      },
+      {
+        "code": "PA-11",
+        "name": "PA-11 · The Pitch · Recording",
+        "playfulId": "7945:33466",
+        "focusedId": "8285:13519",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PA-12",
+        "name": "PA-12 · Ludo Risk · Your roll",
+        "playfulId": "7945:33571",
+        "focusedId": "8285:13618",
+        "w": 1728,
+        "h": 1129
+      },
+      {
+        "code": "PA-13",
+        "name": "PA-13 · Personality Arcade · 3 of 3 · Archetype unlocked",
+        "playfulId": "7945:33672",
+        "focusedId": "8285:13716",
+        "w": 1728,
+        "h": 1123
+      },
+      {
+        "code": "PA-04",
+        "name": "PA-04 · Makola Haggle · Game complete (pop-up result)",
+        "playfulId": "8182:403170",
+        "focusedId": "8285:13970",
+        "w": 1728,
+        "h": 1117
+      }
+    ]
+  },
+  {
+    "section": "Skills + labs + games",
+    "playfulSection": "3625:138662",
+    "focusedSection": "8285:22613",
+    "frames": [
+      {
+        "code": "SK-01",
+        "name": "SK-01 · Skills · First visit (empty)",
+        "playfulId": "7664:19446",
+        "focusedId": "8285:22614",
+        "w": 1728,
+        "h": 1120
+      },
+      {
+        "code": "SK-02",
+        "name": "SK-02 · Skills · Your skills",
+        "playfulId": "7664:19658",
+        "focusedId": "8285:22787",
+        "w": 1728,
+        "h": 1515
+      },
+      {
+        "code": "SK-03",
+        "name": "SK-03 · Skills · Add a skill",
+        "playfulId": "7665:2",
+        "focusedId": "8285:23118",
+        "w": 1728,
+        "h": 1515
+      },
+      {
+        "code": "SK-04",
+        "name": "SK-04 · Skills Lab",
+        "playfulId": "7665:483",
+        "focusedId": "8285:23511",
+        "w": 1728,
+        "h": 2722
+      },
+      {
+        "code": "SK-05",
+        "name": "SK-05 · Python lab · Challenge 5",
+        "playfulId": "7667:2",
+        "focusedId": "8285:23759",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-06",
+        "name": "SK-06 · Python lab · Answer selected",
+        "playfulId": "7667:171",
+        "focusedId": "8285:23896",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-07",
+        "name": "SK-07 · Python lab · Correct",
+        "playfulId": "7667:345",
+        "focusedId": "8285:24033",
+        "w": 1728,
+        "h": 1166
+      },
+      {
+        "code": "SK-08",
+        "name": "SK-08 · Python lab · Not quite",
+        "playfulId": "7667:532",
+        "focusedId": "8285:24177",
+        "w": 1728,
+        "h": 1168
+      },
+      {
+        "code": "SK-09",
+        "name": "SK-09 · Python lab · Hint",
+        "playfulId": "7667:724",
+        "focusedId": "8285:24322",
+        "w": 1728,
+        "h": 1164
+      },
+      {
+        "code": "SK-10",
+        "name": "SK-10 · Python lab · Verified (pass)",
+        "playfulId": "7669:2",
+        "focusedId": "8285:24467",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-11",
+        "name": "SK-11 · Python lab · Not verified yet (fail)",
+        "playfulId": "7669:316",
+        "focusedId": "8285:24700",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-12a",
+        "name": "SK-12a · Data analysis lab · Q3 · Answer selected",
+        "playfulId": "7671:2",
+        "focusedId": "8285:24913",
+        "w": 1728,
+        "h": 1338
+      },
+      {
+        "code": "SK-13a",
+        "name": "SK-13a · UI/UX design lab · Q4 · Answer selected",
+        "playfulId": "7671:203",
+        "focusedId": "8285:25081",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-14a",
+        "name": "SK-14a · Engineering planning lab · Q1 · Answer selected",
+        "playfulId": "7671:371",
+        "focusedId": "8285:25232",
+        "w": 1728,
+        "h": 1297
+      },
+      {
+        "code": "SK-15a",
+        "name": "SK-15a · Product management lab · Q2 · Answer selected",
+        "playfulId": "7672:2",
+        "focusedId": "8285:25402",
+        "w": 1728,
+        "h": 1253
+      },
+      {
+        "code": "SK-16a",
+        "name": "SK-16a · Public speaking lab · Q1 · In progress",
+        "playfulId": "7672:189",
+        "focusedId": "8285:25560",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-17a",
+        "name": "SK-17a · Team leadership lab · Scenario 2 · Answer selected",
+        "playfulId": "7672:357",
+        "focusedId": "8285:25703",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18a",
+        "name": "SK-18a · Strategic thinking lab · Puzzle 3 · Your move",
+        "playfulId": "7674:2",
+        "focusedId": "8285:25834",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-10b",
+        "name": "SK-10b · Python lab · Perfect score",
+        "playfulId": "7688:2",
+        "focusedId": "8285:26117",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-11b",
+        "name": "SK-11b · Python lab · Tough run (2 of 8)",
+        "playfulId": "7688:329",
+        "focusedId": "8285:26353",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-12b",
+        "name": "SK-12b · Data analysis lab · Q3 · Correct",
+        "playfulId": "7688:625",
+        "focusedId": "8285:26566",
+        "w": 1728,
+        "h": 1436
+      },
+      {
+        "code": "SK-12c",
+        "name": "SK-12c · Data analysis lab · Q3 · Not quite",
+        "playfulId": "7688:847",
+        "focusedId": "8285:26743",
+        "w": 1728,
+        "h": 1438
+      },
+      {
+        "code": "SK-12d",
+        "name": "SK-12d · Data analysis lab · Q3 · Hint",
+        "playfulId": "7688:1071",
+        "focusedId": "8285:26919",
+        "w": 1728,
+        "h": 1434
+      },
+      {
+        "code": "SK-12g",
+        "name": "SK-12g · Data analysis lab · Verified (pass)",
+        "playfulId": "7688:1281",
+        "focusedId": "8285:27095",
+        "w": 1728,
+        "h": 1338
+      },
+      {
+        "code": "SK-12h",
+        "name": "SK-12h · Data analysis lab · Not verified yet (fail)",
+        "playfulId": "7688:1614",
+        "focusedId": "8285:27355",
+        "w": 1728,
+        "h": 1338
+      },
+      {
+        "code": "SK-12e",
+        "name": "SK-12e · Data analysis lab · Q2 · Trend",
+        "playfulId": "7689:2",
+        "focusedId": "8285:27595",
+        "w": 1728,
+        "h": 1336
+      },
+      {
+        "code": "SK-12f",
+        "name": "SK-12f · Data analysis lab · Q4 · Correlation",
+        "playfulId": "7689:252",
+        "focusedId": "8285:27755",
+        "w": 1728,
+        "h": 1338
+      },
+      {
+        "code": "SK-14b",
+        "name": "SK-14b · Engineering planning lab · Q1 · Correct",
+        "playfulId": "7689:491",
+        "focusedId": "8285:27911",
+        "w": 1728,
+        "h": 1395
+      },
+      {
+        "code": "SK-14c",
+        "name": "SK-14c · Engineering planning lab · Q1 · Not quite",
+        "playfulId": "7689:707",
+        "focusedId": "8285:28090",
+        "w": 1728,
+        "h": 1397
+      },
+      {
+        "code": "SK-14d",
+        "name": "SK-14d · Engineering planning lab · Q1 · Hint",
+        "playfulId": "7689:927",
+        "focusedId": "8285:28268",
+        "w": 1728,
+        "h": 1393
+      },
+      {
+        "code": "SK-14e",
+        "name": "SK-14e · Engineering planning lab · Q2 · Critical path",
+        "playfulId": "7689:1133",
+        "focusedId": "8285:28446",
+        "w": 1728,
+        "h": 1295
+      },
+      {
+        "code": "SK-14g",
+        "name": "SK-14g · Engineering planning lab · Verified (pass)",
+        "playfulId": "7691:30",
+        "focusedId": "8285:28616",
+        "w": 1728,
+        "h": 1297
+      },
+      {
+        "code": "SK-14h",
+        "name": "SK-14h · Engineering planning lab · Not verified yet (fail)",
+        "playfulId": "7691:367",
+        "focusedId": "8285:28878",
+        "w": 1728,
+        "h": 1297
+      },
+      {
+        "code": "SK-15b",
+        "name": "SK-15b · Product management lab · Q2 · Correct",
+        "playfulId": "7691:677",
+        "focusedId": "8285:29120",
+        "w": 1728,
+        "h": 1351
+      },
+      {
+        "code": "SK-15c",
+        "name": "SK-15c · Product management lab · Q2 · Not quite",
+        "playfulId": "7691:882",
+        "focusedId": "8285:29287",
+        "w": 1728,
+        "h": 1353
+      },
+      {
+        "code": "SK-15d",
+        "name": "SK-15d · Product management lab · Q2 · Hint",
+        "playfulId": "7691:1091",
+        "focusedId": "8285:29453",
+        "w": 1728,
+        "h": 1349
+      },
+      {
+        "code": "SK-15e",
+        "name": "SK-15e · Product management lab · Q3 · Success metric",
+        "playfulId": "7691:1288",
+        "focusedId": "8285:29619",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-15f",
+        "name": "SK-15f · Product management lab · Q4 · MVP scope",
+        "playfulId": "7691:1501",
+        "focusedId": "8285:29756",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-17b",
+        "name": "SK-17b · Team leadership lab · Scenario 2 · Strong answer",
+        "playfulId": "7691:1715",
+        "focusedId": "8285:29893",
+        "w": 1728,
+        "h": 1159
+      },
+      {
+        "code": "SK-17c",
+        "name": "SK-17c · Team leadership lab · Scenario 2 · Weaker answer",
+        "playfulId": "7691:1891",
+        "focusedId": "8285:30033",
+        "w": 1728,
+        "h": 1161
+      },
+      {
+        "code": "SK-17d",
+        "name": "SK-17d · Team leadership lab · Scenario 2 · Hint",
+        "playfulId": "7691:2073",
+        "focusedId": "8285:30172",
+        "w": 1728,
+        "h": 1157
+      },
+      {
+        "code": "SK-17g",
+        "name": "SK-17g · Team leadership lab · Verified (pass)",
+        "playfulId": "7691:2241",
+        "focusedId": "8285:30311",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-17h",
+        "name": "SK-17h · Team leadership lab · Not verified yet (fail)",
+        "playfulId": "7691:2525",
+        "focusedId": "8285:30532",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13b",
+        "name": "SK-13b · UI/UX design lab · Q4 · Correct",
+        "playfulId": "7693:2",
+        "focusedId": "8285:30733",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13c",
+        "name": "SK-13c · UI/UX design lab · Q4 · Not quite",
+        "playfulId": "7693:210",
+        "focusedId": "8285:30892",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13d",
+        "name": "SK-13d · UI/UX design lab · Q4 · Hint",
+        "playfulId": "7693:413",
+        "focusedId": "8285:31050",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13e",
+        "name": "SK-13e · UI/UX design lab · Q5 · Contrast",
+        "playfulId": "7693:608",
+        "focusedId": "8285:31208",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13g",
+        "name": "SK-13g · UI/UX design lab · Verified (pass)",
+        "playfulId": "7693:832",
+        "focusedId": "8285:31340",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-13h",
+        "name": "SK-13h · UI/UX design lab · Not verified yet (fail)",
+        "playfulId": "7693:1152",
+        "focusedId": "8285:31583",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16b",
+        "name": "SK-16b · Public speaking lab · Q1 · Correct",
+        "playfulId": "7693:1449",
+        "focusedId": "8285:31806",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16c",
+        "name": "SK-16c · Public speaking lab · Q1 · Not quite",
+        "playfulId": "7693:1671",
+        "focusedId": "8285:31956",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16d",
+        "name": "SK-16d · Public speaking lab · Q1 · Hint",
+        "playfulId": "7693:1874",
+        "focusedId": "8285:32104",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16e",
+        "name": "SK-16e · Public speaking lab · Q2 · Cut the filler",
+        "playfulId": "7693:2056",
+        "focusedId": "8285:32255",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16g",
+        "name": "SK-16g · Public speaking lab · Verified (pass)",
+        "playfulId": "7693:2263",
+        "focusedId": "8285:32379",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-16h",
+        "name": "SK-16h · Public speaking lab · Not verified yet (fail)",
+        "playfulId": "7693:2576",
+        "focusedId": "8285:32614",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18b",
+        "name": "SK-18b · Strategic thinking lab · Puzzle 3 · Hint",
+        "playfulId": "7694:2",
+        "focusedId": "8285:32829",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18c",
+        "name": "SK-18c · Strategic thinking lab · Puzzle 3 · Checkmate",
+        "playfulId": "7694:328",
+        "focusedId": "8285:33114",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18d",
+        "name": "SK-18d · Strategic thinking lab · Puzzle 3 · Not mate",
+        "playfulId": "7694:658",
+        "focusedId": "8285:33399",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18g",
+        "name": "SK-18g · Strategic thinking lab · Verified (pass)",
+        "playfulId": "7694:982",
+        "focusedId": "8285:33682",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-18h",
+        "name": "SK-18h · Strategic thinking lab · Not verified yet (fail)",
+        "playfulId": "7694:1407",
+        "focusedId": "8285:34054",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SK-15g",
+        "name": "SK-15g · Product management lab · Verified (pass)",
+        "playfulId": "7699:388",
+        "focusedId": "8285:34406",
+        "w": 1728,
+        "h": 1253
+      },
+      {
+        "code": "SK-15h",
+        "name": "SK-15h · Product management lab · Not verified yet (fail)",
+        "playfulId": "7699:689",
+        "focusedId": "8285:34658",
+        "w": 1728,
+        "h": 1253
+      },
+      {
+        "code": "SA-02",
+        "name": "SA-02 · Bug Hunt · Round 4 (line tapped)",
+        "playfulId": "7930:32923",
+        "focusedId": "8285:34890",
+        "w": 1728,
+        "h": 1172
+      },
+      {
+        "code": "SA-03",
+        "name": "SA-03 · Bug Hunt · Round 4 · Squashed",
+        "playfulId": "7932:32971",
+        "focusedId": "8285:34994",
+        "w": 1728,
+        "h": 1245
+      },
+      {
+        "code": "SA-12",
+        "name": "SA-12 · Bug Hunt · Verified (pass)",
+        "playfulId": "7937:317528",
+        "focusedId": "8285:35096",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SA-04",
+        "name": "SA-04 · SQL Heist · Clue 3",
+        "playfulId": "7933:33025",
+        "focusedId": "8285:35299",
+        "w": 1728,
+        "h": 1161
+      },
+      {
+        "code": "SA-05",
+        "name": "SA-05 · Chart Detective · Case 3",
+        "playfulId": "7933:316852",
+        "focusedId": "8285:35398",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SA-06",
+        "name": "SA-06 · Pixel Perfect · Screen 2",
+        "playfulId": "7934:33104",
+        "focusedId": "8285:35498",
+        "w": 1728,
+        "h": 1170
+      },
+      {
+        "code": "SA-07",
+        "name": "SA-07 · Sprint Stack · Sprint 2",
+        "playfulId": "7935:33134",
+        "focusedId": "8285:35598",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SA-08",
+        "name": "SA-08 · Feature Frenzy · Card 6",
+        "playfulId": "7935:316952",
+        "focusedId": "8285:35692",
+        "w": 1728,
+        "h": 1283
+      },
+      {
+        "code": "SA-09",
+        "name": "SA-09 · Crisis Room · Alarm 2",
+        "playfulId": "7936:33214",
+        "focusedId": "8285:35800",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "SA-10",
+        "name": "SA-10 · Formula Rush · Lap 3",
+        "playfulId": "7937:33260",
+        "focusedId": "8285:35896",
+        "w": 1728,
+        "h": 1194
+      },
+      {
+        "code": "SA-11",
+        "name": "SA-11 · Chess Blitz · Puzzle 4",
+        "playfulId": "7937:317137",
+        "focusedId": "8285:35996",
+        "w": 1728,
+        "h": 1186
+      }
+    ]
+  },
+  {
+    "section": "Work",
+    "playfulSection": "5112:32341",
+    "focusedSection": "8285:14167",
+    "frames": [
+      {
+        "code": "WK-01",
+        "name": "WK-01 · Work · First visit (empty)",
+        "playfulId": "7707:2",
+        "focusedId": "8285:14168",
+        "w": 1728,
+        "h": 1313
+      },
+      {
+        "code": "WK-02",
+        "name": "WK-02 · Work · Your roles",
+        "playfulId": "7707:287",
+        "focusedId": "8285:14358",
+        "w": 1728,
+        "h": 1356
+      },
+      {
+        "code": "WK-03",
+        "name": "WK-03 · Work · Add a role",
+        "playfulId": "7707:577",
+        "focusedId": "8285:14578",
+        "w": 1728,
+        "h": 1356
+      },
+      {
+        "code": "WK-04",
+        "name": "WK-04 · Work · Edit role",
+        "playfulId": "7707:185988",
+        "focusedId": "8285:14843",
+        "w": 1728,
+        "h": 1356
+      },
+      {
+        "code": "WK-05",
+        "name": "WK-05 · Work · Delete role",
+        "playfulId": "7707:186423",
+        "focusedId": "8285:15120",
+        "w": 1728,
+        "h": 1356
+      },
+      {
+        "code": "WK-06",
+        "name": "WK-06 · Work · Stage complete",
+        "playfulId": "7707:186698",
+        "focusedId": "8285:15374",
+        "w": 1728,
+        "h": 1356
+      }
+    ]
+  },
+  {
+    "section": "Portfolio",
+    "playfulSection": "5178:101274",
+    "focusedSection": "8285:15656",
+    "frames": [
+      {
+        "code": "PF-01",
+        "name": "PF-01 · Portfolio · First visit (empty)",
+        "playfulId": "7709:10",
+        "focusedId": "8285:15657",
+        "w": 1728,
+        "h": 1335
+      },
+      {
+        "code": "PF-02",
+        "name": "PF-02 · Portfolio · Your projects",
+        "playfulId": "7709:312",
+        "focusedId": "8285:15859",
+        "w": 1728,
+        "h": 1501
+      },
+      {
+        "code": "PF-03",
+        "name": "PF-03 · Portfolio · Add a project",
+        "playfulId": "7709:660",
+        "focusedId": "8285:16123",
+        "w": 1728,
+        "h": 1501
+      },
+      {
+        "code": "PF-04",
+        "name": "PF-04 · Portfolio · Edit project",
+        "playfulId": "7710:2",
+        "focusedId": "8285:16429",
+        "w": 1728,
+        "h": 1501
+      },
+      {
+        "code": "PF-05",
+        "name": "PF-05 · Portfolio · Delete project",
+        "playfulId": "7710:481",
+        "focusedId": "8285:16742",
+        "w": 1728,
+        "h": 1501
+      },
+      {
+        "code": "PF-06",
+        "name": "PF-06 · Portfolio · Stage complete",
+        "playfulId": "7710:800",
+        "focusedId": "8285:17040",
+        "w": 1728,
+        "h": 1501
+      }
+    ]
+  },
+  {
+    "section": "Certifications",
+    "playfulSection": "5217:123652",
+    "focusedSection": "8285:17366",
+    "frames": [
+      {
+        "code": "CE-01",
+        "name": "CE-01 · Certs · First visit (empty)",
+        "playfulId": "7712:2",
+        "focusedId": "8285:17367",
+        "w": 1728,
+        "h": 1287
+      },
+      {
+        "code": "CE-02",
+        "name": "CE-02 · Certs · Your certifications",
+        "playfulId": "7712:322",
+        "focusedId": "8285:17576",
+        "w": 1728,
+        "h": 1341
+      },
+      {
+        "code": "CE-03",
+        "name": "CE-03 · Certs · Add a certification",
+        "playfulId": "7712:660",
+        "focusedId": "8285:17829",
+        "w": 1728,
+        "h": 1341
+      },
+      {
+        "code": "CE-04",
+        "name": "CE-04 · Certs · Edit certification",
+        "playfulId": "7713:8",
+        "focusedId": "8285:18119",
+        "w": 1728,
+        "h": 1341
+      },
+      {
+        "code": "CE-05",
+        "name": "CE-05 · Certs · Delete certification",
+        "playfulId": "7713:503",
+        "focusedId": "8285:18415",
+        "w": 1728,
+        "h": 1341
+      },
+      {
+        "code": "CE-06",
+        "name": "CE-06 · Certs · Stage complete",
+        "playfulId": "7713:815",
+        "focusedId": "8285:18702",
+        "w": 1728,
+        "h": 1341
+      }
+    ]
+  },
+  {
+    "section": "Goals",
+    "playfulSection": "5619:80994",
+    "focusedSection": "8285:19017",
+    "frames": [
+      {
+        "code": "GO-01",
+        "name": "GO-01 · Goals · First visit (empty)",
+        "playfulId": "7715:8",
+        "focusedId": "8285:19018",
+        "w": 1728,
+        "h": 1268
+      },
+      {
+        "code": "GO-02",
+        "name": "GO-02 · Goals · Your goals",
+        "playfulId": "7715:294",
+        "focusedId": "8285:19213",
+        "w": 1728,
+        "h": 1167
+      },
+      {
+        "code": "GO-03",
+        "name": "GO-03 · Goals · Add a goal",
+        "playfulId": "7715:586",
+        "focusedId": "8285:19428",
+        "w": 1728,
+        "h": 1167
+      },
+      {
+        "code": "GO-04",
+        "name": "GO-04 · Goals · Edit goal",
+        "playfulId": "7716:8",
+        "focusedId": "8285:19689",
+        "w": 1728,
+        "h": 1167
+      },
+      {
+        "code": "GO-05",
+        "name": "GO-05 · Goals · Delete goal",
+        "playfulId": "7716:451",
+        "focusedId": "8285:19955",
+        "w": 1728,
+        "h": 1167
+      },
+      {
+        "code": "GO-06",
+        "name": "GO-06 · Goals · Stage complete",
+        "playfulId": "7716:725",
+        "focusedId": "8285:20204",
+        "w": 1728,
+        "h": 1167
+      }
+    ]
+  },
+  {
+    "section": "Pitch",
+    "playfulSection": "5625:92950",
+    "focusedSection": "8285:20481",
+    "frames": [
+      {
+        "code": "PI-01",
+        "name": "PI-01 · Pitch · Choose a way",
+        "playfulId": "7718:8",
+        "focusedId": "8285:20482",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PI-02",
+        "name": "PI-02 · Pitch · Record · Camera access",
+        "playfulId": "7718:273",
+        "focusedId": "8285:20662",
+        "w": 1728,
+        "h": 1267
+      },
+      {
+        "code": "PI-03",
+        "name": "PI-03 · Pitch · Record · Recording",
+        "playfulId": "7718:489",
+        "focusedId": "8285:20829",
+        "w": 1728,
+        "h": 1335
+      },
+      {
+        "code": "PI-04",
+        "name": "PI-04 · Pitch · Upload",
+        "playfulId": "7718:720",
+        "focusedId": "8285:21007",
+        "w": 1728,
+        "h": 1257
+      },
+      {
+        "code": "PI-04b",
+        "name": "PI-04b · Pitch · Upload · Ready",
+        "playfulId": "7721:8",
+        "focusedId": "8285:21218",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PI-05",
+        "name": "PI-05 · Pitch · Write",
+        "playfulId": "7721:285",
+        "focusedId": "8285:21405",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PI-06",
+        "name": "PI-06 · Pitch · Review and publish",
+        "playfulId": "7721:529",
+        "focusedId": "8285:21581",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PI-07",
+        "name": "PI-07 · Pitch · Published · Profile 100%",
+        "playfulId": "7721:771",
+        "focusedId": "8285:21759",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "PI-08",
+        "name": "PI-08 · Pitch · Delete pitch",
+        "playfulId": "7721:1057",
+        "focusedId": "8285:22005",
+        "w": 1728,
+        "h": 1117
+      }
+    ]
+  },
+  {
+    "section": "Profile complete",
+    "playfulSection": "5629:98557",
+    "focusedSection": "8285:22217",
+    "frames": [
+      {
+        "code": "CO-01",
+        "name": "CO-01 · Profile complete · Writing your bio",
+        "playfulId": "7723:179",
+        "focusedId": "8285:22218",
+        "w": 1728,
+        "h": 1215
+      },
+      {
+        "code": "CO-02",
+        "name": "CO-02 · Profile complete · Bio ready",
+        "playfulId": "7723:444",
+        "focusedId": "8285:22420",
+        "w": 1728,
+        "h": 1283
+      }
+    ]
+  },
+  {
+    "section": "Upload my CV (new)",
+    "playfulSection": "8966:98",
+    "focusedSection": "8966:507875",
+    "frames": [
+      {
+        "code": "CV-01",
+        "name": "CV-01 · Upload my CV · Choose a file",
+        "playfulId": "8966:99",
+        "focusedId": "8966:507876",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-02",
+        "name": "CV-02 · Upload my CV · Uploading",
+        "playfulId": "8966:2714",
+        "focusedId": "8966:508421",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-02b",
+        "name": "CV-02b · Upload my CV · File not supported (error)",
+        "playfulId": "8966:3272",
+        "focusedId": "8966:508960",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-03",
+        "name": "CV-03 · Upload my CV · Reading your CV",
+        "playfulId": "8966:3808",
+        "focusedId": "8966:509494",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-03b",
+        "name": "CV-03b · Upload my CV · Couldn’t read it",
+        "playfulId": "8966:4372",
+        "focusedId": "8966:510050",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-04",
+        "name": "CV-04 · Upload my CV · Check what we found",
+        "playfulId": "8966:4928",
+        "focusedId": "8966:510604",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-04b",
+        "name": "CV-04b · Upload my CV · Fix a role",
+        "playfulId": "8966:5612",
+        "focusedId": "8966:511243",
+        "w": 1728,
+        "h": 1117
+      },
+      {
+        "code": "CV-05",
+        "name": "CV-05 · Upload my CV · Added to your profile",
+        "playfulId": "8966:6230",
+        "focusedId": "8966:511861",
+        "w": 1728,
+        "h": 1117
+      }
+    ]
+  }
+]

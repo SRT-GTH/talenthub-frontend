@@ -10,7 +10,6 @@ import { PlayfulChip, PlayfulMessageActions } from './PlayfulChatParts.jsx';
 import { pfFileLabel, usePlayfulScope } from './PlayfulScope.js';
 import AvatarPreview from '../sections/engagement/avatar/AvatarPreview.jsx';
 import {
-  PlusIcon,
   CheckIcon,
   ChatThumbsUpIcon,
   ChatThumbsDownIcon,
@@ -18,16 +17,18 @@ import {
   ChatPencilIcon,
   ChatPaginationChevronIcon,
   ChatFileIcon,
-  ChatHistoryIcon,
   ChatAttachIcon,
   ChatMicIcon,
   ChatWaveIcon,
   ChatSendArrowIcon,
   ChatVoiceCloseIcon,
-  ChatSettingsSlidersIcon,
   ChatCopyIcon,
   ChatLinkArrowIcon,
+  BuddyIconHistory,
+  BuddyIconPlusMajesticons,
+  BuddyIconSliders,
 } from '../shared/assets.jsx';
+import BuddyThinking, { StopGeneratingPill } from './BuddyThinking.jsx';
 
 const log = debug('ChatThread');
 
@@ -140,6 +141,14 @@ const UserAvatar = ({ src, size = 48 }) =>
 // edit, version pager): visually unchanged >= lg, 40px hit area below lg.
 const ACTION_BTN =
   'max-lg:relative max-lg:inline-flex max-lg:size-8 max-lg:items-center max-lg:justify-center max-lg:after:absolute max-lg:after:-inset-1';
+
+// Chat toolbar buttons (Figma 9086:71563 / 77100): Focused = translucent chip, Playful = white pill with the hard shadow; active = pale green with a green outline.
+const TOOLBAR_BTN =
+  'pointer-events-auto inline-flex shrink-0 items-center justify-center rounded-[12px] border border-solid border-transparent playful:rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c2a21] max-lg:min-h-9 max-lg:min-w-9';
+const TOOLBAR_IDLE =
+  'bg-[#1c2a21]/[0.21] text-[#fefefe] hover:bg-[#1c2a21]/30 playful:border-[1.5px] playful:border-[#1c2a21]/55 playful:bg-white playful:text-[#1c2a21] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)] playful:transition-[box-shadow,transform] playful:hover:bg-[#ebf1ec] playful:active:translate-x-[3px] playful:active:translate-y-[3px] playful:active:shadow-[1px_1px_0_rgba(28,42,33,0.45)]';
+const TOOLBAR_ACTIVE =
+  'border-[1.5px] border-[#387440] bg-[#ebf1ec] text-[#387440] playful:text-[#1c2a21] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]';
 
 const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
   // Phones/tablets: smaller avatars + no persona caption (the left/right
@@ -404,6 +413,11 @@ const ChatThread = ({
   onOpenHistory,
   onOpenVoiceSettings,
   onOpenVoiceCall,
+  historyOpen = false,
+  settingsOpen = false,
+  newChatDisabled = false,
+  emptyState = null,
+  onStop,
   startDictation = false,
   enableAttach = false,
   onAttach,
@@ -416,6 +430,20 @@ const ChatThread = ({
   const [draft, setDraft] = useState('');
   const [recording, setRecording] = useState(false);
   const scrollRef = useRef(null);
+  // "Stop generating" shows while an answer is on its way (working / writing / slow); Esc does the same.
+  const livePhase = messages[messages.length - 1]?.thinking?.phase;
+  const stopVisible = Boolean(onStop) && ['working', 'writing', 'slow'].includes(livePhase);
+  useEffect(() => {
+    if (!stopVisible) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        log('branch', { stopViaEscape: true });
+        onStop();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [stopVisible, onStop]);
   const fileInputRef = useRef(null);
   const dictationSeededRef = useRef(false);
 
@@ -668,42 +696,65 @@ const ChatThread = ({
 
   return (
     <div className={classNames('relative flex flex-1 min-h-0 flex-col', className)}>
-      {/* New Chat + History / Settings — float over the chat (transparent chrome). */}
+      {/* History + New Chat on the left, Settings on the right — float over the chat (Figma 21 Oct 2026: the history button moved left). */}
       {(onNewChat || onOpenHistory || onOpenVoiceSettings) && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-[54px] pt-6 max-lg:relative max-lg:shrink-0 max-lg:px-4 max-lg:pb-1 max-lg:pt-3 playful:lg:px-5 playful:lg:pt-[15px]">
-          {onNewChat ? (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center gap-[8px] pl-[48px] pr-[19px] pt-[15px] max-lg:relative max-lg:shrink-0 max-lg:px-4 max-lg:pb-1 max-lg:pt-3">
+          {onOpenHistory && (
             <button
               type="button"
-              onClick={onNewChat}
-              className="pointer-events-auto inline-flex items-center gap-[4px] rounded-[12px] bg-black/[0.21] px-[14px] py-[10px] font-sans text-[15px] leading-[22px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:py-1.5 max-lg:text-[14px] playful:px-[12.5px] playful:py-[8.5px] playful:rounded-full playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:bg-white playful:text-[#1c2a21] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)] playful:transition-[box-shadow,transform] playful:hover:bg-[#ebf1ec] playful:active:translate-x-[3px] playful:active:translate-y-[3px] playful:active:shadow-[2px_2px_0_rgba(28,42,33,0.55)] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
+              onClick={onOpenHistory}
+              aria-label="Chat history"
+              aria-expanded={historyOpen}
+              className={classNames(
+                TOOLBAR_BTN,
+                'h-[40px] w-[44px] mt-px',
+                historyOpen ? TOOLBAR_ACTIVE : TOOLBAR_IDLE
+              )}
             >
-              <PlusIcon className="size-[20px]" /> New Chat
+              <BuddyIconHistory className="size-[20px]" />
             </button>
-          ) : (
-            <span />
           )}
-          <div className="pointer-events-auto flex items-center gap-2">
-            {onOpenHistory && (
+          {onNewChat ? (
+            <span className="group relative inline-flex">
               <button
                 type="button"
-                onClick={onOpenHistory}
-                aria-label="Chat history"
-                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:min-w-9 max-lg:px-2 max-lg:py-1.5 playful:px-[10.5px] playful:py-[8.5px] playful:rounded-full playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:bg-white playful:text-[#1c2a21] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)] playful:transition-[box-shadow,transform] playful:hover:bg-[#ebf1ec] playful:active:translate-x-[3px] playful:active:translate-y-[3px] playful:active:shadow-[2px_2px_0_rgba(28,42,33,0.55)] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
+                onClick={newChatDisabled ? undefined : onNewChat}
+                aria-disabled={newChatDisabled || undefined}
+                className={classNames(
+                  TOOLBAR_BTN,
+                  'h-[42px] gap-[4px] px-[14px] py-[10px] font-sans text-[15px] leading-[22px] max-lg:h-9',
+                  newChatDisabled && 'cursor-default opacity-[0.45]',
+                  TOOLBAR_IDLE
+                )}
               >
-                <ChatHistoryIcon className="size-[20px]" />
+                <BuddyIconPlusMajesticons className="size-[20px]" /> New Chat
               </button>
-            )}
-            {onOpenVoiceSettings && (
-              <button
-                type="button"
-                onClick={onOpenVoiceSettings}
-                aria-label="Voice settings"
-                className="inline-flex items-center justify-center rounded-[12px] bg-black/[0.21] px-[12px] py-[10px] text-[#fefefe] hover:bg-black/30 max-lg:min-h-9 max-lg:min-w-9 max-lg:px-2 max-lg:py-1.5 playful:px-[10.5px] playful:py-[8.5px] playful:rounded-full playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:bg-white playful:text-[#1c2a21] playful:shadow-[0_10px_12px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)] playful:transition-[box-shadow,transform] playful:hover:bg-[#ebf1ec] playful:active:translate-x-[3px] playful:active:translate-y-[3px] playful:active:shadow-[2px_2px_0_rgba(28,42,33,0.55)] playful:focus-visible:outline-2 playful:focus-visible:outline-offset-2 playful:focus-visible:outline-[#1c2a21]"
-              >
-                <ChatSettingsSlidersIcon className="size-[18px] text-[#fefefe] playful:text-[#1c2a21]" />
-              </button>
-            )}
-          </div>
+              {newChatDisabled ? (
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute left-0 top-[50px] z-10 hidden whitespace-nowrap rounded-[8px] bg-[#1c2a21] px-[12px] py-[8px] font-sans text-[13px] font-medium leading-[16px] text-white group-focus-within:block group-hover:block"
+                >
+                  You’re already in a new chat
+                </span>
+              ) : null}
+            </span>
+          ) : null}
+          <span className="min-w-0 flex-1" />
+          {onOpenVoiceSettings && (
+            <button
+              type="button"
+              onClick={onOpenVoiceSettings}
+              aria-label="Chat settings"
+              aria-expanded={settingsOpen}
+              className={classNames(
+                TOOLBAR_BTN,
+                'h-[40px] w-[44px] mt-px',
+                settingsOpen ? TOOLBAR_ACTIVE : TOOLBAR_IDLE
+              )}
+            >
+              <BuddyIconSliders className="size-[20px]" />
+            </button>
+          )}
         </div>
       )}
 
@@ -727,28 +778,38 @@ const ChatThread = ({
           chrome. */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain playful:flex playful:flex-col playful:pb-5"
+        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5"
       >
         <div
-          className={`flex flex-col gap-[16px] max-lg:gap-3 mt-auto ${
+          className={`flex flex-col gap-[16px] max-lg:gap-3 ${emptyState ? 'my-auto' : 'mt-auto'} ${
             onNewChat || onOpenHistory || onOpenVoiceSettings ? 'pt-[52px] max-lg:pt-0' : ''
           }`}
         >
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              onSelectOption={onSelectOption}
-              onRetry={onRegenerate ? () => onRegenerate(message) : undefined}
-              onFeedback={onFeedback}
-            />
-          ))}
+          {emptyState ??
+            messages.map((message) =>
+              message.thinking ? (
+                <BuddyThinking key={message.id} {...message.thinking} />
+              ) : (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  onSelectOption={onSelectOption}
+                  onRetry={onRegenerate ? () => onRegenerate(message) : undefined}
+                  onFeedback={onFeedback}
+                />
+              )
+            )}
         </div>
       </div>
 
       {/* Fixed footer — mode-picker cards / suggested-reply chips + the
           input bar. Never part of the scrollable region above. */}
       <div className="shrink-0 flex flex-col gap-[16px] px-[54px] pb-6 pt-[16px] playful:pointer-events-none playful:-mt-5 max-lg:gap-3 max-lg:px-4 max-lg:pb-[max(12px,env(safe-area-inset-bottom))] max-lg:pt-3">
+        {stopVisible ? (
+          <div className="flex justify-center playful:pointer-events-auto">
+            <StopGeneratingPill onStop={onStop} />
+          </div>
+        ) : null}
         {/* Mode-picker cards (Figma 5132:57368) — cards row + input bar share
             ONE bg-white/rounded-[16px]/p-[20px] box (verified via
             get_design_context: Frame 14224 wraps "GTH CARDS" x3 AND

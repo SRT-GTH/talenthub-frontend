@@ -114,7 +114,7 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
  * written (append it; the returned turn's reply is authoritative). Falls back to
  * sendTurn when the stream can't be opened, so older agent builds keep working.
  */
-export const sendTurnStream = async ({ onStatus, onDelta, ...args }) => {
+export const sendTurnStream = async ({ onStatus, onDelta, signal, ...args }) => {
   const { entityId, message, history = [], chipAction, inputMode } = args;
   const body = {
     resourceId: entityId,
@@ -128,6 +128,11 @@ export const sendTurnStream = async ({ onStatus, onDelta, ...args }) => {
   };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TURN_TIMEOUT_MS);
+  // The talent pressing "Stop generating" aborts the same request.
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener('abort', () => controller.abort(), { once: true });
+  }
   let res;
   try {
     res = await fetch(`${AGENT_BASE}/career-buddy/turn-stream`, {

@@ -88,3 +88,6 @@ tests/playful/shots/
 # Figma frame exports used for visual comparison (large, regenerate with figma-tools/export.py) and the local Figma token
 tests/messages/*.png
 .figma-token.local
+
+# Local MCP config (holds a Figma token): never commit
+.mcp.json

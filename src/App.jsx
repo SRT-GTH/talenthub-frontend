@@ -85,10 +85,29 @@ const InstitutionReportPage = lazy(
 import InstitutionOnboardingLayout from './layout/InstitutionOnboardingLayout.jsx';
 import TalentOnboardingLayout from './layout/TalentOnboardingLayout.jsx';
 import AvatarFlowLayout from './layout/AvatarFlowLayout.jsx';
+// Engagement revamp (Figma canvas 3125:10352): one page per stage, owned by the engagement packages.
+const JourneyMapPage = lazy(() => import('./pages/engagementV2/JourneyMapPage.jsx'));
+const MilestoneDiscoverablePage = lazy(
+  () => import('./pages/engagementV2/MilestoneDiscoverablePage.jsx')
+);
+const MilestoneTop20Page = lazy(() => import('./pages/engagementV2/MilestoneTop20Page.jsx'));
+const MilestoneTopTalentPage = lazy(
+  () => import('./pages/engagementV2/MilestoneTopTalentPage.jsx')
+);
+const InterestsPage = lazy(() => import('./pages/engagementV2/InterestsPage.jsx'));
+const SkillsPage = lazy(() => import('./pages/engagementV2/SkillsPage.jsx'));
+const WorkPage = lazy(() => import('./pages/engagementV2/WorkPage.jsx'));
+const PortfolioPage = lazy(() => import('./pages/engagementV2/PortfolioPage.jsx'));
+const CertsPage = lazy(() => import('./pages/engagementV2/CertsPage.jsx'));
+const GoalsPage = lazy(() => import('./pages/engagementV2/GoalsPage.jsx'));
+const PitchPage = lazy(() => import('./pages/engagementV2/PitchPage.jsx'));
+const PersonalityPage = lazy(() => import('./pages/engagementV2/PersonalityPage.jsx'));
+const PersonalityArcadePage = lazy(() => import('./pages/engagementV2/PersonalityArcadePage.jsx'));
+const ProfileCompletePage = lazy(() => import('./pages/engagementV2/ProfileCompletePage.jsx'));
+const UploadCvPage = lazy(() => import('./pages/engagementV2/UploadCvPage.jsx'));
+const AvatarPage = lazy(() => import('./pages/engagementV2/AvatarPage.jsx'));
 const InterestsIntroPage = lazy(() => import('./pages/profileFilling/InterestsIntroPage.jsx'));
-const InterestsStage2Page = lazy(() => import('./pages/profileFilling/InterestsStage2Page.jsx'));
 const SkillsIntroPage = lazy(() => import('./pages/profileFilling/SkillsIntroPage.jsx'));
-const SkillsStage2Page = lazy(() => import('./pages/profileFilling/SkillsStage2Page.jsx'));
 const WorkIntroPage = lazy(() => import('./pages/profileFilling/WorkIntroPage.jsx'));
 const WorkStage2Page = lazy(() => import('./pages/profileFilling/WorkStage2Page.jsx'));
 const PortfolioIntroPage = lazy(() => import('./pages/profileFilling/PortfolioIntroPage.jsx'));
@@ -98,7 +117,6 @@ const CertsStage2Page = lazy(() => import('./pages/profileFilling/CertsStage2Pag
 const GoalsIntroPage = lazy(() => import('./pages/profileFilling/GoalsIntroPage.jsx'));
 const GoalsStage2Page = lazy(() => import('./pages/profileFilling/GoalsStage2Page.jsx'));
 const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.jsx'));
-const PitchStage2Page = lazy(() => import('./pages/profileFilling/PitchStage2Page.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
 const TalentMessagesPage = lazy(() => import('./pages/talentMessages/TalentMessagesPage.jsx'));
 const MessageLinkRedirect = lazy(() => import('./pages/talentMessages/MessageLinkRedirect.jsx'));
@@ -692,7 +710,7 @@ function App() {
                   path={'/profile/engagement'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <ProfileEngagementPage />
+                      <JourneyMapPage />
                     </Suspense>
                   }
                 />
@@ -708,7 +726,7 @@ function App() {
                   path={'/profile/engagement/milestone'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <MilestoneUnlockPage />
+                      <MilestoneDiscoverablePage />
                     </Suspense>
                   }
                 />
@@ -716,7 +734,7 @@ function App() {
                   path={'/profile/engagement/milestone/top-20'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <Top20MilestonePage />
+                      <MilestoneTop20Page />
                     </Suspense>
                   }
                 />
@@ -724,7 +742,7 @@ function App() {
                   path={'/profile/engagement/milestone/top-talent'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <TopTalentMilestonePage />
+                      <MilestoneTopTalentPage />
                     </Suspense>
                   }
                 />
@@ -733,39 +751,31 @@ function App() {
                   path={'/profile/filling/interests'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <InterestsIntroPage />
+                      <InterestsPage />
                     </Suspense>
                   }
                 />
                 <Route
                   path={'/profile/filling/interests/categories'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <InterestsStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/interests?step=areas" replace />}
                 />
                 <Route
                   path={'/profile/filling/skills'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <SkillsIntroPage />
+                      <SkillsPage />
                     </Suspense>
                   }
                 />
                 <Route
                   path={'/profile/filling/skills/categories'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <SkillsStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/skills?state=list" replace />}
                 />
                 <Route
                   path={'/profile/filling/work'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <WorkIntroPage />
+                      <WorkPage />
                     </Suspense>
                   }
                 />
@@ -781,7 +791,7 @@ function App() {
                   path={'/profile/filling/portfolio'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <PortfolioIntroPage />
+                      <PortfolioPage />
                     </Suspense>
                   }
                 />
@@ -797,7 +807,7 @@ function App() {
                   path={'/profile/filling/certs'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <CertsIntroPage />
+                      <CertsPage />
                     </Suspense>
                   }
                 />
@@ -813,7 +823,7 @@ function App() {
                   path={'/profile/filling/goals'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <GoalsIntroPage />
+                      <GoalsPage />
                     </Suspense>
                   }
                 />
@@ -829,19 +839,56 @@ function App() {
                   path={'/profile/filling/pitch'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <PitchIntroPage />
+                      <PitchPage />
                     </Suspense>
                   }
                 />
                 <Route
                   path={'/profile/filling/pitch/record'}
+                  element={<Navigate to="/profile/filling/pitch?mode=record&step=camera" replace />}
+                />
+                {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
+                {/* Engagement revamp: new screens (Figma canvas 3125:10352). */}
+                <Route
+                  path={'/profile/filling/personality'}
                   element={
                     <Suspense fallback={<RouteFallback />}>
-                      <PitchStage2Page />
+                      <PersonalityPage />
                     </Suspense>
                   }
                 />
-                {/* Shared Career Buddy shell — talent vs recruiter via CareerBuddyRoleProvider. */}
+                <Route
+                  path={'/profile/filling/personality/arcade'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PersonalityArcadePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/personality/arcade/:gameId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GamePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/complete'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ProfileCompletePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/profile/filling/cv'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <UploadCvPage />
+                    </Suspense>
+                  }
+                />
                 <Route
                   path={'/profile/filling/career-buddy'}
                   element={
@@ -1168,7 +1215,7 @@ function App() {
                     path={'/profile/engagement/avatar'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <AvatarCustomiserPage />
+                        <AvatarPage />
                       </Suspense>
                     }
                   />
@@ -1176,7 +1223,7 @@ function App() {
                     path={'/profile/engagement/avatar/skin'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <AvatarSkinTonePage />
+                        <AvatarPage step="skin" />
                       </Suspense>
                     }
                   />
@@ -1184,7 +1231,7 @@ function App() {
                     path={'/profile/engagement/avatar/hair'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <AvatarHairPage />
+                        <AvatarPage step="hair" />
                       </Suspense>
                     }
                   />
@@ -1192,7 +1239,7 @@ function App() {
                     path={'/profile/engagement/avatar/extras'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <AvatarExtrasPage />
+                        <AvatarPage step="extras" />
                       </Suspense>
                     }
                   />
@@ -1200,7 +1247,7 @@ function App() {
                     path={'/profile/engagement/avatar/outfit'}
                     element={
                       <Suspense fallback={<RouteFallback />}>
-                        <AvatarOutfitPage />
+                        <AvatarPage step="outfit" />
                       </Suspense>
                     }
                   />

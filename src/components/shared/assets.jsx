@@ -17240,3 +17240,501 @@ export const WalletBookIcon = ({ className = '' }) => (
     />
   </svg>
 );
+
+/* Career Buddy chat icons (Figma `gth-icon/*` family, 21 Oct 2026 history / thinking / settings frames). Colours follow `currentColor`; duotone fills keep their Figma opacity. */
+export const BuddyIconSparkle = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M9 2.25L10.35 6.15L14.25 7.5L10.35 8.85L9 12.75L7.65 8.85L3.75 7.5L7.65 6.15L9 2.25Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M9 2.25L10.35 6.15L14.25 7.5L10.35 8.85L9 12.75L7.65 8.85L3.75 7.5L7.65 6.15L9 2.25ZM14.25 11.625L14.775 12.975L16.125 13.5L14.775 14.025L14.25 15.375L13.725 14.025L12.375 13.5L13.725 12.975L14.25 11.625Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconCheck = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M2.91797 7.29036L5.36797 9.74037L11.0846 4.08203"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="white"
+    />
+  </svg>
+);
+
+export const BuddyIconArrowRight = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M2.625 7H11.375M7.875 10.5L11.375 7L7.875 3.5"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconRefresh = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M11.6651 6.99818C11.6535 8.07714 11.2683 9.11873 10.5752 9.94568C9.88205 10.7726 8.92377 11.3338 7.86344 11.5338C6.80311 11.7337 5.70625 11.56 4.75956 11.0423C3.81286 10.5246 3.07483 9.69479 2.67106 8.69416C2.2673 7.69354 2.22276 6.58391 2.54503 5.55414C2.8673 4.52437 3.53646 3.6381 4.43862 3.04616C5.34077 2.45422 6.42018 2.1932 7.49313 2.30752C8.56607 2.42184 9.56625 2.90444 10.3234 3.67318M11.6651 2.33151V4.95651H9.04009"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconClose = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4.33203 4.33203L7.9987 7.9987M7.9987 7.9987L11.6654 11.6654M7.9987 7.9987L11.6654 4.33203M7.9987 7.9987L4.33203 11.6654"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconPlus = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M9 3.75V9M9 9V14.25M9 9H3.75M9 9H14.25"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconSearch = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M7.33333 11.6667C9.72657 11.6667 11.6667 9.72657 11.6667 7.33333C11.6667 4.9401 9.72657 3 7.33333 3C4.9401 3 3 4.9401 3 7.33333C3 9.72657 4.9401 11.6667 7.33333 11.6667Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M11.6667 7.33333C11.6667 9.72657 9.72657 11.6667 7.33333 11.6667C4.9401 11.6667 3 9.72657 3 7.33333C3 4.9401 4.9401 3 7.33333 3C9.72657 3 11.6667 4.9401 11.6667 7.33333Z"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M10.668 10.668L13.668 13.668"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconPin = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M6.9987 12.2513C6.9987 12.2513 3.20703 8.98464 3.20703 5.83464C3.20703 4.82902 3.60651 3.8646 4.31758 3.15352C5.02866 2.44245 5.99309 2.04297 6.9987 2.04297C8.00431 2.04297 8.96874 2.44245 9.67981 3.15352C10.3909 3.8646 10.7904 4.82902 10.7904 5.83464C10.7904 8.98464 6.9987 12.2513 6.9987 12.2513Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M6.9987 12.2513C6.9987 12.2513 3.20703 8.98464 3.20703 5.83464C3.20703 4.82902 3.60651 3.8646 4.31758 3.15352C5.02866 2.44245 5.99309 2.04297 6.9987 2.04297C8.00431 2.04297 8.96874 2.44245 9.67981 3.15352C10.3909 3.8646 10.7904 4.82902 10.7904 5.83464C10.7904 8.98464 6.9987 12.2513 6.9987 12.2513Z"
+      strokeWidth="1.05"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M8.45573 5.83333C8.45573 6.63875 7.80281 7.29167 6.9974 7.29167C6.19198 7.29167 5.53906 6.63875 5.53906 5.83333C5.53906 5.02792 6.19198 4.375 6.9974 4.375C7.80281 4.375 8.45573 5.02792 8.45573 5.83333Z"
+      strokeWidth="1.05"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconEdit = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3 15.0002H6L14.25 6.75023C14.6478 6.3524 14.8713 5.81284 14.8713 5.25023C14.8713 4.68762 14.6478 4.14805 14.25 3.75023C13.8522 3.3524 13.3126 3.12891 12.75 3.12891C12.1874 3.12891 11.6478 3.3524 11.25 3.75023L3 12.0002V15.0002Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M10.125 4.87523L11.25 3.75023C11.6478 3.3524 12.1874 3.12891 12.75 3.12891C13.3126 3.12891 13.8522 3.3524 14.25 3.75023C14.6478 4.14805 14.8713 4.68762 14.8713 5.25023C14.8713 5.81284 14.6478 6.3524 14.25 6.75023L13.125 7.87523L6 15.0002H3V12.0002L10.125 4.87523ZM13.125 7.87523L10.125 4.87523"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconTrash = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4 4.66797H12L11.3333 13.3346H4.66667L4 4.66797Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M2.66797 4.66667H4.0013M4.0013 4.66667H6.33464M4.0013 4.66667L4.66797 13.3333H11.3346L12.0013 4.66667M6.33464 4.66667H9.66797M6.33464 4.66667V3H9.66797V4.66667M9.66797 4.66667H12.0013M12.0013 4.66667H13.3346M6.66797 7.33333V11M9.33464 7.33333V11"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconMic = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M11.25 4.5C11.25 3.25736 10.2426 2.25 9 2.25C7.75736 2.25 6.75 3.25736 6.75 4.5V8.25C6.75 9.49264 7.75736 10.5 9 10.5C10.2426 10.5 11.25 9.49264 11.25 8.25V4.5Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M9 2.25C10.2426 2.25 11.25 3.25736 11.25 4.5V8.25C11.25 9.49264 10.2426 10.5 9 10.5C7.75736 10.5 6.75 9.49264 6.75 8.25V4.5C6.75 3.25736 7.75736 2.25 9 2.25Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M4.125 8.25C4.125 9.54293 4.63861 10.7829 5.55285 11.6971C6.46709 12.6114 7.70707 13.125 9 13.125M9 13.125C10.2929 13.125 11.5329 12.6114 12.4471 11.6971C13.3614 10.7829 13.875 9.54293 13.875 8.25M9 13.125V15.75"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconCompass = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M11.625 6.375L10.125 10.125L6.375 11.625L7.875 7.875L11.625 6.375Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M15.75 9C15.75 12.7279 12.7279 15.75 9 15.75C5.27208 15.75 2.25 12.7279 2.25 9C2.25 5.27208 5.27208 2.25 9 2.25C12.7279 2.25 15.75 5.27208 15.75 9Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M11.625 6.375L10.125 10.125L6.375 11.625L7.875 7.875L11.625 6.375Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconLink = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M7.50023 10.5002C7.77937 10.7837 8.11211 11.0088 8.47907 11.1624C8.84604 11.3161 9.23989 11.3952 9.63773 11.3952C10.0356 11.3952 10.4294 11.3161 10.7964 11.1624C11.1633 11.0088 11.4961 10.7837 11.7752 10.5002L14.0252 8.25023C14.5921 7.68332 14.9106 6.91444 14.9106 6.11272C14.9106 5.31101 14.5921 4.54213 14.0252 3.97523C13.4583 3.40832 12.6894 3.08984 11.8877 3.08984C11.086 3.08984 10.3171 3.40833 9.75023 3.97523L9.00023 4.72523M10.5002 7.50023C10.2211 7.21677 9.88834 6.99167 9.52138 6.83802C9.15441 6.68437 8.76056 6.60524 8.36272 6.60524C7.96489 6.60524 7.57104 6.68437 7.20407 6.83802C6.83711 6.99167 6.50437 7.21677 6.22523 7.50023L3.97523 9.75023C3.40833 10.3171 3.08984 11.086 3.08984 11.8877C3.08984 12.6894 3.40832 13.4583 3.97523 14.0252C4.54213 14.5921 5.31101 14.9106 6.11272 14.9106C6.91444 14.9106 7.68332 14.5921 8.25023 14.0252L9.00023 13.2752"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconCash = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8.99844 11.0984C10.1582 11.0984 11.0984 10.1582 11.0984 8.99844C11.0984 7.83864 10.1582 6.89844 8.99844 6.89844C7.83864 6.89844 6.89844 7.83864 6.89844 8.99844C6.89844 10.1582 7.83864 11.0984 8.99844 11.0984Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M3.75 4.5H14.25C15.2855 4.5 16.125 5.33947 16.125 6.375V11.625C16.125 12.6605 15.2855 13.5 14.25 13.5H3.75C2.71447 13.5 1.875 12.6605 1.875 11.625V6.375C1.875 5.33947 2.71447 4.5 3.75 4.5Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M11.0984 8.99844C11.0984 10.1582 10.1582 11.0984 8.99844 11.0984C7.83864 11.0984 6.89844 10.1582 6.89844 8.99844C6.89844 7.83864 7.83864 6.89844 8.99844 6.89844C10.1582 6.89844 11.0984 7.83864 11.0984 8.99844Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M4.5 7.125V7.1325M13.5 10.875V10.8825"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconBook = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M10.875 4.5H7.125C6.71079 4.5 6.375 4.83579 6.375 5.25V6.75C6.375 7.16421 6.71079 7.5 7.125 7.5H10.875C11.2892 7.5 11.625 7.16421 11.625 6.75V5.25C11.625 4.83579 11.2892 4.5 10.875 4.5Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M3.75 14.625V3.375C3.75 3.07663 3.86853 2.79048 4.0795 2.5795C4.29048 2.36853 4.57663 2.25 4.875 2.25H14.25V13.5H4.875C4.57663 13.5 4.29048 13.6185 4.0795 13.8295C3.86853 14.0405 3.75 14.3266 3.75 14.625ZM3.75 14.625C3.75 14.9234 3.86853 15.2095 4.0795 15.4205C4.29048 15.6315 4.57663 15.75 4.875 15.75H14.25"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconBriefcase = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M2.25 7.125C2.25 6.62772 2.44754 6.15081 2.79917 5.79917C3.15081 5.44754 3.62772 5.25 4.125 5.25H13.875C14.3723 5.25 14.8492 5.44754 15.2008 5.79917C15.5525 6.15081 15.75 6.62772 15.75 7.125V9.375H2.25V7.125Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M4.125 5.25H13.875C14.9105 5.25 15.75 6.08947 15.75 7.125V13.125C15.75 14.1605 14.9105 15 13.875 15H4.125C3.08947 15 2.25 14.1605 2.25 13.125V7.125C2.25 6.08947 3.08947 5.25 4.125 5.25Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M6.75 5.25V4.125C6.75 3.82663 6.86853 3.54048 7.0795 3.3295C7.29048 3.11853 7.57663 3 7.875 3H10.125C10.4234 3 10.7095 3.11853 10.9205 3.3295C11.1315 3.54048 11.25 3.82663 11.25 4.125V5.25M2.25 9.375H15.75"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconMortarboard = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M1.875 6.75L9 3.375L16.125 6.75L9 10.125L1.875 6.75Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M16.125 6.75L9 3.375L1.875 6.75L9 10.125L16.125 6.75ZM16.125 6.75V10.5M4.875 8.25V11.625C4.875 12.825 6.75 13.875 9 13.875C11.25 13.875 13.125 12.825 13.125 11.625V8.25"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconLock = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M9.6263 6.125H4.3763C3.57089 6.125 2.91797 6.77792 2.91797 7.58333V10.5C2.91797 11.3054 3.57089 11.9583 4.3763 11.9583H9.6263C10.4317 11.9583 11.0846 11.3054 11.0846 10.5V7.58333C11.0846 6.77792 10.4317 6.125 9.6263 6.125Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M4.3763 6.125H9.6263C10.4317 6.125 11.0846 6.77792 11.0846 7.58333V10.5C11.0846 11.3054 10.4317 11.9583 9.6263 11.9583H4.3763C3.57089 11.9583 2.91797 11.3054 2.91797 10.5V7.58333C2.91797 6.77792 3.57089 6.125 4.3763 6.125Z"
+      strokeWidth="1.05"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M4.66797 6.1263V4.3763C4.66797 3.75746 4.9138 3.16397 5.35139 2.72639C5.78897 2.2888 6.38246 2.04297 7.0013 2.04297C7.62014 2.04297 8.21363 2.2888 8.65122 2.72639C9.0888 3.16397 9.33464 3.75746 9.33464 4.3763V6.1263M7.0013 8.45964V9.91797"
+      strokeWidth="1.05"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconMore = ({ className = '' }) => (
+  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3.5 7H3.50583M7 7H7.00583M10.5 7H10.5058"
+      strokeWidth="1.05"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconSliders = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M12.4987 7.5013C13.4192 7.5013 14.1654 6.75511 14.1654 5.83464C14.1654 4.91416 13.4192 4.16797 12.4987 4.16797C11.5782 4.16797 10.832 4.91416 10.832 5.83464C10.832 6.75511 11.5782 7.5013 12.4987 7.5013Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M7.4987 15.8333C8.41917 15.8333 9.16536 15.0871 9.16536 14.1667C9.16536 13.2462 8.41917 12.5 7.4987 12.5C6.57822 12.5 5.83203 13.2462 5.83203 14.1667C5.83203 15.0871 6.57822 15.8333 7.4987 15.8333Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M3.33203 5.83594H10.832M14.1654 5.83594H16.6654M3.33203 14.1693H5.83203M9.16536 14.1693H16.6654"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M14.1654 5.83464C14.1654 6.75511 13.4192 7.5013 12.4987 7.5013C11.5782 7.5013 10.832 6.75511 10.832 5.83464C10.832 4.91416 11.5782 4.16797 12.4987 4.16797C13.4192 4.16797 14.1654 4.91416 14.1654 5.83464Z"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M9.16536 14.1667C9.16536 15.0871 8.41917 15.8333 7.4987 15.8333C6.57822 15.8333 5.83203 15.0871 5.83203 14.1667C5.83203 13.2462 6.57822 12.5 7.4987 12.5C8.41917 12.5 9.16536 13.2462 9.16536 14.1667Z"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconHistory = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M10.001 3.74897C11.2766 3.74919 12.5215 4.13971 13.5687 4.86807C14.6159 5.59644 15.4151 6.62778 15.8591 7.8236C16.3031 9.01942 16.3705 10.3225 16.0524 11.5577C15.7343 12.793 15.0458 13.9013 14.0794 14.7339C13.113 15.5665 11.9151 16.0835 10.6463 16.2155C9.37758 16.3474 8.09885 16.0879 6.98185 15.472C5.86485 14.856 4.96306 13.913 4.39759 12.7696C3.83212 11.6263 3.63003 10.3372 3.81848 9.07564C3.87431 8.6973 3.59765 8.3323 3.21515 8.3323C3.06591 8.32975 2.92068 8.3807 2.80574 8.47592C2.6908 8.57115 2.61373 8.70436 2.58848 8.85147C2.31793 10.5973 2.67238 12.3827 3.58936 13.8927C4.50633 15.4028 5.92695 16.5407 7.60081 17.1059C9.27468 17.6711 11.0943 17.6272 12.739 16.982C14.3837 16.3368 15.7478 15.1317 16.5909 13.5792C17.434 12.0266 17.702 10.2263 17.3476 8.49551C16.9932 6.76473 16.0392 5.21461 14.6537 4.11839C13.2682 3.02217 11.5402 2.45024 9.77434 2.5034C8.00844 2.55656 6.318 3.2314 5.00098 4.40897V3.54064C5.00098 3.37488 4.93513 3.21591 4.81792 3.0987C4.70071 2.98149 4.54174 2.91564 4.37598 2.91564C4.21022 2.91564 4.05125 2.98149 3.93404 3.0987C3.81683 3.21591 3.75098 3.37488 3.75098 3.54064V6.04064C3.75098 6.38564 4.03098 6.66564 4.37598 6.66564H6.87598C7.04174 6.66564 7.20071 6.59979 7.31792 6.48258C7.43513 6.36537 7.50098 6.2064 7.50098 6.04064C7.50098 5.87488 7.43513 5.71591 7.31792 5.5987C7.20071 5.48149 7.04174 5.41564 6.87598 5.41564H5.75098C6.90547 4.34193 8.42437 3.74628 10.001 3.74897ZM10.4176 6.4573C10.4176 6.29154 10.3518 6.13257 10.2346 6.01536C10.1174 5.89815 9.95841 5.8323 9.79265 5.8323C9.62689 5.8323 9.46791 5.89815 9.3507 6.01536C9.23349 6.13257 9.16765 6.29154 9.16765 6.4573V10.2073C9.16765 10.5523 9.44765 10.8323 9.79265 10.8323H12.2926C12.4584 10.8323 12.6174 10.7665 12.7346 10.6492C12.8518 10.532 12.9176 10.3731 12.9176 10.2073C12.9176 10.0415 12.8518 9.88257 12.7346 9.76536C12.6174 9.64815 12.4584 9.5823 12.2926 9.5823H10.4176V6.4573Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconPlusMajesticons = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4.16797 10.0013H10.0013M10.0013 10.0013H15.8346M10.0013 10.0013V4.16797M10.0013 10.0013V15.8346"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconChevronRight = ({ className = '' }) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M6.33203 4L10.332 8L6.33203 12"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconChevronLeft = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M12.082 5L7.08203 10L12.082 15"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconClock = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M9 15.75C12.7279 15.75 15.75 12.7279 15.75 9C15.75 5.27208 12.7279 2.25 9 2.25C5.27208 2.25 2.25 5.27208 2.25 9C2.25 12.7279 5.27208 15.75 9 15.75Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M15.75 9C15.75 12.7279 12.7279 15.75 9 15.75C5.27208 15.75 2.25 12.7279 2.25 9C2.25 5.27208 5.27208 2.25 9 2.25C12.7279 2.25 15.75 5.27208 15.75 9Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M9 5.25V9L11.625 10.5"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconGlobe = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8.99844 2.25C10.8734 4.2 11.8484 6.45 11.8484 9C11.8484 11.55 10.8734 13.8 8.99844 15.75C7.12344 13.8 6.14844 11.55 6.14844 9C6.14844 6.45 7.12344 4.2 8.99844 2.25Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M15.75 9C15.75 12.7279 12.7279 15.75 9 15.75C5.27208 15.75 2.25 12.7279 2.25 9C2.25 5.27208 5.27208 2.25 9 2.25C12.7279 2.25 15.75 5.27208 15.75 9Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M2.25 9H6.15M6.15 9H11.85M6.15 9C6.15 11.55 7.125 13.8 9 15.75C10.875 13.8 11.85 11.55 11.85 9M6.15 9C6.15 6.45 7.125 4.2 9 2.25C10.875 4.2 11.85 6.45 11.85 9M11.85 9H15.75"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+export const BuddyIconUser = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z"
+      fill="currentColor"
+      fillOpacity="0.22"
+    />
+    <path
+      d="M12 6C12 7.65685 10.6569 9 9 9C7.34315 9 6 7.65685 6 6C6 4.34315 7.34315 3 9 3C10.6569 3 12 4.34315 12 6Z"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M3 15.375C3 12.375 5.7 10.5 9 10.5C12.3 10.5 15 12.375 15 15.375"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);

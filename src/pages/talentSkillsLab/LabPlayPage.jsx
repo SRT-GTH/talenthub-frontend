@@ -78,7 +78,9 @@ const LabFlowScreen = ({ flow, frame }) => {
   const [params, setParams] = useSearchParams();
   const { t } = useLabText();
   const modal = params.get('modal');
-  const hubPath = '/skills-lab';
+  /* Launched from the engagement Skills lab (?from=engagement): exits return there instead of the standalone hub. */
+  const hubPath =
+    params.get('from') === 'engagement' ? '/profile/filling/skills?view=lab' : '/skills-lab';
 
   const setModal = (value) => {
     const next = new URLSearchParams(params);
@@ -211,7 +213,10 @@ const LabFlowScreen = ({ flow, frame }) => {
         overlay={overlay}
       >
         {attempt.error ? (
-          <p role="alert" className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+          <p
+            role="alert"
+            className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]"
+          >
             {attempt.error}
           </p>
         ) : null}
@@ -282,14 +287,19 @@ const LabPlayPage = () => {
     <>
       <UiStyleScope enabled />
       {liveRun.status === 'loading' || localLoading ? (
-        <div role="status" className="flex min-h-screen items-center justify-center bg-[#f7f8f4] font-sans text-[15px] text-[#595959]">
+        <div
+          role="status"
+          className="flex min-h-screen items-center justify-center bg-[#f7f8f4] font-sans text-[15px] text-[#595959]"
+        >
           Loading your lab…
         </div>
       ) : flow ? (
         <FlowScreen key={`${labId}:${frame ?? ''}:${liveRun.status}`} flow={flow} frame={frame} />
       ) : liveRun.status === 'error' && liveRun.error !== 'missing' ? (
         <div className="flex min-h-screen flex-col items-center justify-center gap-[12px] bg-[#f7f8f4] p-[24px] font-sans text-[#1c2a21]">
-          <p className="m-0 text-[16px]">Could not load this lab. Check your connection and try again.</p>
+          <p className="m-0 text-[16px]">
+            Could not load this lab. Check your connection and try again.
+          </p>
           <Link to="/skills-lab" className="text-[14px] font-semibold text-[#387440] underline">
             Back to Skills Lab
           </Link>

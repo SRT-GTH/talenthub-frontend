@@ -1,3 +1,15 @@
+## [2026-10-21] build | Engagement revamp: Personality Arcade, CV upload, clamp fixes
+
+Arcade hub + details + archetype modals, arcade-aware `usePersonalityRun`, `:gameId` route to `GamePage`; CV upload page; bulk hero/dialog clamp fixes. Status, URLs and open diffs: [talent-engagement-revamp.md](talent-engagement-revamp.md). Verified: eslint, build, Playful screenshots by eye. Not verified: Focused, pixel diff, skills labs mounting.
+
+## [2026-10-21] build | Career Buddy chat: left history button, thinking states, new history drawer, new chat, Buddy settings
+
+From the 21 Oct Figma update (canvas `3641:6671`). Details, URLs (`?chat=`) and what is not backed by the agent: [career-buddy-chat-history.md](career-buddy-chat-history.md). New: `BuddyThinking`, `CareerBuddyChatParts`, `chatHistoryModel`, `buddyDemoFrames`, `buddySettings`, `Buddy*Icon` set in `assets.jsx`, two spot SVGs in `src/assets/career-buddy/`. Changed: `ChatThread`, `CareerBuddyHistoryDrawer` (rewritten), `CareerBuddySection`, `useCareerBuddyLive`, `careerBuddy.api.js` (abort signal), `index.css` (animations). Verified: eslint/build clean, screenshots compared by eye; not pixel-diffed.
+
+## [2026-10-21] plan | Engagement revamp (manual profile filling): inventoried, blocked on Figma access
+
+Canvas `3125:10352` ("Engagement 1 - gamified"): 12 refreshed sections, 155 screens x Playful + Focused. Only the depth-2 inventory could be fetched (both REST tokens and the Figma MCP are rate-limited for about 4-5 days). Wrote [talent-engagement-revamp.md](talent-engagement-revamp.md) and `tests/engagement/frames.json` (ids, pairing, proposed URLs, resume plan). No screen built. Needs: a Dev/Full-seat token or exported PNGs.
+
 ## [2026-10-21] build | Talent Wallet `/wallet` — all five phases (33 screens, W-01 … W-27b)
 
 Built every screen of Figma canvas `8817:693` (33 screens × Playful + Focused × expanded + collapsed sidebar = 132 frames): Home, Transactions, Top up, Withdraw, receipt drawer (phase 1), set-up and KYC (2),

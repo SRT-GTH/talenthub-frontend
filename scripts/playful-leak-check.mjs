@@ -52,7 +52,10 @@ for (const route of [
     /^\/skills-lab(\?|$|\/(lab|games)\/)/.test(route) ||
     route.startsWith('/my-assessment') ||
     route.startsWith('/community') ||
-    route.startsWith('/settings');
+    route.startsWith('/settings') ||
+    // Engagement revamp (Figma canvas 3125:10352): the journey map, milestones, avatar steps and every filling stage draw both styles.
+    route.startsWith('/profile/engagement') ||
+    route.startsWith('/profile/filling');
   if (attr && !allowed) {
     leaks += 1;
     console.log(`LEAK  ${route} has data-ui-style="${attr}"`);

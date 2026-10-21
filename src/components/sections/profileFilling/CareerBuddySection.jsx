@@ -11,6 +11,10 @@ import Toast from '../../ui/Toast.jsx';
 import TalentProfilePanel from './TalentProfilePanel.jsx';
 import RecruiterPanel from './RecruiterPanel.jsx';
 import CareerBuddyHistoryDrawer from './CareerBuddyHistoryDrawer.jsx';
+import { BuddySettingsPopover, NewChatStart, SavedToast } from './CareerBuddyChatParts.jsx';
+import { DEFAULT_BUDDY_SETTINGS } from './buddySettings.js';
+import { FIGMA_CHATS } from './chatHistoryModel.js';
+import { buddyDemoFrame, demoFrameMessages } from './buddyDemoFrames.js';
 import GameStoreModal from './GameStoreModal.jsx';
 import EscapeRoomGame from './EscapeRoomGame.jsx';
 import JobPostFormModal from './JobPostFormModal.jsx';
@@ -584,7 +588,34 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   // drives the "new" dot on the Profile tab when the chat opens a section.
   const [seenPanelId, setSeenPanelId] = useState(null);
   const shellRef = useRef(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // 21 Oct 2026 chat screens by URL (?chat=history, thinking, settings ...) on the scripted talent chat - see buddyDemoFrames.js.
+  const demoFrame = !liveMode && isTalent ? buddyDemoFrame(searchParams.get('chat')) : null;
+  const [historyOpen, setHistoryOpen] = useState(Boolean(demoFrame?.historyOpen));
+  const [settingsOpen, setSettingsOpen] = useState(Boolean(demoFrame?.settingsOpen));
+  const [demoChats, setDemoChats] = useState(() => (demoFrame?.emptyHistory ? [] : FIGMA_CHATS));
+  const [freshStart, setFreshStart] = useState(Boolean(demoFrame?.fresh));
+  const [savedToastOpen, setSavedToastOpen] = useState(Boolean(demoFrame?.savedToast));
+  // Buddy settings (Figma CS-01) are kept in this browser.
+  const [buddySettings, setBuddySettings] = useState(() => {
+    try {
+      return {
+        ...DEFAULT_BUDDY_SETTINGS,
+        ...JSON.parse(window.localStorage.getItem('careerBuddy.settings') || '{}'),
+      };
+    } catch {
+      return DEFAULT_BUDDY_SETTINGS;
+    }
+  });
+  const updateBuddySettings = (patch) =>
+    setBuddySettings((prev) => {
+      const next = { ...prev, ...patch };
+      try {
+        window.localStorage.setItem('careerBuddy.settings', JSON.stringify(next));
+      } catch {
+        /* private mode - the settings just do not persist */
+      }
+      return next;
+    });
   const [toast, setToast] = useState(null);
   // Parent panel: My Profile vs Elliot's Profile (Figma 5132:77628).
   const [parentProfileTab, setParentProfileTab] = useState('mine');
@@ -608,6 +639,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     enabled: liveMode,
     voiceCallOpen,
     voiceId,
+    readAloud: buddySettings.readAloud,
     onShowProfile: () => setMobilePane('profile'),
   });
   // Milestone-share — Figma 7025:89274, opened from handleConfirmStage on
@@ -1989,6 +2021,11 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
       setToast(null);
       return;
     }
+    // Talent: the start screen of a fresh chat (Figma NC-01), with "saved to History" for the chat left behind.
+    if (!liveMode) {
+      setSavedToastOpen(true);
+      setFreshStart(true);
+    }
     setNodeId('returning-prompt');
     setMessages(CAREER_BUDDY_NODES['returning-prompt'].seedMessages());
   };
@@ -2591,21 +2628,97 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
             />
           </div>
 
-          {liveMode ? (
-            <CareerBuddyHistoryDrawer
-              open={L.historyOpen}
-              onClose={() => L.setHistoryOpen(false)}
-              groups={L.historyList}
-              activeId={L.activeHistoryId}
-              onSelect={L.handleSelectHistory}
-              loading={L.historyLoading}
-              hasMore={L.historyHasMore}
-              loadingMore={L.historyLoadingMore}
-              onLoadMore={L.loadMoreHistory}
+          <CareerBuddyHistoryDrawer
+            open={liveMode ? L.historyOpen : historyOpen}
+            onClose={() => (liveMode ? L.setHistoryOpen(false) : setHistoryOpen(false))}
+            chats={liveMode ? L.historyChats : demoChats}
+            loading={liveMode ? L.historyLoading : Boolean(demoFrame?.loadingHistory)}
+            initial={demoFrame?.drawer}
+            onSelect={
+              liveMode
+                ? L.handleSelectHistory
+                : (chat) => {
+                    log('branch', { historyEntryClicked: chat.id });
+                    setHistoryOpen(false);
+                  }
+            }
+            onNewChat={liveMode ? L.handleNewChat : handleNewChat}
+            onRename={
+              liveMode
+                ? L.handleRenameChat
+                : (id, title) =>
+                    setDemoChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)))
+            }
+            onTogglePin={
+              liveMode
+                ? L.handleTogglePin
+                : (id) =>
+                    setDemoChats((prev) =>
+                      prev.map((c) => {
+                        if (c.id !== id) return c;
+                        const pinned = !c.pinned;
+                        return {
+                          ...c,
+                          pinned,
+                          group: pinned ? 'pinned' : (c.homeGroup ?? c.group),
+                          homeGroup: c.homeGroup ?? c.group,
+                        };
+                      })
+                    )
+            }
+            onDelete={
+              liveMode
+                ? L.handleDeleteChat
+                : (id) => setDemoChats((prev) => prev.filter((c) => c.id !== id))
+            }
+            onAskBuddy={
+              liveMode
+                ? L.askBuddyAbout
+                : (query) => {
+                    log('branch', { askBuddyAbout: query });
+                    setHistoryOpen(false);
+                    handleNewChat();
+                  }
+            }
+          />
+          {isTalent && (
+            <BuddySettingsPopover
+              open={settingsOpen}
+              onClose={() => setSettingsOpen(false)}
+              settings={buddySettings}
+              onChange={updateBuddySettings}
+              voiceId={voiceId}
+              onOpenVoice={() => {
+                setSettingsOpen(false);
+                setVoiceSettingsOpen(true);
+              }}
+              chatCount={(liveMode ? L.historyChats : demoChats).length}
+              onClearAll={
+                liveMode
+                  ? L.handleClearAllChats
+                  : () => {
+                      setDemoChats([]);
+                      handleNewChat();
+                    }
+              }
+              onPrivacy={() => navigate('/settings')}
+              initial={demoFrame}
             />
-          ) : (
-            <CareerBuddyHistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} />
           )}
+          {isTalent && (liveMode ? L.savedToast : savedToastOpen) ? (
+            <SavedToast
+              onView={() => {
+                if (liveMode) {
+                  L.setSavedToast(false);
+                  L.setHistoryOpen(true);
+                } else {
+                  setSavedToastOpen(false);
+                  setHistoryOpen(true);
+                }
+              }}
+              onDismiss={() => (liveMode ? L.setSavedToast(false) : setSavedToastOpen(false))}
+            />
+          ) : null}
           <GameStoreModal
             open={gameStoreOpen}
             onClose={() => setGameStoreOpen(false)}
@@ -2702,10 +2815,10 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
               viewHeroMode === 'first-time' && <FirstTimeHero hero={L.hero} playful={playful} />
             ) : (
               <>
-                {heroMode === 'first-time' && (
+                {heroMode === 'first-time' && !demoFrame && (
                   <FirstTimeHero hero={firstTimeHero} playful={playful} />
                 )}
-                {heroMode === 'returning' && <ReturningHero name={personaName} />}
+                {heroMode === 'returning' && !isTalent && <ReturningHero name={personaName} />}
               </>
             )}
           </div>
@@ -2718,8 +2831,15 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
                 suggestedReplies={L.suggestedReplies}
                 disabled={L.busy}
                 onNewChat={L.handleNewChat}
+                newChatDisabled={L.freshChat}
+                emptyState={
+                  L.freshChat ? <NewChatStart name={L.firstName} onPick={L.handleSend} /> : null
+                }
+                historyOpen={L.historyOpen}
+                settingsOpen={settingsOpen}
+                onStop={L.handleStop}
                 onOpenHistory={() => L.setHistoryOpen(true)}
-                onOpenVoiceSettings={() => setVoiceSettingsOpen(true)}
+                onOpenVoiceSettings={() => setSettingsOpen(true)}
                 onOpenVoiceCall={() => setVoiceCallOpen(true)}
                 enableAttach
                 onAttach={L.handleAttach}
@@ -2730,18 +2850,33 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
               />
             ) : (
               <ChatThread
-                messages={enrichedMessages}
+                messages={demoFrame ? demoFrameMessages(demoFrame) : enrichedMessages}
                 onSend={submit}
-                suggestedReplies={activeSuggestedReplies}
+                suggestedReplies={demoFrame ? [] : activeSuggestedReplies}
                 onSelectOption={handleSelectMcqOption}
                 onSelectModeCard={handleSelectModeCard}
-                onNewChat={showNewChat ? handleNewChat : undefined}
-                onOpenHistory={showChrome ? () => setHistoryOpen(true) : undefined}
+                onNewChat={showNewChat || demoFrame ? handleNewChat : undefined}
+                newChatDisabled={isTalent && freshStart}
+                emptyState={
+                  isTalent && freshStart ? (
+                    <NewChatStart
+                      name={demoFrame ? 'Ama' : undefined}
+                      onPick={(prompt) => {
+                        setFreshStart(false);
+                        submit(prompt);
+                      }}
+                    />
+                  ) : null
+                }
+                historyOpen={historyOpen}
+                settingsOpen={settingsOpen}
+                onStop={undefined}
+                onOpenHistory={showChrome || demoFrame ? () => setHistoryOpen(true) : undefined}
                 onOpenVoiceSettings={
-                  showChrome
+                  showChrome || demoFrame
                     ? () => {
-                        log('branch', { openVoiceSettings: true });
-                        setVoiceSettingsOpen(true);
+                        log('branch', { openBuddySettings: true });
+                        setSettingsOpen(true);
                       }
                     : undefined
                 }

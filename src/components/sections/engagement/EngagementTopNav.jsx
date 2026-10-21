@@ -60,11 +60,11 @@ const HelpIcon = ({ className }) => (
 
 // Gold "Switch Modes" shelf button — shown on milestone/identity screens to
 // let the user toggle between the list and map views of the engagement flow.
-const SwitchModesButton = ({ onClick }) => (
+const SwitchModesButton = ({ onClick, label = 'Switch Modes' }) => (
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-2 rounded-[10px] bg-accent text-accent-light px-[28px] py-[10px] font-sans font-semibold text-[13px] leading-5 tracking-[0.2px] hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-dark drop-shadow-[0px_4px_0px_#967014] playful:h-12 playful:min-w-[184px] playful:justify-center playful:whitespace-nowrap playful:py-[14px] playful:text-[14px] playful:font-bold playful:leading-6 playful:tracking-[0.1px] playful:focus-visible:outline-3 playful:active:translate-y-[2px] playful:active:drop-shadow-[0px_2px_0px_#967014] motion-safe:playful:transition-[transform,filter] motion-safe:playful:duration-100"
+    className="inline-flex items-center gap-2 rounded-[10px] bg-accent text-accent-light px-[24px] py-[10px] font-sans font-bold text-[14px] leading-6 tracking-[0.1px] hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-dark drop-shadow-[0px_4px_0px_#967014] justify-center whitespace-nowrap playful:focus-visible:outline-3 playful:active:translate-y-[2px] playful:active:drop-shadow-[0px_2px_0px_#967014] motion-safe:playful:transition-[transform,filter] motion-safe:playful:duration-100"
     style={{
       // Shelf-border pattern: 1px accent-coloured top, 2px darker sides/bottom.
       borderTop: '1px solid #c8951a',
@@ -113,7 +113,7 @@ const SwitchModesButton = ({ onClick }) => (
       <path d="M9.90307 11.375C11.3177 10.4344 12.25 8.82612 12.25 7C12.25 4.10051 9.89952 1.75 7 1.75C6.59902 1.75 6.20853 1.79495 5.83333 1.8801M11.9583 11.375H9.90307V9.33333M4.08333 2.63407C2.67635 3.57587 1.75 5.17975 1.75 7C1.75 9.89952 4.10051 12.25 7 12.25C7.40098 12.25 7.79147 12.205 8.16667 12.1199M2.04167 2.63407H4.08333V4.66667" />
     </svg>
     <span className="playful:bg-[linear-gradient(189.84deg,#fef1e7_0%,#e8f2ed_20.192%)] playful:bg-clip-text playful:text-transparent">
-      Switch Modes
+      {label}
     </span>
   </button>
 );
@@ -127,7 +127,13 @@ const MoreIcon = ({ className }) => (
 );
 
 // Mobile-only overflow menu (< md): carries the actions that don't fit inline.
-const MoreMenu = ({ showSwitchModes, onSwitchModes, onHelp, styleSwitch }) => {
+const MoreMenu = ({
+  showSwitchModes,
+  onSwitchModes,
+  onHelp,
+  styleSwitch,
+  switchModesLabel = 'Switch Modes',
+}) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -182,7 +188,7 @@ const MoreMenu = ({ showSwitchModes, onSwitchModes, onHelp, styleSwitch }) => {
               }}
               className={item}
             >
-              Switch Modes
+              {switchModesLabel}
             </button>
           )}
           <button
@@ -210,6 +216,8 @@ const EngagementTopNav = ({
   onHelp,
   styleSwitch = null,
   showSwitchModes = false,
+  reserveSwitchModes = false,
+  switchModesLabel = 'Switch Modes',
   onSwitchModes,
   bgClass = 'bg-white',
   className,
@@ -235,7 +243,7 @@ const EngagementTopNav = ({
         />
       </HomeLogoLink>
 
-      <div className="flex items-center gap-2 shrink-0 md:gap-3 playful:md:gap-[clamp(10px,1.39vw,24px)]">
+      <div className="flex items-center gap-2 shrink-0 md:gap-[clamp(10px,1.39vw,24px)]">
         {/* Appearance switch (Focused / Playful) — inline from md; inside the "…" menu on phones. */}
         {styleSwitch && (
           <span className="hidden md:block">
@@ -244,8 +252,12 @@ const EngagementTopNav = ({
         )}
         {showSwitchModes && (
           <span className="hidden md:contents">
-            <SwitchModesButton onClick={onSwitchModes} />
+            <SwitchModesButton onClick={onSwitchModes} label={switchModesLabel} />
           </span>
+        )}
+        {/* The journey map frames keep the button's slot empty (Figma draws a 120px gap before Save & Exit). */}
+        {!showSwitchModes && reserveSwitchModes && (
+          <span aria-hidden="true" className="hidden w-[clamp(80px,6.94vw,120px)] md:block" />
         )}
 
         {/* Save & Exit — gradient dark-green text with visible underline */}
@@ -279,7 +291,7 @@ const EngagementTopNav = ({
           {/* Avatar: gradient dark-green square with initials */}
           <span
             aria-hidden="true"
-            className="inline-flex size-[24px] items-center justify-center rounded-[12px] text-white font-sans font-semibold text-[11px] max-lg:text-[12px] tracking-[0.2px] shrink-0 playful:text-[10px] playful:font-bold playful:max-lg:text-[12px]"
+            className="inline-flex size-[24px] items-center justify-center rounded-[12px] text-white font-sans font-bold text-[10px] max-lg:text-[12px] tracking-[0.2px] shrink-0"
             style={{ background: 'linear-gradient(135deg, #142916 0%, #2a5730 100%)' }}
           >
             {userInitials}
@@ -291,6 +303,7 @@ const EngagementTopNav = ({
 
         <MoreMenu
           showSwitchModes={showSwitchModes}
+          switchModesLabel={switchModesLabel}
           onSwitchModes={onSwitchModes}
           onHelp={onHelp}
           styleSwitch={styleSwitch}

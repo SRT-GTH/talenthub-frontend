@@ -175,7 +175,10 @@ export const GameFrame = (props) => {
   log('render', { game: game.label, hasResult: Boolean(result) });
   useReportGameResult(result, { kind: 'skill' });
   const modal = params.get('modal');
-  const arcadePath = '/skills-lab?tab=games';
+  const arcadePath =
+    params.get('from') === 'engagement'
+      ? '/profile/filling/skills?view=lab'
+      : '/skills-lab?tab=games';
 
   useEffect(() => {
     ensureGameFonts();

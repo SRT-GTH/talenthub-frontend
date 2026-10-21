@@ -41,7 +41,6 @@ import {
   personalityProgress,
   threadFromSession,
   sessionMatchesThread,
-  sessionGroups,
   turnToBubbles,
   userBubble,
   autoBubble,
@@ -57,8 +56,8 @@ import {
   saveThread,
   newThread,
   threadTitle,
-  historyGroups,
 } from './careerBuddyLive.js';
+import { chatsFromHistory } from './chatHistoryModel.js';
 
 const log = debug('CareerBuddyLive');
 
@@ -166,11 +165,41 @@ export const LIVE_STAGES = [
 const stageLabel = (id) => LIVE_STAGES.find((s) => s.id === id)?.panelLabel ?? 'Section';
 
 export const THINKING_ID = 'cb-thinking';
-const ThinkingBubble = {
+/*
+ * The reply-in-progress row (Figma "Buddy thinking states", 8988:509558): phase thinking -> working (the agent sent a status)
+ * -> writing (words are streaming) -> slow (over SLOW_AFTER_S seconds with nothing written) -> stopped (the talent stopped it).
+ * Copy from the frames: the "Looking at" chips, the three steps and "Step 2 of 3"; the active step and the sub line carry the agent's own status.
+ */
+const SLOW_AFTER_S = 10;
+const LOOKING_AT = ['Your profile', 'Discoverable rules'];
+const thinkingBubble = (thinking) => ({
   id: THINKING_ID,
   sender: 'bot',
   personaLabel: 'Career Buddy',
-  text: 'Thinking…',
+  text: '',
+  thinking,
+});
+const phaseFor = ({ streamed, status, elapsed }) => {
+  if (streamed) return 'writing';
+  if (elapsed >= SLOW_AFTER_S) return 'slow';
+  return status ? 'working' : 'thinking';
+};
+const thinkingState = ({ streamed = '', status = '', elapsed = 0 }) => {
+  const phase = phaseFor({ streamed, status, elapsed });
+  return {
+    phase,
+    lookingAt: LOOKING_AT,
+    sub: phase === 'slow' && status ? `This one takes longer: ${status}` : status,
+    steps: [
+      { id: 'read', label: 'Read your profile and chat', state: 'done' },
+      { id: 'active', label: status || 'Working on it', state: 'active' },
+      { id: 'write', label: 'Writing your answer', state: 'next' },
+    ],
+    stepText: 'Step 2 of 3',
+    progress: phase === 'slow' ? Math.min(0.95, elapsed / 25.5) : 0.39,
+    elapsed,
+    text: streamed,
+  };
 };
 
 const PERSONALITY_KEY = (entityId) => `careerBuddy.personality.${entityId}`;
@@ -217,6 +246,7 @@ export function useCareerBuddyLive({
   enabled = true,
   voiceCallOpen = false,
   voiceId = DEFAULT_VOICE_ID,
+  readAloud = false,
   onShowProfile,
 } = {}) {
   const navigate = useNavigate();
@@ -251,13 +281,22 @@ export function useCareerBuddyLive({
   }, [live, patchThread]);
   const [expandedPanelId, setExpandedPanelId] = useState(null);
   const [confirming, setConfirming] = useState(null);
-  const [historyOpen, setHistoryOpen] = useState(() => {
-    try {
-      return new URLSearchParams(window.location.search).get('history') === '1';
-    } catch {
-      return false;
-    }
-  });
+  const [historyOpen, setHistoryOpen] = useState(false);
+  // Pins, renames and deletes of the history drawer live in this browser (the agent has no endpoint for them yet).
+  const META_KEY = entityId ? `careerBuddy.chatMeta.${entityId}` : null;
+  const [chatMeta, setChatMeta] = useState(() =>
+    META_KEY
+      ? readJson(META_KEY, { pinned: {}, titles: {}, deleted: {} })
+      : { pinned: {}, titles: {}, deleted: {} }
+  );
+  const updateChatMeta = (fn) =>
+    setChatMeta((prev) => {
+      const next = fn(prev);
+      if (META_KEY) writeJson(META_KEY, next);
+      return next;
+    });
+  // "Your last chat was saved to History" toast after New chat (Figma 9086:75962).
+  const [savedToast, setSavedToast] = useState(false);
   // Past conversations from the agent (null until loaded / agent unreachable).
   // undefined = still loading (the drawer shows a loading line, never this browser's local list
   // first), null = the agent can't be reached (fall back to the local list), array = server history.
@@ -276,11 +315,14 @@ export function useCareerBuddyLive({
   );
   const [personalityReq, setPersonalityReq] = useState(null);
   const lastTurnRef = useRef(null);
+  const stoppedRef = useRef(false);
   const openedRef = useRef(false);
   const voiceOpenRef = useRef(false);
   voiceOpenRef.current = voiceCallOpen;
   const voiceIdRef = useRef(voiceId);
   voiceIdRef.current = voiceId;
+  const readAloudRef = useRef(readAloud);
+  readAloudRef.current = readAloud;
 
   // Persist the conversation whenever it changes (thinking bubble excluded).
   useEffect(() => {
@@ -388,6 +430,7 @@ export function useCareerBuddyLive({
     [entityId, personality]
   );
 
+  const abortRef = useRef(null);
   const runTurn = useCallback(
     async (
       text,
@@ -397,38 +440,56 @@ export function useCareerBuddyLive({
       lastTurnRef.current = { text, chipAction };
       setBusy(true);
       const shown = autoText ? [autoBubble(autoText)] : showUser ? [userBubble(text)] : [];
+      const startedAt = Date.now();
+      let streamed = '';
+      let status = '';
+      const controller = new AbortController();
+      abortRef.current = controller;
+      // Re-draws the reply-in-progress row (first second -> working -> writing -> slow) every second.
+      const draw = () =>
+        patchThread((t) => ({
+          messages: t.messages.map((m) =>
+            m.id === THINKING_ID
+              ? thinkingBubble(
+                  thinkingState({
+                    streamed,
+                    status,
+                    elapsed: Math.floor((Date.now() - startedAt) / 1000),
+                  })
+                )
+              : m
+          ),
+        }));
       patchThread((t) => ({
-        messages: [...t.messages, ...shown, ThinkingBubble],
+        messages: [
+          ...t.messages.filter((m) => m.id !== THINKING_ID),
+          ...shown,
+          thinkingBubble(thinkingState({})),
+        ],
         chips: [],
         chipActions: [],
       }));
+      const ticker = setInterval(draw, 1000);
       try {
-        // 2026-10-19: the thinking bubble shows what Career Buddy is doing while it works.
-        const onStatus = (status) =>
-          patchThread((t) => ({
-            messages: t.messages.map((m) => (m.id === THINKING_ID ? { ...m, text: status } : m)),
-          }));
-        // Reply words as Career Buddy writes them; the finished turn replaces this bubble.
-        let streamed = '';
-        const onDelta = (chunk) => {
-          streamed += chunk;
-          const shownText = streamed;
-          patchThread((t) => ({
-            messages: t.messages.map((m) =>
-              m.id === THINKING_ID ? { ...m, text: shownText, streaming: true } : m
-            ),
-          }));
-        };
         const turn = await sendTurnStream({
           entityId,
           message: text,
           history,
           chipAction,
           inputMode,
-          onStatus: (status) => {
-            if (!streamed) onStatus(status);
+          signal: controller.signal,
+          // 2026-10-19: the row shows what Career Buddy is doing while it works.
+          onStatus: (next) => {
+            if (!streamed) {
+              status = next;
+              draw();
+            }
           },
-          onDelta,
+          // Reply words as Career Buddy writes them; the finished turn replaces this row.
+          onDelta: (chunk) => {
+            streamed += chunk;
+            draw();
+          },
         });
         setPracticeActive(isPracticeTurn(turn));
         log('turn', {
@@ -448,23 +509,40 @@ export function useCareerBuddyLive({
         }));
         applyTurnToPanel(turn);
         refreshProfile();
-        if (voiceOpenRef.current) {
+        if (voiceOpenRef.current || readAloudRef.current) {
           setSpeaking(true);
           speak(turn.reply, voiceIdRef.current, () => setSpeaking(false));
         }
       } catch (err) {
-        patchThread((t) => ({
-          messages: t.messages.filter((x) => x.id !== THINKING_ID),
-          chips: ['Try again'],
-          chipActions: [],
-        }));
-        showToast(
-          'error',
-          'Error',
-          err instanceof AgentError ? err.message : 'Something went wrong talking to Career Buddy.'
-        );
-        log.error('turn failed', err?.detail || err);
+        if (controller.signal.aborted && stoppedRef.current) {
+          // The talent pressed "Stop generating": keep what was written, offer Continue / Try again.
+          log('turn stopped', { written: streamed.length });
+          patchThread((t) => ({
+            messages: t.messages.map((m) =>
+              m.id === THINKING_ID ? thinkingBubble({ phase: 'stopped', text: streamed }) : m
+            ),
+            chips: [],
+            chipActions: [],
+          }));
+        } else {
+          patchThread((t) => ({
+            messages: t.messages.filter((x) => x.id !== THINKING_ID),
+            chips: ['Try again'],
+            chipActions: [],
+          }));
+          showToast(
+            'error',
+            'Error',
+            err instanceof AgentError
+              ? err.message
+              : 'Something went wrong talking to Career Buddy.'
+          );
+          log.error('turn failed', err?.detail || err);
+        }
       } finally {
+        clearInterval(ticker);
+        stoppedRef.current = false;
+        abortRef.current = null;
         setBusy(false);
         setConfirming(null);
       }
@@ -496,6 +574,19 @@ export function useCareerBuddyLive({
     if (!thread.messages.length) runTurn(OPENER, { showUser: false }).then(sendHandoff);
     else sendHandoff();
   }, [entityId, runTurn, refreshProfile, thread.messages.length, navigate, location]);
+
+  // ---- stop generating / Continue / Try again (Figma 8993:511908 - 8993:514381) ----
+  const handleStop = () => {
+    if (!abortRef.current) return;
+    stoppedRef.current = true;
+    abortRef.current.abort();
+  };
+  const handleContinueStopped = () =>
+    runTurn('Please continue from where you stopped.', { showUser: false });
+  const handleTryAgainStopped = () => {
+    const last = lastTurnRef.current;
+    if (last) runTurn(last.text, { chipAction: last.chipAction, showUser: false });
+  };
 
   const handleSend = (text) => {
     const trimmed = String(text || '').trim();
@@ -588,13 +679,24 @@ export function useCareerBuddyLive({
   // ---- new chat / history ----
   const handleNewChat = () => {
     if (busy) return;
+    const hadChat = thread.messages.some((m) => m.sender === 'user' && !m.auto);
     window.speechSynthesis?.cancel();
     setLive({ states: {}, card: null });
     setExpandedPanelId(null);
     setThread(newThread());
     setHistoryOpen(false);
-    // Greet in the new conversation (empty transcript -> returning greeting).
-    setTimeout(() => runTurnRef.current?.(OPENER, { showUser: false }), 0);
+    // Figma 9086:75962: a fresh chat opens on the "what shall we work on today?" start screen (no greeting turn).
+    if (hadChat) setSavedToast(true);
+  };
+  // Nothing has been said in this conversation: the start screen shows instead of the transcript.
+  const freshChat = !messages.some((m) => m.sender === 'user' && !m.auto) && !busy;
+  // The start-screen suggestions and any typed text open the conversation like a normal turn.
+  // "Ask Buddy about ..." (history search found nothing): start a fresh chat with that as the first message.
+  const askBuddyAbout = (text) => {
+    if (busy) return;
+    handleNewChat();
+    setSavedToast(false);
+    setTimeout(() => runTurnRef.current?.(text), 0);
   };
   const handleSelectHistory = (entry) => {
     const session = serverSessions?.find((s) => s.id === entry.id);
@@ -692,18 +794,44 @@ export function useCareerBuddyLive({
     return out;
   }, [panelStages]);
   const historyLoading = Boolean(entityId) && serverSessions === undefined;
-  const historyList = Array.isArray(serverSessions)
-    ? sessionGroups(serverSessions)
-    : historyLoading
-      ? []
-      : historyGroups(threads);
   const activeHistoryId =
     serverSessions?.find((s) => sessionMatchesThread(s, thread))?.id ?? thread.id;
+  const historyChats = chatsFromHistory({
+    threads,
+    sessions: serverSessions,
+    activeId: activeHistoryId,
+    meta: chatMeta,
+  });
+  const handleRenameChat = (id, title) =>
+    updateChatMeta((m) => ({ ...m, titles: { ...m.titles, [id]: title } }));
+  const handleTogglePin = (id) =>
+    updateChatMeta((m) => ({ ...m, pinned: { ...m.pinned, [id]: !m.pinned?.[id] } }));
+  const handleDeleteChat = (id) => {
+    updateChatMeta((m) => ({ ...m, deleted: { ...m.deleted, [id]: true } }));
+    if (id === activeHistoryId) handleNewChat();
+  };
+  const handleClearAllChats = () => {
+    updateChatMeta((m) => ({
+      ...m,
+      deleted: { ...m.deleted, ...Object.fromEntries(historyChats.map((c) => [c.id, true])) },
+    }));
+    handleNewChat();
+  };
 
   const lastBot = [...messages].reverse().find((m) => m.sender === 'bot' && m.id !== THINKING_ID);
   const reportPending = Boolean(lastBot?.report && !lastBot.reportAnswer);
   const enrichedMessages = messages.map((m) => {
     let out = m;
+    if (m.thinking?.phase === 'stopped') {
+      out = {
+        ...out,
+        thinking: {
+          ...m.thinking,
+          onContinue: handleContinueStopped,
+          onTryAgain: handleTryAgainStopped,
+        },
+      };
+    }
     if (m.report) {
       out = {
         ...out,
@@ -759,6 +887,7 @@ export function useCareerBuddyLive({
     suggestedReplies: busy || reportPending ? [] : chips,
     busy,
     handleSend,
+    handleStop,
     handleFeedback,
     handleRegenerate,
     handleAttach,
@@ -769,7 +898,7 @@ export function useCareerBuddyLive({
     // history
     historyOpen,
     setHistoryOpen,
-    historyList,
+    historyChats,
     historyLoading,
     historyHasMore: Array.isArray(serverSessions) && historyPage.hasMore,
     historyLoadingMore: historyPage.loading,
@@ -777,6 +906,14 @@ export function useCareerBuddyLive({
     activeHistoryId,
     handleNewChat,
     handleSelectHistory,
+    askBuddyAbout,
+    handleRenameChat,
+    handleTogglePin,
+    handleDeleteChat,
+    handleClearAllChats,
+    freshChat,
+    savedToast,
+    setSavedToast,
     // panel + trail
     stages: LIVE_STAGES,
     panelStages,

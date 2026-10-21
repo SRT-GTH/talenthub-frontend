@@ -46,6 +46,8 @@ Every claim in this wiki carries a tag:
 - [talent-assessment.md](talent-assessment.md) — Talent My Assessment `/my-assessment`: overview + states, personality / skill-evidence details, library, full TypeScript assessment flow; per-frame checklist, known gaps
 - [talent-community.md](talent-community.md) — Talent Community v2 `/community`: browse, community page (feed / about / members), post + comments, dialogs; replaces the cancelled recruiter-chrome Community
 - [talent-messages.md](talent-messages.md) — Talent Messages `/messages`: inbox, requests, job/interview cards, pre-apply, Help me reply, accessibility, languages; 49-frame URL checklist + **recovery list** (what still needs Figma REST)
+- [talent-engagement-revamp.md](talent-engagement-revamp.md) — Engagement revamp (manual profile filling, canvas `3125:10352`): 155 screens x 2 styles inventoried, proposed URLs, resume plan. **blocked: no Figma data (rate-limited)**
+- [career-buddy-chat-history.md](career-buddy-chat-history.md) — Career Buddy history drawer, thinking states, new chat, settings (21 Oct 2026)
 - [talent-wallet.md](talent-wallet.md) — Talent Wallet `/wallet`: 33 screens (phased), frame→URL table with diff % for all five phases, REST-verified provenance, prototype flows, per-style differences
 
 ### External
