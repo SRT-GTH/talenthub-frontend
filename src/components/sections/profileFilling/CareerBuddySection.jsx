@@ -2598,6 +2598,10 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
               groups={L.historyList}
               activeId={L.activeHistoryId}
               onSelect={L.handleSelectHistory}
+              loading={L.historyLoading}
+              hasMore={L.historyHasMore}
+              loadingMore={L.historyLoadingMore}
+              onLoadMore={L.loadMoreHistory}
             />
           ) : (
             <CareerBuddyHistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} />

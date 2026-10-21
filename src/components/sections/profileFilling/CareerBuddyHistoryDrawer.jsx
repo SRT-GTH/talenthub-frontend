@@ -31,7 +31,17 @@ const ChevronDoubleLeftIcon = ({ className }) => (
  * the talent's real saved conversations; without them the canned Figma
  * groups render as before (scripted demo unchanged).
  */
-const CareerBuddyHistoryDrawer = ({ open, onClose, groups, onSelect, activeId }) => {
+const CareerBuddyHistoryDrawer = ({
+  open,
+  onClose,
+  groups,
+  onSelect,
+  activeId,
+  loading = false,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
+}) => {
   log('render', { open, live: Boolean(groups) });
   const shown = groups ?? CHAT_HISTORY_GROUPS;
 
@@ -70,7 +80,12 @@ const CareerBuddyHistoryDrawer = ({ open, onClose, groups, onSelect, activeId })
         </h3>
 
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 pb-4 flex flex-col gap-4 playful:px-[22px] playful:pb-[22px] playful:gap-5">
-          {shown.length === 0 && (
+          {loading && (
+            <p role="status" className="font-sans text-[12px] text-content-tertiary">
+              Loading your conversations…
+            </p>
+          )}
+          {!loading && shown.length === 0 && (
             <p className="font-sans text-[12px] text-content-tertiary">
               No earlier conversations yet.
             </p>
@@ -107,6 +122,19 @@ const CareerBuddyHistoryDrawer = ({ open, onClose, groups, onSelect, activeId })
               </div>
             </div>
           ))}
+          {hasMore && (
+            <button
+              type="button"
+              onClick={() => {
+                log('load older conversations');
+                onLoadMore?.();
+              }}
+              disabled={loadingMore}
+              className="self-start font-sans text-[12px] font-medium text-brand-green underline-offset-2 hover:underline disabled:cursor-default disabled:text-content-tertiary disabled:no-underline max-lg:min-h-11 max-lg:text-[14px] playful:text-[14px] playful:text-[#1c2a21]"
+            >
+              {loadingMore ? 'Loading…' : 'Show older conversations'}
+            </button>
+          )}
         </div>
       </div>
     </div>
