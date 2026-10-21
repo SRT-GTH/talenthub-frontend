@@ -384,7 +384,9 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
 
 /** Name / headline for the sidebar and phone nav (real when `live` is given). */
 export const getTalentProfile = (live = null) => {
-  if (!live || !live.firstName) return TALENT_PROFILE;
+  if (!live) return TALENT_PROFILE;
+  // Live data still loading and no stored name: show nothing rather than the demo person.
+  if (!live.firstName) return { ...TALENT_PROFILE, name: '', headline: '', url: '', navName: '' };
   const name = [live.firstName, live.lastName].filter(Boolean).join(' ');
   return {
     ...TALENT_PROFILE,
