@@ -1,0 +1,156 @@
+[
+  {
+    "code": "T-MSG-01c",
+    "name": "T-MSG-01c \u00b7 Inbox (default) \u00b7 collapsed",
+    "playfulId": "7425:1556",
+    "focusedId": "8110:442861",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-02c",
+    "name": "T-MSG-02c \u00b7 Conversation options menu \u00b7 collapsed",
+    "playfulId": "7425:2081",
+    "focusedId": "8110:443142",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-03c",
+    "name": "T-MSG-03c \u00b7 Requests tab \u00b7 Message request \u00b7 collapsed",
+    "playfulId": "7425:2650",
+    "focusedId": "8110:443456",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-04c",
+    "name": "T-MSG-04c \u00b7 Request accepted \u00b7 first reply \u00b7 collapsed",
+    "playfulId": "7425:3177",
+    "focusedId": "8110:443736",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-05c",
+    "name": "T-MSG-05c \u00b7 Job card \u00b7 Not interested (reasons) \u00b7 collapsed",
+    "playfulId": "7425:3698",
+    "focusedId": "8110:444015",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-06c",
+    "name": "T-MSG-06c \u00b7 Before you apply (pre-apply preview) \u00b7 collapsed",
+    "playfulId": "7425:4221",
+    "focusedId": "8110:444268",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-07c",
+    "name": "T-MSG-07c \u00b7 Job card \u00b7 Applied \u00b7 collapsed",
+    "playfulId": "7425:4786",
+    "focusedId": "8110:444575",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-08c",
+    "name": "T-MSG-08c \u00b7 Interview invite \u00b7 collapsed",
+    "playfulId": "7425:5312",
+    "focusedId": "8110:444840",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-09c",
+    "name": "T-MSG-09c \u00b7 Interview confirmed \u00b7 collapsed",
+    "playfulId": "7425:5827",
+    "focusedId": "8110:445114",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-10c",
+    "name": "T-MSG-10c \u00b7 Message not sent \u00b7 offline \u00b7 collapsed",
+    "playfulId": "7425:6358",
+    "focusedId": "8110:445401",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-11c",
+    "name": "T-MSG-11c \u00b7 Request from a confidential company \u00b7 collapsed",
+    "playfulId": "7425:6868",
+    "focusedId": "8110:445671",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-12c",
+    "name": "T-MSG-12c \u00b7 Role has closed \u00b7 collapsed",
+    "playfulId": "7425:7403",
+    "focusedId": "8110:445957",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-13c",
+    "name": "T-MSG-13c \u00b7 Empty inbox (first visit) \u00b7 collapsed",
+    "playfulId": "7425:7918",
+    "focusedId": "8110:446216",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-14c",
+    "name": "T-MSG-14c \u00b7 Loading \u00b7 collapsed",
+    "playfulId": "7425:8459",
+    "focusedId": "8110:446497",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2) \u00b7 Collapsed sidebar",
+    "url": "?"
+  }
+]

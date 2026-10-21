@@ -84,5 +84,7 @@ tests/playful/figma-nodes/
 tests/playful/figma-images/
 tests/playful/shots/
 
-# local Figma token (never commit)
+
+# Figma frame exports used for visual comparison (large, regenerate with figma-tools/export.py) and the local Figma token
+tests/messages/*.png
 .figma-token.local

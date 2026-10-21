@@ -46,7 +46,7 @@ export const TALENT_NAV_MAIN = [
     icon: TalentSidebarCommunityNavIcon,
     route: '/community',
   },
-  { id: 'messages', label: 'Messages', icon: TalentSidebarMessagesNavIcon },
+  { id: 'messages', label: 'Messages', icon: TalentSidebarMessagesNavIcon, route: '/messages' },
 ];
 
 /* The Home and Settings frames (Figma 8097:*, 7849:530) draw a "Wallet" item between Job Postings and Community. No wallet
@@ -56,6 +56,7 @@ export const TALENT_NAV_WALLET = {
   id: 'wallet',
   label: 'Wallet',
   icon: TalentSidebarWalletNavIcon,
+  route: '/wallet',
 };
 export const withWalletItem = (items) =>
   items.flatMap((item) => (item.id === 'opportunities' ? [item, TALENT_NAV_WALLET] : [item]));
@@ -188,6 +189,20 @@ const LEARNING_PAGE = {
 };
 
 /*
+ * /messages chrome (Figma T-MSG-01 Playful 7414:1717 / Focused 8110:435676; same card in every Messages frame): the
+ * Learning card (327px "tight", "Getting started 1 of 5", 47/142/4/7) with the Wallet item, "Opportunities" label, badges
+ * My Assessment 142 · Opportunities 142 · Messages 4 (the active item draws its badge as a white pill), nav streak 12.
+ * ✅ read off the Focused node 8110:435676 (texts.py). Playful keeps the shelf card (LIVE sticker).
+ */
+const MESSAGES_PAGE = {
+  ...LEARNING_PAGE,
+  softBadges: undefined,
+  wallet: true,
+  labels: { opportunities: 'Opportunities' }, // the Messages frames say "Opportunities", not "Job Postings"
+  badges: { assessment: '142', opportunities: '142', messages: '4' },
+};
+
+/*
  * /job-postings chrome (Figma J-01 7503:104 / Focused 8110:409276): the rail card reads "New" ·
  * "Tertiary (BSc) · Accra, Ghana" · "1 of 5 steps complete" with a "Getting started 1 of 5" bar.
  */
@@ -275,6 +290,18 @@ const COMMUNITY_PAGE = {
 };
 
 /*
+ * /wallet chrome (Figma W-06 Playful 8817:695 / Focused 8820:464667): same rail card as Job Postings / Community ("New" · "Getting started 1 of 5"),
+ * badges My Assessment 142 · Job Postings 2 · Messages 4, the Wallet item drawn active. `tight` + gradient Messages badge as on
+ * Community (measured against the Wallet frames: card 327px, nav rows and badges match).
+ */
+const WALLET_PAGE = {
+  ...COMMUNITY_PAGE,
+  wallet: true,
+  // Figma Wallet frames: card -> nav list gap 24 (shell default 40) and 6px around the divider (default 12). ✅ measured off 8820:344.
+  navGap: true,
+};
+
+/*
  * /settings chrome (Figma ST-01 7838:13009 / Focused 8110:44072): rail card "Getting started 1 of 5" like Job Postings,
  * badges My Assessment 142 · Job Postings 2 · Messages 4, a Wallet item, and NO nav item active.
  */
@@ -317,6 +344,8 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   if (activeNav === 'assessment' && !live) return ASSESSMENT_BY_STATE[stateKey] ?? ASSESSMENT_PAGE;
   if (activeNav === 'settings' && !live) return SETTINGS_PAGE;
   if (activeNav === 'learning' && !live) return LEARNING_PAGE;
+  if (activeNav === 'messages' && !live) return MESSAGES_PAGE;
+  if (activeNav === 'wallet' && !live) return WALLET_PAGE;
   if (activeNav === 'community' && !live) return COMMUNITY_PAGE;
   const base = BY_STATE[stateKey] ?? DAY1;
   if (!live) return base;

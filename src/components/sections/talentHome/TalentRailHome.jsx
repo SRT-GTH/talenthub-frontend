@@ -33,7 +33,7 @@ const log = debug('TalentRailHome');
  */
 const MAIN = [
   ...TALENT_NAV_MAIN.slice(0, 3),
-  { id: 'wallet', label: 'Wallet', icon: null },
+  { id: 'wallet', label: 'Wallet', icon: null, route: '/wallet' },
   ...TALENT_NAV_MAIN.slice(3),
 ];
 /* Glyph + its box inside the 24px icon slot, as drawn in Figma (21.6px glyphs sit at (0,-0.6) or centred). */
@@ -88,7 +88,7 @@ const Tile = ({ item, active, badge }) => {
           })()}
         </span>
       ) : (
-        <TalentRailWalletIcon className="size-[20px] text-[#999999]" />
+        <TalentRailWalletIcon className="size-[20px]" />
       )}
       {dot && (
         <span

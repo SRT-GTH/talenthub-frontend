@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="art">
+<path id="Vector" d="M18 84C14 50 42 20 78 18C114 16 144 42 142 80C140 118 112 144 76 140C42 136 22 116 18 84Z" fill="#E1EAE2"/>
+<path id="Vector_2" d="M70 118L62 140L80 128L98 140L90 118H70Z" fill="#E8672A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_3" d="M84 22C104 38 112 64 106 102H62C56 64 64 38 84 22Z" fill="#1C2A21"/>
+<path id="Vector_4" d="M80 18C100 34 108 60 102 98H58C52 60 60 34 80 18Z" fill="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_5" d="M72 66C72 69.1826 73.2643 72.2348 75.5147 74.4853C77.7652 76.7357 80.8174 78 84 78C87.1826 78 90.2348 76.7357 92.4853 74.4853C94.7357 72.2348 96 69.1826 96 66C96 62.8174 94.7357 59.7652 92.4853 57.5147C90.2348 55.2643 87.1826 54 84 54C80.8174 54 77.7652 55.2643 75.5147 57.5147C73.2643 59.7652 72 62.8174 72 66Z" fill="#1C2A21"/>
+<path id="Vector_6" d="M68 62C68 65.1826 69.2643 68.2348 71.5147 70.4853C73.7652 72.7357 76.8174 74 80 74C83.1826 74 86.2348 72.7357 88.4853 70.4853C90.7357 68.2348 92 65.1826 92 62C92 58.8174 90.7357 55.7652 88.4853 53.5147C86.2348 51.2643 83.1826 50 80 50C76.8174 50 73.7652 51.2643 71.5147 53.5147C69.2643 55.7652 68 58.8174 68 62Z" fill="#387440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_7" d="M58 80L40 104L58 100V80Z" fill="#F3C84B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_8" d="M102 80L120 104L102 100V80Z" fill="#F3C84B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_9" d="M132 27C133.08 34.92 133.08 34.92 141 36C133.08 37.08 133.08 37.08 132 45C130.92 37.08 130.92 37.08 123 36C130.92 34.92 130.92 34.92 132 27Z" fill="#C8951A"/>
+<path id="Vector_10" d="M28 44C28.72 49.28 28.72 49.28 34 50C28.72 50.72 28.72 50.72 28 56C27.28 50.72 27.28 50.72 22 50C27.28 49.28 27.28 49.28 28 44Z" fill="#387440"/>
+<path id="Vector_11" d="M18 134C22 128.667 26 128.667 30 134C34 139.333 38 139.333 42 134" stroke-width="3" stroke-linecap="round" stroke="#387440"/>
+</g>
+</svg>

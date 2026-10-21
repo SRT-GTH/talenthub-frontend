@@ -1,0 +1,90 @@
+[
+  {
+    "code": "H-01",
+    "name": "H-01 \u00b7 Help me reply \u00b7 reply ideas",
+    "playfulId": "7463:4297",
+    "focusedId": "8110:449385",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-02",
+    "name": "H-02 \u00b7 Help me reply \u00b7 Buddy is writing",
+    "playfulId": "7463:4862",
+    "focusedId": "8110:449794",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-03",
+    "name": "H-03 \u00b7 Help me reply \u00b7 draft ready",
+    "playfulId": "7463:5418",
+    "focusedId": "8110:450198",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-04",
+    "name": "H-04 \u00b7 Draft placed in message box",
+    "playfulId": "7463:5987",
+    "focusedId": "8110:450605",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-01c",
+    "name": "H-01c \u00b7 Help me reply \u00b7 reply ideas \u00b7 collapsed",
+    "playfulId": "7464:4860",
+    "focusedId": "8110:450989",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-02c",
+    "name": "H-02c \u00b7 Help me reply \u00b7 Buddy is writing \u00b7 collapsed",
+    "playfulId": "7464:5420",
+    "focusedId": "8110:451288",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-03c",
+    "name": "H-03c \u00b7 Help me reply \u00b7 draft ready \u00b7 collapsed",
+    "playfulId": "7464:5975",
+    "focusedId": "8110:451582",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  },
+  {
+    "code": "H-04c",
+    "name": "H-04c \u00b7 Draft placed in message box \u00b7 collapsed",
+    "playfulId": "7464:6533",
+    "focusedId": "8110:451879",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Help me reply (Career Buddy AI)",
+    "url": "?"
+  }
+]

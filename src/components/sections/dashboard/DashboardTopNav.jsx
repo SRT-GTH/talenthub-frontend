@@ -1,6 +1,6 @@
 import HomeLogoLink from '../../shared/HomeLogoLink.jsx';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import CommunityIcon from '../community/CommunityIcon.jsx';
@@ -114,7 +114,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
           ? { streakCount: talentHome.navStreak }
           : null),
         // /learning frames (7522:104 / 8110:10737): bell 5, messages 4.
-        ...(talentHome.navMessageCount && !talentHome.live
+        ...(talentHome.navMessageCount !== undefined && !talentHome.live
           ? { messageCount: talentHome.navMessageCount }
           : null),
       }
@@ -139,6 +139,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
   // Talent only: the bell / help buttons anchor the Notifications pop-up and the Help pop-over
   // (Figma 7471:53182 / 8376:10396). Recruiter + community pages keep the presentational buttons.
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const bellRef = useRef(null);
   const streakRef = useRef(null);
   // Streak pop-up (Figma 7532:2): `?streak=open|done|risk|freeze|lost|new` works on every talent page, whichever
@@ -201,6 +202,18 @@ const DashboardTopNav = ({ className, talentHome }) => {
     if (isTalent && action === 'help') {
       log('toggle help pop-over');
       talentHome.update({ help: talentHome.helpOpen ? null : true, notif: null, tip: null });
+      return;
+    }
+    // The messages icon opens the talent inbox (a pop-up may replace this once the header designs land).
+    if (isTalent && action === 'messages') {
+      log('messages icon -> /messages');
+      if (pathname !== '/messages') navigate('/messages');
+      return;
+    }
+    // On Messages the EN pill opens the language menu (Figma L-01, "Coming soon" languages).
+    if (isTalent && action === 'language' && pathname === '/messages') {
+      log('language pill -> ?lang=menu');
+      talentHome.update({ lang: talentHome.lang === 'menu' ? null : 'menu' });
       return;
     }
     // Talent profile chip: toggles the Profile menu (`?menu=open`, PM-01) — read by the talent shell on any page.

@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="art">
+<path id="Vector" d="M18 84C14 50 42 20 78 18C114 16 144 42 142 80C140 118 112 144 76 140C42 136 22 116 18 84Z" fill="#FAF4E8"/>
+<path id="Vector_2" d="M84 120C102.778 120 118 114.627 118 108C118 101.373 102.778 96 84 96C65.2223 96 50 101.373 50 108C50 114.627 65.2223 120 84 120Z" fill="#1C2A21"/>
+<path id="Vector_3" d="M80 116C98.7777 116 114 110.627 114 104C114 97.3726 98.7777 92 80 92C61.2223 92 46 97.3726 46 104C46 110.627 61.2223 116 80 116Z" fill="#C8951A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_4" d="M80 102C98.7777 102 114 96.6274 114 90C114 83.3726 98.7777 78 80 78C61.2223 78 46 83.3726 46 90C46 96.6274 61.2223 102 80 102Z" fill="#F3C84B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_5" d="M80 88C98.7777 88 114 82.6274 114 76C114 69.3726 98.7777 64 80 64C61.2223 64 46 69.3726 46 76C46 82.6274 61.2223 88 80 88Z" fill="#C8951A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_6" d="M80 74C98.7777 74 114 68.6274 114 62C114 55.3726 98.7777 50 80 50C61.2223 50 46 55.3726 46 62C46 68.6274 61.2223 74 80 74Z" fill="#F3C84B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_7" d="M80 52L83 59L90 60L85 64L86 71L80 67L74 71L75 64L70 60L77 59L80 52Z" fill="white" stroke-width="2" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_8" d="M126 25C127.08 32.92 127.08 32.92 135 34C127.08 35.08 127.08 35.08 126 43C124.92 35.08 124.92 35.08 117 34C124.92 32.92 124.92 32.92 126 25Z" fill="#C8951A"/>
+<path id="Vector_9" d="M32 40C32.72 45.28 32.72 45.28 38 46C32.72 46.72 32.72 46.72 32 52C31.28 46.72 31.28 46.72 26 46C31.28 45.28 31.28 45.28 32 40Z" fill="#387440"/>
+<path id="Vector_10" d="M22 130C26 124.667 30 124.667 34 130C38 135.333 42 135.333 46 130" stroke-width="3" stroke-linecap="round" stroke="#C8951A"/>
+<path id="Vector_11" d="M139 124C139 126.761 136.761 129 134 129C131.239 129 129 126.761 129 124C129 121.239 131.239 119 134 119C136.761 119 139 121.239 139 124Z" stroke-width="3" stroke="#C8951A"/>
+</g>
+</svg>

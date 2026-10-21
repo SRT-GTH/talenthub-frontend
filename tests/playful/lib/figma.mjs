@@ -119,17 +119,15 @@ export function loadRestFrame(id) {
 
 export function getToken() {
   if (process.env.FIGMA_TOKEN) return process.env.FIGMA_TOKEN;
-  try {
-    // Local, git-ignored token file (never committed); preferred over the shared .mcp.json token.
-    const local = fs
-      .readFileSync(path.resolve(PLAYFUL_DIR, '../../.figma-token.local'), 'utf8')
-      .trim();
-    if (local) return local;
-  } catch {}
+  // `.mcp.json` now references ${FIGMA_ACCESS_TOKEN} instead of holding the secret, so read the env var.
+  const fromEnv = process.env.FIGMA_ACCESS_TOKEN;
+  if (fromEnv && !fromEnv.startsWith('${')) return fromEnv;
   try {
     const j = JSON.parse(fs.readFileSync(path.resolve(PLAYFUL_DIR, '../../.mcp.json'), 'utf8'));
-    for (const s of Object.values(j.mcpServers || {}))
-      if (s.env?.FIGMA_ACCESS_TOKEN) return s.env.FIGMA_ACCESS_TOKEN;
+    for (const s of Object.values(j.mcpServers || {})) {
+      const v = s.env?.FIGMA_ACCESS_TOKEN;
+      if (v && !String(v).startsWith('${')) return v; // ignore the ${VAR} placeholder
+    }
   } catch {}
   return null;
 }

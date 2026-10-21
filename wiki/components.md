@@ -920,6 +920,12 @@ confirmation modal ships with them.
 
 **Figma quirks reproduced, not corrected:** "Job Postings" has an EMPTY `characterStyleOverrides` so it renders single-tone unlike its siblings; pipeline columns are labelled "ACCEPTED" and "rejected" in inconsistent casing; several subtitles carry double spaces; Godfred Ansah match bar is drawn at 66.7% while labelled 76% (bars are driven from the label). Banner heading uses Playfair Display in Figma - not loaded in this project and used on that one node only, so it renders in `font-display` (Instrument Serif). All recorded in `figma-node-map.md`.
 
+## Talent Wallet components (2026-10-21) `✅ VERIFIED`
+
+`sections/talentWallet/` — 33 screens, see [talent-wallet.md](talent-wallet.md) for the full file list. `WalletFrame` (shell + `activeNav="wallet"`), `WalletHeader` + `WalletTabs`, `WalletHome`, `WalletTransactions`, `WalletDialogs` (mounts the dialogs,
+toasts and `ReceiptDrawer`), `WalletPanels` (`HeroCard`, `HeroHead`, `SideCard`, `CreditMiniCard`, …), `WalletDialogParts` (`WalletModal`, `ModalHead`, `AmountField`, `QuickChips`, `OptionList`), `walletUi` (`WalletButton` 14px radius / 56px high, `StatusChip`,
+`KycSticker`, `TxRow`, `HERO_CARD`, `PLAIN_CARD`). Reuses `helpUi` (`HelpModal`, `HEADING`, `FOCUS_RING`). Icons: `Wallet*Icon` in `assets.jsx`.
+
 ## Conventions
 
 - One component per file, named export default.

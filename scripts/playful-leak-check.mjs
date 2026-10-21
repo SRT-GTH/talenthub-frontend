@@ -14,6 +14,8 @@ const ALLOWED = [
   '/job-postings',
   '/streak',
   '/learning',
+  '/messages',
+  '/wallet',
   '/settings',
   '/logged-out',
 ];

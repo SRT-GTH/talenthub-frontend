@@ -1,0 +1,345 @@
+[
+  {
+    "code": "T-MSG-01",
+    "name": "T-MSG-01 \u00b7 Inbox (default)",
+    "playfulId": "7414:1717",
+    "focusedId": "8110:435676",
+    "url": "/messages"
+  },
+  {
+    "code": "T-MSG-02",
+    "name": "T-MSG-02 \u00b7 Conversation options menu",
+    "playfulId": "7416:1802",
+    "focusedId": "8110:436068",
+    "url": "/messages?menu=options"
+  },
+  {
+    "code": "T-MSG-03",
+    "name": "T-MSG-03 \u00b7 Requests tab \u00b7 Message request",
+    "playfulId": "7416:2322",
+    "focusedId": "8110:436492",
+    "url": "/messages?tab=requests&c=request"
+  },
+  {
+    "code": "T-MSG-04",
+    "name": "T-MSG-04 \u00b7 Request accepted \u00b7 first reply",
+    "playfulId": "7420:1961",
+    "focusedId": "8110:436883",
+    "url": "/messages?tab=requests&c=request&state=accepted"
+  },
+  {
+    "code": "T-MSG-05",
+    "name": "T-MSG-05 \u00b7 Job card \u00b7 Not interested (reasons)",
+    "playfulId": "7420:2519",
+    "focusedId": "8110:437272",
+    "url": "/messages?modal=not-interested"
+  },
+  {
+    "code": "T-MSG-06",
+    "name": "T-MSG-06 \u00b7 Before you apply (pre-apply preview)",
+    "playfulId": "7420:3086",
+    "focusedId": "8110:437636",
+    "url": "/messages?modal=pre-apply"
+  },
+  {
+    "code": "T-MSG-07",
+    "name": "T-MSG-07 \u00b7 Job card \u00b7 Applied",
+    "playfulId": "7420:3617",
+    "focusedId": "8110:438053",
+    "url": "/messages?c=applied"
+  },
+  {
+    "code": "T-MSG-08",
+    "name": "T-MSG-08 \u00b7 Interview invite",
+    "playfulId": "7421:2280",
+    "focusedId": "8110:438428",
+    "url": "/messages?c=interview"
+  },
+  {
+    "code": "T-MSG-09",
+    "name": "T-MSG-09 \u00b7 Interview confirmed",
+    "playfulId": "7421:2822",
+    "focusedId": "8110:438812",
+    "url": "/messages?c=interview&state=confirmed"
+  },
+  {
+    "code": "T-MSG-10",
+    "name": "T-MSG-10 \u00b7 Message not sent \u00b7 offline",
+    "playfulId": "7421:3380",
+    "focusedId": "8110:439209",
+    "url": "/messages?state=offline"
+  },
+  {
+    "code": "T-MSG-11",
+    "name": "T-MSG-11 \u00b7 Request from a confidential company",
+    "playfulId": "7422:2514",
+    "focusedId": "8110:439589",
+    "url": "/messages?tab=requests&c=confidential"
+  },
+  {
+    "code": "T-MSG-12",
+    "name": "T-MSG-12 \u00b7 Role has closed",
+    "playfulId": "7422:3011",
+    "focusedId": "8110:439985",
+    "url": "/messages?c=closed"
+  },
+  {
+    "code": "T-MSG-13",
+    "name": "T-MSG-13 \u00b7 Empty inbox (first visit)",
+    "playfulId": "7422:3571",
+    "focusedId": "8110:440354",
+    "url": "/messages?state=empty"
+  },
+  {
+    "code": "T-MSG-14",
+    "name": "T-MSG-14 \u00b7 Loading",
+    "playfulId": "7422:4086",
+    "focusedId": "8110:440745",
+    "url": "/messages?state=loading"
+  },
+  {
+    "code": "T-MSG-01c",
+    "name": "T-MSG-01c \u00b7 Inbox (default) \u00b7 collapsed",
+    "playfulId": "7425:1556",
+    "focusedId": "8110:442861",
+    "url": "/messages?rail=collapsed"
+  },
+  {
+    "code": "T-MSG-02c",
+    "name": "T-MSG-02c \u00b7 Conversation options menu \u00b7 collapsed",
+    "playfulId": "7425:2081",
+    "focusedId": "8110:443142",
+    "url": "/messages?menu=options&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-03c",
+    "name": "T-MSG-03c \u00b7 Requests tab \u00b7 Message request \u00b7 collapsed",
+    "playfulId": "7425:2650",
+    "focusedId": "8110:443456",
+    "url": "/messages?tab=requests&c=request&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-04c",
+    "name": "T-MSG-04c \u00b7 Request accepted \u00b7 first reply \u00b7 collapsed",
+    "playfulId": "7425:3177",
+    "focusedId": "8110:443736",
+    "url": "/messages?tab=requests&c=request&state=accepted&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-05c",
+    "name": "T-MSG-05c \u00b7 Job card \u00b7 Not interested (reasons) \u00b7 collapsed",
+    "playfulId": "7425:3698",
+    "focusedId": "8110:444015",
+    "url": "/messages?modal=not-interested&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-06c",
+    "name": "T-MSG-06c \u00b7 Before you apply (pre-apply preview) \u00b7 collapsed",
+    "playfulId": "7425:4221",
+    "focusedId": "8110:444268",
+    "url": "/messages?modal=pre-apply&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-07c",
+    "name": "T-MSG-07c \u00b7 Job card \u00b7 Applied \u00b7 collapsed",
+    "playfulId": "7425:4786",
+    "focusedId": "8110:444575",
+    "url": "/messages?c=applied&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-08c",
+    "name": "T-MSG-08c \u00b7 Interview invite \u00b7 collapsed",
+    "playfulId": "7425:5312",
+    "focusedId": "8110:444840",
+    "url": "/messages?c=interview&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-09c",
+    "name": "T-MSG-09c \u00b7 Interview confirmed \u00b7 collapsed",
+    "playfulId": "7425:5827",
+    "focusedId": "8110:445114",
+    "url": "/messages?c=interview&state=confirmed&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-10c",
+    "name": "T-MSG-10c \u00b7 Message not sent \u00b7 offline \u00b7 collapsed",
+    "playfulId": "7425:6358",
+    "focusedId": "8110:445401",
+    "url": "/messages?state=offline&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-11c",
+    "name": "T-MSG-11c \u00b7 Request from a confidential company \u00b7 collapsed",
+    "playfulId": "7425:6868",
+    "focusedId": "8110:445671",
+    "url": "/messages?tab=requests&c=confidential&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-12c",
+    "name": "T-MSG-12c \u00b7 Role has closed \u00b7 collapsed",
+    "playfulId": "7425:7403",
+    "focusedId": "8110:445957",
+    "url": "/messages?c=closed&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-13c",
+    "name": "T-MSG-13c \u00b7 Empty inbox (first visit) \u00b7 collapsed",
+    "playfulId": "7425:7918",
+    "focusedId": "8110:446216",
+    "url": "/messages?state=empty&rail=collapsed"
+  },
+  {
+    "code": "T-MSG-14c",
+    "name": "T-MSG-14c \u00b7 Loading \u00b7 collapsed",
+    "playfulId": "7425:8459",
+    "focusedId": "8110:446497",
+    "url": "/messages?state=loading&rail=collapsed"
+  },
+  {
+    "code": "H-01",
+    "name": "H-01 \u00b7 Help me reply \u00b7 reply ideas",
+    "playfulId": "7463:4297",
+    "focusedId": "8110:449385",
+    "url": "/messages?reply=ideas"
+  },
+  {
+    "code": "H-02",
+    "name": "H-02 \u00b7 Help me reply \u00b7 Buddy is writing",
+    "playfulId": "7463:4862",
+    "focusedId": "8110:449794",
+    "url": "/messages?reply=writing"
+  },
+  {
+    "code": "H-03",
+    "name": "H-03 \u00b7 Help me reply \u00b7 draft ready",
+    "playfulId": "7463:5418",
+    "focusedId": "8110:450198",
+    "url": "/messages?reply=draft"
+  },
+  {
+    "code": "H-04",
+    "name": "H-04 \u00b7 Draft placed in message box",
+    "playfulId": "7463:5987",
+    "focusedId": "8110:450605",
+    "url": "/messages?reply=placed"
+  },
+  {
+    "code": "H-01c",
+    "name": "H-01c \u00b7 Help me reply \u00b7 reply ideas \u00b7 collapsed",
+    "playfulId": "7464:4860",
+    "focusedId": "8110:450989",
+    "url": "/messages?reply=ideas&rail=collapsed"
+  },
+  {
+    "code": "H-02c",
+    "name": "H-02c \u00b7 Help me reply \u00b7 Buddy is writing \u00b7 collapsed",
+    "playfulId": "7464:5420",
+    "focusedId": "8110:451288",
+    "url": "/messages?reply=writing&rail=collapsed"
+  },
+  {
+    "code": "H-03c",
+    "name": "H-03c \u00b7 Help me reply \u00b7 draft ready \u00b7 collapsed",
+    "playfulId": "7464:5975",
+    "focusedId": "8110:451582",
+    "url": "/messages?reply=draft&rail=collapsed"
+  },
+  {
+    "code": "H-04c",
+    "name": "H-04c \u00b7 Draft placed in message box \u00b7 collapsed",
+    "playfulId": "7464:6533",
+    "focusedId": "8110:451879",
+    "url": "/messages?reply=placed&rail=collapsed"
+  },
+  {
+    "code": "A-01",
+    "name": "A-01 \u00b7 Accessibility \u00b7 In Messages tab",
+    "playfulId": "7489:5819",
+    "focusedId": "8110:453594",
+    "url": "/messages?a11y=1"
+  },
+  {
+    "code": "A-02",
+    "name": "A-02 \u00b7 Settings on \u00b7 Calm chat + Read aloud + Explain + Large text",
+    "playfulId": "7489:6452",
+    "focusedId": "8110:453987",
+    "url": "/messages?calm=1&read=1&explain=1&large=1"
+  },
+  {
+    "code": "A-03",
+    "name": "A-03 \u00b7 Read aloud \u00b7 playing",
+    "playfulId": "7491:6150",
+    "focusedId": "8110:454403",
+    "url": "/messages?calm=1&read=playing&explain=1"
+  },
+  {
+    "code": "A-04",
+    "name": "A-04 \u00b7 Explain it simply \u00b7 Career Buddy",
+    "playfulId": "7491:6669",
+    "focusedId": "8110:454847",
+    "url": "/messages?explain=open"
+  },
+  {
+    "code": "L-01",
+    "name": "L-01 \u00b7 Language menu \u00b7 Coming soon",
+    "playfulId": "7497:6381",
+    "focusedId": "8110:455947",
+    "url": "/messages?lang=menu"
+  },
+  {
+    "code": "L-02",
+    "name": "L-02 \u00b7 Twi \u00b7 Coming soon modal",
+    "playfulId": "7497:6992",
+    "focusedId": "8110:456342",
+    "url": "/messages?lang=twi"
+  },
+  {
+    "code": "L-03",
+    "name": "L-03 \u00b7 On the list \u00b7 toast",
+    "playfulId": "7497:7466",
+    "focusedId": "8110:456736",
+    "url": "/messages?lang=toast"
+  },
+  {
+    "code": "L-02b",
+    "name": "L-02b \u00b7 Ga \u00b7 Coming soon modal",
+    "playfulId": "7499:135369",
+    "focusedId": "8110:457137",
+    "url": "/messages?lang=ga"
+  },
+  {
+    "code": "L-02c",
+    "name": "L-02c \u00b7 Ewe \u00b7 Coming soon modal",
+    "playfulId": "7499:136038",
+    "focusedId": "8110:457531",
+    "url": "/messages?lang=ewe"
+  },
+  {
+    "code": "L-02d",
+    "name": "L-02d \u00b7 Dagbani \u00b7 Coming soon modal",
+    "playfulId": "7499:136707",
+    "focusedId": "8110:457925",
+    "url": "/messages?lang=dagbani"
+  },
+  {
+    "code": "L-02e",
+    "name": "L-02e \u00b7 Hausa \u00b7 Coming soon modal",
+    "playfulId": "7499:137376",
+    "focusedId": "8110:458319",
+    "url": "/messages?lang=hausa"
+  },
+  {
+    "code": "A-01c",
+    "name": "Accessibility \u00b7 In Messages tab \u00b7 collapsed sidebar",
+    "playfulId": "8808:456563",
+    "focusedId": "8808:457245",
+    "url": "/messages?a11y=1&rail=collapsed"
+  },
+  {
+    "code": "HP",
+    "name": "Help pop-over overlay",
+    "playfulId": "8376:504797",
+    "focusedId": "8376:504917",
+    "url": "/messages?help=1"
+  }
+]

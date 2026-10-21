@@ -1969,3 +1969,10 @@ Page "Talent Notification Screens" `7471:53182`. Pop-up component `GTH · Notifi
 ## Talent profile — previews + accessibility (2026-10-18)
 
 P-07 recruiter preview `7573:602` / `8110:371211`; PR-02 public link `7584:1691` / `8110:387366` (drawn WITH the talent shell); PR-03 drawer `7584:2347` / `8110:387950` (drawer node `7584:2961`, over the recruiter preview); PR-04 `7584:3137` / `8110:388716` (recruiter preview after hiding the pitch — not the public view). Accessibility: popover component `8343:520316`; AX-01 `7590:1952`, AX-02 `7590:2746`, AX-03 `7590:3461`, AX-04 `7591:2279`, AX-05 `7591:3047`, AX-06 `7591:3728`, AX-06b `7591:4339`, AX-07a `7592:2619`, AX-07b `7592:3287`, AX-08 `7592:4005` (Focused twins in `wiki/talent-profile.md`). Quirks: `icon/video` is an EMPTY instance (nothing drawn), the landmarks `<main>` box is opaque in both frames.
+
+## Talent Wallet (2026-10-21)
+
+Canvas `8817:693`. Sections: Home, money in and out `8817:694` (collapsed `8891:471947`) · Set up and KYC `8819:11130` (`8892:98`) · Cycles, savings, under-18s `8822:98` (`8892:7946`) ·
+Tuition financing `8824:98` (`8892:482890`) · Credit score and payouts `8825:98` (`8892:488899`). Phase 1 frames (Playful / Focused): W-06 `8817:695` / `8820:464667`, W-07 `8820:98` /
+`8820:465584`, W-08 `8820:1564` / `8820:466982`, W-09 `8820:2921` / `8820:468329`, W-10 `8820:4273` / `8820:469671`, W-11 `8820:5666` / `8820:471054`, W-12 `8820:7035` / `8820:472413`,
+W-13 `8820:7855` / `8820:473223`. Drawer node `8820:8625` (drawn from the frame top, under the Safari toolbar). Full list: [talent-wallet.md](talent-wallet.md).

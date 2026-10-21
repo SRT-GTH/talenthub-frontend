@@ -45,6 +45,8 @@ Every claim in this wiki carries a tag:
 - [talent-skills-lab.md](talent-skills-lab.md) — Talent Skills Lab `/skills-lab`: hub, lab details, 8 lab flows, games, dialogs; per-frame checklist with diff %, known gaps
 - [talent-assessment.md](talent-assessment.md) — Talent My Assessment `/my-assessment`: overview + states, personality / skill-evidence details, library, full TypeScript assessment flow; per-frame checklist, known gaps
 - [talent-community.md](talent-community.md) — Talent Community v2 `/community`: browse, community page (feed / about / members), post + comments, dialogs; replaces the cancelled recruiter-chrome Community
+- [talent-messages.md](talent-messages.md) — Talent Messages `/messages`: inbox, requests, job/interview cards, pre-apply, Help me reply, accessibility, languages; 49-frame URL checklist + **recovery list** (what still needs Figma REST)
+- [talent-wallet.md](talent-wallet.md) — Talent Wallet `/wallet`: 33 screens (phased), frame→URL table with diff % for all five phases, REST-verified provenance, prototype flows, per-style differences
 
 ### External
 

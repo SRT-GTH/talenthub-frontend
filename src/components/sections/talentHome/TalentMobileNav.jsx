@@ -71,11 +71,15 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
                   ? 'opportunities'
                   : activeNav === 'learning'
                     ? 'my-learning'
-                    : pathname === '/notifications'
-                      ? 'messages'
-                      : home?.tab === 'assessment'
-                        ? 'assessment'
-                        : 'home';
+                    : activeNav === 'wallet'
+                      ? 'wallet'
+                      : activeNav === 'messages'
+                        ? 'messages'
+                        : pathname === '/notifications'
+                          ? 'messages'
+                          : home?.tab === 'assessment'
+                            ? 'assessment'
+                            : 'home';
 
   useEffect(() => {
     log('mount', { tabs: TAB_IDS, stateKey });

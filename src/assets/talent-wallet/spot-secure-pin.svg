@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="art">
+<path id="Vector" d="M18 84C14 50 42 20 78 18C114 16 144 42 142 80C140 118 112 144 76 140C42 136 22 116 18 84Z" fill="#FAF4E8"/>
+<path id="Vector_2" d="M84 38L118 50V82C118 104 102 118 84 126C66 118 50 104 50 82V50L84 38Z" fill="#1C2A21"/>
+<path id="Vector_3" d="M80 34L114 46V78C114 100 98 114 80 122C62 114 46 100 46 78V46L80 34Z" fill="#387440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_4" d="M71 76V68C71 65.6131 71.9482 63.3239 73.636 61.636C75.3239 59.9482 77.6131 59 80 59C82.3869 59 84.6761 59.9482 86.364 61.636C88.0518 63.3239 89 65.6131 89 68V76" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_5" d="M91 76H69C66.2386 76 64 78.2386 64 81V95C64 97.7614 66.2386 100 69 100H91C93.7614 100 96 97.7614 96 95V81C96 78.2386 93.7614 76 91 76Z" fill="#F3C84B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_6" d="M80 91C81.6569 91 83 89.6569 83 88C83 86.3431 81.6569 85 80 85C78.3431 85 77 86.3431 77 88C77 89.6569 78.3431 91 80 91Z" fill="#1C2A21"/>
+<path id="Vector_7" d="M126 25C127.08 32.92 127.08 32.92 135 34C127.08 35.08 127.08 35.08 126 43C124.92 35.08 124.92 35.08 117 34C124.92 32.92 124.92 32.92 126 25Z" fill="#C8951A"/>
+<path id="Vector_8" d="M32 40C32.72 45.28 32.72 45.28 38 46C32.72 46.72 32.72 46.72 32 52C31.28 46.72 31.28 46.72 26 46C31.28 45.28 31.28 45.28 32 40Z" fill="#387440"/>
+<path id="Vector_9" d="M22 130C26 124.667 30 124.667 34 130C38 135.333 42 135.333 46 130" stroke-width="3" stroke-linecap="round" stroke="#C8951A"/>
+<path id="Vector_10" d="M139 124C139 126.761 136.761 129 134 129C131.239 129 129 126.761 129 124C129 121.239 131.239 119 134 119C136.761 119 139 121.239 139 124Z" stroke-width="3" stroke="#C8951A"/>
+</g>
+</svg>

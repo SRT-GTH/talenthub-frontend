@@ -10,7 +10,7 @@
 
 ## Figma access — USE THE CACHE, NOT THE API
 
-The Figma MCP and the old REST token are rate-limited. A new token (owner-provided) fetched everything once. It is stored ONLY in the git-ignored `.figma-token.local` (read automatically by the scripts); **never print it, copy it into any tracked file or paste it into prompts/reports**:
+The Figma MCP and the old REST token are rate-limited. A new token (owner-provided) fetched everything once. It is read from the user-level environment variable `FIGMA_TOKEN` (scripts read it automatically); **never print it, copy it into any file or paste it into prompts/reports**:
 
 - Node JSON for all 40 frames: `tests/playful/figma-nodes/<id with _>.json` (git-ignored).
 - 2x reference PNGs for all 40 frames: `tests/playful/figma-images/<id with _>.png` (git-ignored).

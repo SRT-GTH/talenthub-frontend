@@ -32,6 +32,8 @@ const RAIL_ID_BY_NAV = {
   streak: 'none',
   jobs: 'opportunities',
   learning: 'my-learning',
+  messages: 'messages',
+  wallet: 'wallet',
 };
 
 /*
@@ -79,6 +81,8 @@ const TalentDashboardShell = ({
       activeNav === 'streak' ||
       activeNav === 'assessment' ||
       activeNav === 'community' ||
+      activeNav === 'messages' ||
+      activeNav === 'wallet' ||
       activeNav === 'skills-lab') &&
     talentHome
       ? {
@@ -97,7 +101,9 @@ const TalentDashboardShell = ({
                       ? 'skills-lab'
                       : activeNav === 'streak'
                         ? 'streak'
-                        : undefined,
+                        : activeNav === 'messages'
+                          ? 'messages'
+                          : undefined,
           // the nav accessibility button opens the profile's own panel (see TalentA11yMenu)
           profileA11y: activeNav === 'profile',
           notif: ['open', 'empty', 'loading'].includes(params.get('notif'))
@@ -201,6 +207,16 @@ const TalentDashboardShell = ({
                   : (RAIL_ID_BY_NAV[activeNav] ?? 'home'))
               }
               onToggle={() => setCollapsed(false)}
+              className="hidden h-full lg:flex"
+            />
+          ) : rail === 'collapsed' && chrome?.railHome ? (
+            /* Wallet (Figma "collapsed sidebar" frames) draws the newer icon rail with the Wallet tile, like Home / Settings. */
+            <TalentRailHome
+              home={chrome}
+              activeNav={activeNav}
+              activeId={railActiveId}
+              badges={railBadges}
+              onToggle={onToggleRail}
               className="hidden h-full lg:flex"
             />
           ) : rail === 'collapsed' ? (

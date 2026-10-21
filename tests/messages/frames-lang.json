@@ -1,0 +1,79 @@
+[
+  {
+    "code": "L-01",
+    "name": "L-01 \u00b7 Language menu \u00b7 Coming soon",
+    "playfulId": "7497:6381",
+    "focusedId": "8110:455947",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-02",
+    "name": "L-02 \u00b7 Twi \u00b7 Coming soon modal",
+    "playfulId": "7497:6992",
+    "focusedId": "8110:456342",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-03",
+    "name": "L-03 \u00b7 On the list \u00b7 toast",
+    "playfulId": "7497:7466",
+    "focusedId": "8110:456736",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-02b",
+    "name": "L-02b \u00b7 Ga \u00b7 Coming soon modal",
+    "playfulId": "7499:135369",
+    "focusedId": "8110:457137",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-02c",
+    "name": "L-02c \u00b7 Ewe \u00b7 Coming soon modal",
+    "playfulId": "7499:136038",
+    "focusedId": "8110:457531",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-02d",
+    "name": "L-02d \u00b7 Dagbani \u00b7 Coming soon modal",
+    "playfulId": "7499:136707",
+    "focusedId": "8110:457925",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  },
+  {
+    "code": "L-02e",
+    "name": "L-02e \u00b7 Hausa \u00b7 Coming soon modal",
+    "playfulId": "7499:137376",
+    "focusedId": "8110:458319",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 LANGUAGES \u00b7 Coming soon",
+    "url": "?"
+  }
+]

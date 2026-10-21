@@ -100,6 +100,8 @@ const GoalsStage2Page = lazy(() => import('./pages/profileFilling/GoalsStage2Pag
 const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.jsx'));
 const PitchStage2Page = lazy(() => import('./pages/profileFilling/PitchStage2Page.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
+const TalentMessagesPage = lazy(() => import('./pages/talentMessages/TalentMessagesPage.jsx'));
+const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPage.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -853,6 +855,26 @@ function App() {
                   element={<LegacyRecruiterBuddyRedirect />}
                 />
 
+                {/* Talent Messages — Figma canvas "Talent Messages" 7387:104275 (T-MSG, H, A, L frames, Playful + Focused).
+            Frames are query params (see messagesState.js / wiki/talent-messages.md). Outside MainLayout. */}
+                <Route
+                  path={'/messages'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentMessagesPage />
+                    </Suspense>
+                  }
+                />
+                {/* Talent Wallet — Figma canvas "Talent Wallet" 8817:693 (W-01 … W-27b, Playful + Focused, expanded + collapsed
+            sidebar). Frames are query params (see talentWalletState.js / wiki/talent-wallet.md). Mock data only. Outside MainLayout. */}
+                <Route
+                  path={'/wallet'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentWalletPage />
+                    </Suspense>
+                  }
+                />
                 {/* Talent Community v2 — Figma canvas "Talent - community Engagement" 5456:19207, section "Community v2 · Talent"
             (C-01 … C-17, Playful + Focused). Replaces the old recruiter-chrome Community (cancelled by design).
             Frames are query params (see communityState.js / wiki/talent-community.md). Outside MainLayout. */}

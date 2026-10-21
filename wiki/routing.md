@@ -160,6 +160,12 @@ Wrapped in `AvatarSelectionProvider` so picks survive navigation.
 
 `TalentHomePage` (lazy), outside `MainLayout`, `DashboardShell role="talent"`; Focused + Playful via `UiStyleScope`. Every Figma state is a query param (`?state=`, `?tab=`, `?search=1`, `?edit=1`, `?loading=1`, `?new=welcome|tour|chat|gate`, `&a11y=1`) — table in [talent-home.md](talent-home.md).
 
+## Talent Wallet — `/wallet` `✅ VERIFIED` (2026-10-21)
+
+`/wallet` (outside `MainLayout`, lazy `TalentWalletPage`), Figma canvas `8817:693`. Mock data only. State is the URL (`talentWalletState.js`): `?tab=overview|transactions|…`,
+`?view=topup|withdraw|kyc|savings|escrow|salary&step=…`, `?state=new|checking|retake|activated|under18`, `?stage=` (financing), `?modal=`, `?toast=`, `?tx=<id>` (receipt drawer), `?rail=collapsed`. The sidebar "Wallet" item (`TALENT_NAV_WALLET.route`) and the collapsed rail tile open it.
+Frame ↔ URL table: [talent-wallet.md](talent-wallet.md).
+
 ## Recruiter dashboard home
 
 | Path              | Page                                        | Chrome                                  |
@@ -231,3 +237,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 `/my-assessment` (+ `?state=first|loading|error`, `?view=recruiter`, `?modal=retake`), `/my-assessment/personality`, `/my-assessment/skills/:skillId`, `/my-assessment/library`, `/my-assessment/full/:skillId[?step=play|?f=MA-xx]` — outside `MainLayout`, see [talent-assessment.md](talent-assessment.md).
 
 `/community`, `/community/:communityId`, `/community/:communityId/post/:postId` — talent Community v2, outside `MainLayout`, see [talent-community.md](talent-community.md). The old recruiter-chrome Community pages were removed.
+
+`/messages` — talent Messages (inbox, request, cards, dialogs, Help me reply, accessibility, languages), outside `MainLayout`, state in the URL, see [talent-messages.md](talent-messages.md). The recruiter `/recruiter/messages` page is a different audience and is unchanged. 🔶 LIKELY (built, not compared with Figma yet)

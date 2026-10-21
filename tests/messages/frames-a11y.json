@@ -1,0 +1,46 @@
+[
+  {
+    "code": "A-01",
+    "name": "A-01 \u00b7 Accessibility \u00b7 In Messages tab",
+    "playfulId": "7489:5819",
+    "focusedId": "8110:453594",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Accessibility options",
+    "url": "?"
+  },
+  {
+    "code": "A-02",
+    "name": "A-02 \u00b7 Settings on \u00b7 Calm chat + Read aloud + Explain + Large text",
+    "playfulId": "7489:6452",
+    "focusedId": "8110:453987",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Accessibility options",
+    "url": "?"
+  },
+  {
+    "code": "A-03",
+    "name": "A-03 \u00b7 Read aloud \u00b7 playing",
+    "playfulId": "7491:6150",
+    "focusedId": "8110:454403",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Accessibility options",
+    "url": "?"
+  },
+  {
+    "code": "A-04",
+    "name": "A-04 \u00b7 Explain it simply \u00b7 Career Buddy",
+    "playfulId": "7491:6669",
+    "focusedId": "8110:454847",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES \u00b7 Accessibility options",
+    "url": "?"
+  }
+]

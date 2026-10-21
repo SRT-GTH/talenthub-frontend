@@ -187,7 +187,11 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
                   ? 'opportunities'
                   : activeNav === 'learning'
                     ? 'my-learning'
-                    : 'home');
+                    : activeNav === 'wallet'
+                      ? 'wallet'
+                      : activeNav === 'messages'
+                        ? 'messages'
+                        : 'home');
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
@@ -272,6 +276,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     <div
       className={classNames(
         'flex w-[clamp(240px,17.53vw,303px)] shrink-0 flex-col items-center gap-[40px] overflow-y-auto bg-white py-[22px]',
+        data.navGap && '!gap-[24px]',
         shelf && 'playful:bg-transparent',
         className
       )}
@@ -381,7 +386,12 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
 
       {/* Navigation + public profile */}
       <div className="flex min-h-px w-full flex-1 flex-col items-start gap-[16px] pl-[clamp(14px,1.27vw,22px)] pr-[clamp(10px,0.7vw,12px)]">
-        <div className="flex w-full flex-col gap-[12px] pt-[6px]">
+        <div
+          className={classNames(
+            'flex w-full flex-col gap-[12px] pt-[6px]',
+            data.navGap && '!gap-[6px]'
+          )}
+        >
           <nav aria-label="Main" className="flex w-full flex-col gap-[4px]">
             {mainItems.map((item) => (
               <NavItem

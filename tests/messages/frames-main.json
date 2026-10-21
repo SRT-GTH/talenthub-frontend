@@ -1,0 +1,156 @@
+[
+  {
+    "code": "T-MSG-01",
+    "name": "T-MSG-01 \u00b7 Inbox (default)",
+    "playfulId": "7414:1717",
+    "focusedId": "8110:435676",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-02",
+    "name": "T-MSG-02 \u00b7 Conversation options menu",
+    "playfulId": "7416:1802",
+    "focusedId": "8110:436068",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-03",
+    "name": "T-MSG-03 \u00b7 Requests tab \u00b7 Message request",
+    "playfulId": "7416:2322",
+    "focusedId": "8110:436492",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-04",
+    "name": "T-MSG-04 \u00b7 Request accepted \u00b7 first reply",
+    "playfulId": "7420:1961",
+    "focusedId": "8110:436883",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-05",
+    "name": "T-MSG-05 \u00b7 Job card \u00b7 Not interested (reasons)",
+    "playfulId": "7420:2519",
+    "focusedId": "8110:437272",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-06",
+    "name": "T-MSG-06 \u00b7 Before you apply (pre-apply preview)",
+    "playfulId": "7420:3086",
+    "focusedId": "8110:437636",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-07",
+    "name": "T-MSG-07 \u00b7 Job card \u00b7 Applied",
+    "playfulId": "7420:3617",
+    "focusedId": "8110:438053",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-08",
+    "name": "T-MSG-08 \u00b7 Interview invite",
+    "playfulId": "7421:2280",
+    "focusedId": "8110:438428",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-09",
+    "name": "T-MSG-09 \u00b7 Interview confirmed",
+    "playfulId": "7421:2822",
+    "focusedId": "8110:438812",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-10",
+    "name": "T-MSG-10 \u00b7 Message not sent \u00b7 offline",
+    "playfulId": "7421:3380",
+    "focusedId": "8110:439209",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-11",
+    "name": "T-MSG-11 \u00b7 Request from a confidential company",
+    "playfulId": "7422:2514",
+    "focusedId": "8110:439589",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-12",
+    "name": "T-MSG-12 \u00b7 Role has closed",
+    "playfulId": "7422:3011",
+    "focusedId": "8110:439985",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-13",
+    "name": "T-MSG-13 \u00b7 Empty inbox (first visit)",
+    "playfulId": "7422:3571",
+    "focusedId": "8110:440354",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  },
+  {
+    "code": "T-MSG-14",
+    "name": "T-MSG-14 \u00b7 Loading",
+    "playfulId": "7422:4086",
+    "focusedId": "8110:440745",
+    "h": 1117,
+    "hFocused": 1117,
+    "type": "FRAME",
+    "section": "TALENT \u2013 MESSAGES (v2)",
+    "url": "?"
+  }
+]
