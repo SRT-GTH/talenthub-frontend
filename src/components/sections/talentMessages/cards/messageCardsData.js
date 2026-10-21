@@ -50,6 +50,7 @@ export const JOB_CARD_PASSED = {
   ...JOB_CARD_PENDING,
   state: 'passed',
   statusLabel: 'Passed',
+  barWidth: '96.04%', // the drawn Passed bar (Figma); live cards use their own match %
   passedNote: 'You passed on this role. Farmerline only sees that you passed.',
 };
 

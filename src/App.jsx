@@ -101,6 +101,7 @@ const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.
 const PitchStage2Page = lazy(() => import('./pages/profileFilling/PitchStage2Page.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
 const TalentMessagesPage = lazy(() => import('./pages/talentMessages/TalentMessagesPage.jsx'));
+const MessageLinkRedirect = lazy(() => import('./pages/talentMessages/MessageLinkRedirect.jsx'));
 const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPage.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
@@ -862,6 +863,14 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentMessagesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/messages/:conversationId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <MessageLinkRedirect />
                     </Suspense>
                   }
                 />

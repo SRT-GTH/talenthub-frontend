@@ -8,10 +8,12 @@ import {
   JOB_CARD_PASSING,
   JOB_CARD_PENDING,
 } from './cards/messageCardsData.js';
+import { jobCardFromApi } from './messagesLive.js';
 
 /*
  * Pure view-model builders for the Messages page (no React). Inputs: the URL state (messagesState.js), the in-memory
- * store (messagesStore.js) and whether the viewport is the two-column layout.
+ * store (messagesStore.js), whether the viewport is the two-column layout, and `live` (useLiveMessages.js) — when set,
+ * the signed-in talent's real conversations replace the drawn mock records (same record shape, see messagesLive.js).
  */
 const BY_ID = Object.fromEntries(MESSAGE_CONVERSATIONS.map((c) => [c.id, c]));
 const JOB_CARDS = {
@@ -22,7 +24,10 @@ const JOB_CARDS = {
   closed: JOB_CARD_CLOSED,
 };
 
-export const getConversation = (id) => BY_ID[id] ?? null;
+export const getConversation = (id, live = null) => (live ? live.byId[id] : BY_ID[id]) ?? null;
+
+/* Conversation keys of the drawn mock: `?c=owura` etc. always draw the frames, even when signed in. */
+export const MOCK_CONVERSATION_IDS = MESSAGE_CONVERSATIONS.map((c) => c.id);
 
 const uniq = (list) => [...new Set(list)];
 
@@ -41,13 +46,15 @@ export const defaultConversationId = (messages, desktop, pendingIds) => {
 const textOf = (conv) =>
   [conv.name, conv.preview, ...conv.thread.map((i) => i.text ?? '')].join(' ').toLowerCase();
 
-export const buildInbox = ({ store, messages, desktop }) => {
-  const urlAccepted = messages.state === 'accepted' ? ['request'] : [];
+export const buildInbox = ({ store, messages, desktop, live = null }) => {
+  const byId = live ? live.byId : BY_ID;
+  const ids = live ? live.records.map((r) => r.id) : PRIMARY_IDS;
+  const urlAccepted = !live && messages.state === 'accepted' ? ['request'] : [];
   const acceptedIds = uniq([...store.accepted, ...urlAccepted]);
   const gone = new Set([...store.removed, ...store.declined]);
-  const primaries = PRIMARY_IDS.map((id) => BY_ID[id]).filter((c) => c && !gone.has(c.id));
+  const primaries = ids.map((id) => byId[id]).filter((c) => c && !gone.has(c.id));
 
-  const selected = messages.c && BY_ID[messages.c] ? BY_ID[messages.c] : null;
+  const selected = messages.c && byId[messages.c] ? byId[messages.c] : null;
   const sentOf = (id) => store.sent[id] ?? [];
   const lastSent = (conv) => sentOf(conv.id).at(-1) ?? null;
 
@@ -64,23 +71,27 @@ export const buildInbox = ({ store, messages, desktop }) => {
       preview = `You: ${sent.text}`;
       time = sent.time;
     }
-    const unread = conv.unread > 0 && !store.read.includes(conv.id) ? conv.unread : 0;
+    const unread =
+      conv.unread > 0 && (live ? conv.id !== messages.c : !store.read.includes(conv.id))
+        ? conv.unread
+        : 0;
     return {
       id: conv.id,
       name: conv.name,
       avatar: conv.avatar,
+      initials: conv.initials ?? '',
       confidential: Boolean(conv.confidential),
       time,
       preview,
       previewTone: sent || accepted ? 'normal' : (variant.previewTone ?? 'normal'),
       unread,
       request: conv.request && !accepted,
-      muted: store.muted.includes(conv.id),
+      muted: live ? Boolean(conv.muted) : store.muted.includes(conv.id),
       separator: false,
     };
   };
 
-  const order = uniq([...store.order, ...urlAccepted, ...PRIMARY_IDS]);
+  const order = uniq([...store.order, ...urlAccepted, ...ids]);
   const rank = (id) => order.indexOf(id);
   const pendingRows = primaries.filter((c) => c.request && !isAccepted(c, acceptedIds)).map(rowOf);
   const allRows = primaries
@@ -88,12 +99,12 @@ export const buildInbox = ({ store, messages, desktop }) => {
     .sort((a, b) => rank(a.id) - rank(b.id))
     .map(rowOf);
 
-  const sep = new Set(['interview', 'roselyn']);
+  const sep = new Set(live ? [] : ['interview', 'roselyn']);
   allRows.forEach((r) => {
     r.separator = sep.has(r.id);
   });
 
-  const seeded = messages.state === 'empty' || messages.state === 'loading';
+  const seeded = !live && (messages.state === 'empty' || messages.state === 'loading');
   const counts = seeded
     ? SEED_COUNTS
     : {
@@ -110,16 +121,22 @@ export const buildInbox = ({ store, messages, desktop }) => {
         ? allRows.filter((r) => r.unread > 0)
         : allRows;
   const q = (messages.q ?? '').trim().toLowerCase();
-  if (q) rows = rows.filter((r) => textOf(BY_ID[r.id]).includes(q));
+  if (q) rows = rows.filter((r) => textOf(byId[r.id]).includes(q));
 
+  const liveDefault = () => {
+    if (tab === 'requests') return pendingRows[0]?.id ?? null;
+    return desktop ? (rows[0]?.id ?? null) : null;
+  };
   const activeId = selected
     ? selected.id
-    : defaultConversationId(
-        messages,
-        desktop,
-        pendingRows.map((r) => r.id)
-      );
-  const active = activeId ? BY_ID[activeId] : null;
+    : live
+      ? liveDefault()
+      : defaultConversationId(
+          messages,
+          desktop,
+          pendingRows.map((r) => r.id)
+        );
+  const active = activeId ? byId[activeId] : null;
   const activeListId = active ? active.listId : null;
   const pending = Boolean(active && active.request && !acceptedIds.includes(active.id));
 
@@ -136,7 +153,13 @@ export const buildInbox = ({ store, messages, desktop }) => {
   };
 };
 
-export const jobCardFor = (convId, store, messages) => {
+export const jobCardFor = (convId, store, messages, live = null) => {
+  if (live) {
+    const job = live.byId[convId]?.job;
+    if (!job) return null;
+    const local = store.card[convId];
+    return jobCardFromApi(local ? { ...job, state: local } : job);
+  }
   const base = BY_ID[convId]?.thread.find((i) => i.kind === 'jobCard');
   if (!base) return null;
   let state = store.card[convId] ?? base.card.state;

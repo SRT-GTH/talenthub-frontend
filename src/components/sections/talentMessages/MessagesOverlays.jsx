@@ -4,7 +4,9 @@ import MessagesA11yPanel from './MessagesA11yPanel.jsx';
 import LanguageMenu from './LanguageMenu.jsx';
 import LanguageComingSoonModal from './LanguageComingSoonModal.jsx';
 import LanguageToast from './LanguageToast.jsx';
+import { PRE_APPLY_PREVIEW } from './cards/messageCardsData.js';
 import { setMessagesCardState } from './messagesStore.js';
+import { useLiveMessagesContext } from './useLiveMessages.js';
 
 const log = debug('MessagesOverlays');
 
@@ -19,16 +21,41 @@ const COMING_SOON_LANGS = ['twi', 'ga', 'ewe', 'dagbani', 'hausa'];
  */
 const MessagesOverlays = ({ messages }) => {
   const { modal, a11yParam, lang, update } = messages;
+  const live = useLiveMessagesContext();
   log('render', { modal, a11yParam, lang });
+  // Live: the open conversation's job (Before you apply shows its company, role and match).
+  const liveId = live?.activeId ?? null;
+  const liveJob = liveId ? live.byId[liveId]?.job : null;
+  const preApply = liveJob
+    ? {
+        ...PRE_APPLY_PREVIEW,
+        company: liveJob.company,
+        role: liveJob.role,
+        matchPercent: liveJob.matchPercent ?? '—',
+        boostedPercent: null,
+        sectionsLabel: `WHAT ${String(liveJob.company || 'THE EMPLOYER').toUpperCase()} SEES`,
+        rows: [
+          { id: 'info', label: 'Personal info and education', hidden: false },
+          { id: 'skills', label: 'Skills', hidden: false },
+          { id: 'assessments', label: 'Assessments and badges', hidden: false },
+          { id: 'work', label: 'Work experience', hidden: false },
+          { id: 'portfolio', label: 'Portfolio', hidden: false },
+        ],
+      }
+    : PRE_APPLY_PREVIEW;
 
   return (
     <>
       <PreApplyDialog
         open={modal === 'pre-apply'}
+        data={preApply}
         onClose={() => update({ modal: null })}
         onSubmit={() => {
-          log('pre-apply continue -> applied');
-          setMessagesCardState('owura', 'applied');
+          log('pre-apply continue -> applied', { live: Boolean(live), liveId });
+          if (live && liveId) {
+            setMessagesCardState(liveId, 'applied');
+            live.actions.job(liveId, 'apply');
+          } else setMessagesCardState('owura', 'applied');
           update({ modal: null });
         }}
       />

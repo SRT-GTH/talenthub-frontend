@@ -4,7 +4,8 @@ import { debug } from '../../../utils/debug.js';
 const log = debug('messagesStore');
 
 /*
- * Talent Messages — in-memory conversation state (frontend-only mocks; swap for the API later).
+ * Talent Messages — in-memory conversation state. Drawn frames: the whole state. Live inbox (useLiveMessages.js): only the
+ * optimistic bits until the server copy arrives.
  * Module-level store (like messagesDraft.js) so the inbox list, the thread and the lead's dialogs share it:
  *   sent       { [convId]: item[] }   messages the talent sent in this session (kind 'sent')
  *   status     { [msgId]: status }    status overrides (retry: failed -> sending -> delivered)
@@ -62,6 +63,13 @@ export const messagesActions = {
     });
     return id;
   },
+  /** Live mode: the server copy of a sent message replaced the optimistic bubble. */
+  dropSent(convId, msgId) {
+    const list = state.sent[convId] ?? [];
+    if (!list.some((i) => i.id === msgId)) return;
+    const { [msgId]: _drop, ...status } = state.status;
+    set({ sent: { ...state.sent, [convId]: list.filter((i) => i.id !== msgId) }, status });
+  },
   setStatus(msgId, status) {
     log('status', msgId, status);
     set({ status: { ...state.status, [msgId]: status } });
@@ -91,6 +99,11 @@ export const messagesActions = {
   },
   setCard(convId, cardState) {
     log('card', convId, cardState);
+    if (cardState === null) {
+      const { [convId]: _drop, ...card } = state.card;
+      set({ card });
+      return;
+    }
     set({ card: { ...state.card, [convId]: cardState } });
   },
   reset() {

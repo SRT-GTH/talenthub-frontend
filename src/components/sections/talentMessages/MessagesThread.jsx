@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import spotPrivacy from '../../../assets/talent-messages/spot/spot-privacy.svg';
@@ -14,6 +15,7 @@ import MessagesThreadHeader from './MessagesThreadHeader.jsx';
 import { MESSAGES_COPY } from './messagesData.js';
 import { messagesActions } from './messagesStore.js';
 import { interviewCardFor, jobCardFor, threadFor } from './messagesSelect.js';
+import { useLiveMessagesContext } from './useLiveMessages.js';
 import { PANE_THREAD } from './messagesStyles.js';
 import {
   DatePill,
@@ -95,7 +97,10 @@ const PickedSticker = () => (
 
 const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack, hidden }) => {
   const { active, pending, acceptedIds } = view;
+  const live = useLiveMessagesContext();
+  const navigate = useNavigate();
   const scroller = useRef(null);
+  const threadLoading = Boolean(live && active && !active.threadLoaded);
   const items = threadFor({ conv: active, store, messages, acceptedIds });
   const accepted = Boolean(active?.request && acceptedIds.includes(active.id));
   const lastReceived = [...items].reverse().find((i) => i.kind === 'received') ?? null;
@@ -120,14 +125,23 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
     // Scroll to the newest message only when the thread clearly overflows (> 24px): when it only just overflows Figma
     // keeps the top date pill whole.
     el.scrollTop = el.scrollHeight - el.clientHeight > 24 ? el.scrollHeight : 0;
-  }, [active?.id, items.length, messages.explain, messages.read, messages.reply]);
+  }, [active?.id, items.length, threadLoading, messages.explain, messages.read, messages.reply]);
 
-  // Figma draws "Tap to retry" but not what happens next, so nothing is simulated.
+  // Drawn frames: Figma draws "Tap to retry" but not what happens next, so nothing is simulated. Live: send it again.
   const retry = (msgId) => {
+    const msg = (store.sent[active.id] ?? []).find((i) => i.id === msgId);
+    if (live && msg) {
+      live.actions.retry(active.id, msg);
+      return;
+    }
     log('retry tapped: outcome not drawn in Figma', msgId);
   };
 
   const onSend = (text) => {
+    if (live) {
+      live.actions.send(active.id, text);
+      return;
+    }
     const id = messagesActions.send(active.id, text, { online: !offline });
     if (id && offline) {
       window.setTimeout(() => {
@@ -137,9 +151,24 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
     }
   };
 
-  // Only the menu itself is drawn: none of its actions has a drawn result, so choosing one just closes the menu.
+  // Drawn frames: only the menu itself is drawn, so choosing an item just closes it. Live: the actions run.
   const onMenu = (id) => {
-    log('menu item chosen: result not drawn in Figma', id);
+    if (!live || !active) {
+      log('menu item chosen: result not drawn in Figma', id);
+      return;
+    }
+    log('menu', id, active.id);
+    if (id === 'mute') live.actions.toggleMute(active.id, !active.muted);
+    else if (id === 'archive') {
+      live.actions.archive(active.id);
+      messages.update({ c: null, menu: null });
+    } else if (id === 'delete') {
+      live.actions.remove(active.id);
+      messages.update({ c: null, menu: null });
+    } else if (id === 'report' || id === 'block') {
+      live.actions.decline(active.id, { spam: true, block: id === 'block' });
+      messages.update({ c: null, menu: null });
+    } else log('menu: no talent-facing recruiter profile yet', id);
   };
 
   const tools =
@@ -182,7 +211,7 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
       case 'sent':
         return <SentBubble key={key} item={item} onRetry={retry} />;
       case 'jobCard': {
-        const card = jobCardFor(active.id, store, messages) ?? item.card;
+        const card = jobCardFor(active.id, store, messages, live) ?? item.card;
         return (
           <div
             key={key}
@@ -205,13 +234,20 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
                 log('pass', reason);
                 messagesActions.setCard(active.id, 'passed');
                 messages.update({ modal: null });
+                if (live) live.actions.job(active.id, 'pass', reason);
               }}
               onCancelPass={() => {
                 log('cancel pass');
-                messagesActions.setCard(active.id, 'pending');
+                messagesActions.setCard(active.id, live ? null : 'pending');
                 messages.update({ modal: null });
               }}
-              onUndo={() => messagesActions.setCard(active.id, 'pending')}
+              // Live: Track opens the talent's applications, See similar roles the job list (no destination drawn).
+              onTrack={live ? () => navigate('/job-postings?tab=applied') : undefined}
+              onSeeSimilar={live ? () => navigate('/job-postings?tab=browse') : undefined}
+              onUndo={() => {
+                messagesActions.setCard(active.id, 'pending');
+                if (live) live.actions.job(active.id, 'undo');
+              }}
             />
           </div>
         );
@@ -252,7 +288,7 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
         hidden && 'max-lg:hidden'
       )}
     >
-      {empty ? (
+      {empty || (live && !active && !loading) ? (
         <EmptyThread />
       ) : (
         <>
@@ -268,7 +304,7 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
               <OfflineBanner />
             </div>
           ) : null}
-          {loading ? (
+          {loading || threadLoading ? (
             <ThreadSkeleton />
           ) : (
             <div className="relative flex min-h-0 flex-1 flex-col">
@@ -320,6 +356,11 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
             <RequestBar
               footnote={active.footnote}
               onAccept={() => {
+                if (live) {
+                  live.actions.accept(active.id);
+                  messages.update({ tab: null, c: active.id });
+                  return;
+                }
                 // Only the first request (T-MSG-03 -> T-MSG-04) has a drawn accepted state.
                 if (active.id !== 'request') {
                   log('accept: no accepted state drawn for', active.id);
@@ -333,12 +374,14 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
                 messages.update({ c: null, tab: null });
               }}
               onDecline={() => {
-                messagesActions.decline(active.id);
+                if (live) live.actions.decline(active.id);
+                else messagesActions.decline(active.id);
                 messages.update({ c: null, state: null });
               }}
               onSpam={() => {
                 log('report as spam');
-                messagesActions.decline(active.id);
+                if (live) live.actions.decline(active.id, { spam: true });
+                else messagesActions.decline(active.id);
                 messages.update({ c: null, state: null });
               }}
             />

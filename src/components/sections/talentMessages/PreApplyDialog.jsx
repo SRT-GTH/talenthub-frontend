@@ -84,9 +84,14 @@ const PreApplyDialog = ({
             {data.matchPercent}%
           </span>
           <p className="m-0 min-w-0 flex-1 font-sans text-[14px] leading-[17px] tracking-[0.2px] text-[#32683a]">
-            Your match for this role. It goes up to about{' '}
-            <span className="font-semibold">{data.boostedPercent}%</span> if you show your work
-            experience.
+            Your match for this role.
+            {data.boostedPercent ? (
+              <>
+                {' '}
+                It goes up to about <span className="font-semibold">{data.boostedPercent}%</span> if
+                you show your work experience.
+              </>
+            ) : null}
           </p>
         </div>
 

@@ -12,7 +12,7 @@ import {
   MsgTrashIcon,
   MsgUserIcon,
 } from './aIcons.jsx';
-import { AVATARS, MESSAGES_COPY } from './messagesData.js';
+import { MESSAGES_COPY, avatarSrc } from './messagesData.js';
 import { FOCUS_RING } from './messagesStyles.js';
 
 const log = debug('MessagesThreadHeader');
@@ -44,7 +44,7 @@ const ARROW_LEFT = (
  * Opened through `?menu=options`; Esc / outside click / choosing an item closes it.
  * Only the menu is drawn: none of its actions has a drawn result, so choosing one only closes the menu.
  */
-const OptionsMenu = ({ startIdx, onPick, onClose }) => {
+const OptionsMenu = ({ startIdx, onPick, onClose, muted = false }) => {
   const [active, setActive] = useState(startIdx);
   const ref = useRef(null);
 
@@ -77,7 +77,8 @@ const OptionsMenu = ({ startIdx, onPick, onClose }) => {
     >
       {MESSAGES_COPY.menu.map((item, idx) => {
         const Glyph = ICONS[item.icon];
-        const label = item.label;
+        // Live inbox: a muted conversation offers Unmute (not drawn in Figma; same row and icon).
+        const label = item.id === 'mute' && muted ? 'Unmute notifications' : item.label;
         return (
           <div key={item.id} role="none">
             {[1, 2, 3, 5].includes(idx) ? (
@@ -97,7 +98,11 @@ const OptionsMenu = ({ startIdx, onPick, onClose }) => {
             >
               <span
                 className="flex items-center"
-                style={{ width: item.w, gap: item.gap, maxWidth: '100%' }}
+                style={{
+                  width: label === item.label ? item.w : undefined,
+                  gap: item.gap,
+                  maxWidth: '100%',
+                }}
               >
                 <Glyph className={classNames('size-[18px]', item.danger ? '' : 'text-[#bfbfbf]')} />
                 <span className="whitespace-nowrap">{label}</span>
@@ -173,14 +178,25 @@ const MessagesThreadHeader = ({ conv, messages, onBack, onPick, loading }) => {
             <MsgLockIcon className="size-[22px]" />
           ) : (
             <>
-              <img
-                src={AVATARS[conv.avatar]}
-                alt=""
-                className="size-full rounded-full object-cover"
-              />
-              <span className="absolute left-[39px] top-[39px] flex size-[16px] items-center justify-center rounded-full border-2 border-solid border-white bg-[#224626] text-white">
-                <MsgCheckIcon className="size-[8.8px]" />
-              </span>
+              {avatarSrc(conv.avatar) ? (
+                <img
+                  src={avatarSrc(conv.avatar)}
+                  alt=""
+                  className="size-full rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="font-sans text-[16px] font-semibold text-[#1c2a21]"
+                >
+                  {conv.initials}
+                </span>
+              )}
+              {conv.verified !== false ? (
+                <span className="absolute left-[39px] top-[39px] flex size-[16px] items-center justify-center rounded-full border-2 border-solid border-white bg-[#224626] text-white">
+                  <MsgCheckIcon className="size-[8.8px]" />
+                </span>
+              ) : null}
             </>
           )}
         </span>
@@ -194,7 +210,7 @@ const MessagesThreadHeader = ({ conv, messages, onBack, onPick, loading }) => {
         </span>
       </div>
       <div className="relative flex min-w-0 items-center gap-[10px] max-lg:flex-wrap">
-        <Chip soft>{conv.label}</Chip>
+        {conv.label ? <Chip soft>{conv.label}</Chip> : null}
         {conv.reChip ? <Chip>{conv.reChip}</Chip> : null}
         <button
           type="button"
@@ -215,6 +231,7 @@ const MessagesThreadHeader = ({ conv, messages, onBack, onPick, loading }) => {
         </button>
         {menuOpen ? (
           <OptionsMenu
+            muted={Boolean(conv.muted)}
             startIdx={startIdx}
             onClose={close}
             onPick={(id) => {

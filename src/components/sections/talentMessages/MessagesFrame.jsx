@@ -6,6 +6,7 @@ import DashboardShell from '../dashboard/DashboardShell.jsx';
 import UiStyleScope from '../../shared/UiStyleScope.jsx';
 import AskBuddyFab from '../talentHome/AskBuddyFab.jsx';
 import { useTalentHomeState } from '../talentHome/talentHomeState.js';
+import { useLiveMessagesContext } from './useLiveMessages.js';
 
 const log = debug('MessagesFrame');
 
@@ -19,6 +20,8 @@ const log = debug('MessagesFrame');
 const MessagesFrame = ({ messages, children }) => {
   const home = useTalentHomeState();
   const liveShell = !messages.demo && Boolean(home?.live);
+  const live = useLiveMessagesContext();
+  const liveUnread = live ? live.counts.unread + live.counts.requests : 0;
   useEffect(() => {
     ensurePlayfulFont();
     log('mount');
@@ -44,7 +47,13 @@ const MessagesFrame = ({ messages, children }) => {
         messages.update({ rail: messages.rail === 'collapsed' ? null : 'collapsed' })
       }
       railActiveId="messages"
-      railBadges={liveShell ? {} : { assessment: '142', opportunities: '142', messages: '4' }}
+      railBadges={
+        liveShell
+          ? liveUnread
+            ? { messages: String(liveUnread) }
+            : {}
+          : { assessment: '142', opportunities: '142', messages: '4' }
+      }
     >
       <UiStyleScope enabled />
       {children}
