@@ -461,6 +461,27 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
         ? 'Want to practise for your interviews? I can run a mock interview with you.'
         : `Your profile is complete. Want me to find roles for ${data.targetCareer || 'you'} or run a practice interview?`,
     cta: next ? `Continue: ${next}` : 'Start mock interview',
+    // 2026-10-21: what tapping the CTA asks Career Buddy (sent as the talent's message).
+    prompt: next
+      ? `Let's continue with my ${next.toLowerCase()}.`
+      : `Start a mock interview with me${data.targetCareer ? ` for ${data.targetCareer}` : ''}.`,
+    // The agent's practice-interview chip shape (turn-controller practice_interview slot), so the
+    // interview starts directly instead of going through the classifier.
+    chipAction: next
+      ? null
+      : {
+          label: 'Start a mock interview with me.',
+          intent: 'interview',
+          slots: [
+            {
+              name: 'practice_interview',
+              value: JSON.stringify({
+                mode: 'mock',
+                ...(data.targetCareer ? { career: data.targetCareer } : {}),
+              }),
+            },
+          ],
+        },
     sticker: null,
   };
 
