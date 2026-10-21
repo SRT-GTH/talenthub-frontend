@@ -65,6 +65,22 @@ const DEMO_SUGGESTIONS = [
 const CHIP =
   'inline-flex h-[32px] cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold whitespace-nowrap text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green disabled:cursor-default disabled:opacity-60';
 
+/* Maximize (Figma panel header, right of the title: four corner brackets, 16px, white). */
+const ChatPanelMaximizeIcon = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" />
+  </svg>
+);
+
 const HEADER_BTN =
   'flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[rgba(255,255,255,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
@@ -146,6 +162,18 @@ const CareerBuddyFirstChat = ({ home }) => {
     log('open full Career Buddy');
     navigate(CAREER_BUDDY_ROUTE);
   };
+  // Header buttons (Figma): maximize = the same conversation on the full Career Buddy screen;
+  // history = that screen with its conversation list open. Demo mode has no destination.
+  const maximize = () => {
+    if (!live) return log('maximize: demo has no full screen conversation');
+    log('maximize -> full Career Buddy');
+    navigate(CAREER_BUDDY_ROUTE);
+  };
+  const openHistory = () => {
+    if (!live) return log('history: no destination in Figma');
+    log('history -> full Career Buddy, history open');
+    navigate(`${CAREER_BUDDY_ROUTE}?history=1`);
+  };
 
   usePlayfulDialogA11y({
     open: true,
@@ -195,6 +223,15 @@ const CareerBuddyFirstChat = ({ home }) => {
         className="leading-[normal] absolute top-[clamp(8px,0.93vw,16px)] right-[clamp(8px,0.93vw,16px)] bottom-[clamp(8px,0.93vw,16px)] flex w-[min(480px,calc(100vw-clamp(16px,1.86vw,32px)))] flex-col overflow-hidden rounded-[24px] border border-[rgba(28,42,33,0.1)] bg-white shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)] outline-none playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]"
       >
         <header className="flex shrink-0 items-center gap-[12px] bg-[linear-gradient(90deg,#2e6436_0%,#387440_100%)] py-[18px] pr-[18px] pl-[20px]">
+          <button
+            type="button"
+            aria-label="History"
+            title="Your conversations"
+            className={HEADER_BTN}
+            onClick={openHistory}
+          >
+            <ChatHistoryClockIcon className="size-[16px]" />
+          </button>
           <span className="flex size-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white">
             <img src={buddy42} alt="" aria-hidden="true" className="size-[42px]" />
           </span>
@@ -211,12 +248,12 @@ const CareerBuddyFirstChat = ({ home }) => {
           </div>
           <button
             type="button"
-            aria-label="History"
-            title="Open your conversations in Career Buddy"
+            aria-label="Maximize"
+            title="Open the full Career Buddy screen (this conversation carries on)"
             className={HEADER_BTN}
-            onClick={live ? openFull : () => log('history: no destination in Figma')}
+            onClick={maximize}
           >
-            <ChatHistoryClockIcon className="size-[16px]" />
+            <ChatPanelMaximizeIcon className="size-[16px] text-white" />
           </button>
           <button type="button" aria-label="Close" className={HEADER_BTN} onClick={close}>
             <ChatPanelCloseIcon className="size-[16px]" />
