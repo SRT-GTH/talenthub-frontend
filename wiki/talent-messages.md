@@ -117,7 +117,7 @@
 - [ ] URL contract fix: A-02 / A-03 / A-04 draw the accessibility panel CLOSED (modes on); only A-01 has it open. URLs now: A-02 `?calm=1&read=1&explain=1&large=1`, A-03 `?read=playing&explain=1`, A-04 `?explain=open`.
 - [ ] Headless speech: `?read=playing` used to be reset to `read=1` by the speech error handler (no voices). Fixed: engine errors keep the bar showing.
 - [ ] Signed-out `/messages…` redirects to `/login` after the `/api/*` 401 (same as the other talent pages); audit and comparison tools must abort `**/api/**`.
-- [ ] Re-export the 0.5x references (`export.py`, ≈100 PNGs) before re-measuring: they were deleted at the end of this session to free disk (user request); `tests/messages/frames-*.json` keeps every id.
+- [x] The exported reference PNGs in `tests/messages/` were deleted on 2026-10-21 (not needed any more; `tests/messages/*.png` is git-ignored). To compare again, export the frames from the Figma app (0.5x, file name = frame name) into that folder, or use `figma-tools/export.py` once the REST quota is back; `frames-*.json` keeps every frame id.
 
 ### H. Invented content removed 2026-10-21 (user: "take out assumptions")
 
