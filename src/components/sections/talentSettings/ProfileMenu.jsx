@@ -22,6 +22,7 @@ import {
 } from '../../shared/assets.jsx';
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
 import { TALENT_PROFILE } from '../talentHome/talentShellData.js';
+import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
 
 const log = debug('ProfileMenu');
 
@@ -158,6 +159,23 @@ const LanguageSubmenu = ({ onPick, current = 'en-GH' }) => (
   </div>
 );
 
+/** The signed-in user saved at login (name / email) - shown until GET /settings/overview answers. */
+const storedAccount = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null') || {};
+    return {
+      name: [u.firstName, u.lastName].filter(Boolean).join(' '),
+      email: u.email || '',
+      strength: undefined,
+      tier: null,
+      applications: undefined,
+      savedJobs: undefined,
+    };
+  } catch {
+    return { name: '', email: '' };
+  }
+};
+
 const ProfileMenu = ({ settings }) => {
   const navigate = useNavigate();
   // Live account figures (GET /settings/overview, cached); the drawn Kofi values with `?demo=1` or while loading.
@@ -177,7 +195,10 @@ const ProfileMenu = ({ settings }) => {
         language: langId === 'en' ? 'English (GH)' : langLabel,
         langId,
       }
-    : { ...ACCOUNT, name: TALENT_PROFILE.name, photo: null, langId: 'en' };
+    : settings.demo
+      ? { ...ACCOUNT, name: TALENT_PROFILE.name, photo: null, langId: 'en' }
+      : // Live, account still loading: the signed-in user's own name, never the demo person.
+        { ...ACCOUNT, ...storedAccount(), photo: null, langId: 'en' };
   const cardRef = useRef(null);
   const rootRef = useRef(null);
   const languageOpen = settings.menu === 'language';
@@ -311,7 +332,12 @@ const ProfileMenu = ({ settings }) => {
               className="relative size-[48px] shrink-0 overflow-hidden rounded-[24px] bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.637%,#7aa870_85.349%)]"
             >
               {view.photo ? (
-                <img src={view.photo} alt="" draggable="false" className="size-full object-cover select-none" />
+                <img
+                  src={view.photo}
+                  alt=""
+                  draggable="false"
+                  className="size-full object-cover select-none"
+                />
               ) : (
                 <img
                   src={avatarPortrait}

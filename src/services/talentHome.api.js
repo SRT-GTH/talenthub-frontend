@@ -42,6 +42,27 @@ const settle = async (label, fn) => {
   }
 };
 
+/**
+ * 2026-10-21: the name the chrome shows before /home data arrives comes from the stored
+ * user (saved at login). When the profile's name differs (renamed since login), update the
+ * stored copy so the next page load starts on the right name instead of flashing the old one.
+ */
+export const rememberDisplayName = (firstName, lastName) => {
+  try {
+    const first = typeof firstName === 'string' ? firstName.trim() : '';
+    const last = typeof lastName === 'string' ? lastName.trim() : '';
+    if (!first) return;
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null');
+    if (!user || (user.firstName === first && (user.lastName || '') === last)) return;
+    localStorage.setItem(
+      STORAGE_KEYS.userProfile,
+      JSON.stringify({ ...user, firstName: first, lastName: last })
+    );
+  } catch {
+    /* storage unavailable: the placeholder just shows the login-time name */
+  }
+};
+
 const storedUser = () => {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null');
@@ -223,6 +244,8 @@ export const loadTalentHome = ({ onUpdate } = {}) =>
       .then(([journey, profile, apps]) => {
         if (!journey) throw new Error('Empty journey');
         Object.assign(r, { journey, profile, apps });
+        const p = profile?.profile || profile || {};
+        rememberDisplayName(p.firstName, p.lastName);
         coreReady = true;
         emit();
       })
