@@ -251,7 +251,13 @@ export function useCareerBuddyLive({
   }, [live, patchThread]);
   const [expandedPanelId, setExpandedPanelId] = useState(null);
   const [confirming, setConfirming] = useState(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('history') === '1';
+    } catch {
+      return false;
+    }
+  });
   // Past conversations from the agent (null until loaded / agent unreachable).
   // undefined = still loading (the drawer shows a loading line, never this browser's local list
   // first), null = the agent can't be reached (fall back to the local list), array = server history.
