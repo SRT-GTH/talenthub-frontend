@@ -30,8 +30,8 @@ const DOTS = { default: liveDot, empty: liveDotWarming, loading: liveDotChecking
 const WRAP = 'absolute flex items-center justify-center';
 const PILL_SHADOW = 'shadow-[0_6px_14px_rgba(31,69,38,0.16)]';
 
-const HeaderArt = ({ artState }) => {
-  const copy = MESSAGES_COPY.headerArt[artState];
+const HeaderArt = ({ artState, copy: override }) => {
+  const copy = { ...MESSAGES_COPY.headerArt[artState], ...override };
   const empty = artState === 'empty';
   const loading = artState === 'loading';
   return (
@@ -122,9 +122,9 @@ const HeaderArt = ({ artState }) => {
 
 /*
  * Props: stickerLabel (string | null — "2 new" / "2 requests"; null hides the sticker, T-MSG-13/14),
- * artState ('default' | 'empty' | 'loading').
+ * artState ('default' | 'empty' | 'loading'), copy (optional { label, sticker, week } over the drawn copy — live counts).
  */
-const MessagesTitleRow = ({ stickerLabel, artState = 'default' }) => {
+const MessagesTitleRow = ({ stickerLabel, artState = 'default', copy = null }) => {
   log('render', { stickerLabel, artState });
   return (
     <div className="relative flex min-h-[69px] flex-col gap-[3px]">
@@ -142,7 +142,7 @@ const MessagesTitleRow = ({ stickerLabel, artState = 'default' }) => {
       <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999] max-lg:text-[14px] max-lg:leading-[20px]">
         {MESSAGES_COPY.subtitle}
       </p>
-      <HeaderArt artState={artState} />
+      <HeaderArt artState={artState} copy={copy} />
     </div>
   );
 };

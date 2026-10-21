@@ -114,7 +114,8 @@ const JobProposalCard = ({
   // Passed (7430:3242) shares Closed's light card; its header/role colours differ slightly (see below).
   const light = closed || state === 'passed';
   const tag = state === 'pending' ? card.badge : card.statusLabel;
-  const matchBlock = state === 'pending' || state === 'applied' || state === 'passed';
+  const matchBlock =
+    (state === 'pending' || state === 'applied' || state === 'passed') && card.matchPercent != null;
   log('render', { state, tag });
 
   return (
@@ -207,7 +208,7 @@ const JobProposalCard = ({
                 'h-full rounded-full',
                 state === 'passed' ? 'bg-[#387440]' : 'bg-[#f3c84b]'
               )}
-              style={{ width: state === 'passed' ? '96.04%' : `${card.matchPercent}%` }}
+              style={{ width: card.barWidth ?? `${card.matchPercent}%` }}
             />
           </div>
         </div>

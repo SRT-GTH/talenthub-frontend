@@ -31,6 +31,9 @@ import {
  * roselyn, abigail (T-MSG-10), request (T-MSG-03/04), confidential (T-MSG-11). `listId` = which inbox row a record belongs to
  * (applied / closed are the SAME Owura row shown in another state).
  */
+/* A record's `avatar` is a drawn key (below) or, in the live inbox, the person's photo URL (null = initials). */
+export const avatarSrc = (avatar) => (avatar ? (AVATARS[avatar] ?? avatar) : null);
+
 export const AVATARS = {
   owura: owuraPhoto,
   akosua: akosuaPhoto,

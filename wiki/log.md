@@ -17,3 +17,7 @@ Built `/messages` (Figma canvas 7387:104275, 49 Playful/Focused pairs + A-01c + 
 ## [2026-10-20] fix | Figma token moved out of `.mcp.json`
 
 `.mcp.json` no longer holds the Figma token: the `figma-console` server now reads `"FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"` from a user-level environment variable (each dev sets it once on their machine). The old token is still in git history (pushed) — **revoke it in Figma and set the new value in the env var**. Scripts (`tests/playful/lib/figma.mjs` `getToken`) read `FIGMA_TOKEN`, then `FIGMA_ACCESS_TOKEN` (the `.mcp.json` server's variable).
+
+## [2026-10-21] feat | Messages wired to the API
+
+`/messages` shows the signed-in talent's real recruiter conversations (`services/messages.api.js`, `useLiveMessages.js`, `messagesLive.js`; backend `talentMessages.service.js`, gateway `/api/talent-messages`). Inbox, requests (accept / decline / spam), sending with retry, read receipts, mute / archive / delete / report / block, and the linked job card (pass, apply → real application) all go through the API; drawn frames stay on `demo=1`, signed out, `state=` or drawn `c=` keys. `/messages/:conversationId` (notification links) opens that conversation. Details: [talent-messages.md](talent-messages.md#live-inbox-2026-10-21).

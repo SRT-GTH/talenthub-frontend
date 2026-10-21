@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
+import { MESSAGE_CONVERSATIONS } from './messagesData.js';
 
 const log = debug('messagesState');
 
@@ -33,6 +35,8 @@ const log = debug('messagesState');
  *   &rail=collapsed                             every "c" frame (icon rail) · A-01c with ?a11y=1
  *   &help=1                                     Help pop-over (HP)
  *   &demo=1                                     draw the Kofi shell (default when signed out); see messagesFrame
+ * Live (2026-10-21): a signed-in talent on /messages sees their own conversations (useLiveMessages.js). The drawn mock
+ * stays on with `demo=1`, when signed out, with any `state=` frame, or with `c=` set to a drawn key (owura, request…).
  *
  * `c` is a conversation key (owura = the drawn default). Section agents may ADD derived fields but must not rename
  * existing ones.
@@ -42,6 +46,8 @@ export const MESSAGES_STATES = ['empty', 'loading', 'offline', 'accepted', 'conf
 export const MESSAGES_MODALS = ['not-interested', 'pre-apply'];
 export const MESSAGES_REPLY_STEPS = ['ideas', 'writing', 'draft', 'placed'];
 export const MESSAGES_LANGS = ['menu', 'twi', 'ga', 'ewe', 'dagbani', 'hausa', 'toast'];
+
+const DRAWN_IDS = MESSAGE_CONVERSATIONS.map((x) => x.id);
 
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);
 
@@ -64,13 +70,13 @@ export const useMessagesState = () => {
     params.get('read') === 'playing' ? 'playing' : params.get('read') === '1' ? 'on' : null;
   const explain =
     params.get('explain') === 'open' ? 'open' : params.get('explain') === '1' ? 'on' : null;
-  // Messages are mock data for now, so the drawn Kofi shell is used for every frame URL; a signed-in visit to plain
-  // /messages shows the talent's own shell (like /community). Any state key switches the drawn mock on.
+  // Drawn frames vs the talent's own inbox (see the header). Menus, modals, Help me reply, language and a11y keys are
+  // ordinary interactions in the live inbox too, so they no longer switch the mock on by themselves.
   const demo =
     params.get('demo') === '1' ||
-    ['state', 'c', 'tab', 'menu', 'modal', 'reply', 'lang', 'a11y', 'read', 'explain'].some((k) =>
-      params.has(k)
-    );
+    !isLoggedIn() ||
+    params.has('state') ||
+    (Boolean(c) && DRAWN_IDS.includes(c));
 
   return useMemo(() => {
     log('state', { demo, tab, c, state, menu, modal, reply, lang, rail, a11yParam });

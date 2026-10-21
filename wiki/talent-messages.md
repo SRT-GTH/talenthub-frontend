@@ -4,11 +4,22 @@
 
 ## Status: 🔶 built and measured against the owner's exported frames (2026-10-21, `tests/messages/*.png`): all 49 pairs measured; 44 of them sit at 1.7–7.7 % (font-metric range), 5 families are ≈ 9–11 % with known causes (below). Only T-MSG-05 is ✅ (eyeballed too).
 
+## Live inbox (2026-10-21)
+
+A signed-in talent on plain `/messages` sees their own recruiter conversations from the backend (`services/messages.api.js` → gateway `/api/talent-messages`, backend `services/talentMessages.service.js`). The drawn frames stay available: `&demo=1`, signed out, any `state=` frame, or `c=` set to a drawn key (`owura`, `request`, `interview`…) draws the mock exactly as before.
+
+- Data: `useLiveMessages.js` (one cache, inbox polled every 20 s, the open conversation every 5 s) → `messagesLive.js` turns API rows/messages into the same records `messagesData.js` uses, so the list, thread, cards and request bar are unchanged.
+- Requests: a conversation a recruiter started is in **Requests** until the talent accepts or replies. Accept / Decline / Report as spam, and the ⋯ menu (Mute, Archive, Report, Block, Delete) call the API. "View recruiter's profile" has no talent-facing page yet.
+- Job card: a recruiter links a job by creating the conversation with `metadata.opportunityId`. The card shows the real company, role, tags, match % and key skills; Not interested → Pass is saved; Before you apply → Continue submits a real application (`applications.submit`).
+- Sending: optimistic bubble → server copy; a failed send shows "Not sent · Tap to retry", and retry re-sends.
+- Notification links `/messages/:conversationId` open that conversation.
+- Still scripted (no backend): Help me reply (H-01…04), interview invite / confirm cards, confidential-company requests, language and accessibility extras.
+
 ## Decisions (owner, 2026-10-20)
 
 - Route `/messages`; sidebar + mobile nav Messages item and the top-nav messages icon open it (the icon may become a pop-up once the header designs are checked).
 - Language menu / Coming-soon modals follow Figma. Accessibility modes (Calm chat, Read aloud, Explain it simply, Large text) are page-level states on `useA11yPrefs` like the other pages.
-- Mock data only, API-shaped. The old recruiter `/recruiter/messages` is a different audience and is kept untouched.
+- Mock data only, API-shaped (superseded 2026-10-21: live inbox, see above). The old recruiter `/recruiter/messages` is a different audience and is kept untouched.
 
 ## Frame → URL checklist (⬜ = not built/compared; ✅ only with a measured diff)
 

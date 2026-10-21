@@ -1,9 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import spotChats from '../../../assets/talent-messages/spot/spot-chats.svg';
-import { MsgInfoIcon, MsgLockIcon, MsgSearchIcon } from './aIcons.jsx';
-import { AVATARS, MESSAGES_COPY, UNDRAWN_CONVERSATIONS } from './messagesData.js';
+import { MsgInfoIcon, MsgLockIcon, MsgMuteIcon, MsgSearchIcon } from './aIcons.jsx';
+import { MESSAGES_COPY, UNDRAWN_CONVERSATIONS, avatarSrc } from './messagesData.js';
 import { FOCUS_RING, PANE_LIST, ROW_ACTIVE, TAB_BASE, TAB_OFF, TAB_ON } from './messagesStyles.js';
 
 const log = debug('MessagesInboxList');
@@ -95,8 +96,12 @@ const Avatar = ({ row }) => (
   >
     {row.confidential ? (
       <MsgLockIcon className="size-[22px]" />
+    ) : avatarSrc(row.avatar) ? (
+      <img src={avatarSrc(row.avatar)} alt="" className="size-full object-cover" />
     ) : (
-      <img src={AVATARS[row.avatar]} alt="" className="size-full object-cover" />
+      <span aria-hidden="true" className="font-sans text-[16px] font-semibold text-[#1c2a21]">
+        {row.initials}
+      </span>
     )}
   </span>
 );
@@ -108,7 +113,7 @@ const Row = ({ row, active, onSelect }) => {
       <button
         type="button"
         aria-current={active ? 'true' : undefined}
-        aria-label={`${row.name}, ${row.time}, ${row.preview}${unreadLabel}`}
+        aria-label={`${row.name}${row.muted ? ' (muted)' : ''}, ${row.time}, ${row.preview}${unreadLabel}`}
         onClick={() => {
           if (UNDRAWN_CONVERSATIONS.includes(row.id)) {
             log('row not selectable: conversation not drawn in Figma', row.id);
@@ -133,7 +138,8 @@ const Row = ({ row, active, onSelect }) => {
             >
               {row.name}
             </span>
-            <span className="shrink-0 font-sans text-[13px] leading-[16px] text-[#737373]">
+            <span className="flex shrink-0 items-center gap-[4px] font-sans text-[13px] leading-[16px] text-[#737373]">
+              {row.muted ? <MsgMuteIcon className="size-[14px] text-[#bfbfbf]" /> : null}
               {row.time}
             </span>
           </span>
@@ -199,8 +205,9 @@ const Skeleton = () => (
   </ul>
 );
 
-const EmptyList = () => {
+const EmptyList = ({ live }) => {
   const copy = MESSAGES_COPY.empty;
+  const navigate = useNavigate();
   return (
     <div className="mx-auto flex w-full max-w-[260px] flex-col items-center gap-[12px] pt-[121px] max-lg:pt-[24px]">
       <img src={spotChats} alt="" aria-hidden="true" className="size-[132px]" />
@@ -212,15 +219,18 @@ const EmptyList = () => {
       </p>
       <Button
         onClick={() => {
-          // Figma draws the button but no destination.
-          log('check my visibility: no destination drawn');
+          // Figma draws the button but no destination; the live inbox opens Profile and privacy.
+          if (live) navigate('/settings/privacy');
+          else log('check my visibility: no destination drawn');
         }}
       >
         {copy.cta}
       </Button>
       <button
         type="button"
-        onClick={() => log('browse your matches: no destination drawn')}
+        onClick={() =>
+          live ? navigate('/job-postings') : log('browse your matches: no destination drawn')
+        }
         className={classNames(
           'cursor-pointer border-0 bg-transparent font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] text-[#387440] no-underline max-lg:py-[4px]',
           FOCUS_RING
@@ -232,7 +242,40 @@ const EmptyList = () => {
   );
 };
 
-const MessagesInboxList = ({ messages, view, loading, empty, onSelect, hidden }) => {
+/* Live inbox: a tab (or search) with nothing in it while the inbox itself isn't empty. */
+const NoRows = ({ messages, view }) => {
+  const { tab, counts } = view;
+  const q = (messages.q ?? '').trim();
+  let text = 'No conversations yet.';
+  if (q) text = `No conversations match “${q}”.`;
+  else if (tab === 'unread') text = 'You’re all caught up.';
+  else if (tab === 'requests') text = 'No message requests right now.';
+  const showRequests = !q && tab !== 'requests' && counts.requests > 0;
+  return (
+    <div className="flex flex-col items-start gap-[10px] px-[4px] pt-[8px]">
+      <p className="m-0 font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#595959]">
+        {text}
+        {showRequests
+          ? ` ${counts.requests} ${counts.requests === 1 ? 'request is' : 'requests are'} waiting.`
+          : ''}
+      </p>
+      {showRequests ? (
+        <button
+          type="button"
+          onClick={() => messages.update({ tab: 'requests', c: null })}
+          className={classNames(
+            'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] text-[#387440]',
+            FOCUS_RING
+          )}
+        >
+          See requests
+        </button>
+      ) : null}
+    </div>
+  );
+};
+
+const MessagesInboxList = ({ messages, view, loading, empty, onSelect, hidden, live = false }) => {
   const { rows, counts, tab, activeListId, requestsNotice } = view;
   log('render', { tab, rows: rows.length, loading, empty });
   return (
@@ -255,7 +298,9 @@ const MessagesInboxList = ({ messages, view, loading, empty, onSelect, hidden })
         {loading ? (
           <Skeleton />
         ) : empty ? (
-          <EmptyList />
+          <EmptyList live={live} />
+        ) : live && !rows.length ? (
+          <NoRows messages={messages} view={view} />
         ) : (
           <>
             {requestsNotice ? (

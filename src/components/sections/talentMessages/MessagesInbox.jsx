@@ -9,6 +9,7 @@ import MessagesTitleRow from './MessagesHeaderArt.jsx';
 import { SEED_COUNTS } from './messagesData.js';
 import { buildInbox } from './messagesSelect.js';
 import { messagesActions, useMessagesStore } from './messagesStore.js';
+import { useLiveMessagesContext } from './useLiveMessages.js';
 
 const log = debug('MessagesInbox');
 
@@ -39,11 +40,14 @@ const MessagesInbox = ({ messages }) => {
   const store = useMessagesStore();
   const desktop = useIsDesktop();
   const online = useOnline();
+  const live = useLiveMessagesContext();
   const a11yClasses = useMessagesA11yClasses(messages);
-  const loading = messages.state === 'loading';
-  const empty = messages.state === 'empty';
+  const loading = messages.state === 'loading' || Boolean(live && !live.loaded);
+  const empty =
+    messages.state === 'empty' ||
+    Boolean(live && live.loaded && live.records.length === 0 && !live.error);
   const offline = messages.state === 'offline' || !online;
-  const view = buildInbox({ store, messages, desktop });
+  const view = buildInbox({ store, messages, desktop, live });
   const [screen, setScreen] = useState(() =>
     messages.c || messages.state || messages.menu || messages.modal || messages.reply
       ? 'thread'
@@ -64,9 +68,22 @@ const MessagesInbox = ({ messages }) => {
     });
   }, [view.tab, view.activeId, screen, desktop, offline, loading, empty]);
 
+  const setLiveActive = live?.setActiveId;
   useEffect(() => {
-    if (view.active && showThread) messagesActions.markRead(view.active.listId);
-  }, [view.active, showThread]);
+    setLiveActive?.(view.activeId ?? null);
+  }, [setLiveActive, view.activeId]);
+
+  const markLiveRead = live?.actions.markRead;
+  const activeUnread = view.active?.unread ?? 0;
+  useEffect(() => {
+    if (!view.active || !showThread) return;
+    if (markLiveRead) {
+      // A pending request stays unread on the server until accepted (the recruiter can't see it was read).
+      if (!view.pending && activeUnread) markLiveRead(view.active.id);
+      return;
+    }
+    messagesActions.markRead(view.active.listId);
+  }, [view.active, view.pending, showThread, markLiveRead, activeUnread]);
 
   useEffect(() => {
     if (messages.c) setScreen('thread');
@@ -83,12 +100,26 @@ const MessagesInbox = ({ messages }) => {
     setScreen('thread');
   };
 
+  const counts = live ? view.counts : SEED_COUNTS;
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
   const stickerLabel =
     loading || empty
       ? null
       : messages.tab === 'requests'
-        ? `${SEED_COUNTS.requests} requests`
-        : `${SEED_COUNTS.unread} new`;
+        ? live && !counts.requests
+          ? null
+          : plural(counts.requests, 'request')
+        : live && !counts.unread
+          ? null
+          : `${counts.unread} new`;
+  const artCopy = live
+    ? {
+        label: `${plural(counts.all + counts.requests, 'recruiter')} in your inbox`,
+        week: counts.requests
+          ? `${plural(counts.requests, 'request')} waiting`
+          : `${counts.unread} unread`,
+      }
+    : null;
 
   return (
     <div
@@ -101,6 +132,7 @@ const MessagesInbox = ({ messages }) => {
         <MessagesTitleRow
           stickerLabel={stickerLabel}
           artState={loading ? 'loading' : empty ? 'empty' : 'default'}
+          copy={loading || empty ? null : artCopy}
         />
       </div>
       <div
@@ -117,6 +149,7 @@ const MessagesInbox = ({ messages }) => {
           loading={loading}
           empty={empty}
           onSelect={onSelect}
+          live={Boolean(live)}
           hidden={showThread && !loading && !empty}
         />
         <MessagesThread
