@@ -265,14 +265,19 @@ export const regenerateReply = async (text) => {
  * Resolves to null when the agent can't be reached (caller falls back to
  * the conversations saved in this browser).
  */
-export const fetchHistory = async (entityId, limit = 30) => {
+export const fetchHistory = async (entityId, { limit = 20, before = null } = {}) => {
   try {
-    const res = await fetch(
-      `${AGENT_BASE}/career-buddy/history?userId=${encodeURIComponent(entityId)}&limit=${limit}`
-    );
+    const params = new URLSearchParams({ userId: entityId, limit: String(limit) });
+    if (before) params.set('before', before);
+    const res = await fetch(`${AGENT_BASE}/career-buddy/history?${params}`);
     const json = await res.json().catch(() => null);
     if (!res.ok || !json?.success || !Array.isArray(json.sessions)) return null;
-    return json.sessions;
+    // 2026-10-21: paged ({ hasMore, nextBefore }); an older agent sends neither (one page only).
+    return {
+      sessions: json.sessions,
+      hasMore: Boolean(json.hasMore && json.nextBefore),
+      nextBefore: json.nextBefore || null,
+    };
   } catch (err) {
     log.error('history failed', err?.message);
     return null;

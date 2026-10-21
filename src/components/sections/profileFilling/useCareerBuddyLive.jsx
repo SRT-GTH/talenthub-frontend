@@ -253,7 +253,14 @@ export function useCareerBuddyLive({
   const [confirming, setConfirming] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   // Past conversations from the agent (null until loaded / agent unreachable).
-  const [serverSessions, setServerSessions] = useState(null);
+  // undefined = still loading (the drawer shows a loading line, never this browser's local list
+  // first), null = the agent can't be reached (fall back to the local list), array = server history.
+  const [serverSessions, setServerSessions] = useState(undefined);
+  const [historyPage, setHistoryPage] = useState({
+    hasMore: false,
+    nextBefore: null,
+    loading: false,
+  });
   const [speaking, setSpeaking] = useState(false);
   // A practice / mock interview is waiting for an answer - the voice call
   // waits longer before sending (people pause mid-answer).
@@ -308,9 +315,29 @@ export function useCareerBuddyLive({
 
   const refreshHistory = useCallback(async () => {
     if (!entityId) return;
-    const sessions = await fetchHistory(entityId);
-    if (sessions) setServerSessions(sessions);
+    const page = await fetchHistory(entityId);
+    if (page) {
+      setServerSessions(page.sessions);
+      setHistoryPage({ hasMore: page.hasMore, nextBefore: page.nextBefore, loading: false });
+    } else {
+      setServerSessions((prev) => (prev === undefined ? null : prev));
+    }
   }, [entityId]);
+  // "Show older conversations": the next page, appended (an id already shown is skipped).
+  const loadMoreHistory = useCallback(async () => {
+    if (!entityId || !historyPage.hasMore || historyPage.loading) return;
+    setHistoryPage((p) => ({ ...p, loading: true }));
+    const page = await fetchHistory(entityId, { before: historyPage.nextBefore });
+    if (!page) {
+      setHistoryPage((p) => ({ ...p, loading: false }));
+      return;
+    }
+    setServerSessions((prev) => {
+      const have = new Set((prev || []).map((s) => s.id));
+      return [...(prev || []), ...page.sessions.filter((s) => !have.has(s.id))];
+    });
+    setHistoryPage({ hasMore: page.hasMore, nextBefore: page.nextBefore, loading: false });
+  }, [entityId, historyPage]);
   useEffect(() => {
     refreshHistory();
   }, [refreshHistory]);
@@ -566,7 +593,11 @@ export function useCareerBuddyLive({
   const handleSelectHistory = (entry) => {
     const session = serverSessions?.find((s) => s.id === entry.id);
     if (session) {
-      if (!sessionMatchesThread(session, thread)) {
+      // 2026-10-21: switch unless this IS the highlighted (open) conversation. The old
+      // check (sessionMatchesThread) compared time ranges, and a conversation kept in this
+      // browser for days overlaps every session in between - so every click "matched" the
+      // open thread and nothing happened.
+      if (entry.id !== activeHistoryId) {
         window.speechSynthesis?.cancel();
         setLive({ states: {}, card: null });
         setExpandedPanelId(null);
@@ -654,7 +685,12 @@ export function useCareerBuddyLive({
     for (const p of panelStages) out[p.id] = p.status === 'done' ? 'completed' : 'not-started';
     return out;
   }, [panelStages]);
-  const historyList = serverSessions ? sessionGroups(serverSessions) : historyGroups(threads);
+  const historyLoading = Boolean(entityId) && serverSessions === undefined;
+  const historyList = Array.isArray(serverSessions)
+    ? sessionGroups(serverSessions)
+    : historyLoading
+      ? []
+      : historyGroups(threads);
   const activeHistoryId =
     serverSessions?.find((s) => sessionMatchesThread(s, thread))?.id ?? thread.id;
 
@@ -728,6 +764,10 @@ export function useCareerBuddyLive({
     historyOpen,
     setHistoryOpen,
     historyList,
+    historyLoading,
+    historyHasMore: Array.isArray(serverSessions) && historyPage.hasMore,
+    historyLoadingMore: historyPage.loading,
+    loadMoreHistory,
     activeHistoryId,
     handleNewChat,
     handleSelectHistory,
