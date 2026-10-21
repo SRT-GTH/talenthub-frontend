@@ -38,6 +38,12 @@ const tidy = (b) => {
   return out;
 };
 
+const firstLine = (text) =>
+  String(text || '')
+    .split('\n')
+    .map((l) => l.trim())
+    .find(Boolean) || '';
+
 /** Agent turn -> plain-data bot bubbles (serializable; no React nodes). */
 export function turnToBubbles(turn) {
   const meta = {
@@ -46,7 +52,13 @@ export function turnToBubbles(turn) {
     intent: turn?.classification?.intent ?? null,
     section: turn?.classification?.section ?? null,
   };
-  const blocks = Array.isArray(turn?.blocks) && turn.blocks.length ? turn.blocks : null;
+  let blocks = Array.isArray(turn?.blocks) && turn.blocks.length ? turn.blocks : null;
+  // 2026-10-21: an interview review card carries the scores, feedback and "stronger way to say it" itself; the text
+  // report the agent also sends would repeat them (with raw "[experience]" placeholders). Keep its first line only.
+  if (turn?.practiceReview?.items?.length) {
+    const lead = firstLine(turn?.reply) || firstLine(blocks?.[0]?.text ?? blocks?.[0]?.items?.[0]);
+    blocks = [{ type: 'text', text: lead }];
+  }
   const bubbles = [];
   let cur = null;
   const open = () => {

@@ -48,6 +48,38 @@ const Section = ({ label, children }) => (
   </div>
 );
 
+/*
+ * The agent writes "[experience]", "[number]"… where the talent should add their own details (practice-interview.ts:
+ * the hint "must only use facts the candidate gave; for anything new use a placeholder"). Show them as highlighted
+ * blanks ("your experience"), not raw brackets.
+ */
+const PLACEHOLDER = /\[([^[\]]{1,40})\]/g;
+
+const withBlanks = (text) => {
+  const str = String(text ?? '');
+  const parts = [];
+  let last = 0;
+  for (const m of str.matchAll(PLACEHOLDER)) {
+    if (m.index > last) parts.push(str.slice(last, m.index));
+    const word = m[1].trim().replace(/^your\s+/i, '');
+    parts.push(
+      <mark
+        key={`${m.index}-${word}`}
+        title="Add your own details here"
+        className="mx-[1px] rounded-[4px] border border-dashed border-[#c8951a] bg-[#fdf6e3] px-1 font-medium not-italic text-[#8a6d00]"
+      >
+        your {word}
+      </mark>
+    );
+    last = m.index + m[0].length;
+  }
+  if (!parts.length) return str;
+  if (last < str.length) parts.push(str.slice(last));
+  return parts;
+};
+
+const hasBlanks = (text) => new RegExp(PLACEHOLDER.source).test(String(text ?? ''));
+
 const QuestionItem = ({ item, open, onToggle }) => {
   const [showModel, setShowModel] = useState(false);
   return (
@@ -102,9 +134,20 @@ const QuestionItem = ({ item, open, onToggle }) => {
               ))}
             </ul>
           )}
-          {item.strength && <Section label="What went well">{item.strength}</Section>}
-          {item.improvement && <Section label="To add next time">{item.improvement}</Section>}
-          {item.hint && <Section label="A stronger way to say it">{item.hint}</Section>}
+          {item.strength && <Section label="What went well">{withBlanks(item.strength)}</Section>}
+          {item.improvement && (
+            <Section label="To add next time">{withBlanks(item.improvement)}</Section>
+          )}
+          {item.hint && (
+            <Section label="A stronger way to say it">
+              <p className="m-0">{withBlanks(item.hint)}</p>
+              {hasBlanks(item.hint) ? (
+                <p className="m-0 mt-1 font-sans text-[12px] text-[#8a8a8a]">
+                  Fill the highlighted parts with your own details.
+                </p>
+              ) : null}
+            </Section>
+          )}
           {item.modelAnswer && (
             <div>
               <button
@@ -120,7 +163,7 @@ const QuestionItem = ({ item, open, onToggle }) => {
               </button>
               {showModel && (
                 <p className="mt-1 rounded-[8px] bg-[#f8f8f4] px-3 py-2 font-sans text-[14px] leading-[22px] text-[#404040]">
-                  {item.modelAnswer}
+                  {withBlanks(item.modelAnswer)}
                 </p>
               )}
             </div>

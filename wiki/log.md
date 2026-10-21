@@ -21,3 +21,7 @@ Built `/messages` (Figma canvas 7387:104275, 49 Playful/Focused pairs + A-01c + 
 ## [2026-10-21] feat | Messages wired to the API
 
 `/messages` shows the signed-in talent's real recruiter conversations (`services/messages.api.js`, `useLiveMessages.js`, `messagesLive.js`; backend `talentMessages.service.js`, gateway `/api/talent-messages`). Inbox, requests (accept / decline / spam), sending with retry, read receipts, mute / archive / delete / report / block, and the linked job card (pass, apply → real application) all go through the API; drawn frames stay on `demo=1`, signed out, `state=` or drawn `c=` keys. `/messages/:conversationId` (notification links) opens that conversation. Details: [talent-messages.md](talent-messages.md#live-inbox-2026-10-21).
+
+## [2026-10-21] fix | Career Buddy interview review after reopening a chat
+
+Reopened Career Buddy conversations lost the practice / mock interview review card and showed the agent's plain text report instead, including raw placeholders like "[experience]". Cause: the agent's history endpoint dropped `practiceReview` (backend `apps/agent/src/server/career-buddy-routes.ts` TURN_FIELDS, fixed there). Here: `careerBuddyLive.js turnToBubbles` keeps only the verdict line when a turn carries the review card (the card holds the scores and feedback), and `PracticeReviewCard` shows "[experience]"-style placeholders as highlighted "your experience" blanks with a "Fill the highlighted parts with your own details" note.
