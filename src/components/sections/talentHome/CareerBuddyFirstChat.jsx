@@ -223,15 +223,6 @@ const CareerBuddyFirstChat = ({ home }) => {
         className="leading-[normal] absolute top-[clamp(8px,0.93vw,16px)] right-[clamp(8px,0.93vw,16px)] bottom-[clamp(8px,0.93vw,16px)] flex w-[min(480px,calc(100vw-clamp(16px,1.86vw,32px)))] flex-col overflow-hidden rounded-[24px] border border-[rgba(28,42,33,0.1)] bg-white shadow-[0_2px_8px_rgba(28,42,33,0.04),0_1px_2px_rgba(28,42,33,0.04)] outline-none playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[0_10px_24px_rgba(28,42,33,0.06),5px_5px_0_rgba(28,42,33,0.55)]"
       >
         <header className="flex shrink-0 items-center gap-[12px] bg-[linear-gradient(90deg,#2e6436_0%,#387440_100%)] py-[18px] pr-[18px] pl-[20px]">
-          <button
-            type="button"
-            aria-label="History"
-            title="Your conversations"
-            className={HEADER_BTN}
-            onClick={openHistory}
-          >
-            <ChatHistoryClockIcon className="size-[16px]" />
-          </button>
           <span className="flex size-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white">
             <img src={buddy42} alt="" aria-hidden="true" className="size-[42px]" />
           </span>
@@ -246,6 +237,15 @@ const CareerBuddyFirstChat = ({ home }) => {
               </span>
             </p>
           </div>
+          <button
+            type="button"
+            aria-label="History"
+            title="Your conversations"
+            className={HEADER_BTN}
+            onClick={openHistory}
+          >
+            <ChatHistoryClockIcon className="size-[16px]" />
+          </button>
           <button
             type="button"
             aria-label="Maximize"
