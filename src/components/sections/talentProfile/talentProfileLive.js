@@ -52,6 +52,10 @@ const VERIFIED = new Set([
 ]);
 const skillBadge = (v) => {
   const s = v?.validationStatus;
+  // Passed in Skills Lab (a lab or a skill game, srt-backend skillsLab.service): badge says where it was proven.
+  const fromLab = String(v?.metadata?.source || '').startsWith('skills_lab');
+  if (fromLab && (s === 'verified' || s === 'game_evidenced'))
+    return { group: 'verified', chip: { label: 'Skills Lab', tone: 'white' } };
   if (s === 'game_evidenced')
     return { group: 'verified', chip: { label: 'Skills Lab', tone: 'white' } };
   if (VERIFIED.has(s)) return { group: 'verified', chip: { label: 'Assessed', tone: 'green' } };
