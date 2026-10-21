@@ -31,8 +31,8 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
       <section
         className={`relative bg-[linear-gradient(90deg,#ebf1ec_0%,#fffefc_60%,#faf4e8_100%)] ${GUTTER}`}
       >
-        <div className="flex flex-col gap-[24px] py-[clamp(24px,2.1vw,36px)] lg:min-h-[250px] lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative flex w-full max-w-[651px] flex-col gap-[12px]">
+        <div className="flex flex-col gap-[24px] py-[clamp(24px,2.1vw,36px)] lg:min-h-[250px] lg:flex-row lg:items-start lg:justify-between lg:py-0">
+          <div className="relative flex w-full max-w-[651px] flex-col gap-[12px] lg:pt-[36px]">
             <p className={`${KICKER} m-0 text-[#387440]`}>PERSONALITY</p>
             <div className="relative w-fit max-w-full">
               <AccentHeading
@@ -50,7 +50,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
               15 short scenarios from real Ghanaian workplaces. There are no right answers. You get
               one of 9 archetypes and six trait scores that recruiters see on your card.
             </p>
-            <div className="flex flex-wrap gap-[8px]">
+            <div className="flex min-h-[46px] flex-wrap items-center lg:flex-nowrap gap-[8px]">
               {INTRO_CHIPS.map((c) => (
                 <span key={c} className={CHIP}>
                   {c}
@@ -71,7 +71,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
           </div>
 
           <div
-            className={`${CARD} relative flex w-full max-w-[520px] flex-col gap-[24px] p-[22px_24px]`}
+            className={`${CARD} relative flex w-full max-w-[520px] flex-col gap-[24px] p-[22px_24px] lg:mt-[11px]`}
           >
             <div className="flex items-center gap-[12px]">
               <span className="flex size-[44px] shrink-0 items-center justify-center rounded-[14px] bg-[#ebf1ec] text-[#387440]">
@@ -103,7 +103,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
       <div
         className={`grid flex-1 grid-cols-1 content-start gap-[clamp(24px,3.7vw,64px)] pb-[24px] pt-[clamp(24px,2.3vw,40px)] lg:grid-cols-[1072fr_464fr] ${GUTTER}`}
       >
-        <div className="flex min-w-0 flex-col gap-[28px]">
+        <div className="flex min-w-0 flex-col gap-[24px]">
           <p className={`${KICKER} m-0 text-[#595959]`}>WHAT YOU GET</p>
           <div className="grid grid-cols-1 gap-[16px] md:grid-cols-3">
             {GETS.map((g) => (
@@ -121,7 +121,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
             ))}
           </div>
           <p className={`${KICKER} m-0 text-[#595959]`}>THE SIX TRAITS WE MEASURE</p>
-          <div className="grid grid-cols-1 gap-[12px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-[12px] gap-y-[24px] sm:grid-cols-2">
             {TRAITS.map((t) => (
               <div
                 key={t.id}

@@ -112,7 +112,7 @@ const PersonalityPath = ({ path = 'games', onSelect, onStart, onSkip }) => {
       <div
         className={`flex flex-1 flex-col gap-[28px] pb-[40px] pt-[clamp(28px,2.6vw,40px)] ${GUTTER}`}
       >
-        <div className="flex flex-col gap-[12px]">
+        <div className="flex flex-col gap-[12px] lg:h-[148px] lg:justify-center">
           <p className="m-0 font-sans text-[11.5px] leading-[14px] font-bold tracking-[0.69px] text-[#387440] max-lg:text-[12px]">
             PERSONALITY · STEP 3 OF 9
           </p>

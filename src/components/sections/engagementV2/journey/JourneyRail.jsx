@@ -118,7 +118,7 @@ const UpNext = ({ model }) => {
           log('start/continue', current.id);
           navigate(current.route);
         }}
-        className="w-full"
+        className="w-full !h-[52px] !py-0"
       >
         {inProgress ? 'Continue' : 'Start'} {current.label}
       </Button>
@@ -135,7 +135,7 @@ const CareerBuddyCard = ({ done }) => {
   return (
     <section
       aria-label={COPY.buddyName}
-      className="relative flex flex-col gap-[14px] overflow-hidden rounded-[24px] border border-transparent p-[18px] shadow-[0_6px_17px_-8px_rgba(0,0,0,0.05),0_1px_4px_-2px_rgba(0,0,0,0.03)] [background:linear-gradient(135deg,#2a5730_0%,#387440_55%,#498b52_100%)_padding-box,linear-gradient(105deg,#c1d4c4,#c8951a)_border-box]"
+      className="relative flex flex-col gap-[14px] overflow-hidden rounded-[24px] border border-transparent p-[18px] pb-[36px] shadow-[0_6px_17px_-8px_rgba(0,0,0,0.05),0_1px_4px_-2px_rgba(0,0,0,0.03)] [background:linear-gradient(135deg,#2a5730_0%,#387440_55%,#498b52_100%)_padding-box,linear-gradient(105deg,#c1d4c4,#c8951a)_border-box]"
     >
       <span
         aria-hidden="true"
@@ -173,7 +173,7 @@ const CareerBuddyCard = ({ done }) => {
           />
         </span>
       </div>
-      <div className="relative rounded-[18px] border border-white/50 bg-white/90 px-[14px] py-[12px] shadow-[0_5px_13px_-10px_rgba(0,0,0,0.04),0_1px_4px_-2px_rgba(0,0,0,0.03)]">
+      <div className="relative rounded-[18px] border border-white/50 bg-white/90 px-[14px] py-[11px] shadow-[0_5px_13px_-10px_rgba(0,0,0,0.04),0_1px_4px_-2px_rgba(0,0,0,0.03)]">
         <span
           aria-hidden="true"
           className="absolute -bottom-[7px] left-[-1px] size-[25px] rotate-45 rounded-[9px] bg-white/90"
