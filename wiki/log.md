@@ -1,3 +1,7 @@
+## [2026-10-22] build | New landing pages (LP-01 v2, P-01..P-06, Coming Soon)
+
+From canvas `7797:4614`, desktop + tablet 834 + mobile 430. Details, URL table and known gaps: [landing-site.md](landing-site.md). Verified: eslint, build, overflow/page-error sweep on 10 routes × 6 widths. Not verified: pixel diff; icons are hand-redrawn; PageHero heights differ from Figma.
+
 ## [2026-10-21] fix | Engagement layout: journey rail, personality intro + path chooser, certs stage label
 
 Measured against Figma REST data (text tops, 1728 frames). Journey rail cards now within 1px (Career Buddy card was 16px short, Continue button 3px tall). PE-01 hero was up to 58px low; now within about 5px (leftover differences are font-metric / chip-padding artefacts). PA-00: heading block fixed to 148px; the first path card's chip row sits about 20px low (description wraps to an extra line with the fallback font, not verified with SF Pro Round). Stage bar for Certs reads "Certifications". Not re-measured: Focused, IN-04, other personality frames.

@@ -10,12 +10,12 @@ Global siblings mounted above `<Routes>`: `<ScrollToTop />` (resets scroll on na
 
 ### Public / auth-adjacent — `MainLayout`
 
-| Path           | Element                               |
-| -------------- | ------------------------------------- |
-| `/`            | `LandingPage`                         |
-| `/login`       | `LoginPage`                           |
-| `/get-started` | `GetStartedPage` (role select)        |
-| `/components`  | `HomePage` (design-system playground) |
+| Path           | Element                                                                        |
+| -------------- | ------------------------------------------------------------------------------ |
+| `/`            | `LandingHomePage` (+ 7 landing routes, see [landing-site.md](landing-site.md)) |
+| `/login`       | `LoginPage`                                                                    |
+| `/get-started` | `GetStartedPage` (role select)                                                 |
+| `/components`  | `HomePage` (design-system playground)                                          |
 
 ### Talent onboarding — `MainLayout` → `OnboardingProvider`
 

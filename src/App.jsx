@@ -2,7 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import './App.css';
 import MainLayout from './layout/MainLayout.jsx';
-const LandingPage = lazy(() => import('./pages/LandingPage.jsx'));
+const LandingHomePage = lazy(() => import('./pages/landing/LandingHomePage.jsx'));
+const HowItWorksPage = lazy(() => import('./pages/landing/HowItWorksPage.jsx'));
+const FeaturesPage = lazy(() => import('./pages/landing/FeaturesPage.jsx'));
+const OpportunitiesPage = lazy(() => import('./pages/landing/OpportunitiesPage.jsx'));
+const ForParentsSchoolsPage = lazy(() => import('./pages/landing/ForParentsSchoolsPage.jsx'));
+const StoriesPage = lazy(() => import('./pages/landing/StoriesPage.jsx'));
+const FaqPage = lazy(() => import('./pages/landing/FaqPage.jsx'));
+const ComingSoonPage = lazy(() => import('./pages/landing/ComingSoonPage.jsx'));
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
 const GetStartedPage = lazy(() => import('./pages/GetStartedPage.jsx'));
@@ -258,14 +265,6 @@ function App() {
             mirroring the elysium pattern. Add it as:
             <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
                 <Route element={<MainLayout />}>
-                  <Route
-                    path={'/'}
-                    element={
-                      <Suspense fallback={<RouteFallback />}>
-                        <LandingPage />
-                      </Suspense>
-                    }
-                  />
                   <Route
                     path={'/get-started'}
                     element={
@@ -903,6 +902,71 @@ function App() {
                   element={<LegacyRecruiterBuddyRedirect />}
                 />
 
+                {/* New landing site — Figma canvas "New Landing Page" 7797:4614. Carries its own nav/footer, so it is mounted outside MainLayout. */}
+                <Route
+                  path={'/'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <LandingHomePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/how-it-works'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <HowItWorksPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/features'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <FeaturesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/opportunities'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <OpportunitiesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/for-parents-schools'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ForParentsSchoolsPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/stories'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <StoriesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/faq'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <FaqPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/coming-soon'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ComingSoonPage />
+                    </Suspense>
+                  }
+                />
                 {/* Talent Messages — Figma canvas "Talent Messages" 7387:104275 (T-MSG, H, A, L frames, Playful + Focused).
             Frames are query params (see messagesState.js / wiki/talent-messages.md). Outside MainLayout. */}
                 <Route

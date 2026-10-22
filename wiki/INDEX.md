@@ -49,6 +49,7 @@ Every claim in this wiki carries a tag:
 - [talent-engagement-revamp.md](talent-engagement-revamp.md) — Engagement revamp (manual profile filling, canvas `3125:10352`): 155 screens x 2 styles inventoried, proposed URLs, resume plan. **blocked: no Figma data (rate-limited)**
 - [career-buddy-chat-history.md](career-buddy-chat-history.md) — Career Buddy history drawer, thinking states, new chat, settings (21 Oct 2026)
 - [talent-wallet.md](talent-wallet.md) — Talent Wallet `/wallet`: 33 screens (phased), frame→URL table with diff % for all five phases, REST-verified provenance, prototype flows, per-style differences
+- [landing-site.md](landing-site.md) — New Landing Page: `/` + six inner pages + `/coming-soon`, shared nav/footer/CTA/PageHero, frame→URL table, known gaps
 
 ### External
 
