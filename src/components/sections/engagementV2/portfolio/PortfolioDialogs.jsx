@@ -180,7 +180,11 @@ const toForm = (p) => ({
   cover: p.cover ? { ...p.cover } : null,
 });
 
-export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
+/*
+ * `live` (signed-in): the profile stores no project type, role or second link, so type / role turn optional and the
+ * second link field is hidden (see projectToProfile in portfolioData.js).
+ */
+export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live = false }) => {
   const isEdit = mode === 'edit';
   const initial = useMemo(
     () => (isEdit && project ? toForm(project) : emptyForm),
@@ -218,9 +222,9 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
     e.preventDefault();
     const errs = {
       title: !form.title.trim(),
-      type: !form.type,
+      type: !live && !form.type,
       year: !form.year.trim(),
-      role: !form.role.trim(),
+      role: !live && !form.role.trim(),
     };
     const first = Object.keys(errs).find((k) => errs[k]);
     log('submit', { mode, errs });
@@ -229,7 +233,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
       refs.current[first]?.focus();
       return;
     }
-    const links = [form.link1, form.link2]
+    const links = (live ? [form.link1] : [form.link1, form.link2])
       .map((raw, i) => {
         const url = raw.trim();
         const prev = project?.links?.[i];
@@ -376,7 +380,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
               )}
             />
           </Field>
-          <Field label="Project type" required htmlFor={`${rid}-type`}>
+          <Field label="Project type" required={!live} optional={live} htmlFor={`${rid}-type`}>
             <div className="relative">
               <select
                 ref={(el) => {
@@ -385,7 +389,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
                 id={`${rid}-type`}
                 value={form.type}
                 onChange={(e) => set({ type: e.target.value })}
-                aria-required="true"
+                aria-required={!live}
                 aria-invalid={invalid.type || undefined}
                 className={classNames(
                   INPUT_BASE,
@@ -424,7 +428,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
               )}
             />
           </Field>
-          <Field label="Your role" required htmlFor={`${rid}-role`}>
+          <Field label="Your role" required={!live} optional={live} htmlFor={`${rid}-role`}>
             <input
               ref={(el) => {
                 refs.current.role = el;
@@ -433,7 +437,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
               value={form.role}
               onChange={(e) => set({ role: e.target.value })}
               placeholder="e.g. Solo developer, Lead UX designer"
-              aria-required="true"
+              aria-required={!live}
               aria-invalid={invalid.role || undefined}
               className={classNames(
                 INPUT_BASE,
@@ -473,18 +477,20 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete }) => {
               )}
             />
           </Field>
-          <Field label="Link 2" optional htmlFor={`${rid}-l2`}>
-            <input
-              id={`${rid}-l2`}
-              value={form.link2}
-              onChange={(e) => set({ link2: e.target.value })}
-              placeholder="Another link"
-              className={classNames(
-                INPUT_BASE,
-                'h-[51px] px-[16px] pl-[20px] font-normal text-[#595959]'
-              )}
-            />
-          </Field>
+          {live ? null : (
+            <Field label="Link 2" optional htmlFor={`${rid}-l2`}>
+              <input
+                id={`${rid}-l2`}
+                value={form.link2}
+                onChange={(e) => set({ link2: e.target.value })}
+                placeholder="Another link"
+                className={classNames(
+                  INPUT_BASE,
+                  'h-[51px] px-[16px] pl-[20px] font-normal text-[#595959]'
+                )}
+              />
+            </Field>
+          )}
         </Row>
 
         {pinnedLocked ? (
@@ -587,7 +593,7 @@ export const DeleteDialog = ({ project, count, onClose, onDelete, onEdit }) => {
               {project.title}
             </span>
             <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
-              {project.type} · {project.year} · {project.role}
+              {[project.type, project.year, project.role].filter(Boolean).join(' · ')}
             </span>
           </span>
         </div>

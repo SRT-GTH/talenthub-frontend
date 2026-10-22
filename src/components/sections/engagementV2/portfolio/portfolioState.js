@@ -13,7 +13,8 @@ const log = debug('portfolioState');
  *   PF-05 Delete project ............. /profile/filling/portfolio?modal=delete&project=p2
  *   PF-06 Stage complete ............. /profile/filling/portfolio?state=complete
  * Params: state ('list' | 'complete'), modal ('add' | 'edit' | 'delete'), project (project id for edit / delete; default
- * first). Mock-seeded projects are used for every URL except the bare base (empty first visit).
+ * first). Signed out, SEED_PROJECTS fill every URL except the bare base (empty first visit); signed in, the talent's own
+ * profile projects are shown for every URL (no seeds).
  * Returns { state, modal, project, update(patch) }; null / '' / false in a patch removes the key.
  */
 const MODALS = ['add', 'edit', 'delete'];

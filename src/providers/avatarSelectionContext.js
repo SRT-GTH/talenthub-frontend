@@ -63,4 +63,5 @@ export const AvatarSelectionContext = createContext({
   toggleMulti: () => {},
   undo: () => {},
   reset: () => {},
+  hydrate: () => {},
 });

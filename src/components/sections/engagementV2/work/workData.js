@@ -1,6 +1,7 @@
 /*
- * Work stage mock data (API-shaped, frontend-only; swap for GET/POST /profile/work-roles later). Copy verbatim from
- * Figma WK-01..WK-06 (Playful 7707:*, Focused 8285:*). Months are 'YYYY-MM'; `end: null` + `current: true` = ongoing.
+ * Work stage data. Copy verbatim from Figma WK-01..WK-06 (Playful 7707:*, Focused 8285:*). SEED_ROLES are the signed-out
+ * demo seeds only; signed-in talents load and save profile.workExperience through rolesFromProfile / rolesToProfile
+ * (bottom of this file). COMPLETE_STATS is still static. Months are 'YYYY-MM'; `end: null` + `current: true` = ongoing.
  * `durationLabel` / `rangeLabel` are the strings Figma draws for the seeded roles (kept verbatim, including the
  * drawn inconsistency that Sep 2022 – Aug 2023 reads "11 mo" while Jun – Dec 2023 reads "7 mo"); roles you add or edit
  * get them computed by formatRange().
@@ -94,10 +95,13 @@ const monthIndex = (ym) => {
 };
 const fmt = (ym) => `${MONTHS[parse(ym).m - 1]} ${parse(ym).y}`;
 
-/* "Jan 2024 – now · 1 yr 10 mo" / "Jun – Dec 2023 · 7 mo" (inclusive months, same convention as the Jun – Dec 2023 example). */
-export const formatRange = ({ start, end, current }) => {
+/*
+ * "Jan 2024 – now · 1 yr 10 mo" / "Jun – Dec 2023 · 7 mo" (inclusive months, same convention as the Jun – Dec 2023
+ * example). `now` ('YYYY-MM') ends ongoing roles: MOCK_NOW for the demo, currentMonth() for live profiles.
+ */
+export const formatRange = ({ start, end, current }, now = MOCK_NOW) => {
   if (!start) return '';
-  const last = current || !end ? MOCK_NOW : end;
+  const last = current || !end ? now : end;
   const total = Math.max(1, monthIndex(last) - monthIndex(start) + 1);
   const yrs = Math.floor(total / 12);
   const mos = total % 12;
@@ -111,7 +115,9 @@ export const formatRange = ({ start, end, current }) => {
 
 /* Delete dialog preview line: "Hubtel · Accra · Jan 2024 – now". */
 export const previewMeta = (r) => {
-  const range = r.current || !r.end ? `${fmt(r.start)} – now` : `${fmt(r.start)} – ${fmt(r.end)}`;
+  let range = '';
+  if (r.start)
+    range = r.current || !r.end ? `${fmt(r.start)} – now` : `${fmt(r.start)} – ${fmt(r.end)}`;
   return [r.org, r.place, range].filter(Boolean).join(' · ');
 };
 
@@ -148,3 +154,85 @@ export const COMPLETE_CONFETTI = [
   [424, 130, 5, 11, 84, '#c8951a', 0.9],
   [472, 121, 5, 11, 25, '#3062d4', 0.9],
 ];
+
+/*
+ * Live profile <-> role cards (signed-in talents). Schema: workExperience [{ company, location, position, startDate,
+ * endDate, isCurrent, description }]. UI -> schema: org -> company, title -> position, location -> location,
+ * start / end ('YYYY-MM') -> startDate / endDate ('YYYY-MM-01'; endDate null while current), current -> isCurrent,
+ * description -> description. Employment type and tools have no profile slot and are not saved (cards loaded from the
+ * profile show no type chip; the edit dialog asks for one again). Each card keeps its original item in `source`, so
+ * `_id` and fields this screen does not edit are written back unchanged. The list order is the saved order.
+ */
+const toMonth = (value) => {
+  if (!value) return null;
+  const text = value instanceof Date ? value.toISOString() : String(value);
+  return /^\d{4}-\d{2}/.test(text) ? text.slice(0, 7) : null;
+};
+const toDate = (ym) => (ym ? `${ym}-01` : null);
+
+/* This month as 'YYYY-MM' (the "now" for ongoing live roles). */
+export const currentMonth = (date = new Date()) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+export const rolesFromProfile = (profile, now = currentMonth()) =>
+  (Array.isArray(profile?.workExperience) ? profile.workExperience : []).map((item, i) => {
+    const current = Boolean(item?.isCurrent);
+    const start = toMonth(item?.startDate);
+    const end = current ? null : toMonth(item?.endDate);
+    const location = item?.location || '';
+    return {
+      id: String(item?._id ?? item?.id ?? `w${i}`),
+      title: item?.position || '',
+      org: item?.company || '',
+      location,
+      place: location.split(',')[0].trim(),
+      type: '',
+      start,
+      end,
+      current,
+      rangeLabel: formatRange({ start, end, current }, now),
+      description: item?.description || '',
+      tools: [],
+      source: item,
+    };
+  });
+
+export const rolesToProfile = (roles) => ({
+  workExperience: roles.map((r) => {
+    const out = { ...(r.source && typeof r.source === 'object' ? r.source : {}) };
+    delete out.id;
+    return {
+      ...out,
+      company: r.org,
+      position: r.title,
+      location: r.location || '',
+      startDate: toDate(r.start),
+      endDate: r.current ? null : toDate(r.end),
+      isCurrent: Boolean(r.current),
+      description: r.description || '',
+    };
+  }),
+});
+
+/* Years-of-experience label for live profiles ("4+", "2", "<1"): earliest start to the latest end / now. */
+export const yearsLabel = (roles, now = currentMonth()) => {
+  const dated = roles.filter((r) => r.start);
+  if (!dated.length) return '0';
+  const first = Math.min(...dated.map((r) => monthIndex(r.start)));
+  const last = Math.max(...dated.map((r) => monthIndex(r.current || !r.end ? now : r.end)));
+  const total = Math.max(0, last - first + 1);
+  const yrs = Math.floor(total / 12);
+  if (!yrs) return '<1';
+  return total % 12 ? `${yrs}+` : String(yrs);
+};
+
+/*
+ * After a save, give the local cards the server's items (new ones get their `_id` via `source`) without losing what the
+ * screen shows but cannot store (type, tools). The local `id` never changes (URLs like ?role=<id> keep pointing at it): the list was written whole and in order, so card i <-> workExperience[i].
+ * Falls back to a fresh mapping when the lengths differ (another surface changed the list meanwhile).
+ */
+export const mergeSavedRoles = (roles, profile, now = currentMonth()) => {
+  const fresh = rolesFromProfile(profile, now);
+  if (fresh.length !== roles.length) return fresh;
+  return roles.map((r, i) => ({ ...r, source: fresh[i].source }));
+};

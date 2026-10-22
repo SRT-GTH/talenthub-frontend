@@ -19,6 +19,11 @@ const log = debug('AvatarSelectionProvider');
  *   back one action at a time. The history is bounded to a sensible
  *   depth so it doesn't grow forever during long sessions.
  *
+ * Hydrate:
+ *   `hydrate(patch)` replaces the whole selection with defaults + patch and
+ *   clears the undo history. AvatarPage uses it to load a signed-in talent's
+ *   saved avatar (profile `avatar` field) into the picker.
+ *
  * Lifting to Redux is straightforward later — every consumer goes through
  * a single hook, so we can swap the source without touching the panels.
  */
@@ -84,7 +89,13 @@ const AvatarSelectionProvider = ({ initial, children }) => {
       setSelection({ ...AVATAR_SELECTION_DEFAULTS, ...(initialRef.current || {}) });
     };
 
-    return { selection, setField, toggleMulti, undo, reset };
+    const hydrate = (patch) => {
+      log('hydrate', patch);
+      setHistory([]);
+      setSelection({ ...AVATAR_SELECTION_DEFAULTS, ...(patch || {}) });
+    };
+
+    return { selection, setField, toggleMulti, undo, reset, hydrate };
   }, [selection, history]);
 
   return (

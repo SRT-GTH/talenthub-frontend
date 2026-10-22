@@ -266,9 +266,9 @@ export const RoleCard = ({ role, example = false, onEdit, dragProps, onMove, isF
             <Chip tone="gold" size={11}>
               Example
             </Chip>
-          ) : (
+          ) : role.type ? (
             <Chip size={11}>{role.type}</Chip>
-          )}
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[4px]">
           {meta ? <Meta Icon={WorkCompanyIcon}>{meta}</Meta> : null}

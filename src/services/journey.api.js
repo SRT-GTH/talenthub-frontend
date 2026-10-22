@@ -42,6 +42,9 @@ export const fetchJourney = () => {
   return inflight;
 };
 
+/* Refetch after a save: waits for any request already in flight (it may predate the save), then asks again. */
+export const refreshJourney = () => (inflight || Promise.resolve()).then(() => fetchJourney());
+
 /* Subscribe to fresh journeys (returns the unsubscribe function). */
 export const onJourney = (fn) => {
   listeners.add(fn);

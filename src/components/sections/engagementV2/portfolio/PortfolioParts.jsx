@@ -330,13 +330,13 @@ export const ProjectCard = ({
             <Chip tone="gold" size={11}>
               Example
             </Chip>
-          ) : (
+          ) : project.type ? (
             <Chip size={11}>{project.type}</Chip>
-          )}
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[4px]">
-          <Meta Icon={PortfolioCalendarIcon}>{project.year}</Meta>
-          <Meta Icon={PortfolioUserIcon}>{project.role}</Meta>
+          {project.year ? <Meta Icon={PortfolioCalendarIcon}>{project.year}</Meta> : null}
+          {project.role ? <Meta Icon={PortfolioUserIcon}>{project.role}</Meta> : null}
         </div>
         {project.description ? (
           <p className="m-0 font-sans text-[14px] leading-[21px] text-[#1c2a21]">

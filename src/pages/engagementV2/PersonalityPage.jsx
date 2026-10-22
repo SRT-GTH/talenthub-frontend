@@ -12,8 +12,12 @@ import PersonalityPath from '../../components/sections/engagementV2/personality/
 import PersonalityQuiz from '../../components/sections/engagementV2/personality/PersonalityQuiz.jsx';
 import PersonalityResult from '../../components/sections/engagementV2/personality/PersonalityResult.jsx';
 import PersonalityWorking from '../../components/sections/engagementV2/personality/PersonalityWorking.jsx';
-import { ARCADE_ROUTE } from '../../components/sections/engagementV2/personality/personalityData.js';
+import {
+  ARCADE_ROUTE,
+  hasPersonalitySnapshot,
+} from '../../components/sections/engagementV2/personality/personalityData.js';
 import usePersonalityState from '../../components/sections/engagementV2/personality/personalityState.js';
+import { fetchMyProfile, isLiveProfile } from '../../services/profileStages.api.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('PersonalityPage');
@@ -27,16 +31,38 @@ const log = debug('PersonalityPage');
  * Skip for now goes to the next stage (Skills); the Chat path opens Career Buddy.
  * Inert (nothing drawn): Exit quiz, Previous / Skip / Next question, Retake quiz.
  * After a finished quiz, navigating with router state { computing: true } to ?step=working auto-advances to the result.
+ * Live (signed in): read-only. A talent whose profile already has a personalitySnapshot lands on the result when no ?step is
+ * given (stage already done). Nothing here writes the profile: the result screen is still the drawn Figma result, so
+ * Save and continue only moves on to the next stage.
+ * Demo (signed out): every step is URL-driven as drawn.
  */
 const PersonalityPage = () => {
   const state = usePersonalityState();
   const { step, q, answer, path, update } = state;
   const navigate = useNavigate();
   const location = useLocation();
+  const hasStepParam = new URLSearchParams(location.search).has('step');
 
   useEffect(() => {
     log('step', { step, q, answer, path });
   }, [step, q, answer, path]);
+
+  // Live: a talent who already has a personality result opens on it (unless a step was asked for).
+  useEffect(() => {
+    if (!isLiveProfile() || hasStepParam) return undefined;
+    let cancelled = false;
+    fetchMyProfile()
+      .then((profile) => {
+        if (cancelled || !hasPersonalitySnapshot(profile)) return;
+        log('personality already saved -> result');
+        update({ step: 'result' }, { replace: true });
+      })
+      .catch((err) => log.error('profile load failed (stay on this step):', err?.message));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per landing; `update` changes with every URL change
+  }, [hasStepParam]);
 
   const toResult = useCallback(() => update({ step: 'result', q: null, answer: null }), [update]);
   const nextStage = STAGE_BY_ID.skills.route;

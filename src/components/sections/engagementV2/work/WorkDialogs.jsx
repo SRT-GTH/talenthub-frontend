@@ -178,7 +178,16 @@ const toForm = (r) => ({
   tools: [...(r.tools || [])],
 });
 
-export const RoleDialog = ({ mode, role, showUnsaved, onClose, onSave, onDelete }) => {
+/* `live` (signed-in): the profile stores no employment type, so the type turns optional (a loaded role has none). */
+export const RoleDialog = ({
+  mode,
+  role,
+  showUnsaved,
+  onClose,
+  onSave,
+  onDelete,
+  live = false,
+}) => {
   const isEdit = mode === 'edit';
   const initial = useMemo(() => (isEdit && role ? toForm(role) : emptyForm), [isEdit, role]);
   const [form, setForm] = useState(initial);
@@ -200,7 +209,7 @@ export const RoleDialog = ({ mode, role, showUnsaved, onClose, onSave, onDelete 
     const errs = {
       title: !form.title.trim(),
       org: !form.org.trim(),
-      type: !form.type,
+      type: !live && !form.type,
       start: !start,
       end: !form.current && !end,
     };
@@ -295,7 +304,7 @@ export const RoleDialog = ({ mode, role, showUnsaved, onClose, onSave, onDelete 
           </Field>
         </Row>
         <Row>
-          <Field label="Employment type" required htmlFor={`${rid}-y`}>
+          <Field label="Employment type" required={!live} htmlFor={`${rid}-y`}>
             <div className="relative">
               <select
                 id={`${rid}-y`}

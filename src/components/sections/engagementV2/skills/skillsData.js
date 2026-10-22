@@ -1,7 +1,8 @@
 /*
- * Skills stage mock data (Engagement revamp, Figma canvas 3125:10352). Copy is VERBATIM from the SK-01..SK-04 nodes
- * (Focused 8285:22614 / 22787 / 23118 / 23511, Playful 7664:19446 / 19658 / 7665:2 / 7665:483). API-shaped: swap for the
- * talent-skills endpoint later and keep the shape. Nothing here is invented: every string/number is drawn in Figma.
+ * Skills stage data (Engagement revamp, Figma canvas 3125:10352). Copy is VERBATIM from the SK-01..SK-04 nodes
+ * (Focused 8285:22614 / 22787 / 23118 / 23511, Playful 7664:19446 / 19658 / 7665:2 / 7665:483). MOCK_SKILLS / DRAFT_DRAWN
+ * are the signed-out demo seeds only; signed-in talents load and save their real skills through the mappers at the
+ * bottom (skillsFromProfile / skillsToProfile). The Skills Lab hub copy (LAB_*) is still static.
  */
 
 import endorserJavascript1 from '../../../../assets/engagement-v2/skills/endorser-javascript-1.png';
@@ -313,4 +314,107 @@ export const STICKERS = {
   stage: 'STAGE 4 · LET’S GO',
   progress: '2 VERIFIED · 4 TO GO',
   xp: '+80 XP',
+};
+
+/*
+ * Live profile <-> skill rows (signed-in talents). The profile keeps two lists, technicalSkills and softSkills, each
+ * [{ name, proficiency: Beginner|Intermediate|Advanced|Expert, yearsOfExperience }]. Rows loaded from the profile keep
+ * their original item in `source`, so `_id` and fields this screen does not edit (yearsOfExperience, anything Skills Lab
+ * or Career Buddy wrote) are written back unchanged. Skills added here go to softSkills when their category is a people
+ * skill (SOFT_CATEGORIES), else technicalSkills. Category / "where you used it" have no profile slot and are not saved;
+ * rows loaded from the profile show "Technical skill" / "Soft skill" instead. Verified badges and endorsements are not
+ * in the profile yet, so live rows are always self-reported with no endorsers.
+ */
+export const SOFT_CATEGORIES = ['Leadership', 'Communication'];
+const KIND_LABEL = { technical: 'Technical skill', soft: 'Soft skill' };
+const LEVEL_IDS = SKILL_LEVELS.map((l) => l.id);
+const LAB_BY_KEY = Object.fromEntries(
+  LAB_ROWS.flatMap((row) => row.labs).flatMap((lab) => [
+    [lab.id, lab.id],
+    [lab.title.toLowerCase(), lab.id],
+  ])
+);
+const slug = (name) =>
+  String(name || '')
+    .toLowerCase()
+    .replace(/\W+/g, '-')
+    .replace(/^-|-$/g, '');
+const labFor = (name) =>
+  LAB_BY_KEY[String(name || '').toLowerCase()] || LAB_BY_KEY[slug(name)] || null;
+
+export const kindForCategory = (category) =>
+  SOFT_CATEGORIES.includes(category) ? 'soft' : 'technical';
+
+/* A new row from the "Add a skill" dialog (same shape the demo always built, plus `kind` / `labId`). */
+export const skillFromDraft = (draft, index) => ({
+  id: `${slug(draft.name)}-${index}`,
+  name: draft.name,
+  icon: 'function',
+  level: draft.level,
+  category: draft.category,
+  usedIn: draft.usedIn,
+  kind: kindForCategory(draft.category),
+  labId: labFor(draft.name),
+  verified: false,
+  endorsements: 0,
+  endorsers: [],
+});
+
+const rowFromItem = (item, kind, i) => ({
+  id: String(item?._id ?? item?.id ?? `${kind}-${i}`),
+  name: item?.name || '',
+  icon: kind === 'soft' ? 'users' : 'function',
+  level: LEVEL_IDS.includes(item?.proficiency) ? item.proficiency : null,
+  category: KIND_LABEL[kind],
+  kind,
+  labId: labFor(item?.name),
+  verified: false,
+  endorsements: 0,
+  endorsers: [],
+  source: item,
+});
+
+export const skillsFromProfile = (profile) => [
+  ...(Array.isArray(profile?.technicalSkills) ? profile.technicalSkills : []).map((it, i) =>
+    rowFromItem(it, 'technical', i)
+  ),
+  ...(Array.isArray(profile?.softSkills) ? profile.softSkills : []).map((it, i) =>
+    rowFromItem(it, 'soft', i)
+  ),
+];
+
+/* Original item (minus the `id` virtual the API echoes) with the edited name / level on top. */
+const itemFromRow = (row) => {
+  const out = { ...(row.source && typeof row.source === 'object' ? row.source : {}) };
+  delete out.id;
+  out.name = row.name;
+  if (row.level) out.proficiency = row.level;
+  return out;
+};
+
+export const skillsToProfile = (rows) => ({
+  technicalSkills: rows.filter((r) => r.kind !== 'soft').map(itemFromRow),
+  softSkills: rows.filter((r) => r.kind === 'soft').map(itemFromRow),
+});
+
+/*
+ * After a save, give the local rows the server's items (new ones get their `_id` via `source`; the local `id` never
+ * changes) without losing the category / where
+ * used picked this session: each list was written whole and in order, so the n-th row of a kind <-> the n-th item of
+ * that list. Falls back to a fresh mapping when the counts differ (another surface changed the lists meanwhile).
+ */
+export const mergeSavedSkills = (rows, profile) => {
+  const fresh = skillsFromProfile(profile);
+  const byKind = (list, kind) => list.filter((r) => (r.kind === 'soft') === (kind === 'soft'));
+  if (
+    byKind(fresh, 'soft').length !== byKind(rows, 'soft').length ||
+    byKind(fresh, 'technical').length !== byKind(rows, 'technical').length
+  ) {
+    return fresh;
+  }
+  const queues = { soft: byKind(fresh, 'soft'), technical: byKind(fresh, 'technical') };
+  return rows.map((r) => {
+    const match = queues[r.kind === 'soft' ? 'soft' : 'technical'].shift();
+    return { ...r, source: match.source };
+  });
 };
