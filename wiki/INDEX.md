@@ -51,6 +51,8 @@ Every claim in this wiki carries a tag:
 - [talent-wallet.md](talent-wallet.md) — Talent Wallet `/wallet`: 33 screens (phased), frame→URL table with diff % for all five phases, REST-verified provenance, prototype flows, per-style differences
 - [landing-site.md](landing-site.md) — New Landing Page: `/` + six inner pages + `/coming-soon`, shared nav/footer/CTA/PageHero, frame→URL table, known gaps
 
+- [talent-emails.md](talent-emails.md) — Talent transactional emails `emails/talent/`: 12 static HTML emails × Playful/Focused (TE-01..TE-12), frame table with diff %, conventions, known gaps
+
 ### External
 
 - [figma-node-map.md](figma-node-map.md) — Figma frame → node-ID mapping (placeholder until file lands)

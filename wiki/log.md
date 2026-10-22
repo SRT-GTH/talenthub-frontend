@@ -1,3 +1,7 @@
+## [2026-10-22] build | Talent emails TE-02..TE-12 (static HTML, both styles)
+
+From Figma comms file `GwL8cVTsz2wI4H3jnqL8IH`, canvas `3:2`. 22 new files in `emails/talent/{playful,focused}/` (TE-01 came from an earlier session and is unchanged), ~200 PNG exports in `emails/assets/`. Details, per-frame diff table and known gaps: [talent-emails.md](talent-emails.md). Verified: same-size pixel diff vs Figma 0.5x exports (3.8–8.4%), every pair viewed, copy check 0 missing in TE-02..TE-12, 390px no horizontal scroll except TE-01. Not verified: real email clients, dark mode; links are `#`; mobile layout is our own.
+
 ## [2026-10-22] build | New landing pages (LP-01 v2, P-01..P-06, Coming Soon)
 
 From canvas `7797:4614`, desktop + tablet 834 + mobile 430. Details, URL table and known gaps: [landing-site.md](landing-site.md). Verified: eslint, build, overflow/page-error sweep on 10 routes × 6 widths. Not verified: pixel diff; icons are hand-redrawn; PageHero heights differ from Figma.
