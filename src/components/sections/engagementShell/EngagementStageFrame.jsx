@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../styles/talentA11y.css';
 import { classNames } from '../../../utils/classNames.js';
@@ -9,6 +9,7 @@ import StyleSwitch from '../../ui/StyleSwitch.jsx';
 import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementStageBar from './EngagementStageBar.jsx';
 import EngagementStageFooter from './EngagementStageFooter.jsx';
+import ModePickerModal from '../engagementV2/journey/ModePickerModal.jsx';
 import { ENGAGEMENT_STAGES, STAGE_BY_ID, buildStageSegments } from './engagementShellData.js';
 
 const log = debug('EngagementStageFrame');
@@ -27,7 +28,8 @@ const log = debug('EngagementStageFrame');
  *   doneIds       ids of finished stages (stage bar segments + "n of 9 done")
  *   footer        false to hide, or props for EngagementStageFooter ({ onContinue, onSkip, continueLabel, disabled, left })
  *   showStageBar  default true when stageId is set
- *   onChangeInputMode  handler for the gold nav button (the mode picker, J-03)
+ *   onChangeInputMode  handler for the gold nav button; when omitted the button opens the mode picker (J-03) itself:
+ *                      Fill it in myself stays on this screen, Chat → Career Buddy, Upload my CV → /profile/filling/cv
  *   showChangeInputMode  false hides that button (the journey map and the Upload my CV frames do not draw it)
  *   children      the screen body
  * The frame mounts <UiStyleScope> (Playful variants only apply inside it), loads the Playful heading font and puts the
@@ -45,7 +47,15 @@ const EngagementStageFrame = ({
   children,
 }) => {
   const navigate = useNavigate();
+  const [pickerOpen, setPickerOpen] = useState(false);
   const stage = stageId ? STAGE_BY_ID[stageId] : null;
+
+  const pickMode = (id) => {
+    log('mode picked', { id, stageId });
+    setPickerOpen(false);
+    if (id === 'chat') navigate('/profile/filling/career-buddy');
+    else if (id === 'cv') navigate('/profile/filling/cv');
+  };
 
   useEffect(() => {
     ensurePlayfulFont();
@@ -71,8 +81,9 @@ const EngagementStageFrame = ({
         reserveSwitchModes={!showChangeInputMode}
         switchModesLabel="Change input mode"
         onSwitchModes={() => {
-          log('change input mode');
-          onChangeInputMode?.();
+          log('change input mode', { custom: Boolean(onChangeInputMode) });
+          if (onChangeInputMode) onChangeInputMode();
+          else setPickerOpen(true);
         }}
         onSaveExit={() => {
           log('save & exit');
@@ -91,6 +102,9 @@ const EngagementStageFrame = ({
       {footer === false ? null : (
         <EngagementStageFooter className="sticky bottom-0 z-20" {...footer} />
       )}
+      {pickerOpen ? (
+        <ModePickerModal onClose={() => setPickerOpen(false)} onPick={pickMode} />
+      ) : null}
     </div>
   );
 };

@@ -126,10 +126,7 @@ const SkillsPage = () => {
           onAskColleague={() => log('ask a colleague (not drawn in Figma)')}
         />
       ) : (
-        <SkillsEmptyScreen
-          onAdd={openAdd}
-          onImport={() => log('import from CV (not drawn in Figma)')}
-        />
+        <SkillsEmptyScreen onAdd={openAdd} onImport={() => navigate('/profile/filling/cv')} />
       )}
       {state.modal ? (
         <AddSkillDialog

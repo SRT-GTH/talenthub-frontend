@@ -9,6 +9,7 @@ import {
   TalentSidebarMyLearningNavIcon,
   TalentSidebarProfileNavIcon,
 } from '../../shared/assets.jsx';
+import { JOURNEY_MAP_ROUTE, STAGE_BY_ID } from '../engagementShell/engagementShellData.js';
 
 /*
  * talentShellData.js — content for the talent chrome (top nav, rail, phone nav).
@@ -370,6 +371,8 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
       count: `${j.doneCount} of 9`,
       done: j.doneCount,
       caption: next ? `Continue: ${next} →` : 'View my profile →',
+      // Where the caption goes: the next stage's screen, or the profile once all nine are done.
+      to: next ? STAGE_BY_ID[j.nextStage]?.route || JOURNEY_MAP_ROUTE : '/profile',
     },
     stats: [
       { id: 'views', value: live.views ? String(live.views.uniqueViewers) : '–', label: 'Views' },

@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import { useUiStyle } from '../../hooks/useUiStyle.js';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
-import { ENGAGEMENT_STAGES } from '../../components/sections/engagementShell/engagementShellData.js';
+import {
+  ENGAGEMENT_STAGES,
+  nextStageRoute,
+} from '../../components/sections/engagementShell/engagementShellData.js';
 import {
   CompleteDialog,
   DeleteDialog,
@@ -152,7 +155,7 @@ const PitchPage = () => {
       backLabel: PITCH_FOOTER.back,
       onBack: () => navigate(GOALS_ROUTE),
       skipLabel: PITCH_FOOTER.skip,
-      onSkip: () => log('skip for now (not drawn in Figma: no destination)'),
+      onSkip: () => navigate(nextStageRoute('pitch')),
       continueLabel: PITCH_FOOTER.review,
       disabled: !(screen === 'uploadReady' || screen === 'write'),
       onContinue: () => update({ mode: null, step: 'review' }),

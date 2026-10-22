@@ -15,6 +15,7 @@ import {
 } from '../../shared/assets.jsx';
 import { CARD_INK, CtaButton, Chip, Doodle, HEAD, Points, Sticker } from './coreUi.jsx';
 import { HERO } from './talentHomeCoreData.js';
+import { JOURNEY_MAP_ROUTE } from '../engagementShell/engagementShellData.js';
 
 const log = debug('TalentHomeHero');
 
@@ -63,7 +64,7 @@ const Ring = ({ pct, size = 120, stroke = 12, children }) => {
   );
 };
 
-const WelcomeHero = ({ copy, scrollToJourney, goOn }) => (
+const WelcomeHero = ({ copy, openJourneyMap, goOn }) => (
   <section
     aria-label="Welcome"
     className={classNames(
@@ -90,7 +91,7 @@ const WelcomeHero = ({ copy, scrollToJourney, goOn }) => (
         </CtaButton>
         <button
           type="button"
-          onClick={scrollToJourney}
+          onClick={openJourneyMap}
           className="cursor-pointer text-[15px] font-semibold text-white underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           {copy.link}
@@ -296,20 +297,19 @@ const TalentHomeHero = ({ home }) => {
     log('continue clicked', home.stateKey);
     navigate(CAREER_BUDDY_ROUTE);
   };
-  const scrollToJourney = () => {
-    log('scroll to journey');
-    document.getElementById('talent-home-journey')?.scrollIntoView({
-      behavior:
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-        document.querySelector('[data-a11y-motion]')
-          ? 'auto'
-          : 'smooth',
-    });
+  // "See the journey map" opens the journey map itself (it used to scroll to the card).
+  const openJourneyMap = () => {
+    log('open journey map');
+    navigate(JOURNEY_MAP_ROUTE);
+  };
+  const previewProfile = () => {
+    log('preview my profile');
+    navigate('/profile?view=recruiter');
   };
 
   if (copy.kind === 'welcome')
-    return <WelcomeHero copy={copy} goOn={goOn} scrollToJourney={scrollToJourney} />;
-  if (copy.kind === 'ring') return <RingHero copy={copy} goOn={goOn} goProfile={goOn} />;
+    return <WelcomeHero copy={copy} goOn={goOn} openJourneyMap={openJourneyMap} />;
+  if (copy.kind === 'ring') return <RingHero copy={copy} goOn={goOn} goProfile={previewProfile} />;
   return <StatsHero copy={copy} home={home} />;
 };
 

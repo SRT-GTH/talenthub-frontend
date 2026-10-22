@@ -25,6 +25,12 @@ export const STAGE_BY_ID = Object.fromEntries(ENGAGEMENT_STAGES.map((s) => [s.id
 
 export const JOURNEY_MAP_ROUTE = '/profile/engagement';
 
+/* Where "Skip for now" / "Skip this stage" goes: the next stage in journey order; after the last stage, back to the map. */
+export const nextStageRoute = (stageId) => {
+  const i = ENGAGEMENT_STAGES.findIndex((s) => s.id === stageId);
+  return (i >= 0 && ENGAGEMENT_STAGES[i + 1]?.route) || JOURNEY_MAP_ROUTE;
+};
+
 /* Segment states for the stage bar: stages in doneIds are done, currentId is in progress, the rest are todo. */
 export const buildStageSegments = ({ doneIds = [], currentId = null } = {}) =>
   ENGAGEMENT_STAGES.map((s) =>
