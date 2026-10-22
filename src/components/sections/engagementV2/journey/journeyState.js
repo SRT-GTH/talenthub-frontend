@@ -15,7 +15,8 @@ const log = debug('journeyState');
  *   /profile/engagement/milestone/top-20        J-06  map (done=6) + Milestone 2 modal
  *   /profile/engagement/milestone/top-talent    J-07  map (done=9) + Milestone 3 modal
  *
- * Params: done (0..9 stages finished, in order; default 1), hover (stage id), modal ('add-work'), toast ('1'),
+ * Params: done (0..9 stages finished, in order; default 1 — for a signed-in talent the live journey from
+ * GET /profiles/journey is used instead unless ?done= is in the URL), hover (stage id), modal ('add-work'), toast ('1'),
  * milestone (1|2|3, opens the celebration modal; the milestone routes default it).
  * `update(patch)` merges into the query string; null / '' / false remove a key.
  */
@@ -34,6 +35,8 @@ export const useJourneyState = ({ defaults = {} } = {}) => {
     const milestoneRaw = toInt(params.get('milestone'), defaults.milestone ?? 0);
     return {
       done,
+      // true when the URL pins the progress (?done=n: design / demo frames); otherwise live progress wins when present
+      doneFromUrl: params.has('done'),
       hover: params.get('hover') || null,
       modal: params.get('modal') || null,
       toast: params.get('toast') === '1',
