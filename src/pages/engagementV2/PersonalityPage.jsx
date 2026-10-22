@@ -4,6 +4,7 @@ import EngagementStageFrame from '../../components/sections/engagementShell/Enga
 import {
   STAGE_BY_ID,
   JOURNEY_MAP_ROUTE,
+  nextStageRoute,
 } from '../../components/sections/engagementShell/engagementShellData.js';
 import PersonalityIntro from '../../components/sections/engagementV2/personality/PersonalityIntro.jsx';
 import PersonalityOverview from '../../components/sections/engagementV2/personality/PersonalityOverview.jsx';
@@ -23,7 +24,8 @@ const log = debug('PersonalityPage');
  * The Arcade (PA-01 …) is a separate page, ARCADE_ROUTE.
  * Wiring: Start the quiz -> quiz (question 7, the only drawn one) · Prefer games chip -> path chooser · Let's play (games) ->
  * arcade · Quick quiz + Let's play -> intro · Save and continue -> next stage (Skills) · Go back (overview) -> journey map.
- * Inert (nothing drawn): Skip for now, Exit quiz, Previous / Skip / Next question, Retake quiz, Chat path.
+ * Skip for now goes to the next stage (Skills); the Chat path opens Career Buddy.
+ * Inert (nothing drawn): Exit quiz, Previous / Skip / Next question, Retake quiz.
  * After a finished quiz, navigating with router state { computing: true } to ?step=working auto-advances to the result.
  */
 const PersonalityPage = () => {
@@ -73,9 +75,9 @@ const PersonalityPage = () => {
         onStart={() => {
           if (path === 'games') navigate(ARCADE_ROUTE);
           else if (path === 'quiz') update({ step: 'intro', path: null });
-          else log('chat path: no destination drawn');
+          else navigate('/profile/filling/career-buddy');
         }}
-        onSkip={() => log('skip for now: no destination drawn')}
+        onSkip={() => navigate(nextStageRoute('personality'))}
       />
     );
   } else if (step === 'overview') {
@@ -90,7 +92,7 @@ const PersonalityPage = () => {
       <PersonalityIntro
         onStart={() => update({ step: 'quiz', q: 7, answer: null })}
         onArcade={() => update({ step: 'path' })}
-        onSkip={() => log('skip for now: no destination drawn')}
+        onSkip={() => navigate(nextStageRoute('personality'))}
       />
     );
   }

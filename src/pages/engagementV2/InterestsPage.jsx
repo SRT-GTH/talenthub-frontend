@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
+import { nextStageRoute } from '../../components/sections/engagementShell/engagementShellData.js';
 import AddAreaDialog from '../../components/sections/engagementV2/interests/AddAreaDialog.jsx';
 import AreasList, {
   MentorRail,
@@ -116,7 +117,7 @@ const InterestsPage = () => {
       <InterestsFooter
         variant={picking ? 'pick' : 'areas'}
         disabled={picking && !canContinue}
-        onSkip={() => log('skip for now (destination not drawn in Figma)')}
+        onSkip={() => navigate(nextStageRoute('interests'))}
         onBack={() => navigate('/profile/engagement/avatar')}
         onContinue={() => {
           if (picking) {

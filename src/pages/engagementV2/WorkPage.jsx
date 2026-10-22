@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import { debug } from '../../utils/debug.js';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
+import { nextStageRoute } from '../../components/sections/engagementShell/engagementShellData.js';
 import {
   AddAnotherRole,
   EmptyState,
@@ -33,8 +34,8 @@ const log = debug('WorkPage');
  * WorkPage — Engagement stage 5 "Work" (Figma WK-01..WK-06; Playful 7707:*, Focused 8285:*), route /profile/filling/work.
  * Frames and URLs are documented at the top of workState.js. Roles are mock data held in page state (API-shaped, see
  * workData.js): add / edit / delete / drag-reorder work for real; the footer "Next: Portfolio" opens the stage-complete
- * dialog, whose own "Next: Portfolio" goes to the next stage. Not drawn in Figma and therefore inert (log only):
- * "Import from my CV", "No work experience yet? Skip this stage". Uses its own footer (Back: Skills / Next: Portfolio).
+ * dialog, whose own "Next: Portfolio" goes to the next stage. "Import from my CV" opens Upload my CV and "No work
+ * experience yet? Skip this stage" goes to Portfolio (neither is drawn in Figma). Uses its own footer (Back: Skills / Next: Portfolio).
  */
 const WorkPage = () => {
   const navigate = useNavigate();
@@ -121,8 +122,8 @@ const WorkPage = () => {
             <>
               <EmptyState
                 onAdd={openAdd}
-                onImport={() => log('import from my CV (not drawn in Figma: inert)')}
-                onSkip={() => log('skip stage (not drawn in Figma: inert)')}
+                onImport={() => navigate('/profile/filling/cv')}
+                onSkip={() => navigate(nextStageRoute('work'))}
               />
               <SectionEyebrow>WHAT A STRONG ROLE LOOKS LIKE</SectionEyebrow>
               <RoleCard role={EXAMPLE_ROLE} example />

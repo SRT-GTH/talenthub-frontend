@@ -50,7 +50,6 @@ const RecruiterReviewPage = lazy(
 );
 const RecruiterDonePage = lazy(() => import('./pages/onboarding/recruiter/RecruiterDonePage.jsx'));
 const ProfileEngagementPage = lazy(() => import('./pages/engagement/ProfileEngagementPage.jsx'));
-const IdentityMapPage = lazy(() => import('./pages/engagement/IdentityMapPage.jsx'));
 const MilestoneUnlockPage = lazy(() => import('./pages/engagement/MilestoneUnlockPage.jsx'));
 const Top20MilestonePage = lazy(() => import('./pages/engagement/Top20MilestonePage.jsx'));
 const TopTalentMilestonePage = lazy(() => import('./pages/engagement/TopTalentMilestonePage.jsx'));
@@ -116,13 +115,9 @@ const AvatarPage = lazy(() => import('./pages/engagementV2/AvatarPage.jsx'));
 const InterestsIntroPage = lazy(() => import('./pages/profileFilling/InterestsIntroPage.jsx'));
 const SkillsIntroPage = lazy(() => import('./pages/profileFilling/SkillsIntroPage.jsx'));
 const WorkIntroPage = lazy(() => import('./pages/profileFilling/WorkIntroPage.jsx'));
-const WorkStage2Page = lazy(() => import('./pages/profileFilling/WorkStage2Page.jsx'));
 const PortfolioIntroPage = lazy(() => import('./pages/profileFilling/PortfolioIntroPage.jsx'));
-const PortfolioStage2Page = lazy(() => import('./pages/profileFilling/PortfolioStage2Page.jsx'));
 const CertsIntroPage = lazy(() => import('./pages/profileFilling/CertsIntroPage.jsx'));
-const CertsStage2Page = lazy(() => import('./pages/profileFilling/CertsStage2Page.jsx'));
 const GoalsIntroPage = lazy(() => import('./pages/profileFilling/GoalsIntroPage.jsx'));
-const GoalsStage2Page = lazy(() => import('./pages/profileFilling/GoalsStage2Page.jsx'));
 const PitchIntroPage = lazy(() => import('./pages/profileFilling/PitchIntroPage.jsx'));
 const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPage.jsx'));
 const TalentMessagesPage = lazy(() => import('./pages/talentMessages/TalentMessagesPage.jsx'));
@@ -197,6 +192,7 @@ const ParentInviteConsentPage = lazy(
   () => import('./pages/parentLogin/ParentInviteConsentPage.jsx')
 );
 import { OnboardingProvider } from './providers/OnboardingProvider.jsx';
+import { logoHomePath } from './services/auth.api.js';
 import { RecruiterOnboardingProvider } from './providers/RecruiterOnboardingProvider.jsx';
 import CareerBuddyRoleProvider from './providers/CareerBuddyRoleProvider.jsx';
 import UiStyleProvider from './providers/UiStyleProvider.jsx';
@@ -248,6 +244,8 @@ function LegacyRecruiterBuddyRedirect() {
   }, [setRole]);
   return <Navigate to="/profile/filling/career-buddy?cb=welcome" replace />;
 }
+
+const UnknownRouteRedirect = () => <Navigate to={logoHomePath()} replace />;
 
 function App() {
   return (
@@ -715,11 +713,7 @@ function App() {
                 />
                 <Route
                   path={'/profile/engagement/identity'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <IdentityMapPage />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/engagement/avatar" replace />}
                 />
                 <Route
                   path={'/profile/engagement/milestone'}
@@ -780,11 +774,7 @@ function App() {
                 />
                 <Route
                   path={'/profile/filling/work/history'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <WorkStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/work?state=list" replace />}
                 />
                 <Route
                   path={'/profile/filling/portfolio'}
@@ -796,11 +786,7 @@ function App() {
                 />
                 <Route
                   path={'/profile/filling/portfolio/projects'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <PortfolioStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/portfolio?state=list" replace />}
                 />
                 <Route
                   path={'/profile/filling/certs'}
@@ -812,11 +798,7 @@ function App() {
                 />
                 <Route
                   path={'/profile/filling/certs/list'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <CertsStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/certs?state=list" replace />}
                 />
                 <Route
                   path={'/profile/filling/goals'}
@@ -828,11 +810,7 @@ function App() {
                 />
                 <Route
                   path={'/profile/filling/goals/list'}
-                  element={
-                    <Suspense fallback={<RouteFallback />}>
-                      <GoalsStage2Page />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/profile/filling/goals?state=list" replace />}
                 />
                 <Route
                   path={'/profile/filling/pitch'}
@@ -1316,6 +1294,9 @@ function App() {
                     }
                   />
                 </Route>
+
+                {/* Unknown URLs: the signed-in user's home, or the landing page. */}
+                <Route path="*" element={<UnknownRouteRedirect />} />
               </Routes>
             </Suspense>
           </CareerBuddyRoleProvider>

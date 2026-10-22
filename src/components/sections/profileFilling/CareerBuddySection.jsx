@@ -28,6 +28,7 @@ import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
 import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
+import { logoHomePath } from '../../../services/auth.api.js';
 import {
   CAREER_BUDDY_NODES,
   FIRST_TIME_HERO,
@@ -1583,10 +1584,11 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   };
 
   const handleGoToDashboard = () => {
-    // No dedicated dashboard route yet — home is the interim exit.
-    log('branch', { goToDashboard: 'interim-/', dashboardBuilt: false });
+    // The signed-in user's home (talent dashboard / recruiter home), or the landing page when signed out.
+    const home = logoHomePath();
+    log('branch', { goToDashboard: home });
     setOptOutOpen(false);
-    navigate('/');
+    navigate(home);
   };
 
   const handleConfirmSchedule = (date) => {
@@ -1601,7 +1603,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     }
     log('branch', { confirmSchedule: iso, persist: 'sessionStorage' });
     setOptOutOpen(false);
-    navigate('/');
+    navigate(logoHomePath());
   };
 
   const applyStageConfirmations = (newMessages, jobDraftOverride) => {

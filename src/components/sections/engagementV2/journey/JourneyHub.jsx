@@ -50,6 +50,8 @@ const JourneyHub = ({ defaults, children = null }) => {
     log('mode picked', id);
     if (id === 'chat') navigate('/profile/filling/career-buddy');
     else if (id === 'cv') navigate('/profile/filling/cv');
+    // Fill it in myself: open the stage the map says is next (just close when every stage is done).
+    else if (model.current?.route) navigate(model.current.route);
     else s.update({ modal: null });
   };
 

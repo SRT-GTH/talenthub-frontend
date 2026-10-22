@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
+import { nextStageRoute } from '../../components/sections/engagementShell/engagementShellData.js';
 import Button from '../../components/ui/Button.jsx';
 import {
   AddAnotherProject,
@@ -32,7 +33,7 @@ const log = debug('PortfolioPage');
  * /profile/filling/portfolio. Frames and URLs are documented at the top of portfolioState.js. Projects are mock data held
  * in page state (API-shaped, see portfolioData.js): add / edit / delete / pin / drag-reorder work for real; the footer
  * "Next: Certs" opens the stage-complete dialog (PF-06), whose "See your milestone" goes to the Top 20% milestone.
- * Not drawn in Figma and therefore inert (log only): "Paste a link", "Nothing to show yet? Skip this stage".
+ * "Nothing to show yet? Skip this stage" goes to Certs. Not drawn in Figma and therefore inert (log only): "Paste a link".
  */
 const PortfolioPage = () => {
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ const PortfolioPage = () => {
               <EmptyState
                 onAdd={openAdd}
                 onPasteLink={() => log('paste a link (not drawn in Figma: inert)')}
-                onSkip={() => log('skip stage (not drawn in Figma: inert)')}
+                onSkip={() => navigate(nextStageRoute('portfolio'))}
               />
               <SectionEyebrow>WHAT A STRONG PROJECT LOOKS LIKE</SectionEyebrow>
               <div className="lg:-mr-[clamp(0px,1.97vw,34px)]">

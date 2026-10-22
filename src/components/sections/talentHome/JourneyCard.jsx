@@ -16,6 +16,7 @@ import {
 import { CARD_INK, CARD_SOFT, CtaButton, HEAD, MetaPill, Sticker } from './coreUi.jsx';
 import { HomeTabs } from './TabsParts.jsx';
 import { JOURNEY_COPY } from './talentHomeCoreData.js';
+import { JOURNEY_MAP_ROUTE } from '../engagementShell/engagementShellData.js';
 
 const log = debug('JourneyCard');
 
@@ -93,6 +94,7 @@ const Stage = ({ stage, index, doneCount, currentIndex }) => {
 };
 
 const Expanded = ({ home, copy }) => {
+  const navigate = useNavigate();
   const { snapshot } = home;
   const { stages, doneCount, currentStageIndex } = snapshot;
   const day1 = home.stateKey === 'day1';
@@ -119,6 +121,10 @@ const Expanded = ({ home, copy }) => {
         <span className="flex-1" />
         <button
           type="button"
+          onClick={() => {
+            log('journey map');
+            navigate(JOURNEY_MAP_ROUTE);
+          }}
           className="inline-flex cursor-pointer items-center gap-[4px] text-[14px] font-semibold whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <span className="max-[400px]:sr-only">Journey map</span>

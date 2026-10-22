@@ -110,8 +110,10 @@ const AvatarPage = ({ step: stepProp }) => {
         <AvatarSwitchModesDialog
           onClose={() => update({ modal: null })}
           onChoose={(id) => {
-            log('mode chosen', id, '(destination not drawn in Figma)');
-            if (id === 'manual') update({ modal: null });
+            log('mode chosen', id);
+            if (id === 'chat') navigate('/profile/filling/career-buddy');
+            else if (id === 'cv') navigate('/profile/filling/cv');
+            else update({ modal: null });
           }}
         />
       ) : null}
