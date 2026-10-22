@@ -304,3 +304,13 @@ export const OVERVIEW = {
     { label: 'Pitch', glyph: 'Pitch' },
   ],
 };
+
+/* True when a profile already holds a personality result (the journey's "personality done" rule). Read-only: the result
+   screen is still the drawn Figma result, so nothing on this stage writes personalitySnapshot. */
+export const hasPersonalitySnapshot = (profile) => {
+  const snap = profile?.personalitySnapshot;
+  return Boolean(
+    snap &&
+    (snap.mbtiType || (snap.primaryTraits && snap.primaryTraits.length) || snap.lastAssessedAt)
+  );
+};

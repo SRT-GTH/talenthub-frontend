@@ -27,8 +27,9 @@ const log = debug('SkillsListScreen');
  * SK-02 · Skills · Your skills — Figma Playful 7664:19658 / Focused 8285:22787. Hero (+ "New: verify skills by playing games"
  * pill) · Lab nudge · "Your skills" header with All / Verified / Self-reported filter chips · skill rows (Verify in Lab,
  * Edit) · "Add another skill" · rail (Get more endorsements + proficiency guide).
- * Props: skills (array, see skillsData.MOCK_SKILLS), onAdd, onVerify(labId), onAllLabs, onEdit(skill) (edit is not drawn:
- * logs only), onAskColleague (not drawn: logs only).
+ * Props: skills (array, see skillsData.MOCK_SKILLS / skillsFromProfile; `level` and `category` may be empty for rows loaded
+ * from the profile), onAdd, onVerify(labId), onAllLabs, onEdit(skill) (edit is not drawn: logs only), onAskColleague (not
+ * drawn: logs only), progressSticker (hero sticker text; defaults to the drawn STICKERS.progress).
  */
 const Faces = ({ skill }) => (
   <span className="inline-flex shrink-0 items-center -space-x-[8px]" aria-hidden="true">
@@ -65,15 +66,19 @@ const SkillRow = ({ skill, onVerify, onEdit }) => {
           {skill.verified ? <SkChip>Verified</SkChip> : <MiniChip>Self-reported</MiniChip>}
         </div>
         <div className="flex flex-wrap items-center gap-x-[14px] gap-y-[4px]">
-          <span className="inline-flex items-center gap-[6px]">
-            <LevelDots filled={LEVEL_DOTS[skill.level]} />
-            <span className="font-sans text-[13px] font-medium leading-[16px] text-[#1c2a21]">
-              {skill.level}
+          {skill.level ? (
+            <span className="inline-flex items-center gap-[6px]">
+              <LevelDots filled={LEVEL_DOTS[skill.level]} />
+              <span className="font-sans text-[13px] font-medium leading-[16px] text-[#1c2a21]">
+                {skill.level}
+              </span>
             </span>
-          </span>
-          <span className="whitespace-pre font-sans text-[13px] leading-[16px] text-[#595959]">
-            {`·  ${skill.category}`}
-          </span>
+          ) : null}
+          {skill.category ? (
+            <span className="whitespace-pre font-sans text-[13px] leading-[16px] text-[#595959]">
+              {skill.level ? `·  ${skill.category}` : skill.category}
+            </span>
+          ) : null}
           <span className="inline-flex items-center gap-[6px]">
             <Faces skill={skill} />
             <span className="font-sans text-[13px] font-medium leading-[16px] text-[#595959]">
@@ -120,7 +125,15 @@ const SkillRow = ({ skill, onVerify, onEdit }) => {
   );
 };
 
-const SkillsListScreen = ({ skills, onAdd, onVerify, onAllLabs, onEdit, onAskColleague }) => {
+const SkillsListScreen = ({
+  skills,
+  onAdd,
+  onVerify,
+  onAllLabs,
+  onEdit,
+  onAskColleague,
+  progressSticker = STICKERS.progress,
+}) => {
   const [filter, setFilter] = useState('all');
   useEffect(() => {
     log('mount', { count: skills.length });
@@ -142,7 +155,7 @@ const SkillsListScreen = ({ skills, onAdd, onVerify, onAllLabs, onEdit, onAskCol
 
   return (
     <>
-      <SkillsHero sticker={STICKERS.progress} arcade={onAllLabs} />
+      <SkillsHero sticker={progressSticker} arcade={onAllLabs} />
       <SkillsColumns
         main={
           <>

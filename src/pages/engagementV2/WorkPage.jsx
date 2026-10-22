@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import { debug } from '../../utils/debug.js';
+import {
+  fetchMyProfile,
+  isLiveProfile,
+  saveProfileFields,
+} from '../../services/profileStages.api.js';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
 import { nextStageRoute } from '../../components/sections/engagementShell/engagementShellData.js';
 import {
@@ -22,8 +27,15 @@ import {
 } from '../../components/sections/engagementV2/work/WorkDialogs.jsx';
 import {
   EXAMPLE_ROLE,
+  MOCK_NOW,
   SEED_ROLES,
   STAGE_YEARS_LABEL,
+  currentMonth,
+  formatRange,
+  mergeSavedRoles,
+  rolesFromProfile,
+  rolesToProfile,
+  yearsLabel,
 } from '../../components/sections/engagementV2/work/workData.js';
 import { useWorkState } from '../../components/sections/engagementV2/work/workState.js';
 import { GUTTER } from '../../components/sections/engagementV2/work/workStyles.js';
@@ -32,51 +44,135 @@ const log = debug('WorkPage');
 
 /*
  * WorkPage — Engagement stage 5 "Work" (Figma WK-01..WK-06; Playful 7707:*, Focused 8285:*), route /profile/filling/work.
- * Frames and URLs are documented at the top of workState.js. Roles are mock data held in page state (API-shaped, see
- * workData.js): add / edit / delete / drag-reorder work for real; the footer "Next: Portfolio" opens the stage-complete
- * dialog, whose own "Next: Portfolio" goes to the next stage. "Import from my CV" opens Upload my CV and "No work
+ * Frames and URLs are documented at the top of workState.js. Live (signed in): roles load from profile.workExperience
+ * (workData.rolesFromProfile) and every add / edit / delete / reorder, plus the footer "Next: Portfolio", writes the whole
+ * list back with saveProfileFields (optimistic; a failure keeps the local list and shows a role="status" line), then
+ * re-reads the profile so new roles pick up their `_id`. Nothing (list, dialogs, deep links) is shown or editable until
+ * the load succeeds; a failed load shows a role="status" message and nothing can be saved. "Next: Portfolio" waits for
+ * the save and only opens stage-complete on success. No seed roles are shown, so an empty profile is the WK-01 first
+ * visit on every URL. Demo (signed out): SEED_ROLES held in page
+ * state only. Either way the footer "Next: Portfolio" opens the stage-complete dialog, whose own "Next: Portfolio" goes
+ * to the next stage. "Import from my CV" opens Upload my CV and "No work
  * experience yet? Skip this stage" goes to Portfolio (neither is drawn in Figma). Uses its own footer (Back: Skills / Next: Portfolio).
  */
+const SAVE_ERROR = 'We couldn’t save your work history. Check your connection and try again.';
+const LOAD_ERROR = 'We couldn’t load your profile. Refresh to try again.';
+
 const WorkPage = () => {
   const navigate = useNavigate();
   const ws = useWorkState();
+  const [live] = useState(isLiveProfile);
   const [roles, setRoles] = useState(() =>
-    ws.state || ws.modal ? SEED_ROLES.map((r) => ({ ...r })) : []
+    !live && (ws.state || ws.modal) ? SEED_ROLES.map((r) => ({ ...r })) : []
   );
-  const dragFor = useDragReorder(roles, (from, to) =>
-    setRoles((rs) => {
-      const next = [...rs];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      return next;
-    })
-  );
+  /* 'loading' | 'ready' | 'error' — live saves are only ever sent once the profile loaded ('ready'). */
+  const [load, setLoad] = useState(live ? 'loading' : 'ready');
+  const loaded = load === 'ready';
+  const [saveError, setSaveError] = useState('');
+  const saveSeq = useRef(0);
+  const now = live ? currentMonth() : MOCK_NOW;
+
+  /*
+   * Write the whole list (in its current order). Resolves true on success (always true in the demo). After a live save
+   * the profile is re-read so new roles get their server `_id`, unless another save started meanwhile.
+   */
+  const persist = async (next) => {
+    if (!live) return true;
+    if (load !== 'ready') {
+      log.warn('save blocked: profile not loaded', load);
+      return false;
+    }
+    const seq = ++saveSeq.current;
+    try {
+      await saveProfileFields(rolesToProfile(next));
+      log('saved roles', next.length);
+      setSaveError('');
+      fetchMyProfile()
+        .then((profile) => {
+          if (seq !== saveSeq.current) return;
+          setRoles((rs) => mergeSavedRoles(rs, profile, now));
+        })
+        .catch((err) => log.error('re-read after save failed:', err?.message));
+      return true;
+    } catch (err) {
+      log.error('save roles failed:', err?.response?.status || err?.message);
+      setSaveError(SAVE_ERROR);
+      return false;
+    }
+  };
+  const commit = (next) => {
+    if (!loaded) return;
+    setRoles(next);
+    persist(next);
+  };
+  const move = (from, to) => {
+    if (from < 0 || to < 0 || from >= roles.length || to >= roles.length) return;
+    log('reorder', { from, to });
+    const next = [...roles];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    commit(next);
+  };
+  const dragFor = useDragReorder(roles, move);
+
   useEffect(() => {
-    log('mount', { state: ws.state, modal: ws.modal, roles: roles.length });
+    log('mount', { live, state: ws.state, modal: ws.modal, roles: roles.length });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const target = roles.find((r) => r.id === ws.role) ?? roles[0] ?? null;
+  useEffect(() => {
+    if (!live) return undefined;
+    let cancelled = false;
+    fetchMyProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        const list = rolesFromProfile(profile);
+        log('profile roles loaded', list.length);
+        setRoles(list);
+        setLoad('ready');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        log.error('profile load failed:', err?.response?.status || err?.message);
+        setLoad('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [live]);
+
+  /* Demo frames open the first role when ?role= is missing or unknown; live, an unknown / missing id opens nothing. */
+  const target = live
+    ? (roles.find((r) => r.id === ws.role) ?? null)
+    : (roles.find((r) => r.id === ws.role) ?? roles[0] ?? null);
   const empty = roles.length === 0;
+  const years = live ? yearsLabel(roles, now) : STAGE_YEARS_LABEL;
 
   const closeModal = useCallback(() => ws.update({ modal: null, role: null, unsaved: null }), [ws]);
+  const staleRole = live && loaded && (ws.modal === 'edit' || ws.modal === 'delete') && !target;
+  useEffect(() => {
+    if (!staleRole) return;
+    log.warn('role not found, closing dialog', ws.role);
+    closeModal();
+  }, [staleRole, closeModal, ws.role]);
   const openAdd = () => {
     log('open add');
     ws.update({ modal: 'add', state: empty ? null : 'list' });
   };
 
-  const save = (role) => {
-    log('save role', { id: role.id, mode: ws.modal });
-    setRoles((rs) =>
-      rs.some((r) => r.id === role.id)
-        ? rs.map((r) => (r.id === role.id ? role : r))
-        : [...rs, role]
-    );
+  const save = (edited) => {
+    log('save role', { id: edited.id, mode: ws.modal });
+    const prev = roles.find((r) => r.id === edited.id);
+    /* Keep the loaded profile item (`_id`, unedited fields); live ranges run to this month, not the drawn MOCK_NOW. */
+    const role = live
+      ? { ...edited, source: prev?.source, rangeLabel: formatRange(edited, now) }
+      : edited;
+    commit(prev ? roles.map((r) => (r.id === role.id ? role : r)) : [...roles, role]);
     ws.update({ modal: null, role: null, unsaved: null, state: 'list' });
   };
   const remove = (id) => {
     log('delete role', id);
-    setRoles((rs) => rs.filter((r) => r.id !== id));
+    commit(roles.filter((r) => r.id !== id));
     ws.update({ modal: null, role: null, unsaved: null, state: 'list' });
   };
 
@@ -87,7 +183,7 @@ const WorkPage = () => {
       footer={{
         skipLabel: null,
         continueLabel: 'Next: Portfolio',
-        disabled: empty,
+        disabled: empty || !loaded,
         left: (
           <Button
             variant="tertiary-subtle"
@@ -101,9 +197,9 @@ const WorkPage = () => {
             Back: Skills
           </Button>
         ),
-        onContinue: () => {
+        onContinue: async () => {
           log('next: stage complete');
-          ws.update({ state: 'complete', modal: null });
+          if (await persist(roles)) ws.update({ state: 'complete', modal: null });
         },
       }}
     >
@@ -111,14 +207,22 @@ const WorkPage = () => {
         sticker={
           empty
             ? 'STAGE 5 · LET’S GO'
-            : `${roles.length} ${roles.length === 1 ? 'ROLE' : 'ROLES'} · ${STAGE_YEARS_LABEL} YEARS`
+            : `${roles.length} ${roles.length === 1 ? 'ROLE' : 'ROLES'} · ${years} YEARS`
         }
       />
       <main
         className={`mx-auto grid w-full max-w-[1728px] flex-1 items-start gap-x-[clamp(24px,3.7vw,64px)] gap-y-[24px] pt-[40px] pb-[56px] max-lg:pt-[24px] lg:grid-cols-[minmax(0,1072fr)_minmax(0,464fr)] ${GUTTER}`}
       >
         <div className="flex min-w-0 flex-col gap-[20px]">
-          {empty ? (
+          {load === 'error' || saveError ? (
+            <p
+              role="status"
+              className="m-0 font-sans text-[14px] font-medium leading-[20px] text-[#c0392b]"
+            >
+              {load === 'error' ? LOAD_ERROR : saveError}
+            </p>
+          ) : null}
+          {!loaded ? null : empty ? (
             <>
               <EmptyState
                 onAdd={openAdd}
@@ -138,14 +242,7 @@ const WorkPage = () => {
                   isFirst={i === 0}
                   isLast={i === roles.length - 1}
                   dragProps={dragFor(r.id)}
-                  onMove={(d) =>
-                    setRoles((rs) => {
-                      const next = [...rs];
-                      const [m] = next.splice(i, 1);
-                      next.splice(i + d, 0, m);
-                      return next;
-                    })
-                  }
+                  onMove={(d) => move(i, i + d)}
                   onEdit={() => ws.update({ modal: 'edit', role: r.id, state: 'list' })}
                 />
               ))}
@@ -162,11 +259,14 @@ const WorkPage = () => {
         <WhyRail />
       </main>
 
-      {ws.modal === 'add' ? <RoleDialog mode="add" onClose={closeModal} onSave={save} /> : null}
-      {ws.modal === 'edit' && target ? (
+      {loaded && ws.modal === 'add' ? (
+        <RoleDialog mode="add" live={live} onClose={closeModal} onSave={save} />
+      ) : null}
+      {loaded && ws.modal === 'edit' && target ? (
         <RoleDialog
           key={target.id}
           mode="edit"
+          live={live}
           role={target}
           showUnsaved={ws.unsaved}
           onClose={closeModal}
@@ -174,7 +274,7 @@ const WorkPage = () => {
           onDelete={(id) => ws.update({ modal: 'delete', role: id, unsaved: null })}
         />
       ) : null}
-      {ws.modal === 'delete' && target ? (
+      {loaded && ws.modal === 'delete' && target ? (
         <DeleteDialog
           role={target}
           count={roles.length}
@@ -183,10 +283,10 @@ const WorkPage = () => {
           onEdit={() => ws.update({ modal: 'edit', role: target.id })}
         />
       ) : null}
-      {ws.state === 'complete' && !ws.modal ? (
+      {loaded && ws.state === 'complete' && !ws.modal ? (
         <CompleteDialog
           roleCount={roles.length}
-          yearsLabel={STAGE_YEARS_LABEL}
+          yearsLabel={years}
           onStay={() => ws.update({ state: 'list' })}
           onNext={() => {
             log('next: portfolio');

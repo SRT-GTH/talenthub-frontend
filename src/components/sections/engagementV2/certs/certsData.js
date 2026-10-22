@@ -1,9 +1,16 @@
 /*
- * Mock data for the Certifications stage (Figma CE-01..CE-06, Focused 8285:17367.. / Playful 7712:2..). API-shaped:
- * swap MOCK_CERTS / REMINDER for the real endpoints and keep the shape.
+ * Certifications stage data (Figma CE-01..CE-06, Focused 8285:17367.. / Playful 7712:2..). UI cert shape:
+ *   { id, title, issuer, type, issueDate 'MM / YYYY', expiryDate, noExpiry, credentialId, link, linkLabel, skills[],
+ *     status, dateLabel, file, verifiedNote, raw? }
  *   status: 'verified' | 'pending' | 'self'
  *   dateLabel: the meta-line text exactly as drawn ("Issued Mar 2024 · No expiry", "Jan 2024 – Jan 2027", ...)
+ * MOCK_CERTS / SAMPLE_REMINDER feed the signed-out demo frames only. Signed-in talents load / save
+ * profile.certifications through certFromProfile / certToProfile (bottom of this file); `raw` is the source item.
  */
+import { debug } from '../../../../utils/debug.js';
+
+const log = debug('certsData');
+
 export const MOCK_CERTS = [
   {
     id: 'gda',
@@ -172,4 +179,117 @@ export const buildCert = (form, prev) => {
     file: prev?.file ?? null,
     verifiedNote: prev?.verifiedNote ?? '',
   };
+};
+
+/*
+ * profile.certifications item <-> UI cert. Schema: { name, issuingOrganization, issueDate (required), expirationDate,
+ * credentialID, credentialURL, certificateFile: { secure_url }, skillsGained[] } (+ _id).
+ *   title <-> name;  issuer <-> issuingOrganization;  issueDate / expiryDate 'MM / YYYY' <-> ISO date (1st of month);
+ *   credentialId <-> credentialID;  link <-> credentialURL;  skills <-> skillsGained.
+ * Type and "No expiry" have no slot (no expiry = expirationDate omitted). Status is derived, never stored: a credential
+ * ID or link = 'pending' (being checked), otherwise 'self'. Writing spreads the original item's schema keys (keeps _id,
+ * certificateFile); a date whose month is unchanged keeps its stored value. certToProfile returns null when the issue date
+ * can't be parsed (it is required; the form blocks saving instead of inventing one).
+ */
+const CERT_KEYS = [
+  '_id',
+  'name',
+  'issuingOrganization',
+  'issueDate',
+  'expirationDate',
+  'credentialID',
+  'credentialURL',
+  'certificateFile',
+  'skillsGained',
+];
+
+const toMonthYear = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${String(d.getUTCMonth() + 1).padStart(2, '0')} / ${d.getUTCFullYear()}`;
+};
+
+const toIsoMonth = (value) => {
+  const m = /^\s*(\d{1,2})\s*\/?\s*(\d{4})\s*$/.exec(value ?? '');
+  if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) return null;
+  return `${m[2]}-${m[1].padStart(2, '0')}-01`;
+};
+
+export const certStatus = ({ credentialId, link }) =>
+  (credentialId || '').trim() || (link || '').trim() ? 'pending' : 'self';
+
+export const certFromProfile = (item, index) => {
+  const base = {
+    id: String(item?._id ?? item?.id ?? `c${index}`),
+    title: item?.name || '',
+    issuer: item?.issuingOrganization || '',
+    type: '',
+    issueDate: toMonthYear(item?.issueDate),
+    expiryDate: toMonthYear(item?.expirationDate),
+    noExpiry: false,
+    credentialId: item?.credentialID || '',
+    link: item?.credentialURL || '',
+    skills: Array.isArray(item?.skillsGained) ? [...item.skillsGained] : [],
+  };
+  return {
+    ...base,
+    status: certStatus(base),
+    dateLabel: buildDateLabel(base),
+    linkLabel: base.link ? 'Credential link' : '',
+    file: null,
+    verifiedNote: '',
+    raw: item,
+  };
+};
+
+export const certToProfile = (cert) => {
+  const raw = cert.raw || {};
+  const out = {};
+  CERT_KEYS.forEach((k) => {
+    if (raw[k] !== undefined) out[k] = raw[k];
+  });
+  out.name = cert.title;
+  out.issuingOrganization = cert.issuer;
+  if (!(raw.issueDate && toMonthYear(raw.issueDate) === cert.issueDate)) {
+    const issued = toIsoMonth(cert.issueDate);
+    if (!issued) {
+      log.warn('no valid issue date for', cert.title, '- not saveable');
+      return null;
+    }
+    out.issueDate = issued;
+  }
+  const expiry = cert.noExpiry ? null : toIsoMonth(cert.expiryDate);
+  if (!expiry) delete out.expirationDate;
+  else if (toMonthYear(raw.expirationDate) !== cert.expiryDate) out.expirationDate = expiry;
+  const credentialId = (cert.credentialId || '').trim();
+  if (credentialId) out.credentialID = credentialId;
+  else delete out.credentialID;
+  const link = (cert.link || '').trim();
+  if (link) out.credentialURL = link;
+  else delete out.credentialURL;
+  out.skillsGained = [...(cert.skills || [])];
+  return out;
+};
+
+/*
+ * After a save + re-read: attach the stored item as `raw` (so later saves carry its _id). The local `id` never changes
+ * (open dialogs / URLs keep pointing at it). Items that already had an _id are matched by it; items without one
+ * take the stored items whose _id no local item claims, in order. Returns null when the lists don't line up.
+ */
+export const adoptSavedIds = (list, saved) => {
+  if (!Array.isArray(saved) || saved.length !== list.length) return null;
+  const byId = new Map(saved.filter((s) => s?._id).map((s) => [String(s._id), s]));
+  const claimed = new Set(list.map((x) => x.raw?._id && String(x.raw._id)).filter(Boolean));
+  const fresh = saved.filter((s) => s?._id && !claimed.has(String(s._id)));
+  let ok = true;
+  const next = list.map((x) => {
+    const own = x.raw?._id ? byId.get(String(x.raw._id)) : fresh.shift();
+    if (!own) {
+      ok = false;
+      return x;
+    }
+    return { ...x, raw: own };
+  });
+  return ok ? next : null;
 };
