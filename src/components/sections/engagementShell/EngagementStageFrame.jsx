@@ -11,6 +11,7 @@ import EngagementStageBar from './EngagementStageBar.jsx';
 import EngagementStageFooter from './EngagementStageFooter.jsx';
 import ModePickerModal from '../engagementV2/journey/ModePickerModal.jsx';
 import { ENGAGEMENT_STAGES, STAGE_BY_ID, buildStageSegments } from './engagementShellData.js';
+import { useLiveJourney } from './useLiveJourney.js';
 
 const log = debug('EngagementStageFrame');
 
@@ -25,7 +26,8 @@ const log = debug('EngagementStageFrame');
  *
  * Props:
  *   stageId       'interests' | 'work' | … (see engagementShellData.js) — draws the stage bar for that stage
- *   doneIds       ids of finished stages (stage bar segments + "n of 9 done")
+ *   doneIds       ids of finished stages (stage bar segments + "n of 9 done"); the signed-in talent's live journey
+ *                 (GET /profiles/journey) replaces them once loaded, so these are the demo values
  *   footer        false to hide, or props for EngagementStageFooter ({ onContinue, onSkip, continueLabel, disabled, left })
  *   showStageBar  default true when stageId is set
  *   onChangeInputMode  handler for the gold nav button; when omitted the button opens the mode picker (J-03) itself:
@@ -64,9 +66,13 @@ const EngagementStageFrame = ({
     return () => document.documentElement.removeAttribute('data-talent-home');
   }, [stageId]);
 
-  const doneCount = doneIds.length;
-  const segments = stage ? buildStageSegments({ doneIds, currentId: stage.id }) : undefined;
-  log('render', { stageId, doneCount, footer: footer !== false });
+  const live = useLiveJourney();
+  const shownDoneIds = live ? live.doneIds : doneIds;
+  const doneCount = shownDoneIds.length;
+  const segments = stage
+    ? buildStageSegments({ doneIds: shownDoneIds, currentId: stage.id })
+    : undefined;
+  log('render', { stageId, doneCount, live: Boolean(live), footer: footer !== false });
 
   return (
     <div

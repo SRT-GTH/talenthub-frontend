@@ -5,6 +5,7 @@ import { debug } from '../../../../utils/debug.js';
 import EngagementStageFrame from '../../engagementShell/EngagementStageFrame.jsx';
 import { MILESTONES } from './journeyData.js';
 import { buildJourneyModel } from './journeyModel.js';
+import { useLiveJourney } from '../../engagementShell/useLiveJourney.js';
 import { useJourneyState } from './journeyState.js';
 import JourneyHero from './JourneyHero.jsx';
 import JourneyMapCanvas from './JourneyMapCanvas.jsx';
@@ -26,7 +27,12 @@ const log = debug('JourneyHub');
 const JourneyHub = ({ defaults, children = null }) => {
   const navigate = useNavigate();
   const s = useJourneyState({ defaults });
-  const model = useMemo(() => buildJourneyModel(s.done), [s.done]);
+  const live = useLiveJourney();
+  const liveOn = Boolean(live) && !s.doneFromUrl;
+  const model = useMemo(() => buildJourneyModel(liveOn ? live : s.done), [liveOn, live, s.done]);
+  // Live progress only celebrates a milestone the talent has actually reached (a stage flow may route here early).
+  const milestone =
+    s.milestone && (!liveOn || model.done >= MILESTONES[s.milestone - 1].at) ? s.milestone : 0;
   const wide = useMediaQuery('(min-width: 1024px)');
   const twoCol = useMediaQuery('(min-width: 1536px)');
 
@@ -41,9 +47,9 @@ const JourneyHub = ({ defaults, children = null }) => {
   }, [s.done, s.hover, s.modal, s.milestone, s.toast]);
 
   const closeMilestone = () => {
-    log('close milestone', s.milestone);
-    const qs = new URLSearchParams({ done: String(s.done) });
-    if (s.milestone === 1) qs.set('toast', '1');
+    log('close milestone', milestone);
+    const qs = new URLSearchParams(liveOn ? {} : { done: String(s.done) });
+    if (milestone === 1) qs.set('toast', '1');
     navigate(`/profile/engagement?${qs.toString()}`);
   };
   const pickMode = (id) => {
@@ -91,8 +97,8 @@ const JourneyHub = ({ defaults, children = null }) => {
         <ModePickerModal onClose={() => s.update({ modal: null })} onPick={pickMode} />
       ) : null}
       {children}
-      {s.milestone ? (
-        <MilestoneModal n={s.milestone} onClose={closeMilestone} onPrimary={(to) => navigate(to)} />
+      {milestone ? (
+        <MilestoneModal n={milestone} onClose={closeMilestone} onPrimary={(to) => navigate(to)} />
       ) : null}
     </EngagementStageFrame>
   );
