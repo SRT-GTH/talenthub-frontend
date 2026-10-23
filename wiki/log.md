@@ -57,3 +57,10 @@ Built `/messages` (Figma canvas 7387:104275, 49 Playful/Focused pairs + A-01c + 
 ## [2026-10-21] fix | Career Buddy interview review after reopening a chat
 
 Reopened Career Buddy conversations lost the practice / mock interview review card and showed the agent's plain text report instead, including raw placeholders like "[experience]". Cause: the agent's history endpoint dropped `practiceReview` (backend `apps/agent/src/server/career-buddy-routes.ts` TURN_FIELDS, fixed there). Here: `careerBuddyLive.js turnToBubbles` keeps only the verdict line when a turn carries the review card (the card holds the scores and feedback), and `PracticeReviewCard` shows "[experience]"-style placeholders as highlighted "your experience" blanks with a "Fill the highlighted parts with your own details" note.
+
+## [2026-10-23] perf | Career Buddy voice: speak as the reply streams; the mic stays open
+
+- `speechQueue.js` (new): in a voice call or with read-aloud on, each sentence is spoken as soon as it has streamed in (`delta` events), instead of the whole reply after the turn finished as one long utterance (slow to start; Chrome stalls on long utterances). The final reply is authoritative: only the part not spoken yet is queued.
+- `useVoiceCapture`: the mic (stream + level meter) stays open for the whole call; only speech recognition stops while Career Buddy thinks or speaks. It used to tear down and re-open the mic (getUserMedia + AudioContext + recogniser) around every reply. The recogniser now restarts itself when Chrome ends it (silence / network), which used to leave the call deaf.
+- `useUtteranceSender`: when the recogniser has finalised the words, the turn is sent after 0.6 s instead of 1.5 s (interviews keep their longer pause).
+- There is no WebSocket in the Career Buddy path: replies stream over Server-Sent Events (`/career-buddy/turn-stream`). Backend side of the same work: srt-backend `perf/cb-reasoning-temperature`.

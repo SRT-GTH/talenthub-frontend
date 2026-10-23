@@ -46,11 +46,12 @@ const PlayfulVoiceCall = ({
   const [announce, setAnnounce] = useState('');
   const rootRef = useRef(null);
   const live = typeof onUtterance === 'function';
-  const { level, setMuted, active, error, transcript } = useVoiceCapture({
-    enabled: open && !(live && paused),
-    listen: live,
+  // The mic stays open for the whole call; only listening pauses while Career Buddy thinks or speaks.
+  const { level, setMuted, active, error, transcript, final } = useVoiceCapture({
+    enabled: open,
+    listen: live && !paused,
   });
-  useUtteranceSender({ live, open, paused, muted, transcript, onUtterance, pauseMs });
+  useUtteranceSender({ live, open, paused, muted, transcript, final, onUtterance, pauseMs });
 
   const voice = getVoiceById(voiceId);
   const reach = usePlayfulPaneReach(rootRef, open);
@@ -81,7 +82,7 @@ const PlayfulVoiceCall = ({
 
   if (!open) return null;
 
-  const speaking = !muted && level > 0.04 && !reducedMotion();
+  const speaking = !muted && !(live && paused) && level > 0.04 && !reducedMotion();
 
   return (
     <div

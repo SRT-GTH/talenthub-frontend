@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AssessmentReportCard from './AssessmentReportCard.jsx';
+import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
@@ -47,7 +48,6 @@ import {
   fileBubble,
   localBotBubble,
   chipActionFor,
-  speakable,
   isPracticeTurn,
   stageForSection,
   buildPanelStages,
@@ -219,28 +219,7 @@ const writeJson = (key, value) => {
   }
 };
 
-/* Voice replies: the browser's speech synthesis, tuned per Career Buddy voice. */
-const VOICE_TUNING = {
-  sol: { rate: 0.95, pitch: 0.9 },
-  bruce: { rate: 0.9, pitch: 0.75 },
-  tali: { rate: 1.05, pitch: 1.15 },
-};
-const speak = (text, voiceId, onEnd) => {
-  const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
-  if (!synth || !text) {
-    onEnd?.();
-    return;
-  }
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(speakable(text));
-  const t = VOICE_TUNING[voiceId] || VOICE_TUNING.tali;
-  u.rate = t.rate;
-  u.pitch = t.pitch;
-  u.lang = 'en-GB';
-  u.onend = () => onEnd?.();
-  u.onerror = () => onEnd?.();
-  synth.speak(u);
-};
+/* Voice replies: speechQueue.js speaks each sentence as soon as it has streamed in. */
 
 export function useCareerBuddyLive({
   enabled = true,
@@ -431,6 +410,8 @@ export function useCareerBuddyLive({
   );
 
   const abortRef = useRef(null);
+  // The reply being spoken (speechQueue.js), so Stop / a new turn can cut it off.
+  const speakerRef = useRef(null);
   const runTurn = useCallback(
     async (
       text,
@@ -470,6 +451,18 @@ export function useCareerBuddyLive({
         chipActions: [],
       }));
       const ticker = setInterval(draw, 1000);
+      // 2026-10-23 (voice latency): in a voice call / read-aloud, speak sentence by sentence as the
+      // reply streams instead of waiting for the whole turn.
+      speakerRef.current?.cancel();
+      const speaker =
+        voiceOpenRef.current || readAloudRef.current
+          ? createSpeaker({
+              voiceId: voiceIdRef.current,
+              onStart: () => setSpeaking(true),
+              onIdle: () => setSpeaking(false),
+            })
+          : null;
+      speakerRef.current = speaker;
       try {
         const turn = await sendTurnStream({
           entityId,
@@ -488,6 +481,7 @@ export function useCareerBuddyLive({
           // Reply words as Career Buddy writes them; the finished turn replaces this row.
           onDelta: (chunk) => {
             streamed += chunk;
+            speaker?.push(chunk);
             draw();
           },
         });
@@ -509,11 +503,20 @@ export function useCareerBuddyLive({
         }));
         applyTurnToPanel(turn);
         refreshProfile();
-        if (voiceOpenRef.current || readAloudRef.current) {
-          setSpeaking(true);
-          speak(turn.reply, voiceIdRef.current, () => setSpeaking(false));
+        if (speaker) speaker.finish(turn.reply);
+        else if (voiceOpenRef.current || readAloudRef.current) {
+          // Voice switched on mid-turn: speak the whole reply.
+          const late = createSpeaker({
+            voiceId: voiceIdRef.current,
+            onStart: () => setSpeaking(true),
+            onIdle: () => setSpeaking(false),
+          });
+          speakerRef.current = late;
+          late.finish(turn.reply);
         }
       } catch (err) {
+        speaker?.cancel();
+        setSpeaking(false);
         if (controller.signal.aborted && stoppedRef.current) {
           // The talent pressed "Stop generating": keep what was written, offer Continue / Try again.
           log('turn stopped', { written: streamed.length });
@@ -750,6 +753,7 @@ export function useCareerBuddyLive({
   // ---- voice ----
   const handleUtterance = (text) => runTurn(text, { inputMode: 'voice' });
   const stopSpeaking = () => {
+    speakerRef.current?.cancel();
     window.speechSynthesis?.cancel();
     setSpeaking(false);
   };
