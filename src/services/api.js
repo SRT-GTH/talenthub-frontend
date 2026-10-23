@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
+import { perfRequest, perfResponse } from '../utils/perf.js';
 
 const log = debug('api');
 
@@ -20,7 +21,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   log('→', config.method?.toUpperCase(), config.url);
-  return config;
+  return perfRequest(config); // no-op unless ?perf=1
 });
 
 // Response: log, and renew an expired access token once with the stored refresh
@@ -68,6 +69,7 @@ const refreshAccessToken = () => {
 api.interceptors.response.use(
   (response) => {
     log('←', response.status, response.config.url);
+    perfResponse(response);
     return response;
   },
   async (error) => {
@@ -79,6 +81,7 @@ api.interceptors.response.use(
       !config._retried &&
       !NO_REFRESH.some((p) => url.includes(p)) &&
       Boolean(localStorage.getItem(STORAGE_KEYS.refreshToken));
+    perfResponse(error, true, { retrying: canRefresh });
     if (canRefresh) {
       try {
         const token = await refreshAccessToken();
@@ -87,6 +90,7 @@ api.interceptors.response.use(
         return api(config);
       } catch {
         // fall through with the original 401
+        perfResponse(error, true, { counted: true });
       }
     }
     log.error('×', response?.status, url, error.message);
