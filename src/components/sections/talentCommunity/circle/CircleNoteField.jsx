@@ -16,7 +16,7 @@ const CircleNoteField = ({ id, value, onChange, max, label, placeholder, rows = 
       aria-label={label}
       onChange={(e) => onChange(e.target.value)}
       className={classNames(
-        'block w-full resize-none border-0 bg-transparent p-0 font-sans text-[14px] leading-[21px] text-[#1c2a21] outline-none placeholder:text-[#9a9a98]',
+        'block w-full resize-none border-0 bg-transparent p-0 [field-sizing:content] font-sans text-[14px] leading-[21px] text-[#1c2a21] outline-none placeholder:text-[#9a9a98]',
         textClass
       )}
     />

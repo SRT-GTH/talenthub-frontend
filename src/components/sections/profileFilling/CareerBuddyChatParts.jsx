@@ -381,7 +381,7 @@ export const BuddySettingsPopover = ({
         role="dialog"
         aria-label="Buddy settings"
         className={classNames(
-          'absolute right-[19px] top-[66px] z-30 flex w-[380px] max-w-[calc(100%-24px)] flex-col gap-[8px] rounded-[20px] border border-solid border-[#e7e7e7] bg-white px-[12px] pb-[12px] pt-[16px] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_12px_32px_rgba(28,42,33,0.10)] playful:border-[1.5px] playful:border-[#1c2a21]/55 playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)] max-lg:right-3',
+          'absolute right-[19px] top-[66px] z-30 flex max-h-[calc(100%-78px)] w-[380px] max-w-[calc(100%-24px)] flex-col gap-[8px] overflow-y-auto overscroll-contain no-scrollbar rounded-[20px] border border-solid border-[#e7e7e7] bg-white px-[12px] pb-[12px] pt-[16px] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_12px_32px_rgba(28,42,33,0.10)] playful:border-[1.5px] playful:border-[#1c2a21]/55 playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)] max-lg:right-3',
           view === 'language' && 'gap-[4px]'
         )}
       >

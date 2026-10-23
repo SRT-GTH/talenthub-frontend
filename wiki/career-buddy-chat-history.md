@@ -27,6 +27,10 @@ Not a recruiter job-post flow: it is the TALENT "I think I need some guidance" �
 
 ⚠️ ASSUMPTIONS: replies for "Why these 3?", "Show more matches", "Add skill", cards 2 / 3 "Why this match?" and the "Apply" reply are not drawn (placeholder lines from on-screen facts); card 2's "View opportunity" opens the Matched list; any open-to chip or typed text advances to the cards. Figma inconsistencies kept: card 1 is Accra Tech 80 % but its reply says "86% match for IPMC Ghana Intern"; card 3 shows 44 % while the detail says 82 %. Requests: the Jobs shell labels the nav item / breadcrumb "Job Postings" where Figma J-02 says "Opportunities"; "Closes Tomorrow" tag is not red as drawn; list dots for `message.bullets` in `ChatThread`. The live (backend) chat has no opportunity flow.
 
+## Buddy settings popover height (2026-10-23)
+
+The Buddy settings popover (`BuddySettingsPopover`, `CareerBuddyChatParts.jsx`) was positioned `top-[66px]` with no height cap, so on windows shorter than its content (the new "Live captions" row made it ~745 px) it ran past the bottom of the screen. It now has `max-h-[calc(100%-78px)]` and scrolls inside itself (`overflow-y-auto`, no visible scrollbar). Checked at 1280x808, 1440x700, 1280x560, 1728x1065 and 390x700 in both styles: the popover bottom stays inside the window.
+
 ## What changed (21 Oct build)
 
 - **Toolbar** (`ChatThread.jsx`): History button is now first (44x40), then "New Chat" (disabled at 45 % on a fresh chat, tooltip "You’re already in a new chat"), Settings on the right (opens Buddy settings, no longer the voice overlay). Active = pale green + green outline.

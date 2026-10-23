@@ -27,6 +27,22 @@ Sidebar "Community" → `/community`, where a "Communities | My circle ·3" swit
 
 \* stale: measured before three fixes (content max-width 1506 → 1602, dialog title size, Playful empty-state width); the my-circle agent did not get a clean re-run. Dialogs are centred in the real viewport (Figma centres them in the Safari-inclusive frame); the Ask Buddy FAB shows (the frames do not draw it); top nav 91 px vs 88 px.
 
+## Flow section (Figma `9242:…`, re-read 2026-10-23) and what changed in Figma
+
+The designer rebuilt the "how talents get to My circle" section (new ids `9242:543526 …`, 12 frames) and redrew NW-02 / NW-03. The flow frames are the real screens with orange callouts, so they were compared with the same URLs (framecmp, collapsed rail for steps 3-6):
+
+| Step                                                            | URL                                          | P   | F   |
+| --------------------------------------------------------------- | -------------------------------------------- | --- | --- |
+| 1 Tap Community (Home, Top Talent state, Community highlighted) | `/home?state=top`                            | 6.3 | 5.7 |
+| 2 Switch to My circle (Communities page with the switch)        | `/community?demo=1`                          | 6.0 | 7.6 |
+| 3 See who to link up with                                       | `/community?view=circle&rail=collapsed`      | 6.3 | 3.8 |
+| 4 Link up and say why                                           | `…&modal=connect&person=abena-owusu&draft=1` | 7.7 | 5.3 |
+| 5 Link-up sent (card "Link-up sent" + toast)                    | `…&state=sent`                               | 7.4 | 4.9 |
+| 6 Answer your invitations (Nana Yaw accepted)                   | `…&tab=invitations&state=accepted`           | 4.0 | 2.6 |
+
+Fixes made after the re-read: the connect dialog title is now "Why link up with {first}?" (was "Say why you want to link up with {first}"); the dialog's note field is two rows and its gaps are 16 (Playful) / 24 (Focused), so the dialog is 307 / 331 px tall against Figma's 309 / 332. The earlier NW-03 inconsistency is resolved: Figma now draws Abena's card as "Link-up sent" with the toast, which is what we render. Step 4 stays at 7.7 % Playful because Figma places the dialog 112 px higher than the viewport-centred one (known).
+Still different: a blue "New" tag (`#eaeffb` / `#244a9f`, 38x18) sits beside the active Community tile of the collapsed rail in the circle frames; the shared rail does not draw it (shell change, not done). The "132 / 300" counter is Figma sample text; ours counts live.
+
 ## Code map
 
 `src/components/sections/talentCommunity/circle/` (54 files: data, URL state, session store, components, icons as `currentColor` components) and `src/pages/talentCommunity/circle/` (`CirclePage.jsx`, `CircleProfilePage.jsx`); assets `src/assets/talent-circle/` (31 Figma 2x portraits, one SVG illustration). Shared edits (add-only): `CommunityBrowsePage.jsx` (one import + a `<CircleViewGate>` wrapper around the existing expression; the switch is inserted by `CommunitiesSwitchSlot`, which portals into the page's `<h1>` row because the live Browse header is not this build's file), `App.jsx` (one lazy import + the `/community/people/:personId` route).

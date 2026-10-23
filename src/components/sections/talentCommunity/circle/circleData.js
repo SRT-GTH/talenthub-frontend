@@ -516,7 +516,7 @@ export const CIRCLE_COPY = {
   manage: 'Manage',
   verifiedMentor: 'Verified mentor',
   notes: {
-    title: (first) => `Say why you want to link up with ${first}`,
+    title: (first) => `Why link up with ${first}?`, // Figma 2026-10-23 redraw of NW-02 / flow step 4 (was "Say why you want to link up with {first}")
     help: 'Help me write it',
     without: 'Send without a note',
     send: 'Send link-up',
