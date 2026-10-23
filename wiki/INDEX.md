@@ -53,6 +53,8 @@ Every claim in this wiki carries a tag:
 
 - [talent-emails.md](talent-emails.md) — Talent transactional emails `emails/talent/`: 12 static HTML emails × Playful/Focused (TE-01..TE-12), frame table with diff %, conventions, known gaps
 
+- [talent-community-create.md](talent-community-create.md) — Create your own community `/community/create` + `/community/:id/manage`: 19 frames × 2 styles (CC-02 … CC-17b), URL table, owner lifecycle, known gaps
+- [talent-my-circle.md](talent-my-circle.md) — My circle networking `/community?view=circle` + `/community/people/:id`: NW-01 … NW-11 × 2 styles, navigation from the flow section, URL contract, known gaps
 - [parent-emails.md](parent-emails.md) — Parent transactional emails `emails/parent/focused/`: 7 static HTML emails (PE-01..PE-07, Focused only), frame table with diff %, known gaps
 
 ### External
