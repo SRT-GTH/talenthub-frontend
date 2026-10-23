@@ -21,10 +21,21 @@ import { PageFooter, PlayfulSticker, PlayfulStar } from './PersonalityParts.jsx'
 const log = debug('PersonalityQuiz');
 
 /*
- * Quiz header shared by PE-02 / PE-03 / PE-04: the 80px #2a5730 "Quiz bar" + the 64px progress row with 15 segments.
- * `done` marks the loader screen ("Done" subtitle, "All 15 answered").
+ * Quiz header shared by PE-02 / PE-03 / PE-04: the 80px #2a5730 "Quiz bar" + the 64px progress row with one segment per
+ * question (15 in the demo). `done` marks the loader screen ("Done" subtitle, "All N answered").
+ * Live: `total` = the bank's size, `answeredIdx` (bool per question) colours the segments by which questions are answered
+ * (Previous / Skip make that differ from "the first n"), `subtitle` / `savedLabel` replace the demo copy.
  */
-export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit }) => (
+export const QuizHeader = ({
+  answered,
+  currentIndex = null,
+  done = false,
+  onExit,
+  total = QUIZ_TOTAL,
+  answeredIdx = null,
+  subtitle = null,
+  savedLabel = 'Saved after every answer',
+}) => (
   <>
     <div
       className={`relative flex min-h-[80px] items-center justify-between gap-4 bg-[#2a5730] py-3 ${GUTTER}`}
@@ -34,7 +45,7 @@ export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit
           type="button"
           aria-label="Exit quiz"
           onClick={() => {
-            log('exit quiz (no destination drawn)');
+            log('exit quiz');
             onExit?.();
           }}
           className="flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-[rgba(255,255,255,0.12)] text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -48,7 +59,7 @@ export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit
             Personality quiz
           </p>
           <p className="m-0 font-sans text-[13px] leading-[16px] font-medium text-white/80 max-lg:text-[12px]">
-            15 scenarios · No right answers · {done ? 'Done' : 'About 4 min left'}
+            {subtitle ?? `15 scenarios · No right answers · ${done ? 'Done' : 'About 4 min left'}`}
           </p>
           <PlayfulSticker rotate={-4} className="left-[318px] top-[12px]">
             NO WRONG ANSWERS
@@ -57,7 +68,7 @@ export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit
       </div>
       <p className="m-0 flex items-center gap-[6px] font-sans text-[13px] leading-[16px] font-medium text-white max-md:hidden">
         <CheckCircleIcon className="size-[14px]" />
-        Saved after every answer
+        {savedLabel}
       </p>
       <PlayfulStar size={16} className="right-[284px] top-[14px]" />
       <PlayfulStar size={8} green className="right-[370px] top-[46px]" />
@@ -67,7 +78,7 @@ export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit
       className={`flex min-h-[64px] items-center gap-[clamp(12px,2.8vw,48px)] bg-white py-2 ${GUTTER}`}
     >
       <p className="m-0 min-w-[112px] shrink-0 whitespace-nowrap font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21] max-md:w-auto">
-        {done ? 'All 15 answered' : `Question ${currentIndex + 1} of ${QUIZ_TOTAL}`}
+        {done ? `All ${total} answered` : `Question ${currentIndex + 1} of ${total}`}
       </p>
       <div
         className="flex h-[8px] min-w-0 flex-1 gap-[4px]"
@@ -75,38 +86,56 @@ export const QuizHeader = ({ answered, currentIndex = null, done = false, onExit
         aria-label="Quiz progress"
         aria-valuenow={answered}
         aria-valuemin={0}
-        aria-valuemax={QUIZ_TOTAL}
+        aria-valuemax={total}
       >
-        {Array.from({ length: QUIZ_TOTAL }, (_, i) => (
-          <span
-            key={i}
-            className={classNames(
-              'h-full flex-1 rounded-[4px]',
-              i === currentIndex && !done && answered <= i
-                ? 'bg-[#c8951a]'
-                : i < answered
-                  ? 'bg-[#387440]'
-                  : 'bg-[#e7e7e7]'
-            )}
-          />
-        ))}
+        {Array.from({ length: total }, (_, i) => {
+          const isDone = done || (answeredIdx ? Boolean(answeredIdx[i]) : i < answered);
+          const isCurrent =
+            i === currentIndex && !done && (answeredIdx ? !answeredIdx[i] : answered <= i);
+          return (
+            <span
+              key={i}
+              className={classNames(
+                'h-full flex-1 rounded-[4px]',
+                isCurrent ? 'bg-[#c8951a]' : isDone ? 'bg-[#387440]' : 'bg-[#e7e7e7]'
+              )}
+            />
+          );
+        })}
       </div>
       <p className="m-0 min-w-[72px] shrink-0 text-right font-sans text-[13px] leading-[16px] font-medium text-[#595959] max-md:hidden">
-        {done ? '15 answered' : `${answered} answered · about 4 min left`}
+        {done
+          ? `${total} answered`
+          : `${answered} answered${answeredIdx ? '' : ' · about 4 min left'}`}
       </p>
     </div>
   </>
 );
 
 /*
- * PE-02 / PE-03 · Personality quiz · Question 7 (Figma Focused 8285:11238 / 8285:11406, Playful 7659:19623 / 7659:19809).
- * Props: q (question number; only 7 is drawn), answer (0..3 or null), onAnswer(index), onNext/onPrev/onSkip (inert, logged).
- * Picking an option marks segment 7 done, bumps "6 answered" to "7 answered", enables Next and switches the footer note.
+ * PE-02 / PE-03 · Personality quiz (Figma Focused 8285:11238 / 8285:11406, Playful 7659:19623 / 7659:19809).
+ * Props: q (question number), answer (option index or null), onAnswer(index), onNext, onPrev, onSkip, onExit.
+ * Demo (no `live`): question 7, the only drawn one; picking an option marks segment 7 done, bumps "6 answered" to
+ * "7 answered", enables Next and switches the footer note. The page passes no onNext/onPrev/onSkip/onExit there.
+ * Live: `live` = { question ({ n, kicker, titleLead, titleAccent, context, options:[{ letter, text }] }), total,
+ * answeredIdx, answeredCount, traitsSoFar ([{ id, label, status, fill }]), traitsNote, nextLabel, subtitle, savedLabel,
+ * notice } — one statement of the Big Five bank, the five 1–5 agree options, the real progress; `notice` is a
+ * role="status" line (e.g. "answer question 4 to finish").
  */
-const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSkip, onExit }) => {
-  const question = QUESTIONS[q] ?? QUESTIONS[7];
+const PersonalityQuiz = ({
+  q = 7,
+  answer = null,
+  onAnswer,
+  onNext,
+  onPrev,
+  onSkip,
+  onExit,
+  live = null,
+}) => {
+  const question = live?.question ?? QUESTIONS[q] ?? QUESTIONS[7];
   const picked = answer !== null;
-  const answered = QUIZ_ANSWERED_BEFORE + (picked ? 1 : 0);
+  const answered = live ? live.answeredCount : QUIZ_ANSWERED_BEFORE + (picked ? 1 : 0);
+  const traitsSoFar = live?.traitsSoFar ?? QUIZ_TRAITS_SO_FAR;
 
   useEffect(() => {
     log('mount', { q: question.n, answer });
@@ -114,7 +143,15 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
 
   return (
     <>
-      <QuizHeader answered={answered} currentIndex={question.n - 1} onExit={onExit} />
+      <QuizHeader
+        answered={answered}
+        currentIndex={question.n - 1}
+        onExit={onExit}
+        total={live?.total}
+        answeredIdx={live?.answeredIdx}
+        subtitle={live?.subtitle}
+        savedLabel={live?.savedLabel}
+      />
       <div
         className={`grid flex-1 grid-cols-1 content-start gap-[clamp(24px,3.7vw,64px)] pb-[24px] pt-[clamp(24px,2.3vw,40px)] lg:grid-cols-[1072fr_464fr] ${GUTTER}`}
       >
@@ -132,6 +169,14 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
               {question.context}
             </p>
           </div>
+          {live?.notice ? (
+            <p
+              role="status"
+              className="m-0 rounded-[12px] bg-[#faf4e8] px-[16px] py-[10px] font-sans text-[14px] leading-[20px] font-medium text-[#785910]"
+            >
+              {live.notice}
+            </p>
+          ) : null}
           <div role="radiogroup" aria-label="Answers" className="flex flex-col gap-[12px]">
             {question.options.map((o, i) => {
               const on = answer === i;
@@ -176,7 +221,7 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
             <button
               type="button"
               onClick={() => {
-                log('previous question (not drawn)');
+                log('previous question');
                 onPrev?.();
               }}
               className="inline-flex min-h-[24px] cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[17px] font-semibold text-[#1c2a21] max-lg:text-[12px]"
@@ -187,7 +232,7 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
             <button
               type="button"
               onClick={() => {
-                log('skip this one (not drawn)');
+                log('skip this one');
                 onSkip?.();
               }}
               className="min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] leading-[17px] font-semibold text-[#595959] max-lg:text-[12px]"
@@ -211,7 +256,7 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
                 Your traits so far
               </h2>
             </div>
-            {QUIZ_TRAITS_SO_FAR.map((t) => (
+            {traitsSoFar.map((t) => (
               <div key={t.id} className="flex flex-col gap-[6px]">
                 <div className="flex items-center justify-between">
                   <span className="font-sans text-[14px] leading-[17px] font-medium text-[#1c2a21]">
@@ -230,7 +275,8 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
               </div>
             ))}
             <p className="m-0 font-sans text-[13px] leading-[19px] text-[#595959] max-lg:text-[12px]">
-              Bars move as you answer. Your final scores appear after question 15.
+              {live?.traitsNote ??
+                'Bars move as you answer. Your final scores appear after question 15.'}
             </p>
           </aside>
           <aside
@@ -262,10 +308,10 @@ const PersonalityQuiz = ({ q = 7, answer = null, onAnswer, onNext, onPrev, onSki
             : 'Pick the option closest to what you’d really do'
         }
         primary={{
-          label: 'Next question',
+          label: live?.nextLabel ?? 'Next question',
           disabled: !picked,
           onClick: () => {
-            log('next question (questions after 7 are not drawn)');
+            log('next question');
             onNext?.();
           },
         }}

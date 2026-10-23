@@ -131,6 +131,7 @@ const PersonalityCard = ({ data = PERSONALITY }) => {
 };
 
 const SkillsEvidenceCard = ({ data = SKILLS_EVIDENCE }) => {
+  const navigate = useNavigate();
   const s = data;
   return (
     <section
@@ -167,7 +168,10 @@ const SkillsEvidenceCard = ({ data = SKILLS_EVIDENCE }) => {
         <span className="font-medium text-[#595959]">{s.more || ''}</span>
         <button
           type="button"
-          onClick={() => log('manage skills')}
+          onClick={() => {
+            log('manage skills -> skills stage');
+            navigate('/profile/filling/skills');
+          }}
           className="cursor-pointer font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           {s.manage}
@@ -208,8 +212,10 @@ const NextAssessmentCard = ({ data = NEXT_ASSESSMENT }) => {
         className="w-full"
         rightIcon={<ArrowRightIcon />}
         onClick={() => {
-          log('start assessment');
-          if (n.to) navigate(n.to);
+          // Live cards carry their own `to`; the demo TypeScript card goes to the assessment hub.
+          const to = n.to || '/my-assessment';
+          log('start assessment ->', to);
+          navigate(to);
         }}
       >
         {n.cta}
@@ -238,71 +244,79 @@ const LegendCard = () => (
   </section>
 );
 
-const SkillsLabCard = ({ data = SKILLS_LAB }) => (
-  <section
-    aria-labelledby="ma-lab"
-    className={classNames(CARD, 'flex flex-col gap-[8px] p-[clamp(14px,1.6vw,22px)]')}
-  >
-    <CardHead
-      icon={SkillsLabControllerIcon}
-      title={<span id="ma-lab">{data.title}</span>}
-      trailing={
-        <button
-          type="button"
-          onClick={() => log('play more')}
-          className="cursor-pointer whitespace-nowrap text-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-        >
-          {data.more}
-        </button>
-      }
-    />
-    {data.empty ? <p className="text-[13px] leading-[19px] text-[#595959]">{data.empty}</p> : null}
-    <ul>
-      {data.games.map((g) => (
-        <li
-          key={g.name}
-          className="flex items-center gap-[10px] border-b border-[#e7e7e7] py-[10px] first:mt-[6px] playful:first:mt-[6px]"
-        >
-          <span className="flex min-w-0 flex-1 flex-col gap-px">
-            <span className="truncate text-[14px] font-semibold text-[#1c2a21]">{g.name}</span>
-            <span className="text-[12px] text-[#595959]">{g.when}</span>
-          </span>
-          <span className="flex shrink-0 flex-col items-end gap-[3px]">
-            <span className="flex items-end gap-[2px] whitespace-nowrap">
+const SkillsLabCard = ({ data = SKILLS_LAB }) => {
+  const navigate = useNavigate();
+  return (
+    <section
+      aria-labelledby="ma-lab"
+      className={classNames(CARD, 'flex flex-col gap-[8px] p-[clamp(14px,1.6vw,22px)]')}
+    >
+      <CardHead
+        icon={SkillsLabControllerIcon}
+        title={<span id="ma-lab">{data.title}</span>}
+        trailing={
+          <button
+            type="button"
+            onClick={() => {
+              log('play more -> /skills-lab');
+              navigate('/skills-lab');
+            }}
+            className="cursor-pointer whitespace-nowrap text-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            {data.more}
+          </button>
+        }
+      />
+      {data.empty ? (
+        <p className="text-[13px] leading-[19px] text-[#595959]">{data.empty}</p>
+      ) : null}
+      <ul>
+        {data.games.map((g) => (
+          <li
+            key={g.name}
+            className="flex items-center gap-[10px] border-b border-[#e7e7e7] py-[10px] first:mt-[6px] playful:first:mt-[6px]"
+          >
+            <span className="flex min-w-0 flex-1 flex-col gap-px">
+              <span className="truncate text-[14px] font-semibold text-[#1c2a21]">{g.name}</span>
+              <span className="text-[12px] text-[#595959]">{g.when}</span>
+            </span>
+            <span className="flex shrink-0 flex-col items-end gap-[3px]">
+              <span className="flex items-end gap-[2px] whitespace-nowrap">
+                <span
+                  className={classNames(
+                    'text-[19px] font-semibold leading-[1.25] text-[#1c2a21]',
+                    DISPLAY
+                  )}
+                >
+                  {g.score}
+                </span>
+                <span className="text-[12px] font-medium text-[#595959]">/100</span>
+              </span>
               <span
                 className={classNames(
-                  'text-[19px] font-semibold leading-[1.25] text-[#1c2a21]',
-                  DISPLAY
+                  'whitespace-nowrap text-[12px] font-semibold',
+                  g.strong ? 'text-[#387440]' : 'text-[#595959]'
                 )}
               >
-                {g.score}
+                {g.top}
               </span>
-              <span className="text-[12px] font-medium text-[#595959]">/100</span>
-            </span>
-            <span
-              className={classNames(
-                'whitespace-nowrap text-[12px] font-semibold',
-                g.strong ? 'text-[#387440]' : 'text-[#595959]'
-              )}
-            >
-              {g.top}
-            </span>
-            <span
-              className="h-[5px] w-[90px] overflow-hidden rounded-[2.5px] bg-[#eceee8]"
-              role="img"
-              aria-label={`${g.name} ${g.score} out of 100`}
-            >
               <span
-                className="block h-full rounded-[2.5px] bg-[#387440]"
-                style={{ width: `${g.score * 0.9}%` }}
-              />
+                className="h-[5px] w-[90px] overflow-hidden rounded-[2.5px] bg-[#eceee8]"
+                role="img"
+                aria-label={`${g.name} ${g.score} out of 100`}
+              >
+                <span
+                  className="block h-full rounded-[2.5px] bg-[#387440]"
+                  style={{ width: `${g.score * 0.9}%` }}
+                />
+              </span>
             </span>
-          </span>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 // Shown on real data before the tab's data arrives, or when a part has no result yet.
 const PlainCard = ({ title, body }) => (
@@ -313,6 +327,7 @@ const PlainCard = ({ title, body }) => (
 );
 
 const MyAssessmentTab = ({ home }) => {
+  const navigate = useNavigate();
   // Real data (talentHomeLive.buildAssessmentContent) or the Figma demo content.
   const real = home?.live ? home.assessment : null;
   const waiting = Boolean(home?.live && !home.assessment);
@@ -368,7 +383,10 @@ const MyAssessmentTab = ({ home }) => {
             variant="tertiary-subtle"
             size="lg"
             className="w-full lg:w-auto"
-            onClick={() => log('preview recruiter view')}
+            onClick={() => {
+              log('preview recruiter view');
+              navigate('/profile?view=recruiter');
+            }}
           >
             {sum.cta}
           </Button>

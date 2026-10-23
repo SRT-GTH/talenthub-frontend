@@ -9,9 +9,11 @@ import CommunityIcon from '../community/CommunityIcon.jsx';
 import { icons } from '../community/communityIcons.js';
 import TalentNavIcon from './TalentNavIcon.jsx';
 import TalentPublicProfileCard from './TalentPublicProfileCard.jsx';
+import { HELP_ROUTE } from '../talentSettings/helpData.js';
 import {
   TALENT_NAV_MAIN,
   TALENT_NAV_SECONDARY,
+  TALENT_NAV_WALLET,
   getTalentProfile,
   getTalentNavData,
   getTalentSidebarData,
@@ -21,8 +23,10 @@ const log = debug('TalentMobileNav');
 
 /*
  * TalentMobileNav — phone (< md) replacement for the rail: a bottom tab bar (Home, Opportunities,
- * Community, Messages, More) and the More sheet (My Assessment, Skills Lab, My Learning, Profile,
- * Notifications, Help, Accessibility mode, style switch, public-profile card). Same data as
+ * Community, Messages, More) and the More sheet (My Assessment, Wallet, Skills Lab, My Learning, Profile,
+ * Notifications, Help, Accessibility mode, style switch, public-profile card). Wallet is always in the sheet
+ * (the phone has no other way to /wallet); Help opens the Help centre (/settings/help) because the
+ * desktop Help pop-over is hidden below lg. Same data as
  * TalentSidebar (talentShellData.js). ⚠️ ASSUMPTION — Figma has no phone frame for the talent
  * chrome; the pattern mirrors DashboardMobileTabBar (wiki/responsive-plan.md §4).
  */
@@ -92,7 +96,6 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
     } else if (item.tab && pathname !== '/home') {
       navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
     } else if (item.tab) home?.update?.({ tab: item.tab === 'home' ? null : item.tab });
-    else log('no destination wired yet:', item.id);
     setMoreOpen(false);
   };
 
@@ -194,7 +197,7 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
           </div>
 
           <nav aria-label="More destinations" className="flex flex-col gap-[2px]">
-            {[TALENT_NAV_MAIN[1], ...TALENT_NAV_SECONDARY].map((item) => (
+            {[TALENT_NAV_MAIN[1], TALENT_NAV_WALLET, ...TALENT_NAV_SECONDARY].map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -231,7 +234,15 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
               </span>
               <Badge count={navData.notificationCount} />
             </button>
-            <button type="button" className={rowClass} onClick={() => log('sheet: help')}>
+            <button
+              type="button"
+              className={rowClass}
+              onClick={() => {
+                log('sheet: help ->', HELP_ROUTE);
+                setMoreOpen(false);
+                if (pathname !== HELP_ROUTE) navigate(HELP_ROUTE);
+              }}
+            >
               <CommunityIcon src={icons.navHelp} size={18} />
               <span className="min-w-0 flex-1 truncate text-[rgba(28,42,33,0.85)]">Help</span>
             </button>

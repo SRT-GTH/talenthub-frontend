@@ -16,16 +16,21 @@ const log = debug('PersonalityResult');
 /*
  * PE-05 · Personality · Your result (Figma Focused 8285:11819 / Playful 7662:273). The page frame draws the shared stage bar;
  * this draws hero, "Your six traits", the note for recruiters (live 0 / 200 counter, mirrored in the card preview), the
- * "How recruiters see you" card and the footer. Props: onRetake (inert, no destination drawn), onSave (Save and continue).
- * Percentile labels ("72th", "41th") are kept exactly as drawn in Figma.
+ * "How recruiters see you" card and the footer. Props: onRetake (Retake quiz), onSave (Save and continue).
+ * Demo (no `view`): the drawn Figma result (RESULT); percentile labels ("72th", "41th") are kept exactly as drawn.
+ * Live: `view` = buildBigFiveResultView(...) (personalityBigFive.js) — the archetype derived from the talent's real Big
+ * Five scores, the five real trait rows, the talent's own name/photo on the card. `showNote={false}` hides the note for
+ * recruiters: the profile has no field to save it in (personalitySnapshot holds only type / traits / date), so live users
+ * are not offered an input that would be thrown away.
  */
-const PersonalityResult = ({ onRetake, onSave }) => {
+const PersonalityResult = ({ onRetake, onSave, view = null, showNote = true }) => {
+  const R = view ?? RESULT;
   const [note, setNote] = useState('');
   const noteId = useId();
 
   useEffect(() => {
-    log('mount', { archetype: RESULT.archetype });
-  }, []);
+    log('mount', { archetype: R.archetype, live: Boolean(view) });
+  }, [R.archetype, view]);
 
   return (
     <>
@@ -42,15 +47,15 @@ const PersonalityResult = ({ onRetake, onSave }) => {
             </PlayfulSticker>
           </div>
           <div className="relative flex max-w-[640px] flex-col gap-[10px]">
-            <p className={`${KICKER} m-0 text-[#785910]`}>{RESULT.kicker}</p>
+            <p className={`${KICKER} m-0 text-[#785910]`}>{R.kicker}</p>
             <AccentHeading
-              lead={RESULT.titleLead}
-              accent={RESULT.titleAccent}
+              lead={R.titleLead}
+              accent={R.titleAccent}
               className={`${DISPLAY} text-[clamp(28px,2.72vw,47px)] leading-[1.1] text-[#1c2a21]`}
             />
-            <p className="m-0 font-sans text-[16px] leading-[24px] text-[#595959]">{RESULT.body}</p>
+            <p className="m-0 font-sans text-[16px] leading-[24px] text-[#595959]">{R.body}</p>
             <div className="flex flex-wrap gap-[8px]">
-              {RESULT.topChips.map((c) => (
+              {R.topChips.map((c) => (
                 <span key={c} className={CHIP}>
                   {c}
                 </span>
@@ -69,13 +74,13 @@ const PersonalityResult = ({ onRetake, onSave }) => {
           <section className={`${CARD} flex flex-col gap-[24px] p-[clamp(18px,1.62vw,28px)]`}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <h2 className="m-0 font-sans text-[22px] leading-[26px] font-semibold text-[#1c2a21]">
-                Your six traits
+                {R.traitsTitle ?? 'Your six traits'}
               </h2>
               <p className="m-0 font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[12px]">
-                Percentile vs GTH talents who took the quiz
+                {R.traitsNote ?? 'Percentile vs GTH talents who took the quiz'}
               </p>
             </div>
-            {RESULT.traits.map((t) => (
+            {R.traits.map((t) => (
               <div key={t.id} className="flex gap-[16px]">
                 <span className="mt-[8px] flex size-[40px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec] text-[#387440]">
                   <PIcon name={t.icon} className="size-[20px]" />
@@ -105,62 +110,75 @@ const PersonalityResult = ({ onRetake, onSave }) => {
             ))}
           </section>
 
-          <section className={`${CARD} flex flex-col gap-[14px] p-[clamp(18px,1.62vw,28px)]`}>
-            <div className="flex flex-col gap-[8px]">
-              <div className="flex items-baseline justify-between gap-2">
-                <label
-                  htmlFor={noteId}
-                  className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#1c2a21]"
-                >
-                  Add a note for recruiters
-                </label>
-                <span className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#595959]">
-                  Optional
-                </span>
+          {showNote ? (
+            <section className={`${CARD} flex flex-col gap-[14px] p-[clamp(18px,1.62vw,28px)]`}>
+              <div className="flex flex-col gap-[8px]">
+                <div className="flex items-baseline justify-between gap-2">
+                  <label
+                    htmlFor={noteId}
+                    className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#1c2a21]"
+                  >
+                    Add a note for recruiters
+                  </label>
+                  <span className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#595959]">
+                    Optional
+                  </span>
+                </div>
+                <textarea
+                  id={noteId}
+                  value={note}
+                  maxLength={RESULT.noteMax}
+                  placeholder={RESULT.notePlaceholder}
+                  onChange={(e) => {
+                    log('note change', e.target.value.length);
+                    setNote(e.target.value);
+                  }}
+                  className="h-[112px] w-full resize-none rounded-[10px] border border-solid border-[#cccccc] bg-white p-[14px_16px_13px_20px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] placeholder:text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                />
               </div>
-              <textarea
-                id={noteId}
-                value={note}
-                maxLength={RESULT.noteMax}
-                placeholder={RESULT.notePlaceholder}
-                onChange={(e) => {
-                  log('note change', e.target.value.length);
-                  setNote(e.target.value);
-                }}
-                className="h-[112px] w-full resize-none rounded-[10px] border border-solid border-[#cccccc] bg-white p-[14px_16px_13px_20px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#1c2a21] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] placeholder:text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-              />
-            </div>
-            <p className="m-0 font-sans text-[12px] leading-[14px] font-medium text-[#595959]">
-              Shown next to your archetype on your card · {note.length} / {RESULT.noteMax}
-            </p>
-          </section>
+              <p className="m-0 font-sans text-[12px] leading-[14px] font-medium text-[#595959]">
+                Shown next to your archetype on your card · {note.length} / {RESULT.noteMax}
+              </p>
+            </section>
+          ) : null}
         </div>
 
         <aside className={`${CARD} flex h-fit flex-col gap-[16px] p-[24px]`}>
           <p className={`${KICKER} m-0 text-[#595959]`}>HOW RECRUITERS SEE YOU</p>
           <div className="flex flex-col gap-[12px] rounded-[18px] border border-solid border-[#e7e7e7] bg-[#f7f8f4] p-[18px]">
             <div className="flex items-center gap-[12px]">
-              <img
-                src={RESULT.avatar}
-                alt=""
-                className="size-[52px] shrink-0 rounded-full object-cover"
-              />
+              {R.avatar ? (
+                <img
+                  src={R.avatar}
+                  alt=""
+                  className="size-[52px] shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="flex size-[52px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec] font-sans text-[18px] font-semibold text-[#387440]"
+                >
+                  {R.initials || '·'}
+                </span>
+              )}
               <div className="flex flex-col gap-[3px]">
                 <p className="m-0 font-sans text-[17px] leading-[20px] font-semibold text-[#1c2a21]">
-                  {RESULT.cardName}
+                  {R.cardName}
                 </p>
-                <p className="m-0 flex items-center gap-[4px] font-sans text-[12px] leading-[14px] font-medium text-[#595959]">
-                  <MarkerPinIcon className="size-[13px]" />
-                  {RESULT.cardPlace}
-                </p>
+                {R.cardPlace ? (
+                  <p className="m-0 flex items-center gap-[4px] font-sans text-[12px] leading-[14px] font-medium text-[#595959]">
+                    <MarkerPinIcon className="size-[13px]" />
+                    {R.cardPlace}
+                  </p>
+                ) : null}
               </div>
             </div>
             <span className="inline-flex w-fit items-center gap-[6px] rounded-full border border-solid border-[#eedeb8] bg-[#faf4e8] py-[6px] pr-[12px] pl-[8px] font-sans text-[13px] leading-[16px] font-semibold text-[#785910]">
               <CompassIcon className="size-[15px]" />
-              {RESULT.archetype}
+              {R.archetype}
             </span>
             <div className="flex flex-wrap gap-[6px]">
-              {RESULT.cardChips.map((c) => (
+              {R.cardChips.map((c) => (
                 <span
                   key={c}
                   className="inline-flex items-center rounded-full border border-solid border-[rgba(28,42,33,0.1)] bg-[#ebf1ec] px-[10px] py-[4px] font-sans text-[12px] leading-[14px] font-semibold text-[#387440] playful:border-[rgba(28,42,33,0.35)]"
@@ -169,9 +187,11 @@ const PersonalityResult = ({ onRetake, onSave }) => {
                 </span>
               ))}
             </div>
-            <p className="m-0 font-sans text-[13px] leading-[19px] break-words text-[#595959] max-lg:text-[12px]">
-              {note.trim() ? `“${note.trim()}”` : RESULT.cardNoteEmpty}
-            </p>
+            {showNote ? (
+              <p className="m-0 font-sans text-[13px] leading-[19px] break-words text-[#595959] max-lg:text-[12px]">
+                {note.trim() ? `“${note.trim()}”` : RESULT.cardNoteEmpty}
+              </p>
+            ) : null}
           </div>
           <p className="m-0 flex gap-[8px] font-sans text-[13px] leading-[19px] text-[#595959] max-lg:text-[12px]">
             <LockIcon className="mt-[2px] size-[15px] shrink-0 text-[#387440]" />
@@ -186,7 +206,7 @@ const PersonalityResult = ({ onRetake, onSave }) => {
         secondary={{
           label: 'Retake quiz',
           onClick: () => {
-            log('retake quiz (no destination drawn)');
+            log('retake quiz');
             onRetake?.();
           },
         }}

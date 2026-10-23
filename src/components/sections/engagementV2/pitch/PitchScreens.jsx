@@ -38,6 +38,7 @@ import {
   RailCard,
   Sticker,
 } from './PitchParts.jsx';
+import { MAX_PITCH_SECONDS } from './pitchCapture.js';
 
 const log = debug('PitchScreens');
 
@@ -136,7 +137,7 @@ export const RecordBody = ({
   useEffect(() => {
     if (videoRef.current) videoRef.current.srcObject = stream ?? null;
   }, [stream, recording]);
-  /* Frame state: PI-03 shows 0:42 (70% of 60 s); a live capture counts for real. */
+  /* Frame state: PI-03 shows 0:42 (70% of 60 s); a live capture counts for real up to MAX_PITCH_SECONDS. */
   const seconds = stream ? elapsed : 42;
   log('render', { recording, live: Boolean(stream), seconds });
   return (
@@ -170,7 +171,9 @@ export const RecordBody = ({
                 {stream ? `REC ${fmt(seconds)}` : PITCH_CAMERA.rec}
               </span>
               <Chip>
-                {stream ? `${Math.max(60 - seconds, 0)} seconds left` : PITCH_CAMERA.left}
+                {stream
+                  ? `${Math.max(MAX_PITCH_SECONDS - seconds, 0)} seconds left`
+                  : PITCH_CAMERA.left}
               </Chip>
             </div>
             <div className="absolute bottom-[84px] left-5 z-10 flex max-w-[calc(100%-40px)] flex-col gap-1 rounded-[14px] bg-[#0b1a0f]/75 px-4 py-3">
@@ -184,7 +187,7 @@ export const RecordBody = ({
             <div className="absolute right-5 bottom-[54px] left-5 z-10 h-[6px] rounded-[3px] bg-white/30">
               <div
                 className="h-full rounded-[3px] bg-[#387440]"
-                style={{ width: `${Math.min(seconds / 60, 1) * 100}%` }}
+                style={{ width: `${Math.min(seconds / MAX_PITCH_SECONDS, 1) * 100}%` }}
               />
             </div>
             <button
@@ -246,32 +249,90 @@ export const RecordBody = ({
 };
 
 /* ---------- shared: file card ---------- */
-const FileCard = ({ file, onReplace }) => (
-  <Card className="flex flex-wrap items-center gap-4 rounded-[20px] py-[14px] pr-4 pl-[14px] sm:flex-nowrap">
-    <div
-      className="relative flex h-[100px] w-[160px] max-w-full shrink-0 items-center justify-center rounded-[14px] bg-[#0b1a0f] bg-cover bg-center"
-      style={{ backgroundImage: `url(${cameraStill})` }}
-    >
-      <span className="flex size-9 items-center justify-center rounded-full bg-white text-[#387440]">
-        <PitchPlayIcon className="size-4" />
-      </span>
-    </div>
-    <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-[6px] sm:flex-1">
-      <span className="truncate font-sans text-[17px] leading-[20px] font-semibold text-[#1c2a21]">
-        {file.name}
-      </span>
-      <span className="font-sans text-[14px] leading-[17px] text-[#595959]">{file.meta}</span>
-      <div className="flex flex-wrap gap-[6px]">
-        {PITCH_FILE.chips.map((c) => (
-          <Chip key={c} tone="green">
-            {c}
-          </Chip>
-        ))}
+/*
+ * The pitch video. `file` = { name, meta, url?, chips? }: with a url (live talent: the chosen / recorded file, or the
+ * published video) the thumbnail is a real player; otherwise the drawn still. `progress` (0–100, optional) shows the
+ * upload bar; `playSignal` (number) plays the player and scrolls to it whenever it changes ("Watch my pitch").
+ */
+const FileCard = ({ file, onReplace, onDelete, progress, playSignal, busy }) => {
+  const videoRef = useRef(null);
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!playSignal || !v) return;
+    log('play pitch', playSignal);
+    v.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    v.play?.()?.catch?.((err) => log.error('play failed', err?.name));
+  }, [playSignal]);
+  return (
+    <Card className="flex flex-col gap-3 rounded-[20px] py-[14px] pr-4 pl-[14px]">
+      <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap">
+        {file.url ? (
+          <video
+            ref={videoRef}
+            src={file.url}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label={`Pitch video: ${file.name}`}
+            className="h-[160px] w-[260px] max-w-full shrink-0 rounded-[14px] bg-[#0b1a0f] object-contain"
+          />
+        ) : (
+          <div
+            className="relative flex h-[100px] w-[160px] max-w-full shrink-0 items-center justify-center rounded-[14px] bg-[#0b1a0f] bg-cover bg-center"
+            style={{ backgroundImage: `url(${cameraStill})` }}
+          >
+            <span className="flex size-9 items-center justify-center rounded-full bg-white text-[#387440]">
+              <PitchPlayIcon className="size-4" />
+            </span>
+          </div>
+        )}
+        <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-[6px] sm:flex-1">
+          <span className="truncate font-sans text-[17px] leading-[20px] font-semibold text-[#1c2a21]">
+            {file.name}
+          </span>
+          <span className="font-sans text-[14px] leading-[17px] text-[#595959]">{file.meta}</span>
+          <div className="flex flex-wrap gap-[6px]">
+            {(file.chips ?? PITCH_FILE.chips).map((c) => (
+              <Chip key={c} tone="green">
+                {c}
+              </Chip>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <PitchSecondary onClick={onReplace} disabled={busy}>
+            {PITCH_FILE.replace}
+          </PitchSecondary>
+          {onDelete ? (
+            <PitchSecondary onClick={onDelete} disabled={busy}>
+              Delete
+            </PitchSecondary>
+          ) : null}
+        </div>
       </div>
-    </div>
-    <PitchSecondary onClick={onReplace}>{PITCH_FILE.replace}</PitchSecondary>
-  </Card>
-);
+      {typeof progress === 'number' ? (
+        <div className="flex items-center gap-3">
+          <div
+            role="progressbar"
+            aria-label="Uploading your pitch video"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+            className="h-2 min-w-[80px] flex-1 rounded-[4px] bg-[#ebf1ec]"
+          >
+            <span
+              className="block h-full rounded-[4px] bg-[#387440] transition-[width]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="font-sans text-[13px] leading-[16px] font-semibold text-[#387440]">
+            {progress < 100 ? `Uploading ${progress}%` : 'Saving…'}
+          </span>
+        </div>
+      ) : null}
+    </Card>
+  );
+};
 
 const CheckRow = ({ done, title, sub }) => (
   <div className="flex items-start gap-3">
@@ -448,7 +509,7 @@ export const WriteBody = ({ tabs, text, onText }) => {
 };
 
 /* Review card of a written pitch (live talent who chose Write): the text and an Edit button instead of the video card. */
-const WrittenCard = ({ text, onEdit }) => (
+const WrittenCard = ({ text, onEdit, onDelete }) => (
   <Card className="flex flex-col gap-3 rounded-[20px] px-5 py-4">
     <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#1c2a21]">
       {PITCH_WRITE.label}
@@ -456,29 +517,51 @@ const WrittenCard = ({ text, onEdit }) => (
     <p className="m-0 font-sans text-[15px] leading-[24px] whitespace-pre-line text-[#1c2a21]">
       {text}
     </p>
-    <div>
+    <div className="flex flex-wrap gap-2">
       <PitchSecondary onClick={onEdit}>Edit</PitchSecondary>
+      {onDelete ? <PitchSecondary onClick={onDelete}>Delete</PitchSecondary> : null}
     </div>
   </Card>
 );
 
 /* ---------- PI-06 review ---------- */
-/* `written` (string, optional): review a written pitch instead of the video file; onReplace then reopens the editor. */
-export const ReviewBody = ({ file, written, onReplace }) => (
+/*
+ * `written` (string, optional): review a written pitch instead of the video file; onReplace then reopens the editor.
+ * `onDelete` (optional) adds a Delete button (a saved pitch); `progress` / `playSignal` / `busy` go to the video card;
+ * `lengthRow` ({ title, sub }, optional) replaces the drawn "under 60 seconds · 0:54" check with the real length.
+ */
+export const ReviewBody = ({
+  file,
+  written,
+  onReplace,
+  onDelete,
+  progress,
+  playSignal,
+  busy,
+  lengthRow,
+}) => (
   <div className="flex flex-col gap-5">
     {typeof written === 'string' ? (
-      <WrittenCard text={written} onEdit={onReplace} />
+      <WrittenCard text={written} onEdit={onReplace} onDelete={onDelete} />
     ) : (
-      <FileCard file={file} onReplace={onReplace} />
+      <FileCard
+        file={file}
+        onReplace={onReplace}
+        onDelete={onDelete}
+        progress={progress}
+        playSignal={playSignal}
+        busy={busy}
+      />
     )}
     <Card className="flex flex-col gap-[10px] rounded-[24px] px-[22px] py-5">
       <h2 className="m-0 font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
         {PITCH_READY.title}
       </h2>
       <div className="flex flex-col gap-[10px]">
-        {PITCH_READY.rows.map((r) => (
-          <CheckRow key={r.title} done {...r} />
-        ))}
+        {PITCH_READY.rows.map((r, i) => {
+          const row = i === 0 && lengthRow ? lengthRow : r;
+          return <CheckRow key={row.title} done {...row} />;
+        })}
       </div>
     </Card>
     <Card className="flex items-center gap-[14px] rounded-[18px] !bg-[#387440] py-4 pr-4 pl-5">

@@ -50,9 +50,9 @@ export const TALENT_NAV_MAIN = [
   { id: 'messages', label: 'Messages', icon: TalentSidebarMessagesNavIcon, route: '/messages' },
 ];
 
-/* The Home and Settings frames (Figma 8097:*, 7849:530) draw a "Wallet" item between Job Postings and Community. No wallet
-   screens exist yet, so it has no destination. Added only where `data.wallet` is set (Home + settings pages) — the other
-   frames (My Assessment, Skills Lab, Community…) do not draw it. */
+/* The Home and Settings frames (Figma 8097:*, 7849:530) draw a "Wallet" item between Job Postings and Community; it opens
+   /wallet. Added to the desktop sidebar only where `data.wallet` is set (Home + settings pages) — the other frames
+   (My Assessment, Skills Lab, Community…) do not draw it. The phone More sheet always lists it (TalentMobileNav). */
 export const TALENT_NAV_WALLET = {
   id: 'wallet',
   label: 'Wallet',
@@ -415,3 +415,17 @@ export const getTalentNavData = (stateKey = 'day1', live = null) =>
         messageCount: '5',
         profileName: TALENT_PROFILE.navName,
       };
+
+/**
+ * Where a rail / sidebar item with a `tab` goes: off /home, the bare tab URL; on /home, the same
+ * query (design frames like ?state= survive) with only `tab` changed, so "Home" also leaves the
+ * MyAssessment / Recruiter tabs.
+ */
+export const homeTabRoute = (tab, pathname, search = '') => {
+  if (pathname !== '/home') return tab === 'home' ? '/home' : `/home?tab=${tab}`;
+  const next = new URLSearchParams(search);
+  if (tab === 'home') next.delete('tab');
+  else next.set('tab', tab);
+  const q = next.toString();
+  return q ? `/home?${q}` : '/home';
+};

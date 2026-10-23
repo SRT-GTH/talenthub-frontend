@@ -197,7 +197,10 @@ const STAT_TONE = {
   mint: { bg: 'bg-[#e8f2ed]', note: 'text-[#387440]' },
 };
 
-const StatsHero = ({ copy, home }) => (
+// Stats hero quick chips (Figma order: Browse roles / Practise a skill / Edit profile).
+const QUICK_ROUTES = ['/job-postings', '/skills-lab', '/profile'];
+
+const StatsHero = ({ copy, home, go }) => (
   <section
     aria-label="Today"
     className={classNames(
@@ -225,6 +228,7 @@ const StatsHero = ({ copy, home }) => (
             as="button"
             type="button"
             icon={i === 2 ? <TalentHomeEditProfileIcon className="size-[14px]" /> : null}
+            onClick={() => go(QUICK_ROUTES[i] ?? '/home', label)}
           >
             {label}
           </Chip>
@@ -310,7 +314,11 @@ const TalentHomeHero = ({ home }) => {
   if (copy.kind === 'welcome')
     return <WelcomeHero copy={copy} goOn={goOn} openJourneyMap={openJourneyMap} />;
   if (copy.kind === 'ring') return <RingHero copy={copy} goOn={goOn} goProfile={previewProfile} />;
-  return <StatsHero copy={copy} home={home} />;
+  const go = (to, label) => {
+    log('quick chip', label, '->', to);
+    navigate(to);
+  };
+  return <StatsHero copy={copy} home={home} go={go} />;
 };
 
 export default TalentHomeHero;

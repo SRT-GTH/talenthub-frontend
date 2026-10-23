@@ -192,7 +192,8 @@ export const CompleteDialog = ({ uiStyle, onClose, onMilestone, onWatch }) => {
   );
 };
 
-export const DeleteDialog = ({ file, onClose, onReplace, onConfirm }) => {
+/* `file.deleteMeta` (optional) replaces the drawn "Video · 0:54 · published today" line with the real pitch's. */
+export const DeleteDialog = ({ file, onClose, onReplace, onConfirm, busy }) => {
   log('mount delete');
   return (
     <Shell
@@ -227,7 +228,7 @@ export const DeleteDialog = ({ file, onClose, onReplace, onConfirm }) => {
               {file.name ?? PITCH_FILE.name}
             </span>
             <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
-              {PITCH_DELETE.fileMeta}
+              {file.deleteMeta ?? PITCH_DELETE.fileMeta}
             </span>
           </span>
         </div>
@@ -267,7 +268,13 @@ export const DeleteDialog = ({ file, onClose, onReplace, onConfirm }) => {
           >
             {PITCH_DELETE.replace}
           </Button>
-          <Button variant="danger" size="md" className="lg:py-[12.5px]" onClick={onConfirm}>
+          <Button
+            variant="danger"
+            size="md"
+            className="lg:py-[12.5px]"
+            onClick={onConfirm}
+            disabled={busy}
+          >
             {PITCH_DELETE.confirm}
           </Button>
         </div>

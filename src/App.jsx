@@ -12,6 +12,8 @@ const FaqPage = lazy(() => import('./pages/landing/FaqPage.jsx'));
 const ComingSoonPage = lazy(() => import('./pages/landing/ComingSoonPage.jsx'));
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage.jsx'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage.jsx'));
 const GetStartedPage = lazy(() => import('./pages/GetStartedPage.jsx'));
 const OnboardingWelcomePage = lazy(() => import('./pages/onboarding/OnboardingWelcomePage.jsx'));
 const OnboardingDobPage = lazy(() => import('./pages/onboarding/OnboardingDobPage.jsx'));
@@ -297,6 +299,23 @@ function App() {
                       element={
                         <Suspense fallback={<RouteFallback />}>
                           <LoginPage />
+                        </Suspense>
+                      }
+                    />
+                    {/* Password reset (public; the email links to /reset-password?token=…). */}
+                    <Route
+                      path={'/forgot-password'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ForgotPasswordPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={'/reset-password'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <ResetPasswordPage />
                         </Suspense>
                       }
                     />

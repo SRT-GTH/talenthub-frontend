@@ -26,7 +26,7 @@ const log = debug('NewUserWelcome');
  * Playful 7745:2187 (modal 7745:2736). Playful differences are `playful:` variants only:
  * ink border + 5px shelf, flat green art band, sticker + sparkles, Bricolage heading.
  * Mounted over the home page by `?new=welcome`; closes with `home.update({ new: null })`.
- * ⚠️ ASSUMPTION: "Create my avatar" -> /profile/engagement/identity (no route is named in Figma).
+ * "Create my avatar" -> /profile/engagement/avatar (the v2 avatar stage; no route is named in Figma).
  */
 
 const MILESTONES = [
@@ -179,7 +179,11 @@ const NewUserWelcome = ({ home }) => {
             <button
               type="button"
               className={LINK_CLASS}
-              onClick={() => log('language change: no destination in Figma')}
+              onClick={() => {
+                // Same as the a11y link: close the welcome, then open the Profile menu's language panel (PM-02).
+                log('branch: language -> ?menu=language');
+                home?.update?.({ new: null, menu: 'language' });
+              }}
             >
               <LanguageGlobeIcon className="size-[16px]" />
               English (Ghana) · change

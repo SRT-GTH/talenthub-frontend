@@ -17,10 +17,21 @@ const log = debug('PersonalityIntro');
 /*
  * PE-01 · Personality · Intro (Figma Focused 8285:11030 / Playful 7659:19366): stage trail, hero (copy + "Which one are you?"
  * archetype preview), "What you get" + six traits (left) and "Before you start" (right), footer.
- * Props: onStart (Start the quiz), onSkip (Skip for now, inert until a destination is drawn), onArcade (Prefer games? chip).
+ * Props: onStart (Start the quiz), onSkip (Skip for now), onArcade (Prefer games? chip).
+ * `copy` (live, optional) = { lede, chips, gets, traitsKicker, traits, before } replaces the demo's drawn copy so a
+ * signed-in talent reads what the real Big Five quiz is (20 statements, five traits); omitted = the Figma copy.
  * Playful adds: "NO WRONG ANSWERS" + "9 TO UNLOCK" stickers and two doodle stars; Bricolage heading.
  */
-const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
+const PersonalityIntro = ({ onStart, onSkip, onArcade, copy = null }) => {
+  const c = {
+    lede: '15 short scenarios from real Ghanaian workplaces. There are no right answers. You get one of 9 archetypes and six trait scores that recruiters see on your card.',
+    chips: INTRO_CHIPS,
+    gets: GETS,
+    traitsKicker: 'THE SIX TRAITS WE MEASURE',
+    traits: TRAITS,
+    before: BEFORE_YOU_START,
+    ...copy,
+  };
   useEffect(() => {
     log('mount');
   }, []);
@@ -47,13 +58,12 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
               <PlayfulStar size={9} green className="left-[calc(100%+142px)] top-[74px]" />
             </div>
             <p className="m-0 max-w-[640px] font-sans text-[16px] leading-[24px] text-[#595959]">
-              15 short scenarios from real Ghanaian workplaces. There are no right answers. You get
-              one of 9 archetypes and six trait scores that recruiters see on your card.
+              {c.lede}
             </p>
             <div className="flex min-h-[46px] flex-wrap items-center lg:flex-nowrap gap-[8px]">
-              {INTRO_CHIPS.map((c) => (
-                <span key={c} className={CHIP}>
-                  {c}
+              {c.chips.map((chip) => (
+                <span key={chip} className={CHIP}>
+                  {chip}
                 </span>
               ))}
               <button
@@ -106,7 +116,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
         <div className="flex min-w-0 flex-col gap-[24px]">
           <p className={`${KICKER} m-0 text-[#595959]`}>WHAT YOU GET</p>
           <div className="grid grid-cols-1 gap-[16px] md:grid-cols-3">
-            {GETS.map((g) => (
+            {c.gets.map((g) => (
               <div key={g.id} className={`${CARD} flex flex-col gap-[10px] p-[20px]`}>
                 <span className="flex size-[40px] items-center justify-center rounded-[12px] bg-[#ebf1ec] text-[#387440]">
                   <PIcon name={g.icon} className="size-[20px]" />
@@ -120,9 +130,9 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
               </div>
             ))}
           </div>
-          <p className={`${KICKER} m-0 text-[#595959]`}>THE SIX TRAITS WE MEASURE</p>
+          <p className={`${KICKER} m-0 text-[#595959]`}>{c.traitsKicker}</p>
           <div className="grid grid-cols-1 gap-x-[12px] gap-y-[24px] sm:grid-cols-2">
-            {TRAITS.map((t) => (
+            {c.traits.map((t) => (
               <div
                 key={t.id}
                 className={`${CARD_SM} flex items-center gap-[14px] p-[14px_16px_14px_14px]`}
@@ -147,7 +157,7 @@ const PersonalityIntro = ({ onStart, onSkip, onArcade }) => {
           <h2 className="m-0 font-sans text-[20px] leading-[24px] font-semibold text-[#1c2a21]">
             Before you start
           </h2>
-          {BEFORE_YOU_START.map((p) => (
+          {c.before.map((p) => (
             <div key={p.id} className="flex gap-[12px]">
               <span className="flex size-[36px] shrink-0 items-center justify-center rounded-[10px] bg-[#ebf1ec] text-[#387440]">
                 <PIcon name={p.icon} className="size-[18px]" />

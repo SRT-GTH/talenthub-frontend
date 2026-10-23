@@ -15,6 +15,7 @@ import {
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
+import { homeTabRoute } from './talentShellData.js';
 import { TALENT_NAV_MAIN, TALENT_NAV_SECONDARY, getTalentSidebarData } from './talentShellData.js';
 
 const log = debug('TalentRailHome');
@@ -26,7 +27,8 @@ const log = debug('TalentRailHome');
  * pad), 80x54 nav tiles with 24px glyphs (active = solid #387440, radius 10), dot badges on My Assessment
  * and Job Postings, the Messages tile with a soft "4" badge, a divider before Skills Lab, the public-link
  * tile pinned to the bottom, and the » toggle at (49,16) 28x28. Playful differs only by glyph colour
- * (#46524a instead of #999999). Wallet (Figma `Nav item · Wallet`) has no destination yet.
+ * (#46524a instead of #999999). Wallet (Figma `Nav item · Wallet`) opens /wallet; the public-link tile opens
+ * the recruiter preview of the profile (/profile?view=recruiter).
  * ⚠️ ASSUMPTION: the ring is drawn as a conic grey→green sweep (the frame shows a part-filled ring;
  * the generated CSS only carries the green border colour).
  * Props: activeId (nav id drawn active), badges ({ messages: '4' }), onToggle, className.
@@ -54,14 +56,14 @@ const DOT_IDS = ['assessment', 'opportunities'];
 
 const Tile = ({ item, active, badge }) => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const go = () => {
     log('nav select:', item.id);
     if (item.route) {
       if (pathname !== item.route) navigate(item.route);
-    } else if (item.tab && pathname !== '/home') {
-      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
-    } else log('nav (no destination wired yet):', item.id);
+    } else if (item.tab) {
+      navigate(homeTabRoute(item.tab, pathname, search));
+    }
   };
   const dot = DOT_IDS.includes(item.id) && badge;
   const pill = item.id === 'messages' && badge;
@@ -111,6 +113,7 @@ const Tile = ({ item, active, badge }) => {
 };
 
 const TalentRailHome = ({ activeId = 'home', home, activeNav, badges, onToggle, className }) => {
+  const navigate = useNavigate();
   const data = getTalentSidebarData(home?.stateKey ?? 'day1', home?.live, activeNav);
   const shown = badges ?? data.badges ?? {};
   log('render', { activeId, badges: shown });
@@ -174,7 +177,10 @@ const TalentRailHome = ({ activeId = 'home', home, activeNav, badges, onToggle, 
       <button
         type="button"
         aria-label="Public profile link"
-        onClick={() => log('public profile (no destination wired yet)')}
+        onClick={() => {
+          log('public profile -> recruiter preview');
+          navigate('/profile?view=recruiter');
+        }}
         className="flex shrink-0 cursor-pointer items-start overflow-clip rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <span className="flex items-center rounded-[8px] bg-[#ebf1ec] px-[10px] py-[8px]">

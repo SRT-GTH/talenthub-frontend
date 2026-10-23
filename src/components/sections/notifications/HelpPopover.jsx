@@ -41,14 +41,19 @@ const HELP_FLOW_PAGE = ['article', 'report', 'contact', 'sent'];
  * transparent backdrop here. Opened by `?help=1`.
  *
  * Props: home (useTalentHomeState object), anchorRef (Help button wrapper ref).
+ *
+ * Actions: a question row runs that question through the help search (HP-02 results / HP-03 none, in this
+ * pop-over; an article then opens on /settings/help); "Ask Career Buddy" opens Buddy with nothing typed;
+ * "Help centre" opens /settings/help; "Replay the tour" opens the /home guided tour (NU-02). "WhatsApp us"
+ * stays inert: the codebase has no GTH WhatsApp number yet (only a call line), so there is nothing to link.
  */
 const ROW_ICONS = { help: rowHelp, shield: rowShield, info: rowInfo, verified: rowVerified };
 
-const HelpRow = ({ label, icon }) => (
+const HelpRow = ({ label, icon, onOpen }) => (
   <button
     type="button"
     aria-label={label}
-    onClick={() => log('help row', label)}
+    onClick={() => onOpen(label)}
     className="flex w-full items-center gap-[10px] rounded-[12px] border border-solid border-[#387440] bg-[#f7f8f4] py-[10px] pl-[12px] pr-[10px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
   >
     <img src={ROW_ICONS[icon]} alt="" aria-hidden="true" className="size-[16px] shrink-0" />
@@ -61,13 +66,13 @@ const HelpRow = ({ label, icon }) => (
   </button>
 );
 
-const Section = ({ label, rows }) => (
+const Section = ({ label, rows, onOpen }) => (
   <div className="flex flex-col gap-[8px]">
     <span className="font-sans text-[11px] font-semibold leading-[13px] tracking-[0.66px] text-[#387440] max-lg:text-[12px]">
       {label}
     </span>
     {rows.map((r) => (
-      <HelpRow key={r.label} {...r} />
+      <HelpRow key={r.label} {...r} onOpen={onOpen} />
     ))}
   </div>
 );
@@ -103,6 +108,22 @@ const HelpPopover = ({ home, anchorRef }) => {
   const close = () => {
     log('close');
     home.update({ help: null, q: null });
+  };
+  const openQuestion = (label) => {
+    const next = searchHelp(label).length > 0 ? 'searching' : 'none';
+    log('help row', label, '->', next);
+    home.update({ help: next, q: label });
+  };
+  const leave = (to, why) => {
+    log(why, '->', to);
+    home.update({ help: null, q: null });
+    navigate(to);
+  };
+  // The guided tour (NU-02) lives on /home.
+  const replayTour = () => {
+    if (flowPath !== '/home') return leave('/home?new=tour', 'replay tour');
+    log('replay tour');
+    return home.update({ help: null, q: null, new: 'tour' });
   };
 
   useLayoutEffect(() => {
@@ -218,8 +239,8 @@ const HelpPopover = ({ home, anchorRef }) => {
           />
         </label>
 
-        <Section label={HELP_COPY.pageLabel} rows={HELP_COPY.page} />
-        <Section label={HELP_COPY.popularLabel} rows={HELP_COPY.popular} />
+        <Section label={HELP_COPY.pageLabel} rows={HELP_COPY.page} onOpen={openQuestion} />
+        <Section label={HELP_COPY.popularLabel} rows={HELP_COPY.popular} onOpen={openQuestion} />
 
         <div className="flex gap-[8px]">
           <NotifButton
@@ -227,7 +248,7 @@ const HelpPopover = ({ home, anchorRef }) => {
             tone="primary"
             icon={iconBulb}
             className="flex-1"
-            onClick={() => log('ask buddy')}
+            onClick={() => leave('/profile/filling/career-buddy', 'ask buddy')}
           >
             {HELP_COPY.buddy}
           </NotifButton>
@@ -236,7 +257,8 @@ const HelpPopover = ({ home, anchorRef }) => {
             tone="secondary"
             icon={iconWhatsapp}
             className="flex-1"
-            onClick={() => log('whatsapp')}
+            // Inert on purpose: no GTH WhatsApp number exists in the codebase to build a wa.me link from.
+            onClick={() => log('whatsapp: no support number configured')}
           >
             {HELP_COPY.whatsapp}
           </NotifButton>
@@ -245,6 +267,7 @@ const HelpPopover = ({ home, anchorRef }) => {
         <div className="-mt-[8px] flex flex-wrap items-center justify-between gap-x-[8px] gap-y-[6px] border-t border-solid border-[rgba(28,42,33,0.08)] pt-[24px]">
           <button
             type="button"
+            onClick={replayTour}
             className="inline-flex items-center gap-[6px] font-sans text-[13px] font-semibold leading-[16px] whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <img src={iconPlay} alt="" aria-hidden="true" className="size-[16px]" />
@@ -258,6 +281,7 @@ const HelpPopover = ({ home, anchorRef }) => {
           </span>
           <button
             type="button"
+            onClick={() => leave(HELP_ROUTE, 'help centre')}
             className="inline-flex items-center gap-[4px] font-sans text-[13px] font-semibold leading-[16px] whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             {HELP_COPY.help}

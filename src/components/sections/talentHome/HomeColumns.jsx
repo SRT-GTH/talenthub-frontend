@@ -48,6 +48,20 @@ import { CardSkeleton, ShimmerStyle } from './TalentHomeStates.jsx';
 
 const log = debug('HomeColumns');
 
+// Destinations on /job-postings (see talentJobsState.js): `?job=<id>` opens the posting, and
+// `&apply=preview` opens the same apply preview the jobs page uses (the talent still confirms there).
+// A demo card id the jobs feed doesn't know falls back to the list (JobDetailScreen).
+const JOBS_ROUTE = '/job-postings';
+const jobRoute = (id, apply) =>
+  `${JOBS_ROUTE}?job=${encodeURIComponent(id)}${apply ? '&apply=preview' : ''}`;
+const useGo = () => {
+  const navigate = useNavigate();
+  return (to, why) => {
+    log('go', why, '->', to);
+    navigate(to);
+  };
+};
+
 const INDUSTRY_ICON = {
   fintechWhite: TalentHomeIndustryFintechWhiteIcon,
   fintechGreen: TalentHomeIndustryFintechGreenIcon,
@@ -122,7 +136,15 @@ const SectionTitle = ({ parts }) => (
 
 // ---- Match cards -------------------------------------------------------------------------
 
-const MatchCard = ({ card, variant, viewRole }) => {
+const MatchCard = ({ card, variant, viewRole, onGate }) => {
+  const go = useGo();
+  const label = card.cta ?? viewRole.viewRole;
+  const quickApply = card.cta === 'Quick apply';
+  const open = () => {
+    // Not Discoverable yet: applying opens the NU-03 gate instead (recruiters can't see the profile).
+    if (quickApply && onGate) return onGate(card);
+    return go(jobRoute(card.id, quickApply), quickApply ? 'quick apply' : 'view role');
+  };
   const complete = variant === 'complete';
   const featured = card.featured;
   return (
@@ -168,12 +190,12 @@ const MatchCard = ({ card, variant, viewRole }) => {
         ) : null}
       </div>
       {featured ? (
-        <CtaButton size="sm" className="w-full">
-          {card.cta ?? viewRole.viewRole}
+        <CtaButton size="sm" className="w-full" onClick={open}>
+          {label}
         </CtaButton>
       ) : (
-        <Button variant="tertiary-subtle" size="lg" className="w-full lg:py-[14px]!">
-          {card.cta ?? viewRole.viewRole}
+        <Button variant="tertiary-subtle" size="lg" className="w-full lg:py-[14px]!" onClick={open}>
+          {label}
         </Button>
       )}
       {card.sticker ? (
@@ -185,173 +207,209 @@ const MatchCard = ({ card, variant, viewRole }) => {
   );
 };
 
-const MatchesCard = ({ data, variant }) => (
-  <section
-    aria-label="Matched roles"
-    className={classNames('flex flex-col gap-[16px] rounded-[24px] bg-white', CARD_PAD, CARD_SOFT)}
-  >
-    <div className="flex items-center gap-[10px]">
-      <SectionTitle parts={data.title} />
-      <span className="flex-1" />
-      {data.link ? <LinkLabel Icon={TalentHomeArrowRightGreenIcon}>{data.link}</LinkLabel> : null}
-    </div>
-    {data.note ? (
-      <p className="flex items-start gap-[10px] rounded-[14px] bg-[#faf4e8] px-[14px] py-[12px] text-[13px] leading-[18px] font-medium text-[#1c2a21]">
-        <TalentHomeNoteInfoIcon className="mt-px size-[16px] shrink-0" />
-        {data.note}
-      </p>
-    ) : (
-      <p className="text-[14px] leading-[20px] text-[#595959]">{data.sub}</p>
-    )}
-    {/* Phones: ~2.5 cards in a snap row; lg: three equal columns. */}
-    <div className="-mx-[clamp(14px,1.4vw,24px)] overflow-x-auto px-[clamp(14px,1.4vw,24px)] pt-[14px] pb-[2px] [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
-      <div className="flex gap-[16px] max-lg:snap-x max-lg:snap-mandatory lg:grid lg:grid-cols-3 [&>*]:max-lg:w-[clamp(210px,40vw,277px)] [&>*]:max-lg:shrink-0 [&>*]:max-lg:snap-start">
-        {data.cards.map((card) => (
-          <MatchCard
-            key={card.id}
-            card={card}
-            variant={variant}
-            viewRole={{ fitChip: data.fitChip, viewRole: data.viewRole ?? 'View role' }}
-          />
-        ))}
+const MatchesCard = ({ data, variant, onGate }) => {
+  const go = useGo();
+  return (
+    <section
+      aria-label="Matched roles"
+      className={classNames(
+        'flex flex-col gap-[16px] rounded-[24px] bg-white',
+        CARD_PAD,
+        CARD_SOFT
+      )}
+    >
+      <div className="flex items-center gap-[10px]">
+        <SectionTitle parts={data.title} />
+        <span className="flex-1" />
+        {data.link ? (
+          <LinkLabel Icon={TalentHomeArrowRightGreenIcon} onClick={() => go(JOBS_ROUTE, 'see all')}>
+            {data.link}
+          </LinkLabel>
+        ) : null}
       </div>
-    </div>
-  </section>
-);
+      {data.note ? (
+        <p className="flex items-start gap-[10px] rounded-[14px] bg-[#faf4e8] px-[14px] py-[12px] text-[13px] leading-[18px] font-medium text-[#1c2a21]">
+          <TalentHomeNoteInfoIcon className="mt-px size-[16px] shrink-0" />
+          {data.note}
+        </p>
+      ) : (
+        <p className="text-[14px] leading-[20px] text-[#595959]">{data.sub}</p>
+      )}
+      {/* Phones: ~2.5 cards in a snap row; lg: three equal columns. */}
+      <div className="-mx-[clamp(14px,1.4vw,24px)] overflow-x-auto px-[clamp(14px,1.4vw,24px)] pt-[14px] pb-[2px] [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-[16px] max-lg:snap-x max-lg:snap-mandatory lg:grid lg:grid-cols-3 [&>*]:max-lg:w-[clamp(210px,40vw,277px)] [&>*]:max-lg:shrink-0 [&>*]:max-lg:snap-start">
+          {data.cards.map((card) => (
+            <MatchCard
+              key={card.id}
+              card={card}
+              variant={variant}
+              viewRole={{ fitChip: data.fitChip, viewRole: data.viewRole ?? 'View role' }}
+              onGate={onGate}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // ---- Applications --------------------------------------------------------------------------
 
 const STEP = { done: 'bg-[#387440]', now: 'bg-[#c8951a]', todo: 'bg-[#e2e5dd]' };
 
-const ApplicationsList = ({ data }) => (
-  <section
-    aria-label="My applications"
-    className={classNames('flex flex-col gap-[12px] rounded-[24px] bg-white', CARD_PAD, CARD_SOFT)}
-  >
-    <CardHead
-      tile={<TalentHomeApplicationsSuitcaseIcon className="size-[17px]" />}
-      title={data.title}
-      link={data.link}
-    />
-    <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
-      {data.items.map((item) => (
-        <li
-          key={item.id}
-          className={classNames(
-            'relative flex flex-wrap items-center gap-x-[14px] gap-y-[10px] rounded-[16px] p-[14px]',
-            item.featured
-              ? classNames('bg-[#f5f9f5]', CARD_INK)
-              : 'border border-[#e7e7e7] bg-white'
-          )}
-        >
-          <CompanyTile company={item.company} initials={item.initials} size={40} />
-          <span className="flex min-w-[140px] flex-1 flex-col gap-[2px]">
-            <span className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">
-              {item.title}
-            </span>
-            <span className="text-[13px] leading-[normal] text-[#595959]">{item.meta}</span>
-          </span>
-          <span aria-hidden="true" className="flex gap-[4px]">
-            {item.steps.map((s, i) => (
-              <span key={i} className={classNames('h-[6px] w-[28px] rounded-[3px]', STEP[s])} />
-            ))}
-          </span>
-          <Chip tone={item.chip.tone}>{item.chip.text}</Chip>
-          {item.sticker ? (
-            <Sticker
-              className="top-[-13px] right-[40%]"
-              color="bg-[#84cc16]"
-              rotate="rotate-[5deg]"
-            >
-              {item.sticker}
-            </Sticker>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  </section>
-);
-
-const ApplicationsEmpty = ({ data }) => (
-  <section
-    aria-label="My applications"
-    className={classNames('flex flex-col gap-[14px] rounded-[24px] bg-white', CARD_PAD, CARD_SOFT)}
-  >
-    <CardHead
-      tile={<TalentHomeApplicationsSuitcaseIcon className="size-[17px]" />}
-      title={data.title}
-    />
-    <div
+const ApplicationsList = ({ data }) => {
+  const go = useGo();
+  return (
+    <section
+      aria-label="My applications"
       className={classNames(
-        'flex flex-col items-center gap-[20px] rounded-[18px] bg-[#f7f8f4] p-[20px] sm:flex-row',
-        CARD_DASHED
+        'flex flex-col gap-[12px] rounded-[24px] bg-white',
+        CARD_PAD,
+        CARD_SOFT
       )}
     >
-      <TalentHomeSpotJobsIllustration className="size-[104px] shrink-0" />
-      <div className="flex min-w-0 flex-col gap-[6px] max-sm:items-center max-sm:text-center">
-        <h3 className="text-[17px] leading-[normal] font-semibold text-[#1c2a21]">
-          {data.emptyTitle}
-        </h3>
-        <p className="max-w-[560px] text-[14px] leading-[20px] text-[#595959]">{data.emptyBody}</p>
-        <div className="mt-[6px]">
-          <CtaButton size="sm">{data.cta}</CtaButton>
+      <CardHead
+        tile={<TalentHomeApplicationsSuitcaseIcon className="size-[17px]" />}
+        title={data.title}
+        link={data.link}
+        onLink={() => go(`${JOBS_ROUTE}?tab=applied`, 'full tracker')}
+      />
+      <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
+        {data.items.map((item) => (
+          <li
+            key={item.id}
+            className={classNames(
+              'relative flex flex-wrap items-center gap-x-[14px] gap-y-[10px] rounded-[16px] p-[14px]',
+              item.featured
+                ? classNames('bg-[#f5f9f5]', CARD_INK)
+                : 'border border-[#e7e7e7] bg-white'
+            )}
+          >
+            <CompanyTile company={item.company} initials={item.initials} size={40} />
+            <span className="flex min-w-[140px] flex-1 flex-col gap-[2px]">
+              <span className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">
+                {item.title}
+              </span>
+              <span className="text-[13px] leading-[normal] text-[#595959]">{item.meta}</span>
+            </span>
+            <span aria-hidden="true" className="flex gap-[4px]">
+              {item.steps.map((s, i) => (
+                <span key={i} className={classNames('h-[6px] w-[28px] rounded-[3px]', STEP[s])} />
+              ))}
+            </span>
+            <Chip tone={item.chip.tone}>{item.chip.text}</Chip>
+            {item.sticker ? (
+              <Sticker
+                className="top-[-13px] right-[40%]"
+                color="bg-[#84cc16]"
+                rotate="rotate-[5deg]"
+              >
+                {item.sticker}
+              </Sticker>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+const ApplicationsEmpty = ({ data }) => {
+  const go = useGo();
+  return (
+    <section
+      aria-label="My applications"
+      className={classNames(
+        'flex flex-col gap-[14px] rounded-[24px] bg-white',
+        CARD_PAD,
+        CARD_SOFT
+      )}
+    >
+      <CardHead
+        tile={<TalentHomeApplicationsSuitcaseIcon className="size-[17px]" />}
+        title={data.title}
+      />
+      <div
+        className={classNames(
+          'flex flex-col items-center gap-[20px] rounded-[18px] bg-[#f7f8f4] p-[20px] sm:flex-row',
+          CARD_DASHED
+        )}
+      >
+        <TalentHomeSpotJobsIllustration className="size-[104px] shrink-0" />
+        <div className="flex min-w-0 flex-col gap-[6px] max-sm:items-center max-sm:text-center">
+          <h3 className="text-[17px] leading-[normal] font-semibold text-[#1c2a21]">
+            {data.emptyTitle}
+          </h3>
+          <p className="max-w-[560px] text-[14px] leading-[20px] text-[#595959]">
+            {data.emptyBody}
+          </p>
+          <div className="mt-[6px]">
+            <CtaButton size="sm" onClick={() => go(JOBS_ROUTE, 'browse roles')}>
+              {data.cta}
+            </CtaButton>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ---- Recent activity -----------------------------------------------------------------------
 
-const ActivityCard = ({ data }) => (
-  <section
-    aria-label="Recent activity"
-    className={classNames('flex flex-col gap-[4px] rounded-[24px] bg-white', CARD_PAD, CARD_SOFT)}
-  >
-    <CardHead
-      tile={<TalentHomeClockIcon className="size-[17px]" />}
-      title={data.title}
-      link={data.link}
-    />
-    {data.rows.length === 0 ? (
-      <p className="mt-[8px] text-[14px] leading-[20px] text-[#595959]">
-        Nothing yet. Updates on your applications and profile show up here.
-      </p>
-    ) : null}
-    <ul className="m-0 mt-[8px] flex list-none flex-col p-0">
-      {data.rows.map((row, i) => (
-        <li
-          key={i}
-          className={classNames(
-            'flex items-center gap-[12px] py-[12px]',
-            i < data.rows.length - 1 && 'border-b border-[#e7e7e7]'
-          )}
-        >
-          {row.kind === 'photo' ? (
-            <Photo src={row.photo} size={36} />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec]"
-            >
-              {row.kind === 'check' ? (
-                <TalentHomeActivityCheckCircleIcon className="size-[18px]" />
-              ) : (
-                <TalentHomeStarIcon className="size-[18px]" />
-              )}
+// Demo frames only: live activity has no "See all" (talentHomeLive.js sets link: null).
+const ActivityCard = ({ data }) => {
+  const go = useGo();
+  return (
+    <section
+      aria-label="Recent activity"
+      className={classNames('flex flex-col gap-[4px] rounded-[24px] bg-white', CARD_PAD, CARD_SOFT)}
+    >
+      <CardHead
+        tile={<TalentHomeClockIcon className="size-[17px]" />}
+        title={data.title}
+        link={data.link}
+        onLink={() => go('/notifications', 'activity see all')}
+      />
+      {data.rows.length === 0 ? (
+        <p className="mt-[8px] text-[14px] leading-[20px] text-[#595959]">
+          Nothing yet. Updates on your applications and profile show up here.
+        </p>
+      ) : null}
+      <ul className="m-0 mt-[8px] flex list-none flex-col p-0">
+        {data.rows.map((row, i) => (
+          <li
+            key={i}
+            className={classNames(
+              'flex items-center gap-[12px] py-[12px]',
+              i < data.rows.length - 1 && 'border-b border-[#e7e7e7]'
+            )}
+          >
+            {row.kind === 'photo' ? (
+              <Photo src={row.photo} size={36} />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec]"
+              >
+                {row.kind === 'check' ? (
+                  <TalentHomeActivityCheckCircleIcon className="size-[18px]" />
+                ) : (
+                  <TalentHomeStarIcon className="size-[18px]" />
+                )}
+              </span>
+            )}
+            <span className="flex min-w-0 flex-col gap-[2px]">
+              <span className="text-[14px] leading-[normal] font-medium text-[#1c2a21]">
+                {row.text}
+              </span>
+              <span className="text-[12px] leading-[normal] text-[#595959]">{row.when}</span>
             </span>
-          )}
-          <span className="flex min-w-0 flex-col gap-[2px]">
-            <span className="text-[14px] leading-[normal] font-medium text-[#1c2a21]">
-              {row.text}
-            </span>
-            <span className="text-[12px] leading-[normal] text-[#595959]">{row.when}</span>
-          </span>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 // ---- Right column --------------------------------------------------------------------------
 
@@ -545,47 +603,51 @@ const ReadinessLocked = ({ data }) => (
   </section>
 );
 
-const ReadinessScore = ({ data }) => (
-  <section
-    aria-label="Job readiness"
-    className={classNames(
-      'flex flex-col gap-[16px] rounded-[24px] bg-white p-[clamp(14px,1.3vw,22px)] playful:gap-[12px]',
-      CARD_SOFT
-    )}
-  >
-    <CardHead
-      tile={<TalentHomeCardTargetIcon className="size-[17px]" />}
-      title={data.title}
-      link={data.link}
-    />
-    <div className="flex items-center gap-[12px]">
-      <span
-        className={classNames(HEAD, 'text-[clamp(36px,2.7vw,47px)] leading-[1.1] text-[#387440]')}
-      >
-        {data.score}
-      </span>
-      <span className="flex flex-col gap-[2px] leading-[normal]">
-        <span className="text-[14px] font-semibold text-[#1c2a21]">{data.headline}</span>
-        <span className="text-[13px] text-[#595959]">{data.sub}</span>
-      </span>
-    </div>
-    <Bar pct={data.pct} height={10} to="playful:to-[#84cc16]" />
-    <div className="flex flex-col gap-[4px] rounded-[16px] border border-[#f7efdd] bg-[#faf4e8] p-[14px] playful:border-[#eedeb8]">
-      <div className="flex items-center justify-between gap-[8px]">
-        <span className="text-[12px] leading-[normal] font-bold tracking-[1.2px] text-[#c8951a] playful:text-[#785910]">
-          {data.gapLabel}
+const ReadinessScore = ({ data }) => {
+  const go = useGo();
+  return (
+    <section
+      aria-label="Job readiness"
+      className={classNames(
+        'flex flex-col gap-[16px] rounded-[24px] bg-white p-[clamp(14px,1.3vw,22px)] playful:gap-[12px]',
+        CARD_SOFT
+      )}
+    >
+      <CardHead
+        tile={<TalentHomeCardTargetIcon className="size-[17px]" />}
+        title={data.title}
+        link={data.link}
+        onLink={() => go('/my-assessment', 'readiness details')}
+      />
+      <div className="flex items-center gap-[12px]">
+        <span
+          className={classNames(HEAD, 'text-[clamp(36px,2.7vw,47px)] leading-[1.1] text-[#387440]')}
+        >
+          {data.score}
         </span>
-        {data.gapPts ? (
-          <DualPill focused="whiteGold" playful="white">
-            <Points n={data.gapPts} />
-          </DualPill>
-        ) : null}
+        <span className="flex flex-col gap-[2px] leading-[normal]">
+          <span className="text-[14px] font-semibold text-[#1c2a21]">{data.headline}</span>
+          <span className="text-[13px] text-[#595959]">{data.sub}</span>
+        </span>
       </div>
-      <p className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">{data.gapTitle}</p>
-      <p className="text-[13px] leading-[normal] text-[#595959]">{data.gapBody}</p>
-    </div>
-  </section>
-);
+      <Bar pct={data.pct} height={10} to="playful:to-[#84cc16]" />
+      <div className="flex flex-col gap-[4px] rounded-[16px] border border-[#f7efdd] bg-[#faf4e8] p-[14px] playful:border-[#eedeb8]">
+        <div className="flex items-center justify-between gap-[8px]">
+          <span className="text-[12px] leading-[normal] font-bold tracking-[1.2px] text-[#c8951a] playful:text-[#785910]">
+            {data.gapLabel}
+          </span>
+          {data.gapPts ? (
+            <DualPill focused="whiteGold" playful="white">
+              <Points n={data.gapPts} />
+            </DualPill>
+          ) : null}
+        </div>
+        <p className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">{data.gapTitle}</p>
+        <p className="text-[13px] leading-[normal] text-[#595959]">{data.gapBody}</p>
+      </div>
+    </section>
+  );
+};
 
 const WhoLooking = ({ data }) => (
   <section
@@ -686,6 +748,14 @@ const HomeColumns = ({ home, content }) => {
   log('render', { state: home.stateKey, editing: home.editOpen });
   const complete = home.stateKey === 'complete' || home.stateKey === 'top';
   const variant = complete ? 'complete' : 'discoverable';
+  // Live talents who aren't Discoverable yet get the apply gate (ApplyGateModal) instead of applying.
+  const onGate =
+    home.content && home.live?.journey?.milestone === 'none'
+      ? (card) => {
+          log('apply gate for', card.id);
+          home.update({ new: 'gate', role: card.id });
+        }
+      : null;
 
   if (!complete) {
     return (
@@ -695,7 +765,7 @@ const HomeColumns = ({ home, content }) => {
           {isPending(content.matches) ? (
             <CardSkeleton bodyH="h-[220px]" />
           ) : (
-            <MatchesCard data={content.matches} variant={variant} />
+            <MatchesCard data={content.matches} variant={variant} onGate={onGate} />
           )}
           <ApplicationsEmpty data={content.applications} />
         </div>
@@ -722,7 +792,7 @@ const HomeColumns = ({ home, content }) => {
     matched: isPending(content.matches) ? (
       <CardSkeleton bodyH="h-[220px]" />
     ) : (
-      <MatchesCard data={content.matches} variant={variant} />
+      <MatchesCard data={content.matches} variant={variant} onGate={onGate} />
     ),
     applications: content.applications.items?.length ? (
       <ApplicationsList data={content.applications} />
