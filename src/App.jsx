@@ -126,6 +126,17 @@ const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPag
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
+// Create your own community (talent-created) — Figma sections 8947:2928 / 8944:2672 (agent: community-create).
+const CommunityCreatePage = lazy(
+  () => import('./pages/talentCommunity/create/CommunityCreatePage.jsx')
+);
+const CommunityOwnerPage = lazy(
+  () => import('./pages/talentCommunity/create/CommunityOwnerPage.jsx')
+);
+// My circle (networking) — another talent's profile (agent: my-circle). The My circle view itself is /community?view=circle.
+const CircleProfilePage = lazy(
+  () => import('./pages/talentCommunity/circle/CircleProfilePage.jsx')
+);
 const RecruiterHomePage = lazy(() => import('./pages/recruiterHome/RecruiterHomePage.jsx'));
 const TalentHomePage = lazy(() => import('./pages/talentHome/TalentHomePage.jsx'));
 const TalentSettingsRoute = lazy(() => import('./pages/talentSettings/TalentSettingsRoute.jsx'));
@@ -136,6 +147,8 @@ const TalentNotificationsPage = lazy(
 );
 const TalentProfilePage = lazy(() => import('./pages/talentProfile/TalentProfilePage.jsx'));
 const TalentJobsPage = lazy(() => import('./pages/talentJobs/TalentJobsPage.jsx'));
+// Opportunity guidance (Career Buddy "Opportunity Matching", Figma 9053:80188): J-02 variant for the IPMC Ghana role.
+const OpportunityJobPage = lazy(() => import('./pages/opportunityGuidance/OpportunityJobPage.jsx'));
 const TalentStreakPage = lazy(() => import('./pages/talentStreak/TalentStreakPage.jsx'));
 const AssessmentOverviewPage = lazy(
   () => import('./pages/talentAssessment/AssessmentOverviewPage.jsx')
@@ -1000,6 +1013,35 @@ function App() {
                     </Suspense>
                   }
                 />
+                {/* Create your own community (talent-created) — Figma "Create your own community" sections 8947:2928 (Playful) /
+            8944:2672 (Focused), CC-02 … CC-17b. URL contract: createCommunityState.js. */}
+                <Route
+                  path={'/community/create'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityCreatePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/community/:communityId/manage'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityOwnerPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* My circle (networking) — Figma sections 9187:27436 (Playful) / 9187:30373 (Focused), NW-06 … NW-08: another
+            talent's profile (endorse, recommend). The circle itself is /community?view=circle. URL contract: circleState.js. */}
+                <Route
+                  path={'/community/people/:personId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CircleProfilePage />
+                    </Suspense>
+                  }
+                />
 
                 {/* Talent profile — Figma "Talent - Profile" 7500:92566 (Focused + Playful).
             Outside MainLayout like /home; state is chosen by query params (see
@@ -1163,6 +1205,17 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <TalentJobsPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* Opportunity guidance — Figma 9222:120257 (J-02 posting detail for the IPMC Ghana role opened from
+            Career Buddy's match cards). Same params as /job-postings. Outside MainLayout. */}
+                <Route
+                  path={'/opportunity-guidance/job'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <OpportunityJobPage />
                     </Suspense>
                   }
                 />

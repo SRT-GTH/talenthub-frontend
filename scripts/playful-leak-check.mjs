@@ -52,6 +52,8 @@ for (const route of [
     /^\/skills-lab(\?|$|\/(lab|games)\/)/.test(route) ||
     route.startsWith('/my-assessment') ||
     route.startsWith('/community') ||
+    // Career Buddy opportunity matching: the Figma frames draw Focused only, Playful is derived (see wiki/career-buddy-chat-history.md).
+    route.startsWith('/opportunity-guidance') ||
     route.startsWith('/settings') ||
     // Engagement revamp (Figma canvas 3125:10352): the journey map, milestones, avatar steps and every filling stage draw both styles.
     route.startsWith('/profile/engagement') ||
