@@ -53,6 +53,8 @@ Every claim in this wiki carries a tag:
 
 - [talent-emails.md](talent-emails.md) — Talent transactional emails `emails/talent/`: 12 static HTML emails × Playful/Focused (TE-01..TE-12), frame table with diff %, conventions, known gaps
 
+- [parent-emails.md](parent-emails.md) — Parent transactional emails `emails/parent/focused/`: 7 static HTML emails (PE-01..PE-07, Focused only), frame table with diff %, known gaps
+
 ### External
 
 - [figma-node-map.md](figma-node-map.md) — Figma frame → node-ID mapping (placeholder until file lands)

@@ -1,3 +1,7 @@
+## [2026-10-23] build | Parent emails PE-01..PE-07 (static HTML, Focused only)
+
+From Figma canvas `3:3` of the comms file. 7 files in `emails/parent/focused/`; identical images across all emails were deduplicated into `emails/assets/shared/` (82 image files in total). Details and per-frame diff table: [parent-emails.md](parent-emails.md). Verified: same-size pixel diff 4.6–8.0%, every pair viewed, copy check 0 missing, 390px no horizontal scroll, talent email renders pixel-identical after the dedupe. Not verified: real email clients, dark mode; links are `#`.
+
 ## [2026-10-22] build | Talent emails TE-02..TE-12 (static HTML, both styles)
 
 From Figma comms file `GwL8cVTsz2wI4H3jnqL8IH`, canvas `3:2`. 22 new files in `emails/talent/{playful,focused}/` (TE-01 came from an earlier session and is unchanged), ~200 PNG exports in `emails/assets/`. Details, per-frame diff table and known gaps: [talent-emails.md](talent-emails.md). Verified: same-size pixel diff vs Figma 0.5x exports (3.8–8.4%), every pair viewed, copy check 0 missing in TE-02..TE-12, 390px no horizontal scroll except TE-01. Not verified: real email clients, dark mode; links are `#`; mobile layout is our own.
