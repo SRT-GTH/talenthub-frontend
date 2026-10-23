@@ -49,6 +49,16 @@ export function perfEnabled() {
   return on;
 }
 
+// Real-user monitoring (observability/faro.js) receives each settled page.
+let rumSink = null;
+
+export function setRumSink(fn) {
+  rumSink = typeof fn === 'function' ? fn : null;
+}
+
+/** Record calls when the panel is on or RUM wants the page timings. */
+const recording = () => perfEnabled() || rumSink !== null;
+
 export function disablePerf() {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -171,7 +181,7 @@ function newPage(path, start) {
 
 /** Called by the panel on every route change (before the page's own effects). */
 export function markNavigation(path) {
-  if (!perfEnabled()) return;
+  if (!recording()) return;
   if (current && current.path === path) return;
   // The very first page starts at navigation start, so it includes HTML + JS.
   newPage(path, current ? now() : 0);
@@ -192,7 +202,15 @@ function scheduleSettle(page) {
     const last = Math.max(...page.calls.map((c) => c.end ?? 0));
     page.settledAt = last;
     collectChunks(page);
-    logPage(page);
+    if (perfEnabled()) logPage(page);
+    if (rumSink && !page.reported) {
+      page.reported = true;
+      try {
+        rumSink(page);
+      } catch {
+        /* RUM must never break the app */
+      }
+    }
     emit();
   }, SETTLE_MS);
 }
@@ -202,7 +220,7 @@ function scheduleSettle(page) {
 
 /** request interceptor: stamp the start time. */
 export function perfRequest(config) {
-  if (!perfEnabled() || !config) return config;
+  if (!recording() || !config) return config;
   const page =
     (config.__perf && pages.find((p) => p.id === config.__perf.page)) || pageFor(window.location.pathname);
   page.inFlight += 1;
@@ -218,7 +236,7 @@ export function perfRequest(config) {
  * retry's response records it once, from the original start.
  */
 export function perfResponse(responseOrError, isError = false, { retrying = false, counted = false } = {}) {
-  if (!perfEnabled()) return;
+  if (!recording()) return;
   const response = isError ? responseOrError?.response : responseOrError;
   const config = isError ? responseOrError?.config : responseOrError?.config;
   const stamp = config?.__perf;
@@ -330,5 +348,6 @@ export const _internal = {
     seq = 0;
     enabledCache = null;
     clearTimeout(settleTimer);
+    rumSink = null;
   },
 };
