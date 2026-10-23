@@ -28,6 +28,8 @@ import {
 import { useCommunityMembership } from '../../components/sections/talentCommunity/communityMembership.js';
 import { useCommunityState } from '../../components/sections/talentCommunity/communityState.js';
 import { HEADING } from '../../components/sections/talentCommunity/communityStyles.js';
+// My circle (networking): the "Communities | My circle" switch + the ?view=circle view (circle/CircleViewGate.jsx).
+import CircleViewGate from '../../components/sections/talentCommunity/circle/CircleViewGate.jsx';
 
 const log = debug('CommunityBrowsePage');
 
@@ -244,7 +246,11 @@ const CommunityBrowseDemo = () => {
 /* Live data by default; `?demo=1` (or a demo-only state key, see communityState.js) shows the drawn mock. */
 const CommunityBrowsePage = () => {
   const community = useCommunityState();
-  return community.demo ? <CommunityBrowseDemo /> : <CommunityBrowseLive community={community} />;
+  return (
+    <CircleViewGate rail={community.rail}>
+      {community.demo ? <CommunityBrowseDemo /> : <CommunityBrowseLive community={community} />}
+    </CircleViewGate>
+  );
 };
 
 export default CommunityBrowsePage;
