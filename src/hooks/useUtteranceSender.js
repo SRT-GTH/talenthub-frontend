@@ -5,6 +5,12 @@ const log = debug('useUtteranceSender');
 
 /** Default silence before a spoken turn is sent. */
 export const DEFAULT_PAUSE_MS = 1500;
+/**
+ * 2026-10-23 (voice latency): when the recogniser has already finalised the words (it does that
+ * at a natural pause), a short extra wait is enough. Not for interviews (longer pauseMs): people
+ * pause mid-answer there.
+ */
+export const FINAL_PAUSE_MS = 600;
 
 /**
  * Live voice call (2026-10-16, shared by the Focused and Playful call UIs on
@@ -21,6 +27,7 @@ export default function useUtteranceSender({
   paused,
   muted,
   transcript,
+  final = false,
   onUtterance,
   pauseMs = DEFAULT_PAUSE_MS,
 }) {
@@ -30,13 +37,14 @@ export default function useUtteranceSender({
     if (!live || !open || paused || muted) return undefined;
     const text = (transcript || '').trim();
     if (!text || text === sentRef.current) return undefined;
+    const wait = final && pauseMs <= DEFAULT_PAUSE_MS ? FINAL_PAUSE_MS : pauseMs;
     const timer = setTimeout(() => {
       sentRef.current = text;
-      log('branch', { utterance: text.length, pauseMs });
+      log('branch', { utterance: text.length, wait, final });
       onUtterance(text);
-    }, pauseMs);
+    }, wait);
     return () => clearTimeout(timer);
-  }, [live, open, paused, muted, transcript, onUtterance, pauseMs]);
+  }, [live, open, paused, muted, transcript, final, onUtterance, pauseMs]);
 
   useEffect(() => {
     if (paused) sentRef.current = '';
