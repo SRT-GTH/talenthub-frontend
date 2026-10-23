@@ -67,8 +67,10 @@ export const uploadPitchVideo = async (file, { onProgress, name } = {}) => {
       if (onProgress && e.total) onProgress(Math.min(100, Math.round((e.loaded / e.total) * 100)));
     },
   });
-  const data = unwrap(res);
-  const uploaded = data?.file || res?.data?.file;
+  // A moleculer-web multipart alias answers with one result per uploaded file (an array), so take the first.
+  const body = Array.isArray(res?.data) ? res.data[0] : res?.data;
+  const data = body?.data !== undefined ? body.data : body;
+  const uploaded = data?.file || body?.file;
   if (!uploaded?.url) throw new Error('Upload response has no file url');
   log('uploaded', { id: uploaded.id, format: uploaded.format, size: uploaded.size });
   return uploaded;
