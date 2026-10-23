@@ -117,6 +117,13 @@ export const useLiveCommunityPage = (slug) => {
 
   const load = useCallback(async () => {
     setStatus('loading');
+    // Secondary data only needs the slug: fetch it alongside the detail instead of
+    // after it. Failures leave the section empty rather than the page.
+    Promise.allSettled([
+      loadPosts(),
+      loadMembers(),
+      fetchCommunities().then((rows) => alive.current && setCatalogue(rows.map(toCard))),
+    ]).then((r) => r.forEach((x) => x.status === 'rejected' && log('secondary failed', x.reason?.message)));
     try {
       const c = await fetchCommunity(slug);
       if (!alive.current) return;
@@ -126,12 +133,6 @@ export const useLiveCommunityPage = (slug) => {
       }
       setBase(c);
       setStatus('ready');
-      // Secondary data: failures leave the section empty rather than the page.
-      Promise.allSettled([
-        loadPosts(),
-        loadMembers(),
-        fetchCommunities().then((rows) => alive.current && setCatalogue(rows.map(toCard))),
-      ]).then((r) => r.forEach((x) => x.status === 'rejected' && log('secondary failed', x.reason?.message)));
     } catch (err) {
       const code = err?.response?.status;
       log('detail failed', slug, code);
