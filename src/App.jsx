@@ -219,6 +219,8 @@ const APP_AVATAR_INITIAL = {
 import { useCareerBuddyRole } from './hooks/useCareerBuddyRole.js';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
 import { perfEnabled } from './utils/perf.js';
+import { faroEnabled } from './observability/faro.js';
+import PerfRouteMarker from './components/shared/PerfRouteMarker.jsx';
 
 // Load-time panel: only downloaded when ?perf=1 is on (see utils/perf.js).
 const PerfPanel = lazy(() => import('./components/shared/PerfPanel.jsx'));
@@ -261,10 +263,12 @@ function App() {
         <UiStyleProvider>
           <CareerBuddyRoleProvider>
             <DemoNavigator />
-            {perfEnabled() && (
+            {perfEnabled() ? (
               <Suspense fallback={null}>
                 <PerfPanel />
               </Suspense>
+            ) : (
+              faroEnabled() && <PerfRouteMarker />
             )}
             <Suspense fallback={<RouteFallback />}>
               <Routes>
