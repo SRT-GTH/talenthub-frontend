@@ -12,7 +12,9 @@ import {
   OnlineStatusDotIcon,
   WhiteArrowRightIcon,
 } from '../../shared/assets.jsx';
+import BuddyThinking, { StopGeneratingPill } from '../../ui/BuddyThinking.jsx';
 import FlowPortal from './FlowPortal.jsx';
+import { buddyDemoThinking } from '../profileFilling/buddyDemoFrames.js';
 import {
   useCareerBuddyLive,
   THINKING_ID,
@@ -33,6 +35,13 @@ const log = debug('CareerBuddyFirstChat');
  * same saved thread), so a quick question here carries on there. Replies that need
  * the full screen (a profile section to review, a personality report) link to it.
  * Demo mode (/home?state=...) keeps the scripted Figma conversation below.
+ *
+ * 2026-10-23: while a reply is on its way the panel shows the same reply-in-progress row as the full screen
+ * (BuddyThinking: thinking -> working -> writing -> slow -> stopped, Figma 8988:509558 / 8993:511908) with the
+ * "Stop generating" pill above the input; Esc stops the answer first and closes the panel only when nothing is
+ * being generated. ⚠️ ASSUMPTION: Figma draws these states on the full Career Buddy screen only, not inside this
+ * panel; the panel reuses the component unchanged (it clamps to the panel width). Demo mode keeps the drawn typing dots unless the
+ * URL asks for a phase: /home?new=chat&buddy=thinking|working|writing|slow|stopped (Stop / Continue / Try again then work locally).
  */
 
 const CAREER_BUDDY_ROUTE = '/profile/filling/career-buddy';
@@ -175,16 +184,47 @@ const CareerBuddyFirstChat = ({ home }) => {
     navigate(`${CAREER_BUDDY_ROUTE}?history=1`);
   };
 
+  // Demo: ?buddy=<phase> draws one reply-in-progress row; Stop / Continue / Try again move it between phases.
+  const [demoPhase, setDemoPhase] = useState(() =>
+    live ? null : new URLSearchParams(window.location.search).get('buddy')
+  );
+  const demoThinking = !live && demoPhase ? buddyDemoThinking(demoPhase) : null;
+  const thinkingMessage = live
+    ? L.enrichedMessages.find((m) => m.id === THINKING_ID)
+    : demoThinking
+      ? {
+          id: THINKING_ID,
+          thinking: {
+            ...demoThinking,
+            onContinue: () => setDemoPhase('writing'),
+            onTryAgain: () => setDemoPhase('thinking'),
+          },
+        }
+      : null;
+  const thinkingPhase = thinkingMessage?.thinking?.phase;
+  // "Stop generating" shows while an answer is on its way (working / writing / slow); Esc does the same.
+  const stopVisible = ['working', 'writing', 'slow'].includes(thinkingPhase);
+  const stop = () => {
+    log('stop generating', { phase: thinkingPhase, live });
+    if (live) L.handleStop();
+    else setDemoPhase('stopped');
+  };
+
   usePlayfulDialogA11y({
     open: true,
     dialogRef,
-    onEscape: close,
+    onEscape: () => {
+      if (stopVisible) {
+        log('branch: Esc stops the answer');
+        stop();
+      } else close();
+    },
     initialFocus: () => inputRef.current,
     lockScroll: true,
   });
 
   const messages = live ? L.messages : DEMO_MESSAGES;
-  const thinking = live ? messages.some((m) => m.id === THINKING_ID) : true;
+  const thinking = live ? messages.some((m) => m.id === THINKING_ID) : !demoPhase;
   const shown = messages.filter((m) => m.id !== THINKING_ID);
   const suggestions = live ? L.suggestedReplies : DEMO_SUGGESTIONS;
   const typedAnything = shown.some((m) => m.sender === 'user' && !m.auto);
@@ -198,7 +238,7 @@ const CareerBuddyFirstChat = ({ home }) => {
   useEffect(() => {
     const el = logRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [shown.length, thinking]);
+  }, [shown.length, thinking, thinkingPhase, thinkingMessage?.thinking?.text]);
 
   const send = (text) => {
     const t = String(text || '').trim();
@@ -296,12 +336,20 @@ const CareerBuddyFirstChat = ({ home }) => {
               }}
             />
           ) : null}
-          {thinking ? (
+          {thinkingMessage ? (
+            <BuddyThinking {...thinkingMessage.thinking} />
+          ) : thinking ? (
             <div className="flex pl-[36px]">
               <ChatTypingIndicatorIllustration className="h-[29px] w-[55px]" />
             </div>
           ) : null}
         </div>
+
+        {stopVisible ? (
+          <div className="flex shrink-0 justify-center bg-white pt-[10px]">
+            <StopGeneratingPill onStop={stop} />
+          </div>
+        ) : null}
 
         {suggestions.length ? (
           <div className="flex shrink-0 flex-wrap items-start gap-[8px] bg-white px-[clamp(12px,1.16vw,20px)] pt-[12px] pb-[4px]">

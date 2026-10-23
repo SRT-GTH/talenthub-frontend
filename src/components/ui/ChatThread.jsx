@@ -29,6 +29,7 @@ import {
   BuddyIconSliders,
 } from '../shared/assets.jsx';
 import BuddyThinking, { StopGeneratingPill } from './BuddyThinking.jsx';
+import VoiceTurnRow from '../sections/profileFilling/voiceCaptions/VoiceTurnRow.jsx';
 
 const log = debug('ChatThread');
 
@@ -118,6 +119,9 @@ const log = debug('ChatThread');
  *   onAttach         ({name,size,sizeLabel}) => void — called with selected file metadata
  *   onAttachRejected (name: string) => void — called when selected file exceeds 10 MB
  *   onFeedback       (message, rating: 'up'|'down'|null) => void — thumbs changed (live mode persists it)
+ *   voiceTurns       object  — handlers of saved voice turns (messages with `voice: { who, seconds }`), see voiceCaptions/useVoiceTurns
+ *   afterMessages    node    — rendered after the last message (the "voice chat is saved" toast)
+ *   alignTop         boolean — demo frames: start the thread at the top instead of bottom-anchoring it
  *   onRegenerate     (message) => void — the retry icon on a bot message
  *                    (same KYB-style "File too large" toast in CareerBuddySection)
  */
@@ -416,6 +420,7 @@ const ChatThread = ({
   historyOpen = false,
   settingsOpen = false,
   newChatDisabled = false,
+  showNewChatTip = false,
   emptyState = null,
   onStop,
   startDictation = false,
@@ -424,6 +429,9 @@ const ChatThread = ({
   onAttachRejected,
   onFeedback,
   onRegenerate,
+  voiceTurns,
+  afterMessages = null,
+  alignTop = false,
   className,
 }) => {
   const playful = usePlayfulScope();
@@ -732,7 +740,10 @@ const ChatThread = ({
               {newChatDisabled ? (
                 <span
                   role="tooltip"
-                  className="pointer-events-none absolute left-0 top-[50px] z-10 hidden whitespace-nowrap rounded-[8px] bg-[#1c2a21] px-[12px] py-[8px] font-sans text-[13px] font-medium leading-[16px] text-white group-focus-within:block group-hover:block"
+                  className={classNames(
+                    showNewChatTip && '!block',
+                    'pointer-events-none absolute left-0 top-[50px] z-10 hidden whitespace-nowrap rounded-[8px] bg-[#1c2a21] px-[12px] py-[8px] font-sans text-[13px] font-medium leading-[16px] text-white group-focus-within:block group-hover:block'
+                  )}
                 >
                   You’re already in a new chat
                 </span>
@@ -781,7 +792,7 @@ const ChatThread = ({
         className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5"
       >
         <div
-          className={`flex flex-col gap-[16px] max-lg:gap-3 ${emptyState ? 'my-auto' : 'mt-auto'} ${
+          className={`flex flex-col gap-[16px] max-lg:gap-3 ${emptyState ? 'my-auto' : alignTop ? '' : 'mt-auto'} ${
             onNewChat || onOpenHistory || onOpenVoiceSettings ? 'pt-[52px] max-lg:pt-0' : ''
           }`}
         >
@@ -789,6 +800,8 @@ const ChatThread = ({
             messages.map((message) =>
               message.thinking ? (
                 <BuddyThinking key={message.id} {...message.thinking} />
+              ) : message.voice ? (
+                <VoiceTurnRow key={message.id} message={message} actions={voiceTurns} />
               ) : (
                 <MessageBubble
                   key={message.id}
@@ -799,6 +812,7 @@ const ChatThread = ({
                 />
               )
             )}
+          {afterMessages}
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { CAREER_BUDDY_NODES } from './careerBuddyScript.js';
+import { opportunityDemoMessages } from './opportunityGuidance/opportunityDemoFrames.jsx';
 
 /*
  * Demo frames of the 21 Oct 2026 Career Buddy chat screens, reachable by URL on the scripted talent chat:
@@ -10,6 +11,9 @@ import { CAREER_BUDDY_NODES } from './careerBuddyScript.js';
  *                                                         CH-01 ... CH-08               (Figma 9086:71498 / 9086:77035)
  *   new | new-hover                                       NC-01 / NC-02                 (Figma 9086:75962 / 9086:76500)
  *   settings | settings-language | settings-clear         CS-01 / CS-02 / CS-03         (Figma 9093:80066 / 9093:81889)
+ *   voice-speaking | voice-buddy | voice-saved | voice-fix | voice-off | voice-interrupt | voice-pause
+ *                                                         VC-01 / VC-02 / VC-03 / VC-04 / VC-05 / VC-06 / VC-06b   (Figma 9149:83053; call with live captions)
+ *   opp-areas | opp-matches | opp-why                     Opportunity Matching guidance, Focused (Figma 9053:80188; see opportunityGuidance/opportunityDemoFrames.jsx)
  * The sample copy of the reply-in-progress rows is the copy drawn in those frames.
  */
 
@@ -32,6 +36,49 @@ const SAMPLE = {
     progress: 136 / 290,
     elapsed: 12,
   },
+};
+
+// Live captions frames: the call is drawn over the start of the chat (VC-01/02/05/06) or the call's turns are saved as text (VC-03/04).
+const voiceDemoMessages = (voice) => {
+  if (voice.scene) {
+    return [
+      {
+        id: 'voice-demo-auto',
+        sender: 'user',
+        personaLabel: 'Emma',
+        text: 'Upload resume to automatically populate profile',
+        auto: true,
+        autoLabel: '[Auto]',
+      },
+      {
+        id: 'voice-demo-bot',
+        sender: 'bot',
+        text: 'Awesome, Go ahead and upload your resume then.',
+      },
+    ];
+  }
+  const you = voice.fix
+    ? 'Hi Tali, can you help me prepare for my hub tell interview on Friday?'
+    : 'Hi Tali, can you help me prepare for my Hubtel interview on Friday?';
+  const turns = [
+    {
+      id: 'voice-demo-greeting',
+      sender: 'bot',
+      text: 'Hi Ama! Tap the mic and talk to me any time.',
+      voice: { who: 'note' },
+    },
+    { id: 'voice-demo-you', sender: 'user', text: you, voice: { who: 'you', seconds: 6 } },
+  ];
+  if (voice.fix) return turns;
+  return [
+    ...turns,
+    {
+      id: 'voice-demo-buddy',
+      sender: 'bot',
+      text: 'Of course, Ama. Let’s start with the question Hubtel asks most: tell me about a project you’re proud of.',
+      voice: { who: 'buddy', seconds: 8 },
+    },
+  ];
 };
 
 const THINKING = {
@@ -67,12 +114,29 @@ export const DEMO_FRAMES = {
   settings: { settingsOpen: true },
   'settings-language': { settingsOpen: true, settingsView: 'language' },
   'settings-clear': { settingsOpen: true, settingsClear: true },
+  // Live captions (VC-01 ... VC-06): `voice.scene` opens the call drawn statically (no mic); saved / fix show the chat after a call.
+  'voice-speaking': { voice: { scene: 'you' } },
+  'voice-buddy': { voice: { scene: 'buddy' } },
+  'voice-saved': { voice: { saved: true } },
+  'voice-fix': { voice: { fix: 'voice-demo-you' } },
+  'voice-off': { voice: { scene: 'off' } },
+  'voice-interrupt': { voice: { scene: 'interrupt' } },
+  'voice-pause': { voice: { scene: 'pause' } },
+  // Opportunity Matching guidance (9053:80189 / 9053:80615 / 9053:81141): `opportunity` = the chat up to that frame's last message.
+  'opp-areas': { opportunity: 'areas' },
+  'opp-matches': { opportunity: 'matches' },
+  'opp-why': { opportunity: 'why' },
 };
+
+/** The reply-in-progress sample of a phase (thinking | working | writing | slow | stopped), for demo surfaces that draw it (the Ask Buddy panel, `?buddy=<phase>`). */
+export const buddyDemoThinking = (phase) => (phase && THINKING[phase] ? THINKING[phase] : null);
 
 export const buddyDemoFrame = (name) => (name && DEMO_FRAMES[name] ? DEMO_FRAMES[name] : null);
 
 // The conversation the frames draw: the interests chat up to "I'm really drawn to software development ..." (the last reply is the talent's).
-export const demoFrameMessages = (frame) => {
+export const demoFrameMessages = (frame, { onContinue, onTryAgain } = {}) => {
+  if (frame.voice) return voiceDemoMessages(frame.voice);
+  if (frame.opportunity) return opportunityDemoMessages(frame.opportunity);
   const n = CAREER_BUDDY_NODES;
   const seed = [
     ...n['interests-q1'].reply(),
@@ -88,7 +152,7 @@ export const demoFrameMessages = (frame) => {
       sender: 'bot',
       personaLabel: 'Career Buddy',
       text: '',
-      thinking: THINKING[frame.thinking],
+      thinking: { ...THINKING[frame.thinking], onContinue, onTryAgain },
     },
   ];
 };

@@ -417,7 +417,10 @@ const CareerBuddyHistoryDrawer = ({
     const row = wrapRef.current?.querySelector(`[data-chat-id="${initial.menuId}"]`);
     const btn = row?.querySelector('[aria-haspopup="menu"]');
     const chat = chats.find((c) => c.id === initial.menuId);
-    if (btn && chat) openMenu(chat, btn);
+    const wrap = wrapRef.current?.getBoundingClientRect();
+    // Set, never toggle: React StrictMode runs this effect twice in dev and a toggle would close the menu again.
+    if (btn && chat && wrap)
+      setMenu({ id: chat.id, top: Math.round(btn.getBoundingClientRect().top - wrap.top - 18) });
     // once per mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);

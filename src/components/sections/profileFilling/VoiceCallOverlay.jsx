@@ -3,6 +3,7 @@ import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
 import PlayfulVoiceCall from './PlayfulVoiceCall.jsx';
+import VoiceCaptionsCall from './voiceCaptions/VoiceCaptionsCall.jsx';
 import Button from '../../ui/Button.jsx';
 import CareerBuddyVoiceAvatar from '../../shared/CareerBuddyVoiceAvatar.jsx';
 import AvatarPreview from '../engagement/avatar/AvatarPreview.jsx';
@@ -157,6 +158,11 @@ const FocusedVoiceCallOverlay = ({
 /** Playful appearance renders its own call UI (same props); Focused markup is untouched. */
 const VoiceCallOverlay = (props) => {
   const { uiStyle } = useUiStyle();
+  // Live captions (Figma 9149:83053, added 2026-10-23): a live call (onUtterance) and the demo frames (captionScene)
+  // use the captions layout in both styles; the plain demo call above stays as it was.
+  if (props.captionScene || typeof props.onUtterance === 'function') {
+    return <VoiceCaptionsCall {...props} />;
+  }
   return uiStyle === 'playful' ? (
     <PlayfulVoiceCall {...props} />
   ) : (

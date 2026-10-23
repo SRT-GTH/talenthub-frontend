@@ -444,6 +444,24 @@ export const BuddySettingsPopover = ({
                 />
               }
             />
+            {/* Live captions (Figma 9151:1236): words of the call on screen; on by default, kept in careerBuddy.settings.liveCaptions. */}
+            <Row
+              as="div"
+              icon={
+                <span className="flex h-[27px] w-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[#ebf1ec] p-[7px] font-sans text-[11px] font-bold leading-[13px] text-[#387440] max-lg:text-[12px]">
+                  CC
+                </span>
+              }
+              title="Live captions"
+              text="Show words as you and Buddy speak"
+              right={
+                <Toggle
+                  on={settings.liveCaptions !== false}
+                  onChange={(liveCaptions) => onChange({ liveCaptions })}
+                  label="Live captions"
+                />
+              }
+            />
             <Divider />
             <SectionLabel>Language</SectionLabel>
             <Row

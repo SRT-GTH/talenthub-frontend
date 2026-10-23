@@ -19,6 +19,8 @@
  * a coherent single persona. Flagged in wiki/figma-node-map.md.
  */
 
+import { OPPORTUNITY_NODES } from './opportunityGuidance/opportunityGuidanceNodes.jsx';
+
 export const TALENT_NAME = 'Emma';
 
 // Figma 5132:43308 — first-visit hero copy (shown above the chat only when
@@ -1020,6 +1022,9 @@ export const CAREER_BUDDY_NODES = {
     ],
   },
 };
+
+// Opportunity Matching guidance area (Figma 9053:80188): replaces the 'stub-guidance-opportunity' stub above and adds the match nodes.
+Object.assign(CAREER_BUDDY_NODES, OPPORTUNITY_NODES);
 
 /*
  * Playful wording (Figma 7958:212035): the Playful frames drop some emoji and use

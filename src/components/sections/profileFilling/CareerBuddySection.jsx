@@ -15,6 +15,11 @@ import { BuddySettingsPopover, NewChatStart, SavedToast } from './CareerBuddyCha
 import { DEFAULT_BUDDY_SETTINGS } from './buddySettings.js';
 import { FIGMA_CHATS } from './chatHistoryModel.js';
 import { buddyDemoFrame, demoFrameMessages } from './buddyDemoFrames.js';
+import { BUDDY_CHIP_EVENT } from './opportunityGuidance/opportunityEvents.js';
+import {
+  applyOpportunityPanel,
+  opportunityDemoChips,
+} from './opportunityGuidance/opportunityDemoFrames.jsx';
 import GameStoreModal from './GameStoreModal.jsx';
 import EscapeRoomGame from './EscapeRoomGame.jsx';
 import JobPostFormModal from './JobPostFormModal.jsx';
@@ -28,6 +33,8 @@ import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
 import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
+import useVoiceTurns from './voiceCaptions/useVoiceTurns.jsx';
+import { lastBuddyText } from './voiceCaptions/voiceSpeech.js';
 import { logoHomePath } from '../../../services/auth.api.js';
 import {
   CAREER_BUDDY_NODES,
@@ -566,7 +573,7 @@ const PlayfulStars = () => (
  */
 const CareerBuddySection = ({ live: liveMode = false }) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { role } = useCareerBuddyRole();
   const isRecruiter = role === 'recruiter';
   const isParent = role === 'parent';
@@ -591,6 +598,16 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   const shellRef = useRef(null);
   // 21 Oct 2026 chat screens by URL (?chat=history, thinking, settings ...) on the scripted talent chat - see buddyDemoFrames.js.
   const demoFrame = !liveMode && isTalent ? buddyDemoFrame(searchParams.get('chat')) : null;
+  // Demo frames: Stop / Continue / Try again move between the reply-in-progress frames (the URL is the state).
+  const goDemoFrame = (name) => {
+    log('branch', { demoFrame: name });
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p);
+      next.set('chat', name);
+      return next;
+    });
+  };
+  const demoReplying = ['working', 'writing', 'slow'].includes(demoFrame?.thinking);
   const [historyOpen, setHistoryOpen] = useState(Boolean(demoFrame?.historyOpen));
   const [settingsOpen, setSettingsOpen] = useState(Boolean(demoFrame?.settingsOpen));
   const [demoChats, setDemoChats] = useState(() => (demoFrame?.emptyHistory ? [] : FIGMA_CHATS));
@@ -631,7 +648,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   const [gameStoreOpen, setGameStoreOpen] = useState(false);
   const [playingEscapeRoom, setPlayingEscapeRoom] = useState(false);
   // Voice flow — Figma 5146:75750 / 75913 / 76230 / 76424
-  const [voiceCallOpen, setVoiceCallOpen] = useState(false);
+  const [voiceCallOpen, setVoiceCallOpen] = useState(Boolean(demoFrame?.voice?.scene));
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
   const [startDictation, setStartDictation] = useState(false);
@@ -642,6 +659,14 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     voiceId,
     readAloud: buddySettings.readAloud,
     onShowProfile: () => setMobilePane('profile'),
+  });
+  // Live captions (Figma 9149:83053): saved voice turns (Edit, Play again, Did you mean...) and the "saved as text" toast.
+  const voiceTurns = useVoiceTurns({
+    voiceId,
+    onResend: demoFrame?.voice
+      ? undefined
+      : (text) => (liveMode ? L.handleSend(text) : submit(text)),
+    demo: demoFrame?.voice,
   });
   // Milestone-share — Figma 7025:89274, opened from handleConfirmStage on
   // any talent stage in STAGE_MILESTONE_LABELS. Null when closed; the
@@ -1241,7 +1266,8 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     }
 
     // Voice-flow demo seeds (all roles) — Figma 5146:75750 / 75913 / 76230 / 76424
-    setVoiceCallOpen(false);
+    // (?chat=voice-<scene> frames start with the call open, see buddyDemoFrames.js)
+    setVoiceCallOpen(Boolean(demoFrame?.voice?.scene));
     setVoiceSettingsOpen(false);
     setStartDictation(false);
     if (demoHint === 'new-chat') {
@@ -1696,6 +1722,10 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     // (e.g. company-bio-rewrite echoes the recruiter's own bio draft).
     const newMessages = nextNode.reply ? nextNode.reply(text) : (nextNode.seedMessages?.() ?? []);
     setMessages((prev) => [...prev, ...newMessages]);
+    // A node may route the app after its reply (Opportunity Matching: "Apply with my GTH profile").
+    if (nextNode.navigateTo) navigate(nextNode.navigateTo);
+    // A footer chip answers the fresh-start screen too (otherwise its reply stays hidden behind the "Hi there" empty state).
+    setFreshStart(false);
 
     // Conversation-with-AI: map answers into the shared job draft + Jobs panel.
     // Starting a new add after a prior post (status done) resets into in-progress.
@@ -2247,6 +2277,28 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     submit(optionId);
   };
 
+  // Opportunity Matching (Figma 9053:80188): chips/cards rendered inside the thread answer through this bridge
+  // (opportunityGuidance/opportunityEvents.js). Scripted chat only; the live chat has its own wiring.
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    if (liveMode) return undefined;
+    const onChip = (event) => {
+      log('branch', { threadChip: event.detail });
+      submitRef.current(event.detail);
+    };
+    window.addEventListener(BUDDY_CHIP_EVENT, onChip);
+    return () => window.removeEventListener(BUDDY_CHIP_EVENT, onChip);
+  }, [liveMode]);
+  // Opportunity demo frames (?chat=opp-*) draw the profile panel in that frame's state (Education done, Career Options awaiting).
+  useEffect(() => {
+    const scene = demoFrame?.opportunity;
+    if (!scene) return;
+    log('branch', { opportunityPanel: scene });
+    setStages((prev) => applyOpportunityPanel(prev, scene));
+    if (scene === 'why') setExpandedPanelId('desired-career');
+  }, [demoFrame?.opportunity]);
+
   // Live talent screen: same layout, real data. Hero shows only on a first visit.
   const viewHeroMode = liveMode ? (L.showHero ? 'first-time' : null) : heroMode;
   const viewToast = liveMode ? L.toast : toast;
@@ -2286,11 +2338,13 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
           onSaveExit={handleSaveExit}
           showSwitchModes={
             !liveMode &&
-            (Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
+            (Boolean(demoFrame) ||
+              Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
               // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
               (playful && heroMode === 'first-time'))
           }
           onSwitchModes={handleSwitchModes}
+          switchModesLabel="Change input mode"
           className="w-full h-full"
         />
       </div>
@@ -2828,7 +2882,8 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
           <div className="relative flex flex-1 min-h-0 flex-col">
             {liveMode ? (
               <ChatThread
-                messages={L.enrichedMessages}
+                messages={voiceTurns.decorate(L.enrichedMessages)}
+                {...voiceTurns.chatProps}
                 onSend={L.handleSend}
                 suggestedReplies={L.suggestedReplies}
                 disabled={L.busy}
@@ -2852,13 +2907,25 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
               />
             ) : (
               <ChatThread
-                messages={demoFrame ? demoFrameMessages(demoFrame) : enrichedMessages}
+                messages={voiceTurns.decorate(
+                  demoFrame
+                    ? demoFrameMessages(demoFrame, {
+                        onContinue: () => goDemoFrame('writing'),
+                        onTryAgain: () => goDemoFrame('thinking'),
+                      })
+                    : enrichedMessages
+                )}
+                {...voiceTurns.chatProps}
+                alignTop={Boolean(demoFrame?.voice)}
                 onSend={submit}
-                suggestedReplies={demoFrame ? [] : activeSuggestedReplies}
+                suggestedReplies={
+                  demoFrame ? opportunityDemoChips(demoFrame.opportunity) : activeSuggestedReplies
+                }
                 onSelectOption={handleSelectMcqOption}
                 onSelectModeCard={handleSelectModeCard}
                 onNewChat={showNewChat || demoFrame ? handleNewChat : undefined}
                 newChatDisabled={isTalent && freshStart}
+                showNewChatTip={Boolean(demoFrame?.tooltip)}
                 emptyState={
                   isTalent && freshStart ? (
                     <NewChatStart
@@ -2872,7 +2939,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
                 }
                 historyOpen={historyOpen}
                 settingsOpen={settingsOpen}
-                onStop={undefined}
+                onStop={demoReplying ? () => goDemoFrame('stopped') : undefined}
                 onOpenHistory={showChrome || demoFrame ? () => setHistoryOpen(true) : undefined}
                 onOpenVoiceSettings={
                   showChrome || demoFrame
@@ -2901,9 +2968,23 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
               open={voiceCallOpen && !voiceSettingsOpen}
               voiceId={voiceId}
               userName={viewPersonaName}
+              captionScene={demoFrame?.voice?.scene}
+              {...(demoFrame?.voice?.scene
+                ? {}
+                : {
+                    captionsOn: buddySettings.liveCaptions !== false,
+                    onToggleCaptions: () =>
+                      updateBuddySettings({ liveCaptions: buddySettings.liveCaptions === false }),
+                  })}
               {...(liveMode
                 ? {
-                    onUtterance: L.handleUtterance,
+                    onUtterance: (text, meta) => {
+                      voiceTurns.recordUtterance(text, meta);
+                      L.handleUtterance(text);
+                    },
+                    buddySpeaking: L.speaking,
+                    buddyText: L.speaking ? lastBuddyText(L.enrichedMessages) : '',
+                    onStopSpeaking: L.stopSpeaking,
                     pauseMs: L.practiceActive ? 3500 : 1500,
                     paused: L.busy || L.speaking,
                     status: L.busy
@@ -2917,6 +2998,7 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
                 log('branch', { hangUpVoiceCall: true });
                 if (liveMode) L.stopSpeaking();
                 setVoiceCallOpen(false);
+                voiceTurns.noteCallEnded();
               }}
               onOpenSettings={() => {
                 log('branch', { voiceSettingsFromCall: true });
