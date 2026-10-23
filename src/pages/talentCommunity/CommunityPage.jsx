@@ -39,6 +39,8 @@ import {
 } from '../../components/sections/talentCommunity/communityData.js';
 import { useCommunityMembership } from '../../components/sections/talentCommunity/communityMembership.js';
 import { useCommunityState } from '../../components/sections/talentCommunity/communityState.js';
+// Create your own community: a community the talent created opens on its owner view (Manage, status banner).
+import { useIsOwnedCommunity } from '../../components/sections/talentCommunity/create/createCommunityStore.js';
 import {
   SIDE_LEFT,
   SIDE_RIGHT,
@@ -224,6 +226,9 @@ const CommunityPageDemo = () => {
 /* Live data by default; `?demo=1` (or a demo-only state key, see communityState.js) shows the drawn mock. */
 const CommunityPage = () => {
   const community = useCommunityState();
+  const { communityId } = useParams();
+  const owned = useIsOwnedCommunity(communityId);
+  if (owned && !community.demo) return <Navigate to={`/community/${communityId}/manage`} replace />;
   return community.demo ? <CommunityPageDemo /> : <CommunityPageLive community={community} />;
 };
 
