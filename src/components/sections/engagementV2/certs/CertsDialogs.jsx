@@ -146,7 +146,8 @@ const blankForm = {
 };
 
 /* ---------- Add / Edit ---------- */
-export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete }) => {
+/* `live` (signed-in): the profile has no slot for the type, so it is optional (see certToProfile in certsData.js). */
+export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = false }) => {
   const uid = useId();
   const fileRef = useRef(null);
   const editing = mode === 'edit' && cert;
@@ -155,9 +156,13 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete }) => {
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const issue = parseMonthYear(form.issueDate);
+  /* Typed but unparseable: the save button stays disabled and this says why (an issue date is never invented). */
+  const issueBad = Boolean(form.issueDate.trim()) && !issue;
   const expiryOk =
     form.noExpiry || !form.expiryDate.trim() || Boolean(parseMonthYear(form.expiryDate));
-  const valid = Boolean(form.title.trim() && form.issuer.trim() && form.type && issue && expiryOk);
+  const valid = Boolean(
+    form.title.trim() && form.issuer.trim() && (live || form.type) && issue && expiryOk
+  );
   log('render', { mode, valid });
 
   const verifiedHeader = editing && cert.verifiedNote;
@@ -303,7 +308,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete }) => {
         </Field>
       </Row>
       <Row>
-        <Field label="Type" required htmlFor={f('type')}>
+        <Field label="Type" required={!live} optional={live} htmlFor={f('type')}>
           <div className="relative">
             <select
               id={f('type')}
@@ -342,8 +347,23 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete }) => {
             onChange={set('issueDate')}
             placeholder="MM / YYYY"
             inputMode="numeric"
-            className={classNames(INPUT, 'font-medium text-[#1c2a21]')}
+            aria-invalid={issueBad || undefined}
+            aria-describedby={issueBad ? f('issue-err') : undefined}
+            className={classNames(
+              INPUT,
+              'font-medium text-[#1c2a21]',
+              issueBad && '!border-[#c0392b]'
+            )}
           />
+          {issueBad ? (
+            <span
+              id={f('issue-err')}
+              role="alert"
+              className="font-sans text-[13px] leading-[16px] text-[#902b20]"
+            >
+              Use month / year, e.g. 03 / 2024.
+            </span>
+          ) : null}
         </Field>
         <Field label="Expiry date" optional htmlFor={f('expiry')}>
           {form.noExpiry ? (

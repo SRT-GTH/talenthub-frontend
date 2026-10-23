@@ -6,6 +6,7 @@ import {
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import TalentNavIcon from './TalentNavIcon.jsx';
+import { JOURNEY_MAP_ROUTE } from '../engagementShell/engagementShellData.js';
 import {
   TALENT_NAV_MAIN,
   withWalletItem,
@@ -357,9 +358,12 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           </div>
           <button
             type="button"
-            onClick={() =>
-              log('journey caption click (no destination wired yet):', journey.caption)
-            }
+            onClick={() => {
+              // Live data names the next stage; demo / placeholder captions open the journey map.
+              const to = journey.to || JOURNEY_MAP_ROUTE;
+              log('journey caption ->', to);
+              navigate(to);
+            }}
             className="w-fit max-w-full truncate rounded text-left font-sans text-[10px] leading-4 tracking-[0.2px] text-[#70706e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             <Dual focused={journey.caption} playful={journey.captionPlayful} />

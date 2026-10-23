@@ -447,10 +447,30 @@ export const WriteBody = ({ tabs, text, onText }) => {
   );
 };
 
+/* Review card of a written pitch (live talent who chose Write): the text and an Edit button instead of the video card. */
+const WrittenCard = ({ text, onEdit }) => (
+  <Card className="flex flex-col gap-3 rounded-[20px] px-5 py-4">
+    <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#1c2a21]">
+      {PITCH_WRITE.label}
+    </span>
+    <p className="m-0 font-sans text-[15px] leading-[24px] whitespace-pre-line text-[#1c2a21]">
+      {text}
+    </p>
+    <div>
+      <PitchSecondary onClick={onEdit}>Edit</PitchSecondary>
+    </div>
+  </Card>
+);
+
 /* ---------- PI-06 review ---------- */
-export const ReviewBody = ({ file, onReplace }) => (
+/* `written` (string, optional): review a written pitch instead of the video file; onReplace then reopens the editor. */
+export const ReviewBody = ({ file, written, onReplace }) => (
   <div className="flex flex-col gap-5">
-    <FileCard file={file} onReplace={onReplace} />
+    {typeof written === 'string' ? (
+      <WrittenCard text={written} onEdit={onReplace} />
+    ) : (
+      <FileCard file={file} onReplace={onReplace} />
+    )}
     <Card className="flex flex-col gap-[10px] rounded-[24px] px-[22px] py-5">
       <h2 className="m-0 font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
         {PITCH_READY.title}

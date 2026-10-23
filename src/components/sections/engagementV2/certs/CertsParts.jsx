@@ -114,16 +114,36 @@ const Meta = ({ icon, children }) => {
 
 const TILE_ICON = { verified: CertsFileCheckIcon, pending: CertsFileIcon, self: CertsMortarIcon };
 
-const LinkButton = ({ label }) => (
-  <button
-    type="button"
-    onClick={() => log('link (no destination drawn)', label)}
-    className="inline-flex min-h-[24px] cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 font-sans text-[13px] leading-[16px] font-semibold text-[#387440] max-lg:text-[12px]"
-  >
-    <CertsLinkIcon className="size-[14px]" />
-    {label}
-  </button>
-);
+const LINK_CLS =
+  'inline-flex min-h-[24px] cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 font-sans text-[13px] leading-[16px] font-semibold text-[#387440] max-lg:text-[12px]';
+
+/* "Credential link" / "Badge link": opens the cert's link in a new tab; without one (the drawn example) it only logs. */
+const LinkButton = ({ label, url }) => {
+  if (url) {
+    const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer noopener"
+        onClick={() => log('open credential link', href)}
+        className={classNames(
+          LINK_CLS,
+          'no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
+        )}
+      >
+        <CertsLinkIcon className="size-[14px]" />
+        {label}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={() => log('link (no destination)', label)} className={LINK_CLS}>
+      <CertsLinkIcon className="size-[14px]" />
+      {label}
+    </button>
+  );
+};
 
 const CARD_ROW =
   'flex items-start gap-[16px] rounded-[20px] bg-white py-[20px] pr-[20px] pl-[18px] max-sm:gap-[12px] max-sm:p-[14px]';
@@ -157,7 +177,7 @@ export const EntryCard = ({ cert, onEdit }) => {
         {cert.skills.length ? <SkillChips skills={cert.skills} /> : null}
         {cert.linkLabel ? (
           <div>
-            <LinkButton label={cert.linkLabel} />
+            <LinkButton label={cert.linkLabel} url={cert.link} />
           </div>
         ) : null}
       </div>

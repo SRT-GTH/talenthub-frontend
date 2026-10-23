@@ -6,7 +6,9 @@ import { SHADOW_HARD, SHADOW_SOFT, StatPill, StepTabs } from './AvatarPieces.jsx
 /*
  * AvatarPanel — the right "customiser panel" (Figma "RIGHT — customiser panel", 738 wide): title + helper line + stat pills (+ the
  * "✓ n selected" chip on Extras / Outfit), the tab row, the step body, and the action card pinned to the bottom (Go back · primary ·
- * "Auto-saved …" line). Props: meta (STEP_META entry), step, selectedCount (null hides the chip), onTab(tabId), onBack, onNext, children.
+ * "Auto-saved …" line). Props: meta (STEP_META entry), step, selectedCount (null hides the chip), onTab(tabId), onBack, onNext, children,
+ * notice (optional load / save failure message, shown above the "Auto-saved …" line as a role="status" line),
+ * busy (true while a live profile has not loaded: the step body is inert and the primary button disabled).
  * Chip placement (design px from the title top): Extras 27 / Outfit 86, right-aligned to the content edge.
  */
 const GRADIENT_TEXT = {
@@ -14,7 +16,17 @@ const GRADIENT_TEXT = {
 };
 const CHIP_TOP = { extras: 27, outfit: 86 };
 
-const AvatarPanel = ({ meta, step, selectedCount = null, onTab, onBack, onNext, children }) => {
+const AvatarPanel = ({
+  meta,
+  step,
+  selectedCount = null,
+  onTab,
+  onBack,
+  onNext,
+  notice = null,
+  busy = false,
+  children,
+}) => {
   const tall = meta.cardH === 150;
   return (
     <aside
@@ -69,7 +81,16 @@ const AvatarPanel = ({ meta, step, selectedCount = null, onTab, onBack, onNext, 
         <div className="mt-[16px] flex min-h-[56px] items-center">
           <StepTabs tabs={AVATAR_TABS} active={step} onSelect={onTab} />
         </div>
-        <div className="mt-[24px] pb-[24px] lg:pb-[calc(24*var(--u))]">{children}</div>
+        <div
+          className={classNames(
+            'mt-[24px] pb-[24px] lg:pb-[calc(24*var(--u))]',
+            busy && 'pointer-events-none opacity-60'
+          )}
+          inert={busy || undefined}
+          aria-busy={busy || undefined}
+        >
+          {children}
+        </div>
       </div>
       <div className="flex-1" />
       <div className="border-0 border-t border-solid border-[#f1f5f9] bg-white px-4 lg:px-[calc(48*var(--u))]">
@@ -98,7 +119,9 @@ const AvatarPanel = ({ meta, step, selectedCount = null, onTab, onBack, onNext, 
             <button
               type="button"
               onClick={onNext}
+              disabled={busy}
               className={classNames(
+                'disabled:cursor-not-allowed disabled:opacity-60',
                 'inline-flex min-h-[48px] min-w-0 flex-1 cursor-pointer items-center justify-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] py-[12px] font-sans text-[14px] font-semibold leading-[24px] tracking-[0.1px]',
                 SHADOW_SOFT,
                 SHADOW_HARD,
@@ -111,6 +134,14 @@ const AvatarPanel = ({ meta, step, selectedCount = null, onTab, onBack, onNext, 
               <ArrowRightSmIcon className="size-[14px] text-[#ebf1ec]" />
             </button>
           </div>
+          {notice ? (
+            <p
+              role="status"
+              className="m-0 text-center font-sans text-[13px] font-medium leading-[18px] text-[#b42318]"
+            >
+              {notice}
+            </p>
+          ) : null}
           <p className="m-0 flex items-center justify-center gap-[4px] font-sans text-[12px] font-normal leading-[14px] text-[#babab7] max-lg:text-[12px]">
             <span aria-hidden="true" className="size-[6px] rounded-[3px] bg-[#387440]" />
             {meta.saved}

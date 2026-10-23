@@ -14,7 +14,8 @@ const log = debug('workState');
  *   WK-06 Stage complete ............. /profile/filling/work?state=complete
  * Params: state ('list' | 'complete'), modal ('add' | 'edit' | 'delete'), role (role id for edit / delete, default first),
  * unsaved ('1' = show the "unsaved changes" banner at open, as drawn in WK-04; it also appears on its own once the form is dirty).
- * Mock-seeded roles are used for every URL except the bare base (empty first visit). Returns { state, modal, role,
+ * Signed out (demo), mock-seeded roles are used for every URL except the bare base (empty first visit); signed in, the
+ * talent's own roles are shown on every URL (empty profile = first visit). Returns { state, modal, role,
  * unsaved, update(patch) }; null / '' / false in a patch removes the key.
  */
 const MODALS = ['add', 'edit', 'delete'];

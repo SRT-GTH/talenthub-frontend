@@ -508,3 +508,46 @@ export const outfitSelectedCount = (s) =>
 /* Font stacks for the numerals / labels Figma sets in Space Grotesk and Inter. */
 export const FONT_SPACE = { fontFamily: "'Space Grotesk', var(--font-ui)" };
 export const FONT_INTER = { fontFamily: "'Inter', var(--font-sans)" };
+
+/*
+ * Profile mappers (live talents). The profile `avatar` field is { avatarId, skinTone, hairStyle, accessories: [string], selectedAt };
+ * there is no slot for the outfit, hair colour, tints, lighting or fit, so:
+ *   avatarId     <- baseStyle (falls back to 'custom' when the talent never picked a base style; avatarId is required)
+ *   accessories  <- the non-"None" extras (eyewear / facial hair / earring / detail ids) + `outfit:<apparel id>`
+ * fromProfile() is the inverse; it returns a selection patch for the AvatarSelectionProvider (null when nothing is saved).
+ */
+const OUTFIT_PREFIX = 'outfit:';
+
+export const avatarToProfile = (s, now = new Date()) => {
+  const accessories = [
+    s.eyewear && s.eyewear !== 'eyewear-none' ? s.eyewear : null,
+    s.facialHair && s.facialHair !== 'facial-none' ? s.facialHair : null,
+    s.earring && s.earring !== 'earring-none' ? s.earring : null,
+    s.details || null,
+    s.apparel ? `${OUTFIT_PREFIX}${s.apparel}` : null,
+  ].filter(Boolean);
+  return {
+    avatarId: s.baseStyle || 'custom',
+    ...(s.skinTone ? { skinTone: s.skinTone } : {}),
+    ...(s.hairStyle ? { hairStyle: s.hairStyle } : {}),
+    accessories,
+    selectedAt: now.toISOString(),
+  };
+};
+
+export const avatarFromProfile = (avatar) => {
+  if (!avatar || !avatar.avatarId) return null;
+  const acc = Array.isArray(avatar.accessories) ? avatar.accessories : [];
+  const pick = (prefix, none) => acc.find((a) => a.startsWith(prefix)) || none;
+  const outfit = acc.find((a) => a.startsWith(OUTFIT_PREFIX));
+  return {
+    baseStyle: STYLE_TILES.some((t) => t.id === avatar.avatarId) ? avatar.avatarId : null,
+    ...(avatar.skinTone ? { skinTone: avatar.skinTone } : {}),
+    hairStyle: avatar.hairStyle || null,
+    eyewear: pick('eyewear-', 'eyewear-none'),
+    facialHair: pick('facial-', 'facial-none'),
+    earring: pick('earring-', 'earring-none'),
+    details: pick('detail-', null),
+    apparel: outfit ? outfit.slice(OUTFIT_PREFIX.length) : null,
+  };
+};

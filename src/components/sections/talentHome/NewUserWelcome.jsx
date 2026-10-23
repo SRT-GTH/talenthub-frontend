@@ -146,7 +146,7 @@ const NewUserWelcome = ({ home }) => {
               rightIcon={<WhiteArrowRightIcon className="size-[20px]" />}
               onClick={() => {
                 log('branch: create avatar');
-                navigate('/profile/engagement/identity');
+                navigate('/profile/engagement/avatar');
               }}
             >
               Create my avatar · 1 min

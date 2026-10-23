@@ -23,7 +23,7 @@ const log = debug('JourneyMapCanvas');
 
 /* The avatar stands next to the stage the road has reached; Figma draws four spots, anything else follows the same rule. */
 const avatarSpotFor = (model) => {
-  if (AVATAR_SPOTS[model.done]) return AVATAR_SPOTS[model.done];
+  if (model.inOrder && AVATAR_SPOTS[model.done]) return AVATAR_SPOTS[model.done];
   const node = model.nodes.find((n) => n.id === model.current?.id);
   if (!node) return AVATAR_SPOTS[9];
   return { x: node.cx + 62, y: node.cy - 110 };

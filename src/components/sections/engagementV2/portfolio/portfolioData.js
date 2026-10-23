@@ -1,9 +1,11 @@
 /*
- * Portfolio stage mock data (API-shaped, frontend-only; swap for GET/POST /profile/projects later). Copy verbatim from Figma
- * PF-01..PF-06 (Playful 7709:* / 7710:*, Focused 8285:*). Project shape:
- *   { id, title, type, year, role, description, tags[], links: [{ label, url }], pinned, cover: { name, size } | null, icon }
+ * Portfolio stage data. Copy verbatim from Figma PF-01..PF-06 (Playful 7709:* / 7710:*, Focused 8285:*). UI project shape:
+ *   { id, title, type, year, role, description, tags[], links: [{ label, url }], pinned, cover: { name, size } | null, icon,
+ *     raw? }
  * `icon` is the tile glyph Figma draws for the seeded project ('image' | 'chartBar' | 'users'); added projects use 'image'.
  * Link labels are the ones Figma draws for the seeded links; a link you type gets its host name as label.
+ * SEED_PROJECTS feed the signed-out demo frames only. Signed-in talents load / save profile.portfolio through
+ * projectFromProfile / projectToProfile (bottom of this file); `raw` is the profile item a UI project came from.
  */
 export const PROJECT_TYPES = ['Mobile app', 'Design / UX', 'Data analysis', 'Research'];
 export const MAX_DESCRIPTION = 400;
@@ -121,4 +123,87 @@ export const hostLabel = (url) => {
   } catch {
     return url;
   }
+};
+
+/*
+ * profile.portfolio item <-> UI project. Schema: { title, description, url, skillsUsed[], startDate, endDate } (+ _id).
+ *   title / description <-> title / description;  tags <-> skillsUsed;  first link <-> url;  year <-> startDate (Jan 1).
+ * Type, role, the second link and the cover have no schema slot and are not stored. Pinned is list order: the first
+ * project is the pinned one. Writing spreads the original item's schema keys (keeps _id, endDate, ...).
+ */
+const PORTFOLIO_KEYS = ['_id', 'title', 'description', 'url', 'skillsUsed', 'startDate', 'endDate'];
+
+const yearOf = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  return Number.isNaN(d.getTime()) ? '' : String(d.getUTCFullYear());
+};
+
+export const projectFromProfile = (item, index) => ({
+  id: String(item?._id ?? item?.id ?? `p${index}`),
+  title: item?.title || '',
+  type: '',
+  year: yearOf(item?.startDate),
+  role: '',
+  description: item?.description || '',
+  tags: Array.isArray(item?.skillsUsed) ? [...item.skillsUsed] : [],
+  links: item?.url ? [{ label: hostLabel(item.url), url: item.url }] : [],
+  pinned: index === 0,
+  cover: null,
+  icon: 'image',
+  raw: item,
+});
+
+export const projectToProfile = (project) => {
+  const raw = project.raw || {};
+  const out = {};
+  PORTFOLIO_KEYS.forEach((k) => {
+    if (raw[k] !== undefined) out[k] = raw[k];
+  });
+  out.title = project.title;
+  out.description = project.description || '';
+  out.skillsUsed = [...(project.tags || [])];
+  const url = project.links?.find((l) => l.url)?.url;
+  if (url) out.url = url;
+  else delete out.url;
+  const year = /^\d{4}$/.test(project.year || '') ? project.year : '';
+  if (!year) delete out.startDate;
+  else if (yearOf(raw.startDate) !== year) out.startDate = `${year}-01-01`;
+  return out;
+};
+
+/* Signed-in order rule: only the first project is pinned (a reorder that changes the first project re-pins). */
+export const pinByOrder = (projects) =>
+  projects.map((p, i) => (Boolean(p.pinned) === (i === 0) ? p : { ...p, pinned: i === 0 }));
+
+/* After a save: a project saved with "Pin" checked moves to the front. */
+export const pinnedFirst = (projects) => {
+  const pinIdx = projects.findIndex((p) => p.pinned);
+  return pinByOrder(
+    pinIdx > 0
+      ? [projects[pinIdx], ...projects.slice(0, pinIdx), ...projects.slice(pinIdx + 1)]
+      : projects
+  );
+};
+
+/*
+ * After a save + re-read: attach the stored item as `raw` (so later saves carry its _id). The local `id` never changes
+ * (open dialogs / URLs keep pointing at it). Items that already had an _id are matched by it; items without one
+ * take the stored items whose _id no local item claims, in order. Returns null when the lists don't line up.
+ */
+export const adoptSavedIds = (list, saved) => {
+  if (!Array.isArray(saved) || saved.length !== list.length) return null;
+  const byId = new Map(saved.filter((s) => s?._id).map((s) => [String(s._id), s]));
+  const claimed = new Set(list.map((x) => x.raw?._id && String(x.raw._id)).filter(Boolean));
+  const fresh = saved.filter((s) => s?._id && !claimed.has(String(s._id)));
+  let ok = true;
+  const next = list.map((x) => {
+    const own = x.raw?._id ? byId.get(String(x.raw._id)) : fresh.shift();
+    if (!own) {
+      ok = false;
+      return x;
+    }
+    return { ...x, raw: own };
+  });
+  return ok ? next : null;
 };

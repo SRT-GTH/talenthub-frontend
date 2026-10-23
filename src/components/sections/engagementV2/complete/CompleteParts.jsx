@@ -52,9 +52,10 @@ export const StatsRow = ({ xpWord }) => (
 
 /*
  * BioCard (CO-01 writing / CO-02 ready): Career Buddy's drafted bio. Props: writing (bool), tone, onTone, onRegenerate, onEdit,
- * sticker (Playful: COOKING while writing, FRESH when ready).
+ * bio ({ text, words }, default the demo BIO; words 0 hides the word-count chip), sticker (Playful: COOKING while writing,
+ * FRESH when ready).
  */
-export const BioCard = ({ writing, tone, onTone, onRegenerate, onEdit }) => (
+export const BioCard = ({ writing, tone, onTone, onRegenerate, onEdit, bio = BIO }) => (
   <section className={`relative flex flex-col gap-4 px-6 py-[22px] ${CARD}`}>
     <Sticker
       className={`absolute right-[47px] rotate-[-6deg] ${writing ? '-top-[20px]' : '-top-[9px]'}`}
@@ -133,10 +134,10 @@ export const BioCard = ({ writing, tone, onTone, onRegenerate, onEdit }) => (
     ) : (
       <>
         <div className="rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f7f8f4] px-[18px] py-4">
-          <p className="m-0 font-sans text-[16px] leading-[26px] text-[#1c2a21]">{BIO.text}</p>
+          <p className="m-0 font-sans text-[16px] leading-[26px] text-[#1c2a21]">{bio.text}</p>
         </div>
         <div className="flex flex-wrap items-center gap-[10px]">
-          <Chip tone="green">{BIO.words} words</Chip>
+          {bio.words ? <Chip tone="green">{bio.words} words</Chip> : null}
           <Chip>{BIO.shownAt}</Chip>
         </div>
         <div className="flex flex-wrap gap-[10px]">
@@ -180,8 +181,8 @@ export const NextCards = () => (
   </div>
 );
 
-/* Rail card "HOW RECRUITERS SEE YOU" (avatar, name, headline, badges, Playful LIVE sticker). */
-export const ProfilePreview = () => (
+/* Rail card "HOW RECRUITERS SEE YOU" (avatar, name, headline, badges, Playful LIVE sticker). fullName defaults to the demo name. */
+export const ProfilePreview = ({ fullName = PROFILE.fullName }) => (
   <div className={`relative flex flex-col gap-3 p-5 ${CARD}`}>
     <Sticker className="absolute -top-[17px] right-[84px] rotate-[-6deg]">LIVE</Sticker>
     <p className={`${EYEBROW} text-[#595959]`}>HOW RECRUITERS SEE YOU</p>
@@ -193,7 +194,7 @@ export const ProfilePreview = () => (
       />
       <span className="flex min-w-0 flex-col gap-[2px]">
         <span className="font-sans text-[17px] font-semibold leading-[20px] text-[#1c2a21]">
-          {PROFILE.fullName}
+          {fullName}
         </span>
         <span className="font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[12px]">
           {PROFILE.headline}

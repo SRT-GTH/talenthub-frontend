@@ -1,5 +1,5 @@
 /*
- * Goals (stage 8) mock data, API-shaped. Copy is verbatim from the Figma frames GO-01..GO-06 (Focused 8285:19018.. /
+ * Goals (stage 8) copy, demo seed data (signed-out design frames only) and the live profile mappers at the bottom. Copy is verbatim from the Figma frames GO-01..GO-06 (Focused 8285:19018.. /
  * Playful 7715:8..). The three seed goals are the ones drawn in GO-02. The select option lists are NOT drawn in Figma (only the
  * closed fields are), so they hold exactly the values the frames show elsewhere (cards, edit modal, delete preview).
  */
@@ -191,3 +191,108 @@ export const goalPreviewLine = (g, primary) =>
   ]
     .filter(Boolean)
     .join(' · ');
+
+/*
+ * Live profile mappers (signed-in talent). A goal is stored as a `desiredCareers` item:
+ *   { careerName: title (or type), type: 'desired', source: 'user',
+ *     metadata: { goalId, title, industry, type, where, when, notes, min, max } }
+ * This screen owns only the user-sourced, non-'potential' items; system / guidance_tool / potential careers (Career Buddy,
+ * onboarding) are written back untouched and in place. `careerGoals` is merged, so the Goals stage counts as done without
+ * losing what other surfaces stored: shortTerm becomes a one-line summary of the primary goal only when it is empty or still
+ * the summary this screen wrote last time; longTerm is kept; preferredIndustries is the union of the stored ones and the
+ * goals' industries. With no goals left careerGoals is not written at all.
+ */
+const isOwnCareer = (c) =>
+  Boolean(c) && c.type !== 'potential' && (!c.source || c.source === 'user');
+const withoutVirtualId = (item) => {
+  const { id: _virtual, ...rest } = item;
+  return rest;
+};
+const careerKey = (c) => c?.metadata?.goalId || (c?._id ? String(c._id) : null);
+
+export const goalsFromProfile = (profile) =>
+  (Array.isArray(profile?.desiredCareers) ? profile.desiredCareers : [])
+    .filter(isOwnCareer)
+    .map((c, i) => {
+      const m = c.metadata || {};
+      return {
+        ...EMPTY_GOAL,
+        id: careerKey(c) || `goal-${i}`,
+        title: m.title ?? c.careerName ?? '',
+        industry: m.industry || '',
+        type: m.type || '',
+        where: m.where || '',
+        when: m.when || '',
+        notes: m.notes || '',
+        min: m.min ?? null,
+        max: m.max ?? null,
+      };
+    });
+
+const goalSummary = (g) =>
+  g
+    ? [goalHeading(g), g.type, g.where, g.when].filter((s) => s && String(s).trim()).join(' · ')
+    : '';
+
+/* Whole-field write for PATCH /profiles/fields: { desiredCareers, careerGoals? }. `profile` = the last loaded profile. */
+export const goalsToProfile = (goals, profile) => {
+  const original = Array.isArray(profile?.desiredCareers) ? profile.desiredCareers : [];
+  const byKey = new Map(original.filter(isOwnCareer).map((c) => [careerKey(c), c]));
+  const own = goals.map((g) => {
+    const prev = byKey.get(g.id);
+    const base = prev ? withoutVirtualId(prev) : {};
+    const title = (g.title || '').trim();
+    return {
+      ...base,
+      careerName: title || g.type,
+      type: 'desired',
+      source: 'user',
+      metadata: {
+        ...(base.metadata || {}),
+        goalId: g.id,
+        title,
+        industry: g.industry || '',
+        type: g.type || '',
+        where: g.where || '',
+        when: g.when || '',
+        notes: g.notes || '',
+        min: g.min ?? null,
+        max: g.max ?? null,
+      },
+    };
+  });
+  /* Goals fill the slots the user's careers held (in priority order); extra goals follow the last slot, spare slots go. */
+  const desiredCareers = [];
+  const ownSlots = original.filter(isOwnCareer).length;
+  let used = 0;
+  original.forEach((c) => {
+    if (!isOwnCareer(c)) desiredCareers.push(withoutVirtualId(c));
+    else {
+      used += 1;
+      if (used < ownSlots) {
+        if (used <= own.length) desiredCareers.push(own[used - 1]);
+      } else desiredCareers.push(...own.slice(used - 1));
+    }
+  });
+  if (!ownSlots) desiredCareers.push(...own);
+  if (!goals.length) return { desiredCareers };
+  const stored = profile?.careerGoals || {};
+  const lastSummary = goalSummary(goalsFromProfile(profile)[0]);
+  const storedShort = typeof stored.shortTerm === 'string' ? stored.shortTerm.trim() : '';
+  const careerGoals = {
+    ...stored,
+    shortTerm:
+      !storedShort || storedShort === lastSummary ? goalSummary(goals[0]) : stored.shortTerm,
+    preferredIndustries: [
+      ...new Set(
+        [
+          ...(Array.isArray(stored.preferredIndustries) ? stored.preferredIndustries : []),
+          ...goals.map((g) => g.industry),
+        ]
+          .map((i) => (typeof i === 'string' ? i.trim() : ''))
+          .filter(Boolean)
+      ),
+    ],
+  };
+  return { desiredCareers, careerGoals };
+};

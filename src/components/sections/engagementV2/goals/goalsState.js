@@ -12,7 +12,8 @@ const log = debug('goalsState');
  *   GO-04 Edit goal            ?modal=edit            (&goal=<id>, default: the primary goal)
  *   GO-05 Delete goal          ?modal=delete          (&goal=<id>, default: the primary goal)
  *   GO-06 Stage complete       ?state=complete
- * Frames other than GO-01 start with the three seed goals; GO-01 starts with none. update(patch): null / '' / false remove a key.
+ * Signed out (demo), frames other than GO-01 start with the three seed goals; GO-01 starts with none. Signed in, every frame
+ * shows the talent's real goals (possibly none). update(patch): null / '' / false remove a key.
  */
 export const useGoalsState = () => {
   const [params, setParams] = useSearchParams();
