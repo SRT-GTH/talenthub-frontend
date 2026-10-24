@@ -9,10 +9,10 @@ import OutcomesStoryCard from './OutcomesStoryCard.jsx';
  * 14/17 #595959 + link "All stories →" 14/17 600 #387440 on the right) over "row · stories" (3 cards, gap 24, tops aligned).
  * Phone (8507:535): one "Stories" card (hint "With consent") with the first story photo 170 high r12, title 16/19 600 and "Read story →   ·   2 more stories".
  * ⚠️ ASSUMPTION: "All stories →" has no list page drawn; it scrolls to this section (#outcomes-stories) so the link is never dead.
- * Props: stories
+ * Props: stories, loading
  */
 
-const OutcomesStoriesSection = ({ stories }) => {
+const OutcomesStoriesSection = ({ stories, loading = false }) => {
   const first = stories[0];
   return (
     <>
@@ -43,7 +43,7 @@ const OutcomesStoriesSection = ({ stories }) => {
         <ul className="m-0 grid list-none grid-cols-1 items-start gap-[24px] p-0 lg:grid-cols-3">
           {stories.map((story) => (
             <li key={story.id} className="min-w-0">
-              <OutcomesStoryCard story={story} />
+              <OutcomesStoryCard story={story} loading={loading} />
             </li>
           ))}
         </ul>

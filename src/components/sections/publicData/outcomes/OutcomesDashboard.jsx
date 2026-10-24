@@ -85,7 +85,7 @@ const OutcomesDashboard = ({ response, stories, range, onRange, loading }) => {
         <OutcomesSkillsCard skills={response.skills} />
         <OutcomesPartnersCard partners={response.partners} />
       </div>
-      <OutcomesStoriesSection stories={stories} />
+      <OutcomesStoriesSection stories={stories} loading={loading} />
     </div>
   );
 };
