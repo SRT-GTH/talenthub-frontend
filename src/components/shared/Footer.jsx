@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo.jsx';
+import TermsModal from './TermsModal.jsx';
+import PrivacyPolicyModal from './PrivacyPolicyModal.jsx';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -19,6 +22,10 @@ const log = debug('Footer');
  *   - Right: 3 link columns (Platform / Company / Legal)
  *
  * Below the hairline: copyright on the left, contact line on the right.
+ *
+ * "Privacy Policy" / "Terms of Service" open the PrivacyPolicyModal /
+ * TermsModal summaries in place (no legal pages exist yet); the other links
+ * still point at '/' until their pages exist.
  */
 
 const PLATFORM_LINKS = [
@@ -38,13 +45,19 @@ const COMPANY_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { label: 'Privacy Policy', to: '/' },
-  { label: 'Terms of Service', to: '/' },
+  { label: 'Privacy Policy', modal: 'privacy' },
+  { label: 'Terms of Service', modal: 'terms' },
   { label: 'Cookie Policy', to: '/' },
   { label: 'Child Safety', to: '/' },
 ];
 
-const FooterColumn = ({ heading, links }) => (
+const LINK_CLASS = classNames(
+  'font-sans text-[14px] leading-none whitespace-nowrap',
+  'text-yellow-hover hover:text-white transition-colors duration-150'
+);
+
+// Entries with `modal` render as a button styled like the links and open that summary modal.
+const FooterColumn = ({ heading, links, onOpenModal }) => (
   <div className="flex flex-col gap-4">
     <h3 className="font-sans font-bold text-[10px] max-lg:text-[12px] leading-none tracking-[1px] uppercase text-white">
       {heading}
@@ -52,15 +65,19 @@ const FooterColumn = ({ heading, links }) => (
     <ul className="flex flex-col gap-4">
       {links.map((link) => (
         <li key={link.label}>
-          <Link
-            to={link.to}
-            className={classNames(
-              'font-sans text-[14px] leading-none whitespace-nowrap',
-              'text-yellow-hover hover:text-white transition-colors duration-150'
-            )}
-          >
-            {link.label}
-          </Link>
+          {link.modal ? (
+            <button
+              type="button"
+              onClick={() => onOpenModal(link.modal)}
+              className={classNames(LINK_CLASS, 'cursor-pointer border-0 bg-transparent p-0')}
+            >
+              {link.label}
+            </button>
+          ) : (
+            <Link to={link.to} className={LINK_CLASS}>
+              {link.label}
+            </Link>
+          )}
         </li>
       ))}
     </ul>
@@ -70,6 +87,13 @@ const FooterColumn = ({ heading, links }) => (
 const Footer = () => {
   log('render');
   const year = new Date().getFullYear();
+  // 'privacy' | 'terms' | null
+  const [legalModal, setLegalModal] = useState(null);
+  const openModal = (which) => {
+    log('open legal summary:', which);
+    setLegalModal(which);
+  };
+  const closeModal = () => setLegalModal(null);
 
   return (
     <footer className="relative bg-brand-green-darker text-white overflow-hidden">
@@ -129,7 +153,7 @@ const Footer = () => {
             <div className="flex flex-wrap gap-x-[50px] gap-y-12">
               <FooterColumn heading="Platform" links={PLATFORM_LINKS} />
               <FooterColumn heading="Company" links={COMPANY_LINKS} />
-              <FooterColumn heading="Legal" links={LEGAL_LINKS} />
+              <FooterColumn heading="Legal" links={LEGAL_LINKS} onOpenModal={openModal} />
             </div>
           </div>
         </div>
@@ -150,6 +174,12 @@ const Footer = () => {
           </p>
         </div>
       </div>
+      {legalModal === 'privacy' && (
+        <PrivacyPolicyModal ctaLabel="Got it" onAccept={closeModal} onClose={closeModal} />
+      )}
+      {legalModal === 'terms' && (
+        <TermsModal ctaLabel="Got it" onAccept={closeModal} onClose={closeModal} />
+      )}
     </footer>
   );
 };

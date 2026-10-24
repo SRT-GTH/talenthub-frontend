@@ -34,7 +34,8 @@ const log = debug('talentHomeState');
  *   /home?tab=recruiter         -> HM-07 Recruiter activity
  *   /home?search=1              -> HM-08 global search open
  *   /home?edit=1                -> HM-05 edit home (customise)
- *   /home?loading=1             -> HM-04 loading (+ &loading=empty|error for the card states)
+ *   /home?loading=1             -> HM-04 loading (&loading=empty keeps the skeleton; &loading=error, or a
+ *                                  failed live load, shows the error card with "Try again")
  *   /home?new=welcome|tour|chat|gate -> NU-01 / NU-02 / NU-04 / NU-03
  *   &a11y=1                     -> A11Y-02 accessibility mode (also toggled from the top nav)
  *   &notif=open|empty|loading   -> Notifications pop-up N-01 / N-03 / N-04 (&tip=1 = N-02 tooltip)
@@ -146,6 +147,8 @@ export const useTalentHomeState = () => {
   // null = loading, false = failed. Starts from this tab's cached copy when
   // there is one, so returning to /home shows the data at once.
   const [live, setLive] = useState(() => (demoState ? null : (peekTalentHome()?.data ?? null)));
+  // Bumped by retry() after a failed load (the error state's "Try again") to re-run the loader.
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (demoState) return undefined;
     let alive = true;
@@ -194,7 +197,7 @@ export const useTalentHomeState = () => {
     return () => {
       alive = false;
     };
-  }, [demoState, setParams, navigate]);
+  }, [demoState, setParams, navigate, attempt]);
   const stateKey = demoState || (live ? stateKeyFor(live) : 'day1');
   const tab = TABS.includes(params.get('tab')) ? params.get('tab') : 'home';
   // MyAssessment data: shown from this tab's cache at once, and fetched the first
@@ -309,6 +312,12 @@ export const useTalentHomeState = () => {
       readAll,
       rail,
       update,
+      // Re-run the /home loader after a failure: back to the loading skeleton, then data or the error state again.
+      retry: () => {
+        log('retry load');
+        setLive(null);
+        setAttempt((n) => n + 1);
+      },
     };
   }, [
     params,

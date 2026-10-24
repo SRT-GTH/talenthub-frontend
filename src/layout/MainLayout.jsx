@@ -13,7 +13,13 @@ const log = debug('MainLayout');
 // "Log In" / no-footer treatment as the onboarding flow (the role-select
 // page is conceptually step 0 of onboarding even though it lives at the
 // top level).
-const ONBOARDING_CHROME_PATHS = ['/onboarding/', '/login', '/get-started'];
+const ONBOARDING_CHROME_PATHS = [
+  '/onboarding/',
+  '/login',
+  '/forgot-password',
+  '/reset-password',
+  '/get-started',
+];
 
 const isOnboardingChromePath = (pathname) =>
   ONBOARDING_CHROME_PATHS.some(
@@ -30,7 +36,9 @@ const isFixedShellPath = (pathname) =>
   pathname.startsWith('/onboarding/parent') ||
   pathname.startsWith('/onboarding/talent') ||
   pathname.startsWith('/onboarding/recruiter') ||
-  pathname === '/login';
+  pathname === '/login' ||
+  pathname === '/forgot-password' ||
+  pathname === '/reset-password';
 
 // Returns a stable key for the current layout family. Using the full pathname as
 // the key would force-remount layouts (and destroy OnboardingProvider state) on

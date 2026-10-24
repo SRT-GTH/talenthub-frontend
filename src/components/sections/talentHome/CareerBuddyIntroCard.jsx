@@ -55,7 +55,16 @@ const CareerBuddyIntroCard = ({ home }) => {
       </p>
       <div className="-mx-[clamp(14px,1.6vw,22px)] flex gap-[8px] overflow-x-auto px-[clamp(14px,1.6vw,22px)] [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
         {BUDDY_INTRO.chips.map((label) => (
-          <Chip key={label} as="button" type="button" onClick={() => log('suggestion', label)}>
+          <Chip
+            key={label}
+            as="button"
+            type="button"
+            onClick={() => {
+              // Same handoff as the BuddyCard CTA (HomeColumns.jsx): the chip is sent as the talent's message.
+              log('suggestion', label);
+              navigate('/profile/filling/career-buddy', { state: { prompt: label } });
+            }}
+          >
             {label}
           </Chip>
         ))}

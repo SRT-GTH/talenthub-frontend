@@ -216,6 +216,19 @@ const DashboardTopNav = ({ className, talentHome }) => {
       talentHome.update({ lang: talentHome.lang === 'menu' ? null : 'menu' });
       return;
     }
+    // Elsewhere the talent EN pill opens the Profile menu's language panel (`?menu=language`, PM-02).
+    if (isTalent && action === 'language') {
+      const onLanguage = streakParams.get('menu') === 'language';
+      log('language pill ->', onLanguage ? 'close' : '?menu=language');
+      const next = new URLSearchParams(streakParams);
+      if (onLanguage) next.delete('menu');
+      else {
+        next.set('menu', 'language');
+        ['notif', 'tip', 'help', 'streak'].forEach((key) => next.delete(key));
+      }
+      setNavParams(next, { replace: true });
+      return;
+    }
     // Talent profile chip: toggles the Profile menu (`?menu=open`, PM-01) — read by the talent shell on any page.
     if (isTalent && action === 'profile-menu') {
       const menuOpen = Boolean(streakParams.get('menu'));

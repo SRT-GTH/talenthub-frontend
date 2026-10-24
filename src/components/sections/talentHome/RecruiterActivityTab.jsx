@@ -10,6 +10,7 @@ import {
   TalentVisibilitySwitchOnIcon,
 } from '../../shared/assets.jsx';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import Button from '../../ui/Button.jsx';
@@ -59,7 +60,16 @@ const FilterPill = ({ on, label, count, onClick }) => (
   </button>
 );
 
+// Row actions only exist on the Figma demo feed (live /activity/me rows carry no action). The demo
+// rows point at fake recruiters, so they open the matching real surface rather than a specific item.
+const ACTION_ROUTE = {
+  Reply: '/messages',
+  'View role': '/job-postings',
+  'View application': '/job-postings?tab=applied',
+};
+
 const ActivityRow = ({ item }) => {
+  const navigate = useNavigate();
   const k = KIND[item.kind];
   return (
     <li
@@ -121,7 +131,11 @@ const ActivityRow = ({ item }) => {
           variant={item.secondary ? 'tertiary-subtle' : 'primary'}
           className="max-md:w-full"
           rightIcon={item.secondary ? undefined : <ArrowRightIcon />}
-          onClick={() => log('action', item.id, item.action)}
+          onClick={() => {
+            const to = ACTION_ROUTE[item.action] || '/job-postings';
+            log('action', item.id, item.action, '->', to);
+            navigate(to);
+          }}
         >
           {item.action}
         </Button>

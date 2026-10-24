@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import { TalentHomeExploreCompassIcon, TalentHomePlusIcon } from '../../shared/assets.jsx';
@@ -8,6 +9,7 @@ const log = debug('ExploreRolesStrip');
 
 // Day 1: "Just want to look around first?" strip. Complete / Top Talent: "Customize home" strip.
 const ExploreRolesStrip = ({ home }) => {
+  const navigate = useNavigate();
   log('render', { state: home.stateKey });
   if (home.stateKey === 'day1') {
     return (
@@ -18,7 +20,10 @@ const ExploreRolesStrip = ({ home }) => {
           type="button"
           tone="green"
           icon={<TalentHomeExploreCompassIcon className="size-[14px]" />}
-          onClick={() => log('explore roles')}
+          onClick={() => {
+            log('explore roles -> /job-postings');
+            navigate('/job-postings');
+          }}
         >
           {home.content?.exploreChip ?? EXPLORE.chip}
         </Chip>

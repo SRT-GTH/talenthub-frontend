@@ -13,6 +13,8 @@ import arrowIco from '../../assets/talent-onboarding/done-arrow.svg';
 import waveSvg from '../../assets/talent-onboarding/done-wave.svg';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
+import TermsModal from '../../components/shared/TermsModal.jsx';
+import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
 
 const log = debug('OnboardingDonePage');
 
@@ -36,6 +38,8 @@ const log = debug('OnboardingDonePage');
  * ASSUMPTIONS: name/score/XP/rank are demo constants (no API); Figma's "78" is the Talent
  * Score here (header progress meter also reads 78%). The ring's "78" in the Figma export
  * wraps onto two lines (artefact) - rendered on one line.
+ * Footer "Privacy Policy" / "Terms of Use" open the PrivacyPolicyModal / TermsModal
+ * summaries in place (there are no /privacy or /terms pages yet).
  */
 
 const DEMO = {
@@ -138,6 +142,8 @@ const CardHeader = ({ label, children }) => (
 const OnboardingDonePage = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  // 'privacy' | 'terms' | null — footer links open the legal summary modals in place.
+  const [legalModal, setLegalModal] = useState(null);
 
   useEffect(() => {
     log('mount', DEMO);
@@ -562,15 +568,43 @@ const OnboardingDonePage = () => {
           borderTop: '1px solid rgba(28,42,33,0.06)',
         }}
       >
-        <a href="/privacy" className="underline">
+        <button
+          type="button"
+          onClick={() => {
+            log('open privacy summary');
+            setLegalModal('privacy');
+          }}
+          className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-inherit underline"
+        >
           Privacy Policy
-        </a>
+        </button>
         {' · '}
-        <a href="/terms" className="underline">
+        <button
+          type="button"
+          onClick={() => {
+            log('open terms summary');
+            setLegalModal('terms');
+          }}
+          className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-inherit underline"
+        >
           Terms of Use
-        </a>
+        </button>
         <span className="text-[#70706E]"> · © 2026 Ghana Talent Hub · 🇬🇭 Built for Ghana</span>
       </footer>
+      {legalModal === 'privacy' && (
+        <PrivacyPolicyModal
+          ctaLabel="Got it"
+          onAccept={() => setLegalModal(null)}
+          onClose={() => setLegalModal(null)}
+        />
+      )}
+      {legalModal === 'terms' && (
+        <TermsModal
+          ctaLabel="Got it"
+          onAccept={() => setLegalModal(null)}
+          onClose={() => setLegalModal(null)}
+        />
+      )}
     </section>
   );
 };

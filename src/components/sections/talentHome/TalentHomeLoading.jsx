@@ -1,21 +1,53 @@
 import { useEffect } from 'react';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
-import { CardSkeleton, LoadingNote, ShimmerStyle, Skel, SkelCard } from './TalentHomeStates.jsx';
+import {
+  CardError,
+  CardSkeleton,
+  LoadingNote,
+  ShimmerStyle,
+  Skel,
+  SkelCard,
+} from './TalentHomeStates.jsx';
+import { CtaButton } from './coreUi.jsx';
 
 const log = debug('TalentHomeLoading');
 
 /*
  * HM-04 loading: Playful 7733:731 / Focused 8097:10681 (content column; the shell owns the
- * chrome). Figma draws only the skeleton + "Getting your matches ready…" note; there are no
- * empty/error frames or copy, so `loading` = 'empty' | 'error' shows the same skeleton (see
- * wiki/talent-home.md). Reusable pieces live in TalentHomeStates.jsx.
+ * chrome). Figma draws only the skeleton + "Getting your matches ready…" note and no empty/error
+ * frames, so `loading` = 'empty' keeps the skeleton. `loading` = 'error' (a failed live load, or the
+ * `?loading=error` frame) shows an error card with "Try again" instead of a skeleton that never
+ * ends: live it re-runs the loader (home.retry); the design frame just drops the param.
+ * A 401 never gets here (talentHomeState sends the talent to /login). Reusable pieces live in
+ * TalentHomeStates.jsx.
  */
 const TalentHomeLoading = ({ home }) => {
   const kind = home?.loading;
   useEffect(() => {
     log('mount', { kind });
   }, [kind]);
+
+  if (kind === 'error') {
+    const retry = () => {
+      log('retry');
+      // Drops a `?loading=error` design param (no-op otherwise), then re-runs the live loader.
+      if (new URLSearchParams(window.location.search).has('loading')) {
+        home?.update?.({ loading: null });
+      }
+      home?.retry?.();
+    };
+    return (
+      <CardError
+        title="We couldn’t load your home"
+        body="Something went wrong on our side or your connection dropped. Your progress is safe."
+      >
+        <CtaButton size="sm" onClick={retry}>
+          Try again
+        </CtaButton>
+      </CardError>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-[16px]" aria-busy="true">
