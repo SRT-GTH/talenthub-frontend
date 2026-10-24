@@ -123,6 +123,8 @@ const CareerBuddyPage = lazy(() => import('./pages/profileFilling/CareerBuddyPag
 const TalentMessagesPage = lazy(() => import('./pages/talentMessages/TalentMessagesPage.jsx'));
 const MessageLinkRedirect = lazy(() => import('./pages/talentMessages/MessageLinkRedirect.jsx'));
 const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPage.jsx'));
+// Theme 8 public dashboards (Figma canvas 8477:209484): /data/*, no sign-in, own router in pages/publicData/PublicDataApp.jsx.
+const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -973,6 +975,16 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <MessageLinkRedirect />
+                    </Suspense>
+                  }
+                />
+                {/* Theme 8 public dashboards — Figma canvas "Persona · Public, Investor & Government (Theme 8)" 8477:209484, Focused only.
+            Anonymous, read-only data site with its own sidebar chrome and its own router (pages/publicData/PublicDataApp.jsx). Outside MainLayout. */}
+                <Route
+                  path={'/data/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PublicDataApp />
                     </Suspense>
                   }
                 />

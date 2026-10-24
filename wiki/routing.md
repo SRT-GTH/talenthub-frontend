@@ -241,3 +241,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 `/messages` — talent Messages (inbox, request, cards, dialogs, Help me reply, accessibility, languages), outside `MainLayout`, state in the URL, see [talent-messages.md](talent-messages.md). The recruiter `/recruiter/messages` page is a different audience and is unchanged. 🔶 LIKELY (built, not compared with Figma yet)
 
 `/community?view=circle`, `/community/people/:personId` — My circle (networking), see [talent-my-circle.md](talent-my-circle.md); `/community/create`, `/community/:communityId/manage` — create your own community, see [talent-community-create.md](talent-community-create.md); `/opportunity-guidance/job?job=ipmc-junior-python-instructor` — Career Buddy opportunity matching J-02 detail (Focused only, built on the Jobs detail screen), see [career-buddy-chat-history.md](career-buddy-chat-history.md). All outside `MainLayout`, state in the URL.
+
+`/data/*` — Theme 8 public data dashboards (no sign-in, Focused only), own router `pages/publicData/PublicDataApp.jsx`, outside `MainLayout`; see [public-data.md](public-data.md).

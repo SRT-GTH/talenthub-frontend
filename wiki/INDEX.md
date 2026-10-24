@@ -55,6 +55,7 @@ Every claim in this wiki carries a tag:
 
 - [talent-community-create.md](talent-community-create.md) — Create your own community `/community/create` + `/community/:id/manage`: 19 frames × 2 styles (CC-02 … CC-17b), URL table, owner lifecycle, known gaps
 - [talent-my-circle.md](talent-my-circle.md) — My circle networking `/community?view=circle` + `/community/people/:id`: NW-01 … NW-11 × 2 styles, navigation from the flow section, URL contract, known gaps
+- [public-data.md](public-data.md) — Theme 8 public dashboards `/data/*` (Public, Investor & Government audiences): architecture, URL contract, work packages, 107-frame checklist (in progress)
 - [parent-emails.md](parent-emails.md) — Parent transactional emails `emails/parent/focused/`: 7 static HTML emails (PE-01..PE-07, Focused only), frame table with diff %, known gaps
 
 ### External

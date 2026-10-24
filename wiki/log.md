@@ -1,3 +1,7 @@
+## [2026-10-23] build | Public data dashboards (Theme 8): foundation
+
+Figma canvas `8477:209484`. Chrome (sidebar 288 / rail 80 / mobile drawer, top bar, footer), `/data/*` router with 13 stub pages, URL state hook, suppression + number helpers, region list, Figma icon exports, frame manifest `tests/public-data/frames.json` (107 entries), responsive-audit URLs. Plan, URL contract, work packages and checklist: [public-data.md](public-data.md). Verified: eslint clean; chrome renders at 1728 / 1024 / 390 and the drawer, no horizontal scroll. Not built: any page body.
+
 ## [2026-10-23] build | Career Buddy re-check + panel states, voice live captions, opportunity matching, create-a-community, My circle
 
 Career Buddy chat re-checked against the current Figma (36 frames): the Ask Buddy pop-up now shows the thinking / working / writing / slow / stopped rows + Stop generating; nav label "Change input mode"; demo URLs reproduce the Stop pill, actions menu and new-chat tooltip; voice live captions (VC-01..06 × 2 styles + settings row); Career Buddy Opportunity Matching (`?chat=opp-areas|opp-matches|opp-why`, J-02 IPMC page, Focused only). New talent screens: [talent-community-create.md](talent-community-create.md) (19 frames × 2) and [talent-my-circle.md](talent-my-circle.md) (12 frames × 2). Details and gaps: [career-buddy-chat-history.md](career-buddy-chat-history.md). Verified: build, eslint src; framecmp by the section agents (Playful 3–9 %, Focused 1.5–7 %), voice re-run by the lead 3.5–5.1 %; responsive audit + leak check see the build report. Not verified: real mic / speech engine for voice captions, errscan of every new URL, Focused phone widths on the later create-wizard steps, a clean re-run of the My circle NW-01..03/10/11 diffs.
@@ -57,3 +61,7 @@ Built `/messages` (Figma canvas 7387:104275, 49 Playful/Focused pairs + A-01c + 
 ## [2026-10-21] fix | Career Buddy interview review after reopening a chat
 
 Reopened Career Buddy conversations lost the practice / mock interview review card and showed the agent's plain text report instead, including raw placeholders like "[experience]". Cause: the agent's history endpoint dropped `practiceReview` (backend `apps/agent/src/server/career-buddy-routes.ts` TURN_FIELDS, fixed there). Here: `careerBuddyLive.js turnToBubbles` keeps only the verdict line when a turn carries the review card (the card holds the scores and feedback), and `PracticeReviewCard` shows "[experience]"-style placeholders as highlighted "your experience" blanks with a "Fill the highlighted parts with your own details" note.
+
+## [2026-10-24] build | Public data dashboards (Theme 8): all packages integrated
+
+Seven work packages built and wired (see [public-data.md](public-data.md)). Verified: build, eslint, errscan 76 URLs clean, responsive audit 130/130. Lead framecmp diffs are higher than the agents' own numbers (landing ~14 %); pairs viewed, differences mostly font and hero crop. Not verified: full-text checks per frame, phone/tablet pixel parity. Nothing committed.

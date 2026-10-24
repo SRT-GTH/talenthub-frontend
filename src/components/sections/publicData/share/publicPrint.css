@@ -1,0 +1,100 @@
+/*
+ * publicPrint.css — print rules of the Theme 8 public-data site (A4, margin 0, one sheet per page).
+ *
+ *   Print layouts 8.2.1h / 8.5.1e : 794×1123 px = A4 portrait at 96 dpi   (default @page)
+ *   GTH report kit                : 1123×794 px = A4 landscape            (named page "report-landscape")
+ *
+ * PrintHost mounts a [data-print-host] element on <body>: on screen it is either hidden (mode "print", rendered only to be printed) or a
+ * full-screen preview (mode "screen", ?print=1); when printing, everything else on <body> disappears and the host fills the page.
+ * The report route (/data/report) has no chrome: its sheets print one per page without a host.
+ */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@page report-landscape {
+  size: A4 landscape;
+  margin: 0;
+}
+
+[data-print-host='print'] {
+  display: none;
+}
+
+[data-report-sheet] {
+  page: report-landscape;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  body:has(> [data-print-host]) > :not([data-print-host]) {
+    display: none !important;
+  }
+
+  [data-print-host] {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  [data-fit-outer] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  [data-fit-inner] {
+    transform: none !important;
+  }
+
+  [data-print-sheet],
+  [data-report-sheet] {
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-inside: avoid;
+  }
+
+  [data-print-sheet] {
+    width: 210mm !important;
+    height: 297mm !important;
+    overflow: hidden;
+  }
+
+  [data-report-sheet] {
+    width: 297mm !important;
+    height: 210mm !important;
+    overflow: hidden;
+  }
+
+  [data-report-page] {
+    display: block !important;
+    break-after: page;
+  }
+
+  [data-report-page]:last-child {
+    break-after: auto;
+  }
+
+  [data-report-controls] {
+    display: none !important;
+  }
+
+  [data-report-stage] {
+    padding: 0 !important;
+    background: #fff !important;
+    min-height: 0 !important;
+  }
+}
