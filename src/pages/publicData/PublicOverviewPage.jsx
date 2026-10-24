@@ -94,12 +94,15 @@ const PublicOverviewPage = () => {
                 onCompare={() => navigate('/data/compare')}
                 className={HIDE_PHONE_COMPARE}
               />
-              <OverviewInterestsCard
-                interests={overview.interests}
-                loading={status === 'loading'}
-                error={status === 'error'}
-                onRetry={retry}
-              />
+              {/* the tablet frame (8508:350935) draws no Career interests card; phone and desktop do */}
+              <div className="min-w-0 md:max-xl:hidden">
+                <OverviewInterestsCard
+                  interests={overview.interests}
+                  loading={status === 'loading'}
+                  error={status === 'error'}
+                  onRetry={retry}
+                />
+              </div>
             </div>
             <div className="grid min-w-0 grid-cols-1 items-start gap-[16px] md:grid-cols-2 md:gap-[24px]">
               <OverviewWhoCard
