@@ -42,11 +42,12 @@ const FocusedVoiceCallOverlay = ({
 }) => {
   const [muted, setMutedLocal] = useState(false);
   const live = typeof onUtterance === 'function';
-  const { level, setMuted, active, error, transcript } = useVoiceCapture({
-    enabled: open && !(live && paused),
-    listen: live,
+  // The mic stays open for the whole call; only listening pauses while Career Buddy thinks or speaks.
+  const { level, setMuted, active, error, transcript, final } = useVoiceCapture({
+    enabled: open,
+    listen: live && !paused,
   });
-  useUtteranceSender({ live, open, paused, muted, transcript, onUtterance, pauseMs });
+  useUtteranceSender({ live, open, paused, muted, transcript, final, onUtterance, pauseMs });
 
   useEffect(() => {
     if (open) {
@@ -59,7 +60,7 @@ const FocusedVoiceCallOverlay = ({
   if (!open) return null;
 
   const voice = getVoiceById(voiceId);
-  const speaking = !muted && level > 0.04;
+  const speaking = !muted && !(live && paused) && level > 0.04;
 
   return (
     <div

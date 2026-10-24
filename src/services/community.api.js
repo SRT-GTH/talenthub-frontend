@@ -29,11 +29,44 @@ const enc = encodeURIComponent;
  * Catalogue, recommended first (`recommendation: { score, reasons[{ area, label, value }] }` from the talent's profile).
  * `withMeta` returns `{ communities, basedOn }` (the profile areas that matched anything) instead of the bare list.
  */
+// The unfiltered catalogue is read by /community and again by every community page
+// ("Related communities"), and the backend scores it against the profile each time.
+// Keep it for a minute and share a request in flight. Join / leave clear it (isMember).
+const CATALOGUE_TTL_MS = 60_000;
+let catalogueCache = { at: 0, data: null, promise: null };
+
+export const invalidateCatalogue = () => {
+  catalogueCache = { at: 0, data: null, promise: null };
+};
+
+const loadCatalogue = () => {
+  if (catalogueCache.data && Date.now() - catalogueCache.at < CATALOGUE_TTL_MS) {
+    return Promise.resolve(catalogueCache.data);
+  }
+  if (!catalogueCache.promise) {
+    const pending = api
+      .get('/community')
+      .then((res) => {
+        const data = unwrap(res);
+        if (catalogueCache.promise === pending)
+          catalogueCache = { at: Date.now(), data, promise: null };
+        return data;
+      })
+      .catch((err) => {
+        if (catalogueCache.promise === pending) catalogueCache.promise = null;
+        throw err;
+      });
+    catalogueCache.promise = pending;
+  }
+  return catalogueCache.promise;
+};
+
 export const fetchCommunities = async ({ q, category, withMeta = false } = {}) => {
   const params = {};
   if (q) params.q = q;
   if (category) params.category = category;
-  const data = unwrap(await api.get('/community', { params }));
+  const data =
+    q || category ? unwrap(await api.get('/community', { params })) : await loadCatalogue();
   log('catalogue', { n: data?.communities?.length, basedOn: data?.basedOn });
   const communities = data?.communities || [];
   return withMeta ? { communities, basedOn: data?.basedOn || [] } : communities;
@@ -48,6 +81,7 @@ export const fetchCommunity = async (id) => {
 export const joinCommunity = async (id) => {
   try {
     const data = unwrap(await api.post(`/community/${enc(id)}/join`));
+    invalidateCatalogue();
     log('joined', id);
     return data;
   } catch (err) {
@@ -60,10 +94,12 @@ export const joinCommunity = async (id) => {
 export const leaveCommunity = async (id) => {
   try {
     const data = unwrap(await api.post(`/community/${enc(id)}/leave`));
+    invalidateCatalogue();
     log('left', id);
     return data;
   } catch (err) {
-    if (err?.response?.status === 404 && err?.response?.data?.type === 'NOT_MEMBER') return { already: true };
+    if (err?.response?.status === 404 && err?.response?.data?.type === 'NOT_MEMBER')
+      return { already: true };
     throw err;
   }
 };

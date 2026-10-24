@@ -117,6 +117,15 @@ export const useLiveCommunityPage = (slug) => {
 
   const load = useCallback(async () => {
     setStatus('loading');
+    // Secondary data only needs the slug: fetch it alongside the detail instead of
+    // after it. Failures leave the section empty rather than the page.
+    Promise.allSettled([
+      loadPosts(),
+      loadMembers(),
+      fetchCommunities().then((rows) => alive.current && setCatalogue(rows.map(toCard))),
+    ]).then((r) =>
+      r.forEach((x) => x.status === 'rejected' && log('secondary failed', x.reason?.message))
+    );
     try {
       const c = await fetchCommunity(slug);
       if (!alive.current) return;
@@ -126,12 +135,6 @@ export const useLiveCommunityPage = (slug) => {
       }
       setBase(c);
       setStatus('ready');
-      // Secondary data: failures leave the section empty rather than the page.
-      Promise.allSettled([
-        loadPosts(),
-        loadMembers(),
-        fetchCommunities().then((rows) => alive.current && setCatalogue(rows.map(toCard))),
-      ]).then((r) => r.forEach((x) => x.status === 'rejected' && log('secondary failed', x.reason?.message)));
     } catch (err) {
       const code = err?.response?.status;
       log('detail failed', slug, code);
@@ -159,7 +162,10 @@ export const useLiveCommunityPage = (slug) => {
         ? {
             ...c,
             isMember,
-            memberCount: Math.max(0, c.memberCount + (isMember === c.isMember ? 0 : isMember ? 1 : -1)),
+            memberCount: Math.max(
+              0,
+              c.memberCount + (isMember === c.isMember ? 0 : isMember ? 1 : -1)
+            ),
           }
         : c
     );
@@ -213,7 +219,9 @@ export const useLiveCommunityPage = (slug) => {
   const like = async (postId) => {
     try {
       const res = await likePost(slug, postId);
-      setPosts((list) => list.map((p) => (p.id === postId ? { ...p, liked: res.likedByMe, likes: res.likes } : p)));
+      setPosts((list) =>
+        list.map((p) => (p.id === postId ? { ...p, liked: res.likedByMe, likes: res.likes } : p))
+      );
       return res;
     } catch (err) {
       log('like failed', err?.response?.status);
@@ -271,9 +279,15 @@ export const useLivePost = (slug, postId, meId) => {
   /** Add a comment (or a reply under `parentId`); resolves true on success. */
   const comment = async (text, parentId) => {
     try {
-      const created = await commentOnPost(slug, postId, { content: text, parentCommentId: parentId });
+      const created = await commentOnPost(slug, postId, {
+        content: text,
+        parentCommentId: parentId,
+      });
       if (!created) return false;
-      const mapped = toComment({ ...created, author: { ...created.author }, content: created.content }, meId);
+      const mapped = toComment(
+        { ...created, author: { ...created.author }, content: created.content },
+        meId
+      );
       mapped.me = true;
       setState((s) => {
         const comments = parentId
@@ -283,7 +297,11 @@ export const useLivePost = (slug, postId, meId) => {
                 : c
             )
           : [...s.comments, mapped];
-        return { ...s, comments, post: s.post ? { ...s.post, comments: s.post.comments + 1 } : s.post };
+        return {
+          ...s,
+          comments,
+          post: s.post ? { ...s.post, comments: s.post.comments + 1 } : s.post,
+        };
       });
       return true;
     } catch (err) {

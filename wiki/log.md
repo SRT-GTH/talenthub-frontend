@@ -65,3 +65,10 @@ Reopened Career Buddy conversations lost the practice / mock interview review ca
 ## [2026-10-24] build | Public data dashboards (Theme 8): all packages integrated
 
 Seven work packages built and wired (see [public-data.md](public-data.md)). Verified: build, eslint, errscan 76 URLs clean, responsive audit 130/130. Lead framecmp diffs are higher than the agents' own numbers (landing ~14 %); pairs viewed, differences mostly font and hero crop. Not verified: full-text checks per frame, phone/tablet pixel parity. Nothing committed.
+
+## [2026-10-23] perf | Career Buddy voice: speak as the reply streams; the mic stays open
+
+- `speechQueue.js` (new): in a voice call or with read-aloud on, each sentence is spoken as soon as it has streamed in (`delta` events), instead of the whole reply after the turn finished as one long utterance (slow to start; Chrome stalls on long utterances). The final reply is authoritative: only the part not spoken yet is queued.
+- `useVoiceCapture`: the mic (stream + level meter) stays open for the whole call; only speech recognition stops while Career Buddy thinks or speaks. It used to tear down and re-open the mic (getUserMedia + AudioContext + recogniser) around every reply. The recogniser now restarts itself when Chrome ends it (silence / network), which used to leave the call deaf.
+- `useUtteranceSender`: when the recogniser has finalised the words, the turn is sent after 0.6 s instead of 1.5 s (interviews keep their longer pause).
+- There is no WebSocket in the Career Buddy path: replies stream over Server-Sent Events (`/career-buddy/turn-stream`). Backend side of the same work: srt-backend `perf/cb-reasoning-temperature`.

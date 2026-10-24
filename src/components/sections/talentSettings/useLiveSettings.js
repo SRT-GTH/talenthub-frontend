@@ -21,14 +21,22 @@ const log = debug('useLiveSettings');
  * Every save resolves the server's answer and updates `overview` so the other sections see it at once.
  */
 export const useLiveSettings = ({ enabled = true } = {}) => {
-  const [state, setState] = useState({ status: enabled ? 'loading' : 'off', overview: null, notifications: null });
+  // The profile menu usually loaded the overview already: start from it, refresh below.
+  const [state, setState] = useState(() => {
+    const cached = enabled ? overviewCache.data : null;
+    return {
+      status: enabled ? (cached ? 'ready' : 'loading') : 'off',
+      overview: cached,
+      notifications: null,
+    };
+  });
 
   const load = useCallback(async () => {
     if (!enabled) return;
-    setState((s) => ({ ...s, status: 'loading' }));
+    setState((s) => ({ ...s, status: s.overview ? 'ready' : 'loading' }));
     try {
       const [overview, notifications] = await Promise.all([
-        fetchSettingsOverview(),
+        loadOverviewFresh(),
         fetchNotificationSettings().catch((err) => {
           log('notifications failed', err?.response?.status);
           return null;
@@ -37,7 +45,8 @@ export const useLiveSettings = ({ enabled = true } = {}) => {
       setState({ status: 'ready', overview, notifications });
     } catch (err) {
       log('overview failed', err?.response?.status || err?.message);
-      setState((s) => ({ ...s, status: 'error' }));
+      // Keep showing the cached overview if there is one.
+      setState((s) => (s.overview ? s : { ...s, status: 'error' }));
     }
   }, [enabled]);
 
@@ -46,7 +55,11 @@ export const useLiveSettings = ({ enabled = true } = {}) => {
   }, [load]);
 
   const patch = useCallback(
-    (part, value) => setState((s) => ({ ...s, overview: s.overview ? { ...s.overview, [part]: value } : s.overview })),
+    (part, value) =>
+      setState((s) => ({
+        ...s,
+        overview: s.overview ? { ...s.overview, [part]: value } : s.overview,
+      })),
     []
   );
 
@@ -92,7 +105,12 @@ export const useLiveSettings = ({ enabled = true } = {}) => {
     },
     setPaused: async (paused) => {
       const res = await setProfilePaused(paused);
-      setState((s) => ({ ...s, overview: s.overview ? { ...s.overview, paused: res.paused, pausedAt: res.pausedAt } : s.overview }));
+      setState((s) => ({
+        ...s,
+        overview: s.overview
+          ? { ...s.overview, paused: res.paused, pausedAt: res.pausedAt }
+          : s.overview,
+      }));
       return res;
     },
   };
@@ -106,8 +124,27 @@ export const invalidateAccountOverview = () => {
   overviewCache = { at: 0, data: null, promise: null };
 };
 
+/** A fresh overview; joins a request already in flight (the profile menu asks for the same one). */
+const loadOverviewFresh = () => {
+  if (!overviewCache.promise) {
+    const pending = fetchSettingsOverview()
+      .then((data) => {
+        if (overviewCache.promise === pending)
+          overviewCache = { at: Date.now(), data, promise: null };
+        return data;
+      })
+      .catch((err) => {
+        if (overviewCache.promise === pending) overviewCache.promise = null;
+        throw err;
+      });
+    overviewCache.promise = pending;
+  }
+  return overviewCache.promise;
+};
+
 const loadOverviewCached = () => {
-  if (overviewCache.data && Date.now() - overviewCache.at < 60_000) return Promise.resolve(overviewCache.data);
+  if (overviewCache.data && Date.now() - overviewCache.at < 60_000)
+    return Promise.resolve(overviewCache.data);
   if (!overviewCache.promise) {
     overviewCache.promise = fetchSettingsOverview()
       .then((data) => {
