@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../utils/debug.js';
 import {
+  browseCommunities,
   commentOnPost,
   createCommunityPost,
   fetchCommunities,
@@ -24,40 +25,125 @@ const log = debug('useLiveCommunity');
  * (join, like) and roll back if the call fails.
  */
 
-/** Catalogue for /community. */
-export const useLiveCatalogue = () => {
-  const [state, setState] = useState({ status: 'loading', cards: [], basedOn: [] });
+/** "Picked for you" size, and the page size for "All communities" and search results. */
+export const BROWSE_PICKED = 8;
+export const BROWSE_PAGE = 24;
+
+const markJoined = (c, joined) => ({
+  ...c,
+  joined,
+  members: Math.max(0, c.members + (joined === c.joined ? 0 : joined ? 1 : -1)),
+  tag: joined
+    ? { kind: 'joined', label: 'You’re in' }
+    : c.reasons[0]
+      ? { kind: 'highlight', label: c.reasons[0].label }
+      : null,
+});
+
+/**
+ * Catalogue for /community, one section at a time (GET /api/community is paged):
+ *   default      "Picked for you": the first 8 not-joined (recommended first, then most-joined)
+ *   view=all     "All communities": not-joined, BROWSE_PAGE at a time, loadMore() for the next page
+ *   cat / q      search results (filtered on the server), BROWSE_PAGE at a time
+ * `mine` (joined) comes with every first page; `closest` is set when a search finds nothing.
+ * The search term is debounced; a newer request always wins over an older one.
+ */
+export const useLiveBrowse = ({ cat = null, q = '', view = null } = {}) => {
+  const term = (q || '').trim();
+  const [debounced, setDebounced] = useState(term);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(term), term ? 300 : 0);
+    return () => clearTimeout(t);
+  }, [term]);
+
+  const mode = cat || debounced ? 'search' : view === 'all' ? 'all' : 'picked';
+  const query = useMemo(
+    () =>
+      mode === 'search'
+        ? { q: debounced || undefined, category: cat || undefined, limit: BROWSE_PAGE }
+        : { excludeJoined: true, limit: mode === 'all' ? BROWSE_PAGE : BROWSE_PICKED },
+    [mode, debounced, cat]
+  );
+
+  const [state, setState] = useState({
+    status: 'loading',
+    mode,
+    cards: [],
+    mine: [],
+    closest: [],
+    total: 0,
+    catalogueTotal: null,
+    basedOn: [],
+    nextOffset: null,
+    loadingMore: false,
+  });
+  const seq = useRef(0);
+
   const load = useCallback(async () => {
+    const id = ++seq.current;
+    // Keep what is on screen while a filter change loads; only the first load shows skeletons.
+    setState((s) => ({ ...s, status: s.status === 'ready' ? 'refreshing' : 'loading' }));
     try {
-      const { communities: rows, basedOn } = await fetchCommunities({ withMeta: true });
-      setState({ status: 'ready', cards: rows.map(toCard), basedOn });
+      const d = await browseCommunities(query);
+      if (id !== seq.current) return;
+      setState((s) => ({
+        status: 'ready',
+        mode,
+        cards: d.communities.map(toCard),
+        mine: d.mine ? d.mine.map(toCard) : s.mine,
+        closest: d.closest.map(toCard),
+        total: d.total,
+        catalogueTotal: d.catalogueTotal ?? s.catalogueTotal,
+        basedOn: d.basedOn,
+        nextOffset: d.nextOffset,
+        loadingMore: false,
+      }));
     } catch (err) {
-      log('catalogue failed', err?.response?.status || err?.message);
-      setState((s) => ({ ...s, status: 'error' }));
+      if (id !== seq.current) return;
+      log('browse failed', err?.response?.status || err?.message);
+      setState((s) => ({ ...s, status: 'error', loadingMore: false }));
     }
-  }, []);
+  }, [query, mode]);
+
   useEffect(() => {
     load();
   }, [load]);
 
+  const loadMore = useCallback(async () => {
+    if (state.nextOffset == null || state.loadingMore) return;
+    const id = seq.current;
+    setState((s) => ({ ...s, loadingMore: true }));
+    try {
+      const d = await browseCommunities({ ...query, offset: state.nextOffset });
+      if (id !== seq.current) return; // the filter changed meanwhile
+      setState((s) => {
+        const seen = new Set(s.cards.map((c) => c.id));
+        return {
+          ...s,
+          cards: [...s.cards, ...d.communities.map(toCard).filter((c) => !seen.has(c.id))],
+          nextOffset: d.nextOffset,
+          total: d.total,
+          loadingMore: false,
+        };
+      });
+    } catch (err) {
+      if (id !== seq.current) return;
+      log('load more failed', err?.response?.status || err?.message);
+      setState((s) => ({ ...s, loadingMore: false }));
+    }
+  }, [query, state.nextOffset, state.loadingMore]);
+
   const setJoined = useCallback((slug, joined) => {
-    setState((s) => ({
-      ...s,
-      cards: s.cards.map((c) =>
-        c.id === slug
-          ? {
-              ...c,
-              joined,
-              members: Math.max(0, c.members + (joined === c.joined ? 0 : joined ? 1 : -1)),
-              tag: joined
-                ? { kind: 'joined', label: 'You’re in' }
-                : c.reasons[0]
-                  ? { kind: 'highlight', label: c.reasons[0].label }
-                  : null,
-            }
-          : c
-      ),
-    }));
+    const flip = (list) => list.map((c) => (c.id === slug ? markJoined(c, joined) : c));
+    setState((s) => {
+      const card = [...s.cards, ...s.closest, ...s.mine].find((c) => c.id === slug);
+      const mine = joined
+        ? s.mine.some((c) => c.id === slug) || !card
+          ? flip(s.mine)
+          : [...s.mine, markJoined(card, true)]
+        : s.mine.filter((c) => c.id !== slug);
+      return { ...s, cards: flip(s.cards), closest: flip(s.closest), mine };
+    });
   }, []);
 
   const join = useCallback(
@@ -90,7 +176,7 @@ export const useLiveCatalogue = () => {
     [setJoined]
   );
 
-  return { ...state, reload: load, join, leave };
+  return { ...state, searching: mode === 'search', reload: load, loadMore, join, leave };
 };
 
 /**

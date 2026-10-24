@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import CommunityCard from '../../../components/sections/talentCommunity/CommunityCard.jsx';
@@ -24,7 +24,7 @@ import {
   COMMUNITY_CATEGORIES,
 } from '../../../components/sections/talentCommunity/communityData.js';
 import { useCommunityMembership } from '../../../components/sections/talentCommunity/communityMembership.js';
-import { useLiveCatalogue } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
+import { BROWSE_PICKED, useLiveBrowse } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { basedOnNote } from '../../../components/sections/talentCommunity/liveCommunity.js';
 import { HEADING } from '../../../components/sections/talentCommunity/communityStyles.js';
 import { LiveError } from './LiveStates.jsx';
@@ -32,64 +32,60 @@ import { LiveError } from './LiveStates.jsx';
 const log = debug('CommunityBrowseLive');
 
 /*
- * CommunityBrowseLive — `/community` on the API (GET /api/community). Same parts and URL keys as the drawn page
+ * CommunityBrowseLive: `/community` on the API (GET /api/community, paged). Same parts and URL keys as the drawn page
  * (CommunityBrowsePage demo): `?cat`, `?q`, `?view=all`, `?menu=joined`.
- *   default      "Your communities" (when you have joined any) + "Picked for you" = the most-joined communities
- *   ?cat / ?q    filtered grid · no match -> "No community for …" + closest = the three most-joined
- * "Picked for you": communities matching the talent's profile (school, career goals, interests, industries, skills,
- * location — scored by the backend, US-2.3.11-01 "personalised based on career interests and PAOI"), the reason on each
- * cover pill, topped up with the most-joined. "Closest communities" on no results = the recommended / most-joined three.
- * ⚠️ ASSUMPTIONS:
+ *   default      "Your communities" (when you have joined any) + "Picked for you" = the first 8 not-joined
+ *   ?view=all    "Your communities" + "All communities", a page at a time ("Show more")
+ *   ?cat / ?q    search results from the server, a page at a time; no match -> "No community for ..." + 3 closest
+ * The backend orders communities by profile match (US-2.3.11-01 "personalised based on career interests and PAOI"),
+ * then by members, and returns one section per request instead of the whole catalogue (see useLiveBrowse).
+ * ASSUMPTIONS:
  * Mute and "Request a community" have no backend: mute stays in this tab (communityMembership.js), a request only counts you in
  * on screen.
  */
-const PICKED = 8;
 const categoryLabel = (id) => COMMUNITY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+
+const ShowMore = ({ loading, shown, total, onClick }) => (
+  <div className="flex justify-center pt-[8px]">
+    <button
+      type="button"
+      data-browse-more
+      onClick={onClick}
+      disabled={loading}
+      className="rounded-full border border-slate-300 bg-white px-[20px] py-[10px] text-[15px] font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60"
+    >
+      {loading ? 'Loading…' : `Show more (${shown} of ${total})`}
+    </button>
+  </div>
+);
 
 const CommunityBrowseLive = ({ community }) => {
   const { cat, q, view, menu, update } = community;
   const navigate = useNavigate();
-  const catalogue = useLiveCatalogue();
+  const browse = useLiveBrowse({ cat, q, view });
   const { isMuted, toggleMute } = useCommunityMembership();
   const [menuId, setMenuId] = useState(undefined);
   const [requested, setRequested] = useState(false);
   const [tileRequested, setTileRequested] = useState(false);
 
-  const cards = catalogue.cards;
+  const { cards, mine, closest } = browse;
   const term = q.trim();
-  const loading = catalogue.status === 'loading';
+  const loading = browse.status === 'loading';
+  const filtering = browse.searching;
 
   useEffect(() => {
-    log('state', { status: catalogue.status, n: cards.length, cat, q, view });
-  }, [catalogue.status, cards.length, cat, q, view]);
+    log('state', { status: browse.status, n: cards.length, total: browse.total, cat, q, view });
+  }, [browse.status, cards.length, browse.total, cat, q, view]);
 
-  const filtered = useMemo(() => {
-    const needle = term.toLowerCase();
-    return cards.filter((c) => {
-      if (cat && !c.categories.includes(cat)) return false;
-      if (!needle) return true;
-      return [c.name, c.description, ...c.topics, ...c.categories.map(categoryLabel)]
-        .join(' ')
-        .toLowerCase()
-        .includes(needle);
-    });
-  }, [cards, cat, term]);
-
-  const filtering = Boolean(cat || term);
-  const mine = cards.filter((c) => c.joined);
-  const byMembers = [...cards].sort((a, b) => b.members - a.members);
-  // Recommended (profile score) first, topped up with the most-joined so the section is never short.
-  const recommended = cards.filter((c) => !c.joined && c.score > 0).sort((a, b) => b.score - a.score || b.members - a.members);
-  const picked = [...recommended, ...byMembers.filter((c) => !c.joined && c.score === 0)].slice(0, PICKED);
-  const pickedNote = basedOnNote(catalogue.basedOn) ?? 'The most-joined communities on GTH right now';
+  const pickedNote = basedOnNote(browse.basedOn) ?? 'The most-joined communities on GTH right now';
 
   const onJoin = async (c) => {
     log('join', c.id);
-    const ok = await catalogue.join(c.id);
+    const ok = await browse.join(c.id);
     if (ok) navigate(`/community/${c.id}?welcome=1`);
   };
 
-  const visible = filtering ? filtered : view === 'all' ? cards : [...mine, ...picked];
+  const visible = filtering ? cards : [...mine, ...cards];
   const urlMenuId = menu === 'joined' ? (visible.find((c) => c.joined)?.id ?? null) : null;
   const openId = menuId === undefined ? urlMenuId : menuId;
   const closeMenu = () => {
@@ -120,6 +116,11 @@ const CommunityBrowseLive = ({ community }) => {
     />
   );
 
+  const showMore =
+    browse.nextOffset != null ? (
+      <ShowMore loading={browse.loadingMore} shown={cards.length} total={browse.total} onClick={browse.loadMore} />
+    ) : null;
+
   const clearFilters = () => {
     setRequested(false);
     setMenuId(undefined);
@@ -127,20 +128,20 @@ const CommunityBrowseLive = ({ community }) => {
   };
 
   let body;
-  if (catalogue.status === 'error') {
-    body = <LiveError message="Couldn’t load communities. Check your connection and try again." onRetry={catalogue.reload} />;
+  if (browse.status === 'error') {
+    body = <LiveError message="Couldn’t load communities. Check your connection and try again." onRetry={browse.reload} />;
   } else if (loading) {
     body = (
       <>
         <BrowseSectionHead icon={CommunityTargetIcon} title={COPY.pickedTitle} note={COPY.loadingNote} />
         <BrowseGrid gap="wide" aria-busy="true" aria-label="Loading communities">
-          {Array.from({ length: PICKED }, (_, i) => (
+          {Array.from({ length: BROWSE_PICKED }, (_, i) => (
             <CommunityCardSkeleton key={i} />
           ))}
         </BrowseGrid>
       </>
     );
-  } else if (filtering && filtered.length === 0) {
+  } else if (filtering && browse.total === 0) {
     const label = term || categoryLabel(cat);
     body = (
       <>
@@ -156,19 +157,20 @@ const CommunityBrowseLive = ({ community }) => {
           onClear={clearFilters}
         />
         <h2 className={`${HEADING} text-[21px] leading-[26px] max-lg:text-[20px]`}>{COPY.closest}</h2>
-        <BrowseGrid gap="tight">{[...recommended, ...byMembers].filter((c, i, all) => all.indexOf(c) === i).slice(0, 3).map((c) => renderCard(c))}</BrowseGrid>
+        <BrowseGrid gap="tight">{closest.map((c) => renderCard(c))}</BrowseGrid>
       </>
     );
   } else if (filtering) {
     body = (
       <>
         <BrowseResultsLine
-          count={filtered.length}
+          count={browse.total}
           label={term || categoryLabel(cat)}
           term={Boolean(term) && !cat}
           onClear={clearFilters}
         />
-        <BrowseGrid>{filtered.map((c) => renderCard(c))}</BrowseGrid>
+        <BrowseGrid>{cards.map((c) => renderCard(c))}</BrowseGrid>
+        {showMore}
       </>
     );
   } else if (view === 'all') {
@@ -181,9 +183,11 @@ const CommunityBrowseLive = ({ community }) => {
         </BrowseGrid>
         <BrowseSectionHead icon={CommunityGlobeIcon} title={COPY.allCommunities} />
         <BrowseGrid>{cards.filter((c) => !c.joined).map((c) => renderCard(c))}</BrowseGrid>
+        {showMore}
       </>
     );
   } else {
+    const picked = cards.filter((c) => !c.joined).slice(0, BROWSE_PICKED);
     body = (
       <>
         {mine.length ? (
@@ -192,14 +196,10 @@ const CommunityBrowseLive = ({ community }) => {
             <BrowseGrid>{mine.map((c) => renderCard(c))}</BrowseGrid>
           </>
         ) : null}
-        <BrowseSectionHead
-          icon={CommunityTargetIcon}
-          title={COPY.pickedTitle}
-          note={pickedNote}
-        />
+        <BrowseSectionHead icon={CommunityTargetIcon} title={COPY.pickedTitle} note={pickedNote} />
         <BrowseGrid>
           {picked.map((c) => renderCard(c))}
-          {picked.length < PICKED ? (
+          {picked.length < BROWSE_PICKED ? (
             <RequestTile requested={tileRequested} onRequest={() => setTileRequested(true)} />
           ) : null}
         </BrowseGrid>
@@ -210,7 +210,7 @@ const CommunityBrowseLive = ({ community }) => {
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1425px] flex-col gap-[24px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
-        <BrowseHeader total={cards.length} />
+        <BrowseHeader total={browse.catalogueTotal ?? cards.length + mine.length} />
         <BrowseToolbar
           cat={cat}
           onCat={(id) => {
