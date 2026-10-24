@@ -3,6 +3,7 @@ import { debug } from '../../../../utils/debug.js';
 
 const log = debug('pitchCapture');
 
+/* Recording auto-stops here (the design's "up to 60 seconds"); the backend accepts 15–120 s (see videoPitch.api.js). */
 export const MAX_PITCH_SECONDS = 60;
 
 /*
@@ -10,7 +11,8 @@ export const MAX_PITCH_SECONDS = 60;
  * has them; graceful otherwise (permission denied, no device, no MediaRecorder) — the screens then show the still frame as
  * drawn and nothing breaks. Returns { stream, elapsed, error, request, stop, discard }.
  *   request()  asks for permission, resolves true when a live stream is running
- *   stop()     stops recording, resolves { name, size, url, seconds } (or null when nothing was recorded)
+ *   stop()     stops recording, resolves { name, size, url, seconds, blob, type } (or null when nothing was recorded;
+ *              seconds is the on-screen timer: MediaRecorder WebM files carry no duration of their own)
  */
 export const usePitchCapture = () => {
   const [stream, setStream] = useState(null);
@@ -83,6 +85,8 @@ export const usePitchCapture = () => {
             size: blob.size,
             url: URL.createObjectURL(blob),
             seconds,
+            blob,
+            type: blob.type,
           });
         };
         rec.stop();
@@ -92,3 +96,38 @@ export const usePitchCapture = () => {
 
   return { stream, elapsed, error, request, stop };
 };
+
+/*
+ * Duration (seconds) of a video file, read from a detached <video> on loadedmetadata. Files whose header carries no
+ * duration (Infinity, e.g. browser-recorded WebM) are seeked far past the end so the browser works it out. Resolves
+ * null when the browser can't read the file or takes longer than 15 s.
+ */
+export const readVideoDuration = (url) =>
+  new Promise((resolve) => {
+    const video = document.createElement('video');
+    let done = false;
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      video.removeAttribute('src');
+      video.load();
+      log('duration', value);
+      resolve(value);
+    };
+    const timer = setTimeout(() => finish(null), 15000);
+    video.preload = 'metadata';
+    video.muted = true;
+    video.onerror = () => finish(null);
+    video.onloadedmetadata = () => {
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        finish(video.duration);
+        return;
+      }
+      video.ontimeupdate = () => {
+        if (Number.isFinite(video.duration) && video.duration > 0) finish(video.duration);
+      };
+      video.currentTime = 1e7;
+    };
+    video.src = url;
+  });

@@ -10,6 +10,11 @@ import LegalModalShell from './LegalModalShell.jsx';
  * The Figma text node for the header reads "Terms & Conditions" — a
  * copy-paste artefact from the Terms modal that the design system
  * never cleaned up. We render the correct title here.
+ *
+ * No full legal text exists yet, so there is no "Read full document" link;
+ * the footer says the full text is coming soon. Opened for acceptance during
+ * onboarding Review, and read-only (ctaLabel "Got it") from the footers and
+ * the onboarding Done page.
  */
 
 const POINTS = [
@@ -61,15 +66,15 @@ const CALLOUTS = [
   },
 ];
 
-const PrivacyPolicyModal = ({ onAccept, onClose }) => (
+const PrivacyPolicyModal = ({ onAccept, onClose, ctaLabel }) => (
   <LegalModalShell
     title={{ before: 'Privacy ', after: 'Policy' }}
     introTitle="How we handle your personal data"
     introSubtitle="7 plain-language points about what we collect, how we use it, and your rights."
     points={POINTS}
     callouts={CALLOUTS}
-    footerHelper="Summary of 7 key points. Read the full Privacy Policy for complete legal details."
-    readFullHref="/legal/privacy"
+    footerHelper="Summary of 7 key points. The full policy is coming soon."
+    ctaLabel={ctaLabel}
     onAccept={onAccept}
     onClose={onClose}
   />

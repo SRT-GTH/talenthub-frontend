@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { fetchTalentJobs } from '../../../services/talentJobs.api.js';
+import { fetchCommunities } from '../../../services/community.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { LIFT } from './TabsParts.jsx';
 import {
@@ -25,8 +28,117 @@ const log = debug('GlobalSearchOverlay');
  * results panel hangs under it, left-aligned with the field. The panel therefore measures the
  * header's `input[type=search]` (Shell's) for its anchor; on phones (no inline field) it is
  * inset 12px. role=dialog, Tab is trapped between the nav field and the panel, focus is
- * restored on close, ↑/↓ move the highlighted row, Enter "opens" it (mock: logs + closes).
+ * restored on close, ↑/↓ move the highlighted row, Enter opens it.
+ *
+ * Live (signed in, no `?state=` design frame): the panel has its own query field (the talent top-nav
+ * field is read-only and only opens the overlay), and results are searched in the browser over real data
+ * loaded once when the overlay opens — roles from the job feed (GET /guidance/jobs), communities from
+ * the catalogue (GET /community) and the app's own pages. There is no backend people / skills search yet,
+ * so those groups only exist in the demo. Demo (`?state=` frames): the Figma results (talentHomeTabsData).
+ * Opening a row routes by its type: role -> /job-postings?job=<id>, community -> /community/<slug>,
+ * page -> its route; demo skills -> /my-assessment, demo people -> /community. The "Ask Career Buddy" row
+ * opens Buddy with the typed query as the talent's message; "See all" opens Browse all on Job Postings.
  */
+
+// Pages a talent can jump to from search (all routed in App.jsx).
+const PAGES = [
+  { id: 'p-jobs', title: 'Job postings', sub: 'Roles matched to you', to: '/job-postings' },
+  {
+    id: 'p-applied',
+    title: 'My applications',
+    sub: 'Job postings · Applied',
+    to: '/job-postings?tab=applied',
+  },
+  {
+    id: 'p-saved',
+    title: 'Saved jobs',
+    sub: 'Job postings · Saved',
+    to: '/job-postings?tab=saved',
+  },
+  {
+    id: 'p-assessment',
+    title: 'My Assessment',
+    sub: 'Skills evidence and personality',
+    to: '/my-assessment',
+  },
+  { id: 'p-lab', title: 'Skills Lab', sub: 'Labs and games', to: '/skills-lab' },
+  { id: 'p-learning', title: 'My Learning', sub: 'Courses and modules', to: '/learning' },
+  { id: 'p-profile', title: 'My profile', sub: 'What recruiters see', to: '/profile' },
+  { id: 'p-journey', title: 'Profile journey', sub: 'The 9 stages', to: '/profile/engagement' },
+  {
+    id: 'p-buddy',
+    title: 'Career Buddy',
+    sub: 'Your AI guide',
+    to: '/profile/filling/career-buddy',
+  },
+  { id: 'p-community', title: 'Community', sub: 'Groups and posts', to: '/community' },
+  { id: 'p-messages', title: 'Messages', sub: 'Chats with recruiters', to: '/messages' },
+  { id: 'p-wallet', title: 'Wallet', sub: 'Your GTH wallet', to: '/wallet' },
+  { id: 'p-streak', title: 'Streak', sub: 'Your daily streak', to: '/streak' },
+  { id: 'p-settings', title: 'Settings', sub: 'Account and privacy', to: '/settings' },
+  { id: 'p-help', title: 'Help centre', sub: 'Answers and support', to: '/settings/help' },
+];
+
+// Demo rows carry no route; send each Figma group to the closest real surface.
+const DEMO_ROUTE = { skills: '/my-assessment', people: '/community' };
+
+// [before, match, after] parts for the result title, matching the Figma highlight shape.
+const highlight = (text, q) => {
+  const t = String(text || '');
+  const i = q ? t.toLowerCase().indexOf(q) : -1;
+  if (i < 0) return [{ text: t }];
+  return [
+    { text: t.slice(0, i) },
+    { text: t.slice(i, i + q.length), hl: true },
+    { text: t.slice(i + q.length) },
+  ].filter((p) => p.text);
+};
+
+const hit = (q, ...fields) =>
+  !q ||
+  fields.some((f) =>
+    String(f || '')
+      .toLowerCase()
+      .includes(q)
+  );
+
+const liveGroups = (src, q) => {
+  const roles = (src.jobs || [])
+    .filter((j) => !j.closed && hit(q, j.title, j.company?.name, j.location))
+    .map((j) => ({
+      id: `job-${j.id}`,
+      kind: 'role',
+      to: `/job-postings?job=${encodeURIComponent(j.id)}`,
+      parts: highlight(`${j.title}${j.company?.name ? ` · ${j.company.name}` : ''}`, q),
+      sub: [j.location, j.typeLabel].filter(Boolean).join(' · ') || 'Open role',
+      chip: j.match ? `${Math.round(j.match)}% match` : null,
+      icon: 'wallet',
+    }));
+  const communities = (src.communities || [])
+    .filter((c) => hit(q, c.name, c.description, c.category))
+    .map((c) => ({
+      id: `com-${c.id}`,
+      kind: 'community',
+      to: `/community/${encodeURIComponent(c.slug || c.id)}`,
+      parts: highlight(c.name, q),
+      sub: Number.isFinite(c.memberCount) ? `${c.memberCount} members` : 'Community',
+      chip: c.isMember ? 'Joined' : null,
+      icon: 'function',
+    }));
+  const pages = PAGES.filter((p) => hit(q, p.title, p.sub)).map((p) => ({
+    id: p.id,
+    kind: 'page',
+    to: p.to,
+    parts: highlight(p.title, q),
+    sub: p.sub,
+    icon: 'function',
+  }));
+  return [
+    { id: 'roles', label: 'Roles', rows: roles },
+    { id: 'communities', label: 'Communities', rows: communities },
+    { id: 'pages', label: 'Pages', rows: pages },
+  ];
+};
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -57,18 +169,95 @@ const Tile = ({ row, active }) => {
 };
 
 const GlobalSearchOverlay = ({ home }) => {
+  const navigate = useNavigate();
   const panelRef = useRef(null);
+  const queryRef = useRef(null);
   const [cat, setCat] = useState('all');
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [pos, setPos] = useState({ top: 64, left: 12, scrimTop: 56 });
+  // Live = a signed-in talent on the real home (home.live is null on `?state=` design frames).
+  const live = Boolean(home?.live);
+  // Live sources: null = loading; each list stays [] if its call failed (see `failed`).
+  const [src, setSrc] = useState(null);
+  const [failed, setFailed] = useState([]);
 
   const close = () => {
     log('close');
     home.update({ search: false });
   };
 
+  useEffect(() => {
+    if (!live) return undefined;
+    let alive = true;
+    const miss = [];
+    const grab = (label, p) =>
+      p.catch((err) => {
+        log.error(`${label} failed:`, err?.response?.status || err?.code || err?.message);
+        miss.push(label);
+        return null;
+      });
+    Promise.all([grab('roles', fetchTalentJobs()), grab('communities', fetchCommunities())]).then(
+      ([feed, communities]) => {
+        if (!alive) return;
+        log('sources', { jobs: feed?.jobs?.length ?? 0, communities: communities?.length ?? 0 });
+        setFailed(miss);
+        setSrc({ jobs: feed?.jobs || [], communities: communities || [] });
+      }
+    );
+    return () => {
+      alive = false;
+    };
+  }, [live]);
+
+  // Opening a row: route by its type (see the header), then close the overlay.
+  const open = (row) => {
+    const to = row.to || DEMO_ROUTE[row.group] || `/job-postings?job=${encodeURIComponent(row.id)}`;
+    log('open result', row.id, '->', to);
+    home.update({ search: false });
+    navigate(to);
+  };
+  const askBuddy = () => {
+    const prompt = query.trim();
+    log('ask buddy', { withQuery: Boolean(prompt) });
+    home.update({ search: false });
+    navigate('/profile/filling/career-buddy', prompt ? { state: { prompt } } : undefined);
+  };
+  const seeAll = () => {
+    log('see all -> browse all roles');
+    home.update({ search: false });
+    navigate('/job-postings?tab=browse');
+  };
+
+  const liveAll = useMemo(
+    () => (live && src ? liveGroups(src, query.trim().toLowerCase()) : null),
+    [live, src, query]
+  );
+  const categories = liveAll
+    ? [
+        {
+          id: 'all',
+          label: 'All',
+          count: liveAll.reduce((n, g) => n + g.rows.length, 0),
+        },
+        ...liveAll.map((g) => ({ id: g.id, label: g.label, count: g.rows.length })),
+      ]
+    : live
+      ? []
+      : SEARCH_CATEGORIES;
+
   const groups = useMemo(() => {
+    if (live) {
+      return (liveAll || [])
+        .filter((g) => cat === 'all' || g.id === cat)
+        .map((g) => ({
+          id: g.id,
+          heading: `${g.label.toUpperCase()} · ${g.rows.length}`,
+          // "All" shows the top few of each group; a category tab shows them all.
+          rows: cat === 'all' ? g.rows.slice(0, g.id === 'pages' ? 3 : 4) : g.rows,
+        }))
+        .filter((g) => g.rows.length);
+    }
     const q = query.trim().toLowerCase();
     return SEARCH_GROUPS.filter((g) => cat === 'all' || g.id === cat)
       .map((g) => ({
@@ -84,8 +273,9 @@ const GlobalSearchOverlay = ({ home }) => {
             r.sub.toLowerCase().includes(q)
         ),
       }))
+      .map((g) => ({ ...g, rows: g.rows.map((r) => ({ ...r, group: g.id })) }))
       .filter((g) => g.rows.length);
-  }, [cat, query]);
+  }, [live, liveAll, cat, query]);
   const flat = useMemo(() => groups.flatMap((g) => g.rows), [groups]);
 
   useEffect(() => {
@@ -108,7 +298,9 @@ const GlobalSearchOverlay = ({ home }) => {
     };
     measure();
     window.addEventListener('resize', measure);
-    (navInput && navInput.offsetWidth > 0 ? navInput : panelRef.current)?.focus();
+    // Live: type in the panel's own field (the talent top-nav field is read-only, it only opens this).
+    if (queryRef.current) queryRef.current.focus();
+    else (navInput && navInput.offsetWidth > 0 ? navInput : panelRef.current)?.focus();
 
     const onInput = (e) => {
       if (e.target === navInput) {
@@ -137,8 +329,7 @@ const GlobalSearchOverlay = ({ home }) => {
         setActive((a) => (a + (e.key === 'ArrowDown' ? 1 : -1) + flat.length) % flat.length);
       } else if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && flat[active]) {
         e.preventDefault();
-        log('open result', flat[active].id);
-        close();
+        open(flat[active]);
       } else if (e.key === 'Tab') {
         const navInput = document.querySelector('header input[type="search"]');
         const list = [
@@ -181,12 +372,26 @@ const GlobalSearchOverlay = ({ home }) => {
           LIFT
         )}
       >
+        {live ? (
+          <input
+            ref={queryRef}
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActive(0);
+            }}
+            placeholder="Search roles, communities and pages"
+            aria-label="Search"
+            className="h-[44px] w-full rounded-[12px] border border-solid border-[#dfdfdc] bg-white px-[14px] font-sans text-[14px] text-[#1c2a21] outline-none placeholder:text-[#bfbfbf] focus-visible:border-[#387440]"
+          />
+        ) : null}
         <div
           role="group"
           aria-label="Result categories"
           className="flex gap-[6px] overflow-x-auto font-semibold [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {SEARCH_CATEGORIES.map((c) => {
+          {categories.map((c) => {
             const on = c.id === cat;
             return (
               <button
@@ -216,20 +421,46 @@ const GlobalSearchOverlay = ({ home }) => {
           })}
         </div>
 
-        <div className="flex items-center gap-[12px] rounded-[14px] border border-[#c1d4c4] bg-[#ebf1ec] px-[14px] py-[12px]">
+        <button
+          type="button"
+          onClick={askBuddy}
+          className="flex w-full cursor-pointer items-center gap-[12px] rounded-[14px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[14px] py-[12px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        >
           <span className="flex size-[32px] shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-white">
             <img src={buddyAvatar} alt="" width="30" height="30" className="size-[30px]" />
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-px">
             <span className="truncate text-[14px] font-semibold text-[#1c2a21]">
-              {SEARCH_ASK.title}
+              {live
+                ? query.trim()
+                  ? `Ask Career Buddy: “${query.trim()}”`
+                  : 'Ask Career Buddy anything'
+                : SEARCH_ASK.title}
             </span>
             <span className="truncate text-[12px] text-[#595959]">{SEARCH_ASK.sub}</span>
           </span>
           <span className="inline-flex h-[32px] shrink-0 items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold text-[#595959] max-sm:hidden">
             {SEARCH_ASK.key}
           </span>
-        </div>
+        </button>
+
+        {live && !src ? (
+          <p role="status" className="text-[13px] text-[#595959]">
+            Loading results…
+          </p>
+        ) : null}
+        {live && src && failed.length ? (
+          <p role="status" className="text-[13px] text-[#595959]">
+            {`We couldn’t load ${failed.join(' or ')} right now. Other results still show.`}
+          </p>
+        ) : null}
+        {live && src && !flat.length ? (
+          <p role="status" className="text-[13px] text-[#595959]">
+            {query.trim()
+              ? `Nothing matches “${query.trim()}”. Try Career Buddy above.`
+              : 'Nothing to show yet.'}
+          </p>
+        ) : null}
 
         {groups.map((g) => (
           <div key={g.id} role="group" aria-label={g.heading} className="flex flex-col gap-[16px]">
@@ -244,10 +475,7 @@ const GlobalSearchOverlay = ({ home }) => {
                     <button
                       type="button"
                       onMouseEnter={() => setActive(i)}
-                      onClick={() => {
-                        log('open result', r.id);
-                        close();
-                      }}
+                      onClick={() => open(r)}
                       className={classNames(
                         'flex w-full cursor-pointer items-center gap-[12px] rounded-[12px] border border-solid px-[12px] py-[10px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
                         on
@@ -296,10 +524,10 @@ const GlobalSearchOverlay = ({ home }) => {
           <span className="h-px min-w-px flex-1" aria-hidden="true" />
           <button
             type="button"
-            onClick={() => log('see all')}
+            onClick={seeAll}
             className="shrink-0 cursor-pointer whitespace-nowrap text-[13px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
-            {SEARCH_SEE_ALL}
+            {live ? 'Browse all roles' : SEARCH_SEE_ALL}
           </button>
         </div>
       </div>

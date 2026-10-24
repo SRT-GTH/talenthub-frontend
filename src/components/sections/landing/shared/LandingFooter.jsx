@@ -1,14 +1,20 @@
+import { useState } from 'react';
 import { FiFlagGh } from '../home/LpFigmaIcons.jsx';
 import { debug } from '../../../../utils/debug.js';
 import logoSrc from '../../../../assets/landing/gth-logo-footer.png';
+import TermsModal from '../../../shared/TermsModal.jsx';
+import PrivacyPolicyModal from '../../../shared/PrivacyPolicyModal.jsx';
 
 const log = debug('LandingFooter');
 
 /*
  * LandingFooter — S11 (Figma 7797:14940, 1728x373, #19341d). Columns Platform / Company / Legal (14/700 gold #ffd86b headings, 15/400 white links),
  * brand block (logo tile, tagline, "Made with pride in Ghana"), bottom row copyright + contact.
- * Footer link destinations are not drawn in Figma — links are inert (log only).
+ * "Privacy policy" / "Terms of service" open the PrivacyPolicyModal / TermsModal summaries in
+ * place (no legal pages yet). Other destinations are not drawn in Figma — those stay inert (log only).
  */
+const LEGAL_MODALS = { 'Privacy policy': 'privacy', 'Terms of service': 'terms' };
+
 const COLUMNS = [
   {
     title: 'Platform',
@@ -36,6 +42,18 @@ const COLUMNS = [
 
 const LandingFooter = () => {
   log('render');
+  // 'privacy' | 'terms' | null
+  const [legalModal, setLegalModal] = useState(null);
+  const closeModal = () => setLegalModal(null);
+  const handleLink = (label) => {
+    const modal = LEGAL_MODALS[label];
+    if (modal) {
+      log('open legal summary:', modal);
+      setLegalModal(modal);
+      return;
+    }
+    log('footer link (destination not drawn in Figma):', label);
+  };
   return (
     <footer className="bg-[#19341d] text-white">
       <div className="mx-auto flex w-full max-w-[1728px] flex-col gap-10 px-5 pb-8 pt-[clamp(40px,4.6vw,80px)] md:px-10 xl:px-24">
@@ -60,7 +78,7 @@ const LandingFooter = () => {
                 <button
                   key={label}
                   type="button"
-                  onClick={() => log('footer link (destination not drawn in Figma):', label)}
+                  onClick={() => handleLink(label)}
                   className="cursor-pointer self-start border-0 bg-transparent p-0 text-left font-sans text-[15px] leading-[18px] text-white lp-ul-hover"
                 >
                   {label}
@@ -74,6 +92,12 @@ const LandingFooter = () => {
           <span>Accra, Ghana · info@ghanatalenthub.com</span>
         </div>
       </div>
+      {legalModal === 'privacy' && (
+        <PrivacyPolicyModal ctaLabel="Got it" onAccept={closeModal} onClose={closeModal} />
+      )}
+      {legalModal === 'terms' && (
+        <TermsModal ctaLabel="Got it" onAccept={closeModal} onClose={closeModal} />
+      )}
     </footer>
   );
 };

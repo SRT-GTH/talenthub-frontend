@@ -174,7 +174,7 @@ export const CvTextRow = ({ icon, tone, title, sub, dim = false }) => (
   </div>
 );
 
-/* File card with progress bar (CV-02 / CV-03). */
+/* File card with progress bar (CV-02 / CV-03). percent null = indeterminate (live: waiting for the server). */
 export const CvFileCard = ({ tone, icon, name, status, percent, onCancel }) => (
   <div className="flex items-center gap-[14px] rounded-[16px] border border-solid border-[#e6e6e6] bg-white p-[16px]">
     <CvIconTile icon={icon} tone={tone} />
@@ -188,10 +188,15 @@ export const CvFileCard = ({ tone, icon, name, status, percent, onCancel }) => (
         aria-label={name}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuenow={percent}
+        aria-valuenow={percent ?? undefined}
+        aria-busy={percent === null ? true : undefined}
         className="h-[8px] w-full overflow-hidden rounded-[4px] bg-[#e6e6e6]"
       >
-        <div className="h-full rounded-[4px] bg-[#387440]" style={{ width: `${percent}%` }} />
+        {percent === null ? (
+          <div className="h-full w-full animate-pulse rounded-[4px] bg-[#387440]/60" />
+        ) : (
+          <div className="h-full rounded-[4px] bg-[#387440]" style={{ width: `${percent}%` }} />
+        )}
       </div>
     </div>
     <button

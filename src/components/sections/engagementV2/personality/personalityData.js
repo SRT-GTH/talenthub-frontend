@@ -1,12 +1,15 @@
 /*
  * Personality package mock data (Figma canvas 3125:10352, Personality + Arcade section). API-shaped, frontend only.
  * Every string is verbatim from the Figma node data (PE-01 … PE-05, PA-00, "interests(intro page(optional)").
- * Only question 7 is drawn in Figma, so the question bank holds that one question.
+ * Only question 7 is drawn in Figma, so the demo question bank holds that one question. Signed-in talents take the
+ * backend Big Five bank instead: see personalityBigFive.js (archetypeFromBigFive, re-exported below, and the live mappers).
  */
 import makolaImg from '../../../../assets/engagement-v2/personality/path-makola-haggle.png';
 import escapeImg from '../../../../assets/engagement-v2/personality/path-escape-room.png';
 import groupChatImg from '../../../../assets/engagement-v2/personality/path-group-chat.png';
 import kofiAvatar from '../../../../assets/engagement-v2/personality/kofi-avatar.png';
+
+export { archetypeFromBigFive } from './personalityBigFive.js';
 
 export const ARCADE_ROUTE = '/profile/filling/personality/arcade';
 export const PERSONALITY_ROUTE = '/profile/filling/personality';
@@ -305,8 +308,8 @@ export const OVERVIEW = {
   ],
 };
 
-/* True when a profile already holds a personality result (the journey's "personality done" rule). Read-only: the result
-   screen is still the drawn Figma result, so nothing on this stage writes personalitySnapshot. */
+/* True when a profile already holds a personality result (the journey's "personality done" rule). The server writes
+   personalitySnapshot when a Big Five quiz is scored; the Arcade page reads this. */
 export const hasPersonalitySnapshot = (profile) => {
   const snap = profile?.personalitySnapshot;
   return Boolean(

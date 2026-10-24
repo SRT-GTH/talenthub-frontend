@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { usePlayfulDialogA11y } from '../../ui/PlayfulDialogA11y.js';
 import Button from '../../ui/Button.jsx';
@@ -12,15 +12,22 @@ import {
   WhiteArrowRightIcon,
 } from '../../shared/assets.jsx';
 import FlowPortal from './FlowPortal.jsx';
+import { STAGE_BY_ID } from '../engagementShell/engagementShellData.js';
 
 const log = debug('ApplyGateModal');
 
 /*
  * ApplyGateModal — NU-03 "apply before Discoverable" gate. Figma: Focused 8097:6027,
- * Playful 7745:182445. Mock role + steps (shaped for an API). Copy differs per style, so both
- * strings are rendered and switched with `playful:` (hidden one is display:none, so assistive
- * tech only reads the visible one): Focused "+50 pts" soft-yellow chip, Playful "+50 XP" outlined chip.
- * ⚠️ ASSUMPTION: "Continue: Interests" -> /profile/filling/interests.
+ * Playful 7745:182445. Opened by `?new=gate[&role=<match id>]`.
+ *
+ * Live (signed in): HomeColumns opens it when a talent who is not Discoverable yet taps "Quick apply" on a
+ * match. The role row is that match (from home.content), the steps / progress are the talent's own
+ * unfinished Discoverable stages (avatar, interests, personality — snapshot.stages), and the CTA goes to the
+ * first of them. Nothing is saved or scheduled, so the "Saved" chip / "SAVED FOR YOU" sticker, the points chips and the reminder
+ * line (Figma) are demo-only.
+ * Demo (`?state=` design frames or signed out): the Figma role + steps as drawn. Copy differs per style, so
+ * both strings are rendered and switched with `playful:` (hidden one is display:none, so assistive tech
+ * only reads the visible one): Focused "+50 pts" soft-yellow chip, Playful "+50 XP" outlined chip.
  */
 
 const ROLE = {
@@ -40,15 +47,41 @@ const STEPS = [
   },
 ];
 
+// Stages that make a talent Discoverable (JOURNEY_STAGES badge on Personality).
+const DISCOVERABLE_IDS = ['avatar', 'interests', 'personality'];
+const STAGE_TIME = { avatar: 'About 1 min', interests: 'About 2 min', personality: 'About 8 min' };
+
+const liveGate = (home, roleId) => {
+  const stages = home?.snapshot?.stages || [];
+  const gate = DISCOVERABLE_IDS.map((id, i) => ({
+    id,
+    n: i + 1,
+    title: STAGE_BY_ID[id]?.label || id,
+    time: STAGE_TIME[id],
+    done: Boolean(stages.find((s) => s.id === id)?.done),
+  }));
+  const card = (home?.content?.matches?.cards || []).find((c) => String(c.id) === roleId);
+  return {
+    role: card ? { title: card.title, meta: card.meta } : null,
+    steps: gate.filter((s) => !s.done),
+    doneCount: gate.filter((s) => s.done).length,
+  };
+};
+
 const ApplyGateModal = ({ home }) => {
   const dialogRef = useRef(null);
   const ctaRef = useRef(null);
   const navigate = useNavigate();
-  log('mount', { steps: STEPS.length });
+  const [params] = useSearchParams();
+  const live = Boolean(home?.content && home?.snapshot?.live);
+  const g = live ? liveGate(home, params.get('role')) : { role: ROLE, steps: STEPS, doneCount: 1 };
+  const left = g.steps.length;
+  const next = g.steps[0] ? STAGE_BY_ID[g.steps[0].id] : null;
+  log('mount', { live, steps: left });
 
   const close = () => {
     log('close');
-    home?.update?.({ new: null });
+    home?.update?.({ new: null, role: null });
   };
 
   usePlayfulDialogA11y({
@@ -73,14 +106,16 @@ const ApplyGateModal = ({ home }) => {
         tabIndex={-1}
         className="leading-[normal] relative mx-auto flex w-full max-w-[600px] flex-col items-start gap-[clamp(14px,1.16vw,20px)] rounded-[clamp(22px,1.62vw,28px)] border border-[rgba(28,42,33,0.1)] bg-white px-[clamp(16px,1.85vw,32px)] py-[clamp(18px,1.62vw,28px)] outline-none [filter:drop-shadow(0_2px_4px_rgba(28,42,33,0.04))_drop-shadow(0_1px_1px_rgba(28,42,33,0.04))] playful:gap-[clamp(12px,0.93vw,16px)] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:[filter:drop-shadow(0_10px_12px_rgba(28,42,33,0.06))_drop-shadow(5px_5px_0_rgba(28,42,33,0.55))]"
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-[28px] right-[38px] hidden playful:block max-sm:right-[56px]"
-        >
-          <span className="block -rotate-6 rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] text-[12px] font-bold tracking-[0.4px] whitespace-nowrap text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]">
-            SAVED FOR YOU
-          </span>
-        </div>
+        {live ? null : (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-[28px] right-[38px] hidden playful:block max-sm:right-[56px]"
+          >
+            <span className="block -rotate-6 rounded-[8px] border-[1.2px] border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] text-[12px] font-bold tracking-[0.4px] whitespace-nowrap text-[#1c2a21] shadow-[2px_2px_0_#1c2a21]">
+              SAVED FOR YOU
+            </span>
+          </div>
+        )}
 
         <span className="inline-flex h-[32px] items-center gap-[6px] rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold whitespace-nowrap text-[#595959] max-sm:max-w-[calc(100%-44px)] max-sm:px-[10px] max-sm:text-[12px]">
           <ApplyLockIcon className="size-[14px] shrink-0" />
@@ -92,7 +127,15 @@ const ApplyGateModal = ({ home }) => {
           className="m-0 text-[clamp(23px,1.79vw,31px)] leading-[1.2] font-semibold text-[#1c2a21] playful:font-heading"
         >
           {`Almost there. `}
-          <span className="text-brand-green">Two stages to go.</span>
+          <span className="text-brand-green">
+            {left <= 0
+              ? 'You’re ready to apply.'
+              : left === 1
+                ? 'One stage to go.'
+                : left === 2
+                  ? 'Two stages to go.'
+                  : 'Three stages to go.'}
+          </span>
         </h2>
         <p
           id="nu-gate-desc"
@@ -102,40 +145,47 @@ const ApplyGateModal = ({ home }) => {
           Discoverable and you can apply in one tap.
         </p>
 
-        <div className="flex w-full flex-wrap items-center gap-[14px] rounded-[18px] border border-[#e7e7e7] bg-[#f7f8f4] py-[14px] pr-[16px] pl-[14px]">
-          <span className="flex size-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec]">
-            <RoleWalletIcon className="size-[22px]" />
-          </span>
-          <div className="flex min-w-[160px] flex-1 flex-col gap-[2px]">
-            <p className="m-0 text-[15px] font-semibold text-[#1c2a21]">{ROLE.title}</p>
-            <p className="m-0 text-[13px] text-[#595959]">{ROLE.meta}</p>
+        {g.role ? (
+          <div className="flex w-full flex-wrap items-center gap-[14px] rounded-[18px] border border-[#e7e7e7] bg-[#f7f8f4] py-[14px] pr-[16px] pl-[14px]">
+            <span className="flex size-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec]">
+              <RoleWalletIcon className="size-[22px]" />
+            </span>
+            <div className="flex min-w-[160px] flex-1 flex-col gap-[2px]">
+              <p className="m-0 text-[15px] font-semibold text-[#1c2a21]">{g.role.title}</p>
+              <p className="m-0 text-[13px] text-[#595959]">{g.role.meta}</p>
+            </div>
+            {live ? null : (
+              <span className="inline-flex h-[32px] shrink-0 items-center gap-[6px] rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[14px] text-[13px] font-semibold whitespace-nowrap text-brand-green">
+                <SavedHeartIcon className="size-[14px]" />
+                Saved
+              </span>
+            )}
           </div>
-          <span className="inline-flex h-[32px] shrink-0 items-center gap-[6px] rounded-full border border-[#c1d4c4] bg-[#ebf1ec] px-[14px] text-[13px] font-semibold whitespace-nowrap text-brand-green">
-            <SavedHeartIcon className="size-[14px]" />
-            Saved
-          </span>
-        </div>
+        ) : null}
 
         <div className="flex w-full flex-col gap-[8px]">
           <div className="flex items-start justify-between text-[13px] font-semibold whitespace-nowrap">
             <span id="nu-gate-progress" className="text-[#1c2a21]">
               Progress to Discoverable
             </span>
-            <span className="text-brand-green">1 of 3</span>
+            <span className="text-brand-green">{g.doneCount} of 3</span>
           </div>
           <div
             role="progressbar"
             aria-labelledby="nu-gate-progress"
             aria-valuemin={0}
             aria-valuemax={3}
-            aria-valuenow={1}
+            aria-valuenow={g.doneCount}
             className="h-[10px] w-full overflow-hidden rounded-[5px] bg-[#eceee8]"
           >
-            <div className="h-[10px] w-1/3 rounded-[5px] bg-brand-green playful:bg-[linear-gradient(90deg,#387440_0%,#7aa870_100%)]" />
+            <div
+              style={{ width: `${(g.doneCount / 3) * 100}%` }}
+              className="h-[10px] rounded-[5px] bg-brand-green playful:bg-[linear-gradient(90deg,#387440_0%,#7aa870_100%)]"
+            />
           </div>
         </div>
 
-        {STEPS.map((s) => (
+        {g.steps.map((s) => (
           <div
             key={s.id}
             className="flex w-full items-center gap-[12px] rounded-[14px] border border-[#e7e7e7] px-[14px] py-[12px]"
@@ -149,12 +199,16 @@ const ApplyGateModal = ({ home }) => {
               </span>
               <span className="text-[12px] whitespace-nowrap text-[#595959]">{s.time}</span>
             </span>
-            <span className="inline-flex items-center rounded-[100px] bg-[#faf4e8] px-[10px] py-[4px] text-[12px] font-semibold whitespace-nowrap text-[#785910] playful:hidden">
-              {s.pts}
-            </span>
-            <span className="hidden h-[32px] items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold whitespace-nowrap text-[#595959] playful:inline-flex">
-              {s.xp}
-            </span>
+            {s.pts ? (
+              <span className="inline-flex items-center rounded-[100px] bg-[#faf4e8] px-[10px] py-[4px] text-[12px] font-semibold whitespace-nowrap text-[#785910] playful:hidden">
+                {s.pts}
+              </span>
+            ) : null}
+            {s.xp ? (
+              <span className="hidden h-[32px] items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] font-semibold whitespace-nowrap text-[#595959] playful:inline-flex">
+                {s.xp}
+              </span>
+            ) : null}
           </div>
         ))}
 
@@ -166,11 +220,12 @@ const ApplyGateModal = ({ home }) => {
             className="min-w-0 flex-1"
             rightIcon={<WhiteArrowRightIcon className="size-[20px]" />}
             onClick={() => {
-              log('branch: continue interests');
-              navigate('/profile/filling/interests');
+              const to = live ? next?.route || '/profile/engagement' : '/profile/filling/interests';
+              log('branch: continue ->', to);
+              navigate(to);
             }}
           >
-            Continue: Interests
+            {`Continue: ${live ? next?.label || 'Journey' : 'Interests'}`}
           </Button>
           <Button
             variant="tertiary-subtle"
@@ -185,10 +240,12 @@ const ApplyGateModal = ({ home }) => {
           </Button>
         </div>
 
-        <p className="m-0 flex items-start gap-[6px] text-[12px] text-[#595959]">
-          <ReminderBellIcon className="mt-[1px] size-[14px] shrink-0" />
-          We saved this role and will remind you 2 days before it closes.
-        </p>
+        {live ? null : (
+          <p className="m-0 flex items-start gap-[6px] text-[12px] text-[#595959]">
+            <ReminderBellIcon className="mt-[1px] size-[14px] shrink-0" />
+            We saved this role and will remind you 2 days before it closes.
+          </p>
+        )}
 
         <button
           type="button"

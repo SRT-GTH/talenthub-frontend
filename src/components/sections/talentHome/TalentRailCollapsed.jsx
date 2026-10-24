@@ -3,6 +3,7 @@ import { TalentSidebarProfileAvatarIllustration } from '../../shared/assets.jsx'
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import TalentNavIcon from './TalentNavIcon.jsx';
+import { homeTabRoute } from './talentShellData.js';
 import { TALENT_NAV_MAIN, TALENT_NAV_SECONDARY } from './talentShellData.js';
 import toggleIcon from '../../../assets/notifications/rail/toggle.svg';
 import publicLinkIcon from '../../../assets/notifications/rail/public-link.svg';
@@ -21,15 +22,15 @@ const log = debug('TalentRailCollapsed');
  */
 const Tile = ({ item, active, badge }) => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const go = () => {
-    // Home / My Assessment live on /home; everything else has no destination yet.
+    // Home / My Assessment are tabs of /home; the other items carry their route.
     if (item.route) {
       if (pathname !== item.route) navigate(item.route);
-    } else if (item.tab && pathname !== '/home') {
+    } else if (item.tab) {
       log('nav ->', item.id);
-      navigate(item.tab === 'home' ? '/home' : `/home?tab=${item.tab}`);
-    } else log('nav (no destination wired yet):', item.id);
+      navigate(homeTabRoute(item.tab, pathname, search));
+    }
   };
   return (
     <button
@@ -63,6 +64,7 @@ const Tile = ({ item, active, badge }) => {
 };
 
 const TalentRailCollapsed = ({ activeId = 'messages', badges = {}, onToggle, className }) => {
+  const navigate = useNavigate();
   log('render', { activeId });
   return (
     <div
@@ -119,7 +121,10 @@ const TalentRailCollapsed = ({ activeId = 'messages', badges = {}, onToggle, cla
       <button
         type="button"
         aria-label="Public profile link"
-        onClick={() => log('public profile (no destination wired yet)')}
+        onClick={() => {
+          log('public profile -> recruiter preview');
+          navigate('/profile?view=recruiter');
+        }}
         className="flex h-[60px] w-[64px] shrink-0 items-center justify-center rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[12px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
       >
         <span className="flex h-[36px] w-[40px] items-center justify-center rounded-[8px] bg-[#ebf1ec]">

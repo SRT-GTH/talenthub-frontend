@@ -27,9 +27,26 @@ import {
 const log = debug('CvSteps');
 
 const ACCEPT = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+const LIVE_ACCEPT = '.pdf,.docx';
 
-/* CV-01 Choose a file (8966:99 / 8966:507876) and CV-02b File not supported (8966:3272 / 8966:508960). */
-export const CvChooseDialog = ({ unsupportedName = null, onFiles, onBack, onClose }) => {
+/* Why a file was turned away (live): wrong type, over 10 MB, or the server said no. */
+const unsupportedCopy = (name, reason) => {
+  if (reason === 'size') return `“${name}” is bigger than 10 MB. Use a smaller PDF or Word file.`;
+  return `“${name}” isn’t supported. Use a PDF or a Word file (.docx), up to 10 MB.`;
+};
+
+/*
+ * CV-01 Choose a file (8966:99 / 8966:507876) and CV-02b File not supported (8966:3272 / 8966:508960).
+ * `live` (signed in): only PDF / .docx are read (no photos yet) and the file is not kept, so the copy says so.
+ */
+export const CvChooseDialog = ({
+  unsupportedName = null,
+  unsupportedReason = 'type',
+  live = false,
+  onFiles,
+  onBack,
+  onClose,
+}) => {
   const inputRef = useRef(null);
   const [over, setOver] = useState(false);
   const failed = unsupportedName !== null;
@@ -42,7 +59,13 @@ export const CvChooseDialog = ({ unsupportedName = null, onFiles, onBack, onClos
       title="Upload your CV"
       onClose={onClose}
       noteIcon={failed ? CvInfoIcon : CvClockIcon}
-      note={failed ? 'Password-protected PDFs won’t open either' : 'About 30 seconds to check'}
+      note={
+        failed
+          ? 'Password-protected PDFs won’t open either'
+          : live
+            ? 'Usually under a minute to read'
+            : 'About 30 seconds to check'
+      }
       buttons={
         <>
           <CvSecondaryButton onClick={onBack}>Back</CvSecondaryButton>
@@ -54,7 +77,9 @@ export const CvChooseDialog = ({ unsupportedName = null, onFiles, onBack, onClos
     >
       {failed ? (
         <CvCallout tone="error" title="We can’t read this file" role="alert">
-          {`“${unsupportedName}” isn’t supported. Use a PDF, Word file or photos (JPG, PNG), up to 10 MB in total.`}
+          {live
+            ? unsupportedCopy(unsupportedName, unsupportedReason)
+            : `“${unsupportedName}” isn’t supported. Use a PDF, Word file or photos (JPG, PNG), up to 10 MB in total.`}
         </CvCallout>
       ) : (
         <p className="m-0 font-sans text-[14px] leading-[20px] text-[#737373]">
@@ -66,8 +91,8 @@ export const CvChooseDialog = ({ unsupportedName = null, onFiles, onBack, onClos
         ref={inputRef}
         type="file"
         hidden
-        multiple
-        accept={ACCEPT}
+        multiple={!live}
+        accept={live ? LIVE_ACCEPT : ACCEPT}
         aria-label="Choose your CV file"
         onChange={(e) => {
           const files = e.target.files;
@@ -100,16 +125,35 @@ export const CvChooseDialog = ({ unsupportedName = null, onFiles, onBack, onClos
         </span>
         <span className="flex min-w-0 flex-col gap-[2px]">
           <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#1c2a21]">
-            {failed ? 'Drop another file, or browse' : 'Drop your CV, browse, or take a photo'}
+            {failed
+              ? 'Drop another file, or browse'
+              : live
+                ? 'Drop your CV, or browse'
+                : 'Drop your CV, browse, or take a photo'}
           </span>
           <span className="font-sans text-[12px] leading-[14px] text-[#737373]">
-            {failed
-              ? 'PDF, Word, or up to 3 photos · 10 MB max'
-              : 'PDF, Word, or up to 3 photos (JPG, PNG) · 10 MB max'}
+            {live
+              ? 'PDF or Word (.docx) · 10 MB max'
+              : failed
+                ? 'PDF, Word, or up to 3 photos · 10 MB max'
+                : 'PDF, Word, or up to 3 photos (JPG, PNG) · 10 MB max'}
           </span>
         </span>
       </button>
-      {failed ? null : (
+      {failed ? null : live ? (
+        <div className="flex flex-col">
+          <CvTextRow
+            icon={CvCheckCircleIcon}
+            title="A PDF from Word or Google Docs works best"
+            sub="Scanned pages and photos can’t be read yet."
+          />
+          <CvTextRow
+            icon={CvEyeOffIcon}
+            title="Private: we read it, we don’t keep it"
+            sub="Your file is only used to suggest items. Nothing goes on your profile until you add it."
+          />
+        </div>
+      ) : (
         <div className="flex flex-col">
           <CvTextRow
             icon={CvCheckCircleIcon}
@@ -158,7 +202,47 @@ export const CvUploadingDialog = ({ file, percent, onCancel, onRead, onClose }) 
   </CvDialog>
 );
 
-/* CV-03 Reading your CV (8966:3808 / 8966:509494). `active` = index of the step in progress (0-3, 4 = all done). */
+/*
+ * CV-03 Reading your CV (8966:3808 / 8966:509494). `active` = index of the step in progress (0-3, 4 = all done).
+ * Live: tied to the real request — the bar is the real upload progress, then an indeterminate bar while the server
+ * reads; the rows only claim what has happened (sent / reading).
+ */
+export const CvLiveReadingDialog = ({ file, uploadPercent, onCancel, onClose }) => {
+  const sent = uploadPercent >= 100;
+  return (
+    <CvDialog
+      title="Reading your CV"
+      onClose={onClose}
+      noteIcon={CvClockIcon}
+      note="Usually under a minute"
+      buttons={<CvSecondaryButton onClick={onCancel}>Cancel</CvSecondaryButton>}
+    >
+      <CvFileCard
+        tone="mint"
+        icon={CvCheckCircleIcon}
+        name={file.name}
+        status={sent ? 'Reading…' : `${file.sizeKb} KB · sending ${uploadPercent}%`}
+        percent={sent ? null : uploadPercent}
+        onCancel={onCancel}
+      />
+      <div className="flex flex-col" aria-live="polite">
+        <CvTextRow
+          icon={sent ? CvCheckCircleIcon : CvHourglassIcon}
+          tone={sent ? 'mint' : 'amber'}
+          title={sent ? 'Sent your file' : 'Sending your file…'}
+          sub={sent ? `${file.type} · ${file.sizeKb} KB` : undefined}
+        />
+        <CvTextRow
+          icon={sent ? CvHourglassIcon : CvStarIcon}
+          tone={sent ? 'amber' : 'white'}
+          title="Finding roles, education, skills and certificates…"
+          dim={!sent}
+        />
+      </div>
+    </CvDialog>
+  );
+};
+
 export const CvReadingDialog = ({ file, percent, active, secondsLeft, onCancel, onClose }) => {
   const rows = [
     { title: 'Opened your file', sub: `${file.pages} pages, ${file.words} words` },
@@ -223,63 +307,198 @@ const OPTIONS = [
   },
 ];
 
-/* CV-03b Couldn’t read it (8966:4372 / 8966:510050). */
-export const CvFailedDialog = ({ choice, onChoice, onBack, onContinue, onClose }) => (
-  <CvDialog
-    title="We couldn’t read your CV"
-    onClose={onClose}
-    noteIcon={CvEyeOffIcon}
-    note="Your file was deleted straight away"
-    buttons={
-      <>
-        <CvSecondaryButton onClick={onBack}>Back</CvSecondaryButton>
-        <CvPrimaryButton onClick={onContinue}>Continue</CvPrimaryButton>
-      </>
-    }
-  >
-    <CvCallout tone="warn" title="This photo is too blurry to read">
-      We could only read a few words, so nothing was added. Retake it flat, in good light, or pick
-      another way.
-    </CvCallout>
-    <div role="radiogroup" aria-label="Pick another way" className="flex flex-col gap-[10px]">
-      {OPTIONS.map((o) => {
-        const on = choice === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            aria-checked={on}
-            onClick={() => {
-              log('choice', o.id);
-              onChoice(o.id);
-            }}
-            className={classNames(
-              'flex w-full cursor-pointer items-center gap-[14px] rounded-[16px] border-solid p-[16px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-              on ? 'border-2 border-[#387440] bg-[#ebf1ec]' : 'border border-[#e6e6e6] bg-white'
-            )}
-          >
-            <CvIconTile icon={o.icon} tone={on ? 'white' : 'mint'} />
-            <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
-              <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
-                {o.title}
-              </span>
-              <span className="font-sans text-[13px] leading-[18px] text-[#737373]">{o.sub}</span>
-            </span>
-            <span
+/* Live variants: the server could not find text (unreadable) or could not read CVs right now (unavailable). */
+const LIVE_FAILURES = {
+  unreadable: {
+    title: 'We couldn’t read your CV',
+    calloutTitle: 'We couldn’t find any text in this file',
+    callout:
+      'It may be a scan or a photo, which we can’t read yet. Nothing was added. Upload a PDF saved from Word or Google Docs, or a .docx, or pick another way.',
+    options: [
+      {
+        id: 'retry',
+        icon: CvCameraIcon,
+        title: 'Upload another file',
+        sub: 'A PDF saved from Word or Google Docs, or a .docx.',
+      },
+      OPTIONS[0],
+      OPTIONS[2],
+    ],
+  },
+  // 429: the reader allows a few CVs an hour per talent — no "try again" here, it would only fail again.
+  limited: {
+    title: 'You’ve uploaded a lot of CVs this hour',
+    calloutTitle: 'Please wait a bit before trying again',
+    callout: 'Nothing was added. Try again in about an hour, or pick another way now.',
+    options: [OPTIONS[0], OPTIONS[2]],
+  },
+  unavailable: {
+    title: 'Reading CVs isn’t working right now',
+    calloutTitle: 'Our CV reader is unavailable',
+    callout: 'Nothing was added. Try again in a moment, or pick another way.',
+    options: [
+      {
+        id: 'retry',
+        icon: CvClockIcon,
+        title: 'Try again',
+        sub: 'Send the same file again.',
+      },
+      OPTIONS[0],
+      OPTIONS[2],
+    ],
+  },
+};
+
+/*
+ * CV-03b Couldn’t read it (8966:4372 / 8966:510050). `variant` 'unreadable' | 'unavailable' for live failures;
+ * omitted = the drawn demo frame (blurry photo).
+ */
+export const CvFailedDialog = ({
+  variant = null,
+  choice,
+  onChoice,
+  onBack,
+  onContinue,
+  onClose,
+}) => {
+  const v = variant ? LIVE_FAILURES[variant] : null;
+  const options = v ? v.options : OPTIONS;
+  return (
+    <CvDialog
+      title={v ? v.title : 'We couldn’t read your CV'}
+      onClose={onClose}
+      noteIcon={CvEyeOffIcon}
+      note={v ? 'We don’t keep your file' : 'Your file was deleted straight away'}
+      buttons={
+        <>
+          <CvSecondaryButton onClick={onBack}>Back</CvSecondaryButton>
+          <CvPrimaryButton onClick={onContinue}>Continue</CvPrimaryButton>
+        </>
+      }
+    >
+      {v ? (
+        <CvCallout tone="warn" title={v.calloutTitle} role="status">
+          {v.callout}
+        </CvCallout>
+      ) : (
+        <CvCallout tone="warn" title="This photo is too blurry to read">
+          We could only read a few words, so nothing was added. Retake it flat, in good light, or
+          pick another way.
+        </CvCallout>
+      )}
+      <div role="radiogroup" aria-label="Pick another way" className="flex flex-col gap-[10px]">
+        {options.map((o) => {
+          const on = choice === o.id;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => {
+                log('choice', o.id);
+                onChoice(o.id);
+              }}
               className={classNames(
-                'inline-flex size-[20px] shrink-0 items-center justify-center rounded-full border-solid',
-                on ? 'border-2 border-[#387440]' : 'border-[1.5px] border-[#e6e6e6]'
+                'flex w-full cursor-pointer items-center gap-[14px] rounded-[16px] border-solid p-[16px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+                on ? 'border-2 border-[#387440] bg-[#ebf1ec]' : 'border border-[#e6e6e6] bg-white'
               )}
             >
-              {on ? <span className="size-[10px] rounded-full bg-[#387440]" /> : null}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  </CvDialog>
-);
+              <CvIconTile icon={o.icon} tone={on ? 'white' : 'mint'} />
+              <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
+                <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+                  {o.title}
+                </span>
+                <span className="font-sans text-[13px] leading-[18px] text-[#737373]">{o.sub}</span>
+              </span>
+              <span
+                className={classNames(
+                  'inline-flex size-[20px] shrink-0 items-center justify-center rounded-full border-solid',
+                  on ? 'border-2 border-[#387440]' : 'border-[1.5px] border-[#e6e6e6]'
+                )}
+              >
+                {on ? <span className="size-[10px] rounded-full bg-[#387440]" /> : null}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </CvDialog>
+  );
+};
+
+const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/*
+ * CV-05 live: the real counts from the one profile save. summary = { roles, education, skills, certs, certsLeftOut,
+ * duplicates }. No "share my CV" box: the file is not kept, so there is nothing to share.
+ */
+export const CvLiveDoneDialog = ({ summary, onBack, onReview, onClose }) => {
+  const stages = [summary.roles, summary.skills, summary.certs].filter((n) => n > 0).length;
+  const total = summary.roles + summary.education + summary.skills + summary.certs;
+  return (
+    <CvDialog
+      title={
+        total === 0
+          ? 'Nothing new to add'
+          : stages > 0
+            ? `Your CV filled ${plural(stages, 'stage')}`
+            : 'Added to your profile'
+      }
+      onClose={onClose}
+      noteIcon={CvStarIcon}
+      note="You can still edit anything"
+      buttons={
+        <>
+          <CvSecondaryButton onClick={onBack}>Back to journey</CvSecondaryButton>
+          <CvPrimaryButton onClick={onReview}>Review Work</CvPrimaryButton>
+        </>
+      }
+    >
+      <div className="flex flex-col">
+        <CvTextRow
+          icon={CvCheckCircleIcon}
+          title={`Work · ${plural(summary.roles, 'role')} added`}
+          sub={summary.roles > 0 ? 'Ready to review in Work' : undefined}
+          dim={summary.roles === 0}
+        />
+        <CvTextRow
+          icon={CvCheckCircleIcon}
+          title={`Skills · ${summary.skills} added`}
+          sub={summary.skills > 0 ? 'Verify them in Skills Lab to earn the badge' : undefined}
+          dim={summary.skills === 0}
+        />
+        <CvTextRow
+          icon={CvCheckCircleIcon}
+          title={`Certifications · ${summary.certs} added`}
+          sub={
+            summary.certsLeftOut > 0
+              ? `${summary.certsLeftOut} left out: no issuer or issue date. Add them in Certifications.`
+              : undefined
+          }
+          dim={summary.certs === 0}
+        />
+        <CvTextRow
+          icon={CvCheckCircleIcon}
+          title={`Education · ${summary.education} added`}
+          sub={summary.education > 0 ? 'Profile › Education' : undefined}
+          dim={summary.education === 0}
+        />
+      </div>
+      {summary.duplicates > 0 ? (
+        <CvCallout title={`${plural(summary.duplicates, 'item')} already on your profile`}>
+          We skipped them, so nothing was added twice.
+        </CvCallout>
+      ) : null}
+      {summary.roles > 0 ? (
+        <CvCallout title="Next: check your Work stage">
+          Add what you achieved in each role. A number like “cut load time by 35%” makes recruiters
+          stop scrolling.
+        </CvCallout>
+      ) : null}
+    </CvDialog>
+  );
+};
 
 /* CV-05 Added to your profile (8966:6230 / 8966:511861). */
 export const CvDoneDialog = ({ summary, shareCv, onShareCv, onBack, onReview, onClose }) => (

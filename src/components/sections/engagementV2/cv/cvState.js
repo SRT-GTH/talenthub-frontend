@@ -12,7 +12,9 @@ import { CV_STEPS } from './cvData.js';
  *   CV-04   /profile/filling/cv?step=review              Check what we found
  *   CV-04b  /profile/filling/cv?step=review&fix=1        Fix a role   (optional &role=<role id>, default the flagged role)
  *   CV-05   /profile/filling/cv?step=done                Added to your profile
- * update(patch): null / '' / false removes a key.
+ * update(patch, { replace }): null / '' / false removes a key; replace swaps the history entry instead of pushing one.
+ * Signed-in talents use the same steps, but a step that needs in-memory data (a file being read, a result) falls back
+ * to CV-01 when opened by URL (see UploadCvPage).
  */
 export const useCvState = () => {
   const [params, setParams] = useSearchParams();
@@ -22,7 +24,7 @@ export const useCvState = () => {
   const role = params.get('role') || '';
 
   const update = useCallback(
-    (patch) => {
+    (patch, { replace = false } = {}) => {
       setParams(
         (prev) => {
           const next = new URLSearchParams(prev);
@@ -32,7 +34,7 @@ export const useCvState = () => {
           });
           return next;
         },
-        { replace: false }
+        { replace }
       );
     },
     [setParams]

@@ -13,6 +13,13 @@ const log = debug('auth.api');
  * (SMS isn't live). On staging the fixed code 123456 works while
  * ENABLE_TEST_OTP_BYPASS=1.
  *
+ * Password reset (public, email-only — phone-only accounts can't reset):
+ *   POST /auth/request-password-reset { email } -> always the same neutral
+ *        { success, message } so it never reveals whether the email exists.
+ *        The email links to /reset-password?token=… (valid 60 min).
+ *   POST /auth/reset-password { token, newPassword } -> success, or 400
+ *        INVALID_TOKEN for a bad / expired / already-used token.
+ *
  * VITE_LOGIN_IDENTIFIER picks what the login screen offers:
  *   email | phone | both (default both). The backend has a matching
  *   LOGIN_IDENTIFIER_MODE that it enforces.
@@ -69,6 +76,18 @@ export const homePathFor = (user) => {
 export const resendLoginOtp = async ({ identity }) => {
   log('resend-otp via', describe(identity));
   const { data } = await api.post('/auth/resend-otp', { ...identity });
+  return data;
+};
+
+export const requestPasswordReset = async ({ email }) => {
+  log('request-password-reset');
+  const { data } = await api.post('/auth/request-password-reset', { email: String(email).trim() });
+  return data;
+};
+
+export const resetPassword = async ({ token, newPassword }) => {
+  log('reset-password');
+  const { data } = await api.post('/auth/reset-password', { token, newPassword });
   return data;
 };
 

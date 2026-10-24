@@ -401,13 +401,13 @@ const ProfileMenu = ({ settings }) => {
             icon: <ProfileMenuSuitcaseIcon className="size-[20px]" />,
             label: 'My applications',
             value: view.applications == null ? '–' : String(view.applications),
-            onActivate: () => noDestination('my-applications'),
+            onActivate: () => go('/job-postings?tab=applied'),
           })}
           {item('saved', {
             icon: <ProfileMenuBookmarkIcon className="size-[20px]" />,
             label: 'Saved jobs',
             value: view.savedJobs == null ? '–' : String(view.savedJobs),
-            onActivate: () => noDestination('saved-jobs'),
+            onActivate: () => go('/job-postings?tab=saved'),
           })}
         </div>
 

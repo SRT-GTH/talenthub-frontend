@@ -9,6 +9,11 @@ import LegalModalShell from './LegalModalShell.jsx';
  * artefacts: the original "agreement s" typo on the page subhead is
  * fixed up there; here, the only known artefact is "GTH is adiscovery
  * tool" in point 7 which we render as "GTH is a discovery tool".
+ *
+ * No full legal text exists yet, so there is no "Read full document" link;
+ * the footer says the full text is coming soon. Opened for acceptance during
+ * onboarding Review, and read-only (ctaLabel "Got it") from the footers and
+ * the onboarding Done page.
  */
 
 const POINTS = [
@@ -63,7 +68,7 @@ const CALLOUTS = [
   },
 ];
 
-const TermsModal = ({ onAccept, onClose }) => (
+const TermsModal = ({ onAccept, onClose, ctaLabel }) => (
   <LegalModalShell
     title={{ before: 'Terms & ', after: 'Conditions' }}
     bannerIcon="doc"
@@ -71,8 +76,8 @@ const TermsModal = ({ onAccept, onClose }) => (
     introSubtitle="8 key points. This is what these terms actually mean for you as a GTH user."
     points={POINTS}
     callouts={CALLOUTS}
-    footerHelper="Summary of 8 key points. For the full legal text, read the complete document."
-    readFullHref="/legal/terms"
+    footerHelper="Summary of 8 key points. The full Terms & Conditions are coming soon."
+    ctaLabel={ctaLabel}
     onAccept={onAccept}
     onClose={onClose}
   />
