@@ -123,8 +123,8 @@ const FilterBar = ({
   return (
     <div ref={rootRef} className={classNames('font-sans', className)}>
       {/* desktop + tablet */}
-      <div className="hidden min-h-[61px] flex-wrap items-center gap-x-[16px] gap-y-[8px] rounded-[16px] xl:flex-nowrap border border-solid border-[#e7e7e7] bg-white px-[16px] py-[12px] md:flex">
-        <div className="flex flex-wrap items-center gap-[8px] xl:flex-nowrap">
+      <div className="hidden min-h-[61px] flex-wrap items-center gap-x-[16px] gap-y-[8px] rounded-[16px] lg:flex-nowrap border border-solid border-[#e7e7e7] bg-white px-[16px] py-[12px] md:flex">
+        <div className="flex flex-wrap items-center gap-[8px] lg:flex-nowrap">
           <PublicIconFilterBar className="size-[18px] shrink-0 text-[#70706e]" />
           <span className="mr-[0px] text-[14px] leading-[17px] font-semibold text-[#595959]">
             Filter

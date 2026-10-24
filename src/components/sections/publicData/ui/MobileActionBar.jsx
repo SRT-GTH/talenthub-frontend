@@ -9,11 +9,11 @@ import Button from '../../../ui/Button.jsx';
  *   onShare      fn()
  *   onDownload   fn()
  *   shareLabel / downloadLabel   default "Share" / "Download PDF"
- *   fixed        boolean   true (default) = position fixed to the viewport bottom and shown below md only; false = in flow, always visible
- *                          (gallery / frame comparison)
+ *   fixed        boolean   true (default) = sticky to the viewport bottom inside <main> (it never covers the footer: it rests at the end of
+ *                          the page content) and shown below md only; false = in flow, always visible (gallery / frame comparison)
  *   className
- * Layout note: a page that renders it fixed must add bottom padding (~76px + safe area) so the footer is not covered; this component also
- * pads for env(safe-area-inset-bottom).
+ * Layout note: render it as the LAST child of <PublicDataFrame> content; it is sticky, so no bottom padding is needed. It pads for
+ * env(safe-area-inset-bottom).
  */
 
 const MobileActionBar = ({
@@ -29,7 +29,7 @@ const MobileActionBar = ({
     aria-label="Page actions"
     className={classNames(
       'z-30 flex h-[76px] w-full items-center gap-[10px] border-t border-solid border-[#e7e7e7] bg-white px-[16px] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(0,0,0,0.06)]',
-      fixed ? 'fixed right-0 bottom-0 left-0 md:hidden' : 'relative',
+      fixed ? 'sticky bottom-0 md:hidden' : 'relative',
       className
     )}
   >

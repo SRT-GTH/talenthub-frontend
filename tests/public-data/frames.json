@@ -475,7 +475,7 @@
       "w": 1728,
       "h": 1192,
       "hFocused": 1192,
-      "url": "/data/partners/ghana-code-club",
+      "url": "/data/partners/northern-skills-foundation",
       "note": ""
     },
     {
@@ -508,7 +508,7 @@
       "w": 1728,
       "h": 872,
       "hFocused": 872,
-      "url": "/data/opportunities/intro-to-coding",
+      "url": "/data/opportunities/girls-in-data-bootcamp",
       "note": ""
     },
     {
@@ -1091,7 +1091,7 @@
       "w": 390,
       "h": 844,
       "hFocused": 844,
-      "url": "/data/overview?modal=filters",
+      "url": "/data/overview?region=volta&interest=technology&age=18-24&modal=filters",
       "note": "viewport 390"
     },
     {
@@ -1157,7 +1157,7 @@
       "w": 390,
       "h": 1088,
       "hFocused": 1088,
-      "url": "/data/partners/ghana-code-club",
+      "url": "/data/partners/northern-skills-foundation",
       "note": "viewport 390"
     },
     {
@@ -1168,7 +1168,7 @@
       "w": 390,
       "h": 815,
       "hFocused": 815,
-      "url": "/data/opportunities/intro-to-coding",
+      "url": "/data/opportunities/girls-in-data-bootcamp",
       "note": "viewport 390"
     },
     {
