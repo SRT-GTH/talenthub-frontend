@@ -68,6 +68,68 @@ const log = debug('ScheduleInterviewModal');
  *     "Recruiter Notes" card (7249:81675) with its Edit affordance.
  */
 
+/*
+ * LIVE MODE (`live` prop, recruiter board signed in — Recruiter Buddy design Iteration 4 F-2):
+ *   • Header, candidate card and notes placeholder come from props, not the Figma demo person.
+ *   • Days are the real calendar in Ghana time (GMT) from tomorrow; every time slot is open
+ *     (there is no availability data yet), in clock order.
+ *   • "Let the candidate choose" (IQ-1, decided 2026-10-25): off = book one time, which is final;
+ *     on = pick 2–5 day/time pairs and the candidate chooses one. Not in Figma yet.
+ *   • Online needs a meeting link; In person needs an address. Phone needs nothing more.
+ *   • Confirm calls onSubmit(body) and stays open with an error if the API refuses.
+ */
+const LIVE_WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const MAX_OFFERED = 5;
+const MIN_OFFERED = 2;
+
+const accraToday = () => {
+  const now = new Date();
+  return { y: now.getUTCFullYear(), m: now.getUTCMonth(), d: now.getUTCDate() };
+};
+
+// Every day of the chosen month (Ghana = GMT), past days disabled, today too (book from tomorrow).
+const buildLiveDays = (month, year) => {
+  const m = MONTH_OPTIONS.indexOf(month);
+  const y = Number(year);
+  const t = accraToday();
+  const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return Array.from({ length: last }, (_, i) => {
+    const d = i + 1;
+    const date = new Date(Date.UTC(y, m, d));
+    const past = y < t.y || (y === t.y && (m < t.m || (m === t.m && d <= t.d)));
+    return {
+      id: `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+      weekday: LIVE_WEEKDAYS[date.getUTCDay()],
+      date: String(d).padStart(2, '0'),
+      y,
+      m,
+      d,
+      disabled: past,
+    };
+  }).filter((day) => !(day.y === t.y && day.m === t.m && day.d < t.d));
+};
+
+const slotIso = (day, timeId) =>
+  new Date(
+    Date.UTC(day.y, day.m, day.d, Number(timeId.slice(0, 2)), Number(timeId.slice(2, 4)))
+  ).toISOString();
+
+const slotLabel = (iso) =>
+  new Date(iso).toLocaleString('en-GB', {
+    timeZone: 'Africa/Accra',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const LIVE_TIMES = [...SCHEDULE_TIMES]
+  .map((t) => ({ ...t, disabled: false }))
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+const FORMAT_TO_TYPE = { online: 'video', phone: 'phone', 'in-person': 'in-person' };
+
 const FORMAT_ICONS = {
   online: FormatOnlineIcon,
   phone: FormatPhoneIcon,
@@ -95,7 +157,16 @@ const FieldLabel = ({ children, required, trailing }) => (
   </div>
 );
 
-const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
+const ScheduleInterviewModal = ({
+  open,
+  onClose,
+  onScheduled,
+  live = false,
+  candidate,
+  jobTitle,
+  onSubmit,
+  errorText,
+}) => {
   const [format, setFormat] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [dayId, setDayId] = useState(null);
@@ -109,6 +180,21 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
   const [interviewerName, setInterviewerName] = useState('');
   const [interviewers, setInterviewers] = useState([]);
   const [confirm, setConfirm] = useState(null); // 'cancel' | 'schedule'
+  // Live mode only.
+  const [chooseMode, setChooseMode] = useState(false);
+  const [picks, setPicks] = useState([]); // ISO strings, offer mode
+  const [meetingUrl, setMeetingUrl] = useState('');
+  const [address, setAddress] = useState('');
+  const [problem, setProblem] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Live: start on the current month in Ghana time.
+  useEffect(() => {
+    if (!open || !live) return;
+    const t = accraToday();
+    setMonth(MONTH_OPTIONS[t.m]);
+    setYear(String(t.y));
+  }, [open, live]);
 
   // Day carousel. Figma lays the row out as 80px cards with a 16px gap and
   // pages it with the arrows either side, so one click moves exactly one card.
@@ -161,8 +247,60 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
 
   if (!open) return null;
 
-  const scheduleDays = buildScheduleDays(month, year);
-  const selectedTime = SCHEDULE_TIMES.find((t) => t.id === timeId);
+  const scheduleDays = live ? buildLiveDays(month, year) : buildScheduleDays(month, year);
+  const times = live ? LIVE_TIMES : SCHEDULE_TIMES;
+  const selectedTime = times.find((t) => t.id === timeId);
+  const selectedDay = scheduleDays.find((d) => d.id === dayId) || null;
+  const header = live
+    ? {
+        title: SCHEDULE_HEADER.title,
+        subtitle: `Set up a session with ${candidate?.name || 'the candidate'}${
+          jobTitle ? ` for the ${jobTitle} role` : ''
+        }.`,
+      }
+    : SCHEDULE_HEADER;
+  const person = live
+    ? candidate || { name: 'Candidate', meta: '', chips: [] }
+    : SCHEDULE_CANDIDATE;
+
+  // Live: what is missing before the interview can be sent (null when ready).
+  const missing = () => {
+    if (!format) return 'Choose an interview format.';
+    if (format === 'online' && !/^https?:\/\/\S+\.\S+/.test(meetingUrl.trim()))
+      return 'Paste the meeting link (Google Meet, Zoom or Teams).';
+    if (format === 'in-person' && !address.trim()) return 'Add the interview address.';
+    if (chooseMode) {
+      if (picks.length < MIN_OFFERED) return `Pick at least ${MIN_OFFERED} times to offer.`;
+    } else if (!selectedDay || !timeId) return 'Pick a day and a time.';
+    return null;
+  };
+
+  const liveBody = () => ({
+    mode: chooseMode ? 'offer' : 'book',
+    ...(chooseMode ? { offeredSlots: picks } : { scheduledAt: slotIso(selectedDay, timeId) }),
+    interviewType: FORMAT_TO_TYPE[format],
+    ...(format === 'online' ? { meetingUrl: meetingUrl.trim() } : {}),
+    ...(format === 'in-person' ? { location: address.trim() } : {}),
+    ...(interviewers.length ? { interviewers } : {}),
+    ...(notes.trim() ? { notes: notes.trim() } : {}),
+    ...(assessment ? { assessmentType: assessment } : {}),
+  });
+
+  const togglePick = (timeIdToAdd) => {
+    if (!selectedDay) {
+      setProblem('Pick a day first, then the times on that day.');
+      return;
+    }
+    const iso = slotIso(selectedDay, timeIdToAdd);
+    setProblem(null);
+    setPicks((prev) =>
+      prev.includes(iso)
+        ? prev.filter((x) => x !== iso)
+        : prev.length >= MAX_OFFERED
+          ? prev
+          : [...prev, iso].sort()
+    );
+  };
 
   // A different month/year is a different set of days: drop the day + tentative
   // pick and return the carousel to its first day.
@@ -175,6 +313,12 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
   const formatFields = format ? FORMAT_FIELDS[format] : null;
 
   const reset = () => {
+    setChooseMode(false);
+    setPicks([]);
+    setMeetingUrl('');
+    setAddress('');
+    setProblem(null);
+    setSubmitting(false);
     setFormat(null);
     setAssessment(null);
     setMonth(SLOTS_PANEL.month);
@@ -195,7 +339,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={SCHEDULE_HEADER.title}
+        aria-label={header.title}
         className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4 max-sm:items-stretch max-sm:p-0"
         onClick={() => setConfirm('cancel')}
       >
@@ -216,10 +360,10 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
           {/* Header — Figma 7249:80369 */}
           <div className="flex max-w-[420px] flex-col gap-[4px] max-sm:pr-[44px]">
             <h2 className="font-display text-[32px] not-italic leading-[41.6px] text-black max-sm:text-[22px] max-sm:leading-[28px]">
-              {SCHEDULE_HEADER.title}
+              {header.title}
             </h2>
             <p className="font-sans text-[14px] leading-[16.71px] text-[#595959] max-sm:leading-5">
-              {SCHEDULE_HEADER.subtitle}
+              {header.subtitle}
             </p>
           </div>
 
@@ -230,23 +374,36 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                 {/* Candidate — Figma 7249:80375 */}
                 <div className="flex items-center gap-[16px]">
                   <span className="grid size-[64px] shrink-0 place-items-center rounded-full border-2 border-[#f3f8f4]">
-                    <img
-                      src={avatarElla}
-                      alt={SCHEDULE_CANDIDATE.name}
-                      className="size-[58px] rounded-full object-cover"
-                    />
+                    {live ? (
+                      <span
+                        aria-hidden="true"
+                        className="grid size-[58px] place-items-center rounded-full bg-brand-green-light font-sans text-[20px] font-semibold text-brand-green-dark"
+                      >
+                        {(person.name || '?')
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((w) => w[0]?.toUpperCase())
+                          .join('')}
+                      </span>
+                    ) : (
+                      <img
+                        src={avatarElla}
+                        alt={SCHEDULE_CANDIDATE.name}
+                        className="size-[58px] rounded-full object-cover"
+                      />
+                    )}
                   </span>
                   <div className="flex min-w-0 flex-col gap-[8px]">
                     <div className="flex flex-col gap-[1px]">
                       <span className="font-display text-[24px] not-italic leading-[31.2px] text-[#1c1c1a]">
-                        {SCHEDULE_CANDIDATE.name}
+                        {person.name}
                       </span>
                       <span className="font-sans text-[16px] leading-6 tracking-[0.2px] text-content-muted">
-                        {SCHEDULE_CANDIDATE.meta}
+                        {person.meta}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-[6px]">
-                      {SCHEDULE_CANDIDATE.chips.map((chip) => (
+                      {(person.chips || []).map((chip) => (
                         <span
                           key={chip.id}
                           className={classNames(
@@ -266,7 +423,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                 {/* Config — Figma 7249:80388, gap 15 */}
                 <div className="flex flex-col gap-[15px]">
                   <div className="flex flex-col gap-[8px]">
-                    <FieldLabel required>{FIELD_LABELS.assessmentType}</FieldLabel>
+                    <FieldLabel required={!live}>{FIELD_LABELS.assessmentType}</FieldLabel>
                     <ScheduleSelect
                       label={FIELD_LABELS.assessmentType}
                       options={ASSESSMENT_OPTIONS}
@@ -308,7 +465,45 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                   </div>
 
                   {/* Format-specific row — Figma 7249:81650 / :83784 / :83147 */}
-                  {formatFields?.kind === 'online' && (
+                  {live && format === 'online' && (
+                    <div className="flex flex-col gap-[8px]">
+                      <FieldLabel required>{FORMAT_FIELDS.online.linkLabel}</FieldLabel>
+                      <input
+                        value={meetingUrl}
+                        onChange={(event) => setMeetingUrl(event.target.value)}
+                        placeholder="https://meet.google.com/abc-defg-hij"
+                        aria-label={FORMAT_FIELDS.online.linkLabel}
+                        className={classNames(
+                          INPUT_CLASS,
+                          'font-sans text-[13px] max-lg:text-[16px] font-medium text-black outline-none placeholder:text-content-helper'
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {live && format === 'phone' && (
+                    <p className="m-0 font-sans text-[13px] leading-5 text-content-helper">
+                      You call the candidate at the booked time.
+                    </p>
+                  )}
+
+                  {live && format === 'in-person' && (
+                    <div className="flex flex-col gap-[8px]">
+                      <FieldLabel required>{FORMAT_FIELDS['in-person'].locationLabel}</FieldLabel>
+                      <input
+                        value={address}
+                        onChange={(event) => setAddress(event.target.value)}
+                        placeholder="Office address, landmark and city"
+                        aria-label={FORMAT_FIELDS['in-person'].locationLabel}
+                        className={classNames(
+                          INPUT_CLASS,
+                          'font-sans text-[13px] max-lg:text-[16px] font-medium text-black outline-none placeholder:text-content-helper'
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {!live && formatFields?.kind === 'online' && (
                     <div className="flex flex-wrap items-end gap-[10px]">
                       <div className="flex w-[140px] shrink-0 flex-col gap-[8px]">
                         <FieldLabel required>{formatFields.platformLabel}</FieldLabel>
@@ -330,7 +525,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                     </div>
                   )}
 
-                  {formatFields?.kind === 'phone' && (
+                  {!live && formatFields?.kind === 'phone' && (
                     <div className="flex flex-col gap-[8px]">
                       <FieldLabel>{formatFields.toggleLabel}</FieldLabel>
                       <div className="flex items-center gap-[10px]">
@@ -348,7 +543,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                     </div>
                   )}
 
-                  {formatFields?.kind === 'in-person' && (
+                  {!live && formatFields?.kind === 'in-person' && (
                     <div className="flex flex-col gap-[8px]">
                       <FieldLabel required>{formatFields.locationLabel}</FieldLabel>
                       <span className="font-sans text-[13px] font-medium leading-5 tracking-[0.2px] text-content-helper">
@@ -471,7 +666,11 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     onBlur={() => notes.trim() && setNotesSaved(true)}
-                    placeholder={NOTES_PLACEHOLDER}
+                    placeholder={
+                      live
+                        ? `Add key notes about ${person.name} to help you remember important details`
+                        : NOTES_PLACEHOLDER
+                    }
                     /* Figma 7249:80441 — 86 tall, pad L14 R14 T14 B52 */
                     className="no-scrollbar h-[86px] w-full resize-none rounded-[10px] border border-[#cccccc] bg-white px-[14px] pb-[52px] pt-[14px] font-sans text-[14px] max-lg:text-[16px] leading-5 tracking-[0.2px] text-black shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] outline-none placeholder:text-[#999999]"
                   />
@@ -509,6 +708,33 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                   </span>
                 </div>
 
+                {live && (
+                  <label className="flex cursor-pointer items-start gap-[10px] rounded-[10px] border border-border-card bg-[#f3f8f4] px-[14px] py-[10px]">
+                    <input
+                      type="checkbox"
+                      checked={chooseMode}
+                      onChange={(event) => {
+                        log('branch', { chooseMode: event.target.checked });
+                        setChooseMode(event.target.checked);
+                        setPicks([]);
+                        setTimeId(null);
+                        setProblem(null);
+                      }}
+                      className="mt-[3px] size-[16px] accent-[#387440]"
+                    />
+                    <span className="flex flex-col gap-[2px]">
+                      <span className="font-sans text-[14px] font-semibold leading-5 text-black">
+                        Let the candidate choose
+                      </span>
+                      <span className="font-sans text-[13px] leading-[18px] text-content-helper">
+                        {chooseMode
+                          ? `Pick ${MIN_OFFERED} to ${MAX_OFFERED} times (any days). They choose one and it’s booked.`
+                          : 'Off: the time you pick is booked straight away.'}
+                      </span>
+                    </span>
+                  </label>
+                )}
+
                 <div className="flex flex-col gap-[18px]">
                   {/* Day row — Figma 7249:80467 */}
                   <div className="flex flex-col gap-[8px]">
@@ -544,6 +770,7 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                               onClick={() => {
                                 log('branch', { day: day.id });
                                 setDayId(day.id);
+                                setProblem(null);
                               }}
                               className={classNames(
                                 'flex h-[89.6px] w-[80px] max-sm:h-[68px] max-sm:w-[64px] shrink-0 flex-col items-center justify-center rounded-[12px] border pb-[16px] pt-[15px] max-sm:pb-[8px] max-sm:pt-[8px]',
@@ -599,8 +826,11 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                       {SLOTS_PANEL.timeLabel}
                     </span>
                     <div className="grid grid-cols-2 gap-[8px] sm:grid-cols-4">
-                      {SCHEDULE_TIMES.map((slot) => {
-                        const isSelected = timeId === slot.id;
+                      {times.map((slot) => {
+                        const isSelected =
+                          live && chooseMode
+                            ? Boolean(selectedDay && picks.includes(slotIso(selectedDay, slot.id)))
+                            : timeId === slot.id;
                         return (
                           <button
                             key={slot.id}
@@ -609,7 +839,11 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                             aria-pressed={isSelected}
                             onClick={() => {
                               log('branch', { time: slot.id });
-                              setTimeId(slot.id);
+                              if (live && chooseMode) togglePick(slot.id);
+                              else {
+                                setTimeId(slot.id);
+                                setProblem(null);
+                              }
                             }}
                             className={classNames(
                               'flex h-[46.8px] max-sm:h-[40px] items-center justify-center rounded-[8px] border px-[12px]',
@@ -632,8 +866,36 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                     </div>
                   </div>
 
+                  {live && chooseMode && (
+                    <div className="flex flex-col gap-[8px]">
+                      <span className="font-sans text-[14px] font-medium leading-[19.2px] text-[#00522b]">
+                        {`Times to offer (${picks.length}/${MAX_OFFERED})`}
+                      </span>
+                      {picks.length ? (
+                        <div className="flex flex-wrap gap-[8px]">
+                          {picks.map((iso) => (
+                            <button
+                              key={iso}
+                              type="button"
+                              aria-label={`Remove ${slotLabel(iso)}`}
+                              onClick={() => setPicks((prev) => prev.filter((x) => x !== iso))}
+                              className="inline-flex h-[32px] items-center gap-[6px] rounded-pill border border-brand-green-light-hover bg-brand-green-light px-[12px] font-sans text-[13px] font-medium text-brand-green-dark"
+                            >
+                              {`${slotLabel(iso)} GMT`}
+                              <span aria-hidden="true">×</span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="font-sans text-[13px] text-content-helper">
+                          Choose a day, then tap the times that work on it.
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* Tentative Selection — Figma 7249:81755 */}
-                  {hasTentative && (
+                  {hasTentative && !(live && chooseMode) && (
                     <div className="flex items-center gap-[12px]">
                       <span className="grid size-[40px] shrink-0 place-items-center rounded-full border border-border-card bg-white text-[#00522b]">
                         <TentativeCheckIcon className="h-[12px] w-[21.9px]" />
@@ -643,7 +905,9 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                           {TENTATIVE.label}
                         </span>
                         <span className="font-sans text-[12px] leading-[17.6px] text-[#6b6a63] max-lg:text-[14px]">
-                          {TENTATIVE.format(selectedTime?.label ?? '')}
+                          {live && selectedDay
+                            ? `${slotLabel(slotIso(selectedDay, timeId))} (GMT)`
+                            : TENTATIVE.format(selectedTime?.label ?? '')}
                         </span>
                       </span>
                       <button
@@ -665,6 +929,11 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
               {/* Actions — Figma 7249:80515, right-aligned, gap 12 */}
               {/* Phones: pinned to the bottom of the sheet so Schedule is always reachable. */}
               <div className="flex items-center gap-[12px] max-sm:sticky max-sm:bottom-0 max-sm:z-10 max-sm:-mx-[16px] max-sm:items-stretch max-sm:self-stretch max-sm:border-t max-sm:border-border-card max-sm:bg-white max-sm:px-[16px] max-sm:pb-[calc(8px+env(safe-area-inset-bottom))] max-sm:pt-[8px]">
+                {live && problem ? (
+                  <p role="alert" className="m-0 mr-auto font-sans text-[13px] text-[#b42318]">
+                    {problem}
+                  </p>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setConfirm('cancel')}
@@ -674,10 +943,18 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setConfirm('schedule')}
+                  disabled={submitting}
+                  onClick={() => {
+                    if (live) {
+                      const why = missing();
+                      setProblem(why);
+                      if (why) return;
+                    }
+                    setConfirm('schedule');
+                  }}
                   className="inline-flex h-[44px] max-sm:h-[40px] max-sm:flex-1 items-center justify-center whitespace-nowrap max-sm:px-[12px] rounded-[10px] border-2 border-brand-green-dark max-sm:border max-sm:shadow-none bg-brand-green px-[18px] font-sans text-[14px] font-bold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] active:shadow-none"
                 >
-                  {SCHEDULE_ACTIONS.submit}
+                  {live && chooseMode ? 'Send times' : SCHEDULE_ACTIONS.submit}
                 </button>
               </div>
             </div>
@@ -699,8 +976,46 @@ const ScheduleInterviewModal = ({ open, onClose, onScheduled }) => {
 
       <InterviewConfirmModal
         open={confirm === 'schedule'}
-        copy={SCHEDULE_CONFIRMATION}
+        copy={
+          live && chooseMode
+            ? {
+                ...SCHEDULE_CONFIRMATION,
+                title: 'Send these times?',
+                body: `${person.name} picks one of the ${picks.length} times and it’s booked. You can cancel anytime.`,
+                confirmLabel: submitting ? 'Sending…' : 'Send times',
+              }
+            : live
+              ? {
+                  ...SCHEDULE_CONFIRMATION,
+                  title: 'Book this interview?',
+                  body: `${person.name} gets the details by email and in the app. The time is booked straight away; you can cancel anytime.`,
+                  confirmLabel: submitting ? 'Booking…' : 'Book interview',
+                }
+              : SCHEDULE_CONFIRMATION
+        }
         onConfirm={() => {
+          if (live) {
+            if (submitting) return;
+            const body = liveBody();
+            log('branch', { action: 'interview-submit', mode: body.mode });
+            setSubmitting(true);
+            Promise.resolve(onSubmit?.(body))
+              .then(() => {
+                setConfirm(null);
+                reset();
+                onScheduled?.(body);
+                onClose?.();
+              })
+              .catch((err) => {
+                log.error('schedule failed:', err?.response?.status || err?.message);
+                setSubmitting(false);
+                setConfirm(null);
+                setProblem(
+                  errorText ? errorText(err) : 'That didn’t go through. Please try again.'
+                );
+              });
+            return;
+          }
           log('branch', { action: 'interview-scheduled', dayId, timeId, format });
           setConfirm(null);
           reset();
