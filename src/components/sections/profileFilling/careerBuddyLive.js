@@ -113,7 +113,8 @@ export function opportunityMatchView(card, now = new Date()) {
     placeFirst: Boolean(place),
     match: score,
     meter: score / 100,
-    keySkills: ks?.total ? `${ks.have} of ${ks.total} key skills` : '',
+    // Same count as the job page's "Skills N of M": every skill the posting lists.
+    keySkills: ks?.total ? `${ks.have} of ${ks.total} skills` : '',
     skills: Array.isArray(card.skills) ? card.skills.filter((s) => s?.name) : [],
     detailPath: `/job-postings?job=${encodeURIComponent(card.opportunityId)}`,
   };
