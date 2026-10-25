@@ -36,6 +36,7 @@ import { JOURNEY_MAP_ROUTE, STAGE_BY_ID } from '../engagementShell/engagementShe
 import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
+import { PIPELINE_CHIP, useRecruiterBuddyLive } from '../recruiterBuddy/useRecruiterBuddyLive.jsx';
 import useVoiceTurns from './voiceCaptions/useVoiceTurns.jsx';
 import { lastBuddyText } from './voiceCaptions/voiceSpeech.js';
 import { logoHomePath } from '../../../services/auth.api.js';
@@ -574,11 +575,12 @@ const PlayfulStars = () => (
  * Playful decoration and "Pick your vibe" stay as designed. Without `live`
  * (recruiter, parent, DemoNavigator, logged out) the scripted demo runs as before.
  */
-const CareerBuddySection = ({ live: liveMode = false }) => {
+const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { role } = useCareerBuddyRole();
-  const isRecruiter = role === 'recruiter';
+  // recruiterLive (2026-10-25): a signed-in recruiter, whatever the demo role switch says.
+  const isRecruiter = role === 'recruiter' || recruiterLive;
   const isParent = role === 'parent';
   // Playful appearance is talent-only; `playful` also needs the stored choice to be Playful.
   const { uiStyle, vibeChosen } = useUiStyle();
@@ -663,6 +665,9 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     readAloud: buddySettings.readAloud,
     onShowProfile: () => setMobilePane('profile'),
   });
+  // Live recruiter agent inside this screen (pipeline, candidates, interviews); the scripted
+  // Company / Job post / KYB flows stay as they are.
+  const RB = useRecruiterBuddyLive({ enabled: recruiterLive, setMessages });
   // Live captions (Figma 9149:83053): saved voice turns (Edit, Play again, Did you mean...) and the "saved as text" toast.
   const voiceTurns = useVoiceTurns({
     voiceId,
@@ -1511,7 +1516,12 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
 
   // After a successful job post, surface unfinished setup chips (Company / KYB).
   const activeSuggestedReplies = useMemo(() => {
-    const base = inBubbleChoices.length > 0 ? [] : (currentNode?.suggestedReplies ?? []);
+    if (recruiterLive && RB.chips.length) return RB.chips;
+    const scriptedBase = inBubbleChoices.length > 0 ? [] : (currentNode?.suggestedReplies ?? []);
+    const base =
+      recruiterLive && scriptedBase.length && !scriptedBase.includes(PIPELINE_CHIP)
+        ? [PIPELINE_CHIP, ...scriptedBase]
+        : scriptedBase;
     if (nodeId !== 'job-posted-success') return base;
     const companyDone = stages.some((s) => s.id === 'company-info' && s.status === 'done');
     const kybDone = kybVerified || stages.some((s) => s.id === 'kyb' && s.status === 'done');
@@ -1520,7 +1530,15 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
     if (!kybDone) chips.push(KYB_UPLOAD_CTA);
     chips.push('Tell me more about GTH');
     return chips;
-  }, [currentNode?.suggestedReplies, inBubbleChoices, nodeId, stages, kybVerified]);
+  }, [
+    currentNode?.suggestedReplies,
+    inBubbleChoices,
+    nodeId,
+    stages,
+    kybVerified,
+    recruiterLive,
+    RB.chips,
+  ]);
 
   const panelStages = useMemo(
     () =>
@@ -2298,8 +2316,26 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
 
   // Opportunity Matching (Figma 9053:80188): chips/cards rendered inside the thread answer through this bridge
   // (opportunityGuidance/opportunityEvents.js). Scripted chat only; the live chat has its own wiring.
+  // Recruiter live: scripted chips and scripted free-text steps stay scripted; the agent's own
+  // chips, the pipeline chip and anything else the script has no answer for go to the agent.
+  const sendRecruiter = (text) => {
+    const chipAction = RB.chipActionFor(text);
+    const node = scriptNodes[nodeId];
+    const scripted =
+      !chipAction && Boolean(node?.next?.[text] ?? node?.next?.['*'] ?? node?.freeTextNext);
+    log('branch', { recruiterLive: true, scripted, agentChip: Boolean(chipAction) });
+    if (scripted) {
+      RB.clearChips();
+      submit(text);
+      return;
+    }
+    setFreshStart(false);
+    RB.send(text, chipAction);
+  };
+  const onSendText = recruiterLive ? sendRecruiter : submit;
+
   const submitRef = useRef(submit);
-  submitRef.current = submit;
+  submitRef.current = onSendText;
   useEffect(() => {
     if (liveMode) return undefined;
     const onChip = (event) => {
@@ -2948,11 +2984,13 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
                         onContinue: () => goDemoFrame('writing'),
                         onTryAgain: () => goDemoFrame('thinking'),
                       })
-                    : enrichedMessages
+                    : recruiterLive
+                      ? RB.decorate(enrichedMessages)
+                      : enrichedMessages
                 )}
                 {...voiceTurns.chatProps}
                 alignTop={Boolean(demoFrame?.voice)}
-                onSend={submit}
+                onSend={onSendText}
                 suggestedReplies={
                   demoFrame ? opportunityDemoChips(demoFrame.opportunity) : activeSuggestedReplies
                 }
