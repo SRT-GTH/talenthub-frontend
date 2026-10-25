@@ -205,8 +205,9 @@ export const sysTplUpdate = (id, p) => api.put(`/templates/${id}`, p).then(body)
 export const sysTplPreview = (id, sampleVariables) =>
   post(`/templates/${id}/preview`, clean({ sampleVariables }));
 /** Sends to the signed-in staff member's own address only (enforced by the server). */
+// A real send (SMTP plus embedded images) can take well over the default 15 s request timeout.
 export const sysTplTestSend = (id, variables = {}) =>
-  post(`/templates/${id}/test-send`, { variables });
+  api.post(`/templates/${id}/test-send`, { variables }, { timeout: 60000 }).then(body);
 export const sysTplStats = () => get('/templates/stats/overview');
 export const notifTypes = () => get('/notifications/notification-types');
 export const notifCoverage = () => get('/notifications/template-coverage');
