@@ -107,7 +107,8 @@ const blankForm = (tenant) => ({
   country: '',
   currency: '',
   timezone: tenant ? 'Africa/Accra' : '',
-  locale: 'en',
+  // Organisations inherit country, currency, timezone and language from their tenant when left blank.
+  locale: tenant ? 'en' : '',
   usernamePrefix: '',
   customDomain: '',
   primaryColor: '',
@@ -223,11 +224,14 @@ const OrgForm = ({ v, set, creating, types, tenants }) => {
               <Select
                 label="Platform tenant"
                 options={[
-                  { value: '', label: 'None' },
-                  ...tenants.map((t) => ({ value: t.id, label: `${t.name} (${t.uid})` })),
+                  { value: '', label: 'Default tenant' },
+                  ...tenants
+                    .filter((t) => t.status === 'active')
+                    .map((t) => ({ value: t.id, label: `${t.name} (${t.uid})` })),
                 ]}
                 value={v.platformTenantId}
                 onChange={(val) => set({ platformTenantId: val })}
+                helperText="Every organisation belongs to a tenant. Default is the platform's default tenant (GTH)."
               />
             </>
           ) : null}
@@ -834,7 +838,7 @@ const OrganisationsTab = ({ data, session }) => {
           body={
             creating === 'tenant'
               ? 'Creates the tenant record (for example NTH, Nigeria Talent Hub). Its readiness checklist shows what still needs doing outside this screen.'
-              : 'Creates an organisation and, if you choose one, links it to a platform tenant.'
+              : 'Creates an organisation under a platform tenant (the default tenant unless you pick one). Blank country, currency, timezone and language come from the tenant.'
           }
           primary={{ label: busy ? 'Creating…' : 'Create', arrow: true }}
           secondary="Cancel"
