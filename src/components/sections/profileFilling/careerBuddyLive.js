@@ -9,6 +9,9 @@
  *                (Figma 5132:46916 Modify / Confirm), not as chat bullets
  *   sectionState { section, state: 'in-progress'|'awaiting-review'|'saved' }
  *   report       { assessmentType, title, summary, code?, bars: [{label, value}] }
+ *   opportunities [{ opportunityId, title, company, logo, type, workMode, city, salary, deadline, matchScore,
+ *                  keySkills: {have, total}, skills: [{name, have}], matchReason }]
+ *                the talent's matched postings, drawn as the Figma match cards (opportunityMatchView below)
  *
  * ChatThread renders a bubble as `text`, then `bullets`, then `followUp`, so
  * blocks are packed into as few bubbles as that shape allows.
@@ -44,6 +47,114 @@ const firstLine = (text) =>
     .map((l) => l.trim())
     .find(Boolean) || '';
 
+// ---- opportunity match cards (Figma 9053:80615 / 9222:118005) ----
+const JOB_TYPE_LABEL = {
+  internship: 'Internship',
+  'full-time-job': 'Full-time',
+  'training-program': 'Training',
+  'government-program': 'Government programme',
+  'international-opportunity': 'International',
+};
+const WORK_MODE_LABEL = { remote: 'Remote', hybrid: 'Hybrid', onsite: 'On-site' };
+const PAY_PERIOD = {
+  monthly: '/ mo',
+  yearly: '/ yr',
+  hourly: '/ hr',
+  'project-based': 'per project',
+};
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const titleCase = (s) =>
+  String(s || '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/^\w/, (c) => c.toUpperCase());
+
+/** "Closes 04 Nov" / "Closes today" / "Closes tomorrow"; '' when unknown or past. */
+export function closesLabel(deadline, now = new Date()) {
+  const d = deadline ? new Date(deadline) : null;
+  if (!d || Number.isNaN(d.getTime())) return '';
+  const startOf = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(d) - startOf(now)) / DAY_MS);
+  if (days < 0) return '';
+  if (days === 0) return 'Closes today';
+  if (days === 1) return 'Closes tomorrow';
+  return `Closes ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}`;
+}
+
+/** "GHS 2,500–3,500 / mo"; '' when the posting gives no pay. */
+export function payLabel(salary) {
+  if (!salary) return '';
+  const n = (v) => (typeof v === 'number' && Number.isFinite(v) ? v.toLocaleString('en-US') : null);
+  const min = n(salary.min);
+  const max = n(salary.max);
+  const cur = salary.currency || 'GHS';
+  const period = PAY_PERIOD[salary.type] ? ` ${PAY_PERIOD[salary.type]}` : '';
+  if (min && max && min !== max) return `${cur} ${min}–${max}${period}`;
+  if (min || max) return `${cur} ${max || min}${period}`;
+  return salary.negotiable ? 'Pay negotiable' : '';
+}
+
+/** Agent OpportunityCard -> the props OpportunityMatchCard draws. */
+export function opportunityMatchView(card, now = new Date()) {
+  const mode = WORK_MODE_LABEL[card?.workMode] || (card?.workMode ? titleCase(card.workMode) : '');
+  const place = [card?.city, mode].filter(Boolean).join(' · ');
+  const type = JOB_TYPE_LABEL[card?.type] || (card?.type ? titleCase(card.type) : '');
+  const facts = [place, type, payLabel(card?.salary)].filter(Boolean);
+  const score = Math.max(0, Math.min(100, Math.round(Number(card?.matchScore) || 0)));
+  const ks = card?.keySkills;
+  return {
+    id: card.opportunityId,
+    opportunityId: card.opportunityId,
+    company: card.company || '',
+    logo: card.logo || null,
+    title: card.title,
+    closes: closesLabel(card.deadline, now),
+    facts,
+    placeFirst: Boolean(place),
+    match: score,
+    meter: score / 100,
+    keySkills: ks?.total ? `${ks.have} of ${ks.total} key skills` : '',
+    skills: Array.isArray(card.skills) ? card.skills.filter((s) => s?.name) : [],
+    detailPath: `/job-postings?job=${encodeURIComponent(card.opportunityId)}`,
+  };
+}
+
+/** "Why this match?" on card i: the auto bubble text plus the chip action that asks the agent for that posting. */
+export function whyThisMatchAction(card, index) {
+  const label = `Card ${index + 1} - Why this match?`;
+  return {
+    label,
+    chipAction: {
+      label,
+      intent: 'opportunity_detail',
+      slots: [
+        { name: 'opportunityId', value: String(card.opportunityId) },
+        { name: 'title', value: String(card.title || '') },
+        { name: 'focus', value: 'why' },
+      ],
+    },
+  };
+}
+
+/**
+ * The thread's chips after a turn. When the turn drew match cards, the per-posting chips (one per listed role) would
+ * repeat the cards - the cards' own buttons cover them - so only the forward chips (readiness, learning path) stay.
+ */
+export function cardChips(turn) {
+  const chips = turn?.chips || [];
+  const chipActions = turn?.chipActions || [];
+  if (!turn?.opportunities?.length) return { chips, chipActions };
+  const titles = new Set(turn.opportunities.map((o) => o.title));
+  const keep = (label) => {
+    const action = chipActionFor(label, chipActions);
+    return !(action?.intent === 'opportunity_detail' || titles.has(label));
+  };
+  return {
+    chips: chips.filter(keep),
+    chipActions: chipActions.filter((a) => keep(a.label)),
+  };
+}
+
 /** Agent turn -> plain-data bot bubbles (serializable; no React nodes). */
 export function turnToBubbles(turn) {
   const meta = {
@@ -58,6 +169,26 @@ export function turnToBubbles(turn) {
   if (turn?.practiceReview?.items?.length) {
     const lead = firstLine(turn?.reply) || firstLine(blocks?.[0]?.text ?? blocks?.[0]?.items?.[0]);
     blocks = [{ type: 'text', text: lead }];
+  }
+  // 2026-10-25: matched postings are drawn as cards; the numbered list of the same postings would repeat them.
+  const opportunities = Array.isArray(turn?.opportunities)
+    ? turn.opportunities.filter((o) => o?.opportunityId && o?.title)
+    : [];
+  // The lead line stays above the cards; any other prose (career tracks that fit) goes under them.
+  let afterCards = '';
+  if (opportunities.length) {
+    const texts = blocks
+      ? blocks
+          .flatMap((b) =>
+            b.type === 'text' ? [b.text] : b.type === 'facts' ? (b.items || []).map(String) : []
+          )
+          .filter(Boolean)
+      : String(turn?.reply ?? '')
+          .split('\n')
+          .map((l) => l.trim())
+          .filter((l) => l && !/^\d+[.)]\s/.test(l));
+    blocks = [{ type: 'text', text: texts[0] || '' }];
+    afterCards = texts.slice(1).join('\n');
   }
   const bubbles = [];
   let cur = null;
@@ -96,6 +227,10 @@ export function turnToBubbles(turn) {
   if (turn?.report) cur.report = turn.report;
   // 2026-10-17 (practice interview Phase B): the review card.
   if (turn?.practiceReview?.items?.length) cur.practiceReview = turn.practiceReview;
+  if (opportunities.length) {
+    cur.opportunities = opportunities;
+    if (afterCards) cur.afterCards = afterCards;
+  }
   const last = bubbles[bubbles.length - 1];
   last.meta = meta;
   last.showActions = true;
@@ -487,8 +622,7 @@ export function threadFromSession(session) {
     updatedAt: session.updatedAt,
     messages,
     history,
-    chips: last.chips || [],
-    chipActions: last.chipActions || [],
+    ...cardChips(last),
     live: { states: {}, card: null },
   };
 }
