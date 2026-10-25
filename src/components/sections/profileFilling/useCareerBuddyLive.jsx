@@ -594,9 +594,17 @@ export function useCareerBuddyLive({
   const handleSend = (text) => {
     const trimmed = String(text || '').trim();
     if (!trimmed) return;
-    if (trimmed === 'Try again' && lastTurnRef.current && !chipActionFor(trimmed, chipActions)) {
-      const { text: lastText, chipAction } = lastTurnRef.current;
-      runTurn(lastText, { chipAction, showUser: false });
+    // 2026-10-25 live: after a reload the remembered turn is gone, so "Try again" went to the agent
+    // as the talent's words and was read as "edit my education". Retry resends the last real
+    // message (the remembered turn, else the last one in the thread) and never the chip text.
+    if (trimmed === 'Try again' && !chipActionFor(trimmed, chipActions)) {
+      const remembered = lastTurnRef.current?.text !== 'Try again' ? lastTurnRef.current : null;
+      const lastUserText = [...(thread.messages || [])]
+        .reverse()
+        .find((m) => m.sender === 'user' && !m.auto && m.text && m.text.trim() !== 'Try again')?.text;
+      const retry = remembered || (lastUserText ? { text: lastUserText, chipAction: null } : null);
+      if (retry) runTurn(retry.text, { chipAction: retry.chipAction, showUser: false });
+      else patchThread(() => ({ chips: [], chipActions: [] }));
       return;
     }
     runTurn(trimmed, { chipAction: chipActionFor(trimmed, chipActions) });
