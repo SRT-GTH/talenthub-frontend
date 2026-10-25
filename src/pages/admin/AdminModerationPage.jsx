@@ -1,234 +1,468 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AdminFrame from '../../components/sections/admin/AdminFrame.jsx';
 import { useAdminState } from '../../components/sections/admin/adminState.js';
-import AskChangeDialog from '../../components/sections/admin/moderation/AskChangeDialog.jsx';
-import CommunityPostsView from '../../components/sections/admin/moderation/CommunityPostsView.jsx';
 import FlagDetailView from '../../components/sections/admin/moderation/FlagDetailView.jsx';
-import RemoveContentDialog from '../../components/sections/admin/moderation/RemoveContentDialog.jsx';
-import ReviewCommunityDialog from '../../components/sections/admin/moderation/ReviewCommunityDialog.jsx';
 import {
-  CLAIMED,
-  DISMISS,
-  ESCALATE,
-  GOV_BLOCKED,
-  RESTORE,
-  WARN,
-} from '../../components/sections/admin/moderation/data/adminModerationData.js';
-import {
-  COMMUNITIES,
-  FLAGS,
-  FLAGS_EMPTY,
-  REMOVED,
-} from '../../components/sections/admin/moderation/data/adminModerationQueues.js';
+  FLAG_CHIPS,
+  FLAG_TABS,
+  RESOLVE_ACTIONS,
+  findFlag,
+  flagRow,
+  isSystemFlag,
+} from '../../components/sections/admin/moderation/adminModerationModel.js';
 import AdminConfirmDialog from '../../components/sections/admin/ui/AdminConfirmDialog.jsx';
 import AdminQueueView from '../../components/sections/admin/queue/AdminQueueView.jsx';
-import { Select, TextInput } from '../../components/ui/form';
+import { useAdminSession } from '../../components/sections/admin/useAdminSession.js';
+import { useAdminData, useAdminToast } from '../../components/sections/admin/useAdminData.js';
+import AdminLoadNotice from '../../components/sections/admin/AdminLoadNotice.jsx';
+import { Checkbox, Select, TextInput } from '../../components/ui/form';
+import {
+  adminError,
+  docId,
+  escalateFlag,
+  flagQueue,
+  humanize,
+  issueWarning,
+  postQueue,
+  reclassifyPost,
+  resolveFlag,
+  restoreFlag,
+} from '../../services/admin.api.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AdminModerationPage');
 
 /*
- * AdminModerationPage — /admin/moderation/* (Figma 7.2). Routes and URL states (shared keys in adminState.js):
- *   /admin/moderation                         flag queue (7.2.1a, ?role=moderator) · ?state=empty → all clear (7.2.1b)
- *   /admin/moderation/flags/FL-2291           flag detail (7.2.2a) · ?modal=dismiss (2b) | remove (2c) | escalate (2d) | claimed (2e) | warn
- *   /admin/moderation/removed                 removed content (7.2.3a, Senior Admin) · ?modal=restore (3b) | government (3c)
- *   /admin/moderation/posts                   community posts (7.2.4a) · ?modal=warn (4b)
- *   /admin/moderation/communities             new community reviews (7.2.5a) · ?modal=review (5b) | ask-change (5c)
- * Real flow (⚠️ ASSUMPTION: mock only): the dialogs close back to the screen they were opened from; "Remove content" goes through "Escalate instead" when it is the third
- * flag; a Super Admin approval for government content is "Send request" (logs). The flag list, search and the sort / filter controls only log.
+ * AdminModerationPage — /admin/moderation/* (Figma 7.2). Real data from /api/admin/moderation (Super Admin, Senior Admin, Content Moderator):
+ *   /admin/moderation                    flag queue: ?tab=open|under_review|escalated|approved|rejected · ?chip=all|users|system
+ *   /admin/moderation/flags/:flagId      flag detail · ?modal=dismiss | remove | escalate (Content Moderator only) | warn | restore
+ *   /admin/moderation/removed            removed content (flags resolved as removed) · Restore (Senior Admin and up)
+ *   /admin/moderation/posts              open flags on community posts · Reclassify · Warn author
+ *   /admin/moderation/communities        new community reviews: no backend yet (empty state says so)
  */
 
+const Page = ({ title, children }) => (
+  <div className="flex flex-col gap-[16px] pt-[4px]">
+    <h1 className="m-0 font-sans text-[34px] leading-[41px] font-semibold text-[#1c2a21]">{title}</h1>
+    {children}
+  </div>
+);
+
+const queueConfig = ({ title, subtitle, tabs, tab, chips, rows, banner, empty, action }) => ({
+  title,
+  sticker: `${rows.length} shown`,
+  subtitle,
+  tabs,
+  tabTone: 'ink',
+  defaultTab: tab,
+  chips,
+  defaultView: 'list',
+  sort: 'Newest first',
+  action: action ?? 'Refresh',
+  banner,
+  rows,
+  empty: rows.length ? null : empty,
+});
+
+const emptyFlags = (text) => ({
+  title: 'All clear',
+  text,
+  steps: [
+    { id: 's1', icon: 'spark', title: 'Check escalated flags', meta: 'Escalated tab', to: '/admin/moderation?tab=escalated' },
+    { id: 's2', icon: 'plus', title: 'Review removed content', meta: 'Appeals and restores', to: '/admin/moderation/removed' },
+    { id: 's3', icon: 'user', title: 'Community posts', meta: 'Reported posts', to: '/admin/moderation/posts' },
+  ],
+  primary: 'Back to home',
+  onPrimary: '/admin',
+  secondary: 'Audit log',
+  secondaryTo: '/admin/audit-log',
+});
+
+/* ── Flag queue ─────────────────────────────────────────────────────────── */
+const FlagQueue = ({ data }) => {
+  const tab = data.tab ?? 'open';
+  const chip = data.params.get('chip') ?? 'all';
+  const list = useAdminData(() => flagQueue({ status: tab, limit: 200 }), [tab]);
+  const counts = useAdminData(async () => {
+    const r = await Promise.all(FLAG_TABS.map((t) => flagQueue({ status: t.id, limit: 1 }).catch(() => null)));
+    return Object.fromEntries(FLAG_TABS.map((t, i) => [t.id, r[i]?.total ?? null]));
+  }, []);
+  const all = list.data?.records ?? [];
+  const shown = all.filter((f) => (chip === 'system' ? isSystemFlag(f) : chip === 'users' ? !isSystemFlag(f) : true));
+  if (list.loading || list.error) {
+    return (
+      <Page title="Flag queue">
+        <AdminLoadNotice loading={list.loading} error={list.error} status={list.status} onRetry={list.reload} />
+      </Page>
+    );
+  }
+  const config = queueConfig({
+    title: 'Flag queue',
+    subtitle: 'Reports from users and the system. Decisions are logged under your name.',
+    tabs: FLAG_TABS.map((t) => ({ id: t.id, label: t.label, count: counts.data?.[t.id] ?? '–' })),
+    tab,
+    chips: FLAG_CHIPS.map((c) => ({
+      ...c,
+      label: `${c.label} ${c.id === 'all' ? all.length : all.filter((f) => (c.id === 'system' ? isSystemFlag(f) : !isSystemFlag(f))).length}`,
+    })),
+    rows: shown.map((f) => flagRow(f)),
+    banner: `${list.data?.total ?? 0} ${(FLAG_TABS.find((t) => t.id === tab)?.label || tab).toLowerCase()} flags. Priority and category aren’t returned by the backend yet, so the list is newest first.`,
+    empty: emptyFlags(`No ${FLAG_TABS.find((t) => t.id === tab)?.label.toLowerCase()} flags right now.`),
+  });
+  return (
+    <AdminQueueView
+      config={config}
+      data={data}
+      onAction={() => {
+        list.reload();
+        counts.reload();
+      }}
+      onRowButton={(row) => data.update({ modal: 'restore', flag: row.id })}
+    />
+  );
+};
+
+/* ── Decision dialogs (detail + removed list) ───────────────────────────── */
+const DecisionDialogs = ({ modal, flag, role, onClose, onDone }) => {
+  const [reason, setReason] = useState('');
+  const [warn, setWarn] = useState(false);
+  const [severity, setSeverity] = useState('normal');
+  const [authorId, setAuthorId] = useState('');
+  const [warnLevel, setWarnLevel] = useState('low');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  if (!flag || !modal) return null;
+  const id = docId(flag);
+  const run = async (fn, title, body) => {
+    if (busy) return;
+    if (reason.trim().length < 3) {
+      setError('Give a reason (it’s logged).');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      await fn();
+      onDone(title, body);
+    } catch (e) {
+      setError(adminError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const reasonField = (
+    <TextInput label="Reason (logged)" required value={reason} onChange={(e) => setReason(e.target.value)} error={error || undefined} />
+  );
+
+  if (modal === 'dismiss' || modal === 'remove') {
+    const a = RESOLVE_ACTIONS[modal];
+    return (
+      <AdminConfirmDialog
+        title={a.title}
+        body={a.body}
+        primary={{ label: busy ? 'Saving…' : a.primary, tone: a.tone }}
+        secondary="Cancel"
+        onPrimary={() =>
+          run(() => resolveFlag(id, { action: a.action, reason: reason.trim(), warnAuthor: modal === 'remove' && warn }), modal === 'remove' ? 'Content removed' : 'Flag dismissed', 'The flag is closed.')
+        }
+        onClose={onClose}
+      >
+        <div className="flex flex-col gap-[12px]">
+          {reasonField}
+          {modal === 'remove' ? (
+            <Checkbox label="Also send a warning" checked={warn} onChange={(e) => setWarn(e.target.checked)} labelClassName="text-[14px] font-medium" />
+          ) : null}
+        </div>
+      </AdminConfirmDialog>
+    );
+  }
+  if (modal === 'escalate') {
+    return (
+      <AdminConfirmDialog
+        title="Escalate to a Senior Admin?"
+        body={role === 'moderator' ? 'A Senior Admin takes it over. You can still add context.' : 'Only Content Moderators escalate flags; Senior and Super Admins decide them directly.'}
+        primary={{ label: busy ? 'Escalating…' : 'Escalate', arrow: true }}
+        secondary="Cancel"
+        onPrimary={() =>
+          run(() => escalateFlag(id, { escalationReason: reason.trim(), escalationSeverity: severity }), 'Flag escalated', 'A Senior Admin will pick it up.')
+        }
+        onClose={onClose}
+      >
+        <div className="flex flex-col gap-[12px]">
+          <Select label="Urgency" required options={['normal', 'urgent', 'critical']} value={severity} onChange={setSeverity} />
+          {reasonField}
+        </div>
+      </AdminConfirmDialog>
+    );
+  }
+  if (modal === 'warn') {
+    return (
+      <AdminConfirmDialog
+        title="Warn the author"
+        body="The flag doesn’t say who wrote the content, so paste the author’s account id. Warnings count toward automatic restrictions."
+        primary={{ label: busy ? 'Sending…' : 'Send warning', tone: 'red' }}
+        secondary="Cancel"
+        onPrimary={() =>
+          /^[a-f0-9]{24}$/i.test(authorId.trim())
+            ? run(
+                () => issueWarning({ authorId: authorId.trim(), severity: warnLevel, reason: reason.trim(), flagId: id }),
+                'Warning sent',
+                'The author has been warned.',
+              )
+            : setError('Paste the author’s 24-character account id.')
+        }
+        onClose={onClose}
+      >
+        <div className="flex flex-col gap-[12px]">
+          <TextInput label="Author account id" required value={authorId} onChange={(e) => setAuthorId(e.target.value)} />
+          <Select label="Severity" required options={['low', 'medium', 'high']} value={warnLevel} onChange={setWarnLevel} />
+          {reasonField}
+        </div>
+      </AdminConfirmDialog>
+    );
+  }
+  if (modal === 'restore') {
+    return (
+      <AdminConfirmDialog
+        title="Restore this content?"
+        body="It becomes visible again and the restore is logged. Senior Admins and Super Admins only."
+        primary={{ label: busy ? 'Restoring…' : 'Restore', arrow: true }}
+        secondary="Cancel"
+        onPrimary={() => run(() => restoreFlag(id, reason.trim()), 'Content restored', 'It’s visible again.')}
+        onClose={onClose}
+      >
+        {reasonField}
+      </AdminConfirmDialog>
+    );
+  }
+  return null;
+};
+
+/* ── Flag detail ────────────────────────────────────────────────────────── */
+const FlagDetail = ({ data, flagId, role }) => {
+  const navigate = useNavigate();
+  const [toastEl, toast] = useAdminToast();
+  const found = useAdminData(() => findFlag(flagId), [flagId]);
+  if (found.loading || found.error || !found.data) {
+    return (
+      <Page title="Flag detail">
+        <AdminLoadNotice
+          loading={found.loading}
+          error={found.error || (!found.data && !found.loading ? 'This flag wasn’t found in any queue.' : null)}
+          status={found.status}
+          onRetry={found.reload}
+        />
+      </Page>
+    );
+  }
+  return (
+    <>
+      <FlagDetailView
+        flag={found.data.flag}
+        siblings={found.data.siblings}
+        role={role}
+        onRefresh={found.reload}
+        onDecide={(id) => data.update({ modal: id })}
+      />
+      <DecisionDialogs
+        key={data.modal}
+        modal={data.modal}
+        flag={found.data.flag}
+        role={role}
+        onClose={() => data.update({ modal: null })}
+        onDone={(title, body) => {
+          toast(title, body);
+          data.update({ modal: null });
+          found.reload();
+        }}
+      />
+      {toastEl}
+      <button type="button" className="sr-only" onClick={() => navigate('/admin/moderation')}>
+        Back to the queue
+      </button>
+    </>
+  );
+};
+
+/* ── Removed content ────────────────────────────────────────────────────── */
+const RemovedList = ({ data, role }) => {
+  const [toastEl, toast] = useAdminToast();
+  const list = useAdminData(() => flagQueue({ status: 'approved', limit: 200 }), []);
+  const records = list.data?.records ?? [];
+  const tab = data.tab ?? 'hidden';
+  const tabs = [
+    { id: 'hidden', label: 'Removed', count: records.filter((f) => f.isHidden).length },
+    { id: 'appealed', label: 'Appealed', count: records.filter((f) => f.appealStatus).length },
+    { id: 'restored', label: 'Restored', count: records.filter((f) => !f.isHidden).length },
+  ];
+  const shown = records.filter((f) => (tab === 'appealed' ? f.appealStatus : tab === 'restored' ? !f.isHidden : f.isHidden));
+  const selected = records.find((f) => docId(f) === data.params.get('flag'));
+  if (list.loading || list.error) {
+    return (
+      <Page title="Removed content">
+        <AdminLoadNotice loading={list.loading} error={list.error} status={list.status} onRetry={list.reload} />
+      </Page>
+    );
+  }
+  const config = queueConfig({
+    title: 'Removed content',
+    subtitle: 'Content removed through a flag. Senior Admins can restore it. Appeals can’t be filed through the backend yet.',
+    tabs,
+    tab: 'hidden',
+    chips: [{ id: 'all', label: 'All' }],
+    rows: shown.map((f) => ({ ...flagRow(f), button: f.isHidden && role !== 'moderator' ? 'Restore' : null })),
+    banner: `${records.length} flags closed as removed.`,
+    empty: emptyFlags('Nothing in this list.'),
+  });
+  return (
+    <>
+      <AdminQueueView config={config} data={data} onAction={list.reload} onRowButton={(row) => data.update({ modal: 'restore', flag: row.id })} />
+      <DecisionDialogs
+        key={data.modal}
+        modal={data.modal === 'restore' ? 'restore' : null}
+        flag={selected}
+        role={role}
+        onClose={() => data.update({ modal: null, flag: null })}
+        onDone={(title, body) => {
+          toast(title, body);
+          data.update({ modal: null, flag: null });
+          list.reload();
+        }}
+      />
+      {toastEl}
+    </>
+  );
+};
+
+/* ── Community posts ────────────────────────────────────────────────────── */
+const PostsList = ({ data }) => {
+  const [toastEl, toast] = useAdminToast();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [newTag, setNewTag] = useState('');
+  const [reason, setReason] = useState('');
+  const list = useAdminData(() => postQueue({ limit: 200 }), []);
+  const records = list.data?.records ?? [];
+  const selected = records.find((f) => docId(f) === data.params.get('flag'));
+  if (list.loading || list.error) {
+    return (
+      <Page title="Community posts">
+        <AdminLoadNotice loading={list.loading} error={list.error} status={list.status} onRetry={list.reload} />
+      </Page>
+    );
+  }
+  const config = queueConfig({
+    title: 'Community posts',
+    subtitle: 'Open reports on community posts. Open one to decide it, or reclassify its purpose.',
+    tabs: [{ id: 'reported', label: 'Reported', count: list.data?.total ?? records.length }],
+    tab: 'reported',
+    chips: [{ id: 'all', label: 'All' }],
+    rows: records.map((f) => ({ ...flagRow(f), button: 'Reclassify' })),
+    banner: 'The backend lists reported posts only; all posts, escalations by community moderators and post text aren’t available yet.',
+    empty: emptyFlags('No reported posts.'),
+  });
+  const close = () => {
+    setError('');
+    data.update({ modal: null, flag: null });
+  };
+  return (
+    <>
+      <AdminQueueView config={config} data={data} onAction={list.reload} onRowButton={(row) => data.update({ modal: 'reclassify', flag: row.id })} />
+      {data.modal === 'reclassify' && selected ? (
+        <AdminConfirmDialog
+          title="Reclassify this post"
+          body={`Current purpose: ${humanize(selected.metadata?.purposeTag || 'not set')}. The new tag decides where the post shows.`}
+          primary={{ label: busy ? 'Saving…' : 'Reclassify', arrow: true }}
+          secondary="Cancel"
+          onPrimary={async () => {
+            if (busy || !newTag.trim()) return;
+            setBusy(true);
+            setError('');
+            try {
+              await reclassifyPost(selected.resourceId, newTag.trim(), reason.trim() || undefined);
+              toast('Post reclassified', `Now tagged ${humanize(newTag)}.`);
+              close();
+              list.reload();
+            } catch (e) {
+              setError(adminError(e));
+            } finally {
+              setBusy(false);
+            }
+          }}
+          onClose={close}
+        >
+          <div className="flex flex-col gap-[12px]">
+            <TextInput label="New purpose tag" required placeholder="question" value={newTag} onChange={(e) => setNewTag(e.target.value)} />
+            <TextInput label="Reason" optional value={reason} onChange={(e) => setReason(e.target.value)} error={error || undefined} />
+          </div>
+        </AdminConfirmDialog>
+      ) : null}
+      {toastEl}
+    </>
+  );
+};
+
+/* ── Page ───────────────────────────────────────────────────────────────── */
 const AdminModerationPage = () => {
   const data = useAdminState();
-  const navigate = useNavigate();
+  const { role } = useAdminSession();
   const { pathname } = useLocation();
-  const modal = data.modal;
   const sub = pathname.replace(/^\/admin\/moderation\/?/, '');
-  const [severity, setSeverity] = useState(WARN.severities[0]);
-  const [warnMessage, setWarnMessage] = useState(WARN.message);
+  const flagId = sub.startsWith('flags/') ? sub.slice('flags/'.length) : null;
 
   useEffect(() => {
-    log('mount', { sub, modal });
-  }, [sub, modal]);
+    log('mount', { sub, modal: data.modal, role });
+  }, [sub, data.modal, role]);
 
-  const close = () => data.update({ modal: null });
+  const communities = useMemo(
+    () =>
+      queueConfig({
+        title: 'New communities',
+        subtitle: 'Communities waiting for review before they go live.',
+        tabs: [{ id: 'new', label: 'New', count: '0' }],
+        tab: 'new',
+        chips: [{ id: 'all', label: 'All' }],
+        rows: [],
+        banner: '',
+        empty: {
+          title: 'Not connected yet',
+          text: 'The backend has no community review queue yet, so there is nothing to review here.',
+          steps: [
+            { id: 's1', icon: 'spark', title: 'Reported community posts', meta: 'Moderation › Posts', to: '/admin/moderation/posts' },
+            { id: 's2', icon: 'plus', title: 'Flag queue', meta: 'Moderation', to: '/admin/moderation' },
+            { id: 's3', icon: 'user', title: 'Audit log', meta: 'Community events', to: '/admin/audit-log' },
+          ],
+          primary: 'Back to the flag queue',
+          onPrimary: '/admin/moderation',
+          secondary: 'Home',
+          secondaryTo: '/admin',
+        },
+      }),
+    [],
+  );
 
   let title = 'Moderation';
   let body;
-  let dialogs = null;
-
-  if (sub.startsWith('flags/')) {
+  if (flagId) {
     title = 'Flag detail';
-    body = (
-      <FlagDetailView onDecide={(id) => data.update({ modal: id === 'warn' ? 'warn' : id })} />
-    );
-    dialogs = (
-      <>
-        {modal === 'dismiss' ? (
-          <AdminConfirmDialog
-            title={DISMISS.title}
-            body={DISMISS.body}
-            primary={{ label: DISMISS.primary, tone: 'red' }}
-            secondary={DISMISS.secondary}
-            onPrimary={() => navigate('/admin/moderation')}
-            onClose={close}
-          />
-        ) : null}
-        {modal === 'escalate' ? (
-          <AdminConfirmDialog
-            title={ESCALATE.title}
-            body={ESCALATE.body}
-            primary={{ label: ESCALATE.primary, arrow: true }}
-            secondary={ESCALATE.secondary}
-            onPrimary={() => navigate('/admin/moderation')}
-            onClose={close}
-          />
-        ) : null}
-        {modal === 'claimed' ? (
-          <AdminConfirmDialog
-            title={CLAIMED.title}
-            body={CLAIMED.body}
-            primary={{ label: CLAIMED.primary, tone: 'red' }}
-            secondary={CLAIMED.secondary}
-            onPrimary={() => {
-              log('ask to reassign (no flow drawn)');
-              close();
-            }}
-            onClose={close}
-          />
-        ) : null}
-        {modal === 'remove' || modal === 'warn' ? (
-          <RemoveContentDialog
-            onClose={close}
-            onRemove={() => navigate('/admin/moderation')}
-            onEscalate={() => data.update({ modal: 'escalate' })}
-          />
-        ) : null}
-      </>
-    );
+    body = <FlagDetail data={data} flagId={flagId} role={role} />;
   } else if (sub === 'removed') {
     title = 'Removed content';
-    body = (
-      <AdminQueueView
-        config={REMOVED}
-        data={data}
-        onRowButton={() => data.update({ modal: 'government' })}
-      />
-    );
-    dialogs = (
-      <>
-        {modal === 'restore' ? (
-          <AdminConfirmDialog
-            title={RESTORE.title}
-            body={RESTORE.body}
-            primary={{ label: RESTORE.primary, arrow: true }}
-            secondary={RESTORE.secondary}
-            onPrimary={close}
-            onClose={close}
-          />
-        ) : null}
-        {modal === 'government' ? (
-          <AdminConfirmDialog
-            title={GOV_BLOCKED.title}
-            body={GOV_BLOCKED.body}
-            primary={{ label: GOV_BLOCKED.primary, tone: 'red' }}
-            secondary={GOV_BLOCKED.secondary}
-            onPrimary={() => {
-              log('request sent to a Super Admin (mock)');
-              close();
-            }}
-            onClose={close}
-          />
-        ) : null}
-      </>
-    );
+    body = <RemovedList data={data} role={role} />;
   } else if (sub === 'posts') {
     title = 'Community posts';
-    body = (
-      <CommunityPostsView
-        data={data}
-        onReview={() => data.update({ modal: 'warn' })}
-        onRestore={() => data.update({ modal: 'restore' })}
-      />
-    );
-    dialogs = (
-      <>
-        {modal === 'warn' ? (
-          <AdminConfirmDialog
-            title={WARN.title}
-            body={WARN.body}
-            primary={{ label: WARN.primary, tone: 'red' }}
-            secondary={WARN.secondary}
-            onPrimary={close}
-            onClose={close}
-          >
-            <div className="flex flex-col gap-[16px]">
-              <Select
-                label={WARN.severityLabel}
-                required
-                options={WARN.severities}
-                value={severity}
-                onChange={setSeverity}
-              />
-              <TextInput
-                label={WARN.messageLabel}
-                value={warnMessage}
-                onChange={(e) => setWarnMessage(e.target.value)}
-              />
-            </div>
-          </AdminConfirmDialog>
-        ) : null}
-        {modal === 'restore' ? (
-          <AdminConfirmDialog
-            title={RESTORE.title}
-            body={RESTORE.body}
-            primary={{ label: RESTORE.primary, arrow: true }}
-            secondary={RESTORE.secondary}
-            onPrimary={close}
-            onClose={close}
-          />
-        ) : null}
-      </>
-    );
+    body = <PostsList data={data} />;
   } else if (sub === 'communities') {
     title = 'New communities';
-    body = (
-      <AdminQueueView
-        config={COMMUNITIES}
-        data={data}
-        onRowButton={() => log('reassign (no flow drawn)')}
-      />
-    );
-    dialogs = (
-      <>
-        {modal === 'review' ? (
-          <ReviewCommunityDialog
-            onClose={close}
-            onReject={close}
-            onChange={() => data.update({ modal: 'ask-change' })}
-            onApprove={close}
-          />
-        ) : null}
-        {modal === 'ask-change' ? (
-          <AskChangeDialog onClose={() => data.update({ modal: 'review' })} onSend={close} />
-        ) : null}
-      </>
-    );
+    body = <AdminQueueView config={communities} data={data} />;
   } else {
-    body = (
-      <AdminQueueView
-        config={data.state === 'empty' ? FLAGS_EMPTY : FLAGS}
-        data={data}
-        onRowButton={() => log('reassign (no flow drawn)')}
-      />
-    );
+    body = <FlagQueue data={data} />;
   }
 
   return (
     <AdminFrame data={data} title={title}>
       {body}
-      {dialogs}
     </AdminFrame>
   );
 };

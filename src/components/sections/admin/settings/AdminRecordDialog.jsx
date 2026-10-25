@@ -35,6 +35,9 @@ const AdminRecordDialog = ({
   onSubmit,
   onClose,
   label,
+  children,
+  busy = false,
+  error = '',
 }) => {
   const [values, setValues] = useState(() =>
     Object.fromEntries(rows.flat().map((f) => [f.id, f.select ? f.select[0] : (f.value ?? '')]))
@@ -45,7 +48,8 @@ const AdminRecordDialog = ({
   const submit = (e) => {
     e.preventDefault();
     log('submit', { primary });
-    onSubmit?.();
+    if (busy) return;
+    onSubmit?.({ values, checked });
   };
 
   return (
@@ -93,7 +97,7 @@ const AdminRecordDialog = ({
           </div>
           <button
             type="button"
-            onClick={() => log('file action (no screen drawn)', file.action)}
+            onClick={() => (file.onAction ? file.onAction() : log('file action (no screen drawn)', file.action))}
             className="inline-flex h-[52px] cursor-pointer items-center rounded-[14px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[34px] font-sans text-[16px] leading-[24px] font-bold text-[#165d3a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             {file.action}
@@ -131,6 +135,14 @@ const AdminRecordDialog = ({
           ))}
         </div>
 
+        {children}
+
+        {error ? (
+          <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] font-semibold text-[#902b20]">
+            {error}
+          </p>
+        ) : null}
+
         {checkbox ? (
           <Checkbox
             label={checkbox.label}
@@ -140,12 +152,15 @@ const AdminRecordDialog = ({
           />
         ) : null}
 
-        <p className="m-0 flex items-center gap-[10px] rounded-[14px] border border-solid border-[#1c2a21] bg-[#e8f2ed] px-[14px] py-[12px] font-sans text-[14px] leading-[17px] font-semibold text-[#165d3a]">
-          <AdminCheckCircleFillIcon className="size-[18px] shrink-0" />
-          {notice}
-        </p>
+        {notice ? (
+          <p className="m-0 flex items-center gap-[10px] rounded-[14px] border border-solid border-[#1c2a21] bg-[#e8f2ed] px-[14px] py-[12px] font-sans text-[14px] leading-[17px] font-semibold text-[#165d3a]">
+            <AdminCheckCircleFillIcon className="size-[18px] shrink-0" />
+            {notice}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-[12px] pt-[8px]">
+          {link ? (
           <button
             type="button"
             onClick={link.onClick ?? onClose}
@@ -154,6 +169,9 @@ const AdminRecordDialog = ({
             <AdminDeleteIcon className="size-[16px]" />
             {link.label}
           </button>
+          ) : (
+            <span />
+          )}
           <div className="flex items-center gap-[12px]">
             <button
               type="button"
@@ -167,7 +185,7 @@ const AdminRecordDialog = ({
               data-autofocus
               className="inline-flex h-[52px] cursor-pointer items-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] font-sans text-[16px] leading-[24px] font-bold text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
             >
-              {primary}
+              {busy ? 'Saving…' : primary}
               <AdminArrowRightIcon className="size-[20px]" />
             </button>
           </div>

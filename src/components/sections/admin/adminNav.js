@@ -55,6 +55,13 @@ export const SECONDARY_NAV = [
     match: [`${ADMIN_BASE}/live-ops`],
   },
   {
+    id: 'observability',
+    label: 'Observability',
+    to: `${ADMIN_BASE}/observability`,
+    icon: 'speedmeter',
+    match: [`${ADMIN_BASE}/observability`],
+  },
+  {
     id: 'audit-log',
     label: 'Audit log',
     to: `${ADMIN_BASE}/audit-log`,

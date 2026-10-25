@@ -1,11 +1,12 @@
 import { lazy, Suspense } from 'react';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { readStaffSession } from '../../services/adminSession.js';
 
 /*
  * AdminApp — the router of the Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12), mounted by App.jsx as /admin/*
- * outside MainLayout. Mock staff session only (⚠️ ASSUMPTION: frontend only, no real auth; see useAdminSession, ?role=). Every page is a
- * lazy module in this folder; the sections replace their stubs. URL contract: adminState.js + wiki/admin.md.
+ * outside MainLayout. Real staff sign-in: every route except /admin/sign-in needs a staff session (RequireStaff, services/adminSession.js);
+ * the role comes from the account, not the URL. Every page is a lazy module in this folder. URL contract: adminState.js + wiki/admin.md.
  *
  *   /admin/sign-in                         7.0.1a-d staff sign-in (?state=code|locked|expired)
  *   /admin                                 7.0.2a-e staff home, one per role (?role=support|moderator|senior|super|dpo)
@@ -28,6 +29,7 @@ const AdminModerationPage = lazy(() => import('./AdminModerationPage.jsx'));
 const AdminVerificationPage = lazy(() => import('./AdminVerificationPage.jsx'));
 const AdminReportsPage = lazy(() => import('./AdminReportsPage.jsx'));
 const AdminLiveOpsPage = lazy(() => import('./AdminLiveOpsPage.jsx'));
+const AdminObservabilityPage = lazy(() => import('./AdminObservabilityPage.jsx'));
 const AdminCommsPage = lazy(() => import('./AdminCommsPage.jsx'));
 const AdminSupportPage = lazy(() => import('./AdminSupportPage.jsx'));
 const AdminSettingsPage = lazy(() => import('./AdminSettingsPage.jsx'));
@@ -37,11 +39,20 @@ const AdminNotFoundPage = lazy(() => import('./AdminNotFoundPage.jsx'));
 
 const Fallback = () => <PageLoader look="focused" />;
 
+/** Sends anyone without a staff session to the sign-in, remembering where they were going. */
+const RequireStaff = () => {
+  const { pathname, search } = useLocation();
+  if (readStaffSession()) return <Outlet />;
+  const next = encodeURIComponent(`${pathname}${search}`);
+  return <Navigate to={`/admin/sign-in?next=${next}`} replace />;
+};
+
 const AdminApp = () => (
   <Suspense fallback={<Fallback />}>
     <Routes>
-      <Route index element={<AdminHomePage />} />
       <Route path="sign-in" element={<AdminSignInPage />} />
+      <Route element={<RequireStaff />}>
+      <Route index element={<AdminHomePage />} />
       <Route path="accounts" element={<AdminAccountsPage />} />
       <Route path="accounts/merge" element={<AdminAccountsPage />} />
       <Route path="accounts/:accountId" element={<AdminAccountsPage />} />
@@ -49,6 +60,7 @@ const AdminApp = () => (
       <Route path="verification/*" element={<AdminVerificationPage />} />
       <Route path="reports/*" element={<AdminReportsPage />} />
       <Route path="live-ops" element={<AdminLiveOpsPage />} />
+          <Route path="observability" element={<AdminObservabilityPage />} />
       <Route path="comms/*" element={<AdminCommsPage />} />
       <Route path="support" element={<AdminSupportPage />} />
       <Route path="support/:queryId" element={<AdminSupportPage />} />
@@ -59,6 +71,7 @@ const AdminApp = () => (
       <Route path="audit-log/:eventId" element={<AdminAuditPage />} />
       <Route path="report" element={<AdminReportPrintPage />} />
       <Route path="*" element={<AdminNotFoundPage />} />
+      </Route>
     </Routes>
   </Suspense>
 );

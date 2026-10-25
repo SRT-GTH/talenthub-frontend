@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
@@ -10,6 +11,7 @@ import {
   TEMPLATE_COLUMNS,
   TEMPLATE_FILENAME,
   downloadTemplate,
+  loadBulkTemplate,
 } from '../../../services/institutionBulk.js';
 
 const log = debug('TemplateSection');
@@ -91,8 +93,10 @@ const LEGEND_ITEMS = [
 // star: renders ★ in #eedeb8 next to label
 // subTag / subTagType: small overlay badge ('white' = semi-transparent white bg,
 //                      'amber' = semi-transparent amber bg for Minors cols)
-// Same columns as the upload parser (services/institutionBulk.js).
-const COLUMNS = TEMPLATE_COLUMNS.map((c) => ({
+// Same columns as the upload parser (services/institutionBulk.js); GTH admins can change them, so they're re-read after
+// loadBulkTemplate() (see the component). SAMPLE rows below are keyed by the built-in column order.
+const SAMPLE_KEYS = TEMPLATE_COLUMNS.map((c) => c.key);
+const toColumns = () => TEMPLATE_COLUMNS.map((c) => ({
   key: c.key,
   label: c.header,
   type: c.required ? 'required' : c.minors ? 'minors' : 'optional',
@@ -188,10 +192,10 @@ const SAMPLE = [
   ],
 ];
 const INITIAL_ROWS = [
-  ...SAMPLE.map((cells) => Object.fromEntries(COLUMNS.map((c, i) => [c.key, cells[i] ?? '']))),
+  ...SAMPLE.map((cells) => Object.fromEntries(SAMPLE_KEYS.map((k, i) => [k, cells[i] ?? '']))),
   // two blank rows so the sheet looks ready for input
-  Object.fromEntries(COLUMNS.map((c) => [c.key, ''])),
-  Object.fromEntries(COLUMNS.map((c) => [c.key, ''])),
+  Object.fromEntries(SAMPLE_KEYS.map((k) => [k, ''])),
+  Object.fromEntries(SAMPLE_KEYS.map((k) => [k, ''])),
 ];
 
 // Tips (verbatim from Figma)
@@ -251,6 +255,14 @@ const ReadCell = ({ colType, value }) => (
 // ── Main component ────────────────────────────────────────────────────────
 const TemplateSection = () => {
   const navigate = useNavigate();
+  const [COLUMNS, setColumns] = useState(toColumns);
+  useEffect(() => {
+    let live = true;
+    loadBulkTemplate().then(() => live && setColumns(toColumns()));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   log('mount');
   log('render', { rowCount: INITIAL_ROWS.length });
@@ -429,7 +441,7 @@ const TemplateSection = () => {
 
           {/* Phones: the 12-column sheet scrolls inside its own frame — say so. */}
           <p className="border-t border-[#e0e0e0] bg-[#f9f9f9] px-3 py-1.5 text-center font-sans text-[12px] text-[#70706e] md:hidden">
-            Swipe the sheet sideways to see all 12 columns →
+            Swipe the sheet sideways to see all {COLUMNS.length} columns →
           </p>
 
           {/* Sheet tabs */}

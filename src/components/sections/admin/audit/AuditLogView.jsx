@@ -14,7 +14,7 @@ import {
   AdminSettingsTileIcon,
   AdminUserTileIcon,
 } from '../settings/settingsIcons.jsx';
-import { AUDIT, EVENTS } from './data/adminAuditData.js';
+
 
 const log = debug('AuditLogView');
 
@@ -23,9 +23,8 @@ const log = debug('AuditLogView');
  * the other admin lists without a sort select or action button — title 34/41 600 + "Immutable" sticker · 16/24 #737373 sub copy · four tabs with count badges (selected: ink
  * rule, #c8951a badge) · All / Admin / System chips + cards / list toggle · cream banner · white list card (r22) of event rows (42 tile, title 16/600 + sticker, 13 sub, chips,
  * pill, time, save, arrow or a white "Details" button; a muted row is drawn at 50 %).
- * Props: data (useAdminState()), masked (Senior Admin copy: banner + the restricted third row), onOpen(event) (title, pill, arrow, "Details").
- * ⚠️ ASSUMPTION: tabs / chips / view toggle only change their selected look (the three sample events are fixed, selection lives in the URL ?tab= ?chip= ?view=); the save button
- * logs; every row opens the one event detail drawn.
+ * Props: data (useAdminState()), config { title, sticker, subtitle, tabs [{id,label,count}], chips, banner, events (adminAuditModel.auditRow), body (loading /
+ *        error notice, replaces the list), more (label of the "Load more" button or null) }, onOpen(event), onExport(), onMore(), canExport.
  */
 
 const TILES = {
@@ -224,14 +223,16 @@ const EventRow = ({ event, masked, onOpen, onSave }) => {
   );
 };
 
-const AuditLogView = ({ data, masked, onOpen }) => {
-  const tab = data.tab ?? AUDIT.defaultTab;
+const AuditLogView = ({ data, config: AUDIT, onOpen, onExport, onMore, canExport }) => {
+  const EVENTS = AUDIT.events;
+  const masked = false;
+  const tab = data.tab ?? 'all';
   const view = data.view === 'cards' || data.view === 'list' ? data.view : 'list';
   const chip = data.params.get('chip') ?? 'all';
 
   useEffect(() => {
-    log('mount', { tab, chip, view, masked, events: EVENTS.length });
-  }, [tab, chip, view, masked]);
+    log('render', { tab, chip, view, events: EVENTS.length });
+  }, [tab, chip, view, EVENTS.length]);
 
   return (
     <div className="flex flex-col gap-[24px] pt-[4px]">
@@ -273,12 +274,20 @@ const AuditLogView = ({ data, masked, onOpen }) => {
           ))}
           <span className="hidden flex-1 md:block" />
           <ViewToggle view={view} onChange={(v) => data.update({ view: v })} />
+          {canExport ? (
+            <AgencyButton size="xs" onClick={onExport}>
+              Export
+            </AgencyButton>
+          ) : null}
         </div>
 
         <p className="m-0 flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] px-[18px] py-[14px] pl-[14px] font-sans text-[14px] leading-[20px] font-medium text-[#1c2a21]">
           <AdminClockIcon className="size-[18px] shrink-0 text-[#c8951a]" />
-          {masked ? AUDIT.bannerSenior : AUDIT.banner}
+          {AUDIT.banner}
         </p>
+        {AUDIT.body ? AUDIT.body : EVENTS.length === 0 ? (
+          <p className="m-0 rounded-[22px] border border-solid border-[#e1eae2] bg-white px-[18px] py-[16px] font-sans text-[14px] text-[#737373]">No events match these filters.</p>
+        ) : (
         <ul className="m-0 flex list-none flex-col gap-[4px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-0">
           {EVENTS.map((e) => (
             <EventRow
@@ -290,6 +299,12 @@ const AuditLogView = ({ data, masked, onOpen }) => {
             />
           ))}
         </ul>
+        )}
+        {AUDIT.more && !AUDIT.body ? (
+          <AgencyButton size="md" className="self-center" onClick={onMore}>
+            {AUDIT.more}
+          </AgencyButton>
+        ) : null}
       </div>
     </div>
   );

@@ -2,11 +2,14 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AdminFrame from '../../components/sections/admin/AdminFrame.jsx';
 import { useAdminState } from '../../components/sections/admin/adminState.js';
+import { useAdminSession } from '../../components/sections/admin/useAdminSession.js';
 import AdminConfirmDialog from '../../components/sections/admin/ui/AdminConfirmDialog.jsx';
 import AdminRecordDialog from '../../components/sections/admin/settings/AdminRecordDialog.jsx';
 import AdminSettingsShell from '../../components/sections/admin/settings/AdminSettingsShell.jsx';
 import DeactivateDialog from '../../components/sections/admin/settings/DeactivateDialog.jsx';
 import PlatformTab from '../../components/sections/admin/settings/PlatformTab.jsx';
+import PlatformConfigTab from '../../components/sections/admin/settings/PlatformConfigTab.jsx';
+import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
 import RolesTab from '../../components/sections/admin/settings/RolesTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
 import {
@@ -15,7 +18,6 @@ import {
   FLAG_IN_USE,
   LAST_SUPER,
   SUBTITLE_PLATFORM,
-  SUBTITLE_STAFF,
 } from '../../components/sections/admin/settings/data/adminSettingsData.js';
 import { debug } from '../../utils/debug.js';
 
@@ -33,6 +35,7 @@ const log = debug('AdminSettingsPage');
 
 const AdminSettingsPage = () => {
   const data = useAdminState();
+  const session = useAdminSession();
   const navigate = useNavigate();
   const { tab = 'platform' } = useParams();
   const modal = data.modal;
@@ -52,19 +55,16 @@ const AdminSettingsPage = () => {
 
   if (tab === 'staff') {
     active = 'staff';
-    subtitle = SUBTITLE_STAFF;
-    action = { label: CREATE_ACTION, onClick: () => data.update({ create: true }) };
-    body = (
-      <StaffTab
-        creating={creating}
-        onClose={() => data.update({ create: null })}
-        onChange={(row) => {
-          if (row.locked) navigate('/admin/settings/staff-data?modal=deactivate');
-          else log('change a staff role (no screen drawn)', row.id);
-        }}
-        onLastSuper={() => data.update({ modal: 'last-super' })}
-      />
-    );
+    subtitle = 'GTH staff accounts and their roles. Least privilege for every role.';
+    action =
+      session.role === 'super'
+        ? { label: CREATE_ACTION, onClick: () => data.update({ create: true }) }
+        : null;
+    body = <StaffTab creating={creating} onClose={() => data.update({ create: null })} session={session} />;
+  } else if (tab === 'onboarding') {
+    active = 'onboarding';
+    subtitle = 'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
+    body = <OnboardingTemplateTab session={session} />;
   } else if (tab === 'roles') {
     active = 'roles';
     navOrder = 'roles';
@@ -74,17 +74,7 @@ const AdminSettingsPage = () => {
       <PlatformTab view="staff-data" onDeactivate={() => data.update({ modal: 'deactivate' })} />
     );
   } else {
-    body = (
-      <PlatformTab
-        view="flags"
-        onTurnOff={(flag) => {
-          log('turn off', flag.id);
-          data.update({ modal: 'in-use' });
-        }}
-        onMaintenance={() => data.update({ modal: 'setting' })}
-        onRotate={() => log('rotate key (no flow drawn)')}
-      />
-    );
+    body = <PlatformConfigTab />;
   }
 
   return (

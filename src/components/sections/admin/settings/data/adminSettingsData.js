@@ -8,10 +8,12 @@
 const BASE = [
   { id: 'overview', label: 'Overview', icon: 'user' },
   { id: 'roles', label: 'Roles and permissions', icon: 'shield', to: '/admin/settings/roles' },
-  { id: 'templates', label: 'Notification templates', icon: 'bell' },
+  { id: 'templates', label: 'Notification templates', icon: 'bell', to: '/admin/comms/templates' },
+  { id: 'onboarding', label: 'Onboarding templates', icon: 'folder', to: '/admin/settings/onboarding' },
+  { id: 'observability', label: 'Observability', icon: 'sliders', to: '/admin/observability' },
   { id: 'accessibility', label: 'Accessibility', icon: 'sliders' },
-  { id: 'flags', label: 'Feature flags', icon: 'sliders' },
-  { id: 'integrations', label: 'Integrations', icon: 'globe' },
+  { id: 'flags', label: 'Feature flags', icon: 'sliders', to: '/admin/settings' },
+  { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integrations' },
   { id: 'security', label: 'Security', icon: 'lock' },
   {
     id: 'staff',

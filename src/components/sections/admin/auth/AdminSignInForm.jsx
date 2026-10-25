@@ -10,7 +10,7 @@ import eyeEmptySvg from '../../../../assets/entry/login-eye-a.svg';
 import eyeFilledSvg from '../../../../assets/entry/login-eye-b.svg';
 import lockSvg from '../../../../assets/entry/login-lock.svg';
 import userSvg from '../../../../assets/entry/login-create-user.svg';
-import { SAMPLE_EMAIL, STAFF_DOMAIN } from './data/adminAuthData.js';
+import { STAFF_DOMAIN, STAFF_DOMAIN_REQUIRED } from './data/adminAuthData.js';
 
 const log = debug('AdminSignInForm');
 
@@ -19,33 +19,34 @@ const log = debug('AdminSignInForm');
  * "GTH STAFF" chip · "Staff sign-in / Ghana Talent Hub." (54/59, "Staff" ink, the rest green) · 16/24 #737373 sub copy · wavy underline · Work email (the
  * sample address is pre-filled as drawn) · Password (lock + eye toggle, "Forgot password?") · "Trust this device for 12 hours" · primary button (grey
  * "Continue to 2-step sign-in" until the form is valid) · "New staff member?" divider · set-up card with "Ask your Super Admin".
- * Props: onSubmit({ email, trust }). ⚠️ ASSUMPTION: a non-staff address (not @ghanatalenthub.com) gets an inline error; "Forgot password?" and "Ask your
- * Super Admin" have no destination drawn: they log the intent only.
+ * Props: onSubmit({ email, password, trust }), error (server message shown under the password), busy (request in flight).
+ * The work-email domain is only enforced when VITE_ADMIN_STAFF_DOMAIN is set (the backend decides who is staff).
+ * "Forgot password?" opens the normal password reset; "Ask your Super Admin" has no destination drawn: it logs the intent only.
  */
 
 const LABEL =
   'inline-flex items-baseline gap-px text-[14px] max-md:text-[13px] font-medium leading-6 tracking-[0.2px] text-content-primary';
 
-const AdminSignInForm = ({ onSubmit }) => {
-  const [email, setEmail] = useState(SAMPLE_EMAIL);
+const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [trust, setTrust] = useState(false);
   const [emailError, setEmailError] = useState(null);
 
-  const ready = email.trim() !== '' && password !== '';
+  const ready = email.trim() !== '' && password !== '' && !busy;
 
   const submit = (e) => {
     e.preventDefault();
     if (!ready) return;
     const value = email.trim().toLowerCase();
-    if (!value.endsWith(`@${STAFF_DOMAIN}`)) {
+    if (STAFF_DOMAIN_REQUIRED && !value.endsWith(`@${STAFF_DOMAIN}`)) {
       log('blocked: not a staff address');
       setEmailError(`Use your @${STAFF_DOMAIN} work email`);
       return;
     }
     log('submit', { trust });
-    onSubmit({ email: value, trust });
+    onSubmit({ email: value, password, trust });
   };
 
   return (
@@ -71,7 +72,7 @@ const AdminSignInForm = ({ onSubmit }) => {
           <span className="block text-brand-green">Ghana Talent Hub.</span>
         </h1>
         <p className="m-0 mt-2 max-w-[482px] py-1 text-[16px] max-md:text-[14px] leading-6 text-[#737373]">
-          Use your @{STAFF_DOMAIN} account. 2-step sign-in is required for every role.
+          Use your GTH staff account. 2-step sign-in is required for every role.
         </p>
         <span className="mt-4 flex">
           <WavyDivider />
@@ -102,11 +103,8 @@ const AdminSignInForm = ({ onSubmit }) => {
               </span>
             </label>
             <Link
-              to="/admin/sign-in"
-              onClick={(e) => {
-                e.preventDefault();
-                log('forgot password (no destination drawn)');
-              }}
+              to="/forgot-password"
+              onClick={() => log('forgot password')}
               className="text-[12px] font-semibold leading-5 tracking-[0.1px] text-brand-green underline-offset-2 hover:underline"
             >
               Forgot password?
@@ -138,6 +136,7 @@ const AdminSignInForm = ({ onSubmit }) => {
               </button>
             }
             rightIconInteractive
+            error={error || undefined}
           />
         </div>
         <Checkbox
@@ -157,7 +156,7 @@ const AdminSignInForm = ({ onSubmit }) => {
           rightIcon={<ArrowRightIcon />}
           className="w-full !h-[56px] !py-0"
         >
-          Continue to 2-step sign-in
+          {busy ? 'Checking…' : 'Continue to 2-step sign-in'}
         </Button>
         <div className="flex flex-col gap-3">
           <div

@@ -164,12 +164,58 @@ const saveFile = (filename, text) => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
-export const TEMPLATE_FILENAME = 'GTH_Student_Upload_Template.csv';
+export let TEMPLATE_FILENAME = 'GTH_Student_Upload_Template.csv';
+export let TEMPLATE_INSTRUCTIONS = '';
+
+// ── Admin-configured template ────────────────────────────────────────────────
+// GTH Super Admins edit the template (Platform Admin › Settings › Onboarding templates; platform config
+// onboarding.bulk_roster_template, read through GET /config/public/:key). loadBulkTemplate() applies it IN PLACE to
+// TEMPLATE_COLUMNS / EXAMPLE_ROWS so every import sees it; the built-in list above is the fallback.
+const DEFAULT_COLUMNS = TEMPLATE_COLUMNS.map((c) => ({ ...c }));
+let templatePromise = null;
+export const loadBulkTemplate = () => {
+  if (!templatePromise) {
+    templatePromise = api
+      .get('/config/public/onboarding.bulk_roster_template')
+      .then((res) => {
+        const t = res?.data?.value ?? res?.value;
+        if (!t || !Array.isArray(t.columns) || !t.columns.length) return null;
+        const known = new Map(DEFAULT_COLUMNS.map((c) => [c.key, c]));
+        const cols = t.columns
+          .filter((c) => known.has(c.key))
+          .map((c) => ({
+            ...known.get(c.key),
+            header: c.header || known.get(c.key).header,
+            required: Boolean(c.required),
+            minors: Boolean(c.minors ?? known.get(c.key).minors),
+            aliases: [...new Set([...(known.get(c.key).aliases || []), ...(c.aliases || [])])],
+            example: c.example ?? '',
+            help: c.help ?? '',
+          }));
+        if (!cols.length) return null;
+        TEMPLATE_COLUMNS.splice(0, TEMPLATE_COLUMNS.length, ...cols);
+        EXAMPLE_ROWS.splice(0, EXAMPLE_ROWS.length, ...(t.includeExampleRow === false ? [] : [cols.map((c) => c.example ?? '')]));
+        if (t.fileName) TEMPLATE_FILENAME = t.fileName;
+        TEMPLATE_INSTRUCTIONS = t.instructions || '';
+        log('template loaded', { version: t.version, columns: cols.length });
+        return t;
+      })
+      .catch((err) => {
+        log('template not available, using the built-in one', err?.response?.status);
+        templatePromise = null;
+        return null;
+      });
+  }
+  return templatePromise;
+};
 
 export const buildTemplateCsv = () =>
   toCsv([TEMPLATE_COLUMNS.map((c) => c.header), ...EXAMPLE_ROWS]);
 
-export const downloadTemplate = () => saveFile(TEMPLATE_FILENAME, buildTemplateCsv());
+export const downloadTemplate = async () => {
+  await loadBulkTemplate();
+  saveFile(TEMPLATE_FILENAME, buildTemplateCsv());
+};
 
 // ── Value helpers ────────────────────────────────────────────────────────────
 const normHeader = (h) =>
@@ -540,6 +586,7 @@ const postBulk = async (rows, { validateOnly }) => {
 
 /** Parse, check locally, check on the backend. Saves and returns the report. */
 export const validateUpload = async (file) => {
+  await loadBulkTemplate();
   const parsed = await parseUploadFile(file);
   const rows = checkRows(parsed.rows);
   const candidates = parsed.missingColumns.length ? [] : rows.filter((r) => !r.problems.length);

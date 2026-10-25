@@ -1,192 +1,120 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import AgencyButton from '../../agency/AgencyButton.jsx';
 import AgencyPageHero from '../../agency/AgencyPageHero.jsx';
 import BarList from '../../publicData/ui/BarList.jsx';
 import BarRow from '../../publicData/ui/BarRow.jsx';
-import CardSubhead from '../../publicData/ui/CardSubhead.jsx';
-import ColumnBars from '../../publicData/ui/ColumnBars.jsx';
 import HeroMetric from '../../publicData/ui/HeroMetric.jsx';
 import KpiStrip from '../../publicData/ui/KpiStrip.jsx';
 import KpiTile from '../../publicData/ui/KpiTile.jsx';
 import PublicCard from '../../publicData/ui/PublicCard.jsx';
-import StackedBar from '../../publicData/ui/StackedBar.jsx';
-import TodayStrip from '../../publicData/ui/TodayStrip.jsx';
-import { LIVE } from './data/adminLiveOpsData.js';
+import { useAdminData } from '../useAdminData.js';
+import AdminLoadNotice from '../AdminLoadNotice.jsx';
+import { docId, humanize, realtime, timeAgo } from '../../../../services/admin.api.js';
 
 const log = debug('AdminLiveOps');
 
 /*
- * AdminLiveOps — /admin/live-ops (Figma 7.3.3a): green hero "Live ops" + "Pause updates" · filter strip · KPI row (People online now + three tiles) · "Active users by region" +
- * "What people are doing" · Devices + Alerts · "LIVE · NOW" strip. Reuses the Theme 8 hero / KPI / bar / stacked-bar / column blocks.
- * ⚠️ ASSUMPTION: the filter chips and "Mute alerts" are inert (logged); the map is a tile schematic with the drawn bins.
- * Props: onOpenAlert() — the Volta tile opens the anomaly alert dialog (7.3.3b).
+ * AdminLiveOps — /admin/live-ops (Figma 7.3.3a) on GET /api/admin/reports/realtime (Senior and Super Admin): active accounts, sign-ups in the last hour,
+ * open moderation flags and audit events in the last hour, plus the last hour's event feed grouped by action. Refreshes every 30 seconds ("Pause updates").
+ * The backend doesn't track people online, regions, devices, response times or alerts yet, so those cards say so instead of showing sample data.
  */
 
-const maxOf = (rows) => Math.max(1, ...rows.map((r) => r[1]));
+const REFRESH_MS = 30000;
 
-const AdminLiveOps = ({ onOpenAlert }) => {
+const AdminLiveOps = () => {
   const [paused, setPaused] = useState(false);
-  const binColor = (id) => LIVE.map.bins.find((b) => b.id === id)?.color;
-  const activityMax = maxOf(LIVE.activity.rows);
-  const alertsMax = maxOf(LIVE.alerts.rows);
-  const inert = (what) => () => log('inert (no backend in the mock):', what);
+  const [tick, setTick] = useState(0);
+  const live = useAdminData(() => realtime(), [tick]);
+  useEffect(() => {
+    if (paused) return undefined;
+    const id = setInterval(() => setTick((n) => n + 1), REFRESH_MS);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const m = live.data?.metrics ?? {};
+  const feed = live.data?.eventFeed ?? [];
+  const byAction = Object.entries(
+    feed.reduce((acc, e) => ({ ...acc, [e.action]: (acc[e.action] || 0) + 1 }), {}),
+  ).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(1, ...byAction.map((r) => r[1]));
+  const at = live.data?.timestamp ? new Date(live.data.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+
   return (
     <div className="flex flex-col gap-[30px]">
       <AgencyPageHero
-        title={LIVE.title}
-        subtitle={LIVE.subtitle}
+        title="Live ops"
+        subtitle={`What’s happening on GTH right now.${at ? ` Updated ${at}${paused ? ' · paused' : ' · every 30 seconds'}.` : ''}`}
         actions={
           <AgencyButton
             onClick={() => {
               log('pause toggled', !paused);
               setPaused((v) => !v);
+              if (paused) setTick((n) => n + 1);
             }}
           >
-            {paused ? LIVE.resume : LIVE.pause}
+            {paused ? 'Resume updates' : 'Pause updates'}
           </AgencyButton>
         }
       />
-      <div className="flex flex-wrap items-center gap-[10px] font-sans text-[14px] leading-[17px] text-[#1c2a21]">
-        {LIVE.filters.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={inert(`filter ${f}`)}
-            className="cursor-pointer rounded-full border border-solid border-[#e7e7e7] bg-white px-[14px] py-[9px] font-medium"
-          >
-            {f}
-          </button>
-        ))}
-        <span className="ml-auto font-semibold">{LIVE.online}</span>
-        <button
-          type="button"
-          onClick={inert('clear all')}
-          className="cursor-pointer border-0 bg-transparent font-semibold text-[#387440]"
-        >
-          {LIVE.clear}
-        </button>
-        <button
-          type="button"
-          onClick={inert('mute alerts')}
-          className="cursor-pointer border-0 bg-transparent font-semibold text-[#387440]"
-        >
-          {LIVE.mute}
-        </button>
-      </div>
-      <KpiStrip
-        columns={3}
-        hero={
-          <HeroMetric
-            eyebrow={LIVE.hero.eyebrow}
-            count={LIVE.hero.count}
-            label={LIVE.hero.label}
-            change={LIVE.hero.change}
-            note={LIVE.hero.note}
-            series={LIVE.hero.series}
-            seriesLabel="People online over the last hours"
-          />
-        }
-      >
-        {LIVE.kpis.map((k) => (
-          <KpiTile key={k.id} eyebrow={k.eyebrow} value={k.value} sub={k.sub} />
-        ))}
-      </KpiStrip>
-      <div className="grid grid-cols-1 gap-[24px] xl:grid-cols-2">
-        <PublicCard title={LIVE.map.title} hint={LIVE.map.hint}>
-          <ul className="m-0 grid list-none grid-cols-2 gap-[8px] p-0 sm:grid-cols-3">
-            {LIVE.map.regions.map((r) => {
-              const hot = r.bin === 'o300' || r.bin === 'b300';
-              const isAlert = r.id === 'volta';
-              const Tag = isAlert ? 'button' : 'div';
-              return (
-                <li key={r.id}>
-                  <Tag
-                    {...(isAlert ? { type: 'button', onClick: onOpenAlert } : {})}
-                    className="flex h-[64px] w-full flex-col justify-center rounded-[12px] border-0 px-[12px] text-left font-sans"
-                    style={{
-                      background: binColor(r.bin),
-                      color: hot ? '#fff' : '#1c2a21',
-                      cursor: isAlert ? 'pointer' : 'default',
-                    }}
-                  >
-                    <span className="text-[12px] leading-[14px] font-medium">{r.name}</span>
-                    <span className="text-[18px] leading-[22px] font-bold">
-                      {r.bin === 'hid' ? '—' : r.count}
-                    </span>
-                  </Tag>
-                </li>
-              );
-            })}
-          </ul>
-          <ul
-            aria-label="Map legend"
-            className="m-0 mt-[16px] flex list-none flex-wrap gap-x-[14px] gap-y-[6px] p-0 font-sans text-[12px] leading-[14px] text-[#595959]"
-          >
-            {LIVE.map.bins.map((b) => (
-              <li key={b.id} className="inline-flex items-center gap-[6px]">
-                <span
-                  aria-hidden="true"
-                  className="size-[10px] rounded-[3px] border border-solid border-[#e7e7e7]"
-                  style={{ background: b.color }}
-                />
-                {b.label}
-              </li>
-            ))}
-          </ul>
-        </PublicCard>
-        <PublicCard title={LIVE.activity.title} hint={LIVE.activity.hint}>
-          <BarList label={LIVE.activity.title} gap={10}>
-            {LIVE.activity.rows.map(([label, count]) => (
-              <BarRow key={label} label={label} count={count} ratio={count / activityMax} />
-            ))}
-          </BarList>
-        </PublicCard>
-        <PublicCard
-          title={LIVE.devices.title}
-          hint={LIVE.devices.hint}
-          bodyClassName="flex flex-col gap-[20px] px-[16px] pb-[24px] md:px-[24px]"
-        >
-          <StackedBar
-            segments={LIVE.devices.platforms}
-            height={28}
-            showShare
-            ariaLabel="Platforms right now"
-          />
-          <CardSubhead label={LIVE.devices.responseTitle} aside={LIVE.devices.responseAside} />
-          <ColumnBars
-            items={LIVE.devices.response}
-            total={100}
-            ariaLabel="Response time by service"
-          />
-        </PublicCard>
-        <PublicCard
-          title={LIVE.alerts.title}
-          hint={LIVE.alerts.hint}
-          bodyClassName="flex flex-col gap-[20px] px-[16px] pb-[24px] md:px-[24px]"
-        >
-          <BarList label={LIVE.alerts.title} gap={10}>
-            {LIVE.alerts.rows.map(([label, pct]) => (
-              <BarRow
-                key={label}
-                label={label}
-                valueText={`${pct}%`}
-                ratio={pct / alertsMax}
-                layout="inline"
+      {live.error && !live.data ? (
+        <AdminLoadNotice error={live.error} status={live.status} onRetry={live.reload} />
+      ) : (
+        <>
+          <KpiStrip
+            columns={3}
+            hero={
+              <HeroMetric
+                eyebrow="ACTIVE ACCOUNTS"
+                count={Number(m.totalActiveUsers ?? 0)}
+                loading={live.loading && !live.data}
+                label="accounts with an active status"
+                note="People online right now isn’t tracked yet."
               />
-            ))}
-          </BarList>
-          <CardSubhead label={LIVE.alerts.statusTitle} />
-          <StackedBar
-            segments={LIVE.alerts.status}
-            height={12}
-            radius={4}
-            legend="shares"
-            ariaLabel="Alert status"
-          />
-        </PublicCard>
-      </div>
-      <TodayStrip title="Today on GTH" eyebrow={LIVE.today.eyebrow} stats={LIVE.today.stats} />
+            }
+          >
+            <KpiTile eyebrow="SIGN-UPS" value={String(m.newRegistrationsLastHour ?? '…')} sub="in the last hour" />
+            <KpiTile eyebrow="OPEN FLAGS" value={String(m.openModerationFlags ?? '…')} sub={<Link to="/admin/moderation">Open the flag queue</Link>} />
+            <KpiTile eyebrow="EVENTS" value={String(m.recentEventCount ?? '…')} sub="audit events in the last hour" />
+          </KpiStrip>
+          <div className="grid grid-cols-1 gap-[24px] xl:grid-cols-2">
+            <PublicCard title="What people are doing" hint="Last hour, by audit event">
+              {byAction.length ? (
+                <BarList label="What people are doing" gap={10}>
+                  {byAction.slice(0, 10).map(([action, count]) => (
+                    <BarRow key={action} label={humanize(action)} count={count} ratio={count / max} />
+                  ))}
+                </BarList>
+              ) : (
+                <p className="m-0 font-sans text-[14px] text-[#737373]">No events in the last hour.</p>
+              )}
+            </PublicCard>
+            <PublicCard title="Latest events" hint="Newest first">
+              <ul className="m-0 flex list-none flex-col gap-[10px] p-0">
+                {feed.slice(0, 12).map((e) => (
+                  <li key={docId(e)} className="flex flex-wrap justify-between gap-[8px] font-sans text-[13.5px] leading-[18px]">
+                    <span className="font-semibold text-[#1c2a21]">{humanize(e.action)}</span>
+                    <span className="text-[#737373]">
+                      {humanize(e.actorType)} · {timeAgo(e.createdAt)}
+                    </span>
+                  </li>
+                ))}
+                {feed.length === 0 ? <li className="font-sans text-[14px] text-[#737373]">Nothing yet.</li> : null}
+              </ul>
+              <Link to="/admin/audit-log" className="mt-[12px] inline-block font-sans text-[14px] font-semibold text-[#387440]">
+                Open the audit log →
+              </Link>
+            </PublicCard>
+          </div>
+          <PublicCard title="Not tracked yet" hint="Needs backend work">
+            <p className="m-0 font-sans text-[14px] leading-[21px] text-[#595959]">
+              People online now, active users by region, devices, response times per service, error rate and alerts aren’t reported by the
+              backend yet. They’ll appear here once a monitoring endpoint exists.
+            </p>
+          </PublicCard>
+        </>
+      )}
     </div>
   );
 };
