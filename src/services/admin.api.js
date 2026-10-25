@@ -217,6 +217,8 @@ export const notifRefreshMappings = () => post('/notifications/refresh-mappings'
 // ── Observability (Senior / Super Admin; Grafana Cloud read through the server) ─────────────────────
 export const obsStatus = () => get('/admin/observability/status');
 export const obsSnapshot = () => get('/admin/observability/snapshot');
+/** Environments with metrics in the last 7 days: { default, environments }. */
+export const obsEnvironments = () => get('/admin/observability/environments');
 /** `period` is { range } or { from, to } (ISO). */
 export const obsSeries = (names, period = { range: '6h' }) =>
   get('/admin/observability/series', clean({ names: names.join(','), ...period }));
