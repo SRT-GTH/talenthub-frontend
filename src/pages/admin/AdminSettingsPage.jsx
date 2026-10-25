@@ -10,7 +10,8 @@ import DeactivateDialog from '../../components/sections/admin/settings/Deactivat
 import PlatformTab from '../../components/sections/admin/settings/PlatformTab.jsx';
 import PlatformConfigTab from '../../components/sections/admin/settings/PlatformConfigTab.jsx';
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
-import RolesTab from '../../components/sections/admin/settings/RolesTab.jsx';
+import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
+import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
 import {
   CHANGE_SETTING,
@@ -60,15 +61,29 @@ const AdminSettingsPage = () => {
       session.role === 'super'
         ? { label: CREATE_ACTION, onClick: () => data.update({ create: true }) }
         : null;
-    body = <StaffTab creating={creating} onClose={() => data.update({ create: null })} session={session} />;
+    body = (
+      <StaffTab
+        creating={creating}
+        onClose={() => data.update({ create: null })}
+        session={session}
+      />
+    );
   } else if (tab === 'onboarding') {
     active = 'onboarding';
-    subtitle = 'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
+    subtitle =
+      'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
     body = <OnboardingTemplateTab session={session} />;
   } else if (tab === 'roles') {
     active = 'roles';
     navOrder = 'roles';
-    body = <RolesTab />;
+    subtitle =
+      'Roles, permissions and role groups from the access-control service. Super Admins make changes; every change is logged.';
+    body = <RolesPermissionsTab data={data} session={session} />;
+  } else if (tab === 'organisations') {
+    active = 'organisations';
+    subtitle =
+      'Platform tenants (GTH, and any new national hub) and the organisations under them. Every change is logged.';
+    body = <OrganisationsTab data={data} session={session} />;
   } else if (tab === 'staff-data') {
     body = (
       <PlatformTab view="staff-data" onDeactivate={() => data.update({ modal: 'deactivate' })} />
