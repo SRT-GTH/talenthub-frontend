@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
+import InterviewConfirmModal from './InterviewConfirmModal.jsx';
+import ScheduleSelect from './ScheduleSelect.jsx';
+import { useLivePipeline } from './useLivePipeline.js';
+import { ACTION_LABELS, ACTION_STAGE, buildPipelineColumns, candidateFor } from './pipelineLive.js';
+import { pipelineErrorText } from '../../../services/recruiterPipeline.api.js';
 import { CriteriaChevronIcon } from '../jobScreening/jobScreeningIcons.jsx';
 import TagRow from '../../ui/TagRow.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -101,6 +106,45 @@ const STATE_BADGES = {
   ),
 };
 
+const actionLabel = (action) => ACTION_LABELS[action] || action;
+
+// Live-only confirmations for actions that change things for the candidate.
+const CONFIRM_COPY = {
+  reject: {
+    title: 'Reject this candidate?',
+    body: 'They get a kind note with skills to work on. You can’t undo this from the board.',
+    confirmLabel: 'Yes, reject',
+    cancelLabel: 'Keep',
+    tone: 'danger',
+  },
+  complete: {
+    title: 'Mark as completed?',
+    body: 'The interview is recorded as done, so you can move on to an offer.',
+    confirmLabel: 'Mark completed',
+    cancelLabel: 'Not yet',
+    tone: 'brand',
+  },
+  'cancel-interview': {
+    title: 'Cancel this interview?',
+    body: 'The candidate is told it’s cancelled. Their application stays open.',
+    confirmLabel: 'Yes, cancel interview',
+    cancelLabel: 'Keep it',
+    tone: 'danger',
+  },
+};
+
+const SecondaryButton = ({ card, onAction }) =>
+  card.secondaryAction ? (
+    /* Figma 7249:79181 — white, 1px #e5e5e5, r8, 12/14.32 #111111 */
+    <button
+      type="button"
+      onClick={() => onAction(card, card.secondaryAction)}
+      className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border border-[#e5e5e5] bg-white px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-black transition-colors hover:bg-neutral"
+    >
+      {actionLabel(card.secondaryAction)}
+    </button>
+  ) : null;
+
 const ProfileCard = ({ card, onAction }) => (
   <article className="relative flex flex-col gap-[14px] max-lg:gap-[8px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] max-lg:p-[12px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
     {card.avatar && (
@@ -158,24 +202,27 @@ const ProfileCard = ({ card, onAction }) => (
               {card.time}
             </span>
           </span>
-          <span className="flex items-center gap-[4px]">
-            <RatingStar className="w-[11.67px] text-[#f59e0b]" />
-            <span className="font-sans text-[13px] font-semibold leading-[15px] text-black">
-              {card.rating}
+          {card.rating ? (
+            <span className="flex items-center gap-[4px]">
+              <RatingStar className="w-[11.67px] text-[#f59e0b]" />
+              <span className="font-sans text-[13px] font-semibold leading-[15px] text-black">
+                {card.rating}
+              </span>
             </span>
-          </span>
+          ) : null}
         </div>
       )}
 
       {card.primaryAction && (
         <button
           type="button"
-          onClick={() => onAction(card.id, card.primaryAction)}
+          onClick={() => onAction(card, card.primaryAction)}
           className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] max-lg:shadow-none transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] max-lg:active:translate-y-0 active:shadow-none"
         >
-          {card.primaryAction}
+          {actionLabel(card.primaryAction)}
         </button>
       )}
+      <SecondaryButton card={card} onAction={onAction} />
     </div>
   </article>
 );
@@ -232,31 +279,41 @@ const MeetingCard = ({ card, onAction }) => {
         {card.primaryAction && (
           <button
             type="button"
-            onClick={() => onAction(card.id, card.primaryAction)}
+            onClick={() => onAction(card, card.primaryAction)}
             className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] max-lg:shadow-none transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] max-lg:active:translate-y-0 active:shadow-none"
           >
-            {card.primaryAction}
+            {actionLabel(card.primaryAction)}
           </button>
         )}
-        {card.secondaryAction && (
-          /* Figma 7249:79181 — white, 1px #e5e5e5, r8, 12/14.32 #111111 */
-          <button
-            type="button"
-            onClick={() => onAction(card.id, card.secondaryAction)}
-            className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border border-[#e5e5e5] bg-white px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-black transition-colors hover:bg-neutral"
-          >
-            {card.secondaryAction}
-          </button>
-        )}
+        <SecondaryButton card={card} onAction={onAction} />
       </div>
     </article>
   );
 };
 
+const jobIdOf = (j) => String(j?._id || j?.id || '');
+
 const ApplicationPipelineSection = () => {
   // Figma 7249:80368 et al. open from the Shortlisted card's "Schedule
   // Interview" CTA and from the Interview card's "Reschedule".
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  // Live: which application the modal is for, and a pending confirmation.
+  const [scheduleFor, setScheduleFor] = useState(null);
+  const [pending, setPending] = useState(null); // { card, action }
+  const [error, setError] = useState(null);
+  const pipe = useLivePipeline();
+  const isLive = pipe.status !== 'demo';
+  const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
+  // Signed in, the board never shows the Figma demo people — empty columns while loading.
+  const columns = isLive
+    ? buildPipelineColumns(COLUMNS, pipe.status === 'live' ? pipe.applications : [], pipe.jobId)
+    : COLUMNS;
+  // Unique option labels for the posting select (titles can repeat).
+  const jobOptions = pipe.jobs.map((j, i) => {
+    const title = j.title || 'Untitled posting';
+    const dup = pipe.jobs.findIndex((x) => (x.title || 'Untitled posting') === title) !== i;
+    return { id: jobIdOf(j), label: dup ? `${title} (${i + 1})` : title };
+  });
 
   // Below lg the board is a scroll-snap strip (one column ~85vw) and the stage
   // chips above it are a jump nav. `activeStageId` follows the snapped column.
@@ -303,14 +360,45 @@ const ApplicationPipelineSection = () => {
     });
   }, []);
 
-  const handleAction = (cardId, action) => {
-    if (action === 'Schedule Interview' || action === 'Reschedule') {
-      log('branch', { cardId, action, opens: 'ScheduleInterviewModal' });
+  const runLive = (promise) =>
+    promise
+      .then(() => setError(null))
+      .catch((err) => {
+        log.error('pipeline action failed:', err?.response?.status || err?.message);
+        setError(pipelineErrorText(err));
+      });
+
+  const handleAction = (card, action) => {
+    if (!isLive) {
+      if (action === 'Schedule Interview' || action === 'Reschedule') {
+        log('branch', { cardId: card.id, action, opens: 'ScheduleInterviewModal' });
+        setScheduleOpen(true);
+        return;
+      }
+      log('branch', { cardId: card.id, action, destination: 'none-in-figma' });
+      return;
+    }
+    log('live action', { app: card.applicationId, action });
+    if (action === 'schedule' || action === 'reschedule') {
+      setScheduleFor(card.applicationId);
       setScheduleOpen(true);
       return;
     }
-    log('branch', { cardId, action, destination: 'none-in-figma' });
+    if (CONFIRM_COPY[action]) {
+      setPending({ card, action });
+      return;
+    }
+    if (ACTION_STAGE[action]) runLive(pipe.move(card.applicationId, ACTION_STAGE[action]));
   };
+
+  const confirmPending = () => {
+    const { card, action } = pending;
+    setPending(null);
+    if (action === 'cancel-interview') runLive(pipe.cancelInterview(card.applicationId));
+    else runLive(pipe.move(card.applicationId, ACTION_STAGE[action]));
+  };
+
+  const scheduleApp = pipe.applications.find((a) => String(a._id) === scheduleFor) || null;
 
   return (
     <DashboardShell>
@@ -328,15 +416,55 @@ const ApplicationPipelineSection = () => {
               {CHOOSE_POSTING.required}
             </span>
           </span>
-          <button
-            type="button"
-            onClick={() => log('branch', { action: 'open-posting-select', wired: false })}
-            className="flex h-[51px] max-lg:h-[44px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
-          >
-            <span className="min-w-0 truncate">{CHOOSE_POSTING.value}</span>
-            <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
-          </button>
+          {isLive ? (
+            <ScheduleSelect
+              label={CHOOSE_POSTING.label}
+              options={jobOptions.map((o) => o.label)}
+              value={jobOptions.find((o) => o.id === pipe.jobId)?.label ?? null}
+              placeholder={pipe.status === 'loading' ? 'Loading your postings…' : 'No postings yet'}
+              onChange={(label) => {
+                const next = jobOptions.find((o) => o.label === label);
+                log('branch', { posting: next?.id });
+                if (next) pipe.setJobId(next.id);
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => log('branch', { action: 'open-posting-select', wired: false })}
+              className="flex h-[51px] max-lg:h-[44px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
+            >
+              <span className="min-w-0 truncate">{CHOOSE_POSTING.value}</span>
+              <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
+            </button>
+          )}
         </label>
+
+        {pipe.status === 'error' ? (
+          <p
+            role="alert"
+            className="m-0 flex items-center gap-[12px] font-sans text-[14px] text-[#b42318]"
+          >
+            We couldn’t load your pipeline.
+            <button
+              type="button"
+              onClick={pipe.retry}
+              className="cursor-pointer rounded-[8px] border border-[#e5e5e5] bg-white px-[12px] py-[4px] font-sans text-[13px] font-medium text-black"
+            >
+              Try again
+            </button>
+          </p>
+        ) : null}
+        {pipe.status === 'live' && !pipe.jobs.length ? (
+          <p className="m-0 font-sans text-[14px] text-content-helper">
+            Post a job and its applications will show up here.
+          </p>
+        ) : null}
+        {error ? (
+          <p role="alert" className="m-0 font-sans text-[14px] text-[#b42318]">
+            {error}
+          </p>
+        ) : null}
 
         {/* Stage jump nav — below lg only. Sticky under the top bar while the page scrolls. */}
         <nav
@@ -347,7 +475,7 @@ const ApplicationPipelineSection = () => {
             ref={chipRowRef}
             className="no-scrollbar flex gap-[8px] overflow-x-auto px-4 py-[8px] [mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]"
           >
-            {COLUMNS.map((column) => {
+            {columns.map((column) => {
               const isActive = column.id === activeStageId;
               return (
                 <button
@@ -378,7 +506,7 @@ const ApplicationPipelineSection = () => {
           onScroll={handleBoardScroll}
           className="relative -mx-2 flex items-start gap-[16px] overflow-x-auto px-2 pb-[48px] max-lg:-mx-4 max-lg:snap-x max-lg:snap-mandatory max-lg:px-4 max-lg:scroll-px-4"
         >
-          {COLUMNS.map((column) => (
+          {columns.map((column) => (
             <section
               key={column.id}
               data-stage={column.id}
@@ -410,8 +538,27 @@ const ApplicationPipelineSection = () => {
 
       <ScheduleInterviewModal
         open={scheduleOpen}
-        onClose={() => setScheduleOpen(false)}
+        onClose={() => {
+          setScheduleOpen(false);
+          setScheduleFor(null);
+        }}
         onScheduled={(payload) => log('branch', { scheduled: payload })}
+        {...(isLive && scheduleApp
+          ? {
+              live: true,
+              jobTitle: selectedJob?.title || scheduleApp.resourceTitle,
+              candidate: candidateFor(scheduleApp, selectedJob?.title || scheduleApp.resourceTitle),
+              onSubmit: (body) => pipe.schedule(scheduleApp._id, body),
+              errorText: pipelineErrorText,
+            }
+          : {})}
+      />
+
+      <InterviewConfirmModal
+        open={Boolean(pending)}
+        copy={pending ? CONFIRM_COPY[pending.action] : CONFIRM_COPY.reject}
+        onConfirm={confirmPending}
+        onCancel={() => setPending(null)}
       />
     </DashboardShell>
   );
