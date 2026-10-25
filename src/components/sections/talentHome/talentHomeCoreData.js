@@ -97,13 +97,17 @@ export const FIRST_QUESTS = {
   title: 'Start a streak today',
   sub: 'Do one thing a day. Small wins stack.',
   quests: [
+    // `stage`: the journey stage that marks the quest done (live data); `route`: where a tap goes.
+    // `done` is the Figma demo value only - the live home works it out (FirstQuestsCard).
     {
       id: 'avatar',
-      icon: 'check',
+      icon: 'heart',
       title: 'Create your avatar',
-      meta: 'Done',
+      meta: 'About 1 min',
       pts: '+50',
       done: true,
+      stage: 'avatar',
+      route: '/profile/engagement/avatar',
     },
     {
       id: 'interests',
@@ -111,6 +115,8 @@ export const FIRST_QUESTS = {
       title: 'Pick your interests',
       meta: 'About 2 min',
       pts: '+50',
+      stage: 'interests',
+      route: '/profile/filling/interests',
     },
     {
       id: 'quiz',
@@ -118,13 +124,17 @@ export const FIRST_QUESTS = {
       title: 'Take the personality quiz',
       meta: 'About 8 min',
       pts: '+100',
+      stage: 'personality',
+      route: '/profile/filling/personality',
     },
     {
       id: 'reminders',
       icon: 'bell',
       title: 'Turn on streak reminders',
       meta: 'One tap',
+      metaOn: 'On · daily nudge',
       pts: '+10',
+      route: '/streak',
     },
   ],
 };
