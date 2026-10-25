@@ -162,6 +162,8 @@ export const rbacRemoveRole = (entityId, roleId, removedBy) =>
   api.delete(`/rbac/entities/${entityId}/roles/${roleId}`, { data: { removedBy } }).then(body);
 export const rbacStats = () => get('/rbac/stats');
 export const rbacClearRoleCache = (roleId) => post(`/rbac/cache/role/${roleId}`, {});
+/** Create an account (entity) type; name is a lowercase code such as career_counsellor. Super Admin. */
+export const rbacCreateEntityType = (p) => post('/rbac/entity-types', clean(p));
 export const rbacEntityTypes = async () =>
   arr(
     await get('/rbac/entity-types/with-default-roles').catch(() => get('/rbac/entity-types')),

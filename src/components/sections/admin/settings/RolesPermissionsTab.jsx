@@ -24,6 +24,8 @@ import {
   rbacScopePermissions,
   rbacScopes,
   rbacStats,
+  rbacCreateEntityType,
+  rbacEntityTypes,
   rbacUpdateRole,
 } from '../../../../services/admin.api.js';
 
@@ -354,7 +356,24 @@ const RolesPermissionsTab = ({ data, session }) => {
   const selected = (roles.data ?? []).find((r) => docId(r) === selectedId);
   const [filter, setFilter] = useState('');
   const [dialog, setDialog] = useState(null); // { kind: 'create' | 'edit' | 'delete', role }
-  const [form, setForm] = useState({ name: '', description: '', entityType: '' });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    entityType: '',
+    newType: '',
+    newTypeDescription: '',
+  });
+  // Account (entity) types for the "For account type" dropdown; "__new__" creates one first.
+  const entityTypes = useAdminData(() => rbacEntityTypes().catch(() => []), []);
+  const typeOptions = [
+    { value: '', label: 'Any account type' },
+    ...(entityTypes.data ?? [])
+      .map((t) => t.name)
+      .filter(Boolean)
+      .sort()
+      .map((n) => ({ value: n, label: humanize(n) })),
+    ...(canEdit ? [{ value: '__new__', label: '+ New account type…' }] : []),
+  ];
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const list = (roles.data ?? [])
@@ -376,10 +395,29 @@ const RolesPermissionsTab = ({ data, session }) => {
     try {
       if (dialog.kind === 'create') {
         if (!form.name.trim()) throw new Error('Give the role a name.');
+        let entityType = form.entityType || undefined;
+        if (entityType === '__new__') {
+          const code = form.newType.trim();
+          if (!/^[a-z][a-z0-9_]{1,39}$/.test(code)) {
+            throw new Error(
+              'Account type code: lowercase letters, numbers and _ (e.g. career_counsellor).'
+            );
+          }
+          if ((entityTypes.data ?? []).some((t) => t.name === code))
+            throw new Error(`“${code}” already exists — pick it from the list.`);
+          await rbacCreateEntityType({
+            name: code,
+            description: form.newTypeDescription.trim() || undefined,
+          });
+          entityTypes.reload();
+          entityType = code;
+          // The type now exists: a retry (if the role step fails) reuses it instead of re-creating it.
+          setForm((f) => ({ ...f, entityType: code, newType: '', newTypeDescription: '' }));
+        }
         await rbacCreateRole({
           name: form.name.trim(),
           description: form.description.trim(),
-          entityType: form.entityType || undefined,
+          entityType,
         });
         toast('Role created', form.name);
       } else if (dialog.kind === 'edit') {
@@ -447,7 +485,13 @@ const RolesPermissionsTab = ({ data, session }) => {
               <TextAction
                 tone="green"
                 onClick={() => {
-                  setForm({ name: '', description: '', entityType: '' });
+                  setForm({
+                    name: '',
+                    description: '',
+                    entityType: '',
+                    newType: '',
+                    newTypeDescription: '',
+                  });
                   setError('');
                   setDialog({ kind: 'create' });
                 }}
@@ -531,14 +575,41 @@ const RolesPermissionsTab = ({ data, session }) => {
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             />
             {dialog.kind === 'create' ? (
-              <TextInput
-                label="For account type"
-                optional
-                placeholder="institution, recruiter, talent…"
-                value={form.entityType}
-                onChange={(e) => setForm((f) => ({ ...f, entityType: e.target.value.trim() }))}
-                error={error || undefined}
-              />
+              <>
+                <Select
+                  label="For account type"
+                  options={typeOptions}
+                  value={form.entityType}
+                  onChange={(v) => setForm((f) => ({ ...f, entityType: v }))}
+                  helperText={entityTypes.loading ? 'Loading account types…' : undefined}
+                />
+                {form.entityType === '__new__' ? (
+                  <>
+                    <TextInput
+                      label="New account type code"
+                      required
+                      placeholder="career_counsellor"
+                      value={form.newType}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          newType: e.target.value.toLowerCase().replace(/[\s-]+/g, '_'),
+                        }))
+                      }
+                      helperText="Lowercase letters, numbers and _. It can’t be renamed later."
+                    />
+                    <TextInput
+                      label="What this account type is"
+                      optional
+                      value={form.newTypeDescription}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, newTypeDescription: e.target.value }))
+                      }
+                    />
+                  </>
+                ) : null}
+                {error ? <p className="m-0 text-[14px] text-[#902b20]">{error}</p> : null}
+              </>
             ) : error ? (
               <p className="m-0 text-[14px] text-[#902b20]">{error}</p>
             ) : null}
