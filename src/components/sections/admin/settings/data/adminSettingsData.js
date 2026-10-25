@@ -21,6 +21,7 @@ const BASE = [
     to: '/admin/settings/notifications',
   },
   { id: 'templates', label: 'Message templates', icon: 'bell', to: '/admin/comms/templates' },
+  { id: 'reference', label: 'Reference data', icon: 'folder', to: '/admin/settings/reference' },
   {
     id: 'onboarding',
     label: 'Onboarding templates',

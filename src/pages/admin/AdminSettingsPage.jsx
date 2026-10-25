@@ -13,6 +13,7 @@ import OnboardingTemplateTab from '../../components/sections/admin/settings/Onbo
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
 import SystemNotificationsTab from '../../components/sections/admin/settings/SystemNotificationsTab.jsx';
+import ReferenceDataTab from '../../components/sections/admin/settings/ReferenceDataTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
 import {
   CHANGE_SETTING,
@@ -80,6 +81,11 @@ const AdminSettingsPage = () => {
     subtitle =
       'Roles, permissions and role groups from the access-control service. Super Admins make changes; every change is logged.';
     body = <RolesPermissionsTab data={data} session={session} />;
+  } else if (tab === 'reference') {
+    active = 'reference';
+    subtitle =
+      'Lists other features read, such as opportunity categories. Senior and Super Admins make changes; each needs a reason and is logged.';
+    body = <ReferenceDataTab data={data} session={session} />;
   } else if (tab === 'notifications') {
     active = 'notifications';
     subtitle =

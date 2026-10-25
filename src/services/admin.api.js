@@ -214,6 +214,18 @@ export const notifCoverage = () => get('/notifications/template-coverage');
 export const notifMappings = () => get('/notifications/template-mappings');
 export const notifRefreshMappings = () => post('/notifications/refresh-mappings', {});
 
+// ── Reference data (/api/admin/catalog; Senior / Super Admin, every change needs a reason) ─────────────
+export const catCategories = () => get('/admin/catalog/categories');
+export const catCreateCategory = (p) => post('/admin/catalog/categories', clean(p));
+export const catUpdateCategory = (id, p) =>
+  api.put(`/admin/catalog/categories/${id}`, p).then(body);
+export const catSetCategoryActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/categories/${id}/active`, { isActive, reason }).then(body);
+export const catReorderCategories = (ids, reason) =>
+  post('/admin/catalog/categories/reorder', clean({ ids, reason }));
+export const catDeleteCategory = (id, reason) =>
+  api.delete(`/admin/catalog/categories/${id}`, { data: { reason } }).then(body);
+
 // ── Observability (Senior / Super Admin; Grafana Cloud read through the server) ─────────────────────
 export const obsStatus = () => get('/admin/observability/status');
 export const obsSnapshot = () => get('/admin/observability/snapshot');
