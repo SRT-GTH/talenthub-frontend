@@ -10,6 +10,7 @@ import {
   unsaveJob,
   withdrawApplication,
 } from '../../../services/talentJobs.api.js';
+import { respondToInterview } from '../../../services/interviews.api.js';
 import { debug } from '../../../utils/debug.js';
 import { applyJobsData, jobById } from './talentJobsData.js';
 import { buildJobsData, buildProfilePreview, mergeJobDetail } from './talentJobsLive.js';
@@ -21,7 +22,7 @@ const log = debug('useLiveJobs');
  * logged-out visit keeps the Figma demo. Every mutation (save, apply, withdraw) calls the API and then
  * reloads the feed, so counts, tabs and the detail screen always reflect what the backend has.
  *
- * Returns { status: demo|loading|live|error, version, live, retry, toggleSave, apply, withdraw,
+ * Returns { status: demo|loading|live|error, version, live, retry, toggleSave, apply, withdraw, respondInterview,
  * loadDetail, busy, error }. `version` changes whenever the data bindings were swapped (use as a key).
  */
 export const useLiveJobs = () => {
@@ -128,6 +129,17 @@ export const useLiveJobs = () => {
     [run]
   );
 
+  // Interview reply (accept / suggest times / ask to change), then the feed reloads.
+  const respondInterview = useCallback(
+    (id, body) => {
+      const appId = jobById(id)?.application?.id;
+      if (!appId) return Promise.reject(new Error('No application for this job'));
+      log('interview reply', id, body?.action);
+      return run(`interview:${id}`, () => respondToInterview(appId, body));
+    },
+    [run]
+  );
+
   const loadDetail = useCallback(
     async (id) => {
       if (!live || !id || !dataRef.current || detailsRef.current[id]) return;
@@ -157,8 +169,9 @@ export const useLiveJobs = () => {
       toggleSave,
       apply,
       withdraw,
+      respondInterview,
       loadDetail,
     }),
-    [state, live, busy, toggleSave, apply, withdraw, loadDetail]
+    [state, live, busy, toggleSave, apply, withdraw, respondInterview, loadDetail]
   );
 };

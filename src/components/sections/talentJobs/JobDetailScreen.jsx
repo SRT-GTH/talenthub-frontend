@@ -6,6 +6,7 @@ import { JobBriefIcon, JobCashIcon, JobPinIcon } from '../../shared/assets.jsx';
 import Button from '../../ui/Button.jsx';
 import recruiterPhoto from '../../../assets/talent-jobs/detail/recruiter-ama-darko.png';
 import ApplyDialog from './JobApplyDialogs.jsx';
+import JobInterviewPanel from './JobInterviewPanel.jsx';
 import { CompanyLogo, Sticker } from './JobDetailParts.jsx';
 import {
   JobDetailArrowIcon,
@@ -808,6 +809,7 @@ const JobDetailScreen = ({ jobs }) => {
             onApply={startApply}
             jobs={jobs}
           />
+          {JOBS_LIVE && applied && !closed ? <JobInterviewPanel job={job} jobs={jobs} /> : null}
           {applied && !closed ? <ApplicationCard view={view} jobs={jobs} /> : null}
           {view.d.about ? <AboutCard about={view.d.about} /> : null}
           <SkillsCard view={view} />

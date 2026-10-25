@@ -75,10 +75,13 @@ const statusText = (app, recruiterFirst) => {
       return 'Withdrawn by you';
     case 'rejected':
       return 'Not this time';
-    case 'interview_scheduled':
-      return app.interview?.at
-        ? `Interview ${weekdayDay(app.interview.at)}`
-        : 'Interview being arranged';
+    case 'interview_scheduled': {
+      const iv = app.interview;
+      if (!iv?.at) return 'Interview being arranged';
+      if (iv.status === 'proposed') return `Interview invite · ${weekdayDay(iv.at)} · reply needed`;
+      if (iv.status === 'change_requested') return 'New time requested · waiting';
+      return `Interview ${weekdayDay(iv.at)} · confirmed`;
+    }
     case 'interviewed':
       return 'Interview done · waiting to hear back';
     case 'offer_pending':
@@ -95,9 +98,11 @@ const statusText = (app, recruiterFirst) => {
   }
 };
 
-const actionText = (view) => {
+const actionText = (view, app) => {
   if (view.tone === 'withdrawn') return 'Apply again';
   if (view.tone === 'closed') return 'See what to boost';
+  if (app?.stage === 'interview_scheduled' && app.interview?.status === 'proposed')
+    return 'Reply to invite';
   if (view.group === 'interviews') return 'Prep with Buddy';
   return 'View posting';
 };
@@ -308,7 +313,7 @@ export const buildJobsData = (feed, now = Date.now()) => {
         step: v.step,
         status: statusText(j.application, null),
         tone: v.tone,
-        action: actionText(v),
+        action: actionText(v, j.application),
         group: v.group,
         appliedAt: j.application.appliedAt,
         applicationId: j.application.id,
