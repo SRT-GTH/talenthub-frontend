@@ -1,4 +1,4 @@
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import ChartLegend from './ChartLegend.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
 import TrendHeadline from './TrendHeadline.jsx';
@@ -24,12 +24,12 @@ const SkillTrendCard = ({ model, text }) => {
     (_, i) => yMin + i * stepY
   );
   return (
-    <PublicCard
+    <DemandCard
       id="skill-trend"
       title="Skill trend"
       hint={text.skillHint}
       className="flex flex-col"
-      bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <TrendHeadline
         value={names[0]}
@@ -50,7 +50,7 @@ const SkillTrendCard = ({ model, text }) => {
       <ChartLegend
         items={names.map((name, i) => ({ label: name, color: COLORS[i], kind: 'line' }))}
       />
-    </PublicCard>
+    </DemandCard>
   );
 };
 

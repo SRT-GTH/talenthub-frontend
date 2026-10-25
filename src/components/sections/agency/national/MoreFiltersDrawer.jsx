@@ -7,7 +7,7 @@ import { getOverview } from '../../publicData/overview/data/overviewData.js';
 import { FILTER_DEFINITIONS, filterOptionLabel } from '../../publicData/ui/data/uiData.js';
 import { FILTER_KEYS } from '../agencyState.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import { MORE_FILTER_GROUPS } from './data/moreFiltersData.js';
+import { MORE_FILTER_GROUPS, parseMore, regionIds, serializeMore } from './data/moreFiltersData.js';
 
 const log = debug('MoreFiltersDrawer');
 
@@ -38,6 +38,74 @@ const Chevron = ({ className }) => (
     <path d="m4 6 4 4 4-4" />
   </svg>
 );
+
+const MultiField = ({ field, value, onChange, options }) => {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef(null);
+  const ids = regionIds(value);
+  const id = `mf-${field.key}`;
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => {
+      if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [open]);
+  const toggle = (opt) => {
+    const next = ids.includes(opt) ? ids.filter((x) => x !== opt) : [...ids, opt];
+    onChange(field.key, next.length ? next.join(',') : null);
+  };
+  const text = ids.length
+    ? ids.map((x) => options.find((o) => o.id === x)?.label ?? x).join(', ')
+    : 'Any';
+  return (
+    <div ref={rootRef} className="relative flex min-w-0 flex-col gap-[6px] max-lg:col-span-full">
+      <span id={`${id}-l`} className="text-[14px] leading-[17px] font-medium text-[#1c2a21]">
+        {field.label}
+      </span>
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-labelledby={`${id}-l ${id}`}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && open) {
+            e.stopPropagation();
+            setOpen(false);
+          }
+        }}
+        className={classNames(SELECT, 'truncate text-left', !ids.length && 'text-[#575755]')}
+      >
+        {text}
+      </button>
+      <Chevron className="pointer-events-none absolute top-[38px] right-[12px] text-[#1c2a21]" />
+      {open && (
+        <ul
+          role="group"
+          aria-label={field.label}
+          className="absolute top-[calc(100%+4px)] left-0 z-20 m-0 flex max-h-[240px] w-full min-w-[220px] list-none flex-col gap-[2px] overflow-y-auto rounded-[12px] border border-solid border-[#e7e7e7] bg-white p-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+        >
+          {options.map((o) => (
+            <li key={o.id} role="presentation">
+              <label className="flex min-h-[32px] cursor-pointer items-center gap-[8px] rounded-[8px] px-[8px] py-[4px] text-[14px] leading-[17px] hover:bg-[#f8f8f4]">
+                <input
+                  type="checkbox"
+                  checked={ids.includes(o.id)}
+                  onChange={() => toggle(o.id)}
+                  className="size-[16px] accent-[#387440]"
+                />
+                {o.label}
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 const Field = ({ field, value, onChange }) => {
   if (field.locked) {
@@ -87,9 +155,11 @@ const Field = ({ field, value, onChange }) => {
         label: o.label,
       }))
     : field.options.map((o) => ({ id: o, label: o }));
+  if (field.multi)
+    return <MultiField field={field} value={value} onChange={onChange} options={options} />;
   const id = `mf-${field.key}`;
   return (
-    <div className="flex min-w-0 flex-col gap-[6px] max-md:col-span-full">
+    <div className="flex min-w-0 flex-col gap-[6px] max-lg:col-span-full">
       <label htmlFor={id} className="text-[14px] leading-[17px] font-medium text-[#1c2a21]">
         {field.label}
       </label>
@@ -128,6 +198,7 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
   const [draft, setDraft] = useState({});
   const [openGroups, setOpenGroups] = useState(['location', 'about', 'education']);
   const [q, setQ] = useState('');
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 767px)').matches);
   const panelRef = useRef(null);
   const returnRef = useRef(null);
   const { update, filters } = data;
@@ -136,12 +207,19 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
     if (!open) return undefined;
     log('open', filters);
     returnRef.current = document.activeElement;
-    setDraft({ ...filters });
+    setDraft({ ...filters, ...parseMore(data.params.get('more')) });
     setQ('');
-    const withValue = MORE_FILTER_GROUPS.filter((g) => g.fields.some((f) => filters[f.key])).map(
+    const seeded = { ...filters, ...parseMore(data.params.get('more')) };
+    const withValue = MORE_FILTER_GROUPS.filter((g) => g.fields.some((f) => seeded[f.key])).map(
       (g) => g.id
     );
-    setOpenGroups(withValue.length ? withValue : ['location', 'about', 'education']);
+    setOpenGroups(
+      withValue.length
+        ? withValue
+        : window.matchMedia('(min-width: 1024px)').matches
+          ? ['location', 'about', 'education']
+          : ['location', 'about']
+    );
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     panelRef.current?.focus();
@@ -151,6 +229,13 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const on = () => setNarrow(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
 
   const close = () => update({ modal: null }, { replace: true });
 
@@ -184,7 +269,12 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
     () => Object.fromEntries(FILTER_KEYS.map((k) => [k, draft[k] || null])),
     [draft]
   );
-  const count = useMemo(() => getOverview(core).count, [core]);
+  const count = useMemo(() => {
+    const ids = regionIds(core.region);
+    if (ids.length > 1)
+      return ids.reduce((n, id) => n + getOverview({ ...core, region: id }).count, 0);
+    return getOverview(core).count;
+  }, [core]);
   const fourteen = draft.age === '14-17';
   const tooFew =
     forcedTooFew ||
@@ -195,7 +285,14 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
   if (!open) return null;
 
   const set = (key, value) => setDraft((d) => ({ ...d, [key]: value }));
-  const labelOf = (f) => (f.core ? filterOptionLabel(f.key, draft[f.key]) : draft[f.key]);
+  const labelOf = (f) =>
+    f.multi
+      ? regionIds(draft[f.key])
+          .map((x) => filterOptionLabel(f.key, x) ?? x)
+          .join(', ')
+      : f.core
+        ? filterOptionLabel(f.key, draft[f.key])
+        : draft[f.key];
   const needle = q.trim().toLowerCase();
   const groups = needle
     ? MORE_FILTER_GROUPS.map((g) => ({
@@ -207,7 +304,15 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
     : MORE_FILTER_GROUPS;
   const apply = () => {
     log('apply', core);
-    update({ ...core, modal: null, state: forcedTooFew ? null : data.state });
+    const extras = Object.fromEntries(
+      Object.entries(draft).filter(([k]) => !FILTER_KEYS.includes(k))
+    );
+    update({
+      ...core,
+      more: serializeMore(extras) || null,
+      modal: null,
+      state: forcedTooFew ? null : data.state,
+    });
   };
   const clearAll = () => setDraft({});
 
@@ -226,8 +331,12 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
         aria-modal="true"
         aria-labelledby="mf-title"
         tabIndex={-1}
-        className="absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-[20px] bg-white font-sans shadow-[0_-8px_32px_rgba(0,0,0,0.16)] outline-none md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-[420px] md:rounded-none md:shadow-[-8px_0_32px_rgba(0,0,0,0.16)] lg:h-[min(1117px,100dvh)] lg:w-[560px]"
+        className="absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-[20px] bg-white font-sans shadow-[0_-8px_32px_rgba(0,0,0,0.16)] outline-none md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-[490px] md:rounded-none md:shadow-[-8px_0_32px_rgba(0,0,0,0.16)] lg:h-[min(1065px,100dvh)] lg:rounded-bl-[20px] lg:w-[560px]"
       >
+        <span
+          aria-hidden="true"
+          className="mx-auto mt-[8px] h-[4px] w-[40px] shrink-0 rounded-full bg-[#d9d9d4] md:hidden"
+        />
         <div className="flex items-start justify-between gap-[12px] px-[24px] pt-[24px] max-md:px-[20px] max-md:pt-[20px]">
           <div className="flex min-w-0 flex-col gap-[4px]">
             <h2
@@ -282,7 +391,7 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search filters, e.g. “certification”"
+              placeholder={narrow ? 'Search filters' : 'Search filters, e.g. “certification”'}
               className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[14px] text-[#1c2a21] outline-none placeholder:text-[#575755] max-md:placeholder:content-['Search_filters']"
             />
           </label>
@@ -332,7 +441,7 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
                     </span>
                     <span
                       className={classNames(
-                        'text-[12px] leading-[15px]',
+                        'text-[12px] leading-[15px] max-lg:ml-auto',
                         selected ? 'text-[#387440]' : 'text-[#575755]'
                       )}
                     >
@@ -340,8 +449,8 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
                     </span>
                     <Chevron
                       className={classNames(
-                        'ml-auto text-[#575755] transition-transform',
-                        isOpen && 'rotate-180'
+                        'text-[#575755] transition-transform lg:ml-auto',
+                        isOpen ? 'lg:rotate-180' : 'max-lg:-rotate-90'
                       )}
                     />
                   </button>
@@ -349,7 +458,7 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
                 {isOpen && (
                   <div
                     id={panelId}
-                    className="grid grid-cols-2 gap-x-[16px] gap-y-[14px] pb-[16px]"
+                    className="grid grid-cols-1 gap-x-[16px] gap-y-[14px] pb-[16px] lg:grid-cols-2"
                   >
                     {g.fields.map((f) => (
                       <Field
@@ -400,7 +509,7 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
               className="h-[44px] flex-1 cursor-pointer rounded-[14px] border-0 bg-[linear-gradient(180deg,#3f7f4c,#2a5730)] px-[18px] font-sans text-[14px] font-semibold text-white shadow-[0_3px_0_#1f4a2b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {tooFew ? 'Show results' : `Show ${formatCount(count)} talents`}
-              <span className="max-md:hidden"> →</span>
+              <span aria-hidden="true"> →</span>
             </button>
           </div>
         </div>

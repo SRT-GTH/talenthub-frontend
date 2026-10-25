@@ -125,7 +125,7 @@ const DemandFilterRow = ({
       <div
         role="group"
         aria-label="Filters"
-        className="no-scrollbar flex max-w-full min-w-0 items-center gap-[8px] overflow-x-auto pb-[2px] lg:flex-wrap lg:overflow-visible lg:pb-0"
+        className="no-scrollbar flex max-w-full min-w-0 items-center gap-[8px] overflow-x-auto lg:flex-wrap lg:overflow-visible"
       >
         <PublicIconFilterBar className="hidden size-[18px] shrink-0 text-[#70706e] lg:block" />
         <span className="hidden text-[14px] leading-[17px] font-semibold text-[#595959] lg:inline">

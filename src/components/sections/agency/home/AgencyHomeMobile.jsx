@@ -21,6 +21,7 @@ import {
   AgMInfo,
   AgMPipeline,
   AgMShieldCheck,
+  AgMSparkles,
   AgMTrendingUp,
   AgMUpload,
   AgMUsers,
@@ -178,33 +179,35 @@ const AgencyHomeMobile = ({ firstName, short }) => {
           {M.requests.items.map((r) => (
             <div
               key={r.name}
-              className="flex items-start gap-[10px] rounded-[10px] border border-solid border-[#e5e8e3] p-[12px]"
+              className="flex flex-col gap-[12px] rounded-[10px] border border-solid border-[#e5e8e3] p-[12px]"
             >
-              <span
-                aria-hidden="true"
-                className="grid size-[36px] shrink-0 place-items-center rounded-full bg-[#ebf1ec] text-[#387440]"
-              >
-                <AgMChartBar className="size-[20px]" />
-              </span>
-              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111111]">
-                  {r.name}
-                </span>
+              <div className="flex items-start gap-[10px]">
                 <span
-                  className={classNames(
-                    'font-sans text-[12px] leading-[20px] tracking-[0.2px]',
-                    r.tone === 'warn' ? 'text-[#785910]' : 'text-[#575755]'
-                  )}
+                  aria-hidden="true"
+                  className="grid size-[36px] shrink-0 place-items-center rounded-full bg-[#ebf1ec] text-[#387440]"
                 >
-                  {r.status}
+                  <AgMChartBar className="size-[20px]" />
                 </span>
-                <Link
-                  to="/agency/data-requests"
-                  className="mt-[8px] inline-flex min-h-[34px] w-fit items-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline shadow-[0_3px_0_rgba(17,17,17,0.18)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-                >
-                  {r.action}
-                </Link>
+                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                  <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111111]">
+                    {r.name}
+                  </span>
+                  <span
+                    className={classNames(
+                      'font-sans text-[12px] leading-[20px] tracking-[0.2px]',
+                      r.tone === 'warn' ? 'text-[#785910]' : 'text-[#575755]'
+                    )}
+                  >
+                    {r.status}
+                  </span>
+                </div>
               </div>
+              <Link
+                to="/agency/data-requests"
+                className="inline-flex h-[34px] w-fit items-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline shadow-[0_3px_0_rgba(17,17,17,0.18)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {r.action}
+              </Link>
             </div>
           ))}
           <Link
@@ -314,48 +317,51 @@ const AgencyHomeMobile = ({ firstName, short }) => {
 
       <AgencyMobileWidget
         id="m-changes"
-        icon={<AgMTrendingUp className="size-[16px]" />}
+        icon={<AgMSparkles className="size-[16px]" />}
         title={M.changes.title}
         subtitle={M.changes.sub}
       >
         <div className="flex flex-col gap-[12px]">
-          <button
-            type="button"
-            onClick={() => log('query set')}
-            className="flex min-h-[40px] w-fit items-center gap-[6px] rounded-[10px] border border-solid border-[#dbded9] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111]"
-          >
-            <AgMBookmark className="size-[14px]" />
-            {M.changes.set}
-            <AgMChevronDown className="size-[14px]" />
-          </button>
-          <Link
-            to="/agency/queries"
-            className="font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#387440] no-underline"
-          >
-            {M.changes.all}
-          </Link>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col items-start gap-[8px]">
+            <button
+              type="button"
+              onClick={() => log('query set')}
+              className="flex h-[36px] w-[193px] max-w-full items-center gap-[6px] rounded-[10px] border border-solid border-[#dbded9] bg-[#fffefc] py-[7px] pr-[10px] pl-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111]"
+            >
+              <AgMBriefcase className="size-[14px] shrink-0" />
+              <span className="flex-1 truncate text-left">{M.changes.set}</span>
+              <AgMChevronDown className="size-[14px] shrink-0" />
+            </button>
+            <Link
+              to="/agency/queries"
+              className="inline-flex h-[32px] items-center gap-[6px] px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#387440] no-underline"
+            >
+              {M.changes.all}
+              <AgMArrowRight className="size-[14px]" />
+            </Link>
+          </div>
+          <div className="flex items-center gap-[8px]">
             <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111111]">
               {M.changes.movesLabel}
             </span>
-            <span className="font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
+            <AgencyMobileChip tone="plain" className="!border-0">
               {M.changes.movesCount}
-            </span>
+            </AgencyMobileChip>
           </div>
-          <ul className="m-0 flex list-none gap-[12px] overflow-x-auto p-0 pb-[4px]">
+          <ul className="m-0 flex list-none gap-[16px] overflow-x-auto p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {M.changes.moves.map((m) => (
               <li
                 key={m.name}
-                className="flex w-[232px] shrink-0 flex-col gap-[8px] rounded-[10px] border border-solid border-[#e5e8e3] p-[12px]"
+                className="flex w-[240px] shrink-0 flex-col gap-[10px] rounded-[16px] border border-solid border-[#e5e8e3] bg-white p-[16px]"
               >
                 <div className="flex items-center justify-between">
                   <span
                     aria-hidden="true"
-                    className="grid size-[28px] place-items-center rounded-[6px] bg-[#ebf1ec] text-[#387440]"
+                    className="grid size-[44px] place-items-center rounded-full bg-[#ebf1ec] text-[#387440]"
                   >
-                    <AgMChartBar className="size-[16px]" />
+                    <AgMChartBar className="size-[20px]" />
                   </span>
-                  <AgencyMobileChip tone="mint" icon={<AgMTrendingUp className="size-[12px]" />}>
+                  <AgencyMobileChip tone="mint" icon={<AgMSparkles className="size-[12px]" />}>
                     {m.delta}
                   </AgencyMobileChip>
                 </div>
@@ -365,25 +371,33 @@ const AgencyHomeMobile = ({ firstName, short }) => {
                 <span className="font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
                   {m.meta}
                 </span>
-                <span className="flex flex-wrap gap-[6px]">
+                <span className="flex flex-nowrap gap-[6px] overflow-hidden">
                   {m.tags.map((t, i) => (
                     <AgencyMobileChip key={`${t}-${i}`} tone="plain">
                       {t}
                     </AgencyMobileChip>
                   ))}
                 </span>
-                <span className="flex gap-[8px]">
+                <span aria-hidden="true" className="h-px bg-[#e5e8e3]" />
+                <span className="flex items-center gap-[6px]">
+                  <button
+                    type="button"
+                    aria-label={`Bookmark ${m.name}`}
+                    className="grid size-[32px] place-items-center rounded-[10px] border border-solid border-[#dbded9] text-[#111111]"
+                  >
+                    <AgMBookmark className="size-[16px]" />
+                  </button>
                   <Link
                     to="/agency/queries"
-                    className="inline-flex min-h-[34px] flex-1 items-center justify-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white font-sans text-[12px] leading-[20px] font-medium text-[#111111] no-underline"
+                    className="inline-flex h-[34px] items-center justify-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline shadow-[0_3px_0_rgba(17,17,17,0.18)]"
                   >
                     {M.changes.view}
                   </Link>
                   <Link
                     to="/agency/queries"
-                    className="inline-flex min-h-[34px] flex-1 items-center justify-center gap-[4px] rounded-[10px] bg-[#387440] font-sans text-[12px] leading-[20px] font-medium text-white no-underline"
+                    className="ml-[6px] inline-flex h-[32px] items-center justify-center gap-[6px] rounded-[10px] bg-[#387440] px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-white no-underline shadow-[0_3px_0_#2a5730]"
                   >
-                    <AgMSend className="size-[12px]" />
+                    <AgMSend className="size-[14px]" />
                     {M.changes.open}
                   </Link>
                 </span>
@@ -405,6 +419,7 @@ const AgencyHomeMobile = ({ firstName, short }) => {
               <AgencyMobileChip
                 key={l.label}
                 tone={l.tone === 'hot' ? 'hot' : l.tone === 'warm' ? 'warn' : 'cool'}
+                icon={l.tone === 'hot' ? <AgMFlame className="size-[12px]" /> : undefined}
               >
                 {l.label}
               </AgencyMobileChip>
@@ -414,9 +429,9 @@ const AgencyHomeMobile = ({ firstName, short }) => {
             {M.skills.rows.map((r) => (
               <li
                 key={r.name}
-                className="flex items-center justify-between gap-[8px] rounded-[10px] bg-[#f9ebea] px-[12px] py-[10px]"
+                className="flex items-center gap-[10px] rounded-[10px] bg-[#f9ebea] p-[12px]"
               >
-                <span className="flex flex-col">
+                <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
                   <span className="font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111]">
                     {r.name}
                   </span>
@@ -424,10 +439,9 @@ const AgencyHomeMobile = ({ firstName, short }) => {
                     {formatCount(r.talents)} talents
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-[4px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#165d3a]">
-                  <AgMTrendingUp className="size-[14px]" />
+                <AgencyMobileChip tone="ok" icon={<AgMTrendingUp className="size-[12px]" />}>
                   {r.delta}
-                </span>
+                </AgencyMobileChip>
               </li>
             ))}
           </ul>

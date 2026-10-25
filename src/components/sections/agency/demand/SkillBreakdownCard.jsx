@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import DemandNote from './DemandNote.jsx';
 import DemandTable from './DemandTable.jsx';
@@ -52,12 +52,12 @@ const SkillBreakdownCard = ({ rows, selectedId, onSelect, note }) => {
     );
   const label = COLUMNS.find((c) => c.key === sort.key)?.label.toLowerCase();
   return (
-    <PublicCard
+    <DemandCard
       id="skill-breakdown"
       title="Skill breakdown"
       hint={`Sorted by ${label} · click a header to sort`}
       className="flex flex-col"
-      bodyClassName="flex flex-1 flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <DemandTable
         caption="Skills by opportunities last quarter"
@@ -107,7 +107,7 @@ const SkillBreakdownCard = ({ rows, selectedId, onSelect, note }) => {
         })}
       </DemandTable>
       {note ? <DemandNote>{note}</DemandNote> : null}
-    </PublicCard>
+    </DemandCard>
   );
 };
 

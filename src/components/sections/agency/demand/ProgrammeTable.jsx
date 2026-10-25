@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import DemandNote from './DemandNote.jsx';
 import DemandTable from './DemandTable.jsx';
@@ -48,11 +48,11 @@ const ProgrammeTable = ({ rows, totals }) => {
         : { key, dir: key === 'name' ? 'asc' : 'desc', touched: true }
     );
   return (
-    <PublicCard
+    <DemandCard
       id="success-by-programme"
       title="Success by programme"
       hint={PROGRAMME_HINT}
-      bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <DemandTable
         caption="Success by programme"
@@ -98,7 +98,7 @@ const ProgrammeTable = ({ rows, totals }) => {
         ) : null}
       </DemandTable>
       <DemandNote>{PROGRAMME_NOTE}</DemandNote>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

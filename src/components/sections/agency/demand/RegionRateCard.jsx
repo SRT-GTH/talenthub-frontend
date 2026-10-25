@@ -1,4 +1,4 @@
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import ChartLegend from './ChartLegend.jsx';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import DemandNote from './DemandNote.jsx';
@@ -16,12 +16,12 @@ const RegionRateCard = ({ config, empty, hintOverride }) => {
   const max = config.axis[config.axis.length - 1];
   const [a, b] = config.series;
   return (
-    <PublicCard
+    <DemandCard
       id="region-rate"
       title={config.title}
       hint={hintOverride ?? config.hint}
       className="flex flex-col"
-      bodyClassName="flex flex-1 flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       {empty ? (
         <EyeOffNote title={empty.title} message={empty.message} />
@@ -51,7 +51,7 @@ const RegionRateCard = ({ config, empty, hintOverride }) => {
           <DemandNote>{REGION_CODES_NOTE}</DemandNote>
         </>
       )}
-    </PublicCard>
+    </DemandCard>
   );
 };
 

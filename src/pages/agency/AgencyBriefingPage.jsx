@@ -12,7 +12,11 @@ const AgencyBriefingPage = () => {
   const data = useAgencyState();
   return (
     <AgencyFrame data={data} title="National data">
-      <AgencyNationalView data={data} />
+      {/* 11.4.4a-e draw the older National data layout behind the dialogs; 11.4.4h (build failed) draws the current one */}
+      <AgencyNationalView
+        data={data}
+        classic={!(data.modal === 'download' && data.state === 'failed')}
+      />
       <AgencyBriefingModals data={data} />
     </AgencyFrame>
   );

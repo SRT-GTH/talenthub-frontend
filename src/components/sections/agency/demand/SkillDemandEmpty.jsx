@@ -2,7 +2,7 @@ import Button from '../../../ui/Button.jsx';
 import { formatCount } from '../agencyFormat.js';
 import { AgencyArrowRightIcon } from '../agencyIcons.jsx';
 import EmptyState from '../../publicData/ui/EmptyState.jsx';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import { NO_RESULTS } from './data/demandData.js';
 
 /*
@@ -12,11 +12,11 @@ import { NO_RESULTS } from './data/demandData.js';
  */
 
 const SkillDemandEmpty = ({ onClear, onWiden, regionName = 'Northern' }) => (
-  <PublicCard
+  <DemandCard
     id="skill-demand-empty"
     title={NO_RESULTS.cardTitle}
     hint={NO_RESULTS.cardHint}
-    bodyClassName="flex flex-col items-center gap-[20px] px-[16px] pb-[24px] md:px-[24px]"
+    bodyClassName="flex flex-col items-center gap-[20px] px-[24px] pb-[24px]"
   >
     <EmptyState
       card={false}
@@ -50,7 +50,7 @@ const SkillDemandEmpty = ({ onClear, onWiden, regionName = 'Northern' }) => (
         </span>
       ))}
     </p>
-  </PublicCard>
+  </DemandCard>
 );
 
 export default SkillDemandEmpty;

@@ -116,7 +116,7 @@ const DataRequestsList = ({ data }) => {
                 onClick={() => update({ tab: t.id === 'all' ? null : t.id }, { replace: true })}
                 onKeyDown={(e) => onTabKey(e, index)}
                 className={classNames(
-                  '-mb-px flex cursor-pointer items-center gap-[8px] border-0 border-b-[2px] border-solid bg-transparent px-[14px] pt-[10px] pb-[10px] font-sans text-[15px] leading-[18px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#387440]',
+                  '-mb-px flex cursor-pointer items-center gap-[8px] whitespace-nowrap border-0 border-b-[2px] border-solid bg-transparent px-[14px] pt-[10px] pb-[10px] font-sans text-[15px] leading-[18px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#387440]',
                   active
                     ? 'border-[#1c2a21] font-semibold text-[#1c2a21]'
                     : 'border-transparent font-medium text-[#737373]'

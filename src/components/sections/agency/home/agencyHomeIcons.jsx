@@ -895,6 +895,39 @@ export const AgMShieldCheck = ({ className, style }) => (
   </svg>
 );
 
+export const AgMSparkles = ({ className, style }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+    className={className}
+    style={style}
+  >
+    <path
+      d="M7.99984 2L9.2665 5.86667L13.3332 7.33333L9.2665 8.8L7.99984 12.6667L6.73317 8.8L2.6665 7.33333L6.73317 5.86667L7.99984 2Z"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M12.6665 2V4.66667"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+    <path
+      d="M14.0002 3.33331H11.3335"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
 export const AgMTrendingUp = ({ className, style }) => (
   <svg
     viewBox="0 0 12 12"

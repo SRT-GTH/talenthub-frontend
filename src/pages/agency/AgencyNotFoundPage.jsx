@@ -16,7 +16,7 @@ const AgencyNotFoundPage = () => {
         </p>
         <Link
           to="/agency"
-          className="font-sans text-[14px] leading-[20px] font-semibold text-[#387440] underline"
+          className="inline-flex min-h-[24px] items-center font-sans text-[14px] leading-[20px] font-semibold text-[#387440] underline"
         >
           Back to Home
         </Link>

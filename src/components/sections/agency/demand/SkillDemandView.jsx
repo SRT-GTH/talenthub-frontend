@@ -231,7 +231,7 @@ const SkillDemandView = ({ data }) => {
       <div className="lg:hidden">
         <DemandCompactKpis tiles={NATIONAL_KPIS.compact} />
       </div>
-      <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
+      <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 md:gap-x-[20px] lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
         <div className="min-w-0 max-lg:hidden lg:order-1">
           {drill ? (
             <DistrictDemandCard
@@ -266,7 +266,7 @@ const SkillDemandView = ({ data }) => {
           <DemandRegionList rows={topRegions} onOpenRegion={openRegion} />
         </div>
       </div>
-      <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
+      <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 md:gap-x-[20px] lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
         <div className="min-w-0 max-lg:hidden">
           <SkillBreakdownCard
             rows={breakdownRows}

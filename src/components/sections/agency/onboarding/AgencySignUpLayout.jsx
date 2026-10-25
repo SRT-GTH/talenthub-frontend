@@ -28,7 +28,7 @@ const AgencySignUpLayout = ({ stepKey, variant, children }) => {
           </Link>
           <Link
             to="/agency"
-            className="inline-flex min-h-[24px] items-center px-[8px] text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#387440] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            className="inline-flex min-h-[24px] items-center px-[8px] text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#387440] underline decoration-[#387440]/60 underline-offset-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             Log In
           </Link>
@@ -42,7 +42,7 @@ const AgencySignUpLayout = ({ stepKey, variant, children }) => {
         />
       </OnboardingProvider>
       <main className="flex min-h-0 flex-1" aria-label="Agency sign-up">
-        <div className="relative flex min-w-0 flex-1 justify-center bg-[radial-gradient(circle_at_20%_0%,#eef3ea,transparent_55%)] px-[16px] py-[24px] md:px-[24px] md:py-[34px]">
+        <div className="relative flex min-w-0 flex-1 items-center justify-center bg-[radial-gradient(circle_at_20%_0%,#eef3ea,transparent_55%)] px-[16px] py-[24px] md:px-[24px] md:py-[34px]">
           {children}
         </div>
         {isDesktop ? <AgencyOnboardingPanel variant={variant} /> : null}

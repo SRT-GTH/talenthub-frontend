@@ -1,4 +1,4 @@
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import { formatCount } from '../agencyFormat.js';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
@@ -18,11 +18,11 @@ const AssessmentTrendCard = ({ model, text }) => {
   const aTicks = Array.from({ length: Math.round(model.asYMax / aStep) + 1 }, (_, i) => i * aStep);
   const last = model.score[n - 1];
   return (
-    <PublicCard
+    <DemandCard
       id="assessment-trend"
       title="Assessment trend"
       hint="Assessments taken and average score · two charts, two scales"
-      bodyClassName="px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="px-[24px] pb-[24px]"
     >
       <div className="grid min-w-0 grid-cols-1 gap-[24px] lg:grid-cols-2 lg:gap-[32px]">
         <div className="flex min-w-0 flex-col gap-[8px]">
@@ -64,7 +64,7 @@ const AssessmentTrendCard = ({ model, text }) => {
           />
         </div>
       </div>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

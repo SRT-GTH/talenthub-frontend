@@ -44,7 +44,7 @@ const AgencyVerifiedDialog = ({ agencyName, onContinue, onClose }) => (
               />
             </svg>
           </span>
-          <span className="inline-flex items-center gap-[6px] rounded-[6px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[32px] py-[10px] font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#999999]">
+          <span className="inline-flex items-center gap-[6px] rounded-[6px] border border-solid border-[#c1d4c4] bg-[#ebf1ec] h-[24px] px-[16px] font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#999999]">
             <span
               aria-hidden="true"
               className="size-[8px] rounded-full border-[1.5px] border-solid border-[#1d7c4d] bg-[#c1d4c4]"

@@ -71,7 +71,7 @@ const AgencyDemandPage = () => {
           actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
         />
       </div>
-      <div className="flex flex-col gap-[4px] font-sans lg:hidden">
+      <div className="-mt-[1px] flex flex-col gap-[4px] font-sans lg:hidden">
         <h1 className="m-0 text-[24px] leading-[30px] font-semibold tracking-[-0.12px] text-[#1c2a21]">
           Demand &amp; outcomes
         </h1>

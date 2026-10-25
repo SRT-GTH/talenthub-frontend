@@ -1,4 +1,4 @@
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import ChartLegend from './ChartLegend.jsx';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
@@ -24,12 +24,12 @@ const TalentGrowthCard = ({ model, text }) => {
   const regStep = model.unit === 'month' ? 5 : 2;
   const regTicks = Array.from({ length: model.regYMax / regStep + 1 }, (_, i) => i * regStep);
   return (
-    <PublicCard
+    <DemandCard
       id="talent-growth"
       title="Talent growth"
       hint={text.regHint}
       className="flex flex-col"
-      bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <TrendHeadline
         value={model.totals.registrations.toLocaleString('en-GB')}
@@ -71,7 +71,7 @@ const TalentGrowthCard = ({ model, text }) => {
         endLabel={`${model.cumulative[n - 1]}k`}
         caption="Cumulative registered talents, thousands"
       />
-    </PublicCard>
+    </DemandCard>
   );
 };
 

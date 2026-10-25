@@ -1,6 +1,6 @@
 import { classNames } from '../../../../utils/classNames.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import { DemandEyeOffIcon } from './demandIcons.jsx';
 import DemandTable from './DemandTable.jsx';
@@ -21,12 +21,12 @@ const COLUMNS = [
 ];
 
 const DistrictDemandCard = ({ title, hint, rows, more, note }) => (
-  <PublicCard
+  <DemandCard
     id="demand-by-district"
     title={title}
     hint={hint}
     className="flex flex-col"
-    bodyClassName="flex flex-1 flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+    bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
   >
     <DemandTable caption={title} columns={COLUMNS} sortKey="count" minWidth={520}>
       {rows.map((r, i) => {
@@ -76,7 +76,7 @@ const DistrictDemandCard = ({ title, hint, rows, more, note }) => (
       <DemandEyeOffIcon className="mt-[0px] size-[16px] shrink-0 text-[#575755]" />
       <span>{note}</span>
     </p>
-  </PublicCard>
+  </DemandCard>
 );
 
 export default DistrictDemandCard;

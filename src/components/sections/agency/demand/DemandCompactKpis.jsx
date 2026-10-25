@@ -7,24 +7,26 @@ import { classNames } from '../../../../utils/classNames.js';
  */
 
 const DemandCompactKpis = ({ tiles }) => (
-  <div className="grid grid-cols-2 gap-[10px] font-sans md:grid-cols-4">
+  <div className="grid grid-cols-2 items-start gap-[12px] font-sans md:grid-cols-4">
     {tiles.map((t) => (
       <div
         key={t.eyebrow}
         className="flex min-w-0 flex-col gap-[4px] rounded-[16px] border border-solid border-[#e7e7e7] bg-white px-[14px] py-[12px]"
       >
-        <p className="m-0 text-[12px] leading-[14px] font-medium text-[#575755]">{t.eyebrow}</p>
+        <p className="m-0 text-[12px] leading-[16px] font-medium text-[#575755]">{t.eyebrow}</p>
         <p
           className={classNames(
-            'm-0 font-semibold text-[#1c2a21]',
-            t.small ? 'text-[16px] leading-[24px] font-bold' : 'text-[22px] leading-[26px]'
+            'm-0 text-[#1c2a21]',
+            t.small
+              ? 'text-[16px] leading-[19px] font-bold'
+              : 'text-[22px] leading-[26px] font-semibold'
           )}
         >
           {t.value}
         </p>
         <p
           className={classNames(
-            'm-0 text-[12px] leading-[14px]',
+            t.small ? 'm-0 text-[12px] leading-[16px]' : 'm-0 text-[12px] leading-[18px]',
             t.tone === 'up' ? 'font-semibold text-[#387440]' : 'text-[#575755]'
           )}
         >

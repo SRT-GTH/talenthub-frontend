@@ -1,5 +1,5 @@
 import { isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import DemandNote from './DemandNote.jsx';
 import DemandViewByMenu from './DemandViewByMenu.jsx';
@@ -14,11 +14,11 @@ import { SUCCESS_VIEW_BY } from './data/demandData.js';
 const ProfileGroupCard = ({ rows, view, onView, menuOpen, onMenuOpen }) => {
   const max = Math.max(1, ...rows.map((r) => r.rate ?? 0));
   return (
-    <PublicCard
+    <DemandCard
       id="success-profile-group"
       title="Success by profile group"
       className="flex flex-col"
-      bodyClassName="flex flex-1 flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
       headerExtra={
         <DemandViewByMenu
           options={SUCCESS_VIEW_BY}
@@ -61,7 +61,7 @@ const ProfileGroupCard = ({ rows, view, onView, menuOpen, onMenuOpen }) => {
       <DemandNote className="mt-auto">
         Same View by options as the Breakdown card on National data.
       </DemandNote>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

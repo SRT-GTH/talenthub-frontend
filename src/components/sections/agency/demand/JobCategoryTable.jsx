@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import DemandNote from './DemandNote.jsx';
 import DemandTable from './DemandTable.jsx';
@@ -42,11 +42,11 @@ const JobCategoryTable = () => {
         : { key, dir: key === 'name' ? 'asc' : 'desc' }
     );
   return (
-    <PublicCard
+    <DemandCard
       id="success-by-category"
       title="Success by job category"
       hint={JOB_HINT}
-      bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <DemandTable
         caption="Success by job category"
@@ -74,7 +74,7 @@ const JobCategoryTable = () => {
         ))}
       </DemandTable>
       <DemandNote>{JOB_NOTE}</DemandNote>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

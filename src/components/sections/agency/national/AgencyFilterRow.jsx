@@ -14,7 +14,8 @@ const log = debug('AgencyFilterRow');
 /*
  * AgencyFilterRow — the agency "filter bar" (Figma 8596:389746, 1329x61: white, 1px #e7e7e7, r16, p 12/16, gap 8): Filter · five chips · "+ More filters"
  * · result text · Clear all · Save as query · "Show by" Daily|Weekly|Monthly (segmented, #efefea r10 p3). With filters active the bar wraps as 11.4.2f draws.
- * Props: filters, onChange(key,id), onClearAll, onSaveQuery, onMore (opens ?modal=filters), moreActive, result {count|state}, granularity, onGranularity.
+ * Props: filters, onChange(key,id), onClearAll, onSaveQuery, onMore (opens ?modal=filters), moreActive, result {count|state}, granularity, onGranularity,
+ * extras [{key,label}] + onClearExtra(key) (opt-in: the "More filters" selections as green chips after the five), simple (the briefing-pack frames 11.4.4a-h draw the bar with five chips only: no "+ More filters", no "Show by").
  */
 
 const RESULT = 'text-[14px] leading-[17px] font-semibold text-[#1c2a21]';
@@ -28,6 +29,9 @@ const AgencyFilterRow = ({
   moreActive = false,
   result,
   granularity = 'monthly',
+  simple = false,
+  extras = [],
+  onClearExtra,
   onGranularity,
   className,
 }) => {
@@ -35,7 +39,10 @@ const AgencyFilterRow = ({
   const uid = useId();
   const rootRef = useRef(null);
   const chipRefs = useRef({});
-  const activeKeys = FILTER_DEFINITIONS.filter((d) => filters[d.key]).map((d) => d.key);
+  const activeKeys = [
+    ...FILTER_DEFINITIONS.filter((d) => filters[d.key]).map((d) => d.key),
+    ...extras.map((e) => e.key),
+  ];
 
   const closeMenu = useCallback(
     (reason) => {
@@ -83,7 +90,7 @@ const AgencyFilterRow = ({
       </span>
     );
 
-  const idle = !activeKeys.length && state === 'count';
+  const idle = !activeKeys.length && (state === 'count' || state === 'loading');
   const enabled = activeKeys.length > 0 || state === 'zero' || state === 'suppressed';
   const action = (on) =>
     classNames(
@@ -112,7 +119,13 @@ const AgencyFilterRow = ({
         <span className="text-[14px] leading-[17px] font-semibold text-[#595959]">Filter</span>
         {FILTER_DEFINITIONS.map((d) => {
           const id = filters[d.key];
-          const optionLabel = id ? filterOptionLabel(d.key, id) : null;
+          const optionLabel = id
+            ? id
+                .split(',')
+                .map((x) => filterOptionLabel(d.key, x))
+                .filter(Boolean)
+                .join(', ')
+            : null;
           const menuId = `${uid}-${d.key}`;
           return (
             <div key={d.key} className="relative">
@@ -142,17 +155,29 @@ const AgencyFilterRow = ({
             </div>
           );
         })}
-        <FilterChip
-          label="+ More filters"
-          active={moreActive}
-          popup="dialog"
-          onClick={() => {
-            log('open more filters');
-            onMore?.();
-          }}
-          onClear={() => onMore?.()}
-          clearLabel="Open more filters"
-        />
+        {extras.map((e) => (
+          <FilterChip
+            key={e.key}
+            label={e.label}
+            active
+            onClick={() => onMore?.()}
+            onClear={() => onClearExtra?.(e.key)}
+            clearLabel={`Clear ${e.label} filter`}
+          />
+        ))}
+        {!simple && (
+          <FilterChip
+            label="+ More filters"
+            active={moreActive}
+            popup="dialog"
+            onClick={() => {
+              log('open more filters');
+              onMore?.();
+            }}
+            onClear={() => onMore?.()}
+            clearLabel="Open more filters"
+          />
+        )}
       </div>
       <div
         className={classNames(
@@ -174,42 +199,44 @@ const AgencyFilterRow = ({
           Save as query
         </button>
       </div>
-      <div
-        className={classNames(
-          'flex items-center gap-[8px]',
-          activeKeys.length || state !== 'count' ? 'basis-full md:basis-auto' : ''
-        )}
-      >
-        <span
-          id={`${uid}-by`}
-          className="text-[13px] leading-[16px] whitespace-nowrap text-[#575755]"
-        >
-          Show by
-        </span>
+      {!simple && (
         <div
-          role="radiogroup"
-          aria-labelledby={`${uid}-by`}
-          className="flex gap-[2px] rounded-[10px] bg-[#efefea] p-[3px]"
+          className={classNames(
+            'flex items-center gap-[8px]',
+            !idle ? 'basis-full md:basis-auto' : ''
+          )}
         >
-          {GRANULARITY.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              role="radio"
-              aria-checked={granularity === g.id}
-              onClick={() => onGranularity?.(g.id)}
-              className={classNames(
-                'min-h-[28px] cursor-pointer rounded-[8px] px-[12px] py-[6px] text-[13px] leading-[16px] focus-visible:outline-2 focus-visible:outline-[#387440]',
-                granularity === g.id
-                  ? 'bg-white font-semibold text-[#1c2a21] shadow-[0_1px_3px_rgba(0,0,0,0.1)]'
-                  : 'bg-transparent font-medium text-[#575755]'
-              )}
-            >
-              {g.label}
-            </button>
-          ))}
+          <span
+            id={`${uid}-by`}
+            className="text-[13px] leading-[16px] whitespace-nowrap text-[#575755]"
+          >
+            Show by
+          </span>
+          <div
+            role="radiogroup"
+            aria-labelledby={`${uid}-by`}
+            className="flex gap-[2px] rounded-[10px] bg-[#efefea] p-[3px]"
+          >
+            {GRANULARITY.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                role="radio"
+                aria-checked={granularity === g.id}
+                onClick={() => onGranularity?.(g.id)}
+                className={classNames(
+                  'min-h-[28px] cursor-pointer rounded-[8px] px-[12px] py-[6px] text-[13px] leading-[16px] focus-visible:outline-2 focus-visible:outline-[#387440]',
+                  granularity === g.id
+                    ? 'bg-white font-semibold text-[#1c2a21] shadow-[0_1px_3px_rgba(0,0,0,0.1)]'
+                    : 'bg-transparent font-medium text-[#575755]'
+                )}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

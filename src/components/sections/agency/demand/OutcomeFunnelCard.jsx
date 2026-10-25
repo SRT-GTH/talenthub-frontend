@@ -1,7 +1,7 @@
 import { classNames } from '../../../../utils/classNames.js';
 import { isSuppressed } from '../agencyFormat.js';
 import { AgencyArrowRightIcon } from '../agencyIcons.jsx';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import DemandNote from './DemandNote.jsx';
 import { FUNNEL_NOTE } from './data/demandData.js';
@@ -71,11 +71,11 @@ const Funnel = ({ funnel }) => {
 };
 
 const OutcomeFunnelCard = ({ funnels }) => (
-  <PublicCard
+  <DemandCard
     id="outcome-funnel"
     title="Outcome funnel"
     hint="Counts at each stage and the drop-off between them"
-    bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+    bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
   >
     <div className="flex min-w-0 flex-col gap-[24px] xl:flex-row xl:gap-[40px]">
       {funnels.map((f) => (
@@ -83,7 +83,7 @@ const OutcomeFunnelCard = ({ funnels }) => (
       ))}
     </div>
     <DemandNote>{FUNNEL_NOTE}</DemandNote>
-  </PublicCard>
+  </DemandCard>
 );
 
 export default OutcomeFunnelCard;

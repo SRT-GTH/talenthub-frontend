@@ -16,7 +16,7 @@ import OutcomesStoriesSection from './OutcomesStoriesSection.jsx';
  * ⚠️ ASSUMPTION: the phone frame draws no range control, so it stays desktop/tablet only and the phone shows the 12-month sample).
  * `loading` (?state=loading): KPI tiles + chart area as skeleton blocks, everything else as drawn.
  * Props: response, stories, range, onRange, loading, base (route prefix of the story links, default /data), embedded (agency portal: no page header and no
- * own padding — the agency hero and chrome provide them; opt-in, Theme 8 never sets it)
+ * own padding, 30px section gap, 860/445 chart row — the agency hero and chrome provide the rest; opt-in, Theme 8 never sets it)
  */
 
 const OutcomesDashboard = ({
@@ -33,7 +33,7 @@ const OutcomesDashboard = ({
     <div
       className={
         embedded
-          ? 'flex flex-col gap-[16px] md:gap-[24px]'
+          ? 'flex flex-col gap-[16px] lg:gap-[30px]'
           : 'flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[32px] md:pb-[48px] xl:px-[40px]'
       }
     >
@@ -95,11 +95,23 @@ const OutcomesDashboard = ({
           className="md:min-h-[166px]"
         />
       </KpiStrip>
-      <div className="grid gap-[16px] md:gap-[24px] xl:grid-cols-[860fr_476fr]">
+      <div
+        className={
+          embedded
+            ? 'grid gap-[16px] md:gap-[24px] xl:grid-cols-[minmax(0,860fr)_minmax(0,445fr)]'
+            : 'grid gap-[16px] md:gap-[24px] xl:grid-cols-[860fr_476fr]'
+        }
+      >
         <OutcomesPlacementsCard series={response.placementsOverTime} loading={loading} />
         <OutcomesByTypeCard items={response.placementsByType} note={response.averageTimeNote} />
       </div>
-      <div className="hidden gap-[24px] md:grid xl:grid-cols-2">
+      <div
+        className={
+          embedded
+            ? 'hidden items-start gap-[24px] md:grid xl:grid-cols-2'
+            : 'hidden gap-[24px] md:grid xl:grid-cols-2'
+        }
+      >
         <OutcomesSkillsCard skills={response.skills} />
         <OutcomesPartnersCard partners={response.partners} />
       </div>

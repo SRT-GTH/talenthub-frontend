@@ -1,5 +1,5 @@
 import { classNames } from '../../../../utils/classNames.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import DemandNote from './DemandNote.jsx';
 
 /*
@@ -15,12 +15,12 @@ const RegionalGrowthCard = ({ names, values, text }) => {
   const span = max - min + 2;
   const zero = ((0 - min + 1) / span) * 100;
   return (
-    <PublicCard
+    <DemandCard
       id="regional-growth"
       title="Regional growth"
       hint={text.regionalHint}
       className="flex flex-col"
-      bodyClassName="flex flex-1 flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <ol className="m-0 flex list-none flex-col gap-[4px] p-0 font-sans">
         {names.map((name, i) => {
@@ -69,7 +69,7 @@ const RegionalGrowthCard = ({ names, values, text }) => {
       <DemandNote className="mt-auto">
         Bars start at zero. Regions below zero had fewer sign-ups than the period before.
       </DemandNote>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

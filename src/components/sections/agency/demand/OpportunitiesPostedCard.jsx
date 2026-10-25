@@ -1,4 +1,4 @@
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import { formatCount } from '../agencyFormat.js';
 import ChartLegend from './ChartLegend.jsx';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
@@ -17,12 +17,12 @@ const OpportunitiesPostedCard = ({ model, text }) => {
   const step = model.oppYMax >= 1000 ? 500 : 100;
   const ticks = Array.from({ length: model.oppYMax / step + 1 }, (_, i) => i * step);
   return (
-    <PublicCard
+    <DemandCard
       id="opportunities-posted"
       title="Opportunities posted"
       hint="Recruiters and government programmes side by side"
       className="flex flex-col"
-      bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+      bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <TrendHeadline
         value={formatCount(model.totals.opportunities)}
@@ -48,7 +48,7 @@ const OpportunitiesPostedCard = ({ model, text }) => {
         ]}
       />
       <DemandNote>Not stacked, so each source can be read on its own.</DemandNote>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

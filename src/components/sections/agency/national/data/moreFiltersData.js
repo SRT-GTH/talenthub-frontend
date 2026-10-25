@@ -12,7 +12,7 @@ export const MORE_FILTER_GROUPS = [
     id: 'location',
     label: 'Location',
     fields: [
-      { key: 'region', label: 'Region', core: true },
+      { key: 'region', label: 'Region', core: true, multi: true },
       {
         key: 'district',
         label: 'District / city',
@@ -39,10 +39,23 @@ export const MORE_FILTER_GROUPS = [
     id: 'education',
     label: 'Education',
     fields: [
-      { key: 'edu', label: 'Education level', core: true },
+      {
+        key: 'edulevel',
+        label: 'Education level',
+        chip: 'Education',
+        short: (v) => v.replace(' certificate', ''),
+        options: [
+          'JHS / BECE',
+          'SHS / WASSCE',
+          'TVET certificate',
+          'HND / diploma',
+          'Tertiary degree',
+        ],
+      },
       {
         key: 'field',
         label: 'Field of study',
+        chip: 'Field',
         options: ['Mechatronics', 'Computer science', 'Nursing', 'Agriculture'],
       },
       { key: 'institution', label: 'Institution type', options: ['Public', 'Private', 'TVET'] },
@@ -100,7 +113,12 @@ export const MORE_FILTER_GROUPS = [
       { key: 's1', label: 'Skills held', options: ['Data analysis', 'Digital marketing'] },
       { key: 's2', label: 'Assessment taken', options: ['Yes', 'No'] },
       { key: 's3', label: 'Assessment score band', options: ['Below 50', '50–69', '70+'] },
-      { key: 's4', label: 'Readiness level', options: ['Ready now', 'Almost ready', 'Building'] },
+      {
+        key: 's4',
+        label: 'Readiness level',
+        chip: 'Readiness',
+        options: ['Ready now', 'Almost ready', 'Building'],
+      },
     ],
   },
   {
@@ -116,3 +134,35 @@ export const MORE_FILTER_GROUPS = [
 
 export const MORE_FILTER_TOTAL = MORE_FILTER_GROUPS.reduce((n, g) => n + g.fields.length, 0);
 export { ANY };
+
+/** Extra (non-core) filter fields by key. */
+export const EXTRA_FIELDS = Object.fromEntries(
+  MORE_FILTER_GROUPS.flatMap((g) => g.fields)
+    .filter((f) => !f.core && !f.locked)
+    .map((f) => [f.key, f])
+);
+
+/**
+ * ?more=edulevel~TVET certificate,s4~Ready now  <->  { edulevel: 'TVET certificate', s4: 'Ready now' }.
+ * ⚠️ ASSUMPTION: the extra filters are URL state so 11.4.6b / 6c are links (the manifest URLs did not encode them).
+ */
+export const parseMore = (raw) =>
+  Object.fromEntries(
+    (raw ?? '')
+      .split(',')
+      .map((pair) => pair.split('~'))
+      .filter(([k, v]) => EXTRA_FIELDS[k] && v)
+  );
+export const serializeMore = (obj) =>
+  Object.entries(obj)
+    .filter(([k, v]) => EXTRA_FIELDS[k] && v)
+    .map(([k, v]) => `${k}~${v}`)
+    .join(',');
+/** The chip text of one extra filter: "Education: TVET", "Readiness: Ready now". */
+export const extraChipLabel = (key, value) => {
+  const f = EXTRA_FIELDS[key];
+  return `${f.chip ?? f.label}: ${f.short ? f.short(value) : value}`;
+};
+
+/** ?region=northern,upper-east  <->  ['northern', 'upper-east'] (Figma 11.4.6b "Region: Northern, Upper East"). */
+export const regionIds = (raw) => (raw ? raw.split(',').filter(Boolean) : []);

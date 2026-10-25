@@ -1,5 +1,5 @@
 import { classNames } from '../../../../utils/classNames.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import CardHint from './CardHint.jsx';
 import DemandNote from './DemandNote.jsx';
 import { SUPPLY_MAX } from './data/demandData.js';
@@ -29,16 +29,16 @@ const Pill = ({ tag }) => (
 );
 
 const SupplyDemandCard = ({ rows, selectedId, hint, hintCompact, note, className }) => (
-  <PublicCard
+  <DemandCard
     id="supply-vs-demand"
     title="Supply vs demand"
     headerExtra={<CardHint full={hint} compact={hintCompact} />}
-    className={className}
-    bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[24px] md:px-[24px]"
+    className={classNames('h-full', className)}
+    bodyClassName="flex flex-col px-[24px] pt-[8px] pb-[37px] lg:pt-0 lg:pb-[24px] lg:gap-[12px]"
   >
     <ul
       aria-label="Talents per open opportunity by skill"
-      className="m-0 flex list-none flex-col gap-[16px] p-0 lg:gap-[10px]"
+      className="m-0 flex list-none flex-col gap-[24px] p-0 lg:gap-[10px]"
     >
       {rows.map((r) => {
         const dim = selectedId && r.id !== selectedId;
@@ -46,7 +46,7 @@ const SupplyDemandCard = ({ rows, selectedId, hint, hintCompact, note, className
           <li
             key={r.id}
             className={classNames(
-              'flex flex-col gap-[6px] lg:grid lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)_150px_66px] lg:items-center lg:gap-[12px]',
+              'flex flex-col gap-[4px] lg:grid lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)_150px_66px] lg:items-center lg:gap-[12px]',
               dim && 'opacity-50',
               !r.compact && 'max-lg:hidden'
             )}
@@ -60,7 +60,7 @@ const SupplyDemandCard = ({ rows, selectedId, hint, hintCompact, note, className
               >
                 {r.name}
               </span>
-              <span className="lg:hidden">
+              <span className="flex lg:hidden">
                 <Pill tag={r.tag} />
               </span>
             </span>
@@ -81,7 +81,7 @@ const SupplyDemandCard = ({ rows, selectedId, hint, hintCompact, note, className
       })}
     </ul>
     {note ? <DemandNote className="max-lg:hidden">{note}</DemandNote> : null}
-  </PublicCard>
+  </DemandCard>
 );
 
 export default SupplyDemandCard;

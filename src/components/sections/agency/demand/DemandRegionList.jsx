@@ -1,6 +1,6 @@
 import { formatCount } from '../agencyFormat.js';
 import { AgencyArrowRightIcon } from '../agencyIcons.jsx';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import { regionById } from '../../publicData/regionsList.js';
 import DemandNote from './DemandNote.jsx';
 
@@ -12,22 +12,23 @@ import DemandNote from './DemandNote.jsx';
  */
 
 const DemandRegionList = ({ rows, onOpenRegion }) => (
-  <PublicCard
+  <DemandCard
     id="demand-by-region-list"
+    className="h-full"
     title="Demand by region"
     hint="Opportunities · tap for districts"
-    bodyClassName="flex flex-col gap-[12px] px-[16px] pb-[16px] md:px-[24px] md:pb-[24px]"
+    bodyClassName="flex flex-col gap-[12px] px-[24px] pt-[9px] pb-[14px] lg:pt-0 lg:pb-[24px]"
   >
     <ol className="m-0 flex list-none flex-col p-0">
       {rows.map((r, i) => {
         const name = regionById(r.id)?.name ?? r.id;
         return (
-          <li key={r.id} className="border-b border-solid border-[#f1f1f1] last:border-b-0">
+          <li key={r.id}>
             <button
               type="button"
               onClick={() => onOpenRegion(r.id)}
               aria-label={`${name}, ${formatCount(r.count)} opportunities, open districts`}
-              className="flex min-h-[44px] w-full cursor-pointer items-center gap-[12px] bg-transparent p-0 text-left font-sans focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              className="flex min-h-[45px] w-full cursor-pointer items-center gap-[12px] bg-transparent p-0 text-left font-sans focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
             >
               <span className="w-[16px] text-[13px] leading-[16px] font-medium text-[#575755]">
                 {i + 1}
@@ -50,7 +51,7 @@ const DemandRegionList = ({ rows, onOpenRegion }) => (
         Tap a region for its districts. Turn the tablet sideways for the map.
       </span>
     </DemandNote>
-  </PublicCard>
+  </DemandCard>
 );
 
 export default DemandRegionList;

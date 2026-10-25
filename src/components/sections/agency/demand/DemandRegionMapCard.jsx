@@ -7,7 +7,7 @@ import { REGION_LABELS } from '../../publicData/map/ghanaMapGeometry.js';
 import MapLegend from '../../publicData/map/MapLegend.jsx';
 import MapTopRegions from '../../publicData/map/MapTopRegions.jsx';
 import { MAP_REGIONS_SAMPLE } from '../../publicData/map/data/mapData.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import { regionById } from '../../publicData/regionsList.js';
 
 /*
@@ -53,13 +53,12 @@ const DemandRegionMapCard = ({
   const low = isSuppressed(count);
 
   return (
-    <PublicCard
+    <DemandCard
       id="demand-by-region"
       title={title}
       hint={hint}
-      hintCompact="Tap a region"
       className="min-w-0"
-      bodyClassName="@container px-[16px] pb-[16px] md:px-[24px] md:pb-[24px]"
+      bodyClassName="@container px-[24px] pb-[24px]"
     >
       <div className="flex min-w-0 flex-col gap-[16px] @min-[758px]:flex-row @min-[758px]:gap-[32px]">
         <div
@@ -115,7 +114,7 @@ const DemandRegionMapCard = ({
           </div>
         </div>
       </div>
-    </PublicCard>
+    </DemandCard>
   );
 };
 

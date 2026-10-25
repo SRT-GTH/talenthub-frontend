@@ -76,3 +76,7 @@ Seven work packages built and wired (see [public-data.md](public-data.md)). Veri
 - `useVoiceCapture`: the mic (stream + level meter) stays open for the whole call; only speech recognition stops while Career Buddy thinks or speaks. It used to tear down and re-open the mic (getUserMedia + AudioContext + recogniser) around every reply. The recogniser now restarts itself when Chrome ends it (silence / network), which used to leave the call deaf.
 - `useUtteranceSender`: when the recogniser has finalised the words, the turn is sent after 0.6 s instead of 1.5 s (interviews keep their longer pause).
 - There is no WebSocket in the Career Buddy path: replies stream over Server-Sent Events (`/career-buddy/turn-stream`). Backend side of the same work: srt-backend `perf/cb-reasoning-temperature`.
+
+## [2026-10-25] build | Agency portal (Theme 11): all packages integrated
+
+Canvas `8605:395409` (Government bodies / agencies), 112 screens under `/agency/*` (agency chrome with a mock signed-in session). Details, URL keys, verification and gaps: [agency.md](agency.md). Verified: build, eslint, errscan 108 URLs clean, framecmp over all frames (mostly 1-5 %), responsive audit partly fixed. Not verified: print/PDF, tablet beyond drawn frames, per-frame text check by the lead. Nothing committed.

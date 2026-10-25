@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { formatCount, isSuppressed } from '../agencyFormat.js';
-import PublicCard from '../../publicData/ui/PublicCard.jsx';
+import DemandCard from './DemandCard.jsx';
 import SuppressedValue from '../../publicData/ui/SuppressedValue.jsx';
 import CardHint from './CardHint.jsx';
 import DemandNote from './DemandNote.jsx';
@@ -30,16 +30,16 @@ const TopSkillsCard = ({
   const selected = rows.find((r) => r.id === selectedId);
   const tipRow = hot ? rows.find((r) => r.id === hot) : selected;
   return (
-    <PublicCard
+    <DemandCard
       id="top-skills"
       title="Top 10 skills"
       headerExtra={<CardHint full={hint} compact="Tap a bar to filter" />}
-      bodyClassName="relative flex flex-1 flex-col gap-[10px] px-[16px] pb-[24px] md:px-[24px]"
-      className="flex flex-col"
+      bodyClassName="relative flex flex-1 flex-col gap-[12px] px-[24px] pt-[12px] pb-[24px] lg:pt-0 lg:pb-[24px] lg:gap-[10px]"
+      className="flex h-full flex-col"
     >
       <ul
         aria-label="Top 10 skills by opportunities"
-        className="m-0 flex list-none flex-col gap-[10px] p-0"
+        className="m-0 flex list-none flex-col gap-[5px] p-0 lg:gap-[10px]"
       >
         {rows.map((r, i) => {
           const low = isSuppressed(r.count);
@@ -54,7 +54,11 @@ const TopSkillsCard = ({
           return (
             <li
               key={r.id ?? r.name}
-              className={classNames('relative', i >= 6 && !expanded && 'max-lg:hidden')}
+              className={classNames(
+                'relative',
+                i >= 6 && !expanded && 'max-lg:hidden',
+                i === (expanded ? rows.length - 1 : 5) && 'max-lg:-mb-[7px]'
+              )}
             >
               <button
                 type="button"
@@ -127,13 +131,13 @@ const TopSkillsCard = ({
           type="button"
           aria-expanded={expanded}
           onClick={() => setExpanded((v) => !v)}
-          className="min-h-[24px] w-fit cursor-pointer bg-transparent p-0 text-left font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] lg:hidden"
+          className="-mb-[4px] min-h-[24px] w-fit underline cursor-pointer bg-transparent p-0 text-left font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] lg:hidden"
         >
           {expanded ? 'Show fewer' : `Show all ${rows.length}`}
         </button>
       ) : null}
       {note ? <DemandNote className="mt-auto pt-[4px] max-lg:hidden">{note}</DemandNote> : null}
-    </PublicCard>
+    </DemandCard>
   );
 };
 
