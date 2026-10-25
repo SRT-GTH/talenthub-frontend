@@ -216,6 +216,12 @@ export const notifRefreshMappings = () => post('/notifications/refresh-mappings'
 
 // ── Reference data (/api/admin/catalog; Senior / Super Admin, every change needs a reason) ─────────────
 export const catCategories = () => get('/admin/catalog/categories');
+export const catCurrencies = () => get('/admin/catalog/currencies');
+export const catCreateCurrency = (p) => post('/admin/catalog/currencies', clean(p));
+export const catSetCurrencyRate = (code, p) =>
+  api.put(`/admin/catalog/currencies/${code}/rate`, p).then(body);
+export const catSetCurrencyActive = (code, isActive, reason) =>
+  api.put(`/admin/catalog/currencies/${code}/active`, { isActive, reason }).then(body);
 export const catCreateCategory = (p) => post('/admin/catalog/categories', clean(p));
 export const catUpdateCategory = (id, p) =>
   api.put(`/admin/catalog/categories/${id}`, p).then(body);

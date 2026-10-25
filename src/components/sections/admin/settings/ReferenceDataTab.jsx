@@ -10,6 +10,10 @@ import {
   adminError,
   catCategories,
   catCreateCategory,
+  catCreateCurrency,
+  catCurrencies,
+  catSetCurrencyActive,
+  catSetCurrencyRate,
   catDeleteCategory,
   catReorderCategories,
   catSetCategoryActive,
@@ -24,7 +28,9 @@ const log = debug('ReferenceDataTab');
  *   Opportunity categories  name, description, icon, order, active; usage per category. The slug is set once and
  *                           never changes; a category in use can't be deleted (deactivate it). Every change needs a
  *                           reason and is audited with the values it replaced.
- * URL: ?section=categories
+ *   Currencies              rates per 1 USD, how old each rate is (nothing updates them automatically), edit with a
+ *                           reason (changes over 25% need confirming), activate / deactivate, add.
+ * URL: ?section=categories|currencies
  */
 
 const Pill = ({ on, onClick, children }) => (
@@ -323,8 +329,267 @@ const Categories = ({ canEdit, toast }) => {
   );
 };
 
+/* ── Currencies ─────────────────────────────────────────────────────────── */
+const STALE_DAYS = 30;
+const Currencies = ({ canEdit, toast }) => {
+  const list = useAdminData(() => catCurrencies(), []);
+  const data = list.data;
+  const rows = data?.currencies ?? [];
+  const [dialog, setDialog] = useState(null); // { kind: 'rate'|'active'|'create', cur? }
+  const [rate, setRate] = useState('');
+  const [form, setForm] = useState({ code: '', name: '', symbol: '', exchangeRate: '' });
+  const [reason, setReason] = useState('');
+  const [confirmLarge, setConfirmLarge] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const open = (d) => {
+    setError('');
+    setReason('');
+    setConfirmLarge(false);
+    setRate(d.cur ? String(d.cur.exchangeRate) : '');
+    setForm({ code: '', name: '', symbol: '', exchangeRate: '' });
+    setDialog(d);
+  };
+  const run = async (fn, title, text) => {
+    if (busy) return;
+    if (reason.trim().length < 10) return setError('Add a reason (10+ characters).');
+    setBusy(true);
+    setError('');
+    try {
+      await fn();
+      toast(title, text);
+      setDialog(null);
+      list.reload();
+    } catch (e) {
+      if (e?.response?.data?.type === 'LARGE_RATE_CHANGE') setConfirmLarge(true);
+      setError(e?.response ? adminError(e) : e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const d = dialog;
+  const stale = rows.filter((c) => c.code !== data?.base && (c.ageDays ?? 0) > STALE_DAYS);
+  return (
+    <GroupCard
+      title="Currencies and exchange rates"
+      description={`Rates are units per 1 ${data?.base || 'USD'}. ${
+        data?.autoUpdate
+          ? 'Rates are updated automatically.'
+          : 'Nothing updates them automatically: change them here when they drift.'
+      } No screen converts amounts with them yet.`}
+      gap="gap-0"
+    >
+      {stale.length ? (
+        <div className="mb-[12px] rounded-[12px] bg-[#faf4e8] px-[14px] py-[10px] font-sans text-[14px] text-[#463409]">
+          {stale.map((c) => c.code).join(', ')} {stale.length === 1 ? 'hasn’t' : 'haven’t'} been
+          updated for over {STALE_DAYS} days.
+        </div>
+      ) : null}
+      {canEdit ? (
+        <div className="pb-[12px]">
+          <TextAction tone="green" onClick={() => open({ kind: 'create' })}>
+            + Add currency
+          </TextAction>
+        </div>
+      ) : null}
+      <AdminLoadNotice
+        loading={list.loading}
+        error={list.error}
+        status={list.status}
+        onRetry={list.reload}
+      >
+        {rows.map((c) => (
+          <SettingRow
+            key={c.code}
+            title={`${c.code} · ${c.name}${c.isActive ? '' : ' · inactive'}`}
+            description={
+              c.code === data?.base
+                ? `${c.symbol} · base currency (1)`
+                : `${c.symbol} · 1 ${data?.base} = ${Number(c.exchangeRate).toLocaleString('en-GB', { maximumFractionDigits: 6 })} ${c.code} · updated ${
+                    c.ageDays == null
+                      ? 'never'
+                      : c.ageDays === 0
+                        ? 'today'
+                        : `${c.ageDays} days ago`
+                  }${c.code === data?.defaultCurrency ? ' · default' : ''}`
+            }
+            top
+            control={
+              canEdit && c.code !== data?.base ? (
+                <div className="flex items-center gap-[14px]">
+                  <TextAction tone="green" onClick={() => open({ kind: 'rate', cur: c })}>
+                    Change rate
+                  </TextAction>
+                  {c.code !== data?.defaultCurrency ? (
+                    <TextAction
+                      tone={c.isActive ? 'danger' : 'green'}
+                      onClick={() => open({ kind: 'active', cur: c })}
+                    >
+                      {c.isActive ? 'Deactivate' : 'Activate'}
+                    </TextAction>
+                  ) : null}
+                </div>
+              ) : null
+            }
+          />
+        ))}
+      </AdminLoadNotice>
+
+      {d?.kind === 'rate' ? (
+        <AdminConfirmDialog
+          title={`Change the ${d.cur.code} rate`}
+          body={`Currently 1 ${data?.base} = ${d.cur.exchangeRate} ${d.cur.code}.`}
+          primary={{
+            label: busy ? 'Saving…' : confirmLarge ? 'Yes, save this rate' : 'Save rate',
+            arrow: true,
+          }}
+          secondary="Cancel"
+          onPrimary={() => {
+            const n = Number(rate);
+            if (!(n > 0)) return setError('The rate is a number above 0.');
+            return run(
+              () =>
+                catSetCurrencyRate(d.cur.code, {
+                  rate: n,
+                  reason: reason.trim(),
+                  confirmLargeChange: confirmLarge || undefined,
+                }),
+              'Rate saved',
+              `1 ${data?.base} = ${n} ${d.cur.code}`
+            );
+          }}
+          onClose={() => setDialog(null)}
+        >
+          <div className="flex flex-col gap-[12px]">
+            <TextInput
+              label={`${d.cur.code} per 1 ${data?.base}`}
+              inputMode="decimal"
+              value={rate}
+              onChange={(e) => {
+                setRate(e.target.value);
+                setConfirmLarge(false);
+              }}
+            />
+            <TextInput
+              label="Reason"
+              required
+              placeholder="Source of the rate, e.g. Bank of Ghana 25 Oct"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              error={error || undefined}
+            />
+          </div>
+        </AdminConfirmDialog>
+      ) : null}
+
+      {d?.kind === 'active' ? (
+        <AdminConfirmDialog
+          title={`${d.cur.isActive ? 'Deactivate' : 'Activate'} ${d.cur.code}?`}
+          body={
+            d.cur.isActive
+              ? 'It stops appearing in currency lists.'
+              : 'It appears in currency lists again.'
+          }
+          primary={{
+            label: busy ? 'Saving…' : 'Confirm',
+            tone: d.cur.isActive ? 'red' : 'green',
+            arrow: !d.cur.isActive,
+          }}
+          secondary="Cancel"
+          onPrimary={() =>
+            run(
+              () => catSetCurrencyActive(d.cur.code, !d.cur.isActive, reason.trim()),
+              'Saved',
+              d.cur.code
+            )
+          }
+          onClose={() => setDialog(null)}
+        >
+          <TextInput
+            label="Reason"
+            required
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            error={error || undefined}
+          />
+        </AdminConfirmDialog>
+      ) : null}
+
+      {d?.kind === 'create' ? (
+        <AdminConfirmDialog
+          title="Add a currency"
+          body={`Rate is units of the new currency per 1 ${data?.base || 'USD'}.`}
+          primary={{ label: busy ? 'Adding…' : 'Add currency', arrow: true }}
+          secondary="Cancel"
+          onPrimary={() => {
+            if (!/^[A-Za-z]{3}$/.test(form.code))
+              return setError('The code is 3 letters (ISO 4217), e.g. KES.');
+            if (form.name.trim().length < 2 || !form.symbol.trim())
+              return setError('Add a name and a symbol.');
+            if (!(Number(form.exchangeRate) > 0)) return setError('The rate is a number above 0.');
+            return run(
+              () =>
+                catCreateCurrency({
+                  code: form.code.toUpperCase(),
+                  name: form.name.trim(),
+                  symbol: form.symbol.trim(),
+                  exchangeRate: Number(form.exchangeRate),
+                  reason: reason.trim(),
+                }),
+              'Currency added',
+              form.code.toUpperCase()
+            );
+          }}
+          onClose={() => setDialog(null)}
+        >
+          <div className="grid grid-cols-1 gap-[12px] md:grid-cols-2">
+            <TextInput
+              label="Code"
+              placeholder="KES"
+              value={form.code}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, code: e.target.value.toUpperCase().slice(0, 3) }))
+              }
+            />
+            <TextInput
+              label="Symbol"
+              placeholder="KSh"
+              value={form.symbol}
+              onChange={(e) => setForm((f) => ({ ...f, symbol: e.target.value }))}
+            />
+            <TextInput
+              label="Name"
+              placeholder="Kenyan Shilling"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            />
+            <TextInput
+              label={`Per 1 ${data?.base || 'USD'}`}
+              inputMode="decimal"
+              value={form.exchangeRate}
+              onChange={(e) => setForm((f) => ({ ...f, exchangeRate: e.target.value }))}
+            />
+          </div>
+          <div className="mt-[12px]">
+            <TextInput
+              label="Reason"
+              required
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              error={error || undefined}
+            />
+          </div>
+        </AdminConfirmDialog>
+      ) : null}
+    </GroupCard>
+  );
+};
+
 /* ── Tab ────────────────────────────────────────────────────────────────── */
-const SECTIONS = [{ id: 'categories', label: 'Opportunity categories' }];
+const SECTIONS = [
+  { id: 'categories', label: 'Opportunity categories' },
+  { id: 'currencies', label: 'Currencies' },
+];
 
 const ReferenceDataTab = ({ data, session }) => {
   const [toastEl, toast] = useAdminToast();
@@ -347,6 +612,7 @@ const ReferenceDataTab = ({ data, session }) => {
         ))}
       </div>
       {section === 'categories' ? <Categories canEdit={canEdit} toast={toast} /> : null}
+      {section === 'currencies' ? <Currencies canEdit={canEdit} toast={toast} /> : null}
       {toastEl}
     </>
   );
