@@ -30,6 +30,9 @@ import CareerBuddyHero from './CareerBuddyHero.jsx';
 import VoiceCallOverlay from './VoiceCallOverlay.jsx';
 import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
+import ModePickerModal from '../engagementV2/journey/ModePickerModal.jsx';
+import { useLiveJourney } from '../engagementShell/useLiveJourney.js';
+import { JOURNEY_MAP_ROUTE, STAGE_BY_ID } from '../engagementShell/engagementShellData.js';
 import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
@@ -675,6 +678,10 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   // Opt-out flow — Figma 5146:74705 / 75029 / 75353 (Save & Exit)
   const [optOutOpen, setOptOutOpen] = useState(false);
   const [optOutStep, setOptOutStep] = useState('journey');
+  // 2026-10-25: the gold "Change input mode" button on the live screen opens the same picker as the
+  // profile stage pages (Figma J-03): fill it in myself / chat with Career Buddy / upload my CV.
+  const [modePickerOpen, setModePickerOpen] = useState(false);
+  const liveJourney = useLiveJourney();
   // Last mode-cards listing visited — Switch Modes / "Choose different mode"
   const [modeListingNodeId, setModeListingNodeId] = useState(null);
   const [jobPostFormOpen, setJobPostFormOpen] = useState(false);
@@ -1599,8 +1606,20 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
   };
 
   const handleSwitchModes = () => {
-    log('branch', { navSwitchModes: true });
+    log('branch', { navSwitchModes: true, live: liveMode });
+    if (liveMode) {
+      setModePickerOpen(true);
+      return;
+    }
     handleReturnToModeListing();
+  };
+
+  // Same choices as EngagementStageFrame / JourneyHub. "Chat" is this screen, so it just closes.
+  const handlePickInputMode = (id) => {
+    log('input mode picked', { id, nextStage: liveJourney?.nextId ?? null });
+    setModePickerOpen(false);
+    if (id === 'cv') navigate('/profile/filling/cv');
+    else if (id === 'type') navigate(STAGE_BY_ID[liveJourney?.nextId]?.route || JOURNEY_MAP_ROUTE);
   };
 
   const handleOptOutClose = () => {
@@ -2337,11 +2356,13 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
           userInitials={liveMode ? L.me.initials : undefined}
           onSaveExit={handleSaveExit}
           showSwitchModes={
-            !liveMode &&
-            (Boolean(demoFrame) ||
-              Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
-              // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
-              (playful && heroMode === 'first-time'))
+            liveMode
+              ? // 2026-10-25: was hidden on the live screen; Figma shows it for talents.
+                !isRecruiter && !isParent
+              : Boolean(demoFrame) ||
+                Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
+                // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
+                (playful && heroMode === 'first-time')
           }
           onSwitchModes={handleSwitchModes}
           switchModesLabel="Change input mode"
@@ -2830,11 +2851,25 @@ const CareerBuddySection = ({ live: liveMode = false }) => {
             }}
           />
 
+          {modePickerOpen ? (
+            <ModePickerModal
+              onClose={() => setModePickerOpen(false)}
+              onPick={handlePickInputMode}
+            />
+          ) : null}
+
           <CareerBuddyOptOutModal
             open={optOutOpen}
             initialStep={optOutStep}
             onClose={handleOptOutClose}
-            onChooseDifferentMode={liveMode ? handleOptOutClose : handleReturnToModeListing}
+            onChooseDifferentMode={
+              liveMode
+                ? () => {
+                    handleOptOutClose();
+                    setModePickerOpen(true);
+                  }
+                : handleReturnToModeListing
+            }
             onGoToDashboard={liveMode ? () => navigate('/home') : handleGoToDashboard}
             onConfirmSchedule={
               liveMode

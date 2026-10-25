@@ -66,6 +66,29 @@ const refreshAccessToken = () => {
   return refreshing;
 };
 
+/**
+ * The access token for a call made outside axios (Career Buddy's agent uses fetch), renewed first
+ * when it expires within a minute. 2026-10-25: the agent now checks this token on every turn.
+ * Never throws: with no usable token it returns what is stored (or '') and the call goes ahead.
+ */
+export const freshAccessToken = async () => {
+  const token = localStorage.getItem(STORAGE_KEYS.authToken) || '';
+  try {
+    const part = token.split('.')[1];
+    const { exp } = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+    if (
+      typeof exp === 'number' &&
+      exp * 1000 - Date.now() < 60_000 &&
+      localStorage.getItem(STORAGE_KEYS.refreshToken)
+    ) {
+      return await refreshAccessToken();
+    }
+  } catch {
+    // not a JWT, or the refresh failed: use what is stored
+  }
+  return localStorage.getItem(STORAGE_KEYS.authToken) || token;
+};
+
 api.interceptors.response.use(
   (response) => {
     log('←', response.status, response.config.url);

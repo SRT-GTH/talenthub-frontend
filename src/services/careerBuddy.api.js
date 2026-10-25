@@ -1,4 +1,4 @@
-import api from './api.js';
+import api, { freshAccessToken } from './api.js';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
 
@@ -26,6 +26,15 @@ const log = debug('careerBuddy.api');
 const AGENT_BASE = (import.meta.env.VITE_AGENT_BASE_URL || '/agent').replace(/\/$/, '');
 const TURN_URL = `${AGENT_BASE}/api/workflows/turnControllerWorkflow/start-async`;
 const TURN_TIMEOUT_MS = 120_000;
+
+/**
+ * 2026-10-25: the agent checks every call against the caller's login token (it used to trust the
+ * userId in the body). Same token the API gets; renewed first when it is about to expire.
+ */
+const agentAuth = async () => {
+  const token = await freshAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 const storedUser = () => {
   try {
@@ -85,7 +94,7 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
   try {
     res = await fetch(TURN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await agentAuth()) },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
@@ -137,7 +146,11 @@ export const sendTurnStream = async ({ onStatus, onDelta, signal, ...args }) => 
   try {
     res = await fetch(`${AGENT_BASE}/career-buddy/turn-stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        ...(await agentAuth()),
+      },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
@@ -234,7 +247,7 @@ export const sendFeedback = async ({ entityId, message, rating, userMessage }) =
   try {
     await fetch(`${AGENT_BASE}/career-buddy/feedback`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await agentAuth()) },
       body: JSON.stringify({
         userId: entityId,
         messageId: message.id,
@@ -258,7 +271,7 @@ export const sendFeedback = async ({ entityId, message, rating, userMessage }) =
 export const regenerateReply = async (text) => {
   const res = await fetch(`${AGENT_BASE}/career-buddy/rephrase`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await agentAuth()) },
     body: JSON.stringify({ text }),
   });
   const json = await res.json().catch(() => null);
@@ -274,7 +287,9 @@ export const fetchHistory = async (entityId, { limit = 20, before = null } = {})
   try {
     const params = new URLSearchParams({ userId: entityId, limit: String(limit) });
     if (before) params.set('before', before);
-    const res = await fetch(`${AGENT_BASE}/career-buddy/history?${params}`);
+    const res = await fetch(`${AGENT_BASE}/career-buddy/history?${params}`, {
+      headers: await agentAuth(),
+    });
     const json = await res.json().catch(() => null);
     if (!res.ok || !json?.success || !Array.isArray(json.sessions)) return null;
     // 2026-10-21: paged ({ hasMore, nextBefore }); an older agent sends neither (one page only).

@@ -89,8 +89,11 @@ const ParentInviteWelcomeSection = () => {
 
   // The notice email links here with ?token=<ward token>. Load the invite, then
   // drop the token from the address bar (it stays in this tab's session).
+  // The email's "Opt out" button adds &action=opt-out: open the opt-out dialog
+  // straight away.
   useEffect(() => {
     const token = searchParams.get('token');
+    const wantsOptOut = searchParams.get('action') === 'opt-out';
     if (!token) {
       if (!getInvite()?.invite) {
         setLoadError('This link is incomplete. Open the link in your notification email again.');
@@ -104,6 +107,7 @@ const ParentInviteWelcomeSection = () => {
         if (cancelled) return;
         setState('ready');
         setSearchParams({}, { replace: true });
+        if (wantsOptOut && getInvite()?.invite?.ward?.status !== 'opted_out') setOptOutOpen(true);
       })
       .catch((err) => {
         if (cancelled) return;

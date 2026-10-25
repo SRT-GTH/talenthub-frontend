@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AssessmentReportCard from './AssessmentReportCard.jsx';
 import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
+import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -43,6 +44,9 @@ import {
   threadFromSession,
   sessionMatchesThread,
   turnToBubbles,
+  cardChips,
+  opportunityMatchView,
+  whyThisMatchAction,
   userBubble,
   autoBubble,
   fileBubble,
@@ -498,8 +502,7 @@ export function useCareerBuddyLive({
             { role: 'user', content: text },
             { role: 'assistant', content: turn.reply },
           ],
-          chips: turn.chips || [],
-          chipActions: turn.chipActions || [],
+          ...cardChips(turn),
         }));
         applyTurnToPanel(turn);
         refreshProfile();
@@ -594,9 +597,19 @@ export function useCareerBuddyLive({
   const handleSend = (text) => {
     const trimmed = String(text || '').trim();
     if (!trimmed) return;
-    if (trimmed === 'Try again' && lastTurnRef.current && !chipActionFor(trimmed, chipActions)) {
-      const { text: lastText, chipAction } = lastTurnRef.current;
-      runTurn(lastText, { chipAction, showUser: false });
+    // 2026-10-25 live: after a reload the remembered turn is gone, so "Try again" went to the agent
+    // as the talent's words and was read as "edit my education". Retry resends the last real
+    // message (the remembered turn, else the last one in the thread) and never the chip text.
+    if (trimmed === 'Try again' && !chipActionFor(trimmed, chipActions)) {
+      const remembered = lastTurnRef.current?.text !== 'Try again' ? lastTurnRef.current : null;
+      const lastUserText = [...(thread.messages || [])]
+        .reverse()
+        .find(
+          (m) => m.sender === 'user' && !m.auto && m.text && m.text.trim() !== 'Try again'
+        )?.text;
+      const retry = remembered || (lastUserText ? { text: lastUserText, chipAction: null } : null);
+      if (retry) runTurn(retry.text, { chipAction: retry.chipAction, showUser: false });
+      else patchThread(() => ({ chips: [], chipActions: [] }));
       return;
     }
     runTurn(trimmed, { chipAction: chipActionFor(trimmed, chipActions) });
@@ -851,6 +864,29 @@ export function useCareerBuddyLive({
     }
     if (m.practiceReview) {
       out = { ...out, content: <PracticeReviewCard review={m.practiceReview} /> };
+    }
+    if (m.opportunities?.length) {
+      // 2026-10-25: the agent's matched postings as the Figma match cards (9053:80615).
+      const views = m.opportunities.map((o) => opportunityMatchView(o));
+      out = {
+        ...out,
+        content: (
+          <>
+            <OpportunityMatchCards
+              matches={views}
+              followUps={[]}
+              fitWidth
+              disabled={busy}
+              onWhy={(_text, _view, i) => {
+                const { label, chipAction } = whyThisMatchAction(m.opportunities[i], i);
+                runTurn(label, { autoText: label, chipAction });
+              }}
+              onView={(view) => navigate(view.detailPath)}
+            />
+            {m.afterCards ? <p className="mt-[8px] whitespace-pre-line">{m.afterCards}</p> : null}
+          </>
+        ),
+      };
     }
     if (m.reviewSection) {
       const stage = stageForSection(m.reviewSection);
