@@ -10,13 +10,13 @@ import {
   AdminVoice15Icon,
   AdminWallet15Icon,
 } from '../adminIcons.jsx';
-import { ACCOUNT, RECORD } from './data/adminAccountDetailData.js';
+
 
 /*
  * AdminAccountRail — the two admin cards of the account detail's right rail (Figma 7.1.2a "right rail" 425 wide, gap 20):
  *  - "Admin actions" card (#1c2a21, r20, p24, gap 12): sticker (#ebf1ec, 12/700 #1f4a2b + eye), "Account TAL-204-8812" 22/28 600 white, 14/21 #bfbfbf text, green primary.
  *  - "Account record" card (white, 1px #e6e6e6, r20, p24): title 23/600, six masked rows (icon · 14/500 #595959 · lock 14), "View full activity →".
- * Props: text (the rail copy of the view), primary { label, onClick }, onActivity.
+ * Props: account (adminAccountModel.accountView), text (the rail copy), primary { label, onClick }, onActivity, activityLabel.
  */
 
 const ICONS = {
@@ -28,7 +28,7 @@ const ICONS = {
   wallet: AdminWallet15Icon,
 };
 
-const AdminAccountRail = ({ text, primary, onActivity }) => (
+const AdminAccountRail = ({ account, text, primary, onActivity, activityLabel = 'View full activity →' }) => (
   <>
     <section
       aria-label="Admin actions"
@@ -39,7 +39,7 @@ const AdminAccountRail = ({ text, primary, onActivity }) => (
         <AdminEyeIcon className="size-[14px]" />
       </span>
       <h2 className="m-0 font-sans text-[22px] leading-[28px] font-semibold text-white">
-        Account {ACCOUNT.id}
+        Account {account.shortId}
       </h2>
       <p className="m-0 font-sans text-[14px] leading-[21px] text-[#bfbfbf]">{text}</p>
       <button
@@ -50,9 +50,9 @@ const AdminAccountRail = ({ text, primary, onActivity }) => (
         {primary.label}
       </button>
     </section>
-    <ProfileCard title={RECORD.title} bodyClassName="flex flex-col gap-[16px]">
+    <ProfileCard title="Account record" bodyClassName="flex flex-col gap-[16px]">
       <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
-        {RECORD.rows.map((r) => {
+        {account.record.map((r) => {
           const Icon = ICONS[r.icon];
           return (
             <li key={r.text} className="flex items-center gap-[10px]">
@@ -71,7 +71,7 @@ const AdminAccountRail = ({ text, primary, onActivity }) => (
         })}
       </ul>
       <HeadLink onClick={onActivity} className="self-start">
-        {RECORD.link}
+        {activityLabel}
       </HeadLink>
     </ProfileCard>
   </>

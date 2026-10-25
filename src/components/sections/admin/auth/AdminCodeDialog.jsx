@@ -9,13 +9,7 @@ import {
   AdminBackupBadgeIcon,
   AdminShield12Icon,
 } from '../adminIcons.jsx';
-import {
-  ATTEMPTS,
-  CODE_EXPIRES_IN,
-  DEMO_CODE,
-  RESEND_IN,
-  maskEmail,
-} from './data/adminAuthData.js';
+import { ATTEMPTS, CODE_EXPIRES_IN, RESEND_IN, maskEmail } from './data/adminAuthData.js';
 
 const log = debug('AdminCodeDialog');
 
@@ -26,15 +20,18 @@ const log = debug('AdminCodeDialog');
  * Resend code (59s)" · grey "Enter all 6 digits to continue" until six digits · "Wrong email?" · "5 attempts remaining" · "Staff sign-ins are logged with device
  * and location". Real interaction: the countdowns tick, the demo code (adminAuthData.js, never shown) verifies, any other code costs an attempt; at 0 the
  * account locks (onLocked). ⚠️ ASSUMPTION: "Use a backup code" has no flow drawn (logs only); "Wrong email?" goes back to the form (onBack).
- * Props: email, onVerified, onLocked, onBack, onClose.
+ * Props: email, onVerify(code) -> Promise<{ ok, message? }> (the page calls the backend), onResend() -> Promise, onLocked, onBack, onClose.
+ * The code is emailed (auth.service login), so the copy says "we emailed" rather than the drawn authenticator line.
  */
 
 const fmt = (s) =>
   `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
-const AdminCodeDialog = ({ email, onVerified, onLocked, onBack, onClose }) => {
+const AdminCodeDialog = ({ email, onVerify, onResend, onLocked, onBack, onClose }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  const [busy, setBusy] = useState(false);
   const [attempts, setAttempts] = useState(ATTEMPTS);
   const [expires, setExpires] = useState(CODE_EXPIRES_IN);
   const [resend, setResend] = useState(RESEND_IN);
@@ -48,14 +45,16 @@ const AdminCodeDialog = ({ email, onVerified, onLocked, onBack, onClose }) => {
   }, []);
 
   const complete = code.length === 6;
-  const ready = complete && !error && expires > 0;
+  const ready = complete && !error && expires > 0 && !busy;
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!ready) return;
-    if (code === DEMO_CODE) {
+    setBusy(true);
+    const res = await onVerify(code).catch((err) => ({ ok: false, message: err?.message }));
+    setBusy(false);
+    if (res && res.ok) {
       log('verified');
-      onVerified();
       return;
     }
     const left = attempts - 1;
@@ -65,14 +64,15 @@ const AdminCodeDialog = ({ email, onVerified, onLocked, onBack, onClose }) => {
       onLocked();
       return;
     }
+    setErrorText((res && res.message) || '');
     setError(true);
   };
 
   const message = error
-    ? 'That code didn’t match. Check it and try again.'
+    ? errorText || 'That code didn’t match. Check it and try again.'
     : expires === 0
       ? 'This code has expired. Resend a new one.'
-      : 'Open your authenticator app and enter the 6-digit code.';
+      : 'Enter the 6-digit code we emailed to';
 
   return (
     <AgencyDialog
@@ -154,10 +154,12 @@ const AdminCodeDialog = ({ email, onVerified, onLocked, onBack, onClose }) => {
             <button
               type="button"
               disabled={resend > 0}
-              onClick={() => {
+              onClick={async () => {
                 log('resend');
                 setResend(RESEND_IN);
                 setExpires(CODE_EXPIRES_IN);
+                setError(false);
+                await onResend?.().catch(() => null);
               }}
               className="min-h-[24px] cursor-pointer border-0 bg-transparent font-sans text-[12px] font-semibold tracking-[0.2px] text-[#387440] disabled:cursor-default disabled:text-[#babab7]"
             >
@@ -171,7 +173,7 @@ const AdminCodeDialog = ({ email, onVerified, onLocked, onBack, onClose }) => {
             disabled={!ready}
             className="inline-flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[40px] py-[16px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] disabled:cursor-not-allowed disabled:border-[#cccccc] disabled:bg-[#bfbfbf] disabled:shadow-none"
           >
-            {complete ? 'Continue' : 'Enter all 6 digits to continue'}
+            {busy ? 'Checking…' : complete ? 'Continue' : 'Enter all 6 digits to continue'}
             <AgArrowRight className="size-[20px]" />
           </button>
           <button

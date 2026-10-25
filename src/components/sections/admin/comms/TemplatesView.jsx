@@ -11,7 +11,7 @@ import {
   AdminTplPlusIcon,
   AdminTplShieldIcon,
 } from './commsIcons.jsx';
-import { TEMPLATES } from './data/adminCommsData.js';
+import { TEMPLATES as DESIGN } from './data/adminCommsData.js';
 
 const log = debug('TemplatesView');
 
@@ -32,8 +32,9 @@ const TILE_ICONS = {
   palette: AdminTplPaletteIcon,
 };
 
-const TemplatesView = ({ data, onOpen, onNew }) => {
+const TemplatesView = ({ data, onOpen, onNew, cards, filters, sub, query = '', onQuery, canCreate = true, notice }) => {
   const filter = data.params.get('chip') ?? 'all';
+  const TEMPLATES = { ...DESIGN, sub: sub ?? DESIGN.sub, filters: filters ?? DESIGN.filters, cards: cards ?? DESIGN.cards };
   return (
     <div className="flex flex-col gap-[28px] pt-[4px]">
       <div className="flex flex-col gap-[16px]">
@@ -42,6 +43,7 @@ const TemplatesView = ({ data, onOpen, onNew }) => {
             Notification <span className="text-[#387440]">templates</span>
           </h1>
           <p className="m-0 font-sans text-[16px] leading-[24px] text-[#999999]">{TEMPLATES.sub}</p>
+          {notice}
         </header>
         <CommsTabs active="templates" />
       </div>
@@ -84,9 +86,12 @@ const TemplatesView = ({ data, onOpen, onNew }) => {
                 type="search"
                 aria-label="Search templates"
                 placeholder={TEMPLATES.search}
+                value={query}
+                onChange={(e) => onQuery?.(e.target.value)}
                 className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[14.5px] text-[#1c2a21] outline-none placeholder:text-[#999999]"
               />
             </label>
+            {canCreate ? (
             <button
               type="button"
               onClick={onNew}
@@ -95,12 +100,13 @@ const TemplatesView = ({ data, onOpen, onNew }) => {
               <AdminPlusIcon className="size-[18px]" />
               {TEMPLATES.create}
             </button>
+            ) : null}
           </div>
         </div>
 
         <ul className="m-0 grid list-none grid-cols-1 gap-[21px] p-0 sm:grid-cols-2 xl:grid-cols-4">
           {TEMPLATES.cards.map((c) => {
-            const Icon = TILE_ICONS[c.icon];
+            const Icon = TILE_ICONS[c.icon] ?? AdminTplCodeIcon;
             return (
               <li key={c.id} className="min-w-0">
                 <button
@@ -148,6 +154,7 @@ const TemplatesView = ({ data, onOpen, onNew }) => {
               </li>
             );
           })}
+          {canCreate ? (
           <li className="min-w-0">
             <button
               type="button"
@@ -165,6 +172,7 @@ const TemplatesView = ({ data, onOpen, onNew }) => {
               </span>
             </button>
           </li>
+          ) : null}
         </ul>
       </div>
     </div>

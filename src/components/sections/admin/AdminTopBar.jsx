@@ -61,7 +61,8 @@ const AdminTopBar = ({ session, data, modalOpen = false, menuButtonRef, classNam
     e.preventDefault();
     const q = searchRef.current?.value.trim();
     log('search', q);
-    navigate(q ? `${ADMIN_BASE}/accounts?q=${encodeURIComponent(q)}` : `${ADMIN_BASE}/accounts`);
+    if (q && /^[a-f0-9]{24}$/i.test(q)) navigate(`${ADMIN_BASE}/accounts/${q}`);
+    else navigate(q ? `${ADMIN_BASE}/accounts?q=${encodeURIComponent(q)}` : `${ADMIN_BASE}/accounts`);
   };
   const open = (name) => data.update({ modal: name });
 

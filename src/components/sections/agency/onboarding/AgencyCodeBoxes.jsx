@@ -18,13 +18,40 @@ const AgencyCodeBoxes = ({
   disabled = false,
 }) => {
   const refs = useRef([]);
-  const digits = Array.from({ length: LENGTH }, (_, i) => value[i] ?? '');
+  // The latest value, updated as soon as a key is handled: keys can arrive faster than React re-renders (fast typing, autofill, test
+  // tools), and reading the rendered `value` then would overwrite the digits typed in between.
+  const latest = useRef(value);
+  latest.current = value;
+  const toDigits = (v) => Array.from({ length: LENGTH }, (_, i) => (v || '')[i] ?? '');
+  const digits = toDigits(value);
+  const current = () => toDigits(latest.current);
   const focusAt = (i) => refs.current[Math.max(0, Math.min(LENGTH - 1, i))]?.focus();
-  const commit = (next) => onChange(next.join('').replace(/\D/g, '').slice(0, LENGTH));
+  const commit = (next) => {
+    const clean = next.join('').replace(/\D/g, '').slice(0, LENGTH);
+    latest.current = clean;
+    onChange(clean);
+  };
+
+  const spread = (i, text) => {
+    const next = current();
+    text.split('').forEach((ch, k) => {
+      if (i + k < LENGTH) next[i + k] = ch;
+    });
+    commit(next);
+    focusAt(Math.min(LENGTH - 1, i + text.length));
+  };
 
   const onInput = (i, e) => {
-    const d = e.target.value.replace(/\D/g, '').slice(-1);
-    const next = [...digits];
+    const typed = e.target.value.replace(/\D/g, '');
+    const prev = current()[i];
+    // Several digits at once (one-time-code autofill, IME, inserted text): spread them like a paste.
+    const fresh = prev && typed.startsWith(prev) && typed.length > 1 ? typed.slice(1) : typed;
+    if (fresh.length > 1) {
+      spread(i, fresh);
+      return;
+    }
+    const d = fresh.slice(-1);
+    const next = current();
     next[i] = d;
     commit(next);
     if (d && i < LENGTH - 1) focusAt(i + 1);
@@ -34,15 +61,15 @@ const AgencyCodeBoxes = ({
     // A digit typed over the same digit fires no change event, so digits are handled here (change stays for IME / mobile keyboards).
     if (/^\d$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
-      const next = [...digits];
+      const next = current();
       next[i] = e.key;
       commit(next);
       if (i < LENGTH - 1) focusAt(i + 1);
       return;
     }
-    if (e.key === 'Backspace' && !digits[i] && i > 0) {
+    if (e.key === 'Backspace' && !current()[i] && i > 0) {
       e.preventDefault();
-      const next = [...digits];
+      const next = current();
       next[i - 1] = '';
       commit(next);
       focusAt(i - 1);
@@ -59,12 +86,7 @@ const AgencyCodeBoxes = ({
     const text = e.clipboardData.getData('text').replace(/\D/g, '');
     if (!text) return;
     e.preventDefault();
-    const next = [...digits];
-    text.split('').forEach((ch, k) => {
-      if (i + k < LENGTH) next[i + k] = ch;
-    });
-    commit(next);
-    focusAt(Math.min(LENGTH - 1, i + text.length));
+    spread(i, text);
   };
 
   return (
@@ -79,7 +101,7 @@ const AgencyCodeBoxes = ({
           type="text"
           inputMode="numeric"
           autoComplete={i === 0 ? 'one-time-code' : 'off'}
-          maxLength={2}
+          maxLength={LENGTH + 1}
           disabled={disabled}
           value={d}
           placeholder="-"

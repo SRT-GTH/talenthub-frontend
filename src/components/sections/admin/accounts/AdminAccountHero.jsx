@@ -7,14 +7,14 @@ import {
 import { SHELF } from '../../talentProfile/profileTabsStyles.js';
 import { ProfileChip, Tag } from '../../talentProfile/ProfileTabsUi.jsx';
 import AgencyButton from '../../agency/AgencyButton.jsx';
-import { ACCOUNT } from './data/adminAccountDetailData.js';
+
 
 /*
  * AdminAccountHero — the profile hero of the account detail (Figma 7.1.2a "hero" 8623:~, 1329 x 322, r24, 1px border; the talent profile header in its
  * recruiter-preview form): green cover 150 with the status chip (#ebf1ec, 13/700 #1f4a2b), 132 round avatar (-66 overlap), name 37/600 + "Verified" pill,
  * 13 #737373 handle, 16/500 headline + flag, three chips, "Message user" (white) + one green primary ("Admin actions" or "Reactivate"), stats on the right
  * (5 verified skills · 24 endorsements · Oct 2026 last active) and the "Staff view" sticker on the cover edge.
- * Props: cover (chip text), primary { label, onClick }, onMessage.
+ * Props: account (adminAccountModel.accountView), cover (chip text), primary { label, onClick }, onMessage.
  */
 
 const Stat = ({ value, label }) => (
@@ -28,7 +28,7 @@ const Stat = ({ value, label }) => (
   </div>
 );
 
-const AdminAccountHero = ({ cover, primary, onMessage }) => (
+const AdminAccountHero = ({ account: ACCOUNT, cover, primary, onMessage }) => (
   <div className="@container">
     <section
       aria-label="Account header"
@@ -62,10 +62,12 @@ const AdminAccountHero = ({ cover, primary, onMessage }) => (
               <h1 className="m-0 font-sans text-[clamp(26px,2.14vw,37px)] leading-[1.2] font-semibold whitespace-nowrap text-[#1c2a21]">
                 {ACCOUNT.name}
               </h1>
-              <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33]">
-                <ProfileVerifiedCheckIcon className="size-[13px]" />
-                {ACCOUNT.verified}
-              </span>
+              {ACCOUNT.verified ? (
+                <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[4px] pr-[9px] pl-[7px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33]">
+                  <ProfileVerifiedCheckIcon className="size-[13px]" />
+                  {ACCOUNT.verified}
+                </span>
+              ) : null}
             </div>
             <p className="m-0 text-[13px] leading-[normal] text-[#737373]">{ACCOUNT.handle}</p>
             <p className="m-0 flex items-center gap-[6px] text-[16px] leading-[normal] font-medium text-[#1c2a21]">
@@ -105,7 +107,7 @@ const AdminAccountHero = ({ cover, primary, onMessage }) => (
         tone="white"
         className="absolute top-[calc(clamp(112px,8.68vw,150px)-25px)] right-[clamp(12px,3.1%,41px)] z-10 hidden @5xl:inline-flex"
       >
-        {ACCOUNT.sticker}
+        Staff view
       </Tag>
     </section>
   </div>

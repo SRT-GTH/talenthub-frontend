@@ -15,6 +15,7 @@ import {
 import AgencyStatusChip from '../../agency/settings/AgencyStatusChip.jsx';
 import { AdminArrowRightIcon } from '../adminIcons.jsx';
 import { LOGOUT, NAV, NAV_ROLES } from './data/adminSettingsData.js';
+import { logout } from '../../../../services/auth.api.js';
 
 const log = debug('AdminSettingsShell');
 
@@ -23,7 +24,7 @@ const log = debug('AdminSettingsShell');
  * (+ the green "Create a staff account →" button on the staff screens), the 280 "Settings nav" card (9 items, icon 20, label 15, selected = #ebf1ec tint + green bar + 600
  * #2a5730, an "Admin" chip on Staff accounts, divider, red "Log out") and the tab body (gap 20). Below lg the nav becomes a scrolling chip row.
  * Props: active (nav id), subtitle, action ({ label, onClick }), navOrder ('roles' draws the Roles frame's order), children.
- * ⚠️ ASSUMPTION: only Roles and permissions, Staff accounts and Platform settings have a screen; the other items only log; Log out has no real session (goes to /admin/sign-in).
+ * ⚠️ ASSUMPTION: only Roles and permissions, Staff accounts and Platform settings have a screen; the other items only log; Log out ends the staff session and goes to /admin/sign-in.
  */
 
 const ICONS = {
@@ -128,7 +129,10 @@ const AdminSettingsShell = ({ active, subtitle, action, navOrder, children }) =>
           <div role="separator" className="my-[0px] h-px w-full bg-[#e7e7e7] max-lg:hidden" />
           <button
             type="button"
-            onClick={() => navigate('/admin/sign-in')}
+            onClick={() => {
+              logout();
+              navigate('/admin/sign-in', { replace: true });
+            }}
             className={classNames(ITEM, 'bg-transparent hover:bg-[#fbeeed]')}
           >
             <span className="flex size-[20px] shrink-0 text-[#c0392b]">
