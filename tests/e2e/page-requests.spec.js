@@ -54,37 +54,36 @@ test('community page: posts and members start with the detail, not after it', as
   expect(startedBefore('/api/community/design/members')).toBe(true);
 });
 
-test('community catalogue is read once across browse -> community page', async ({ page }) => {
-  let catalogueReads = 0;
+test('the full catalogue is read once across community pages; /community asks for one section', async ({ page }) => {
+  let fullReads = 0;
+  let sectionReads = 0;
   await page.route('**/api/**', (route) => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === '/api/community') {
-      catalogueReads += 1;
+    const url = new URL(route.request().url());
+    if (url.pathname === '/api/community') {
+      if (url.search) sectionReads += 1;
+      else fullReads += 1;
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          communities: [],
-          total: 0,
-          catalogueTotal: 0,
-          basedOn: [],
-        }),
+        body: JSON.stringify({ success: true, communities: [], total: 0, nextOffset: null, catalogueTotal: 0, basedOn: [] }),
       });
     }
     return notFound(route);
   });
   await signIn(page);
   await page.goto('/community');
-  await expect.poll(() => catalogueReads, { timeout: 15_000 }).toBe(1);
+  await expect.poll(() => sectionReads, { timeout: 15_000 }).toBe(1);
+  expect(fullReads).toBe(0);
 
-  // Client-side navigation to a community page (its "Related communities" uses the catalogue).
-  await page.evaluate(() => {
-    window.history.pushState({}, '', '/community/design');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  });
-  await page.waitForTimeout(2500);
-  expect(catalogueReads).toBe(1);
+  // Two community pages ("Related communities" uses the full catalogue): read once, then cached.
+  for (const slug of ['design', 'stem']) {
+    await page.evaluate((path) => {
+      window.history.pushState({}, '', path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, `/community/${slug}`);
+    await page.waitForTimeout(1500);
+  }
+  expect(fullReads).toBe(1);
 });
 
 test('settings page asks for the overview once', async ({ page }) => {

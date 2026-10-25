@@ -72,6 +72,42 @@ export const fetchCommunities = async ({ q, category, withMeta = false } = {}) =
   return withMeta ? { communities, basedOn: data?.basedOn || [] } : communities;
 };
 
+/**
+ * One section of the catalogue (GET /api/community, paged). Recommended first, then most-joined.
+ *   { q, category }      server-side filter
+ *   { excludeJoined }    leave out joined communities ("Picked for you", "All communities")
+ *   { limit, offset }    page
+ * -> { communities, total, nextOffset (null at the end), catalogueTotal, basedOn,
+ *      mine (joined, first page only), closest (3 suggestions when nothing matches) }
+ */
+const browseInFlight = new Map();
+
+export const browseCommunities = async ({ q, category, excludeJoined, limit, offset } = {}) => {
+  const params = {};
+  if (q) params.q = q;
+  if (category) params.category = category;
+  if (excludeJoined) params.excludeJoined = true;
+  if (limit) params.limit = limit;
+  if (offset) params.offset = offset;
+  // The same section asked for again while it is loading (effects re-run, StrictMode) shares the request.
+  const key = JSON.stringify(params);
+  if (!browseInFlight.has(key)) {
+    const pending = api.get('/community', { params }).finally(() => browseInFlight.delete(key));
+    browseInFlight.set(key, pending);
+  }
+  const data = unwrap(await browseInFlight.get(key));
+  log('browse', params, { n: data?.communities?.length, total: data?.total, next: data?.nextOffset });
+  return {
+    communities: data?.communities || [],
+    total: data?.total ?? (data?.communities || []).length,
+    nextOffset: data?.nextOffset ?? null,
+    catalogueTotal: data?.catalogueTotal ?? null,
+    basedOn: data?.basedOn || [],
+    mine: data?.mine || null,
+    closest: data?.closest || [],
+  };
+};
+
 export const fetchCommunity = async (id) => {
   const data = unwrap(await api.get(`/community/${enc(id)}`));
   log('detail', id, { member: data?.community?.isMember });
