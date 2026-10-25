@@ -5,6 +5,9 @@ import { TextInput } from '../../../ui/form';
 import { GroupCard, SettingRow, TextAction } from '../../talentSettings/SettingsBUi.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
+import AssessmentTemplatesSection from './refdata/AssessmentTemplatesSection.jsx';
+import LocationsSection from './refdata/LocationsSection.jsx';
+import OpportunityTemplatesSection from './refdata/OpportunityTemplatesSection.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import {
   adminError,
@@ -30,7 +33,10 @@ const log = debug('ReferenceDataTab');
  *                           reason and is audited with the values it replaced.
  *   Currencies              rates per 1 USD, how old each rate is (nothing updates them automatically), edit with a
  *                           reason (changes over 25% need confirming), activate / deactivate, add.
- * URL: ?section=categories|currencies
+ *   Opportunity templates   refdata/OpportunityTemplatesSection.jsx
+ *   Assessment templates    refdata/AssessmentTemplatesSection.jsx (questions view-only)
+ *   Locations               refdata/LocationsSection.jsx (CSV import with preview)
+ * URL: ?section=categories|currencies|opportunity-templates|assessment-templates|locations
  */
 
 const Pill = ({ on, onClick, children }) => (
@@ -589,6 +595,9 @@ const Currencies = ({ canEdit, toast }) => {
 const SECTIONS = [
   { id: 'categories', label: 'Opportunity categories' },
   { id: 'currencies', label: 'Currencies' },
+  { id: 'opportunity-templates', label: 'Opportunity templates' },
+  { id: 'assessment-templates', label: 'Assessment templates' },
+  { id: 'locations', label: 'Locations' },
 ];
 
 const ReferenceDataTab = ({ data, session }) => {
@@ -613,6 +622,13 @@ const ReferenceDataTab = ({ data, session }) => {
       </div>
       {section === 'categories' ? <Categories canEdit={canEdit} toast={toast} /> : null}
       {section === 'currencies' ? <Currencies canEdit={canEdit} toast={toast} /> : null}
+      {section === 'opportunity-templates' ? (
+        <OpportunityTemplatesSection canEdit={canEdit} toast={toast} />
+      ) : null}
+      {section === 'assessment-templates' ? (
+        <AssessmentTemplatesSection canEdit={canEdit} toast={toast} />
+      ) : null}
+      {section === 'locations' ? <LocationsSection canEdit={canEdit} toast={toast} /> : null}
       {toastEl}
     </>
   );

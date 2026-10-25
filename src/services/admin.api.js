@@ -233,6 +233,32 @@ export const catReorderCategories = (ids, reason) =>
   post('/admin/catalog/categories/reorder', clean({ ids, reason }));
 export const catDeleteCategory = (id, reason) =>
   api.delete(`/admin/catalog/categories/${id}`, { data: { reason } }).then(body);
+// Assessment templates: questions and answer keys are view-only here.
+export const catAssessmentTemplates = () => get('/admin/catalog/assessment-templates');
+export const catAssessmentTemplate = (id) => get(`/admin/catalog/assessment-templates/${id}`);
+export const catUpdateAssessmentTemplate = (id, p) =>
+  api.put(`/admin/catalog/assessment-templates/${id}`, p).then(body);
+export const catSetAssessmentTemplateActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/assessment-templates/${id}/active`, { isActive, reason }).then(body);
+
+// Opportunity templates (defaults recruiters start a posting from).
+export const catOppTemplates = () => get('/admin/catalog/opportunity-templates');
+export const catSaveOppTemplate = (id, p) =>
+  id
+    ? api.put(`/admin/catalog/opportunity-templates/${id}`, p).then(body)
+    : post('/admin/catalog/opportunity-templates', p);
+export const catSetOppTemplateActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/opportunity-templates/${id}/active`, { isActive, reason }).then(body);
+export const catDeleteOppTemplate = (id, reason) =>
+  api.delete(`/admin/catalog/opportunity-templates/${id}`, { data: { reason } }).then(body);
+
+// Locations: list, CSV import (preview first), edit.
+export const catLocations = (params) => get('/admin/catalog/locations', clean(params || {}));
+export const catPreviewLocationImport = (rows) =>
+  post('/admin/catalog/locations/import/preview', { rows });
+export const catImportLocations = (rows, reason) =>
+  post('/admin/catalog/locations/import', { rows, reason });
+export const catUpdateLocation = (id, p) => api.put(`/admin/catalog/locations/${id}`, p).then(body);
 
 // ── Observability (Senior / Super Admin; Grafana Cloud read through the server) ─────────────────────
 export const obsStatus = () => get('/admin/observability/status');
