@@ -14,7 +14,13 @@ const BASE = [
     icon: 'globe',
     to: '/admin/settings/organisations',
   },
-  { id: 'templates', label: 'Notification templates', icon: 'bell', to: '/admin/comms/templates' },
+  {
+    id: 'notifications',
+    label: 'System notifications',
+    icon: 'bell',
+    to: '/admin/settings/notifications',
+  },
+  { id: 'templates', label: 'Message templates', icon: 'bell', to: '/admin/comms/templates' },
   {
     id: 'onboarding',
     label: 'Onboarding templates',

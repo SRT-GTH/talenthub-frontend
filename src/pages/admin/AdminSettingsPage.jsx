@@ -12,6 +12,7 @@ import PlatformConfigTab from '../../components/sections/admin/settings/Platform
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
+import SystemNotificationsTab from '../../components/sections/admin/settings/SystemNotificationsTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
 import {
   CHANGE_SETTING,
@@ -79,6 +80,11 @@ const AdminSettingsPage = () => {
     subtitle =
       'Roles, permissions and role groups from the access-control service. Super Admins make changes; every change is logged.';
     body = <RolesPermissionsTab data={data} session={session} />;
+  } else if (tab === 'notifications') {
+    active = 'notifications';
+    subtitle =
+      'Emails and SMS the platform sends by itself, and which notification types each one answers. Every edit is versioned and logged.';
+    body = <SystemNotificationsTab data={data} session={session} />;
   } else if (tab === 'organisations') {
     active = 'organisations';
     subtitle =

@@ -197,6 +197,22 @@ export const orgRemoveAdmin = (organizationId, entityId) =>
 export const orgMembers = async (entityId) =>
   arr(await get(`/links/entity/${entityId}`), 'links', 'data', 'records');
 
+// ── System notification templates (/api/templates) and notification-type mappings (/api/notifications) ─────────
+export const sysTplList = (p = {}) => get('/templates', clean({ limit: 200, ...p }));
+export const sysTplGet = (id) => get(`/templates/${id}`);
+/** Editable: description, subject, body, htmlBody, variables, isActive, notificationTypes, priority. Staff edits need a reason. */
+export const sysTplUpdate = (id, p) => api.put(`/templates/${id}`, p).then(body);
+export const sysTplPreview = (id, sampleVariables) =>
+  post(`/templates/${id}/preview`, clean({ sampleVariables }));
+/** Sends to the signed-in staff member's own address only (enforced by the server). */
+export const sysTplTestSend = (id, variables = {}) =>
+  post(`/templates/${id}/test-send`, { variables });
+export const sysTplStats = () => get('/templates/stats/overview');
+export const notifTypes = () => get('/notifications/notification-types');
+export const notifCoverage = () => get('/notifications/template-coverage');
+export const notifMappings = () => get('/notifications/template-mappings');
+export const notifRefreshMappings = () => post('/notifications/refresh-mappings', {});
+
 // ── Observability (Senior / Super Admin; Grafana Cloud read through the server) ─────────────────────
 export const obsStatus = () => get('/admin/observability/status');
 export const obsSnapshot = () => get('/admin/observability/snapshot');
