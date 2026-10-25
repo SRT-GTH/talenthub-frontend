@@ -1166,7 +1166,7 @@
       "h": 2380,
       "hFocused": 2380,
       "section": "G2b",
-      "url": "/agency/national?modal=filters&region=volta&interest=technology&age=18-24",
+      "url": "/agency/national?modal=filters&region=northern,upper-east&more=edulevel~TVET%20certificate,s4~Ready%20now",
       "note": ""
     },
     {
@@ -1178,7 +1178,7 @@
       "h": 2380,
       "hFocused": 2380,
       "section": "G2b",
-      "url": "/agency/national?modal=filters&state=too-few&region=upper-west&interest=technology&age=18-24",
+      "url": "/agency/national?modal=filters&state=too-few&region=upper-west&age=14-17&gender=female&more=field~Mechatronics",
       "note": ""
     },
     {

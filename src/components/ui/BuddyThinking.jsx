@@ -1,5 +1,6 @@
 import { classNames } from '../../utils/classNames.js';
-import CareerBuddyAvatar from '../shared/CareerBuddyAvatar.jsx';
+import brainFocused from '../../assets/career-buddy/buddy-brain-focused.svg';
+import brainPlayful from '../../assets/career-buddy/buddy-brain-playful.svg';
 import {
   BuddyIconArrowRight,
   BuddyIconCheck,
@@ -16,7 +17,7 @@ import { usePlayfulScope } from './PlayfulScope.js';
  *   writing   streaming          the words so far + two skeleton lines
  *   slow      over 10 s          sub line, progress with elapsed seconds, two skeleton lines (Stop stays visible)
  *   stopped   the talent stopped the answer: partial text, "You stopped this answer", Continue / Try again
- * The avatar is the 48px buddy with a spinning ring + glow (no ring/glow when stopped); Playful adds two twinkling sparkles.
+ * The avatar is the 48px Buddy brain mascot with a soft glow (no glow while writing / stopped; mascot dimmed to 70% when stopped).
  * The "Stop generating" pill is a separate piece (`StopGeneratingPill`) the chat footer places above the input.
  *
  * Props: phase, lookingAt string[], sub string, steps [{ id, label, state: 'done' | 'active' | 'next' }], stepText "Step 2 of 3",
@@ -27,6 +28,13 @@ const LABELS = {
   thinking: { focused: 'Thinking', playful: 'Buddy’s thinking' },
   working: { focused: 'Working on it', playful: 'Buddy’s on it' },
   slow: { focused: 'Still working', playful: 'Still on it, big search' },
+};
+
+/* Figma "Buddy brain" instance: the 60x50 component drawn at 56x47 (x0.9333) at (-4, 3) in the 48px avatar. The SVG exports are
+   62x52 / 61x53 (they include the glow + stroke overflow), so each is scaled x0.9333 and offset to where Figma renders its bounds. */
+const BRAIN_POS = {
+  playful: 'left-[-5.7px] top-[2.2px] h-[48.5px] w-[57.9px]',
+  focused: 'left-[-4.9px] top-[0.1px] h-[49.5px] w-[56.9px]',
 };
 
 const SKELETON =
@@ -40,30 +48,26 @@ const Skeleton = ({ widths, className }) => (
   </span>
 );
 
-export const BuddyThinkingAvatar = ({ active = true }) => (
-  <span className="relative block size-[48px] shrink-0" aria-hidden="true">
-    {active ? (
-      <>
+export const BuddyThinkingAvatar = ({ active = true }) => {
+  const playful = usePlayfulScope();
+  return (
+    <span className="relative block size-[48px] shrink-0" aria-hidden="true">
+      {active ? (
         <span className="absolute -inset-[2px] rounded-full bg-[#387440]/[0.14] blur-[8px] playful:bg-[#f3c84b]/35" />
-        <span
-          className="buddy-spin absolute inset-0 rounded-full"
-          style={{
-            background:
-              'conic-gradient(from 90deg, #c8951a 0%, #387440 45%, rgba(56,116,64,0.15) 75%, rgba(200,149,26,0) 100%)',
-            WebkitMask:
-              'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))',
-            mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))',
-          }}
-        />
-      </>
-    ) : null}
-    <span className="absolute inset-[5px] box-border overflow-hidden rounded-full border-2 border-solid border-white">
-      <CareerBuddyAvatar size={34} className="absolute left-0 top-0" />
+      ) : null}
+      <img
+        src={playful ? brainPlayful : brainFocused}
+        alt=""
+        draggable="false"
+        className={classNames(
+          'absolute max-w-none',
+          playful ? BRAIN_POS.playful : BRAIN_POS.focused,
+          !active && 'opacity-70'
+        )}
+      />
     </span>
-    <BuddyIconSparkle className="buddy-twinkle absolute left-[44px] top-[3px] hidden size-[12px] text-[#387440] playful:block" />
-    <BuddyIconSparkle className="buddy-twinkle absolute left-[-6px] top-[34px] hidden size-[9px] text-[#387440] [animation-delay:0.6s] playful:block" />
-  </span>
-);
+  );
+};
 
 const Header = ({ label }) => (
   <span className="flex h-[22px] items-center gap-[8px]">

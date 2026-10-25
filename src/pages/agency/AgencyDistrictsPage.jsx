@@ -1,19 +1,12 @@
-import AgencyFrame from '../../components/sections/agency/AgencyFrame.jsx';
-import AgencyStub from '../../components/sections/agency/AgencyStub.jsx';
-import { useAgencyState } from '../../components/sections/agency/agencyState.js';
+import { Navigate, useLocation } from 'react-router-dom';
 
-/* AgencyDistrictsPage — STUB, owned by package C. Replace the body; keep AgencyFrame + useAgencyState. */
+/*
+ * AgencyDistrictsPage — the "Districts" nav item has no frame of its own; Figma 11.4.2b "District breakdown" is the page the item stands for
+ * (the rail highlights Districts there). ⚠️ ASSUMPTION: /agency/districts opens that page (Accra Metro, the drawn district), keeping the query.
+ */
 const AgencyDistrictsPage = () => {
-  const data = useAgencyState();
-  return (
-    <AgencyFrame data={data} title="Districts">
-      <AgencyStub
-        name="Districts"
-        owner="C"
-        frames="Districts (nav item; not drawn as its own frame)"
-      />
-    </AgencyFrame>
-  );
+  const { search } = useLocation();
+  return <Navigate to={`/agency/regions/greater-accra/districts/accra-metro${search}`} replace />;
 };
 
 export default AgencyDistrictsPage;
