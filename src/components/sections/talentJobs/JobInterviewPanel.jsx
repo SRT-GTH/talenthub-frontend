@@ -16,7 +16,9 @@ const log = debug('JobInterviewPanel');
  * JobInterviewPanel — the talent side of the interview loop on the job detail screen
  * (Recruiter Buddy design, Iteration 4 §2.3). Reuses the Messages InterviewCard (Figma T-MSG-08/09).
  *
- *   proposed          → invite card: Accept · Suggest another time (1–3 times + note)
+ *   confirmed (booked)→ confirmed card straight away (a recruiter's booking is final, IQ-1)
+ *   awaiting_pick     → pick card: the recruiter offered 2–5 times; tap one, Confirm; or "None of these work?"
+ *   proposed (legacy) → invite card: Accept · Suggest another time (1–3 times + note)
  *   confirmed         → confirmed card: Add to calendar (.ics) · Need to change it? (note + optional times)
  *   change_requested  → "waiting for a new time" notice with the times the talent suggested
  *
@@ -41,12 +43,15 @@ const whenText = (at, durationMin = 60) => {
   return `${fmtDay(at)} · ${fmtTime(at)}–${fmtTime(end)} GMT`;
 };
 
-const whereText = (format, detail, confirmed) => {
+const whereText = (format, detail, confirmed, picking = false) => {
   if (format === 'phone') return 'Phone call';
   if (format === 'in-person')
     return detail?.location ? `In person · ${detail.location}` : 'In person';
   if (format === 'assessment') return 'Assessment';
-  if (!confirmed) return 'Video call · link shared after you accept';
+  if (!confirmed)
+    return picking
+      ? 'Video call · link shared once you pick a time'
+      : 'Video call · link shared after you accept';
   return detail?.meetingUrl ? 'Video call · link in your calendar invite' : 'Video call';
 };
 
@@ -188,16 +193,28 @@ const JobInterviewPanel = ({ job, jobs }) => {
   const card = {
     id: `interview-${app.id}`,
     kind: 'interview',
-    state: status === 'confirmed' ? 'confirmed' : 'invite',
+    state: status === 'confirmed' ? 'confirmed' : status === 'awaiting_pick' ? 'pick' : 'invite',
     strip: 'INTERVIEW INVITE',
     title: `${job.title} · ${company}`,
     when: whenText(iv.at, detail?.durationMin),
-    where: whereText(detail?.format || iv.mode, detail, status === 'confirmed'),
+    where: whereText(
+      detail?.format || iv.mode,
+      detail,
+      status === 'confirmed',
+      status === 'awaiting_pick'
+    ),
     acceptLabel: busy ? 'Accepting…' : 'Accept',
     suggestLabel: 'Suggest another time',
     confirmedLabel: "You're confirmed",
     calendarLabel: 'Add to calendar',
     changeLabel: 'Need to change it?',
+    pickPrompt: 'Pick the time that suits you (Ghana time)',
+    pickLabel: busy ? 'Confirming…' : 'Confirm this time',
+    noneLabel: 'None of these work?',
+    slots: (detail?.offeredSlots || []).map((s) => ({
+      id: s,
+      label: `${fmtDay(s)} · ${fmtTime(s)}`,
+    })),
   };
 
   return (
@@ -205,7 +222,16 @@ const JobInterviewPanel = ({ job, jobs }) => {
       aria-label="Your interview"
       className="flex min-w-0 flex-col gap-[12px] max-xl:order-3"
     >
-      {status === 'change_requested' ? (
+      {status === 'cancelled' ? (
+        <div className="flex w-full max-w-[540px] flex-col gap-[6px] rounded-[12px] border-[1.2px] border-solid border-[rgba(0,82,43,0.1)] bg-white p-[16px]">
+          <h3 className="m-0 font-sans text-[16px] font-semibold leading-[19px] text-[#1c2a21]">
+            {card.title}
+          </h3>
+          <p className="m-0 font-sans text-[13px] leading-[17px] text-[#595959]">
+            {`${company} cancelled the interview on ${card.when}. Your application is still open; they may get back to you with a new time.`}
+          </p>
+        </div>
+      ) : status === 'change_requested' ? (
         <div className="flex w-full max-w-[540px] flex-col gap-[8px] rounded-[12px] border-[1.2px] border-solid border-[rgba(0,82,43,0.1)] bg-white p-[16px]">
           <h3 className="m-0 font-sans text-[16px] font-semibold leading-[19px] text-[#1c2a21]">
             {card.title}
@@ -214,7 +240,7 @@ const JobInterviewPanel = ({ job, jobs }) => {
             {`You asked for another time instead of ${card.when}. ${company} will send a new invite.`}
           </p>
           {detail?.proposedSlots?.length ? (
-            <ul className="m-0 flex flex-col gap-[4px] pl-[18px] font-sans text-[13px] text-[#1c2a21]">
+            <ul className="m-0 flex list-disc flex-col gap-[4px] pl-[18px] font-sans text-[13px] text-[#1c2a21]">
               {detail.proposedSlots.map((s) => (
                 <li key={s}>{`${fmtDay(s)} · ${fmtTime(s)} GMT`}</li>
               ))}
@@ -254,6 +280,10 @@ const JobInterviewPanel = ({ job, jobs }) => {
             })
           }
           onChange={() => setMode('change')}
+          onPick={(slot) => {
+            if (!busy) reply({ action: 'pick', slot });
+          }}
+          onNone={() => setMode('suggest')}
         />
       )}
 
