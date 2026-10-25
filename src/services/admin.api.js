@@ -224,6 +224,10 @@ export const catSetCurrencyRate = (code, p) =>
   api.put(`/admin/catalog/currencies/${code}/rate`, p).then(body);
 export const catSetCurrencyActive = (code, isActive, reason) =>
   api.put(`/admin/catalog/currencies/${code}/active`, { isActive, reason }).then(body);
+/** Automatic exchange rates: { enabled, schedule, provider, providerLabel, keyConfigured, attribution, runs }. */
+export const catFxStatus = () => get('/admin/catalog/currencies/auto-update');
+/** { dryRun, reason } → the run: { status, applied, held, skipped, missing, unchanged, error }. */
+export const catFxSync = (p) => post('/admin/catalog/currencies/auto-update/run', clean(p));
 export const catCreateCategory = (p) => post('/admin/catalog/categories', clean(p));
 export const catUpdateCategory = (id, p) =>
   api.put(`/admin/catalog/categories/${id}`, p).then(body);

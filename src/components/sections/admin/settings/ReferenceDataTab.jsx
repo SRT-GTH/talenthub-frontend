@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
-import { TextInput } from '../../../ui/form';
+import { Checkbox, TextInput } from '../../../ui/form';
 import { GroupCard, SettingRow, TextAction } from '../../talentSettings/SettingsBUi.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
 import AssessmentTemplatesSection from './refdata/AssessmentTemplatesSection.jsx';
+import FxAutoUpdatePanel from './refdata/FxAutoUpdatePanel.jsx';
 import LocationsSection from './refdata/LocationsSection.jsx';
 import OpportunityTemplatesSection from './refdata/OpportunityTemplatesSection.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
@@ -346,13 +347,16 @@ const Currencies = ({ canEdit, toast }) => {
   const [form, setForm] = useState({ code: '', name: '', symbol: '', exchangeRate: '' });
   const [reason, setReason] = useState('');
   const [confirmLarge, setConfirmLarge] = useState(false);
+  const [pin, setPin] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const open = (d) => {
     setError('');
     setReason('');
-    setConfirmLarge(false);
-    setRate(d.cur ? String(d.cur.exchangeRate) : '');
+    // A held automatic change arrives with its suggested rate, already flagged as a large change.
+    setConfirmLarge(d.suggested != null);
+    setPin(Boolean(d.cur?.ratePinned));
+    setRate(d.cur ? String(d.suggested ?? d.cur.exchangeRate) : '');
     setForm({ code: '', name: '', symbol: '', exchangeRate: '' });
     setDialog(d);
   };
@@ -378,11 +382,7 @@ const Currencies = ({ canEdit, toast }) => {
   return (
     <GroupCard
       title="Currencies and exchange rates"
-      description={`Rates are units per 1 ${data?.base || 'USD'}. ${
-        data?.autoUpdate
-          ? 'Rates are updated automatically.'
-          : 'Nothing updates them automatically: change them here when they drift.'
-      } No screen converts amounts with them yet.`}
+      description={`Rates are units per 1 ${data?.base || 'USD'}. Change one by hand at any time; tick “Keep this rate” so the automatic update leaves it alone. No screen converts amounts with them yet.`}
       gap="gap-0"
     >
       {stale.length ? (
@@ -391,6 +391,16 @@ const Currencies = ({ canEdit, toast }) => {
           updated for over {STALE_DAYS} days.
         </div>
       ) : null}
+      <FxAutoUpdatePanel
+        canEdit={canEdit}
+        toast={toast}
+        currencies={rows}
+        onChanged={list.reload}
+        onReview={(code, to) => {
+          const cur = rows.find((c) => c.code === code);
+          if (cur) open({ kind: 'rate', cur, suggested: to });
+        }}
+      />
       {canEdit ? (
         <div className="pb-[12px]">
           <TextAction tone="green" onClick={() => open({ kind: 'create' })}>
@@ -417,7 +427,9 @@ const Currencies = ({ canEdit, toast }) => {
                       : c.ageDays === 0
                         ? 'today'
                         : `${c.ageDays} days ago`
-                  }${c.code === data?.defaultCurrency ? ' · default' : ''}`
+                  }${c.rateSource && c.rateSource !== 'manual' ? ' automatically' : ''}${c.ratePinned ? ' · pinned' : ''}${
+                    c.code === data?.defaultCurrency ? ' · default' : ''
+                  }`
             }
             top
             control={
@@ -459,6 +471,7 @@ const Currencies = ({ canEdit, toast }) => {
                   rate: n,
                   reason: reason.trim(),
                   confirmLargeChange: confirmLarge || undefined,
+                  pin: pin !== Boolean(d.cur.ratePinned) ? pin : undefined,
                 }),
               'Rate saved',
               `1 ${data?.base} = ${n} ${d.cur.code}`
@@ -475,6 +488,11 @@ const Currencies = ({ canEdit, toast }) => {
                 setRate(e.target.value);
                 setConfirmLarge(false);
               }}
+            />
+            <Checkbox
+              label="Keep this rate (the automatic update won’t change it)"
+              checked={pin}
+              onChange={(e) => setPin(e.target.checked)}
             />
             <TextInput
               label="Reason"
