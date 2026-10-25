@@ -19,7 +19,7 @@ const GREP = process.env.RESPONSIVE_GREP === 'root' ? '/' : process.env.RESPONSI
 for (const width of WIDTHS) {
   test.describe(`desktop @${width}px`, () => {
     test.use({ viewport: { width, height: 900 } });
-    for (const route of ROUTES) {
+    for (const route of new Set(ROUTES)) {
       if (GREP && !(route === GREP || (GREP !== '/' && route.includes(GREP)))) continue;
       test(route, async ({ page }) => {
         await page.addInitScript(() => {

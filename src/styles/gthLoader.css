@@ -1,0 +1,232 @@
+/*
+ * GTH loaders (Figma canvas 9312:544769 "GTH · Loaders"): GTH · Loader (Playful / Focused x Page / Section / Button),
+ * GTH · Route progress and the LD-01..04 page frames. Motion is the Figma timeline (4 s loop, 2 s for the route bar),
+ * pulled with get_motion_context. Reduced motion: arcs stop, the mark breathes (the Figma component description).
+ */
+
+/* Arcs: one linear 4 s loop, the turn per variant comes from --gl-turn (green -540deg, gold +360deg, red -720deg, Focused -450deg, Button -900deg). */
+@keyframes gl-rotate {
+  to {
+    transform: rotate(var(--gl-turn, 360deg));
+  }
+}
+.gl-arc {
+  animation: gl-rotate 4s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Playful Page mark: three hops, squash on landing, then it holds the last pose (times 0 .075 .15 .2 .275 .35 .4 .475 .55 1). */
+@keyframes gl-hop {
+  0% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  7.5% {
+    transform: translateY(-19.7%) scale(0.96, 1.06);
+    animation-timing-function: ease-in;
+  }
+  15% {
+    transform: translateY(0) scale(1.08, 0.92);
+    animation-timing-function: ease-out;
+  }
+  20% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  27.5% {
+    transform: translateY(-19.7%) scale(0.96, 1.06);
+    animation-timing-function: ease-in;
+  }
+  35% {
+    transform: translateY(0) scale(1.08, 0.92);
+    animation-timing-function: ease-out;
+  }
+  40% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  47.5% {
+    transform: translateY(-19.7%) scale(0.96, 1.06);
+    animation-timing-function: ease-in;
+  }
+  55%,
+  100% {
+    transform: translateY(-16.6%) scale(0.979, 1.038);
+  }
+}
+.gl-hop {
+  animation: gl-hop 4s infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Focused Page mark (and the reduced-motion mark): a calm breath. */
+@keyframes gl-breathe {
+  0%,
+  50%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.04);
+  }
+}
+.gl-breathe {
+  animation: gl-breathe 4s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Sparks: opacity and the 45deg turn are separate tracks (the turn is linear, the opacity eases). */
+@keyframes gl-spark-a {
+  0%,
+  30% {
+    opacity: 0.2;
+  }
+  12.5% {
+    opacity: 1;
+  }
+  62.5%,
+  100% {
+    opacity: 0.754;
+  }
+}
+@keyframes gl-spark-b {
+  0%,
+  45% {
+    opacity: 0.2;
+  }
+  27.5% {
+    opacity: 1;
+  }
+  77.5%,
+  100% {
+    opacity: 0.238;
+  }
+}
+@keyframes gl-spark-turn-a {
+  to {
+    rotate: -45deg;
+  }
+}
+@keyframes gl-spark-turn-b {
+  to {
+    rotate: 45deg;
+  }
+}
+.gl-spark-a {
+  animation:
+    gl-spark-a 4s ease-in-out infinite,
+    gl-spark-turn-a 4s linear infinite;
+}
+.gl-spark-b {
+  animation:
+    gl-spark-b 4s ease-in-out infinite,
+    gl-spark-turn-b 4s linear infinite;
+}
+
+/* Route progress: the 260 px bar eases in from the left edge to the right edge, then waits (2 s loop in the component, 4 s inside the page loader). */
+@keyframes gl-sweep {
+  0% {
+    translate: -260px 0;
+    animation-timing-function: ease-in-out;
+  }
+  70%,
+  100% {
+    translate: 100cqw 0;
+  }
+}
+@keyframes gl-sweep-slow {
+  0% {
+    translate: -260px 0;
+    animation-timing-function: ease-in-out;
+  }
+  35%,
+  100% {
+    translate: 100cqw 0;
+  }
+}
+:where(.gl-route) {
+  position: relative;
+}
+.gl-route {
+  overflow: hidden;
+  container-type: inline-size;
+}
+.gl-route-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 260px;
+  animation: gl-sweep 2s infinite;
+}
+.gl-route[data-pace='slow'] .gl-route-bar {
+  animation: gl-sweep-slow 4s infinite;
+}
+
+/* Page loader captions (LD-01): four lines cross-fade with an 8 px rise, 4 s loop. Line 1 starts visible; lines 2-4 are the same track shifted by 1 s. */
+@keyframes gl-caption-first {
+  0%,
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+    animation-timing-function: ease-in-out;
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes gl-caption {
+  0%,
+  25% {
+    opacity: 0;
+    transform: translateY(8px);
+    animation-timing-function: ease-in-out;
+  }
+  30%,
+  45% {
+    opacity: 1;
+    transform: translateY(0);
+    animation-timing-function: ease-in-out;
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.gl-caption {
+  opacity: 0;
+  animation: gl-caption 4s infinite;
+}
+.gl-caption[data-first] {
+  opacity: 1;
+  animation-name: gl-caption-first;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-arc,
+  .gl-route-bar,
+  .gl-caption {
+    animation: none;
+  }
+  .gl-route-bar {
+    translate: 0 0;
+    width: 100%;
+  }
+  .gl-caption {
+    opacity: 0;
+  }
+  .gl-caption[data-first] {
+    opacity: 1;
+    transform: none;
+  }
+  .gl-spark-a,
+  .gl-spark-b {
+    animation: none;
+    opacity: 0.6;
+  }
+  .gl-hop {
+    animation: gl-breathe 4s ease-in-out infinite;
+  }
+}

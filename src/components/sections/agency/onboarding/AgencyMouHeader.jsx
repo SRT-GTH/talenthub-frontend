@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import StyleSwitch from '../../../ui/StyleSwitch.jsx';
 import gthLogoStacked from '../../../../assets/brand/gth-logo-stacked.webp';
 import { AgArrowLeft, AgHelp } from './agencyOnboardingIcons.jsx';
 import { MOU_UPLOAD as U } from './data/agencyOnboardingData.js';
@@ -7,7 +8,7 @@ import { MOU_UPLOAD as U } from './data/agencyOnboardingData.js';
  * AgencyMouHeader — the two bars above the MoU upload page (Figma 11.4.1b 8596:988): "Nav" 90 high on #f8f8f4 (logo · gold "Change input mode" #c8951a / 2px #967014 ·
  * "Save & Exit" · help · "Efua O." chip) and the 64 high "Stage bar" (← MoU checklist · "STEP 5 OF 7" chip + "MoU" · "4 of 7 done · 57%" + nine 18 x 6 segments
  * (six #387440, the current #c8951a, two #e7e7e7) · "Auto-saved").
- * ⚠️ Not rendered: the Figma "Focused | Playful" switch in the nav (Focused style only). Props: onChangeMode, modeLabel (pressed state text for assistive tech).
+ * The shared "Focused | Playful" StyleSwitch sits left of the gold button, as drawn (hidden below md). Props: onChangeMode, modeLabel (pressed state text for assistive tech).
  */
 
 const SEGMENTS = [
@@ -33,6 +34,7 @@ const AgencyMouHeader = ({ onChangeMode, listView }) => (
         />
       </Link>
       <div className="flex items-center gap-[clamp(10px,1.4vw,24px)]">
+        <StyleSwitch className="max-md:hidden max-lg:[&_button>span]:sr-only" />
         <button
           type="button"
           aria-pressed={listView}

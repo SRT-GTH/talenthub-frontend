@@ -1,6 +1,9 @@
 import { classNames } from '../../utils/classNames.js';
-import brainFocused from '../../assets/career-buddy/buddy-brain-focused.svg';
-import brainPlayful from '../../assets/career-buddy/buddy-brain-playful.svg';
+import shellPlayful from '../../assets/career-buddy/brain/shell-playful.svg';
+import shellFocused from '../../assets/career-buddy/brain/shell-focused.svg';
+import smilePlayful from '../../assets/career-buddy/brain/smile-playful.svg';
+import boltPlayful from '../../assets/career-buddy/brain/bolt-playful.svg';
+import boltFocused from '../../assets/career-buddy/brain/bolt-focused.svg';
 import {
   BuddyIconArrowRight,
   BuddyIconCheck,
@@ -18,6 +21,9 @@ import { usePlayfulScope } from './PlayfulScope.js';
  *   slow      over 10 s          sub line, progress with elapsed seconds, two skeleton lines (Stop stays visible)
  *   stopped   the talent stopped the answer: partial text, "You stopped this answer", Continue / Try again
  * The avatar is the 48px Buddy brain mascot with a soft glow (no glow while writing / stopped; mascot dimmed to 70% when stopped).
+ * Motion (2026-10-25, Figma "Buddy thinking" 8988:508782, styles/buddyThinking.css): the brain is built from layers so it can move like the Figma timeline: glow breathes, shell swells, five neurons
+ * pulse and flash, pupils glance up-right then up-left, a bolt flickers; in the `thinking` phase the header mark swells and its sparkle turns, the label fades in letter by letter, the chips pop
+ * in and the skeleton lines pulse in turn (12 s loop, no motion under reduced motion).
  * The "Stop generating" pill is a separate piece (`StopGeneratingPill`) the chat footer places above the input.
  *
  * Props: phase, lookingAt string[], sub string, steps [{ id, label, state: 'done' | 'active' | 'next' }], stepText "Step 2 of 3",
@@ -30,58 +36,198 @@ const LABELS = {
   slow: { focused: 'Still working', playful: 'Still on it, big search' },
 };
 
-/* Figma "Buddy brain" instance: the 60x50 component drawn at 56x47 (x0.9333) at (-4, 3) in the 48px avatar. The SVG exports are
-   62x52 / 61x53 (they include the glow + stroke overflow), so each is scaled x0.9333 and offset to where Figma renders its bounds. */
-const BRAIN_POS = {
-  playful: 'left-[-5.7px] top-[2.2px] h-[48.5px] w-[57.9px]',
-  focused: 'left-[-4.9px] top-[0.1px] h-[49.5px] w-[56.9px]',
-};
-
 const SKELETON =
   'buddy-shimmer block h-[10px] rounded-[5px] bg-[#ebf1ec] [background-position:100%_0]';
 
-const Skeleton = ({ widths, className }) => (
+const PULSE_BG = 'block h-[10px] rounded-[5px] bg-[#ebf1ec]';
+
+// `pulse`: the thinking phase's lines brighten one after another (Figma) instead of the shimmer the other phases keep.
+const Skeleton = ({ widths, className, pulse = false }) => (
   <span className={classNames('flex flex-col gap-[8px]', className)} aria-hidden="true">
-    {widths.map((w) => (
-      <span key={w} className={SKELETON} style={{ width: w }} />
+    {widths.map((w, i) => (
+      <span
+        key={w}
+        className={pulse ? classNames(PULSE_BG, `bt-line-${i + 1}`) : SKELETON}
+        style={{ width: w }}
+      />
     ))}
   </span>
 );
 
-export const BuddyThinkingAvatar = ({ active = true }) => {
-  const playful = usePlayfulScope();
+/* The Buddy brain, rebuilt from the Figma component (9325:546246 Playful / 9325:546762 Focused, 60 x 50): the shell is one exported layer, the neurons, eyes and cheeks are drawn here so they can
+   move; the smile and bolt are exported layers. The instance is drawn at 56 x 47 (x0.9333) at (-4, 2.7) in the 48px avatar. */
+const NEURONS = [
+  { x: 20.5, y: 5.5, cell: 1, fire: 1 },
+  { x: 36.5, y: 6.5, cell: 2, fire: 2 },
+  { x: 44.5, y: 20.5 },
+  { x: 30.5, y: 27.5, cell: 4, fire: 3 },
+  { x: 36.5, y: 17.5, cell: 3, fire: 4 },
+];
+const EYES = [
+  { x: 14, pupil: 18.05, shine: 20.08 },
+  { x: 24.8, pupil: 28.85, shine: 30.88 },
+];
+const BRAIN_LOOK = {
+  playful: { shell: shellPlayful, shellH: 52, pupil: '#1c2a21', fire: '#f5b724' },
+  focused: { shell: shellFocused, shellH: 50, pupil: '#3f664c', fire: '#96cd5a' },
+};
+
+const At = ({ x, y, w, h = w, className, style, children }) => (
+  <span
+    className={classNames('absolute block', className)}
+    style={{ left: x, top: y, width: w, height: h, ...style }}
+  >
+    {children}
+  </span>
+);
+
+const BuddyBrain = ({ playful }) => {
+  const k = BRAIN_LOOK[playful ? 'playful' : 'focused'];
   return (
-    <span className="relative block size-[48px] shrink-0" aria-hidden="true">
-      {active ? (
-        <span className="absolute -inset-[2px] rounded-full bg-[#387440]/[0.14] blur-[8px] playful:bg-[#f3c84b]/35" />
-      ) : null}
-      <img
-        src={playful ? brainPlayful : brainFocused}
-        alt=""
-        draggable="false"
-        className={classNames(
-          'absolute max-w-none',
-          playful ? BRAIN_POS.playful : BRAIN_POS.focused,
-          !active && 'opacity-70'
-        )}
-      />
+    <span
+      className="absolute top-[2.667px] left-[-4px] block h-[50px] w-[60px] origin-top-left scale-[0.9333]"
+      aria-hidden="true"
+    >
+      <span className="bt-shell absolute inset-0 block">
+        <img
+          src={k.shell}
+          alt=""
+          draggable="false"
+          className="absolute top-0 left-0 max-w-none"
+          style={{ width: 60, height: k.shellH }}
+        />
+        {NEURONS.map((n) => (
+          <span key={`${n.x}-${n.y}`}>
+            {n.fire ? (
+              <At
+                x={n.x + 0.48}
+                y={n.y + 0.47}
+                w={10.45}
+                className={classNames('bt-fire rounded-full', `bt-fire-${n.fire}`)}
+                style={{ backgroundColor: k.fire }}
+              />
+            ) : null}
+            <At
+              x={n.x + 2.85}
+              y={n.y + 2.85}
+              w={5.7}
+              className={classNames(
+                'bt-cell rounded-full bg-[#387440]',
+                n.cell && `bt-cell-${n.cell}`
+              )}
+            />
+          </span>
+        ))}
+        {EYES.map((e) => (
+          <span key={e.x}>
+            <At x={e.x} y={17} w={8.1} h={9.45} className="rounded-full bg-white" />
+            <At
+              x={e.pupil}
+              y={17.68}
+              w={4.05}
+              h={4.72}
+              className="bt-pupil rounded-full"
+              style={{ backgroundColor: k.pupil }}
+            />
+            <At x={e.shine} y={18.35} w={1.35} className="bt-pupil rounded-full bg-white" />
+          </span>
+        ))}
+        {playful ? (
+          <>
+            <At x={21.42} y={28.47} w={6.75} h={3.38}>
+              <img
+                src={smilePlayful}
+                alt=""
+                draggable="false"
+                className="block size-full max-w-none"
+              />
+            </At>
+            <At x={11.98} y={27.12} w={3.38} h={2.03} className="rounded-full bg-[#ff998c]" />
+            <At x={31.55} y={27.12} w={3.38} h={2.03} className="rounded-full bg-[#ff998c]" />
+          </>
+        ) : null}
+      </span>
+      <At
+        x={playful ? -1.42 : 53}
+        y={playful ? 3 : -2.45}
+        w={playful ? 10 : 7.48}
+        h={playful ? 11.79 : 9.18}
+        className="bt-bolt"
+      >
+        <img
+          src={playful ? boltPlayful : boltFocused}
+          alt=""
+          draggable="false"
+          className="block size-full max-w-none"
+        />
+      </At>
     </span>
   );
 };
 
-const Header = ({ label }) => (
-  <span className="flex h-[22px] items-center gap-[8px]">
-    <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec] playful:bg-[#fef3d1]">
-      <BuddyIconSparkle className="size-[14px] text-[#387440] playful:text-[#c8951a]" />
+export const BuddyThinkingAvatar = ({ active = true }) => {
+  const playful = usePlayfulScope();
+  return (
+    <span
+      className={classNames('relative block size-[48px] shrink-0', !active && 'bt-still')}
+      aria-hidden="true"
+    >
+      {active ? (
+        <span className="bt-glow absolute -inset-[2px] rounded-full bg-[#387440]/[0.14] blur-[8px] playful:bg-[#f3c84b]/35" />
+      ) : null}
+      <span className={classNames('absolute inset-0 block', !active && 'opacity-70')}>
+        <BuddyBrain playful={playful} />
+      </span>
     </span>
-    <span className="font-sans text-[15px] font-semibold leading-[18px] text-[#387440]">
-      {label}
+  );
+};
+
+// `animate`: the thinking phase's header motion (mark swell, sparkle turn, letter-by-letter label). The label keeps one accessible string.
+const Header = ({ label, animate = false }) => (
+  <span className="flex h-[22px] items-center gap-[8px]">
+    <span
+      className={classNames(
+        'flex size-[22px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec] playful:bg-[#fef3d1]',
+        animate && 'bt-mark'
+      )}
+    >
+      <BuddyIconSparkle
+        className={classNames(
+          'size-[14px] text-[#387440] playful:text-[#c8951a]',
+          animate && 'bt-sparkle'
+        )}
+      />
+    </span>
+    <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#387440]">
+      {animate ? (
+        <>
+          <span className="sr-only">{label}</span>
+          <span aria-hidden="true">
+            {Array.from(label).map((ch, i) =>
+              ch === ' ' ? (
+                ' '
+              ) : (
+                <span key={`${ch}-${i}`} className="bt-char inline-block" style={{ '--i': i }}>
+                  {ch}
+                </span>
+              )
+            )}
+          </span>
+        </>
+      ) : (
+        label
+      )}
     </span>
   </span>
 );
 
-const Chip = ({ children }) => (
-  <span className="inline-flex h-[20px] items-center rounded-full bg-[#ebf1ec] px-[8px] py-[3px] font-sans text-[11.5px] font-semibold leading-[14px] text-[#387440] playful:h-[22px] playful:border playful:border-solid playful:border-[#1c2a21]">
+const Chip = ({ children, pop = 0 }) => (
+  <span
+    className={classNames(
+      pop && `bt-chip-${pop}`,
+      'inline-flex h-[20px] items-center rounded-full bg-[#ebf1ec] px-[8px] py-[3px] font-sans text-[11.5px] font-semibold leading-[14px] text-[#387440] playful:h-[22px] playful:border playful:border-solid playful:border-[#1c2a21]'
+    )}
+  >
     {children}
   </span>
 );
@@ -193,18 +339,20 @@ const BuddyThinking = ({
       >
         {phase === 'thinking' ? (
           <>
-            <Header label={label} />
+            <Header label={label} animate />
             {lookingAt.length > 0 ? (
               <span className="flex flex-wrap items-center gap-[6px]">
                 <span className="font-sans text-[12px] font-medium leading-[14px] text-[#6b736e]">
                   Looking at
                 </span>
-                {lookingAt.map((c) => (
-                  <Chip key={c}>{c}</Chip>
+                {lookingAt.map((c, i) => (
+                  <Chip key={c} pop={i < 2 ? i + 1 : 0}>
+                    {c}
+                  </Chip>
                 ))}
               </span>
             ) : null}
-            <Skeleton widths={['100%', '87%', '58%']} />
+            <Skeleton widths={['100%', '87%', '58%']} pulse />
           </>
         ) : null}
 

@@ -4,6 +4,11 @@ import Button from '../components/ui/Button.jsx';
 import Captions from '../components/ui/Captions.jsx';
 import Card from '../components/ui/Card.jsx';
 import Loader from '../components/ui/Loader.jsx';
+import AskBuddyFabButton from '../components/ui/AskBuddyFabButton.jsx';
+import GthLoader from '../components/ui/gthLoader/GthLoader.jsx';
+import GthRouteProgress from '../components/ui/gthLoader/GthRouteProgress.jsx';
+import PageLoader from '../components/ui/gthLoader/PageLoader.jsx';
+import SectionLoader from '../components/ui/gthLoader/SectionLoader.jsx';
 import MiniCard from '../components/ui/MiniCard.jsx';
 import ProgressBar from '../components/ui/ProgressBar.jsx';
 import Tag from '../components/ui/Tag.jsx';
@@ -1295,12 +1300,83 @@ const LOADER_SIZES = [
   { size: 'lg', label: 'Large (96px)' },
 ];
 
+const GTH_LOADER_PREVIEWS = [
+  { id: 'page-playful', label: 'Page loader · Playful (LD-01)' },
+  { id: 'page-focused', label: 'Page loader · Focused (LD-02)' },
+  { id: 'switch-playful', label: 'Page switch · Playful (LD-03)' },
+  { id: 'switch-focused', label: 'Page switch · Focused (LD-04)' },
+];
+
+const AskBuddyFabSection = () => (
+  <section className="mb-16" data-showcase="ask-buddy-fab">
+    <h2 className="text-display-md text-content-primary mt-16 mb-4">Ask Buddy FAB</h2>
+    <p className="text-medium-75 text-content-secondary mb-6">
+      Figma &quot;GTH · Ask Buddy FAB&quot; (9412:550912): an icon, not a pill. Playful runs the
+      &quot;Buddy wakes up&quot; nudge, Focused lifts 6px and shows an &quot;Ask Buddy&quot; bubble.
+      In the app the nudge starts 4 s after load, at most every 30 s, 3 times a session, never after
+      Buddy was opened and never under reduced motion; here it loops.
+    </p>
+    <div className="flex flex-wrap items-end gap-[260px] pt-16 pr-8 pl-[200px]">
+      <AskBuddyFabButton look="playful" loop className="relative" />
+      <AskBuddyFabButton look="focused" loop className="relative" />
+    </div>
+  </section>
+);
+
 const LoadersSection = () => {
   log('LoadersSection render');
+  const [preview, setPreview] = useState(null);
 
   return (
     <>
+      <AskBuddyFabSection />
       <h2 className="text-display-md text-content-primary mt-16 mb-8">Loaders</h2>
+
+      <section className="mb-16">
+        <h3 className="text-strong-300 text-content-primary mb-2">GTH loader</h3>
+        <p className="text-medium-75 text-content-secondary mb-6">
+          Figma &quot;GTH · Loaders&quot; (9312:544769). Page, Section and Button sizes in Playful
+          and Focused, the route progress bar, and the four full-screen frames (opens as an overlay,
+          click to close). Reduced motion stops the arcs and the mark breathes.
+        </p>
+        {['playful', 'focused'].map((look) => (
+          <div key={look} className="mb-8 flex flex-wrap items-end gap-12">
+            <GthLoader size="page" look={look} />
+            <GthLoader size="section" look={look} />
+            <span className="inline-flex rounded-[10px] bg-[#387440] p-3">
+              <GthLoader size="button" look={look} />
+            </span>
+            <div className="w-[320px]">
+              <GthRouteProgress look={look} />
+            </div>
+            <span className="text-medium-75 text-content-tertiary uppercase text-xs">{look}</span>
+          </div>
+        ))}
+        <div className="flex flex-wrap gap-3">
+          {GTH_LOADER_PREVIEWS.map((p) => (
+            <Button key={p.id} variant="secondary" size="md" onClick={() => setPreview(p.id)}>
+              {p.label}
+            </Button>
+          ))}
+        </div>
+        {preview ? (
+          <div
+            role="presentation"
+            onClick={() => setPreview(null)}
+            className="fixed inset-0 z-[100] flex cursor-pointer flex-col bg-white"
+          >
+            {preview.startsWith('page') ? (
+              <PageLoader look={preview.endsWith('playful') ? 'playful' : 'focused'} />
+            ) : (
+              <SectionLoader
+                label="Opening Clubs…"
+                look={preview.endsWith('playful') ? 'playful' : 'focused'}
+                className="min-h-dvh"
+              />
+            )}
+          </div>
+        ) : null}
+      </section>
 
       <section className="mb-16">
         <h3 className="text-strong-300 text-content-primary mb-2">Sizes</h3>

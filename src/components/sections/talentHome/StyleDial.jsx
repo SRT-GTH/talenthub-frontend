@@ -104,7 +104,7 @@ const StyleDial = () => {
   return (
     <div
       ref={rootRef}
-      className="fixed right-[clamp(12px,2.31vw,40px)] bottom-[calc(56px+12px+54px+12px+env(safe-area-inset-bottom))] z-40 size-[48px] md:hidden max-md:[@media(max-height:700px)]:bottom-[calc(56px+8px+42px+10px+env(safe-area-inset-bottom))]"
+      className="fixed right-[clamp(12px,2.31vw,40px)] bottom-[calc(56px+12px+56px+12px+env(safe-area-inset-bottom))] z-40 size-[48px] md:hidden max-md:[@media(max-height:700px)]:bottom-[calc(56px+8px+42px+10px+env(safe-area-inset-bottom))]"
     >
       {/* constant-colour filter: keeps each icon's alpha, paints it brand green (#387440) */}
       <svg width="0" height="0" aria-hidden="true" className="absolute">

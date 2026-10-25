@@ -1,0 +1,286 @@
+/*
+ * GTH · Ask Buddy FAB nudge (Figma component 9412:550912, "VIDEO · Ask Buddy · wake-up nudge (7 s)" 9421:563775).
+ * Playful "Buddy wakes up": the charge ring spins, Buddy squashes, flip-jumps 360deg, lands with dust puffs and red / gold / green kente sparks, buzzes, waves a hand and says "Psst! Need a hand?".
+ * Focused: the charge ring, a gentle 6 px lift and the "Ask Buddy" bubble.
+ * ⚠️ ASSUMPTION: Figma's motion export holds only the resting state of each layer (the timeline is not exported), so the beats, order and easing follow the written description above;
+ * the sequence plays once per nudge (4.2 s Playful, 3.4 s Focused). Everything is hidden at rest, as drawn.
+ */
+
+.abf-ring,
+.abf-spark,
+.abf-dust,
+.abf-buzz,
+.abf-hand,
+.abf-bubble {
+  opacity: 0;
+  pointer-events: none;
+}
+.abf-bubble {
+  transform: translateX(14px) scale(0.6);
+  transform-origin: right center;
+}
+.abf-spark {
+  transform: scale(0.3);
+}
+.abf-dust {
+  transform: scale(0.4);
+}
+.abf-hand {
+  transform: translateY(14px);
+  transform-origin: 30% 90%;
+}
+
+/* ---- Playful ---- */
+.abf[data-look='playful'][data-nudge] .abf-ring {
+  animation: abf-ring-p 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-pill {
+  animation: abf-pill-p 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-spark {
+  animation: abf-spark 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-dust {
+  animation: abf-dust 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-buzz {
+  animation: abf-buzz 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-hand {
+  animation: abf-hand 4.2s linear 1 both;
+}
+.abf[data-look='playful'][data-nudge] .abf-bubble {
+  animation: abf-bubble-p 4.2s linear 1 both;
+}
+
+@keyframes abf-ring-p {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  5% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 1;
+    transform: rotate(720deg);
+  }
+  42%,
+  100% {
+    opacity: 0;
+    transform: rotate(900deg);
+  }
+}
+@keyframes abf-pill-p {
+  0% {
+    transform: none;
+    animation-timing-function: ease-in-out;
+  }
+  13% {
+    transform: scale(1.07, 0.88);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  29% {
+    transform: translateY(-30px) rotate(180deg) scale(0.96, 1.06);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.4);
+  }
+  43% {
+    transform: translateY(0) rotate(360deg) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  46% {
+    transform: translateY(0) rotate(360deg) scale(1.12, 0.86);
+    animation-timing-function: ease-out;
+  }
+  52% {
+    transform: translateY(0) rotate(360deg) scale(1, 1);
+  }
+  58% {
+    transform: translateX(0) rotate(360deg);
+  }
+  60% {
+    transform: translateX(-2px) rotate(360deg);
+  }
+  62% {
+    transform: translateX(2px) rotate(360deg);
+  }
+  64% {
+    transform: translateX(-2px) rotate(360deg);
+  }
+  66% {
+    transform: translateX(2px) rotate(360deg);
+  }
+  68% {
+    transform: translateX(-1px) rotate(360deg);
+  }
+  70%,
+  100% {
+    transform: translateX(0) rotate(360deg);
+  }
+}
+
+/* Kente sparks burst from the centre when Buddy lands; each carries its own direction (--dx / --dy). */
+@keyframes abf-spark {
+  0%,
+  43% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.3) rotate(0deg);
+  }
+  47% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.85), calc(var(--dy) * 0.85)) scale(1.1) rotate(60deg);
+    animation-timing-function: ease-out;
+  }
+  62%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.5) rotate(180deg);
+  }
+}
+@keyframes abf-dust {
+  0%,
+  43% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  48% {
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+  62%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), -6px) scale(1.15);
+  }
+}
+@keyframes abf-buzz {
+  0%,
+  56% {
+    opacity: 0;
+  }
+  59%,
+  63%,
+  67% {
+    opacity: 1;
+  }
+  61%,
+  65% {
+    opacity: 0.25;
+  }
+  71%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes abf-hand {
+  0%,
+  72% {
+    opacity: 0;
+    transform: translateY(14px) rotate(0deg);
+  }
+  76% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+    animation-timing-function: ease-in-out;
+  }
+  80% {
+    transform: translateY(0) rotate(-16deg);
+  }
+  84% {
+    transform: translateY(0) rotate(14deg);
+  }
+  88% {
+    transform: translateY(0) rotate(-14deg);
+  }
+  92% {
+    opacity: 1;
+    transform: translateY(0) rotate(12deg);
+  }
+  96% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px) rotate(0deg);
+  }
+}
+@keyframes abf-bubble-p {
+  0%,
+  72% {
+    opacity: 0;
+    transform: translateX(14px) scale(0.6);
+  }
+  78% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    animation-timing-function: ease-in-out;
+  }
+  93% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(8px) scale(0.9);
+  }
+}
+
+/* ---- Focused ---- */
+.abf[data-look='focused'] .abf-bubble {
+  transform: translateX(8px);
+}
+.abf[data-look='focused'][data-nudge] .abf-ring {
+  animation: abf-ring-f 3.4s linear 1 both;
+}
+.abf[data-look='focused'][data-nudge] .abf-pill {
+  animation: abf-pill-f 3.4s ease-in-out 1 both;
+}
+.abf[data-look='focused'][data-nudge] .abf-bubble {
+  animation: abf-bubble-f 3.4s ease-in-out 1 both;
+}
+@keyframes abf-ring-f {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+    transform: rotate(360deg);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: rotate(520deg);
+  }
+}
+@keyframes abf-pill-f {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  20%,
+  70% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes abf-bubble-f {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  30%,
+  72% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  86%,
+  100% {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+}

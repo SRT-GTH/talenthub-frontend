@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 /*
@@ -39,11 +40,7 @@ const AgencySettingsPage = lazy(() => import('./AgencySettingsPage.jsx'));
 const AgencyPublicPage = lazy(() => import('./AgencyPublicPage.jsx'));
 const AgencyNotFoundPage = lazy(() => import('./AgencyNotFoundPage.jsx'));
 
-const Fallback = () => (
-  <div className="grid min-h-dvh place-items-center bg-white" role="status" aria-label="Loading">
-    <span className="size-8 animate-spin rounded-full border-[3px] border-[#c1d4c4] border-t-[#387440]" />
-  </div>
-);
+const Fallback = () => <PageLoader look="focused" />;
 
 const AgencyApp = () => (
   <Suspense fallback={<Fallback />}>

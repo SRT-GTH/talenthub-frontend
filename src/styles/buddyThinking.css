@@ -1,0 +1,461 @@
+/*
+ * Buddy thinking motion (Figma "Buddy thinking" 8988:508782, pulled with get_motion_context; the Buddy brain is component 9325:547104).
+ * One 12 s timeline that loops: everything happens in the first ~2 s, then Buddy rests (the Figma export holds the last pose to 12 s).
+ *   glow breathes, the brain shell swells, five neurons pulse and flash gold, the pupils glance up-right then up-left, a bolt flickers,
+ *   the thinking mark swells while its sparkle turns half a turn, the label fades in letter by letter, the two chips pop in, the skeleton lines pulse in turn.
+ * Reduced motion: no animation (the end pose shows).
+ */
+
+.bt-glow {
+  animation: bt-glow 12s linear infinite;
+}
+.bt-shell {
+  animation: bt-shell 12s linear infinite;
+  transform-origin: 50% 50%;
+}
+.bt-cell {
+  transform-origin: 50% 50%;
+}
+.bt-fire {
+  opacity: 0;
+  transform-origin: 50% 50%;
+}
+.bt-pupil {
+  animation: bt-pupil 12s linear infinite;
+}
+.bt-bolt {
+  opacity: 0;
+  scale: 0.5;
+  transform-origin: 50% 50%;
+  animation:
+    bt-bolt-o 12s linear infinite,
+    bt-bolt-s 12s linear infinite;
+}
+.bt-mark {
+  animation: bt-mark 12s linear infinite;
+}
+.bt-sparkle {
+  animation: bt-turn 12s linear infinite;
+}
+.bt-char {
+  animation: bt-char 12s linear infinite backwards;
+}
+.bt-chip-1 {
+  animation: bt-chip-1 12s linear infinite backwards;
+}
+.bt-chip-2 {
+  animation: bt-chip-2 12s linear infinite backwards;
+}
+.bt-line-1 {
+  animation: bt-line-1 12s linear infinite;
+}
+.bt-line-2 {
+  animation: bt-line-2 12s linear infinite;
+}
+.bt-line-3 {
+  animation: bt-line-3 12s linear infinite;
+}
+
+@keyframes bt-glow {
+  0% {
+    opacity: 0.6;
+    scale: 0.92;
+    animation-timing-function: ease-in-out;
+  }
+  6.667% {
+    opacity: 1;
+    scale: 1.12;
+    animation-timing-function: ease-in-out;
+  }
+  13.333%,
+  100% {
+    opacity: 0.6;
+    scale: 0.92;
+  }
+}
+@keyframes bt-shell {
+  0% {
+    scale: 1;
+    animation-timing-function: ease-in-out;
+  }
+  10% {
+    scale: 1.03;
+    animation-timing-function: ease-in-out;
+  }
+  20%,
+  100% {
+    scale: 1.007;
+  }
+}
+
+/* Neurons: a cell pulses 1.6x while its fire flashes gold; each pair has its own moment. */
+@keyframes bt-cell-1 {
+  0%,
+  4.286% {
+    scale: 1;
+    animation-timing-function: ease-out;
+  }
+  4.952% {
+    scale: 1.6;
+    animation-timing-function: ease-in-out;
+  }
+  7.202%,
+  100% {
+    scale: 1;
+  }
+}
+@keyframes bt-cell-2 {
+  0%,
+  12.857% {
+    scale: 1;
+    animation-timing-function: ease-out;
+  }
+  13.524% {
+    scale: 1.6;
+    animation-timing-function: ease-in-out;
+  }
+  15.774%,
+  100% {
+    scale: 1;
+  }
+}
+@keyframes bt-cell-3 {
+  0%,
+  11.429% {
+    scale: 1;
+    animation-timing-function: ease-out;
+  }
+  12.095% {
+    scale: 1.6;
+    animation-timing-function: ease-in-out;
+  }
+  14.345%,
+  100% {
+    scale: 1;
+  }
+}
+@keyframes bt-cell-4 {
+  0%,
+  14.286% {
+    scale: 1;
+    animation-timing-function: ease-out;
+  }
+  14.952% {
+    scale: 1.6;
+    animation-timing-function: ease-in-out;
+  }
+  17.202%,
+  100% {
+    scale: 1.07;
+  }
+}
+@keyframes bt-fire-1 {
+  0%,
+  2.857% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  3.524% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  5.774%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bt-fire-2 {
+  0%,
+  11.429% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  12.095% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  14.345%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bt-fire-3 {
+  0%,
+  14.286% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  14.952% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  17.202%,
+  100% {
+    opacity: 0.117;
+  }
+}
+@keyframes bt-fire-4 {
+  0%,
+  12.857% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  13.524% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  15.774%,
+  100% {
+    opacity: 0;
+  }
+}
+.bt-cell-1 {
+  animation: bt-cell-1 12s linear infinite;
+}
+.bt-cell-2 {
+  animation: bt-cell-2 12s linear infinite;
+}
+.bt-cell-3 {
+  animation: bt-cell-3 12s linear infinite;
+}
+.bt-cell-4 {
+  animation: bt-cell-4 12s linear infinite;
+}
+.bt-fire-1 {
+  animation: bt-fire-1 12s linear infinite;
+}
+.bt-fire-2 {
+  animation: bt-fire-2 12s linear infinite;
+}
+.bt-fire-3 {
+  animation: bt-fire-3 12s linear infinite;
+}
+.bt-fire-4 {
+  animation: bt-fire-4 12s linear infinite;
+}
+
+/* Pupils and their shine glance up-right, then up-left, then settle (px of the 60 x 50 component). */
+@keyframes bt-pupil {
+  0% {
+    translate: 0 0;
+    animation-timing-function: ease-in-out;
+  }
+  0.833% {
+    translate: 0.174px -0.174px;
+  }
+  1.667% {
+    translate: 0.675px -0.675px;
+  }
+  2.5% {
+    translate: 1.176px -1.176px;
+  }
+  3.333% {
+    translate: 1.35px -1.35px;
+    animation-timing-function: linear;
+  }
+  8.333% {
+    translate: 1.35px -1.35px;
+    animation-timing-function: ease-in-out;
+  }
+  9.167% {
+    translate: 0.724px -1.35px;
+  }
+  10% {
+    translate: -0.724px -1.35px;
+  }
+  10.833% {
+    translate: -1.35px -1.35px;
+    animation-timing-function: linear;
+  }
+  15.833% {
+    translate: -1.35px -1.35px;
+    animation-timing-function: ease-in-out;
+  }
+  16.667%,
+  100% {
+    translate: -1.037px -1.037px;
+  }
+}
+@keyframes bt-bolt-o {
+  0%,
+  1.667% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  2.333% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  5.833%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bt-bolt-s {
+  0%,
+  1.667% {
+    scale: 0.5;
+    animation-timing-function: ease-out;
+  }
+  2.667% {
+    scale: 1.15;
+    animation-timing-function: ease-in-out;
+  }
+  4.167% {
+    scale: 1;
+    animation-timing-function: ease-in-out;
+  }
+  5.833% {
+    scale: 0.8;
+    animation-timing-function: linear;
+  }
+  20%,
+  100% {
+    scale: 0.571;
+  }
+}
+
+@keyframes bt-mark {
+  0% {
+    scale: 1;
+    animation-timing-function: ease-in-out;
+  }
+  6.667% {
+    scale: 1.12;
+    animation-timing-function: ease-in-out;
+  }
+  13.333%,
+  100% {
+    scale: 1;
+  }
+}
+@keyframes bt-turn {
+  0% {
+    rotate: 0deg;
+    animation-timing-function: ease-in-out;
+  }
+  13.333%,
+  100% {
+    rotate: 180deg;
+  }
+}
+
+/* Label: each letter fades from 30% to 100% (164 ms, staggered 74 ms by --i), the Figma "in" text animation. */
+@keyframes bt-char {
+  0% {
+    opacity: 0.3;
+    animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  1.37%,
+  100% {
+    opacity: 1;
+  }
+}
+.bt-char {
+  animation-delay: calc(var(--i, 0) * 74ms);
+}
+
+/* Chips pop up 6 px with a little overshoot. */
+@keyframes bt-chip-1 {
+  0%,
+  2.083% {
+    opacity: 0;
+    translate: 0 6px;
+    animation-timing-function: cubic-bezier(0.45, 1.45, 0.8, 1);
+  }
+  4.167%,
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes bt-chip-2 {
+  0%,
+  4.583% {
+    opacity: 0;
+    translate: 0 6px;
+    animation-timing-function: cubic-bezier(0.45, 1.45, 0.8, 1);
+  }
+  6.667%,
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* Skeleton lines brighten one after another, then dim together. */
+@keyframes bt-line-1 {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  4.167% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  13.333% {
+    opacity: 0.45;
+  }
+}
+@keyframes bt-line-2 {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  5.417% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  13.333% {
+    opacity: 0.45;
+  }
+}
+@keyframes bt-line-3 {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  6.667% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  13.333% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bt-glow,
+  .bt-shell,
+  .bt-pupil,
+  .bt-bolt,
+  .bt-mark,
+  .bt-sparkle,
+  .bt-char,
+  .bt-chip-1,
+  .bt-chip-2,
+  .bt-line-1,
+  .bt-line-2,
+  .bt-line-3,
+  .bt-cell-1,
+  .bt-cell-2,
+  .bt-cell-3,
+  .bt-cell-4,
+  .bt-fire-1,
+  .bt-fire-2,
+  .bt-fire-3,
+  .bt-fire-4 {
+    animation: none;
+  }
+  .bt-char,
+  .bt-chip-1,
+  .bt-chip-2 {
+    opacity: 1;
+  }
+}
+
+/* Still avatar (the answer was stopped): no motion. */
+.bt-still *,
+.bt-still {
+  animation: none !important;
+}

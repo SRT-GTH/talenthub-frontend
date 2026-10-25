@@ -57,6 +57,7 @@ Every claim in this wiki carries a tag:
 - [talent-my-circle.md](talent-my-circle.md) — My circle networking `/community?view=circle` + `/community/people/:id`: NW-01 … NW-11 × 2 styles, navigation from the flow section, URL contract, known gaps
 - [public-data.md](public-data.md) — Theme 8 public dashboards `/data/*` (Public, Investor & Government audiences): architecture, URL contract, work packages, 107-frame checklist (in progress)
 - [agency.md](agency.md) — Theme 11 agency portal `/agency/*` (signed-in MoU analysts, mock session): chrome, URL contract, package ownership, shared components, 114-frame checklist (foundation done, pages in progress)
+- [institution.md](institution.md) — Theme 11 institution portal `/institution/*` (signed-in registrars of schools / universities, mock session): chrome, accreditation gate (`?verify=`), URL contract, package ownership, shared components, 87-frame checklist (foundation built, pages are stubs).
 - [parent-emails.md](parent-emails.md) — Parent transactional emails `emails/parent/focused/`: 7 static HTML emails (PE-01..PE-07, Focused only), frame table with diff %, known gaps
 
 ### External
@@ -70,3 +71,5 @@ Every claim in this wiki carries a tag:
 ---
 
 _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; backend wiring for login / talent onboarding / institution; responsive pass executed)_
+
+- [admin.md](admin.md) — Theme 7 Platform Admin `/admin/*` (GTH staff back office, 5 roles, mock session): chrome reused from agency, URL contract, frame checklist (95 frames), fidelity notes

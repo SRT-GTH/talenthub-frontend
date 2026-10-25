@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 /*
@@ -37,15 +38,7 @@ const PublicUiGalleryPage = import.meta.env.DEV
   ? lazy(() => import('./PublicUiGalleryPage.jsx'))
   : null;
 
-const Fallback = () => (
-  <div
-    className="grid min-h-dvh place-items-center bg-[#f8f8f4]"
-    role="status"
-    aria-label="Loading"
-  >
-    <span className="size-8 animate-spin rounded-full border-[3px] border-[#c1d4c4] border-t-[#387440]" />
-  </div>
-);
+const Fallback = () => <PageLoader />;
 
 const PublicDataApp = () => (
   <Suspense fallback={<Fallback />}>

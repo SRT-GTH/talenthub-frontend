@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import './App.css';
 import MainLayout from './layout/MainLayout.jsx';
@@ -129,6 +129,10 @@ const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPag
 const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'));
 // Theme 11 agency portal (Figma canvas 8605:395409): /agency/*, mock signed-in session, own router in pages/agency/AgencyApp.jsx.
 const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
+// Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12): /admin/*, mock staff session, own router in pages/admin/AdminApp.jsx.
+const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
+// Theme 11 institution portal (Figma canvas 8520:10): /institution/*, mock signed-in session, own router in pages/institution/InstitutionApp.jsx.
+const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -237,6 +241,9 @@ const APP_AVATAR_INITIAL = {
 };
 import { useCareerBuddyRole } from './hooks/useCareerBuddyRole.js';
 import DemoNavigator from './components/shared/DemoNavigator.jsx';
+import PageLoader from './components/ui/gthLoader/PageLoader.jsx';
+import SectionLoader from './components/ui/gthLoader/SectionLoader.jsx';
+import { routeLabel } from './components/ui/gthLoader/routeLabel.js';
 import { perfEnabled } from './utils/perf.js';
 import { faroEnabled } from './observability/faro.js';
 import PerfRouteMarker from './components/shared/PerfRouteMarker.jsx';
@@ -250,16 +257,26 @@ const PerfPanel = lazy(() => import('./components/shared/PerfPanel.jsx'));
  * on each route element, not around <Routes>, so layouts (navbars, shells)
  * stay mounted while a page chunk loads.
  */
-const RouteFallback = () => (
-  <div
-    data-route-fallback
-    className="grid min-h-dvh flex-1 place-items-center bg-white"
-    role="status"
-    aria-label="Loading"
-  >
-    <span className="size-8 animate-spin rounded-full border-[3px] border-brand-green-light-active border-t-brand-green" />
-  </div>
-);
+// First page of the visit: the full-page GTH loader (LD-01 / LD-02, over the whole screen). Every later page: route bar + section loader named after the page (LD-03 / LD-04).
+let firstPageLoaded = false;
+const RouteFallback = () => {
+  const { pathname } = useLocation();
+  const first = !firstPageLoaded;
+  useEffect(
+    () => () => {
+      firstPageLoaded = true;
+    },
+    []
+  );
+  return first ? (
+    <PageLoader className="fixed inset-0 z-[70]" />
+  ) : (
+    <SectionLoader label={routeLabel(pathname)} />
+  );
+};
+
+/** First load: the full-page GTH loader (Figma LD-01 / LD-02). Moving between pages keeps the shell and shows the route bar + section loader (LD-03 / LD-04). */
+const RootFallback = () => <PageLoader />;
 
 /** Old split route → shared shell + force recruiter demo role. */
 function LegacyRecruiterBuddyRedirect() {
@@ -289,11 +306,18 @@ function App() {
             ) : (
               faroEnabled() && <PerfRouteMarker />
             )}
-            <Suspense fallback={<RouteFallback />}>
+            <Suspense fallback={<RootFallback />}>
               <Routes>
-                {/* /admin/* slot is reserved for a future lazy-loaded admin subsystem,
-            mirroring the elysium pattern. Add it as:
-            <Route path="/admin/*" element={<Suspense ...><AdminApp /></Suspense>} /> */}
+                {/* Theme 7 Platform Admin — GTH staff back office, Figma canvas "Staff · Platform Admin (Theme 7)" 8520:12, Focused only.
+            Signed-in staff chrome (mock session) with its own router in pages/admin/AdminApp.jsx. Outside MainLayout. */}
+                <Route
+                  path={'/admin/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AdminApp />
+                    </Suspense>
+                  }
+                />
                 <Route element={<MainLayout />}>
                   <Route
                     path={'/get-started'}
@@ -1029,6 +1053,16 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <AgencyApp />
+                    </Suspense>
+                  }
+                />
+                {/* Theme 11 institution portal — Figma canvas "Persona · Institutions & Agencies (Theme 11)" 8520:10, Focused only.
+            Signed-in registrar chrome (mock session) with its own router in pages/institution/InstitutionApp.jsx. Outside MainLayout. */}
+                <Route
+                  path={'/institution/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <InstitutionApp />
                     </Suspense>
                   }
                 />

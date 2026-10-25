@@ -89,7 +89,7 @@ const JourneyHub = ({ defaults, children = null }) => {
             <JourneyMapList model={model} />
           )}
         </div>
-        <div className="min-w-0 max-w-[488px] max-2xl:max-w-[720px]">
+        <div className="min-w-0 max-w-[488px] max-2xl:mx-auto max-2xl:w-full max-2xl:max-w-[720px]">
           <JourneyRail model={model} hoverFrame={Boolean(s.hover)} />
         </div>
       </main>

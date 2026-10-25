@@ -32,7 +32,7 @@ for (const width of WIDTHS) {
       isMobile: width < 768,
     });
 
-    for (const route of ROUTES) {
+    for (const route of new Set(ROUTES)) {
       if (GREP && !(route === GREP || (GREP !== '/' && route.includes(GREP)))) continue;
       test(route, async ({ page }, testInfo) => {
         await page.addInitScript(() => {
