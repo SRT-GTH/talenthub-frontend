@@ -53,8 +53,9 @@ const fmtValue = (v, unit) => {
   if (unit === 'req/s') return v < 1 ? `${(v * 60).toFixed(1)}/min` : `${v.toFixed(1)}/s`;
   return v < 10 ? v.toFixed(2) : Math.round(v).toLocaleString('en-GB');
 };
+// The chart prints whole-number y labels, so the axis is at least 0-4.
 const niceMax = (n) => {
-  const max = n > 0 ? n : 1;
+  const max = Math.max(n > 0 ? n : 0, 4);
   const p = 10 ** Math.floor(Math.log10(max));
   const step = Math.ceil(max / p / 4) * p;
   return { yMax: step * 4, yStep: step };
@@ -70,8 +71,18 @@ const toChart = (id, s, range) => {
     s.points.length > 60
       ? s.points.filter((_, i) => i % Math.ceil(s.points.length / 60) === 0)
       : s.points;
+  // Request rates under 1/s read better per minute (as the headline does).
+  const perMinute = s.unit === 'req/s' && Math.max(0, ...s.points.map(([, v]) => v)) < 1;
   const scale =
-    s.unit === 'ratio' ? 100 : s.unit === 's' ? 1000 : s.unit === 'bytes' ? 1 / 1048576 : 1;
+    s.unit === 'ratio'
+      ? 100
+      : s.unit === 's'
+        ? 1000
+        : s.unit === 'bytes'
+          ? 1 / 1048576
+          : perMinute
+            ? 60
+            : 1;
   const series = pts.map(([t, v]) => ({
     label: label(t, range),
     value: Math.round(v * scale * 100) / 100,
@@ -79,17 +90,20 @@ const toChart = (id, s, range) => {
   const last = s.points[s.points.length - 1]?.[1];
   return {
     id,
-    title: s.title,
-    aside:
-      { ratio: 'Percent', s: 'Milliseconds', bytes: 'MB', 'req/s': 'Per second', cores: 'Cores' }[
-        s.unit
-      ] || '',
+    title: perMinute ? 'Requests per minute' : s.title,
+    aside: perMinute
+      ? 'Per minute'
+      : { ratio: 'Percent', s: 'Milliseconds', bytes: 'MB', 'req/s': 'Per second', cores: 'Cores' }[
+          s.unit
+        ] || '',
     kind: 'line',
     series: series.length ? series : [{ label: '', value: 0 }],
     headline: fmtValue(last, s.unit),
     delta: 'now',
     ...niceMax(Math.max(0, ...series.map((x) => x.value))),
     showEndLabel: false,
+    // About 8 time labels whatever the number of points.
+    xLabelEvery: Math.max(1, Math.ceil(series.length / 8)),
   };
 };
 

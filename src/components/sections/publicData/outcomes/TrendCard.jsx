@@ -10,7 +10,8 @@ import TrendChart from './TrendChart.jsx';
  */
 
 const TrendCard = ({ chart, className }) => {
-  const xLabelEvery = chart.series.length === 13 ? 2 : 1;
+  // chart.xLabelEvery (optional) thins the time axis for long series; the public pages leave it unset.
+  const xLabelEvery = chart.xLabelEvery ?? (chart.series.length === 13 ? 2 : 1);
   return (
     <PublicCard
       id={`trend-${chart.id}`}
