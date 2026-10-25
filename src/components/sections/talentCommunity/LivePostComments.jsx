@@ -116,7 +116,10 @@ const LivePostComments = ({ comments, canWrite, onComment }) => {
               <button
                 type="button"
                 onClick={() => setExpanded((e) => ({ ...e, [c.id]: true }))}
-                className={classNames(LINK_BTN, 'inline-flex items-center gap-[6px] pl-[6px] text-[#387440]')}
+                className={classNames(
+                  LINK_BTN,
+                  'inline-flex items-center gap-[6px] pl-[6px] text-[#387440]'
+                )}
               >
                 <CommunityPostChevronSmallGlyph className="size-[14px]" />
                 {`View ${replies.length - SHOWN_REPLIES} more ${replies.length - SHOWN_REPLIES === 1 ? 'reply' : 'replies'}`}

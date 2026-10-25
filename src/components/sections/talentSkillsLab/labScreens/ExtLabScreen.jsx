@@ -196,7 +196,10 @@ const ExtLabScreen = ({ flow, frame }) => {
       }
     >
       {attempt.error ? (
-        <p role="alert" className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
+        <p
+          role="alert"
+          className="m-0 mb-[12px] rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]"
+        >
           {attempt.error}
         </p>
       ) : null}

@@ -48,18 +48,22 @@ const SettingsAccessibility = ({ settings }) => {
   // Live: saved on the account (PUT /settings/preferences `accessibility`); the demo keeps the drawn states.
   const live = settings?.live?.overview ? settings.live : null;
   const isLive = Boolean(live);
-  const accountPrefs = live ? { ...A11Y_DEFAULTS, ...(live.overview.preferences?.accessibility || {}) } : null;
-  const [saved, setSaved] = useState(() =>
-    accountPrefs || {
-      ...A11Y_DEFAULTS,
-      ...(urlState === 'saved' ? { contrast: true } : null),
-    }
+  const accountPrefs = live
+    ? { ...A11Y_DEFAULTS, ...(live.overview.preferences?.accessibility || {}) }
+    : null;
+  const [saved, setSaved] = useState(
+    () =>
+      accountPrefs || {
+        ...A11Y_DEFAULTS,
+        ...(urlState === 'saved' ? { contrast: true } : null),
+      }
   );
-  const [prefs, setPrefs] = useState(() =>
-    accountPrefs || {
-      ...A11Y_DEFAULTS,
-      ...(urlState === 'saved' || urlState === 'unsaved' ? { contrast: true } : null),
-    }
+  const [prefs, setPrefs] = useState(
+    () =>
+      accountPrefs || {
+        ...A11Y_DEFAULTS,
+        ...(urlState === 'saved' || urlState === 'unsaved' ? { contrast: true } : null),
+      }
   );
   const previous = useRef(accountPrefs || A11Y_DEFAULTS);
   const [error, setError] = useState(null);
@@ -129,7 +133,10 @@ const SettingsAccessibility = ({ settings }) => {
   };
   const undo = () => {
     log('undo save');
-    if (live) live.savePreferences('accessibility', previous.current).catch((err) => setError(settingsError(err)));
+    if (live)
+      live
+        .savePreferences('accessibility', previous.current)
+        .catch((err) => setError(settingsError(err)));
     setPrefs(previous.current);
     setSaved(previous.current);
     settings?.update?.({ state: null });

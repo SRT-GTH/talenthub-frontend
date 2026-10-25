@@ -7,20 +7,21 @@ import { COMPARE_MAX, COMPARE_MIN } from './data/regionsData.js';
  * "✕" (11/13 700 #595959) to remove; then the dashed "+ Add a region" pill (1px #387440, 14/17 600) that opens the selector — or, at three regions,
  * the note "Maximum 3 regions" (13/16 500 #595959). Phones: pills p 7/12 with 13px text and "+ Add".
  * Removing is blocked at two regions (a comparison needs two); the ✕ is then disabled. ⚠️ ASSUMPTION (Figma draws it enabled at two).
- * Props: regions [{ id, name, colour }], onRemove(id), onAdd().
+ * Props: titleAs (opt-in heading tag, default h1; the agency page passes h2 under its hero h1), regions [{ id, name, colour }], onRemove(id), onAdd().
  */
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
 
-const CompareHeader = ({ regions, onRemove, onAdd }) => {
+const CompareHeader = ({ regions, onRemove, onAdd, titleAs = 'h1' }) => {
+  const Title = titleAs;
   const canRemove = regions.length > COMPARE_MIN;
   const full = regions.length >= COMPARE_MAX;
   return (
     <header className="flex flex-col gap-[16px] md:flex-row md:items-center md:justify-between md:gap-[8px]">
-      <h1 className="m-0 font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
+      <Title className="m-0 font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
         Compare regions
-      </h1>
+      </Title>
       <ul
         aria-label="Selected regions"
         className="m-0 flex list-none flex-wrap items-center gap-[8px] p-0 md:gap-[10px]"

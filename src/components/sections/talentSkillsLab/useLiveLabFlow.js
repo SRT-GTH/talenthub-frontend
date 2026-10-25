@@ -14,7 +14,11 @@ const log = debug('useLiveLabFlow');
  * Returns { status: loading | ready | error | off, flow }.
  */
 export const useLiveLabFlow = ({ labId, enabled, restart = false }) => {
-  const [state, setState] = useState({ status: enabled ? 'loading' : 'off', data: null, error: null });
+  const [state, setState] = useState({
+    status: enabled ? 'loading' : 'off',
+    data: null,
+    error: null,
+  });
   const attemptRef = useRef(null);
 
   useEffect(() => {
@@ -29,7 +33,12 @@ export const useLiveLabFlow = ({ labId, enabled, restart = false }) => {
       })
       .catch((err) => {
         log('play failed', err?.response?.status || err?.message);
-        if (alive) setState({ status: 'error', data: null, error: err?.response?.status === 404 ? 'missing' : 'failed' });
+        if (alive)
+          setState({
+            status: 'error',
+            data: null,
+            error: err?.response?.status === 404 ? 'missing' : 'failed',
+          });
       });
     return () => {
       alive = false;

@@ -89,7 +89,10 @@ const SettingsSecurity = ({ settings }) => {
 
   const dropSessions = (ids) => {
     setRemoved((prev) => [...prev, ...ids]);
-    live.patch('sessions', (live.overview.sessions || []).filter((s) => !ids.includes(s.id)));
+    live.patch(
+      'sessions',
+      (live.overview.sessions || []).filter((s) => !ids.includes(s.id))
+    );
   };
 
   const logOutDevice = async (device) => {
@@ -118,7 +121,9 @@ const SettingsSecurity = ({ settings }) => {
         const res = await logOutOtherDevices();
         dropSessions(devices.filter((d) => !d.thisDevice).map((d) => d.id));
         setLiveToast({
-          title: res?.loggedOut ? `Logged out of ${res.loggedOut} other ${res.loggedOut === 1 ? 'device' : 'devices'}` : 'No other devices',
+          title: res?.loggedOut
+            ? `Logged out of ${res.loggedOut} other ${res.loggedOut === 1 ? 'device' : 'devices'}`
+            : 'No other devices',
           body: 'Only this device is still logged in.',
         });
       } catch (err) {
@@ -170,7 +175,9 @@ const SettingsSecurity = ({ settings }) => {
         <SettingRow
           nowrapControl={false}
           title={copy.signIn.password.title}
-          description={live ? changedLabel(live.overview.passwordChangedAt) : copy.signIn.password.description}
+          description={
+            live ? changedLabel(live.overview.passwordChangedAt) : copy.signIn.password.description
+          }
           control={
             <Button
               variant="tertiary"
@@ -183,31 +190,31 @@ const SettingsSecurity = ({ settings }) => {
           }
         />
         {live ? null : (
-        <>
-        <SettingRow
-          title={copy.signIn.twoStep.title}
-          titleId="sec-two-step"
-          chip={twoStep ? <StatusPill tone="on">{copy.signIn.twoStep.chip}</StatusPill> : null}
-          description={copy.signIn.twoStep.description}
-          control={
-            <SettingsToggle
-              labelledBy="sec-two-step"
-              checked={twoStep}
-              onChange={onTwoStepToggle}
+          <>
+            <SettingRow
+              title={copy.signIn.twoStep.title}
+              titleId="sec-two-step"
+              chip={twoStep ? <StatusPill tone="on">{copy.signIn.twoStep.chip}</StatusPill> : null}
+              description={copy.signIn.twoStep.description}
+              control={
+                <SettingsToggle
+                  labelledBy="sec-two-step"
+                  checked={twoStep}
+                  onChange={onTwoStepToggle}
+                />
+              }
             />
-          }
-        />
-        <SettingRow
-          top={false}
-          title={copy.signIn.google.title}
-          description={copy.signIn.google.email}
-          control={
-            <TextAction tone="danger" onClick={() => log('dispatch disconnect google')}>
-              {copy.signIn.google.cta}
-            </TextAction>
-          }
-        />
-        </>
+            <SettingRow
+              top={false}
+              title={copy.signIn.google.title}
+              description={copy.signIn.google.email}
+              control={
+                <TextAction tone="danger" onClick={() => log('dispatch disconnect google')}>
+                  {copy.signIn.google.cta}
+                </TextAction>
+              }
+            />
+          </>
         )}
       </GroupCard>
 

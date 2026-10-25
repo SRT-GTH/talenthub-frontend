@@ -32,6 +32,10 @@ export const milestoneModalContent = ({ id, label, xp, freeze }) => ({
           },
         ]
       : []),
-    { id: 'badge', label: { playful: 'Badge on profile', focused: 'Badge on profile' }, tone: 'mint' },
+    {
+      id: 'badge',
+      label: { playful: 'Badge on profile', focused: 'Badge on profile' },
+      tone: 'mint',
+    },
   ],
 });

@@ -198,7 +198,9 @@ export const Guidelines = ({ onGotIt, onReadAll, rules, note }) => {
         ))}
       </ul>
       {(note ?? copy.note) ? (
-        <p className="m-0 font-sans text-[12px] leading-[14px] text-[#2d5d33]">{note ?? copy.note}</p>
+        <p className="m-0 font-sans text-[12px] leading-[14px] text-[#2d5d33]">
+          {note ?? copy.note}
+        </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-[10px] py-[4px]">
         <PageButton onClick={onGotIt}>{copy.gotIt}</PageButton>

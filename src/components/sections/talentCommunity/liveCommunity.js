@@ -1,8 +1,4 @@
-import {
-  COMMUNITIES_RESPONSE,
-  COMMUNITY_CATEGORIES,
-  COMMUNITY_DETAILS,
-} from './communityData.js';
+import { COMMUNITIES_RESPONSE, COMMUNITY_CATEGORIES, COMMUNITY_DETAILS } from './communityData.js';
 
 /*
  * Live Community mappers — backend records (services/community.api.js) -> the shapes GubliAS's Community v2
@@ -24,7 +20,12 @@ const DEFAULT_COVER = COVERS['software-engineering-ghana'];
 const CATEGORY_LABEL = Object.fromEntries(COMMUNITY_CATEGORIES.map((c) => [c.id, c.label]));
 const FRONTEND = COMMUNITY_DETAILS['frontend-devs-ghana'];
 
-const KIND_LABEL = { update: 'Update', achievement: 'Achievement', question: 'Question', resource: 'Resource' };
+const KIND_LABEL = {
+  update: 'Update',
+  achievement: 'Achievement',
+  question: 'Question',
+  resource: 'Resource',
+};
 
 export const formatCount = (n) => Number(n || 0).toLocaleString('en-US');
 export const membersLabel = (n) => `${formatCount(n)} ${n === 1 ? 'member' : 'members'}`;
@@ -36,7 +37,9 @@ const PALETTE = ['#387440', '#c8951a', '#2f5d8a', '#8a3b5d', '#5b4a8a', '#3b7a78
 /** Initials avatar as an SVG data URI (stable colour per name). */
 export const initialsAvatar = (name = '') => {
   const parts = String(name).trim().split(/\s+/).filter(Boolean);
-  const initials = ((parts[0]?.[0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || '?';
+  const initials =
+    ((parts[0]?.[0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() ||
+    '?';
   let hash = 0;
   for (const ch of String(name)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   const bg = PALETTE[hash % PALETTE.length];
@@ -79,7 +82,8 @@ export const basedOnNote = (areas = []) => {
     .filter((a) => areas.includes(a))
     .map((a) => AREA_WORDS[a]);
   if (!words.length) return null;
-  const list = words.length < 2 ? words[0] : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+  const list =
+    words.length < 2 ? words[0] : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
   return `Based on your ${list}`;
 };
 
@@ -117,7 +121,11 @@ const postBody = (p) => {
 
 export const toPost = (p) => ({
   id: p.id,
-  author: { name: p.author?.name || 'GTH member', avatar: avatarOf(p.author), me: p.mine || undefined },
+  author: {
+    name: p.author?.name || 'GTH member',
+    avatar: avatarOf(p.author),
+    me: p.mine || undefined,
+  },
   kind: KIND_LABEL[p.kind] || 'Update',
   kindId: p.kind || 'update',
   time: timeAgo(p.publishedAt),
@@ -165,7 +173,9 @@ const collageFor = (c) => {
 
 const createdLabel = (iso) => {
   const t = new Date(typeof iso === 'number' ? iso : iso || NaN);
-  return Number.isFinite(t.getTime()) ? t.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '—';
+  return Number.isFinite(t.getTime())
+    ? t.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+    : '—';
 };
 
 /**
@@ -181,7 +191,9 @@ export const toDetail = (c, { posts = [], people = [], catalogue = [] } = {}) =>
   const firstNames = preview.slice(0, 2).map((m) => m.name.split(' ')[0]);
   const category = (c.categories || []).map((id) => CATEGORY_LABEL[id]).find(Boolean);
   const related = catalogue
-    .filter((x) => x.id !== c.slug && x.categories.some((cat) => (c.categories || []).includes(cat)))
+    .filter(
+      (x) => x.id !== c.slug && x.categories.some((cat) => (c.categories || []).includes(cat))
+    )
     .concat(catalogue.filter((x) => x.id !== c.slug))
     .filter((x, i, all) => all.findIndex((y) => y.id === x.id) === i)
     .slice(0, 3)
@@ -202,7 +214,11 @@ export const toDetail = (c, { posts = [], people = [], catalogue = [] } = {}) =>
     events: null,
     eventsCount: null,
     description: c.description,
-    faces: c.isMember ? (others ? `You + ${formatCount(others)} ${others === 1 ? 'other' : 'others'}` : 'You’re the first member') : '',
+    faces: c.isMember
+      ? others
+        ? `You + ${formatCount(others)} ${others === 1 ? 'other' : 'others'}`
+        : 'You’re the first member'
+      : '',
     previewFaces: firstNames.length
       ? `${firstNames.join(', ')}${c.memberCount > firstNames.length ? ` + ${formatCount(c.memberCount - firstNames.length)} more` : ''}`
       : 'Be the first to join',
@@ -212,10 +228,17 @@ export const toDetail = (c, { posts = [], people = [], catalogue = [] } = {}) =>
       members: formatCount(c.memberCount),
       activity: activityOf(c),
       visibility: c.visibility === 'public' ? 'Public' : 'Private',
-      moderatedBy: c.moderatorCount ? `GTH + ${c.moderatorCount} ${c.moderatorCount === 1 ? 'member' : 'members'}` : 'GTH',
+      moderatedBy: c.moderatorCount
+        ? `GTH + ${c.moderatorCount} ${c.moderatorCount === 1 ? 'member' : 'members'}`
+        : 'GTH',
     },
     contributorsTitle: 'Newest members',
-    contributors: preview.map((m) => ({ name: m.name, active: m.city || m.headline || 'Member', online: false, avatar: m.avatar })),
+    contributors: preview.map((m) => ({
+      name: m.name,
+      active: m.city || m.headline || 'Member',
+      online: false,
+      avatar: m.avatar,
+    })),
     topicsTitle: 'Topics',
     topics: c.topics || [],
     related,

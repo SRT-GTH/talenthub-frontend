@@ -9,10 +9,10 @@ import OutcomesStoryCard from './OutcomesStoryCard.jsx';
  * 14/17 #595959 + link "All stories →" 14/17 600 #387440 on the right) over "row · stories" (3 cards, gap 24, tops aligned).
  * Phone (8507:535): one "Stories" card (hint "With consent") with the first story photo 170 high r12, title 16/19 600 and "Read story →   ·   2 more stories".
  * ⚠️ ASSUMPTION: "All stories →" has no list page drawn; it scrolls to this section (#outcomes-stories) so the link is never dead.
- * Props: stories, loading
+ * Props: stories, loading, base (route prefix, default /data)
  */
 
-const OutcomesStoriesSection = ({ stories, loading = false }) => {
+const OutcomesStoriesSection = ({ stories, loading = false, base = DATA_BASE }) => {
   const first = stories[0];
   return (
     <>
@@ -43,7 +43,7 @@ const OutcomesStoriesSection = ({ stories, loading = false }) => {
         <ul className="m-0 grid list-none grid-cols-1 items-start gap-[24px] p-0 lg:grid-cols-3">
           {stories.map((story) => (
             <li key={story.id} className="min-w-0">
-              <OutcomesStoryCard story={story} loading={loading} />
+              <OutcomesStoryCard story={story} loading={loading} base={base} />
             </li>
           ))}
         </ul>
@@ -68,10 +68,7 @@ const OutcomesStoriesSection = ({ stories, loading = false }) => {
             {first.title}
           </p>
           <p className="m-0 text-[13px] leading-[16px] font-semibold text-[#387440]">
-            <Link
-              to={`${DATA_BASE}/outcomes/stories/${first.id}`}
-              className="text-inherit no-underline"
-            >
+            <Link to={`${base}/outcomes/stories/${first.id}`} className="text-inherit no-underline">
               Read story →
             </Link>
             <span aria-hidden="true">&nbsp; · &nbsp;</span>

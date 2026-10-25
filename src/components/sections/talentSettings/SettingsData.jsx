@@ -1,5 +1,9 @@
 import { logout as clearLocalSession } from '../../../services/auth.api.js';
-import { deactivateAccount, downloadMyData, settingsError } from '../../../services/settings.api.js';
+import {
+  deactivateAccount,
+  downloadMyData,
+  settingsError,
+} from '../../../services/settings.api.js';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
@@ -150,7 +154,11 @@ const SettingsData = ({ settings }) => {
     setError(null);
     try {
       await live.setPaused(next);
-      setToast(next ? { title: 'Profile paused', body: 'Recruiters can’t find you until you unpause.' } : { title: 'Welcome back', body: 'Recruiters can find you again.' });
+      setToast(
+        next
+          ? { title: 'Profile paused', body: 'Recruiters can’t find you until you unpause.' }
+          : { title: 'Welcome back', body: 'Recruiters can find you again.' }
+      );
     } catch (err) {
       setError(settingsError(err));
     }
@@ -165,7 +173,10 @@ const SettingsData = ({ settings }) => {
     setBusy(true);
     try {
       await downloadMyData();
-      setToast({ title: 'Your data is downloading', body: 'A JSON file with your profile, applications, posts and results.' });
+      setToast({
+        title: 'Your data is downloading',
+        body: 'A JSON file with your profile, applications, posts and results.',
+      });
     } catch (err) {
       setError(settingsError(err, 'Could not prepare your data. Try again.'));
     } finally {
@@ -229,21 +240,21 @@ const SettingsData = ({ settings }) => {
           }
         />
         {live ? null : (
-        <SettingRow
-          top={false}
-          nowrapControl={false}
-          title={copy.yourData.pdf.title}
-          description={copy.yourData.pdf.description}
-          control={
-            <Button
-              variant="tertiary"
-              size="lg"
-              onClick={() => log('dispatch download verified skills pdf')}
-            >
-              {copy.yourData.pdf.cta}
-            </Button>
-          }
-        />
+          <SettingRow
+            top={false}
+            nowrapControl={false}
+            title={copy.yourData.pdf.title}
+            description={copy.yourData.pdf.description}
+            control={
+              <Button
+                variant="tertiary"
+                size="lg"
+                onClick={() => log('dispatch download verified skills pdf')}
+              >
+                {copy.yourData.pdf.cta}
+              </Button>
+            }
+          />
         )}
       </GroupCard>
 
@@ -253,7 +264,9 @@ const SettingsData = ({ settings }) => {
           title={copy.takeABreak.pause.title}
           titleId="data-pause"
           description={
-            live ? 'Recruiters cannot find you while paused. Come back any time.' : copy.takeABreak.pause.description
+            live
+              ? 'Recruiters cannot find you while paused. Come back any time.'
+              : copy.takeABreak.pause.description
           }
           control={
             <SettingsToggle labelledBy="data-pause" checked={paused} onChange={onPauseToggle} />

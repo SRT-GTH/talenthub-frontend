@@ -96,9 +96,12 @@ const SettingsNotificationsBody = ({ settings }) => {
       setBusy(false);
     }
   };
-  const pause = () => (live ? run({ pause: true }, 'Paused for 24 hours') : settings?.update?.({ state: 'paused' }));
-  const resume = () => (live ? run({ pause: false }, 'Notifications are back on') : settings?.update?.({ state: null }));
-  const save = () => (live ? run({ rows: matrix, quiet, weekly }, 'Saved') : log('save notifications'));
+  const pause = () =>
+    live ? run({ pause: true }, 'Paused for 24 hours') : settings?.update?.({ state: 'paused' });
+  const resume = () =>
+    live ? run({ pause: false }, 'Notifications are back on') : settings?.update?.({ state: null });
+  const save = () =>
+    live ? run({ rows: matrix, quiet, weekly }, 'Saved') : log('save notifications');
 
   log('render', { paused });
 
@@ -228,7 +231,10 @@ const SettingsNotificationsBody = ({ settings }) => {
         {status ? (
           <p
             role={status.tone === 'error' ? 'alert' : 'status'}
-            className={classNames('m-0 text-[14px] font-medium', status.tone === 'error' ? 'text-[#c0392b]' : 'text-[#387440]')}
+            className={classNames(
+              'm-0 text-[14px] font-medium',
+              status.tone === 'error' ? 'text-[#c0392b]' : 'text-[#387440]'
+            )}
           >
             {status.text}
           </p>
@@ -244,7 +250,10 @@ const SettingsNotificationsBody = ({ settings }) => {
 /* Live page whose notification settings failed to load: say so (never the drawn values in their place). */
 const SettingsNotifications = ({ settings }) =>
   settings?.live && !settings.live.notifications ? (
-    <p role="alert" className="m-0 rounded-[20px] bg-white p-[24px] text-[15px] font-medium text-[#c0392b]">
+    <p
+      role="alert"
+      className="m-0 rounded-[20px] bg-white p-[24px] text-[15px] font-medium text-[#c0392b]"
+    >
       Couldn’t load your notification settings. Refresh the page to try again.
     </p>
   ) : (

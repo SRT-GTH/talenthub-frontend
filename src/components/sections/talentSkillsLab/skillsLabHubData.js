@@ -41,12 +41,21 @@ export const useHubData = () => useContext(HubDataContext);
 
 /** Live hub data; null when disabled (demo). */
 export const useLiveHub = ({ enabled = true } = {}) => {
-  const [state, setState] = useState({ status: enabled ? 'loading' : 'off', response: null, attempts: [], profileScores: [] });
+  const [state, setState] = useState({
+    status: enabled ? 'loading' : 'off',
+    response: null,
+    attempts: [],
+    profileScores: [],
+  });
 
   const load = useCallback(async () => {
     if (!enabled) return;
     try {
-      const [response, attempts, profileScores] = await Promise.all([fetchHub(), fetchAttempts(), fetchProfileScores()]);
+      const [response, attempts, profileScores] = await Promise.all([
+        fetchHub(),
+        fetchAttempts(),
+        fetchProfileScores(),
+      ]);
       setState({ status: 'ready', response, attempts, profileScores });
     } catch (err) {
       log('hub failed', err?.response?.status || err?.message);
@@ -59,21 +68,48 @@ export const useLiveHub = ({ enabled = true } = {}) => {
   }, [load]);
 
   const setScoreShown = useCallback(async (labId, shown) => {
-    setState((s) => ({ ...s, profileScores: s.profileScores.map((x) => (x.labId === labId ? { ...x, shown } : x)) }));
+    setState((s) => ({
+      ...s,
+      profileScores: s.profileScores.map((x) => (x.labId === labId ? { ...x, shown } : x)),
+    }));
     try {
       const scores = await saveProfileScore(labId, shown);
       const attempts = await fetchAttempts().catch(() => null);
       setState((s) => ({ ...s, profileScores: scores, attempts: attempts ?? s.attempts }));
     } catch (err) {
       log('score toggle failed', err?.response?.status);
-      setState((s) => ({ ...s, profileScores: s.profileScores.map((x) => (x.labId === labId ? { ...x, shown: !shown } : x)) }));
+      setState((s) => ({
+        ...s,
+        profileScores: s.profileScores.map((x) =>
+          x.labId === labId ? { ...x, shown: !shown } : x
+        ),
+      }));
       throw err;
     }
   }, []);
 
   return useMemo(() => {
     if (!enabled) return null;
-    const response = state.response ?? { labs: [], summary: { ...HUB_LABS_RESPONSE.summary, topLine: null, bestResult: '—', bestResultLab: 'none yet', labsTaken: 0, verified: 0, total: 0, xp: 0, labsTotal: 0, inProgress: 0, games: 0 }, weekly: null, nudge: null, popularForNewTalent: [], closeMatches: [] };
+    const response = state.response ?? {
+      labs: [],
+      summary: {
+        ...HUB_LABS_RESPONSE.summary,
+        topLine: null,
+        bestResult: '—',
+        bestResultLab: 'none yet',
+        labsTaken: 0,
+        verified: 0,
+        total: 0,
+        xp: 0,
+        labsTotal: 0,
+        inProgress: 0,
+        games: 0,
+      },
+      weekly: null,
+      nudge: null,
+      popularForNewTalent: [],
+      closeMatches: [],
+    };
     return {
       live: true,
       status: state.status,

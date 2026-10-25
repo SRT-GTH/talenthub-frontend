@@ -13,13 +13,14 @@ import { OUTCOMES_COPY, OUTCOME_STORY_COPY } from './data/outcomesData.js';
  *   Phone: photo 358x220 r20, kicker 12/14, h1 26/30, consent 12/14, one 16/20 paragraph, "At a glance" card with three rows.
  * ⚠️ ASSUMPTION: only the first story has a drawn detail page. The other two stories render the same page from the data they have (kicker, title, summary,
  * photo, "Region") with the Figma line "Shared with each talent’s written consent." — nothing is invented.
- * Props: story, others (the other stories for "More stories")
+ * embedded (opt-in, agency portal 11.4.2q): rounded 420-high hero, title as <h2>, 16/20 paragraphs, one column, no own padding.
+ * Props: story, others (the other stories for "More stories"), base (route prefix of the links, default /data; the agency portal passes /agency)
  */
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
 
-const OutcomesStoryDetail = ({ story, others }) => {
+const OutcomesStoryDetail = ({ story, others, base = DATA_BASE, embedded = false }) => {
   const d = story.detail;
   const glance = d?.glance ?? [{ label: 'Region', value: story.region }];
   const glanceShort = d?.glanceShort ?? glance;
@@ -30,7 +31,12 @@ const OutcomesStoryDetail = ({ story, others }) => {
   return (
     <article className="flex flex-col font-sans">
       <header
-        className="relative hidden min-h-[420px] items-end bg-[#1c2a21] bg-cover bg-center px-[28px] pb-[64px] md:flex xl:px-[120px]"
+        className={classNames(
+          'relative hidden items-end bg-[#1c2a21] bg-cover bg-center md:flex',
+          embedded
+            ? 'min-h-[420px] overflow-hidden rounded-[16px] px-[28px] pb-[64px]'
+            : 'min-h-[420px] px-[28px] pb-[64px] xl:px-[120px]'
+        )}
         style={{ backgroundImage: `url(${story.photo})` }}
       >
         <div
@@ -41,14 +47,27 @@ const OutcomesStoryDetail = ({ story, others }) => {
           <p className="m-0 text-[13px] leading-[16px] font-semibold tracking-[0.78px] text-[#c1d4c4] uppercase">
             {byline}
           </p>
-          <h1 className="m-0 text-[44px] leading-[53px] font-semibold tracking-[-0.44px] text-white">
-            {story.title}
-          </h1>
+          {embedded ? (
+            <h2 className="m-0 text-[44px] leading-[53px] font-semibold tracking-[-0.44px] text-white">
+              {story.title}
+            </h2>
+          ) : (
+            <h1 className="m-0 text-[44px] leading-[53px] font-semibold tracking-[-0.44px] text-white">
+              {story.title}
+            </h1>
+          )}
           <p className="m-0 text-[14px] leading-[17px] font-medium text-[#e1eae2]">{consentLine}</p>
         </div>
       </header>
 
-      <div className="flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:grid md:gap-[48px] md:px-[28px] md:pt-[48px] md:pb-[64px] xl:grid-cols-[minmax(0,752fr)_minmax(0,400fr)] xl:px-[120px]">
+      <div
+        className={classNames(
+          'flex flex-col gap-[16px] md:grid',
+          embedded
+            ? 'pt-[16px] md:gap-[24px] md:pt-[16px]'
+            : 'px-[16px] pt-[16px] pb-[24px] md:gap-[48px] md:px-[28px] md:pt-[48px] md:pb-[64px] xl:grid-cols-[minmax(0,752fr)_minmax(0,400fr)] xl:px-[120px]'
+        )}
+      >
         <div className="flex min-w-0 flex-col gap-[16px] md:gap-[20px]">
           <img
             src={story.photo}
@@ -62,7 +81,7 @@ const OutcomesStoryDetail = ({ story, others }) => {
             className="hidden items-center gap-[8px] text-[14px] leading-[17px] md:flex"
           >
             <Link
-              to={`${DATA_BASE}/outcomes`}
+              to={`${base}/outcomes`}
               className={classNames(
                 'inline-flex min-h-[24px] items-center font-semibold text-[#387440] no-underline',
                 FOCUS
@@ -74,7 +93,7 @@ const OutcomesStoryDetail = ({ story, others }) => {
               ›
             </span>
             <Link
-              to={`${DATA_BASE}/outcomes#outcomes-stories`}
+              to={`${base}/outcomes#outcomes-stories`}
               className={classNames(
                 'inline-flex min-h-[24px] items-center font-semibold text-[#387440] no-underline',
                 FOCUS
@@ -110,9 +129,20 @@ const OutcomesStoryDetail = ({ story, others }) => {
               {story.summary}
             </p>
           )}
-          <div className="hidden flex-col gap-[20px] md:flex">
+          <div
+            className={classNames(
+              'hidden flex-col md:flex',
+              embedded ? 'gap-[14px]' : 'gap-[20px]'
+            )}
+          >
             {paragraphs.map((text) => (
-              <p key={text} className="m-0 text-[18px] leading-[30px] text-[#1c2a21]">
+              <p
+                key={text}
+                className={classNames(
+                  'm-0 text-[#1c2a21]',
+                  embedded ? 'text-[16px] leading-[20px]' : 'text-[18px] leading-[30px]'
+                )}
+              >
                 {text}
               </p>
             ))}
@@ -208,7 +238,7 @@ const OutcomesStoryDetail = ({ story, others }) => {
               {others.map((o) => (
                 <li key={o.id}>
                   <Link
-                    to={`${DATA_BASE}/outcomes/stories/${o.id}`}
+                    to={`${base}/outcomes/stories/${o.id}`}
                     className={classNames(
                       'flex h-[92px] items-center overflow-hidden rounded-[24px] border border-solid border-[#e7e7e7] bg-white text-inherit no-underline shadow-[0_5px_17px_rgba(0,0,0,0.04)] hover:border-[#387440]',
                       FOCUS

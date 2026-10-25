@@ -20,13 +20,18 @@ const log = debug('MethodologyArticle');
  * The contents list highlights the section being read (Figma draws "Privacy protections" highlighted: that is the initial state until the
  * reader scrolls). ⚠️ ASSUMPTION: "Changes to this page" has no drawn section; it scrolls to the "Last reviewed … Version" line.
  * ⚠️ ASSUMPTION: "Ask the data team" has no drawn destination (the footer "Contact" is inert too): the button logs and does nothing yet.
- * Props: onDownload() ("Download as PDF" opens the shared Download dialog).
+ * Props: embedded (opt-in, agency portal 11.4.2r: stacked layout — the TOC is a full-width list above the article, the title is an <h2>, no own padding),
+ * questionsTo (target of "Ask the data team", default /data/methodology#changes), onDownload() ("Download as PDF" opens the shared Download dialog).
  */
 
 const SECTION_FONT = 'm-0 font-sans text-[24px] leading-[29px] font-semibold text-[#1c2a21]';
 const BODY = 'm-0 font-sans text-[16px] leading-[26px] text-[#1c2a21]';
 
-const MethodologyArticle = ({ onDownload }) => {
+const MethodologyArticle = ({
+  onDownload,
+  embedded = false,
+  questionsTo = '/data/methodology#changes',
+}) => {
   const [active, setActive] = useState('privacy');
 
   useEffect(() => {
@@ -52,10 +57,20 @@ const MethodologyArticle = ({ onDownload }) => {
   };
 
   return (
-    <div className="hidden gap-[32px] px-[40px] pt-[48px] pb-[64px] md:flex xl:gap-[56px] xl:px-[120px]">
+    <div
+      className={
+        embedded
+          ? 'flex flex-col gap-[24px]'
+          : 'hidden gap-[32px] px-[40px] pt-[48px] pb-[64px] md:flex xl:gap-[56px] xl:px-[120px]'
+      }
+    >
       <nav
         aria-label="On this page"
-        className="sticky top-[124px] hidden w-[200px] shrink-0 flex-col gap-[4px] self-start md:flex xl:w-[240px]"
+        className={
+          embedded
+            ? 'flex w-full flex-col gap-[4px]'
+            : 'sticky top-[124px] hidden w-[200px] shrink-0 flex-col gap-[4px] self-start md:flex xl:w-[240px]'
+        }
       >
         <p className="m-0 mb-[2px] font-sans text-[12px] leading-[14px] font-semibold tracking-[0.72px] text-[#595959] uppercase">
           On this page
@@ -90,9 +105,15 @@ const MethodologyArticle = ({ onDownload }) => {
       </nav>
 
       <article className="flex min-w-0 max-w-[840px] flex-1 flex-col gap-[20px]">
-        <h1 className="m-0 font-sans text-[44px] leading-[53px] font-semibold tracking-[-0.66px] text-[#1c2a21]">
-          {METHODOLOGY_META.title}
-        </h1>
+        {embedded ? (
+          <h2 className="m-0 font-sans text-[44px] leading-[53px] font-semibold tracking-[-0.66px] text-[#1c2a21]">
+            {METHODOLOGY_META.title}
+          </h2>
+        ) : (
+          <h1 className="m-0 font-sans text-[44px] leading-[53px] font-semibold tracking-[-0.66px] text-[#1c2a21]">
+            {METHODOLOGY_META.title}
+          </h1>
+        )}
         <p className="m-0 font-sans text-[19px] leading-[30px] text-[#595959]">
           {METHODOLOGY_META.intro}
         </p>
@@ -190,7 +211,7 @@ const MethodologyArticle = ({ onDownload }) => {
             </p>
           </div>
           <LinkButton
-            to="/data/methodology#changes"
+            to={questionsTo}
             variant="outline"
             onClick={() => log('ask the data team (no destination drawn)')}
           >

@@ -11,17 +11,23 @@ import TrendCard from './TrendCard.jsx';
  * "90 days · 1 year · All time" on the right) · 2x2 chart cards (gap 24) · note "Each chart has its own scale. …" (13/16 #595959, info icon 16 #70706e).
  * Phone: no breadcrumb, h1 26/31 (the subtitle line is an empty text layer in Figma, so it is not rendered), the range control full width (358x40, 13/16),
  * three cards (Total talents · New sign-ups · Placements; Assessments completed is not drawn on the phone frame), 16 apart.
- * Range = ?range=90d|1y|all (default 1y, as the phone/tablet frames draw it). Props: trends (response), range, onRange
+ * Range = ?range=90d|1y|all (default 1y, as the phone/tablet frames draw it). Props: trends (response), range, onRange, base (route prefix, default /data), embedded (agency portal: no header, no own padding; opt-in)
  */
 
-const TrendsView = ({ trends, range, onRange }) => (
-  <div className="flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[24px] md:pb-[48px] xl:px-[40px]">
+const TrendsView = ({ trends, range, onRange, base = DATA_BASE, embedded = false }) => (
+  <div
+    className={
+      embedded
+        ? 'flex flex-col gap-[16px] md:gap-[24px]'
+        : 'flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[24px] md:pb-[48px] xl:px-[40px]'
+    }
+  >
     <nav
       aria-label="Breadcrumb"
       className="hidden items-center gap-[8px] font-sans text-[14px] leading-[17px] md:flex"
     >
       <Link
-        to={`${DATA_BASE}/outcomes`}
+        to={`${base}/outcomes`}
         className="inline-flex min-h-[24px] items-center font-semibold text-[#387440] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
       >
         {TRENDS_COPY.breadcrumbRoot}
@@ -33,7 +39,10 @@ const TrendsView = ({ trends, range, onRange }) => (
         {TRENDS_COPY.breadcrumbCurrent}
       </span>
     </nav>
-    <header className="flex flex-wrap items-end justify-between gap-x-[16px] gap-y-[12px]">
+    <header
+      hidden={embedded}
+      className="flex flex-wrap items-end justify-between gap-x-[16px] gap-y-[12px]"
+    >
       <div className="flex min-w-0 flex-col gap-[4px] font-sans md:gap-[6px]">
         <h1 className="m-0 text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
           {TRENDS_COPY.title}

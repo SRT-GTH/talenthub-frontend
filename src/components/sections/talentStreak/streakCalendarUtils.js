@@ -16,7 +16,14 @@ const pad2 = (n) => String(n).padStart(2, '0');
 export const toIso = (year, month, day) => `${year}-${pad2(month)}-${pad2(day)}`;
 
 // `since` (live data): the talent's first streak day — earlier days are not counted as missed.
-export const buildStreakMonth = ({ year, month, today, litDates = [], goalDate = null, since = null }) => {
+export const buildStreakMonth = ({
+  year,
+  month,
+  today,
+  litDates = [],
+  goalDate = null,
+  since = null,
+}) => {
   const lit = new Set(litDates);
   const daysInMonth = new Date(year, month, 0).getDate();
   // getDay(): 0 = Sunday … 6 = Saturday; Monday-first offset.

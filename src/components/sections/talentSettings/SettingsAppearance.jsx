@@ -109,7 +109,17 @@ const SettingsAppearance = ({ settings }) => {
 
   const save = () => {
     log('dispatch save', { uiStyle, stickers, xp, popups, workHours, sync });
-    if (live) run(() => live.savePreferences('appearance', { style: uiStyle, stickers, xp, popups, workHours, sync }));
+    if (live)
+      run(() =>
+        live.savePreferences('appearance', {
+          style: uiStyle,
+          stickers,
+          xp,
+          popups,
+          workHours,
+          sync,
+        })
+      );
   };
 
   return (

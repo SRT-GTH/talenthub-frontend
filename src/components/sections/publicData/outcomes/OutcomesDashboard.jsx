@@ -15,14 +15,32 @@ import OutcomesStoriesSection from './OutcomesStoriesSection.jsx';
  * row [Skills evidenced 668 | Partner ecosystem 668] · stories. Body padding 32/40/48 (tablet 28, phone 16: title 26/31 + short subtitle, no range control —
  * ⚠️ ASSUMPTION: the phone frame draws no range control, so it stays desktop/tablet only and the phone shows the 12-month sample).
  * `loading` (?state=loading): KPI tiles + chart area as skeleton blocks, everything else as drawn.
- * Props: response, stories, range, onRange, loading
+ * Props: response, stories, range, onRange, loading, base (route prefix of the story links, default /data), embedded (agency portal: no page header and no
+ * own padding — the agency hero and chrome provide them; opt-in, Theme 8 never sets it)
  */
 
-const OutcomesDashboard = ({ response, stories, range, onRange, loading }) => {
+const OutcomesDashboard = ({
+  response,
+  stories,
+  range,
+  onRange,
+  loading,
+  base,
+  embedded = false,
+}) => {
   const { kpis } = response;
   return (
-    <div className="flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[32px] md:pb-[48px] xl:px-[40px]">
-      <header className="flex flex-wrap items-end justify-between gap-x-[16px] gap-y-[12px]">
+    <div
+      className={
+        embedded
+          ? 'flex flex-col gap-[16px] md:gap-[24px]'
+          : 'flex flex-col gap-[16px] px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[32px] md:pb-[48px] xl:px-[40px]'
+      }
+    >
+      <header
+        hidden={embedded}
+        className="flex flex-wrap items-end justify-between gap-x-[16px] gap-y-[12px]"
+      >
         <div className="flex min-w-0 max-w-[760px] flex-col gap-[4px] md:gap-[6px]">
           <h1 className="m-0 font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]">
             {OUTCOMES_COPY.title}
@@ -85,7 +103,7 @@ const OutcomesDashboard = ({ response, stories, range, onRange, loading }) => {
         <OutcomesSkillsCard skills={response.skills} />
         <OutcomesPartnersCard partners={response.partners} />
       </div>
-      <OutcomesStoriesSection stories={stories} loading={loading} />
+      <OutcomesStoriesSection stories={stories} loading={loading} base={base} />
     </div>
   );
 };

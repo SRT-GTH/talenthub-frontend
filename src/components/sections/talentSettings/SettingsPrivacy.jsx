@@ -12,7 +12,11 @@ import {
 } from '../../shared/assets.jsx';
 import { PRIVACY_BLOCKED, PRIVACY_SEE, PRIVACY_VISIBILITY } from './talentSettingsAData.js';
 import SettingsABlockedDialog from './SettingsABlockedDialog.jsx';
-import { blockSomeone, settingsError, unblock as unblockApi } from '../../../services/settings.api.js';
+import {
+  blockSomeone,
+  settingsError,
+  unblock as unblockApi,
+} from '../../../services/settings.api.js';
 
 /* Live privacy (GET /settings/overview `privacy`) -> this screen's local shape, and the blocked list -> dialog rows. */
 const fromLive = (p) => ({
@@ -170,7 +174,12 @@ const SettingsPrivacy = ({ settings }) => {
         const next = fromLive(
           await live.savePrivacy({
             visibility: cur.visibility,
-            see: { employer: cur.employer, salary: cur.salary, city: cur.city, message: cur.message },
+            see: {
+              employer: cur.employer,
+              salary: cur.salary,
+              city: cur.city,
+              message: cur.message,
+            },
             employerCompanies: cur.companies,
           })
         );
@@ -339,7 +348,11 @@ const SettingsPrivacy = ({ settings }) => {
         <SettingsARow
           first
           title={people.length ? `${people.length} blocked` : 'Nobody blocked'}
-          desc={people.length ? people.map((p) => p.name).join(' · ') : 'Use Manage to block a company. They are not told.'}
+          desc={
+            people.length
+              ? people.map((p) => p.name).join(' · ')
+              : 'Use Manage to block a company. They are not told.'
+          }
           className="max-sm:flex-wrap"
         >
           <Button

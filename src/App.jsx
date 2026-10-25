@@ -127,6 +127,8 @@ const MessageLinkRedirect = lazy(() => import('./pages/talentMessages/MessageLin
 const TalentWalletPage = lazy(() => import('./pages/talentWallet/TalentWalletPage.jsx'));
 // Theme 8 public dashboards (Figma canvas 8477:209484): /data/*, no sign-in, own router in pages/publicData/PublicDataApp.jsx.
 const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'));
+// Theme 11 agency portal (Figma canvas 8605:395409): /agency/*, mock signed-in session, own router in pages/agency/AgencyApp.jsx.
+const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -1017,6 +1019,16 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <PublicDataApp />
+                    </Suspense>
+                  }
+                />
+                {/* Theme 11 agency portal — Figma canvas "Persona · Government bodies (Theme 11 · agencies)" 8605:395409, Focused only.
+            Signed-in analyst chrome (mock session) with its own router in pages/agency/AgencyApp.jsx. Outside MainLayout. */}
+                <Route
+                  path={'/agency/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <AgencyApp />
                     </Suspense>
                   }
                 />

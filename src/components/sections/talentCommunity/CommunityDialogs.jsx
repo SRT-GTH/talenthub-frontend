@@ -53,7 +53,14 @@ const Footer = ({ note, children }) => (
  * `live` (talent Community on the API): the form opens empty, photo upload and "Help me write it" are hidden (no backend
  * for either yet), `busy` disables Post while the request runs and `error` shows the failure above the footer.
  */
-export const CreatePostDialog = ({ onClose, onPost, communityName, live = false, busy = false, error = null }) => {
+export const CreatePostDialog = ({
+  onClose,
+  onPost,
+  communityName,
+  live = false,
+  busy = false,
+  error = null,
+}) => {
   const titleId = useId();
   const fieldId = useId();
   const fileRef = useRef(null);
@@ -129,17 +136,17 @@ export const CreatePostDialog = ({ onClose, onPost, communityName, live = false,
 
       <div className="flex flex-wrap items-center gap-[8px]">
         {live ? null : (
-        <button
-          type="button"
-          onClick={() => log('help me write it')}
-          className={classNames(
-            'inline-flex h-[28px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#c8951a] bg-[#faf4e8] py-[6px] pl-[10px] pr-[12px] font-sans text-[12px] font-semibold leading-[14px] text-[#463409]',
-            FOCUS_RING
-          )}
-        >
-          <CommunityBulbGlyph className="size-[14px] text-[#1c2a21]" />
-          {copy.assist}
-        </button>
+          <button
+            type="button"
+            onClick={() => log('help me write it')}
+            className={classNames(
+              'inline-flex h-[28px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#c8951a] bg-[#faf4e8] py-[6px] pl-[10px] pr-[12px] font-sans text-[12px] font-semibold leading-[14px] text-[#463409]',
+              FOCUS_RING
+            )}
+          >
+            <CommunityBulbGlyph className="size-[14px] text-[#1c2a21]" />
+            {copy.assist}
+          </button>
         )}
         {tags.map((tag) => (
           <button
@@ -180,46 +187,46 @@ export const CreatePostDialog = ({ onClose, onPost, communityName, live = false,
       </div>
 
       {live ? null : (
-      <>
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        className={classNames(
-          'flex w-full cursor-pointer items-center gap-[14px] rounded-[16px] border-[1.5px] border-dashed border-[#bfbfbf] bg-[#f8f8f4] p-[16px] text-left',
-          FOCUS_RING
-        )}
-      >
-        <span
-          aria-hidden="true"
-          className="flex size-[44px] shrink-0 items-center justify-center rounded-[12px] border border-solid border-[rgba(28,42,33,0.32)] bg-white text-[#1c2a21] shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]"
-        >
-          <CommunityUploadGlyph className="size-[20px]" />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-          <span className="font-sans text-[14px] font-semibold leading-[17px] text-[#1c2a21]">
-            {copy.upload.title}
-          </span>
-          <span className="font-sans text-[12px] leading-[14px] text-[#737373]">
-            {copy.upload.sub}
-          </span>
-        </span>
-        {files > 0 ? (
-          <img
-            src={uploadThumb}
-            alt=""
-            className="size-[56px] shrink-0 rounded-[10px] border-[1.5px] border-solid border-[#1c2a21] object-cover"
+        <>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className={classNames(
+              'flex w-full cursor-pointer items-center gap-[14px] rounded-[16px] border-[1.5px] border-dashed border-[#bfbfbf] bg-[#f8f8f4] p-[16px] text-left',
+              FOCUS_RING
+            )}
+          >
+            <span
+              aria-hidden="true"
+              className="flex size-[44px] shrink-0 items-center justify-center rounded-[12px] border border-solid border-[rgba(28,42,33,0.32)] bg-white text-[#1c2a21] shadow-[5px_5px_0_rgba(28,42,33,0.2),0_10px_24px_rgba(28,42,33,0.06)] playful:border-[1.5px] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]"
+            >
+              <CommunityUploadGlyph className="size-[20px]" />
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+              <span className="font-sans text-[14px] font-semibold leading-[17px] text-[#1c2a21]">
+                {copy.upload.title}
+              </span>
+              <span className="font-sans text-[12px] leading-[14px] text-[#737373]">
+                {copy.upload.sub}
+              </span>
+            </span>
+            {files > 0 ? (
+              <img
+                src={uploadThumb}
+                alt=""
+                className="size-[56px] shrink-0 rounded-[10px] border-[1.5px] border-solid border-[#1c2a21] object-cover"
+              />
+            ) : null}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,video/mp4"
+            multiple
+            hidden
+            onChange={(e) => setFiles(e.target.files?.length || files)}
           />
-        ) : null}
-      </button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/png,image/jpeg,video/mp4"
-        multiple
-        hidden
-        onChange={(e) => setFiles(e.target.files?.length || files)}
-      />
-      </>
+        </>
       )}
 
       <div className="flex flex-wrap items-center gap-[8px]">
@@ -265,7 +272,10 @@ export const CreatePostDialog = ({ onClose, onPost, communityName, live = false,
       </div>
 
       {error ? (
-        <p role="alert" className="m-0 font-sans text-[13px] font-medium leading-[16px] text-[#c0392b]">
+        <p
+          role="alert"
+          className="m-0 font-sans text-[13px] font-medium leading-[16px] text-[#c0392b]"
+        >
           {error}
         </p>
       ) : null}
@@ -290,7 +300,14 @@ export const CreatePostDialog = ({ onClose, onPost, communityName, live = false,
 
 /* C-10 · Report post — Playful 7628:6979 (modal 7628:7363) / Focused 8110:462663 (modal 8110:463047). */
 /* `live`: opens with nothing picked; `author` is the reported post's author (first name); `busy` while submitting. */
-export const ReportPostDialog = ({ onClose, onSubmit, communityName, live = false, author, busy = false }) => {
+export const ReportPostDialog = ({
+  onClose,
+  onSubmit,
+  communityName,
+  live = false,
+  author,
+  busy = false,
+}) => {
   const titleId = useId();
   const fieldId = useId();
   const copy = REPORT_POST;

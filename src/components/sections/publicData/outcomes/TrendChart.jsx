@@ -16,7 +16,7 @@ const log = debug('TrendChart');
  * Interaction: pointer moves pick the nearest point; the points are focusable with a roving tab stop (one Tab stop per chart, arrow keys / Home / End
  *   move between points); Esc clears. A visually hidden <table> carries every value (the text equivalent); the SVG itself is aria-hidden except the points.
  * Props: id, title (accessible name), unit (series name in the tooltip), kind ('line' | 'column'), series [{label,value}], yMax, yStep, area, current,
- *   events [{at,label}], height (default 220), top (plot top, default 12), xLabelEvery, shortLabels (phone: first letter of month names),
+ *   events [{at,label}], height (default 220), top (plot top, default 12), xLabelEvery, labelIndexes (opt-in: exact point indexes that get an x label, overrides xLabelEvery), shortLabels (phone: first letter of month names),
  *   compactHeight / compactStep (phone height 160 and tick step), initialActive (index shown until the first interaction; ⚠️ frames 8.5.2a/b draw the Assessments tooltip pinned), showEndLabel, className
  */
 
@@ -38,6 +38,7 @@ const TrendChart = ({
   compactStep,
   top = 12,
   xLabelEvery = 1,
+  labelIndexes,
   shortLabels = false,
   initialActive = null,
   showEndLabel = true,
@@ -204,7 +205,7 @@ const TrendChart = ({
           </g>
         ))}
         {series.map((p, i) =>
-          i % xLabelEvery === 0 ? (
+          (labelIndexes ? labelIndexes.includes(i) : i % xLabelEvery === 0) ? (
             <text
               key={p.label + i}
               x={xOf(i)}

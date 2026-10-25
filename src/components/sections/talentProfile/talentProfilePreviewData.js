@@ -178,6 +178,8 @@ export let PUBLIC_RAIL = DEMO_PUBLIC_RAIL;
 export const applyPreviewData = (d) => {
   PREVIEW_BANNER = d?.banner ? { ...DEMO_PREVIEW_BANNER, ...d.banner } : DEMO_PREVIEW_BANNER;
   PREVIEW_HERO = d?.hero ? { ...DEMO_PREVIEW_HERO, ...d.hero } : DEMO_PREVIEW_HERO;
-  RECRUITER_RAIL = d?.recruiterRail ? { ...DEMO_RECRUITER_RAIL, ...d.recruiterRail } : DEMO_RECRUITER_RAIL;
+  RECRUITER_RAIL = d?.recruiterRail
+    ? { ...DEMO_RECRUITER_RAIL, ...d.recruiterRail }
+    : DEMO_RECRUITER_RAIL;
   PUBLIC_RAIL = d?.publicRail ? { ...DEMO_PUBLIC_RAIL, ...d.publicRail } : DEMO_PUBLIC_RAIL;
 };

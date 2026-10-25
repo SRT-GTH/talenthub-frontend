@@ -22,7 +22,7 @@ export const liveLabDetail = (labId, card, attempts) => {
       date: a.date,
       result:
         a.result === 'in_progress'
-          ? `In progress · challenge ${(p?.answered ?? 1)}`
+          ? `In progress · challenge ${p?.answered ?? 1}`
           : (RESULT_TEXT[a.result] ?? a.result),
       score: a.score.replace(' / ', ' of '),
       status: a.result === 'in_progress' ? 'Resume' : a.onProfile ? 'Shown' : 'Private',
@@ -52,7 +52,11 @@ export const liveLabDetail = (labId, card, attempts) => {
         };
   return {
     ...base,
-    sticker: verified ? `Verified · ${card.score}` : card.status === 'in_progress' ? 'In progress' : 'Ready to verify',
+    sticker: verified
+      ? `Verified · ${card.score}`
+      : card.status === 'in_progress'
+        ? 'In progress'
+        : 'Ready to verify',
     attempts: rows,
     attemptsEmpty: 'No attempts yet. Your first try is private, pass or not.',
     start,

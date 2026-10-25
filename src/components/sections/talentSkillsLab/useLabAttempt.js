@@ -107,12 +107,17 @@ const reducer = (state, action) => {
       if (state.status !== 'selected') return state;
       return { ...state, status: 'checking', error: null };
     case 'checkFailed':
-      return { ...state, status: state.selected === null ? 'playing' : 'selected', error: action.error };
+      return {
+        ...state,
+        status: state.selected === null ? 'playing' : 'selected',
+        error: action.error,
+      };
     case 'probeMissed':
       // Chess: a wrong first move the server did not count yet; back to playing (the board shows "1 try left").
       return { ...state, status: 'playing', selected: null };
     case 'revealed': {
-      if (state.status !== 'checking' && state.status !== 'selected' && state.status !== 'playing') return state;
+      if (state.status !== 'checking' && state.status !== 'selected' && state.status !== 'playing')
+        return state;
       const results = [...state.results];
       results[state.index] = action.ok ? 'ok' : 'bad';
       return {
@@ -339,11 +344,14 @@ export const useLabAttempt = ({ flow, frame = null }) => {
       check: () => {
         if (!live) return act('check');
         const selected = pickRef.current;
-        if (selected === null || selected === undefined || answered || state.status === 'checking') return undefined;
+        if (selected === null || selected === undefined || answered || state.status === 'checking')
+          return undefined;
         act('checking');
         return live
           .answer({ questionId: base.id, selected, hintUsed: state.hintUsed, final: true })
-          .then((r) => act('revealed', { ok: r.ok, reveal: r.reveal, questionId: base.id, selected }))
+          .then((r) =>
+            act('revealed', { ok: r.ok, reveal: r.reveal, questionId: base.id, selected })
+          )
           .catch((err) => {
             log('check failed', err?.response?.status || err?.message);
             act('checkFailed', { error: 'Could not check that answer. Try again.' });
@@ -356,12 +364,22 @@ export const useLabAttempt = ({ flow, frame = null }) => {
         act('select', { optionIndex: move });
         act('checking');
         try {
-          const r = await live.answer({ questionId: base.id, selected: move, hintUsed: state.hintUsed, final });
+          const r = await live.answer({
+            questionId: base.id,
+            selected: move,
+            hintUsed: state.hintUsed,
+            final,
+          });
           if (r.final === false) {
             act('probeMissed');
             return r;
           }
-          act('revealed', { ok: r.ok, reveal: r.reveal, questionId: base.id, selected: r.ok ? move : `miss:${move}` });
+          act('revealed', {
+            ok: r.ok,
+            reveal: r.reveal,
+            questionId: base.id,
+            selected: r.ok ? move : `miss:${move}`,
+          });
           return r;
         } catch (err) {
           log('move failed', err?.response?.status || err?.message);

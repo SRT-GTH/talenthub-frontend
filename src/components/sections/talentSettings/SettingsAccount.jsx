@@ -112,7 +112,10 @@ const SettingsAccountLive = ({ live }) => {
   const [status, setStatus] = useState(null); // { tone: 'ok' | 'error', text }
 
   const nameError = !values.fullName.trim() ? 'Add your full name' : null;
-  const phoneError = values.phone && !PHONE_OK.test(values.phone.trim()) ? 'Use a phone number like +233 24 412 3456' : null;
+  const phoneError =
+    values.phone && !PHONE_OK.test(values.phone.trim())
+      ? 'Use a phone number like +233 24 412 3456'
+      : null;
   const dirty = ['fullName', 'phone', 'region', 'city'].some((k) => values[k] !== saved[k]);
 
   const save = async () => {
@@ -148,7 +151,8 @@ const SettingsAccountLive = ({ live }) => {
         <div className="grid grid-cols-2 gap-x-[20px] gap-y-[16px] max-md:grid-cols-1">
           {ACCOUNT_FIELDS.map((field) => {
             const locked = field.id === 'email' || field.id === 'dob';
-            const error = field.id === 'fullName' ? nameError : field.id === 'phone' ? phoneError : null;
+            const error =
+              field.id === 'fullName' ? nameError : field.id === 'phone' ? phoneError : null;
             return (
               <SettingsAField
                 key={field.id}
@@ -177,10 +181,19 @@ const SettingsAccountLive = ({ live }) => {
         </SettingsARow>
         <SettingsARow
           title="Profile photo"
-          desc={account.profilePhoto ? 'Recruiters see this photo on your profile.' : 'Recruiters see your avatar until you add a photo.'}
+          desc={
+            account.profilePhoto
+              ? 'Recruiters see this photo on your profile.'
+              : 'Recruiters see your avatar until you add a photo.'
+          }
           first
         >
-          <Button variant="tertiary" size="lg" className="shrink-0" onClick={() => navigate('/profile')}>
+          <Button
+            variant="tertiary"
+            size="lg"
+            className="shrink-0"
+            onClick={() => navigate('/profile')}
+          >
             {account.profilePhoto ? 'Change photo' : 'Add a photo'}
           </Button>
         </SettingsARow>
@@ -190,7 +203,10 @@ const SettingsAccountLive = ({ live }) => {
         {status ? (
           <p
             role={status.tone === 'error' ? 'alert' : 'status'}
-            className={classNames('m-0 mr-auto text-[14px] font-medium', status.tone === 'error' ? 'text-[#c0392b]' : 'text-[#387440]')}
+            className={classNames(
+              'm-0 mr-auto text-[14px] font-medium',
+              status.tone === 'error' ? 'text-[#c0392b]' : 'text-[#387440]'
+            )}
           >
             {status.text}
           </p>
@@ -206,7 +222,12 @@ const SettingsAccountLive = ({ live }) => {
         >
           {ACCOUNT_ACTIONS.cancel}
         </Button>
-        <Button variant="primary" size="sm" disabled={!dirty || busy || Boolean(nameError || phoneError)} onClick={save}>
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={!dirty || busy || Boolean(nameError || phoneError)}
+          onClick={save}
+        >
           {busy ? 'Saving…' : ACCOUNT_ACTIONS.save}
         </Button>
       </div>

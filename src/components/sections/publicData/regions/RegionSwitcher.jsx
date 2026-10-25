@@ -15,7 +15,8 @@ const log = debug('RegionSwitcher');
  *            caption "All 16 regions · by talents" (12/14 600 caps +0.72), options 33px r8 (14/17; the current one #ebf1ec 600 #2a5730 + check)
  * Keyboard (combobox pattern): focus moves to the search field; Up/Down move the highlighted option, Enter goes there, Esc closes and returns
  * focus to the button, typing filters. The open state is the URL (?modal=region), so frame 8.3.1d is a link.
- * Props: title, currentId, items [{ id, name, count }], open, onOpenChange(bool), onSelect(id), searchLabel, caption, listLabel, className.
+ * Props: title, currentId, items [{ id, name, count }], open, onOpenChange(bool), onSelect(id), searchLabel, caption, listLabel, className,
+ * bare (opt-in, agency portal: the trigger is a small "bareLabel ▾" link instead of the page <h1> title, and the menu opens right-aligned under it).
  * The same component serves the district title (⚠️ ASSUMPTION: Figma draws the chevron on the district title but no district menu; it reuses
  * the region menu with "Jump to a district" / "All N districts · by talents").
  */
@@ -35,6 +36,8 @@ const RegionSwitcher = ({
   caption,
   listLabel = 'Regions',
   className,
+  bare = false,
+  bareLabel = 'Switch region',
 }) => {
   const uid = useId();
   const wrapRef = useRef(null);
@@ -104,7 +107,7 @@ const RegionSwitcher = ({
 
   return (
     <div ref={wrapRef} className={classNames('relative w-fit', className)}>
-      <h1 className="m-0 font-sans">
+      {bare ? (
         <button
           ref={buttonRef}
           type="button"
@@ -113,19 +116,40 @@ const RegionSwitcher = ({
           aria-controls={open ? listId : undefined}
           onClick={() => onOpenChange(!open)}
           className={classNames(
-            'flex cursor-pointer items-center gap-[10px] rounded-[10px] border-0 px-[4px] py-[2px] text-left font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]',
-            open ? 'bg-[#f2f2ee]' : 'bg-transparent',
+            'flex min-h-[24px] cursor-pointer items-center gap-[4px] rounded-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[17px] font-semibold text-[#387440]',
             FOCUS
           )}
         >
-          <span>{title}</span>
-          <RegionsIconChevronDown className="size-[20px] shrink-0 text-[#1a1a18] md:size-[24px]" />
+          {bareLabel}
+          <RegionsIconChevronDown className="size-[16px] shrink-0" />
         </button>
-      </h1>
+      ) : (
+        <h1 className="m-0 font-sans">
+          <button
+            ref={buttonRef}
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            aria-controls={open ? listId : undefined}
+            onClick={() => onOpenChange(!open)}
+            className={classNames(
+              'flex cursor-pointer items-center gap-[10px] rounded-[10px] border-0 px-[4px] py-[2px] text-left font-sans text-[26px] leading-[31px] font-semibold tracking-[-0.13px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.34px]',
+              open ? 'bg-[#f2f2ee]' : 'bg-transparent',
+              FOCUS
+            )}
+          >
+            <span>{title}</span>
+            <RegionsIconChevronDown className="size-[20px] shrink-0 text-[#1a1a18] md:size-[24px]" />
+          </button>
+        </h1>
+      )}
       {open && (
         <div
           role="presentation"
-          className="absolute top-[53px] left-0 z-30 flex w-[340px] max-w-[calc(100vw-32px)] flex-col gap-[2px] rounded-[16px] border border-solid border-[#e7e7e7] bg-white p-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+          className={classNames(
+            bare ? 'absolute top-[calc(100%+6px)] right-0' : 'absolute top-[53px] left-0',
+            'z-30 flex w-[340px] max-w-[calc(100vw-32px)] flex-col gap-[2px] rounded-[16px] border border-solid border-[#e7e7e7] bg-white p-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12)]'
+          )}
           onKeyDown={onKeyDown}
         >
           <label className="flex items-center gap-[8px] rounded-[10px] bg-[#f2f2ee] px-[12px] py-[10px]">

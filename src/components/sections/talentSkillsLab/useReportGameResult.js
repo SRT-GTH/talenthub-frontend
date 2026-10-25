@@ -5,7 +5,8 @@ import { postGameResult } from '../../../services/skillsLab.api.js';
 
 const log = debug('useReportGameResult');
 
-const plain = (v) => (Array.isArray(v) ? v.map((x) => (Array.isArray(x) ? x[0] : x)).join('') : String(v ?? ''));
+const plain = (v) =>
+  Array.isArray(v) ? v.map((x) => (Array.isArray(x) ? x[0] : x)).join('') : String(v ?? '');
 
 /*
  * Saves a finished game run for the signed-in talent (POST /skills-lab/games/:gameId/result): the server stores a game
@@ -31,10 +32,16 @@ export const useReportGameResult = (result, { kind = 'skill' } = {}) => {
         : {
             durationSeconds,
             playStyle: plain(result.title).slice(0, 120),
-            traits: (result.traits ?? []).map((tr) => ({ label: tr.label, chip: tr.chip, strong: Boolean(tr.strong) })),
+            traits: (result.traits ?? []).map((tr) => ({
+              label: tr.label,
+              chip: tr.chip,
+              strong: Boolean(tr.strong),
+            })),
           };
     log('report', gameId, body);
-    postGameResult(gameId, body).catch((err) => log('report failed', err?.response?.status || err?.message));
+    postGameResult(gameId, body).catch((err) =>
+      log('report failed', err?.response?.status || err?.message)
+    );
     startedAt.current = Date.now();
   }, [skip, result, kind, gameId]);
 };

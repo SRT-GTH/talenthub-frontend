@@ -262,10 +262,7 @@ const SkillsLabGamesTab = () => {
         </div>
       </section>
 
-      <SectionHead
-        title={GAMES_ARCADE.skillSection.title}
-        subtitle={skillSubtitle}
-      />
+      <SectionHead title={GAMES_ARCADE.skillSection.title} subtitle={skillSubtitle} />
       <div className={GRID}>
         {skillGames.map((game) => (
           <GameCard key={game.id} game={game} unit={unit} onOpen={open} />

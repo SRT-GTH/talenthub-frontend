@@ -129,11 +129,18 @@ const GuardianLive = ({ guardian, isMinor }) => {
           </div>
         </div>
       </GroupCard>
-      <GroupCard title={GUARDIAN_COPY.approves.title} description={GUARDIAN_COPY.approves.description}>
+      <GroupCard
+        title={GUARDIAN_COPY.approves.title}
+        description={GUARDIAN_COPY.approves.description}
+      >
         <SettingRow
           title={GUARDIAN_COPY.approves.certificates.title}
           description={GUARDIAN_COPY.approves.certificates.description}
-          control={<Chip icon={<TalentHomeChipLockIcon />}>{GUARDIAN_COPY.approves.certificates.chip}</Chip>}
+          control={
+            <Chip icon={<TalentHomeChipLockIcon />}>
+              {GUARDIAN_COPY.approves.certificates.chip}
+            </Chip>
+          }
         />
         <SettingRow
           top={false}
@@ -142,7 +149,11 @@ const GuardianLive = ({ guardian, isMinor }) => {
         />
       </GroupCard>
       <GroupCard title={GUARDIAN_COPY.turning18.title}>
-        <SettingRow top={false} title={GUARDIAN_COPY.turning18.rowTitle} description={GUARDIAN_COPY.turning18.rowDescription} />
+        <SettingRow
+          top={false}
+          title={GUARDIAN_COPY.turning18.rowTitle}
+          description={GUARDIAN_COPY.turning18.rowDescription}
+        />
       </GroupCard>
     </div>
   );

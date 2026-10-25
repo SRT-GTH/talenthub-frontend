@@ -148,11 +148,20 @@ const SettingsABlockedDialog = ({ people, onUnblock, onClose, onBlockCompany }) 
                 onKeyDown={(e) => e.key === 'Enter' && submitCompany()}
                 className="h-[44px] min-w-0 flex-1 rounded-[10px] border border-solid border-[#ccc] bg-white px-[14px] text-[14px] text-[#1c2a21] outline-none focus:border-[#387440]"
               />
-              <Button variant="tertiary" size="sm" disabled={!company.trim()} onClick={submitCompany}>
+              <Button
+                variant="tertiary"
+                size="sm"
+                disabled={!company.trim()}
+                onClick={submitCompany}
+              >
                 Block
               </Button>
             </div>
-            {addError ? <p role="alert" className="m-0 text-[13px] text-[#c0392b]">{addError}</p> : null}
+            {addError ? (
+              <p role="alert" className="m-0 text-[13px] text-[#c0392b]">
+                {addError}
+              </p>
+            ) : null}
           </div>
         ) : null}
         <button

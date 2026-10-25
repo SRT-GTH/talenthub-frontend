@@ -57,7 +57,14 @@ const Rule = ({ ok, children }) => (
 );
 
 /* `live`: empty fields (not the Figma seed); `busy` disables Update; `error` is the server's answer (wrong password …). */
-export const ChangePasswordDialog = ({ open, onClose, onSubmit, live = false, busy = false, error = null }) => {
+export const ChangePasswordDialog = ({
+  open,
+  onClose,
+  onSubmit,
+  live = false,
+  busy = false,
+  error = null,
+}) => {
   const [current, setCurrent] = useState(live ? '' : PASSWORD_SEED.current);
   const [next, setNext] = useState(live ? '' : PASSWORD_SEED.next);
   const [confirm, setConfirm] = useState(live ? '' : PASSWORD_SEED.confirm);

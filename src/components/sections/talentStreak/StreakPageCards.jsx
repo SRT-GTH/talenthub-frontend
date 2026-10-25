@@ -188,10 +188,7 @@ export const StreakLeaderboardCard = (props) => {
   // Live: "Top streaks in <your community>" from the API; the drawn frame says Data Gang GH.
   const title = props.title ?? STREAK_PAGE_COPY.leaderboardTitle;
   return (
-    <section
-      aria-label={title}
-      className={classNames(CARD, 'flex flex-col gap-[6px] p-[20px]')}
-    >
+    <section aria-label={title} className={classNames(CARD, 'flex flex-col gap-[6px] p-[20px]')}>
       <h2 className={classNames(TITLE_19, 'pb-[4px]')}>{title}</h2>
       {!rows.length ? (
         <p className="m-0 font-sans text-[13.5px] leading-[19px] text-[#595959]">

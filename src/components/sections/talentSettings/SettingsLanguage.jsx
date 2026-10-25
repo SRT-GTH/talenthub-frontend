@@ -56,7 +56,8 @@ const SettingsLanguage = ({ settings }) => {
 
   const onSave = () => {
     log('dispatch save', { language, dataSaver, wifiOnly, videos });
-    if (live) run(() => live.savePreferences('language', { language, dataSaver, wifiOnly, videos }));
+    if (live)
+      run(() => live.savePreferences('language', { language, dataSaver, wifiOnly, videos }));
   };
 
   return (

@@ -47,7 +47,10 @@ export const useCommunityState = () => {
   // Demo = GubliAS's drawn mock (Figma states driven by the URL). Live data otherwise; the demo-only state keys switch it on
   // so every frame URL in wiki/talent-community.md keeps rendering the drawn screen.
   const demo =
-    params.get('demo') === '1' || params.has('state') || params.get('joined') === '1' || params.get('pending') === '1';
+    params.get('demo') === '1' ||
+    params.has('state') ||
+    params.get('joined') === '1' ||
+    params.get('pending') === '1';
 
   return useMemo(() => {
     log('state', { demo, cat, q, menu, view, state, tab, joined, modal, rail });

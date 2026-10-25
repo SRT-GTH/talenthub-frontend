@@ -1,3 +1,7 @@
+## [2026-10-24] build | Agency portal (Theme 11): foundation
+
+Figma canvas `8605:395409`. Chrome (top bar, rail 303 / icon rail 80 / phone-tablet bar + drawer, persona card, "Your agency page" card, Ask Buddy), shared hero / banner / button, `/agency/*` router with 20 stub pages, URL state hook, mock session (`?mou=`, `?quota=`), formatters, Figma icon exports, frame manifest `tests/agency/frames.json` (114 entries, 2 superseded), responsive-audit URLs. Plan, URL contract, packages and checklist: [agency.md](agency.md). Verified: eslint + prettier clean; chrome checked at 1728 / 1024 / 834 / 390, collapsed rail and drawer, no horizontal scroll. Not built: any page body.
+
 ## [2026-10-23] build | Public data dashboards (Theme 8): foundation
 
 Figma canvas `8477:209484`. Chrome (sidebar 288 / rail 80 / mobile drawer, top bar, footer), `/data/*` router with 13 stub pages, URL state hook, suppression + number helpers, region list, Figma icon exports, frame manifest `tests/public-data/frames.json` (107 entries), responsive-audit URLs. Plan, URL contract, work packages and checklist: [public-data.md](public-data.md). Verified: eslint clean; chrome renders at 1728 / 1024 / 390 and the drawer, no horizontal scroll. Not built: any page body.

@@ -59,7 +59,10 @@ const LogoutConfirm = ({ settings }) => {
     if (!settings.demo) {
       setBusy(true);
       // Ends this device's session on the server (and the others when ticked), then clears this browser.
-      if (allDevices && view.otherDevices) await logOutOtherDevices().catch((err) => log('others not logged out', err?.response?.status));
+      if (allDevices && view.otherDevices)
+        await logOutOtherDevices().catch((err) =>
+          log('others not logged out', err?.response?.status)
+        );
       await serverLogout();
       clearLocalSession();
       invalidateAccountOverview();
@@ -104,50 +107,51 @@ const LogoutConfirm = ({ settings }) => {
         </p>
 
         {live ? null : (
-        <div className="flex w-full items-center gap-[10px] rounded-[12px] bg-[#f9ebea] p-[12px]">
-          <LogoutConfirmBoltIcon className="size-[18px] shrink-0" />
-          <p className="m-0 min-w-0 flex-1 font-sans text-[13.5px] leading-[1.45] font-medium text-[#c0392b]">
-            Your {SESSION.streakDays}-day streak is safe. Come back before midnight to keep it
-            going.
-          </p>
-        </div>
+          <div className="flex w-full items-center gap-[10px] rounded-[12px] bg-[#f9ebea] p-[12px]">
+            <LogoutConfirmBoltIcon className="size-[18px] shrink-0" />
+            <p className="m-0 min-w-0 flex-1 font-sans text-[13.5px] leading-[1.45] font-medium text-[#c0392b]">
+              Your {SESSION.streakDays}-day streak is safe. Come back before midnight to keep it
+              going.
+            </p>
+          </div>
         )}
 
         {live && !view.otherDevices ? null : (
-        <label className="flex min-h-[24px] cursor-pointer items-center gap-[10px]">
-          <input
-            type="checkbox"
-            checked={allDevices}
-            onChange={(event) => {
-              log('also log out on other devices:', event.target.checked);
-              setAllDevices(event.target.checked);
-            }}
-            className="peer sr-only"
-          />
-          <span
-            aria-hidden="true"
-            className={classNames(
-              'relative size-[22px] shrink-0 rounded-[6px] border border-solid border-[rgba(28,42,33,0.1)] bg-white playful:border-[1.5px] playful:border-[rgba(28,42,33,0.35)]',
-              'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#1c2a21]',
-              allDevices && 'border-[#387440] bg-[#387440] playful:border-[#387440]'
-            )}
-          >
-            {allDevices && (
-              <svg viewBox="0 0 22 22" className="absolute inset-0 size-full" fill="none">
-                <path
-                  d="M6 11.5l3.4 3.4L16 8"
-                  stroke="#ffffff"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </span>
-          <span className="font-sans text-[14px] font-medium text-[#1c2a21]">
-            Also log out on my {view.otherDevices} other {view.otherDevices === 1 ? 'device' : 'devices'}
-          </span>
-        </label>
+          <label className="flex min-h-[24px] cursor-pointer items-center gap-[10px]">
+            <input
+              type="checkbox"
+              checked={allDevices}
+              onChange={(event) => {
+                log('also log out on other devices:', event.target.checked);
+                setAllDevices(event.target.checked);
+              }}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden="true"
+              className={classNames(
+                'relative size-[22px] shrink-0 rounded-[6px] border border-solid border-[rgba(28,42,33,0.1)] bg-white playful:border-[1.5px] playful:border-[rgba(28,42,33,0.35)]',
+                'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#1c2a21]',
+                allDevices && 'border-[#387440] bg-[#387440] playful:border-[#387440]'
+              )}
+            >
+              {allDevices && (
+                <svg viewBox="0 0 22 22" className="absolute inset-0 size-full" fill="none">
+                  <path
+                    d="M6 11.5l3.4 3.4L16 8"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </span>
+            <span className="font-sans text-[14px] font-medium text-[#1c2a21]">
+              Also log out on my {view.otherDevices} other{' '}
+              {view.otherDevices === 1 ? 'device' : 'devices'}
+            </span>
+          </label>
         )}
 
         <div className="flex w-full items-center gap-[12px] max-sm:flex-col-reverse max-sm:items-stretch">

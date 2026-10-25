@@ -47,9 +47,10 @@ const TrendCard = ({ chart, className }) => {
           current={chart.current}
           events={chart.events}
           xLabelEvery={xLabelEvery}
+          labelIndexes={chart.labelIndexes}
           shortLabels
           initialActive={chart.hoverIndex ?? null}
-          showEndLabel={chart.kind === 'line'}
+          showEndLabel={chart.showEndLabel ?? chart.kind === 'line'}
         />
       </div>
     </PublicCard>
