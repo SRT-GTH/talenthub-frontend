@@ -7,7 +7,7 @@ const log = debug('interviews.api');
  * Interview loop (Recruiter Buddy design, Iteration 4). Backend: application.service.
  *
  *   GET  /applications/interviews/upcoming        my open interviews (as applicant and as recruiter)
- *   POST /applications/:id/interview/respond      talent: { action: accept | propose | request_change, slots?, note? }
+ *   POST /applications/:id/interview/respond      talent: { action: accept | pick | propose | request_change, slot?, slots?, note? }
  *   POST /applications/:id/interview/cancel       recruiter: { reason? }
  *   GET  /applications/:id/interview.ics          calendar file for the open interview
  *
@@ -22,11 +22,12 @@ export const fetchUpcomingInterviews = async () => {
   return Array.isArray(out?.interviews) ? out.interviews : [];
 };
 
-export const respondToInterview = async (applicationId, { action, slots, note } = {}) => {
+export const respondToInterview = async (applicationId, { action, slot, slots, note } = {}) => {
   log('respond', applicationId, action, slots?.length || 0);
   return unwrap(
     await api.post(`/applications/${applicationId}/interview/respond`, {
       action,
+      ...(slot ? { slot } : {}),
       ...(slots && slots.length ? { slots } : {}),
       ...(note ? { note } : {}),
     })
@@ -64,6 +65,8 @@ export const interviewErrorText = (err) => {
     case 'TOO_MANY_SLOTS':
     case 'INVALID_SLOT':
       return 'Suggest one to three times.';
+    case 'SLOT_NOT_OFFERED':
+      return 'Pick one of the offered times.';
     case 'INVALID_INTERVIEW_STATE':
     case 'NO_OPEN_INTERVIEW':
       return 'This interview changed. Refresh to see the latest.';

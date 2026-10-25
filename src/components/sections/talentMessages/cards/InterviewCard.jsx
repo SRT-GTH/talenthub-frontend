@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import { HubButton } from '../../talentSkillsLab/HubParts.jsx';
@@ -16,6 +16,10 @@ const log = debug('InterviewCard');
  *   onSuggest()          invite "Suggest another time"  (optional) -> default logs only: no destination is drawn.
  *   onAddToCalendar()    confirmed "Add to calendar"    (optional) -> default logs only: no destination is drawn.
  *   onChange()           confirmed "Need to change it?" (optional) -> default logs only: no destination is drawn.
+ *   onPick(slot)         pick state: the talent chose one of card.slots [{ id, label }] and pressed card.pickLabel.
+ *   onNone()             pick state: card.noneLabel ("None of these work?").
+ * State 'pick' (recruiter offered several times, Iteration 4 IQ-1) is not in Figma yet: it reuses the invite
+ * shell with time chips.
  * The Figma strip reads "INTERVIEW INVITE" in both states. Width: fills the bubble column, capped at 540px.
  */
 const Detail = (props) => {
@@ -28,8 +32,18 @@ const Detail = (props) => {
   );
 };
 
-const InterviewCard = ({ card, onConfirm, onSuggest, onAddToCalendar, onChange }) => {
+const InterviewCard = ({
+  card,
+  onConfirm,
+  onSuggest,
+  onAddToCalendar,
+  onChange,
+  onPick,
+  onNone,
+}) => {
   const confirmed = card?.state === 'confirmed';
+  const picking = card?.state === 'pick';
+  const [chosen, setChosen] = useState(null);
 
   useEffect(() => {
     log('mount', { id: card?.id, state: card?.state });
@@ -39,7 +53,7 @@ const InterviewCard = ({ card, onConfirm, onSuggest, onAddToCalendar, onChange }
   return (
     <article
       aria-label={`Interview invite: ${card.title}`}
-      data-state={confirmed ? 'confirmed' : 'invite'}
+      data-state={card.state || 'invite'}
       className="w-full max-w-[540px] overflow-hidden rounded-[12px] border-[1.2px] border-solid border-[rgba(0,82,43,0.1)] bg-white"
     >
       <div className="flex items-center gap-[8px] bg-[#eaeffb] px-[16px] py-[10px]">
@@ -57,7 +71,64 @@ const InterviewCard = ({ card, onConfirm, onSuggest, onAddToCalendar, onChange }
         <h3 className="m-0 font-sans text-[16px] font-semibold leading-[19px] tracking-[0.2px] text-[#1c2a21]">
           {card.title}
         </h3>
-        {confirmed ? (
+        {picking ? (
+          <>
+            <Detail icon={VideoCallIcon}>{card.where}</Detail>
+            <div role="radiogroup" aria-label={card.pickPrompt} className="flex flex-col gap-[8px]">
+              <p className="m-0 font-sans text-[13px] font-semibold leading-[16px] text-[#1c2a21]">
+                {card.pickPrompt}
+              </p>
+              <div className="flex flex-wrap gap-[8px]">
+                {(card.slots || []).map((s) => {
+                  const on = chosen === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => {
+                        log('branch: choose slot', s.id);
+                        setChosen(s.id);
+                      }}
+                      className={classNames(
+                        'inline-flex min-h-[36px] cursor-pointer items-center rounded-full border-[1.2px] border-solid px-[14px] font-sans text-[13px] font-semibold leading-[16px] tracking-[0.2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+                        on
+                          ? 'border-[#2d5d33] bg-[#2d5d33] text-white'
+                          : 'border-[rgba(0,82,43,0.2)] bg-white text-[#1c2a21]'
+                      )}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-[12px] pt-[4px]">
+              <HubButton
+                tone={chosen ? 'primary' : 'disabled'}
+                size="lg"
+                disabled={!chosen}
+                onClick={() => {
+                  log('branch: pick -> confirmed', chosen);
+                  onPick?.(chosen, card);
+                }}
+              >
+                {card.pickLabel}
+              </HubButton>
+              <button
+                type="button"
+                onClick={() => {
+                  log('branch: none of these work');
+                  onNone?.(card);
+                }}
+                className="inline-flex min-h-[24px] cursor-pointer items-center border-0 bg-transparent p-0 font-sans text-[12px] font-medium leading-[14px] tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {card.noneLabel}
+              </button>
+            </div>
+          </>
+        ) : confirmed ? (
           <>
             <Detail icon={CalendarIcon}>{card.when}</Detail>
             <Detail icon={VideoCallIcon}>{card.where}</Detail>

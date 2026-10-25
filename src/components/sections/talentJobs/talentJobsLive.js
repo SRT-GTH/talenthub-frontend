@@ -79,7 +79,9 @@ const statusText = (app, recruiterFirst) => {
       const iv = app.interview;
       if (!iv?.at) return 'Interview being arranged';
       if (iv.status === 'proposed') return `Interview invite · ${weekdayDay(iv.at)} · reply needed`;
+      if (iv.status === 'awaiting_pick') return 'Interview invite · pick a time';
       if (iv.status === 'change_requested') return 'New time requested · waiting';
+      if (iv.status === 'cancelled') return 'Interview cancelled';
       return `Interview ${weekdayDay(iv.at)} · confirmed`;
     }
     case 'interviewed':
@@ -101,6 +103,8 @@ const statusText = (app, recruiterFirst) => {
 const actionText = (view, app) => {
   if (view.tone === 'withdrawn') return 'Apply again';
   if (view.tone === 'closed') return 'See what to boost';
+  if (app?.stage === 'interview_scheduled' && app.interview?.status === 'awaiting_pick')
+    return 'Pick a time';
   if (app?.stage === 'interview_scheduled' && app.interview?.status === 'proposed')
     return 'Reply to invite';
   if (view.group === 'interviews') return 'Prep with Buddy';
