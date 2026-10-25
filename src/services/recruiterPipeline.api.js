@@ -59,3 +59,25 @@ export const pipelineErrorText = (err) => {
       return 'That didn’t go through. Please try again.';
   }
 };
+
+/**
+ * Career Buddy draft card button: run a draft Buddy prepared (stage move or interview) with my own
+ * login. POST /applications/agent-drafts/confirm { draftId } — single use, 30 minutes, mine only.
+ */
+export const confirmAgentDraft = async (draftId) =>
+  unwrap(await api.post('/applications/agent-drafts/confirm', { draftId }));
+
+export const draftErrorText = (err) => {
+  const type = err?.response?.data?.type || err?.response?.data?.code;
+  switch (type) {
+    case 'DRAFT_EXPIRED':
+      return 'This draft expired. Ask Career Buddy again.';
+    case 'DRAFT_USED':
+      return 'This was already done.';
+    case 'DRAFT_INVALID':
+    case 'PERMISSION_DENIED':
+      return 'This draft can’t be used. Ask Career Buddy again.';
+    default:
+      return pipelineErrorText(err);
+  }
+};
