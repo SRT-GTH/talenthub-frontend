@@ -134,6 +134,10 @@ export const toPost = (p) => ({
   likes: p.likes || 0,
   comments: p.comments || 0,
   liked: Boolean(p.likedByMe),
+  // The author's own post waiting for a moderator, or turned down by one (the API sends these to their author only).
+  pending: Boolean(p.pending) || undefined,
+  rejected: Boolean(p.rejected) || undefined,
+  rejectedReason: p.rejectedReason || undefined,
 });
 
 /** PostComments-style comment: { id, author, time, text, likes, avatar, me, replies[] }. */

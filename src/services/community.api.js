@@ -96,7 +96,11 @@ export const browseCommunities = async ({ q, category, excludeJoined, limit, off
     browseInFlight.set(key, pending);
   }
   const data = unwrap(await browseInFlight.get(key));
-  log('browse', params, { n: data?.communities?.length, total: data?.total, next: data?.nextOffset });
+  log('browse', params, {
+    n: data?.communities?.length,
+    total: data?.total,
+    next: data?.nextOffset,
+  });
   return {
     communities: data?.communities || [],
     total: data?.total ?? (data?.communities || []).length,
@@ -153,8 +157,15 @@ export const createCommunityPost = async (id, { content, kind, tags, link }) => 
   if (tags?.length) body.tags = tags;
   if (link) body.link = link;
   const data = unwrap(await api.post(`/community/${enc(id)}/posts`, body));
-  log('posted', id, { flagged: data?.purposeFlagged });
-  return { post: data?.post || null, flagged: Boolean(data?.purposeFlagged) };
+  const pending = data?.moderation?.status === 'pending_review';
+  log('posted', id, { flagged: data?.purposeFlagged, pending });
+  // pending: the pre-publish check held it for a moderator; only the author sees it until then.
+  return {
+    post: data?.post || null,
+    flagged: Boolean(data?.purposeFlagged),
+    pending,
+    message: pending ? data?.moderation?.message || null : null,
+  };
 };
 
 export const fetchCommunityMembers = async (id, { q, pageSize = 50 } = {}) => {

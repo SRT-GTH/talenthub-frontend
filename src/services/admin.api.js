@@ -97,6 +97,12 @@ export const restoreFlag = (flagId, reason) =>
 export const proactiveRemove = (p) => post('/admin/moderation/remove', p);
 export const postQueue = (p = {}) =>
   get('/admin/moderation/posts', clean({ limit: 50, offset: 0, ...p }));
+// Posts held by the pre-publish check (oldest first) and the moderator's decision on one.
+export const pendingPosts = (p = {}) =>
+  get('/admin/moderation/posts/pending', clean({ limit: 50, offset: 0, ...p }));
+// updatedAt: the version the moderator read; the backend answers 409 if the post changed since.
+export const reviewPost = (postId, decision, reason, updatedAt) =>
+  post(`/admin/moderation/posts/${postId}/review`, clean({ decision, reason, updatedAt }));
 export const reclassifyPost = (postId, newTag, reason) =>
   post(`/admin/moderation/posts/${postId}/reclassify`, clean({ newTag, reason }));
 export const issueWarning = (p) => post('/admin/moderation/warnings', clean(p));

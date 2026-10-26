@@ -8,8 +8,14 @@ import {
   ReportPostDialog,
 } from '../../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../../components/sections/talentCommunity/CommunityFrame.jsx';
-import { Composer, FeedToolbar } from '../../../components/sections/talentCommunity/CommunityFeedParts.jsx';
-import { PostedToast } from '../../../components/sections/talentCommunity/CommunityPendingParts.jsx';
+import {
+  Composer,
+  FeedToolbar,
+} from '../../../components/sections/talentCommunity/CommunityFeedParts.jsx';
+import {
+  LivePendingPostCard,
+  PostedToast,
+} from '../../../components/sections/talentCommunity/CommunityPendingParts.jsx';
 import {
   CommunityHero,
   CommunityTabs,
@@ -23,9 +29,16 @@ import LivePostComments from '../../../components/sections/talentCommunity/LiveP
 import {
   COMMUNITY_PAGE_COPY,
   COMMUNITY_PAGE_RHYTHM,
+  TOAST_POSTED,
 } from '../../../components/sections/talentCommunity/communityData.js';
-import { SIDE_LEFT, SIDE_RIGHT } from '../../../components/sections/talentCommunity/communityPageStyles.js';
-import { useLiveCommunityPage, useLivePost } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
+import {
+  SIDE_LEFT,
+  SIDE_RIGHT,
+} from '../../../components/sections/talentCommunity/communityPageStyles.js';
+import {
+  useLiveCommunityPage,
+  useLivePost,
+} from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { shareLink } from './shareLink.js';
 import { LiveError, LiveLoading } from './LiveStates.jsx';
 
@@ -66,7 +79,13 @@ const CommunityPostLive = ({ community }) => {
       return;
     }
     update({ modal: null });
-    setToast(res.flagged ? 'Posted! A moderator will check it’s on topic' : 'Posted!');
+    setToast(
+      res.pending
+        ? TOAST_POSTED
+        : res.flagged
+          ? 'Posted! A moderator will check it’s on topic'
+          : 'Posted!'
+    );
   };
 
   const onReport = async ({ reason, note }) => {
@@ -76,7 +95,9 @@ const CommunityPostLive = ({ community }) => {
     setBusy(false);
     setReportTarget(null);
     update({ modal: null });
-    setToast(ok ? 'Thanks. Our moderators will review this post' : 'Couldn’t send the report. Try again.');
+    setToast(
+      ok ? 'Thanks. Our moderators will review this post' : 'Couldn’t send the report. Try again.'
+    );
   };
 
   const onLeave = async () => {
@@ -124,7 +145,8 @@ const CommunityPostLive = ({ community }) => {
               joined={joined}
               faces={detail.facesImages}
               onJoin={async () => {
-                if (await page.join()) setToast(`You’re in! Say hi to ${detail.name.replace(/^#/, '')}`);
+                if (await page.join())
+                  setToast(`You’re in! Say hi to ${detail.name.replace(/^#/, '')}`);
               }}
               onLeave={() => update({ modal: 'leave' })}
               onShare={() => shareLink(back, detail.name)}
@@ -136,7 +158,9 @@ const CommunityPostLive = ({ community }) => {
               onChange={(id) => navigate(id === 'feed' ? back : `${back}?tab=${id}`)}
             />
             <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
-              <aside className={`order-2 flex shrink-0 flex-col gap-[20px] xl:order-1 ${SIDE_LEFT}`}>
+              <aside
+                className={`order-2 flex shrink-0 flex-col gap-[20px] xl:order-1 ${SIDE_LEFT}`}
+              >
                 <InfoCard detail={detail} gap={rhythm.infoGap} />
                 {detail.contributors.length ? <ContributorsCard detail={detail} /> : null}
               </aside>
@@ -170,27 +194,39 @@ const CommunityPostLive = ({ community }) => {
                       onMore={openReport}
                       onShare={(p) => shareLink(`${back}/post/${p.id}`, p.author.name)}
                     >
-                      <LivePostComments comments={open.comments} canWrite={joined} onComment={open.comment} />
+                      <LivePostComments
+                        comments={open.comments}
+                        canWrite={joined}
+                        onComment={open.comment}
+                      />
                     </CommunityPostCard>
                   ) : (
                     <LiveLoading label="Loading post…" />
                   )}
-                  {rest.map((post) => (
-                    <CommunityPostCard
-                      key={post.id}
-                      post={post}
-                      locked={!joined}
-                      onOpen={(p) => navigate(`${back}/post/${p.id}`)}
-                      onLike={(p) => page.like(p.id)}
-                      onMore={openReport}
-                      onShare={(p) => shareLink(`${back}/post/${p.id}`, p.author.name)}
-                    />
-                  ))}
+                  {rest.map((post) =>
+                    post.pending || post.rejected ? (
+                      <LivePendingPostCard key={post.id} post={post} />
+                    ) : (
+                      <CommunityPostCard
+                        key={post.id}
+                        post={post}
+                        locked={!joined}
+                        onOpen={(p) => navigate(`${back}/post/${p.id}`)}
+                        onLike={(p) => page.like(p.id)}
+                        onMore={openReport}
+                        onShare={(p) => shareLink(`${back}/post/${p.id}`, p.author.name)}
+                      />
+                    )
+                  )}
                 </div>
               </main>
               <aside className={`order-3 flex shrink-0 flex-col gap-[20px] ${SIDE_RIGHT}`}>
-                {detail.topics.length ? <TopicsCard detail={detail} gap={rhythm.trendGap} tagGap={rhythm.tagGap} /> : null}
-                {detail.related.length ? <RelatedCard detail={detail} gap={rhythm.relatedGap} /> : null}
+                {detail.topics.length ? (
+                  <TopicsCard detail={detail} gap={rhythm.trendGap} tagGap={rhythm.tagGap} />
+                ) : null}
+                {detail.related.length ? (
+                  <RelatedCard detail={detail} gap={rhythm.relatedGap} />
+                ) : null}
               </aside>
             </div>
           </>
