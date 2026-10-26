@@ -108,6 +108,8 @@ export const exportReport = (reportType, p = {}) =>
   post('/admin/reports/export', clean({ reportType, ...p }));
 export const reportStatus = (id) => get(`/admin/reports/${id}/status`);
 export const realtime = () => get('/admin/reports/realtime');
+/** Live ops: people online, regions, activity, sign-ups vs usual, errors, response times, flags, alerts. */
+export const liveOpsSnapshot = () => get('/admin/live-ops/snapshot');
 
 // ── Comms ────────────────────────────────────────────────────────────────────
 export const listTemplates = (p = {}) =>
