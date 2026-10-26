@@ -290,6 +290,22 @@ const RecruiterPanel = ({
                                 </div>
                               );
                             }
+                            // Rows the recruiter can't change here (organisation name, KYB status).
+                            if (field.readOnly) {
+                              return (
+                                <div
+                                  key={field.label}
+                                  className="flex w-full items-start justify-between gap-3"
+                                >
+                                  <span className="shrink-0 whitespace-nowrap font-sans text-[16px] font-medium leading-[1.5] text-[#111]">
+                                    {field.label}
+                                  </span>
+                                  <span className="max-w-[290px] text-right font-sans text-[16px] leading-[1.5] text-[#595959]">
+                                    {field.value}
+                                  </span>
+                                </div>
+                              );
+                            }
                             return (
                               <div
                                 key={field.label}

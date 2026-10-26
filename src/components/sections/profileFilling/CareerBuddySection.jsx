@@ -469,7 +469,7 @@ const companyPanelFields = (view, draft = {}) => {
   ].filter(Boolean);
   const kyb = view?.kyb || {};
   return [
-    { label: 'Name', value: c.name || '—' },
+    { label: 'Name', value: c.name || '—', readOnly: true },
     { label: 'Bio', value: c.bio || 'Not added yet', kind: 'bio' },
     { label: 'Industry', value: c.industry || '—' },
     { label: 'Company size', value: c.size ? `${c.size} employees` : '—' },
@@ -483,8 +483,44 @@ const companyPanelFields = (view, draft = {}) => {
       label: 'KYB/KYC Status',
       value: kyb.label || 'Not verified',
       verified: Boolean(kyb.verified),
+      readOnly: true,
     },
   ];
+};
+
+// Values the recruiter changed in the panel (Modify) before Confirm. Rows that still show
+// what the backend sent, or a placeholder, are left out so nothing derived gets saved.
+const COMPANY_PLACEHOLDERS = ['Not added yet', '—', ''];
+const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-500', '500+'];
+const companyEditsFromPanel = (view, fields) => {
+  if (!Array.isArray(fields)) return {};
+  const base = companyPanelFields(view);
+  const changed = (label) => {
+    const now = fields.find((f) => f.label === label)?.value;
+    const before = base.find((f) => f.label === label)?.value;
+    const text = typeof now === 'string' ? now.trim() : '';
+    return text !== String(before ?? '').trim() && !COMPANY_PLACEHOLDERS.includes(text)
+      ? text
+      : null;
+  };
+  const out = {};
+  const bio = changed('Bio');
+  if (bio) out.bio = bio;
+  const industry = changed('Industry');
+  if (industry) out.industry = industry.slice(0, 80);
+  const size = (changed('Company size') || '').replace(/[–—]/g, '-').replace(/\s*employees?$/i, '');
+  if (COMPANY_SIZES.includes(size)) out.size = size;
+  const address = changed('Address');
+  if (address) out.address = address;
+  const culture = changed('Culture & Values');
+  if (culture) out.culture = listFromText(culture);
+  const links = changed('Website & social links');
+  if (links) {
+    const { website, socials } = socialsFromText(links);
+    if (website) out.website = website;
+    if (Object.values(socials).some(Boolean)) out.socials = socials;
+  }
+  return out;
 };
 
 // Chat answers that fill the live company draft: node the answer leads into → fields.
@@ -2419,9 +2455,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     // Live recruiter: Company Info really saves (PUT /recruiter/company); no simulated round-trip.
     if (stageId === 'company-info' && recruiterLive) {
       setConfirmingStageId(stageId);
-      const d = companyDraft;
+      const d = { ...companyDraft, ...companyEditsFromPanel(companyLive, fieldsOrEntries) };
       saveCompany({
         ...(d.bio ? { bio: d.bio } : {}),
+        ...(d.industry ? { industry: d.industry } : {}),
+        ...(d.size ? { size: d.size } : {}),
         ...(d.culture?.length ? { culture: d.culture } : {}),
         ...(d.address ? { address: d.address } : {}),
         ...(d.website ? { website: d.website } : {}),
