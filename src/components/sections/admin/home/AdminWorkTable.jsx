@@ -10,9 +10,8 @@ const log = debug('AdminWorkTable');
  * Header 62 high on #f1f1f1 (16/24 #959592); rows 88 high with a #f1f1f1 rule; columns 64 (checkbox) · item (321) · status (198) · priority (136) ·
  * waiting (135) · actions (104), gap 40. Item cell: 40 round initials chip + 16/22 600 title + 16/24 #999 sub line. Status pill: its own fill /
  * border / ink per row. Priority: 48 x 6 bar + label (13.5/22 600). Waiting: 16/24 #959592.
- * Props: rows (HOME[role].rows), onOpen(row). Checkboxes are real (row + select-all).
- * ⚠️ ASSUMPTION: the "…" button opens a small menu (Open · Add a note · Reassign · Escalate: the hidden menu frame of the Figma table); only
- * "Open" has a destination (onOpen), the others log the intent.
+ * Props: rows, onOpen(row), actionsFor(row) -> [{ label, onSelect, danger }] (default: Open). Checkboxes are real (row + select-all).
+ * The "…" button opens the row's menu (the hidden menu frame of the Figma table); it lists only actions that do something.
  */
 
 const GRID =
@@ -22,9 +21,7 @@ const GRID =
 const CHECKBOX =
   "size-[16px] shrink-0 cursor-pointer appearance-none rounded-[4px] border border-solid border-[#d6d1c2] bg-white bg-center bg-no-repeat checked:border-[#387440] checked:bg-[#387440] checked:bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><path d=%22M4 8.5l2.6 2.6L12 5.6%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]";
 
-const MENU = ['Open', 'Add a note', 'Reassign', 'Escalate'];
-
-const RowMenu = ({ row, onOpen }) => {
+const RowMenu = ({ row, actions }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
@@ -42,10 +39,10 @@ const RowMenu = ({ row, onOpen }) => {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
-  const pick = (label) => {
-    log('row action', { label, row: row.title });
+  const pick = (a) => {
+    log('row action', { label: a.label, row: row.title });
     setOpen(false);
-    if (label === 'Open') onOpen?.(row);
+    a.onSelect(row);
   };
   return (
     <div ref={ref} className="relative flex justify-center">
@@ -64,18 +61,18 @@ const RowMenu = ({ row, onOpen }) => {
           role="menu"
           className="absolute top-[34px] right-0 z-20 m-0 flex w-[168px] list-none flex-col gap-[2px] rounded-[12px] border border-solid border-[#e5e5e5] bg-white p-[6px] shadow-[0_2px_4px_rgba(15,15,10,0.06),0_12px_28px_-6px_rgba(15,15,10,0.12)]"
         >
-          {MENU.map((label) => (
-            <li key={label} role="none">
+          {actions.map((a) => (
+            <li key={a.label} role="none">
               <button
                 type="button"
                 role="menuitem"
-                onClick={() => pick(label)}
+                onClick={() => pick(a)}
                 className={classNames(
                   'flex h-[36px] w-full cursor-pointer items-center rounded-[8px] border-0 bg-transparent px-[10px] text-left font-sans text-[14px] leading-[20px] hover:bg-[#f3f8f4] focus-visible:outline-2 focus-visible:outline-[#387440]',
-                  label === 'Escalate' ? 'text-[#c0392b]' : 'text-[#737373]'
+                  a.danger ? 'text-[#c0392b]' : 'text-[#1c2a21]'
                 )}
               >
-                {label}
+                {a.label}
               </button>
             </li>
           ))}
@@ -85,7 +82,9 @@ const RowMenu = ({ row, onOpen }) => {
   );
 };
 
-const AdminWorkTable = ({ rows, label = 'Work queue', onOpen, className }) => {
+const AdminWorkTable = ({ rows, label = 'Work queue', onOpen, actionsFor, className }) => {
+  const actionsOf = (r) =>
+    actionsFor ? actionsFor(r) : [{ label: 'Open', onSelect: (x) => onOpen?.(x) }];
   const [selected, setSelected] = useState([]);
   const all = selected.length === rows.length && rows.length > 0;
   const toggle = (id) => {
@@ -205,7 +204,7 @@ const AdminWorkTable = ({ rows, label = 'Work queue', onOpen, className }) => {
             >
               {r.wait}
             </div>
-            <RowMenu row={r} onOpen={onOpen} />
+            <RowMenu row={r} actions={actionsOf(r)} />
           </div>
         ))}
       </div>

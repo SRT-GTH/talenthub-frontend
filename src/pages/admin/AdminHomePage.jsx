@@ -54,8 +54,20 @@ const waitFor = (iso) => {
 };
 
 const ROW_STYLE = {
-  approval: { chipbg: '#f5f3ff', chipink: '#6d28d9', pillfill: '#f5f3ff', pillstroke: '#e4dcff', pillink: '#6d28d9' },
-  flag: { chipbg: '#c1e9c9', chipink: '#32683a', pillfill: '#f8f8f4', pillstroke: '#e8e8e4', pillink: '#737373' },
+  approval: {
+    chipbg: '#f5f3ff',
+    chipink: '#6d28d9',
+    pillfill: '#f5f3ff',
+    pillstroke: '#e4dcff',
+    pillink: '#6d28d9',
+  },
+  flag: {
+    chipbg: '#c1e9c9',
+    chipink: '#32683a',
+    pillfill: '#f8f8f4',
+    pillstroke: '#e8e8e4',
+    pillink: '#737373',
+  },
 };
 
 const AdminHomePage = () => {
@@ -69,14 +81,24 @@ const AdminHomePage = () => {
 
   const live = useAdminData(() => (senior ? realtime() : Promise.resolve(null)), [senior]);
   const approvals = useAdminData(() => (senior ? listApprovals() : Promise.resolve([])), [senior]);
-  const flags = useAdminData(() => (moderates ? flagQueue({ status: 'open', limit: 50 }) : Promise.resolve(null)), [moderates]);
-  const staffList = useAdminData(() => (senior ? listStaff({ limit: 200 }) : Promise.resolve(null)), [senior]);
+  const flags = useAdminData(
+    () => (moderates ? flagQueue({ status: 'open', limit: 50 }) : Promise.resolve(null)),
+    [moderates]
+  );
+  const staffList = useAdminData(
+    () => (senior ? listStaff({ limit: 200 }) : Promise.resolve(null)),
+    [senior]
+  );
 
   const pending = useMemo(() => approvals.data ?? [], [approvals.data]);
   const openFlags = useMemo(() => flags.data?.records ?? [], [flags.data]);
   const flagTotal = flags.data?.total ?? openFlags.length;
   const m = live.data?.metrics ?? {};
-  const firstName = user?.firstName || staff?.firstName || (user?.metadata?.displayName || '').split(' ')[0] || 'there';
+  const firstName =
+    user?.firstName ||
+    staff?.firstName ||
+    (user?.metadata?.displayName || '').split(' ')[0] ||
+    'there';
 
   useEffect(() => {
     log('mount', { role, approvals: pending.length, flags: openFlags.length });
@@ -118,6 +140,29 @@ const AdminHomePage = () => {
     return [...a, ...f].sort((x, y) => new Date(x.created) - new Date(y.created));
   }, [pending, openFlags]);
 
+  const PAGE_SIZE = 8;
+  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const [page, setPage] = useState(1);
+  const current = Math.min(page, pages);
+  const pageRows = rows.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+  const openRow = (row) =>
+    row.kind === 'approval'
+      ? data.update({ modal: 'approval', approval: docId(row.item) })
+      : navigate(`/admin/moderation/flags/${docId(row.item)}`);
+  // Only actions with a real flow: approvals open their decision dialog; Content Moderators can escalate a flag.
+  const actionsFor = (row) => [
+    { label: 'Open', onSelect: openRow },
+    ...(row.kind === 'flag' && role === 'moderator' && row.item.status !== 'escalated'
+      ? [
+          {
+            label: 'Escalate',
+            danger: true,
+            onSelect: (r) => navigate(`/admin/moderation/flags/${docId(r.item)}?modal=escalate`),
+          },
+        ]
+      : []),
+  ];
+
   const loadingAny = approvals.loading || flags.loading;
   const summary = loadingAny
     ? 'Loading your queue…'
@@ -127,8 +172,18 @@ const AdminHomePage = () => {
 
   const metaFor = (i) => {
     const counts = {
-      senior: [`${flagTotal} open`, `${Number(m.totalActiveUsers ?? 0).toLocaleString('en-GB')} active`, 'Not connected yet', `${pending.length} need you`],
-      super: [`${pending.length} need you`, `${staffList.data?.records?.length ?? '–'} staff`, 'Not connected yet', 'Every action'],
+      senior: [
+        `${flagTotal} open`,
+        `${Number(m.totalActiveUsers ?? 0).toLocaleString('en-GB')} active`,
+        'Not connected yet',
+        `${pending.length} need you`,
+      ],
+      super: [
+        `${pending.length} need you`,
+        `${staffList.data?.records?.length ?? '–'} staff`,
+        'Not connected yet',
+        'Every action',
+      ],
       support: ['Search by email', 'From an account page', 'Your reports', 'Not connected yet'],
       moderator: [`${flagTotal} open`, 'Reported posts', 'Removed content', 'From a flag'],
       dpo: ['Not connected yet', 'Exports', 'Exports', 'Every action'],
@@ -136,25 +191,49 @@ const AdminHomePage = () => {
     return (counts[role] ?? counts.senior)[i];
   };
   const TARGETS = {
-    senior: ['/admin/moderation', '/admin/accounts', '/admin/verification', '/admin?modal=approvals'],
+    senior: [
+      '/admin/moderation',
+      '/admin/accounts',
+      '/admin/verification',
+      '/admin?modal=approvals',
+    ],
     support: ['/admin/accounts', '/admin/accounts', '/admin/reports', '/admin/support'],
-    moderator: ['/admin/moderation', '/admin/moderation/posts', '/admin/moderation/removed', '/admin/moderation'],
-    super: ['/admin?modal=approvals', '/admin/settings/staff', '/admin/verification', '/admin/audit-log'],
+    moderator: [
+      '/admin/moderation',
+      '/admin/moderation/posts',
+      '/admin/moderation/removed',
+      '/admin/moderation',
+    ],
+    super: [
+      '/admin?modal=approvals',
+      '/admin/settings/staff',
+      '/admin/verification',
+      '/admin/audit-log',
+    ],
     dpo: ['/admin/verification', '/admin/reports', '/admin/reports', '/admin/audit-log'],
   };
-  const actions = design.actions.map((a, i) => ({ ...a, meta: metaFor(i), ink: INK[a.tint], to: (TARGETS[role] ?? TARGETS.senior)[i] }));
+  const actions = design.actions.map((a, i) => ({
+    ...a,
+    meta: metaFor(i),
+    ink: INK[a.tint],
+    to: (TARGETS[role] ?? TARGETS.senior)[i],
+  }));
 
   const snapshot = senior
     ? {
         eyebrow: 'LIVE OPS',
-        headline: live.loading ? 'Loading…' : `${Number(m.totalActiveUsers ?? 0).toLocaleString('en-GB')} active accounts · ${m.openModerationFlags ?? 0} flags open`,
+        headline: live.loading
+          ? 'Loading…'
+          : `${Number(m.totalActiveUsers ?? 0).toLocaleString('en-GB')} active accounts · ${m.openModerationFlags ?? 0} flags open`,
         line: `${m.newRegistrationsLastHour ?? 0} sign-ups in the last hour · ${m.recentEventCount ?? 0} events in the last hour`,
         action: 'Open live ops',
       }
     : {
         eyebrow: moderates ? 'MODERATION' : 'ACCOUNTS',
         headline: moderates ? `${flagTotal} flags waiting` : 'Look up an account',
-        line: moderates ? 'Newest first. Decisions are logged under your name.' : 'Search by email or username. Contact details stay masked for your role.',
+        line: moderates
+          ? 'Newest first. Decisions are logged under your name.'
+          : 'Search by email or username. Contact details stay masked for your role.',
         action: moderates ? 'Open the flag queue' : 'Search accounts',
       };
   const stats = {
@@ -162,13 +241,21 @@ const AdminHomePage = () => {
     items: [
       { label: 'Open flags', value: moderates ? String(flagTotal) : '–', ink: '#1f4a2b' },
       { label: 'Approvals', value: senior ? String(pending.length) : '–', ink: '#32683a' },
-      { label: 'Sign-ups (1h)', value: senior ? String(m.newRegistrationsLastHour ?? 0) : '–', ink: '#32683a' },
+      {
+        label: 'Sign-ups (1h)',
+        value: senior ? String(m.newRegistrationsLastHour ?? 0) : '–',
+        ink: '#32683a',
+      },
     ],
   };
   const oldest = rows[0];
   const next = oldest
     ? { eyebrow: 'Next step', title: oldest.title, body: `Waiting ${oldest.wait}. ${oldest.sub}.` }
-    : { eyebrow: 'Next step', title: 'Nothing waiting', body: 'New flags and approvals show up here as they arrive.' };
+    : {
+        eyebrow: 'Next step',
+        title: 'Nothing waiting',
+        body: 'New flags and approvals show up here as they arrive.',
+      };
 
   /* approvals dialog */
   const [reason, setReason] = useState('');
@@ -182,8 +269,13 @@ const AdminHomePage = () => {
     try {
       const res = await resolveApproval(docId(selected), decision, reason.trim() || undefined);
       toast(
-        decision === 'approve' ? (res?.pendingCooldown ? 'Approved after a cool-down' : 'Approved') : 'Rejected',
-        res?.message || `${humanize(selected.actionType)} ${decision === 'approve' ? 'approved' : 'rejected'}.`,
+        decision === 'approve'
+          ? res?.pendingCooldown
+            ? 'Approved after a cool-down'
+            : 'Approved'
+          : 'Rejected',
+        res?.message ||
+          `${humanize(selected.actionType)} ${decision === 'approve' ? 'approved' : 'rejected'}.`
       );
       data.update({ modal: null, approval: null });
       setReason('');
@@ -200,10 +292,17 @@ const AdminHomePage = () => {
       <AgencyPageHero
         title={`${greeting()}, ${firstName}`}
         subtitle={summary}
-        actions={<AgencyButton onClick={() => navigate('/admin/settings/roles')}>My permissions</AgencyButton>}
+        actions={
+          <AgencyButton onClick={() => navigate('/admin/settings/roles')}>
+            My permissions
+          </AgencyButton>
+        }
       />
       <AgencyQuickActions actions={actions} />
-      <AdminSnapshotCard snapshot={snapshot} to={senior ? '/admin/live-ops' : moderates ? '/admin/moderation' : '/admin/accounts'} />
+      <AdminSnapshotCard
+        snapshot={snapshot}
+        to={senior ? '/admin/live-ops' : moderates ? '/admin/moderation' : '/admin/accounts'}
+      />
       <div className="grid gap-[24px] xl:grid-cols-[minmax(0,878fr)_minmax(0,427fr)]">
         <AdminStatsCard stats={stats} />
         <AdminNextStepCard next={next} />
@@ -211,22 +310,34 @@ const AdminHomePage = () => {
       <div className="flex flex-col gap-[8px]">
         {rows.length ? (
           <AdminWorkTable
-            rows={rows}
+            rows={pageRows}
             label="Your work queue"
-            onOpen={(row) =>
-              row.kind === 'approval'
-                ? data.update({ modal: 'approval', approval: docId(row.item) })
-                : navigate(`/admin/moderation/flags/${docId(row.item)}`)
-            }
+            onOpen={openRow}
+            actionsFor={actionsFor}
           />
         ) : null}
-        <AdminPaginationBar summary={loadingAny ? 'Loading…' : `Showing ${rows.length} item${rows.length === 1 ? '' : 's'} in your queue`} />
+        <AdminPaginationBar
+          summary={
+            loadingAny
+              ? 'Loading…'
+              : rows.length
+                ? `Showing ${(current - 1) * PAGE_SIZE + 1} to ${(current - 1) * PAGE_SIZE + pageRows.length} of ${rows.length} item${rows.length === 1 ? '' : 's'} in your queue`
+                : 'Nothing in your queue'
+          }
+          page={current}
+          pages={pages}
+          onPage={setPage}
+        />
       </div>
 
       {data.modal === 'approvals' ? (
         <AdminConfirmDialog
           title={`${pending.length} approval${pending.length === 1 ? '' : 's'} waiting`}
-          body={pending.length ? 'Pick one from your work queue to approve or reject it.' : 'Nothing needs your approval right now.'}
+          body={
+            pending.length
+              ? 'Pick one from your work queue to approve or reject it.'
+              : 'Nothing needs your approval right now.'
+          }
           primary={{ label: 'OK' }}
           secondary="Close"
           onPrimary={() => data.update({ modal: null })}
@@ -249,7 +360,12 @@ const AdminHomePage = () => {
             <pre className="m-0 max-h-[160px] overflow-auto rounded-[12px] bg-[#f8f8f4] p-[10px] font-mono text-[12px] whitespace-pre-wrap">
               {JSON.stringify(selected.payload ?? {}, null, 2)}
             </pre>
-            <TextInput label="Note (optional, logged)" value={reason} onChange={(e) => setReason(e.target.value)} error={err || undefined} />
+            <TextInput
+              label="Note (optional, logged)"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              error={err || undefined}
+            />
           </div>
         </AdminConfirmDialog>
       ) : null}
