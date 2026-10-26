@@ -76,6 +76,29 @@ const STATUS_TEXT = {
   not_implemented: 'Not implemented',
 };
 
+/* One line per previewed row. Readers write different collections: labour figures (GSS, GLMIS), university
+   programmes, WAEC / GTEC references and job postings, so there is no shared "title" field. */
+const UNIT_SUFFIX = { percent: '%', count: '' }; // others (GHS/hour, GHS/day) print as-is after a space
+function previewRowLabel(row) {
+  const join = (...parts) =>
+    parts.filter((x) => x !== null && x !== undefined && x !== '').join(' \u00b7 ');
+  if (row.indicatorType) {
+    const value =
+      row.value === null || row.value === undefined
+        ? ''
+        : `${Number(row.value).toLocaleString()}${UNIT_SUFFIX[row.valueUnit] ?? (row.valueUnit ? ` ${row.valueUnit}` : '')}`;
+    const label =
+      row.displayLabel ||
+      join(row.indicatorType.replace(/_/g, ' '), row.sector, row.occupation, row.region);
+    return join(label, value, row.period);
+  }
+  if (row.referenceType)
+    return join(row.label || row.key, row.referenceType.replace(/_/g, ' '), row.effectiveYear);
+  if (row.university) return join(row.title, String(row.university).toUpperCase(), row.level);
+  const place = [row.town, row.district, row.region].filter(Boolean).join(', ');
+  return join(row.title || row.label || row.displayLabel || row.sourceUrl, row.employer, place);
+}
+
 const OnetCard = ({ onet, canEdit, toast, reload }) => {
   const [check, setCheck] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -300,17 +323,13 @@ const SourceRow = ({ t, canEdit, toast, reload }) => {
           {preview.ok ? (
             <>
               <span className="font-semibold">Preview (nothing saved):</span> showing the first{' '}
-              {preview.preview?.length ?? 0} of {preview.listed ?? '?'} on the first list page
+              {preview.listed != null
+                ? `${preview.preview?.length ?? 0} of ${preview.listed} on the first list page`
+                : `${preview.preview?.length ?? 0} rows read`}
               {preview.summary?.degraded ? ' · some pages could not be read' : ''}
               <ul className="m-0 mt-[6px] list-none p-0">
-                {(preview.preview || []).slice(0, 5).map((row) => (
-                  <li key={row.sourceUrl}>
-                    {row.title}
-                    {row.employer ? ` · ${row.employer}` : ''}
-                    {row.district || row.region || row.town
-                      ? ` · ${[row.town, row.district, row.region].filter(Boolean).join(', ')}`
-                      : ''}
-                  </li>
+                {(preview.preview || []).slice(0, 5).map((row, i) => (
+                  <li key={`${i}-${row.sourceUrl || ''}`}>{previewRowLabel(row)}</li>
                 ))}
               </ul>
             </>
