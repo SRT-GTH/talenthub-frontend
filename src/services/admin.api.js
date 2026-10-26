@@ -280,7 +280,9 @@ export const catOnetCheck = () => post('/admin/catalog/data-sources/onet/check',
 /** Starts an O*NET import in the background: { force, reason } → { started }. */
 export const catOnetRun = (p) => post('/admin/catalog/data-sources/onet/run', clean(p));
 /** Reads a Ghana source without saving: { ok, preview: rows[0..4], summary: { totalRows, degraded, ... } }. */
-export const catScrapeCheck = (key) => post(`/admin/catalog/data-sources/scrape/${key}/check`, {});
+// A preview fetches live pages from the source (robots.txt plus a list page), which can outlast the default 15 s.
+export const catScrapeCheck = (key) =>
+  api.post(`/admin/catalog/data-sources/scrape/${key}/check`, {}, { timeout: 60000 }).then(body);
 /** Reads a Ghana source in the background and saves the rows: { reason } → { started }. */
 export const catScrapeRun = (key, reason) =>
   post(`/admin/catalog/data-sources/scrape/${key}/run`, { reason });
