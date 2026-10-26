@@ -1,0 +1,50 @@
+/* === Platform Admin · accessibility preferences (top bar › Accessibility; components/sections/admin/chrome/useAdminA11y.js)
+ * Keyed to data-admin-* attributes on the admin root ([data-admin]), so no other surface is affected. */
+
+/* Text size: the admin UI is sized in px, so scale the content column and panels as a whole. */
+[data-admin][data-admin-text='large'] #admin-main,
+[data-admin][data-admin-text='large'] [role='dialog'] {
+  zoom: 1.12;
+}
+[data-admin][data-admin-text='larger'] #admin-main,
+[data-admin][data-admin-text='larger'] [role='dialog'] {
+  zoom: 1.25;
+}
+
+/* High contrast: secondary text and hairlines darker, soft shadows off. */
+[data-admin][data-admin-contrast] {
+  --tw-shadow: 0 0 #0000;
+}
+[data-admin][data-admin-contrast] .text-\[\#595959\],
+[data-admin][data-admin-contrast] .text-\[\#737373\],
+[data-admin][data-admin-contrast] .text-\[\#8a8a85\],
+[data-admin][data-admin-contrast] .text-\[\#575755\] {
+  color: #222 !important;
+}
+[data-admin][data-admin-contrast] .border-\[\#e7e7e7\],
+[data-admin][data-admin-contrast] .border-\[\#efefec\],
+[data-admin][data-admin-contrast] .border-\[\#e1eae2\],
+[data-admin][data-admin-contrast] .border-\[\#dfdfdc\] {
+  border-color: #6b6b6b !important;
+}
+[data-admin][data-admin-contrast] :focus-visible {
+  outline: 3px solid #111 !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduce motion. */
+[data-admin][data-admin-motion],
+[data-admin][data-admin-motion] *,
+[data-admin][data-admin-motion] *::before,
+[data-admin][data-admin-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Underline links. */
+[data-admin][data-admin-links] a {
+  text-decoration: underline solid !important;
+  text-underline-position: from-font;
+}
