@@ -11,7 +11,6 @@ import {
   AgencyChevronDownIcon,
   AgencyGlobeIcon,
   AgencyHelpIcon,
-  AgencyMessageIcon,
   AgencySearchIcon,
 } from './agencyIcons.jsx';
 import { AGENCY_BASE } from './agencyNav.js';
@@ -24,7 +23,8 @@ const log = debug('AgencyTopBar');
  *           accessibility · profile chip "Efua O." (opens ?modal=profile, 11.6.0b)
  *   < lg  : Figma "Mobile top bar" 8613:9 (phone 360 and tablet 834) — h73: menu button 48 · "GTH" · bell 48 · avatar 40
  * ⌘K (or Ctrl+K) focuses the search; Enter goes to the Queries page with ?q=. ⚠️ ASSUMPTION: Figma draws no search results.
- * Help / notifications / messages / accessibility / language only set ?modal=help|notifications|messages|a11y|language (nothing is drawn for them yet).
+ * Help / notifications / accessibility / language set ?modal=help|notifications|a11y|language; AgencyFrame draws those panels (AgencyChromePanels).
+ * The bell badge is the unread count of GET /notifications. Agencies have no message inbox on GTH, so the messages button is not shown.
  */
 
 const ROUND =
@@ -33,10 +33,11 @@ const ROUND =
 const Badge = ({ count }) =>
   count ? (
     <span
+      data-badge=""
       aria-hidden="true"
       className="absolute -top-[2px] left-[23px] flex size-[16px] items-center justify-center rounded-full border-[1.5px] border-solid border-white bg-[#c0392b] font-sans text-[10px] leading-[16px] font-semibold text-white"
     >
-      {count}
+      {count > 9 ? '9+' : count}
     </span>
   ) : null;
 
@@ -63,7 +64,7 @@ const AgencyTopBar = ({ session, data, modalOpen = false, menuButtonRef, classNa
     log('search', q);
     navigate(q ? `${AGENCY_BASE}/queries?q=${encodeURIComponent(q)}` : `${AGENCY_BASE}/queries`);
   };
-  const open = (name) => data.update({ modal: name });
+  const open = (name) => data.update({ modal: data.modal === name ? null : name });
 
   return (
     <header
@@ -163,15 +164,6 @@ const AgencyTopBar = ({ session, data, modalOpen = false, menuButtonRef, classNa
             >
               <AgencyBellIcon className="size-[16px]" />
               <Badge count={badges.notifications} />
-            </button>
-            <button
-              type="button"
-              aria-label={`Messages, ${badges.messages} unread`}
-              onClick={() => open('messages')}
-              className={classNames(ROUND, 'size-[36px]')}
-            >
-              <AgencyMessageIcon className="size-[18px]" />
-              <Badge count={badges.messages} />
             </button>
             <button
               type="button"

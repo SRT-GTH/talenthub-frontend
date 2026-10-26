@@ -7,7 +7,10 @@ import { DATE_RANGE, FRAME_SERIES, GRANULARITY_BY_RANGE, TREND_RANGES } from './
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_MS = 86400000;
-const TODAY = new Date(`${DATE_RANGE.today}T00:00:00`);
+const TODAY = (() => {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+})();
 
 const iso = (d) => d.toISOString().slice(0, 10);
 export const parseIso = (s) => {
@@ -189,3 +192,28 @@ export const defaultCustomBounds = () => ({
 });
 export const isoOf = iso;
 export const RANGE_IDS = TREND_RANGES.map((r) => r.id);
+
+/** Round axis: 0 .. a nice max with about four steps (raw counts, live data). */
+export const niceTicks = (maxValue, steps = 4) => {
+  const v = Math.max(1, Number(maxValue) || 0);
+  const raw = v / steps;
+  const p = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((s) => s >= raw) ?? 10 * p;
+  const top = Math.ceil(v / step) * step;
+  return {
+    max: top,
+    ticks: Array.from(
+      { length: Math.round(top / step) + 1 },
+      (_, i) => Math.round(i * step * 100) / 100
+    ),
+  };
+};
+
+/** 1234 -> "1.2k", 12 -> "12". */
+export const autoFormat = (v) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : String(v));
+
+/** X-axis ticks of a live series: about seven labels. */
+export const liveTicks = (labels) => {
+  const step = labels.length > 14 ? Math.ceil(labels.length / 7) : labels.length > 8 ? 2 : 1;
+  return labels.filter((_, i) => i % step === 0);
+};

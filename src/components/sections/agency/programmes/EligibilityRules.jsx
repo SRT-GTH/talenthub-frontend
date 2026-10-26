@@ -27,7 +27,7 @@ import {
  * Every control is live: the selects open Theme 8 listboxes (age, add skill) or the Queries multi-select menu (regions); a skill chip removes itself
  * (its "×" shows on hover / focus); the readiness meter is a range input (1 · 2 · 3 · 6 months); the Under-18s switch changes the audience (the rule is set by the MoU,
  * switching it on leaves almost nobody, frame 11.5.2h). Esc closes a menu and returns focus to its button.
- * Props: rules, onChange(patch).
+ * Props: rules, onChange(patch), skillOptions (skill names talents on GTH hold, GET /agency/programmes/skills; falls back to SKILL_OPTIONS).
  */
 
 const Row = ({ icon, title, sentence, checked, onToggle, children, last }) => (
@@ -67,7 +67,7 @@ const SelectButton = ({ children, expanded, onClick, buttonRef, controls, label 
   </button>
 );
 
-const EligibilityRules = ({ rules, onChange }) => {
+const EligibilityRules = ({ rules, onChange, skillOptions }) => {
   const [open, setOpen] = useState(null);
   const refs = useRef({});
   const wrapRef = useRef(null);
@@ -92,7 +92,9 @@ const EligibilityRules = ({ rules, onChange }) => {
   );
 
   const ageLabel = AGE_RANGES.find((a) => a.id === rules.age)?.label ?? '18–35';
-  const freeSkills = SKILL_OPTIONS.filter((s) => !rules.skills.includes(s));
+  const freeSkills = (skillOptions?.length ? skillOptions : SKILL_OPTIONS).filter(
+    (s) => !rules.skills.includes(s)
+  );
   const readiness = READINESS_STEPS.find((s) => s.months === rules.readiness) ?? READINESS_STEPS[2];
   const stepIndex = READINESS_STEPS.indexOf(readiness);
   const meter = Math.min(1, 0.2867 * readiness.months);

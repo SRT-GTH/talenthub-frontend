@@ -12,8 +12,8 @@ const log = debug('AgencySavedQueriesTable');
  * Header 62 high on #f1f1f1 (16/24 #959592); rows 88 high with a #f1f1f1 rule; columns 64 (checkbox) · name (321) · status (198) · result (136) ·
  * last run (135) · actions (104), gap 40, centred. Name cell: 40 round initials chip + 16/22 600 title + 16/24 #999 dimensions.
  * Status pill: Monthly #f8f8f4 / Weekly #f3f8f4 / Paused #f9ebea with its border. Result: 48 x 6 bar + count (13.5/22 600); a count under 5 reads "<5" (formatCount).
- * Props: rows (SAVED_QUERIES shape). Checkboxes are real (row + select-all).
- * ⚠️ ASSUMPTION: the "…" actions button opens the Queries page (no menu is drawn).
+ * Props: rows (toHomeQueryRow shape, from GET /agency/home). Checkboxes are real (row + select-all). The query name and the "…" button open
+ * that query's results; an empty list says how to save one.
  */
 
 const CADENCE = {
@@ -68,6 +68,17 @@ const AgencySavedQueriesTable = ({ rows, className }) => {
         </div>
       </div>
       <div role="rowgroup">
+        {rows.length === 0 ? (
+          <div role="row" className="border-t border-solid border-[#f1f1f1] px-[24px] py-[20px]">
+            <p role="cell" className="m-0 text-[15px] leading-[22px] text-[#737373]">
+              No saved queries yet.{' '}
+              <Link to="/agency/queries" className="font-semibold text-[#387440]">
+                Build one
+              </Link>{' '}
+              and save it to rerun it on a schedule.
+            </p>
+          </div>
+        ) : null}
         {rows.map((r) => (
           <div
             key={r.id}
@@ -94,9 +105,12 @@ const AgencySavedQueriesTable = ({ rows, className }) => {
                 {r.initials}
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className="truncate text-[16px] leading-[22px] font-semibold text-[#1c2a21]">
+                <Link
+                  to={r.href || '/agency/queries'}
+                  className="truncate text-[16px] leading-[22px] font-semibold text-[#1c2a21] no-underline hover:underline"
+                >
                   {r.name}
-                </span>
+                </Link>
                 <span className="truncate text-[16px] leading-[24px] tracking-[0.2px] text-[#999999]">
                   {r.dims}
                 </span>
@@ -134,8 +148,8 @@ const AgencySavedQueriesTable = ({ rows, className }) => {
             </div>
             <div role="cell" className="flex justify-center">
               <Link
-                to="/agency/queries"
-                aria-label={`Actions for ${r.name}`}
+                to={r.href || '/agency/queries/saved'}
+                aria-label={`Open ${r.name}`}
                 className="inline-flex min-h-[28px] min-w-[32px] items-center justify-center rounded-[8px] text-[#9a988f] hover:bg-[#f1f1f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
               >
                 <AgEllipsis className="h-[4px] w-[16px]" />

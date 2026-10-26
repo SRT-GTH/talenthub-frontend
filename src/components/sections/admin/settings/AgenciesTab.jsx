@@ -9,6 +9,7 @@ import { AdminChipCheckIcon } from './settingsIcons.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
+import AgencyDataRequestsReview from './AgencyDataRequestsReview.jsx';
 import { adminError, shortDate, timeAgo } from '../../../../services/admin.api.js';
 import {
   adminApproveAgencyRequest,
@@ -366,6 +367,8 @@ const AgenciesTab = ({ creating, onClose, session }) => {
           ))}
         </GroupCard>
       ) : null}
+
+      <AgencyDataRequestsReview canEdit={canEdit} toast={toast} />
 
       <GroupCard title={`Agencies · ${rows.length}`} gap="gap-0">
         <AdminLoadNotice

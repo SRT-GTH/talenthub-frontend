@@ -18,8 +18,8 @@ const log = debug('AgencyBriefingModals');
  * when this component is mounted on the same page. /agency/briefing mounts it over the National data view (AgencyBriefingPage).
  *
  * URL KEYS (documented in wiki/agency.md by the lead)
- *   modal=download                 choose → build (MOCK) → report opens in a new tab with the print dialog
- *     state=building               resume the build at step 3 (11.4.4b)       state=failed  the failure dialog (11.4.4h)      pdf=fail  make the MOCK build fail
+ *   modal=download                 choose → build (GET /agency/report) → report opens in a new tab with the print dialog
+ *     state=building               resume the build at step 3 (11.4.4b)       state=failed  the failure dialog (11.4.4h)
  *   modal=share                    share with a colleague (11.4.4c)           state=copied  no dialog, the "Link copied" toast (11.4.4d)
  *   modal=digest                   monthly digest (11.4.4e)
  * BEHAVIOUR: focus trap, Esc, scrim click and scroll lock (Theme 8 useDialogBehaviour through ShareDialogShell); focus returns to the element that
@@ -85,7 +85,7 @@ const AgencyBriefingModals = ({ data }) => {
   );
   const subscribed = useCallback(() => {
     log('digest subscribed');
-    setAnnounce('Subscribed to the monthly digest.');
+    setAnnounce('Subscribed to the email digest.');
     update(clear, { replace: true });
     restoreFocus();
   }, [update, clear, restoreFocus]);

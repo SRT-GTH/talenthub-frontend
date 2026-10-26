@@ -10,6 +10,11 @@ const AgencyPublicSideCards = ({ reach, open }) => (
       <p className="m-0 text-[14px] leading-[17px] font-medium text-[#1c2a21]">{reach.caption}</p>
     </PublicCard>
     <PublicCard title={open.title} bodyClassName="flex flex-col gap-[10px] px-[24px] pb-[24px]">
+      {!open.items.length ? (
+        <p className="m-0 text-[14px] leading-[20px] text-[#595959]">
+          No programme is open right now.
+        </p>
+      ) : null}
       {open.items.map((o) => (
         <div
           key={o.id}

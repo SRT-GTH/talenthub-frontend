@@ -8,16 +8,17 @@ import { AgencySettingsInfoIcon } from './agencySettingsIcons.jsx';
  * AgencyRemoveAccessDialog — Figma 11.6.1d "Remove analyst access" (8611:1787, 520 wide, r24, p28): red trash tile, "Remove <name>’s access?",
  * "What happens:" list with red crosses, cream info box, Cancel / "Remove access". Focus is trapped, Esc closes, focus returns to the opener.
  * Figma also draws a "Type DELETE" field that is hidden (visible:false): not rendered.
- * Props: analyst (from ANALYSTS), actorName, onClose, onConfirm.
+ * Props: analyst (GET /agency/analysts row: name, queries, requests), onClose, onConfirm (DELETE /agency/analysts/:id).
  */
-const AgencyRemoveAccessDialog = ({ analyst, actorName, onClose, onConfirm }) => {
+const AgencyRemoveAccessDialog = ({ analyst, onClose, onConfirm }) => {
   if (!analyst) return null;
   const p = analyst.pronoun ?? { subject: 'They’re', possessive: 'Their' };
+  const queries = analyst.queries ?? 0;
   const requests = analyst.requests ?? 0;
   const items = [
-    `${p.subject} signed out right away`,
-    `${p.possessive} ${analyst.queries ?? 0} saved queries move to ${actorName}`,
-    `${requests} pending data request${requests === 1 ? '' : 's'} ${requests === 1 ? 'moves' : 'move'} to you`,
+    `${p.subject} signed out right away and can’t sign in again`,
+    `${p.possessive} ${queries} saved quer${queries === 1 ? 'y stays' : 'ies stay'} with the agency`,
+    `${requests} data request${requests === 1 ? '' : 's'} ${requests === 1 ? 'stays' : 'stay'} with the agency`,
     'This frees 1 analyst seat',
   ];
   return (

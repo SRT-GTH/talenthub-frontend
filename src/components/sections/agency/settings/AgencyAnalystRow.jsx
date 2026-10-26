@@ -11,9 +11,9 @@ const LINK =
  * 13px detail line, and the right-hand action: "You" (self, text), "Change" (role select), "Resend" (invited).
  * "Change" turns into a role <select> (Esc or choosing closes it); ⚠️ ASSUMPTION: "Remove access" (the dialog's own label) sits next to Change
  * for analysts other than you, since the frames draw the dialog but not its trigger.
- * Props: analyst, onRole(id, role), onRemove(id), onResend(id).
+ * Props: analyst, readOnly (non-admins: no actions), onRole(id, role), onRemove(id), onResend(id) ("Resend" issues a new temporary password).
  */
-const AgencyAnalystRow = ({ analyst, onRole, onRemove, onResend }) => {
+const AgencyAnalystRow = ({ analyst, readOnly = false, onRole, onRemove, onResend }) => {
   const [editing, setEditing] = useState(false);
   const selectRef = useRef(null);
   const active = analyst.status === 'active';
@@ -53,7 +53,7 @@ const AgencyAnalystRow = ({ analyst, onRole, onRemove, onResend }) => {
             You
           </span>
         ) : null}
-        {active && !analyst.self && editing ? (
+        {readOnly ? null : active && !analyst.self && editing ? (
           <select
             ref={selectRef}
             aria-label={`Role for ${analyst.name}`}
@@ -78,7 +78,7 @@ const AgencyAnalystRow = ({ analyst, onRole, onRemove, onResend }) => {
             ))}
           </select>
         ) : null}
-        {active && !analyst.self && !editing ? (
+        {!readOnly && active && !analyst.self && !editing ? (
           <>
             <button
               type="button"
@@ -98,11 +98,11 @@ const AgencyAnalystRow = ({ analyst, onRole, onRemove, onResend }) => {
             </button>
           </>
         ) : null}
-        {!active ? (
+        {!active && !readOnly ? (
           <button
             type="button"
             className={LINK}
-            aria-label={`Resend invite to ${analyst.email}`}
+            aria-label={`New temporary password for ${analyst.email}`}
             onClick={() => onResend(analyst.id)}
           >
             Resend

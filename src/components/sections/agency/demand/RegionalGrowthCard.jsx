@@ -22,6 +22,11 @@ const RegionalGrowthCard = ({ names, values, text }) => {
       className="flex flex-col"
       bodyClassName="flex flex-1 flex-col gap-[12px] px-[24px] pb-[24px]"
     >
+      {!names.length ? (
+        <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+          No region had 5 or more sign-ups in both periods, so there is no change to compare.
+        </p>
+      ) : null}
       <ol className="m-0 flex list-none flex-col gap-[4px] p-0 font-sans">
         {names.map((name, i) => {
           const v = values[i];

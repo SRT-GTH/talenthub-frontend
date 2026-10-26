@@ -113,7 +113,7 @@ const AgencyMouEmpty = ({ onAdd, onManual }) => {
           {error}
         </p>
         <a
-          href="mailto:agencies@ghanatalenthub.example"
+          href="mailto:info@ghanatalenthub.com"
           className="font-sans text-[14px] leading-[17px] font-semibold text-[#595959] underline underline-offset-2"
         >
           {U.empty.help}

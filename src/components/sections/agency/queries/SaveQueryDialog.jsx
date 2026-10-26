@@ -18,8 +18,8 @@ import {
  *   head: title 24/30 600 + the "and refresh" sticker (#ebf1ec) + "Name it and we’ll rerun it on a schedule. ..."
  *   a #ebf1ec r18 card: "Refresh" + the big value ("Monthly", 28/35 600), a slider (track 8, knob 24 #ffd86b), the end labels and the white quota pill
  *   "TELL ME WHEN IT CHANGES" + three switches (In GTH · Email on, Push on my phone off) · the cap note · Cancel + "Save query"
- * Props: quotaUsedPct (number), name (suggested query name), onSave({ schedule, channels }), onClose.
- * ⚠️ ASSUMPTION: the frame draws no name field, so the query is saved under the name built from its filters (`name`).
+ * Props: quotaUsedPct (number), name (suggested query name), busy, error, onSave({ schedule, channels, name }), onClose.
+ * A name field (prefilled with the name built from the filters) sits under the intro; Save calls POST /agency/queries through the page.
  * ⚠️ Figma inconsistency kept: the knob is drawn at 35 % of the track while the value reads "Monthly" (the end labels say Weekly ... Monthly);
  * the slider keeps that: values under 35 mean Weekly, 35 and over mean Monthly.
  * Focus trap, Esc and focus return come from AgencyDialogShell; each switch is a role="switch" button.
@@ -47,8 +47,16 @@ const CHANNEL_ICON = {
   phone: QueriesIconPhone,
 };
 
-const SaveQueryDialog = ({ quotaUsedPct, onSave, onClose }) => {
+const SaveQueryDialog = ({
+  quotaUsedPct,
+  name: suggested = '',
+  busy = false,
+  error = '',
+  onSave,
+  onClose,
+}) => {
   const [slider, setSlider] = useState(35);
+  const [name, setName] = useState(suggested.slice(0, 80));
   const [channels, setChannels] = useState({ gth: true, email: true, push: false });
   const step = slider >= 35 ? REFRESH_STEPS[1] : REFRESH_STEPS[0];
 
@@ -73,6 +81,16 @@ const SaveQueryDialog = ({ quotaUsedPct, onSave, onClose }) => {
             Name it and we’ll rerun it on a schedule. Analysts on your team can open it too.
           </p>
         </div>
+        <label className="flex flex-col gap-[6px]">
+          <span className="text-[13px] leading-[16px] font-semibold text-[#1c2a21]">Name</span>
+          <input
+            type="text"
+            value={name}
+            maxLength={80}
+            onChange={(e) => setName(e.target.value)}
+            className="rounded-[12px] border border-solid border-[#e7e7e7] bg-white px-[14px] py-[10px] font-sans text-[15px] leading-[18px] text-[#1c2a21] outline-none focus:border-[#387440]"
+          />
+        </label>
         <div className="flex flex-col gap-[16px] rounded-[18px] bg-[#ebf1ec] px-[16px] pt-[16px] pb-[14px]">
           <div className="flex items-center justify-between gap-[8px]">
             <span className="text-[14px] leading-[17px] font-semibold text-[#1c2a21]">Refresh</span>
@@ -147,6 +165,14 @@ const SaveQueryDialog = ({ quotaUsedPct, onSave, onClose }) => {
           <QueriesIconClock className="size-[15px] shrink-0" />
           We only notify you when a number moves by more than 5%.
         </p>
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[12px] bg-[#fdecea] px-[12px] py-[8px] text-[13px] leading-[18px] text-[#902b20]"
+          >
+            {error}
+          </p>
+        ) : null}
         <div className="flex gap-[10px]">
           <Button
             type="button"
@@ -161,10 +187,11 @@ const SaveQueryDialog = ({ quotaUsedPct, onSave, onClose }) => {
             type="button"
             variant="primary"
             size="sm"
-            onClick={() => onSave({ schedule: step, channels })}
+            disabled={busy || name.trim().length < 2}
+            onClick={() => onSave({ schedule: step, channels, name: name.trim() })}
             className={classNames(PRIMARY_BUTTON, 'flex-1')}
           >
-            Save query
+            {busy ? 'Saving…' : 'Save query'}
           </Button>
         </div>
       </div>

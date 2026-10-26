@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DISTRICTS_BY_REGION } from '../../../../constants/ghanaDistricts.js';
 import { debug } from '../../../../utils/debug.js';
+import { agencyDemand } from '../../../../services/agency.api.js';
 import { regionById, REGIONS } from '../../publicData/regionsList.js';
+import { useAgencyResource } from '../useAgencyResource.js';
 import DemandCompactKpis from './DemandCompactKpis.jsx';
 import DemandFilterRow from './DemandFilterRow.jsx';
 import DemandKpiStrip from './DemandKpiStrip.jsx';
@@ -16,72 +17,41 @@ import SkillDemandEmpty from './SkillDemandEmpty.jsx';
 import SupplyDemandCard from './SupplyDemandCard.jsx';
 import TopSkillsCard from './TopSkillsCard.jsx';
 import useMinWidth from './useMinWidth.js';
-import {
-  CATEGORIES,
-  EMERGING_SKILLS,
-  EMPTY_FILTERS,
-  EXTRA_DISTRICTS,
-  NATIONAL_KPIS,
-  NO_RESULTS,
-  PERIODS,
-  PRIVACY_FOOTNOTE,
-  SHORT_SKILL_NAMES,
-  SKILLS,
-  SUPPLY_DEMAND,
-} from './data/demandData.js';
-import { regionDrill, regionOpps, skillFocus } from './demandDerive.js';
+import { PERIODS, PRIVACY_FOOTNOTE } from './data/demandData.js';
 
 const log = debug('SkillDemandView');
 
 /*
- * SkillDemandView — body of /agency/demand (view=skills), Figma 11.4.5a-d, m, o, p.
- * URL: skill=<id> (11.4.5b) · region=<id> (district drill-down, 11.4.5c: Northern is drawn, other regions scale it) · district= · category= · period= ·
- * state=empty (11.4.5d: the two chips of the frame) | suppressed-region (11.4.5m: Drone crop spraying + the Upper West hover card) · modal=filters (More filters drawer).
- * >= lg: filter bar · KPI row · map + Top 10 (or districts + Top 10) · breakdown + emerging · supply vs demand. < lg (phone 360 / tablet 834): chips only,
- * four KPI cards, Top 10 (6 + "Show all 10"), region list instead of the map, emerging (3), supply (4).
+ * SkillDemandView — body of /agency/demand (view=skills), Figma 11.4.5a-d, m, o, p. Live: GET /agency/demand?period=&region=&skill=&category=
+ * (opportunities posted on GTH vs the previous period of the same length; talents holding each skill; groups of 1-4 arrive as "<5").
+ * URL: skill=<id> · region=<id> (town drill-down inside the region) · category=<cluster id> · period=quarter|30d|12m · modal=filters.
+ * >= lg: filter bar · KPI row · map + Top 10 (or towns + Top 10) · breakdown + emerging · supply vs demand. < lg: chips only, four KPI cards,
+ * Top 10, region list instead of the map, emerging, supply.
  */
 
-const FILTER_KEYS = ['skill', 'region', 'district', 'category'];
-
-const districtOptions = (regionId) => {
-  const name = regionById(regionId)?.name;
-  const list = name
-    ? (DISTRICTS_BY_REGION[name] ?? [])
-    : [...(DISTRICTS_BY_REGION.Northern ?? []), ...(DISTRICTS_BY_REGION['Greater Accra'] ?? [])];
-  const base = list.map((n) => ({ id: n.toLowerCase().replace(/[^a-z]+/g, '-'), label: n }));
-  return regionId === 'north-east' || !regionId ? [...EXTRA_DISTRICTS, ...base] : base;
-};
+const FILTER_KEYS = ['skill', 'region', 'category'];
 
 const SkillDemandView = ({ data }) => {
   const navigate = useNavigate();
   const desktop = useMinWidth(1024);
-  const { params, state } = data;
-  const empty = state === 'empty';
-  const suppressedRegion = state === 'suppressed-region';
-  const skillId = params.get('skill') ?? (suppressedRegion ? 'drone-crop-spraying' : null);
+  const { params } = data;
+  const skillId = params.get('skill');
   const region = params.get('region');
-  const district = params.get('district') ?? (empty ? EMPTY_FILTERS.district : null);
-  const category = params.get('category') ?? (empty ? EMPTY_FILTERS.category : null);
+  const category = params.get('category');
   const period = params.get('period') ?? 'quarter';
-  const focus = useMemo(() => skillFocus(skillId), [skillId]);
-  const drill = useMemo(() => (region ? regionDrill(region) : null), [region]);
-  const opps = useMemo(() => regionOpps(focus), [focus]);
+  const res = useAgencyResource(
+    () => agencyDemand({ period, region, skill: skillId, category }),
+    [period, region, skillId, category]
+  );
+  const live = res.data;
 
   useEffect(() => {
-    log('state', { skillId, region, district, category, empty });
-  }, [skillId, region, district, category, empty]);
+    log('state', { skillId, region, category, period });
+  }, [skillId, region, category, period]);
 
   const change = (key, id) => {
     log('filter', key, id);
     const patch = { [key]: id, state: null };
-    if (empty) {
-      patch.district = district;
-      patch.category = category;
-      patch[key] = id;
-    }
-    if (suppressedRegion) patch.skill = skillId;
-    if (key === 'region') patch.district = null;
-    if (key === 'skill' && id) patch.state = null;
     data.update(patch, { replace: true });
   };
   const clearAll = () => {
@@ -92,15 +62,16 @@ const SkillDemandView = ({ data }) => {
   };
   const saveQuery = () => {
     const qs = new URLSearchParams(
-      Object.entries({ region, district, skill: skillId, category }).filter(([, v]) => v)
+      Object.entries({ region, skill: skillId, category }).filter(([, v]) => v)
     ).toString();
     navigate(`/agency/queries?modal=save-query&state=results${qs ? `&${qs}` : ''}`);
   };
   const openRegion = (id) => {
     log('open region', id);
-    data.update({ region: id, district: null, state: null }, { replace: false });
+    data.update({ region: id, state: null }, { replace: false });
   };
 
+  const regionName = region ? regionById(region)?.name : null;
   const chips = [
     {
       key: 'region',
@@ -110,90 +81,94 @@ const SkillDemandView = ({ data }) => {
       allLabel: 'All regions',
     },
     {
-      key: 'district',
-      desktopOnly: true,
-      label: 'District',
-      value: district,
-      options: districtOptions(region),
-      allLabel: 'All districts',
+      key: 'skill',
+      label: 'Skill',
+      value: skillId,
+      options: live?.skillOptions ?? [],
+      allLabel: 'All skills',
     },
-    focus
-      ? {
-          key: 'skill',
-          label: 'Skill',
-          value: skillId,
-          options: [...SKILLS, ...EMERGING_SKILLS].map((s) => ({ id: s.id, label: s.name })),
-          allLabel: 'All skills',
-        }
-      : {
-          key: 'category',
-          label: 'Skill category',
-          activeLabel: 'Category',
-          value: category,
-          options: CATEGORIES,
-          allLabel: 'All categories',
-        },
-    { key: 'period', label: 'Last quarter', value: period, options: PERIODS, plain: true },
-  ].map((c) => (c.activeLabel ? { ...c, label: category ? c.activeLabel : c.label } : c));
+    {
+      key: 'category',
+      label: category ? 'Category' : 'Skill category',
+      value: category,
+      options: live?.categoryOptions ?? [],
+      allLabel: 'All categories',
+    },
+    {
+      key: 'period',
+      label: PERIODS.find((p) => p.id === period)?.label ?? 'Last quarter',
+      value: period,
+      options: PERIODS,
+      plain: true,
+    },
+  ];
 
-  const canClear = Boolean(skillId || region || district || category);
-  let resultText = NATIONAL_KPIS.result;
-  if (empty || (district && category && !region && !skillId)) resultText = '0 opportunities';
-  else if (focus) resultText = `${focus.count} opportunities · 1 skill`;
-  else if (drill) resultText = drill.result;
-
-  const kpiHero = drill
-    ? drill.hero
-    : focus
-      ? {
-          eyebrow: `Opportunities · ${focus.name}`,
-          count: focus.count,
-          label: focus.heroLabel,
-          change: focus.change ?? undefined,
-          badge: focus.badge ?? undefined,
-          note: focus.note,
-        }
-      : NATIONAL_KPIS.hero;
-  const kpiTiles = drill ? drill.tiles : focus ? focus.tiles : NATIONAL_KPIS.tiles;
-  const topRegions = focus ? focus.topRegions : NATIONAL_KPIS.topRegions;
-  const mapHint = focus?.mapHint ?? NATIONAL_KPIS.mapHint;
-  const mapTitle = focus ? `Demand by region · ${focus.name}` : 'Demand by region';
-  const topRows = drill
-    ? drill.topSkills.map((s) => ({
-        id: undefined,
-        name: s.name,
-        count: s.count,
-      }))
-    : SKILLS.map((s) => ({ ...s, short: SHORT_SKILL_NAMES[s.id] }));
-  const breakdownRows = drill ? drill.breakdown : SKILLS;
-  const emergingRows = drill ? drill.emerging : EMERGING_SKILLS;
-  const supplyHint = drill ? drill.supplyHint : NATIONAL_KPIS.supplyHint;
-  const topNote = drill ? drill.topNote : (focus?.topNote ?? NATIONAL_KPIS.topNote);
-  const onSkill = (id) => change('skill', id);
-
+  const canClear = Boolean(skillId || region || category);
   const filterRow = (
     <DemandFilterRow
       chips={chips}
       onChange={change}
       onMore={() => data.update({ modal: 'filters' })}
       moreActive={data.modal === 'filters'}
-      result={resultText}
+      result={live ? live.result : res.loading ? 'Loading…' : ''}
       canClear={canClear}
       onClearAll={clearAll}
       onSaveQuery={saveQuery}
     />
   );
 
-  if (empty || (district && category && !focus && !region)) {
+  if (res.error && !live) {
     return (
       <>
         {filterRow}
-        <DemandKpiStrip hero={NO_RESULTS.hero} tiles={NO_RESULTS.tiles} />
+        <p
+          role="alert"
+          className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] p-[16px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+        >
+          Could not load skill demand. {res.error?.response?.data?.message || res.error.message}{' '}
+          <button
+            type="button"
+            onClick={res.reload}
+            className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#387440] underline"
+          >
+            Try again
+          </button>
+        </p>
+      </>
+    );
+  }
+
+  if (!live) {
+    return (
+      <>
+        {filterRow}
+        <p className="m-0 font-sans text-[14px] text-[#575755]" aria-busy="true">
+          Loading skill demand…
+        </p>
+      </>
+    );
+  }
+
+  const periodLabel = (PERIODS.find((p) => p.id === period)?.label ?? '').toLowerCase();
+  const filtersInWords = [
+    regionName,
+    live.focus?.name,
+    category && chips[2].options.find((o) => o.id === category)?.label,
+    periodLabel,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  if (live.empty) {
+    return (
+      <>
+        {filterRow}
+        <DemandKpiStrip hero={live.hero} tiles={live.tiles} />
         <SkillDemandEmpty
+          hint={filtersInWords}
+          message={`No opportunities were posted for ${filtersInWords || 'these filters'}. Try a wider area or a longer period.`}
           onClear={clearAll}
-          onWiden={() =>
-            data.update({ region: 'northern', district: null, category: null, state: null })
-          }
+          onWiden={region ? () => change('region', null) : undefined}
         />
         <DemandNote icon="shield" className="mx-auto max-lg:hidden">
           {PRIVACY_FOOTNOTE}
@@ -201,6 +176,9 @@ const SkillDemandView = ({ data }) => {
       </>
     );
   }
+
+  const drill = region ? live.districts : null;
+  const topRows = live.skills;
 
   return (
     <>
@@ -221,33 +199,33 @@ const SkillDemandView = ({ data }) => {
             ›
           </span>
           <span aria-current="page" className="font-semibold text-[#1c2a21]">
-            {regionById(region)?.name}
+            {regionName}
           </span>
         </nav>
       ) : null}
       <div className="max-lg:hidden">
-        <DemandKpiStrip hero={kpiHero} tiles={kpiTiles} />
+        <DemandKpiStrip hero={live.hero} tiles={live.tiles} />
       </div>
       <div className="lg:hidden">
-        <DemandCompactKpis tiles={NATIONAL_KPIS.compact} />
+        <DemandCompactKpis tiles={live.compact} />
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 md:gap-x-[20px] lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
         <div className="min-w-0 max-lg:hidden lg:order-1">
           {drill ? (
             <DistrictDemandCard
-              title={`Demand by district · ${regionById(region)?.name}`}
-              hint={drill.districtsHint}
-              rows={drill.districts}
-              more={drill.moreDistricts}
-              note={drill.districtsNote}
+              title={`Demand by town · ${regionName}`}
+              hint={drill.hint}
+              rows={drill.rows}
+              more={drill.more}
+              note={drill.note}
             />
           ) : desktop ? (
             <DemandRegionMapCard
-              title={mapTitle}
-              hint={mapHint}
-              opps={opps}
-              top={topRegions}
-              forcedHover={suppressedRegion ? 'upper-west' : null}
+              title={live.focus ? `Demand by region · ${live.focus.name}` : 'Demand by region'}
+              hint={live.mapHint}
+              opps={live.regionOpps}
+              top={live.topRegions}
+              regions={live.talentRegions ?? []}
               onOpenRegion={openRegion}
               onCompare={() => navigate('/agency/compare')}
             />
@@ -256,33 +234,37 @@ const SkillDemandView = ({ data }) => {
         <div className="min-w-0 lg:order-2">
           <TopSkillsCard
             rows={topRows}
-            selectedId={drill ? null : skillId}
-            onSelect={drill ? undefined : onSkill}
-            interactive={!drill}
-            note={topNote}
+            selectedId={skillId}
+            onSelect={(id) => change('skill', id)}
+            interactive
+            note={live.topNote}
           />
         </div>
         <div className="min-w-0 lg:hidden">
-          <DemandRegionList rows={topRegions} onOpenRegion={openRegion} />
+          <DemandRegionList rows={live.topRegions} onOpenRegion={openRegion} />
         </div>
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-[16px] md:grid-cols-2 md:gap-x-[20px] lg:grid-cols-1 lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
         <div className="min-w-0 max-lg:hidden">
           <SkillBreakdownCard
-            rows={breakdownRows}
-            selectedId={drill ? null : skillId}
-            onSelect={drill ? undefined : onSkill}
-            note="Growth compares this quarter with last quarter. Skills with fewer than 5 opportunities are grouped as Other."
+            rows={live.skills}
+            selectedId={skillId}
+            onSelect={(id) => change('skill', id)}
+            note="Growth compares this period with the one before. It shows once both periods have 5 or more opportunities."
           />
         </div>
         <div className="min-w-0">
-          <EmergingSkillsCard rows={emergingRows} note={drill ? drill.emergingNote : undefined} />
+          <EmergingSkillsCard
+            rows={live.emerging}
+            hint={`New in ${periodLabel || 'this period'}`}
+            note="Skills with no opportunities in the period before."
+          />
         </div>
         <div className="min-w-0 xl:col-span-2">
           <SupplyDemandCard
-            rows={SUPPLY_DEMAND}
-            selectedId={drill ? null : skillId}
-            hint={supplyHint}
+            rows={live.supply}
+            selectedId={skillId}
+            hint={live.supplyHint}
             hintCompact="Talents per open opportunity"
             note="Shortage means fewer than 3.5 talents per opportunity. Programmes and training can be pointed at these skills."
           />
@@ -292,7 +274,7 @@ const SkillDemandView = ({ data }) => {
         {PRIVACY_FOOTNOTE}
       </DemandNote>
       <DemandNote icon="shield" className="lg:hidden">
-        Districts under 5 opportunities show as “Too few opportunities to show”.
+        Groups under 5 opportunities show as “&lt;5”.
       </DemandNote>
     </>
   );

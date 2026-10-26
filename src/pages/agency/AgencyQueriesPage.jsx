@@ -8,7 +8,13 @@ import AgencyPageHero from '../../components/sections/agency/AgencyPageHero.jsx'
 import { formatMonthYear, quotaPercent } from '../../components/sections/agency/agencyFormat.js';
 import { useAgencyState } from '../../components/sections/agency/agencyState.js';
 import { useAgencySession } from '../../components/sections/agency/useAgencySession.js';
-import { queryTitle } from '../../components/sections/agency/data/queriesData.js';
+import {
+  queryApiParams,
+  queryTitle,
+  regionOptionsWith,
+} from '../../components/sections/agency/data/queriesData.js';
+import { agencySaveQuery } from '../../services/agency.api.js';
+import { useAgencySessionState } from '../../components/sections/agency/agencySessionStore.js';
 import ExportCsvDialog from '../../components/sections/agency/queries/ExportCsvDialog.jsx';
 import MoreFiltersDrawer from '../../components/sections/agency/queries/MoreFiltersDrawer.jsx';
 import QueryFilterBar from '../../components/sections/agency/queries/QueryFilterBar.jsx';
@@ -18,11 +24,9 @@ import QueryToast from '../../components/sections/agency/queries/QueryToast.jsx'
 import SaveQueryDialog from '../../components/sections/agency/queries/SaveQueryDialog.jsx';
 import SavedQueriesView from '../../components/sections/agency/queries/SavedQueriesView.jsx';
 import {
-  addSavedQuery,
-  logExport,
-  useQueriesStore,
-} from '../../components/sections/agency/queries/useQueriesStore.js';
-import { useQueryPage } from '../../components/sections/agency/queries/useQueryPage.js';
+  useLiveOverview,
+  useQueryPage,
+} from '../../components/sections/agency/queries/useQueryPage.js';
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
 
 const log = debug('AgencyQueriesPage');
@@ -37,9 +41,9 @@ const log = debug('AgencyQueriesPage');
  *   g  Profile filters       ?state=results&profile=1&region=volta   (the preset of extra filters; see useQueryPage)
  *   h  More filters drawer   ?modal=filters&profile=1&region=volta
  * URL keys of this page (besides the shared region= edu= interest= age= gender= state= modal=): x= (extra filters) · profile=1 · by= (view by) ·
- * menu=region · saved list: tab= show= view= sort= (see SavedQueriesView). The filters are live: every change rewrites the URL, the figures recompute
- * from the mock (queriesData runQuery), a group under 5 prints "<5" (the empty states for 0 and for 1-4 talents), Save query and Export CSV (each
- * uses 1 query of the MoU quota, mock) open dialogs with a focus trap, Esc and focus return.
+ * menu=region · saved list: tab= show= view= sort= (see SavedQueriesView). The filters are live: every change rewrites the URL and the figures
+ * come from GET /agency/overview; a group under 5 prints "<5" (the empty states for 0 and for 1-4 talents). Save query (POST /agency/queries,
+ * 1 query of the MoU quota) and Export CSV (POST /agency/exports, 1 CSV export) open dialogs with a focus trap, Esc and focus return.
  * ⚠️ ASSUMPTION: the manifest URLs of a, g and h carry no filters although the frames draw them; the URLs above are the proposal (REQUESTS).
  */
 
@@ -47,12 +51,17 @@ const REMOVE_ORDER = ['extras', 'gender', 'age', 'interest', 'edu', 'region'];
 
 const AgencyQueriesPage = () => {
   const data = useAgencyState();
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const saved = pathname.replace(/\/$/, '').endsWith('/saved');
   const session = useAgencySession();
-  const { quotaSpent } = useQueriesStore();
-  const { filters, result, actions } = useQueryPage(data);
+  const sessionState = useAgencySessionState();
+  const { filters, result, actions, loading, first, error, retry } = useQueryPage(data);
+  // region menu counts: the same query without the region filter
+  const regionCut = useLiveOverview({ ...filters, region: [] });
+  const regionOptions = regionOptionsWith(regionCut.overview);
   const [toast, setToast] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const dismissToast = useCallback(() => setToast(null), []);
   const { modal, state } = data;
 
@@ -70,7 +79,7 @@ const AgencyQueriesPage = () => {
 
   const built = state === 'results' || state === 'zero';
   const empty = result.status === 'zero' || result.status === 'suppressed';
-  const quotaPct = quotaPercent(session.quota.used + quotaSpent, session.quota.limit);
+  const quotaPct = quotaPercent(session.quota.used, session.quota.limit);
 
   const removeLast = () => {
     const key = REMOVE_ORDER.find((k) =>
@@ -86,42 +95,31 @@ const AgencyQueriesPage = () => {
     else if (key) actions.setFilter(key, null);
   };
 
-  const onSaved = ({ schedule }) => {
-    const title = queryTitle(filters);
-    const params = new URLSearchParams(search);
-    params.delete('modal');
-    params.delete('menu');
-    addSavedQuery({
-      id: `custom-${Date.now()}`,
-      name: title,
-      iconKey: 'filter',
-      schedule: schedule.label,
-      movedPct: 0,
-      title,
-      meta: [
-        filters.region.length
-          ? `${filters.region.length} region${filters.region.length === 1 ? '' : 's'}`
-          : 'All 16 regions',
-        'Any education',
-        filters.age ? `Ages ${filters.age.replace('-', '–')}` : 'Any age',
-      ],
-      talents: result.count,
-      barRatio: 0.5,
-      tone: 'green',
-      chips: ['Region', 'Interest', 'Age'],
-      saved: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-      by: session.analyst.name,
-      status: 'scheduled',
-      href: `${pathname}?${params.toString()}`,
-    });
-    log('saved', title);
-    actions.closeModal();
-    setToast(`Saved “${title}”. Each refresh uses 1 query from your quota.`);
+  const onSaved = async ({ schedule, channels, name }) => {
+    const title = (name || queryTitle(filters)).slice(0, 80);
+    setSaving(true);
+    setSaveError('');
+    try {
+      await agencySaveQuery({
+        name: title,
+        filters: { ...queryApiParams(filters), by: filters.by },
+        cadence: schedule.id,
+        channels,
+      });
+      log('saved', title);
+      actions.closeModal();
+      sessionState?.reload?.();
+      setToast(`Saved “${title}”. Each refresh uses 1 query from your quota.`);
+    } catch (err) {
+      setSaveError(err?.response?.data?.message || err?.message || 'Saving failed.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const onExported = ({ kind, fileName }) => {
-    logExport({ kind, fileName, at: Date.now() });
+  const onExported = ({ fileName }) => {
     actions.closeModal();
+    sessionState?.reload?.();
     setToast(`Export logged · ${fileName}`);
   };
 
@@ -131,7 +129,9 @@ const AgencyQueriesPage = () => {
     <AgencyFrame data={data} title="Queries" active="queries">
       <AgencyPageHero
         title="Queries"
-        subtitle="Build a cut of the data in your MoU. Pick filters, then save or export it. Data as of 18 Oct 2026, 09:00. Groups under 5 stay hidden."
+        subtitle={`Build a cut of the data in your MoU. Pick filters, then save or export it.${
+          result.overview?.asOf?.label ? ` ${result.overview.asOf.label}.` : ''
+        } Groups under 5 stay hidden.`}
         actions={
           <AgencyButton
             size="sm"
@@ -147,11 +147,23 @@ const AgencyQueriesPage = () => {
         result={result}
         actions={actions}
         menu={data.params.get('menu')}
+        regionOptions={regionOptions}
         saveLabel={result.status === 'zero' ? 'Save as query' : 'Save query'}
         onSave={() => actions.openModal('save-query')}
         onMore={() => actions.openModal('filters')}
       />
-      {empty ? (
+      {error && first ? (
+        <EmptyState
+          title="We couldn’t run this query"
+          message="The figures didn’t load. Check your connection and try again."
+          actionLabel="Try again"
+          onAction={retry}
+        />
+      ) : first && loading ? (
+        <p role="status" className="m-0 p-[24px] font-sans text-[15px] text-[#737373]">
+          Counting talents…
+        </p>
+      ) : empty ? (
         <>
           <AgencyBanner
             eyebrow="Your MoU view"
@@ -184,7 +196,17 @@ const AgencyQueriesPage = () => {
         </>
       )}
       {modal === 'save-query' ? (
-        <SaveQueryDialog quotaUsedPct={quotaPct} onSave={onSaved} onClose={actions.closeModal} />
+        <SaveQueryDialog
+          quotaUsedPct={quotaPct}
+          name={queryTitle(filters)}
+          busy={saving}
+          error={saveError}
+          onSave={onSaved}
+          onClose={() => {
+            setSaveError('');
+            actions.closeModal();
+          }}
+        />
       ) : null}
       {modal === 'export' && exportable ? (
         <ExportCsvDialog result={result} onExported={onExported} onClose={actions.closeModal} />

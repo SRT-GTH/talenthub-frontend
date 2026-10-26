@@ -5,7 +5,7 @@ import { debug } from '../../../../utils/debug.js';
 import { formatCount } from '../agencyFormat.js';
 import AgencyMobileChip from './AgencyMobileChip.jsx';
 import AgencyMobileWidget from './AgencyMobileWidget.jsx';
-import { MOBILE_HOME as M } from './data/agencyHomeData.js';
+import { MOBILE_HOME } from './data/agencyHomeData.js';
 import {
   AgMAlert,
   AgMArrowRight,
@@ -36,15 +36,24 @@ const log = debug('AgencyHomeMobile');
  * AgencyHomeMobile — the body of the agency home below lg (Figma 11.4.0d "Agency home · Mobile" 8613:8, 360 wide; the top bar is the chrome's, AgencyFrame).
  * A column of widgets (gap 16, p 16): greeting · agency switcher · MoU · Data requests · Live programmes · Applicants · Saved query changes · Readiness by skill.
  * ⚠️ ASSUMPTION: the Figma phone home is the same dashboard for every state (first login / quota nearly used are drawn on desktop only), so the phone shows this body
- * for every ?state / ?quota. The agency switcher (NYA ▾) has no menu drawn: it is a button that logs the intent. The data-request tabs (Pending / Approved) switch
- * the active tab style only (the three requests are the one list drawn).
+ * for every ?state / ?quota. Live: `data` is liveMobile(GET /agency/home, session) — the request tabs filter the list (Pending = in review or
+ * needing detail, Approved = open access), every request / query links to its own page, empty sections say so. The agency chip opens settings.
  */
 
 const TAB_DEFAULT = 'pending';
 
-const AgencyHomeMobile = ({ firstName, short }) => {
+const EMPTY_LINE = 'm-0 font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]';
+
+const AgencyHomeMobile = ({ firstName, short, data: M = MOBILE_HOME }) => {
   const [tab, setTab] = useState(TAB_DEFAULT);
   const [windowId, setWindowId] = useState(M.applicants.activeWindow);
+  const requestItems = M.requests.items.filter((r) =>
+    !r.state
+      ? true
+      : tab === 'approved'
+        ? r.state === 'approved'
+        : ['pending', 'needs-detail'].includes(r.state)
+  );
   return (
     <div className="flex flex-col gap-[16px]">
       <div className="flex flex-col gap-[4px]">
@@ -57,18 +66,18 @@ const AgencyHomeMobile = ({ firstName, short }) => {
         </p>
       </div>
 
-      <button
-        type="button"
+      <Link
+        to="/agency/settings"
         aria-label={`Agency: ${M.org}`}
-        onClick={() => log('agency switcher')}
-        className="flex min-h-[50px] w-full items-center gap-[10px] rounded-[10px] border border-solid border-[#e5e8e3] bg-white px-[16px] py-[12px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+        onClick={() => log('agency settings')}
+        className="flex min-h-[50px] w-full items-center gap-[10px] rounded-[10px] border border-solid border-[#e5e8e3] bg-white px-[16px] py-[12px] text-left no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
       >
         <AgMBuilding className="size-[20px] text-[#575755]" />
         <span className="flex-1 font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111111]">
           {M.org}
         </span>
         <AgMChevronDown className="size-[20px] text-[#575755]" />
-      </button>
+      </Link>
 
       <AgencyMobileWidget
         id="m-mou"
@@ -176,9 +185,14 @@ const AgencyHomeMobile = ({ firstName, short }) => {
               </button>
             ))}
           </div>
-          {M.requests.items.map((r) => (
+          {requestItems.length === 0 ? (
+            <p className={EMPTY_LINE}>
+              {tab === 'approved' ? 'No open access right now.' : 'Nothing in review.'}
+            </p>
+          ) : null}
+          {requestItems.map((r) => (
             <div
-              key={r.name}
+              key={r.id || r.name}
               className="flex flex-col gap-[12px] rounded-[10px] border border-solid border-[#e5e8e3] p-[12px]"
             >
               <div className="flex items-start gap-[10px]">
@@ -203,7 +217,7 @@ const AgencyHomeMobile = ({ firstName, short }) => {
                 </div>
               </div>
               <Link
-                to="/agency/data-requests"
+                to={r.to || '/agency/data-requests'}
                 className="inline-flex h-[34px] w-fit items-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline shadow-[0_3px_0_rgba(17,17,17,0.18)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
               >
                 {r.action}
@@ -228,6 +242,11 @@ const AgencyHomeMobile = ({ firstName, short }) => {
         subtitle={M.programmes.sub}
       >
         <div className="flex flex-col gap-[12px]">
+          {M.programmes.items.length === 0 ? (
+            <p className={EMPTY_LINE}>
+              No live programmes yet. Post one to reach eligible talents.
+            </p>
+          ) : null}
           {M.programmes.items.map((p) => (
             <Link
               key={p.name}
@@ -323,17 +342,17 @@ const AgencyHomeMobile = ({ firstName, short }) => {
       >
         <div className="flex flex-col gap-[12px]">
           <div className="flex flex-col items-start gap-[8px]">
-            <button
-              type="button"
+            <Link
+              to="/agency/queries/saved?tab=shared"
               onClick={() => log('query set')}
-              className="flex h-[36px] w-[193px] max-w-full items-center gap-[6px] rounded-[10px] border border-solid border-[#dbded9] bg-[#fffefc] py-[7px] pr-[10px] pl-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111]"
+              className="flex h-[36px] w-[193px] max-w-full items-center gap-[6px] rounded-[10px] border border-solid border-[#dbded9] bg-[#fffefc] py-[7px] pr-[10px] pl-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline"
             >
               <AgMBriefcase className="size-[14px] shrink-0" />
               <span className="flex-1 truncate text-left">{M.changes.set}</span>
               <AgMChevronDown className="size-[14px] shrink-0" />
-            </button>
+            </Link>
             <Link
-              to="/agency/queries"
+              to="/agency/queries/saved"
               className="inline-flex h-[32px] items-center gap-[6px] px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#387440] no-underline"
             >
               {M.changes.all}
@@ -348,6 +367,9 @@ const AgencyHomeMobile = ({ firstName, short }) => {
               {M.changes.movesCount}
             </AgencyMobileChip>
           </div>
+          {M.changes.moves.length === 0 ? (
+            <p className={EMPTY_LINE}>No saved queries yet.</p>
+          ) : null}
           <ul className="m-0 flex list-none gap-[16px] overflow-x-auto p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {M.changes.moves.map((m) => (
               <li
@@ -380,21 +402,21 @@ const AgencyHomeMobile = ({ firstName, short }) => {
                 </span>
                 <span aria-hidden="true" className="h-px bg-[#e5e8e3]" />
                 <span className="flex items-center gap-[6px]">
-                  <button
-                    type="button"
-                    aria-label={`Bookmark ${m.name}`}
+                  <Link
+                    to="/agency/queries/saved"
+                    aria-label={`${m.name} in saved queries`}
                     className="grid size-[32px] place-items-center rounded-[10px] border border-solid border-[#dbded9] text-[#111111]"
                   >
                     <AgMBookmark className="size-[16px]" />
-                  </button>
+                  </Link>
                   <Link
-                    to="/agency/queries"
+                    to="/agency/queries/saved"
                     className="inline-flex h-[34px] items-center justify-center rounded-[10px] border border-solid border-[#c7c9c4] bg-white px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#111111] no-underline shadow-[0_3px_0_rgba(17,17,17,0.18)]"
                   >
                     {M.changes.view}
                   </Link>
                   <Link
-                    to="/agency/queries"
+                    to={m.href || '/agency/queries'}
                     className="ml-[6px] inline-flex h-[32px] items-center justify-center gap-[6px] rounded-[10px] bg-[#387440] px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-white no-underline shadow-[0_3px_0_#2a5730]"
                   >
                     <AgMSend className="size-[14px]" />
@@ -425,6 +447,9 @@ const AgencyHomeMobile = ({ firstName, short }) => {
               </AgencyMobileChip>
             ))}
           </div>
+          {M.skills.rows.length === 0 ? (
+            <p className={EMPTY_LINE}>No skill is held by 5 or more talents yet.</p>
+          ) : null}
           <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
             {M.skills.rows.map((r) => (
               <li

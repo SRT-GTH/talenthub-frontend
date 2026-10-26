@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { agencySettings, agencyUpdateMou } from '../../../../services/agency.api.js';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
@@ -10,43 +11,105 @@ import {
   SettingsARow,
   SettingsAToggle,
 } from '../../talentSettings/SettingsAUi.jsx';
+import { useAgencyResource } from '../useAgencyResource.js';
 import AgencyStatusChip from './AgencyStatusChip.jsx';
-import {
-  MOU_CATEGORIES,
-  MOU_DPO,
-  MOU_QUOTA,
-  MOU_SUMMARY,
-  TOASTS,
-} from './data/agencySettingsData.js';
+import { TOASTS } from './data/agencySettingsData.js';
 
 const log = debug('AgencyMouTab');
 
 const TILE =
   'flex min-h-[66px] min-w-0 items-center gap-[12px] rounded-[16px] p-[14px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
+const day = (d) =>
+  d
+    ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '—';
+const CAT_LABEL = {
+  skills: 'Skills and readiness',
+  readiness: 'Readiness',
+  outcomes: 'Programme outcomes',
+  demand: 'Skills demand',
+};
 
 /*
- * AgencyMouTab — Figma 11.6.1g "MoU and access" (8611:2538): the three data categories, access limits (query quota, DPO report switch, report
- * cycle) and data protection (DPO, legal basis with an Edit chip). State is local; Save changes toasts.
- * ⚠️ ASSUMPTIONS: the category tiles are a radio group that highlights the chosen category; the not-in-MoU tile links to a new data request;
- * "Change" (quota) explains that limits are set by the MoU; "Edit" makes the legal basis an editable field (Enter / blur commits).
+ * AgencyMouTab — Figma 11.6.1g "MoU and access" (8611:2538). Live: GET /agency/settings → mou. The data categories in the MoU (plus a tile
+ * that starts a data request for anything outside it), the query quota (limit and use this month), the DPO access-report switch and cycle,
+ * the DPO and the legal basis. Save → PATCH /agency/settings/mou (admins only). Limits are set with GTH ("Change" explains how).
  * Props: onToast(toast).
  */
 const AgencyMouTab = ({ onToast }) => {
-  const [category, setCategory] = useState('skills');
+  const res = useAgencyResource(agencySettings, []);
+  const m = res.data?.mou;
+  const admin = res.data?.role === 'admin';
+  const [category, setCategory] = useState(null);
   const [dpoReports, setDpoReports] = useState(false);
   const [cycle, setCycle] = useState('Monthly');
-  const [legal, setLegal] = useState(MOU_DPO.legal);
+  const [legal, setLegal] = useState('');
   const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!m) return;
+    setCategory((c) => c ?? m.categories[0] ?? null);
+    setDpoReports(Boolean(m.dpoReports));
+    setCycle(m.reportCycle === 'quarterly' ? 'Quarterly' : 'Monthly');
+    setLegal(m.legalBasis || '');
+  }, [m]);
+
+  if (!m) {
+    return (
+      <p role="status" className="m-0 p-[16px] font-sans text-[15px] text-[#737373]">
+        {res.error ? 'We couldn’t load your MoU.' : 'Loading your MoU…'}
+      </p>
+    );
+  }
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      await agencyUpdateMou({
+        dpoReports,
+        reportCycle: cycle.toLowerCase(),
+        legalBasis: legal.trim(),
+      });
+      res.reload();
+      onToast(TOASTS.saved);
+    } catch (err) {
+      onToast({ title: 'Not saved', body: err?.response?.data?.message || err?.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const tiles = [
+    ...m.categories.map((c) => ({
+      id: c,
+      title: CAT_LABEL[c] || c,
+      note: 'Active · aggregates',
+      chip: 'Active',
+    })),
+    {
+      id: 'request',
+      title: 'Anything else',
+      note: 'Not in your MoU',
+      chip: 'Request',
+      request: true,
+    },
+  ];
+  const used = m.usage?.queries ?? 0;
+  const limit = m.limits?.queriesPerMonth ?? 0;
 
   return (
     <>
-      <SettingsACard title="Your MoU" desc={MOU_SUMMARY}>
+      <SettingsACard
+        title="Your MoU"
+        desc={`${m.reference || 'MoU'} · signed ${day(m.signedAt)} · ends ${day(m.expiresAt)}. We remind you 60 days before.`}
+      >
         <div
           role="radiogroup"
           aria-label="Data categories"
           className="grid grid-cols-1 gap-[12px] md:grid-cols-3"
         >
-          {MOU_CATEGORIES.map((c) => {
+          {tiles.map((c) => {
             const body = (
               <>
                 <span
@@ -74,7 +137,11 @@ const AgencyMouTab = ({ onToast }) => {
                 ? 'border border-[#387440] bg-[#ebf1ec]'
                 : 'border border-[rgba(28,42,33,0.12)] bg-white';
             return c.request ? (
-              <Link key={c.id} to="/agency/data-requests/new" className={classNames(TILE, look)}>
+              <Link
+                key={c.id}
+                to="/agency/data-requests/new"
+                className={classNames(TILE, look, 'no-underline')}
+              >
                 {body}
               </Link>
             ) : (
@@ -94,6 +161,11 @@ const AgencyMouTab = ({ onToast }) => {
             );
           })}
         </div>
+        {m.categories.length === 0 ? (
+          <p className="m-0 pt-[8px] text-[13px] text-[#902b20]">
+            No data categories are recorded on your MoU yet. Ask your GTH contact.
+          </p>
+        ) : null}
       </SettingsACard>
 
       <SettingsACard
@@ -103,18 +175,23 @@ const AgencyMouTab = ({ onToast }) => {
         <SettingsARow
           first
           title="Query quota"
-          badge={<AgencyStatusChip tone="active">{MOU_QUOTA.chip}</AgencyStatusChip>}
-          desc={MOU_QUOTA.desc}
+          badge={<AgencyStatusChip tone="active">{`${limit} queries a month`}</AgencyStatusChip>}
+          desc={`${used} used this month. Resets on the 1st.`}
         >
           <SettingsALink onClick={() => onToast(TOASTS.quota)}>Change</SettingsALink>
         </SettingsARow>
         <SettingsARow
           title="Send access reports to your DPO"
-          desc="dpo@nya.gov.gh gets a monthly access report."
+          desc={
+            m.dpo?.email
+              ? `${m.dpo.email} gets an access report.`
+              : 'Your DPO gets an access report.'
+          }
         >
           <SettingsAToggle
             on={dpoReports}
             label="Send access reports to your DPO"
+            disabled={!admin}
             onChange={setDpoReports}
           />
         </SettingsARow>
@@ -122,7 +199,7 @@ const AgencyMouTab = ({ onToast }) => {
           <SegmentedControl
             options={['Monthly', 'Quarterly']}
             value={cycle}
-            onChange={setCycle}
+            onChange={admin ? setCycle : () => {}}
             label="Report cycle"
           />
         </SettingsARow>
@@ -131,7 +208,7 @@ const AgencyMouTab = ({ onToast }) => {
       <SettingsACard title="Data protection">
         <SettingsARow first title="Data protection officer" desc="Named in your MoU.">
           <span className="inline-flex h-[32px] shrink-0 items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[16px] font-semibold text-[#595959]">
-            {MOU_DPO.chip}
+            {m.dpo ? `${m.dpo.name}${m.dpo.email ? ` · ${m.dpo.email}` : ''}` : 'Not recorded yet'}
           </span>
         </SettingsARow>
         <SettingsARow
@@ -154,22 +231,26 @@ const AgencyMouTab = ({ onToast }) => {
             )
           }
         >
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setEditing((v) => !v)}
-            className="inline-flex h-[32px] shrink-0 cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[16px] font-semibold text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-          >
-            Edit
-          </button>
+          {admin ? (
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setEditing((v) => !v)}
+              className="inline-flex h-[32px] shrink-0 cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[16px] font-semibold text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              Edit
+            </button>
+          ) : null}
         </SettingsARow>
       </SettingsACard>
 
-      <div className="flex justify-end">
-        <Button variant="primary" size="sm" onClick={() => onToast(TOASTS.saved)}>
-          Save changes
-        </Button>
-      </div>
+      {admin ? (
+        <div className="flex justify-end">
+          <Button variant="primary" size="sm" onClick={save} disabled={busy}>
+            {busy ? 'Saving…' : 'Save changes'}
+          </Button>
+        </div>
+      ) : null}
     </>
   );
 };

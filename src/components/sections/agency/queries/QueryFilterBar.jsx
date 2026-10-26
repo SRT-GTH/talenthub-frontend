@@ -36,6 +36,7 @@ const QueryFilterBar = ({
   result,
   actions,
   menu,
+  regionOptions = REGION_OPTIONS,
   saveLabel = 'Save query',
   onSave,
   onMore,
@@ -122,7 +123,7 @@ const QueryFilterBar = ({
           label="Region"
           searchLabel="Search regions"
           className="max-md:right-0 max-md:left-0 max-md:w-auto"
-          options={REGION_OPTIONS}
+          options={regionOptions}
           value={filters.region}
           onApply={actions.setRegions}
           onClose={closeRegion}

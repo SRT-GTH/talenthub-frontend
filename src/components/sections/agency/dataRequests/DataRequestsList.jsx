@@ -9,13 +9,9 @@ import {
   DataRequestIconGrid,
   DataRequestIconList,
 } from './dataRequestIcons.jsx';
-import {
-  LIST_COPY,
-  SCOPE_COUNTS,
-  SORTS,
-  TAB_COUNTS,
-  listRequests,
-} from './data/dataRequestsData.js';
+import { agencyDataRequests } from '../../../../services/agency.api.js';
+import { useAgencyResource } from '../useAgencyResource.js';
+import { LIST_COPY, SORTS, bannerFor, toRow } from './data/dataRequestsData.js';
 
 const log = debug('DataRequestsList');
 
@@ -23,8 +19,8 @@ const log = debug('DataRequestsList');
  * DataRequestsList — /agency/data-requests (Figma 11.4.3a, 8597:8): title + "n pending" sticker + subtitle, status tabs (Pending · Approved · All ·
  * Rejected with counts), scope chips (All · Active · Expired), view toggle (grid / list), sort select, "New request", the access-ending banner and
  * the list card. URL keys: tab=pending|approved|rejected|all (default all) · scope=active|expired · layout=grid|list (default list) · sort=oldest.
- * Counts are the ones the frame draws; requests sent from the form add one to Pending and All (see dataRequestsData). Tabs are a WAI-ARIA tablist
- * (←/→ move). ⚠️ ASSUMPTIONS: "Expired" has no sample request (empty message is mine: "Nothing here yet."); the sort select only reorders the three samples.
+ * Rows, counts and the access-ending banner come from GET /agency/data-requests. Pending includes requests waiting for detail; Active = approved
+ * and in window, Expired = access ended. Tabs are a WAI-ARIA tablist (←/→ move).
  * Props: data (useAgencyState()).
  */
 
@@ -48,27 +44,38 @@ const DataRequestsList = ({ data }) => {
   const grid = params.get('layout') === 'grid';
   const oldest = params.get('sort') === 'oldest';
 
-  const all = listRequests();
-  const extra = all.filter((r) => r.submitted).length;
+  const res = useAgencyResource(agencyDataRequests, []);
+  const payload = res.data;
+  const all = useMemo(() => (payload?.items || []).map(toRow), [payload]);
+  const c = payload?.counts || {};
   const counts = {
-    pending: TAB_COUNTS.pending + extra,
-    approved: TAB_COUNTS.approved,
-    all: TAB_COUNTS.all + extra,
-    rejected: TAB_COUNTS.rejected,
+    pending: (c.pending || 0) + (c['needs-detail'] || 0),
+    approved: c.approved || 0,
+    all: c.all || 0,
+    rejected: c.rejected || 0,
   };
+  const scopeCounts = { all: counts.all, active: c.approved || 0, expired: c.ended || 0 };
+  const banner = bannerFor(payload?.ending);
 
   useEffect(() => {
-    log('render', { tab, scope, grid, oldest });
-  }, [tab, scope, grid, oldest]);
+    log('render', { tab, scope, grid, oldest, rows: all.length });
+  }, [tab, scope, grid, oldest, all.length]);
 
   const rows = useMemo(() => {
-    let list = all.filter((r) => (tab === 'all' ? true : r.status === tab));
+    let list = all.filter((r) =>
+      tab === 'all'
+        ? true
+        : tab === 'pending'
+          ? ['pending', 'needs-detail'].includes(r.status)
+          : r.status === tab
+    );
     if (scope === 'active') list = list.filter((r) => r.status === 'approved');
-    if (scope === 'expired') list = [];
+    if (scope === 'expired') list = list.filter((r) => r.status === 'ended');
     return oldest ? [...list].reverse() : list;
   }, [all, tab, scope, oldest]);
 
-  const showBanner = scope !== 'expired' && (tab === 'all' || tab === 'approved');
+  const showBanner =
+    Boolean(banner) && scope !== 'expired' && (tab === 'all' || tab === 'approved');
 
   const onTabKey = (event, index) => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
@@ -153,7 +160,7 @@ const DataRequestsList = ({ data }) => {
                       : 'border-[#e1eae2] bg-white text-[#595959]'
                   )}
                 >
-                  {s.label} {s.id === 'all' ? counts.all : SCOPE_COUNTS[s.id]}
+                  {s.label} {scopeCounts[s.id]}
                 </button>
               );
             })}
@@ -220,7 +227,7 @@ const DataRequestsList = ({ data }) => {
         {showBanner ? (
           <p className="m-0 flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[14px] pl-[18px] font-sans text-[14px] leading-[17px] font-medium text-[#1c2a21]">
             <DataRequestIconClock className="size-[18px] shrink-0 text-[#967014]" />
-            {LIST_COPY.banner}
+            {banner}
           </p>
         ) : null}
 
@@ -232,7 +239,24 @@ const DataRequestsList = ({ data }) => {
             !grid && 'rounded-[22px] border border-solid border-[#e1eae2] bg-white'
           )}
         >
-          {rows.length ? (
+          {res.loading && !payload ? (
+            <p
+              role="status"
+              className="m-0 p-[24px] font-sans text-[14px] leading-[20px] text-[#737373]"
+            >
+              Loading your requests…
+            </p>
+          ) : res.error ? (
+            <p
+              role="alert"
+              className="m-0 flex flex-wrap items-center gap-[12px] p-[24px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+            >
+              We couldn’t load your requests.
+              <AgencyButton size="xs" onClick={res.reload}>
+                Try again
+              </AgencyButton>
+            </p>
+          ) : rows.length ? (
             <ul
               className={classNames(
                 'm-0 list-none p-0',
@@ -245,7 +269,9 @@ const DataRequestsList = ({ data }) => {
             </ul>
           ) : (
             <p className="m-0 p-[24px] font-sans text-[14px] leading-[20px] text-[#737373]">
-              Nothing here yet.
+              {counts.all
+                ? 'Nothing here yet.'
+                : 'You haven’t sent a data request yet. Use “New request” to ask for data beyond your standard view.'}
             </p>
           )}
         </div>

@@ -8,7 +8,7 @@ import AgencyDialogShell from '../queries/AgencyDialogShell.jsx';
  *   title 32/40 600 -0.16 centred · sentence 16/24 #575755 centred · two buttons, right aligned, gap 8: the red confirm (#c0392b, 44 high) and the white
  *   "keep" button (2px rgba(28,42,33,.3), r14).
  * Role alertdialog: focus goes to the "keep" button (the safe choice), Esc = cancel, Tab is trapped, focus returns to the opener (AgencyDialogShell).
- * Props: title, body, confirmLabel, cancelLabel, onConfirm, onCancel, width (px, default 528).
+ * Props: title, body, confirmLabel, cancelLabel, onConfirm, onCancel, width (px, default 528), busy (disables the confirm button).
  */
 
 const ProgrammeConfirmDialog = ({
@@ -19,6 +19,7 @@ const ProgrammeConfirmDialog = ({
   onConfirm,
   onCancel,
   width = 528,
+  busy = false,
 }) => {
   const descId = useId();
   return (
@@ -49,8 +50,9 @@ const ProgrammeConfirmDialog = ({
             size="sm"
             className="!px-[16px] !py-[8.5px] !text-[14px]"
             onClick={onConfirm}
+            disabled={busy}
           >
-            {confirmLabel}
+            {busy ? 'Working…' : confirmLabel}
           </Button>
           <Button
             type="button"

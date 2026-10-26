@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { AgencyLockIcon } from '../agencyIcons.jsx';
 import {
   AgencySettingsArrowIcon,
-  AgencySettingsBookmarkIcon,
   AgencySettingsCheckIcon,
   AgencySettingsDownloadIcon,
   AgencySettingsEyeIcon,
@@ -15,6 +13,16 @@ const KIND_ICON = {
   download: AgencySettingsDownloadIcon,
   query: AgencySettingsFilterIcon,
   request: AgencyLockIcon,
+  security: AgencyLockIcon,
+};
+const KIND_CHIP = {
+  download: 'Download',
+  query: 'Query',
+  request: 'Request',
+  team: 'Team',
+  security: 'Security',
+  settings: 'Settings',
+  other: 'Event',
 };
 
 const Pill = ({ children, icon }) => (
@@ -27,12 +35,11 @@ const Pill = ({ children, icon }) => (
 /*
  * AgencyAuditRow — one event of the audit list (Figma 11.6.1h "result" rows 8611:3072 / 3103 / 3131): 42 tile with the kind icon, title 16/600 (+ Logged /
  * Rejected sticker), meta 13 #737373, chips (Privileged, Details / Query, +n), row-count pill, day, dark save button and arrow (a "Details" button on
- * the rejected row, which is drawn at 50% opacity). ⚠️ ASSUMPTION: the save button toggles a bookmark (aria-pressed), the arrow / Details link to the item.
- * Props: event, grid (compact card layout).
+ * the rejected row, which is drawn at 50% opacity). The log is read-only (no save button); the arrow links to the item when it has a page.
+ * Props: event (GET /agency/audit item), grid (compact card layout).
  */
 const AgencyAuditRow = ({ event: ev, grid = false }) => {
-  const [saved, setSaved] = useState(true);
-  const Icon = KIND_ICON[ev.kind];
+  const Icon = KIND_ICON[ev.kind] ?? AgencySettingsCheckIcon;
   const strong = ev.strong;
   return (
     <li
@@ -77,16 +84,18 @@ const AgencyAuditRow = ({ event: ev, grid = false }) => {
           </span>
         ) : null}
         <Pill icon={<AgencySettingsCheckIcon className="size-[11px] text-[#387440]" />}>
-          {ev.chip}
+          {ev.chip || KIND_CHIP[ev.kind] || 'Event'}
         </Pill>
         {ev.chip2 ? (
           <Pill icon={<AgencySettingsCheckIcon className="size-[11px] text-[#387440]" />}>
             {ev.chip2}
           </Pill>
         ) : null}
-        <span className="rounded-full bg-[#f8f8f4] px-[8px] py-[4px] text-[11px] max-lg:text-[12px] leading-[13px] font-medium text-[#595959]">
-          {ev.more}
-        </span>
+        {ev.more ? (
+          <span className="rounded-full bg-[#f8f8f4] px-[8px] py-[4px] text-[11px] max-lg:text-[12px] leading-[13px] font-medium text-[#595959]">
+            {ev.more}
+          </span>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-[14px]">
         <span
@@ -108,22 +117,9 @@ const AgencyAuditRow = ({ event: ev, grid = false }) => {
         >
           {ev.day}
         </span>
-        <button
-          type="button"
-          aria-pressed={saved}
-          aria-label={`${saved ? 'Unsave' : 'Save'}: ${ev.title}`}
-          onClick={() => setSaved((v) => !v)}
-          className={classNames(
-            'flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
-            saved
-              ? 'border-[rgba(28,42,33,0.12)] bg-[#1c2a21] text-white'
-              : 'border-[#e1eae2] bg-white text-[#1c2a21]',
-            ev.dim && 'opacity-50'
-          )}
-        >
-          <AgencySettingsBookmarkIcon className="size-[15px]" />
-        </button>
-        {ev.dim ? (
+        {!ev.href ? (
+          <span aria-hidden="true" className="size-[24px] shrink-0" />
+        ) : ev.dim ? (
           <Link
             to={ev.href}
             className="inline-flex h-[40px] items-center rounded-[10px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[16px] text-[16px] font-bold text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"

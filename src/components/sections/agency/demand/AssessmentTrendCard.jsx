@@ -3,20 +3,20 @@ import { formatCount } from '../agencyFormat.js';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
 import TrendHeadline from './TrendHeadline.jsx';
+import { autoFormat, niceTicks } from './trendModel.js';
 
 /*
  * AssessmentTrendCard — "Assessment trend" (Figma 8704:947, 1329 wide): two charts, two scales. Left: assessments taken (71,240 ▲ +46%, columns #387440, last period darker);
  * right: average score (68 / 100 ▲ +7 pts, one 2px line ending in a dot and its value). Props: model (trendSeries()), text (TREND_TEXT[unit]).
  */
 
-const fmt = (v) => (v === 0 ? '0k' : `${v}k`);
-
 const AssessmentTrendCard = ({ model, text }) => {
   const n = model.labels.length;
   const step = model.unit === 'week' ? 3 : model.unit === 'month' ? 2 : Math.ceil(n / 6);
-  const aStep = model.unit === 'month' ? 2.5 : 0.5;
-  const aTicks = Array.from({ length: Math.round(model.asYMax / aStep) + 1 }, (_, i) => i * aStep);
+  const axis = niceTicks(Math.max(...model.assessments, 1));
+  const aTicks = axis.ticks;
   const last = model.score[n - 1];
+  const hasScore = model.score.some((v) => v > 0);
   return (
     <DemandCard
       id="assessment-trend"
@@ -38,28 +38,36 @@ const AssessmentTrendCard = ({ model, text }) => {
             values={model.assessments}
             ticks={model.ticks}
             yTicks={aTicks}
-            yMax={model.asYMax}
-            format={fmt}
-            caption="Assessments taken per period, thousands"
-            headers={['Period', 'Assessments taken (thousands)']}
+            yMax={axis.max}
+            format={autoFormat}
+            caption="Assessments taken per period"
+            headers={['Period', 'Assessments taken']}
           />
         </div>
         <div className="flex min-w-0 flex-col gap-[8px]">
           <TrendHeadline
-            value={`${last} / 100`}
-            changeText={`▲ +${model.totals.scoreChange} pts`}
-            note="average score"
+            value={hasScore ? `${last} / 100` : '—'}
+            changeText={
+              typeof model.totals.scoreChange === 'number'
+                ? `${model.totals.scoreChange >= 0 ? '▲ +' : '▼ −'}${Math.abs(model.totals.scoreChange)} pts`
+                : undefined
+            }
+            note={
+              hasScore
+                ? 'average score'
+                : 'average score · shown once a period has 5 or more results'
+            }
           />
           <LineTrendChart
             series={[{ name: 'Average score (out of 100)', values: model.score, color: '#387440' }]}
             labels={model.labels}
             xTicks={model.labels.map((l, i) => ({ i, label: l })).filter((t) => t.i % step === 0)}
-            yTicks={[50, 60, 70, 80]}
-            yMin={50}
-            yMax={80}
+            yTicks={[0, 25, 50, 75, 100]}
+            yMin={0}
+            yMax={100}
             format={String}
             height={220}
-            endLabel={String(last)}
+            endLabel={hasScore ? String(last) : undefined}
             caption="Average assessment score per period, out of 100"
           />
         </div>

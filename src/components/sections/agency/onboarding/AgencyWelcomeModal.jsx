@@ -21,11 +21,12 @@ const ICONS = { eye: AgEye, trendUp: AgTrendUp, trophy: AgTrophy, play: AgPlay, 
  * AgencyWelcomeModal — "Akwaaba" welcome (Figma 11.4.1e 8607:3674 "Welcome modal"): 640 wide, white, 1px ink@.10, r28, p 0/0/28, gap 18, over the #0b1a0f 60 % scrim.
  * 170 high green art with the 104 round celebrate tile, heading (Bricolage 30/36 600, second half green) + 15/22 #595959 text, three milestone cards
  * (#f8f8f4, 1px #e7e7e7, r16), "Take the 30-second tour" (green shelf button) + "Look around first", then three text links (13/16 600 #387440).
- * The 36 round close button sits top right. Props: firstName, agencyName, onClose, onTour.
- * ⚠️ ASSUMPTION: the three extras (video, language, contrast) have no destination drawn; they log their intent.
+ * The 36 round close button sits top right. The card scrolls inside the viewport when the screen is short.
+ * The three extras close the welcome and open the top-bar panel of the same name (language · accessibility · help).
+ * Props: firstName, agencyName, onClose, onTour, onExtra(panel id).
  */
 
-const AgencyWelcomeModal = ({ firstName, agencyName, onClose, onTour }) => {
+const AgencyWelcomeModal = ({ firstName, agencyName, onClose, onTour, onExtra }) => {
   useEffect(() => {
     log('mount');
   }, []);
@@ -36,8 +37,8 @@ const AgencyWelcomeModal = ({ firstName, agencyName, onClose, onTour }) => {
       onClose={onClose}
       panelClassName="w-[min(640px,calc(100vw-32px))]"
     >
-      <div className="flex flex-col gap-[18px] overflow-hidden rounded-[28px] border border-solid border-[#1c2a21]/10 bg-white pb-[28px] shadow-[0_1px_2px_rgba(15,15,10,0.05),0_2px_8px_rgba(15,15,10,0.08)]">
-        <div className="relative flex h-[170px] items-center justify-center bg-[linear-gradient(135deg,#1f4a2b_14.6%,#3f7f4c_85.4%)]">
+      <div className="flex max-h-[calc(100dvh-32px)] flex-col gap-[18px] overflow-x-hidden overflow-y-auto rounded-[28px] border border-solid border-[#1c2a21]/10 bg-white pb-[28px] shadow-[0_1px_2px_rgba(15,15,10,0.05),0_2px_8px_rgba(15,15,10,0.08)]">
+        <div className="relative flex h-[170px] shrink-0 items-center justify-center bg-[linear-gradient(135deg,#1f4a2b_14.6%,#3f7f4c_85.4%)]">
           <span className="grid size-[104px] place-items-center rounded-full border border-solid border-[#1c2a21]/10 bg-white shadow-[0_1px_2px_rgba(15,15,10,0.05),0_2px_8px_rgba(15,15,10,0.08)]">
             <img src={celebrate} alt="" className="size-[104px] rounded-full" />
           </span>
@@ -105,7 +106,10 @@ const AgencyWelcomeModal = ({ firstName, agencyName, onClose, onTour }) => {
                   <li key={x.id}>
                     <button
                       type="button"
-                      onClick={() => log('extra', { id: x.id })}
+                      onClick={() => {
+                        log('extra', { id: x.id });
+                        onExtra?.(x.id);
+                      }}
                       className="inline-flex min-h-[24px] items-center gap-[6px] rounded-[4px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
                     >
                       <Icon className="size-[16px]" />

@@ -1,4 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  agencySubscribe,
+  agencySubscriptions,
+  agencyUnsubscribe,
+} from '../../../../services/agency.api.js';
+import { useAgencyResource } from '../useAgencyResource.js';
 import { debug } from '../../../../utils/debug.js';
 import AgeCard from '../../publicData/regions/AgeCard.jsx';
 import CapabilityCard from '../../publicData/regions/CapabilityCard.jsx';
@@ -32,6 +39,33 @@ const AgencyRegionView = ({ view, regionId, state, switcher, onCompare }) => {
   const lowData = state === 'low-data';
   log('render', { kind: view.kind, id: view.id, state });
   const isRegion = view.kind === 'region';
+  // "Subscribe to updates": saved per analyst; the backend notifies once this area passes the low-data threshold.
+  const area = {
+    regionId: isRegion ? view.id : view.regionId,
+    districtId: isRegion ? null : view.id,
+  };
+  const subs = useAgencyResource(
+    () => (lowData ? agencySubscriptions() : Promise.resolve([])),
+    [lowData]
+  );
+  const mine = (subs.data || []).find(
+    (s) => s.regionId === area.regionId && (s.districtId || null) === area.districtId
+  );
+  const [busy, setBusy] = useState(false);
+  const [subError, setSubError] = useState('');
+  const toggle = async (on) => {
+    setBusy(true);
+    setSubError('');
+    try {
+      if (on) await agencySubscribe(area.regionId, area.districtId || undefined);
+      else if (mine) await agencyUnsubscribe(mine.id);
+      subs.reload();
+    } catch {
+      setSubError('That didn’t save. Try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <>
       <AgencyPageHero
@@ -56,7 +90,15 @@ const AgencyRegionView = ({ view, regionId, state, switcher, onCompare }) => {
       {lowData ? (
         <RegionLowDataCard
           low={view.lowData}
-          onSubscribe={() => navigate('/agency/settings/notifications')}
+          onSubscribe={() => toggle(true)}
+          subscription={{
+            subscribed: Boolean(mine),
+            busy,
+            note:
+              subError ||
+              `We’ll notify you when ${view.name} has enough talents for its full page.`,
+            onUnsubscribe: () => toggle(false),
+          }}
           onBack={() => navigate('/agency/national')}
           backLabel="Back to national data"
         />

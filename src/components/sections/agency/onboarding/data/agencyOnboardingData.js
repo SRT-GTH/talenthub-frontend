@@ -8,16 +8,16 @@ export const WELCOME = {
   title: ['Akwaaba, {first}. Let’s brief ', 'with better data.'],
   body: 'The {agency} MoU is active. Here’s a quick tour of what your agency can see and do.',
   milestones: [
-    { id: 'see', icon: 'eye', title: 'See', text: '4 saved queries' },
+    { id: 'see', icon: 'eye', title: 'See', text: 'National, regional and district data' },
     { id: 'query', icon: 'trendUp', title: 'Query', text: 'Cut the data your way' },
     { id: 'brief', icon: 'trophy', title: 'Brief', text: 'Dated, logged packs for ministers' },
   ],
   primary: 'Take the 30-second tour',
   secondary: 'Look around first',
   extras: [
-    { id: 'video', icon: 'play', label: 'Watch a 2-minute video' },
-    { id: 'language', icon: 'globe', label: 'English (Ghana) · change' },
-    { id: 'contrast', icon: 'eye', label: 'Larger text or high contrast' },
+    { id: 'language', icon: 'globe', label: 'Language' },
+    { id: 'a11y', icon: 'eye', label: 'Accessibility' },
+    { id: 'help', icon: 'play', label: 'Help and method' },
   ],
 };
 

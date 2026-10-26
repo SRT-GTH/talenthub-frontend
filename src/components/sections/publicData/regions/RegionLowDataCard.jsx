@@ -10,7 +10,14 @@ import Button from '../../../ui/Button.jsx';
  * Counts go through formatCount; "+17" keeps its sign as drawn.
  */
 
-const RegionLowDataCard = ({ low, onSubscribe, onBack, backLabel = 'Back to national view' }) => (
+// subscription (optional, agency portal): { subscribed, busy, note, onUnsubscribe } — shows the subscribed state instead of the button.
+const RegionLowDataCard = ({
+  low,
+  onSubscribe,
+  onBack,
+  backLabel = 'Back to national view',
+  subscription,
+}) => (
   <section
     aria-labelledby="low-data-title"
     className="flex min-w-0 flex-col items-center gap-[12px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[16px] py-[40px] text-center font-sans shadow-[0_5px_17px_rgba(0,0,0,0.04)]"
@@ -43,15 +50,33 @@ const RegionLowDataCard = ({ low, onSubscribe, onBack, backLabel = 'Back to nati
       )}
     </ul>
     <div className="flex flex-wrap items-center justify-center gap-[12px] pt-[12px]">
-      <Button
-        type="button"
-        variant="tertiary-subtle"
-        size="md"
-        onClick={onSubscribe}
-        className="!rounded-[14px] !border-2 !border-solid !border-[#c1d4c4] !bg-[#e1eae2] !px-[22px] !py-[12px] !text-[#165d3a]"
-      >
-        {low.subscribe}
-      </Button>
+      {subscription?.subscribed ? (
+        <p
+          role="status"
+          className="m-0 inline-flex flex-wrap items-center gap-[8px] text-[14px] leading-[20px] text-[#165d3a]"
+        >
+          <span className="font-semibold">Subscribed.</span> {subscription.note}
+          <button
+            type="button"
+            onClick={subscription.onUnsubscribe}
+            disabled={subscription.busy}
+            className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#387440] underline disabled:opacity-50"
+          >
+            Unsubscribe
+          </button>
+        </p>
+      ) : (
+        <Button
+          type="button"
+          variant="tertiary-subtle"
+          size="md"
+          onClick={onSubscribe}
+          disabled={subscription?.busy}
+          className="!rounded-[14px] !border-2 !border-solid !border-[#c1d4c4] !bg-[#e1eae2] !px-[22px] !py-[12px] !text-[#165d3a]"
+        >
+          {subscription?.busy ? 'Subscribing…' : low.subscribe}
+        </Button>
+      )}
       <Button
         type="button"
         variant="tertiary"

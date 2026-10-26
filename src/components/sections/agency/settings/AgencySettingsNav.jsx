@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { logout } from '../../../../services/auth.api.js';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import {
@@ -37,10 +38,9 @@ const ITEM =
 /*
  * AgencySettingsNav — the 280px "Settings nav" card of Figma 11.6.1a (8611:25): 9 items (icon 20, label 15, active = #ebf1ec tint, green bar,
  * #2a5730 600), a divider and the red "Log out". Below lg it becomes a scrolling chip row.
- * Props: active (nav id). ⚠️ ASSUMPTION: Log out has no real session; it returns to the sign-up entry /agency/sign-up.
+ * Props: active (nav id). Log out clears the stored session and goes to the sign-in page.
  */
 const AgencySettingsNav = ({ active }) => {
-  const navigate = useNavigate();
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -105,8 +105,9 @@ const AgencySettingsNav = ({ active }) => {
       <button
         type="button"
         onClick={() => {
-          log('log out (mock)');
-          navigate('/agency/sign-up');
+          log('log out');
+          logout();
+          window.location.assign('/login');
         }}
         className={classNames(ITEM, 'w-full cursor-pointer text-left font-semibold text-[#c0392b]')}
       >

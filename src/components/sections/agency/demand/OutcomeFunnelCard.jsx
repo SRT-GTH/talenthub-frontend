@@ -30,7 +30,7 @@ const Funnel = ({ funnel }) => {
           const low = isSuppressed(s.count);
           return (
             <li key={s.label} className="flex flex-col gap-[10px]">
-              {i > 0 ? (
+              {i > 0 && (s.dropHidden || typeof s.drop === 'number') ? (
                 <p className="m-0 flex items-center gap-[6px] pl-0 text-[12px] leading-[14px] font-medium text-[#575755] sm:pl-[152px]">
                   {s.dropHidden || low ? null : (
                     <AgencyArrowRightIcon className="size-[14px] shrink-0 rotate-90 text-[#575755]" />

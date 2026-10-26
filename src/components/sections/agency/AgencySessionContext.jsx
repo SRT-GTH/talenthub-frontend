@@ -60,7 +60,8 @@ const Explain = ({ title, body }) => (
 export const AgencyGate = ({ children }) => {
   const ctx = useAgencySessionState();
   const { pathname } = useLocation();
-  if (!ctx || ctx.loading) return <PageLoader look="focused" />;
+  // a background reload (after a save, an export, a request) keeps the portal mounted
+  if (!ctx || (ctx.loading && !ctx.me)) return <PageLoader look="focused" />;
   if (ctx.code === 'UNAUTHORIZED')
     return <Navigate to="/login" replace state={{ from: pathname }} />;
   if (ctx.code === 'NOT_AGENCY') {
