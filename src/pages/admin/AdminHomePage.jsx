@@ -25,6 +25,7 @@ import {
   realtime,
   resolveApproval,
   timeAgo,
+  verifQueue,
 } from '../../services/admin.api.js';
 import { debug } from '../../utils/debug.js';
 
@@ -89,6 +90,15 @@ const AdminHomePage = () => {
     () => (senior ? listStaff({ limit: 200 }) : Promise.resolve(null)),
     [senior]
   );
+  const verif = useAdminData(
+    () => (senior ? verifQueue({ kind: 'all', state: 'waiting' }) : Promise.resolve(null)),
+    [senior]
+  );
+  const verifMeta = verif.data
+    ? `${verif.data.counts.all} waiting`
+    : verif.error
+      ? 'Couldn’t load'
+      : '…';
 
   const pending = useMemo(() => approvals.data ?? [], [approvals.data]);
   const openFlags = useMemo(() => flags.data?.records ?? [], [flags.data]);
@@ -175,13 +185,13 @@ const AdminHomePage = () => {
       senior: [
         `${flagTotal} open`,
         `${Number(m.totalActiveUsers ?? 0).toLocaleString('en-GB')} active`,
-        'Not connected yet',
+        verifMeta,
         `${pending.length} need you`,
       ],
       super: [
         `${pending.length} need you`,
         `${staffList.data?.records?.length ?? '–'} staff`,
-        'Not connected yet',
+        verifMeta,
         'Every action',
       ],
       support: ['Search by email', 'From an account page', 'Your reports', 'Not connected yet'],

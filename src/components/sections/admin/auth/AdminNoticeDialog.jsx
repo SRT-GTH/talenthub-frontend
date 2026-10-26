@@ -6,8 +6,8 @@ const log = debug('AdminNoticeDialog');
 
 /*
  * AdminNoticeDialog — the two sign-in notices (Figma 7.0.1c "Your staff account is locked" 8640:416090 · 7.0.1d "This set-up link has expired" 8666:12511):
- * the shared AdminConfirmDialog card with a red primary and a white "Close". ⚠️ ASSUMPTION: the red button has no destination drawn (a Super Admin is
- * reached outside the product): it logs the intent and closes the notice.
+ * the shared AdminConfirmDialog card. A Super Admin is reached outside the product, so the notice says what to ask for and has one
+ * "Close" button (the Figma red "Contact a Super Admin" / "Ask for a new link" had nowhere to go).
  * Props: kind 'locked' | 'expired', onClose.
  */
 
@@ -17,10 +17,9 @@ const AdminNoticeDialog = ({ kind, onClose }) => {
     <AdminConfirmDialog
       title={n.title}
       body={n.body}
-      primary={{ label: n.primary, tone: 'red' }}
-      secondary="Close"
+      primary={{ label: 'Close' }}
       onPrimary={() => {
-        log('primary action (no destination drawn)', kind);
+        log('close notice', kind);
         onClose();
       }}
       onClose={onClose}
