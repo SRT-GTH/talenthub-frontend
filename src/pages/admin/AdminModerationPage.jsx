@@ -534,6 +534,8 @@ const PendingPosts = ({ data }) => {
       list.reload();
     } catch (e) {
       setError(adminError(e));
+      // Edited or reviewed since it was opened: load the current version so the next try uses it.
+      if (e?.response?.data?.type === 'POST_CHANGED' || e?.response?.status === 409) list.reload();
     } finally {
       setBusy(false);
     }
