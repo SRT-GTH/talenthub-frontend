@@ -19,17 +19,23 @@ const log = debug('CircleConnectDialog');
 const CircleConnectDialog = ({ person, initialText = '', onSend, onClose }) => {
   const playful = usePlayfulScope();
   const [note, setNote] = useState(initialText);
-  const subtitle = `${person.headline} · ${person.mutual ?? 0} mutual`;
+  const subtitle = person.mutual ? `${person.headline} · ${person.mutual} mutual` : person.headline;
   return (
     <CircleDialogShell
       personId={person.id}
+      personPhoto={person.photo}
+      personName={person.name}
       title={COPY.notes.title(person.firstName)}
       subtitle={subtitle}
       titleId="circle-connect-title"
       width={520}
       gap={playful ? 16 : 24} // Figma 2026-10-23 redraw: Playful 16, Focused 24
       titleSize="text-[20px] leading-[24px] max-sm:text-[18px] max-sm:leading-[22px]"
-      sticker={{ text: COPY.notes.sticker, className: '-top-[24px] right-[24px]' }}
+      sticker={
+        COPY.notes.sticker
+          ? { text: COPY.notes.sticker, className: '-top-[24px] right-[24px]' }
+          : null
+      }
       onClose={onClose}
     >
       <div className={playful ? 'flex flex-col gap-[16px]' : 'flex flex-col gap-[24px]'}>

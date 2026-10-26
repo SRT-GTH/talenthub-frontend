@@ -18,27 +18,30 @@ const CircleTabs = ({ active, counts, onSelect }) => (
     aria-label="My circle"
     className="no-scrollbar -mx-[12px] flex gap-[6px] overflow-x-auto border-b border-solid border-[#e7e7e7] px-[12px] md:mx-0 md:px-0"
   >
-    {['discover', 'invitations', 'circle', 'following'].map((id) => {
-      const selected = active === id;
-      return (
-        <button
-          key={id}
-          type="button"
-          role="tab"
-          aria-selected={selected}
-          onClick={() => onSelect(id)}
-          className={classNames(
-            '-mb-px shrink-0 cursor-pointer whitespace-nowrap border-0 border-b-2 border-solid bg-transparent px-[14px] pb-[12px] pt-[10px] font-sans text-[14px] leading-[17px]',
-            selected
-              ? 'border-[#387440] font-semibold text-[#387440]'
-              : 'border-transparent font-medium text-[#595959]',
-            FOCUS_RING
-          )}
-        >
-          {labelOf(id, counts)}
-        </button>
-      );
-    })}
+    {/* Following stays hidden on the live screen until Follow is specified (US-5.3.1-01 Q5). */}
+    {['discover', 'invitations', 'circle', 'following']
+      .filter((id) => id !== 'following' || counts.following != null)
+      .map((id) => {
+        const selected = active === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onSelect(id)}
+            className={classNames(
+              '-mb-px shrink-0 cursor-pointer whitespace-nowrap border-0 border-b-2 border-solid bg-transparent px-[14px] pb-[12px] pt-[10px] font-sans text-[14px] leading-[17px]',
+              selected
+                ? 'border-[#387440] font-semibold text-[#387440]'
+                : 'border-transparent font-medium text-[#595959]',
+              FOCUS_RING
+            )}
+          >
+            {labelOf(id, counts)}
+          </button>
+        );
+      })}
   </div>
 );
 

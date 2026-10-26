@@ -15,7 +15,14 @@ import CircleButton from './CircleButton.jsx';
 import { personHref } from './circleState.js';
 import { CARD, FOCUS_RING, HEADING } from './circleStyles.js';
 
-const MENU_ICONS = [CircleUserIcon, CircleBellIcon, CircleCloseIcon, CircleShieldIcon];
+const MENU_ICON = {
+  'View profile': CircleUserIcon,
+  'Mute their posts': CircleBellIcon,
+  'Remove connection': CircleCloseIcon,
+  Block: CircleShieldIcon,
+  Report: CircleShieldIcon,
+};
+const DANGER = ['Remove connection', 'Block', 'Report'];
 
 /*
  * CircleConnectionsCard — Figma `Connections list` (NW-05): "128 people in your circle" + the sort chips (Recently added · Region ·
@@ -35,6 +42,8 @@ const CircleConnectionsCard = ({
   muted,
   onMessage,
   onMenuAction,
+  people = CIRCLE_PEOPLE,
+  menu = CONNECTIONS_RESPONSE.menu,
 }) => {
   const menuRef = useRef(null);
   useEffect(() => {
@@ -62,7 +71,7 @@ const CircleConnectionsCard = ({
     <section className={classNames(CARD, 'flex flex-col gap-[16px] pb-[8px] pt-[16px]')}>
       <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[8px] px-[16px]">
         <h2 className={classNames(HEADING, 'text-[18px] leading-[21px]')}>
-          {`${total} people in your circle`}
+          {`${total} ${total === 1 ? 'person' : 'people'} in your circle`}
         </h2>
         <span aria-hidden="true" className="hidden min-w-[16px] flex-1 lg:block" />
         <div
@@ -95,7 +104,8 @@ const CircleConnectionsCard = ({
       </div>
       <ul className="m-0 flex list-none flex-col p-0">
         {items.map((item, i) => {
-          const person = CIRCLE_PEOPLE[item.id];
+          const person = people[item.id];
+          if (!person) return null;
           const open = menuId === item.id;
           return (
             <li
@@ -110,7 +120,7 @@ const CircleConnectionsCard = ({
                 aria-label={`View ${person.name}'s profile`}
                 className={`shrink-0 rounded-full ${FOCUS_RING}`}
               >
-                <CircleAvatar id={person.id} size={48} />
+                <CircleAvatar id={person.id} size={48} photo={person.photo} name={person.name} />
               </Link>
               <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
                 <Link
@@ -127,9 +137,11 @@ const CircleConnectionsCard = ({
                   {muted.includes(item.id) ? ' · Muted' : ''}
                 </span>
               </div>
-              <CircleButton tone="soft" onClick={() => onMessage(person)}>
-                {COPY.message}
-              </CircleButton>
+              {onMessage && (
+                <CircleButton tone="soft" onClick={() => onMessage(person)}>
+                  {COPY.message}
+                </CircleButton>
+              )}
               <button
                 type="button"
                 data-circle-more=""
@@ -155,15 +167,15 @@ const CircleConnectionsCard = ({
                     'absolute right-[16px] top-[58px] z-20 flex w-[230px] max-w-[calc(100%-32px)] flex-col gap-[8px] !rounded-[14px] p-[6px]'
                   )}
                 >
-                  {CONNECTIONS_RESPONSE.menu.map((label, k) => {
-                    const Glyph = MENU_ICONS[k];
-                    const danger = k >= 2;
+                  {menu.map((label, k) => {
+                    const Glyph = MENU_ICON[label] ?? CircleShieldIcon;
+                    const danger = DANGER.includes(label);
                     return (
                       <button
                         key={label}
                         type="button"
                         role="menuitem"
-                        onClick={() => onMenuAction(k, person)}
+                        onClick={() => onMenuAction(k, person, label)}
                         className={classNames(
                           'flex w-full cursor-pointer items-center gap-[10px] rounded-[10px] border-0 bg-transparent p-[10px] text-left font-sans text-[14px] leading-[17px] hover:bg-[#f8f8f4] max-lg:min-h-[44px]',
                           danger ? 'font-medium text-[#c0392b]' : 'text-[#70706e]',

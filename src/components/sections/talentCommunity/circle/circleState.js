@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import { isLoggedIn } from '../../../../services/auth.api.js';
 
 const log = debug('circleState');
 
@@ -97,7 +98,8 @@ export const useCircleState = () => {
       skills: skillsParam.split(',').filter(Boolean),
       rail,
       help,
-      demo: true,
+      // The drawn Kofi shell only for design frames and signed-out visits; a signed-in talent gets their own.
+      demo: Boolean(demoState) || params.get('demo') === '1' || !isLoggedIn(),
       a11yMode: a11yParam,
       a11yParam,
       update,
