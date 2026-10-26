@@ -16,6 +16,8 @@ const log = debug('useRecruiterBuddyLive');
  *                            change arrives as `draft` and renders as BuddyDraftCard in the bubble
  *   chips                    the agent's suggested replies (labels); chipActionFor(label) for each
  *   decorate(messages)       adds the draft cards (with their buttons) at render time
+ *   onHandoff(flow)          the screen opens its own guided flow when Buddy says so
+ *                            (today 'post_job': the Figma Post a Job flow, posted on "Confirm & Post Job")
  *
  * Messages use the screen's own shape ({ id, sender, text, content?, thinking? }).
  */
@@ -25,7 +27,9 @@ const THINKING_ID = 'rb-thinking';
 let seq = 0;
 const nextId = (p) => `${p}-${Date.now()}-${(seq += 1)}`;
 
-export const useRecruiterBuddyLive = ({ enabled, setMessages }) => {
+const HANDOFFS = new Set(['post_job']);
+
+export const useRecruiterBuddyLive = ({ enabled, setMessages, onHandoff }) => {
   const [chips, setChips] = useState([]); // [{ label, intent, slots }]
   const [busy, setBusy] = useState(false);
   const [drafts, setDrafts] = useState({}); // messageId -> { state, error }
@@ -57,6 +61,7 @@ export const useRecruiterBuddyLive = ({ enabled, setMessages }) => {
         },
       ]);
       let reply;
+      let handoff = null;
       try {
         const turn = await sendTurnStream({
           entityId,
@@ -72,6 +77,7 @@ export const useRecruiterBuddyLive = ({ enabled, setMessages }) => {
           text: String(turn.reply || '').replace(/\*\*/g, ''),
           ...(turn.draft ? { recruiterDraft: turn.draft } : {}),
         };
+        if (HANDOFFS.has(turn.handoff)) handoff = turn.handoff;
         setChips(
           (turn.chipActions || []).map((c) => ({
             label: c.label,
@@ -91,8 +97,12 @@ export const useRecruiterBuddyLive = ({ enabled, setMessages }) => {
         busyRef.current = false;
         setBusy(false);
       }
+      if (handoff) {
+        log('handoff', handoff);
+        onHandoff?.(handoff);
+      }
     },
-    [enabled, setMessages]
+    [enabled, setMessages, onHandoff]
   );
 
   const confirm = useCallback(

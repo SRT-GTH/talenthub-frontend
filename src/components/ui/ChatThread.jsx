@@ -116,7 +116,7 @@ const log = debug('ChatThread');
  *   startDictation   boolean       — demo seed: enter voice-to-text recording on mount
  *   enableAttach     boolean       — when true, attach icon triggers a hidden file input
  *                    (recruiter KYB / job JD upload); default false (decorative only)
- *   onAttach         ({name,size,sizeLabel}) => void — called with selected file metadata
+ *   onAttach         ({name,size,sizeLabel,file}) => void — called with selected file metadata (+ the File)
  *   onAttachRejected (name: string) => void — called when selected file exceeds 10 MB
  *   onFeedback       (message, rating: 'up'|'down'|null) => void — thumbs changed (live mode persists it)
  *   voiceTurns       object  — handlers of saved voice turns (messages with `voice: { who, seconds }`), see voiceCaptions/useVoiceTurns
@@ -503,7 +503,7 @@ const ChatThread = ({
         ? `${(file.size / (1024 * 1024)).toFixed(0)}MB`
         : `${Math.round(file.size / 1024)}KB`;
     log('branch', { attachAccepted: file.name, sizeLabel });
-    onAttach?.({ name: file.name, size: file.size, sizeLabel });
+    onAttach?.({ name: file.name, size: file.size, sizeLabel, file });
   };
 
   log('render', {

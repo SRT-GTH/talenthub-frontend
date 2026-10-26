@@ -34,11 +34,11 @@ import {
   JOB_CONV_DESCRIPTION_ASK,
   JOB_CONV_DESCRIPTION_FALLBACK,
   JOB_CONV_RESP_FALLBACK,
-  JOB_CONV_RESP_REWRITE,
+  jobConvRespRewriteFor,
   JOB_CONV_RESP_CONFIRM_FALLBACK,
   JOB_CONV_QUALS_ASK,
   JOB_CONV_QUALS_FALLBACK,
-  JOB_CONV_QUALS_REWRITE,
+  jobConvQualsRewriteFor,
   JOB_CONV_QUALS_CONFIRM_FALLBACK,
   JOB_CONV_SALARY_ASK,
   JOB_CONV_SALARY_FALLBACK,
@@ -458,7 +458,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-description': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_DESCRIPTION_FALLBACK),
-      bot(jobConvRespAskFor('Full-time'), { showActions: true }),
+      bot(jobConvRespAskFor(null), { showActions: true }),
     ],
     suggestedReplies: [],
     freeTextNext: 'job-conv-resp',
@@ -467,7 +467,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-resp': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_RESP_FALLBACK),
-      bot(JOB_CONV_RESP_REWRITE, { showActions: true }),
+      bot(jobConvRespRewriteFor(inputText), { showActions: true }),
     ],
     suggestedReplies: [JOB_CONV_RESP_CONFIRM_FALLBACK],
     next: {
@@ -488,7 +488,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-quals': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_QUALS_FALLBACK),
-      bot(JOB_CONV_QUALS_REWRITE, { showActions: true }),
+      bot(jobConvQualsRewriteFor(inputText), { showActions: true }),
     ],
     suggestedReplies: [JOB_CONV_QUALS_CONFIRM_FALLBACK],
     next: {

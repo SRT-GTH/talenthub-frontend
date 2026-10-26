@@ -217,3 +217,65 @@ export const seedJobPostFromUpload = () => ({
   deadlineMonth: '12',
   deadlineYear: '2026',
 });
+
+const pad2 = (list) => (list.length >= 2 ? list : [...list, ...Array(2 - list.length).fill('')]);
+
+/** "GHS 8,000 – 12,000 per month" → salary form fields (range or fixed). */
+export const salaryFromText = (text) => {
+  // Leave out lengths like "12-month contract" or "6 months probation": they aren't pay.
+  const s = String(text || '').replace(
+    /\b\d+\s*-?\s*(?:months?|years?|weeks?)\b(?=[\s-]*(?:contract|probation|period|duration|renewable|internship|programme|program))/gi,
+    ' '
+  );
+  const nums = (s.match(/\d[\d,]*(?:\.\d+)?/g) || [])
+    .map((n) => Number(n.replace(/,/g, '')))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  if (!nums.length) return {};
+  const currency = /usd|\$/i.test(s) ? 'USD' : /eur|€/i.test(s) ? 'EUR' : 'GHS';
+  const salaryFrequency = /year|annum|annual/i.test(s)
+    ? 'year'
+    : /week/i.test(s)
+      ? 'week'
+      : 'month';
+  return nums.length >= 2
+    ? {
+        salaryMode: 'range',
+        salaryMin: String(Math.min(nums[0], nums[1])),
+        salaryMax: String(Math.max(nums[0], nums[1])),
+        currency,
+        salaryFrequency,
+      }
+    : { salaryMode: 'fixed', salaryFixed: String(nums[0]), currency, salaryFrequency };
+};
+
+/** "3+ years" → the form's experience bucket. */
+export const experienceBucket = (text) => {
+  const n = Number((String(text || '').match(/\d+/) || [])[0]);
+  if (!n) return '';
+  return n <= 5 ? '1-5' : n <= 10 ? '6-10' : n <= 20 ? '11-20' : '20+';
+};
+
+/**
+ * What the backend read from an uploaded job description (opportunities.extractFromDocument
+ * `fields`) → the job post form. Anything it could not read stays empty for the recruiter to fill.
+ */
+export const jobPostFromExtraction = (fields = {}) => {
+  const f = fields || {};
+  const list = (v) =>
+    Array.isArray(v) ? v.map((x) => String(x || '').trim()).filter(Boolean) : [];
+  return {
+    ...emptyJobPostForm(),
+    jobTitle: String(f.title || '')
+      .trim()
+      .slice(0, 200),
+    companyName: String(f.company || '').trim(),
+    description: String(f.description || '')
+      .trim()
+      .slice(0, JOB_DESCRIPTION_MAX),
+    qualifications: pad2(list(f.requirements).slice(0, 10)),
+    workLocation: String(f.location || '').trim(),
+    experienceLevel: experienceBucket(f.experience),
+    skills: list(f.skills).slice(0, 20),
+    ...salaryFromText(f.salary),
+  };
+};
