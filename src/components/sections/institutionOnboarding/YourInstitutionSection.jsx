@@ -17,7 +17,7 @@ import {
   MapPinIconTwo,
 } from '../../shared/assets.jsx';
 import IdentityCapturedModal from './IdentityCapturedModal.jsx';
-import { GHANA_REGIONS, DISTRICTS_BY_REGION } from '../../../constants/ghanaDistricts.js';
+import { useAdminAreas } from '../../../hooks/useAdminAreas.js';
 import { debug } from '../../../utils/debug.js';
 import { getInstitutionDraft, saveInstitutionDraft } from '../../../services/institution.api.js';
 
@@ -71,8 +71,6 @@ const INSTITUTION_TYPES = [
   'Other',
 ];
 
-const REGION_OPTIONS = GHANA_REGIONS.map((r) => ({ value: r, label: r }));
-
 // ── main component ────────────────────────────────────────────────────────
 
 const YourInstitutionSection = () => {
@@ -112,9 +110,10 @@ const YourInstitutionSection = () => {
     }
   }, [selectedRegion, setValue]);
 
-  const districtOptions = selectedRegion
-    ? (DISTRICTS_BY_REGION[selectedRegion] ?? []).map((d) => ({ value: d, label: d }))
-    : [];
+  // Regions and districts (canonical names) from the location API.
+  const { regionOptions: REGION_OPTIONS, districtOptions: areaDistricts } =
+    useAdminAreas(selectedRegion);
+  const districtOptions = selectedRegion ? areaDistricts : [];
 
   log('districtOptions count:', districtOptions.length, 'for region:', selectedRegion);
 

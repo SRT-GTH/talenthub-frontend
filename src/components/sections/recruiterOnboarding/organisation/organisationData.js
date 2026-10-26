@@ -43,27 +43,27 @@ export const ORGANISATIONS = [
     name: 'MTN Ghana Foundation',
     industry: 'Non-profit',
     city: 'Accra',
-    size: '11–50 staff',
+    size: '11â€“50 staff',
   },
   {
     id: 'mtn-mobile-money-ltd',
     name: 'MTN Mobile Money Ltd',
     industry: 'Financial services',
     city: 'Accra',
-    size: '201–500 staff',
+    size: '201â€“500 staff',
   },
   {
     id: 'silver-rock-technologies',
     name: 'Silver Rock Technologies',
     industry: 'Technology',
     city: 'Kumasi',
-    size: '51–200 staff',
+    size: '51â€“200 staff',
     admin: 'A. Mensah',
   },
 ];
 
-// Sub-line shown under an organisation name in a result row (Figma: "Scancom PLC ·
-// Telecommunications · Accra · 500+ staff"). `extended` swaps the city for the longer
+// Sub-line shown under an organisation name in a result row (Figma: "Scancom PLC Â·
+// Telecommunications Â· Accra Â· 500+ staff"). `extended` swaps the city for the longer
 // location + drops nothing else (selected card, 7374:5070).
 export const describeOrganisation = (org, { extended = false, withAdmin = false } = {}) => {
   const parts = [
@@ -73,7 +73,7 @@ export const describeOrganisation = (org, { extended = false, withAdmin = false 
     org.size,
     withAdmin && org.admin ? `Primary Admin: ${org.admin}` : null,
   ].filter(Boolean);
-  return parts.join(' · ');
+  return parts.join(' Â· ');
 };
 
 // Create-form option lists. Values come from Figma's filled/error frames
@@ -98,16 +98,12 @@ export const INDUSTRY_OPTIONS = [
   'Other',
 ];
 export const SIZE_OPTIONS = [
-  '11–50 employees',
-  '51–200 employees',
-  '201–500 employees',
+  '11â€“50 employees',
+  '51â€“200 employees',
+  '201â€“500 employees',
   '500+ employees',
 ];
-export const REGION_OPTIONS = ['Ashanti', 'Greater Accra'];
-export const DISTRICTS_BY_REGION = {
-  Ashanti: ['Kumasi Metropolitan'],
-  'Greater Accra': ['Accra Metro'],
-};
+// Regions and districts come from the location API (hooks/useAdminAreas.js).
 
 // "Kente Labs Ghana Limited" -> "Kente Labs Ghana": the Figma created modal (7374:6478)
 // shows the legal name without its suffix, not the trading name ("Kente Labs").

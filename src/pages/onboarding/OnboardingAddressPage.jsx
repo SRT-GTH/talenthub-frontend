@@ -1,9 +1,10 @@
 import addrCheck from '../../assets/talent-onboarding/addr-check-circle.svg';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
 import { captureStep } from '../../services/onboarding.api.js';
+import { getDistricts, getRegions, getTowns } from '../../services/location.api.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -59,60 +60,9 @@ const log = debug('OnboardingAddressPage');
 
 // ---- option data ------------------------------------------------------
 
-// Ghana's 16 administrative regions per the 2019 reorganisation.
-const REGION_OPTIONS = [
-  { value: 'ahafo', label: 'Ahafo Region' },
-  { value: 'ashanti', label: 'Ashanti Region' },
-  { value: 'bono', label: 'Bono Region' },
-  { value: 'bono-east', label: 'Bono East Region' },
-  { value: 'central', label: 'Central Region' },
-  { value: 'eastern', label: 'Eastern Region' },
-  { value: 'greater-accra', label: 'Greater Accra Region' },
-  { value: 'north-east', label: 'North East Region' },
-  { value: 'northern', label: 'Northern Region' },
-  { value: 'oti', label: 'Oti Region' },
-  { value: 'savannah', label: 'Savannah Region' },
-  { value: 'upper-east', label: 'Upper East Region' },
-  { value: 'upper-west', label: 'Upper West Region' },
-  { value: 'volta', label: 'Volta Region' },
-  { value: 'western', label: 'Western Region' },
-  { value: 'western-north', label: 'Western North Region' },
-];
-
-// District + town options are region-dependent in a real backend; the
-// stubs below give us enough variety for visual tests until the Ghana
-// districts API is wired up. Keyed by region value.
-const DISTRICTS_BY_REGION = {
-  'greater-accra': [
-    { value: 'accra-metropolitan', label: 'Accra Metropolitan' },
-    { value: 'ga-central', label: 'Ga Central Municipal' },
-    { value: 'ga-east', label: 'Ga East Municipal' },
-    { value: 'tema-metropolitan', label: 'Tema Metropolitan' },
-  ],
-  ashanti: [
-    { value: 'kumasi-metropolitan', label: 'Kumasi Metropolitan' },
-    { value: 'asokore-mampong', label: 'Asokore Mampong Municipal' },
-    { value: 'obuasi-municipal', label: 'Obuasi Municipal' },
-  ],
-};
-
-const TOWNS_BY_DISTRICT = {
-  'ga-central': [
-    { value: 'ofankor', label: 'Ofankor' },
-    { value: 'amasaman', label: 'Amasaman' },
-    { value: 'sowutuom', label: 'Sowutuom' },
-  ],
-  'accra-metropolitan': [
-    { value: 'osu', label: 'Osu' },
-    { value: 'labadi', label: 'Labadi' },
-    { value: 'cantonments', label: 'Cantonments' },
-  ],
-  'kumasi-metropolitan': [
-    { value: 'adum', label: 'Adum' },
-    { value: 'asafo', label: 'Asafo' },
-    { value: 'bantama', label: 'Bantama' },
-  ],
-};
+// Regions, districts and town suggestions come from GET /api/location/hierarchy (services/location.api.js):
+// 16 regions, 261 districts (MMDAs). Values are the canonical names saved on the profile, so reports and
+// stakeholder dashboards group the same place together. Towns are free text with suggestions.
 
 // GhanaPost GPS format: 2 letters, 3 digits, 4 digits. Case-insensitive
 // at entry but we upper-case on input change for display consistency.
@@ -122,7 +72,8 @@ const DIGITAL_ADDRESS_PATTERN = /^[A-Z]{2}-\d{3}-\d{4}$/;
 // Used in the success-modal summary row for Digital Address.
 const maskDigitalAddress = (raw) => {
   if (!raw) return '—';
-  return `GHA-${'•'.repeat(Math.max(0, raw.length - 3))}`;
+  // Keep the region prefix and last two digits: AK-123-4567 → AK-•••-••67.
+  return raw.length > 4 ? `${raw.slice(0, 2)}-•••-••${raw.slice(-2)}` : '•'.repeat(raw.length);
 };
 
 // ---- success modal ----------------------------------------------------
@@ -268,6 +219,33 @@ const OnboardingAddressPage = () => {
   const [digitalAddress, setDigitalAddress] = useState('');
   const [community, setCommunity] = useState('');
   const [landmark, setLandmark] = useState('');
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [availableDistricts, setAvailableDistricts] = useState([]);
+  const [availableTowns, setAvailableTowns] = useState([]);
+
+  useEffect(() => {
+    let live = true;
+    getRegions().then((r) => live && setRegionOptions(r));
+    return () => {
+      live = false;
+    };
+  }, []);
+  useEffect(() => {
+    let live = true;
+    setAvailableDistricts([]);
+    if (region) getDistricts(region).then((d) => live && setAvailableDistricts(d));
+    return () => {
+      live = false;
+    };
+  }, [region]);
+  useEffect(() => {
+    let live = true;
+    setAvailableTowns([]);
+    if (district) getTowns(district, region).then((t) => live && setAvailableTowns(t));
+    return () => {
+      live = false;
+    };
+  }, [district, region]);
   const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -287,9 +265,6 @@ const OnboardingAddressPage = () => {
     setTownCity('');
   };
 
-  const availableDistricts = DISTRICTS_BY_REGION[region] || [];
-  const availableTowns = TOWNS_BY_DISTRICT[district] || [];
-
   // Inline errors only appear once the user has tried to submit at least
   // once, so the form doesn't yell on first paint.
   const digitalAddressInvalid =
@@ -305,7 +280,7 @@ const OnboardingAddressPage = () => {
     () =>
       region !== '' &&
       district !== '' &&
-      townCity !== '' &&
+      townCity.trim().length >= 2 &&
       DIGITAL_ADDRESS_PATTERN.test(digitalAddress),
     [region, district, townCity, digitalAddress]
   );
@@ -323,9 +298,9 @@ const OnboardingAddressPage = () => {
     // Backend address: region, district, locality, streetAddress (plan M6:
     // digital address, community and landmark are folded into streetAddress).
     captureStep('address', {
-      region: getRegionLabel(region),
-      district: getDistrictLabel(district),
-      locality: getTownLabel(townCity),
+      region,
+      district,
+      locality: townCity.trim(),
       streetAddress: [digitalAddress, community, landmark].filter(Boolean).join(', '),
     })
       .then(() => setShowSuccess(true))
@@ -339,9 +314,9 @@ const OnboardingAddressPage = () => {
     navigate('/onboarding/talent/education');
   };
 
-  const getRegionLabel = (v) => REGION_OPTIONS.find((o) => o.value === v)?.label || '—';
-  const getDistrictLabel = (v) => availableDistricts.find((o) => o.value === v)?.label || '—';
-  const getTownLabel = (v) => availableTowns.find((o) => o.value === v)?.label || '—';
+  const getRegionLabel = (v) => (v ? `${v} Region` : '—');
+  const getDistrictLabel = (v) => v || '—';
+  const getTownLabel = (v) => v.trim() || '—';
 
   const summary = [
     {
@@ -437,7 +412,7 @@ const OnboardingAddressPage = () => {
                   label="Region"
                   required
                   placeholder="Select Region"
-                  options={REGION_OPTIONS}
+                  options={regionOptions}
                   value={region}
                   onChange={handleRegionChange}
                   leftIcon={<MapPinIcon />}
@@ -457,20 +432,33 @@ const OnboardingAddressPage = () => {
                   disabled={!region}
                   helperText={region ? 'Pick your district' : 'Select a region first'}
                   error={districtError}
+                  searchable
                 />
-                <Select
+                <TextInput
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Town/City"
                   required
-                  placeholder="Select town/city"
-                  options={availableTowns}
+                  placeholder={district ? 'Type your town or city' : 'Select a district first'}
                   value={townCity}
-                  onChange={setTownCity}
+                  onChange={(e) => setTownCity(e.target.value)}
                   leftIcon={<MapPinIcon />}
                   disabled={!district}
-                  helperText={district ? 'Pick your town or city' : 'Select a district first'}
+                  list="onboarding-town-suggestions"
+                  autoComplete="off"
+                  maxLength={80}
+                  helperText={district ? 'Type it or pick a suggestion' : 'Select a district first'}
+                  error={
+                    hasSubmittedOnce && district && townCity.trim().length < 2
+                      ? 'Town/City is required'
+                      : undefined
+                  }
                 />
+                <datalist id="onboarding-town-suggestions">
+                  {availableTowns.map((t) => (
+                    <option key={t} value={t} />
+                  ))}
+                </datalist>
                 <TextInput
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}

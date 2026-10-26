@@ -12,9 +12,7 @@ import {
   StatusMailIcon,
 } from '../../../components/sections/recruiterOnboarding/organisation/OrganisationIcons.jsx';
 import {
-  DISTRICTS_BY_REGION,
   INDUSTRY_OPTIONS,
-  REGION_OPTIONS,
   SIZE_OPTIONS,
   createOrganisation,
   isValidWebsite,
@@ -25,6 +23,7 @@ import { TextInput, Select, StickyActionBar } from '../../../components/ui/form'
 import { ArrowRightIcon, LoadingSpinner } from '../../../components/shared/assets.jsx';
 import { RECRUITER_ROUTES } from '../../../components/shared/recruiterOnboardingSteps.js';
 import { useRecruiterOnboarding } from '../../../hooks/useRecruiterOnboarding.js';
+import { useAdminAreas } from '../../../hooks/useAdminAreas.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('RecruiterCreateOrganisationPage');
@@ -84,6 +83,9 @@ const RecruiterCreateOrganisationPage = () => {
     ...EMPTY,
     legalName: typeof location.state?.name === 'string' ? location.state.name : '',
   }));
+
+  // Regions and districts (canonical names) from the location API.
+  const { regionNames, districtNames: districtOptions } = useAdminAreas(values.region);
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -111,19 +113,13 @@ const RecruiterCreateOrganisationPage = () => {
   const set = (key) => (value) => {
     setValues((prev) => {
       const next = { ...prev, [key]: value };
-      // District options depend on region: drop a district that no longer belongs.
-      if (key === 'region' && !(DISTRICTS_BY_REGION[value] ?? []).includes(prev.district)) {
-        next.district = '';
-      }
+      // District options depend on region: a new region clears the district.
+      if (key === 'region' && value !== prev.region) next.district = '';
       return next;
     });
   };
   const onText = (key) => (e) => set(key)(e.target.value);
   const blur = (key) => () => setTouched((prev) => ({ ...prev, [key]: true }));
-
-  const districtOptions = values.region
-    ? (DISTRICTS_BY_REGION[values.region] ?? [])
-    : Object.values(DISTRICTS_BY_REGION).flat();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -286,7 +282,7 @@ const RecruiterCreateOrganisationPage = () => {
                 required
                 placeholder="Select region"
                 leftIcon={<PlaceholderCircle />}
-                options={REGION_OPTIONS}
+                options={regionNames}
                 value={values.region || undefined}
                 onChange={set('region')}
                 onBlur={blur('region')}
