@@ -222,7 +222,11 @@ const pad2 = (list) => (list.length >= 2 ? list : [...list, ...Array(2 - list.le
 
 /** "GHS 8,000 – 12,000 per month" → salary form fields (range or fixed). */
 export const salaryFromText = (text) => {
-  const s = String(text || '');
+  // Leave out lengths like "12-month contract" or "6 months probation": they aren't pay.
+  const s = String(text || '').replace(
+    /\b\d+\s*-?\s*(?:months?|years?|weeks?)\b(?=[\s-]*(?:contract|probation|period|duration|renewable|internship|programme|program))/gi,
+    ' '
+  );
   const nums = (s.match(/\d[\d,]*(?:\.\d+)?/g) || [])
     .map((n) => Number(n.replace(/,/g, '')))
     .filter((n) => Number.isFinite(n) && n > 0);

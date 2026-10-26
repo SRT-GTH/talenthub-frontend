@@ -1935,6 +1935,19 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // job JD extract + live Jobs panel (Figma 5132:75538 / 75730).
   // Live recruiter: read the uploaded job description (PDF / Word) into the job post form.
   const extractJobFromFile = async (file, fileMsg) => {
+    // The JSON upload limit is 8 MB, so a base64 file must stay under about 6 MB.
+    if (file?.size > 6 * 1024 * 1024) {
+      setMessages((prev) => [
+        ...prev,
+        fileMsg,
+        {
+          id: `jd-too-big-${Date.now()}`,
+          sender: 'bot',
+          text: 'That file is a bit big for me to read. Please upload a job description under 6 MB.',
+        },
+      ]);
+      return;
+    }
     if (!jdFileType(file?.name)) {
       setMessages((prev) => [
         ...prev,
@@ -2093,7 +2106,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       try {
         const out = await postJobFromBuddy(jobPostDraft);
         // Organisation hasn't approved this recruiter yet: kept as a private draft (not live).
-        savedAsDraft = out?.reason === 'org_pending';
+        savedAsDraft =
+          out?.reason === 'org_pending' || out?.reason === 'needs_review' ? out.reason : false;
         log('branch', { jobPosted: out?.opportunity?.id, savedAsDraft });
       } catch (err) {
         log.error('job post failed', err?.response?.status || err?.message);
@@ -2120,14 +2134,20 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         {
           id: `job-draft-${Date.now()}`,
           sender: 'bot',
-          text: 'Saved as a draft. It goes live once your organisation approves your recruiter account. Only you can see it until then.',
+          text:
+            savedAsDraft === 'needs_review'
+              ? 'Saved as a draft. Our team will check it before it goes live. Only you can see it until then.'
+              : 'Saved as a draft. It goes live once your organisation approves your recruiter account. Only you can see it until then.',
         },
       ]);
       setToast({
         id: `job-draft-${Date.now()}`,
         variant: 'success',
         title: 'Saved as a draft',
-        body: 'It goes live once your organisation approves your account.',
+        body:
+          savedAsDraft === 'needs_review'
+            ? 'Our team will check it before it goes live.'
+            : 'It goes live once your organisation approves your account.',
       });
       return;
     }
