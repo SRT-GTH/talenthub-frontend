@@ -6,6 +6,7 @@ import { GroupCard, SettingRow, TextAction } from '../../talentSettings/Settings
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
 import AssessmentTemplatesSection from './refdata/AssessmentTemplatesSection.jsx';
+import DataSourcesSection from './refdata/DataSourcesSection.jsx';
 import FxAutoUpdatePanel from './refdata/FxAutoUpdatePanel.jsx';
 import LocationsSection from './refdata/LocationsSection.jsx';
 import OpportunityTemplatesSection from './refdata/OpportunityTemplatesSection.jsx';
@@ -37,7 +38,8 @@ const log = debug('ReferenceDataTab');
  *   Opportunity templates   refdata/OpportunityTemplatesSection.jsx
  *   Assessment templates    refdata/AssessmentTemplatesSection.jsx (questions view-only)
  *   Locations               refdata/LocationsSection.jsx (CSV import with preview)
- * URL: ?section=categories|currencies|opportunity-templates|assessment-templates|locations
+ *   Data sources            refdata/DataSourcesSection.jsx (O*NET import, Ghana scrapers, summaries)
+ * URL: ?section=categories|currencies|opportunity-templates|assessment-templates|locations|data-sources
  */
 
 const Pill = ({ on, onClick, children }) => (
@@ -616,6 +618,7 @@ const SECTIONS = [
   { id: 'opportunity-templates', label: 'Opportunity templates' },
   { id: 'assessment-templates', label: 'Assessment templates' },
   { id: 'locations', label: 'Locations' },
+  { id: 'data-sources', label: 'Data sources' },
 ];
 
 const ReferenceDataTab = ({ data, session }) => {
@@ -647,6 +650,13 @@ const ReferenceDataTab = ({ data, session }) => {
         <AssessmentTemplatesSection canEdit={canEdit} toast={toast} />
       ) : null}
       {section === 'locations' ? <LocationsSection canEdit={canEdit} toast={toast} /> : null}
+      {section === 'data-sources' ? (
+        <DataSourcesSection
+          canEdit={canEdit}
+          toast={toast}
+          goTo={(id) => data.update({ section: id === 'categories' ? null : id })}
+        />
+      ) : null}
       {toastEl}
     </>
   );

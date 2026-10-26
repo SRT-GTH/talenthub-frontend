@@ -22,14 +22,25 @@ import { useReasonRun } from './useReasonRun.js';
  * new rows are added), and edit a location's name, status, featured flag and coordinates.
  */
 
-const COLUMNS = ['type', 'name', 'country', 'region', 'city', 'latitude', 'longitude', 'featured'];
+const COLUMNS = [
+  'type',
+  'name',
+  'country',
+  'region',
+  'district',
+  'city',
+  'latitude',
+  'longitude',
+  'featured',
+];
 const SAMPLE = [
   COLUMNS.join(','),
-  'region,Ashanti,GH,,,,,',
-  'city,Kumasi,GH,Ashanti,,6.6885,-1.6244,true',
-  'area,Adum,GH,Ashanti,Kumasi,,,',
+  'region,Ashanti,GH,,,,,,',
+  'district,Kumasi Metropolitan,GH,Ashanti,,,,,',
+  'city,Kumasi,GH,Ashanti,Kumasi Metropolitan,,6.6885,-1.6244,true',
+  'area,Adum,GH,Ashanti,Kumasi Metropolitan,Kumasi,,,',
 ].join('\n');
-const TYPES = ['country', 'region', 'city', 'area'];
+const TYPES = ['country', 'region', 'district', 'city', 'area'];
 const STATUSES = ['active', 'inactive', 'deprecated'];
 
 /** Minimal RFC 4180 CSV parser (quoted fields, "" escapes, CRLF). Returns rows as arrays. */
@@ -96,7 +107,13 @@ const STATUS_LABEL = {
 };
 
 const place = (l) =>
-  [l.name, l.type === 'area' ? l.city : null, l.type !== 'country' ? l.region : null, l.country]
+  [
+    l.name,
+    l.type === 'area' ? l.city : null,
+    l.type === 'city' || l.type === 'area' ? l.district : null,
+    l.type === 'district' || l.type === 'city' || l.type === 'area' ? l.region : null,
+    l.country,
+  ]
     .filter(Boolean)
     .join(', ');
 
@@ -179,7 +196,7 @@ const Importer = ({ toast, onDone }) => {
   return (
     <GroupCard
       title="Import locations from CSV"
-      description="Columns: type (country, region, city or area), name, country (2-letter code such as GH), region (for cities and areas), city (for areas), latitude and longitude (both or neither), featured (true/false). You’ll see a preview before anything is saved; only new locations are added."
+      description="Columns: type (country, region, district, city or area), name, country (2-letter code such as GH), region (for districts, cities and areas), district (optional, for cities and areas), city (for areas), latitude and longitude (both or neither), featured (true/false). You’ll see a preview before anything is saved; only new locations are added."
       gap="gap-[14px]"
     >
       <div className="flex flex-wrap gap-[14px]">
@@ -405,7 +422,7 @@ const LocationsSection = ({ canEdit, toast }) => {
   return (
     <GroupCard
       title="Locations"
-      description="Countries, regions, cities and areas used in profiles, opportunities and search."
+      description="Countries, regions, districts, towns and areas used in onboarding, profiles, opportunities, search and reports."
       gap="gap-0"
     >
       <div className="flex flex-wrap gap-[8px] pb-[12px]">

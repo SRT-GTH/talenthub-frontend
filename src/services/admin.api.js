@@ -256,6 +256,18 @@ export const catSetOppTemplateActive = (id, isActive, reason) =>
 export const catDeleteOppTemplate = (id, reason) =>
   api.delete(`/admin/catalog/opportunity-templates/${id}`, { data: { reason } }).then(body);
 
+// Data sources: O*NET occupations, Ghana scrapers, exchange-rate and location summaries.
+export const catDataSources = () => get('/admin/catalog/data-sources');
+/** Latest O*NET version vs the last import: { latestVersion, importedVersion, wouldImport, error }. */
+export const catOnetCheck = () => post('/admin/catalog/data-sources/onet/check', {});
+/** Starts an O*NET import in the background: { force, reason } → { started }. */
+export const catOnetRun = (p) => post('/admin/catalog/data-sources/onet/run', clean(p));
+/** Reads a Ghana source without saving: { ok, preview: rows[0..4], summary: { totalRows, degraded, ... } }. */
+export const catScrapeCheck = (key) => post(`/admin/catalog/data-sources/scrape/${key}/check`, {});
+/** Reads a Ghana source in the background and saves the rows: { reason } → { started }. */
+export const catScrapeRun = (key, reason) =>
+  post(`/admin/catalog/data-sources/scrape/${key}/run`, { reason });
+
 // Locations: list, CSV import (preview first), edit.
 export const catLocations = (params) => get('/admin/catalog/locations', clean(params || {}));
 export const catPreviewLocationImport = (rows) =>
