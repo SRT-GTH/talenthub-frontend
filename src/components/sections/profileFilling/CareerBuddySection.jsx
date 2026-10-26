@@ -37,6 +37,7 @@ import MilestoneShareModal from '../talentCommunity/MilestoneShareModal.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { useCareerBuddyLive } from './useCareerBuddyLive.jsx';
 import { PIPELINE_CHIP, useRecruiterBuddyLive } from '../recruiterBuddy/useRecruiterBuddyLive.jsx';
+import { useRecruiterChatHistory } from '../recruiterBuddy/useRecruiterChatHistory.js';
 import useVoiceTurns from './voiceCaptions/useVoiceTurns.jsx';
 import { lastBuddyText } from './voiceCaptions/voiceSpeech.js';
 import { logoHomePath } from '../../../services/auth.api.js';
@@ -949,6 +950,23 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           m.personaLabel === RECRUITER_NAME ? { ...m, personaLabel: liveRecruiterName } : m
         )
       : list;
+  // Live recruiter: the history drawer lists the recruiter's real conversations with Buddy.
+  const RH = useRecruiterChatHistory({ enabled: recruiterLive, personaLabel: personaName });
+  useEffect(() => {
+    if (recruiterLive && historyOpen) RH.reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recruiterLive, historyOpen]);
+  // A recruiter who has talked to Buddy before opens on the returning view (with History),
+  // not the first-visit welcome.
+  useEffect(() => {
+    if (!recruiterLive || RH.loading || RH.chats.length === 0) return;
+    if (nodeId === 'welcome' && !messages.some((m) => m.sender === 'user')) {
+      log('branch', { recruiterReturning: RH.chats.length });
+      setNodeId('returning-prompt');
+      setMessages([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recruiterLive, RH.loading, RH.chats.length]);
 
   const selectParentProfileTab = (tabId) => {
     log('branch', { parentProfileTab: tabId, wardAccountReady });
@@ -1528,7 +1546,9 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
 
   const currentNode = scriptNodes[nodeId];
   const heroMode = currentNode?.hero ?? null;
-  const showChrome = heroMode !== 'first-time';
+  // Live recruiter: History is there once a conversation has started, even from the welcome.
+  const showChrome =
+    heroMode !== 'first-time' || (recruiterLive && messages.some((m) => m.sender === 'user'));
   // New Chat + History once past the first-time hero (talent + recruiter + parent).
   // Returning-talent hero keeps History but hides New Chat (already a fresh chat).
   const showNewChat = showChrome && heroMode !== 'returning';
@@ -1671,10 +1691,20 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   const activeSuggestedReplies = useMemo(() => {
     if (recruiterLive && RB.chips.length) return RB.chips;
     const scriptedBase = inBubbleChoices.length > 0 ? [] : (currentNode?.suggestedReplies ?? []);
-    const base =
+    const withPipeline =
       recruiterLive && scriptedBase.length && !scriptedBase.includes(PIPELINE_CHIP)
         ? [PIPELINE_CHIP, ...scriptedBase]
         : scriptedBase;
+    // Live recruiter: don't offer setup steps that are already finished.
+    const companySaved =
+      recruiterLive && stages.some((s) => s.id === 'company-info' && s.status === 'done');
+    const base = recruiterLive
+      ? withPipeline.filter(
+          (c) =>
+            !(kybVerified && c === KYB_UPLOAD_CTA) &&
+            !(companySaved && c === 'Complete Company Profile')
+        )
+      : withPipeline;
     if (nodeId !== 'job-posted-success') return base;
     const companyDone = stages.some((s) => s.id === 'company-info' && s.status === 'done');
     const kybDone = kybVerified || stages.some((s) => s.id === 'kyb' && s.status === 'done');
@@ -3150,45 +3180,76 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           <CareerBuddyHistoryDrawer
             open={liveMode ? L.historyOpen : historyOpen}
             onClose={() => (liveMode ? L.setHistoryOpen(false) : setHistoryOpen(false))}
-            chats={liveMode ? L.historyChats : demoChats}
-            loading={liveMode ? L.historyLoading : Boolean(demoFrame?.loadingHistory)}
+            chats={liveMode ? L.historyChats : recruiterLive ? RH.chats : demoChats}
+            loading={
+              liveMode
+                ? L.historyLoading
+                : recruiterLive
+                  ? RH.loading
+                  : Boolean(demoFrame?.loadingHistory)
+            }
             initial={demoFrame?.drawer}
             onSelect={
               liveMode
                 ? L.handleSelectHistory
-                : (chat) => {
-                    log('branch', { historyEntryClicked: chat.id });
-                    setHistoryOpen(false);
+                : recruiterLive
+                  ? (chat) => {
+                      // Read a past conversation back into the chat; typing carries on with Buddy.
+                      const past = RH.messagesFor(chat.id);
+                      log('branch', { recruiterHistoryOpened: chat.id, turns: past?.length });
+                      if (past) {
+                        setMessages(past);
+                        setNodeId('returning-prompt');
+                        setExpandedPanelId(null);
+                      }
+                      setHistoryOpen(false);
+                    }
+                  : (chat) => {
+                      log('branch', { historyEntryClicked: chat.id });
+                      setHistoryOpen(false);
+                    }
+            }
+            onNewChat={
+              liveMode
+                ? L.handleNewChat
+                : () => {
+                    if (recruiterLive) RH.clearActive();
+                    handleNewChat();
                   }
             }
-            onNewChat={liveMode ? L.handleNewChat : handleNewChat}
             onRename={
               liveMode
                 ? L.handleRenameChat
-                : (id, title) =>
-                    setDemoChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)))
+                : recruiterLive
+                  ? RH.rename
+                  : (id, title) =>
+                      setDemoChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)))
             }
             onTogglePin={
               liveMode
                 ? L.handleTogglePin
-                : (id) =>
-                    setDemoChats((prev) =>
-                      prev.map((c) => {
-                        if (c.id !== id) return c;
-                        const pinned = !c.pinned;
-                        return {
-                          ...c,
-                          pinned,
-                          group: pinned ? 'pinned' : (c.homeGroup ?? c.group),
-                          homeGroup: c.homeGroup ?? c.group,
-                        };
-                      })
-                    )
+                : recruiterLive
+                  ? RH.togglePin
+                  : (id) =>
+                      setDemoChats((prev) =>
+                        prev.map((c) => {
+                          if (c.id !== id) return c;
+                          const pinned = !c.pinned;
+                          return {
+                            ...c,
+                            pinned,
+                            group: pinned ? 'pinned' : (c.homeGroup ?? c.group),
+                            homeGroup: c.homeGroup ?? c.group,
+                          };
+                        })
+                      )
             }
             onDelete={
               liveMode
                 ? L.handleDeleteChat
-                : (id) => setDemoChats((prev) => prev.filter((c) => c.id !== id))
+                : recruiterLive
+                  ? RH.remove
+                  : (id) => setDemoChats((prev) => prev.filter((c) => c.id !== id))
             }
             onAskBuddy={
               liveMode
@@ -3423,7 +3484,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                 onStop={demoReplying ? () => goDemoFrame('stopped') : undefined}
                 onOpenHistory={showChrome || demoFrame ? () => setHistoryOpen(true) : undefined}
                 onOpenVoiceSettings={
-                  showChrome || demoFrame
+                  // The Buddy settings popover is talent-only; no dead button for recruiters / parents.
+                  isTalent && (showChrome || demoFrame)
                     ? () => {
                         log('branch', { openBuddySettings: true });
                         setSettingsOpen(true);
