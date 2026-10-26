@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { STREAK_PAGE_COPY } from './talentStreakData.js';
-import { saveStreakReminders } from '../../../services/streak.api.js';
+import { saveStreakReminders, setLeaderboardOptIn } from '../../../services/streak.api.js';
 import flameSm from '../../../assets/talent-streak/page/flame-sm.svg';
 import iconBook from '../../../assets/talent-streak/page/icon-book.svg';
 import iconQuiz from '../../../assets/talent-streak/page/icon-quiz.svg';
@@ -183,10 +183,43 @@ export const StreakRemindersCard = (props) => {
   );
 };
 
+/*
+ * Leaderboard (Figma S-07). Live (`board` from GET /streak): opt-in only (US-7.1-12). Nobody is listed
+ * until they join; joining is confirmed here first (what others will see), leaving is one tap.
+ * Under-18s can't join yet (a parent's consent is needed first). Rank numbers only for the top half.
+ */
 export const StreakLeaderboardCard = (props) => {
+  const board = props.board || null;
   const rows = props.rows;
   // Live: "Top streaks in <your community>" from the API; the drawn frame says Data Gang GH.
   const title = props.title ?? STREAK_PAGE_COPY.leaderboardTitle;
+  const [optedIn, setOptedIn] = useState(Boolean(board?.optedIn));
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => setOptedIn(Boolean(board?.optedIn)), [board?.optedIn]);
+
+  const save = async (next) => {
+    setBusy(true);
+    setError('');
+    try {
+      await setLeaderboardOptIn(next);
+      setOptedIn(next);
+      setConfirming(false);
+      log('branch', { leaderboardOptIn: next });
+      props.onChanged?.();
+    } catch (err) {
+      const type = err?.response?.data?.type;
+      setError(
+        type === 'LEADERBOARD_NEEDS_PARENTAL_CONSENT'
+          ? 'Under-18s need a parent\u2019s OK to join leaderboards. That\u2019s coming soon.'
+          : 'That didn\u2019t save. Please try again.'
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section aria-label={title} className={classNames(CARD, 'flex flex-col gap-[6px] p-[20px]')}>
       <h2 className={classNames(TITLE_19, 'pb-[4px]')}>{title}</h2>
@@ -196,16 +229,16 @@ export const StreakLeaderboardCard = (props) => {
         </p>
       ) : null}
       <ol className="m-0 flex list-none flex-col gap-[6px] p-0">
-        {rows.map((row) => (
+        {rows.map((row, i) => (
           <li
-            key={row.rank}
+            key={row.you ? 'you' : `${row.name}-${i}`}
             className={classNames(
               'flex items-center gap-[10px] rounded-[14px] py-[8px] pl-[8px] pr-[10px]',
               row.you && 'border border-solid border-[#387440] bg-[#ebf1ec] playful:border-[1.2px]'
             )}
           >
             <span className="w-[10px] text-center font-sans text-[13px] font-bold leading-[16px] text-[#737373]">
-              {row.rank}
+              {row.rank ?? ''}
             </span>
             {row.avatar ? (
               <img
@@ -236,6 +269,67 @@ export const StreakLeaderboardCard = (props) => {
           </li>
         ))}
       </ol>
+      {board ? (
+        <div className="flex flex-col gap-[8px] pt-[6px]">
+          {board.notice ? (
+            <p className="m-0 font-sans text-[13px] leading-[18px] text-[#595959]">
+              {board.notice}
+            </p>
+          ) : null}
+          {confirming ? (
+            <div className="flex flex-col gap-[8px] rounded-[14px] bg-[#f6f8f6] p-[12px]">
+              <p className="m-0 font-sans text-[13px] leading-[18px] text-[#1c2a21]">
+                Members of {board.scope || 'your community'} will see your first name, last initial
+                and streak. You can leave any time.
+              </p>
+              <div className="flex gap-[8px]">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => save(true)}
+                  className="rounded-full bg-[#387440] px-[14px] py-[6px] font-sans text-[13px] font-semibold text-white disabled:opacity-60"
+                >
+                  {busy ? 'Joining…' : 'Join'}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setConfirming(false)}
+                  className="rounded-full border border-solid border-[#c9d6cb] bg-white px-[14px] py-[6px] font-sans text-[13px] font-semibold text-[#1c2a21]"
+                >
+                  Not now
+                </button>
+              </div>
+            </div>
+          ) : optedIn ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => save(false)}
+              className="self-start bg-transparent p-0 font-sans text-[13px] font-semibold text-[#387440] underline disabled:opacity-60"
+            >
+              {busy ? 'Leaving…' : 'Leave the leaderboard'}
+            </button>
+          ) : board.canOptIn ? (
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="self-start rounded-full border border-solid border-[#387440] bg-white px-[14px] py-[6px] font-sans text-[13px] font-semibold text-[#387440]"
+            >
+              Join the leaderboard
+            </button>
+          ) : (
+            <p className="m-0 font-sans text-[13px] leading-[18px] text-[#595959]">
+              Under-18s need a parent&rsquo;s OK to join leaderboards. That&rsquo;s coming soon.
+            </p>
+          )}
+          {error ? (
+            <p role="alert" className="m-0 font-sans text-[13px] leading-[18px] text-[#C4320A]">
+              {error}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 };
