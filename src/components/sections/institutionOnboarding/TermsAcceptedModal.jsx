@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Button from '../../ui/Button.jsx';
 import { ArrowRightIcon, CloseIcon, ShieldCheckIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import useDialogFocus from './useDialogFocus.js';
 
 const log = debug('TermsAcceptedModal');
 
@@ -62,12 +63,13 @@ const RowCheckIcon = () => (
 const CONSENT_ROWS = [
   { label: 'Terms & Conditions' },
   { label: 'Privacy Policy' },
-  { label: 'Data Consent & Use Policy' },
+  { label: 'Data Processing Consent' },
 ];
 
 // ── main component ─────────────────────────────────────────────────────────
 
 const TermsAcceptedModal = ({ onClose, onConfirm }) => {
+  const dialogRef = useDialogFocus();
   log('mount');
 
   // ── keyboard dismiss ──────────────────────────────────────────────────
@@ -96,10 +98,12 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="terms-accepted-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
     >
       <div
@@ -135,14 +139,14 @@ const TermsAcceptedModal = ({ onClose, onConfirm }) => {
           <div className="flex flex-col gap-1">
             <h2
               id="terms-accepted-title"
-              className="font-display font-normal text-black max-sm:text-[22px]!"
+              className="font-heading font-semibold text-black max-sm:text-[22px]!"
               style={{
                 fontSize: 'clamp(1.5rem, 2.5vw, 2rem)',
                 lineHeight: 1.15,
                 letterSpacing: '-1.2px',
               }}
             >
-              Terms <span className="italic text-brand-green">Accepted</span>
+              Terms <span className="text-brand-green">Accepted</span>
             </h2>
             <p
               className="font-sans font-normal text-[#959592] max-sm:text-[13px]!"

@@ -95,7 +95,7 @@ const GuidelinesSection = () => {
 
         {/* Headline — Figma 2971:65523: Instrument Serif 64px/70px, tracking -0.64px */}
         <h1
-          className="font-display font-normal text-black max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold text-black max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
@@ -105,7 +105,7 @@ const GuidelinesSection = () => {
           <span>Welcome. </span>
           <span>
             {"Here's what happens "}
-            <span className="italic text-brand-green">next.</span>
+            <span className="text-brand-green">next.</span>
           </span>
         </h1>
 
@@ -181,7 +181,7 @@ const GuidelinesSection = () => {
           className={`mt-3 w-full max-md:mt-1 ${COMPACT_PRIMARY_BUTTON}`}
           aria-busy={isSubmitting}
         >
-          {isSubmitting ? 'Setting Things Up' : "Let's Begin"}
+          Let&apos;s Begin
         </Button>
 
         {/* Already-have-account link */}

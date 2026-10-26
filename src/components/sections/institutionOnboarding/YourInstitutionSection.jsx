@@ -150,15 +150,20 @@ const YourInstitutionSection = () => {
 
         {/* Headline — Instrument Serif, clamp 2rem→4rem (Figma 2972:72229) */}
         <h1
-          className="font-display font-normal max-w-[554px] text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold max-w-[554px] text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
             letterSpacing: '-0.64px',
           }}
         >
-          Tell us about your <span className="italic text-brand-green">institution.</span>
+          Tell us about your <span className="text-brand-green">institution.</span>
         </h1>
+
+        <p className="m-0 max-w-[554px] text-center font-sans text-[16px] leading-6 text-[#737373] max-md:self-start max-md:text-left">
+          This builds your trusted identity on GTH seen by schools, companies, and opportunities
+          matched to you. All fields marked with * are required.
+        </p>
 
         <WavyDivider />
 
@@ -172,7 +177,7 @@ const YourInstitutionSection = () => {
           <div className="grid  w-full grid-cols-1 gap-4 max-md:gap-3 sm:grid-cols-2">
             <TextInput
               leftIcon={<PersonIcon className="text-brand-green" />}
-              label="Legal / Official Name"
+              label="Legal Institution Name"
               required
               placeholder="e.g. Accra Technical College"
               error={errors.legalName?.message}
@@ -181,8 +186,8 @@ const YourInstitutionSection = () => {
             />
             <TextInput
               leftIcon={<PersonIcon className="text-brand-green" />}
-              label="Trading / Commercial Name"
-              optional
+              label="Trading / Common Name"
+              labelTrailing="Optional"
               placeholder="e.g. ATC (if different)"
               error={errors.tradingName?.message}
               autoComplete="off"
@@ -227,7 +232,7 @@ const YourInstitutionSection = () => {
                     leftIcon={<LocationIcon />}
                     label="Region"
                     required
-                    placeholder="Select region"
+                    placeholder="Select Region"
                     options={REGION_OPTIONS}
                     value={field.value}
                     onChange={(val) => {
@@ -257,7 +262,7 @@ const YourInstitutionSection = () => {
                     leftIcon={<MapPinIconTwo className="text-brand-green" />}
                     label="District"
                     required
-                    placeholder={isDisabled ? 'Select region first' : 'Select district'}
+                    placeholder={isDisabled ? 'Select a region first' : 'Select District'}
                     options={districtOptions}
                     value={field.value}
                     onChange={(val) => {
