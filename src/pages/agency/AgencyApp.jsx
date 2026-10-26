@@ -1,10 +1,15 @@
 import { lazy, Suspense } from 'react';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import {
+  AgencyGate,
+  AgencySessionProvider,
+} from '../../components/sections/agency/AgencySessionContext.jsx';
 
 /*
  * AgencyApp — the router of the Theme 11 agency portal (Figma canvas 8605:395409), mounted by App.jsx as /agency/* outside MainLayout.
- * Mock signed-in session only (⚠️ ASSUMPTION: no real auth; see useAgencySession). Every page is a lazy module in this folder; the work
+ * Real session: AgencySessionProvider reads GET /api/agency/me; AgencyGate sends signed-out visitors to /login and a
+ * temporary password to /agency/set-password. Sign-up and MoU upload stay public (the self-service request). Every page is a lazy module in this folder; the work
  * packages replace the stubs and add NO route to App.jsx (only here, by the foundation / lead). URL contract: agencyState.js + wiki/agency.md.
  *
  *   /agency                                 11.4.0   home (A)           /agency/welcome  → /agency?modal=welcome (11.4.1e) ; ?tour=1|2|3 (11.4.1f-h)
@@ -39,16 +44,37 @@ const AgencyDistrictsPage = lazy(() => import('./AgencyDistrictsPage.jsx'));
 const AgencySettingsPage = lazy(() => import('./AgencySettingsPage.jsx'));
 const AgencyPublicPage = lazy(() => import('./AgencyPublicPage.jsx'));
 const AgencyNotFoundPage = lazy(() => import('./AgencyNotFoundPage.jsx'));
+const AgencySetPasswordPage = lazy(() => import('./AgencySetPasswordPage.jsx'));
 
 const Fallback = () => <PageLoader look="focused" />;
 
+const SignedIn = ({ children }) => <AgencyGate>{children}</AgencyGate>;
+
 const AgencyApp = () => (
+  <AgencySessionProvider>
+    <Suspense fallback={<Fallback />}>
+      <Routes>
+        <Route path="sign-up" element={<AgencySignUpPage />} />
+        <Route path="mou" element={<AgencyMouPage />} />
+        <Route path="set-password" element={<AgencySetPasswordPage />} />
+        <Route
+          path="*"
+          element={
+            <SignedIn>
+              <SignedInRoutes />
+            </SignedIn>
+          }
+        />
+      </Routes>
+    </Suspense>
+  </AgencySessionProvider>
+);
+
+const SignedInRoutes = () => (
   <Suspense fallback={<Fallback />}>
     <Routes>
       <Route index element={<AgencyHomePage />} />
       <Route path="welcome" element={<Navigate to="/agency?modal=welcome" replace />} />
-      <Route path="sign-up" element={<AgencySignUpPage />} />
-      <Route path="mou" element={<AgencyMouPage />} />
       <Route path="mou/status" element={<AgencyMouStatusPage />} />
       <Route path="national" element={<AgencyNationalPage />} />
       <Route path="regions" element={<Navigate to="greater-accra" replace />} />

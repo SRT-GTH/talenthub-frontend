@@ -1,31 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
-import { getOverview, mapStateFor } from '../../publicData/overview/data/overviewData.js';
+import { mapStateFor } from '../../publicData/overview/data/overviewData.js';
 import OverviewInterestsCard from '../../publicData/overview/OverviewInterestsCard.jsx';
 import OverviewKpis from '../../publicData/overview/OverviewKpis.jsx';
 import OverviewProfileCard from '../../publicData/overview/OverviewProfileCard.jsx';
 import OverviewWhoCard from '../../publicData/overview/OverviewWhoCard.jsx';
-import { useOverviewData } from '../../publicData/overview/useOverviewData.js';
 import { useOverviewFilters } from '../../publicData/overview/useOverviewFilters.js';
 import RegionalMapCard from '../../publicData/map/RegionalMapCard.jsx';
 import EmptyState from '../../publicData/ui/EmptyState.jsx';
 import TodayStrip from '../../publicData/ui/TodayStrip.jsx';
 import { FILTER_KEYS } from '../agencyState.js';
+import { useAgencyOverview } from '../useAgencyOverview.js';
+import { useAgencySession } from '../useAgencySession.js';
 import AgencyBanner from '../AgencyBanner.jsx';
 import AgencyButton from '../AgencyButton.jsx';
 import AgencyPageHero from '../AgencyPageHero.jsx';
 import AgencyFilterRow from './AgencyFilterRow.jsx';
 import BreakdownCard from './BreakdownCard.jsx';
-import {
-  MOU_VIEW,
-  NATIONAL_SUBTITLE,
-  PERSONALITY_NOTE,
-  PERSONALITY_ROWS,
-  SAMPLE_VIEW_ROWS,
-  PLACEMENTS_SUB,
-} from './data/nationalData.js';
-import { extraChipLabel, parseMore, regionIds, serializeMore } from './data/moreFiltersData.js';
+import { MOU_VIEW, PERSONALITY_NOTE } from './data/nationalData.js';
+import { extraChipLabel, parseMore, serializeMore } from './data/moreFiltersData.js';
 import MoreFiltersDrawer from './MoreFiltersDrawer.jsx';
 
 const log = debug('AgencyNationalView');
@@ -39,11 +33,19 @@ const log = debug('AgencyNationalView');
  */
 
 const HIDE_PHONE_COMPARE = "max-md:[&_button[class*='!w-fit']]:hidden";
+const mouTitle = (session) => {
+  const n = session?.mou?.categories ?? 0;
+  const until = session?.mou?.expires
+    ? new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' }).format(
+        new Date(session.mou.expires)
+      )
+    : null;
+  return `${n} data categor${n === 1 ? 'y' : 'ies'}${until ? ` · access until ${until}` : ''}`;
+};
 
+// Every view comes from GET /api/agency/overview (groups under 5 arrive as 0 + suppressed and print "<5").
 const breakdownRows = (view, overview) => {
-  if (view === 'personality') return PERSONALITY_ROWS;
-  if (SAMPLE_VIEW_ROWS[view])
-    return SAMPLE_VIEW_ROWS[view].map(([label, count]) => ({ key: label, label, count }));
+  if (overview.breakdowns && overview.breakdowns[view]) return overview.breakdowns[view];
   if (view === 'education') return overview.education.map((e) => ({ ...e }));
   if (view === 'age') return overview.ages.map((a) => ({ ...a }));
   return overview.interests.rows;
@@ -53,36 +55,14 @@ const breakdownRows = (view, overview) => {
 // "More filters" / "Show by", "Career interests" instead of the Breakdown card.
 const AgencyNationalView = ({ data, classic = false }) => {
   const navigate = useNavigate();
-  // several regions (?region=northern,upper-east, 11.4.6b): ⚠️ ASSUMPTION the mock draws the first region's breakdowns with the summed talent count
-  const regs = regionIds(data.filters.region);
-  const dataFilters = useMemo(
-    () => (regs.length > 1 ? { ...data.filters, region: regs[0] } : data.filters),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.filters, regs.length]
-  );
-  const { status, overview: base0, retry } = useOverviewData(dataFilters, data.state, data.update);
-  const base = useMemo(() => {
-    if (regs.length < 2) return base0;
-    const sum = regs.reduce((n, id) => n + getOverview({ ...dataFilters, region: id }).count, 0);
-    return { ...base0, count: sum, hero: { ...base0.hero, count: sum } };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base0, regs.length]);
+  // several regions (?region=northern,upper-east, 11.4.6b) are sent as one filter; the backend counts them together.
+  const { status, overview, retry } = useAgencyOverview(data.filters, data.state, data.update);
+  const session = useAgencySession();
   const more = parseMore(data.params.get('more'));
   const extras = Object.entries(more).map(([key, value]) => ({
     key,
     label: extraChipLabel(key, value),
   }));
-  // agency copy of the placements tile (Figma 11.4.2a)
-  const overview = useMemo(
-    () => ({
-      ...base,
-      kpis: {
-        ...base.kpis,
-        placements: { ...base.kpis.placements, sub: PLACEMENTS_SUB, subShort: PLACEMENTS_SUB },
-      },
-    }),
-    [base]
-  );
   const actions = useOverviewFilters(data);
   const [menuOpenLocal, setMenuOpenLocal] = useState(false);
   const view = data.params.get('breakdown') ?? 'interest';
@@ -100,7 +80,8 @@ const AgencyNationalView = ({ data, classic = false }) => {
 
   const tooFew = data.state === 'too-few';
   const empty = status === 'zero' || status === 'suppressed';
-  const resultCount = status === 'zero' ? 0 : status === 'suppressed' ? 3 : overview.count;
+  // suppressed: the server never sends the real 1-4; any number under 5 prints "<5" in the filter row.
+  const resultCount = status === 'zero' ? 0 : status === 'suppressed' ? 1 : overview.count;
   const result = status === 'loading' ? { state: 'loading' } : { count: resultCount };
 
   const saveQuery = () => {
@@ -112,7 +93,7 @@ const AgencyNationalView = ({ data, classic = false }) => {
     <>
       <AgencyPageHero
         title="National data"
-        subtitle={NATIONAL_SUBTITLE}
+        subtitle={`The national picture plus the categories in your MoU. ${overview.asOf?.label ? `${overview.asOf.label}. ` : ''}Groups under 5 are hidden.`}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <AgencyFilterRow
@@ -144,10 +125,12 @@ const AgencyNationalView = ({ data, classic = false }) => {
       {!classic && (
         <AgencyBanner
           eyebrow={MOU_VIEW.eyebrow}
-          title={MOU_VIEW.title}
+          title={mouTitle(session)}
           className="justify-center lg:min-h-[173px]"
         >
-          {MOU_VIEW.body}
+          {session?.mou?.categoryNames?.length
+            ? `${session.mou.categoryNames.join(', ')}. Ages 14–17 show as totals only. Every view is logged.`
+            : MOU_VIEW.body}
         </AgencyBanner>
       )}
       {empty ? (

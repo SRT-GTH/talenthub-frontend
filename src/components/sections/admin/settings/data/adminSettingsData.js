@@ -14,6 +14,7 @@ const BASE = [
     icon: 'globe',
     to: '/admin/settings/organisations',
   },
+  { id: 'agencies', label: 'Government agencies', icon: 'globe', to: '/admin/settings/agencies' },
   {
     id: 'notifications',
     label: 'System notifications',

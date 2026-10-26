@@ -3,10 +3,10 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
-import { getOverview } from '../../publicData/overview/data/overviewData.js';
+import { useAgencyCount } from '../useAgencyOverview.js';
 import { FILTER_DEFINITIONS, filterOptionLabel } from '../../publicData/ui/data/uiData.js';
 import { FILTER_KEYS } from '../agencyState.js';
-import { formatCount, isSuppressed } from '../agencyFormat.js';
+import { formatCount } from '../agencyFormat.js';
 import { MORE_FILTER_GROUPS, parseMore, regionIds, serializeMore } from './data/moreFiltersData.js';
 
 const log = debug('MoreFiltersDrawer');
@@ -269,16 +269,13 @@ const MoreFiltersDrawer = ({ data, tooFew: forcedTooFew }) => {
     () => Object.fromEntries(FILTER_KEYS.map((k) => [k, draft[k] || null])),
     [draft]
   );
-  const count = useMemo(() => {
-    const ids = regionIds(core.region);
-    if (ids.length > 1)
-      return ids.reduce((n, id) => n + getOverview({ ...core, region: id }).count, 0);
-    return getOverview(core).count;
-  }, [core]);
+  // Live count for the draft (GET /api/agency/overview?countOnly=1); null while it loads. Under 5 arrives as 0 / suppressed.
+  const live = useAgencyCount(core);
+  const count = live.value;
   const fourteen = draft.age === '14-17';
   const tooFew =
     forcedTooFew ||
-    isSuppressed(count) ||
+    live.state === 'suppressed' ||
     (fourteen && Object.keys(draft).filter((k) => draft[k] && k !== 'age').length > 0);
   const on = MORE_FILTER_GROUPS.flatMap((g) => g.fields).filter((f) => draft[f.key]);
 

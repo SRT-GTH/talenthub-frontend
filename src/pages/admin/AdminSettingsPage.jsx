@@ -8,6 +8,7 @@ import PlatformConfigTab from '../../components/sections/admin/settings/Platform
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
+import AgenciesTab from '../../components/sections/admin/settings/AgenciesTab.jsx';
 import SystemNotificationsTab from '../../components/sections/admin/settings/SystemNotificationsTab.jsx';
 import ReferenceDataTab from '../../components/sections/admin/settings/ReferenceDataTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
@@ -89,6 +90,21 @@ const AdminSettingsPage = () => {
     subtitle =
       'Platform tenants (GTH, and any new national hub) and the organisations under them. Every change is logged.';
     body = <OrganisationsTab data={data} session={session} />;
+  } else if (tab === 'agencies') {
+    active = 'agencies';
+    subtitle =
+      'Government agencies with access to aggregate talent figures. Create their accounts, hand over a temporary password, pause or restore access.';
+    action =
+      session.role === 'super' || session.role === 'senior'
+        ? { label: 'Create agency', onClick: () => data.update({ create: true }) }
+        : null;
+    body = (
+      <AgenciesTab
+        creating={creating}
+        onClose={() => data.update({ create: null })}
+        session={session}
+      />
+    );
   } else if (tab === 'overview') {
     active = 'overview';
     subtitle = 'Each settings area at a glance, with live figures.';

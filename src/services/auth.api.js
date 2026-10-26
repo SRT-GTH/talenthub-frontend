@@ -70,6 +70,10 @@ export const homePathFor = (user) => {
   const type = String(user?.entityType || user?.type || '').toLowerCase();
   if (type === 'talent') return '/home';
   if (type === 'recruiter') return '/recruiter/home';
+  // Government agencies: a temporary password from the GTH team must be replaced first.
+  if (type === 'government_institution' || type === 'government') {
+    return user?.metadata?.mustChangePassword ? '/agency/set-password' : '/agency';
+  }
   return '/profile/engagement';
 };
 
