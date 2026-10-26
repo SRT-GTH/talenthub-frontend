@@ -6,7 +6,7 @@
  */
 
 const BASE = [
-  { id: 'overview', label: 'Overview', icon: 'user' },
+  { id: 'overview', label: 'Overview', icon: 'user', to: '/admin/settings/overview' },
   { id: 'roles', label: 'Roles and permissions', icon: 'shield', to: '/admin/settings/roles' },
   {
     id: 'organisations',
@@ -29,10 +29,15 @@ const BASE = [
     to: '/admin/settings/onboarding',
   },
   { id: 'observability', label: 'Observability', icon: 'sliders', to: '/admin/observability' },
-  { id: 'accessibility', label: 'Accessibility', icon: 'sliders' },
-  { id: 'flags', label: 'Feature flags', icon: 'sliders', to: '/admin/settings' },
-  { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integrations' },
-  { id: 'security', label: 'Security', icon: 'lock' },
+  {
+    id: 'accessibility',
+    label: 'Accessibility',
+    icon: 'sliders',
+    to: '/admin/settings/accessibility',
+  },
+  { id: 'flags', label: 'Feature flags', icon: 'sliders', to: '/admin/settings#feature_flag' },
+  { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integration' },
+  { id: 'security', label: 'Security', icon: 'lock', to: '/admin/settings/security' },
   {
     id: 'staff',
     label: 'Staff accounts',
@@ -49,12 +54,8 @@ export const NAV = BASE;
 export const NAV_ROLES = [BASE[0], BASE[2], BASE[1], ...BASE.slice(3)];
 export const LOGOUT = 'Log out';
 
-export const SUBTITLE_STAFF = '14 staff · 2 Super Admins · least privilege for every role.';
 export const SUBTITLE_PLATFORM =
   'Platform configuration. Super Admins only. Every change needs a reason and is logged.';
-
-export const INFO =
-  'Staff accounts must use @ghanatalenthub.com. Accounts unused for 30 days lock automatically.';
 
 export const STAFF = {
   title: 'Staff',
@@ -91,101 +92,6 @@ export const STAFF = {
   ],
 };
 export const CREATE_ACTION = 'Create a staff account';
-
-export const CREATE = {
-  title: 'Create a staff account',
-  sub: 'They get a secure set-up link that expires in 24 hours.',
-  nameLabel: 'Full name',
-  name: 'Yaw Boakye',
-  emailLabel: 'Work email',
-  email: 'yaw.boakye@ghanatalenthub.com',
-  roles: ['Admin', 'Senior Admin', 'Support Agent', 'Content Moderator'],
-  send: 'Send set-up link',
-  preview: 'Permissions preview: accounts, approvals, escalations',
-};
-
-export const ROLE_SUMMARY = {
-  title: 'What each role can do',
-  sub: 'Least privilege. Changes take effect right away and are logged.',
-  rows: [
-    {
-      title: 'Suspend accounts',
-      text: 'Senior Admin and above. Indefinite needs a second approver.',
-      control: 'policy',
-    },
-    {
-      title: 'Moderate content',
-      text: 'Moderators, Senior Admins and Super Admins.',
-      control: 'toggle',
-    },
-    {
-      title: 'External data exports',
-      text: 'Super Admins only, with a second approver.',
-      control: 'toggle',
-    },
-  ],
-};
-
-export const SUPER_ADMINS = {
-  title: 'Super Admins',
-  row: {
-    title: '2 active Super Admins',
-    text: 'There must always be at least one. The last one can’t be deactivated.',
-  },
-};
-
-export const LAST_SUPER = {
-  title: 'You can’t deactivate the last Super Admin',
-  body: 'Make another staff member a Super Admin first. The platform always needs at least one.',
-  primary: 'Change a role',
-  secondary: 'Close',
-};
-
-/* 7.5.1c — "Platform settings" with the staff-data groups, and the deactivate dialog drawn over it. */
-export const STAFF_DATA = {
-  data: {
-    title: 'Staff data',
-    sub: 'Staff accounts follow least privilege.',
-    rows: [
-      {
-        title: 'Download staff list',
-        text: 'Staff list, roles and permissions as a CSV.',
-        action: 'Download',
-      },
-      {
-        title: 'Access review',
-        text: 'Quarterly review of who can do what.',
-        action: 'Download PDF',
-      },
-    ],
-  },
-  lock: {
-    title: 'Lock staff account',
-    row: { title: 'Lock now', text: 'They can’t sign in until a Super Admin unlocks them.' },
-  },
-  danger: {
-    title: 'Deactivate staff account',
-    sub: 'Signs them out everywhere and removes access.',
-    row: {
-      title: 'Their actions stay in the audit log for 7 years.',
-      text: 'Pick a reason: resigned, terminated, role change or leave.',
-    },
-    action: 'Deactivate',
-  },
-};
-
-export const DEACTIVATE = {
-  title: 'Deactivate Kweku Ansah?',
-  happens: [
-    'Every session ends right away',
-    'His 2 open tickets move to Akua Sarfo',
-    'Claimed flags go back to the queue',
-    'His past actions stay in the audit log',
-  ],
-  info: 'Reason is required: resigned, terminated, role change or leave.',
-  cancel: 'Cancel',
-  submit: 'Deactivate',
-};
 
 export const ROLES = {
   title: 'Roles and permissions',
@@ -267,50 +173,4 @@ export const FLAGS = {
     row: { title: 'Paystack secret · ••••••••4f2a', text: 'Rotated 2 Sep by Nana Adjei' },
     action: 'Rotate key',
   },
-};
-
-export const FLAG_IN_USE = {
-  title: 'About 1,200 people use this every day',
-  body: 'Turning off Community posts affects them straight away. All Senior Admins are told, and you can roll back from the history.',
-  primary: 'Turn off',
-  secondary: 'Cancel',
-};
-
-export const CHANGE_SETTING = {
-  chip: 'Change a setting',
-  title: ['Maintenance', 'mode'],
-  sub: 'Every change is logged with the old value, the new value and your reason.',
-  file: {
-    title: 'Maintenance mode',
-    meta: 'Last changed 2 Aug by Nana Adjei',
-    action: 'View history',
-  },
-  rows: [
-    [
-      { id: 'setting', label: 'Setting', value: 'Maintenance mode', ro: true, required: true },
-      { id: 'current', label: 'Current value', value: 'Off', ro: true, required: true },
-    ],
-    [
-      { id: 'new', label: 'New value', select: ['On', 'Off'], required: true },
-      { id: 'reference', label: 'Reference', placeholder: 'Ticket reference', ro: true },
-    ],
-    [
-      {
-        id: 'reason',
-        label: 'Reason (20+ characters)',
-        required: true,
-        value: 'Planned database upgrade on Sunday night',
-      },
-      { id: 'when', label: 'When', value: 'Scheduled · Sun 25 Oct, 01:00', ro: true, tint: true },
-    ],
-    [
-      { id: 'ticket', label: 'Ticket reference', optional: true, value: 'OPS-2207' },
-      { id: 'notify', label: 'Notify', optional: true, value: 'All Senior Admins', ro: true },
-    ],
-  ],
-  tell: 'Show a banner to users 24 hours before',
-  allowed: 'You can roll back from the history',
-  cancelLink: 'Cancel change',
-  cancel: 'Cancel',
-  primary: 'Schedule change',
 };

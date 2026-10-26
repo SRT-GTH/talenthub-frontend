@@ -1,11 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import { Select, TextInput } from '../../../ui/form';
-import { GroupCard, SettingRow, SettingsToggle, TextAction } from '../../talentSettings/SettingsBUi.jsx';
+import {
+  GroupCard,
+  SettingRow,
+  SettingsToggle,
+  TextAction,
+} from '../../talentSettings/SettingsBUi.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
-import { adminError, configHistory, humanize, listConfig, shortDate, toggleFlag, updateConfig } from '../../../../services/admin.api.js';
+import {
+  adminError,
+  configHistory,
+  humanize,
+  listConfig,
+  shortDate,
+  toggleFlag,
+  updateConfig,
+} from '../../../../services/admin.api.js';
 
 const log = debug('PlatformConfigTab');
 
@@ -18,14 +32,33 @@ const log = debug('PlatformConfigTab');
  */
 
 const GROUPS = [
-  { id: 'feature_flag', title: 'Feature flags', sub: 'Turn platform features on or off. Changes are logged with your reason.' },
+  {
+    id: 'feature_flag',
+    title: 'Feature flags',
+    sub: 'Turn platform features on or off. Changes are logged with your reason.',
+  },
   { id: 'operational', title: 'Operations', sub: 'Maintenance mode and session rules.' },
-  { id: 'threshold', title: 'Limits and thresholds', sub: 'Numbers the platform uses for approvals, exports, moderation and onboarding.' },
-  { id: 'integration', title: 'Integrations', sub: 'IDs for connected services. Values are hidden; you can replace them.' },
+  {
+    id: 'threshold',
+    title: 'Limits and thresholds',
+    sub: 'Numbers the platform uses for approvals, exports, moderation and onboarding.',
+  },
+  {
+    id: 'integration',
+    title: 'Integrations',
+    sub: 'IDs for connected services. Values are hidden; you can replace them.',
+  },
 ];
 
 const label = (key) => humanize(String(key).split('.').slice(1).join(' ') || key);
-const show = (c) => (c.isSensitive ? 'Hidden' : typeof c.value === 'boolean' ? (c.value ? 'On' : 'Off') : String(c.value ?? '—'));
+const show = (c) =>
+  c.isSensitive
+    ? 'Hidden'
+    : typeof c.value === 'boolean'
+      ? c.value
+        ? 'On'
+        : 'Off'
+      : String(c.value ?? '—');
 
 const PlatformConfigTab = () => {
   const cfg = useAdminData(() => listConfig(), []);
@@ -37,9 +70,18 @@ const PlatformConfigTab = () => {
   const [error, setError] = useState('');
   const hist = useAdminData(
     () => (dialog?.kind === 'history' ? configHistory(dialog.c.key) : Promise.resolve(null)),
-    [dialog?.kind, dialog?.c?.key],
+    [dialog?.kind, dialog?.c?.key]
   );
   const configs = cfg.data?.configs ?? [];
+  const { hash } = useLocation();
+  const loaded = Boolean(cfg.data);
+
+  // Nav links such as Feature flags / Integrations point at a group (#feature_flag, #integration): scroll to it once drawn.
+  useEffect(() => {
+    if (!loaded || !hash) return;
+    const el = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [hash, loaded]);
 
   const open = (kind, c) => {
     setError('');
@@ -61,7 +103,12 @@ const PlatformConfigTab = () => {
     try {
       if (dialog.kind === 'toggle') {
         const res = await toggleFlag(c.key, !c.value, reason.trim());
-        if (res?.status === 'pending_approval') toast('Sent for approval', `${label(c.key)} changes once a second Super Admin approves.`, 'info');
+        if (res?.status === 'pending_approval')
+          toast(
+            'Sent for approval',
+            `${label(c.key)} changes once a second Super Admin approves.`,
+            'info'
+          );
         else toast(`${label(c.key)} ${!c.value ? 'on' : 'off'}`, 'The change is live.');
       } else {
         let v = value;
@@ -82,13 +129,31 @@ const PlatformConfigTab = () => {
 
   return (
     <>
-      <AdminLoadNotice loading={cfg.loading} error={cfg.error} status={cfg.status} onRetry={cfg.reload}>
+      <AdminLoadNotice
+        loading={cfg.loading}
+        error={cfg.error}
+        status={cfg.status}
+        onRetry={cfg.reload}
+      >
         {GROUPS.map((g) => {
           // JSON settings (like the onboarding template) have their own editors.
-          const items = configs.filter((c) => c.valueType !== 'json' && (c.category === g.id || (g.id === 'operational' && !GROUPS.some((x) => x.id === c.category))));
+          const items = configs.filter(
+            (c) =>
+              c.valueType !== 'json' &&
+              (c.category === g.id ||
+                (g.id === 'operational' && !GROUPS.some((x) => x.id === c.category)))
+          );
           if (!items.length) return null;
           return (
-            <GroupCard key={g.id} title={g.title} description={g.sub} gap="gap-0" danger={g.id === 'integration'}>
+            <GroupCard
+              key={g.id}
+              id={g.id}
+              className="scroll-mt-[88px]"
+              title={g.title}
+              description={g.sub}
+              gap="gap-0"
+              danger={g.id === 'integration'}
+            >
               {items.map((c) => (
                 <SettingRow
                   key={c.key}
@@ -101,7 +166,11 @@ const PlatformConfigTab = () => {
                         History
                       </TextAction>
                       {c.isFeatureFlag || c.valueType === 'boolean' ? (
-                        <SettingsToggle checked={Boolean(c.value)} onChange={() => open('toggle', c)} label={label(c.key)} />
+                        <SettingsToggle
+                          checked={Boolean(c.value)}
+                          onChange={() => open('toggle', c)}
+                          label={label(c.key)}
+                        />
                       ) : (
                         <TextAction tone="green" onClick={() => open('edit', c)}>
                           Change
@@ -124,12 +193,21 @@ const PlatformConfigTab = () => {
               ? 'Feature flag changes need a second Super Admin to approve them before they take effect.'
               : 'This takes effect straight away for everyone.'
           }
-          primary={{ label: busy ? 'Saving…' : dialog.c.value ? 'Turn off' : 'Turn on', tone: dialog.c.value ? 'red' : 'green' }}
+          primary={{
+            label: busy ? 'Saving…' : dialog.c.value ? 'Turn off' : 'Turn on',
+            tone: dialog.c.value ? 'red' : 'green',
+          }}
           secondary="Cancel"
           onPrimary={run}
           onClose={close}
         >
-          <TextInput label="Reason (logged)" required value={reason} onChange={(e) => setReason(e.target.value)} error={error || undefined} />
+          <TextInput
+            label="Reason (logged)"
+            required
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            error={error || undefined}
+          />
         </AdminConfirmDialog>
       ) : null}
       {dialog?.kind === 'edit' ? (
@@ -143,7 +221,13 @@ const PlatformConfigTab = () => {
         >
           <div className="flex flex-col gap-[12px]">
             {dialog.c.valueType === 'boolean' ? (
-              <Select label="New value" required options={['true', 'false']} value={value} onChange={setValue} />
+              <Select
+                label="New value"
+                required
+                options={['true', 'false']}
+                value={value}
+                onChange={setValue}
+              />
             ) : (
               <TextInput
                 label="New value"
@@ -153,7 +237,13 @@ const PlatformConfigTab = () => {
                 onChange={(e) => setValue(e.target.value)}
               />
             )}
-            <TextInput label="Reason (logged)" required value={reason} onChange={(e) => setReason(e.target.value)} error={error || undefined} />
+            <TextInput
+              label="Reason (logged)"
+              required
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              error={error || undefined}
+            />
           </div>
         </AdminConfirmDialog>
       ) : null}
@@ -168,9 +258,14 @@ const PlatformConfigTab = () => {
         >
           <ul className="m-0 flex max-h-[300px] list-none flex-col gap-[10px] overflow-auto p-0">
             {(hist.data?.history ?? []).map((h, i) => (
-              <li key={i} className="rounded-[12px] bg-[#f8f8f4] p-[10px] font-sans text-[13px] leading-[18px] text-[#1c2a21]">
+              <li
+                key={i}
+                className="rounded-[12px] bg-[#f8f8f4] p-[10px] font-sans text-[13px] leading-[18px] text-[#1c2a21]"
+              >
                 <strong>
-                  {dialog.c.isSensitive ? 'Changed' : `${String(h.previousValue)} → ${String(h.newValue)}`}
+                  {dialog.c.isSensitive
+                    ? 'Changed'
+                    : `${String(h.previousValue)} → ${String(h.newValue)}`}
                 </strong>
                 <span className="block text-[#737373]">
                   {shortDate(h.modifiedAt)} · {String(h.modifiedBy || '').slice(-8)} · {h.reason}

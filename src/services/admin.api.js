@@ -111,6 +111,11 @@ export const realtime = () => get('/admin/reports/realtime');
 /** Live ops: people online, regions, activity, sign-ups vs usual, errors, response times, flags, alerts. */
 export const liveOpsSnapshot = () => get('/admin/live-ops/snapshot');
 
+// Settings › Overview / Security / Accessibility figures (read only)
+export const insightsOverview = () => get('/admin/insights/overview');
+export const insightsSecurity = (p = {}) => get('/admin/insights/security', clean(p));
+export const insightsAccessibility = () => get('/admin/insights/accessibility');
+
 // ── Comms ────────────────────────────────────────────────────────────────────
 export const listTemplates = (p = {}) =>
   get('/admin/comms/templates', clean({ limit: 100, offset: 0, ...p }));
