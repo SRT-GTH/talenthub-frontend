@@ -284,17 +284,25 @@ export const useLiveCommunityPage = (slug) => {
     }
   };
 
-  /** Create a post; resolves { ok, flagged }. The new post is put at the top of the feed. */
+  /**
+   * Create a post; resolves { ok, flagged, pending, message } or { ok: false, error } (a refused post carries the
+   * server's reason). The new post is put at the top of the feed, marked pending when a moderator has to check it.
+   */
   const post = async ({ type, text, tags, link }) => {
     try {
-      const { post: created, flagged } = await createCommunityPost(slug, {
+      const {
+        post: created,
+        flagged,
+        pending,
+        message,
+      } = await createCommunityPost(slug, {
         content: text,
         kind: type,
         tags,
         link,
       });
-      if (created && alive.current) setPosts((list) => [toPost(created), ...list]);
-      return { ok: true, flagged };
+      if (created && alive.current) setPosts((list) => [toPost({ ...created, pending }), ...list]);
+      return { ok: true, flagged, pending, message };
     } catch (err) {
       log('post failed', err?.response?.status);
       return { ok: false, error: err?.response?.data?.message || 'Could not post. Try again.' };

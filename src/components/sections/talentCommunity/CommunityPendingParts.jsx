@@ -35,21 +35,47 @@ export const PostedToast = ({ onDone, text = TOAST_POSTED }) => {
   );
 };
 
-/* `pending banner` (Figma 7629:8656): #faf4e8, r12, clock + copy + "Edit". */
-const PendingBanner = ({ onEdit }) => (
+/* `pending banner` (Figma 7629:8656): #faf4e8, r12, clock + copy + "Edit" (only when onEdit is given). */
+export const PendingBanner = ({ onEdit, text = PENDING_POST.banner }) => (
   <div className="flex items-center gap-[10px] rounded-[12px] bg-[#faf4e8] px-[14px] py-[10px]">
     <CommunityPostClockGlyph className="size-[16px] shrink-0 text-[#463409]" />
     <span className="min-w-0 flex-1 font-sans text-[13px] font-medium leading-[16px] text-[#463409] max-lg:text-[14px] max-lg:leading-[18px]">
-      {PENDING_POST.banner}
+      {text}
     </span>
-    <button
-      type="button"
-      onClick={onEdit}
-      className={`shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[14px] ${FOCUS_RING}`}
-    >
-      {PENDING_POST.edit}
-    </button>
+    {onEdit ? (
+      <button
+        type="button"
+        onClick={onEdit}
+        className={`shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[14px] ${FOCUS_RING}`}
+      >
+        {PENDING_POST.edit}
+      </button>
+    ) : null}
   </div>
+);
+
+/**
+ * Live feed: the talent's own post held by the pre-publish check, or turned down by a moderator (with the reason).
+ * Only they receive it. Same C-13 look, no Edit (no edit endpoint on the community API yet).
+ */
+export const LivePendingPostCard = ({ post }) => (
+  <CommunityPostCard
+    tone="pending"
+    className="!border-dashed"
+    locked
+    showMore={false}
+    actionsOpacity={0.4}
+    post={post}
+    banner={
+      <PendingBanner
+        text={
+          post.rejected
+            ? `${PENDING_POST.rejectedBanner}${post.rejectedReason ? ` Reason: ${post.rejectedReason}` : ''}`
+            : PENDING_POST.liveBanner
+        }
+      />
+    }
+  />
 );
 
 /*

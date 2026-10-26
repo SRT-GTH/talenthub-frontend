@@ -14,7 +14,10 @@ import {
   Guidelines,
   PreviewBanner,
 } from '../../../components/sections/talentCommunity/CommunityFeedParts.jsx';
-import { PostedToast } from '../../../components/sections/talentCommunity/CommunityPendingParts.jsx';
+import {
+  LivePendingPostCard,
+  PostedToast,
+} from '../../../components/sections/talentCommunity/CommunityPendingParts.jsx';
 import {
   CommunityHero,
   CommunityTabs,
@@ -24,13 +27,20 @@ import {
   TopicsCard,
 } from '../../../components/sections/talentCommunity/CommunityPageParts.jsx';
 import CommunityPostCard from '../../../components/sections/talentCommunity/CommunityPostCard.jsx';
-import { AboutPanel, MembersPanel } from '../../../components/sections/talentCommunity/CommunityTabPanels.jsx';
+import {
+  AboutPanel,
+  MembersPanel,
+} from '../../../components/sections/talentCommunity/CommunityTabPanels.jsx';
 import {
   COMMUNITY_PAGE_COPY,
   COMMUNITY_PAGE_RHYTHM,
+  TOAST_POSTED,
 } from '../../../components/sections/talentCommunity/communityData.js';
 import { useCommunityMembership } from '../../../components/sections/talentCommunity/communityMembership.js';
-import { SIDE_LEFT, SIDE_RIGHT } from '../../../components/sections/talentCommunity/communityPageStyles.js';
+import {
+  SIDE_LEFT,
+  SIDE_RIGHT,
+} from '../../../components/sections/talentCommunity/communityPageStyles.js';
 import { useLiveCommunityPage } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { LiveError, LiveLoading } from './LiveStates.jsx';
 import { shareLink } from './shareLink.js';
@@ -63,7 +73,8 @@ const CommunityPageLive = ({ community }) => {
 
   // A dialog that needs membership is closed for visitors (e.g. an old ?modal=create link).
   useEffect(() => {
-    if (status === 'ready' && !joined && (modal === 'create' || modal === 'leave')) update({ modal: null });
+    if (status === 'ready' && !joined && (modal === 'create' || modal === 'leave'))
+      update({ modal: null });
   }, [status, joined, modal, update]);
 
   if (status === 'missing') return <Navigate to="/community" replace />;
@@ -87,7 +98,13 @@ const CommunityPageLive = ({ community }) => {
     }
     update({ modal: null, welcome: null });
     setFilter(COMMUNITY_PAGE_COPY.filters[0]);
-    setToast(res.flagged ? 'Posted! A moderator will check it’s on topic' : 'Posted!');
+    setToast(
+      res.pending
+        ? TOAST_POSTED
+        : res.flagged
+          ? 'Posted! A moderator will check it’s on topic'
+          : 'Posted!'
+    );
   };
 
   const onReport = async ({ reason, note }) => {
@@ -97,7 +114,9 @@ const CommunityPageLive = ({ community }) => {
     setBusy(false);
     update({ modal: null });
     setReportTarget(null);
-    setToast(ok ? 'Thanks. Our moderators will review this post' : 'Couldn’t send the report. Try again.');
+    setToast(
+      ok ? 'Thanks. Our moderators will review this post' : 'Couldn’t send the report. Try again.'
+    );
   };
 
   const onLeave = async () => {
@@ -126,7 +145,9 @@ const CommunityPageLive = ({ community }) => {
     main = <MembersPanel detail={detail} />;
   } else {
     const posts = detail.posts.filter(
-      (post) => filter === COMMUNITY_PAGE_COPY.filters[0] || `${post.kind}s`.toLowerCase() === filter.toLowerCase()
+      (post) =>
+        filter === COMMUNITY_PAGE_COPY.filters[0] ||
+        `${post.kind}s`.toLowerCase() === filter.toLowerCase()
     );
     main = (
       <div className="flex min-w-0 flex-col gap-[16px]">
@@ -148,30 +169,41 @@ const CommunityPageLive = ({ community }) => {
         {joined ? <Composer onCompose={openCreate} /> : null}
         {posts.length === 0 ? (
           joined ? (
-            <EmptyFeed onWrite={openCreate} body="The first post sets the tone. Say hello, ask a question or share what you’re working on." />
+            <EmptyFeed
+              onWrite={openCreate}
+              body="The first post sets the tone. Say hello, ask a question or share what you’re working on."
+            />
           ) : (
             <p className="m-0 py-[24px] text-center font-sans text-[14px] text-[#737373]">
               No posts yet. Join to write the first one.
             </p>
           )
         ) : (
-          posts.map((post) => (
-            <CommunityPostCard
-              key={post.id}
-              post={post}
-              locked={!joined}
-              onOpen={(p) => navigate(`/community/${communityId}/post/${p.id}`)}
-              onLike={(p) => page.like(p.id)}
-              onMore={openReport}
-              onShare={(p) => shareLink(`/community/${communityId}/post/${p.id}`, p.author.name)}
-            />
-          ))
+          posts.map((post) =>
+            post.pending || post.rejected ? (
+              <LivePendingPostCard key={post.id} post={post} />
+            ) : (
+              <CommunityPostCard
+                key={post.id}
+                post={post}
+                locked={!joined}
+                onOpen={(p) => navigate(`/community/${communityId}/post/${p.id}`)}
+                onLike={(p) => page.like(p.id)}
+                onMore={openReport}
+                onShare={(p) => shareLink(`/community/${communityId}/post/${p.id}`, p.author.name)}
+              />
+            )
+          )
         )}
       </div>
     );
   }
 
-  const rhythm = !joined ? COMMUNITY_PAGE_RHYTHM.preview : welcome ? COMMUNITY_PAGE_RHYTHM.welcome : COMMUNITY_PAGE_RHYTHM.default;
+  const rhythm = !joined
+    ? COMMUNITY_PAGE_RHYTHM.preview
+    : welcome
+      ? COMMUNITY_PAGE_RHYTHM.welcome
+      : COMMUNITY_PAGE_RHYTHM.default;
   const tabs = detail
     ? [
         { id: 'feed', label: COMMUNITY_PAGE_COPY.tabs.feed },
@@ -190,7 +222,10 @@ const CommunityPageLive = ({ community }) => {
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
         {status === 'error' ? (
-          <LiveError message="Couldn’t load this community. Check your connection and try again." onRetry={page.reload} />
+          <LiveError
+            message="Couldn’t load this community. Check your connection and try again."
+            onRetry={page.reload}
+          />
         ) : null}
         {detail ? (
           <>
@@ -203,16 +238,26 @@ const CommunityPageLive = ({ community }) => {
               onShare={() => shareLink(`/community/${communityId}`, detail.name)}
               onInvite={() => shareLink(`/community/${communityId}`, detail.name)}
             />
-            <CommunityTabs tabs={tabs} active={tab} onChange={(id) => update({ tab: id === 'feed' ? null : id })} />
+            <CommunityTabs
+              tabs={tabs}
+              active={tab}
+              onChange={(id) => update({ tab: id === 'feed' ? null : id })}
+            />
             <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
-              <aside className={`order-2 flex shrink-0 flex-col gap-[20px] xl:order-1 ${SIDE_LEFT}`}>
+              <aside
+                className={`order-2 flex shrink-0 flex-col gap-[20px] xl:order-1 ${SIDE_LEFT}`}
+              >
                 <InfoCard detail={detail} gap={rhythm.infoGap} />
                 {detail.contributors.length ? <ContributorsCard detail={detail} /> : null}
               </aside>
               <div className="order-1 min-w-0 flex-1 xl:order-2">{main}</div>
               <aside className={`order-3 flex shrink-0 flex-col gap-[20px] ${SIDE_RIGHT}`}>
-                {detail.topics.length ? <TopicsCard detail={detail} gap={rhythm.trendGap} tagGap={rhythm.tagGap} /> : null}
-                {detail.related.length ? <RelatedCard detail={detail} gap={rhythm.relatedGap} /> : null}
+                {detail.topics.length ? (
+                  <TopicsCard detail={detail} gap={rhythm.trendGap} tagGap={rhythm.tagGap} />
+                ) : null}
+                {detail.related.length ? (
+                  <RelatedCard detail={detail} gap={rhythm.relatedGap} />
+                ) : null}
               </aside>
             </div>
           </>

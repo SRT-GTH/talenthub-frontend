@@ -32,6 +32,7 @@ const log = debug('CommunityPostCard');
  *   to         path of the post page (the comment button, the images and the time link there via onOpen).
  *   onOpen(post)    open the post (comment button / image click). onLike / onDislike / onSave / onShare / onMore(post):
  *                   optional; like / save also toggle locally. onMore opens the report flow on the feed pages.
+ *   showMore   false hides the ⋯ button (the author's own post waiting for a moderator has nothing to report).
  *   children   rendered after the action row inside the card (C-07 comment thread, gap 20).
  *   className  appended to the card.
  */
@@ -108,6 +109,7 @@ const CommunityPostCard = ({
   onSave,
   onShare,
   onMore,
+  showMore = true,
   className,
   children,
 }) => {
@@ -194,20 +196,22 @@ const CommunityPostCard = ({
           </div>
           <span className="font-sans text-[12px] leading-[14px] text-[#737373]">{post.time}</span>
         </div>
-        <button
-          type="button"
-          aria-label="More options"
-          onClick={() => {
-            log('more', post.id);
-            onMore?.(post);
-          }}
-          className={classNames(
-            'inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent p-0 text-[#737373]',
-            FOCUS_RING
-          )}
-        >
-          <CmMoreIcon className="size-[20px]" />
-        </button>
+        {showMore ? (
+          <button
+            type="button"
+            aria-label="More options"
+            onClick={() => {
+              log('more', post.id);
+              onMore?.(post);
+            }}
+            className={classNames(
+              'inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent p-0 text-[#737373]',
+              FOCUS_RING
+            )}
+          >
+            <CmMoreIcon className="size-[20px]" />
+          </button>
+        ) : null}
       </header>
 
       {banner}

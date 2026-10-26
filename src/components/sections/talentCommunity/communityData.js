@@ -117,6 +117,9 @@ export const PENDING_POST = {
   banner:
     'Only you can see this for now. A moderator usually checks new members’ posts within an hour.',
   edit: 'Edit',
+  // Live (pre-publish check held the post): no review time is promised and there is no edit on the API yet.
+  liveBanner: 'Only you can see this for now. It goes live once a moderator has checked it.',
+  rejectedBanner: 'A moderator didn’t approve this post, so only you can see it.',
   likes: '124',
   comments: '18',
   save: 'Save',
