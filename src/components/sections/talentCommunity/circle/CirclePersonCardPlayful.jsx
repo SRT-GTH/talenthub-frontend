@@ -15,6 +15,14 @@ import { classNames } from '../../../../utils/classNames.js';
 // Figma tilts the six cards a little (Abena 1.2°, Yaw -0.8°, Efua 0.6°, Kwame -1.1°, Akosua 0.9°, Kojo -0.7°).
 const TILTS = [1.2, -0.8, 0.6, -1.1, 0.9, -0.7];
 // Who the mutual-friends face pile shows (Figma uses its own tiny crops).
+const initialsOf = (name) =>
+  String(name || '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
+
 const FACES = ['efua-asante', 'esi-quaye', 'kojo-annan'];
 
 /*
@@ -38,23 +46,32 @@ const CirclePersonCardPlayful = ({
     style={{ transform: `rotate(${TILTS[index % TILTS.length]}deg)` }}
   >
     <div className="relative h-[181px] overflow-hidden rounded-t-[21px]">
-      <img
-        src={PERSON_PHOTOS[person.id]?.hero}
-        alt=""
-        draggable="false"
-        className="block size-full object-cover object-top"
-      />
+      {PERSON_PHOTOS[person.id]?.hero || person.photo ? (
+        <img
+          src={PERSON_PHOTOS[person.id]?.hero ?? person.photo}
+          alt=""
+          draggable="false"
+          className="block size-full object-cover object-top"
+        />
+      ) : (
+        // Live talent without a photo: their initials on the card colour.
+        <span className="flex size-full items-start justify-center bg-[#e1eae2] pt-[34px] font-heading text-[44px] font-semibold text-[#387440]">
+          {initialsOf(person.name)}
+        </span>
+      )}
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[linear-gradient(180deg,rgba(28,41,33,0)_45%,rgba(28,41,33,0.7)_100%)]"
       />
-      <CircleRegionPill town={person.town} className="absolute left-[12px] top-[10px]" />
+      {person.town && (
+        <CircleRegionPill town={person.town} className="absolute left-[12px] top-[10px]" />
+      )}
       <span className="absolute right-[10px] top-[9px]">
         {person.verifiedMentor ? (
           <CircleMentorChip className="!bg-[#e8f0fe]" />
-        ) : (
+        ) : person.level != null ? (
           <CircleLevelChip level={person.level} />
-        )}
+        ) : null}
       </span>
       <div className="absolute inset-x-[14px] bottom-[10px] flex flex-col">
         <Link
@@ -70,13 +87,18 @@ const CirclePersonCardPlayful = ({
     </div>
     <div className="flex flex-col gap-[10px] px-[14px]">
       <CircleShareChips shares={person.shares} />
-      <CircleBuddySays>{person.buddy}</CircleBuddySays>
-      <div className="flex items-center gap-[6px]">
-        <CircleMutualFaces ids={FACES.filter((id) => id !== person.id).slice(0, 3)} size={20} />
-        <span className="font-sans text-[11px] leading-[13px] text-[#737373] max-lg:text-[12px]">
-          {`${person.mutual} in your circle know ${person.firstName}`}
-        </span>
-      </div>
+      {person.buddy && <CircleBuddySays>{person.buddy}</CircleBuddySays>}
+      {person.mutual > 0 && (
+        <div className="flex items-center gap-[6px]">
+          {/* The drawn faces belong to the Figma mock people only; live cards show the count. */}
+          {PERSON_PHOTOS[person.id] && (
+            <CircleMutualFaces ids={FACES.filter((id) => id !== person.id).slice(0, 3)} size={20} />
+          )}
+          <span className="font-sans text-[11px] leading-[13px] text-[#737373] max-lg:text-[12px]">
+            {`${person.mutual} in your circle know ${person.firstName}`}
+          </span>
+        </div>
+      )}
       <CircleCardActions
         person={person}
         cta={cta}

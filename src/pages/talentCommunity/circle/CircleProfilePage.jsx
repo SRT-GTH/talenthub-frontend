@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import CircleConnectDialog from '../../../components/sections/talentCommunity/circle/CircleConnectDialog.jsx';
 import CircleEndorseDialog from '../../../components/sections/talentCommunity/circle/CircleEndorseDialog.jsx';
@@ -28,6 +28,8 @@ import {
   withRail,
 } from '../../../components/sections/talentCommunity/circle/circleState.js';
 import { useCircleToast } from '../../../components/sections/talentCommunity/circle/useCircleToast.js';
+import { isLoggedIn } from '../../../services/auth.api.js';
+import { circleApi, circleErrorText } from '../../../services/circle.api.js';
 
 const log = debug('CircleProfilePage');
 
@@ -38,9 +40,159 @@ const log = debug('CircleProfilePage');
  * Real behaviour: Link up (note dialog → "Link-up sent"), Follow, Message (→ /messages), Endorse (dialog; per-skill button preselects
  * it), Write a recommendation (dialog → toast; the person approves it first), Esc / Cancel / scrim close dialogs.
  */
+/*
+ * Live profile (signed-in talent): GET /circle/people/:id — the person, what the two share, and the action for their
+ * status: Link up · Link-up sent (Withdraw) · Accept / Ignore · In your circle. Endorsements and recommendations
+ * (US-5.3.1-05) have no backend yet, so their cards are not shown; nor are Follow and Message.
+ */
+const LiveCircleProfile = ({ personId, circle }) => {
+  const navigate = useNavigate();
+  const { toast, show, hide } = useCircleToast();
+  const [state, setState] = useState({ status: 'loading' });
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const person = await circleApi.person(personId);
+      setState({ status: 'ready', person });
+    } catch (err) {
+      log.error('person failed', err?.response?.status);
+      setState({ status: err?.response?.status === 404 ? 'missing' : 'error' });
+    }
+  }, [personId]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (state.status === 'missing')
+    return <Navigate to={withRail(CIRCLE_HREF, circle.rail)} replace />;
+  const person = state.person;
+  const closeModal = () => circle.update({ modal: null, skills: null, draft: null, person: null });
+  const run = (fn, done) => {
+    setBusy(true);
+    fn()
+      .then((out) => {
+        done?.(out);
+        return load();
+      })
+      .catch((err) => show({ text: circleErrorText(err) }))
+      .finally(() => setBusy(false));
+  };
+  const profile = person
+    ? {
+        ...buildGenericProfile({ ...person, town: person.town || 'Ghana' }),
+        location: person.town ? `${person.town}, Ghana` : 'Ghana',
+        mutualLine: person.mutual > 0 ? `${person.mutual} in your circle know them` : null,
+        inCommon: (person.shares ?? []).map((sh) => ({
+          kind: sh.kind,
+          label: sh.label,
+          note: 'Shared',
+        })),
+      }
+    : null;
+
+  return (
+    <CircleFrame circle={circle}>
+      <CirclePageWrap>
+        {!person ? (
+          <div className="flex flex-col items-start gap-[12px] py-[40px]">
+            <p className="m-0 font-sans text-[15px] text-[#595959]">
+              {state.status === 'error' ? 'We couldn’t load this profile.' : 'Loading…'}
+            </p>
+            {state.status === 'error' && (
+              <button
+                type="button"
+                onClick={() => navigate(withRail(CIRCLE_HREF, circle.rail))}
+                className="cursor-pointer rounded-full border border-solid border-[#387440] bg-white px-[16px] py-[8px] font-sans text-[14px] font-semibold text-[#387440]"
+              >
+                Back to My circle
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <CircleProfileHero
+              person={person}
+              profile={profile}
+              degree={person.status === 'connected' ? '1st' : null}
+              connected={person.status === 'connected'}
+              pending={person.status === 'pending-sent'}
+              invited={person.status === 'invited'}
+              busy={busy}
+              onLinkUp={person.canLinkUp ? () => circle.update({ modal: 'connect' }) : undefined}
+              onWithdraw={() =>
+                run(
+                  () => circleApi.withdraw(person.requestId),
+                  () => show({ text: `Link-up to ${person.firstName} withdrawn` })
+                )
+              }
+              onAccept={() =>
+                run(
+                  () => circleApi.respond(person.requestId, 'accept'),
+                  () => show({ text: COPY.toast.inCircle(person.firstName) })
+                )
+              }
+              onIgnore={() => run(() => circleApi.respond(person.requestId, 'ignore'))}
+            />
+            <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
+              <div className="flex min-w-0 flex-col gap-[12px]">
+                {person.buddy && (
+                  <p className="m-0 font-sans text-[15px] leading-[22px] text-[#1c2a21]">
+                    {person.buddy}
+                  </p>
+                )}
+              </div>
+              {profile.inCommon.length > 0 && <CircleInCommonCard items={profile.inCommon} />}
+            </div>
+          </>
+        )}
+      </CirclePageWrap>
+      {person && circle.modal === 'connect' && (
+        <CircleConnectDialog
+          key="connect"
+          person={person}
+          initialText={circle.draft ? COPY.notes.suggestion(person) : ''}
+          onSend={(note) =>
+            run(
+              () => circleApi.linkUp(person.id, note, 'profile'),
+              (out) => {
+                closeModal();
+                show({
+                  text:
+                    out?.status === 'accepted'
+                      ? COPY.toast.inCircle(person.firstName)
+                      : COPY.toast.sent(person.firstName),
+                });
+              }
+            )
+          }
+          onClose={closeModal}
+        />
+      )}
+      {toast && (
+        <CircleToast
+          key={toast.id}
+          text={toast.text}
+          actionLabel={toast.actionLabel}
+          onAction={toast.onAction}
+          onDone={hide}
+        />
+      )}
+    </CircleFrame>
+  );
+};
+
 const CircleProfilePage = () => {
   const { personId } = useParams();
   const circle = useCircleState();
+  const [params] = useSearchParams();
+  const liveOn = isLoggedIn() && !circle.demoState && params.get('demo') !== '1';
+  if (liveOn) return <LiveCircleProfile personId={personId} circle={circle} />;
+  return <MockCircleProfile personId={personId} circle={circle} />;
+};
+
+/* The drawn mock profile (Figma frames, `&state=…` / `?demo=1`). */
+const MockCircleProfile = ({ personId, circle }) => {
   const navigate = useNavigate();
   const store = useCircleStore();
   const { toast, show, hide } = useCircleToast();

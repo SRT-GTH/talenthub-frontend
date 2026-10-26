@@ -191,7 +191,8 @@ export const CIRCLE_SUMMARY = {
   following: 46,
   profileViewsThisWeek: 31,
   pendingInvitations: 3,
-  tip: 'Talents with 50+ people in their circle get 3× more recruiter views. Add a note when you connect.',
+  // Was "Talents with 50+ people … get 3× more recruiter views" — unsourced (RQ-11), removed.
+  tip: 'Add a short note when you link up: it tells people why you’d like to connect.',
 };
 /* ---- END BLOCK: CIRCLE_SUMMARY ------------------------------------------------------------------------------------- */
 
@@ -520,12 +521,14 @@ export const CIRCLE_COPY = {
     help: 'Help me write it',
     without: 'Send without a note',
     send: 'Send link-up',
-    sticker: 'NOTES GET 2× MORE YESES',
+    sticker: null, // was "NOTES GET 2× MORE YESES" — unsourced (RQ-11)
     max: 300,
     suggestion: (p) =>
       p.id === 'abena-owusu'
         ? 'Hi Abena, we’re both in Data Science Ghana. I’m learning SQL and would love to hear how you got your mPharma internship.'
-        : `Hi ${p.firstName}, we have a few things in common. I would love to link up and learn from you.`,
+        : p.reason?.text
+          ? `Hi ${p.firstName}, I saw that ${p.reason.text.replace(/^You both /, 'we both ').replace(/^You're both /, 'we’re both ')} I’d love to link up.`
+          : `Hi ${p.firstName}, I’d love to link up and learn from you.`,
   },
   toast: {
     sent: (first) => `Link-up sent to ${first}`,

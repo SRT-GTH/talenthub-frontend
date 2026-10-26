@@ -4,6 +4,7 @@ import { CircleCheckIcon, CircleGlobeIcon, CircleMoreIcon } from './circleIcons.
 import CircleAvatar from './CircleAvatar.jsx';
 import CircleButton from './CircleButton.jsx';
 import CircleMutualFaces from './CircleMutualFaces.jsx';
+import { PERSON_PHOTOS } from './circlePhotos.js';
 import { CARD, FOCUS_RING, HEADING, STICKER } from './circleStyles.js';
 
 /*
@@ -25,6 +26,11 @@ const CircleProfileHero = ({
   onLinkUp,
   onMessage,
   onFollow,
+  invited,
+  onAccept,
+  onIgnore,
+  onWithdraw,
+  busy,
 }) => (
   <section className={classNames(CARD, 'relative flex flex-col overflow-hidden pb-[22px]')}>
     <div
@@ -37,6 +43,8 @@ const CircleProfileHero = ({
         kind="profile"
         size={120}
         ring={false}
+        photo={person.photo}
+        name={person.name}
         className="border-[4px] border-solid border-white max-sm:size-[96px]"
       />
       <div className="flex min-w-[240px] flex-1 flex-col gap-[6px] pb-[4px]">
@@ -49,9 +57,11 @@ const CircleProfileHero = ({
           >
             {person.name}
           </h1>
-          <span className="rounded-[6px] bg-[#f8f8f4] px-[6px] py-[1px] font-sans text-[11px] font-semibold leading-[13px] text-[#737373] max-lg:text-[12px]">
-            {degree}
-          </span>
+          {degree && (
+            <span className="rounded-[6px] bg-[#f8f8f4] px-[6px] py-[1px] font-sans text-[11px] font-semibold leading-[13px] text-[#737373] max-lg:text-[12px]">
+              {degree}
+            </span>
+          )}
           {profile.openTo && (
             <span className={classNames(STICKER, 'rotate-[3deg]')}>{profile.openTo}</span>
           )}
@@ -64,12 +74,20 @@ const CircleProfileHero = ({
             <CircleGlobeIcon className="size-[14px]" />
             {profile.location}
           </span>
-          <span className="inline-flex items-center gap-[6px]">
-            <CircleMutualFaces ids={['abena-owusu', 'efua-asante', 'kwame-boateng']} size={22} />
-            <span className="font-sans text-[13px] font-medium leading-[16px] text-[#387440] max-lg:text-[14px]">
-              {profile.mutualLine}
+          {profile.mutualLine && (
+            <span className="inline-flex items-center gap-[6px]">
+              {/* Drawn faces for the Figma people only. */}
+              {PERSON_PHOTOS[person.id] && (
+                <CircleMutualFaces
+                  ids={['abena-owusu', 'efua-asante', 'kwame-boateng']}
+                  size={22}
+                />
+              )}
+              <span className="font-sans text-[13px] font-medium leading-[16px] text-[#387440] max-lg:text-[14px]">
+                {profile.mutualLine}
+              </span>
             </span>
-          </span>
+          )}
           {profile.circleSize && (
             <span className="font-sans text-[13px] leading-[16px] text-[#737373] max-lg:text-[14px]">
               {profile.circleSize}
@@ -80,42 +98,67 @@ const CircleProfileHero = ({
       <div className="flex flex-wrap items-center gap-[10px] pb-[4px]">
         {connected ? (
           <>
-            <CircleButton onClick={onMessage}>{COPY.message}</CircleButton>
+            {onMessage && <CircleButton onClick={onMessage}>{COPY.message}</CircleButton>}
             <span className="inline-flex h-[22px] items-center gap-[5px] rounded-full bg-[#ebf1ec] px-[10px] font-sans text-[12px] font-semibold leading-[14px] text-[#387440] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]">
               <CircleCheckIcon className="size-[13px]" />
               {COPY.inYourCircle}
             </span>
-            <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
-              {following ? COPY.following : COPY.follow}
+            {onFollow && (
+              <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
+                {following ? COPY.following : COPY.follow}
+              </CircleButton>
+            )}
+            {onFollow && (
+              <button
+                type="button"
+                aria-label={`More for ${person.name}`}
+                className={classNames(
+                  'flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid border-[#e7e7e7] bg-white p-0 text-[#595959] max-lg:size-[44px]',
+                  'playful:border-[rgba(28,42,33,0.35)]',
+                  FOCUS_RING
+                )}
+              >
+                <CircleMoreIcon className="size-[16px]" />
+              </button>
+            )}
+          </>
+        ) : invited ? (
+          // They sent the talent a link-up (live): answer it here.
+          <>
+            <CircleButton tone="soft" disabled={busy} onClick={onIgnore}>
+              {COPY.ignore}
             </CircleButton>
-            <button
-              type="button"
-              aria-label={`More for ${person.name}`}
-              className={classNames(
-                'flex size-[38px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid border-[#e7e7e7] bg-white p-0 text-[#595959] max-lg:size-[44px]',
-                'playful:border-[rgba(28,42,33,0.35)]',
-                FOCUS_RING
-              )}
-            >
-              <CircleMoreIcon className="size-[16px]" />
-            </button>
+            <CircleButton disabled={busy} onClick={onAccept}>
+              {COPY.accept}
+            </CircleButton>
           </>
         ) : (
           <>
             {pending ? (
-              <CircleButton tone="soft" disabled aria-disabled="true" className="gap-[8px]">
-                <CircleCheckIcon className="size-[16px]" />
-                {COPY.linkUpSent}
-              </CircleButton>
+              <>
+                <CircleButton tone="soft" disabled aria-disabled="true" className="gap-[8px]">
+                  <CircleCheckIcon className="size-[16px]" />
+                  {COPY.linkUpSent}
+                </CircleButton>
+                {onWithdraw && (
+                  <CircleButton tone="soft" disabled={busy} onClick={onWithdraw}>
+                    Withdraw
+                  </CircleButton>
+                )}
+              </>
             ) : (
-              <CircleButton onClick={onLinkUp}>{COPY.linkUp}</CircleButton>
+              onLinkUp && <CircleButton onClick={onLinkUp}>{COPY.linkUp}</CircleButton>
             )}
-            <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
-              {following ? COPY.following : COPY.follow}
-            </CircleButton>
-            <CircleButton tone="soft" onClick={onMessage}>
-              {COPY.message}
-            </CircleButton>
+            {onFollow && (
+              <CircleButton tone="soft" aria-pressed={following} onClick={onFollow}>
+                {following ? COPY.following : COPY.follow}
+              </CircleButton>
+            )}
+            {onMessage && (
+              <CircleButton tone="soft" onClick={onMessage}>
+                {COPY.message}
+              </CircleButton>
+            )}
           </>
         )}
       </div>
