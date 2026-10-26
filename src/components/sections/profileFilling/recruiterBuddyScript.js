@@ -159,7 +159,7 @@ export const COMPANY_PROFILE_AUTO = 'Complete Company Profile';
 
 /** Opening bot — Figma 5132:66562. */
 export const COMPANY_BIO_ASK =
-  "Perfect! Let's have a conversation about your company. This will help candidates understand who you are and what you offer. \uD83C\uDF1F\n\nFirst question: Tell me about your company. What does Silver Rock Technologies do?\nJust describe it naturally — what products/services do you offer? What industry are you in? What makes your company unique?";
+  "Perfect! Let's have a conversation about your company. This will help candidates understand who you are and what you offer. \uD83C\uDF1F\n\nFirst question: Tell me about your company. What does your company do?\nJust describe it naturally — what products/services do you offer? What industry are you in? What makes your company unique?";
 
 /** Demo fallback user bio — Figma 5132:66563 (used only if input empty). */
 export const COMPANY_BIO_USER_FALLBACK =
@@ -175,7 +175,7 @@ export const COMPANY_BIO_CANONICAL =
 
 /** Culture ask — Figma 5132:66566 (`[Company Name]` verbatim). */
 export const COMPANY_CULTURE_ASK =
-  "Now, tell me about your company culture. What's it like to work at [Company Name]?\n\nThink about:\n- Work environment (collaborative, innovative, fast-paced?)\n- Team values (integrity, creativity, excellence?)\n- What employees love about working there - Any unique perks or traditions";
+  "Now, tell me about your company culture. What's it like to work at your company?\n\nThink about:\n- Work environment (collaborative, innovative, fast-paced?)\n- Team values (integrity, creativity, excellence?)\n- What employees love about working there - Any unique perks or traditions";
 
 export const COMPANY_CULTURE_USER_FALLBACK =
   "We have a very collaborative and innovative culture. We encourage creativity and give our team autonomy. We're fast-paced but flexible with work hours. Team lunches every Friday, and we invest heavily in learning and development.";
@@ -215,7 +215,51 @@ export const COMPANY_SOCIALS_USER_FALLBACK =
  * "talent profile panel").
  */
 export const COMPANY_COMPLETE_BOT =
-  "\uD83C\uDF89 Congratulations! Your company profile is now 100% complete! Go ahead and modify or confirm on the recruiter panel.\n\nWhat this means for you:\n- Candidates can now see your full company profile\n- You'll appear in company directory searches\n- Your job posts look more professional and trustworthy\n- Candidates are 3x more likely to apply when they see a complete profile";
+  "\uD83C\uDF89 That's everything I need! Your company profile is ready on the recruiter panel. Check the details there and press Confirm to save it.";
+
+/**
+ * The recruiter's own words as a short list: their lines or bullets, else sentences / comma
+ * parts. Used to show back culture & values (the bot never adds claims they didn't make).
+ */
+export const listFromText = (text) => {
+  const raw = String(text || '').trim();
+  if (!raw) return [];
+  const lines = raw
+    .split(/\n|•|^\s*-\s+/m)
+    .map((x) => x.replace(/^[-*\s]+/, '').trim())
+    .filter((x) => x.length > 2);
+  const parts =
+    lines.length >= 2
+      ? lines
+      : raw
+          .split(/(?<=[.!?])\s+|;\s*|,\s*(?:and\s+)?|\s+and\s+(?=[a-z]+\s)/i)
+          .map((x) => x.replace(/[.\s]+$/, '').trim())
+          .filter((x) => x.length > 2);
+  return parts.map((x) => x.charAt(0).toUpperCase() + x.slice(1)).slice(0, 12);
+};
+
+/** Website and social links found in a free-text answer. */
+export const socialsFromText = (text) => {
+  const raw = String(text || '');
+  const pick = (re) => (raw.match(re) || [])[0] || '';
+  const linkedin = pick(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/[^\s,]+/i);
+  const facebook = pick(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/[^\s,]+/i);
+  const instagram =
+    pick(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/[^\s,]+/i) ||
+    (raw.match(/instagram[^@\n]*(@[\w.]+)/i) || [])[1] ||
+    '';
+  const x =
+    pick(/(?:https?:\/\/)?(?:www\.)?(?:x|twitter)\.com\/[^\s,]+/i) ||
+    (raw.match(/(?:twitter|\bx\b)[^@\n]*(@[\w]+)/i) || [])[1] ||
+    '';
+  const website =
+    (raw.match(/website\s*:?\s*((?:https?:\/\/)?[\w.-]+\.[a-z]{2,}(?:\/[^\s,]*)?)/i) || [])[1] ||
+    (raw
+      .match(/(?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:\/[^\s,]*)?/gi)
+      ?.find((u) => !/linkedin|facebook|instagram|twitter|x\.com/i.test(u)) ??
+      '');
+  return { website, socials: { linkedin, facebook, instagram, x } };
+};
 
 /**
  * Full Company Info. field sheet — Figma 5132:66804 (view-details).
@@ -599,7 +643,12 @@ export const RECRUITER_BUDDY_NODES = {
   'company-bio-rewrite': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_BIO_USER_FALLBACK),
-      bot(COMPANY_BIO_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim()
+          ? `That's great, thank you! \uD83D\uDC4F\n\nHere's what I've captured:\n\n"${inputText.trim()}"\n\nDoes this sound good, or would you like to change anything?`
+          : COMPANY_BIO_REWRITE,
+        { showActions: true }
+      ),
     ],
     suggestedReplies: ["That's perfect!"],
     next: {
@@ -620,7 +669,14 @@ export const RECRUITER_BUDDY_NODES = {
   'company-culture-capture': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_CULTURE_USER_FALLBACK),
-      bot(COMPANY_CULTURE_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim()
+          ? `Wonderful! \uD83C\uDF1F\n\nCompany Culture & Values:\n${listFromText(inputText)
+              .map((x) => `- ${x}`)
+              .join('\n')}\n\nDoes this capture your culture well?`
+          : COMPANY_CULTURE_REWRITE,
+        { showActions: true }
+      ),
     ],
     suggestedReplies: ['Yes, continue!'],
     next: {
@@ -641,18 +697,23 @@ export const RECRUITER_BUDDY_NODES = {
   'company-location-capture': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_LOCATION_USER_FALLBACK),
-      bot(COMPANY_LOCATION_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim()
+          ? `Got it! \u2705\n\nOffice Location:\n${inputText.trim()}\n\nShall we continue?`
+          : COMPANY_LOCATION_REWRITE,
+        { showActions: true }
+      ),
     ],
-    suggestedReplies: ['No thanks — continue'],
+    suggestedReplies: ['Continue'],
     next: {
-      'No thanks — continue': 'company-socials-ask',
+      Continue: 'company-socials-ask',
       '*': 'company-socials-ask',
     },
   },
 
   'company-socials-ask': {
     reply: (inputText) => [
-      user(inputText?.trim() || 'No thanks — continue'),
+      user(inputText?.trim() || 'Continue'),
       bot(COMPANY_SOCIALS_ASK, { showActions: true }),
     ],
     suggestedReplies: [],
@@ -775,7 +836,7 @@ export function seedRecruiterJump(hint) {
         ...RECRUITER_BUDDY_NODES['company-culture-capture'].reply(COMPANY_CULTURE_USER_FALLBACK),
         ...RECRUITER_BUDDY_NODES['company-location-ask'].reply('Yes, continue!'),
         ...RECRUITER_BUDDY_NODES['company-location-capture'].reply(COMPANY_LOCATION_USER_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['company-socials-ask'].reply('No thanks — continue'),
+        ...RECRUITER_BUDDY_NODES['company-socials-ask'].reply('Continue'),
         ...RECRUITER_BUDDY_NODES['company-complete'].reply(COMPANY_SOCIALS_USER_FALLBACK),
       ],
     };
