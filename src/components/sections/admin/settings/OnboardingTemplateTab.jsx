@@ -5,14 +5,20 @@ import { GroupCard, TextAction } from '../../talentSettings/SettingsBUi.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
-import { adminError, configHistory, listConfig, shortDate, updateConfig } from '../../../../services/admin.api.js';
+import {
+  adminError,
+  configHistory,
+  listConfig,
+  shortDate,
+  updateConfig,
+} from '../../../../services/admin.api.js';
 
 const log = debug('OnboardingTemplateTab');
 
 /*
  * OnboardingTemplateTab — Settings › Onboarding templates (Super Admin). Edits the CSV template institutions download to bulk-upload students
  * (platform config key onboarding.bulk_roster_template; institutions read it through GET /api/config/public/:key).
- * Columns: key (CSV header), label, required, example, help — reorder, add, remove; file name; instructions; example row on/off; live CSV preview.
+ * Columns (one card each, fits any width): key (CSV header), label, required, example, help — reorder, add, remove; file name; instructions; example row on/off; live CSV preview.
  * Save asks for a reason (PATCH /api/admin/config/:key) — the backend validates the shape and bumps the version; History lists earlier versions.
  */
 
@@ -33,8 +39,17 @@ const FIELDS = [
   { key: 'parentPhone', label: 'Parent phone' },
 ];
 const isCore = (key) => FIELDS.some((f) => f.key === key && f.core);
-const blankColumn = (key) => ({ key, header: FIELDS.find((f) => f.key === key)?.label ?? '', required: false, minors: false, aliases: [], example: '', help: '' });
-const csvCell = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? ''));
+const blankColumn = (key) => ({
+  key,
+  header: FIELDS.find((f) => f.key === key)?.label ?? '',
+  required: false,
+  minors: false,
+  aliases: [],
+  example: '',
+  help: '',
+});
+const csvCell = (v) =>
+  /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
 const templateCsv = (t) => {
   const cols = t?.columns ?? [];
   const lines = [cols.map((c) => csvCell(c.header)).join(',')];
@@ -64,13 +79,19 @@ const OnboardingTemplateTab = ({ session }) => {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const hist = useAdminData(() => (dialog === 'history' ? configHistory(KEY) : Promise.resolve(null)), [dialog]);
+  const hist = useAdminData(
+    () => (dialog === 'history' ? configHistory(KEY) : Promise.resolve(null)),
+    [dialog]
+  );
 
   useEffect(() => {
     if (current && !draft) setDraft(structuredClone(current.value));
   }, [current, draft]);
 
-  const dirty = useMemo(() => current && draft && JSON.stringify(current.value) !== JSON.stringify(draft), [current, draft]);
+  const dirty = useMemo(
+    () => current && draft && JSON.stringify(current.value) !== JSON.stringify(draft),
+    [current, draft]
+  );
   const problems = useMemo(() => {
     if (!draft) return [];
     const out = [];
@@ -95,14 +116,23 @@ const OnboardingTemplateTab = ({ session }) => {
     return (
       <AdminLoadNotice
         loading={cfg.loading || (!cfg.error && !draft && Boolean(current))}
-        error={cfg.error || (!current && !cfg.loading ? 'The template setting isn’t on this server yet: restart the backend so it seeds onboarding.bulk_roster_template.' : null)}
+        error={
+          cfg.error ||
+          (!current && !cfg.loading
+            ? 'The template setting isn’t on this server yet: restart the backend so it seeds onboarding.bulk_roster_template.'
+            : null)
+        }
         status={cfg.status}
         onRetry={cfg.reload}
       />
     );
   }
 
-  const setCol = (i, patch) => setDraft((d) => ({ ...d, columns: d.columns.map((c, j) => (j === i ? { ...c, ...patch } : c)) }));
+  const setCol = (i, patch) =>
+    setDraft((d) => ({
+      ...d,
+      columns: d.columns.map((c, j) => (j === i ? { ...c, ...patch } : c)),
+    }));
   const move = (i, by) =>
     setDraft((d) => {
       const cols = [...d.columns];
@@ -147,14 +177,20 @@ const OnboardingTemplateTab = ({ session }) => {
   return (
     <>
       <GroupCard
+        className="min-w-0"
         title="Bulk student upload template"
         description={`The CSV institutions download from Roster › Bulk upload. Version ${current.value?.version ?? 1}${
           current.lastModifiedAt ? ` · changed ${shortDate(current.lastModifiedAt)}` : ''
         }.`}
       >
-        <div className="flex flex-col gap-[16px]">
+        <div className="flex w-full min-w-0 flex-col gap-[16px]">
           <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2">
-            <TextInput label="File name" required value={draft.fileName} onChange={(e) => setDraft((d) => ({ ...d, fileName: e.target.value }))} />
+            <TextInput
+              label="File name"
+              required
+              value={draft.fileName}
+              onChange={(e) => setDraft((d) => ({ ...d, fileName: e.target.value }))}
+            />
             <div className="flex items-end pb-[6px]">
               <Checkbox
                 label="Include an example row under the headers"
@@ -171,99 +207,138 @@ const OnboardingTemplateTab = ({ session }) => {
             onChange={(e) => setDraft((d) => ({ ...d, instructions: e.target.value }))}
           />
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1040px] border-collapse font-sans text-[13.5px]">
-              <thead>
-                <tr className="text-left text-[#595959]">
-                  <th className="w-[60px] py-[8px] font-semibold">Order</th>
-                  <th className="py-[8px] font-semibold">Field</th>
-                  <th className="py-[8px] font-semibold">CSV header</th>
-                  <th className="w-[80px] py-[8px] font-semibold">Required</th>
-                  <th className="w-[90px] py-[8px] font-semibold">Under-18 only</th>
-                  <th className="py-[8px] font-semibold">Also accept</th>
-                  <th className="py-[8px] font-semibold">Example</th>
-                  <th className="py-[8px] font-semibold">Help</th>
-                  <th className="w-[110px] py-[8px]" />
-                </tr>
-              </thead>
-              <tbody>
-                {draft.columns.map((c, i) => (
-                  <tr key={i} className="border-t border-solid border-[#f2f2f2] align-top">
-                    <td className="py-[8px] pr-[8px] text-[#737373]">{i + 1}</td>
-                    <td className="py-[12px] pr-[8px] font-semibold whitespace-nowrap text-[#1c2a21]">
-                      {FIELDS.find((f) => f.key === c.key)?.label ?? c.key}
-                      <span className="block font-mono text-[11px] font-normal text-[#737373]">{c.key}</span>
-                    </td>
-                    <td className="py-[6px] pr-[8px]">
-                      <input
-                        aria-label={`Column ${i + 1} CSV header`}
-                        value={c.header}
-                        onChange={(e) => setCol(i, { header: e.target.value })}
-                        className="h-[36px] w-full rounded-[8px] border border-solid border-[#d9d9d9] px-[8px]"
-                      />
-                    </td>
-                    <td className="py-[12px] pr-[8px]">
-                      <input
-                        type="checkbox"
-                        aria-label={`Column ${i + 1} required`}
-                        checked={c.required}
-                        disabled={isCore(c.key)}
-                        onChange={(e) => setCol(i, { required: e.target.checked })}
-                      />
-                    </td>
-                    <td className="py-[12px] pr-[8px]">
-                      <input type="checkbox" aria-label={`Column ${i + 1} under-18 only`} checked={Boolean(c.minors)} onChange={(e) => setCol(i, { minors: e.target.checked })} />
-                    </td>
-                    <td className="py-[6px] pr-[8px]">
-                      <input
-                        aria-label={`Column ${i + 1} other header spellings`}
-                        placeholder="surname, family name"
-                        value={(c.aliases || []).join(', ')}
-                        onChange={(e) => setCol(i, { aliases: e.target.value.split(',').map((x) => x.trim()).filter(Boolean) })}
-                        className="h-[36px] w-full rounded-[8px] border border-solid border-[#d9d9d9] px-[8px]"
-                      />
-                    </td>
-                    <td className="py-[6px] pr-[8px]">
-                      <input
-                        aria-label={`Column ${i + 1} example`}
-                        value={c.example}
-                        onChange={(e) => setCol(i, { example: e.target.value })}
-                        className="h-[36px] w-full rounded-[8px] border border-solid border-[#d9d9d9] px-[8px]"
-                      />
-                    </td>
-                    <td className="py-[6px] pr-[8px]">
-                      <input
-                        aria-label={`Column ${i + 1} help`}
-                        value={c.help}
-                        onChange={(e) => setCol(i, { help: e.target.value })}
-                        className="h-[36px] w-full rounded-[8px] border border-solid border-[#d9d9d9] px-[8px]"
-                      />
-                    </td>
-                    <td className="py-[8px]">
+          <ol aria-label="Template columns" className="m-0 flex list-none flex-col gap-[12px] p-0">
+            {draft.columns.map((c, i) => {
+              const label = FIELDS.find((f) => f.key === c.key)?.label ?? c.key;
+              return (
+                <li
+                  key={i}
+                  className="flex min-w-0 flex-col gap-[12px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#fcfcfa] p-[14px] max-sm:p-[12px]"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-[10px]">
+                    <div className="flex min-w-0 items-baseline gap-[10px]">
+                      <span className="grid size-[26px] shrink-0 place-items-center rounded-full bg-[#ebf1ec] font-sans text-[12.5px] font-bold text-[#2a5730]">
+                        {i + 1}
+                      </span>
+                      <span className="min-w-0 font-sans text-[15px] font-semibold text-[#1c2a21]">
+                        {label}{' '}
+                        <span className="font-mono text-[11.5px] font-normal text-[#737373]">
+                          {c.key}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[6px]">
+                      <label className="flex cursor-pointer items-center gap-[6px] font-sans text-[13.5px] text-[#1c2a21]">
+                        <input
+                          type="checkbox"
+                          aria-label={`${label} required`}
+                          checked={c.required}
+                          disabled={isCore(c.key)}
+                          onChange={(e) => setCol(i, { required: e.target.checked })}
+                        />
+                        Required
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-[6px] font-sans text-[13.5px] text-[#1c2a21]">
+                        <input
+                          type="checkbox"
+                          aria-label={`${label} under-18 only`}
+                          checked={Boolean(c.minors)}
+                          onChange={(e) => setCol(i, { minors: e.target.checked })}
+                        />
+                        Under-18 only
+                      </label>
                       <div className="flex gap-[4px]">
-                        <IconBtn label="Move up" disabled={i === 0} onClick={() => move(i, -1)}>
+                        <IconBtn
+                          label={`Move ${label} up`}
+                          disabled={i === 0}
+                          onClick={() => move(i, -1)}
+                        >
                           ↑
                         </IconBtn>
-                        <IconBtn label="Move down" disabled={i === draft.columns.length - 1} onClick={() => move(i, 1)}>
+                        <IconBtn
+                          label={`Move ${label} down`}
+                          disabled={i === draft.columns.length - 1}
+                          onClick={() => move(i, 1)}
+                        >
                           ↓
                         </IconBtn>
                         <IconBtn
-                          label="Remove column"
+                          label={`Remove ${label}`}
                           disabled={isCore(c.key)}
-                          onClick={() => setDraft((d) => ({ ...d, columns: d.columns.filter((_, j) => j !== i) }))}
+                          onClick={() =>
+                            setDraft((d) => ({
+                              ...d,
+                              columns: d.columns.filter((_, j) => j !== i),
+                            }))
+                          }
                         >
                           ×
                         </IconBtn>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                  <div className="grid min-w-0 grid-cols-1 gap-[10px] sm:grid-cols-2 2xl:grid-cols-4">
+                    {[
+                      {
+                        id: 'header',
+                        name: 'CSV header',
+                        value: c.header,
+                        set: (v) => setCol(i, { header: v }),
+                      },
+                      {
+                        id: 'aliases',
+                        name: 'Also accept',
+                        placeholder: 'surname, family name',
+                        value: (c.aliases || []).join(', '),
+                        set: (v) =>
+                          setCol(i, {
+                            aliases: v
+                              .split(',')
+                              .map((x) => x.trim())
+                              .filter(Boolean),
+                          }),
+                      },
+                      {
+                        id: 'example',
+                        name: 'Example',
+                        value: c.example,
+                        set: (v) => setCol(i, { example: v }),
+                      },
+                      {
+                        id: 'help',
+                        name: 'Help',
+                        value: c.help,
+                        set: (v) => setCol(i, { help: v }),
+                      },
+                    ].map((f) => (
+                      <label
+                        key={f.id}
+                        className="flex min-w-0 flex-col gap-[4px] font-sans text-[12.5px] font-semibold text-[#595959]"
+                      >
+                        {f.name}
+                        <input
+                          aria-label={`${label} ${f.name}`}
+                          placeholder={f.placeholder}
+                          value={f.value ?? ''}
+                          onChange={(e) => f.set(e.target.value)}
+                          className="h-[40px] w-full min-w-0 rounded-[8px] border border-solid border-[#d9d9d9] bg-white px-[10px] font-sans text-[14px] text-[#1c2a21]"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
           <div className="flex flex-wrap items-center gap-[14px]">
             {FIELDS.filter((f) => !draft.columns.some((c) => c.key === f.key)).map((f) => (
-              <TextAction key={f.key} tone="green" onClick={() => setDraft((d) => ({ ...d, columns: [...d.columns, blankColumn(f.key)] }))}>
+              <TextAction
+                key={f.key}
+                tone="green"
+                onClick={() =>
+                  setDraft((d) => ({ ...d, columns: [...d.columns, blankColumn(f.key)] }))
+                }
+              >
                 + {f.label}
               </TextAction>
             ))}
@@ -276,7 +351,9 @@ const OnboardingTemplateTab = ({ session }) => {
           </div>
 
           <div className="flex flex-col gap-[6px]">
-            <span className="font-sans text-[13px] font-semibold text-[#1c2a21]">Preview: {draft.fileName}</span>
+            <span className="font-sans text-[13px] font-semibold text-[#1c2a21]">
+              Preview: {draft.fileName}
+            </span>
             <pre className="m-0 overflow-x-auto rounded-[12px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] p-[12px] font-mono text-[12.5px] leading-[18px] text-[#1c2a21]">
               {templateCsv(draft)}
             </pre>
@@ -326,7 +403,13 @@ const OnboardingTemplateTab = ({ session }) => {
           onPrimary={save}
           onClose={() => setDialog(null)}
         >
-          <TextInput label="Reason (logged)" required value={reason} onChange={(e) => setReason(e.target.value)} error={error || undefined} />
+          <TextInput
+            label="Reason (logged)"
+            required
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            error={error || undefined}
+          />
         </AdminConfirmDialog>
       ) : null}
       {dialog === 'history' ? (
@@ -343,9 +426,13 @@ const OnboardingTemplateTab = ({ session }) => {
               .slice()
               .reverse()
               .map((h, i) => (
-                <li key={i} className="rounded-[12px] bg-[#f8f8f4] p-[10px] font-sans text-[13px] leading-[18px]">
+                <li
+                  key={i}
+                  className="rounded-[12px] bg-[#f8f8f4] p-[10px] font-sans text-[13px] leading-[18px]"
+                >
                   <strong>
-                    v{h.previousValue?.version ?? '?'} → v{h.newValue?.version ?? '?'} · {h.newValue?.columns?.length ?? '?'} columns
+                    v{h.previousValue?.version ?? '?'} → v{h.newValue?.version ?? '?'} ·{' '}
+                    {h.newValue?.columns?.length ?? '?'} columns
                   </strong>
                   <span className="block text-[#737373]">
                     {shortDate(h.modifiedAt)} · {h.reason}
