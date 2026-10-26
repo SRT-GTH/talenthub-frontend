@@ -41,6 +41,12 @@ import useVoiceTurns from './voiceCaptions/useVoiceTurns.jsx';
 import { lastBuddyText } from './voiceCaptions/voiceSpeech.js';
 import { logoHomePath } from '../../../services/auth.api.js';
 import {
+  extractJobDocument,
+  jdFileType,
+  jobPostErrorText,
+  postJobFromBuddy,
+} from '../../../services/recruiterJobs.api.js';
+import {
   CAREER_BUDDY_NODES,
   FIRST_TIME_HERO,
   RETURNING_HERO,
@@ -88,6 +94,7 @@ import {
   JOB_POSTED_SUCCESS_TOAST,
   emptyJobPostForm,
   seedJobPostFromUpload,
+  jobPostFromExtraction,
   JOB_FILE_REVIEW_CTA,
 } from './jobPostFormData.js';
 import {
@@ -667,7 +674,16 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   });
   // Live recruiter agent inside this screen (pipeline, candidates, interviews); the scripted
   // Company / Job post / KYB flows stay as they are.
-  const RB = useRecruiterBuddyLive({ enabled: recruiterLive, setMessages });
+  // Buddy can open the screen's own guided flows (today: Post a Job). Bound once submit exists.
+  const recruiterHandoffRef = useRef(null);
+  const RB = useRecruiterBuddyLive({
+    enabled: recruiterLive,
+    setMessages,
+    onHandoff: (flow) => recruiterHandoffRef.current?.(flow),
+  });
+  // Live job post: posting state for the Confirm modal (recruiterLive only).
+  const [jobPostBusy, setJobPostBusy] = useState(false);
+  const [jobPostError, setJobPostError] = useState('');
   // Live captions (Figma 9149:83053): saved voice turns (Edit, Play again, Did you mean...) and the "saved as text" toast.
   const voiceTurns = useVoiceTurns({
     voiceId,
@@ -1739,10 +1755,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     if (reachedIndex > 0) setTrailStageIndex((prev) => Math.max(prev, reachedIndex));
   };
 
-  const submit = (text) => {
+  // forcedNextId: open a node directly (Buddy handoff), whatever the current node is.
+  const submit = (text, forcedNextId = null) => {
     const node = scriptNodes[nodeId];
-    if (!node) return;
-    let nextId = node.next?.[text] ?? node.next?.['*'] ?? node.freeTextNext;
+    if (!node && !forcedNextId) return;
+    let nextId = forcedNextId ?? node.next?.[text] ?? node.next?.['*'] ?? node.freeTextNext;
     // Ward not initiated: Guide chip always opens setup (any FAQ return path).
     if (isParent && !wardAccountReady && nextId === 'parent-guide-ward') {
       nextId = 'parent-guide-ward-setup';
@@ -1916,7 +1933,55 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // Handles a confirmed file attachment from ChatThread.
   // KYB awaitFile → verify flow. Anything else (incl. mid Conversation) →
   // job JD extract + live Jobs panel (Figma 5132:75538 / 75730).
-  const handleAttach = ({ name, size, sizeLabel }) => {
+  // Live recruiter: read the uploaded job description (PDF / Word) into the job post form.
+  const extractJobFromFile = async (file, fileMsg) => {
+    if (!jdFileType(file?.name)) {
+      setMessages((prev) => [
+        ...prev,
+        fileMsg,
+        {
+          id: `jd-unsupported-${Date.now()}`,
+          sender: 'bot',
+          text: 'I can read PDF and Word (.docx) files. Please upload the job description in one of those.',
+        },
+      ]);
+      return;
+    }
+    setMessages((prev) => [
+      ...prev,
+      fileMsg,
+      {
+        id: 'jd-reading',
+        sender: 'bot',
+        thinking: { phase: 'thinking', lookingAt: ['Your job description'] },
+      },
+    ]);
+    let draft;
+    try {
+      draft = jobPostFromExtraction(await extractJobDocument(file));
+    } catch (err) {
+      log.error('jd extract failed', err?.response?.status || err?.message);
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== 'jd-reading'),
+        {
+          id: `jd-failed-${Date.now()}`,
+          sender: 'bot',
+          text: 'I couldn’t read that file. You can try another one, or fill in the job details yourself.',
+        },
+      ]);
+      return;
+    }
+    setJobPostFormMode('upload');
+    setJobPostDraft(draft);
+    setJobPostFormOpen(false);
+    setConfirmJobPostOpen(false);
+    const extractedMessages = RECRUITER_BUDDY_NODES['job-file-extracted'].reply();
+    setMessages((prev) => [...prev.filter((m) => m.id !== 'jd-reading'), ...extractedMessages]);
+    setNodeId('job-file-extracted');
+    syncJobsPanelFromDraft(draft, { pct: 92, status: 'in-progress' });
+  };
+
+  const handleAttach = ({ name, size, sizeLabel, file }) => {
     const node = scriptNodes[nodeId];
     const displayName =
       name.length > 20 ? `${name.slice(0, 14)}... .${name.split('.').pop()}` : name;
@@ -1960,7 +2025,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       return;
     }
 
-    log('branch', { attachFile: name, fromNode: nodeId, kind: 'job-jd' });
+    log('branch', { attachFile: name, fromNode: nodeId, kind: 'job-jd', live: recruiterLive });
+    if (recruiterLive) {
+      extractJobFromFile(file, fileMsg);
+      return;
+    }
     const draft = seedJobPostFromUpload();
     setJobPostFormMode('upload');
     setJobPostDraft(draft);
@@ -2008,12 +2077,32 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
 
   const handleGoBackEditJobPost = () => {
     log('branch', { goBackEditJobPost: true });
+    setJobPostError('');
     setConfirmJobPostOpen(false);
     setJobPostFormOpen(true);
   };
 
-  const handleConfirmJobPost = () => {
-    log('branch', { confirmJobPost: true });
+  const handleConfirmJobPost = async () => {
+    log('branch', { confirmJobPost: true, live: recruiterLive });
+    // Live recruiter: post it for real first; the modal stays open with the reason if it fails.
+    let savedAsDraft = false;
+    if (recruiterLive) {
+      if (jobPostBusy) return;
+      setJobPostBusy(true);
+      setJobPostError('');
+      try {
+        const out = await postJobFromBuddy(jobPostDraft);
+        // Organisation hasn't approved this recruiter yet: kept as a private draft (not live).
+        savedAsDraft = out?.reason === 'org_pending';
+        log('branch', { jobPosted: out?.opportunity?.id, savedAsDraft });
+      } catch (err) {
+        log.error('job post failed', err?.response?.status || err?.message);
+        setJobPostError(jobPostErrorText(err));
+        return;
+      } finally {
+        setJobPostBusy(false);
+      }
+    }
     setConfirmJobPostOpen(false);
     setJobPostFormOpen(false);
     setJobPostDraft(emptyJobPostForm());
@@ -2025,6 +2114,23 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       )
     );
     setExpandedPanelId('jobs');
+    if (savedAsDraft) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `job-draft-${Date.now()}`,
+          sender: 'bot',
+          text: 'Saved as a draft. It goes live once your organisation approves your recruiter account. Only you can see it until then.',
+        },
+      ]);
+      setToast({
+        id: `job-draft-${Date.now()}`,
+        variant: 'success',
+        title: 'Saved as a draft',
+        body: 'It goes live once your organisation approves your account.',
+      });
+      return;
+    }
     const successNode = RECRUITER_BUDDY_NODES['job-posted-success'];
     setMessages((prev) => [...prev, ...successNode.reply()]);
     setNodeId('job-posted-success');
@@ -2333,6 +2439,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     RB.send(text, chipAction);
   };
   const onSendText = recruiterLive ? sendRecruiter : submit;
+  recruiterHandoffRef.current = (flow) => {
+    log('branch', { recruiterHandoff: flow });
+    if (flow === 'post_job') submit('Post Your First Job', 'post-a-job-options');
+  };
 
   const submitRef = useRef(submit);
   submitRef.current = onSendText;
@@ -2851,6 +2961,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
             open={confirmJobPostOpen}
             onClose={handleGoBackEditJobPost}
             onConfirm={handleConfirmJobPost}
+            busy={jobPostBusy}
+            error={jobPostError}
           />
           <WardAccountSetupModal
             open={wardSetupOpen}

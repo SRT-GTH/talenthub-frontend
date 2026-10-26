@@ -12,7 +12,7 @@ const log = debug('ConfirmJobPostModal');
  * Nested confirm after "Post Job". No close (X) — dismiss only via
  * "Go back and edit" or overlay click / Escape.
  */
-const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
+const ConfirmJobPostModal = ({ open, onClose, onConfirm, busy = false, error = '' }) => {
   useEffect(() => {
     if (open) log('mount', { open: true });
   }, [open]);
@@ -36,6 +36,14 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
           <p className="max-w-[432px] font-sans text-[16px] font-normal leading-6 text-[#575755]">
             {CONFIRM_JOB_POST.body}
           </p>
+          {error ? (
+            <p
+              role="alert"
+              className="max-w-[432px] font-sans text-[14px] leading-5 text-[#C4320A]"
+            >
+              {error}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-[8px] max-sm:flex-nowrap">
@@ -45,12 +53,14 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
             size="sm"
             className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
             rightIcon={<ArrowRightIcon />}
+            disabled={busy}
             onClick={() => {
+              if (busy) return;
               log('branch', { confirmPost: true });
               onConfirm?.();
             }}
           >
-            {CONFIRM_JOB_POST.confirm}
+            {busy ? 'Posting…' : CONFIRM_JOB_POST.confirm}
           </Button>
           <Button
             type="button"

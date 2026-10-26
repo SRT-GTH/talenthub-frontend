@@ -60,7 +60,7 @@ export const JOB_CONV_DESCRIPTION_FALLBACK =
   'We are hiring a Digital Marketing Specialist to own social, paid, and email campaigns. You will partner with design, track performance closely, and help grow our brand across Ghana.';
 
 export const jobConvRespAskFor = (jobType) =>
-  `Excellent. ${jobType} position noted.\nNow, tell me about the role itself. What will this person be responsible for?\nJust describe it naturally — what will a typical day or week look like? What are the main tasks they'll handle?\nFeel free to list out responsibilities, or just tell me in your own words. 😊`;
+  `${jobType ? `Excellent. ${jobType} position noted.` : 'Thanks, that reads well.'}\nNow, tell me about the role itself. What will this person be responsible for?\nJust describe it naturally — what will a typical day or week look like? What are the main tasks they'll handle?\nFeel free to list out responsibilities, or just tell me in your own words. 😊`;
 
 export const JOB_CONV_RESP_FALLBACK =
   "They'll manage our social media accounts, create content for campaigns, run Google and Facebook ads, analyze performance metrics, and work with our design team on marketing materials. Also handle email marketing campaigns.";
@@ -77,6 +77,16 @@ export const JOB_CONV_RESP_CANONICAL = [
 
 export const JOB_CONV_RESP_REWRITE =
   "That's really helpful! Let me organize that:\n\nKey Responsibilities:\n- Manage company social media accounts\n- Create and execute marketing campaigns\n- Run paid advertising (Google Ads, Facebook Ads)\n- Manage email marketing campaigns\n- Analyze campaign performance and metrics\n- Collaborate with design team on marketing collateral\n\nDoes that capture everything, or should I add/modify anything?";
+
+/** "Let me organize that" from what the recruiter actually wrote (Figma copy, their own list). */
+export const jobConvRespRewriteFor = (text) =>
+  `That's really helpful! Let me organize that:\n\nKey Responsibilities:\n${linesToList(
+    text || JOB_CONV_RESP_FALLBACK,
+    JOB_CONV_RESP_CANONICAL,
+    JOB_CONV_RESP_FALLBACK
+  )
+    .map((l) => `- ${l}`)
+    .join('\n')}\n\nDoes that capture everything, or should I add/modify anything?`;
 
 export const JOB_CONV_RESP_CONFIRM_FALLBACK = "That's perfect!";
 
@@ -98,15 +108,24 @@ export const JOB_CONV_QUALS_CANONICAL = [
 export const JOB_CONV_QUALS_REWRITE =
   "Perfect! Here's what I've got:\n\nRequired Qualifications:\n- Minimum 2 years of digital marketing experience\n- Degree in Marketing, Communications, or related field (preferred)\n- Proficiency in Google Analytics, Meta Ads Manager, Mailchimp\n- Creative thinker with strong attention to detail\n- Excellent communication skills\n- Thrives in fast-paced environments\n\nOptional/Nice-to-Have:\n- Digital marketing certifications\n\nDoes this look good?";
 
+export const jobConvQualsRewriteFor = (text) =>
+  `Perfect! Here's what I've got:\n\nRequired Qualifications:\n${linesToList(
+    text || JOB_CONV_QUALS_FALLBACK,
+    JOB_CONV_QUALS_CANONICAL,
+    JOB_CONV_QUALS_FALLBACK
+  )
+    .map((l) => `- ${l}`)
+    .join('\n')}\n\nDoes this look good?`;
+
 export const JOB_CONV_QUALS_CONFIRM_FALLBACK = 'Yes, continue';
 
 export const JOB_CONV_SALARY_ASK =
-  'Great! Now let\'s talk compensation. 💰\n\nWhat\'s the salary range for this position?\n\nYou can:\n- Provide a specific range (e.g., GHS 3,000 - 5,000/month)\n- Provide a fixed amount (e.g., GHS 5,000/month)\n- Say "Competitive" or "Negotiable"\n- Skip this if you prefer not to display salary\n\n*Note: Displaying salary increases applications by 30% on average!*';
+  'Great! Now let\'s talk compensation. 💰\n\nWhat\'s the salary range for this position?\n\nYou can:\n- Provide a specific range (e.g., GHS 3,000 - 5,000/month)\n- Provide a fixed amount (e.g., GHS 5,000/month)\n- Say "Competitive" or "Negotiable"\n- Skip this if you prefer not to display salary';
 
 export const JOB_CONV_SALARY_FALLBACK = 'GHS 4,000 to 6,000 per month depending on experience';
 
 export const jobConvBenefitsAskFor = (salarySummary) =>
-  `Excellent! ${salarySummary} is very competitive. ✅\n\nWhat about benefits?\n\nDo you offer any of these?\n- Health insurance\n- Performance bonuses\n- Paid time off\n- Professional development/training\n- Flexible working hours\n- Other perks (specify)\n\nJust list what applies, or type "none" if no additional benefits.`;
+  `Thanks! ${salarySummary} noted. ✅\n\nWhat about benefits?\n\nDo you offer any of these?\n- Health insurance\n- Performance bonuses\n- Paid time off\n- Professional development/training\n- Flexible working hours\n- Other perks (specify)\n\nJust list what applies, or type "none" if no additional benefits.`;
 
 export const JOB_CONV_BENEFITS_FALLBACK =
   'Health insurance, annual bonuses, and training opportunities';
@@ -311,7 +330,8 @@ const parseDates = (text) => {
   if (named) {
     deadline.deadlineMonth = months[named[1].toLowerCase()];
     deadline.deadlineDay = String(Number(named[2]));
-    deadline.deadlineYear = named[3] || '2025';
+    deadline.deadlineYear =
+      named[3] || nextYearFor(Number(named[2]), Number(deadline.deadlineMonth));
   } else if (slash) {
     deadline.deadlineDay = String(Number(slash[1]));
     deadline.deadlineMonth = String(Number(slash[2]));
@@ -320,16 +340,32 @@ const parseDates = (text) => {
   return deadline;
 };
 
-const linesToList = (text, fallbackList) => {
+/** No year given: this year if that date is still ahead, otherwise next year. */
+const nextYearFor = (day, month) => {
+  const now = new Date();
+  const y = now.getFullYear();
+  return String(new Date(y, month - 1, day, 23, 59) > now ? y : y + 1);
+};
+
+/**
+ * The recruiter's text as a list: their own lines or bullets, else their sentences / comma parts.
+ * The Figma demo list is used only for the demo's own sample answer (`demoText`).
+ */
+function linesToList(text, demoList, demoText) {
   const raw = (text || '').trim();
-  if (!raw) return [...fallbackList];
+  if (!raw || (demoText && raw === demoText)) return [...demoList];
   const bullets = raw
-    .split(/\n|•|-/)
+    .split(/\n|•|^\s*-\s+|\s+-\s+/m)
     .map((s) => s.trim())
     .filter((s) => s.length > 3);
   if (bullets.length >= 2) return bullets;
-  return [...fallbackList];
-};
+  const parts = raw
+    .split(/(?<=[.!?])\s+|;\s*|,\s*(?:and\s+)?|\s+and\s+(?=[a-z]+\s)/i)
+    .map((s) => s.replace(/[.\s]+$/, '').trim())
+    .filter((s) => s.length > 3);
+  const list = parts.length >= 2 ? parts : [raw.replace(/[.\s]+$/, '')];
+  return list.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 12);
+}
 
 /**
  * Apply the answer that *led into* `arrivedNodeId` onto the job draft.
@@ -369,20 +405,29 @@ export const applyJobConvAnswer = (draft, arrivedNodeId, inputText) => {
     case 'job-conv-resp': {
       return {
         ...base,
-        responsibilities: linesToList(text || JOB_CONV_RESP_FALLBACK, JOB_CONV_RESP_CANONICAL),
+        responsibilities: linesToList(
+          text || JOB_CONV_RESP_FALLBACK,
+          JOB_CONV_RESP_CANONICAL,
+          JOB_CONV_RESP_FALLBACK
+        ),
       };
     }
     case 'job-conv-resp-confirm': {
-      return { ...base, responsibilities: [...JOB_CONV_RESP_CANONICAL] };
+      // "That's perfect!" keeps the list shown above (the recruiter's own).
+      return base;
     }
     case 'job-conv-quals': {
       return {
         ...base,
-        qualifications: linesToList(text || JOB_CONV_QUALS_FALLBACK, JOB_CONV_QUALS_CANONICAL),
+        qualifications: linesToList(
+          text || JOB_CONV_QUALS_FALLBACK,
+          JOB_CONV_QUALS_CANONICAL,
+          JOB_CONV_QUALS_FALLBACK
+        ),
       };
     }
     case 'job-conv-quals-confirm': {
-      return { ...base, qualifications: [...JOB_CONV_QUALS_CANONICAL] };
+      return base;
     }
     case 'job-conv-salary': {
       const salary = parseSalary(text || JOB_CONV_SALARY_FALLBACK);
