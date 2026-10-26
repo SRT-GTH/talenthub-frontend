@@ -25,8 +25,9 @@ const log = debug('VerificationReviewView');
  * document entries (white, r20: 52 tile — green for a matched document, mint otherwise — 18/600 title + status chip, meta line with 14 icons, tag chips, "View file" link,
  * 38 edit button), two dashed add buttons; on the right two cards (Registry checks / Before you decide, r24, p24) and the decision buttons (green primary with an arrow,
  * two mint buttons).
- * Props: review (REVIEWS[key]), onDecide('primary' | 'info' | 'reject').
- * ⚠️ ASSUMPTION: the edit buttons, "View file" / "Open request" links and the two dashed buttons have no flow drawn: they only log.
+ * Props: review (verificationModel.reviewOf), onDecide('primary' | 'info' | 'reject').
+ * "View file" opens the uploaded document in a new tab. A doc's edit button shows only with doc.onEdit, the dashed buttons only
+ * with review.add; decisions: [primary, info | null, reject] or null once decided.
  */
 
 const META_ICONS = {
@@ -114,25 +115,29 @@ const Entry = ({ doc }) => (
           ))}
         </ul>
       ) : null}
-      {doc.link ? (
-        <button
-          type="button"
-          onClick={() => log('open file (no viewer drawn)', doc.title)}
-          className="inline-flex w-fit cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 font-sans text-[13px] leading-[16px] font-semibold text-[#387440] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+      {doc.link && doc.href ? (
+        <a
+          href={doc.href}
+          target="_blank"
+          rel="noreferrer noopener"
+          onClick={() => log('open file', doc.title)}
+          className="inline-flex w-fit items-center gap-[5px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <AdminLinkIcon className="size-[14px]" />
           {doc.link}
-        </button>
+        </a>
       ) : null}
     </div>
-    <button
-      type="button"
-      aria-label={`Edit ${doc.title}`}
-      onClick={() => log('edit (no flow drawn)', doc.title)}
-      className="grid size-[38px] shrink-0 cursor-pointer place-items-center rounded-[10px] border border-solid border-[#e7e7e7] bg-white text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-    >
-      <AdminPenIcon className="size-[16px]" />
-    </button>
+    {doc.onEdit ? (
+      <button
+        type="button"
+        aria-label={`Edit ${doc.title}`}
+        onClick={doc.onEdit}
+        className="grid size-[38px] shrink-0 cursor-pointer place-items-center rounded-[10px] border border-solid border-[#e7e7e7] bg-white text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+      >
+        <AdminPenIcon className="size-[16px]" />
+      </button>
+    ) : null}
   </li>
 );
 
@@ -169,19 +174,21 @@ const VerificationReviewView = ({ review, onDecide }) => (
               <Entry key={d.title} doc={d} />
             ))}
           </ul>
-          <div className="grid grid-cols-1 gap-[12px] sm:grid-cols-2">
-            {review.add.map((a, i) => (
-              <button
-                key={a}
-                type="button"
-                onClick={() => log('add (no flow drawn)', a)}
-                className="flex h-[60px] cursor-pointer items-center justify-center gap-[8px] rounded-[20px] border border-dashed border-[#387440] bg-[#ebf1ec] px-[20px] font-sans text-[15px] leading-[18px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-              >
-                {i === 0 ? <AdminPlusIcon className="size-[18px]" /> : null}
-                {a}
-              </button>
-            ))}
-          </div>
+          {review.add?.length ? (
+            <div className="grid grid-cols-1 gap-[12px] sm:grid-cols-2">
+              {review.add.map((a, i) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => log('add (no flow drawn)', a)}
+                  className="flex h-[60px] cursor-pointer items-center justify-center gap-[8px] rounded-[20px] border border-dashed border-[#387440] bg-[#ebf1ec] px-[20px] font-sans text-[15px] leading-[18px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+                >
+                  {i === 0 ? <AdminPlusIcon className="size-[18px]" /> : null}
+                  {a}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
         <aside className="flex flex-col gap-[20px]">
           {review.rail.map((card) => (
@@ -218,29 +225,33 @@ const VerificationReviewView = ({ review, onDecide }) => (
               </ul>
             </section>
           ))}
-          <div className="flex flex-col gap-[12px]">
-            <button
-              type="button"
-              onClick={() => onDecide('primary')}
-              className="inline-flex h-[44px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[18px] font-sans text-[14px] leading-[24px] font-semibold text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-            >
-              {review.decisions[0]}
-              <AdminArrowRightIcon className="size-[20px]" />
-            </button>
-            {[
-              { id: 'info', label: review.decisions[1] },
-              { id: 'reject', label: review.decisions[2] },
-            ].map((b) => (
+          {review.decisions ? (
+            <div className="flex flex-col gap-[12px]">
               <button
-                key={b.id}
                 type="button"
-                onClick={() => onDecide(b.id)}
-                className="inline-flex h-[52px] w-full cursor-pointer items-center justify-center rounded-[14px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[34px] font-sans text-[16px] leading-[24px] font-bold text-[#165d3a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+                onClick={() => onDecide('primary')}
+                className="inline-flex h-[44px] w-full cursor-pointer items-center justify-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[18px] font-sans text-[14px] leading-[24px] font-semibold text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
               >
-                {b.label}
+                {review.decisions[0]}
+                <AdminArrowRightIcon className="size-[20px]" />
               </button>
-            ))}
-          </div>
+              {[
+                { id: 'info', label: review.decisions[1] },
+                { id: 'reject', label: review.decisions[2] },
+              ]
+                .filter((b) => b.label)
+                .map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => onDecide(b.id)}
+                    className="inline-flex h-[52px] w-full cursor-pointer items-center justify-center rounded-[14px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[34px] font-sans text-[16px] leading-[24px] font-bold text-[#165d3a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+                  >
+                    {b.label}
+                  </button>
+                ))}
+            </div>
+          ) : null}
         </aside>
       </div>
     </div>

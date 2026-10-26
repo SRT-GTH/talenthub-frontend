@@ -116,6 +116,12 @@ export const insightsOverview = () => get('/admin/insights/overview');
 export const insightsSecurity = (p = {}) => get('/admin/insights/security', clean(p));
 export const insightsAccessibility = () => get('/admin/insights/accessibility');
 
+// Verification: recruiter KYB and affiliation requests
+export const verifQueue = (p = {}) => get('/admin/verification/queue', clean(p));
+export const verifGet = (id, kind) => get(`/admin/verification/${id}`, clean({ kind }));
+export const verifDecide = (id, body) => post(`/admin/verification/${id}/decide`, body);
+export const verifAsk = (id, body) => post(`/admin/verification/${id}/ask`, body);
+
 // ── Comms ────────────────────────────────────────────────────────────────────
 export const listTemplates = (p = {}) =>
   get('/admin/comms/templates', clean({ limit: 100, offset: 0, ...p }));
