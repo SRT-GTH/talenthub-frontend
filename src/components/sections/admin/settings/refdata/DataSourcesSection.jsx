@@ -264,7 +264,7 @@ const SourceRow = ({ t, canEdit, toast, reload }) => {
             {last
               ? `last read ${when(last.startedAt)}: ${STATUS_TEXT[last.status] || humanize(last.status)}${
                   last.status !== 'running'
-                    ? ` (${last.rowsInserted || 0} new, ${last.rowsUpdated || 0} updated)`
+                    ? ` (${last.rowsInserted || 0} new, ${last.rowsUpdated || 0} updated${last.rowsUnchanged ? `, ${last.rowsUnchanged} unchanged` : ''})`
                     : ''
                 }`
               : 'never read'}
