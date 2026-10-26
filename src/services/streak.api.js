@@ -10,6 +10,8 @@ const log = debug('streak.api');
  *   POST /streak/fresh                "Start fresh" after a lost streak
  *   POST /streak/milestones/:id/seen  the milestone modal was shown
  *   PUT  /streak/reminders            { daily: { enabled, time }, warn: { enabled } }
+ *   PUT  /streak/leaderboard          { optIn }  join / leave the leaderboard (opt-in; under-18s get
+ *                                     403 LEADERBOARD_NEEDS_PARENTAL_CONSENT)
  * A streak day is recorded by the backend whenever a lesson, Skills Lab answer / game or assessment is done; screens that
  * do one call notifyStreakActivity() so the nav pill refreshes.
  */
@@ -34,3 +36,6 @@ export const markMilestoneSeen = async (id) =>
 
 export const saveStreakReminders = async (body) =>
   unwrap(await api.put('/streak/reminders', body))?.reminders;
+
+export const setLeaderboardOptIn = async (optIn) =>
+  unwrap(await api.put('/streak/leaderboard', { optIn }));

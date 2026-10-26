@@ -75,21 +75,23 @@ const TalentStreakPage = () => {
               : 'Loading your streak…'}
           </p>
         ) : (
-        <div className="grid grid-cols-1 items-start gap-[24px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,22.2vw)] max-lg:gap-[18px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="flex min-w-0 flex-col gap-[18px]">
-            <StreakPageHero summary={data.summary} />
-            <StreakPageCalendar month={data.month} />
-            <StreakCountsCard />
+          <div className="grid grid-cols-1 items-start gap-[24px] lg:grid-cols-[minmax(0,1fr)_minmax(300px,22.2vw)] max-lg:gap-[18px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="flex min-w-0 flex-col gap-[18px]">
+              <StreakPageHero summary={data.summary} />
+              <StreakPageCalendar month={data.month} />
+              <StreakCountsCard />
+            </div>
+            <div className="flex min-w-0 flex-col gap-[16px]">
+              <StreakMilestonesCard milestones={data.milestones} />
+              <StreakRemindersCard reminders={data.reminders} live={Boolean(streakLive)} />
+              <StreakLeaderboardCard
+                rows={Array.isArray(data.leaderboard) ? data.leaderboard : data.leaderboard.rows}
+                title={Array.isArray(data.leaderboard) ? undefined : data.leaderboard.title}
+                board={streakLive && !Array.isArray(data.leaderboard) ? data.leaderboard : null}
+                onChanged={streakLive?.reload}
+              />
+            </div>
           </div>
-          <div className="flex min-w-0 flex-col gap-[16px]">
-            <StreakMilestonesCard milestones={data.milestones} />
-            <StreakRemindersCard reminders={data.reminders} live={Boolean(streakLive)} />
-            <StreakLeaderboardCard
-              rows={Array.isArray(data.leaderboard) ? data.leaderboard : data.leaderboard.rows}
-              title={Array.isArray(data.leaderboard) ? undefined : data.leaderboard.title}
-            />
-          </div>
-        </div>
         )}
       </div>
       {streak.milestone ? (
