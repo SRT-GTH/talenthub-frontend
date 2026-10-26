@@ -283,6 +283,8 @@ export const catScrapeRun = (key, reason) =>
 
 // Locations: list, CSV import (preview first), edit.
 export const catLocations = (params) => get('/admin/catalog/locations', clean(params || {}));
+export const catCoordsStatus = () => get('/admin/catalog/locations/coordinates');
+export const catCoordsRun = (body) => post('/admin/catalog/locations/coordinates/run', body);
 export const catPreviewLocationImport = (rows) =>
   post('/admin/catalog/locations/import/preview', { rows });
 export const catImportLocations = (rows, reason) =>

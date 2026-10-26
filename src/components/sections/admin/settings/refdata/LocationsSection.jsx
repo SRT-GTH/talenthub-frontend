@@ -15,6 +15,7 @@ import {
 } from '../../../../../services/admin.api.js';
 import { Btn, Chip, Note, ReasonInput } from './shared.jsx';
 import { useReasonRun } from './useReasonRun.js';
+import CoordinatesPanel from './CoordinatesPanel.jsx';
 
 /*
  * Locations: the countries, regions, cities and areas used in profiles, opportunities and search.
@@ -438,6 +439,7 @@ const LocationsSection = ({ canEdit, toast }) => {
           </Chip>
         ))}
       </div>
+      <CoordinatesPanel canEdit={canEdit} toast={toast} onChanged={list.reload} />
       {canEdit ? (
         <div className="pb-[12px]">
           <TextAction tone="green" onClick={() => setImporting(true)}>
@@ -488,7 +490,7 @@ const LocationsSection = ({ canEdit, toast }) => {
             title={`${l.name}${l.status !== 'active' ? ` · ${l.status}` : ''}${l.featured ? ' · featured' : ''}`}
             description={`${humanize(l.type)} · ${place(l)}${
               l.coordinates
-                ? ` · ${l.coordinates.latitude}, ${l.coordinates.longitude}`
+                ? ` · ${l.coordinates.latitude}, ${l.coordinates.longitude}${l.coordinateSource === 'nominatim' ? ' (OpenStreetMap)' : ''}`
                 : ' · no coordinates'
             }`}
             top
