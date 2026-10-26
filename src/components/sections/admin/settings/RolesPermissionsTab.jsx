@@ -20,6 +20,7 @@ import {
   rbacRemovePermission,
   rbacRoleHolders,
   rbacRolePermissions,
+  rbacRolePermissionSummary,
   rbacRoles,
   rbacScopePermissions,
   rbacScopes,
@@ -95,10 +96,75 @@ const Pill = ({ on, onClick, children }) => (
 );
 
 /* ── One role: holders + permissions by scope ───────────────────────────── */
+/* One service group of a role: count in the summary line; its permissions load the first time it is opened. */
+const ScopeGroup = ({ label, count, filters, roleId, locked, busy, onRevoke }) => {
+  const [state, setState] = useState({ loaded: false, loading: false, items: [], error: '' });
+  const load = async () => {
+    if (state.loaded || state.loading) return;
+    setState((x) => ({ ...x, loading: true, error: '' }));
+    try {
+      const lists = await Promise.all(filters.map((f) => rbacRolePermissions(roleId, f)));
+      const seen = new Set();
+      const items = lists.flat().filter((p) => {
+        const id = String(p._id || p.id);
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      setState({ loaded: true, loading: false, items, error: '' });
+    } catch (e) {
+      setState({ loaded: false, loading: false, items: [], error: adminError(e) });
+    }
+  };
+  return (
+    <details
+      onToggle={(e) => e.currentTarget.open && load()}
+      className="rounded-[12px] border border-solid border-[#e7e7e7] bg-white px-[12px] py-[8px]"
+    >
+      <summary className="cursor-pointer font-sans text-[14px] font-semibold text-[#1c2a21]">
+        {label} · {count.toLocaleString('en-GB')}
+      </summary>
+      {state.loading ? (
+        <p className="m-0 mt-[6px] font-sans text-[13px] text-[#737373]">Loading…</p>
+      ) : null}
+      {state.error ? (
+        <p className="m-0 mt-[6px] font-sans text-[13px] text-[#902b20]">{state.error}</p>
+      ) : null}
+      {state.loaded ? (
+        <ul className="m-0 mt-[6px] flex max-h-[320px] list-none flex-col gap-[4px] overflow-auto p-0">
+          {state.items.map((p) => (
+            <li
+              key={String(p._id || p.id)}
+              className="flex items-center justify-between gap-[8px] font-sans text-[13px]"
+            >
+              <span>
+                {humanize(p.action)}{' '}
+                {p.name ? <span className="text-[#737373]">· {p.name}</span> : null}
+              </span>
+              {!locked ? (
+                <button
+                  type="button"
+                  disabled={busy === String(p._id || p.id)}
+                  onClick={() => onRevoke(p)}
+                  className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#902b20] underline"
+                >
+                  Revoke
+                </button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </details>
+  );
+};
+
 const RoleDetail = ({ role, canEdit, onChanged, onClose }) => {
   const [toastEl, toast] = useAdminToast();
   const roleId = docId(role);
-  const perms = useAdminData(() => rbacRolePermissions(roleId), [roleId]);
+  // Counts per service first (Administrator holds ~12,000 permissions); a group's permissions load when it is opened.
+  const perms = useAdminData(() => rbacRolePermissionSummary(roleId), [roleId]);
+  const [version, setVersion] = useState(0);
   const holders = useAdminData(() => rbacRoleHolders(roleId), [roleId]);
   const scopes = useAdminData(() => rbacScopes({ scopeLevel: 'service' }), []);
   const [scopeId, setScopeId] = useState('');
@@ -107,23 +173,36 @@ const RoleDetail = ({ role, canEdit, onChanged, onClose }) => {
     [scopeId]
   );
   const [busy, setBusy] = useState('');
+  // What the role already holds under the service picked in "Grant permissions" (for the ✓ pills).
+  const heldInScope = useAdminData(
+    () => (scopeId ? rbacRolePermissions(roleId, { scopeId }) : Promise.resolve([])),
+    [roleId, scopeId, version]
+  );
   const held = useMemo(
-    () => new Set((perms.data ?? []).map((p) => String(p._id || p.id || p.permissionId))),
-    [perms.data]
+    () => new Set((heldInScope.data ?? []).map((p) => String(p._id || p.id || p.permissionId))),
+    [heldInScope.data]
   );
   const locked = role.isSystemRole || !canEdit;
+  // Same grouping as before (Global, else service, else model), built from the server's counts; each entry keeps the
+  // scope filters that make it up so the group can load its own permissions.
   const byScope = useMemo(() => {
     const m = {};
-    (perms.data ?? []).forEach((p) => {
-      const s = p.scope || {};
+    (perms.data?.groups ?? []).forEach((g) => {
       const key =
-        s.scopeLevel === 'global'
+        g.scopeLevel === 'global'
           ? 'Global'
-          : humanize(s.serviceName || s.modelName || s.scopeLevel || 'other');
-      (m[key] ||= []).push(p);
+          : humanize(g.serviceName || g.modelName || g.scopeLevel || 'other');
+      const e = (m[key] ||= { count: 0, filters: [] });
+      e.count += g.count;
+      e.filters.push({
+        scopeLevel: g.scopeLevel ?? '',
+        serviceName: g.serviceName ?? '',
+        modelName: g.modelName ?? '',
+      });
     });
-    return Object.entries(m).sort((a, b) => b[1].length - a[1].length);
+    return Object.entries(m).sort((a, b) => b[1].count - a[1].count);
   }, [perms.data]);
+  const total = perms.data?.total ?? 0;
 
   const toggle = async (p, on) => {
     const pid = String(p._id || p.id);
@@ -133,6 +212,7 @@ const RoleDetail = ({ role, canEdit, onChanged, onClose }) => {
       else await rbacRemovePermission(roleId, pid);
       await rbacClearRoleCache(roleId).catch(() => null);
       perms.reload();
+      setVersion((v) => v + 1);
       onChanged?.();
     } catch (e) {
       toast('Couldn’t change the permission', adminError(e), 'error');
@@ -162,8 +242,8 @@ const RoleDetail = ({ role, canEdit, onChanged, onClose }) => {
           </TextAction>
         </div>
         <p className="m-0 font-sans text-[14px] text-[#595959]">
-          {perms.loading ? 'Loading permissions…' : `${(perms.data ?? []).length} permissions`} ·{' '}
-          {holders.loading ? '…' : `${(holders.data ?? []).length} accounts hold this role`}
+          {perms.loading ? 'Loading permissions…' : `${total.toLocaleString('en-GB')} permissions`}{' '}
+          · {holders.loading ? '…' : `${(holders.data ?? []).length} accounts hold this role`}
           {role.isSystemRole
             ? ' · System roles are managed by the platform seeders and can’t be edited here.'
             : ''}
@@ -175,38 +255,17 @@ const RoleDetail = ({ role, canEdit, onChanged, onClose }) => {
           onRetry={perms.reload}
         >
           <div className="grid grid-cols-1 gap-[10px] md:grid-cols-2">
-            {byScope.slice(0, 40).map(([scope, list]) => (
-              <details
-                key={scope}
-                className="rounded-[12px] border border-solid border-[#e7e7e7] bg-white px-[12px] py-[8px]"
-              >
-                <summary className="cursor-pointer font-sans text-[14px] font-semibold text-[#1c2a21]">
-                  {scope} · {list.length}
-                </summary>
-                <ul className="m-0 mt-[6px] flex list-none flex-col gap-[4px] p-0">
-                  {list.map((p) => (
-                    <li
-                      key={String(p._id || p.id)}
-                      className="flex items-center justify-between gap-[8px] font-sans text-[13px]"
-                    >
-                      <span>
-                        {humanize(p.action)}{' '}
-                        {p.name ? <span className="text-[#737373]">· {p.name}</span> : null}
-                      </span>
-                      {!locked ? (
-                        <button
-                          type="button"
-                          disabled={busy === String(p._id || p.id)}
-                          onClick={() => toggle(p, false)}
-                          className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#902b20] underline"
-                        >
-                          Revoke
-                        </button>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </details>
+            {byScope.slice(0, 40).map(([scope, g]) => (
+              <ScopeGroup
+                key={`${scope}:${version}`}
+                label={scope}
+                count={g.count}
+                filters={g.filters}
+                roleId={roleId}
+                locked={locked}
+                busy={busy}
+                onRevoke={(p) => toggle(p, false)}
+              />
             ))}
           </div>
           {byScope.length > 40 ? (

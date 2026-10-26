@@ -156,8 +156,12 @@ export const rbacCreateRole = (p) => post('/rbac/roles', clean(p));
 export const rbacUpdateRole = (id, p) => api.put(`/rbac/roles/${id}`, clean(p)).then(body);
 export const rbacDeleteRole = (id, force = false) =>
   api.delete(`/rbac/roles/${id}`, { params: force ? { force: true } : {} }).then(body);
-export const rbacRolePermissions = async (roleId) =>
-  arr(await get(`/rbac/roles/${roleId}/permissions`), 'permissions', 'data');
+// A role's permissions (optionally one group: { scopeLevel, serviceName, modelName }, or one scope: { scopeId }).
+export const rbacRolePermissions = async (roleId, filter = {}) =>
+  arr(await get(`/rbac/roles/${roleId}/permissions`, filter), 'permissions', 'data');
+// { total, groups: [{ scopeLevel, serviceName, modelName, count }] } — counted on the server (Administrator holds ~12k).
+export const rbacRolePermissionSummary = (roleId) =>
+  get(`/rbac/roles/${roleId}/permissions`, { summary: true });
 export const rbacRoleHolders = async (roleId) =>
   arr(await get(`/rbac/roles/${roleId}/entities`), 'entities', 'data');
 export const rbacAssignPermission = (roleId, permissionId) =>
