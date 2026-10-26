@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
@@ -22,9 +23,29 @@ const log = debug('AdminQueueView');
  * banner + a white list card (r22) of QueueRow, or the empty card (r28: spot art, headline, three suggestion steps, a green and a white button).
  * Props: config { title, sticker, subtitle, tabs, tabTone 'ink' | 'green', defaultTab, chips, defaultChip, chipsDim, defaultView, sort, action, banner, rows, empty },
  *        data (useAdminState()), onRowButton(row), onAction().
- * ⚠️ ASSUMPTION: tabs, chips, the view toggle, the sort select and the action button have no behaviour drawn beyond their selected look: they only log (the sample
- * lists are fixed); their selection lives in the URL (?tab= ?chip= ?view=).
+ * Tabs and chips are read by the page (?tab= ?chip=). The view toggle switches list / cards (?view=); the sort button flips the
+ * list between config.sort and its reverse (?sort=reverse; rows with sortAt are ordered by it, others are reversed); the bookmark
+ * pins a row to the top for this viewer (browser storage, key th:admin-pins:<config.pinKey | title>).
  */
+
+const OPPOSITE = { 'Oldest first': 'Newest first', 'Newest first': 'Oldest first' };
+
+const pinStoreKey = (c) => `th:admin-pins:${c.pinKey || c.title}`;
+const readPins = (key) => {
+  try {
+    const v = JSON.parse(window.localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+};
+const writePins = (key, ids) => {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(ids.slice(-200)));
+  } catch {
+    /* storage unavailable: pins last for this visit only */
+  }
+};
 
 const STEP_ICONS = { plus: AdminPlusIcon, spark: AdminSparkIcon, user: AdminUserIcon };
 
@@ -132,6 +153,28 @@ const AdminQueueView = ({ config, data, onRowButton, onAction }) => {
   const view =
     data.view === 'cards' || data.view === 'list' ? data.view : (c.defaultView ?? 'list');
   const chip = data.params.get('chip') ?? c.defaultChip ?? 'all';
+  const reversed = data.params.get('sort') === 'reverse';
+  const sortLabel = reversed ? OPPOSITE[c.sort] || `${c.sort} (reversed)` : c.sort;
+  const pinKey = pinStoreKey(c);
+  const [pins, setPins] = useState(() => readPins(pinKey));
+  const togglePin = (row) => {
+    const next = pins.includes(row.id) ? pins.filter((id) => id !== row.id) : [...pins, row.id];
+    setPins(next);
+    writePins(pinKey, next);
+    log('pin', row.id, !pins.includes(row.id));
+  };
+  const rows = useMemo(() => {
+    let list = [...(c.rows || [])];
+    if (reversed) {
+      // Rows with a date go oldest / newest first by it; otherwise the given order is turned round.
+      if (list.every((r) => r.sortAt)) {
+        const newestFirst = c.sort !== 'Newest first';
+        list.sort((a, b) => (new Date(a.sortAt) - new Date(b.sortAt)) * (newestFirst ? -1 : 1));
+      } else list.reverse();
+    }
+    const pinned = list.filter((r) => pins.includes(r.id));
+    return [...pinned, ...list.filter((r) => !pins.includes(r.id))];
+  }, [c.rows, c.sort, reversed, pins]);
 
   return (
     <div className="flex flex-col gap-[24px] pt-[4px]">
@@ -177,14 +220,17 @@ const AdminQueueView = ({ config, data, onRowButton, onAction }) => {
           <ViewToggle view={view} onChange={(v) => data.update({ view: v })} />
           <button
             type="button"
-            onClick={() => log('sort select (no menu drawn)', c.sort)}
+            aria-label={`Sorted ${sortLabel.toLowerCase()}. Change to ${(reversed ? c.sort : OPPOSITE[c.sort] || 'reverse order').toLowerCase()}`}
+            onClick={() => data.update({ sort: reversed ? null : 'reverse' })}
             className={classNames(
               'inline-flex h-[34px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-white pr-[12px] pl-[14px] font-sans text-[13px] leading-[16px] font-semibold text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
               c.chipsDim && 'opacity-50'
             )}
           >
-            {c.sort}
-            <AgencyChevronDownIcon className="size-[14px]" />
+            {sortLabel}
+            <AgencyChevronDownIcon
+              className={classNames('size-[14px]', reversed && 'rotate-180')}
+            />
           </button>
           <AgencyButton
             size="xs"
@@ -264,13 +310,22 @@ const AdminQueueView = ({ config, data, onRowButton, onAction }) => {
               <AdminClockIcon className="size-[18px] shrink-0 text-[#c8951a]" />
               {c.banner}
             </p>
-            <ul className="m-0 flex list-none flex-col gap-[4px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-0">
-              {c.rows.map((r) => (
+            <ul
+              className={classNames(
+                'm-0 list-none p-0',
+                view === 'cards'
+                  ? 'grid grid-cols-1 gap-[12px] md:grid-cols-2 2xl:grid-cols-3'
+                  : 'flex flex-col gap-[4px] rounded-[22px] border border-solid border-[#e1eae2] bg-white'
+              )}
+            >
+              {rows.map((r) => (
                 <QueueRow
                   key={r.id}
                   row={r}
+                  layout={view}
+                  pinned={pins.includes(r.id)}
                   onButton={onRowButton}
-                  onSave={(row) => log('save (no flow drawn)', row.id)}
+                  onSave={togglePin}
                 />
               ))}
             </ul>
