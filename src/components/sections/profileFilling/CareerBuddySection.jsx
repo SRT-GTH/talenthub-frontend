@@ -47,6 +47,13 @@ import {
   postJobFromBuddy,
 } from '../../../services/recruiterJobs.api.js';
 import {
+  companyErrorText,
+  fetchCompany,
+  saveCompany,
+  uploadKybDocument,
+} from '../../../services/recruiterCompany.api.js';
+import { currentUserLabel } from '../../../services/careerBuddy.api.js';
+import {
   CAREER_BUDDY_NODES,
   FIRST_TIME_HERO,
   RETURNING_HERO,
@@ -67,6 +74,8 @@ import {
   COMPANY_INFO_FIELDS,
   COMPANY_PANEL_PROGRESS,
   COMPANY_SAVE_META,
+  listFromText,
+  socialsFromText,
   KYB_UPLOAD_CTA,
   seedRecruiterJump,
   JOB_PANEL_PROGRESS,
@@ -446,6 +455,46 @@ const buildCompanyInfoFields = (kybVerified) =>
       : field
   );
 
+// Live recruiter: the Company Info panel rows from GET /recruiter/company plus what the
+// recruiter just said in chat (draft), never the Figma demo company.
+const companyPanelFields = (view, draft = {}) => {
+  const c = { ...(view?.company || {}), ...draft };
+  const socials = { ...(view?.company?.socials || {}), ...(draft.socials || {}) };
+  const links = [
+    c.website,
+    socials.linkedin,
+    socials.facebook,
+    socials.instagram,
+    socials.x,
+  ].filter(Boolean);
+  const kyb = view?.kyb || {};
+  return [
+    { label: 'Name', value: c.name || '—' },
+    { label: 'Bio', value: c.bio || 'Not added yet', kind: 'bio' },
+    { label: 'Industry', value: c.industry || '—' },
+    { label: 'Company size', value: c.size ? `${c.size} employees` : '—' },
+    {
+      label: 'Address',
+      value: c.address || [c.district, c.region].filter(Boolean).join(', ') || '—',
+    },
+    { label: 'Culture & Values', value: (c.culture || []).join(', ') || 'Not added yet' },
+    { label: 'Website & social links', value: links.join(' · ') || 'Not added yet' },
+    {
+      label: 'KYB/KYC Status',
+      value: kyb.label || 'Not verified',
+      verified: Boolean(kyb.verified),
+    },
+  ];
+};
+
+// Chat answers that fill the live company draft: node the answer leads into → fields.
+const COMPANY_ANSWER_FIELDS = {
+  'company-bio-rewrite': (t) => ({ bio: t }),
+  'company-culture-capture': (t) => ({ culture: listFromText(t) }),
+  'company-location-capture': (t) => ({ address: t }),
+  'company-complete': (t) => socialsFromText(t),
+};
+
 // Script node-id prefix → stage id, so `submit()` can flip a stage's panel
 // row to 'in-progress' the moment its Q&A begins, regardless of which
 // stage it is (see the in-progress transition comment at its usage below).
@@ -724,6 +773,46 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // Tracks whether the recruiter has uploaded a KYB doc this session — used
   // to update the KYB/KYC Status field in RecruiterPanel's view-details.
   const [kybVerified, setKybVerified] = useState(false);
+  // Live recruiter: the real company profile (GET /recruiter/company) and the chat's answers.
+  const [companyLive, setCompanyLive] = useState(null);
+  const [companyDraft, setCompanyDraft] = useState({});
+  useEffect(() => {
+    if (!recruiterLive) return undefined;
+    let cancelled = false;
+    fetchCompany()
+      .then((view) => {
+        if (cancelled || !view) return;
+        setCompanyLive(view);
+        setKybVerified(Boolean(view.kyb?.verified));
+        setStages((prev) =>
+          prev.map((stage) => {
+            if (stage.id === 'company-info') {
+              return {
+                ...stage,
+                status:
+                  view.completion >= 100
+                    ? 'done'
+                    : view.completion > 0
+                      ? 'in-progress'
+                      : 'not-started',
+                completionPct: view.completion || 0,
+                fields: companyPanelFields(view),
+              };
+            }
+            if (stage.id === 'kyb') {
+              if (view.kyb?.verified) return { ...stage, status: 'done', completionPct: 100 };
+              if (view.kyb?.status === 'kyb_submitted')
+                return { ...stage, status: 'in-progress', completionPct: 60 };
+            }
+            return stage;
+          })
+        );
+      })
+      .catch((err) => log.error('company load failed', err?.response?.status || err?.message));
+    return () => {
+      cancelled = true;
+    };
+  }, [recruiterLive]);
   // After Career Options Confirm: 'section-picker-from-guidance' when the
   // user chose return-to-profile; null when they chose continue-exploring
   // (stay on exposure-confirm-continue so the next-area chips remain).
@@ -811,7 +900,19 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     : isParent
       ? PARENT_FIRST_TIME_HERO
       : FIRST_TIME_HERO;
-  const personaName = isRecruiter ? RECRUITER_NAME : isParent ? PARENT_NAME : TALENT_NAME;
+  // Live recruiter: the signed-in user's name, not the demo persona.
+  const liveRecruiterName = recruiterLive ? currentUserLabel().name : null;
+  const personaName = isRecruiter
+    ? liveRecruiterName || RECRUITER_NAME
+    : isParent
+      ? PARENT_NAME
+      : TALENT_NAME;
+  const withLiveName = (list) =>
+    liveRecruiterName
+      ? list.map((m) =>
+          m.personaLabel === RECRUITER_NAME ? { ...m, personaLabel: liveRecruiterName } : m
+        )
+      : list;
 
   const selectParentProfileTab = (tabId) => {
     log('branch', { parentProfileTab: tabId, wardAccountReady });
@@ -1685,7 +1786,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     navigate(logoHomePath());
   };
 
-  const applyStageConfirmations = (newMessages, jobDraftOverride) => {
+  const applyStageConfirmations = (newMessages, jobDraftOverride, companyDraftOverride) => {
     const confirmedIds = newMessages.filter((m) => m.confirmsStageId).map((m) => m.confirmsStageId);
     if (confirmedIds.length === 0) return;
 
@@ -1707,7 +1808,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
             ...stage,
             status: 'awaiting-review',
             completionPct: 100,
-            fields: buildCompanyInfoFields(kybVerified),
+            fields:
+              recruiterLive && companyLive
+                ? companyPanelFields(companyLive, companyDraftOverride ?? companyDraft)
+                : buildCompanyInfoFields(kybVerified),
           };
         }
         if (stage.id === 'jobs') {
@@ -1847,7 +1951,20 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       }
     }
 
-    applyStageConfirmations(newMessages, nextJobDraft);
+    // Live recruiter: keep the company answers for the panel and the real save.
+    let nextCompanyDraft = companyDraft;
+    if (recruiterLive && COMPANY_ANSWER_FIELDS[nextId] && text?.trim()) {
+      const add = COMPANY_ANSWER_FIELDS[nextId](text.trim());
+      nextCompanyDraft = {
+        ...companyDraft,
+        ...add,
+        ...(add.socials ? { socials: { ...(companyDraft.socials || {}), ...add.socials } } : {}),
+      };
+      setCompanyDraft(nextCompanyDraft);
+      log('branch', { companyAnswer: nextId });
+    }
+
+    applyStageConfirmations(newMessages, nextJobDraft, nextCompanyDraft);
 
     // Parent: Build own / Guide ward chips flip the profile panel tab.
     if (isParent && nextNode?.panelTab) {
@@ -1921,7 +2038,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       setStages((prev) =>
         prev.map((stage) =>
           stage.id === 'company-info'
-            ? { ...stage, status: 'in-progress', completionPct: pct }
+            ? // Never step back from "awaiting review" (the final answer just asked for Confirm).
+              stage.status === 'awaiting-review'
+              ? { ...stage, completionPct: Math.max(stage.completionPct || 0, pct) }
+              : { ...stage, status: 'in-progress', completionPct: pct }
             : stage
         )
       );
@@ -2006,6 +2126,60 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     };
 
     const isKybUpload = Boolean(node?.awaitFile && node.fileNext === 'kyb-verified');
+    if (isKybUpload && recruiterLive) {
+      log('branch', { attachFile: name, fromNode: nodeId, kind: 'kyb', live: true });
+      setMessages((prev) => [
+        ...prev,
+        fileMsg,
+        {
+          id: 'kyb-uploading',
+          sender: 'bot',
+          thinking: { phase: 'thinking', lookingAt: ['Your document'] },
+        },
+      ]);
+      uploadKybDocument(file)
+        .then((out) => {
+          // The backend only moves an account waiting on KYB to "in review"; a verified one stays verified.
+          const inReview = out?.affiliationRequest?.status === 'kyb_submitted';
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== 'kyb-uploading'),
+            {
+              id: `kyb-submitted-${Date.now()}`,
+              sender: 'bot',
+              text: inReview
+                ? 'Thanks! Your document is uploaded. The GTH team will review it, and your verified badge appears once it\u2019s approved. You can keep posting jobs in the meantime.'
+                : 'Thanks! Your document is saved with your company\u2019s records. Your company is already verified, so nothing else changes.',
+            },
+          ]);
+          setNodeId('kyb-next-section');
+          if (!inReview) return;
+          setStages((prev) =>
+            prev.map((stage) =>
+              stage.id === 'kyb' ? { ...stage, status: 'in-progress', completionPct: 60 } : stage
+            )
+          );
+          setCompanyLive((v) =>
+            v
+              ? { ...v, kyb: { ...v.kyb, status: 'kyb_submitted', label: 'Documents in review' } }
+              : v
+          );
+        })
+        .catch((err) => {
+          log.error('kyb upload failed', err?.response?.status || err?.message);
+          const suspended = err?.response?.data?.type === 'ACCOUNT_SUSPENDED';
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== 'kyb-uploading'),
+            {
+              id: `kyb-failed-${Date.now()}`,
+              sender: 'bot',
+              text: suspended
+                ? 'Your account is suspended, so documents can\u2019t be submitted right now. Please contact the GTH team.'
+                : 'That upload didn\u2019t go through. Please try again with a PDF or an image of the document.',
+            },
+          ]);
+        });
+      return;
+    }
     if (isKybUpload) {
       log('branch', { attachFile: name, fromNode: nodeId, kind: 'kyb' });
       const nextId = node.fileNext;
@@ -2239,6 +2413,68 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       log('branch', { jobsPanelConfirm: true });
       setJobPostFormOpen(false);
       setConfirmJobPostOpen(true);
+      return;
+    }
+
+    // Live recruiter: Company Info really saves (PUT /recruiter/company); no simulated round-trip.
+    if (stageId === 'company-info' && recruiterLive) {
+      setConfirmingStageId(stageId);
+      const d = companyDraft;
+      saveCompany({
+        ...(d.bio ? { bio: d.bio } : {}),
+        ...(d.culture?.length ? { culture: d.culture } : {}),
+        ...(d.address ? { address: d.address } : {}),
+        ...(d.website ? { website: d.website } : {}),
+        ...(d.socials ? { socials: d.socials } : {}),
+      })
+        .then((view) => {
+          setCompanyLive(view);
+          setCompanyDraft({});
+          setConfirmingStageId(null);
+          setExpandedPanelId(null);
+          setStages((prev) =>
+            prev.map((stage) =>
+              stage.id === 'company-info'
+                ? {
+                    ...stage,
+                    status: 'done',
+                    completionPct: Math.max(view?.completion || 0, 100),
+                    fields: companyPanelFields(view),
+                  }
+                : stage
+            )
+          );
+          setToast({
+            id: 'company-info-saved',
+            variant: 'success',
+            title: 'Success',
+            body: COMPANY_SAVE_META.toastLabel,
+          });
+          const nextNode = RECRUITER_BUDDY_NODES[COMPANY_SAVE_META.nextNodeId];
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: 'auto-company-info-confirmed',
+              sender: 'user',
+              personaLabel: personaName,
+              auto: true,
+              autoLabel: '[Auto]',
+              text: COMPANY_SAVE_META.autoMessageText,
+            },
+            ...(nextNode?.reply ? nextNode.reply() : []),
+          ]);
+          setNodeId(COMPANY_SAVE_META.nextNodeId);
+        })
+        .catch((err) => {
+          log.error('company save failed', err?.response?.status || err?.message);
+          setConfirmingStageId(null);
+          setToast({
+            id: `company-info-error-${Date.now()}`,
+            variant: 'error',
+            title: 'Not saved',
+            body: companyErrorText(err),
+          });
+        });
       return;
     }
 
@@ -2518,8 +2754,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         <EngagementTopNav
           styleSwitch={!isRecruiter && !isParent ? <StyleSwitch /> : null}
           bgClass="bg-neutral"
-          userName={liveMode ? L.me.name : undefined}
-          userInitials={liveMode ? L.me.initials : undefined}
+          userName={liveMode ? L.me.name : recruiterLive ? currentUserLabel().name : undefined}
+          userInitials={
+            liveMode ? L.me.initials : recruiterLive ? currentUserLabel().initials : undefined
+          }
           onSaveExit={handleSaveExit}
           showSwitchModes={
             liveMode
@@ -3117,7 +3355,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                         onTryAgain: () => goDemoFrame('thinking'),
                       })
                     : recruiterLive
-                      ? RB.decorate(enrichedMessages)
+                      ? RB.decorate(withLiveName(enrichedMessages))
                       : enrichedMessages
                 )}
                 {...voiceTurns.chatProps}
