@@ -1,6 +1,6 @@
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { JobChevronIcon, JobViewGridIcon, JobViewListIcon } from '../../shared/assets.jsx';
+import { JobViewGridIcon, JobViewListIcon } from '../../shared/assets.jsx';
 import headSparkle from '../../../assets/notifications/icons/head-sparkle.svg';
 import headFlame from '../../../assets/notifications/icons/head-flame.svg';
 import headDoodleGold from '../../../assets/notifications/icons/head-doodle-gold.svg';
@@ -206,18 +206,16 @@ export const ViewToggle = ({ view, onView, dim }) => (
   </span>
 );
 
+/** The order a tab is shown in (fixed per tab, so a label rather than a menu; Browse all has a real sort menu). */
 export const SortSelect = ({ label, dim }) => (
-  <button
-    type="button"
-    aria-label={`Sort: ${label}`}
+  <span
     className={classNames(
-      'inline-flex h-[34px] shrink-0 cursor-pointer items-center gap-[4px] whitespace-nowrap rounded-full border border-solid border-[rgba(28,42,33,0.12)] bg-white pr-[10px] pl-[14px] font-sans text-[12.5px] leading-[normal] font-medium text-[#595959] max-lg:text-[12px]',
+      'inline-flex h-[34px] shrink-0 items-center gap-[4px] whitespace-nowrap rounded-full bg-[#f6f8f5] px-[14px] font-sans text-[12.5px] leading-[normal] font-medium text-[#595959] max-lg:text-[12px]',
       dim ? 'opacity-45' : null
     )}
   >
-    {label}
-    <JobChevronIcon className="size-[14px]" />
-  </button>
+    Sorted by {label.toLowerCase()}
+  </span>
 );
 
 export const AlertsButton = ({ onClick }) => (
