@@ -241,6 +241,8 @@ const CommunityPostLive = ({ community }) => {
           busy={busy}
           error={postError}
           communityName={detail.name}
+          purposes={page.purposes.allowed}
+          onSuggest={page.suggest}
           onClose={() => update({ modal: null })}
           onPost={onPost}
         />

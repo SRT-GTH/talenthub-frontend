@@ -12,8 +12,12 @@ const log = debug('community.api');
  *   GET  /community/me                              { communities } the caller has joined
  *   GET  /community/:id                             { community: { …, about, rules, topics, membersPreview, moderators } }
  *   POST /community/:id/join | /leave               { memberCount }
- *   GET  /community/:id/posts?kind                  { posts[{ id, kind, content, tags, link, author, likes, likedByMe, comments }], total }
- *   POST /community/:id/posts  { content, kind, tags, link }   { post, purposeFlagged }
+ *   GET  /community/:id/posts?purpose               { posts[{ id, kind, purpose, purposeLabel, format, content, tags, link, author, likes, likedByMe, comments }], total }
+ *   POST /community/:id/posts  { content, purpose, suggestedPurpose?, suggestionConfidence?, tags, link }   { post, purposeFlagged }
+ *   GET  /community/:id/purposes                    { purposes[{ value, label, singular }], allowedPurposes[], restricted, canManage }
+ *   PUT  /community/:id/purposes  { allowedPurposes[] }   { allowedPurposes[], restricted }
+ *   POST /community/:id/purposes/suggest  { content }    { purpose|null, label, confidence, alternatives[] }
+ *   PATCH /community/:id/posts/:postId/purpose  { purpose }   { changed, purpose, label }
  *   GET  /community/:id/members?q                   { members[{ entityId, name, avatar, headline, city, skills, role }], total }
  *   GET  /community/:id/posts/:postId               { post, comments[{ …, replies[] }] }
  *   POST /community/:id/posts/:postId/comments  { content, parentCommentId? }   { comment }
@@ -144,16 +148,26 @@ export const leaveCommunity = async (id) => {
   }
 };
 
-export const fetchCommunityPosts = async (id, { kind, pageSize = 30 } = {}) => {
+export const fetchCommunityPosts = async (id, { kind, purpose, pageSize = 30 } = {}) => {
   const params = { pageSize };
   if (kind) params.kind = kind;
+  if (purpose) params.purpose = purpose;
   const data = unwrap(await api.get(`/community/${enc(id)}/posts`, { params }));
   log('posts', id, { n: data?.posts?.length, total: data?.total });
   return { posts: data?.posts || [], total: data?.total ?? 0 };
 };
 
-export const createCommunityPost = async (id, { content, kind, tags, link }) => {
-  const body = { content, kind };
+export const createCommunityPost = async (
+  id,
+  { content, kind, purpose, suggestedPurpose, suggestionConfidence, tags, link }
+) => {
+  const body = { content };
+  if (purpose) body.purpose = purpose;
+  else if (kind) body.kind = kind;
+  if (suggestedPurpose) {
+    body.suggestedPurpose = suggestedPurpose;
+    if (typeof suggestionConfidence === 'number') body.suggestionConfidence = suggestionConfidence;
+  }
   if (tags?.length) body.tags = tags;
   if (link) body.link = link;
   const data = unwrap(await api.post(`/community/${enc(id)}/posts`, body));
@@ -202,3 +216,24 @@ export const reportPost = async (id, postId, { reason, note }) => {
   await api.post(`/community/${enc(id)}/posts/${enc(postId)}/report`, body);
   log('reported', postId, reason);
 };
+
+/* Post purposes (US-5.2.2-01/02/04). */
+export const fetchCommunityPurposes = async (id) => {
+  const data = unwrap(await api.get(`/community/${enc(id)}/purposes`));
+  return {
+    allowed: data?.allowedPurposes || [],
+    restricted: Boolean(data?.restricted),
+    canManage: Boolean(data?.canManage),
+  };
+};
+
+export const suggestCommunityPurpose = async (id, content) => {
+  const data = unwrap(await api.post(`/community/${enc(id)}/purposes/suggest`, { content }));
+  return data?.purpose ? { purpose: data.purpose, confidence: data.confidence ?? null } : null;
+};
+
+export const reclassifyPostPurpose = async (id, postId, purpose) =>
+  unwrap(await api.patch(`/community/${enc(id)}/posts/${enc(postId)}/purpose`, { purpose }));
+
+export const setCommunityPurposes = async (id, allowedPurposes) =>
+  unwrap(await api.put(`/community/${enc(id)}/purposes`, { allowedPurposes }));
