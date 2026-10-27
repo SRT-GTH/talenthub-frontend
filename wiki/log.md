@@ -1,3 +1,11 @@
+## [2026-10-27] fix | Career Buddy: Continue after Stop shows the finished reply; match cards in the Ask Buddy panel
+
+Live 2026-10-26 18:28 (Ama, local stack): Stop on a readiness reply, then Continue, sent "Please continue from where you stopped." as the talent's words; the agent read it as "continue my profile" and started an education gather. Same family as the 2026-10-25 "Try again" fix. Stop no longer cancels the request: the agent finishes the turn either way, so the reply keeps arriving in the background (not shown) and Continue shows it, waiting for it if needed; if it failed, the same message and chip action go again. A new message drops a stopped reply. (Reading it back from `/career-buddy/history` was tried first: the history call took 40 s+ locally.)
+
+Also: the Ask Buddy side panel (`CareerBuddyFirstChat`) now draws the opportunity match cards (they only rendered on the full screen), as a narrower `compact` card (320 px) under the bubble; `useCareerBuddyLive` exposes `renderOpportunities`.
+
+Verified in the desktop app's browser on the local stack (Ama): panel shows the cards, readiness from the cards asks by posting, Stop then Continue shows the full readiness answer within a second, and Mongo has one run for that message and no "Please continue" run. eslint clean.
+
 ## [2026-10-25] build | Platform Admin: Reports, Live ops, Comms, Settings, Audit log, Support, A4 report kit
 
 7.3 Reports (overview, health, export dialogs) + Live ops (dashboard, alert, role-restricted) + the 8-page A4 health report at `/admin/report` (print CSS, `?page=1-8`); 7.4 Comms (inbox, message user, bulk, templates, version history); 7.5 Staff / roles / platform settings / audit log (`/admin/settings/:tab?`, `/admin/audit-log`, Senior masked view); 7.7 Support queue + query detail + reply / escalate dialogs. 94 of 95 frames built (the 7.3.1d v1 cover is superseded). Full URL contract: [admin.md](admin.md). Mock behaviour only; entry points not drawn in Figma (Version history, Export dialog, Support dialogs) are reachable via `?modal=`. ⚠️ ASSUMPTION: Download PDF on the health report does not link to `/admin/report`.

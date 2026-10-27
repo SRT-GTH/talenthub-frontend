@@ -118,8 +118,11 @@ const OpenFullCard = ({ title, sub, onClick }) => (
   </div>
 );
 
-/** One message. Bot bubbles may carry bullets + a follow-up line (agent blocks). */
-const Bubble = ({ m }) => {
+/**
+ * One message. Bot bubbles may carry bullets + a follow-up line (agent blocks), and `cards` - the opportunity match
+ * cards (2026-10-27: they only rendered on the full screen, so a match reply here was just its lead line).
+ */
+const Bubble = ({ m, cards = null }) => {
   if (m.sender !== 'bot') {
     const text = m.file ? `📎 ${m.file.name || m.text || 'File'}` : m.text;
     return (
@@ -134,7 +137,7 @@ const Bubble = ({ m }) => {
       </div>
     );
   }
-  return (
+  const bubble = (
     <div className="flex items-end gap-[8px]">
       <BuddyAvatar />
       <div className="m-0 flex max-w-[330px] flex-col gap-[6px] rounded-[18px_18px_18px_4px] border border-[#e7e7e7] bg-white px-[14px] py-[12px] text-[14px] leading-[21px] whitespace-pre-line text-[#1c2a21]">
@@ -148,6 +151,13 @@ const Bubble = ({ m }) => {
         ) : null}
         {m.followUp ? <p className="m-0">{m.followUp}</p> : null}
       </div>
+    </div>
+  );
+  if (!cards) return bubble;
+  return (
+    <div className="flex min-w-0 flex-col gap-[8px]">
+      {bubble}
+      <div className="min-w-0 pl-[34px] text-[14px] leading-[21px] text-[#1c2a21]">{cards}</div>
     </div>
   );
 };
@@ -310,7 +320,13 @@ const CareerBuddyFirstChat = ({ home }) => {
             Today
           </span>
           {shown.map((m) => (
-            <Bubble key={m.id} m={m} />
+            <Bubble
+              key={m.id}
+              m={m}
+              cards={
+                live && m.opportunities?.length ? L.renderOpportunities(m, { compact: true }) : null
+              }
+            />
           ))}
           {needsFull ? (
             <OpenFullCard
