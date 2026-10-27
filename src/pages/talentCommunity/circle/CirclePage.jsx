@@ -20,6 +20,7 @@ import CircleSwitch from '../../../components/sections/talentCommunity/circle/Ci
 import CircleTabs from '../../../components/sections/talentCommunity/circle/CircleTabs.jsx';
 import CircleToast from '../../../components/sections/talentCommunity/circle/CircleToast.jsx';
 import LiveCircleFeed from '../../../components/sections/talentCommunity/circle/LiveCircleFeed.jsx';
+import LiveRecommendationsForYou from '../../../components/sections/talentCommunity/circle/LiveRecommendationsForYou.jsx';
 import {
   CIRCLE_COPY as COPY,
   CIRCLE_PEOPLE,
@@ -555,6 +556,7 @@ const CirclePage = () => {
             onWithdraw={liveOn ? withdraw : undefined}
             showManage={!liveOn}
           />
+          {liveOn && <LiveRecommendationsForYou show={show} />}
           <CircleInvitationsFootnote />
         </>
       );
