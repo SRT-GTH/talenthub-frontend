@@ -9,7 +9,7 @@ import {
 /*
  * AgencyApp — the router of the Theme 11 agency portal (Figma canvas 8605:395409), mounted by App.jsx as /agency/* outside MainLayout.
  * Real session: AgencySessionProvider reads GET /api/agency/me; AgencyGate sends signed-out visitors to /login and a
- * temporary password to /agency/set-password. Sign-up and MoU upload stay public (the self-service request). Every page is a lazy module in this folder; the work
+ * temporary password to /agency/set-password. Sign-up stays public (the self-service request); the MoU upload needs the agency's sign-in (its files are private). Every page is a lazy module in this folder; the work
  * packages replace the stubs and add NO route to App.jsx (only here, by the foundation / lead). URL contract: agencyState.js + wiki/agency.md.
  *
  *   /agency                                 11.4.0   home (A)           /agency/welcome  → /agency?modal=welcome (11.4.1e) ; ?tour=1|2|3 (11.4.1f-h)
@@ -55,7 +55,14 @@ const AgencyApp = () => (
     <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="sign-up" element={<AgencySignUpPage />} />
-        <Route path="mou" element={<AgencyMouPage />} />
+        <Route
+          path="mou"
+          element={
+            <SignedIn>
+              <AgencyMouPage />
+            </SignedIn>
+          }
+        />
         <Route path="set-password" element={<AgencySetPasswordPage />} />
         <Route
           path="*"

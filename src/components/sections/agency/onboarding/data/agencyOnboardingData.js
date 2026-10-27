@@ -535,58 +535,47 @@ export const MOU_UPLOAD = {
   },
   list: {
     title: 'Your documents',
-    count: '3 of 4 documents',
-    docs: [
-      {
-        id: 'mou',
-        title: 'Signed MoU',
-        status: 'Verified',
-        tone: 'ok',
-        meta: ['GTH × National Youth Authority', 'Signed 2 Sep 2026', 'GTH-MOU-2026-004'],
-        tags: ['3 categories', 'Required', '12 months'],
-        link: 'View file',
-      },
-      {
-        id: 'id',
-        title: 'Director’s staff ID',
-        status: 'Verified',
-        tone: 'ok',
-        meta: ['Efua Owusu · Director, Research & Data', 'Expires Mar 2031', 'GHA-•••••••••-3'],
-        tags: ['Identity', 'Agency head'],
-        link: 'View file',
-      },
-      {
-        id: 'loa',
-        title: 'Letter of authority',
-        status: 'Pending check',
-        tone: 'warn',
-        meta: ['Signed by the Chief Executive', 'Issued Sep 2026'],
-        tags: ['Authority', 'Accra'],
-      },
-      {
-        id: 'dpo',
-        title: 'Data protection officer',
-        status: 'Needs more info',
-        tone: 'plain',
-        meta: ['Missing · name your DPO', 'Upload now'],
-        tags: ['Required'],
-      },
-    ],
+    // The four documents GTH checks (backend services/agencyMou.service.js KINDS). Labels of the typed details per document.
+    fields: {
+      mou: [
+        { key: 'reference', label: 'MoU reference', placeholder: 'e.g. GTH-MOU-2026-004' },
+        { key: 'signedAt', label: 'Signed on', type: 'date' },
+        { key: 'expiresAt', label: 'Ends on', type: 'date' },
+      ],
+      authority: [
+        { key: 'signedBy', label: 'Signed by', placeholder: 'e.g. the Chief Executive' },
+        { key: 'issuedAt', label: 'Issued on', type: 'date' },
+      ],
+      staffId: [
+        { key: 'holder', label: 'Name on the ID' },
+        { key: 'role', label: 'Role', placeholder: 'e.g. Director, Research & Data' },
+      ],
+      dpo: [
+        { key: 'name', label: 'Full name', required: true },
+        { key: 'email', label: 'Email', type: 'email', required: true },
+        { key: 'phone', label: 'Phone (optional)', type: 'tel' },
+      ],
+      other: [{ key: 'note', label: 'What is this document?' }],
+    },
+    status: {
+      none: { label: 'Not added', tone: 'required' },
+      draft: { label: 'Not sent yet', tone: 'plain' },
+      pending: { label: 'Pending check', tone: 'warn' },
+      verified: { label: 'Verified', tone: 'ok' },
+      'needs-info': { label: 'Needs more info', tone: 'plain' },
+      rejected: { label: 'Not accepted', tone: 'plain' },
+    },
+    review: {
+      pending:
+        'Sent for review on {date}. Most reviews take 5 working days. You can change your documents if we ask for more information.',
+      'needs-info': 'We need more information: {note}',
+      'not-approved': 'Your MoU was not approved: {note}',
+      approved: 'Verified on {date}. Upload a new copy here when you renew your MoU.',
+    },
     upload: 'Upload a document',
     manual: 'Enter details manually',
   },
   back: 'Back: Verify email',
   next: 'Next: Review',
   checklist: 'MoU checklist',
-  mockDocs: [
-    // ⚠️ ASSUMPTION: mock "upload" (no file leaves the browser). The dropzone adds one of these rows.
-    {
-      id: 'upl',
-      title: 'Uploaded document',
-      status: 'Pending check',
-      tone: 'warn',
-      meta: ['Uploaded just now'],
-      tags: ['Pending'],
-    },
-  ],
 };

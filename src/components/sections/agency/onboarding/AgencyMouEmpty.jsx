@@ -19,11 +19,12 @@ const HOW = { upload: AgUpload, eye: AgEye, checkFill: AgCheckFill };
  * AgencyMouEmpty — "Nothing uploaded yet." (Figma 11.4.1b 8596:1097 "Empty state" 1072 x 478: white, 1px ink@.10, r24, p 44/48/36/48, gap 24) + the "What we need from you"
  * entry (8596:1133). Illustration of three tiles (the middle one gold), 32/40 600 headline, 16/24 #595959 text, the green "Upload a document" + mint "Enter details manually"
  * buttons, the help link and the 3-step "how it works" row.
- * Mock dropzone: the card accepts a dragged file or the "Upload a document" file picker (PDF / JPG / PNG up to 10 MB); only the name and size are read, nothing is uploaded.
- * Props: onAdd({ name, size }), onManual, onReject(message).
+ * The card accepts a dragged file or the "Upload a document" file picker (PDF / JPG / PNG up to 10 MB); the page uploads it as the signed MoU
+ * (POST /api/agency/mou/documents). The "What we need" entry names the agency.
+ * Props: onAdd(file), onManual, agencyName, busy, error (from the upload).
  */
 
-const AgencyMouEmpty = ({ onAdd, onManual }) => {
+const AgencyMouEmpty = ({ onAdd, onManual, agencyName, busy, error: apiError }) => {
   const fileRef = useRef(null);
   const [over, setOver] = useState(false);
   const [error, setError] = useState(null);
@@ -37,7 +38,7 @@ const AgencyMouEmpty = ({ onAdd, onManual }) => {
     }
     log('accepted', { name: file.name });
     setError(null);
-    onAdd({ name: file.name, size: file.size });
+    onAdd(file);
   };
 
   return (
@@ -81,9 +82,10 @@ const AgencyMouEmpty = ({ onAdd, onManual }) => {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
+            disabled={busy}
             className="inline-flex min-h-[52px] items-center gap-[8px] rounded-[10px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] py-[14px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
-            {U.empty.upload}
+            {busy ? 'Uploading…' : U.empty.upload}
             <AgArrowRight className="size-[20px]" />
           </button>
           <input
@@ -110,7 +112,7 @@ const AgencyMouEmpty = ({ onAdd, onManual }) => {
           role="alert"
           className="m-0 min-h-0 font-sans text-[14px] leading-[17px] text-danger empty:hidden"
         >
-          {error}
+          {error || apiError}
         </p>
         <a
           href="mailto:info@ghanatalenthub.com"
@@ -154,8 +156,11 @@ const AgencyMouEmpty = ({ onAdd, onManual }) => {
             title={U.empty.need.title}
             status={U.empty.need.badge}
             tone="required"
-            meta={U.empty.need.meta}
-            tags={U.empty.need.tags}
+            meta={[
+              agencyName ? `GTH × ${agencyName}` : 'Signed by GTH and your agency',
+              'PDF, JPG or PNG up to 10 MB',
+            ]}
+            tags={['Then: letter of authority', 'Director’s staff ID', 'DPO']}
             link={{ label: U.empty.need.action, onClick: () => fileRef.current?.click() }}
           />
         </ul>

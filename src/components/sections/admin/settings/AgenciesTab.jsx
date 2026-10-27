@@ -10,6 +10,7 @@ import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
 import AgencyDataRequestsReview from './AgencyDataRequestsReview.jsx';
+import AgencyMouReview from './AgencyMouReview.jsx';
 import { adminError, shortDate, timeAgo } from '../../../../services/admin.api.js';
 import {
   adminApproveAgencyRequest,
@@ -367,6 +368,8 @@ const AgenciesTab = ({ creating, onClose, session }) => {
           ))}
         </GroupCard>
       ) : null}
+
+      <AgencyMouReview canEdit={canEdit} toast={toast} />
 
       <AgencyDataRequestsReview canEdit={canEdit} toast={toast} />
 

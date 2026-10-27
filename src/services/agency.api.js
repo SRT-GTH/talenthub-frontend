@@ -112,6 +112,53 @@ export const adminListDataRequests = (status) =>
 export const adminDecideDataRequest = (id, payload) =>
   api.post(`/admin/agencies/data-requests/${id}/decide`, payload).then(body);
 
+/* MoU documents (backend services/agencyMou.service.js). Files travel as base64 JSON (PDF / JPG / PNG up to 10 MB) and are private. */
+export const agencyMou = () => api.get('/agency/mou').then(body);
+export const agencyMouUpload = (payload) =>
+  api.post('/agency/mou/documents', payload, { timeout: 120000 }).then(body);
+export const agencyMouDetails = (kind, details) =>
+  api.put(`/agency/mou/details/${kind}`, { details }).then(body);
+export const agencyMouRemove = (id) => api.delete(`/agency/mou/documents/${id}`).then(body);
+export const agencyMouFile = (id) =>
+  api.get(`/agency/mou/documents/${id}/file`, { timeout: 120000 }).then(body);
+export const agencyMouSubmit = () => api.post('/agency/mou/submit', {}).then(body);
+export const adminMouQueue = () => api.get('/admin/agencies/mou').then(body);
+export const adminMouAgency = (entityId) => api.get(`/admin/agencies/${entityId}/mou`).then(body);
+export const adminMouFile = (entityId, docId) =>
+  api
+    .get(`/admin/agencies/${entityId}/mou/documents/${docId}/file`, { timeout: 120000 })
+    .then(body);
+export const adminMouReviewDoc = (entityId, docId, payload) =>
+  api.post(`/admin/agencies/${entityId}/mou/documents/${docId}/review`, payload).then(body);
+export const adminMouDecide = (entityId, payload) =>
+  api.post(`/admin/agencies/${entityId}/mou/decide`, payload).then(body);
+
+/** Reads a picked file as base64 (without the data: prefix). */
+export const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).replace(/^data:[^;]*;base64,/, ''));
+    r.onerror = () => reject(r.error || new Error('Could not read the file'));
+    r.readAsDataURL(file);
+  });
+
+/** Saves a {fileName, mime, content (base64)} file from the API (or shows it in win, a tab opened by the click). */
+export const openApiFile = ({ fileName, mime, content }, win) => {
+  const bytes = Uint8Array.from(atob(content), (c) => c.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime || 'application/octet-stream' }));
+  if (win && !win.closed) {
+    win.location.href = url;
+  } else {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || 'document';
+    document.body.append(a);
+    a.click();
+    a.remove();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+};
+
 /** Saves a server-built CSV string as a file. */
 export const saveCsv = (fileName, csv) => {
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
