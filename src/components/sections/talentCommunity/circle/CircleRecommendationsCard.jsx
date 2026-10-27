@@ -13,7 +13,15 @@ import { CARD, HEADING } from './circleStyles.js';
  * Live: `recommendations` are server cards ({ id, author: { id, name, photo }, relationshipLine, text }); onWrite is left out when
  * the talent can't write one (not connected, or already wrote one), and onEdit / onRemove act on the talent's own (`sent`).
  */
-const CircleRecommendationsCard = ({ recommendations, sent, onWrite, onEdit, onRemove, empty }) => (
+const CircleRecommendationsCard = ({
+  recommendations,
+  sent,
+  onWrite,
+  onEdit,
+  onRemove,
+  empty,
+  busy = false,
+}) => (
   <section
     className={classNames(CARD, 'flex flex-col gap-[14px] px-[22px] py-[20px] max-sm:px-[16px]')}
   >
@@ -65,12 +73,12 @@ const CircleRecommendationsCard = ({ recommendations, sent, onWrite, onEdit, onR
         {(onEdit || onRemove) && (
           <div className="flex flex-wrap gap-[8px]">
             {onEdit && (
-              <CircleButton tone="soft" onClick={onEdit}>
+              <CircleButton tone="soft" disabled={busy} onClick={onEdit}>
                 Edit
               </CircleButton>
             )}
             {onRemove && (
-              <CircleButton tone="soft" onClick={onRemove}>
+              <CircleButton tone="soft" disabled={busy} onClick={onRemove}>
                 Remove
               </CircleButton>
             )}

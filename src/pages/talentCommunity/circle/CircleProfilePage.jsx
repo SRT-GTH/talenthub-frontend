@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import CircleConnectDialog from '../../../components/sections/talentCommunity/circle/CircleConnectDialog.jsx';
@@ -59,7 +59,8 @@ const RECOMMEND_WAYS = [
   ['I mentored them', 'mentored'],
   ['We are in the same community', 'same_community'],
 ];
-const valueOf = (pairs, label) => (pairs.find(([l]) => l === label) ?? pairs[0])[1];
+// No silent fallback: an unknown label sends nothing the server would accept (it answers 422) rather than a wrong value.
+const valueOf = (pairs, label) => pairs.find(([l]) => l === label)?.[1];
 const labelOf = (pairs, value) => (pairs.find(([, v]) => v === value) ?? pairs[0])[0];
 
 const LiveCircleProfile = ({ personId, circle }) => {
@@ -69,20 +70,30 @@ const LiveCircleProfile = ({ personId, circle }) => {
   const [busy, setBusy] = useState(false);
   const [extra, setExtra] = useState({ skills: null, recs: null });
 
+  // Only the newest load may write: moving to another profile (or a reload after an action) drops older answers.
+  const loadSeq = useRef(0);
+  useEffect(() => {
+    setState({ status: 'loading' });
+    setExtra({ skills: null, recs: null });
+  }, [personId]);
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current;
     try {
       const person = await circleApi.person(personId);
+      if (seq !== loadSeq.current) return;
       setState({ status: 'ready', person });
       // The two cards load on their own: a failure leaves that card out, never the profile.
       const [skills, recs] = await Promise.allSettled([
         circleApi.skillsOf(personId),
         circleApi.recommendationsOf(personId),
       ]);
+      if (seq !== loadSeq.current) return;
       setExtra({
         skills: skills.status === 'fulfilled' ? skills.value : null,
         recs: recs.status === 'fulfilled' ? recs.value : null,
       });
     } catch (err) {
+      if (seq !== loadSeq.current) return;
       log.error('person failed', err?.response?.status);
       setState({ status: err?.response?.status === 404 ? 'missing' : 'error' });
     }
@@ -207,6 +218,7 @@ const LiveCircleProfile = ({ personId, circle }) => {
                         ? () => circle.update({ modal: 'recommend' })
                         : undefined
                     }
+                    busy={busy}
                     onEdit={mine ? () => circle.update({ modal: 'recommend' }) : undefined}
                     onRemove={
                       mine
@@ -253,7 +265,9 @@ const LiveCircleProfile = ({ personId, circle }) => {
           person={person}
           dialog={profile.endorseDialog}
           skills={profile.skills.filter((s) => !s.endorsedByMe)}
-          initial={circle.skills}
+          initial={(circle.skills ?? []).filter((id) =>
+            profile.skills.some((s) => s.id === id && !s.endorsedByMe)
+          )}
           xp={false}
           busy={busy}
           onEndorse={(ids, way) => {
