@@ -9,12 +9,22 @@ import { FOCUS_RING } from './circleStyles.js';
 /*
  * CircleRecommendDialog — NW-08 "Recommend {first}": "How do you know {first}?" (select), "What should people know about working
  * with him?" (600 characters), "Help me make it specific", the approval note (eye, #faf4e8), Cancel / "Send to {first}".
- * Props: person, dialog (profile.recommendDialog copy), initialText (the drawn recommendation when ?draft=1), onSend(text, how), onClose.
+ * Props: person, dialog (profile.recommendDialog copy), initialText (the drawn recommendation when ?draft=1), onSend(text, how), onClose,
+ * initialHow (editing: the saved relationship), sendLabel (editing: "Save changes"), busy.
  * ⚠️ ASSUMPTIONS: the relationship list beyond the drawn option; "Help me make it specific" fills the canned suggestion (no AI call);
  * Send is disabled while the text is empty.
  */
-const CircleRecommendDialog = ({ person, dialog, initialText = '', onSend, onClose }) => {
-  const [how, setHow] = useState(dialog.relationships[0]);
+const CircleRecommendDialog = ({
+  person,
+  dialog,
+  initialText = '',
+  initialHow,
+  sendLabel,
+  busy = false,
+  onSend,
+  onClose,
+}) => {
+  const [how, setHow] = useState(initialHow ?? dialog.relationships[0]);
   const [text, setText] = useState(initialText);
   return (
     <CircleDialogShell
@@ -81,8 +91,8 @@ const CircleRecommendDialog = ({ person, dialog, initialText = '', onSend, onClo
         <CircleButton tone="soft" onClick={onClose}>
           {COPY.cancel}
         </CircleButton>
-        <CircleButton disabled={!text.trim()} onClick={() => onSend(text.trim(), how)}>
-          {`Send to ${person.firstName}`}
+        <CircleButton disabled={!text.trim() || busy} onClick={() => onSend(text.trim(), how)}>
+          {sendLabel ?? `Send to ${person.firstName}`}
         </CircleButton>
       </div>
     </CircleDialogShell>

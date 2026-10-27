@@ -9,11 +9,21 @@ import { FOCUS_RING } from './circleStyles.js';
 /*
  * CircleEndorseDialog — NW-07 "Endorse {first}'s skills": a checklist of their skills ("12 so far"), "How do you know his skills?"
  * (one chip), Cancel / "Endorse N skills". Props: person, dialog (profile.endorseDialog copy), skills (profile skills),
- * initial (ticked skill ids), onEndorse(skillIds, way), onClose. Endorse is disabled until one skill is ticked.
+ * initial (ticked skill ids), onEndorse(skillIds, way), onClose, xp (draw the XP sticker; off in live: no XP for endorsing, ADR-04),
+ * busy (disables Endorse while sending). Endorse is disabled until one skill is ticked.
  * ⚠️ ASSUMPTION: clicking a skill's own Endorse button opens this dialog with only that skill ticked.
  */
-const CircleEndorseDialog = ({ person, dialog, skills, initial, onEndorse, onClose }) => {
-  const [ticked, setTicked] = useState(initial);
+const CircleEndorseDialog = ({
+  person,
+  dialog,
+  skills,
+  initial,
+  onEndorse,
+  onClose,
+  xp = true,
+  busy = false,
+}) => {
+  const [ticked, setTicked] = useState(initial ?? []);
   const [way, setWay] = useState(dialog.ways[0]);
   const toggle = (id) =>
     setTicked((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
@@ -25,7 +35,9 @@ const CircleEndorseDialog = ({ person, dialog, skills, initial, onEndorse, onClo
       subtitle={dialog.subtitle}
       titleId="circle-endorse-title"
       width={560}
-      sticker={{ text: COPY.xpBoth, className: 'top-[15px] right-[95px] max-sm:hidden' }}
+      sticker={
+        xp ? { text: COPY.xpBoth, className: 'top-[15px] right-[95px] max-sm:hidden' } : undefined
+      }
       onClose={onClose}
     >
       <div role="group" aria-label={dialog.title} className="flex flex-col gap-[16px]">
@@ -97,7 +109,7 @@ const CircleEndorseDialog = ({ person, dialog, skills, initial, onEndorse, onClo
         <CircleButton tone="soft" onClick={onClose}>
           {COPY.cancel}
         </CircleButton>
-        <CircleButton disabled={n === 0} onClick={() => onEndorse(ticked, way)}>
+        <CircleButton disabled={n === 0 || busy} onClick={() => onEndorse(ticked, way)}>
           {`Endorse ${n} ${n === 1 ? 'skill' : 'skills'}`}
         </CircleButton>
       </div>
