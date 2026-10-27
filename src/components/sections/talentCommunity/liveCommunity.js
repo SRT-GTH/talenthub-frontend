@@ -128,6 +128,9 @@ export const toPost = (p) => ({
   },
   kind: KIND_LABEL[p.kind] || 'Update',
   kindId: p.kind || 'update',
+  // US-5.2.2-01: the purpose badge replaces the kind sticker when the post has one.
+  purpose: p.purpose || undefined,
+  purposeLabel: p.purposeLabel || undefined,
   time: timeAgo(p.publishedAt),
   body: postBody(p),
   images: p.images?.length ? p.images.slice(0, 3) : undefined,

@@ -17,6 +17,14 @@ const log = debug('circle.api');
  *   POST   /circle/requests/:id/respond  { response: 'accept' | 'ignore' }
  *   POST   /circle/dismissals · DELETE /circle/connections/:personId · POST /circle/mutes · DELETE /circle/mutes/:id
  *   POST   /circle/blocks · POST /circle/reports
+ *   GET    /circle/feed?offset=          { total, items: [post card] }  "From your circle" (US-5.3.1-04)
+ *   POST   /circle/posts                 { content, audience, purpose, link?, tags? }  { post, moderation }
+ *   GET    /circle/people/:id/skills     { canEndorse, lockedNote, skills: [{ id, label, count, endorsedByMe, line }] }
+ *   POST   /circle/endorsements          { personId, skills[1..5], way, wayNote? (way 'other'), message? }  (US-5.3.1-05)
+ *   GET    /circle/people/:id/recommendations  { items: [rec], mine }
+ *   GET    /circle/recommendations       { items: [rec], pending }  ones written for me
+ *   POST   /circle/recommendations       { personId, relationship, text } · PUT/DELETE /circle/recommendations/:id
+ *   POST   /circle/recommendations/:id/respond  { decision: 'show' | 'hide' }
  *
  * A card: { id, name, firstName, photo, headline, town, region, mutual, shares: [{ kind, label }], reason, buddy }.
  */
@@ -24,6 +32,32 @@ const log = debug('circle.api');
 const unwrap = (res) => (res?.data?.data !== undefined ? res.data.data : res?.data);
 
 export const circleApi = {
+  feed: async (offset = 0) => unwrap(await api.get('/circle/feed', { params: { offset } })),
+  createPost: async (body) => unwrap(await api.post('/circle/posts', body)),
+  skillsOf: async (id) => unwrap(await api.get(`/circle/people/${encodeURIComponent(id)}/skills`)),
+  endorse: async (personId, skills, way, wayNote) =>
+    unwrap(await api.post('/circle/endorsements', { personId, skills, way, wayNote })),
+  recommendationsOf: async (id) =>
+    unwrap(await api.get(`/circle/people/${encodeURIComponent(id)}/recommendations`)),
+  myRecommendations: async () => unwrap(await api.get('/circle/recommendations')),
+  recommend: async (personId, relationship, text, relationshipNote) =>
+    unwrap(
+      await api.post('/circle/recommendations', { personId, relationship, text, relationshipNote })
+    ),
+  editRecommendation: async (id, relationship, text, relationshipNote) =>
+    unwrap(
+      await api.put(`/circle/recommendations/${encodeURIComponent(id)}`, {
+        relationship,
+        text,
+        relationshipNote,
+      })
+    ),
+  deleteRecommendation: async (id) =>
+    unwrap(await api.delete(`/circle/recommendations/${encodeURIComponent(id)}`)),
+  respondRecommendation: async (id, decision) =>
+    unwrap(
+      await api.post(`/circle/recommendations/${encodeURIComponent(id)}/respond`, { decision })
+    ),
   discover: async () => {
     const out = unwrap(await api.get('/circle/discover'));
     log('discover', out?.audience, out?.suggestions?.items?.length);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import CircleConnectDialog from '../../../components/sections/talentCommunity/circle/CircleConnectDialog.jsx';
@@ -42,20 +42,60 @@ const log = debug('CircleProfilePage');
  */
 /*
  * Live profile (signed-in talent): GET /circle/people/:id — the person, what the two share, and the action for their
- * status: Link up · Link-up sent (Withdraw) · Accept / Ignore · In your circle. Endorsements and recommendations
- * (US-5.3.1-05) have no backend yet, so their cards are not shown; nor are Follow and Message.
+ * status: Link up · Link-up sent (Withdraw) · Accept / Ignore · In your circle. Skills & endorsements and Recommendations
+ * (US-5.3.1-05): GET /circle/people/:id/skills and /recommendations; a connection can endorse (POST /circle/endorsements, no XP
+ * sticker: ADR-04) and write one recommendation, which the person shows or keeps hidden first. Follow and Message are not shown.
  */
+// The dialog chips / options in drawn order → the API's values (circle.endorse.mixin ENDORSE_WAYS / RECOMMEND_WAYS).
+const ENDORSE_WAYS = [
+  ['Same community project', 'community_project'],
+  ['Studied together', 'studied'],
+  ['Worked together', 'worked'],
+  ['They mentored me', 'mentored'],
+  ['Other', 'other'],
+];
+const RECOMMEND_WAYS = [
+  ['We worked on a community project together', 'community_project'],
+  ['We studied together', 'studied'],
+  ['I mentored them', 'mentored'],
+  ['We are in the same community', 'same_community'],
+  ['Other (say how)', 'other'],
+];
+// No silent fallback: an unknown label sends nothing the server would accept (it answers 422) rather than a wrong value.
+const valueOf = (pairs, label) => pairs.find(([l]) => l === label)?.[1];
+const labelOf = (pairs, value) => (pairs.find(([, v]) => v === value) ?? pairs[0])[0];
+
 const LiveCircleProfile = ({ personId, circle }) => {
   const navigate = useNavigate();
   const { toast, show, hide } = useCircleToast();
   const [state, setState] = useState({ status: 'loading' });
   const [busy, setBusy] = useState(false);
+  const [extra, setExtra] = useState({ skills: null, recs: null });
 
+  // Only the newest load may write: moving to another profile (or a reload after an action) drops older answers.
+  const loadSeq = useRef(0);
+  useEffect(() => {
+    setState({ status: 'loading' });
+    setExtra({ skills: null, recs: null });
+  }, [personId]);
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current;
     try {
       const person = await circleApi.person(personId);
+      if (seq !== loadSeq.current) return;
       setState({ status: 'ready', person });
+      // The two cards load on their own: a failure leaves that card out, never the profile.
+      const [skills, recs] = await Promise.allSettled([
+        circleApi.skillsOf(personId),
+        circleApi.recommendationsOf(personId),
+      ]);
+      if (seq !== loadSeq.current) return;
+      setExtra({
+        skills: skills.status === 'fulfilled' ? skills.value : null,
+        recs: recs.status === 'fulfilled' ? recs.value : null,
+      });
     } catch (err) {
+      if (seq !== loadSeq.current) return;
       log.error('person failed', err?.response?.status);
       setState({ status: err?.response?.status === 404 ? 'missing' : 'error' });
     }
@@ -90,6 +130,22 @@ const LiveCircleProfile = ({ personId, circle }) => {
         })),
       }
     : null;
+  if (profile) {
+    profile.skills = extra.skills?.skills ?? [];
+    profile.lockedNote = extra.skills?.lockedNote ?? null;
+    if (person.status === 'self') profile.endorsePrompt = 'What your circle has endorsed';
+    profile.endorseDialog = { ...profile.endorseDialog, ways: ENDORSE_WAYS.map(([l]) => l) };
+    profile.recommendDialog = {
+      ...profile.recommendDialog,
+      relationships: RECOMMEND_WAYS.map(([l]) => l),
+      whatLabel: `What should people know about working with ${person.firstName}?`,
+      approval: `${person.firstName} will see it first and choose whether to show it on their profile. You can edit or remove it any time.`,
+    };
+  }
+  const connected = person?.status === 'connected';
+  const mine = extra.recs?.mine ?? null;
+  const shownRecs = (extra.recs?.items ?? []).filter((r) => r.status === 'shown' && !r.mine);
+  const ownProfile = person?.status === 'self';
 
   return (
     <CircleFrame circle={circle}>
@@ -135,11 +191,47 @@ const LiveCircleProfile = ({ personId, circle }) => {
               onIgnore={() => run(() => circleApi.respond(person.requestId, 'ignore'))}
             />
             <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
-              <div className="flex min-w-0 flex-col gap-[12px]">
+              <div className="flex min-w-0 flex-col gap-[28px]">
                 {person.buddy && (
                   <p className="m-0 font-sans text-[15px] leading-[22px] text-[#1c2a21]">
                     {person.buddy}
                   </p>
+                )}
+                {extra.skills && (
+                  <CircleSkillsCard
+                    profile={profile}
+                    endorsed={[]}
+                    locked={!extra.skills.canEndorse}
+                    readOnly={ownProfile}
+                    onEndorse={(skillId) => circle.update({ modal: 'endorse', skills: skillId })}
+                  />
+                )}
+                {extra.recs && (
+                  <CircleRecommendationsCard
+                    recommendations={shownRecs}
+                    empty={`No recommendations for ${person.firstName} yet.`}
+                    sent={
+                      mine
+                        ? `You wrote a recommendation for ${person.firstName}. ${person.firstName} sees it first and chooses whether to show it on their profile.`
+                        : null
+                    }
+                    onWrite={
+                      connected && !mine && !ownProfile
+                        ? () => circle.update({ modal: 'recommend' })
+                        : undefined
+                    }
+                    busy={busy}
+                    onEdit={mine ? () => circle.update({ modal: 'recommend' }) : undefined}
+                    onRemove={
+                      mine
+                        ? () =>
+                            run(
+                              () => circleApi.deleteRecommendation(mine.id),
+                              () => show({ text: 'Recommendation removed' })
+                            )
+                        : undefined
+                    }
+                  />
                 )}
               </div>
               {profile.inCommon.length > 0 && <CircleInCommonCard items={profile.inCommon} />}
@@ -162,6 +254,63 @@ const LiveCircleProfile = ({ personId, circle }) => {
                     out?.status === 'accepted'
                       ? COPY.toast.inCircle(person.firstName)
                       : COPY.toast.sent(person.firstName),
+                });
+              }
+            )
+          }
+          onClose={closeModal}
+        />
+      )}
+      {person && circle.modal === 'endorse' && extra.skills?.canEndorse && (
+        <CircleEndorseDialog
+          key="endorse"
+          person={person}
+          dialog={profile.endorseDialog}
+          skills={profile.skills.filter((s) => !s.endorsedByMe)}
+          initial={(circle.skills ?? []).filter((id) =>
+            profile.skills.some((s) => s.id === id && !s.endorsedByMe)
+          )}
+          xp={false}
+          busy={busy}
+          otherWay="Other"
+          onEndorse={(ids, way, note) => {
+            const labels = profile.skills.filter((s) => ids.includes(s.id)).map((s) => s.label);
+            run(
+              () => circleApi.endorse(person.id, labels, valueOf(ENDORSE_WAYS, way), note),
+              () => {
+                closeModal();
+                show({
+                  text: `You endorsed ${labels.length} ${labels.length === 1 ? 'skill' : 'skills'} for ${person.firstName}`,
+                });
+              }
+            );
+          }}
+          onClose={closeModal}
+        />
+      )}
+      {person && circle.modal === 'recommend' && (connected || mine) && (
+        <CircleRecommendDialog
+          key={mine ? `edit-${mine.id}` : 'recommend'}
+          person={person}
+          dialog={profile.recommendDialog}
+          initialText={mine?.text ?? ''}
+          initialHow={mine ? labelOf(RECOMMEND_WAYS, mine.relationship) : undefined}
+          initialNote={mine?.relationshipNote ?? ''}
+          otherWay="Other (say how)"
+          sendLabel={mine ? 'Save changes' : undefined}
+          busy={busy}
+          onSend={(text, how, note) =>
+            run(
+              () =>
+                mine
+                  ? circleApi.editRecommendation(mine.id, valueOf(RECOMMEND_WAYS, how), text, note)
+                  : circleApi.recommend(person.id, valueOf(RECOMMEND_WAYS, how), text, note),
+              () => {
+                closeModal();
+                show({
+                  text: mine
+                    ? `Saved. ${person.firstName} will see it again before it shows.`
+                    : `Recommendation sent to ${person.firstName}`,
                 });
               }
             )

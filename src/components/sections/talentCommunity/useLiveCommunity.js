@@ -13,6 +13,10 @@ import {
   leaveCommunity,
   likePost,
   reportPost,
+  fetchCommunityPurposes,
+  reclassifyPostPurpose,
+  setCommunityPurposes,
+  suggestCommunityPurpose,
 } from '../../../services/community.api.js';
 import { currentEntityId } from '../../../services/careerBuddy.api.js';
 import { toCard, toComment, toDetail, toMember, toPost } from './liveCommunity.js';
@@ -189,12 +193,37 @@ export const useLiveCommunityPage = (slug) => {
   const [people, setPeople] = useState([]);
   const [catalogue, setCatalogue] = useState([]);
   const [status, setStatus] = useState('loading');
+  // US-5.2.2-02: the feed's purpose filter (server-side, not remembered between visits) and its count.
+  const [purpose, setPurposeFilter] = useState(null);
+  const [total, setTotal] = useState(0);
+  const [purposes, setPurposes] = useState({ allowed: [], restricted: false, canManage: false });
   const alive = useRef(true);
+  const purposeRef = useRef(null);
 
   const loadPosts = useCallback(async () => {
-    const { posts: rows } = await fetchCommunityPosts(slug);
-    if (alive.current) setPosts(rows.map(toPost));
+    const wanted = purposeRef.current;
+    const { posts: rows, total: count } = await fetchCommunityPosts(slug, {
+      purpose: wanted || undefined,
+    });
+    if (alive.current && purposeRef.current === wanted) {
+      setPosts(rows.map(toPost));
+      setTotal(count);
+    }
   }, [slug]);
+
+  const loadPurposes = useCallback(async () => {
+    const res = await fetchCommunityPurposes(slug);
+    if (alive.current) setPurposes({ ...res, loaded: true });
+  }, [slug]);
+
+  const filterByPurpose = useCallback(
+    (value) => {
+      purposeRef.current = value || null;
+      setPurposeFilter(value || null);
+      loadPosts().catch((err) => log('filter failed', err?.response?.status));
+    },
+    [loadPosts]
+  );
 
   const loadMembers = useCallback(async () => {
     const { members } = await fetchCommunityMembers(slug);
@@ -208,6 +237,7 @@ export const useLiveCommunityPage = (slug) => {
     Promise.allSettled([
       loadPosts(),
       loadMembers(),
+      loadPurposes(),
       fetchCommunities().then((rows) => alive.current && setCatalogue(rows.map(toCard))),
     ]).then((r) =>
       r.forEach((x) => x.status === 'rejected' && log('secondary failed', x.reason?.message))
@@ -226,7 +256,7 @@ export const useLiveCommunityPage = (slug) => {
       log('detail failed', slug, code);
       if (alive.current) setStatus(code === 404 ? 'missing' : 'error');
     }
-  }, [slug, loadPosts, loadMembers]);
+  }, [slug, loadPosts, loadMembers, loadPurposes]);
 
   useEffect(() => {
     alive.current = true;
@@ -288,7 +318,15 @@ export const useLiveCommunityPage = (slug) => {
    * Create a post; resolves { ok, flagged, pending, message } or { ok: false, error } (a refused post carries the
    * server's reason). The new post is put at the top of the feed, marked pending when a moderator has to check it.
    */
-  const post = async ({ type, text, tags, link }) => {
+  const post = async ({
+    type,
+    purpose: chosen,
+    suggestedPurpose,
+    suggestionConfidence,
+    text,
+    tags,
+    link,
+  }) => {
     try {
       const {
         post: created,
@@ -298,10 +336,15 @@ export const useLiveCommunityPage = (slug) => {
       } = await createCommunityPost(slug, {
         content: text,
         kind: type,
+        purpose: chosen,
+        suggestedPurpose,
+        suggestionConfidence,
         tags,
         link,
       });
-      if (created && alive.current) setPosts((list) => [toPost({ ...created, pending }), ...list]);
+      // A new post shows at the top unless the feed is filtered to another purpose.
+      if (created && alive.current && (!purposeRef.current || purposeRef.current === chosen))
+        setPosts((list) => [toPost({ ...created, pending }), ...list]);
       return { ok: true, flagged, pending, message };
     } catch (err) {
       log('post failed', err?.response?.status);
@@ -320,6 +363,52 @@ export const useLiveCommunityPage = (slug) => {
     } catch (err) {
       log('like failed', err?.response?.status);
       return null;
+    }
+  };
+
+  /** Composer suggestion for this community: { purpose, confidence } | null. */
+  const suggest = useCallback(
+    (content) =>
+      suggestCommunityPurpose(slug, content).catch((err) => {
+        log('suggest failed', err?.response?.status);
+        return null;
+      }),
+    [slug]
+  );
+
+  /** Moderator: which purposes the community accepts ([] = all); resolves { ok } or { ok: false, error }. */
+  const savePurposes = async (values) => {
+    try {
+      const res = await setCommunityPurposes(slug, values);
+      if (alive.current)
+        setPurposes((p) => ({
+          ...p,
+          allowed: res.allowedPurposes || [],
+          restricted: Boolean(res.restricted),
+        }));
+      return { ok: true };
+    } catch (err) {
+      log('purposes save failed', err?.response?.status);
+      return { ok: false, error: err?.response?.data?.message || 'Couldn’t save. Try again.' };
+    }
+  };
+
+  /** Moderator: change a post's purpose; resolves { ok } or { ok: false, error }. */
+  const reclassify = async (postId, value) => {
+    try {
+      const res = await reclassifyPostPurpose(slug, postId, value);
+      setPosts((list) =>
+        list
+          .map((p) =>
+            p.id === postId ? { ...p, purpose: res.purpose, purposeLabel: undefined } : p
+          )
+          .filter((p) => !purposeRef.current || p.purpose === purposeRef.current)
+      );
+      loadPosts().catch(() => {});
+      return { ok: true, label: res.label };
+    } catch (err) {
+      log('reclassify failed', err?.response?.status);
+      return { ok: false, error: err?.response?.data?.message || 'Could not change the purpose.' };
     }
   };
 
@@ -346,6 +435,13 @@ export const useLiveCommunityPage = (slug) => {
     post,
     like,
     report,
+    purpose,
+    total,
+    purposes,
+    filterByPurpose,
+    suggest,
+    reclassify,
+    savePurposes,
   };
 };
 

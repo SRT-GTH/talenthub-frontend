@@ -28,6 +28,15 @@ import {
 } from '../../../components/sections/talentCommunity/CommunityPageParts.jsx';
 import CommunityPostCard from '../../../components/sections/talentCommunity/CommunityPostCard.jsx';
 import {
+  PurposeSettingsCard,
+  ReclassifyPurposeDialog,
+} from '../../../components/sections/talentCommunity/PurposeDialogs.jsx';
+import {
+  POST_PURPOSES,
+  emptyPurposeText,
+  showingLabel,
+} from '../../../components/sections/talentCommunity/postPurpose.js';
+import {
   AboutPanel,
   MembersPanel,
 } from '../../../components/sections/talentCommunity/CommunityTabPanels.jsx';
@@ -47,6 +56,9 @@ import { shareLink } from './shareLink.js';
 
 const log = debug('CommunityPageLive');
 
+// Feed filter chips: All + the five purposes (US-5.2.2-02 labels).
+const PURPOSE_FILTERS = ['All', ...POST_PURPOSES.map((p) => p.label)];
+
 /*
  * CommunityPageLive — `/community/:communityId` on the API. `joined` comes from the server (not `?joined=1`).
  * URL keys kept from the drawn page: `?tab=about|members`, `?welcome=1` (house rules after joining), `?modal=create|report|leave`.
@@ -59,11 +71,13 @@ const CommunityPageLive = ({ community }) => {
   const page = useLiveCommunityPage(communityId);
   const { toggleMute } = useCommunityMembership();
   const { tab, welcome, modal, update } = community;
-  const [filter, setFilter] = useState(COMMUNITY_PAGE_COPY.filters[0]);
+  const [filter, setFilter] = useState(PURPOSE_FILTERS[0]);
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(false);
   const [postError, setPostError] = useState(null);
   const [reportTarget, setReportTarget] = useState(null);
+  const [purposeTarget, setPurposeTarget] = useState(null);
+  const [purposeError, setPurposeError] = useState(null);
   const hideToast = useCallback(() => setToast(null), []);
 
   const { status, detail, joined } = page;
@@ -97,7 +111,10 @@ const CommunityPageLive = ({ community }) => {
       return;
     }
     update({ modal: null, welcome: null });
-    setFilter(COMMUNITY_PAGE_COPY.filters[0]);
+    if (page.purpose && page.purpose !== draft.purpose) {
+      setFilter(PURPOSE_FILTERS[0]);
+      page.filterByPurpose(null);
+    }
     setToast(
       res.pending
         ? TOAST_POSTED
@@ -105,6 +122,30 @@ const CommunityPageLive = ({ community }) => {
           ? 'Posted! A moderator will check it’s on topic'
           : 'Posted!'
     );
+  };
+
+  const onReclassify = async (value) => {
+    if (!purposeTarget) return;
+    setBusy(true);
+    setPurposeError(null);
+    const res = await page.reclassify(purposeTarget.id, value);
+    setBusy(false);
+    if (!res.ok) {
+      setPurposeError(res.error);
+      return;
+    }
+    setPurposeTarget(null);
+    update({ modal: null });
+    // The backend tells the author (not when a moderator changes their own post).
+    setToast(
+      `Purpose changed to ${res.label}.${purposeTarget.author?.me ? '' : ' The author has been told.'}`
+    );
+  };
+
+  const chooseFilter = (label) => {
+    setFilter(label);
+    const match = POST_PURPOSES.find((p) => p.label === label);
+    page.filterByPurpose(match ? match.value : null);
   };
 
   const onReport = async ({ reason, note }) => {
@@ -140,23 +181,41 @@ const CommunityPageLive = ({ community }) => {
   if (status === 'loading' || !detail) {
     main = status === 'error' ? null : <LiveLoading label="Loading community…" />;
   } else if (tab === 'about') {
-    main = <AboutPanel detail={detail} />;
+    main = (
+      <div className="flex min-w-0 flex-col gap-[16px]">
+        <AboutPanel detail={detail} />
+        {page.purposes.canManage ? (
+          <PurposeSettingsCard
+            key={page.purposes.loaded ? 'loaded' : 'loading'}
+            allowed={page.purposes.allowed}
+            restricted={page.purposes.restricted}
+            onSave={page.savePurposes}
+          />
+        ) : null}
+      </div>
+    );
   } else if (tab === 'members') {
     main = <MembersPanel detail={detail} />;
   } else {
-    const posts = detail.posts.filter(
-      (post) =>
-        filter === COMMUNITY_PAGE_COPY.filters[0] ||
-        `${post.kind}s`.toLowerCase() === filter.toLowerCase()
-    );
+    // US-5.2.2-02: the feed is filtered by purpose on the server; the filter resets on every visit.
+    const posts = detail.posts;
+    const showing = page.purpose ? showingLabel(page.purpose, page.total) : null;
     main = (
       <div className="flex min-w-0 flex-col gap-[16px]">
         <FeedToolbar
-          filters={COMMUNITY_PAGE_COPY.filters}
+          filters={PURPOSE_FILTERS}
           filter={filter}
-          onFilter={setFilter}
+          onFilter={chooseFilter}
           sort={COMMUNITY_PAGE_COPY.sort}
         />
+        {showing ? (
+          <p
+            role="status"
+            className="m-0 font-sans text-[13px] font-medium leading-[16px] text-[#595959]"
+          >
+            {showing}
+          </p>
+        ) : null}
         {!joined ? <PreviewBanner onJoin={onJoin} /> : null}
         {joined && welcome ? (
           <Guidelines
@@ -167,7 +226,11 @@ const CommunityPageLive = ({ community }) => {
           />
         ) : null}
         {joined ? <Composer onCompose={openCreate} /> : null}
-        {posts.length === 0 ? (
+        {posts.length === 0 && page.purpose ? (
+          <p className="m-0 py-[24px] text-center font-sans text-[14px] text-[#737373]">
+            {emptyPurposeText(page.purpose)}
+          </p>
+        ) : posts.length === 0 ? (
           joined ? (
             <EmptyFeed
               onWrite={openCreate}
@@ -190,6 +253,15 @@ const CommunityPageLive = ({ community }) => {
                 onOpen={(p) => navigate(`/community/${communityId}/post/${p.id}`)}
                 onLike={(p) => page.like(p.id)}
                 onMore={openReport}
+                onPurpose={
+                  page.purposes.canManage
+                    ? (p) => {
+                        setPurposeError(null);
+                        setPurposeTarget(p);
+                        update({ modal: 'reclassify' });
+                      }
+                    : undefined
+                }
                 onShare={(p) => shareLink(`/community/${communityId}/post/${p.id}`, p.author.name)}
               />
             )
@@ -272,8 +344,23 @@ const CommunityPageLive = ({ community }) => {
           busy={busy}
           error={postError}
           communityName={detail.name}
+          purposes={page.purposes.allowed}
+          onSuggest={page.suggest}
           onClose={() => update({ modal: null })}
           onPost={onPost}
+        />
+      ) : null}
+      {detail && modal === 'reclassify' && purposeTarget ? (
+        <ReclassifyPurposeDialog
+          key={purposeTarget.id}
+          post={purposeTarget}
+          busy={busy}
+          error={purposeError}
+          onSave={onReclassify}
+          onClose={() => {
+            setPurposeTarget(null);
+            update({ modal: null });
+          }}
         />
       ) : null}
       {detail && modal === 'report' && reportTarget ? (
