@@ -10,7 +10,7 @@ const log = debug('CredentialToast');
  * unless `sticky` is set (the ?state=revoked frame draws it open).
  * Props: message, actionLabel, onAction (default: dismiss), onDismiss, sticky.
  */
-const CredentialToast = ({ message, actionLabel = 'View log', onDismiss, sticky }) => {
+const CredentialToast = ({ message, actionLabel = 'Dismiss', onDismiss, sticky }) => {
   useEffect(() => {
     log('show', message);
     if (sticky) return undefined;

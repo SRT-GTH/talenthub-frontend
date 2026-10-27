@@ -1,46 +1,32 @@
-import { useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { DECIDED_SAMPLES, RECORDS } from './data/recordsData.js';
+import { apiMessage, listRecords } from '../../../../services/institutionPortal.api.js';
 
 const log = debug('recordsStore');
 
 /*
- * recordsStore — the MOCK "server state" of the record verification queue (approve / reject / bulk approve).
- * ⚠️ ASSUMPTION: in memory only (a reload restores the seed). Future API: POST /institution/records/:id/approve,
- * POST /institution/records/:id/reject { reason, note }, POST /institution/records/bulk-approve { ids } — every approval is logged under the approver's name.
+ * useRecordsQueue — the verification queue as GET /api/institution/records returns it for the current tab / chip / sort:
+ * { items, counts: { pending, approved, rejected, all, chip: { all, results, certificates }, waitingLong, averageDays }, school }.
+ * Returns { data, error, reload }; data is null while the first load runs.
  */
+export const useRecordsQueue = ({ tab, filter, sort }) => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
 
-let state = { records: [...RECORDS, ...DECIDED_SAMPLES], decided: [] };
-const listeners = new Set();
+  const reload = useCallback(async () => {
+    setError('');
+    try {
+      const res = await listRecords({ tab, filter, sort });
+      log('loaded', { tab, filter, n: res?.items?.length });
+      setData(res);
+    } catch (err) {
+      setError(apiMessage(err));
+    }
+  }, [tab, filter, sort]);
 
-const set = (patch) => {
-  state = { ...state, ...patch };
-  listeners.forEach((l) => l());
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  return { data, error, reload };
 };
-
-const subscribe = (listener) => {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-};
-
-const getState = () => state;
-
-export const useRecordsStore = () => useSyncExternalStore(subscribe, getState, getState);
-
-const decide = (ids, status, extra = {}) => {
-  const wanted = new Set(ids);
-  log('decide', status, [...wanted]);
-  set({
-    records: state.records.map((r) => (wanted.has(r.id) ? { ...r, status, ...extra } : r)),
-    decided: [
-      ...state.decided,
-      ...state.records
-        .filter((r) => wanted.has(r.id) && (r.status === 'pending' || r.status === 'needs-info'))
-        .map((r) => ({ id: r.id, kind: r.kind, status, waitingDays: r.waitingDays ?? 0 })),
-    ],
-  });
-};
-
-export const approveRecords = (ids) => decide(ids, 'approved');
-
-export const rejectRecord = (id, { reason, note }) => decide([id], 'rejected', { reason, note });

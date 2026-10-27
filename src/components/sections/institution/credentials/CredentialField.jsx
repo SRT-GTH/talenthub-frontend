@@ -3,7 +3,7 @@ import { RecordsIconChevdown } from '../records/recordsIcons.jsx';
 
 /*
  * CredentialField — a labelled input of the issue form (Figma "Input · …" 8593:389560: label 14/24 500, green * (#2e8b57), optional 12 #595959, input 51 high r10, 1px #cccccc, p13/16/13/20, 14/20 #595959).
- * Props: label, required, optional, value, onChange(value), placeholder, options (renders the Template select with its chevron), autoFocus.
+ * Props: label, required, optional, value, onChange(value), placeholder, options (strings or {value, label}: renders a select with its chevron), autoFocus, hint.
  */
 const FIELD =
   'h-[51px] w-full rounded-[10px] border border-solid border-[#cccccc] bg-white px-[20px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#595959] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.06)] placeholder:text-[#595959] focus-visible:outline-2 focus-visible:outline-[#387440]';
@@ -42,11 +42,19 @@ const CredentialField = ({
             onChange={(e) => onChange(e.target.value)}
             className={`${FIELD} cursor-pointer appearance-none pr-[44px] font-medium text-[#1c2a21]`}
           >
-            {options.map((o) => (
-              <option key={o} value={o}>
-                {o}
+            {placeholder ? (
+              <option value="" disabled>
+                {placeholder}
               </option>
-            ))}
+            ) : null}
+            {options.map((o) => {
+              const opt = typeof o === 'string' ? { value: o, label: o } : o;
+              return (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              );
+            })}
           </select>
           <RecordsIconChevdown className="pointer-events-none absolute top-[16px] right-[16px] size-[20px] text-[#1c2a21]" />
         </div>

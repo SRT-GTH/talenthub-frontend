@@ -5,24 +5,33 @@ import { RecordsIconArrowr } from '../records/recordsIcons.jsx';
 import CredentialField from './CredentialField.jsx';
 import CredentialModal from './CredentialModal.jsx';
 import { CredentialsIconUpload } from './credentialsIcons.jsx';
-import { TEMPLATES } from './data/credentialsData.js';
+import { CREDENTIAL_TYPES } from './data/credentialsData.js';
 
 const log = debug('CredentialIssueDialog');
 
 /*
  * CredentialIssueDialog — "One student. Signed by your institution." (Figma 11.2.4b 8593:388993, modal 8593:389543, 820 wide) over the credentials list.
- * The dashed upload panel ("Issuing for a whole class?" · Choose students) switches to the bulk dialog; the form below issues one credential:
- * Student · Credential type · Template (select) · Title on the certificate · Date of award · Grade or result (optional) · Signed by · Second signatory · "Email <first name> when it’s issued",
- * then Cancel and "Preview certificate →". The form values live in the credentials store (the preview page and "Back to editing" read them).
- * Props: form, onChange(patch), onPreview(), onClass(), onCancel().
+ * The dashed panel ("Issuing for a whole class?" · Choose students) switches to the bulk dialog; the form below issues one credential:
+ * Student (your roster) · Credential type · Template · Title on the certificate · Date of award · Grade or result (optional) · Signed by · Second signatory ·
+ * "Email <first name> when it’s issued", then Cancel and "Preview certificate →". The values live in the credentials store (the preview reads them).
+ * Props: form, options (GET /credentials/options), onChange(patch), onPreview(), onClass(), onCancel().
  */
-const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel }) => {
+const CredentialIssueDialog = ({ form, options, onChange, onPreview, onClass, onCancel }) => {
   const emailId = useId();
   const firstName = form.student.split(' ')[0] || 'the student';
+  const students = options?.students ?? [];
 
   useEffect(() => {
     log('open');
   }, []);
+
+  useEffect(() => {
+    if (!options) return;
+    const patch = {};
+    if (!form.signedBy) patch.signedBy = options.signedBy;
+    if (!form.template) patch.template = options.templates[0];
+    if (Object.keys(patch).length) onChange(patch);
+  }, [options, form.signedBy, form.template, onChange]);
 
   return (
     <CredentialModal
@@ -46,7 +55,7 @@ const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel })
             Issuing for a whole class?
           </p>
           <p className="m-0 text-[13px] leading-[16px] text-[#595959]">
-            Pick students from your roster and issue up to 500 at once
+            Pick a year group from your roster and issue up to 500 at once
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={onClass}>
@@ -60,6 +69,11 @@ const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel })
         </span>
         <span className="h-px flex-1 bg-[#e7e7e7]" />
       </div>
+      {options && !students.length ? (
+        <p className="m-0 rounded-[12px] bg-[#faf4e8] px-[16px] py-[12px] text-[14px] leading-[20px] text-[#595959]">
+          Your roster is empty. Add students under Progress before you issue credentials.
+        </p>
+      ) : null}
       <form
         className="flex flex-col gap-[20px]"
         onSubmit={(e) => {
@@ -71,31 +85,41 @@ const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel })
           <CredentialField
             label="Student"
             required
-            autoFocus
-            value={form.student}
-            onChange={(v) => onChange({ student: v })}
+            placeholder={options ? 'Pick a student' : 'Loading your roster…'}
+            options={students.map((s) => ({
+              value: s.id,
+              label: s.linked ? s.label : `${s.label} (not on GTH yet)`,
+            }))}
+            value={form.rosterId}
+            onChange={(v) =>
+              onChange({ rosterId: v, student: students.find((s) => s.id === v)?.name ?? '' })
+            }
           />
           <CredentialField
             label="Credential type"
             required
+            options={CREDENTIAL_TYPES}
             value={form.type}
             onChange={(v) => onChange({ type: v })}
           />
           <CredentialField
             label="Template"
             required
-            options={TEMPLATES}
+            options={options?.templates ?? []}
             value={form.template}
             onChange={(v) => onChange({ template: v })}
           />
           <CredentialField
             label="Title on the certificate"
+            required
+            placeholder="e.g. Form 3 General Science"
             value={form.title}
             onChange={(v) => onChange({ title: v })}
           />
           <CredentialField
             label="Date of award"
             required
+            placeholder="DD / MM / YYYY"
             value={form.date}
             onChange={(v) => onChange({ date: v })}
           />
@@ -108,11 +132,14 @@ const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel })
           />
           <CredentialField
             label="Signed by"
+            required
             value={form.signedBy}
             onChange={(v) => onChange({ signedBy: v })}
           />
           <CredentialField
             label="Second signatory"
+            optional
+            placeholder="e.g. Head of school"
             value={form.second}
             onChange={(v) => onChange({ second: v })}
           />
@@ -138,6 +165,7 @@ const CredentialIssueDialog = ({ form, onChange, onPreview, onClass, onCancel })
             type="submit"
             variant="primary"
             size="md"
+            disabled={!students.length}
             rightIcon={<RecordsIconArrowr className="size-[20px]" />}
           >
             Preview certificate

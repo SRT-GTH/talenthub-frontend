@@ -112,36 +112,38 @@ const QueueToolbar = ({
         })}
       </div>
       <span aria-hidden="true" className="min-w-0 flex-1" />
-      <div
-        role="group"
-        aria-label="View"
-        className="flex h-[34px] gap-[2px] rounded-[10px] border border-solid border-[#e1eae2] bg-white p-[3px]"
-      >
-        <button
-          type="button"
-          aria-label="Cards"
-          aria-pressed={view === 'cards'}
-          onClick={() => onView('cards')}
-          className={classNames(
-            'flex w-[34px] cursor-pointer items-center justify-center rounded-[7px] border-0 focus-visible:outline-2 focus-visible:outline-[#387440]',
-            view === 'cards' ? 'bg-[#1c2a21] [&_svg]:text-white' : 'bg-transparent'
-          )}
+      {onView ? (
+        <div
+          role="group"
+          aria-label="View"
+          className="flex h-[34px] gap-[2px] rounded-[10px] border border-solid border-[#e1eae2] bg-white p-[3px]"
         >
-          <GridIcon />
-        </button>
-        <button
-          type="button"
-          aria-label="List"
-          aria-pressed={view !== 'cards'}
-          onClick={() => onView('list')}
-          className={classNames(
-            'flex w-[34px] cursor-pointer items-center justify-center rounded-[7px] border-0 focus-visible:outline-2 focus-visible:outline-[#387440]',
-            view !== 'cards' ? 'bg-[#1c2a21]' : 'bg-transparent [&_svg]:text-[#737373]'
-          )}
-        >
-          <ListIcon />
-        </button>
-      </div>
+          <button
+            type="button"
+            aria-label="Cards"
+            aria-pressed={view === 'cards'}
+            onClick={() => onView('cards')}
+            className={classNames(
+              'flex w-[34px] cursor-pointer items-center justify-center rounded-[7px] border-0 focus-visible:outline-2 focus-visible:outline-[#387440]',
+              view === 'cards' ? 'bg-[#1c2a21] [&_svg]:text-white' : 'bg-transparent'
+            )}
+          >
+            <GridIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="List"
+            aria-pressed={view !== 'cards'}
+            onClick={() => onView('list')}
+            className={classNames(
+              'flex w-[34px] cursor-pointer items-center justify-center rounded-[7px] border-0 focus-visible:outline-2 focus-visible:outline-[#387440]',
+              view !== 'cards' ? 'bg-[#1c2a21]' : 'bg-transparent [&_svg]:text-[#737373]'
+            )}
+          >
+            <ListIcon />
+          </button>
+        </div>
+      ) : null}
       <div ref={menuRef} className="relative">
         <button
           type="button"

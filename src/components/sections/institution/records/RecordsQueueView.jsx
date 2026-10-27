@@ -1,19 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { apiMessage, bulkApproveRecords } from '../../../../services/institutionPortal.api.js';
 import EmptyState from '../../publicData/ui/EmptyState.jsx';
 import InstitutionButton from '../InstitutionButton.jsx';
-import { formatCount } from '../institutionFormat.js';
-import {
-  CAUGHT_UP_AVERAGE_DAYS,
-  FILTER_CHIPS,
-  KIND_FILTER,
-  KIND_LABELS,
-  QUEUE_COUNTS,
-  SORT_OPTIONS,
-  WAITING_LONG_COUNT,
-} from './data/recordsData.js';
+import { FILTER_CHIPS, KIND_LABELS, QUEUE_COPY, SORT_OPTIONS } from './data/recordsData.js';
 import QueueBanner from './QueueBanner.jsx';
 import QueueHeader from './QueueHeader.jsx';
 import QueuePill from './QueuePill.jsx';
@@ -22,16 +14,17 @@ import QueueTabs from './QueueTabs.jsx';
 import QueueToolbar from './QueueToolbar.jsx';
 import RecordConfirmDialog from './RecordConfirmDialog.jsx';
 import { RecordsIconCheck11, RecordsIconEye13 } from './recordsIcons.jsx';
-import { approveRecords, useRecordsStore } from './useRecordsStore.js';
+import { useRecordsQueue } from './useRecordsStore.js';
 
 const log = debug('RecordsQueueView');
 
 /*
  * RecordsQueueView — "Records" verification queue (Figma 11.2.3a 8593:8, bulk approve 11.2.3e 8593:387863, all caught up 11.2.3f 8744:435251).
- * URL keys: tab=approved|rejected|all (default: to verify) · filter=results|certificates · view=cards|list · sort=oldest|newest · modal=bulk-approve · state=caught-up.
- * Bulk approve: "Approve selected" turns the row checkboxes on; with rows ticked the button reads "Approve n selected" and opens the confirmation (?modal=bulk-approve).
- * ⚠️ ASSUMPTIONS: the cards view is not drawn (the list stays); ?modal=bulk-approve with nothing ticked pre-selects the first four waiting records, as drawn; Approved / Rejected / All tabs
- * list sample decided records in the same row layout. Tab counts: Figma numbers moved by the decisions made in this session; state=caught-up draws 0 to verify and Approved 1,509.
+ * Live: GET /api/institution/records?tab&filter&sort. Bulk approve: "Approve selected" turns the row checkboxes on; with rows ticked the button reads
+ * "Approve n selected" and opens the confirmation (?modal=bulk-approve) → POST /records/bulk-approve. The "To verify" tab with nothing waiting is
+ * the "All caught up" state (11.2.3f) with the term's average decision time.
+ * URL keys: tab=approved|rejected|all (default: to verify) · filter=results|certificates · view=cards|list · sort=oldest|newest · modal=bulk-approve.
+ * ⚠️ ASSUMPTION: the cards view is not drawn (the list stays).
  * Props: data (useInstitutionState()).
  */
 
@@ -45,97 +38,65 @@ const REVIEW_DARK =
 const REVIEW_LIGHT =
   'inline-flex h-[25px] items-center rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[10px] text-[12.5px] leading-[15px] font-bold text-[#2d5d33] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
 
+/** Counts are the school's own work queue, not public aggregates: 0 reads 0, small numbers are shown as they are. */
+const n0 = (n) => (n == null ? '–' : String(n));
+
 const RecordsQueueView = ({ data }) => {
-  const { records, decided } = useRecordsStore();
-  const { params, modal, update, state } = data;
-  const [selectMode, setSelectMode] = useState(false);
-  const [picked, setPicked] = useState([]);
-  const [announce, setAnnounce] = useState('');
-  const caughtUp = state === 'caught-up';
+  const { params, modal, update } = data;
   const tab = ['approved', 'rejected', 'all'].includes(data.tab) ? data.tab : 'verify';
   const chip = ['results', 'certificates'].includes(data.filter) ? data.filter : 'all';
-  const view = params.get('view') === 'cards' ? 'cards' : 'list';
   const sort = params.get('sort') === 'newest' ? 'newest' : 'oldest';
+  const { data: queue, error, reload } = useRecordsQueue({ tab, filter: chip, sort });
+  const [selectMode, setSelectMode] = useState(false);
+  const [picked, setPicked] = useState([]);
+  const location = useLocation();
+  const [announce, setAnnounce] = useState(location.state?.announce ?? '');
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    log('mount', { tab, chip, caughtUp, modal });
-  }, [tab, chip, caughtUp, modal]);
+    log('mount', { tab, chip, modal });
+  }, [tab, chip, modal]);
 
-  const counts = useMemo(() => {
-    const dec = (s) => decided.filter((d) => d.status === s).length;
-    const byChip = (f) => decided.filter((d) => f === 'all' || KIND_FILTER[d.kind] === f).length;
-    const pending = caughtUp ? 0 : Math.max(0, QUEUE_COUNTS.pending - byChip('all'));
-    return {
-      pending,
-      approved: QUEUE_COUNTS.approved + (caughtUp ? QUEUE_COUNTS.pending : 0) + dec('approved'),
-      rejected: QUEUE_COUNTS.rejected + dec('rejected'),
-      all: QUEUE_COUNTS.all,
-      chip: {
-        all: pending,
-        results: caughtUp ? 0 : Math.max(0, QUEUE_COUNTS.results - byChip('results')),
-        certificates: caughtUp
-          ? 0
-          : Math.max(0, QUEUE_COUNTS.certificates - byChip('certificates')),
-      },
-      waitingLong: caughtUp
-        ? 0
-        : Math.max(0, WAITING_LONG_COUNT - decided.filter((d) => d.waitingDays > 7).length),
-    };
-  }, [decided, caughtUp]);
-
-  const rows = useMemo(() => {
-    if (caughtUp && tab === 'verify') return [];
-    const base = records.filter((r) => {
-      if (tab === 'verify') return r.status === 'pending' || r.status === 'needs-info';
-      if (tab === 'approved') return r.status === 'approved';
-      if (tab === 'rejected') return r.status === 'rejected';
-      return true;
-    });
-    const filtered = base.filter((r) => chip === 'all' || KIND_FILTER[r.kind] === chip);
-    return sort === 'newest' ? [...filtered].reverse() : filtered;
-  }, [records, tab, chip, sort, caughtUp]);
-
-  const pendingRows = rows.filter((r) => r.status === 'pending');
-  let effective = [];
-  if (picked.length > 0) effective = picked;
-  else if (modal === 'bulk-approve') effective = pendingRows.slice(0, 4).map((r) => r.id);
-  const selectedRecords = records.filter((r) => effective.includes(r.id));
+  const counts = queue?.counts;
+  const rows = queue?.items ?? [];
+  const school = queue?.school ?? 'your school';
+  const selected = rows.filter((r) => picked.includes(r.id));
   const showChecks = selectMode || picked.length > 0;
 
   const setQuery = (patch) => update({ ...patch, modal: null }, { replace: true });
 
   const onAction = () => {
-    if (effective.length > 0) update({ modal: 'bulk-approve' });
-    else {
-      log('select mode on');
-      setSelectMode(true);
+    if (picked.length > 0) update({ modal: 'bulk-approve' });
+    else setSelectMode((on) => !on);
+  };
+
+  const confirmBulk = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await bulkApproveRecords(selected.map((r) => r.id));
+      setAnnounce(`Approved ${res.approved} ${res.approved === 1 ? 'record' : 'records'}.`);
+      setPicked([]);
+      setSelectMode(false);
+      await reload();
+    } catch (err) {
+      setAnnounce(apiMessage(err));
+    } finally {
+      setBusy(false);
+      update({ modal: null }, { replace: true });
     }
-  };
-
-  const confirmBulk = () => {
-    const ids = selectedRecords.map((r) => r.id);
-    approveRecords(ids);
-    setPicked([]);
-    setSelectMode(false);
-    update({ modal: null }, { replace: true });
-    setAnnounce(`Approved ${ids.length} records.`);
-  };
-
-  const closeBulk = () => {
-    setPicked([]);
-    update({ modal: null }, { replace: true });
   };
 
   const toggle = (id) =>
     setPicked((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   const tabs = [
-    { id: 'approved', label: 'Approved', count: formatCount(counts.approved) },
-    { id: 'rejected', label: 'Rejected', count: formatCount(counts.rejected) },
-    { id: 'verify', label: 'To verify', count: formatCount(counts.pending) },
-    { id: 'all', label: 'All records', count: formatCount(counts.all) },
+    { id: 'approved', label: 'Approved', count: n0(counts?.approved) },
+    { id: 'rejected', label: 'Rejected', count: n0(counts?.rejected) },
+    { id: 'verify', label: 'To verify', count: n0(counts?.pending) },
+    { id: 'all', label: 'All records', count: n0(counts?.all) },
   ];
-  const chips = FILTER_CHIPS.map((c) => ({ ...c, count: formatCount(counts.chip[c.id]) }));
+  const chips = FILTER_CHIPS.map((c) => ({ ...c, count: n0(counts?.chip?.[c.id]) }));
 
   const renderRow = (r) => {
     const href = `/institution/records/${r.id}`;
@@ -189,7 +150,7 @@ const RecordsQueueView = ({ data }) => {
         select={
           showChecks && r.status === 'pending'
             ? {
-                checked: effective.includes(r.id),
+                checked: picked.includes(r.id),
                 onChange: () => toggle(r.id),
                 label: `Select ${r.student}`,
               }
@@ -199,8 +160,12 @@ const RecordsQueueView = ({ data }) => {
           <>
             {r.status === 'pending' ? (
               <QueuePill tone="amber" icon={<RecordsIconEye13 className="size-[13px]" />}>
-                Waiting {r.waitingDays} days
+                {r.waitingDays === 0
+                  ? 'Sent today'
+                  : `Waiting ${r.waitingDays} ${r.waitingDays === 1 ? 'day' : 'days'}`}
               </QueuePill>
+            ) : r.decidedOn ? (
+              <QueuePill>{`${r.status === 'approved' ? 'Approved' : 'Rejected'} ${r.decidedOn}`}</QueuePill>
             ) : null}
             {kind}
           </>
@@ -211,79 +176,106 @@ const RecordsQueueView = ({ data }) => {
             aria-label={`Review ${r.student}`}
             className={classNames(dark ? REVIEW_DARK : REVIEW_LIGHT)}
           >
-            Review
+            {r.status === 'pending' ? 'Review' : 'View'}
           </Link>
         }
       />
     );
   };
 
-  const n = selectedRecords.length;
-  const names = joinNames(selectedRecords.map((r) => r.student.split(' ')[0]));
+  const names = joinNames(selected.map((r) => r.student.split(' ')[0]));
+  const caughtUp = tab === 'verify' && counts && counts.pending === 0;
 
   return (
     <div className="flex flex-col gap-[24px] pt-[4px] font-sans">
       <QueueHeader
         title="Records"
-        count={`${formatCount(counts.pending)} to verify`}
-        sentence="Students add results, certificates and awards. You confirm what your school issued."
+        count={`${counts ? counts.pending : '…'} to verify`}
+        sentence={QUEUE_COPY.sentence}
       />
       <div className="flex flex-col gap-[18px]">
         <QueueTabs
           label="Records"
           tabs={tabs}
           active={tab}
-          onSelect={(id) => setQuery({ tab: id === 'verify' ? null : id, filter: null })}
+          onSelect={(id) => {
+            setPicked([]);
+            setSelectMode(false);
+            setQuery({ tab: id === 'verify' ? null : id, filter: null });
+          }}
         />
         <QueueToolbar
           filterLabel="Record type"
           chips={chips}
           chip={chip}
           onChip={(id) => setQuery({ filter: id === 'all' ? null : id })}
-          view={view}
-          onView={(v) => setQuery({ view: v === 'list' ? null : v })}
           sortOptions={SORT_OPTIONS}
           sort={sort}
           onSort={(id) => setQuery({ sort: id === 'oldest' ? null : id })}
           actionLabel={
-            effective.length > 0 ? `Approve ${effective.length} selected` : 'Approve selected'
+            picked.length > 0
+              ? `Approve ${picked.length} selected`
+              : selectMode
+                ? 'Pick records to approve'
+                : 'Approve selected'
           }
           actionPressed={selectMode}
           onAction={onAction}
         />
-        {tab === 'verify' ? (
+        {tab === 'verify' && counts ? (
           <QueueBanner>
             {caughtUp
-              ? `Nice work. Your average decision time this term is ${CAUGHT_UP_AVERAGE_DAYS} days.`
-              : `${counts.waitingLong} records have waited more than 7 days. Students see “pending” on their profile until you decide.`}
+              ? QUEUE_COPY.caughtUp(counts.averageDays)
+              : QUEUE_COPY.waiting(counts.waitingLong)}
           </QueueBanner>
         ) : null}
-        {rows.length ? (
+        {error ? (
+          <p role="alert" className="m-0 text-[14px] leading-[20px] text-[#902b20]">
+            {error}
+          </p>
+        ) : null}
+        {!queue && !error ? (
+          <p className="m-0 rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[24px] text-[14px] text-[#737373]">
+            Loading records…
+          </p>
+        ) : rows.length ? (
           <ul className="m-0 flex list-none flex-col gap-[4px] overflow-hidden rounded-[22px] border border-solid border-[#e1eae2] bg-white p-0">
             {rows.map(renderRow)}
           </ul>
-        ) : (
+        ) : queue ? (
           <div className="pt-[56px] pb-[64px]">
             <EmptyState
               card={false}
-              title="All caught up"
-              message="No records are waiting. When a student adds a result, certificate or award from your school, it shows up here."
-              actionLabel="See approved records"
-              onAction={() => setQuery({ tab: 'approved', state: null })}
+              title={tab === 'verify' ? 'All caught up' : 'Nothing here yet'}
+              message={tab === 'verify' ? QUEUE_COPY.empty : 'Records you decide show up here.'}
+              actionLabel={tab === 'verify' ? 'See approved records' : 'Back to records to verify'}
+              onAction={() => setQuery({ tab: tab === 'verify' ? 'approved' : null })}
             />
           </div>
-        )}
+        ) : null}
       </div>
-      <p role="status" aria-live="polite" className="sr-only">
+      <p
+        role="status"
+        aria-live="polite"
+        className={
+          announce
+            ? 'm-0 rounded-[12px] border border-solid border-[#e1eae2] bg-[#f3f8f4] px-[16px] py-[12px] text-[14px] text-[#224626]'
+            : 'sr-only'
+        }
+      >
         {announce}
       </p>
-      {modal === 'bulk-approve' && n > 0 ? (
+      {modal === 'bulk-approve' && selected.length > 0 ? (
         <RecordConfirmDialog
-          title={`Approve ${n} records?`}
-          body={`${names} will see “Verified by Savannah Hills SHS” on these records. Each approval is logged under your name.`}
-          confirmLabel={`Approve ${n} records`}
+          title={`Approve ${selected.length} ${selected.length === 1 ? 'record' : 'records'}?`}
+          body={`${names} will see “Verified by ${school}” on these records. Each approval is logged under your name.`}
+          confirmLabel={
+            busy
+              ? 'Approving…'
+              : `Approve ${selected.length} ${selected.length === 1 ? 'record' : 'records'}`
+          }
           onConfirm={confirmBulk}
-          onCancel={closeBulk}
+          onCancel={() => update({ modal: null }, { replace: true })}
         />
       ) : null}
     </div>

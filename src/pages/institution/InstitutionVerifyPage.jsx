@@ -17,7 +17,7 @@ const InstitutionVerifyPage = () => {
   log('mount', { credentialId, state: data.state });
   return (
     <PublicDataFrame data={data} title="Directory" active="directory">
-      <CredentialVerifyView credentialId={credentialId} state={data.state} />
+      <CredentialVerifyView credentialId={credentialId} />
       <PublicDataModals
         data={data}
         scope={{ title: 'Verify a credential', reportKind: 'overview', sharePath: 'verify' }}

@@ -195,6 +195,48 @@ export const retryMessage = (id) =>
   api.post(`${M}/${id}/retry`, {}, { timeout: 120000 }).then(body);
 export const messageFailures = (id) => api.get(`${M}/${id}/failures`).then(body);
 
+/* ---- Records (backend institutionRecords.service.js) ---- */
+const R = '/institution/records';
+export const listRecords = ({ tab, filter, sort } = {}) =>
+  api.get(R, { params: { tab, filter, sort }, timeout: 60000 }).then(body);
+export const getRecord = (id) => api.get(`${R}/${id}`, { timeout: 60000 }).then(body);
+/** -> { fileName, mime, content (base64) } */
+export const recordFile = (id) => api.get(`${R}/${id}/file`, { timeout: 60000 }).then(body);
+export const approveRecord = (id) => api.post(`${R}/${id}/approve`, {}).then(body);
+export const rejectRecord = (id, { reason, note }) =>
+  api.post(`${R}/${id}/reject`, { reason, note }).then(body);
+export const askRecord = (id, note) => api.post(`${R}/${id}/ask`, { note }).then(body);
+export const bulkApproveRecords = (ids) =>
+  api.post(`${R}/bulk-approve`, { ids }, { timeout: 120000 }).then(body);
+
+/* ---- Credentials (backend institutionCredentials.service.js) ---- */
+const C = '/institution/credentials';
+export const listCredentials = ({ tab, filter, sort } = {}) =>
+  api.get(C, { params: { tab, filter, sort }, timeout: 60000 }).then(body);
+export const credentialOptions = () => api.get(`${C}/options`, { timeout: 60000 }).then(body);
+export const getCredential = (id) => api.get(`${C}/${id}`, { timeout: 60000 }).then(body);
+export const issueCredential = (form) => api.post(C, form, { timeout: 60000 }).then(body);
+export const bulkIssueCredentials = (form) =>
+  api.post(`${C}/bulk`, form, { timeout: 180000 }).then(body);
+export const approveCredentialBatch = (batchId) =>
+  api.post(`${C}/batches/${batchId}/approve`, {}, { timeout: 180000 }).then(body);
+export const revokeCredential = (id, reason) =>
+  api.post(`${C}/${id}/revoke`, reason ? { reason } : {}).then(body);
+export const cancelRevokeCredential = (id) => api.post(`${C}/${id}/cancel-revoke`, {}).then(body);
+export const correctCredential = (id, patch) => api.post(`${C}/${id}/correct`, patch).then(body);
+/** Public: no sign-in needed. */
+export const verifyCredential = (number) =>
+  api.get(`/verify/${encodeURIComponent(number)}`, { timeout: 60000 }).then(body);
+
+/* ---- Student side of records / credentials (/api/school-links) ---- */
+export const myRecords = () => api.get('/school-links/records', { timeout: 60000 }).then(body);
+export const sendRecord = (payload) =>
+  api.post('/school-links/records', payload, { timeout: 120000 }).then(body);
+export const resendRecord = (id, payload) =>
+  api.post(`/school-links/records/${id}/resubmit`, payload, { timeout: 120000 }).then(body);
+export const myCredentials = () =>
+  api.get('/school-links/credentials', { timeout: 60000 }).then(body);
+
 export const institutionHome = () => api.get('/institution/home', { timeout: 60000 }).then(body);
 export const institutionWelcomeSeen = () =>
   api.post('/institution/home/welcome-seen', {}).then(body);
@@ -276,3 +318,5 @@ export const guardianConsentAnswer = (token, decision) =>
 /** The server's message for a failed call (axios hides it under response.data). */
 export const apiMessage = (err) =>
   err?.response?.data?.message || err?.message || 'Something went wrong. Try again.';
+
+export { openApiFile, fileToBase64 } from './agency.api.js';

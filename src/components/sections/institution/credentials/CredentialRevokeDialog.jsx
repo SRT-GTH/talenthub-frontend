@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import CredentialModal from './CredentialModal.jsx';
@@ -7,24 +7,29 @@ import { CredentialsIconEdit, CredentialsIconFilecheck } from './credentialsIcon
 const log = debug('CredentialRevokeDialog');
 
 /*
- * CredentialRevokeDialog — "Revoke Yaw’s sports prefect credential?" (Figma 11.2.4e 8593:389693, modal 8593:390243, 620 wide): dual approval. The first approver already asked (credential.askedBy);
- * this dialog is the second approver’s. Chip "Revoke credential" (white), the credential row, "WHAT HAPPENS" with three red-dot effects, the amber "Just a typo?" card, then
- * "Issue a corrected copy" and the red "Approve revocation". Props: credential (store row), onCorrected(), onApprove(), onClose().
+ * CredentialRevokeDialog — "Revoke <first name>’s <credential>?" (Figma 11.2.4e 8593:389693, modal 8593:390243, 620 wide). Two steps:
+ *   a valid credential: the first staff member gives a reason ("Ask to revoke"); a school with one active staff member revokes at once.
+ *   a credential being revoked: a second staff member sees who asked and why, and approves it ("Approve revocation").
+ * The credential row, "WHAT HAPPENS" with three red-dot effects and the amber "Just a typo?" card (opens the corrected copy).
+ * Props: credential (GET /credentials/:id), busy, onCorrected(), onConfirm(reason?), onClose().
  */
-const CredentialRevokeDialog = ({ credential, onCorrected, onApprove, onClose }) => {
+const CredentialRevokeDialog = ({ credential, busy, onCorrected, onConfirm, onClose }) => {
+  const reasonId = useId();
+  const [reason, setReason] = useState('');
   const first = credential.student.split(' ')[0];
+  const approving = credential.status === 'revoking';
   const title = credential.title.toLowerCase();
   const words = `${title} credential?`.split(' ');
   const last = words.pop();
 
   useEffect(() => {
-    log('open', credential.id);
-  }, [credential.id]);
+    log('open', credential.id, credential.status);
+  }, [credential.id, credential.status]);
 
   const effects = [
     'The credential shows “Revoked” at gth.com/verify',
     `${first} is told, with your reason`,
-    'It’s logged with both names and can’t be undone',
+    'It’s logged with your name and can’t be undone',
   ];
 
   return (
@@ -33,17 +38,28 @@ const CredentialRevokeDialog = ({ credential, onCorrected, onApprove, onClose })
       chip="Revoke credential"
       chipTone="plain"
       width={620}
-      gap={32}
+      gap={28}
       heading={
         <>
           Revoke {first}’s {words.join(' ')} <span className="text-[#387440]">{last}</span>
         </>
       }
-      description={`Revoking needs two staff. ${credential.askedBy} asked first; your approval completes it.`}
+      description={
+        approving
+          ? `Revoking needs two staff. ${credential.askedBy} asked first; your approval completes it.`
+          : 'Revoking needs two staff when your school has more than one. You ask now; a colleague approves it.'
+      }
       descriptionId="credential-revoke-desc"
       onClose={onClose}
     >
-      <div className="flex flex-col gap-[28px]">
+      <form
+        className="flex flex-col gap-[24px]"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (busy) return;
+          onConfirm(approving ? undefined : reason.trim());
+        }}
+      >
         <div className="flex items-center gap-[12px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] py-[14px] pr-[16px] pl-[14px]">
           <span className="flex size-[40px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec]">
             <CredentialsIconFilecheck className="size-[20px] text-[#387440]" />
@@ -53,15 +69,38 @@ const CredentialRevokeDialog = ({ credential, onCorrected, onApprove, onClose })
               {credential.title} · {credential.number}
             </p>
             <p className="m-0 text-[13px] leading-[16px] text-[#595959]">
-              Issued {credential.issuedLong} · reason: {credential.reason}
+              Issued {credential.issuedLong}
+              {approving ? ` · reason: ${credential.reason}` : ''}
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-[16px]">
-          <p className="m-0 text-[11px] max-lg:text-[12px] leading-[13px] font-bold tracking-[1.2px] text-[#595959]">
+        {approving ? null : (
+          <div className="flex flex-col gap-[8px]">
+            <label
+              htmlFor={reasonId}
+              className="text-[14px] leading-[24px] font-medium text-[#1c2a21]"
+            >
+              Reason<span className="text-[#2e8b57]"> *</span>
+            </label>
+            <input
+              id={reasonId}
+              type="text"
+              required
+              minLength={3}
+              maxLength={200}
+              data-autofocus=""
+              value={reason}
+              placeholder="e.g. Issued to the wrong student"
+              onChange={(e) => setReason(e.target.value)}
+              className="h-[51px] w-full rounded-[10px] border border-solid border-[#cccccc] bg-white px-[20px] font-sans text-[14px] leading-[20px] text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-[#387440]"
+            />
+          </div>
+        )}
+        <div className="flex flex-col gap-[14px]">
+          <p className="m-0 text-[11px] leading-[13px] font-bold tracking-[1.2px] text-[#595959] max-lg:text-[12px]">
             WHAT HAPPENS
           </p>
-          <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
+          <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
             {effects.map((text) => (
               <li
                 key={text}
@@ -89,15 +128,28 @@ const CredentialRevokeDialog = ({ credential, onCorrected, onApprove, onClose })
             </p>
           </div>
         </div>
-      </div>
-      <div className="flex flex-wrap justify-end gap-[12px] pt-[8px]">
-        <Button variant="tertiary-subtle" size="lg" className="!py-[14px]" onClick={onCorrected}>
-          Issue a corrected copy
-        </Button>
-        <Button variant="danger" size="md" data-autofocus="" onClick={onApprove}>
-          Approve revocation
-        </Button>
-      </div>
+        <div className="flex flex-wrap justify-end gap-[12px]">
+          {approving ? null : (
+            <Button
+              variant="tertiary-subtle"
+              size="lg"
+              className="!py-[14px]"
+              onClick={onCorrected}
+            >
+              Issue a corrected copy
+            </Button>
+          )}
+          <Button
+            type="submit"
+            variant="danger"
+            size="md"
+            disabled={busy}
+            data-autofocus={approving ? '' : undefined}
+          >
+            {busy ? 'Working…' : approving ? 'Approve revocation' : 'Revoke credential'}
+          </Button>
+        </div>
+      </form>
     </CredentialModal>
   );
 };
