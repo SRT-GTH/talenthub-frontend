@@ -52,12 +52,14 @@ const ENDORSE_WAYS = [
   ['Studied together', 'studied'],
   ['Worked together', 'worked'],
   ['They mentored me', 'mentored'],
+  ['Other', 'other'],
 ];
 const RECOMMEND_WAYS = [
   ['We worked on a community project together', 'community_project'],
   ['We studied together', 'studied'],
   ['I mentored them', 'mentored'],
   ['We are in the same community', 'same_community'],
+  ['Other (say how)', 'other'],
 ];
 // No silent fallback: an unknown label sends nothing the server would accept (it answers 422) rather than a wrong value.
 const valueOf = (pairs, label) => pairs.find(([l]) => l === label)?.[1];
@@ -270,10 +272,11 @@ const LiveCircleProfile = ({ personId, circle }) => {
           )}
           xp={false}
           busy={busy}
-          onEndorse={(ids, way) => {
+          otherWay="Other"
+          onEndorse={(ids, way, note) => {
             const labels = profile.skills.filter((s) => ids.includes(s.id)).map((s) => s.label);
             run(
-              () => circleApi.endorse(person.id, labels, valueOf(ENDORSE_WAYS, way)),
+              () => circleApi.endorse(person.id, labels, valueOf(ENDORSE_WAYS, way), note),
               () => {
                 closeModal();
                 show({
@@ -292,14 +295,16 @@ const LiveCircleProfile = ({ personId, circle }) => {
           dialog={profile.recommendDialog}
           initialText={mine?.text ?? ''}
           initialHow={mine ? labelOf(RECOMMEND_WAYS, mine.relationship) : undefined}
+          initialNote={mine?.relationshipNote ?? ''}
+          otherWay="Other (say how)"
           sendLabel={mine ? 'Save changes' : undefined}
           busy={busy}
-          onSend={(text, how) =>
+          onSend={(text, how, note) =>
             run(
               () =>
                 mine
-                  ? circleApi.editRecommendation(mine.id, valueOf(RECOMMEND_WAYS, how), text)
-                  : circleApi.recommend(person.id, valueOf(RECOMMEND_WAYS, how), text),
+                  ? circleApi.editRecommendation(mine.id, valueOf(RECOMMEND_WAYS, how), text, note)
+                  : circleApi.recommend(person.id, valueOf(RECOMMEND_WAYS, how), text, note),
               () => {
                 closeModal();
                 show({

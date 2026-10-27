@@ -10,7 +10,8 @@ import { FOCUS_RING } from './circleStyles.js';
  * CircleRecommendDialog — NW-08 "Recommend {first}": "How do you know {first}?" (select), "What should people know about working
  * with him?" (600 characters), "Help me make it specific", the approval note (eye, #faf4e8), Cancel / "Send to {first}".
  * Props: person, dialog (profile.recommendDialog copy), initialText (the drawn recommendation when ?draft=1), onSend(text, how), onClose,
- * initialHow (editing: the saved relationship), sendLabel (editing: "Save changes"), busy.
+ * initialHow (editing: the saved relationship), sendLabel (editing: "Save changes"), busy, otherWay (the option that asks how in
+ * their own words, max 60; onSend then gets it as its third argument), initialNote (editing: the saved words).
  * ⚠️ ASSUMPTIONS: the relationship list beyond the drawn option; "Help me make it specific" fills the canned suggestion (no AI call);
  * Send is disabled while the text is empty.
  */
@@ -21,11 +22,15 @@ const CircleRecommendDialog = ({
   initialHow,
   sendLabel,
   busy = false,
+  otherWay,
+  initialNote = '',
   onSend,
   onClose,
 }) => {
   const [how, setHow] = useState(initialHow ?? dialog.relationships[0]);
   const [text, setText] = useState(initialText);
+  const [note, setNote] = useState(initialNote);
+  const isOther = Boolean(otherWay) && how === otherWay;
   return (
     <CircleDialogShell
       personId={person.id}
@@ -57,6 +62,17 @@ const CircleRecommendDialog = ({
           </select>
           <CircleChevronRightIcon className="pointer-events-none absolute right-[14px] top-1/2 size-[16px] -translate-y-1/2 rotate-90 text-[#595959]" />
         </div>
+        {isOther && (
+          <input
+            type="text"
+            aria-label={dialog.howLabel}
+            placeholder="e.g. We play in the same football team"
+            maxLength={60}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className={`h-[43px] w-full rounded-[12px] border border-solid border-[#e7e7e7] bg-white px-[14px] font-sans text-[14px] text-[#1c2a21] ${FOCUS_RING}`}
+          />
+        )}
       </div>
       <div className="flex flex-col gap-[8px]">
         <label
@@ -91,7 +107,10 @@ const CircleRecommendDialog = ({
         <CircleButton tone="soft" onClick={onClose}>
           {COPY.cancel}
         </CircleButton>
-        <CircleButton disabled={!text.trim() || busy} onClick={() => onSend(text.trim(), how)}>
+        <CircleButton
+          disabled={!text.trim() || busy || (isOther && !note.trim())}
+          onClick={() => onSend(text.trim(), how, isOther ? note.trim() : undefined)}
+        >
           {sendLabel ?? `Send to ${person.firstName}`}
         </CircleButton>
       </div>

@@ -20,7 +20,7 @@ const log = debug('circle.api');
  *   GET    /circle/feed?offset=          { total, items: [post card] }  "From your circle" (US-5.3.1-04)
  *   POST   /circle/posts                 { content, audience, purpose, link?, tags? }  { post, moderation }
  *   GET    /circle/people/:id/skills     { canEndorse, lockedNote, skills: [{ id, label, count, endorsedByMe, line }] }
- *   POST   /circle/endorsements          { personId, skills[1..5], way, message? }  (US-5.3.1-05; all or nothing)
+ *   POST   /circle/endorsements          { personId, skills[1..5], way, wayNote? (way 'other'), message? }  (US-5.3.1-05)
  *   GET    /circle/people/:id/recommendations  { items: [rec], mine }
  *   GET    /circle/recommendations       { items: [rec], pending }  ones written for me
  *   POST   /circle/recommendations       { personId, relationship, text } · PUT/DELETE /circle/recommendations/:id
@@ -35,16 +35,22 @@ export const circleApi = {
   feed: async (offset = 0) => unwrap(await api.get('/circle/feed', { params: { offset } })),
   createPost: async (body) => unwrap(await api.post('/circle/posts', body)),
   skillsOf: async (id) => unwrap(await api.get(`/circle/people/${encodeURIComponent(id)}/skills`)),
-  endorse: async (personId, skills, way) =>
-    unwrap(await api.post('/circle/endorsements', { personId, skills, way })),
+  endorse: async (personId, skills, way, wayNote) =>
+    unwrap(await api.post('/circle/endorsements', { personId, skills, way, wayNote })),
   recommendationsOf: async (id) =>
     unwrap(await api.get(`/circle/people/${encodeURIComponent(id)}/recommendations`)),
   myRecommendations: async () => unwrap(await api.get('/circle/recommendations')),
-  recommend: async (personId, relationship, text) =>
-    unwrap(await api.post('/circle/recommendations', { personId, relationship, text })),
-  editRecommendation: async (id, relationship, text) =>
+  recommend: async (personId, relationship, text, relationshipNote) =>
     unwrap(
-      await api.put(`/circle/recommendations/${encodeURIComponent(id)}`, { relationship, text })
+      await api.post('/circle/recommendations', { personId, relationship, text, relationshipNote })
+    ),
+  editRecommendation: async (id, relationship, text, relationshipNote) =>
+    unwrap(
+      await api.put(`/circle/recommendations/${encodeURIComponent(id)}`, {
+        relationship,
+        text,
+        relationshipNote,
+      })
     ),
   deleteRecommendation: async (id) =>
     unwrap(await api.delete(`/circle/recommendations/${encodeURIComponent(id)}`)),

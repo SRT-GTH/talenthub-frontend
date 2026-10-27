@@ -10,7 +10,8 @@ import { FOCUS_RING } from './circleStyles.js';
  * CircleEndorseDialog — NW-07 "Endorse {first}'s skills": a checklist of their skills ("12 so far"), "How do you know his skills?"
  * (one chip), Cancel / "Endorse N skills". Props: person, dialog (profile.endorseDialog copy), skills (profile skills),
  * initial (ticked skill ids), onEndorse(skillIds, way), onClose, xp (draw the XP sticker; off in live: no XP for endorsing, ADR-04),
- * busy (disables Endorse while sending). Endorse is disabled until one skill is ticked.
+ * busy (disables Endorse while sending), otherWay (the chip that asks the talent to say how in their own words, max 60;
+ * onEndorse then gets that text as its third argument). Endorse is disabled until one skill is ticked.
  * ⚠️ ASSUMPTION: clicking a skill's own Endorse button opens this dialog with only that skill ticked.
  */
 const CircleEndorseDialog = ({
@@ -22,9 +23,12 @@ const CircleEndorseDialog = ({
   onClose,
   xp = true,
   busy = false,
+  otherWay,
 }) => {
   const [ticked, setTicked] = useState(initial ?? []);
   const [way, setWay] = useState(dialog.ways[0]);
+  const [note, setNote] = useState('');
+  const isOther = Boolean(otherWay) && way === otherWay;
   const toggle = (id) =>
     setTicked((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
   const n = ticked.length;
@@ -104,12 +108,29 @@ const CircleEndorseDialog = ({
             </button>
           ))}
         </div>
+        {isOther && (
+          <input
+            type="text"
+            aria-label={dialog.howLabel}
+            placeholder="e.g. We sing in the same choir"
+            maxLength={60}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className={classNames(
+              'h-[40px] w-full rounded-[12px] border border-solid border-[#e7e7e7] bg-white px-[14px] font-sans text-[14px] text-[#1c2a21]',
+              FOCUS_RING
+            )}
+          />
+        )}
       </div>
       <div className="flex flex-wrap items-center justify-end gap-[10px]">
         <CircleButton tone="soft" onClick={onClose}>
           {COPY.cancel}
         </CircleButton>
-        <CircleButton disabled={n === 0 || busy} onClick={() => onEndorse(ticked, way)}>
+        <CircleButton
+          disabled={n === 0 || busy || (isOther && !note.trim())}
+          onClick={() => onEndorse(ticked, way, isOther ? note.trim() : undefined)}
+        >
           {`Endorse ${n} ${n === 1 ? 'skill' : 'skills'}`}
         </CircleButton>
       </div>
