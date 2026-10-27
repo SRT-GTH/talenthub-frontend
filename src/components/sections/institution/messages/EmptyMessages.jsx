@@ -20,7 +20,8 @@ const EmptyMessages = ({ onNew }) => (
       Send your first message
     </h2>
     <p className="m-0 max-w-[360px] text-[14px] leading-[20px] text-[#595959]">
-      Message a class, a year group or a programme group. Guardians of under-18s get a copy by SMS.
+      Message a class, a year group or a programme group. It lands in each student’s GTH inbox, and
+      guardians of under-18s get a copy.
     </p>
     <div className="pt-[10px]">
       <Button

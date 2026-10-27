@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import {
-  AUDIENCES,
-  DEFAULT_DRAFT,
-  DELIVERY_PROBLEM,
-  MESSAGES_COPY,
-  SCHEDULED_SENTENCE,
-} from './data/messagesData.js';
+  apiMessage,
+  createMessage,
+  followUpMessage,
+  getMessage,
+  messageAudiences,
+  messageFailures,
+  removeMessage,
+  retryMessage,
+  updateMessage,
+} from '../../../../services/institutionPortal.api.js';
+import { MESSAGES_COPY, SCHEDULED_SENTENCE, deliveryProblem } from './data/messagesData.js';
 import ComposeDialog from './ComposeDialog.jsx';
 import ConfirmSendDialog from './ConfirmSendDialog.jsx';
 import EmptyMessages from './EmptyMessages.jsx';
@@ -16,12 +21,9 @@ import ThreadBanner from './ThreadBanner.jsx';
 import ThreadList from './ThreadList.jsx';
 import ThreadPane from './ThreadPane.jsx';
 import {
-  addFollowUp,
-  retryDelivery,
-  saveDraftThread,
-  sendDraft,
-  sendScheduledNow,
-  setScheduledAt,
+  loadThreads,
+  resetDraft,
+  startDraft,
   updateDraft,
   useMessagesStore,
 } from './useMessagesStore.js';
@@ -30,14 +32,13 @@ const log = debug('MessagesView');
 
 /*
  * MessagesView — Figma 11.3.3a-g (canvas 8520:10): "Messages" title + sentence, the thread list (left) and the open thread (right).
- *   /institution/messages[/thread-1]               thread view, sent and delivery 11.3.3c · /thread-2 another thread 11.3.3d
- *   /institution/messages/new                      "New message" dialog over the thread 11.3.3a · ?step=confirm "Send to 64 students?" 11.3.3b
- *   /institution/messages/thread-3?state=scheduled scheduled banner 11.3.3e (?step=edit edits it)
- *   /institution/messages/thread-1?state=delivery-problem  SMS problem banner 11.3.3f (the foundation URL thread-4 resolves to the same thread; ?modal=failures lists the numbers)
- *   /institution/messages?state=empty              empty 11.3.3g
- * URL keys of this page: tab=drafts (the Drafts chip) · state=empty|scheduled|delivery-problem · step=confirm|edit · modal=failures.
- * ⚠️ ASSUMPTIONS: see the component headers (the group choice under "One class" / "Year group", the "Send at" field when editing, the "See the 12" list, the retry result,
- * the ⋯ button without a menu, a draft thread). The mock store is in memory.
+ *   /institution/messages[/<id>]          a thread 11.3.3c/d (the first one when no id) · scheduled banner 11.3.3e · guardian-copy problem banner 11.3.3f
+ *   /institution/messages/new             "New message" 11.3.3a · ?step=confirm "Send to n students?" 11.3.3b
+ *   /institution/messages/<id>?step=edit  finish a draft / edit a scheduled message (same dialog) · ?step=edit-confirm its confirmation
+ *   ?modal=failures                        the guardians whose copy failed
+ * Live: /api/institution/messages (institutionMessages.service.js). A sent message is in each reachable student's own GTH Messages inbox; their
+ * replies come back here. The list is empty (11.3.3g) until the school sends or saves its first message.
+ * URL keys of this page: tab=drafts (the Drafts chip) · step=confirm|edit|edit-confirm · modal=failures.
  * Props: data (useInstitutionState()), threadId (route param or undefined), isNew (route /messages/new).
  */
 
@@ -45,22 +46,17 @@ const pad = (n) => String(n).padStart(2, '0');
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/** "2026-10-26T07:00" → "Monday 26 Oct, 07:00" (Figma "Scheduled for Monday 26 Oct, 07:00"). */
+/** a Date / ISO / "2026-10-26T07:00" → "Monday 26 Oct, 07:00" (local time). */
 const formatSchedule = (value) => {
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
+  if (Number.isNaN(d.getTime())) return '';
   return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
-
-const initialsOf = (label) => {
-  const form = label.match(/Form (\d)/);
-  if (form) return `F${form[1]}`;
-  return label
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase();
+/** ISO → the value of a datetime-local input (local time). */
+const toLocalInput = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 const MessagesView = ({ data, threadId, isNew }) => {
@@ -68,136 +64,224 @@ const MessagesView = ({ data, threadId, isNew }) => {
   const store = useMessagesStore();
   const [needle, setNeedle] = useState('');
   const [announce, setAnnounce] = useState('');
-  const [edit, setEdit] = useState(null);
-  const empty = data.state === 'empty';
+  const [thread, setThread] = useState(null);
+  const [threadError, setThreadError] = useState('');
+  const [audiences, setAudiences] = useState(null);
+  const [failures, setFailures] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   const filter = data.tab === 'drafts' ? 'drafts' : 'all';
-  const problemState = data.state === 'delivery-problem';
-  const resolvedId = problemState ? 'thread-1' : (threadId ?? 'thread-1');
-  const threads = useMemo(() => (empty ? [] : store.threads), [empty, store.threads]);
-  const thread = threads.find((t) => t.id === resolvedId) ?? threads[0];
   const step = data.params.get('step');
   const modal = data.modal;
+  const { update } = data;
+  const base = '/institution/messages';
 
   useEffect(() => {
-    log('mount', { resolvedId, state: data.state, step, modal, isNew });
-  }, [resolvedId, data.state, step, modal, isNew]);
+    loadThreads();
+  }, []);
+
+  const openId = threadId ?? (!isNew ? store.threads[0]?.id : null);
+
+  const loadThread = useCallback(async (id) => {
+    if (!id) {
+      setThread(null);
+      return;
+    }
+    setThreadError('');
+    try {
+      setThread(await getMessage(id));
+    } catch (err) {
+      setThreadError(apiMessage(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    log('open', { openId });
+    loadThread(openId);
+  }, [openId, loadThread]);
+
+  // the compose dialogs need the groups
+  const composing = isNew || step === 'edit' || step === 'edit-confirm';
+  useEffect(() => {
+    if (composing && !audiences) {
+      messageAudiences()
+        .then((a) => {
+          setAudiences(a);
+          if (!store.draft.choice) {
+            const first = a?.[store.draft.type]?.[0] ?? a?.year?.[0];
+            if (first)
+              updateDraft({
+                choice: first.id,
+                type: a?.[store.draft.type]?.length ? store.draft.type : 'year',
+              });
+          }
+        })
+        .catch((err) => setError(apiMessage(err)));
+    }
+  }, [composing, audiences, store.draft.choice, store.draft.type]);
+
+  useEffect(() => {
+    if (modal === 'failures' && openId) {
+      setFailures(null);
+      messageFailures(openId)
+        .then((r) => setFailures(r.items ?? []))
+        .catch(() => setFailures([]));
+    }
+  }, [modal, openId]);
 
   const visible = useMemo(
     () =>
-      threads.filter(
+      store.threads.filter(
         (t) =>
           (filter === 'all' || t.draft) &&
           (!needle || t.title.toLowerCase().includes(needle.toLowerCase()))
       ),
-    [threads, filter, needle]
+    [store.threads, filter, needle]
   );
-  const counts = { all: threads.length, drafts: threads.filter((t) => t.draft).length };
 
-  const scheduled = thread?.id === 'thread-3' && data.state === 'scheduled' && !store.scheduledSent;
-  const problem = thread?.id === 'thread-1' && problemState;
   const draft = store.draft;
-  const choice =
-    AUDIENCES[draft.type].find((c) => c.id === draft.choice) ?? AUDIENCES[draft.type][0];
+  const group = audiences?.[draft.type]?.find((c) => c.id === draft.choice) ?? null;
+  const payload = () => ({
+    audience: { type: draft.type, choice: draft.choice },
+    body: draft.body,
+    programmeId:
+      draft.type === 'programme' && draft.attach && group?.programmeId ? group.programmeId : null,
+    attach: draft.attach,
+    sendAt: draft.sendAt ? new Date(draft.sendAt).toISOString() : null,
+  });
 
-  const base = '/institution/messages';
-  const hrefFor = (t) => `${base}/${t.id}`;
-  const toThread = (id, search = '') => navigate(`${base}/${id}${search}`);
+  const afterSave = async (res, message) => {
+    await loadThreads();
+    resetDraft();
+    setAnnounce(message);
+    navigate(`${base}/${res.id}`);
+  };
 
-  const closeCompose = () => navigate(thread ? hrefFor(thread) : base);
+  const run = async (fn) => {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      await fn();
+    } catch (err) {
+      setError(apiMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveDraft = () =>
+    run(async () => {
+      const res = store.draftId
+        ? await updateMessage(store.draftId, { ...payload(), mode: 'draft' })
+        : await createMessage({ ...payload(), mode: 'draft' });
+      await afterSave(res, 'Draft saved.');
+    });
+
+  const sendOrSchedule = () =>
+    run(async () => {
+      const mode = draft.sendAt ? 'schedule' : 'send';
+      const res = store.draftId
+        ? await updateMessage(store.draftId, { ...payload(), mode })
+        : await createMessage({ ...payload(), mode });
+      await afterSave(
+        res,
+        mode === 'send'
+          ? `Message sent to ${group?.reachable ?? 0} students in GTH.`
+          : `Scheduled for ${formatSchedule(draft.sendAt)}.`
+      );
+    });
+
+  const cancelScheduled = () =>
+    run(async () => {
+      await removeMessage(thread.id);
+      await loadThreads();
+      resetDraft();
+      setAnnounce('Scheduled message cancelled.');
+      navigate(base);
+    });
+
+  const editThread = () => {
+    startDraft(
+      {
+        type: thread.audience.type,
+        choice: thread.audience.choice,
+        body: thread.body ?? '',
+        attach: Boolean(thread.programmeId),
+        sendAt: toLocalInput(thread.sendAt),
+      },
+      thread.id
+    );
+    update({ step: 'edit' }, { replace: true });
+  };
+
+  const followUp = async (text) => {
+    let ok = false;
+    await run(async () => {
+      setThread(await followUpMessage(thread.id, text));
+      await loadThreads();
+      setAnnounce('Follow-up sent.');
+      ok = true;
+    });
+    return ok;
+  };
 
   const banner = (() => {
-    if (scheduled) {
+    if (!thread) return null;
+    if (thread.status === 'scheduled') {
       return (
         <ThreadBanner
           tone="scheduled"
-          title={`Scheduled for ${formatSchedule(store.scheduledAt)}`}
-          sentence={SCHEDULED_SENTENCE}
-          secondary={{
-            label: 'Edit',
-            onClick: () => {
-              setEdit({
-                ...DEFAULT_DRAFT,
-                type: 'year',
-                choice: 'form-2',
-                body: thread.timeline[0].text,
-                sendAt: store.scheduledAt,
-              });
-              data.update({ step: 'edit' }, { replace: true });
-            },
-          }}
+          title={`Scheduled for ${formatSchedule(thread.sendAt)}`}
+          sentence={SCHEDULED_SENTENCE(thread.audience.label)}
+          secondary={{ label: 'Edit', onClick: editThread }}
           primary={{
-            label: 'Send now',
-            onClick: () => {
-              sendScheduledNow();
-              setAnnounce('Message sent to Form 2 and their guardians.');
-              data.update({ state: null }, { replace: true });
-            },
+            label: busy ? 'Sending…' : 'Send now',
+            onClick: () =>
+              run(async () => {
+                const res = await updateMessage(thread.id, { mode: 'send' });
+                setThread(res);
+                await loadThreads();
+                setAnnounce(`Message sent to ${thread.audience.label}.`);
+              }),
           }}
         />
       );
     }
-    if (problem && store.retry === 'idle') {
+    const failed = thread.delivery?.guardiansFailed ?? 0;
+    if (thread.status === 'sent' && failed > 0) {
+      const p = deliveryProblem(failed);
       return (
         <ThreadBanner
-          tone="problem"
-          title={DELIVERY_PROBLEM.title}
-          sentence={DELIVERY_PROBLEM.sentence}
-          secondary={{
-            label: DELIVERY_PROBLEM.see,
-            onClick: () => data.update({ modal: 'failures' }),
-          }}
+          tone={thread.delivery.retriedAt ? 'retried' : 'problem'}
+          title={p.title}
+          sentence={p.sentence}
+          secondary={{ label: p.see, onClick: () => update({ modal: 'failures' }) }}
           primary={{
-            label: DELIVERY_PROBLEM.retry,
-            onClick: () => {
-              retryDelivery();
-              setAnnounce('Retrying the 12 SMS.');
-            },
+            label: busy ? 'Retrying…' : p.retry,
+            onClick: () =>
+              run(async () => {
+                const r = await retryMessage(thread.id);
+                await loadThread(thread.id);
+                setAnnounce(`Retried ${r.tried}: ${r.delivered} delivered.`);
+              }),
           }}
-        />
-      );
-    }
-    if (problem && store.retry === 'retrying') {
-      return (
-        <ThreadBanner
-          tone="retrying"
-          title="Retrying the 12 SMS…"
-          sentence="This takes a moment. You can keep working."
-        />
-      );
-    }
-    if (problem && store.retry === 'done') {
-      return (
-        <ThreadBanner
-          tone="retried"
-          title="Retried: 9 delivered"
-          sentence="3 numbers still look wrong. Fix them on the student record."
-          secondary={{ label: 'See the 3', onClick: () => data.update({ modal: 'failures' }) }}
         />
       );
     }
     return null;
   })();
 
-  const items = thread
-    ? [...thread.timeline, ...(store.followUps[thread.id] ?? [])].filter(
-        (m) => !(m.scheduledOnly && !scheduled) || m.id === 'm2'
-      )
-    : [];
-  // thread-3 card is only drawn on the scheduled frame (⚠️ ASSUMPTION: a sent Form 2 message has no clinic card)
-  const shown =
-    thread?.id === 'thread-3' && !scheduled ? items.filter((m) => !m.scheduledOnly) : items;
-
-  const header = thread ? (scheduled ? thread.scheduledHeader : thread.header) : '';
-  const placeholder = thread
-    ? scheduled
-      ? (thread.scheduledPlaceholder ?? thread.placeholder)
-      : thread.placeholder
-    : '';
-
-  const confirmOpen = isNew && step === 'confirm';
-  const composeOpen = isNew && step !== 'confirm';
-  const editOpen = step === 'edit' && thread?.id === 'thread-3' && edit;
-  const failuresOpen = modal === 'failures' && problem;
+  const composeOpen = (isNew && step !== 'confirm') || step === 'edit';
+  const confirmOpen = (isNew && step === 'confirm') || step === 'edit-confirm';
+  const editing = step === 'edit' || step === 'edit-confirm' ? (thread?.status ?? null) : null;
+  const closeCompose = () => {
+    resetDraft();
+    setError('');
+    if (isNew) navigate(openId ? `${base}/${openId}` : base);
+    else update({ step: null }, { replace: true });
+  };
+  const noThreads = store.loaded && !store.threads.length;
 
   return (
     <div className="flex min-w-0 flex-col gap-[24px] font-sans">
@@ -209,94 +293,100 @@ const MessagesView = ({ data, threadId, isNew }) => {
           {MESSAGES_COPY.sentence}
         </p>
       </header>
+      {announce ? (
+        <p
+          role="status"
+          className="m-0 rounded-[12px] border border-solid border-[#e1eae2] bg-[#f3f8f4] px-[16px] py-[12px] text-[14px] leading-[20px] text-[#224626]"
+        >
+          {announce}
+        </p>
+      ) : null}
+      {store.error || threadError ? (
+        <p role="alert" className="m-0 text-[14px] leading-[20px] text-[#902b20]">
+          {store.error || threadError}
+        </p>
+      ) : null}
       <div className="grid grid-cols-1 gap-[10px] xl:grid-cols-[371px_minmax(0,1fr)]">
         <ThreadList
           threads={visible}
           activeId={thread?.id}
           filter={filter}
-          counts={counts}
+          counts={store.counts}
           needle={needle}
           onNeedle={setNeedle}
-          onFilter={(f) =>
-            data.update({ tab: f === 'drafts' ? 'drafts' : null }, { replace: true })
-          }
-          onRefresh={() => setAnnounce('Messages are up to date.')}
-          onNew={() => navigate(`${base}/new`)}
-          hrefFor={hrefFor}
+          onFilter={(f) => update({ tab: f === 'drafts' ? 'drafts' : null }, { replace: true })}
+          onRefresh={async () => {
+            await loadThreads();
+            await loadThread(openId);
+            setAnnounce('Messages are up to date.');
+          }}
+          onNew={() => {
+            resetDraft();
+            navigate(`${base}/new`);
+          }}
+          hrefFor={(t) => `${base}/${t.id}`}
         />
-        {empty || !thread ? (
-          <EmptyMessages onNew={() => navigate(`${base}/new`)} />
+        {!store.loaded ? (
+          <p className="m-0 rounded-[24px] border-[1.2px] border-solid border-[#00522b]/10 bg-white p-[24px] text-[14px] text-[#737373]">
+            Loading messages…
+          </p>
+        ) : noThreads || !thread ? (
+          noThreads ? (
+            <EmptyMessages
+              onNew={() => {
+                resetDraft();
+                navigate(`${base}/new`);
+              }}
+            />
+          ) : (
+            <p className="m-0 rounded-[24px] border-[1.2px] border-solid border-[#00522b]/10 bg-white p-[24px] text-[14px] text-[#737373]">
+              Loading the conversation…
+            </p>
+          )
         ) : (
           <ThreadPane
             thread={thread}
-            header={header}
             banner={banner}
-            scheduled={scheduled}
-            items={shown}
-            placeholder={placeholder}
-            onFollowUp={(text) => {
-              addFollowUp(thread.id, text);
-              setAnnounce('Follow-up sent.');
-            }}
+            busy={busy}
+            onFollowUp={followUp}
+            onEditDraft={editThread}
           />
         )}
       </div>
-      <p role="status" aria-live="polite" className="sr-only">
-        {announce}
-      </p>
       {composeOpen ? (
         <ComposeDialog
           draft={draft}
+          audiences={audiences}
+          editing={editing}
+          busy={busy}
+          error={error}
           onChange={updateDraft}
           onClose={closeCompose}
-          onSaveDraft={() => {
-            saveDraftThread({ title: choice.label });
-            setAnnounce('Draft saved.');
-            toThread('thread-4');
-          }}
-          onPreview={() => data.update({ step: 'confirm' })}
-        />
-      ) : null}
-      {confirmOpen ? (
-        <ConfirmSendDialog
-          students={choice.students}
-          who={choice.who}
-          guardians={choice.guardians}
-          onCancel={() => data.update({ step: null }, { replace: true })}
-          onSend={() => {
-            const id = sendDraft({
-              title: `${choice.label} · new message`,
-              stat: `${choice.students} students · 0 opened · 0 replies`,
-              header: `${choice.students} students and ${choice.guardians} guardians · sent today`,
-              initials: initialsOf(choice.label),
-              text: draft.body,
-            });
-            setAnnounce(`Message sent to ${choice.students} students.`);
-            toThread(id);
-          }}
-        />
-      ) : null}
-      {editOpen ? (
-        <ComposeDialog
-          editing
-          draft={edit}
-          onChange={(patch) => setEdit((d) => ({ ...d, ...patch }))}
-          onClose={() => data.update({ step: null }, { replace: true })}
-          onSaveDraft={() => {
-            setAnnounce('Draft saved.');
-            data.update({ step: null }, { replace: true });
-          }}
+          onSaveDraft={editing === 'scheduled' ? cancelScheduled : saveDraft}
           onPreview={() => {
-            if (edit.sendAt) setScheduledAt(edit.sendAt);
-            setAnnounce('Schedule updated.');
-            data.update({ step: null }, { replace: true });
+            setError('');
+            if (draft.sendAt && new Date(draft.sendAt).getTime() < Date.now()) {
+              setError('Pick a time in the future, or clear “Send later” to send now.');
+              return;
+            }
+            update({ step: isNew ? 'confirm' : 'edit-confirm' });
           }}
         />
       ) : null}
-      {failuresOpen ? (
+      {confirmOpen && group ? (
+        <ConfirmSendDialog
+          group={group}
+          scheduleLabel={draft.sendAt ? formatSchedule(draft.sendAt) : null}
+          busy={busy}
+          error={error}
+          onCancel={() => update({ step: isNew ? null : 'edit' }, { replace: true })}
+          onSend={sendOrSchedule}
+        />
+      ) : null}
+      {modal === 'failures' && thread ? (
         <FailedNumbersDialog
-          count={store.retry === 'done' ? 3 : DELIVERY_PROBLEM.count}
-          onClose={() => data.update({ modal: null }, { replace: true })}
+          items={failures}
+          onClose={() => update({ modal: null }, { replace: true })}
         />
       ) : null}
     </div>

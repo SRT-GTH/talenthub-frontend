@@ -179,6 +179,22 @@ export const programmeApplicants = (id) =>
 export const moveProgrammeApplicant = (id, appId, stage) =>
   api.post(`${P}/${id}/applicants/${appId}/stage`, { stage }).then(body);
 
+/* ---- Messages (backend institutionMessages.service.js) ---- */
+const M = '/institution/messages';
+export const listMessages = () => api.get(M, { timeout: 60000 }).then(body);
+export const messageAudiences = () => api.get(`${M}/audiences`, { timeout: 60000 }).then(body);
+export const getMessage = (id) => api.get(`${M}/${id}`, { timeout: 60000 }).then(body);
+/** mode: draft | send | schedule */
+export const createMessage = (payload) => api.post(M, payload, { timeout: 120000 }).then(body);
+export const updateMessage = (id, payload) =>
+  api.patch(`${M}/${id}`, payload, { timeout: 120000 }).then(body);
+export const removeMessage = (id) => api.delete(`${M}/${id}`).then(body);
+export const followUpMessage = (id, text) =>
+  api.post(`${M}/${id}/follow-up`, { body: text }, { timeout: 120000 }).then(body);
+export const retryMessage = (id) =>
+  api.post(`${M}/${id}/retry`, {}, { timeout: 120000 }).then(body);
+export const messageFailures = (id) => api.get(`${M}/${id}/failures`).then(body);
+
 export const institutionHome = () => api.get('/institution/home', { timeout: 60000 }).then(body);
 export const institutionWelcomeSeen = () =>
   api.post('/institution/home/welcome-seen', {}).then(body);
