@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import {
@@ -21,7 +21,8 @@ const TYPE_MARK = { article: 'Aa', video: '▶', qa: '?' };
  */
 export const CareerPostCard = ({ post, onOpen }) => {
   const [whyOpen, setWhyOpen] = useState(false);
-  const whyId = `career-post-why-${post.id}`;
+  // Unique per card even when the same post shows in two replies.
+  const whyId = `career-post-why-${useId()}`;
   return (
     <article
       aria-label={post.title}
@@ -87,15 +88,18 @@ export const CareerPostCard = ({ post, onOpen }) => {
 
 /*
  * CareerPostCards - "What people on GTH are saying about {career}" and a scrolling row of post cards, under a Career
- * Buddy reply. Props: posts (careerPostView[]), career (heading), onOpen(post) (defaults to the reader page).
+ * Buddy reply. Props: posts (careerPostView[]), career (heading), onOpen(post) (defaults to the reader page),
+ * compact (the narrow Ask Buddy panel on /home: the row takes the panel's width).
  */
-const CareerPostCards = ({ posts, career, onOpen }) => {
+const CareerPostCards = ({ posts, career, onOpen, compact = false }) => {
   const navigate = useNavigate();
   if (!posts?.length) return null;
   return (
     <div
       className="mt-[16px] flex min-w-0 max-w-full flex-col gap-[10px]"
-      style={{ width: `min(${posts.length * 332 - 12}px, 660px, 78vw)` }}
+      style={
+        compact ? { width: '100%' } : { width: `min(${posts.length * 332 - 12}px, 660px, 78vw)` }
+      }
     >
       <p className="m-0 font-sans text-[14px] font-semibold leading-[20px]">
         {career ? `What people on GTH are saying about ${career}` : 'What people on GTH are saying'}

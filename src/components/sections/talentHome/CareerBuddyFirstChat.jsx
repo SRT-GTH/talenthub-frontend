@@ -14,6 +14,8 @@ import {
 } from '../../shared/assets.jsx';
 import BuddyThinking, { StopGeneratingPill } from '../../ui/BuddyThinking.jsx';
 import FlowPortal from './FlowPortal.jsx';
+import CareerPostCards from '../profileFilling/careerExposure/CareerPostCards.jsx';
+import { careerPostView } from '../profileFilling/careerBuddyLive.js';
 import { buddyDemoThinking } from '../profileFilling/buddyDemoFrames.js';
 import {
   useCareerBuddyLive,
@@ -324,7 +326,16 @@ const CareerBuddyFirstChat = ({ home }) => {
               key={m.id}
               m={m}
               cards={
-                live && m.opportunities?.length ? L.renderOpportunities(m, { compact: true }) : null
+                live && m.opportunities?.length ? (
+                  L.renderOpportunities(m, { compact: true })
+                ) : live && m.careerPosts?.length ? (
+                  // 2026-10-27: GTH posts about a career, as in the full Career Buddy.
+                  <CareerPostCards
+                    compact
+                    posts={m.careerPosts.map((p) => careerPostView(p))}
+                    career={m.careerPosts[0]?.career}
+                  />
+                ) : null
               }
             />
           ))}

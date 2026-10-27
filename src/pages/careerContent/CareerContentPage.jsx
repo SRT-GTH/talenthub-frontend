@@ -29,8 +29,10 @@ const CareerContentPage = () => {
       .then((item) => live && setState({ status: 'ready', item }))
       .catch((err) => {
         log.error('item failed', err?.response?.status);
+        // 404 (not for this talent) and 403 (not for their education level) both mean "not available".
+        const status = err?.response?.status;
         if (live)
-          setState({ status: err?.response?.status === 404 ? 'missing' : 'error', item: null });
+          setState({ status: status === 404 || status === 403 ? 'missing' : 'error', item: null });
       });
     return () => {
       live = false;
@@ -43,7 +45,10 @@ const CareerContentPage = () => {
       <main className="mx-auto flex w-full max-w-[760px] flex-col gap-[20px] px-[16px] py-[24px]">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          // Opened straight from a link there is nothing to go back to: Career Buddy instead.
+          onClick={() =>
+            window.history.state?.idx > 0 ? navigate(-1) : navigate('/profile/filling/career-buddy')
+          }
           className="w-fit cursor-pointer rounded-full border border-solid border-[#c1d4c4] bg-white px-[14px] py-[6px] font-sans text-[14px] font-semibold text-[#387440]"
         >
           ← Back
@@ -91,7 +96,7 @@ const CareerContentPage = () => {
               {item.videoUrl ? (
                 <video
                   controls
-                  preload="metadata"
+                  preload="none"
                   src={item.videoUrl}
                   className="w-full rounded-[12px] bg-black"
                 >
