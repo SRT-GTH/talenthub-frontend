@@ -177,18 +177,38 @@ const PostCard = ({ post }) => {
  * a community), newest first, 20 at a time. Props: minor (no Public), onDiscover() for the empty state, show(toast).
  */
 const LiveCircleFeed = ({ minor, onDiscover, show }) => {
-  const [state, setState] = useState({ status: 'loading', items: [], total: 0 });
+  // nextOffset comes from the server (rows read), so a post added here or filtered there never shifts the pages.
+  const [state, setState] = useState({
+    status: 'loading',
+    items: [],
+    total: 0,
+    nextOffset: 0,
+    more: false,
+  });
+  const [busy, setBusy] = useState(false);
   const load = useCallback(async (offset = 0) => {
+    setBusy(true);
     try {
       const out = await circleApi.feed(offset);
-      setState((s) => ({
-        status: 'ready',
-        items: offset ? [...s.items, ...(out?.items || [])] : out?.items || [],
-        total: out?.total || 0,
-      }));
+      setState((s) => {
+        const fresh = out?.items || [];
+        const items = offset
+          ? [...s.items, ...fresh.filter((p) => !s.items.some((x) => x.id === p.id))]
+          : fresh;
+        const nextOffset = out?.nextOffset ?? offset + fresh.length;
+        return {
+          status: 'ready',
+          items,
+          total: out?.total || 0,
+          nextOffset,
+          more: nextOffset < (out?.total || 0),
+        };
+      });
     } catch (err) {
       log('feed failed', err?.response?.status);
       setState((s) => ({ ...s, status: 'error' }));
+    } finally {
+      setBusy(false);
     }
   }, []);
   useEffect(() => {
@@ -196,7 +216,12 @@ const LiveCircleFeed = ({ minor, onDiscover, show }) => {
   }, [load]);
 
   const onPosted = (out) => {
-    if (out?.post) setState((s) => ({ ...s, items: [out.post, ...s.items], total: s.total + 1 }));
+    // Shown at the top straight away; it isn't counted (a held post is not in the server's list yet).
+    if (out?.post)
+      setState((s) => ({
+        ...s,
+        items: [out.post, ...s.items.filter((x) => x.id !== out.post.id)],
+      }));
     show?.({
       text:
         out?.moderation?.status === 'pending_review'
@@ -248,10 +273,11 @@ const LiveCircleFeed = ({ minor, onDiscover, show }) => {
           {state.items.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
-          {state.items.length < state.total ? (
+          {state.more ? (
             <button
               type="button"
-              onClick={() => load(state.items.length)}
+              disabled={busy}
+              onClick={() => load(state.nextOffset)}
               className={classNames(
                 'cursor-pointer self-center rounded-full border border-solid border-[#e1eae2] bg-white px-[16px] py-[8px] font-sans text-[14px] font-semibold text-[#387440]',
                 FOCUS_RING
