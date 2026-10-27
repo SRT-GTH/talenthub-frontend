@@ -189,18 +189,22 @@ const CommunityPostCard = ({
             <span className="min-w-0 truncate font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21]">
               {post.author.name}
             </span>
-            {purpose && onPurpose ? (
+            {onPurpose ? (
               <button
                 type="button"
-                aria-label={`${purpose.singular} post. Change purpose`}
+                aria-label={
+                  purpose
+                    ? `${purpose.singular} post. Change purpose`
+                    : 'No purpose yet. Set purpose'
+                }
                 onClick={() => onPurpose(post)}
                 className={classNames(
                   'inline-flex h-[22px] shrink-0 cursor-pointer items-center gap-[4px] whitespace-nowrap rounded-full border-0 px-[10px] font-sans text-[10px] font-bold leading-[12px] max-lg:text-[12px]',
-                  purpose.badge,
+                  purpose ? purpose.badge : 'bg-[#f0f0f0] text-[#595959]',
                   FOCUS_RING
                 )}
               >
-                {purpose.singular}
+                {purpose ? purpose.singular : 'Set purpose'}
                 <span aria-hidden="true">✎</span>
               </button>
             ) : purpose ? (

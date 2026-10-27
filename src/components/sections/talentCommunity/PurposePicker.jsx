@@ -11,7 +11,7 @@ import { POST_PURPOSES, PURPOSE_BY_VALUE } from './postPurpose.js';
  *   allowed      purpose values this community accepts (others are not offered)
  *   suggestion   { purpose, confidence } from the classifier (only sent at >= 0.7) or null
  * When the classifier is confident it says "This looks like an Upskilling post — does that fit?" with a
- * one-tap Yes; otherwise the field stays empty with the required prompt, and Post stays disabled.
+ * one-tap Yes (the talent always chooses); until then the field stays empty and Post stays disabled.
  */
 /* "an Upskilling post", "a Milestone post" */
 const article = (word) => (/^[aeiou]/i.test(word || '') ? 'an' : 'a');

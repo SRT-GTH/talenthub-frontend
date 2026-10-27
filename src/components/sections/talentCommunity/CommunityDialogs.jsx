@@ -55,7 +55,7 @@ const Footer = ({ note, children }) => (
  * for either yet), `busy` disables Post while the request runs and `error` shows the failure above the footer.
  * Live posts need a purpose (US-5.2.2-01): the kind pills give way to the required "What's this post for?" dropdown,
  * limited to `purposes` (what the community accepts). `onSuggest(text)` resolves { purpose, confidence } | null a second
- * after the talent stops typing; a confident suggestion is pre-selected until they choose for themselves.
+ * after the talent stops typing; a confident suggestion is offered with a one-tap Yes, never chosen for them.
  */
 export const CreatePostDialog = ({
   onClose,
@@ -78,29 +78,28 @@ export const CreatePostDialog = ({
   const [draft, setDraft] = useState(null); // { kind: 'tag' | 'link', value }
   const [files, setFiles] = useState(live ? 0 : 1);
   const [purpose, setPurpose] = useState('');
-  const [picked, setPicked] = useState(false); // the talent chose a purpose themselves
   const [suggestion, setSuggestion] = useState(null);
 
   // Ask for a suggestion a second after typing stops (live only; short texts say too little).
+  // The suggestion is only offered ("does that fit?" + Yes); the talent always makes the choice.
   useEffect(() => {
-    if (!live || !onSuggest || text.trim().length < 15) return undefined;
+    if (!live || !onSuggest) return undefined;
+    if (text.trim().length < 15) {
+      setSuggestion(null);
+      return undefined;
+    }
     let cancelled = false;
     const timer = setTimeout(async () => {
       const result = await onSuggest(text.trim()).catch(() => null);
-      if (cancelled) return;
-      setSuggestion(result);
-      if (!picked) setPurpose(result?.purpose || '');
+      if (!cancelled) setSuggestion(result);
     }, 1000);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [live, onSuggest, text, picked]);
+  }, [live, onSuggest, text]);
 
-  const choosePurpose = (value) => {
-    setPicked(true);
-    setPurpose(value);
-  };
+  const choosePurpose = (value) => setPurpose(value);
 
   const commitDraft = () => {
     const value = draft?.value.trim();
