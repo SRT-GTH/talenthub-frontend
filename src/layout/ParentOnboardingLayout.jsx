@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import ParentLoginRightPanel from '../components/sections/parentLogin/ParentLoginRightPanel.jsx';
 import ParentOnboardingBreadcrumb from '../components/shared/ParentOnboardingBreadcrumb.jsx';
@@ -10,6 +11,7 @@ import {
   WelcomeOverlayCards,
   SignupOverlayCards,
 } from '../components/sections/parentLogin/ParentWelcomePanelContent.jsx';
+import ParentTutorialModal from '../components/sections/parentLogin/ParentTutorialModal.jsx';
 import SuccessPanelContent from '../components/sections/parentLogin/ParentSuccessPanelContent.jsx';
 import WardInvitePanelContent from '../components/sections/parentLogin/ParentInvitePanelContent.jsx';
 import WardInviteStepsPanelContent from '../components/sections/parentLogin/ParentInviteStepsPanelContent.jsx';
@@ -51,6 +53,9 @@ const PARENT_STEP_PATHS = [
 
 const ParentOnboardingLayout = () => {
   const { pathname, key: locationKey } = useLocation();
+  // Path A Watch Tutorial overlay (video + stepper). Flow B panels never show the
+  // button, so the state is only ever set from the Flow A photo panel below.
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const isLogin = pathname.includes('parent-login');
   const isWelcome = pathname.includes('parent-welcome');
   // Flow B (ward-invited): the bare welcome has no breadcrumb + ward-invite
@@ -81,10 +86,12 @@ const ParentOnboardingLayout = () => {
   log('mount', { pathname, isLogin, isWelcome, isSignupStep, currentStep, completionPercent });
 
   const photoCards = isLogin ? LOGIN_PHOTO_CARDS : WELCOME_PHOTO_CARDS;
+  // Figma uses the ward 'Abena' throughout the Link Ward step (Kofi elsewhere).
+  const wardName = pathname.includes('parent-link-ward') ? 'Abena' : 'Kofi';
   const overlayContent = isLogin ? (
     <LoginOverlayCards />
   ) : isSignupStep ? (
-    <SignupOverlayCards />
+    <SignupOverlayCards wardName={wardName} />
   ) : (
     <WelcomeOverlayCards />
   );
@@ -171,9 +178,16 @@ const ParentOnboardingLayout = () => {
           ) : isInvitedWelcome ? (
             <ParentLoginRightPanel variant="simple" centerContent={<WardInvitePanelContent />} />
           ) : (
-            <ParentLoginRightPanel photoCards={photoCards} overlayContent={overlayContent} />
+            <ParentLoginRightPanel
+              photoCards={photoCards}
+              overlayContent={overlayContent}
+              tutorialShowLabel={false}
+              onWatchTutorial={() => setTutorialOpen(true)}
+            />
           ))}
       </section>
+
+      {tutorialOpen && <ParentTutorialModal onClose={() => setTutorialOpen(false)} />}
     </div>
   );
 };

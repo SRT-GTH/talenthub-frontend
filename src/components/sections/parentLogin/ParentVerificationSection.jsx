@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
-import Upload from '../../ui/form/Upload.jsx';
+import ParentVerificationUploadCard from './ParentVerificationUploadCard.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -43,8 +43,8 @@ const VerificationCaptionBadge = () => (
     />
     <span className="flex items-center gap-2">
       <span
-        className="font-display italic"
-        style={{ fontSize: 16, color: '#b5b5b5', lineHeight: 'normal' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 15, color: '#b5b5b5', lineHeight: 'normal' }}
       >
         02
       </span>
@@ -115,6 +115,10 @@ const ParentVerificationSection = () => {
   const [ghanaCardFile, setGhanaCardFile] = useState(null);
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
 
+  // Figma: grey "Fill In Your Details" until a file is chosen, then green "Continue".
+  // "Continue without verification" remains the way to skip.
+  const hasFile = Boolean(ghanaCardFile || profilePhotoFile);
+
   const handleContinue = () => {
     log('continue clicked — navigating to parent-contact step', {
       hasGhanaCard: !!ghanaCardFile,
@@ -137,17 +141,14 @@ const ParentVerificationSection = () => {
 
         {/* Headline */}
         <h1
-          className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="max-w-[554px] text-center font-heading font-semibold text-[#1c2a21] max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-            lineHeight: 1.094,
-            letterSpacing: '-0.6px',
+            lineHeight: 0.92,
+            letterSpacing: '-0.045em',
           }}
         >
-          Verify your{' '}
-          <span className="italic" style={{ color: '#c8951a' }}>
-            Identity
-          </span>
+          Verify your <span style={{ color: '#c8951a' }}>Identity</span>
         </h1>
 
         {/* Subtitle */}
@@ -168,16 +169,12 @@ const ParentVerificationSection = () => {
         {/* Upload cards */}
         <div className="flex w-full max-w-[482px] flex-col gap-4 max-md:gap-3">
           {/* Ghana Card ID (Figma 2931:91903) */}
-          <Upload
-            variant="amber"
+          <ParentVerificationUploadCard
             icon={<GhanaCardIcon />}
             title="Ghana Card ID"
-            receivedTitle="Ghana Card ID"
-            badge="Optional"
-            receivedBadge="ADDED"
-            acceptLabels={['GHA-XXXXXXXXX-X', 'Front only']}
+            lines={['GHA-XXXXXXXXX-X format', 'Front of card only']}
             accept="image/*"
-            filename={ghanaCardFile ? `${ghanaCardFile.name} · Verified` : undefined}
+            filename={ghanaCardFile ? ghanaCardFile.name : undefined}
             onFileSelect={(f) => {
               log('Ghana card file set:', f.name);
               setGhanaCardFile(f);
@@ -186,16 +183,12 @@ const ParentVerificationSection = () => {
           />
 
           {/* Profile Photo (Figma 2931:91932) */}
-          <Upload
-            variant="amber"
+          <ParentVerificationUploadCard
             icon={<ProfileIcon />}
             title="Profile Photo"
-            receivedTitle="Profile Photo"
-            badge="Optional"
-            receivedBadge="ADDED"
-            acceptLabels={['JPG', 'PNG']}
+            lines={['JPG or PNG · Max 5MB', 'Clear face photo']}
             accept="image/jpeg,image/png"
-            filename={profilePhotoFile ? `${profilePhotoFile.name} · Verified` : undefined}
+            filename={profilePhotoFile ? profilePhotoFile.name : undefined}
             onFileSelect={(f) => {
               log('profile photo file set:', f.name);
               setProfilePhotoFile(f);
@@ -229,10 +222,11 @@ const ParentVerificationSection = () => {
             variant="primary"
             size="lg"
             onClick={handleContinue}
+            disabled={!hasFile}
             rightIcon={<ArrowRightIcon />}
             className="mt-2 w-full max-w-[698px]"
           >
-            Fill In Your Details
+            {hasFile ? 'Continue' : 'Fill In Your Details'}
           </Button>
         </StickyActionBar>
 

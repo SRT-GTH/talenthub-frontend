@@ -1,6 +1,7 @@
 import photoStudents from '../../../assets/hero/parent-welcome-panel-photo.webp';
 import ellipse5 from '../../../assets/hero/Ellipse 5.svg';
 import { FlagCorrectionsOverlay } from './ParentLoginPanelContent.jsx';
+import { PersonIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentWelcomePanelContent');
@@ -25,9 +26,9 @@ const log = debug('ParentWelcomePanelContent');
  * Figma 2894:72783 — white card, icon above text.
  * Inset within panel (739×973): top=529px (54.4%), right=56px (7.6%),
  * width=181px (24.5%). Layout: icon (#faf4e8, 26×26, rounded-6) above
- * "WARD STATUS" + "Active : Kofi Mensah" text, all flex-col centered vertically.
+ * "WARD STATUS" + "Active : {wardName} Mensah" text, all flex-col centered vertically.
  */
-export const WardStatusCard = () => {
+export const WardStatusCard = ({ wardName = 'Kofi' }) => {
   log('render WardStatusCard');
   return (
     <div
@@ -45,15 +46,7 @@ export const WardStatusCard = () => {
           className="flex shrink-0 items-center justify-center rounded-[6px]"
           style={{ width: 26, height: 26, backgroundColor: '#faf4e8' }}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M6 1.5l1.06 2.15 2.37.35-1.72 1.67.41 2.36L6 6.82 3.88 8.03l.41-2.36L2.57 4 4.94 3.65 6 1.5z"
-              fill="#c8951a"
-              stroke="#c8951a"
-              strokeWidth="0.4"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <PersonIcon className="size-[18px] text-[#b48617]" />
         </span>
 
         <div className="flex flex-col gap-1">
@@ -72,7 +65,7 @@ export const WardStatusCard = () => {
             className="font-sans font-semibold"
             style={{ fontSize: 12, lineHeight: 'normal', color: '#967014' }}
           >
-            Active : Kofi Mensah
+            Active : {wardName} Mensah
           </p>
         </div>
       </div>
@@ -108,6 +101,7 @@ export const WELCOME_PHOTO_CARDS = [
 
 export const WelcomeOverlayCards = () => (
   <>
+    <SignupActiveBadge />
     <WardStatusCard />
     <FlagCorrectionsOverlay className="top-[80.9%] left-[10.7%]" />
   </>
@@ -155,10 +149,10 @@ export const SignupActiveBadge = () => {
 // (top-right) + FlagCorrectionsOverlay (bottom-left).
 // Uses the same WELCOME_PHOTO_CARDS single-large-photo config.
 
-export const SignupOverlayCards = () => (
+export const SignupOverlayCards = ({ wardName = 'Kofi' }) => (
   <>
     <SignupActiveBadge />
-    <WardStatusCard />
-    <FlagCorrectionsOverlay className="top-[80.9%] left-[10.7%]" />
+    <WardStatusCard wardName={wardName} />
+    <FlagCorrectionsOverlay className="top-[80.9%] left-[10.7%]" wardName={wardName} />
   </>
 );

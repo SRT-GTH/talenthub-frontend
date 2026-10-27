@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
@@ -7,6 +7,8 @@ import { debug } from '../../../utils/debug.js';
 import PhoneInput from '../../ui/form/PhoneInput.jsx';
 import TextInput from '../../ui/form/TextInput.jsx';
 import VerificationCode from '../../ui/form/VerificationCode.jsx';
+import { LoadingSpinner } from '../../shared/assets.jsx';
+import { useParentDialogA11y } from './useParentDialogA11y.js';
 
 const log = debug('ParentContactSection');
 
@@ -40,8 +42,8 @@ const ContactCaptionBadge = () => (
     />
     <span className="flex items-center gap-2">
       <span
-        className="font-display italic"
-        style={{ fontSize: 16, color: '#b5b5b5', lineHeight: 'normal' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 15, color: '#b5b5b5', lineHeight: 'normal' }}
       >
         03
       </span>
@@ -245,6 +247,14 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
   const [otp, setOtp] = useState('');
   const [hasError, setHasError] = useState(false);
   const [attemptsLeft, setAttemptsLeft] = useState(3);
+  const dialogRef = useRef(null);
+  const boxesRef = useRef(null);
+  // Focus in, Tab trapped, Esc closes, focus returns to "Send Verification Code".
+  useParentDialogA11y({
+    dialogRef,
+    onClose,
+    initialFocusSelector: 'input[aria-label="Digit 1 of 6"]',
+  });
 
   const expiry = useCountdown(600, true);
   const resend = useCountdown(60, true);
@@ -263,7 +273,11 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
       log('OtpModal: wrong code — attempts left:', left);
       setHasError(true);
       setAttemptsLeft(left);
-      setOtp('');
+      // Figma error frame: the typed digits stay visible (red) and focus stays in
+      // the boxes so the parent can correct them straight away.
+      requestAnimationFrame(() =>
+        boxesRef.current?.querySelector('input[aria-label="Digit 6 of 6"]')?.focus()
+      );
     }
   };
 
@@ -278,18 +292,22 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
   };
 
   const filled = otp.length === OTP_LENGTH;
-  const canSubmit = filled && attemptsLeft > 0;
+  const canSubmit = filled && !hasError && attemptsLeft > 0;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
-      style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
+      style={{ backgroundColor: 'rgba(28,42,33,0.5)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="relative w-full max-w-[420px] rounded-3xl bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="parent-contact-otp-title"
+        className="relative w-full max-w-[420px] rounded-3xl border border-[#eedeb8] bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -300,7 +318,7 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
+          className="absolute right-4 top-4 flex size-7 items-center justify-center rounded-full bg-[#ebf1ec] text-[#575755] transition-colors hover:bg-[#d4e4d6] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
@@ -360,13 +378,11 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
 
         {/* ── Headline — Figma 2938:27955 */}
         <h2
-          className="mb-2 text-center font-display font-normal max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
-          style={{ fontSize: 28, color: '#111', letterSpacing: '-1.1px', lineHeight: '30px' }}
+          id="parent-contact-otp-title"
+          className="mb-2 text-center font-heading font-semibold max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
+          style={{ fontSize: 28, color: '#111', letterSpacing: '-0.02em', lineHeight: '30px' }}
         >
-          Check your{' '}
-          <span className="italic" style={{ color: '#b48617' }}>
-            messages.
-          </span>
+          Check your <span style={{ color: '#b48617' }}>messages.</span>
         </h2>
 
         {/* ── Subtitle — Figma 2938:27957 */}
@@ -410,14 +426,18 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
         </div>
 
         {/* ── OTP boxes — Figma 2938:27964–27969 (62px native, 52px in modal) */}
-        <div className="mb-5 flex justify-center max-sm:mb-3">
+        <div
+          ref={boxesRef}
+          className={`mb-5 flex justify-center max-sm:mb-3 ${hasError ? '[&_input]:text-[#922b21]!' : ''}`}
+        >
           <VerificationCode
             length={OTP_LENGTH}
             value={otp}
             onChange={(code) => {
               log('OtpModal otp changed:', code.length, 'digits');
               setOtp(code);
-              if (hasError && code.length === 0) setHasError(false);
+              // any edit after a wrong code clears the red state
+              if (hasError) setHasError(false);
             }}
             state={hasError ? 'error' : undefined}
             autoFocus
@@ -470,12 +490,14 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
           </button>
         </div>
 
-        {/* ── CTA — Figma 2938:27987 (grey=disabled, amber=active) */}
+        {/* ── CTA — Figma 2938:27987/28025/29280: grey until 6 digits ("Enter all 6
+            digits to continue"), then green "Verify & Continue"; grey again while
+            a wrong code is showing. */}
         <button
           type="button"
           onClick={canSubmit ? handleVerify : undefined}
           disabled={!canSubmit}
-          className="w-full font-sans font-bold transition-colors max-sm:h-11! max-sm:rounded-[10px]! max-sm:text-[14px]! max-sm:border-b-2! max-sm:shadow-none!"
+          className="flex w-full items-center justify-center gap-2 font-sans font-bold transition-colors max-sm:h-11! max-sm:rounded-[10px]! max-sm:text-[14px]! max-sm:border-b-2! max-sm:shadow-none!"
           style={{
             height: 56,
             borderRadius: 14,
@@ -483,16 +505,17 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
             letterSpacing: '0.1px',
             lineHeight: '24px',
             color: '#fff',
-            backgroundColor: canSubmit ? '#c8951a' : '#bfbfbf',
-            borderTop: `1px solid ${canSubmit ? '#a07715' : '#ccc'}`,
-            borderLeft: `2px solid ${canSubmit ? '#a07715' : '#ccc'}`,
-            borderRight: `2px solid ${canSubmit ? '#a07715' : '#ccc'}`,
-            borderBottom: `2px solid ${canSubmit ? '#a07715' : '#ccc'}`,
-            boxShadow: `0px 4px 0px ${canSubmit ? 'rgba(160,119,21,0.8)' : 'rgba(191,191,191,0.8)'}`,
+            backgroundColor: canSubmit ? '#387440' : '#bfbfbf',
+            borderTop: `1px solid ${canSubmit ? '#2a5730' : '#ccc'}`,
+            borderLeft: `2px solid ${canSubmit ? '#2a5730' : '#ccc'}`,
+            borderRight: `2px solid ${canSubmit ? '#2a5730' : '#ccc'}`,
+            borderBottom: `2px solid ${canSubmit ? '#2a5730' : '#ccc'}`,
+            boxShadow: `0px 4px 0px ${canSubmit ? '#224626' : 'rgba(191,191,191,0.8)'}`,
             cursor: canSubmit ? 'pointer' : 'not-allowed',
           }}
         >
-          Enter all 6 digits to continue
+          {filled ? 'Verify & Continue' : 'Enter all 6 digits to continue'}
+          <ArrowRightIcon />
         </button>
 
         {/* ── Attempts remaining — Figma 2938:27992, always visible */}
@@ -538,13 +561,20 @@ const OtpModal = ({ phone, email, onClose, onVerified }) => {
  */
 const SuccessModal = ({ phone, email, onClose, onContinue }) => {
   log('SuccessModal mount');
+  const dialogRef = useRef(null);
+  // Focus in, Tab trapped, Esc closes (same as the × button), focus returns on unmount.
+  useParentDialogA11y({ dialogRef, onClose });
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
-      style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
+      style={{ backgroundColor: 'rgba(28,42,33,0.5)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="relative w-full max-w-[420px] rounded-3xl bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="parent-contact-success-title"
+        className="relative w-full max-w-[420px] rounded-3xl border border-[#eedeb8] bg-white max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4! max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]!"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -555,7 +585,7 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#b48617] transition-colors hover:bg-[#faf4e8] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
+          className="absolute right-4 top-4 flex size-7 items-center justify-center rounded-full bg-[#ebf1ec] text-[#575755] transition-colors hover:bg-[#d4e4d6] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
         >
           <CloseIcon />
         </button>
@@ -595,9 +625,9 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
             style={{
               fontSize: 12,
               color: '#999',
-              backgroundColor: 'rgba(235,241,236,0.5)',
-              border: '1px solid #faf4e8',
-              padding: '10px 32px',
+              backgroundColor: '#fefdfa',
+              border: '1px solid #eeeeea',
+              padding: '4px 12px',
               borderRadius: 6,
               lineHeight: '18px',
               letterSpacing: '0.2px',
@@ -620,13 +650,11 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
 
         {/* ── Headline — Figma 2938:31778 */}
         <h2
-          className="mb-2 text-center font-display font-normal max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
-          style={{ fontSize: 32, color: '#111', letterSpacing: '-1.2px', lineHeight: '32px' }}
+          id="parent-contact-success-title"
+          className="mb-2 text-center font-heading font-semibold max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
+          style={{ fontSize: 32, color: '#111', letterSpacing: '-0.02em', lineHeight: '32px' }}
         >
-          You&apos;re{' '}
-          <span className="italic" style={{ color: '#b48617' }}>
-            Verified
-          </span>
+          You&apos;re <span style={{ color: '#b48617' }}>Verified</span>
         </h2>
 
         {/* ── Subtitle — Figma 2938:31779 */}
@@ -694,17 +722,8 @@ const SuccessModal = ({ phone, email, onClose, onContinue }) => {
           </div>
         </div>
 
-        {/* ── Progress bar — Figma 2938:31793 (step 3 of 8 ≈ 37.5%) */}
-        <div
-          className="mb-4 w-full overflow-hidden rounded-[4px] max-sm:mb-3"
-          style={{ height: 6, backgroundColor: '#ebf1ec' }}
-          aria-hidden="true"
-        >
-          <div
-            className="h-full rounded-[6px]"
-            style={{ width: '37.5%', backgroundColor: '#387440' }}
-          />
-        </div>
+        {/* ── Plain divider — Figma 2938:30508 (replaces the green progress bar) */}
+        <div className="mb-4 h-px w-full bg-[#e6e6e6] max-sm:mb-3" aria-hidden="true" />
 
         {/* ── CTA — Figma 2938:31796 (green bg, gradient text) */}
         <button
@@ -774,13 +793,22 @@ const ParentContactSection = () => {
   const [email, setEmail] = useState('');
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [verified, setVerified] = useState(false);
+  // Presentational loading step on "Send Verification Code" (the OTP itself is the
+  // untouched demo flow: modal opens, code 123456 verifies).
+  const [sending, setSending] = useState(false);
+  const sendTimer = useRef(null);
+  useEffect(() => () => clearTimeout(sendTimer.current), []);
 
   const isFormReady = phone.trim().length >= 7 && email.trim().includes('@');
 
   const handleSend = () => {
-    if (!isFormReady) return;
+    if (!isFormReady || sending) return;
     log('send verification code clicked — phone:', maskPhone(phone), 'email:', maskEmail(email));
-    setShowOtpModal(true);
+    setSending(true);
+    sendTimer.current = setTimeout(() => {
+      setSending(false);
+      setShowOtpModal(true);
+    }, 700);
   };
 
   const handleVerified = () => {
@@ -802,17 +830,14 @@ const ParentContactSection = () => {
 
         {/* Headline */}
         <h1
-          className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="max-w-[554px] text-center font-heading font-semibold text-[#1c2a21] max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-            lineHeight: 1.094,
-            letterSpacing: '-0.64px',
+            lineHeight: 0.92,
+            letterSpacing: '-0.045em',
           }}
         >
-          Tell us about{' '}
-          <span className="italic" style={{ color: '#c8951a' }}>
-            yourself.
-          </span>
+          Tell us about <span style={{ color: '#c8951a' }}>yourself.</span>
         </h1>
 
         {/* Subtitle */}
@@ -847,7 +872,7 @@ const ParentContactSection = () => {
                 log('phone changed:', e.target.value);
                 setPhone(e.target.value);
               }}
-              placeholder="24 000 0000"
+              placeholder="23 533 4567"
             />
           </div>
 
@@ -855,14 +880,15 @@ const ParentContactSection = () => {
           <div className="max-w-full" style={{ width: 340 }}>
             <PhoneInput
               label="WhatsApp Number"
-              optional
+              labelTrailing="Optional"
+              labelTrailingClassName="text-brand-green"
               helperText="Leave blank if same as your phone number above"
               value={whatsapp}
               onChange={(e) => {
                 log('whatsapp changed:', e.target.value);
                 setWhatsapp(e.target.value);
               }}
-              placeholder="24 000 0000"
+              placeholder="23 533 4567"
             />
           </div>
 
@@ -877,7 +903,7 @@ const ParentContactSection = () => {
               leftIconClassName="text-brand-green"
               type="email"
               placeholder="you@example.com"
-              helperText="Important updates, job matches, will be sent here"
+              helperText="Important updates, job matches, and your verification code will be sent here"
               value={email}
               onChange={(e) => {
                 log('email changed:', e.target.value);
@@ -894,6 +920,7 @@ const ParentContactSection = () => {
               type="button"
               onClick={handleSend}
               disabled={!isFormReady}
+              aria-busy={sending || undefined}
               className="flex w-full items-center justify-center gap-2 font-sans font-bold transition-all max-md:h-11! max-md:rounded-[10px]! max-md:text-[14px]! max-md:border-b-2!"
               style={{
                 height: 56,
@@ -902,12 +929,13 @@ const ParentContactSection = () => {
                 letterSpacing: '0.1px',
                 lineHeight: '24px',
                 color: '#fff',
-                backgroundColor: isFormReady ? '#c8951a' : '#bfbfbf',
-                border: `2px solid ${isFormReady ? '#a07715' : '#ccc'}`,
-                borderBottom: `4px solid ${isFormReady ? '#a07715' : 'rgba(191,191,191,0.8)'}`,
-                cursor: isFormReady ? 'pointer' : 'not-allowed',
+                backgroundColor: !isFormReady ? '#bfbfbf' : sending ? '#2d5d33' : '#387440',
+                border: `2px solid ${isFormReady ? '#2a5730' : '#ccc'}`,
+                borderBottom: `4px solid ${isFormReady ? '#224626' : 'rgba(191,191,191,0.8)'}`,
+                cursor: !isFormReady ? 'not-allowed' : sending ? 'progress' : 'pointer',
               }}
             >
+              {sending && <LoadingSpinner stroke="#FEF1E7" />}
               Send Verification Code
               <ArrowRightIcon />
             </button>

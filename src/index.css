@@ -3,6 +3,7 @@
 @import './styles/gthLoader.css';
 @import './styles/askBuddyFab.css';
 @import './styles/buddyThinking.css';
+@import './styles/parent.css';
 
 /*
  * TalentHub design tokens (Tailwind v4 @theme).

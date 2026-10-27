@@ -77,7 +77,7 @@ export const ErrorCallout = () => {
  * per-screen top/left placement.
  * Width: 32.7% of the 739px panel (≈242px).
  */
-export const FlagCorrectionsOverlay = ({ className = '' }) => {
+export const FlagCorrectionsOverlay = ({ className = '', wardName = 'Kofi' }) => {
   log('render FlagCorrectionsOverlay');
   return (
     <div
@@ -116,7 +116,7 @@ export const FlagCorrectionsOverlay = ({ className = '' }) => {
           className="font-sans text-neutral-darker"
           style={{ fontSize: 'var(--fs-10)', lineHeight: '15px', letterSpacing: '0.1px' }}
         >
-          Spot something wrong? Flag it and Kofi gets notified.
+          Spot something wrong? Flag it and {wardName} gets notified.
         </p>
       </div>
     </div>
@@ -151,12 +151,12 @@ export const LOGIN_PHOTO_CARDS = [
 ];
 
 // ── Overlay group ─────────────────────────────────────────────────────────
-// Login screen: ErrorCallout (top) + FlagCorrectionsOverlay (bottom-left).
+// Login screen: FlagCorrectionsOverlay (bottom-left). The 'Kofi Mensah added you as a
+// parent' toast now lives in the navbar row (ParentLoginSection), as in Figma.
 // Login flag position: top=76.9% (787/973), left=10.4% (77/739).
 
 export const LoginOverlayCards = () => (
   <>
-    <ErrorCallout />
     <FlagCorrectionsOverlay className="top-[76.9%] left-[10.4%]" />
   </>
 );

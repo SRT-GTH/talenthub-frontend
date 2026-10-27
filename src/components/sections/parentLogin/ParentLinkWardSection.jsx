@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
@@ -10,7 +10,7 @@ import ParentInlineNotice from './ParentInlineNotice.jsx';
 import ParentDefRows from './ParentDefRows.jsx';
 import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import WavyDivider from '../../shared/WavyDivider.jsx';
-import { ArrowRightIcon, MailIcon } from '../../shared/assets.jsx';
+import { ArrowRightIcon, LoadingSpinner, MailIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
 // Placeholder ward avatar — swap for the real per-ward photo when the parent
 // onboarding store is wired. Reuses an existing onboarding portrait so the
@@ -51,9 +51,16 @@ const ParentLinkWardSection = () => {
   const isTabletUp = useMediaQuery('(min-width: 1024px)');
   log('toast branch:', isTabletUp ? 'toast' : 'inline-notice', 'visible:', showToast);
 
+  // Loading step on "Confirm & Continue", then on to Review (presentational ~700 ms).
+  const [confirming, setConfirming] = useState(false);
+  const confirmTimer = useRef(null);
+  useEffect(() => () => clearTimeout(confirmTimer.current), []);
+
   const handleConfirm = () => {
-    log('confirm clicked — navigating to parent-review');
-    navigate('/onboarding/parent-review');
+    if (confirming) return;
+    log('confirm clicked — loading, then navigating to parent-review');
+    setConfirming(true);
+    confirmTimer.current = setTimeout(() => navigate('/onboarding/parent-review'), 700);
   };
 
   return (
@@ -66,7 +73,7 @@ const ParentLinkWardSection = () => {
               title="Ward automatically linked Path A"
               onDismiss={() => setShowToast(false)}
             >
-              Your contact matched the details Kofi provided. No further action is needed to
+              Your contact matched the details Abena provided. No further action is needed to
               establish the link.
             </ParentInlineNotice>
           )}
@@ -82,18 +89,15 @@ const ParentLinkWardSection = () => {
           {/* Headline — Figma 2939:49718 */}
           {/* "Your ward is " regular black + italic amber "linked" */}
           <h1
-            className="max-w-[554px] text-center font-display font-normal max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="max-w-[554px] text-center font-heading font-semibold max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-              lineHeight: 1.094,
-              letterSpacing: '-0.64px',
-              color: '#111',
+              lineHeight: 0.92,
+              letterSpacing: '-0.045em',
+              color: '#1c2a21',
             }}
           >
-            Your ward is{' '}
-            <span className="italic" style={{ color: '#c8951a' }}>
-              linked
-            </span>
+            Your ward is <span style={{ color: '#c8951a' }}>linked</span>
           </h1>
 
           {/* Subtitle — Figma 2939:49720 */}
@@ -271,7 +275,7 @@ const ParentLinkWardSection = () => {
                 className="font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#b48617]"
                 buttonClassName="text-[12px] font-semibold text-[#b48617]"
               >
-                If you have concerns about Kofi&apos;s participation, you can remove their access
+                If you have concerns about Abena&apos;s participation, you can remove their access
                 after completing setup. Their data is preserved and the account can be reactivated.
               </ClampText>
             </div>
@@ -285,6 +289,9 @@ const ParentLinkWardSection = () => {
               size="lg"
               className="mt-2 w-full justify-center"
               rightIcon={<ArrowRightIcon />}
+              leftIcon={confirming ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+              state={confirming ? 'active' : undefined}
+              aria-busy={confirming || undefined}
               onClick={handleConfirm}
             >
               Confirm &amp; Continue
@@ -309,11 +316,12 @@ const ParentLinkWardSection = () => {
       {/* Auto-link success Toast — Figma 2943:52577 */}
       {isTabletUp && showToast && (
         <Toast
-          position="top-right"
+          position="top-center"
+          offsetClassName="top-[26px]!"
           variant="success"
           duration={8000}
           title="Ward automatically linked Path A"
-          body="Your contact matched the details Kofi provided. No further action is needed to establish the link."
+          body="Your contact matched the details Abena provided. No further action is needed to establish the link."
           onDismiss={() => {
             log('auto-link toast dismissed');
             setShowToast(false);

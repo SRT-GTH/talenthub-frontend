@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import Toast from '../../ui/Toast.jsx';
 import ParentInlineNotice from './ParentInlineNotice.jsx';
+import { LoadingSpinner } from '../../shared/assets.jsx';
 import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import { debug } from '../../../utils/debug.js';
 
@@ -18,11 +19,12 @@ const log = debug('ParentWelcomeSection');
  */
 
 // ── WelcomeBackBadge ─────────────────────────────────────────────────────────
-// Figma 2900:76717 — identical structure to the one in ParentLoginSection.
+// Figma 2900:76717 / 2865:44066 — white pill, mixed-case "Welcome Back" (the Login
+// screen keeps its own amber upper-case variant).
 const WelcomeBackBadge = () => (
   <span
     className="inline-flex w-fit items-center gap-2 rounded-[8px] px-3 py-[5px] max-md:py-0.5 max-md:self-start"
-    style={{ backgroundColor: '#f7efdd', border: '1px solid #eedeb8' }}
+    style={{ backgroundColor: '#ffffff', border: '1px solid #eedeb8' }}
   >
     <span
       className="shrink-0 rounded-full"
@@ -38,7 +40,7 @@ const WelcomeBackBadge = () => (
       className="font-sans font-normal text-[12px] leading-[18px]"
       style={{ color: '#c8951a', letterSpacing: '0.4px' }}
     >
-      WELCOME BACK
+      Welcome Back
     </span>
   </span>
 );
@@ -122,6 +124,10 @@ const ParentWelcomeSection = () => {
 
   const navigate = useNavigate();
   const [toastVisible, setToastVisible] = useState(true);
+  // Figma 'Active' CTA state: spinner + darker green, then continue (~700 ms).
+  const [creating, setCreating] = useState(false);
+  const createTimer = useRef(null);
+  useEffect(() => () => clearTimeout(createTimer.current), []);
   // Phones: the shared Toast's full-screen scrim + tall card covers the page, so
   // the same message is shown as a compact inline notice instead.
   const isTabletUp = useMediaQuery('(min-width: 1024px)');
@@ -151,21 +157,19 @@ const ParentWelcomeSection = () => {
         {/* Welcome badge — Figma 2900:76717 */}
         <WelcomeBackBadge />
 
-        {/* Headline — Figma 2865:44246, Instrument Serif 64px */}
-        {/* "on the platform." italic #c8951a */}
+        {/* Headline — Figma 2865:44246, Bricolage Grotesque 600 64px, upright */}
+        {/* "on the platform." gold #c8951a */}
         <h1
-          className="font-display font-normal text-center text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold text-center text-[#1c2a21] max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-            lineHeight: 1.094,
-            letterSpacing: '-0.64px',
+            lineHeight: 0.92,
+            letterSpacing: '-0.045em',
           }}
         >
           Your ward is already
           <br />
-          <span className="italic" style={{ color: '#c8951a' }}>
-            on the platform.
-          </span>
+          <span style={{ color: '#c8951a' }}>on the platform.</span>
         </h1>
 
         {/* Subtitle — Figma 2865:44248, SF Pro Rounded 16px #737373 */}
@@ -210,9 +214,9 @@ const ParentWelcomeSection = () => {
                   }}
                 >
                   <span
-                    className="font-display italic"
+                    className="font-heading font-semibold"
                     style={{
-                      fontSize: 16,
+                      fontSize: 15,
                       lineHeight: 1,
                       color: '#c8951a',
                       letterSpacing: '-0.16px',
@@ -251,18 +255,26 @@ const ParentWelcomeSection = () => {
             className="flex w-full items-center justify-center gap-2 rounded-[14px] px-[40px] py-[16px] font-sans font-bold transition-all
               hover:drop-shadow-[0_5px_0_#224626] active:translate-y-1 active:drop-shadow-none max-md:h-11 max-md:rounded-[10px] max-md:px-4 max-md:py-0 max-md:text-[14px]! max-md:leading-5! max-md:shadow-none! max-md:hover:drop-shadow-none"
             style={{
-              backgroundColor: '#387440',
+              backgroundColor: creating ? '#2d5d33' : '#387440',
               border: '2px solid #2a5730',
               borderTop: '1px solid #2a5730',
               boxShadow: '0 4px 0 #224626',
               fontSize: 16,
               lineHeight: '22px',
+              cursor: creating ? 'progress' : undefined,
             }}
+            disabled={creating}
+            aria-busy={creating || undefined}
             onClick={() => {
-              log('create account CTA clicked');
-              // TODO: navigate to sign-up form step
+              if (creating) return;
+              log('create account CTA clicked — loading, then next Path A step');
+              setCreating(true);
+              createTimer.current = setTimeout(() => {
+                navigate('/onboarding/parent-identity');
+              }, 700);
             }}
           >
+            {creating && <LoadingSpinner stroke="#FEF1E7" />}
             <span style={PRIMARY_TEXT_GRADIENT}>Create My Parent Account</span>
             <span style={{ color: 'rgb(232,242,237)' }}>
               <ArrowRightIcon />
@@ -286,11 +298,10 @@ const ParentWelcomeSection = () => {
             }}
             onClick={() => {
               log('opt-out CTA clicked');
-              // TODO: navigate to opt-out flow
+              // TODO: no Path A opt-out target yet (NEEDS DECISION) — stays inert
             }}
           >
             I Have Concerns — Opt-Out Instead
-            <ArrowRightIcon />
           </button>
 
           {/* Footer link — Figma 2865:44286 */}
@@ -319,7 +330,8 @@ const ParentWelcomeSection = () => {
       {isTabletUp && toastVisible && (
         <Toast
           variant="success"
-          position="top-right"
+          position="top-center"
+          offsetClassName="top-[26px]!"
           title="Your ward registered on Ghana Talent Hub"
           body={wardBody}
           duration={8000}

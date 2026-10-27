@@ -72,4 +72,5 @@ Every claim in this wiki carries a tag:
 
 _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; backend wiring for login / talent onboarding / institution; responsive pass executed)_
 
+- [parent-dashboard.md](parent-dashboard.md) — Parent dashboard `/parent/*` (Figma Parents file, canvas 01 Home and dashboard): chrome, 7 home states by `?state=`, files, assumptions
 - [admin.md](admin.md) — Theme 7 Platform Admin `/admin/*` (GTH staff back office, 5 roles, mock session): chrome reused from agency, URL contract, frame checklist (95 frames), fidelity notes

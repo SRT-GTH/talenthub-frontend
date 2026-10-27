@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import Button from '../../ui/Button.jsx';
 import { CloseIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useParentDialogA11y } from './useParentDialogA11y.js';
 
 const log = debug('ConsentModal');
 
@@ -147,28 +148,21 @@ const ConsentModal = ({
 }) => {
   log('render', { title });
 
-  // Close on ESC.
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        log('escape pressed — closing');
-        onClose?.();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useRef(null);
+  // Focus in, Tab trapped, Esc closes, focus returns to the opener link/checkbox.
+  useParentDialogA11y({ dialogRef, onClose });
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+      style={{ backgroundColor: 'rgba(28,42,33,0.5)' }}
       role="dialog"
       aria-modal="true"
       aria-label={title}
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         className="flex max-h-[92vh] max-sm:max-h-[92dvh] w-full max-w-[666px] flex-col overflow-hidden rounded-t-[24px] bg-white sm:rounded-[24px]"
         style={{ boxShadow: '0px -16px 24px rgba(0,0,0,0.22)' }}
         onClick={(e) => e.stopPropagation()}
@@ -206,17 +200,12 @@ const ConsentModal = ({
               <CloseIcon />
             </button>
           </div>
-          {/* Title — Instrument Serif 24px + italic amber accent */}
+          {/* Title — Bricolage Grotesque 600 24px (upright) + gold accent run */}
           <h2
-            className="mt-[10px] font-display font-normal max-sm:mt-1.5 max-sm:text-[20px]! max-sm:leading-6!"
-            style={{ fontSize: 24, letterSpacing: '-1px', lineHeight: '23.1px', color: '#111' }}
+            className="mt-[10px] font-heading font-semibold max-sm:mt-1.5 max-sm:text-[20px]! max-sm:leading-6!"
+            style={{ fontSize: 24, letterSpacing: '-0.02em', lineHeight: '28px', color: '#111' }}
           >
-            {title}{' '}
-            {titleAccent && (
-              <span className="italic" style={{ color: '#c8951a' }}>
-                {titleAccent}
-              </span>
-            )}
+            {title} {titleAccent && <span style={{ color: '#c8951a' }}>{titleAccent}</span>}
           </h2>
         </div>
 

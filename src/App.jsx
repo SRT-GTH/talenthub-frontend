@@ -131,6 +131,7 @@ const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'))
 const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 // Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12): /admin/*, mock staff session, own router in pages/admin/AdminApp.jsx.
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
+const ParentApp = lazy(() => import('./pages/parent/ParentApp.jsx'));
 // Theme 11 institution portal (Figma canvas 8520:10): /institution/*, mock signed-in session, own router in pages/institution/InstitutionApp.jsx.
 const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
@@ -315,6 +316,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <AdminApp />
+                    </Suspense>
+                  }
+                />
+                {/* Parents: the signed-in parent dashboard (Figma file SCXc457vwiq6o7d9g4jVbh, canvas 10057:530). Own router in pages/parent/ParentApp.jsx, outside MainLayout. */}
+                <Route
+                  path={'/parent/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ParentApp />
                     </Suspense>
                   }
                 />

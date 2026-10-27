@@ -1,3 +1,7 @@
+## [2026-10-26] build | Parent dashboard `/parent`: home and dashboard (7 states)
+
+Figma file `SCXc457vwiq6o7d9g4jVbh`, canvas "Parent · 01 Home and dashboard". New `/parent/*` router (`pages/parent/ParentApp.jsx`, outside `MainLayout`) with the talent-style chrome copy-adapted for parents (`ParentFrame`, `ParentTopBar`, `ParentSidebar`, the Ask Buddy icon in Focused look) and one page with seven states by `?state=`: busy (PD-01), caught-up (PD-01d), offline (PD-07), first (PD-01b), none (PD-01c), loading (PD-05), error (PD-06). Mock data only. Details and assumptions: [parent-dashboard.md](parent-dashboard.md).
+
 ## [2026-10-25] build | Platform Admin: Reports, Live ops, Comms, Settings, Audit log, Support, A4 report kit
 
 7.3 Reports (overview, health, export dialogs) + Live ops (dashboard, alert, role-restricted) + the 8-page A4 health report at `/admin/report` (print CSS, `?page=1-8`); 7.4 Comms (inbox, message user, bulk, templates, version history); 7.5 Staff / roles / platform settings / audit log (`/admin/settings/:tab?`, `/admin/audit-log`, Senior masked view); 7.7 Support queue + query detail + reply / escalate dialogs. 94 of 95 frames built (the 7.3.1d v1 cover is superseded). Full URL contract: [admin.md](admin.md). Mock behaviour only; entry points not drawn in Figma (Version history, Export dialog, Support dialogs) are reachable via `?modal=`. ⚠️ ASSUMPTION: Download PDF on the health report does not link to `/admin/report`.

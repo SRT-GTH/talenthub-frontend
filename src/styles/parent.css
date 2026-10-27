@@ -1,0 +1,21 @@
+/*
+ * Parent dashboard (Figma file SCXc457vwiq6o7d9g4jVbh). Skeleton shimmer for the loading frame PD-05: the skeleton blocks are a #eceee8 -> #f6f7f4 -> #eceee8 gradient (Figma 10047:147980);
+ * the highlight sweeps left to right. ⚠️ ASSUMPTION: Figma draws the gradient only (no motion export), the sweep speed is ours (1.6 s). Reduced motion: still.
+ */
+.pd-skeleton {
+  background-image: linear-gradient(90deg, #eceee8 0%, #f6f7f4 50%, #eceee8 100%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  animation: pd-shimmer 1.6s linear infinite;
+}
+@keyframes pd-shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-skeleton {
+    animation: none;
+    background-position: 50% 0;
+  }
+}

@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,7 +10,9 @@ import PasswordInput from '../../ui/form/PasswordInput.jsx';
 import Checkbox from '../../ui/form/Checkbox.jsx';
 import Button from '../../ui/Button.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../../ui/form/mobileScale.js';
-import { UserIcon, LoadingSpinner } from '../../shared/assets.jsx';
+import { UserIcon, LoadingSpinner, ArrowRightIcon } from '../../shared/assets.jsx';
+import ParentInlineNotice from './ParentInlineNotice.jsx';
+import { useMediaQuery } from '../../../hooks/useMediaQuery.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('ParentLoginSection');
@@ -98,10 +103,74 @@ const ArrowRightSmIcon = () => (
   </svg>
 );
 
+/*
+ * LoginAddedToast — "Kofi Mensah added you as a parent / Log in to manage their
+ * account." Figma 2884:64759 places it centred in the navbar row (it used to sit
+ * inside the right panel). Portalled to <body>: the layout's page-fade wrapper
+ * has a transform, which would otherwise re-anchor `fixed` to the content column.
+ * Below lg the compact inline notice is used instead, as on the Welcome screen.
+ */
+const LoginAddedToast = ({ onDismiss }) =>
+  createPortal(
+    <div
+      role="status"
+      className="fixed left-1/2 top-[24px] z-[60] flex w-[min(351px,calc(100vw-32px))] -translate-x-1/2 items-start gap-3 rounded-[10px] border px-4 py-3"
+      style={{
+        backgroundColor: '#ebf1ec',
+        borderColor: '#c1d4c4',
+        boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+      }}
+    >
+      <span
+        aria-hidden="true"
+        className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-[6px]"
+        style={{ backgroundColor: '#387440' }}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path
+            d="M2 6.5l3 3 5-6"
+            stroke="#ebf1ec"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <p className="font-sans text-[14px] font-semibold leading-5" style={{ color: '#2a5730' }}>
+          Kofi Mensah added you as a parent
+        </p>
+        <p className="font-sans text-[13px] leading-[18px]" style={{ color: '#737373' }}>
+          Log in to manage their account.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss notification"
+        className="relative flex size-6 shrink-0 items-center justify-center rounded-full text-[#575755] before:absolute before:-inset-1 before:content-[''] focus-visible:outline-2 focus-visible:outline-brand-green"
+      >
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
+          <path
+            d="M1 1l7 7M8 1l-7 7"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+    </div>,
+    document.body
+  );
+
 // ── main component ────────────────────────────────────────────────────────
 
 const ParentLoginSection = () => {
   log('mount');
+
+  const navigate = useNavigate();
+  const [toastVisible, setToastVisible] = useState(true);
+  const isTabletUp = useMediaQuery('(min-width: 1024px)');
 
   const {
     register,
@@ -128,23 +197,35 @@ const ParentLoginSection = () => {
     /* flex-1: fills the Outlet slot in ParentOnboardingLayout */
     <div className="flex flex-1 items-start justify-center overflow-y-auto max-md:overflow-visible px-6 py-12 md:py-16 lg:py-20 max-md:px-4 max-md:py-4">
       <div className="flex w-full max-w-[698px] items-center flex-col gap-6 max-md:gap-3">
+        {/* Added-as-parent notice: navbar-row toast on lg+, inline notice below */}
+        {toastVisible &&
+          (isTabletUp ? (
+            <LoginAddedToast onDismiss={() => setToastVisible(false)} />
+          ) : (
+            <ParentInlineNotice
+              title="Kofi Mensah added you as a parent"
+              onDismiss={() => setToastVisible(false)}
+            >
+              Log in to manage their account.
+            </ParentInlineNotice>
+          ))}
+
         {/* Welcome back badge — Figma 2884:64938 */}
         <WelcomeBackBadge />
 
-        {/* Headline — Figma 2884:64946, Instrument Serif 64px */}
-        {/* "Ghana Talent Hub." chars 10–26 → italic #c8951a (accent gold) */}
+        {/* Headline — Figma 2884:64946, Bricolage Grotesque 600 64px, upright */}
+        {/* "Ghana Talent Hub." → gold #c8951a, on its own line */}
         <h1
-          className="font-display font-normal text-center text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold text-center text-[#1c2a21] max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-            lineHeight: 1.094,
-            letterSpacing: '-0.64px',
+            lineHeight: 0.92,
+            letterSpacing: '-0.045em',
           }}
         >
-          Log in to{'\n'}
-          <span className="italic" style={{ color: '#c8951a' }}>
-            Ghana Talent Hub.
-          </span>
+          Log in to
+          <br />
+          <span style={{ color: '#c8951a' }}>Ghana Talent Hub.</span>
         </h1>
 
         {/* Subtitle — Figma 2884:64948, SF Pro Rounded 16px #737373 */}
@@ -156,8 +237,11 @@ const ParentLoginSection = () => {
           here?{' '}
           <button
             type="button"
-            className="font-normal text-brand-green hover:underline focus-visible:underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
-            onClick={() => log('create account clicked')}
+            className="font-normal text-brand-green underline hover:no-underline focus-visible:no-underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
+            onClick={() => {
+              log('create account clicked → parent-welcome');
+              navigate('/onboarding/parent-welcome');
+            }}
           >
             Create your account.
           </button>
@@ -188,7 +272,7 @@ const ParentLoginSection = () => {
           <PasswordInput
             label="Password"
             required
-            placeholder="Enter your password"
+            placeholder="Enter Your Password"
             labelTrailing={
               <button
                 type="button"
@@ -224,6 +308,7 @@ const ParentLoginSection = () => {
               disabled={!isValid || isSubmitting}
               state={isSubmitting ? 'active' : undefined}
               leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+              rightIcon={<ArrowRightIcon />}
             >
               {isSubmitting ? 'Logging  You  In' : 'Enter Your Details To Continue'}
             </Button>
@@ -258,7 +343,10 @@ const ParentLoginSection = () => {
               border: '1px solid #c6c6c3',
               width: 'fit-content',
             }}
-            onClick={() => log('set up account clicked')}
+            onClick={() => {
+              log('set up account clicked → parent-welcome');
+              navigate('/onboarding/parent-welcome');
+            }}
           >
             <UserIcon />
             <span className="text-[#111111]">Set up your account</span>

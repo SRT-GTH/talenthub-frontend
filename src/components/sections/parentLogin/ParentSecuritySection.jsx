@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,8 +7,9 @@ import PasswordInput from '../../ui/form/PasswordInput.jsx';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
-import { ArrowRightIcon, CloseIcon, LockIcon } from '../../shared/assets.jsx';
+import { ArrowRightIcon, CloseIcon, LockIcon, ShieldIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useParentDialogA11y } from './useParentDialogA11y.js';
 
 const log = debug('ParentSecuritySection');
 
@@ -57,8 +58,8 @@ const SecurityCaptionBadge = () => (
     />
     <span className="flex items-center gap-2">
       <span
-        className="font-display italic"
-        style={{ fontSize: 16, color: '#b5b5b5', lineHeight: 'normal' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 15, color: '#b5b5b5', lineHeight: 'normal' }}
       >
         04
       </span>
@@ -107,18 +108,22 @@ const ModalCheckIcon = () => (
  */
 const PasswordCapturedModal = ({ onClose, onContinue }) => {
   log('modal render');
+  const dialogRef = useRef(null);
+  // Focus in, Tab trapped, Esc closes, focus returns to "Create a New Password".
+  useParentDialogA11y({ dialogRef, onClose });
   return (
     /* Backdrop — Figma 2952:91655 */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 max-sm:items-end max-sm:p-0"
-      style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+      style={{ backgroundColor: 'rgba(28,42,33,0.5)', backdropFilter: 'blur(4px)' }}
       role="dialog"
       aria-modal="true"
-      aria-label="Password captured"
+      aria-labelledby="parent-security-captured-title"
     >
       {/* Card */}
       <div
-        className="relative flex w-full max-w-[440px] flex-col items-center gap-4 rounded-[24px] bg-white px-8 py-8 max-sm:max-h-[92dvh] max-sm:gap-3 max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
+        ref={dialogRef}
+        className="relative flex w-full max-w-[440px] flex-col items-center gap-4 rounded-[24px] border border-[#eedeb8] bg-white px-8 py-8 max-sm:max-h-[92dvh] max-sm:gap-3 max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         style={{
           boxShadow:
             '0px 24px 64px 0px rgba(0,0,0,0.12), 0px 4px 0px 0px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.04)',
@@ -131,7 +136,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
             log('modal close clicked');
             onClose();
           }}
-          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full text-neutral-dark transition-colors hover:bg-neutral hover:text-black max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
+          className="absolute right-4 top-4 flex size-7 items-center justify-center rounded-full bg-[#ebf1ec] text-[#575755] transition-colors hover:bg-[#d4e4d6] max-sm:right-2 max-sm:top-2 max-sm:before:absolute max-sm:before:-inset-1.5 max-sm:before:content-['']"
           aria-label="Close"
         >
           <CloseIcon />
@@ -140,12 +145,13 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
         {/* Check icon — Figma 2952:91662 */}
         <ModalCheckIcon />
 
-        {/* "Contact verified" Captions badge — Figma 2952:91665 */}
+        {/* Captions badge — Figma 2952:91665 literally reads "Contact verified", which is
+            wrong for a password step; truthful copy used instead (NEEDS DECISION). */}
         <div
-          className="flex items-center gap-[6px] rounded-[6px] border px-8 py-[10px] max-sm:px-3 max-sm:py-1"
+          className="flex items-center gap-[6px] rounded-[6px] border px-3 py-1"
           style={{
-            backgroundColor: 'rgba(235,241,236,0.5)',
-            borderColor: '#faf4e8',
+            backgroundColor: '#fefdfa',
+            borderColor: '#eeeeea',
           }}
         >
           <span
@@ -163,20 +169,18 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
             className="font-sans"
             style={{ fontSize: 12, color: '#999', letterSpacing: '0.2px', lineHeight: '18px' }}
           >
-            Contact verified
+            Password saved
           </span>
         </div>
 
         {/* Headline — Figma 2952:91668 */}
         {/* "Password " — Instrument Serif Regular #111, "Captured" — italic #b48617 */}
         <h2
-          className="font-display font-normal text-center max-sm:text-[22px]! max-sm:leading-7!"
-          style={{ fontSize: 32, letterSpacing: '-1.2px', lineHeight: '32px', color: '#111' }}
+          id="parent-security-captured-title"
+          className="font-heading font-semibold text-center max-sm:text-[22px]! max-sm:leading-7!"
+          style={{ fontSize: 32, letterSpacing: '-0.02em', lineHeight: '32px', color: '#111' }}
         >
-          Password{' '}
-          <span className="italic" style={{ color: '#b48617' }}>
-            Captured
-          </span>
+          Password <span style={{ color: '#b48617' }}>Captured</span>
         </h2>
 
         {/* Subtitle — Figma 2952:91669 */}
@@ -184,7 +188,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
           className="font-sans text-center"
           style={{ fontSize: 12, color: '#959592', letterSpacing: '0.2px', lineHeight: '18px' }}
         >
-          Your phone and email have been confirmed. Here&apos;s what we verified.
+          Your password is saved and encrypted. Here&apos;s a summary of what we stored.
         </p>
 
         {/* Saved info summary card — Figma 2952:91670 */}
@@ -198,7 +202,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
             style={{ borderColor: '#f7efdd' }}
           >
             <div className="flex items-center gap-3">
-              <span className="text-[#b48617]" style={{ fontSize: 12 }}>
+              <span className="text-[#b48617] [&_path]:fill-[#b48617]" style={{ fontSize: 12 }}>
                 <LockIcon />
               </span>
               <span
@@ -224,7 +228,7 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
           {/* Row 2: Confirmed Password */}
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
-              <span className="text-[#b48617]" style={{ fontSize: 12 }}>
+              <span className="text-[#b48617] [&_path]:fill-[#b48617]" style={{ fontSize: 12 }}>
                 <LockIcon />
               </span>
               <span
@@ -248,17 +252,8 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
           </div>
         </div>
 
-        {/* Progress bar — Figma 2952:91684 */}
-        <div
-          className="w-full max-w-[356px] overflow-hidden rounded-[2px]"
-          style={{ height: 6, backgroundColor: '#ebf1ec' }}
-          aria-hidden="true"
-        >
-          <div
-            className="h-full rounded-[6px]"
-            style={{ width: '50%', backgroundColor: '#387440' }}
-          />
-        </div>
+        {/* Plain divider — Figma 2952:90452 (replaces the green progress bar) */}
+        <div className="h-px w-full bg-[#e6e6e6]" aria-hidden="true" />
 
         {/* CTA */}
         <Button
@@ -272,8 +267,16 @@ const PasswordCapturedModal = ({ onClose, onContinue }) => {
             onContinue();
           }}
         >
-          Continue to Next Step
+          Continue To Link Ward
         </Button>
+
+        {/* Footer — Figma 2952:90452 */}
+        <div className="flex items-center justify-center gap-1">
+          <ShieldIcon className="text-brand-green" />
+          <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover">
+            Data encrypted at rest · Ghana Data Protection Act compliant
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -318,18 +321,15 @@ const ParentSecuritySection = () => {
           {/* Headline — Figma 2938:32752 */}
           {/* "Create a strong " regular black + italic amber "password" */}
           <h1
-            className="max-w-[554px] text-center font-display font-normal max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="max-w-[554px] text-center font-heading font-semibold max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-              lineHeight: 1.094,
-              letterSpacing: '-0.64px',
-              color: '#111',
+              lineHeight: 0.92,
+              letterSpacing: '-0.045em',
+              color: '#1c2a21',
             }}
           >
-            Create a strong{' '}
-            <span className="italic" style={{ color: '#c8951a' }}>
-              password
-            </span>
+            Create a strong <span style={{ color: '#c8951a' }}>password</span>
           </h1>
 
           {/* Subtitle — Figma 2938:32754 */}
