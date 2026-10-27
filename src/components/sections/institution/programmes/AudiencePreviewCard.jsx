@@ -10,14 +10,15 @@ import { ProgrammesIconStar } from './programmesIcons.jsx';
  *   five stars (#eab308, the unused #d6d1c2) + "81%" · the sentence (#999999) · "Save and continue" (green) + "Save as Template" (white, 2px).
  * Privacy: every count goes through formatCount(). ⚠️ Figma draws the real numbers "4" and "2 of 4" under 5 (frame 11.5.2h); the card prints "<5" instead,
  * and "Save and continue" is disabled while fewer than 5 talents match ("Groups under 5 can’t be targeted").
- * Props: audience (computeAudience), onContinue(), onTemplate().
+ * Live: "On your roster" is the roster in the chosen year groups, "students match" the students every rule keeps, the bar their share; the stars and
+ * the percentage are the share of matches who linked their GTH account (null while the first count loads).
+ * Props: audience ({ roster, match, visible, linkedPct, stars } | null), busy, onContinue(), onTemplate().
  */
 
-const POOL_REF = 2058;
-
-const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
-  const blocked = audienceBlocked(audience);
-  const ready = `Linked: ${audience.linkedPct}% of matches`;
+const AudiencePreviewCard = ({ audience: live, busy = false, onContinue, onTemplate }) => {
+  const audience = live ?? { roster: 0, match: 0, visible: 0, linkedPct: 0, stars: 0 };
+  const blocked = audienceBlocked(live);
+  const ready = live ? `Linked: ${audience.linkedPct}% of matches` : 'Counting your students…';
   return (
     <section
       aria-labelledby="audience-title"
@@ -37,7 +38,9 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
         <div aria-hidden="true" className="h-[7px] overflow-hidden rounded-full bg-[#e6e6e6]">
           <div
             className="h-full bg-[#387440]"
-            style={{ width: `${Math.max(1, Math.min(100, (audience.roster / POOL_REF) * 100))}%` }}
+            style={{
+              width: `${audience.roster ? Math.max(1, Math.min(100, (audience.match / audience.roster) * 100)) : 0}%`,
+            }}
           />
         </div>
         <div className="flex items-center justify-between text-[16px] leading-[24px] tracking-[0.2px]">
@@ -71,7 +74,7 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
           </span>
         </div>
         <p className="m-0 pt-[4px] text-center text-[16px] leading-[24px] tracking-[0.2px] text-[#999999]">
-          {audienceNote(audience, formatCount)}
+          {audienceNote(live, formatCount)}
         </p>
       </div>
       <div className="flex flex-col gap-[12px] pt-[16px]">
@@ -79,7 +82,7 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
           type="button"
           variant="primary"
           size="sm"
-          disabled={blocked}
+          disabled={blocked || busy}
           onClick={onContinue}
           className="!w-full !py-[8.5px] !text-[14px] !font-semibold"
         >
@@ -89,6 +92,7 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
           type="button"
           variant="tertiary"
           size="sm"
+          disabled={busy}
           onClick={onTemplate}
           className="!w-full !rounded-[14px] !py-[8.5px] !text-[14px] !font-semibold"
         >

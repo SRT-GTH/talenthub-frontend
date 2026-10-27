@@ -158,6 +158,27 @@ export const exportOutcomes = ({ period, readiness, names }) =>
     .post('/institution/progress/outcomes/export', { period, readiness, names }, { timeout: 60000 })
     .then(body);
 
+/* ---- Programmes (backend institutionProgrammes.service.js) ---- */
+const P = '/institution/programmes';
+export const listProgrammes = () => api.get(P, { timeout: 60000 }).then(body);
+export const programmeOptions = () => api.get(`${P}/options`, { timeout: 60000 }).then(body);
+export const programmeAudience = (rules) =>
+  api.post(`${P}/audience`, { rules }, { timeout: 60000 }).then(body);
+export const getProgramme = (id) => api.get(`${P}/${id}`, { timeout: 60000 }).then(body);
+export const createProgramme = (form) => api.post(P, form, { timeout: 60000 }).then(body);
+export const updateProgramme = (id, form) =>
+  api.patch(`${P}/${id}`, form, { timeout: 60000 }).then(body);
+export const checkProgramme = (id) =>
+  api.post(`${P}/${id}/check`, {}, { timeout: 60000 }).then(body);
+export const publishProgramme = (id) =>
+  api.post(`${P}/${id}/publish`, {}, { timeout: 60000 }).then(body);
+export const closeProgramme = (id) => api.post(`${P}/${id}/close`, {}).then(body);
+export const duplicateProgramme = (id) => api.post(`${P}/${id}/duplicate`, {}).then(body);
+export const programmeApplicants = (id) =>
+  api.get(`${P}/${id}/applicants`, { timeout: 60000 }).then(body);
+export const moveProgrammeApplicant = (id, appId, stage) =>
+  api.post(`${P}/${id}/applicants/${appId}/stage`, { stage }).then(body);
+
 export const institutionHome = () => api.get('/institution/home', { timeout: 60000 }).then(body);
 export const institutionWelcomeSeen = () =>
   api.post('/institution/home/welcome-seen', {}).then(body);

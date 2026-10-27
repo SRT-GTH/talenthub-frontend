@@ -4,8 +4,9 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { PublicIconSearch } from '../../publicData/publicDataIcons.jsx';
-import { TEMPLATES, TEMPLATE_FILTERS } from './data/programmesData.js';
+import { OWN_TEMPLATE_LOOK, TEMPLATE_FILTERS, TEMPLATE_LOOK } from './data/programmesData.js';
 import ProgrammesHeader from './ProgrammesHeader.jsx';
+import useProgrammeOptions from './useProgrammeOptions.js';
 import {
   ProgrammesIconArrowRight,
   ProgrammesIconPlus,
@@ -23,7 +24,9 @@ const log = debug('TemplatesView');
  * TemplatesView — "Programme templates" (Figma 11.5.2g, 8610:401606; manifest URL /institution/programmes/new?modal=template): header with the coloured word
  * "templates", the tab row, the chips (All · Grants · National service · Training · Employment · Events · Internships), the search field, "Start blank",
  * and the grid of template cards (315 x 360, r14, p22) ending with the dashed "Create Custom" card.
- * A card opens the "Who can apply" form for that template (/institution/programmes/new?template=<id>, ⚠️ ASSUMPTION), "Start blank" / "Create Custom" open it empty.
+ * Live: the cards come from GET /api/institution/programmes/options (built-in templates with how often the school used them, and the school's own saved
+ * templates under "Your templates"). A card opens the "Who can apply" form filled from that template (/institution/programmes/new?template=<id>);
+ * "Start blank" / "Create Custom" open it empty. Chips show only the groups that have templates.
  * URL keys: group= (chip), q= (search). Figma inconsistency kept out: the first card's title is drawn in Bricolage Grotesque 25 (a leftover); all titles use 24/600.
  * Props: data (useAgencyState()).
  */
@@ -40,6 +43,11 @@ const TemplatesView = ({ data }) => {
   const navigate = useNavigate();
   const group = data.params.get('group') ?? 'all';
   const needle = data.q.trim().toLowerCase();
+  const { options, error } = useProgrammeOptions();
+  const templates = useMemo(() => options?.templates ?? [], [options]);
+  const chips = TEMPLATE_FILTERS.filter(
+    (f) => f.id === 'all' || f.id === group || templates.some((t) => t.group === f.id)
+  );
 
   useEffect(() => {
     log('mount', { group, needle });
@@ -47,12 +55,12 @@ const TemplatesView = ({ data }) => {
 
   const visible = useMemo(
     () =>
-      TEMPLATES.filter(
+      templates.filter(
         (t) =>
           (group === 'all' || t.group === group) &&
           (!needle || t.title.toLowerCase().includes(needle))
       ),
-    [group, needle]
+    [templates, group, needle]
   );
 
   return (
@@ -66,7 +74,7 @@ const TemplatesView = ({ data }) => {
       <div className="flex flex-col gap-[32px]">
         <div className="flex flex-wrap items-center justify-between gap-x-[28px] gap-y-[16px]">
           <div role="group" aria-label="Template groups" className="flex flex-wrap gap-[8px]">
-            {TEMPLATE_FILTERS.map((f) => {
+            {chips.map((f) => {
               const active = f.id === group;
               return (
                 <button
@@ -112,9 +120,21 @@ const TemplatesView = ({ data }) => {
             </Button>
           </div>
         </div>
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] p-[16px] text-[14px] leading-[20px] text-[#902b20]"
+          >
+            {error}
+          </p>
+        ) : null}
+        {!options && !error ? (
+          <p className="m-0 text-[14px] leading-[20px] text-[#737373]">Loading templates…</p>
+        ) : null}
         <ul className="m-0 grid list-none grid-cols-1 gap-[21px] p-0 sm:grid-cols-2 xl:grid-cols-4">
           {visible.map((t) => {
-            const Icon = ICONS[t.icon];
+            const look = TEMPLATE_LOOK[t.id] ?? OWN_TEMPLATE_LOOK;
+            const Icon = ICONS[look.icon];
             return (
               <li key={t.id} className="min-w-0">
                 <Link
@@ -124,8 +144,8 @@ const TemplatesView = ({ data }) => {
                   <span
                     className={classNames(
                       'grid size-[48px] place-items-center rounded-[8px]',
-                      t.tile.bg,
-                      t.tile.fg
+                      look.tile.bg,
+                      look.tile.fg
                     )}
                   >
                     <Icon className="h-[20px] w-[24px]" />

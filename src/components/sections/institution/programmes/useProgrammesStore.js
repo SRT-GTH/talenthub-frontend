@@ -1,16 +1,21 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { PROGRAMMES } from './data/programmesData.js';
+import {
+  apiMessage,
+  closeProgramme as apiClose,
+  duplicateProgramme as apiDuplicate,
+  listProgrammes,
+} from '../../../../services/institutionPortal.api.js';
 
 const log = debug('programmesStore');
 
 /*
- * programmesStore — the MOCK "server state" of the agency programmes (status changes, duplicates, publishing).
- * ⚠️ ASSUMPTION: in memory only (a reload restores the seed). Future API: PATCH /institution/programmes/:id { status }, POST /institution/programmes/:id/duplicate,
- * POST /institution/programmes/:id/publish. Closing a programme is logged under the MoU (Figma 11.5.2k).
+ * programmesStore — the school's programmes as the API returns them (GET /api/institution/programmes), shared by the list, the
+ * "Who can apply" select and the applicants board. Closing and duplicating go to the API and replace the card with the server's copy.
  */
 
-let state = { programmes: PROGRAMMES, log: [] };
+let state = { programmes: [], loaded: false, loading: false, error: '' };
+let pending = null;
 const listeners = new Set();
 
 const set = (patch) => {
@@ -25,63 +30,56 @@ const subscribe = (listener) => {
 
 const getState = () => state;
 
-export const useProgrammesStore = () => useSyncExternalStore(subscribe, getState, getState);
+export const loadProgrammes = (force = false) => {
+  if (pending) return pending;
+  if (state.loaded && !force) return Promise.resolve(state.programmes);
+  set({ loading: true, error: '' });
+  pending = listProgrammes()
+    .then((res) => {
+      const items = res?.items ?? [];
+      log('loaded', items.length);
+      set({ programmes: items, loaded: true, loading: false });
+      return items;
+    })
+    .catch((err) => {
+      set({ loading: false, error: apiMessage(err) });
+      return state.programmes;
+    })
+    .finally(() => {
+      pending = null;
+    });
+  return pending;
+};
 
-export const closeProgramme = (id) => {
+/** The store, loaded on first use. */
+export const useProgrammesStore = () => {
+  const s = useSyncExternalStore(subscribe, getState, getState);
+  useEffect(() => {
+    loadProgrammes();
+  }, []);
+  return s;
+};
+
+export const upsertProgramme = (card) => {
+  if (!card?.id) return;
+  const has = state.programmes.some((p) => p.id === card.id);
+  set({
+    programmes: has
+      ? state.programmes.map((p) => (p.id === card.id ? { ...p, ...card } : p))
+      : [card, ...state.programmes],
+  });
+};
+
+export const closeProgramme = async (id) => {
   log('close', id);
-  set({
-    programmes: state.programmes.map((p) =>
-      p.id === id
-        ? {
-            ...p,
-            status: 'closed',
-            statusLabel: 'Closed',
-            tile: { bg: 'bg-[#eae8e2]', fg: 'text-[#737373]' },
-            action: 'View summary',
-          }
-        : p
-    ),
-    log: [{ at: Date.now(), event: 'close', id }, ...state.log],
-  });
+  const card = await apiClose(id);
+  upsertProgramme(card);
+  return card;
 };
 
-export const duplicateProgramme = (id) => {
-  const src = state.programmes.find((p) => p.id === id);
-  if (!src) return null;
-  const copy = {
-    ...src,
-    id: `${src.id}-copy-${state.programmes.length + 1}`,
-    title: `${src.title} (copy)`,
-    optionLabel: `${src.title} (copy)`,
-    status: 'draft',
-    statusLabel: 'Draft',
-    stamp: 'Draft · saved today',
-    applicants: null,
-    toReview: null,
-    avgMatch: null,
-    success: null,
-    action: 'Continue editing',
-    tile: { bg: 'bg-[#faf4e8]', fg: 'text-[#785910]' },
-  };
-  log('duplicate', id, '->', copy.id);
-  set({ programmes: [...state.programmes, copy] });
+export const duplicateProgramme = async (id) => {
+  log('duplicate', id);
+  const copy = await apiDuplicate(id);
+  upsertProgramme(copy);
   return copy;
-};
-
-export const publishProgramme = (id) => {
-  log('publish', id);
-  set({
-    programmes: state.programmes.map((p) =>
-      p.id === id
-        ? {
-            ...p,
-            status: 'live',
-            statusLabel: 'Active',
-            action: 'View applicants',
-            tile: { bg: 'bg-[#f3f8f4]', fg: 'text-[#2a5730]' },
-          }
-        : p
-    ),
-    log: [{ at: Date.now(), event: 'publish', id }, ...state.log],
-  });
 };
