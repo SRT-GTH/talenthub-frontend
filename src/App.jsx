@@ -137,6 +137,7 @@ const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
+const CareerContentPage = lazy(() => import('./pages/careerContent/CareerContentPage.jsx'));
 // Create your own community (talent-created) — Figma sections 8947:2928 / 8944:2672 (agent: community-create).
 const CommunityCreatePage = lazy(
   () => import('./pages/talentCommunity/create/CommunityCreatePage.jsx')
@@ -1110,6 +1111,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <CommunityPostPage />
+                    </Suspense>
+                  }
+                />
+                {/* Career exposure post reader, opened from Career Buddy's post cards (2026-10-27). */}
+                <Route
+                  path={'/career-content/:contentId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CareerContentPage />
                     </Suspense>
                   }
                 />

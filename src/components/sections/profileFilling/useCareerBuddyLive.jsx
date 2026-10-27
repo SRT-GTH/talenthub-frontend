@@ -7,6 +7,7 @@ import AssessmentReportCard from './AssessmentReportCard.jsx';
 import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
+import CareerPostCards from './careerExposure/CareerPostCards.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -47,6 +48,7 @@ import {
   cardChips,
   opportunityMatchView,
   whyThisMatchAction,
+  careerPostView,
   userBubble,
   autoBubble,
   fileBubble,
@@ -967,6 +969,23 @@ export function useCareerBuddyLive({
     if (m.opportunities?.length) {
       // 2026-10-25: the agent's matched postings as the Figma match cards (9053:80615).
       out = { ...out, content: renderOpportunities(m) };
+    }
+    if (m.careerPosts?.length) {
+      // 2026-10-27: GTH posts about a career as cards (career exposure), after anything already drawn.
+      const views = m.careerPosts.map((p) => careerPostView(p));
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            <CareerPostCards
+              posts={views}
+              career={m.careerPosts[0]?.career}
+              onOpen={(post) => navigate(post.detailPath)}
+            />
+          </>
+        ),
+      };
     }
     if (m.reviewSection) {
       const stage = stageForSection(m.reviewSection);

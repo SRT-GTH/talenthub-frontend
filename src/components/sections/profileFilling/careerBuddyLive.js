@@ -12,6 +12,8 @@
  *   opportunities [{ opportunityId, title, company, logo, type, workMode, city, salary, deadline, matchScore,
  *                  keySkills: {have, total}, skills: [{name, have}], matchReason }]
  *                the talent's matched postings, drawn as the Figma match cards (opportunityMatchView below)
+ *   careerPosts  [{ id, title, type: 'article'|'video'|'qa', authorName, community, communityUrl, career, why }]
+ *                GTH posts about a career (career exposure), drawn as post cards (careerPostView below)
  *
  * ChatThread renders a bubble as `text`, then `bullets`, then `followUp`, so
  * blocks are packed into as few bubbles as that shape allows.
@@ -117,6 +119,37 @@ export function opportunityMatchView(card, now = new Date()) {
     keySkills: ks?.total ? `${ks.have} of ${ks.total} skills` : '',
     skills: Array.isArray(card.skills) ? card.skills.filter((s) => s?.name) : [],
     detailPath: `/job-postings?job=${encodeURIComponent(card.opportunityId)}`,
+  };
+}
+
+const POST_TYPE = {
+  article: { tag: 'Article', open: 'Read article' },
+  video: { tag: 'Video', open: 'Watch video' },
+  qa: { tag: 'Q&A', open: 'See the question' },
+};
+
+/** Agent CareerPostCard -> the props CareerPostCard draws (2026-10-27, career exposure as cards). */
+export function careerPostView(card) {
+  const kind = POST_TYPE[card?.type] || POST_TYPE.article;
+  return {
+    id: card.id,
+    title: card.title,
+    type: POST_TYPE[card?.type] ? card.type : 'article',
+    tag: card.community ? `${kind.tag} · ${card.community}` : `${kind.tag} · GTH feed`,
+    openLabel: kind.open,
+    facts: [
+      `by ${card.authorName || 'a GTH member'}`,
+      card.career ? `About ${card.career}` : null,
+    ].filter(Boolean),
+    why: [
+      card.why,
+      card.community
+        ? `Posted in ${card.community}, a community you're in.`
+        : 'Shared publicly on the GTH feed.',
+    ]
+      .filter(Boolean)
+      .join(' '),
+    detailPath: `/career-content/${encodeURIComponent(card.id)}`,
   };
 }
 
@@ -232,6 +265,10 @@ export function turnToBubbles(turn) {
     cur.opportunities = opportunities;
     if (afterCards) cur.afterCards = afterCards;
   }
+  const careerPosts = Array.isArray(turn?.careerPosts)
+    ? turn.careerPosts.filter((p) => p?.id && p?.title)
+    : [];
+  if (careerPosts.length) cur.careerPosts = careerPosts;
   const last = bubbles[bubbles.length - 1];
   last.meta = meta;
   last.showActions = true;
