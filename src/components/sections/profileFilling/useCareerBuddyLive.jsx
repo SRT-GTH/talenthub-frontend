@@ -45,7 +45,6 @@ import {
   sessionMatchesThread,
   turnToBubbles,
   cardChips,
-  findFinishedTurn,
   opportunityMatchView,
   whyThisMatchAction,
   userBubble,
@@ -299,7 +298,11 @@ export function useCareerBuddyLive({
   );
   const [personalityReq, setPersonalityReq] = useState(null);
   const lastTurnRef = useRef(null);
-  const stoppedRef = useRef(false);
+  // 2026-10-27: the turn on its way, and the one the talent stopped (its reply keeps arriving in the background so
+  // Continue can show it). Each is { seq, stopped, turn, error, done, waiters }.
+  const runSeqRef = useRef(0);
+  const currentRunRef = useRef(null);
+  const stoppedRunRef = useRef(null);
   const openedRef = useRef(false);
   const voiceOpenRef = useRef(false);
   voiceOpenRef.current = voiceCallOpen;
@@ -423,7 +426,18 @@ export function useCareerBuddyLive({
       { chipAction = null, showUser = true, autoText = null, inputMode = null } = {}
     ) => {
       if (!entityId || busy) return;
-      lastTurnRef.current = { text, chipAction, startedAt: Date.now() };
+      lastTurnRef.current = { text, chipAction };
+      // A new message drops any stopped reply still on its way (it is never shown).
+      stoppedRunRef.current = null;
+      const run = {
+        seq: (runSeqRef.current += 1),
+        stopped: false,
+        turn: null,
+        error: null,
+        done: false,
+        waiters: [],
+      };
+      currentRunRef.current = run;
       setBusy(true);
       const shown = autoText ? [autoBubble(autoText)] : showUser ? [userBubble(text)] : [];
       const startedAt = Date.now();
@@ -433,6 +447,7 @@ export function useCareerBuddyLive({
       abortRef.current = controller;
       // Re-draws the reply-in-progress row (first second -> working -> writing -> slow) every second.
       const draw = () =>
+        !run.stopped &&
         patchThread((t) => ({
           messages: t.messages.map((m) =>
             m.id === THINKING_ID
@@ -478,18 +493,24 @@ export function useCareerBuddyLive({
           signal: controller.signal,
           // 2026-10-19: the row shows what Career Buddy is doing while it works.
           onStatus: (next) => {
-            if (!streamed) {
+            if (!streamed && !run.stopped) {
               status = next;
               draw();
             }
           },
           // Reply words as Career Buddy writes them; the finished turn replaces this row.
           onDelta: (chunk) => {
+            if (run.stopped) return;
             streamed += chunk;
             speaker?.push(chunk);
             draw();
           },
         });
+        if (run.stopped) {
+          // Stopped: keep the finished reply for Continue; the screen stays as the talent left it.
+          run.turn = turn;
+          return;
+        }
         setPracticeActive(isPracticeTurn(turn));
         log('turn', {
           routedTo: turn.routedTo,
@@ -519,39 +540,33 @@ export function useCareerBuddyLive({
           late.finish(turn.reply);
         }
       } catch (err) {
+        if (run.stopped) {
+          run.error = err;
+          return;
+        }
         speaker?.cancel();
         setSpeaking(false);
-        if (controller.signal.aborted && stoppedRef.current) {
-          // The talent pressed "Stop generating": keep what was written, offer Continue / Try again.
-          log('turn stopped', { written: streamed.length });
-          patchThread((t) => ({
-            messages: t.messages.map((m) =>
-              m.id === THINKING_ID ? thinkingBubble({ phase: 'stopped', text: streamed }) : m
-            ),
-            chips: [],
-            chipActions: [],
-          }));
-        } else {
-          patchThread((t) => ({
-            messages: t.messages.filter((x) => x.id !== THINKING_ID),
-            chips: ['Try again'],
-            chipActions: [],
-          }));
-          showToast(
-            'error',
-            'Error',
-            err instanceof AgentError
-              ? err.message
-              : 'Something went wrong talking to Career Buddy.'
-          );
-          log.error('turn failed', err?.detail || err);
-        }
+        patchThread((t) => ({
+          messages: t.messages.filter((x) => x.id !== THINKING_ID),
+          chips: ['Try again'],
+          chipActions: [],
+        }));
+        showToast(
+          'error',
+          'Error',
+          err instanceof AgentError ? err.message : 'Something went wrong talking to Career Buddy.'
+        );
+        log.error('turn failed', err?.detail || err);
       } finally {
         clearInterval(ticker);
-        stoppedRef.current = false;
-        abortRef.current = null;
-        setBusy(false);
-        setConfirming(null);
+        run.done = true;
+        run.waiters.splice(0).forEach((resolve) => resolve());
+        // A stopped run already handed the screen back (handleStop); never touch a newer turn's state.
+        if (!run.stopped) {
+          abortRef.current = null;
+          setBusy(false);
+          setConfirming(null);
+        }
       }
     },
     [entityId, busy, history, patchThread, applyTurnToPanel, refreshProfile]
@@ -583,35 +598,62 @@ export function useCareerBuddyLive({
   }, [entityId, runTurn, refreshProfile, thread.messages.length, navigate, location]);
 
   // ---- stop generating / Continue / Try again (Figma 8993:511908 - 8993:514381) ----
+  // 2026-10-27: Stop no longer cancels the request. The agent finishes the turn either way, so the reply keeps
+  // arriving in the background (not shown) and Continue can show it.
   const handleStop = () => {
-    if (!abortRef.current) return;
-    stoppedRef.current = true;
-    abortRef.current.abort();
+    const run = currentRunRef.current;
+    if (!run || run.done || run.stopped) return;
+    run.stopped = true;
+    stoppedRunRef.current = run;
+    abortRef.current = null;
+    speakerRef.current?.cancel();
+    setSpeaking(false);
+    log('turn stopped', { seq: run.seq });
+    patchThread((t) => ({
+      messages: t.messages.map((m) =>
+        m.id === THINKING_ID
+          ? thinkingBubble({ phase: 'stopped', text: m.thinking?.text || '' })
+          : m
+      ),
+      chips: [],
+      chipActions: [],
+    }));
+    setBusy(false);
+    setConfirming(null);
   };
   // 2026-10-27 live: Continue used to send "Please continue from where you stopped." as the talent's words, and the
-  // agent read it as "continue my profile" (an education gather after a stopped readiness reply). Stop only cuts the
-  // stream - the agent still finishes the turn - so Continue shows that finished turn from history. If it is not
-  // there yet, the same message (and chip action) goes again; never new words.
+  // agent read it as "continue my profile" (an education gather after a stopped readiness reply). The stopped reply
+  // keeps arriving in the background (handleStop), so Continue shows it - waiting for it if it is still on its way.
+  // If it failed, the same message (and chip action) goes again; never new words.
   const handleContinueStopped = async () => {
     const last = lastTurnRef.current;
+    const run = stoppedRunRef.current;
     if (!last || busy || !entityId) return;
-    setBusy(true);
-    let found = null;
-    try {
-      for (let i = 0; i < 6 && !found; i += 1) {
-        if (i) await new Promise((r) => setTimeout(r, 1500));
-        const page = await fetchHistory(entityId, { limit: 3 });
-        found = findFinishedTurn(page?.sessions, last.text, last.startedAt);
-      }
-    } finally {
-      setBusy(false);
-    }
-    log('continue stopped', { found: Boolean(found) });
-    if (!found) {
+    if (!run) {
       runTurn(last.text, { chipAction: last.chipAction, showUser: false });
       return;
     }
-    const turn = found.result;
+    if (!run.done) {
+      setBusy(true);
+      patchThread((t) => ({
+        messages: t.messages.map((m) =>
+          m.id === THINKING_ID
+            ? thinkingBubble(thinkingState({ status: 'Finishing the answer' }))
+            : m
+        ),
+      }));
+      await new Promise((resolve) => run.waiters.push(resolve));
+      setBusy(false);
+    }
+    // A newer message replaced this reply while it was finishing: nothing to show.
+    if (stoppedRunRef.current !== run) return;
+    stoppedRunRef.current = null;
+    log('continue stopped', { finished: Boolean(run.turn) });
+    if (!run.turn) {
+      runTurn(last.text, { chipAction: last.chipAction, showUser: false });
+      return;
+    }
+    const turn = run.turn;
     patchThread((t) => ({
       messages: [...t.messages.filter((x) => x.id !== THINKING_ID), ...turnToBubbles(turn)],
       history: [
@@ -626,6 +668,7 @@ export function useCareerBuddyLive({
     refreshProfile();
   };
   const handleTryAgainStopped = () => {
+    stoppedRunRef.current = null;
     const last = lastTurnRef.current;
     if (last) runTurn(last.text, { chipAction: last.chipAction, showUser: false });
   };
@@ -871,6 +914,26 @@ export function useCareerBuddyLive({
     handleNewChat();
   };
 
+  // The match cards for a bot message with `opportunities` - the full screen and the Ask Buddy panel
+  // (CareerBuddyFirstChat, `compact`) draw the same cards with the same Why this match? / View opportunity.
+  const renderOpportunities = (m, { compact = false } = {}) => (
+    <>
+      <OpportunityMatchCards
+        matches={m.opportunities.map((o) => opportunityMatchView(o))}
+        followUps={[]}
+        fitWidth={!compact}
+        compact={compact}
+        disabled={busy}
+        onWhy={(_text, _view, i) => {
+          const { label, chipAction } = whyThisMatchAction(m.opportunities[i], i);
+          runTurn(label, { autoText: label, chipAction });
+        }}
+        onView={(view) => navigate(view.detailPath)}
+      />
+      {m.afterCards ? <p className="mt-[8px] whitespace-pre-line">{m.afterCards}</p> : null}
+    </>
+  );
+
   const lastBot = [...messages].reverse().find((m) => m.sender === 'bot' && m.id !== THINKING_ID);
   const reportPending = Boolean(lastBot?.report && !lastBot.reportAnswer);
   const enrichedMessages = messages.map((m) => {
@@ -903,26 +966,7 @@ export function useCareerBuddyLive({
     }
     if (m.opportunities?.length) {
       // 2026-10-25: the agent's matched postings as the Figma match cards (9053:80615).
-      const views = m.opportunities.map((o) => opportunityMatchView(o));
-      out = {
-        ...out,
-        content: (
-          <>
-            <OpportunityMatchCards
-              matches={views}
-              followUps={[]}
-              fitWidth
-              disabled={busy}
-              onWhy={(_text, _view, i) => {
-                const { label, chipAction } = whyThisMatchAction(m.opportunities[i], i);
-                runTurn(label, { autoText: label, chipAction });
-              }}
-              onView={(view) => navigate(view.detailPath)}
-            />
-            {m.afterCards ? <p className="mt-[8px] whitespace-pre-line">{m.afterCards}</p> : null}
-          </>
-        ),
-      };
+      out = { ...out, content: renderOpportunities(m) };
     }
     if (m.reviewSection) {
       const stage = stageForSection(m.reviewSection);
@@ -960,6 +1004,7 @@ export function useCareerBuddyLive({
     // conversation
     messages,
     enrichedMessages,
+    renderOpportunities,
     suggestedReplies: busy || reportPending ? [] : chips,
     busy,
     handleSend,

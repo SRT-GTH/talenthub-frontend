@@ -1,6 +1,10 @@
-## [2026-10-27] fix | Career Buddy: Continue after Stop shows the finished reply
+## [2026-10-27] fix | Career Buddy: Continue after Stop shows the finished reply; match cards in the Ask Buddy panel
 
-Live 2026-10-26 18:28 (Ama, local stack): Stop on a readiness reply, then Continue, sent "Please continue from where you stopped." as the talent's words; the agent read it as "continue my profile" and started an education gather ("You already have Central University on your profile..."). Same family as the 2026-10-25 "Try again" fix. Stop only cuts the stream; the agent still finishes the turn, so Continue now reads that turn from `/career-buddy/history` (`findFinishedTurn`: same message, started no earlier than the stopped turn) and shows it; if it is not there after ~9 s, the same message and chip action are sent again. Verified: a stream aborted after 2 deltas still lands in history with its full reply; eslint clean. Not verified: the button in the browser (Chrome extension offline).
+Live 2026-10-26 18:28 (Ama, local stack): Stop on a readiness reply, then Continue, sent "Please continue from where you stopped." as the talent's words; the agent read it as "continue my profile" and started an education gather. Same family as the 2026-10-25 "Try again" fix. Stop no longer cancels the request: the agent finishes the turn either way, so the reply keeps arriving in the background (not shown) and Continue shows it, waiting for it if needed; if it failed, the same message and chip action go again. A new message drops a stopped reply. (Reading it back from `/career-buddy/history` was tried first: the history call took 40 s+ locally.)
+
+Also: the Ask Buddy side panel (`CareerBuddyFirstChat`) now draws the opportunity match cards (they only rendered on the full screen), as a narrower `compact` card (320 px) under the bubble; `useCareerBuddyLive` exposes `renderOpportunities`.
+
+Verified in the desktop app's browser on the local stack (Ama): panel shows the cards, readiness from the cards asks by posting, Stop then Continue shows the full readiness answer within a second, and Mongo has one run for that message and no "Please continue" run. eslint clean.
 
 ## [2026-10-25] build | Platform Admin: Reports, Live ops, Comms, Settings, Audit log, Support, A4 report kit
 

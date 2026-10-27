@@ -602,24 +602,6 @@ export function historyGroups(threads, now = new Date()) {
 /* ---- server history (agent GET /career-buddy/history) --------------------- */
 
 /** One server session -> a thread the chat can show and continue. */
-/**
- * 2026-10-27: the server's finished turn for a reply the talent stopped. "Stop generating" only cuts the stream - the
- * agent still finishes the turn - so Continue shows that turn instead of sending new words. Same message, started no
- * earlier than `since` (5 s of clock slack); the newest one wins. Null when it is not in `sessions` (yet).
- */
-export function findFinishedTurn(sessions, message, since = 0) {
-  let best = null;
-  for (const s of sessions || []) {
-    for (const t of s.turns || []) {
-      if (!t?.result || t.message !== message) continue;
-      const at = Date.parse(t.at);
-      if (Number.isFinite(at) && at < since - 5000) continue;
-      if (!best || (Date.parse(best.at) || 0) < (at || 0)) best = t;
-    }
-  }
-  return best;
-}
-
 export function threadFromSession(session) {
   const messages = [];
   const history = [];
