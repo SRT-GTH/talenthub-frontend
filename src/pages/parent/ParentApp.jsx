@@ -4,10 +4,17 @@ import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 
 const ParentHomePage = lazy(() => import('./ParentHomePage.jsx'));
+const ParentWardsPage = lazy(() => import('./ParentWardsPage.jsx'));
+const ParentWardPage = lazy(() => import('./ParentWardPage.jsx'));
+// Flags and corrections canvas (Figma 10057:604): the Profile and Flags tabs live on ParentWardPage (?tab=profile | flags); /profile and /flags redirect there. To review is its own page.
+const ParentWardTabRedirect = lazy(() => import('./ParentWardTabRedirect.jsx'));
+const ParentReviewPage = lazy(() => import('./ParentReviewPage.jsx'));
+// Link a ward canvas (Figma 10057:1093): search, link code, request sent, 100+ children dialog.
+const ParentLinkWardPage = lazy(() => import('./ParentLinkWardPage.jsx'));
 
 /*
  * ParentApp — the /parent/* router (Theme: Parents, Figma file SCXc457vwiq6o7d9g4jVbh). Outside MainLayout, like /admin and /agency; the chrome is ParentFrame.
- * Built so far: /parent (home, 7 states). The other sidebar pages (My wards, To review, Evaluate, Ward wallets, Notifications, Settings, Help) are later canvases: they land on a short
+ * Built so far: /parent (home, 7 states), /parent/wards (PW-01), /parent/wards/:wardId (ward page, tabs, dialogs). The other sidebar pages (My wards, To review, Evaluate, Ward wallets, Notifications, Settings, Help) are later canvases: they land on a short
  * "not designed yet" note inside the chrome so the nav never dead-ends. Mock session: Emma Mensah, no auth gate yet.
  */
 const Fallback = () => <PageLoader look="focused" />;
@@ -33,6 +40,12 @@ const ParentApp = () => (
   <Suspense fallback={<Fallback />}>
     <Routes>
       <Route index element={<ParentHomePage />} />
+      <Route path="wards" element={<ParentWardsPage />} />
+      <Route path="wards/:wardId" element={<ParentWardPage />} />
+      <Route path="wards/:wardId/profile" element={<ParentWardTabRedirect tab="profile" />} />
+      <Route path="wards/:wardId/flags" element={<ParentWardTabRedirect tab="flags" />} />
+      <Route path="review" element={<ParentReviewPage />} />
+      <Route path="link-ward" element={<ParentLinkWardPage />} />
       <Route path="*" element={<NotBuilt />} />
     </Routes>
   </Suspense>

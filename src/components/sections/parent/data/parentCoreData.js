@@ -3,6 +3,7 @@
  * Mock: no backend. The sidebar and top bar read `SIDEBAR_STATES`; the home states pick one (see parentHomeState.js).
  *   none      PD-01c  no ward linked yet           Mother · no ward linked yet · 0 of 3 done · stats 0 0 0 0 · no nav badges
  *   linked    PD-01b / PD-01 / PD-07  two wards    Mother · 2 wards linked · 2 of 3 done · stats 2 4 1 1 · badges To review 4, Ward wallets 1, Notifications 4
+ *   oneWard   PW-15b  after Elliot is unlinked: Mother · 1 ward linked, stats 1 4 1 1
  *   caughtUp  PD-01d  nothing waits for the parent Mother · 2 wards linked · 2 of 3 done · stats 2 0 0 0 · badge Notifications 4
  */
 
@@ -50,6 +51,19 @@ export const SIDEBAR_STATES = {
     note: '1 payment waits for you →',
     stats: [
       { value: '2', label: 'Wards' },
+      { value: '4', label: 'To review' },
+      { value: '1', label: 'Flag open' },
+      { value: '1', label: 'Evaluation' },
+    ],
+    badges: { review: '4', wallets: '1', notifications: '4' },
+  },
+  oneWard: {
+    role: 'Mother · 1 ward linked',
+    done: 2,
+    doneText: '2 of 3 done',
+    note: '1 payment waits for you →',
+    stats: [
+      { value: '1', label: 'Wards' },
       { value: '4', label: 'To review' },
       { value: '1', label: 'Flag open' },
       { value: '1', label: 'Evaluation' },

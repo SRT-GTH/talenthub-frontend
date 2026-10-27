@@ -74,3 +74,5 @@ _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; back
 
 - [parent-dashboard.md](parent-dashboard.md) — Parent dashboard `/parent/*` (Figma Parents file, canvas 01 Home and dashboard): chrome, 7 home states by `?state=`, files, assumptions
 - [admin.md](admin.md) — Theme 7 Platform Admin `/admin/*` (GTH staff back office, 5 roles, mock session): chrome reused from agency, URL contract, frame checklist (95 frames), fidelity notes
+- [parent-flags.md](parent-flags.md) — Parent flags and corrections: ward Profile + Flags tabs, flag/re-review dialogs, To review `/parent/review`; frame→URL table with diff %, consolidation candidates, gaps
+- [parent-link-ward.md](parent-link-ward.md) — Parent Link a ward `/parent/link-ward` (+ `/parent?modal=ward-linked`): search, no match, request sent, link-code dialogs (entry / error / expired), 100+ children dialog; frame→URL table with diff %, My wards hand-off, consolidation candidates, gaps

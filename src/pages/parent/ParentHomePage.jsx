@@ -4,6 +4,7 @@ import { debug } from '../../utils/debug.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import ParentOverview from '../../components/sections/parent/home/ParentOverview.jsx';
 import ParentNoWard from '../../components/sections/parent/states/ParentNoWard.jsx';
+import WardLinkedDialog from '../../components/sections/parent/link/WardLinkedDialog.jsx';
 import ParentFirstVisit from '../../components/sections/parent/states/ParentFirstVisit.jsx';
 import ParentHomeError from '../../components/sections/parent/states/ParentHomeError.jsx';
 import {
@@ -61,6 +62,20 @@ const ParentHomePage = () => {
       {state === 'none' ? <ParentNoWard /> : null}
       {state === 'first' ? <ParentFirstVisit /> : null}
       {state === 'error' ? <ParentHomeError onRetry={retry} /> : null}
+      {params.get('modal') === 'ward-linked' ? (
+        <WardLinkedDialog
+          onClose={() =>
+            setParams(
+              (prev) => {
+                const next = new URLSearchParams(prev);
+                next.delete('modal');
+                return next;
+              },
+              { replace: true }
+            )
+          }
+        />
+      ) : null}
     </ParentFrame>
   );
 };
