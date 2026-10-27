@@ -1,16 +1,15 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { apiMessage, progressStudents } from '../../../../services/institutionPortal.api.js';
 import InstitutionButton from '../InstitutionButton.jsx';
 import { INSTITUTION_BASE } from '../institutionNav.js';
 import {
   PROGRESS_COPY,
   PROGRESS_FILTERS,
   PROGRESS_FORMS,
-  PROGRESS_OTHER_FORMS,
   PROGRESS_SORTS,
-  PROGRESS_STUDENTS,
 } from './data/progressData.js';
 import {
   ProgressChevronIcon,
@@ -20,25 +19,23 @@ import {
 } from './ProgressIcons.jsx';
 import ProgressStudentRow from './ProgressStudentRow.jsx';
 import ProgressTabs from './ProgressTabs.jsx';
-import { useProgressFlags } from './useProgressFlags.js';
 
 const log = debug('ProgressStudentsView');
 
 /*
- * ProgressStudentsView — 11.3.2a "Progress · Students" (Figma 8595:92): title "Progress" (34/41 600) + "Form 3 · term 1" sticker + subtitle, the form tabs
- * (Form 1 · Form 2 · Form 3 · Graduates), a toolbar (All / On track / Needs support chips · list/cards toggle · sort select · "Export report"), the
- * amber banner and the list card (r22, 1px #e1eae2).
- * URL keys (data = useInstitutionState()): tab=form-1|form-2|form-3|graduates (default form-3) · filter=on-track|needs-support · view=cards (list default)
- * · sort=lowest|highest|name · q= (text filter on name / stream; the top-bar search goes to the roster, so ?q= here is the only entry).
- * ⚠️ ASSUMPTION: the sort pill is a native select (options not drawn beyond "Lowest first"); the cards view is not drawn (same rows as cards); the
- * default order is the order drawn (Figma labels it "Lowest first" but the rows are not ascending: Figma inconsistency kept, sorting only when chosen).
- * "Export report" opens the download dialog of the class outcomes page.
+ * ProgressStudentsView — 11.3.2a "Progress · Students" (Figma 8595:92): title + term sticker + subtitle, the form tabs (Form 1 · Form 2 · Form 3 ·
+ * Graduates, real counts), a toolbar (All / On track / Needs support chips with counts · list/cards toggle · sort select · "Export report"), the amber
+ * banner (only when someone has been inactive for 30 days) and the list card.
+ * Live: GET /institution/progress/students?form= (one request per form tab). Students not linked yet, or under 18 without a guardian's agreement, are
+ * listed by name only and are not counted in On track / Needs support.
+ * URL keys: tab=form-1|form-2|form-3|graduates (default form-3) · filter=on-track|needs-support · view=cards · sort=lowest|highest|name · q=
  * Props: data (useInstitutionState()).
  */
 
 const matchesFilter = (student, filter) => {
   if (filter === 'on-track') return student.status === 'on-track';
-  if (filter === 'needs-support') return student.status === 'support';
+  if (filter === 'needs-support')
+    return student.status === 'support' || student.status === 'flagged';
   return true;
 };
 
@@ -54,10 +51,25 @@ const ProgressStudentsView = ({ data }) => {
   const filter = PROGRESS_FILTERS.some((f) => f.id === data.filter) ? data.filter : 'all';
   const view = data.view === 'cards' ? 'cards' : 'list';
   const sort = params.get('sort');
-  const { flagged } = useProgressFlags();
+  const [res, setRes] = useState(null);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    setError('');
+    setRes(null);
+    try {
+      setRes(await progressStudents(PROGRESS_FORMS.find((f) => f.id === tab).api));
+    } catch (err) {
+      setError(apiMessage(err));
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const rows = useMemo(() => {
-    const base = tab === 'form-3' ? PROGRESS_STUDENTS : (PROGRESS_OTHER_FORMS[tab] ?? []);
+    const base = res?.items ?? [];
     const needle = q.trim().toLowerCase();
     const list = base.filter(
       (s) =>
@@ -65,11 +77,17 @@ const ProgressStudentsView = ({ data }) => {
         (!needle || `${s.name} ${s.stream}`.toLowerCase().includes(needle))
     );
     return sorters[sort] ? [...list].sort(sorters[sort]) : list;
-  }, [tab, filter, q, sort]);
+  }, [res, filter, q, sort]);
 
   useEffect(() => {
     log('state', { tab, filter, view, sort, q, rows: rows.length });
   }, [tab, filter, view, sort, q, rows.length]);
+
+  const tabs = PROGRESS_FORMS.map((f) => ({
+    ...f,
+    count: String(res?.forms?.find((x) => x.id === f.id)?.count ?? '…'),
+  }));
+  const counts = res?.counts;
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -78,9 +96,11 @@ const ProgressStudentsView = ({ data }) => {
           <h1 className="m-0 font-sans text-[26px] leading-[32px] font-semibold tracking-[-0.52px] text-[#1c2a21] md:text-[34px] md:leading-[41px] md:tracking-[-0.68px]">
             {PROGRESS_COPY.title}
           </h1>
-          <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
-            {PROGRESS_COPY.chip}
-          </span>
+          {res?.term ? (
+            <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
+              {tabs.find((t) => t.id === tab)?.label} · {res.term}
+            </span>
+          ) : null}
         </div>
         <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#737373]">
           {PROGRESS_COPY.subtitle}
@@ -88,7 +108,7 @@ const ProgressStudentsView = ({ data }) => {
       </header>
 
       <ProgressTabs
-        tabs={PROGRESS_FORMS}
+        tabs={tabs}
         value={tab}
         onChange={(id) => update({ tab: id === 'form-3' ? null : id, filter: null })}
         label="Forms"
@@ -112,7 +132,7 @@ const ProgressStudentsView = ({ data }) => {
                     : 'border-[#e1eae2] bg-white text-[#595959]'
                 )}
               >
-                {f.label}
+                {f.label} {counts ? counts[f.count] : ''}
               </button>
             );
           })}
@@ -170,13 +190,15 @@ const ProgressStudentsView = ({ data }) => {
         </InstitutionButton>
       </div>
 
-      <p className="m-0 flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[18px] pl-[14px] font-sans text-[14px] leading-[17px] font-medium text-[#1c2a21]">
-        <ProgressClockIcon className="size-[18px] shrink-0 text-[#967014]" />
-        {PROGRESS_COPY.banner}
-      </p>
+      {counts?.inactive ? (
+        <p className="m-0 flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[18px] pl-[14px] font-sans text-[14px] leading-[17px] font-medium text-[#1c2a21]">
+          <ProgressClockIcon className="size-[18px] shrink-0 text-[#967014]" />
+          {PROGRESS_COPY.banner(counts.inactive)}
+        </p>
+      ) : null}
 
       <p role="status" aria-live="polite" className="sr-only">
-        {rows.length} {rows.length === 1 ? 'student' : 'students'} shown
+        {res ? `${rows.length} ${rows.length === 1 ? 'student' : 'students'} shown` : 'Loading'}
       </p>
 
       <section
@@ -185,7 +207,18 @@ const ProgressStudentsView = ({ data }) => {
         aria-labelledby={`progress-tab-${tab}`}
         className="overflow-hidden rounded-[22px] border border-solid border-[#e1eae2] bg-white"
       >
-        {rows.length ? (
+        {error ? (
+          <p role="alert" className="m-0 px-[20px] py-[28px] font-sans text-[14px] text-[#902b20]">
+            Could not load progress: {error}{' '}
+            <button type="button" onClick={load} className="cursor-pointer font-semibold underline">
+              Try again
+            </button>
+          </p>
+        ) : !res ? (
+          <p className="m-0 px-[20px] py-[28px] font-sans text-[14px] text-[#595959]">
+            Loading students…
+          </p>
+        ) : rows.length ? (
           <ul
             className={classNames(
               'm-0 list-none p-0',
@@ -195,24 +228,27 @@ const ProgressStudentsView = ({ data }) => {
             )}
           >
             {rows.map((student) => (
-              <ProgressStudentRow
-                key={student.id}
-                student={student}
-                flagged={flagged.has(student.id)}
-                cards={view === 'cards'}
-              />
+              <ProgressStudentRow key={student.id} student={student} cards={view === 'cards'} />
             ))}
           </ul>
         ) : (
           <p className="m-0 px-[20px] py-[28px] font-sans text-[14px] leading-[20px] text-[#595959]">
-            {/* ⚠️ ASSUMPTION: the empty list is not drawn; this is the plain sentence. */}
-            No students match.{' '}
-            <Link
-              to={`${INSTITUTION_BASE}/progress`}
-              className="font-semibold text-[#387440] no-underline hover:underline"
-            >
-              Clear filters
-            </Link>
+            {res.items.length ? 'No students match.' : 'No students in this form yet.'}{' '}
+            {res.items.length ? (
+              <Link
+                to={`${INSTITUTION_BASE}/progress${tab === 'form-3' ? '' : `?tab=${tab}`}`}
+                className="font-semibold text-[#387440] no-underline hover:underline"
+              >
+                Clear filters
+              </Link>
+            ) : (
+              <Link
+                to={`${INSTITUTION_BASE}/students`}
+                className="font-semibold text-[#387440] no-underline hover:underline"
+              >
+                Open the roster
+              </Link>
+            )}
           </p>
         )}
       </section>

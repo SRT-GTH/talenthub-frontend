@@ -141,6 +141,23 @@ export const institutionAuditExport = (tab) =>
 export const institutionRosterExport = () =>
   api.post('/institution/roster/export', {}, { timeout: 60000 }).then(body);
 
+/* ---- Progress (backend institutionProgress.service.js) ---- */
+export const progressStudents = (form) =>
+  api.get('/institution/progress/students', { params: { form }, timeout: 60000 }).then(body);
+export const progressStudent = (id) =>
+  api.get(`/institution/progress/students/${id}`, { timeout: 60000 }).then(body);
+export const flagStudent = (id, note) =>
+  api.post(`/institution/progress/students/${id}/flag`, { note }).then(body);
+export const unflagStudent = (id) =>
+  api.delete(`/institution/progress/students/${id}/flag`).then(body);
+export const progressOutcomes = (period) =>
+  api.get('/institution/progress/outcomes', { params: { period }, timeout: 60000 }).then(body);
+/** -> { fileName, mime, content (base64) } */
+export const exportOutcomes = ({ period, readiness, names }) =>
+  api
+    .post('/institution/progress/outcomes/export', { period, readiness, names }, { timeout: 60000 })
+    .then(body);
+
 export const institutionHome = () => api.get('/institution/home', { timeout: 60000 }).then(body);
 export const institutionWelcomeSeen = () =>
   api.post('/institution/home/welcome-seen', {}).then(body);

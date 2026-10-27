@@ -1,150 +1,234 @@
-import { useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { apiMessage, progressOutcomes } from '../../../../services/institutionPortal.api.js';
 import OutcomesSkillsCard from '../../publicData/outcomes/OutcomesSkillsCard.jsx';
-import OutcomesStoryDetail from '../../publicData/outcomes/OutcomesStoryDetail.jsx';
-import { findStory, getOutcomeStories } from '../../publicData/outcomes/data/outcomesData.js';
 import KpiStrip from '../../publicData/ui/KpiStrip.jsx';
 import KpiTile from '../../publicData/ui/KpiTile.jsx';
+import PublicCard from '../../publicData/ui/PublicCard.jsx';
 import InstitutionButton from '../InstitutionButton.jsx';
 import InstitutionPageHero from '../InstitutionPageHero.jsx';
-import { INSTITUTION_BASE } from '../institutionNav.js';
+import { useInstitutionSession } from '../useInstitutionSession.js';
 import ProgressDownloadDialog from './ProgressDownloadDialog.jsx';
 import ProgressPlacementsCard from './ProgressPlacementsCard.jsx';
 import ProgressRatioCard from './ProgressRatioCard.jsx';
-import ProgressStoriesSection from './ProgressStoriesSection.jsx';
 import { OUTCOMES_PAGE as D } from './data/progressData.js';
 
 const log = debug('ProgressOutcomesView');
 
 /*
- * ProgressOutcomesView — 11.3.2d "Class outcomes" (Figma 8745:47) + 11.3.2e download dialog (?modal=download): green hero ("Class outcomes" + "Download report"),
- * the KPI strip (Placements made 401 · Scholarships surfaced GHS 184K · Skills evidenced 38 % · Organisations involved 27), Placements over time (0-50
- * axis) + Placements by type, Skills evidenced + Partner ecosystem, "Stories from your alumni". The cards are the Theme 8 outcomes cards with the
- * institution figures; the charts keep their sr-only table equivalents. Counts through formatCount (the KPI tiles / BarRow).
- * URL keys: modal=download · story=<id> (the Theme 8 story page, ⚠️ ASSUMPTION: story pages are not drawn for the institution; the story links of the
- * cards are turned into this key so no link leaves the portal). Props: data (useInstitutionState()).
+ * ProgressOutcomesView — 11.3.2d "Class outcomes" (Figma 8745:47) + 11.3.2e download dialog (?modal=download).
+ * Live: GET /institution/progress/outcomes?period=term|year|all (URL key ?period=, default year). The KPI strip (Placements · Applications · Skills
+ * evidenced · Organisations), Applications per month (12 months), Applications by type, Skills evidenced (evidence by source) and Where students
+ * applied (top organisations). Only roster students linked to GTH are counted (under-18s with a guardian's agreement); the Theme 8 cards mask counts
+ * under 5. The Figma "Scholarships surfaced" KPI and "Stories from your alumni" are left out: there is no scholarship or story data yet (they come
+ * with Programmes). Props: data (useInstitutionState()).
  */
 
+// Below this many counted students the page shows no figures at all (a share or a chart of 1-4 students would point at individuals).
+const MIN_GROUP = 5;
+
+const niceMax = (values) => {
+  const max = Math.max(0, ...values);
+  if (max <= 5) return 5;
+  const step = max <= 20 ? 5 : max <= 50 ? 10 : max <= 200 ? 50 : 100;
+  return Math.ceil(max / step) * step;
+};
+
+const Empty = ({ id, title, text }) => (
+  <PublicCard id={id} title={title}>
+    <p className="m-0 font-sans text-[14px] leading-[20px] text-[#595959]">{text}</p>
+  </PublicCard>
+);
+
 const ProgressOutcomesView = ({ data }) => {
-  const navigate = useNavigate();
-  const storyId = data.params.get('story');
-  const story = storyId ? findStory(storyId) : null;
+  const session = useInstitutionSession();
+  const period = D.periods.some((p) => p.id === data.params.get('period'))
+    ? data.params.get('period')
+    : 'year';
+  const [o, setO] = useState(null);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    setError('');
+    setO(null);
+    try {
+      setO(await progressOutcomes(period));
+    } catch (err) {
+      setError(apiMessage(err));
+    }
+  }, [period]);
 
   useEffect(() => {
-    log('mount', { modal: data.modal, story: storyId });
-  }, [data.modal, storyId]);
+    load();
+  }, [load]);
 
-  // Story links of the Theme 8 cards point to <base>/outcomes/stories/<id>: keep them inside the page.
-  const onClickCapture = useCallback(
-    (event) => {
-      const anchor = event.target.closest?.('a[href*="/outcomes/stories/"]');
-      if (!anchor) return;
-      event.preventDefault();
-      event.stopPropagation();
-      const id = anchor.getAttribute('href').split('/outcomes/stories/')[1];
-      log('story', id);
-      data.update({ story: id });
-    },
-    [data]
-  );
+  useEffect(() => {
+    log('mount', { modal: data.modal, period });
+  }, [data.modal, period]);
 
   const openDownload = () => data.update({ modal: 'download' });
   const closeDownload = () => data.update({ modal: null });
+  const k = o?.kpis;
+  const yMax = o ? niceMax(o.perMonth.map((m) => m.value)) : 5;
+  const evidenceTotal = o ? o.skills.sources.reduce((a, s) => a + s.count, 0) : 0;
 
   return (
-    <div className="flex flex-col gap-[16px] lg:gap-[30px]" onClickCapture={onClickCapture}>
+    <div className="flex flex-col gap-[16px] lg:gap-[30px]">
       <InstitutionPageHero
-        title={story ? 'Case study' : D.title}
-        subtitle={D.subtitle}
+        title={D.title}
+        subtitle={D.subtitle(session.institution.short || session.institution.name)}
         actions={
-          story ? (
-            <InstitutionButton size="sm" onClick={() => data.update({ story: null })}>
-              Back to class outcomes
-            </InstitutionButton>
-          ) : (
-            <InstitutionButton size="sm" onClick={openDownload}>
-              {D.download}
-            </InstitutionButton>
-          )
+          <InstitutionButton size="sm" onClick={openDownload}>
+            {D.download}
+          </InstitutionButton>
         }
       />
-      {story ? (
-        <OutcomesStoryDetail
-          story={story}
-          others={getOutcomeStories().filter((s) => s.id !== story.id)}
-          base={`${INSTITUTION_BASE}/progress`}
-          embedded
-        />
+      <div
+        role="radiogroup"
+        aria-label="Period"
+        className="flex flex-wrap gap-[2px] self-start rounded-[10px] bg-[#efefea] p-[3px]"
+      >
+        {D.periods.map((p) => {
+          const on = p.id === period;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() =>
+                data.update({ period: p.id === 'year' ? null : p.id }, { replace: true })
+              }
+              className={classNames(
+                'cursor-pointer rounded-[8px] border-0 px-[12px] py-[6px] font-sans text-[13px] leading-[16px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#387440]',
+                on
+                  ? 'bg-white font-semibold text-[#1c2a21] shadow-[0_1px_3px_rgba(0,0,0,0.12)]'
+                  : 'bg-transparent font-medium text-[#575755]'
+              )}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+      </div>
+      {error ? (
+        <p
+          role="alert"
+          className="m-0 rounded-[16px] border border-solid border-[#ebc2bd] bg-[#f9ebea] p-[16px] font-sans text-[14px] text-[#902b20]"
+        >
+          Could not load class outcomes: {error}{' '}
+          <button type="button" onClick={load} className="cursor-pointer font-semibold underline">
+            Try again
+          </button>
+        </p>
+      ) : !o ? (
+        <p className="m-0 font-sans text-[14px] text-[#595959]">Loading class outcomes…</p>
+      ) : k.students < MIN_GROUP ? (
+        <p className="m-0 rounded-[16px] border border-solid border-[#eedeb8] bg-[#faf4e8] p-[16px] font-sans text-[14px] leading-[20px] text-[#1c2a21]">
+          {k.students === 0
+            ? 'No students are counted yet. Students show here once they link their GTH account (under-18s once a guardian agrees).'
+            : `Only ${k.students} ${k.students === 1 ? 'student is' : 'students are'} counted so far. Class outcomes appear once at least ${MIN_GROUP} students are linked, so no one can be picked out. Each student’s own progress is on the Progress page.`}
+        </p>
       ) : (
         <>
           <KpiStrip columns={4}>
             <KpiTile
               eyebrow="Placements made"
               eyebrowShort="Placements"
-              count={D.kpis.placements.count}
-              sub={D.kpis.placements.sub}
-              subShort={D.kpis.placements.sub}
+              count={k.placements}
+              sub={`Offers accepted · ${o.periodLabel.toLowerCase()}.`}
+              subShort="Offers accepted."
               className="md:min-h-[166px]"
             />
             <KpiTile
-              eyebrow="Scholarships surfaced"
-              eyebrowShort="Scholarships"
-              value={D.kpis.scholarships.valueText}
-              sub={D.kpis.scholarships.sub}
-              subShort={D.kpis.scholarships.sub}
+              eyebrow="Applications"
+              count={k.applications}
+              sub={`From ${k.applicants} of ${k.students} students counted.`}
+              subShort={`${k.applicants} students applied.`}
               className="md:min-h-[166px]"
             />
             <KpiTile
               eyebrow="Skills evidenced"
-              value={D.kpis.skills.shareText}
-              sub={D.kpis.skills.sub}
-              subShort={D.kpis.skills.sub}
+              value={`${Math.round(k.skillsShare * 100)}%`}
+              sub="of students counted have at least one evidenced skill."
+              subShort="with ≥1 evidenced skill."
               className="md:min-h-[166px]"
             />
             <KpiTile
               eyebrow="Organisations involved"
               eyebrowShort="Organisations"
-              count={D.kpis.organisations.count}
-              sub={D.kpis.organisations.sub}
-              subShort={D.kpis.organisations.sub}
+              count={k.organisations}
+              sub="Employers and providers your students applied to."
+              subShort="Applied to."
               className="md:min-h-[166px]"
             />
           </KpiStrip>
           <div className="grid gap-[16px] md:gap-[24px] xl:grid-cols-[minmax(0,860fr)_minmax(0,445fr)]">
-            <ProgressPlacementsCard series={D.placementsOverTime} />
-            <ProgressRatioCard
-              id="class-by-type"
-              title="Placements by type"
-              hint="Last 12 months"
-              label="Placements by type"
-              items={D.placementsByType}
-              note={D.averageTimeNote}
-            />
+            <ProgressPlacementsCard series={o.perMonth} yMax={yMax} />
+            {o.byType.length ? (
+              <ProgressRatioCard
+                id="class-by-type"
+                title="Applications by type"
+                hint={o.periodLabel}
+                label="Applications by type"
+                items={o.byType}
+                note={
+                  k.games
+                    ? `${k.games} Skills Lab ${k.games === 1 ? 'game' : 'games'} completed by ${k.gamePlayers} ${k.gamePlayers === 1 ? 'student' : 'students'}.`
+                    : undefined
+                }
+              />
+            ) : (
+              <Empty
+                id="class-by-type"
+                title="Applications by type"
+                text="No applications in this period yet."
+              />
+            )}
           </div>
           <div className="grid items-start gap-[16px] md:gap-[24px] xl:grid-cols-2">
-            <OutcomesSkillsCard skills={D.skills} />
-            <ProgressRatioCard
-              id="class-partners"
-              title="Partner ecosystem"
-              hint={D.partners.hint}
-              label="Organisations by type"
-              items={D.partners.items}
-              gap={10}
-              layout="inline"
-            />
+            {evidenceTotal ? (
+              <OutcomesSkillsCard
+                skills={{
+                  count: o.skills.count,
+                  caption: `students with ≥1 evidenced skill · ${Math.round(k.skillsShare * 100)}% of students counted`,
+                  sourcesTitle: 'Where the evidence comes from',
+                  sources: o.skills.sources.filter((s) => s.count > 0),
+                }}
+              />
+            ) : (
+              <Empty
+                id="outcomes-skills"
+                title="Skills evidenced"
+                text="No skill evidence in this period yet. Assessments, Skills Lab games and Career Buddy chats add it."
+              />
+            )}
+            {o.organisations.length ? (
+              <ProgressRatioCard
+                id="class-partners"
+                title="Where students applied"
+                hint={`${k.organisations} organisations`}
+                label="Applications by organisation"
+                items={o.organisations}
+                gap={10}
+                layout="inline"
+              />
+            ) : (
+              <Empty
+                id="class-partners"
+                title="Where students applied"
+                text="No applications in this period yet."
+              />
+            )}
           </div>
-          <ProgressStoriesSection base={`${INSTITUTION_BASE}/progress`} />
         </>
       )}
       {data.modal === 'download' ? (
         <ProgressDownloadDialog
+          period={period}
+          canNames={['admin', 'records'].includes(session.admin.roleKey)}
           onClose={closeDownload}
-          onDone={() => {
-            closeDownload();
-            window.open(`${INSTITUTION_BASE}/report?page=1&print=1`, '_blank', 'noopener');
-            navigate(`${INSTITUTION_BASE}/progress/class-outcomes`, { replace: true });
-          }}
         />
       ) : null}
     </div>

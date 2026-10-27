@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import Button from '../../../ui/Button.jsx';
 import { ProfileGhanaFlagIcon, ProfileVerifiedCheckIcon } from '../../../shared/assets.jsx';
-import kofiPhoto from '../../../../assets/institution/progress/student-kofi-danso-photo.png';
 import { DISPLAY } from '../../talentHome/TabsParts.jsx';
 import { INSTITUTION_BASE } from '../institutionNav.js';
 import { ProfileChip, Tag } from '../../talentProfile/ProfileTabsUi.jsx';
@@ -29,7 +28,7 @@ const Stat = ({ value, label }) => (
   </div>
 );
 
-const ProgressStudentHero = ({ detail, initials, photo, flagged, onFlag }) => (
+const ProgressStudentHero = ({ detail, initials, flagged, busy = false, onFlag, onClear }) => (
   <div className="@container">
     <section
       aria-label="Student header"
@@ -56,11 +55,7 @@ const ProgressStudentHero = ({ detail, initials, photo, flagged, onFlag }) => (
           >
             <span className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
               <span className="relative flex size-[89.4%] items-center justify-center overflow-hidden rounded-full bg-[#387440] font-sans text-[32px] font-semibold text-white">
-                {photo ? (
-                  <img src={kofiPhoto} alt="" className="absolute inset-0 size-full object-cover" />
-                ) : (
-                  initials
-                )}
+                {initials}
               </span>
             </span>
           </div>
@@ -105,11 +100,11 @@ const ProgressStudentHero = ({ detail, initials, photo, flagged, onFlag }) => (
               type="button"
               variant="tertiary"
               size="sm"
-              disabled={flagged}
-              onClick={onFlag}
+              disabled={busy}
+              onClick={flagged ? onClear : onFlag}
               className={FOCUS}
             >
-              {flagged ? 'Flagged' : 'Flag for coaching'}
+              {flagged ? 'Clear flag' : 'Flag for coaching'}
             </Button>
             <Link
               to={`${INSTITUTION_BASE}/messages/new`}
