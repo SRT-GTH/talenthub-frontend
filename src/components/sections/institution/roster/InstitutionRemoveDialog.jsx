@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import InstitutionDialogShell from './InstitutionDialogShell.jsx';
 import { cap, pronounsOf } from './rosterPronouns.js';
@@ -15,7 +16,8 @@ const log = debug('InstitutionRemoveDialog');
  * InstitutionRemoveDialog — "Remove Yaw Adomako from your roster?" (Figma 11.2.2e 8590:386008, ?modal=remove&student=<id>): 520 wide, r24, p 28, gap 16, on a #1c2a21 55 % scrim.
  * Header: 44 tile (#f9ebea, r13) with the trash glyph (#902b20), title 24/29 600, 30 round close. "What happens:" 15/18 600 and three red-x lines 14/17; amber note (#faf4e8, r12, p 12,
  * 13.5/20 500 #463409); buttons Cancel (white shelf, 56 high) + "Remove student" (white shelf, 46 high, red 15/24 700 label with the trash glyph).
- * Behaviour (InstitutionDialogShell): focus trap, Esc, scrim click, focus back to the opener. Remove → MOCK DELETE /institution/students/:id → the roster store (counts follow).
+ * Behaviour (InstitutionDialogShell): focus trap, Esc, scrim click, focus back to the opener. Remove → POST /api/institution/students/:id/remove (the row is kept
+ * as removed for the audit; a pending invite is cancelled) → the roster reloads. The student's own GTH account is not touched.
  * Props: student, onClose, onRemoved.
  */
 
@@ -24,9 +26,18 @@ const shelf =
 
 const InstitutionRemoveDialog = ({ student, onClose, onRemoved }) => {
   const p = pronounsOf(student);
-  const remove = () => {
-    log('remove (mock)', student.id);
-    rosterActions.removeStudent(student.id);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  const remove = async () => {
+    if (busy) return;
+    setBusy(true);
+    const out = await rosterActions.removeStudent(student.id);
+    setBusy(false);
+    if (!out.ok) {
+      setProblem(out.message);
+      return;
+    }
+    log('removed', student.id);
     rosterActions.toast(`${student.name} was removed from your roster.`);
     onRemoved?.(student);
     onClose();
@@ -81,6 +92,9 @@ const InstitutionRemoveDialog = ({ student, onClose, onRemoved }) => {
           Use Transfer out instead.
         </p>
       </div>
+      <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden">
+        {problem}
+      </p>
       <div className="flex flex-wrap items-center gap-[12px]">
         <button
           type="button"
@@ -93,10 +107,11 @@ const InstitutionRemoveDialog = ({ student, onClose, onRemoved }) => {
         <button
           type="button"
           onClick={remove}
-          className={`${shelf} h-[46px] gap-[8px] px-[20px] text-[15px] leading-[24px] text-[#c0392b]`}
+          disabled={busy}
+          className={`${shelf} h-[46px] gap-[8px] px-[20px] text-[15px] leading-[24px] text-[#c0392b] disabled:opacity-60`}
         >
           <Roster20DeleteIcon className="size-[20px]" />
-          Remove student
+          {busy ? 'Removing…' : 'Remove student'}
         </button>
       </div>
     </InstitutionDialogShell>

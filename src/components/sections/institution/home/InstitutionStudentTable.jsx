@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import { IhRowDots } from './institutionHomeIcons.jsx';
-import { STUDENT_ROWS, STUDENT_TABLE as T } from './data/institutionHomeData.js';
+import { STUDENT_TABLE as T } from './data/institutionHomeData.js';
 
 const log = debug('InstitutionStudentTable');
 
 /*
  * InstitutionStudentTable — the four-row student table of the home (Figma "Table" 8585:112, 1329 wide, white, 1px #e5e5e5, r16): header #f1f1f1 (16/24 #959592),
  * rows with a checkbox, a 40 round initials avatar + name 16/22 600 + cohort 16/24 #999, an activity pill (grey / green / red), a readiness bar (48 x 6) with a
- * 13.5/22 600 percentage, "last active" and the "…" action; then the pagination card. Columns follow the Figma cell widths as fractions; below lg every row is a card
- * (avatar and name, then the pill, the bar, the date and the action). The name and the "…" link open the student record
- * (⚠️ ASSUMPTION: no row menu is drawn; the checkboxes only toggle, no selection bar is drawn on the home; only page 1 of the roster is drawn, the pager points at the roster).
+ * 13.5/22 600 percentage, "last active" and the "…" action; then the footer card. Below lg every row is a card.
+ * Live: home.recent from GET /institution/home (the four most recently joined / updated students). Readiness is the linked student's GTH profile completion;
+ * the pill says whether they joined, are still to confirm, or need guardian consent. The name and the "…" link open the student record.
+ * The footer links to the full roster instead of the drawn pager (⚠️ ASSUMPTION: the checkboxes only toggle, no selection bar is drawn on the home).
+ * Props: home (the /institution/home response or null).
  */
 
 const COLS =
@@ -24,12 +26,39 @@ const PILL = {
   red: 'border-[#ebc2bd] bg-[#f9ebea] text-[#902b20]',
 };
 
-const SHELF_BASE =
-  'inline-flex items-center border-2 border-solid font-sans leading-[24px] font-bold tracking-[0.1px] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
+const AVATARS = [
+  { bg: '#c1e9c9', ink: '#32683a' },
+  { bg: '#a7f4bb', ink: '#1f4a2b' },
+  { bg: '#ffddb6', ink: '#5a430c' },
+  { bg: '#e4e2dd', ink: '#716e65' },
+];
+
+const toRow = (s, i) => {
+  const consent = s.under18 && s.consent?.status !== 'agreed';
+  const p = s.linked ? s.profile || 0 : 0;
+  return {
+    id: s.id,
+    initials: s.initials,
+    avatar: AVATARS[i % AVATARS.length],
+    name: s.name,
+    cohort: [s.form === 'graduates' ? 'Graduate' : `Form ${s.form}`, s.programme]
+      .filter(Boolean)
+      .join(' · '),
+    activity: consent
+      ? { label: 'Guardian consent needed', tone: 'red' }
+      : s.linked
+        ? { label: s.pill || 'Linked to GTH', tone: 'green' }
+        : { label: s.note || 'Not linked yet', tone: 'grey' },
+    linked: s.linked,
+    readiness: p,
+    barColor: p >= 60 ? '#00522b' : p >= 30 ? '#43664d' : '#b23b3b',
+    readinessInk: p >= 60 ? '#1f4a2b' : p >= 30 ? '#32683a' : '#ad3327',
+    lastActive: !s.last ? '—' : s.last === 'now' ? 'Now' : `${s.last} ago`,
+  };
+};
+
 const SHELF =
-  'rounded-[14px] border-[#1c2a21]/30 bg-white text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)]';
-const SHELF_ON =
-  'rounded-[10px] border-[#2a5730] bg-[#387440] text-[#fef1e7] shadow-[0_4px_0_#224626]';
+  'inline-flex h-[34px] items-center rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[12px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
 
 const Check = ({ checked, onChange, label }) => (
   <span className="relative inline-grid size-[16px] shrink-0">
@@ -57,17 +86,15 @@ const Check = ({ checked, onChange, label }) => (
   </span>
 );
 
-const InstitutionStudentTable = ({ students }) => {
+const InstitutionStudentTable = ({ home }) => {
   const [picked, setPicked] = useState([]);
-  useEffect(() => {
-    log('mount', { rows: STUDENT_ROWS.length });
-  }, []);
-  const all = picked.length === STUDENT_ROWS.length;
+  const rows = (home?.recent ?? []).map(toRow);
+  const all = rows.length > 0 && picked.length === rows.length;
   const toggle = (id) => {
     log('toggle', id);
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   };
-  const toggleAll = () => setPicked(all ? [] : STUDENT_ROWS.map((r) => r.id));
+  const toggleAll = () => setPicked(all ? [] : rows.map((r) => r.id));
   return (
     <section aria-label="Students" className="flex flex-col gap-[8px]">
       <div
@@ -101,7 +128,14 @@ const InstitutionStudentTable = ({ students }) => {
           </div>
         </div>
         <div role="rowgroup">
-          {STUDENT_ROWS.map((r) => (
+          {!rows.length ? (
+            <div role="row" className="p-[20px]">
+              <p role="cell" className="m-0 font-sans text-[15px] leading-[22px] text-[#575755]">
+                {home ? T.empty : 'Loading students…'}
+              </p>
+            </div>
+          ) : null}
+          {rows.map((r) => (
             <div
               key={r.id}
               role="row"
@@ -148,21 +182,27 @@ const InstitutionStudentTable = ({ students }) => {
                 </span>
               </div>
               <div role="cell" className="flex items-center gap-[8px] lg:px-[16px]">
-                <span
-                  aria-hidden="true"
-                  className="h-[6px] w-[48px] shrink-0 overflow-hidden rounded-full bg-[#eae8e2]"
-                >
-                  <span
-                    className="block h-full"
-                    style={{ width: `${r.barFill}%`, backgroundColor: r.barColor }}
-                  />
-                </span>
-                <span
-                  style={{ color: r.readinessInk }}
-                  className="font-sans text-[13.5px] leading-[21.6px] font-semibold"
-                >
-                  {r.readiness}%
-                </span>
+                {r.linked ? (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      className="h-[6px] w-[48px] shrink-0 overflow-hidden rounded-full bg-[#eae8e2]"
+                    >
+                      <span
+                        className="block h-full"
+                        style={{ width: `${r.readiness}%`, backgroundColor: r.barColor }}
+                      />
+                    </span>
+                    <span
+                      style={{ color: r.readinessInk }}
+                      className="font-sans text-[13.5px] leading-[21.6px] font-semibold"
+                    >
+                      {r.readiness}%
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-sans text-[14px] text-[#959592]">—</span>
+                )}
               </div>
               <div
                 role="cell"
@@ -173,7 +213,7 @@ const InstitutionStudentTable = ({ students }) => {
               <div role="cell" className="flex items-center justify-center lg:px-[24px]">
                 <Link
                   to={`/institution/students/${r.id}`}
-                  aria-label={`More actions for ${r.name}`}
+                  aria-label={`Open ${r.name}`}
                   className="grid min-h-[24px] min-w-[32px] place-items-center rounded-[8px] p-[8px] text-[#9a988f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
                 >
                   <IhRowDots className="h-[4px] w-[16px]" />
@@ -188,39 +228,11 @@ const InstitutionStudentTable = ({ students }) => {
         className="flex flex-wrap items-center justify-between gap-x-[16px] gap-y-[12px] rounded-[16px] border border-solid border-[#e5e5e5] bg-white px-[clamp(16px,2vw,25px)] py-[17px]"
       >
         <p className="m-0 font-sans text-[clamp(14px,1vw+4px,16px)] leading-[24px] tracking-[0.2px] text-[#959592]">
-          {T.shown.replace('{students}', students)}
+          {T.shown.replace('{shown}', rows.length).replace('{students}', home?.total ?? 0)}
         </p>
-        <div className="flex flex-wrap items-start gap-[8px]">
-          <Link
-            to={T.rosterTo}
-            aria-disabled="true"
-            tabIndex={-1}
-            className={classNames(SHELF_BASE, SHELF, 'h-[34px] px-[12px] text-[16px] opacity-60')}
-          >
-            Previous
-          </Link>
-          {T.pages.map((n) => (
-            <Link
-              key={n}
-              to={T.rosterTo}
-              aria-current={n === 1 ? 'page' : undefined}
-              aria-label={`Page ${n}`}
-              className={classNames(
-                SHELF_BASE,
-                n === 1 ? SHELF_ON : SHELF,
-                'h-[32px] min-w-[32px] justify-center px-[12px] text-[13.5px]'
-              )}
-            >
-              {n}
-            </Link>
-          ))}
-          <Link
-            to={T.rosterTo}
-            className={classNames(SHELF_BASE, SHELF, 'h-[34px] px-[12px] text-[16px]')}
-          >
-            Next
-          </Link>
-        </div>
+        <Link to={T.rosterTo} className={SHELF}>
+          {T.all}
+        </Link>
       </nav>
     </section>
   );

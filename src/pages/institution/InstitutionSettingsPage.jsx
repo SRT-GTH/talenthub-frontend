@@ -14,8 +14,6 @@ import InstitutionStaffTab from '../../components/sections/institution/settings/
 import {
   SETTINGS_SUBTITLE,
   SETTINGS_TABS,
-  STAFF_SEATS,
-  STAFF_SEATS_HIDDEN_REV,
   TOASTS,
 } from '../../components/sections/institution/settings/data/institutionSettingsData.js';
 import { useInstitutionStaff } from '../../components/sections/institution/settings/useInstitutionStaff.js';
@@ -25,11 +23,10 @@ const log = debug('InstitutionSettingsPage');
 
 /*
  * InstitutionSettingsPage — /institution/settings[/:tab] (Figma 11.6.1a-g). Tabs: profile (default) · staff · notifications · data · audit-log (no
- * settings nav, its own heading). URL keys owned here: modal=invite (+ invitee= / invitee_email= prefill) on staff, modal=remove (+ at=<staff id>,
- * default kwame-asante) on ANY tab — 11.6.1f draws the dialog over the Data tab, the trigger lives on the staff tab; view / kind / layout / page on audit-log.
- * Toasts (saved, invite sent, undo remove ...) are mock state shared by the tabs. The staff list lives here so the staff tab and the remove dialog share it.
+ * settings nav, its own heading). URL keys owned here: modal=invite (+ invitee= / invitee_email= prefill) on staff, modal=remove (+ at=<staff id>) on any tab.
+ * Everything is live (see each tab). The staff list lives here so the staff tab and the remove dialog share it. Toasts are shared by the tabs.
  * FIGMA INCONSISTENCY: 11.6.1e / 11.6.1f (8746:*) are a revised copy of 11.6.1b / 11.6.1d (8597:*): `revised` selects it while the invite card
- * (staff tab) or the remove dialog (data tab) is open (see institutionSettingsData.js).
+ * (staff tab) or the remove dialog (data tab) is open.
  */
 const InstitutionSettingsPage = () => {
   const data = useInstitutionState();
@@ -52,8 +49,8 @@ const InstitutionSettingsPage = () => {
   };
 
   const tab = routeTab ?? 'profile';
-  const removeId = data.modal === 'remove' ? (data.params.get('at') ?? 'kwame-asante') : null;
-  const removing = team.staff.find((s) => s.id === removeId && s.status === 'active' && !s.self);
+  const removeId = data.modal === 'remove' ? data.params.get('at') : null;
+  const removing = team.canManage ? team.staff.find((s) => s.id === removeId && !s.self) : null;
 
   useEffect(() => {
     log('mount', { tab, modal: data.modal });
@@ -66,26 +63,28 @@ const InstitutionSettingsPage = () => {
 
   const revised =
     (tab === 'staff' && data.modal === 'invite') || (tab === 'data' && Boolean(removing));
+  const name = session.institution.short || session.institution.name;
 
   const closeRemove = () => data.update({ modal: null, at: null });
-  const confirmRemove = () => {
-    const { gone, index } = team.remove(removing.id);
+  const confirmRemove = async () => {
+    const gone = removing;
+    await team.remove(gone.id);
     closeRemove();
-    showToast({ ...TOASTS.removed, body: `${gone.name} was signed out.`, undo: true }, () => {
-      log('undo remove', gone.id);
-      team.restore(gone, index);
-    });
+    showToast(
+      gone.status === 'invited'
+        ? { ...TOASTS.cancelled, body: `${gone.email} can no longer use the invite link.` }
+        : { ...TOASTS.removed, body: `${gone.name} can no longer open the school portal.` }
+    );
   };
 
-  const seatsUsed = team.staff.length + STAFF_SEATS_HIDDEN_REV;
-  let subtitle = SETTINGS_SUBTITLE.default;
+  let subtitle = SETTINGS_SUBTITLE.default(name);
   if (tab === 'staff') {
     subtitle =
       data.modal === 'invite'
-        ? SETTINGS_SUBTITLE.staffRev(seatsUsed, STAFF_SEATS.rev)
+        ? SETTINGS_SUBTITLE.staffRev(team.used, team.seats)
         : SETTINGS_SUBTITLE.staff;
   } else if (tab === 'data' && revised) {
-    subtitle = SETTINGS_SUBTITLE.dataRev;
+    subtitle = SETTINGS_SUBTITLE.dataRev(name);
   }
 
   const body = {
@@ -111,7 +110,6 @@ const InstitutionSettingsPage = () => {
       {removing ? (
         <InstitutionRemoveStaffDialog
           member={removing}
-          actorName={session.admin.name}
           onClose={closeRemove}
           onConfirm={confirmRemove}
         />

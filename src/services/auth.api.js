@@ -77,6 +77,24 @@ export const homePathFor = (user) => {
   return '/profile/engagement';
 };
 
+/**
+ * homePathFor, plus the one case it can't tell from the login response: a school's staff member is a talent account that belongs to an
+ * education organisation. When the user has an organisation, GET /institution/me decides (403 for the school's students).
+ */
+export const resolveHomePath = async (user) => {
+  const type = String(user?.entityType || user?.type || '').toLowerCase();
+  const m = user?.metadata || {};
+  if (type === 'talent' && (user?.organizationId || m.isPrimaryContact || m.institutionRole)) {
+    try {
+      await api.get('/institution/me');
+      return '/institution';
+    } catch {
+      // not an institution's staff member
+    }
+  }
+  return homePathFor(user);
+};
+
 export const resendLoginOtp = async ({ identity }) => {
   log('resend-otp via', describe(identity));
   const { data } = await api.post('/auth/resend-otp', { ...identity });

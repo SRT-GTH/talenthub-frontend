@@ -3,7 +3,6 @@ import { debug } from '../../../../utils/debug.js';
 import Checkbox from '../../../ui/form/Checkbox.jsx';
 import InstitutionDialogActions from './InstitutionDialogActions.jsx';
 import InstitutionDialogHeader from './InstitutionDialogHeader.jsx';
-import { SAMPLE_ERRORS } from './data/rosterData.js';
 import { formatRosterCount } from './rosterFormat.js';
 import {
   Roster20CheckCircleFillIcon,
@@ -19,12 +18,13 @@ const log = debug('InstitutionUploadErrors');
  * "298 ready · 14 need fixing" in green with a check-circle, "Re-upload" button), the first rows to fix as labelled read-only fields ("Row 18 · Ghana Card" → "GHA-71203 is too short" ...,
  * "+ 9 more rows" → "Download the error report to see them all"), the "Skip the 14 rows and add the rest" checkbox (ticked), the green "298 students are ready to add" banner,
  * "Download error report" (saves a real CSV with every row number and problem) and Cancel + "Add 298 students →" (disabled while the skip box is unticked).
- * For a real file the fields are built from its first 7 failing rows.
- * Props: result ({ fileName, fileRows, ready, failing, fixes, sample }), onReupload, onCancel, onAdd.
+ * The fields are the file's first 7 failing rows as the server reported them (POST /api/institution/students/import).
+ * Props: result ({ fileName, fileRows, ready, failing, fixes }), onReupload, onCancel, onAdd, busy, error.
  */
 
+const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+
 const fieldsFor = (result) => {
-  if (result.sample === 'errors') return SAMPLE_ERRORS.fields;
   const shown = result.fixes.slice(0, 7).map((f) => ({
     id: `r${f.row}`,
     label: `Row ${f.row} · ${f.student}`,
@@ -45,14 +45,10 @@ const fieldsFor = (result) => {
 };
 
 const downloadReport = (result) => {
-  const lines = ['row,problem'];
-  if (result.sample === 'errors') {
-    SAMPLE_ERRORS.fields
-      .filter((f) => f.id.startsWith('r'))
-      .forEach((f) => lines.push(`"${f.label}","${f.value ?? f.placeholder}"`));
-  } else {
-    result.fixes.forEach((f) => lines.push(`${f.row},"${f.student}: ${f.problem}"`));
-  }
+  const lines = ['row,student,problem'];
+  result.fixes.forEach((f) =>
+    lines.push([f.row, csvCell(f.student), csvCell(f.problem)].join(','))
+  );
   const url = URL.createObjectURL(new Blob([`${lines.join('\n')}\n`], { type: 'text/csv' }));
   const a = document.createElement('a');
   a.href = url;
@@ -63,7 +59,7 @@ const downloadReport = (result) => {
   URL.revokeObjectURL(url);
 };
 
-const InstitutionUploadErrors = ({ result, onReupload, onCancel, onAdd }) => {
+const InstitutionUploadErrors = ({ result, onReupload, onCancel, onAdd, busy = false, error }) => {
   const [skip, setSkip] = useState(true);
   const fields = fieldsFor(result);
   return (
@@ -134,6 +130,9 @@ const InstitutionUploadErrors = ({ result, onReupload, onCancel, onAdd }) => {
           {formatRosterCount(result.ready)} students are ready to add
         </p>
       </div>
+      <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden">
+        {error}
+      </p>
       <InstitutionDialogActions
         left={
           <button
@@ -150,9 +149,9 @@ const InstitutionUploadErrors = ({ result, onReupload, onCancel, onAdd }) => {
         }
         cancelLabel="Cancel"
         onCancel={onCancel}
-        primaryLabel={`Add ${formatRosterCount(result.ready)} students`}
+        primaryLabel={busy ? 'Adding…' : `Add ${formatRosterCount(result.ready)} students`}
         onPrimary={onAdd}
-        primaryDisabled={!skip}
+        primaryDisabled={!skip || busy || result.ready === 0}
       />
     </>
   );

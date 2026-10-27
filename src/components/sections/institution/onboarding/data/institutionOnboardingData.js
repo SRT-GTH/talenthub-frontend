@@ -162,43 +162,42 @@ export const ACCREDITATION = {
   },
   list: {
     title: 'Your documents',
-    count: '3 of 4 documents',
-    docs: [
-      {
-        id: 'licence',
-        title: 'GES accreditation licence',
-        status: 'Verified',
-        tone: 'ok',
-        meta: ['Ghana Education Service', 'Issued Jun 2014', 'GES/NR/SHS/0412'],
-        tags: ['SHS', 'Public', 'Northern'],
-        link: 'View file',
-      },
-      {
-        id: 'ghana-card',
-        title: 'Head’s Ghana Card',
-        status: 'Verified',
-        tone: 'ok',
-        meta: ['Mrs Salamatu Yakubu · Headmistress', 'Expires Mar 2031', 'GHA-•••••••••-3'],
-        tags: ['Identity', 'Head'],
-        link: 'View file',
-      },
-      {
-        id: 'letter',
-        title: 'Letter on letterhead',
-        status: 'Pending check',
-        tone: 'warn',
-        meta: ['Signed by the head', 'Issued Sep 2026'],
-        tags: ['Address', 'Tamale'],
-      },
-      {
-        id: 'registration',
-        title: 'Ministry of Education registration',
-        status: 'Needs more info',
-        tone: 'plain',
-        meta: ['Missing · required', 'Upload now'],
-        tags: ['Public'],
-      },
-    ],
+    // The four documents GTH checks (backend services/institutionAccreditation.service.js KINDS). Labels of the typed details per document.
+    fields: {
+      licence: [
+        { key: 'number', label: 'GES / accreditation number', placeholder: 'e.g. GES/NR/SHS/0412' },
+        { key: 'issuedAt', label: 'Issued on', type: 'date' },
+      ],
+      headId: [
+        { key: 'holder', label: 'Head’s full name', required: true },
+        { key: 'role', label: 'Title', placeholder: 'e.g. Headmistress' },
+        { key: 'expiresAt', label: 'Card expires on', type: 'date' },
+      ],
+      letter: [
+        { key: 'signedBy', label: 'Signed by', placeholder: 'e.g. the head' },
+        { key: 'issuedAt', label: 'Dated', type: 'date' },
+      ],
+      registration: [
+        { key: 'number', label: 'Registration number' },
+        { key: 'issuedAt', label: 'Issued on', type: 'date' },
+      ],
+      other: [{ key: 'note', label: 'What is this document?' }],
+    },
+    status: {
+      none: { label: 'Not added', tone: 'required' },
+      draft: { label: 'Not sent yet', tone: 'plain' },
+      pending: { label: 'Pending check', tone: 'warn' },
+      verified: { label: 'Verified', tone: 'ok' },
+      'needs-info': { label: 'Needs more info', tone: 'plain' },
+      rejected: { label: 'Not accepted', tone: 'plain' },
+    },
+    review: {
+      'under-review':
+        'Sent for review on {date}. Most checks take 1–2 working days. You can change your documents if we ask for more information.',
+      'needs-info': 'We need more information: {note}',
+      'not-approved': 'Your accreditation was not approved: {note}',
+      approved: 'Verified on {date}. Upload your new licence here when it renews.',
+    },
     upload: 'Upload a document',
     manual: 'Enter details manually',
   },
@@ -211,8 +210,8 @@ export const ACCREDITATION = {
     title: ['Documents ', 'submitted.'],
     text: '3 of 4 documents uploaded. You can set up while we check, but students and credentials open once you’re approved.',
     stats: [
-      { id: 'steps', value: '4/7', label: 'STEPS DONE', tone: 'plain' },
-      { id: 'pct', value: '57%', label: 'COMPLETE', tone: 'green' },
+      { id: 'steps', value: '5/7', label: 'STEPS DONE', tone: 'plain' },
+      { id: 'pct', value: '71%', label: 'COMPLETE', tone: 'green' },
       { id: 'time', value: '1–2 days', label: 'REVIEW TIME', tone: 'gold' },
     ],
     nextLabel: 'WHAT HAPPENS NEXT',

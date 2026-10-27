@@ -17,18 +17,21 @@ const log = debug('InstitutionCodeDialog');
  * Icon tile 64 · "SMS + Email" channel badges · title 24/30 600 (green "inbox.") · 14/20 #70706e text · masked address 12/20 600 #2a5730 · "Change email" ·
  * six code boxes · "Code expires in 09:58" · "Didn't receive it? Resend code (59s)" · primary button (grey "Enter all 6 digits to continue" until six digits;
  * "Verify & Continue" once complete, grey again after a wrong code until a digit is edited) · "Wrong email?" · "n attempts remaining" · domain note.
- * Real interaction: the countdowns tick, the demo code (VERIFY.demoCode in institutionOnboardingData.js, never shown in the UI) verifies, any other code costs an attempt
- * ("That code didn’t match. Check it and try again."); at 0 attempts the boxes lock ("No attempts left. Close this and request a new code." — ⚠️ ASSUMPTION, not drawn).
- * Props: wrong (start in the wrong-code state with the sample digits 123456), onVerified, onWrong, onClose, onChangeEmail.
+ * Live: the countdowns tick; "Verify & Continue" calls onSubmit(code) (the page checks the code with POST /auth/contact-verification/verify and creates the
+ * account). onSubmit resolves to true when it worked, 'wrong' for a wrong code (costs an attempt), or a message string for any other problem.
+ * "Resend code" calls onResend(). At 0 attempts the boxes lock until a new code is requested.
+ * Props: masked (the masked email the code went to), onSubmit, onResend, onClose, onChangeEmail.
  */
 
 const fmt = (s) =>
   `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
-const InstitutionCodeDialog = ({ wrong = false, onVerified, onWrong, onClose, onChangeEmail }) => {
-  const [code, setCode] = useState(wrong ? '123456' : '');
-  const [error, setError] = useState(wrong);
-  const [attempts, setAttempts] = useState(wrong ? VERIFY.attempts - 1 : VERIFY.attempts);
+const InstitutionCodeDialog = ({ masked, onSubmit, onResend, onClose, onChangeEmail }) => {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState(false);
+  const [problem, setProblem] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState(VERIFY.attempts);
   const [expires, setExpires] = useState(VERIFY.expiresIn);
   const [resend, setResend] = useState(VERIFY.resendIn);
 
@@ -42,28 +45,40 @@ const InstitutionCodeDialog = ({ wrong = false, onVerified, onWrong, onClose, on
 
   const locked = attempts <= 0;
   const complete = code.length === 6;
-  const ready = complete && !error && !locked;
+  const ready = complete && !error && !locked && !busy;
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!ready) return;
-    if (code === VERIFY.demoCode) {
+    setBusy(true);
+    setProblem('');
+    const out = await onSubmit(code);
+    setBusy(false);
+    if (out === true) {
       log('verified');
-      onVerified();
       return;
     }
-    log('wrong code', { attemptsLeft: attempts - 1 });
-    setAttempts((a) => a - 1);
-    setError(true);
-    onWrong?.();
+    if (out === 'wrong') {
+      log('wrong code', { attemptsLeft: attempts - 1 });
+      setAttempts((a) => a - 1);
+      setError(true);
+      return;
+    }
+    setProblem(String(out || 'Something went wrong. Try again.'));
   };
 
-  const label = complete ? 'Verify & Continue' : 'Enter all 6 digits to continue';
-  const message = error
-    ? locked
-      ? 'No attempts left. Close this and request a new code.'
-      : 'That code didn’t match. Check it and try again.'
-    : 'We sent a 6-digit code to your work email.';
+  const label = busy
+    ? 'Creating your account…'
+    : complete
+      ? 'Verify & Continue'
+      : 'Enter all 6 digits to continue';
+  const message = problem
+    ? problem
+    : error
+      ? locked
+        ? 'No attempts left. Request a new code.'
+        : 'That code didn’t match. Check it and try again.'
+      : 'We sent a 6-digit code to your work email.';
 
   return (
     <AgencyDialog
@@ -111,7 +126,7 @@ const InstitutionCodeDialog = ({ wrong = false, onVerified, onWrong, onClose, on
               {message}
             </p>
             <p className="m-0 font-sans text-[12px] leading-[20px] font-semibold tracking-[0.2px] text-[#2a5730]">
-              {VERIFY.masked}
+              {masked}
             </p>
             <button
               type="button"
@@ -141,10 +156,15 @@ const InstitutionCodeDialog = ({ wrong = false, onVerified, onWrong, onClose, on
             <button
               type="button"
               disabled={resend > 0}
-              onClick={() => {
+              onClick={async () => {
                 log('resend');
                 setResend(VERIFY.resendIn);
                 setExpires(VERIFY.expiresIn);
+                setAttempts(VERIFY.attempts);
+                setError(false);
+                setCode('');
+                const out = await onResend?.();
+                if (typeof out === 'string') setProblem(out);
               }}
               className="min-h-[24px] font-semibold tracking-[0.2px] text-[#387440] disabled:text-[#babab7]"
             >

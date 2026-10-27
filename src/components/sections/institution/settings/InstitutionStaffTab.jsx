@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { SettingsACard, SettingsARow, SettingsAToggle } from '../../talentSettings/SettingsAUi.jsx';
+import { apiMessage } from '../../../../services/institutionPortal.api.js';
 import InstitutionAlwaysOnChip from './InstitutionAlwaysOnChip.jsx';
 import InstitutionInviteStaffCard from './InstitutionInviteStaffCard.jsx';
 import InstitutionSettingsInfoBox from './InstitutionSettingsInfoBox.jsx';
@@ -10,9 +11,7 @@ import { InstitutionSettingsInfoIcon } from './institutionSettingsIcons.jsx';
 import {
   ROLE_CAPABILITIES,
   ROLE_INFO,
-  STAFF_SEATS,
   STAFF_SEATS_COPY,
-  STAFF_SEATS_HIDDEN_REV,
   TOASTS,
 } from './data/institutionSettingsData.js';
 
@@ -20,20 +19,13 @@ const log = debug('InstitutionStaffTab');
 
 /*
  * InstitutionStaffTab — Figma 11.6.1b staff list (8597:396377), 11.6.1e invite (8746:207, ?modal=invite), 11.6.1f remove (the dialog is mounted by the page).
- * `revised` = the invite frame's copy (banner, role rows, seats 6 of 10): shown only while the invite card is open, see institutionSettingsData.js.
- * Interactions (mock): invite adds a pending row and a seat; role Change updates the row; Remove access opens the confirm dialog (page); the role
- * switches are component state; Resend refreshes the invite note.
- * Props: data (useInstitutionState()), team (useInstitutionStaff()), revised, onToast(toast, onUndo?).
+ * Live (GET /institution/staff): staff who joined and pending invites, seats, the role switches. Admins invite (an email link valid 7 days), change roles,
+ * resend invites and remove access; other staff see the list read-only. The role switches save right away (PATCH /institution/settings/capabilities).
+ * Props: data (useInstitutionState()), team (useInstitutionStaff()), revised, onToast(toast).
  */
 const InstitutionStaffTab = ({ data, team, revised, onToast }) => {
-  const [caps, setCaps] = useState(() => ({
-    base: Object.fromEntries(ROLE_CAPABILITIES.base.map((c) => [c.id, Boolean(c.on)])),
-    rev: Object.fromEntries(ROLE_CAPABILITIES.rev.map((c) => [c.id, Boolean(c.on)])),
-  }));
-  const version = revised ? 'rev' : 'base';
-  const seatCap = STAFF_SEATS[version];
-  const seatsUsed = team.staff.length + (revised ? STAFF_SEATS_HIDDEN_REV : 0);
-  const invitingOpen = data.modal === 'invite';
+  const [busyCap, setBusyCap] = useState('');
+  const invitingOpen = data.modal === 'invite' && team.canManage;
   const prefill = {
     name: data.params.get('invitee') ?? '',
     email: data.params.get('invitee_email') ?? '',
@@ -49,20 +41,45 @@ const InstitutionStaffTab = ({ data, team, revised, onToast }) => {
     [data]
   );
 
-  const send = (invite) => {
-    team.invite(invite);
+  const fail = (err) => onToast({ ...TOASTS.failed, body: apiMessage(err) });
+
+  const send = async (invite) => {
+    await team.invite(invite);
     closeModal(false);
-    onToast(TOASTS.invited);
+    onToast({
+      ...TOASTS.invited,
+      body: `${invite.email} gets an email link to join. It works for 7 days.`,
+    });
   };
 
-  const changeRole = (id, role) => {
-    team.changeRole(id, role);
-    onToast(TOASTS.roleChanged);
+  const changeRole = async (id, role) => {
+    try {
+      await team.changeRole(id, role);
+      onToast(TOASTS.roleChanged);
+    } catch (err) {
+      fail(err);
+    }
   };
 
-  const resend = (id) => {
-    team.resend(id);
-    onToast(TOASTS.invited);
+  const resend = async (id) => {
+    try {
+      await team.resend(id);
+      onToast(TOASTS.resent);
+    } catch (err) {
+      fail(err);
+    }
+  };
+
+  const toggleCap = async (id, v) => {
+    setBusyCap(id);
+    try {
+      await team.setCapability(id, v);
+      onToast(TOASTS.saved);
+    } catch (err) {
+      fail(err);
+    } finally {
+      setBusyCap('');
+    }
   };
 
   return (
@@ -71,59 +88,83 @@ const InstitutionStaffTab = ({ data, team, revised, onToast }) => {
         compact={false}
         icon={<InstitutionSettingsInfoIcon className="size-[20px]" />}
       >
-        {ROLE_INFO[version]}
+        {ROLE_INFO[revised ? 'rev' : 'base']}
       </InstitutionSettingsInfoBox>
 
       {invitingOpen ? (
         <InstitutionInviteStaffCard
-          seatsUsed={seatsUsed}
-          seatCap={seatCap}
+          seatsUsed={team.used}
+          seatCap={team.seats}
           prefill={prefill}
           onSend={send}
           onClose={closeModal}
         />
       ) : (
         <SettingsACard title="Staff">
-          <ul className="m-0 flex list-none flex-col p-0">
-            {team.staff.map((member) => (
-              <InstitutionStaffRow
-                key={member.id}
-                member={member}
-                onRole={changeRole}
-                onRemove={(id) => {
-                  log('open remove', id);
-                  data.update({ modal: 'remove', at: id });
-                }}
-                onResend={resend}
-              />
-            ))}
-          </ul>
-          <div className="pt-[8px]">
-            <Button
-              variant="tertiary"
-              size="sm"
-              data-invite-trigger=""
-              onClick={() => data.update({ modal: 'invite' })}
-            >
-              Invite a staff member
-            </Button>
-          </div>
+          {team.loading ? (
+            <p className="m-0 text-[14px] text-[#595959]">Loading staff…</p>
+          ) : team.error ? (
+            <p role="alert" className="m-0 text-[14px] text-[#902b20]">
+              Could not load your staff: {team.error}{' '}
+              <button
+                type="button"
+                className="cursor-pointer font-semibold underline"
+                onClick={team.reload}
+              >
+                Try again
+              </button>
+            </p>
+          ) : (
+            <ul className="m-0 flex list-none flex-col p-0">
+              {team.staff.map((member) => (
+                <InstitutionStaffRow
+                  key={member.id}
+                  member={member}
+                  canManage={team.canManage}
+                  onRole={changeRole}
+                  onRemove={(id) => {
+                    log('open remove', id);
+                    data.update({ modal: 'remove', at: id });
+                  }}
+                  onResend={resend}
+                />
+              ))}
+            </ul>
+          )}
+          {team.canManage ? (
+            <div className="pt-[8px]">
+              <Button
+                variant="tertiary"
+                size="sm"
+                data-invite-trigger=""
+                disabled={team.used >= team.seats}
+                onClick={() => data.update({ modal: 'invite' })}
+              >
+                Invite a staff member
+              </Button>
+            </div>
+          ) : (
+            <p className="m-0 pt-[8px] text-[13px] text-[#595959]">
+              Only your school’s admins can invite or remove staff.
+            </p>
+          )}
         </SettingsACard>
       )}
 
-      <SettingsACard title="What each role can do" desc="Changes take effect right away.">
-        {ROLE_CAPABILITIES[version].map((c, i) => (
+      <SettingsACard
+        title="What each role can do"
+        desc={team.canManage ? 'Changes take effect right away.' : 'Set by your school’s admins.'}
+      >
+        {ROLE_CAPABILITIES.map((c, i) => (
           <SettingsARow key={c.id} first={i === 0} title={c.title} desc={c.desc}>
             {c.fixed ? (
               <InstitutionAlwaysOnChip>{c.fixed}</InstitutionAlwaysOnChip>
             ) : (
               <SettingsAToggle
-                on={caps[version][c.id]}
+                on={team.capabilities[c.id] !== false}
                 label={c.title}
-                onChange={(v) => {
-                  log('capability', { id: c.id, v });
-                  setCaps((s) => ({ ...s, [version]: { ...s[version], [c.id]: v } }));
-                }}
+                disabled={!team.canManage || busyCap === c.id}
+                onChange={(v) => team.canManage && toggleCap(c.id, v)}
               />
             )}
           </SettingsARow>
@@ -133,8 +174,8 @@ const InstitutionStaffTab = ({ data, team, revised, onToast }) => {
       <SettingsACard title="Staff seats">
         <SettingsARow
           first
-          title={`${seatsUsed} of ${seatCap} seats used`}
-          desc={STAFF_SEATS_COPY[version]}
+          title={`${team.used} of ${team.seats} seats used`}
+          desc={STAFF_SEATS_COPY}
         />
       </SettingsACard>
     </>

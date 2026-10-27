@@ -12,16 +12,20 @@ const log = debug('InstitutionVerifyForm');
 /*
  * InstitutionVerifyForm — step 04 "Confirm your email." (the page under the dialogs of Figma 11.1.1b 8589:932, b2 8744:428424 and d 8589:1937): contact phone (SMS verification),
  * office line (optional, "Leave blank if it’s the same number"), work email (Email verification) and the full-width "Send verification code" button
- * (+ "Already have an account? Log in instead"). Real controlled fields with client-side validation (signUpValidation.js); a valid form calls onSend().
- * ⚠️ ASSUMPTION: the fields start filled with the demo values as Figma draws them. Props: verified (draws the small "Email verified" status next to the step pill), onSend.
+ * (+ "Already have an account? Log in instead"). Real controlled fields with client-side validation (signUpValidation.js); a valid form calls
+ * onSend({phone, office, email}) (the page sends the email code). The email starts as the work email of step 03.
+ * Props: initial ({phone, office, email}), verified ("Email verified" status next to the step pill), busy, error (from sending the code), onSend, onBack.
  */
 
-const InstitutionVerifyForm = ({ verified = false, onSend }) => {
-  const [values, setValues] = useState({
-    phone: VERIFY.phone.value,
-    office: VERIFY.office.value,
-    email: VERIFY.email,
-  });
+const InstitutionVerifyForm = ({
+  initial,
+  verified = false,
+  busy = false,
+  error,
+  onSend,
+  onBack,
+}) => {
+  const [values, setValues] = useState({ phone: '', office: '', email: '', ...(initial || {}) });
   const [errors, setErrors] = useState({});
   const formRef = useRef(null);
   const set = (key) => (e) => {
@@ -37,8 +41,9 @@ const InstitutionVerifyForm = ({ verified = false, onSend }) => {
       formRef.current?.querySelector('[aria-invalid="true"]')?.focus();
       return;
     }
+    if (busy) return;
     log('send code');
-    onSend?.();
+    onSend?.(values);
   };
 
   return (
@@ -92,14 +97,30 @@ const InstitutionVerifyForm = ({ verified = false, onSend }) => {
         />
       </div>
       <div className="mx-auto flex w-full max-w-[698px] flex-col items-center gap-[8px]">
+        <p
+          role="alert"
+          className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden"
+        >
+          {error}
+        </p>
         <button
           type="submit"
-          className="inline-flex min-h-[56px] w-full items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[40px] py-[16px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          disabled={busy}
+          className="inline-flex min-h-[56px] w-full items-center justify-center gap-[8px] rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[40px] py-[16px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-white shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] disabled:opacity-70"
         >
           <MailIcon className="size-[20px]" />
-          Send verification code
+          {busy ? 'Sending…' : 'Send verification code'}
           <ArrowRightIcon className="size-[20px]" />
         </button>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="min-h-[24px] font-sans text-[14px] font-semibold text-[#387440]"
+          >
+            Back to your institution’s details
+          </button>
+        ) : null}
         <p className="m-0 flex items-center gap-[4px] font-sans text-[10px] max-lg:text-[12px] leading-[16px] tracking-[0.2px] text-[#959592]">
           <ShieldIcon className="size-[12px] text-[#387440]" />
           {VERIFY.domainNote}
@@ -107,7 +128,7 @@ const InstitutionVerifyForm = ({ verified = false, onSend }) => {
         <p className="m-0 flex items-center gap-[4px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373]">
           Already have an account?
           <Link
-            to="/institution"
+            to="/login"
             className="inline-flex min-h-[24px] items-center font-semibold tracking-[0.1px] text-[#387440] no-underline"
           >
             Log in instead

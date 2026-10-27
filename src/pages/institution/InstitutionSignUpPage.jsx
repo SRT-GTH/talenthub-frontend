@@ -1,80 +1,203 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { INSTITUTION } from '../../components/sections/institution/data/institutionCoreData.js';
 import { useInstitutionState } from '../../components/sections/institution/institutionState.js';
+import { useInstitutionSessionState } from '../../components/sections/institution/institutionSessionStore.js';
 import InstitutionCodeDialog from '../../components/sections/institution/onboarding/InstitutionCodeDialog.jsx';
 import InstitutionDetailsForm from '../../components/sections/institution/onboarding/InstitutionDetailsForm.jsx';
 import InstitutionDuplicateDialog from '../../components/sections/institution/onboarding/InstitutionDuplicateDialog.jsx';
 import InstitutionSignUpLayout from '../../components/sections/institution/onboarding/InstitutionSignUpLayout.jsx';
 import InstitutionVerifiedDialog from '../../components/sections/institution/onboarding/InstitutionVerifiedDialog.jsx';
 import InstitutionVerifyForm from '../../components/sections/institution/onboarding/InstitutionVerifyForm.jsx';
-import { SIGNUP } from '../../components/sections/institution/onboarding/data/institutionOnboardingData.js';
+import { getApiErrorCode } from '../../services/apiErrors.js';
+import {
+  apiMessage,
+  institutionSignupCheck,
+  registerPortalInstitution,
+  sendInstitutionCode,
+  uploadInstitutionCrest,
+  verifyInstitutionCode,
+} from '../../services/institutionPortal.api.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('InstitutionSignUpPage');
 
 /*
  * InstitutionSignUpPage — /institution/sign-up (Figma 11.1.1a 8589:8, a2 8589:482, b 8589:932, b2 8744:428424, c 8589:1478, d 8589:1937). Package A.
- * Decision: the sign-up frames draw the ONBOARDING layout (nav + step header + form column + green panel), not the rail, because the visitor is not signed in yet —
- * so this page does not use InstitutionFrame.
- * URL states: /institution/sign-up (step 03, the empty form, 11.1.1a) · ?state=filled (the filled form, 11.1.1a2) · ?state=already-registered (dialog over the filled form, 11.1.1c) ·
- * ?step=verify (step 04 form, not drawn alone) · ?state=code-sent (check your inbox, 11.1.1b) · ?state=wrong-code (11.1.1b2) · ?state=success (email verified, 11.1.1d).
- * Real flow: Continue to verification → ?step=verify → Send verification code → ?state=code-sent → the demo code (institutionOnboardingData.js VERIFY.demoCode, documented in
- * the data module and never shown in the UI) → ?state=success → Continue to accreditation → /institution/accreditation. A wrong code → ?state=wrong-code.
- * Esc / close removes the dialog.
+ * The onboarding layout (nav + step header + form column + green panel), not the rail: the visitor is not signed in yet.
+ * Live flow:
+ *   step 03  details form -> POST /api/institution-signup/check (GES number / email already on GTH -> "already on GTH" dialog / field error)
+ *   step 04  ?step=verify: phone + work email -> POST /auth/contact-verification/send -> code dialog
+ *            code -> POST /auth/contact-verification/verify -> POST /auth/register-organization-with-contact (education organisation, you as its admin,
+ *            signed in) -> crest uploaded (optional) -> "Email verified" dialog -> /institution/accreditation
+ * The password and the crest stay in memory only: a page reload goes back to step 03.
  */
-
-const VERIFY_STATES = ['code-sent', 'wrong-code', 'success'];
 
 const InstitutionSignUpPage = () => {
   const data = useInstitutionState();
   const navigate = useNavigate();
-  const state = data.state;
-  const verifyStep = VERIFY_STATES.includes(state) || data.params.get('step') === 'verify';
-  const filled = state === 'filled' || state === 'already-registered';
+  const session = useInstitutionSessionState();
+  const [details, setDetails] = useState(null);
+  const [crestFile, setCrestFile] = useState(null);
+  const [contact, setContact] = useState(null);
+  const [challenge, setChallenge] = useState(null);
+  const [duplicate, setDuplicate] = useState(null);
+  const [registered, setRegistered] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const verificationToken = useRef(null);
+  // step 04 needs the details of step 03 (kept in memory only)
+  const verifyStep = Boolean(details) && data.params.get('step') === 'verify';
 
   useEffect(() => {
-    log('mount', { state, step: verifyStep ? 'verify' : 'institution' });
-  }, [state, verifyStep]);
+    log('mount', { step: verifyStep ? 'verify' : 'institution' });
+  }, [verifyStep]);
+
+  const toDetails = async (values, crest) => {
+    setBusy(true);
+    try {
+      const check = await institutionSignupCheck({
+        gesNumber: values.gesNumber,
+        email: values.email,
+      });
+      if (check?.taken === 'gesNumber') {
+        setDuplicate({
+          name: check.name,
+          registeredOn: check.registeredOn
+            ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(
+                new Date(check.registeredOn)
+              )
+            : 'an earlier date',
+        });
+        return null;
+      }
+      if (check?.taken === 'email') {
+        return {
+          field: 'email',
+          message: 'An account already uses this email. Log in instead, or use another work email.',
+        };
+      }
+      setDetails(values);
+      setCrestFile(crest);
+      setError('');
+      data.update({ step: 'verify' });
+      return null;
+    } catch (err) {
+      return { field: 'name', message: apiMessage(err) };
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendCode = async (values) => {
+    setBusy(true);
+    setError('');
+    try {
+      const out = await sendInstitutionCode({
+        email: values.email.trim().toLowerCase(),
+        firstName: details.contactName.split(/\s+/)[0],
+      });
+      setContact(values);
+      setChallenge({ token: out.challengeToken, masked: out.maskedEmail || values.email });
+      log('code sent');
+    } catch (err) {
+      setError(apiMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifyAndRegister = async (code) => {
+    try {
+      if (!verificationToken.current) {
+        const v = await verifyInstitutionCode({ challengeToken: challenge.token, otp: code });
+        verificationToken.current = v.verificationToken;
+      }
+    } catch (err) {
+      const c = getApiErrorCode(err);
+      return c === 'OTP_INVALID' ? 'wrong' : apiMessage(err);
+    }
+    try {
+      const out = await registerPortalInstitution({
+        details: { ...details, email: contact.email },
+        contact,
+        verificationToken: verificationToken.current,
+      });
+      if (crestFile && out.loggedIn) {
+        await uploadInstitutionCrest(crestFile).catch((err) =>
+          log('crest upload failed', apiMessage(err))
+        );
+      }
+      if (out.loggedIn) await session?.reload?.();
+      setChallenge(null);
+      setRegistered(out);
+      return true;
+    } catch (err) {
+      const c = getApiErrorCode(err);
+      if (c === 'CONTACT_NOT_VERIFIED') verificationToken.current = null;
+      return apiMessage(err);
+    }
+  };
 
   return (
     <InstitutionSignUpLayout
       stepKey={verifyStep ? 'verify' : 'institution'}
-      variant={verifyStep ? 'verify' : state === 'already-registered' ? 'registered' : 'details'}
+      variant={verifyStep ? 'verify' : duplicate ? 'registered' : 'details'}
     >
       {verifyStep ? (
         <InstitutionVerifyForm
-          verified={state === 'success'}
-          onSend={() => data.update({ step: 'verify', state: 'code-sent' })}
+          initial={contact || { email: details.email }}
+          verified={Boolean(registered)}
+          busy={busy}
+          error={error}
+          onSend={sendCode}
+          onBack={() => data.update({ step: null })}
         />
       ) : (
         <InstitutionDetailsForm
-          filled={filled}
-          onContinue={() => data.update({ step: 'verify', state: null })}
-          onDuplicate={() => data.update({ state: 'already-registered' })}
+          key={details ? 'back' : 'new'}
+          initial={details}
+          initialCrest={crestFile}
+          busy={busy}
+          onContinue={toDetails}
         />
       )}
-      {state === 'already-registered' ? (
+      {duplicate ? (
         <InstitutionDuplicateDialog
-          institutionName={SIGNUP.registeredName}
-          registeredOn={SIGNUP.registeredOn}
-          onClose={() => data.update({ state: 'filled' })}
+          institutionName={duplicate.name}
+          registeredOn={duplicate.registeredOn}
+          onClose={() => setDuplicate(null)}
         />
       ) : null}
-      {state === 'code-sent' || state === 'wrong-code' ? (
+      {challenge ? (
         <InstitutionCodeDialog
-          key="code"
-          wrong={state === 'wrong-code'}
-          onVerified={() => data.update({ state: 'success' })}
-          onWrong={() => data.update({ state: 'wrong-code' }, { replace: true })}
-          onClose={() => data.update({ step: 'verify', state: null })}
+          key={challenge.token}
+          masked={challenge.masked}
+          onSubmit={verifyAndRegister}
+          onResend={async () => {
+            try {
+              const out = await sendInstitutionCode({
+                email: contact.email.trim().toLowerCase(),
+                firstName: details.contactName.split(/\s+/)[0],
+              });
+              verificationToken.current = null;
+              setChallenge((c) => ({
+                ...c,
+                token: out.challengeToken,
+                masked: out.maskedEmail || c.masked,
+              }));
+              return null;
+            } catch (err) {
+              return apiMessage(err);
+            }
+          }}
+          onClose={() => setChallenge(null)}
         />
       ) : null}
-      {state === 'success' ? (
+      {registered ? (
         <InstitutionVerifiedDialog
-          institutionName={INSTITUTION.name}
-          onContinue={() => navigate('/institution/accreditation')}
-          onClose={() => data.update({ step: 'verify', state: null })}
+          institutionName={details.name}
+          onContinue={() => navigate(registered.loggedIn ? '/institution/accreditation' : '/login')}
+          onClose={() => navigate(registered.loggedIn ? '/institution/accreditation' : '/login')}
         />
       ) : null}
     </InstitutionSignUpLayout>

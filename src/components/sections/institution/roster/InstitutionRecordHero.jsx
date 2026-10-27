@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { debug } from '../../../../utils/debug.js';
 import kofiPhoto from '../../../../assets/institution/roster/kofi-danso-photo.png';
 import InstitutionRecordChip from './InstitutionRecordChip.jsx';
 import {
@@ -9,8 +8,6 @@ import {
   RosterCheckIcon,
   RosterFlagIcon,
 } from './rosterIcons.jsx';
-
-const log = debug('InstitutionRecordHero');
 
 /*
  * InstitutionRecordHero — the student header card (Figma 11.2.2j "hero" 8744:433500, 1329 x 322, white, 1px ink at 10 %, r24, soft shadow): a 150 high #387440 cover with the
@@ -27,7 +24,7 @@ const CHIP_ICON = {
   voice: Roster20VoiceIcon,
 };
 
-const InstitutionRecordHero = ({ record, student, messageTo }) => {
+const InstitutionRecordHero = ({ record, student, messageTo, onEdit }) => {
   const photo = record.id === 'kofi-danso' ? kofiPhoto : null;
   return (
     <section
@@ -102,7 +99,7 @@ const InstitutionRecordHero = ({ record, student, messageTo }) => {
           <div className="flex items-center gap-[10px]">
             <button
               type="button"
-              onClick={() => log('edit record (no destination drawn)')}
+              onClick={onEdit}
               className="inline-flex h-[48px] cursor-pointer items-center rounded-[10px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] active:translate-y-[3px] active:shadow-[0_1px_0_rgba(17,17,17,0.25)]"
             >
               Edit record

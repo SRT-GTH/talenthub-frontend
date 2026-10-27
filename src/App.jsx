@@ -131,8 +131,13 @@ const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'))
 const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 // Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12): /admin/*, mock staff session, own router in pages/admin/AdminApp.jsx.
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
-// Theme 11 institution portal (Figma canvas 8520:10): /institution/*, mock signed-in session, own router in pages/institution/InstitutionApp.jsx.
+// Theme 11 institution portal (Figma canvas 8520:10): /institution/*, live session (GET /api/institution/me), own router in pages/institution/InstitutionApp.jsx.
 const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
+// A student's "is this your school?" answers and a guardian's consent for an under-18 (institution roster).
+const SchoolLinksPage = lazy(() => import('./pages/SchoolLinksPage.jsx'));
+const GuardianConsentPage = lazy(() => import('./pages/GuardianConsentPage.jsx'));
+// The link in an organisation's invite email (school students and staff): choose a password, finish the account.
+const CompleteInvitePage = lazy(() => import('./pages/CompleteInvitePage.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -1063,6 +1068,30 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <InstitutionApp />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/school-links'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SchoolLinksPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/guardian-consent/:token'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GuardianConsentPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/auth/complete-invite/:token'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CompleteInvitePage />
                     </Suspense>
                   }
                 />

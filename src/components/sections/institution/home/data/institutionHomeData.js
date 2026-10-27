@@ -1,5 +1,5 @@
 /*
- * institutionHomeData.js — MOCK data of the institution home (Figma 11.2.1a default 8585:9, 11.2.1b new institution 8588:479, 11.2.1c mobile 8588:960, and the first-login body
+ * institutionHomeData.js — copy of the institution home (live figures: GET /institution/home and /institution/me) (Figma 11.2.1a default 8585:9, 11.2.1b new institution 8588:479, 11.2.1c mobile 8588:960, and the first-login body
  * behind the welcome modal / tour 11.1.3a-d 8744:428914 / 429486 / 430003 / 430559). Shaped like the future GET /institution/home (+ /institution/students?limit=4, /institution/records?status=waiting,
  * /institution/programmes?limit=4, /institution/pipeline?window=30d, /institution/top-students, /institution/skills/in-demand) responses. Sample content only.
  * Copy is verbatim from the frames (curly quotes, middle dots). Placeholders {first} {institution} {students} {pending} {credentials} {scholarships} are filled from useInstitutionSession().
@@ -131,7 +131,7 @@ export const QUICK_ACTIONS = {
     {
       id: 'staff',
       title: 'Invite your staff',
-      meta: '3 staff seats free',
+      meta: 'Registrar, guidance, teachers',
       icon: 'userPlus',
       tint: '#ebf1ec',
       ink: '#2d5d33',
@@ -235,7 +235,7 @@ export const FIRST_LOGIN_OVERLAY = {
       {
         id: 'staff',
         title: 'Invite your staff',
-        sub: 'Invite your staff · 3 seats free',
+        sub: 'Registrar, guidance and heads of department',
         state: 'todo',
         trailing: '1 min',
       },
@@ -287,27 +287,22 @@ export const FIRST_LOGIN_OVERLAY = {
 };
 
 /* ===== BLOCK 4 · readiness, this term, next step (11.2.1a) ======================================================================== */
+// Live figures come from GET /institution/home; only copy lives here.
 export const READINESS_CARD = {
   eyebrow: 'STUDENT READINESS',
-  title: '{pct}% of Form 3 students are Discoverable',
-  pct: 61,
-  classes: [
-    { name: 'Science A', pct: 82 },
-    { name: 'Science B', pct: 74 },
-    { name: 'Business', pct: 69 },
-    { name: 'General Arts', pct: 61 },
-    { name: 'Visual Arts', pct: 55 },
-  ],
-  action: 'Open progress',
-  to: '/institution/progress',
+  title: '{pct}% of your students have linked their GTH profile',
+  empty: 'No students on the roster yet.',
+  action: 'Open students',
+  to: '/institution/students',
 };
 
 export const TERM_STATS = {
-  title: 'This term',
-  // students comes from the session (847); the other two are home-only counts.
-  skillsLabs: 1204,
-  placements: 31,
-  labels: { students: 'Students on GTH', labs: 'Finished a Skills Lab', placements: 'Placements' },
+  title: 'Your roster',
+  labels: {
+    students: 'Students on the roster',
+    linked: 'Linked to GTH',
+    profile: 'Average profile',
+  },
   // Mini bar glyph (Figma Group 41232, 266 x 64): three bars.
   bars: [
     { x: 0, y: 32, w: 128, h: 32, fill: '#f3f8f4', opacity: 1 },
@@ -316,299 +311,82 @@ export const TERM_STATS = {
   ],
 };
 
+// {n} = the count, {s} = plural "s".
 export const NEXT_STEP = {
   eyebrow: 'Next step',
-  title: '{pending} records need your check',
-  body: 'Mostly WASSCE results and club certificates sent this week. Approving them adds an “Institution verified” badge to each profile.',
-  to: '/institution/records',
+  consent: {
+    title: '{n} student{s} under 18 need guardian consent',
+    body: 'Their profiles stay hidden from employers until a parent or guardian agrees.',
+    to: '/institution/students?modal=consent',
+  },
+  invite: {
+    title: '{n} student{s} not invited yet',
+    body: 'Add an email address so they get an invite to join GTH and link to your school.',
+    to: '/institution/students',
+  },
+  waiting: {
+    title: '{n} student{s} still to confirm',
+    body: 'They have an invite or a link request. Send a reminder from the roster.',
+    to: '/institution/students',
+  },
+  add: {
+    title: 'Add more students',
+    body: 'Everyone on your roster has linked. Add the next class one by one or with a CSV.',
+    to: '/institution/students?modal=upload',
+  },
 };
 
-/* ===== BLOCK 5 · students table (GET /institution/students?limit=4&sort=activity) ================================================== */
-// Figma inconsistency kept: the readiness bar fills are drawn at 87 / 77 / 94 / 25 % of the track, the labels read 92 / 88 / 84 / 61 %.
-export const STUDENT_ROWS = [
-  {
-    id: 'abena-mahama',
-    initials: 'AM',
-    avatar: { bg: '#c1e9c9', ink: '#32683a' },
-    name: 'Abena Mahama',
-    cohort: 'Form 3 · Science A',
-    activity: { label: 'Got an interview', tone: 'grey' },
-    readiness: 92,
-    barFill: 87,
-    barColor: '#00522b',
-    readinessInk: '#1f4a2b',
-    lastActive: 'Today',
-  },
-  {
-    id: 'yaw-dery',
-    initials: 'YD',
-    avatar: { bg: '#a7f4bb', ink: '#1f4a2b' },
-    name: 'Yaw Dery',
-    cohort: 'Form 3 · Science B',
-    activity: { label: 'Finished a Skills Lab', tone: 'grey' },
-    readiness: 88,
-    barFill: 77,
-    barColor: '#43664d',
-    readinessInk: '#32683a',
-    lastActive: 'Yesterday',
-  },
-  {
-    id: 'fatima-issah',
-    initials: 'FI',
-    avatar: { bg: '#ffddb6', ink: '#5a430c' },
-    name: 'Fatima Issah',
-    cohort: 'Form 2 · General Arts',
-    activity: { label: 'Applied for a scholarship', tone: 'green' },
-    readiness: 84,
-    barFill: 94,
-    barColor: '#00522b',
-    readinessInk: '#1f4a2b',
-    lastActive: '12 Oct',
-  },
-  {
-    id: 'kwesi-owusu',
-    initials: 'KO',
-    avatar: { bg: '#e4e2dd', ink: '#716e65' },
-    name: 'Kwesi Owusu',
-    cohort: 'Form 3 · Business',
-    activity: { label: 'Inactive 30 days', tone: 'red' },
-    readiness: 61,
-    barFill: 25,
-    barColor: '#b23b3b',
-    readinessInk: '#ad3327',
-    lastActive: '17 Sep',
-  },
-];
-
+/* ===== BLOCK 5 · students table (rows: home.recent from GET /institution/home) ===================================================== */
 export const STUDENT_TABLE = {
   columns: ['Student', 'Activity', 'Readiness', 'Last active', 'Actions'],
-  // ⚠️ ASSUMPTION: only the first page of the roster is drawn; the pager points at the roster for the rest.
-  pages: [1, 2, 3],
-  shown: 'Showing 1 to 4 of {students} students',
+  shown: 'Showing {shown} of {students} students',
+  empty: 'No students yet. Add them one by one or upload a CSV from Students.',
+  all: 'Open the roster',
   rosterTo: '/institution/students',
 };
 
-/* ===== BLOCK 6 · "This term at a glance" (11.2.1a, solid cards) ====================================================================== */
-// Figma inconsistency kept: the bar fills are drawn at 61 / 61 / 80 % of the track, the labels read 61 / 49 / 16 %.
-export const GLANCE = {
-  title: 'This term at a glance',
-  subtitle: 'How Savannah Hills compares with senior high schools across the Northern Region.',
-  cards: [
-    {
-      id: 'students',
-      icon: 'eye',
-      badge: 'This term',
-      title: 'Students on GTH',
-      text: '61% of students are Discoverable or above.',
-      progressLabel: '61%',
-      fillPct: 61,
-      foot: 'Regional SHS average 48%',
-    },
-    {
-      id: 'labs',
-      icon: 'shield',
-      badge: 'This term',
-      title: 'Skills Lab activity',
-      text: '412 labs finished this term.',
-      progressLabel: '49%',
-      fillPct: 61,
-      foot: 'Regional SHS average 48%',
-    },
-    {
-      id: 'scholarships',
-      icon: 'sparkle',
-      badge: 'This term',
-      title: 'Scholarship applications',
-      text: '58 applications this term.',
-      progressLabel: '16%',
-      fillPct: 80,
-      foot: '9 awarded so far',
-    },
-  ],
-};
-
-/* ===== BLOCK 7 · phone home (11.2.1c 8588:960, 360 wide; the top bar is the chrome's) ============================================== */
-// Figma inconsistencies kept: the phone bar monogram reads "AK" (chrome draws IA), the first record avatar reads "KA" for Abena Mahama,
-// the GES accreditation row is drawn in the amber "in review" palette but labelled "Verified", and the third talent chip row repeats "Excel".
-export const MOBILE_HOME = {
-  greeting: ['Good morning, ', '{first}'],
-  sub: 'Here’s what needs you at Savannah Hills today.',
-  verification: {
-    title: 'Verification',
-    sub: 'Your institution is verified',
-    head: { title: 'Head · Mrs Salamatu Yakubu', sub: 'Confirmed on 19 Oct', chip: 'Verified' },
-    ges: { title: 'GES accreditation', sub: 'Verified on 19 Oct', chip: 'Verified' },
-    docsLabel: 'ACCREDITATION',
-    docs: [
-      { name: 'Registration certificate', chip: 'Verified', tone: 'ok' },
-      { name: 'Ministry registration', chip: 'Accepted', tone: 'mint' },
-      { name: 'Letter on letterhead', chip: 'Accepted', tone: 'mint' },
-    ],
-    note: 'Renewal due in October 2027.',
-    action: 'View documents',
-    to: '/institution/accreditation?view=list',
-  },
-  records: {
-    title: 'Records to verify',
-    sub: 'Sent by your students this week',
-    tabs: [
-      { id: 'waiting', label: 'Waiting · 23' },
-      { id: 'approved', label: 'Approved · 41' },
-    ],
-    items: [
+/* ===== BLOCK 6 · "At a glance" cards (11.2.1a, solid cards), built from GET /institution/home ======================================= */
+export const glanceFor = (home, short) => {
+  const h = home || {};
+  const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+  return {
+    title: 'Your school at a glance',
+    subtitle: `How ${short || 'your school'} is doing on GTH right now.`,
+    cards: [
       {
-        id: 'r-abena',
-        initials: 'KA',
-        tint: '#ebf1ec',
-        ink: '#2a5730',
-        title: 'Abena Mahama · WASSCE results',
-        sent: 'Sent today',
-        late: false,
+        id: 'linked',
+        icon: 'eye',
+        badge: 'Roster',
+        title: 'Students on GTH',
+        text: `${h.linked ?? 0} of ${h.total ?? 0} students have linked their GTH account.`,
+        progressLabel: `${h.linkedPct ?? 0}%`,
+        fillPct: h.linkedPct ?? 0,
+        foot: `${h.addedThisMonth ?? 0} added in the last 30 days`,
       },
       {
-        id: 'r-yaw',
-        initials: 'YD',
-        tint: '#f5f3ff',
-        ink: '#6d28d9',
-        title: 'Yaw Dery · Coding club certificate',
-        sent: 'Sent 2 days ago',
-        late: true,
+        id: 'consent',
+        icon: 'shield',
+        badge: 'Under 18',
+        title: 'Guardian consent',
+        text: h.under18
+          ? `${h.consentAgreed ?? 0} of ${h.under18} under-18s have a guardian’s agreement.`
+          : 'No students under 18 on the roster.',
+        progressLabel: `${pct(h.consentAgreed ?? 0, h.under18 ?? 0)}%`,
+        fillPct: pct(h.consentAgreed ?? 0, h.under18 ?? 0),
+        foot: `${h.consentNeeded ?? 0} still to agree`,
       },
       {
-        id: 'r-fatima',
-        initials: 'FI',
-        tint: '#faf4e8',
-        ink: '#463409',
-        title: 'Fatima Issah · Debate award',
-        sent: 'Sent today',
-        late: true,
+        id: 'profiles',
+        icon: 'sparkle',
+        badge: 'Linked students',
+        title: 'Profile completion',
+        text: h.linked
+          ? 'Average GTH profile completion of linked students.'
+          : 'Shown once students link their accounts.',
+        progressLabel: `${h.avgProfile ?? 0}%`,
+        fillPct: h.avgProfile ?? 0,
+        foot: `${h.waitingToConfirm ?? 0} invited, not confirmed yet`,
       },
     ],
-    action: 'Review',
-    all: 'View all records',
-    to: '/institution/records',
-  },
-  programmes: {
-    title: 'Your programmes',
-    count: '4',
-    sub: 'Scholarships and clubs',
-    items: [
-      {
-        id: 'science-scholarship-2027',
-        name: 'Science scholarship 2027',
-        meta: 'Scholarship · closes 30 Nov',
-        chips: ['58 applicants', '+27 new'],
-      },
-      {
-        id: 'coding-club-term-1',
-        name: 'Coding club, Term 1',
-        meta: 'Club · weekly',
-        chips: ['36 members', '+6 new'],
-      },
-      {
-        id: 'university-fair',
-        name: 'University fair',
-        meta: 'Event · 14 Nov',
-        chips: ['31 applicants', '+2 new'],
-      },
-      {
-        id: 'mock-interviews',
-        name: 'Mock interviews',
-        meta: 'Event · 21 Nov',
-        chips: ['120 RSVPs', '+11 new'],
-      },
-    ],
-    all: 'View all programmes',
-    to: '/institution/programmes',
-  },
-  journey: {
-    title: 'Student journey',
-    sub: 'All opportunities · last 30 days',
-    windows: ['7d', '30d', '90d'],
-    activeWindow: '30d',
-    // bar width = n / 45 of the 294 px track, the first bar is drawn at 278 px (94.6 %)
-    total: 45,
-    fullPct: 94.6,
-    stages: [
-      { label: 'On roster', n: 45 },
-      { label: 'Profile started', n: 22, from: '49% from prev.' },
-      { label: 'Discoverable', n: 12, from: '55% from prev.' },
-      { label: 'Assessed', n: 8, from: '67% from prev.' },
-      { label: 'Applied', n: 2, from: '25% from prev.' },
-      { label: 'Placed', n: 1, from: '50% from prev.' },
-    ],
-    inactive: 'Inactive · 14',
-    withdrawn: 'Withdrawn · 4',
-  },
-  top: {
-    title: 'Top students',
-    sub: 'Your Form 3 students closest to being job-ready.',
-    select: 'Form 3 · all classes',
-    all: 'See all matches',
-    groupLabel: 'Most ready',
-    groupChip: 'Form 3',
-    to: '/institution/progress',
-    review: 'Review',
-    message: 'Message',
-    // photo: key into the component's avatar map; null = identity hidden.
-    items: [
-      {
-        id: 'akua',
-        photo: 'akua',
-        fit: '92% fit',
-        name: 'Akua M.',
-        meta: 'BSc Computer Science · UDS',
-        tags: ['SQL', 'Excel', 'Lives in Tamale'],
-      },
-      {
-        id: 'fati',
-        photo: 'fati',
-        fit: '87% fit',
-        name: 'Fati B.',
-        meta: 'HND Statistics · TaTU',
-        tags: ['R', 'Survey design'],
-      },
-      {
-        id: 'hidden-4821',
-        photo: null,
-        fit: '84% fit',
-        name: 'Student #4821',
-        meta: 'Identity hidden until they respond',
-        tags: ['Python', 'Data viz'],
-      },
-      {
-        id: 'akosua',
-        photo: 'akosua',
-        fit: '81% fit',
-        name: 'Akosua S.',
-        meta: 'WASSCE · GTH Data Track',
-        tags: ['Excel', 'Excel'],
-      },
-      {
-        id: 'yaw',
-        photo: 'yaw',
-        fit: '78% fit',
-        name: 'Yaw D.',
-        meta: 'BSc Agric · UDS',
-        tags: ['KoBoToolbox', 'GIS'],
-      },
-    ],
-  },
-  skills: {
-    title: 'In-demand skills',
-    sub: 'Northern · all skills',
-    legend: [
-      { label: 'Hot', tone: 'hot' },
-      { label: 'Warm', tone: 'warm' },
-      { label: 'Cooling', tone: 'cool' },
-    ],
-    rows: [
-      { name: 'Data Analysis', students: 1206, delta: '+32%' },
-      { name: 'Agriculture', students: 980, delta: '+27%' },
-      { name: 'Customer service', students: 812, delta: '+22%' },
-      { name: 'Solar installation', students: 402, delta: '+18%' },
-      { name: 'Teaching', students: 688, delta: '+15%' },
-    ],
-    foot: 'Aggregated and anonymised — groups smaller than 5 people are never shown.',
-  },
+  };
 };

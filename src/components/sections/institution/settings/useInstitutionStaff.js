@@ -1,65 +1,92 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { STAFF } from './data/institutionSettingsData.js';
+import {
+  institutionInviteStaff,
+  institutionRemoveStaff,
+  institutionResendStaff,
+  institutionSetStaffRole,
+  institutionStaff,
+  institutionUpdateCapabilities,
+  apiMessage,
+} from '../../../../services/institutionPortal.api.js';
 
 const log = debug('useInstitutionStaff');
 
-const today = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-const inviteNote = () => `Invite sent ${today()} · expires in 7 days`;
-
 /*
- * useInstitutionStaff — the mock staff list of the settings screens (Figma 11.6.1b-f; shaped like GET /institution/staff). Lives in the settings PAGE so
- * the staff tab, the invite card and the remove dialog (which 11.6.1f draws over the Data tab) share one list.
- * Returns { staff, invite({ name, email, role }), changeRole(id, role), resend(id), remove(id) -> { gone, index }, restore(gone, index) }.
+ * useInstitutionStaff — the school's staff from GET /institution/staff (signed-up staff + pending invites, seats, role capabilities). Lives in the settings
+ * PAGE so the staff tab and the remove dialog share one list. Every action calls the API, then reloads the list; actions throw on failure (the caller shows it).
+ * Returns { loading, error, staff, seats, used, canManage, capabilities, reload, invite({name,email,role}), changeRole(id, role), resend(id), remove(id),
+ *           setCapability(id, on) }.
  */
 export const useInstitutionStaff = () => {
-  const [staff, setStaff] = useState(STAFF);
+  const [state, setState] = useState({
+    loading: true,
+    error: '',
+    staff: [],
+    seats: 10,
+    used: 0,
+    canManage: false,
+    capabilities: { issue: true, export: true },
+  });
 
-  const invite = useCallback(({ name, email, role }) => {
-    log('invite', { email, role });
-    setStaff((list) => [
-      ...list,
-      {
-        id: `inv-${Date.now()}`,
-        name: email,
-        invitee: name,
-        email,
-        role,
-        note: inviteNote(),
-        status: 'invited',
-      },
-    ]);
+  const reload = useCallback(async () => {
+    try {
+      const r = await institutionStaff();
+      setState({
+        loading: false,
+        error: '',
+        staff: r.items,
+        seats: r.seats,
+        used: r.used,
+        canManage: r.canManage,
+        capabilities: r.capabilities,
+      });
+    } catch (err) {
+      setState((s) => ({ ...s, loading: false, error: apiMessage(err) }));
+    }
   }, []);
 
-  const changeRole = useCallback((id, role) => {
-    log('role', { id, role });
-    setStaff((list) => list.map((s) => (s.id === id ? { ...s, role } : s)));
-  }, []);
+  useEffect(() => {
+    reload();
+  }, [reload]);
 
-  const resend = useCallback((id) => {
-    log('resend', id);
-    setStaff((list) => list.map((s) => (s.id === id ? { ...s, note: inviteNote() } : s)));
-  }, []);
-
-  const remove = useCallback(
-    (id) => {
-      const index = staff.findIndex((s) => s.id === id);
-      const gone = staff[index];
-      log('remove', id);
-      setStaff((list) => list.filter((s) => s.id !== id));
-      return { gone, index };
+  const invite = useCallback(
+    async (input) => {
+      log('invite', { role: input.role });
+      await institutionInviteStaff(input);
+      await reload();
     },
-    [staff]
+    [reload]
   );
-
-  const restore = useCallback((gone, index) => {
-    log('restore', gone.id);
-    setStaff((list) => {
-      const next = [...list];
-      next.splice(Math.min(index, next.length), 0, gone);
-      return next;
-    });
+  const changeRole = useCallback(
+    async (id, role) => {
+      log('role', { id, role });
+      await institutionSetStaffRole(id, role);
+      await reload();
+    },
+    [reload]
+  );
+  const resend = useCallback(
+    async (id) => {
+      log('resend', id);
+      await institutionResendStaff(id);
+      await reload();
+    },
+    [reload]
+  );
+  const remove = useCallback(
+    async (id) => {
+      log('remove', id);
+      await institutionRemoveStaff(id);
+      await reload();
+    },
+    [reload]
+  );
+  const setCapability = useCallback(async (id, on) => {
+    log('capability', { id, on });
+    const r = await institutionUpdateCapabilities({ [id]: on });
+    setState((s) => ({ ...s, capabilities: r.capabilities }));
   }, []);
 
-  return { staff, invite, changeRole, resend, remove, restore };
+  return { ...state, reload, invite, changeRole, resend, remove, setCapability };
 };
