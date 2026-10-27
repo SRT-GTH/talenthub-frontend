@@ -45,6 +45,7 @@ import {
   sessionMatchesThread,
   turnToBubbles,
   cardChips,
+  findFinishedTurn,
   opportunityMatchView,
   whyThisMatchAction,
   userBubble,
@@ -422,7 +423,7 @@ export function useCareerBuddyLive({
       { chipAction = null, showUser = true, autoText = null, inputMode = null } = {}
     ) => {
       if (!entityId || busy) return;
-      lastTurnRef.current = { text, chipAction };
+      lastTurnRef.current = { text, chipAction, startedAt: Date.now() };
       setBusy(true);
       const shown = autoText ? [autoBubble(autoText)] : showUser ? [userBubble(text)] : [];
       const startedAt = Date.now();
@@ -587,8 +588,43 @@ export function useCareerBuddyLive({
     stoppedRef.current = true;
     abortRef.current.abort();
   };
-  const handleContinueStopped = () =>
-    runTurn('Please continue from where you stopped.', { showUser: false });
+  // 2026-10-27 live: Continue used to send "Please continue from where you stopped." as the talent's words, and the
+  // agent read it as "continue my profile" (an education gather after a stopped readiness reply). Stop only cuts the
+  // stream - the agent still finishes the turn - so Continue shows that finished turn from history. If it is not
+  // there yet, the same message (and chip action) goes again; never new words.
+  const handleContinueStopped = async () => {
+    const last = lastTurnRef.current;
+    if (!last || busy || !entityId) return;
+    setBusy(true);
+    let found = null;
+    try {
+      for (let i = 0; i < 6 && !found; i += 1) {
+        if (i) await new Promise((r) => setTimeout(r, 1500));
+        const page = await fetchHistory(entityId, { limit: 3 });
+        found = findFinishedTurn(page?.sessions, last.text, last.startedAt);
+      }
+    } finally {
+      setBusy(false);
+    }
+    log('continue stopped', { found: Boolean(found) });
+    if (!found) {
+      runTurn(last.text, { chipAction: last.chipAction, showUser: false });
+      return;
+    }
+    const turn = found.result;
+    patchThread((t) => ({
+      messages: [...t.messages.filter((x) => x.id !== THINKING_ID), ...turnToBubbles(turn)],
+      history: [
+        ...t.history,
+        { role: 'user', content: last.text },
+        { role: 'assistant', content: turn.reply },
+      ],
+      ...cardChips(turn),
+    }));
+    setPracticeActive(isPracticeTurn(turn));
+    applyTurnToPanel(turn);
+    refreshProfile();
+  };
   const handleTryAgainStopped = () => {
     const last = lastTurnRef.current;
     if (last) runTurn(last.text, { chipAction: last.chipAction, showUser: false });
