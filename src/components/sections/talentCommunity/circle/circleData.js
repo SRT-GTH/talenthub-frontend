@@ -495,6 +495,7 @@ export const CIRCLE_COPY = {
   searchPlaceholder: 'Search people by name, skill or school',
   tabs: {
     discover: 'Discover',
+    feed: 'Feed',
     invitations: 'Invitations',
     circle: 'Circle',
     following: 'Following',

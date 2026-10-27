@@ -17,6 +17,8 @@ const log = debug('circle.api');
  *   POST   /circle/requests/:id/respond  { response: 'accept' | 'ignore' }
  *   POST   /circle/dismissals · DELETE /circle/connections/:personId · POST /circle/mutes · DELETE /circle/mutes/:id
  *   POST   /circle/blocks · POST /circle/reports
+ *   GET    /circle/feed?offset=          { total, items: [post card] }  "From your circle" (US-5.3.1-04)
+ *   POST   /circle/posts                 { content, audience, purpose, link?, tags? }  { post, moderation }
  *
  * A card: { id, name, firstName, photo, headline, town, region, mutual, shares: [{ kind, label }], reason, buddy }.
  */
@@ -24,6 +26,8 @@ const log = debug('circle.api');
 const unwrap = (res) => (res?.data?.data !== undefined ? res.data.data : res?.data);
 
 export const circleApi = {
+  feed: async (offset = 0) => unwrap(await api.get('/circle/feed', { params: { offset } })),
+  createPost: async (body) => unwrap(await api.post('/circle/posts', body)),
   discover: async () => {
     const out = unwrap(await api.get('/circle/discover'));
     log('discover', out?.audience, out?.suggestions?.items?.length);

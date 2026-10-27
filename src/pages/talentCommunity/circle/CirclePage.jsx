@@ -19,6 +19,7 @@ import CircleSidePanel from '../../../components/sections/talentCommunity/circle
 import CircleSwitch from '../../../components/sections/talentCommunity/circle/CircleSwitch.jsx';
 import CircleTabs from '../../../components/sections/talentCommunity/circle/CircleTabs.jsx';
 import CircleToast from '../../../components/sections/talentCommunity/circle/CircleToast.jsx';
+import LiveCircleFeed from '../../../components/sections/talentCommunity/circle/LiveCircleFeed.jsx';
 import {
   CIRCLE_COPY as COPY,
   CIRCLE_PEOPLE,
@@ -89,8 +90,8 @@ const CirclePage = () => {
   const liveOn = isLoggedIn() && !demoState && params.get('demo') !== '1';
   const L = useLiveCircle({ enabled: liveOn });
   const PEOPLE = liveOn ? L.people : CIRCLE_PEOPLE;
-  // Live: no Following tab or feed yet, so those URLs show Discover.
-  const tab = liveOn && (urlTab === 'feed' || urlTab === 'following') ? 'discover' : urlTab;
+  // Live: no Following tab yet (US-5.3.1-01 Q5), so that URL shows Discover; the feed is live (US-5.3.1-04).
+  const tab = liveOn && urlTab === 'following' ? 'discover' : urlTab;
 
   const minor = liveOn ? L.minor : demoState === 'minor';
   const empty = liveOn ? L.empty : demoState === 'empty';
@@ -427,7 +428,7 @@ const CirclePage = () => {
         )}
       </div>
     );
-  } else if (tab === 'feed' || tab === 'following') {
+  } else if (!liveOn && (tab === 'feed' || tab === 'following')) {
     // ⚠️ ASSUMPTION: Figma draws the feed (NW-09) without tabs and does not say how to reach it: the Following tab opens it.
     body = (
       <CircleFeed
@@ -440,11 +441,11 @@ const CirclePage = () => {
         stats={{ inCircle: total }}
       />
     );
-  } else if (empty) {
+  } else if (empty && !(liveOn && tab === 'feed')) {
     body = (
       <>
         <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active="discover" counts={tabCounts} onSelect={selectTab} />
+        <CircleTabs active="discover" counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
         {/* Playful draws the empty card and the grid in the 1058px left column, Focused across the full 1506px. */}
         <div className="flex flex-col gap-[22px] playful:max-w-[1058px]">
           <CircleEmptyNetwork onWay={way} />
@@ -471,11 +472,11 @@ const CirclePage = () => {
         </div>
       </>
     );
-  } else if (minor) {
+  } else if (minor && !(liveOn && tab === 'feed')) {
     body = (
       <>
         <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} />
+        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
         <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
           <div className="flex min-w-0 flex-col gap-[22px]">
             <CircleMinorBanner
@@ -533,7 +534,9 @@ const CirclePage = () => {
       <CircleSidePanel stats={{ inCircle: total }} className="lg:sticky lg:top-[16px]" />
     );
     let main;
-    if (tab === 'invitations') {
+    if (liveOn && tab === 'feed') {
+      main = <LiveCircleFeed minor={minor} onDiscover={() => selectTab('discover')} show={show} />;
+    } else if (tab === 'invitations') {
       main = (
         <>
           <CircleInvitationsCard
@@ -620,7 +623,7 @@ const CirclePage = () => {
     body = (
       <>
         <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} />
+        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
         <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
           <div className="flex min-w-0 flex-col gap-[28px]">{main}</div>
           {side}
