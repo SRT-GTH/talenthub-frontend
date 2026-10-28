@@ -14,7 +14,7 @@ const log = debug('ParentFirstVisit');
  * ParentFirstVisit — PD-01b "Parent home · First visit" (Figma 10034:1556): "Welcome, Emma" + the green "New" sticker, "Abena is set up and learning. Here's how you can support her.",
  * the ward card (52 avatar, Abena Mensah 20/600, "16 · SHS 2 · Achimota School", the Active chip, three stats 72% / 2 of 4 / 180, "THIS WEEK" with three wins, View Abena + Evaluate)
  * and the "Three things you can do" card (Review profile · Start evaluation · How it works).
- * Props: none. ⚠️ ASSUMPTION: every button only logs (the profile review, evaluation and how-it-works screens are other canvases).
+ * Props: none. The buttons open the built pages: the ward page, Evaluate, the profile review and Help.
  */
 const STATS = [
   { value: '72%', label: 'Profile' },
@@ -32,18 +32,21 @@ const STEPS = [
     title: 'Look over Abena’s profile',
     body: 'Spot something wrong? Flag it and she fixes it. You can’t edit it yourself.',
     action: 'Review profile',
+    to: '/parent/wards/abena?tab=profile',
   },
   {
     icon: iconEdit,
     title: 'Tell us what you see in her',
     body: 'A 10-minute evaluation adds a parent’s view to her profile.',
     action: 'Start evaluation',
+    to: '/parent/evaluate',
   },
   {
     icon: iconShield,
     title: 'Know your controls',
     body: 'You can opt Abena out at any time. Her data is kept.',
     action: 'How it works',
+    to: '/parent/help',
   },
 ];
 
@@ -114,10 +117,14 @@ const ParentFirstVisit = () => (
           </ul>
         </div>
         <div className="flex flex-wrap items-start gap-[10px]">
-          <ParentButton variant="secondary" onClick={() => log('view Abena (no screen drawn)')}>
+          <ParentButton
+            variant="secondary"
+            to="/parent/wards/abena"
+            onClick={() => log('view Abena')}
+          >
             View Abena
           </ParentButton>
-          <ParentButton variant="secondary" onClick={() => log('evaluate (no screen drawn)')}>
+          <ParentButton variant="secondary" to="/parent/evaluate" onClick={() => log('evaluate')}>
             Evaluate
           </ParentButton>
         </div>
@@ -135,7 +142,7 @@ const ParentFirstVisit = () => (
               <p className="m-0 font-sans text-[15px] font-semibold text-[#1c2a21]">{st.title}</p>
               <p className="m-0 max-w-[560px] font-sans text-[13px] text-[#575755]">{st.body}</p>
             </div>
-            <ParentButton variant="secondary" onClick={() => log(st.action, '(no screen drawn)')}>
+            <ParentButton variant="secondary" to={st.to} onClick={() => log(st.action)}>
               {st.action}
             </ParentButton>
           </div>

@@ -26,6 +26,10 @@ const log = debug('ParentHomePage');
  *   error                PD-06   10047:148153  couldn't load (offline note)
  * "Try again" on the error state plays the loading skeleton for 1.2 s, then shows the everyday home. Mock data only; no backend.
  */
+// The dashboard frames (PD-01 / 01d / 05 / 07) put the 1376 main column at x 328 .. 1704 (24 / 25 px side margins); the other canvases use a 1329 column.
+const DASH_MAIN =
+  'min-w-0 flex-1 overflow-y-auto px-[clamp(16px,1.42vw,25px)] pt-[23px] pb-[40px] outline-none';
+
 const STATES = ['busy', 'caught-up', 'offline', 'first', 'none', 'loading', 'error'];
 
 const ParentHomePage = () => {
@@ -46,7 +50,10 @@ const ParentHomePage = () => {
 
   if (state === 'loading') {
     return (
-      <ParentFrame sidebarSlot={<ParentLoadingSidebar className="max-lg:hidden" />}>
+      <ParentFrame
+        sidebarSlot={<ParentLoadingSidebar className="max-lg:hidden" />}
+        mainClassName={DASH_MAIN}
+      >
         <ParentLoadingNote />
         <ParentLoadingMain />
       </ParentFrame>
@@ -55,7 +62,10 @@ const ParentHomePage = () => {
 
   const sidebar = state === 'none' ? 'none' : state === 'caught-up' ? 'caughtUp' : 'linked';
   return (
-    <ParentFrame sidebar={sidebar}>
+    <ParentFrame
+      sidebar={sidebar}
+      mainClassName={['busy', 'caught-up', 'offline'].includes(state) ? DASH_MAIN : undefined}
+    >
       {state === 'busy' ? <ParentOverview /> : null}
       {state === 'caught-up' ? <ParentOverview variant="caughtUp" /> : null}
       {state === 'offline' ? <ParentOverview offline /> : null}

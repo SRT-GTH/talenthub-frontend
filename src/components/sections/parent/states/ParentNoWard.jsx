@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import spotWard from '../../../../assets/parent/spot-ward.svg';
@@ -32,23 +33,24 @@ const ParentNoWard = () => (
         Otherwise, search for them and they’ll get a request to accept.
       </p>
       <div className="flex flex-wrap items-start justify-center gap-[12px]">
-        <ParentButton onClick={() => log('find my ward (no screen drawn)')}>
+        <ParentButton to="/parent/link-ward" onClick={() => log('find my ward')}>
           Find my ward
         </ParentButton>
         <ParentButton
           variant="secondary"
-          onClick={() => log('I have a link code (no screen drawn)')}
+          to="/parent/link-ward?modal=code"
+          onClick={() => log('I have a link code')}
         >
           I have a link code
         </ParentButton>
       </div>
-      <button
-        type="button"
-        onClick={() => log('register as an institution (no screen drawn)')}
-        className="cursor-pointer border-0 bg-transparent p-0 text-center font-sans text-[13px] leading-[normal] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+      <Link
+        to="/parent/link-ward?modal=institution"
+        onClick={() => log('register as an institution')}
+        className="no-underline cursor-pointer border-0 bg-transparent p-0 text-center font-sans text-[13px] leading-[normal] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
       >
         Caring for 100+ children? Register as an institution instead.
-      </button>
+      </Link>
     </section>
   </div>
 );

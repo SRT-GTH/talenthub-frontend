@@ -85,6 +85,7 @@ const ParentRail = () => (
         icon={target}
         title={<span id="parent-readiness-title">{READINESS.title}</span>}
         linkLabel={READINESS.link}
+        to="/parent/wards/abena"
         onLink={() => log('Open Abena (readiness)')}
       />
       <div className="flex items-center gap-[12px]">

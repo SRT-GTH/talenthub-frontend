@@ -52,7 +52,7 @@ Typing name + 8 digits of date of birth shows the result (match when it is the m
 - ⚠️ ASSUMPTION: a good code goes to `/parent/wards?toast=accepted`; "Back to My wards" → `/parent/wards`; "Register an institution" → `/onboarding/institution/guidelines`; "Cancel request" returns to the form; "Opt out" (PW-09) only logs and closes; "See Elliot" → `/parent/wards/elliot`; "Invite by SMS" only logs (no screen drawn).
 - ⚠️ ASSUMPTION: Figma draws no trigger for the 100+ children dialog, so it is URL-only (`?modal=institution`). The "2 tries left" line is the drawn text, not a live counter.
 - Figma inconsistencies kept as drawn: PW-07f draws all six characters but keeps the fifth box green; the Relationship chips differ between the page (six) and the code dialog (five, no "Younger sibling"); PW-08 has no subtitle under the title.
-- Fonts: SF Pro Round is not loaded, so a few lines wrap one word earlier than in Figma (e.g. the PW-09 subtitle).
+- Fonts: ✅ VERIFIED (2026-10-28) every screen here renders in SF Pro Rounded (`GTH Parent Rounded`, scoped by `ParentFrame` via `data-parent-ui`, weights 400 / 500 / 600 / 700 loaded, other pages unaffected). Re-measured with it: 1.5–3.6 % on all 8 frames (PW-09 4.3 → 3.0 %). What is left is the dialog button rows: our buttons are about 4 px wider than Figma's (e.g. 194 vs 190), a glyph-width difference since `ui/Button` already uses Figma's 0.1 px tracking; not changed (shared component).
 - Not verified: Playful (does not exist for this file); real SMS/notification; a screen reader pass; paste into the code boxes was written but not exercised.
 
 ## Consolidation candidates (for the end-of-sprint merge)

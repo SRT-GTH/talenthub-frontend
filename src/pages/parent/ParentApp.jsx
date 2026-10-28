@@ -6,11 +6,16 @@ import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 const ParentHomePage = lazy(() => import('./ParentHomePage.jsx'));
 const ParentWardsPage = lazy(() => import('./ParentWardsPage.jsx'));
 const ParentWardPage = lazy(() => import('./ParentWardPage.jsx'));
+const ParentEvaluatePage = lazy(() => import('./ParentEvaluatePage.jsx'));
+const ParentEvaluateQuestionPage = lazy(() => import('./ParentEvaluateQuestionPage.jsx'));
+const ParentEvaluateResultPage = lazy(() => import('./ParentEvaluateResultPage.jsx'));
 // Flags and corrections canvas (Figma 10057:604): the Profile and Flags tabs live on ParentWardPage (?tab=profile | flags); /profile and /flags redirect there. To review is its own page.
 const ParentWardTabRedirect = lazy(() => import('./ParentWardTabRedirect.jsx'));
 const ParentReviewPage = lazy(() => import('./ParentReviewPage.jsx'));
 // Link a ward canvas (Figma 10057:1093): search, link code, request sent, 100+ children dialog.
 const ParentLinkWardPage = lazy(() => import('./ParentLinkWardPage.jsx'));
+// Help and guides (drawn behind the report dialogs of the Opt out and restore canvas, Figma 10057:1302).
+const ParentHelpPage = lazy(() => import('./ParentHelpPage.jsx'));
 
 /*
  * ParentApp — the /parent/* router (Theme: Parents, Figma file SCXc457vwiq6o7d9g4jVbh). Outside MainLayout, like /admin and /agency; the chrome is ParentFrame.
@@ -44,8 +49,12 @@ const ParentApp = () => (
       <Route path="wards/:wardId" element={<ParentWardPage />} />
       <Route path="wards/:wardId/profile" element={<ParentWardTabRedirect tab="profile" />} />
       <Route path="wards/:wardId/flags" element={<ParentWardTabRedirect tab="flags" />} />
+      <Route path="evaluate" element={<ParentEvaluatePage />} />
+      <Route path="evaluate/questions" element={<ParentEvaluateQuestionPage />} />
+      <Route path="evaluate/result" element={<ParentEvaluateResultPage />} />
       <Route path="review" element={<ParentReviewPage />} />
       <Route path="link-ward" element={<ParentLinkWardPage />} />
+      <Route path="help" element={<ParentHelpPage />} />
       <Route path="*" element={<NotBuilt />} />
     </Routes>
   </Suspense>

@@ -20,7 +20,7 @@ const EvaluationsTab = ({ ward }) => {
   return (
     <div className="flex w-full min-w-0 flex-col gap-[20px]">
       <TabCard title={d.title} id="ev-list-title">
-        <ul className="m-0 flex list-none flex-col p-0">
+        <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
           {d.rows.map((r, i) => (
             <TabRow
               key={r.id}
@@ -36,7 +36,7 @@ const EvaluationsTab = ({ ward }) => {
       </TabCard>
       <TabCard title={d.add.title} id="ev-add-title" gap={12}>
         <p className="m-0 font-sans text-[13px] leading-[1.45] text-[#575755]">{d.add.body}</p>
-        <div className="flex flex-wrap items-center gap-[12px] pb-[8px]">
+        <div className="flex flex-wrap items-center gap-[12px] py-[7px]">
           <ParentButton onClick={() => log('evaluate', ward.id)}>{d.add.primary}</ParentButton>
           <ParentButton variant="secondary" onClick={() => log('invite a teacher', ward.id)}>
             {d.add.secondary}

@@ -6,20 +6,20 @@
 
 ## Frames → URLs
 
-Diff = whole-frame pixel diff vs the Figma 0.5x export at viewport = frame height − 52, measured before the consolidation (the consolidation itself was verified pixel-identical, see below). About 2–4 % is font metrics: SF Pro Rounded is not installed.
+Diff = whole-frame pixel diff vs the Figma 0.5x export at viewport = frame height − 52, re-measured 2026-10-28 with the bundled SF Pro Rounded (`styles/parent.css`). The ~2.5 % floor is the half-scale export plus small padding offsets, not font width (the numbers barely moved when the font arrived). PR-08 "To review" is no longer measured here: that page has since been rewritten by the To review work.
 
 | Frame                                       | Figma id       | URL                                                              | Diff  | Status |
 | ------------------------------------------- | -------------- | ---------------------------------------------------------------- | ----- | ------ |
-| PW-02 Ward · Abena · Overview (context)     | `10057:616`    | `/parent/wards/abena` (Ward pages work, unchanged)               | 2.88% | ✅     |
-| PW-03 Ward · Review profile (flag a field)  | `10034:4197`   | `/parent/wards/abena?tab=profile`                                | 2.20% | ✅     |
-| PW-04 Flag a field (modal)                  | `10034:5128`   | `…?tab=profile&modal=flag&field=volunteering&note=<text>`        | 2.56% | ✅     |
-| PW-04b Flag sent to Abena (toast)           | `10051:22618`  | `…?tab=profile&toast=flag-sent`                                  | 2.65% | ✅     |
-| PW-04c Note too short (error)               | `10077:18202`  | `…?tab=profile&modal=flag&field=volunteering&note=wrong&check=1` | 2.53% | ✅     |
-| PW-05 Ward · Flags tracker                  | `10034:140037` | `/parent/wards/abena?tab=flags`                                  | 2.59% | ✅     |
-| PR-08 To review · Corrections tab (context) | `10057:893`    | `/parent/review?tab=corrections`                                 | 1.33% | ✅     |
-| PW-06 Re-review a correction (modal)        | `10034:140801` | `…?tab=flags&modal=recheck&flag=dob`                             | 2.79% | ✅     |
-| PW-06b Fix approved (toast)                 | `10051:23020`  | `…?tab=flags&toast=fix-approved`                                 | 2.42% | ✅     |
-| PW-06c Flag again with a note (modal)       | `10056:923`    | `…?tab=flags&modal=flag-again&flag=dob&note=<text>`              | 3.06% | ✅     |
+| PW-02 Ward · Abena · Overview (context)     | `10057:616`    | `/parent/wards/abena` (Ward pages work, unchanged)               | 3.04% | ✅     |
+| PW-03 Ward · Review profile (flag a field)  | `10034:4197`   | `/parent/wards/abena?tab=profile`                                | 2.38% | ✅     |
+| PW-04 Flag a field (modal)                  | `10034:5128`   | `…?tab=profile&modal=flag&field=volunteering&note=<text>`        | 2.68% | ✅     |
+| PW-04b Flag sent to Abena (toast)           | `10051:22618`  | `…?tab=profile&toast=flag-sent`                                  | 2.70% | ✅     |
+| PW-04c Note too short (error)               | `10077:18202`  | `…?tab=profile&modal=flag&field=volunteering&note=wrong&check=1` | 2.66% | ✅     |
+| PW-05 Ward · Flags tracker                  | `10034:140037` | `/parent/wards/abena?tab=flags`                                  | 2.69% | ✅     |
+| PR-08 To review · Corrections tab (context) | `10057:893`    | `/parent/review?tab=corrections`                                 | —     | ✅     |
+| PW-06 Re-review a correction (modal)        | `10034:140801` | `…?tab=flags&modal=recheck&flag=dob`                             | 2.89% | ✅     |
+| PW-06b Fix approved (toast)                 | `10051:23020`  | `…?tab=flags&toast=fix-approved`                                 | 2.43% | ✅     |
+| PW-06c Flag again with a note (modal)       | `10056:923`    | `…?tab=flags&modal=flag-again&flag=dob&note=<text>`              | 3.19% | ✅     |
 
 `sev=know|correcting|critical` and `check=1` also seed the flag dialog. The two toast URLs apply their drawn state on load (the Flags chip 3 / the Date of birth row approved), so the frames reproduce from a fresh load. The first paths, `/parent/wards/:id/profile` and `/flags`, still work: `ParentWardTabRedirect` sends them to `?tab=` and keeps every other query param.
 

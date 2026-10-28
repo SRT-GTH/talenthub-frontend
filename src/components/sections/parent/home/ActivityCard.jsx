@@ -25,9 +25,10 @@ const ActivityCard = ({ items = ACTIVITY }) => {
         icon={clock}
         title={<span id="parent-activity-title">Recent activity</span>}
         linkLabel="See all"
+        to="/parent/wards/abena?tab=activity"
         onLink={() => log('Activity: See all')}
       />
-      <ul className="m-0 flex list-none flex-col p-0">
+      <ul className="m-0 flex list-none flex-col gap-[10px] p-0">
         {items.map((a) => (
           <li
             key={a.id}

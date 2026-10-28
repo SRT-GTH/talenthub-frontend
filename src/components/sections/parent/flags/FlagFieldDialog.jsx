@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import DialogCard, { DialogCloseButton } from '../../../ui/DialogCard.jsx';
+import ChoiceChips from '../../../ui/ChoiceChips.jsx';
 import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
 import eyeOffIcon from '../../../../assets/parent/ward-eye-off.svg';
@@ -18,9 +19,6 @@ const log = debug('FlagFieldDialog');
  * Props: ward ({ firstName, possessive }), mode, label (field name), current (value shown in the box, mode "field"), initial ({ severity, note, check }) — frame seeds for the URL, onClose, onSend({ severity, note }).
  * ⚠️ ASSUMPTION: Figma draws PW-04's input 435 wide and PW-04c's 534; both are full width here. The note is a one-line input as drawn.
  */
-const CHIP =
-  'inline-flex h-[32px] cursor-pointer items-center rounded-full border border-solid px-[14px] font-sans text-[13px] leading-[16px] font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] max-lg:text-[12px]';
-
 const FlagFieldDialog = ({ ward, mode = 'field', label, current, initial, onClose, onSend }) => {
   const [severity, setSeverity] = useState(initial?.severity ?? 'correcting');
   const [note, setNote] = useState(initial?.note ?? '');
@@ -96,32 +94,13 @@ const FlagFieldDialog = ({ ward, mode = 'field', label, current, initial, onClos
               {copy.severity}
             </span>
           ) : null}
-          <div
-            role="radiogroup"
-            aria-label={again ? 'How important is it?' : undefined}
-            aria-labelledby={again ? undefined : `${inputId}-sev`}
-            className="flex flex-wrap gap-[8px]"
-          >
-            {SEVERITIES.map((s) => {
-              const on = s.id === severity;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  onClick={() => setSeverity(s.id)}
-                  className={`${CHIP} ${
-                    on
-                      ? 'border-[#1c2a21] bg-[#1c2a21] text-white'
-                      : 'border-[#e1eae2] bg-white text-[#595959]'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              );
-            })}
-          </div>
+          <ChoiceChips
+            options={SEVERITIES}
+            value={severity}
+            onChange={setSeverity}
+            label={again ? 'How important is it?' : undefined}
+            labelledBy={again ? undefined : `${inputId}-sev`}
+          />
         </div>
 
         <ParentTextField

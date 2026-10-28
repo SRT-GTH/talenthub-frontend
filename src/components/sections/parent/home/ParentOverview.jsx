@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentHero from './ParentHero.jsx';
 import WardsCard from './WardsCard.jsx';
@@ -22,11 +23,14 @@ const log = debug('ParentOverview');
  * Renders ONLY the column content; <ParentFrame> supplies <main> padding and scroll.
  * Props: variant ('busy' | 'caughtUp'), offline (bool).
  * Layout: >= xl two columns (912fr / 448fr, gap 16), below that one column. Tabs only change the selected look (no routing yet).
- * ⚠️ ASSUMPTION: the Abena / Elliot tabs do not swap the page content; the offline banner is role="status".
+ * The Abena / Elliot tabs open that ward's page; the offline banner is role="status".
  */
+// Overview stays on this page; the ward tabs open that ward's page (Abena: her flag, Elliot: the ward page).
+const TAB_TO = { abena: '/parent/wards/abena?tab=flags', elliot: '/parent/wards/elliot' };
 const TAB_ICON = { home: tabHome, flag: tabFlag, eye: tabEye };
 
 const ParentOverview = ({ variant = 'busy', offline = false }) => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState('overview');
   const data = HOME_VARIANTS[variant] ?? HOME_VARIANTS.busy;
   log('render', { variant, offline, tab, showWaiting: data.showWaiting });
@@ -53,7 +57,7 @@ const ParentOverview = ({ variant = 'busy', offline = false }) => {
       <div
         role="tablist"
         aria-label="Home views"
-        className="flex gap-[6px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[6px] py-[20px]"
+        className="flex items-center gap-[6px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[6px] py-[20px]"
       >
         {HOME_TABS.map((t) => {
           const selected = tab === t.id;
@@ -65,12 +69,13 @@ const ParentOverview = ({ variant = 'busy', offline = false }) => {
               aria-selected={selected}
               onClick={() => {
                 log('tab:', t.id);
-                setTab(t.id);
+                if (TAB_TO[t.id]) navigate(TAB_TO[t.id]);
+                else setTab(t.id);
               }}
               className={`flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-[8px] rounded-[12px] px-[16px] py-[12px] font-sans text-[15px] leading-normal whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${
                 selected
                   ? 'border border-solid border-[#1c2a21]/10 bg-white font-bold text-[#1c2a21] shadow-[0_2px_4px_rgba(28,42,33,0.04),0_1px_1px_rgba(28,42,33,0.04)]'
-                  : 'border border-solid border-transparent bg-[#f8f8f4] font-semibold text-[#595959]'
+                  : 'bg-[#f8f8f4] font-semibold text-[#595959]'
               }`}
             >
               <img src={TAB_ICON[t.icon]} alt="" className="size-[18px] shrink-0 object-contain" />

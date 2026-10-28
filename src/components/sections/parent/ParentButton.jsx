@@ -7,8 +7,16 @@ import Button from '../../ui/Button.jsx';
  */
 const VARIANT = { primary: 'primary', secondary: 'tertiary' };
 
-const ParentButton = ({ variant = 'primary', ...rest }) => (
-  <Button variant={VARIANT[variant] ?? 'primary'} size="lg" {...rest} />
+// Figma draws these buttons 56 high (16 + 24 + 16) with the 1 / 2px border INSIDE the box; `ui/Button` adds the border on top (59 high, 4px wider), so the padding gives that back here.
+const FIGMA_BOX = '!px-[32px] !pt-[15px] !pb-[14px]';
+
+const ParentButton = ({ variant = 'primary', className, ...rest }) => (
+  <Button
+    variant={VARIANT[variant] ?? 'primary'}
+    size="lg"
+    className={[FIGMA_BOX, className].filter(Boolean).join(' ')}
+    {...rest}
+  />
 );
 
 export default ParentButton;

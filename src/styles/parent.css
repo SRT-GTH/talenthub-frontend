@@ -19,3 +19,62 @@
     background-position: 50% 0;
   }
 }
+
+/*
+ * Parent font stack (scoped: only while a parent screen is mounted, ParentFrame sets `data-parent-ui` on <html>, so portalled dialogs and toasts get it too).
+ * Figma draws every parent screen in SF Pro Rounded: the four weights it uses (Regular, Medium, Semibold, Bold; Latin subset, about 200 KB) are bundled as `GTH Parent Rounded` (a parent-only family name, so no other page changes font). The app-wide stack puts `-apple-system` before Nunito, so on a Mac in Chrome the text rendered as plain SF Pro (not rounded, a different
+ * width). Here: SF Pro Rounded when installed -> `ui-rounded` (Safari's name for it) -> Nunito, the closest rounded Google font (about 5 % wider than SF Pro Rounded, measured on the PD-01 strings).
+ */
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Bold.woff2') format('woff2');
+}
+html[data-parent-ui] {
+  --font-sans: 'GTH Parent Rounded', 'SF Pro Rounded', ui-rounded, 'Nunito', system-ui, sans-serif;
+}
+html[data-parent-ui] body {
+  font-family: var(--font-sans);
+}
+
+/*
+ * Weight compensation (only if the bundled SF Pro Rounded fails to load, see ParentFrame): Nunito at weight W looks lighter than SF Pro Rounded at W, so Medium / Semibold / Bold render about half a step heavier (Nunito is a variable font, so 550 / 650 / 750).
+ * Tailwind's font-medium / font-semibold / font-bold read these theme variables; Regular stays as drawn.
+ */
+html[data-parent-ui][data-parent-font='fallback'] {
+  --font-weight-medium: 550;
+  --font-weight-semibold: 650;
+  --font-weight-bold: 750;
+}
+
+/*
+ * Line height "normal" (Figma `leading-[normal]` = the font's own metrics): SF Pro Rounded's is about 1.19 x the font size, Nunito's is about 1.36 and Tailwind's `leading-normal` is 1.5,
+ * so every such line was taller than drawn. Both spellings are pinned to 1.19 on the parent screens (explicit leadings such as leading-[1.2] / leading-[24px] are untouched).
+ */
+html[data-parent-ui] .leading-normal,
+html[data-parent-ui] [class*='leading-[normal]'] {
+  line-height: 1.19;
+}

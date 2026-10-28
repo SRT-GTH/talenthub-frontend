@@ -517,6 +517,28 @@ export const ROUTES = [
   '/recruiter/job-screening',
   '/recruiter/application-pipeline',
   '/recruiter/messages',
+  // Parent dashboard: my wards, flags and corrections, opt out and restore, Help and guides, link a ward
+  // (wiki/parent-flags.md, wiki/parent-opt-out.md, wiki/parent-link-ward.md)
+  '/parent/wards',
+  '/parent/wards/abena',
+  '/parent/wards/elliot',
+  '/parent/wards/abena?tab=profile',
+  '/parent/wards/abena?tab=profile&modal=flag&field=volunteering&note=It%20was%20the%20Osu%20library,%20not%20Accra%20Central.',
+  '/parent/wards/abena?tab=profile&modal=flag&field=volunteering&note=wrong&check=1',
+  '/parent/wards/abena?tab=profile&toast=flag-sent',
+  '/parent/wards/abena?tab=flags',
+  '/parent/wards/abena?tab=flags&modal=recheck&flag=dob',
+  '/parent/wards/abena?tab=flags&modal=flag-again&flag=dob&note=The%20day%20is%20right%20but%20the%20month%20should%20be%20May,%20not%20March.',
+  '/parent/wards/abena?tab=flags&toast=fix-approved',
+  '/parent/review?tab=corrections',
+  '/parent/wards/abena?modal=opt-out&reason=safety&note=I%20want%20to%20talk%20with%20her%20about%20who%20she%20chats%20with%20first.&ack=1',
+  '/parent/wards/abena?state=opted-out',
+  '/parent/wards/abena?state=opted-out&modal=restore',
+  '/parent/wards/abena?toast=access-restored',
+  '/parent/help',
+  '/parent/help?modal=report&who=abena&worry=contacted&note=A%20person%20asked%20her%20for%20her%20phone%20number%20in%20a%20club.',
+  '/parent/help?modal=report-sent&about=abena',
+  '/parent/link-ward',
 ];
 
 export const DEFAULT_WIDTHS = [320, 375, 768, 1024, 1440];

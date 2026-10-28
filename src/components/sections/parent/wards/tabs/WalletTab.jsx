@@ -38,7 +38,7 @@ const WalletTab = ({ ward }) => {
           ))}
         </div>
         <TabCard title={d.paymentsTitle} id="wallet-payments-title" gap={4}>
-          <ul className="m-0 flex list-none flex-col p-0">
+          <ul className="m-0 flex list-none flex-col gap-[4px] p-0">
             {d.payments.map((p, i) => (
               <TabRow
                 key={p.id}

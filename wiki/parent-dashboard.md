@@ -49,3 +49,31 @@ Files: `src/components/sections/parent/wards/` (`WardsAll`, `WardShell`, `WardOv
 Assumptions: the Profile and Flags tabs are drawn but have no page (buttons only log); Figma draws no trigger for the visibility dialog, so a small "Who can find Abena" button sits next to the Active chip; Review profile / Evaluate / Opt out / Top up / Decide only log; the unlink exists only in the URL (reload brings Elliot back); Undo on toasts only closes them; Activity and Crew filter chips only change which chip looks selected.
 Shared-component pass (2026-10-27, additive so other sessions are unaffected): `ParentButton` is now a thin wrapper over `ui/Button` (primary / `tertiary`), and `ui/Button` gained an additive `to` prop (renders a router `Link`; callers without `to` are unchanged). `ParentToast` wraps the new shared `ui/ActionToast` (dark confirmation toast with an optional action) and `WardChip` wraps the new shared `ui/StatusPill`. Dialogs already use `AgencyDialog`; the home cards already use `ui/Button`.
 Still to merge once the other flows settle: `ActionToast` vs `QueryToast` / `AgencySettingsToast` / `BriefingToast` (and `ui/Toast`), `StatusPill` vs `AgencyStatusChip`, `ParentSidebar` / `ParentTopBar` vs `TalentSidebar` / `DashboardTopNav`, the three `Spot` empty-state cards, the skeleton shimmer (`.pd-skeleton` vs `.buddy-shimmer`).
+
+## Canvas 07 · Evaluate my child (node `10057:66837`) — section A · Start built 2026-10-27
+
+| URL                             | Figma frame          | Notes                                                                                  |
+| ------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
+| `/parent/evaluate`              | PE-01 `10034:147583` | choose ward (Abena / Elliot) and type (4 kinds); both are radio groups with arrow keys |
+| `/parent/evaluate?state=resume` | PE-01b `10042:3332`  | adds the "Continue where you left off" card (6 of 20, Discard / Continue)              |
+| `/parent/evaluate?state=none`   | PE-07 `10042:3861`   | no ward linked yet; "Link a ward" goes to `/parent/link-ward`                          |
+
+Files: `src/components/sections/parent/evaluate/` (`EvaluateStart`, `EvaluateEmpty`, `data/evaluateData.js`), page `src/pages/parent/ParentEvaluatePage.jsx`, route line in `ParentApp.jsx`.
+All 13 frames of the canvas are built (sections B-E added the same day, below). "How evaluations work" only logs.
+
+Sections B-E (same canvas):
+
+| URL                                             | Figma frame                                                |
+| ----------------------------------------------- | ---------------------------------------------------------- |
+| `/parent/evaluate/questions` (`?state=general`) | PE-02 `10034:148219`                                       |
+| `?state=academic`                               | PE-02d `10052:4066` (Elliot)                               |
+| `?state=none`                                   | PE-03 `10034:148861` (Next with no answer)                 |
+| `?state=blocked`                                | PE-02c `10042:4260` (blocked word in the note)             |
+| `?state=discard`                                | PE-02b `10042:3545` (Discard this evaluation? modal)       |
+| `/parent/evaluate/result` (`?state=submitted`)  | PE-04 `10034:149508`                                       |
+| `?state=reviewed`                               | PE-05 `10034:150136`                                       |
+| `?state=outcome`                                | PE-05c `10052:4825` (moderation modal over PE-05)          |
+| `?state=auto`                                   | PE-05b `10052:4434` (published automatically after 7 days) |
+| `?state=turned18`                               | PE-06 `10034:150815`                                       |
+
+Flow: Start evaluation / Continue -> questions; Next on the last mock question -> `/parent/evaluate/result`. Assumptions: the blocked-word list is invented (Figma shows only `*****`); only the drawn question per set is from Figma, the second is a mock so Next / Back can be used; the PE-05 "Under review" rows open the PE-05c modal (no trigger drawn); PE-05b rows are all "On profile" (Figma's last two layers are misnamed).

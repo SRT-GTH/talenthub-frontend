@@ -34,8 +34,10 @@ const WardFlagsTab = ({ ward, flags, onReview }) => {
   return (
     <div className="flex flex-col items-start gap-[24px] min-[1280px]:flex-row">
       <section
+        id="flags-list"
+        tabIndex={-1}
         aria-label="Flags"
-        className={`flex w-full min-w-0 flex-1 flex-col gap-[14px] px-[22px] py-[8px] max-sm:px-[14px] ${CARD}`}
+        className={`flex w-full min-w-0 flex-1 flex-col gap-[14px] px-[22px] py-[8px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] max-sm:px-[14px] ${CARD}`}
       >
         <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
           {flags.map((flag, i) => (

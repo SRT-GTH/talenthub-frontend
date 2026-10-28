@@ -13,7 +13,7 @@ const log = debug('WardShell');
  * Column 1329 wide, gap 24: "My wards" 34/600, "Ward header" card (white r24 p22 h100: avatar 72 + name 28/600 + Active chip + meta 14 #575755, four 3D buttons: Review profile / Evaluate X / Unlink / Opt out (red)),
  * tab bar (the shared ui/UnderlineTabs), then children.
  * Props: ward (from wardsData WARDS), tab ('overview' | 'profile' | 'flags' | 'evaluations' | 'wallet' | 'activity' | 'crew'; ?tab= value), notice ('turning18' | undefined),
- *   onOpenVisibility(), onOpenUnlink(), reviewProfileTo (optional: where "Review profile" goes, e.g. { search: '?tab=profile' }; without it the button only logs), children.
+ *   onOpenVisibility(), onOpenUnlink(), onOpenOptOut() (the red "Opt out" button, PO-01 in parent/optout), reviewProfileTo (optional: where "Review profile" goes, e.g. { search: '?tab=profile' }; without it the button only logs), children.
  * Tab links are react-router <Link to={{ search: '?tab=..' }}> (same path). The Profile and Flags pages come from the Flags and corrections canvas (parent/flags/).
  * notice="turning18": PW-10 is a modal ("Abena turns 18 on 12 March", scrim rgba(28,42,33,.55)) over the Abena overview; "Got it" / close / Esc dismiss it, "Send Abena a note" logs and dismisses.
  * ⚠️ ASSUMPTION: Figma draws no trigger for the "Who can find Abena" dialog (PW-14), so a small green text button sits beside the Active chip of the header. "Review profile", "Evaluate X", "Opt out" only log.
@@ -24,6 +24,7 @@ const WardShell = ({
   notice,
   onOpenVisibility,
   onOpenUnlink,
+  onOpenOptOut,
   reviewProfileTo,
   children,
 }) => {
@@ -40,7 +41,7 @@ const WardShell = ({
       <div className="flex flex-col gap-[20px]">
         <section
           aria-label={`${ward.name} header`}
-          className="flex flex-wrap items-center gap-x-[18px] gap-y-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white p-[22px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]"
+          className="flex flex-wrap items-center gap-x-[18px] gap-y-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[13px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]"
         >
           <img
             src={ward.photo}
@@ -96,7 +97,10 @@ const WardShell = ({
             <ParentButton
               variant="secondary"
               className="[&_span]:!text-[#c0392b]"
-              onClick={() => log('Opt out:', ward.id)}
+              onClick={() => {
+                log('open opt-out dialog:', ward.id);
+                onOpenOptOut?.();
+              }}
             >
               Opt out
             </ParentButton>

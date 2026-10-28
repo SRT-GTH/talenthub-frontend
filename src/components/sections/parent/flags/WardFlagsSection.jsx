@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentToast from '../wards/dialogs/ParentToast.jsx';
+import { focusAfterRender } from '../focusAfterRender.js';
 import WardProfileTab from './WardProfileTab.jsx';
 import WardFlagsTab from './WardFlagsTab.jsx';
 import FlagFieldDialog from './FlagFieldDialog.jsx';
@@ -110,6 +111,8 @@ const WardFlagsSection = ({ ward, tab }) => {
           onSend={(values) => {
             flagsActions.flagAgain(flag.id, values);
             close();
+            // "Review fix" is gone from the row: keep focus in the list
+            focusAfterRender('#flags-list');
             setToast(FLAGS_COPY.toast.sent({ label: flag.label }, ward));
           }}
         />
@@ -123,6 +126,7 @@ const WardFlagsSection = ({ ward, tab }) => {
           onApprove={() => {
             flagsActions.approveFix(flag.id);
             close();
+            focusAfterRender('#flags-list');
             setToast(FLAGS_COPY.toast.approved(flag, ward));
           }}
           onFlagAgain={() => setModal({ modal: 'flag-again', flag: flag.id })}

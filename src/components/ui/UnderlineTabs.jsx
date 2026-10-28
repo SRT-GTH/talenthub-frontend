@@ -4,7 +4,8 @@ import { classNames } from '../../utils/classNames.js';
 /*
  * UnderlineTabs — the text tab bar of the parent screens (Figma "tabs" 10057:648 ward page, 10057:913 To review): tabs px14 pt10 pb12, 15px, a 3px underline on the active tab
  * (green #387440, label 600) and #737373 / 500 on the others, a hairline #e1eae2 under the bar, count chips (11.5/700, 12 below lg) beside the label.
- * Props: tabs [{ id, label, to?, onClick?, count?, countTone? ('mint' default #ebf1ec | 'amber' #c8951a on white) }], activeId, label (the nav's accessible name), className.
+ * Props: tabs [{ id, label, to?, onClick?, count?, showZero?, countTone? ('mint' default #ebf1ec | 'amber' #c8951a on white) }], activeId, label (the nav's accessible name), className.
+ * A count of 0 is hidden unless the tab sets `showZero` (To review "all caught up" draws a "0" on every tab).
  * A tab with `to` is a router <Link> (aria-current on the active one); without it a <button> that calls `onClick` (tabs whose page is not designed yet only log).
  * The bar scrolls sideways inside itself on narrow screens with no visible scrollbar.
  * Used by parent/wards/WardShell (ward page) and parent/flags/ReviewCorrections (To review); it replaced three copy-pasted tab bars.
@@ -36,7 +37,7 @@ const UnderlineTabs = ({ tabs, activeId, label, className }) => (
       const inner = (
         <>
           {t.label}
-          {t.count ? (
+          {t.count || (t.showZero && t.count === 0) ? (
             <span
               className={classNames(
                 'rounded-full px-[7px] py-px font-sans text-[11.5px] leading-normal font-bold max-lg:text-[12px]',

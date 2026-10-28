@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import { WARDS } from '../../components/sections/parent/wards/data/wardsData.js';
 import WardShell from '../../components/sections/parent/wards/WardShell.jsx';
@@ -15,6 +16,12 @@ import ParentToast from '../../components/sections/parent/wards/dialogs/ParentTo
 import { visibilityToast } from '../../components/sections/parent/wards/dialogs/data/dialogsData.js';
 import WardFlagsSection from '../../components/sections/parent/flags/WardFlagsSection.jsx';
 import { flagsBadge, useWardFlags } from '../../components/sections/parent/flags/flagsStore.js';
+import WardOptedOut from '../../components/sections/parent/optout/WardOptedOut.jsx';
+import WardOptOutLayer from '../../components/sections/parent/optout/WardOptOutLayer.jsx';
+import {
+  isOptedOut,
+  useWardAccess,
+} from '../../components/sections/parent/optout/wardAccessStore.js';
 
 const log = debug('ParentWardPage');
 
@@ -25,8 +32,13 @@ const log = debug('ParentWardPage');
  *   ?notice=turning18      PW-10 "Abena turns 18 on 12 March" over the overview (Abena only)
  *   ?modal=visibility      PW-14 "Who can find Abena"; saving closes it and shows the PW-14b toast
  *   ?modal=unlink          PW-15 "Unlink Elliot"; confirming goes to /parent/wards?unlinked=elliot (PW-15b: list without Elliot + toast)
+ *   Opt out and restore (canvas "Parent · 05" 10057:1302, parent/optout/WardOptOutLayer, wiki/parent-opt-out.md): ?modal=opt-out PO-01 · ?state=opted-out PO-02 (the paused view, <WardOptedOut>) ·
+ *   ?state=opted-out&modal=restore PO-03 · ?toast=access-restored PO-04 · ?modal=report PH-03 · ?modal=report-sent PH-03b
  * Mock data only. ⚠️ ASSUMPTION: the unlink lives only in the URL (mock); Undo only closes the toast.
  */
+// The wards the report dialog (PH-03) can be about: the parent's linked wards (Kwesi is only a pending link).
+const LINKED_WARDS = [WARDS.abena, WARDS.elliot];
+
 const TABS = {
   evaluations: EvaluationsTab,
   wallet: WalletTab,
@@ -45,6 +57,24 @@ const ParentWardPage = () => {
     params.get('notice') === 'turning18' && wardId === 'abena' ? 'turning18' : undefined;
   const modal = params.get('modal');
   const flagsState = useWardFlags();
+  const access = useWardAccess();
+  const optedOut = isOptedOut(access, wardId);
+  // Page title (WCAG 2.4.2): the ward, and what is showing for it.
+  const TAB_TITLES = {
+    profile: 'Profile',
+    flags: 'Flags',
+    evaluations: 'Evaluations',
+    wallet: 'Wallet',
+    activity: 'Activity',
+    crew: 'Crew',
+  };
+  useDocumentTitle(
+    ward
+      ? optedOut
+        ? `${ward.name} (opted out) · My wards`
+        : `${TAB_TITLES[tab] ? `${TAB_TITLES[tab]} · ` : ''}${ward.name} · My wards`
+      : null
+  );
 
   useEffect(() => {
     log('mount', { wardId, tab, notice, modal });
@@ -68,22 +98,33 @@ const ParentWardPage = () => {
 
   return (
     <ParentFrame active="wards" sidebar="linked">
-      <WardShell
-        ward={shellWard}
-        tab={flagsTab || !['profile', 'flags'].includes(tab) ? tab : 'overview'}
-        notice={notice}
-        onOpenVisibility={() => setModal('visibility')}
-        onOpenUnlink={() => setModal('unlink')}
-        reviewProfileTo={hasFlags ? { search: '?tab=profile' } : undefined}
-      >
-        {flagsTab ? (
-          <WardFlagsSection ward={ward} tab={tab} />
-        ) : Tab ? (
-          <Tab ward={ward} />
-        ) : (
-          <WardOverview ward={ward} showSide={notice === 'turning18'} />
-        )}
-      </WardShell>
+      {optedOut ? (
+        <WardOptedOut
+          ward={ward}
+          access={access[wardId]}
+          onRestore={() => setModal('restore')}
+          onReport={() => setModal('report')}
+        />
+      ) : (
+        <WardShell
+          ward={shellWard}
+          tab={flagsTab || !['profile', 'flags'].includes(tab) ? tab : 'overview'}
+          notice={notice}
+          onOpenVisibility={() => setModal('visibility')}
+          onOpenUnlink={() => setModal('unlink')}
+          onOpenOptOut={() => setModal('opt-out')}
+          reviewProfileTo={hasFlags ? { search: '?tab=profile' } : undefined}
+        >
+          {flagsTab ? (
+            <WardFlagsSection ward={ward} tab={tab} />
+          ) : Tab ? (
+            <Tab ward={ward} />
+          ) : (
+            <WardOverview ward={ward} showSide={notice === 'turning18'} />
+          )}
+        </WardShell>
+      )}
+      <WardOptOutLayer ward={ward} linkedWards={LINKED_WARDS} />
       {modal === 'visibility' ? (
         <VisibilityDialog
           ward={ward}

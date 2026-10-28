@@ -37,7 +37,7 @@ const ParentHomeError = ({ onRetry }) => (
           >
             Try again
           </ParentButton>
-          <ParentButton variant="secondary" onClick={() => log('open help (no screen drawn)')}>
+          <ParentButton variant="secondary" to="/parent/help" onClick={() => log('open help')}>
             Open Help
           </ParentButton>
         </div>

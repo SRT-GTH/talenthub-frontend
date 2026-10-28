@@ -107,7 +107,7 @@ const Stat = ({ value, label }) => (
   </span>
 );
 
-const ParentSidebar = ({ state = 'linked', active = 'home', className }) => {
+const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, className }) => {
   const s = SIDEBAR_STATES[state] || SIDEBAR_STATES.linked;
   const pct = Math.round((s.done / 3) * 1000) / 10;
   return (
@@ -220,7 +220,7 @@ const ParentSidebar = ({ state = 'linked', active = 'home', className }) => {
       <button
         type="button"
         aria-label="Collapse sidebar"
-        onClick={() => log('collapse (no collapsed parent rail drawn)')}
+        onClick={() => (onCollapse ? onCollapse() : log('collapse (no handler given)'))}
         className="absolute top-[32px] right-[22px] flex size-[28px] cursor-pointer items-center justify-center overflow-clip rounded-[8px] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
       >
         <img src={toggleIcon} alt="" className="h-[20px] w-[23px]" />

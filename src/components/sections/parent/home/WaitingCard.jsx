@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import HomeCardHead from './HomeCardHead.jsx';
 import suitcase from '../../../../assets/parent/home-suitcase.svg';
@@ -7,6 +8,13 @@ import telecom from '../../../../assets/parent/home-ind-telecom.svg';
 import { WAITING_ITEMS } from './data/parentHomeData.js';
 
 const log = debug('WaitingCard');
+
+// Each row's action opens the built To review page on the matching tab / dialog.
+const ACTION_TO = {
+  cert: '/parent/review?tab=certificates&modal=certificate',
+  pay: '/parent/review?tab=payments',
+  dob: '/parent/review?tab=corrections',
+};
 
 /*
  * WaitingCard — Figma "Waiting for your OK" 10027:1790 (layer "My applications"): white card r24 pad 24, rows r16 pad 14 gap 14,
@@ -36,6 +44,7 @@ const WaitingCard = ({ items = WAITING_ITEMS }) => {
         icon={suitcase}
         title={<span id="parent-waiting-title">Waiting for your OK</span>}
         linkLabel="To review (4)"
+        to="/parent/review"
         onLink={() => log('To review (4)')}
       />
       <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
@@ -60,13 +69,13 @@ const WaitingCard = ({ items = WAITING_ITEMS }) => {
                 <p className="m-0 font-sans text-[13px] text-[#595959]">{it.sub}</p>
               </div>
               {it.action && (
-                <button
-                  type="button"
+                <Link
+                  to={ACTION_TO[it.id] ?? '/parent/review'}
                   onClick={() => log('waiting action:', it.id, it.action)}
-                  className={`h-[32px] shrink-0 cursor-pointer rounded-full border border-solid px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${ACTION_LOOK[it.actionLook]}`}
+                  className={`h-[32px] shrink-0 cursor-pointer rounded-full border border-solid px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap no-underline inline-flex items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${ACTION_LOOK[it.actionLook]}`}
                 >
                   {it.action}
-                </button>
+                </Link>
               )}
             </li>
           );

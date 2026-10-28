@@ -1,6 +1,7 @@
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import HomeCardHead from './HomeCardHead.jsx';
+import allWardsIcon from '../../../../assets/parent/ward-user.svg';
 import { WARDS, WARDS_INTRO } from './data/parentHomeData.js';
 
 const log = debug('WardsCard');
@@ -10,29 +11,20 @@ const log = debug('WardsCard');
  * Three ward cards r20 pad 18 (277 wide, gap 16): photo 44 r12 + age 27/600 #387440, name 16/600, relation 13 #595959, two 22px chips, CTA.
  * The first ward (Abena) is the focused card (#f5f9f5 + primary 3D button); the others are white with the light-green button.
  * Props: wards (defaults to WARDS).
- * ⚠️ ASSUMPTION: cards wrap with auto-fit (min 240px) instead of fixed 277px columns; "All wards" only logs.
+ * ⚠️ ASSUMPTION: cards wrap with auto-fit (min 240px) instead of fixed 277px columns.
  */
+// Open Abena / Open Elliot go to the ward page; Remind Kwesi resends the request (the "Request sent" screen of the link flow).
+const CTA_TO = {
+  abena: '/parent/wards/abena',
+  elliot: '/parent/wards/elliot',
+  kwesi: '/parent/link-ward?step=sent',
+};
+
 const CHIP_TONES = {
   green: 'bg-[#ebf1ec] text-[#387440]',
   amber: 'bg-[#faf4e8] text-[#785910]',
   grey: 'bg-[#f8f8f4] text-[#595959]',
 };
-
-const UserGlyph = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    stroke="#e8f2ed"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    aria-hidden="true"
-  >
-    <circle cx="10" cy="6.5" r="3.2" />
-    <path d="M3.5 17c.6-3.2 3.2-5 6.5-5s5.9 1.8 6.5 5" />
-  </svg>
-);
 
 const WardCard = ({ ward }) => (
   <li
@@ -63,7 +55,7 @@ const WardCard = ({ ward }) => (
       {ward.name}
     </h3>
     <p className="m-0 font-sans text-[13px] leading-normal text-[#595959]">{ward.relation}</p>
-    <div className="flex flex-wrap gap-[6px]">
+    <div className="flex gap-[6px]">
       {ward.chips.map((c) => (
         <span
           key={c.label}
@@ -73,14 +65,14 @@ const WardCard = ({ ward }) => (
         </span>
       ))}
     </div>
-    <div className="mt-auto pt-[6px]">
+    <div className="mt-auto">
       {ward.primary ? (
         <Button
           variant="primary"
           size="sm"
           className="w-full"
+          to={CTA_TO[ward.id]}
           onClick={() => log('ward cta:', ward.id)}
-          rightIcon={<UserGlyph />}
         >
           {ward.cta}
         </Button>
@@ -88,7 +80,8 @@ const WardCard = ({ ward }) => (
         <Button
           variant="tertiary-subtle"
           size="lg"
-          className="w-full"
+          className="w-full !py-[14px] !text-[#165d3a]"
+          to={CTA_TO[ward.id]}
           onClick={() => log('ward cta:', ward.id)}
         >
           {ward.cta}
@@ -112,6 +105,8 @@ const WardsCard = ({ wards = WARDS }) => {
           </span>
         }
         linkLabel="All wards"
+        linkIcon={allWardsIcon}
+        to="/parent/wards"
         onLink={() => log('All wards')}
       />
       <p className="m-0 font-sans text-[14px] leading-[20px] text-[#595959]">{WARDS_INTRO}</p>

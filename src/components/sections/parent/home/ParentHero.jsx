@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import functionIcon from '../../../../assets/parent/home-function.svg';
 import linkWardIcon from '../../../../assets/parent/home-link-ward.svg';
@@ -12,6 +13,13 @@ const log = debug('ParentHero');
  * Props: firstName, stats [{ value, label, note, tone }], greeting.
  * ⚠️ ASSUMPTION: the hero stacks (greeting, then stats) below 2xl; Figma only draws 1728. The "Review now" / "Evaluate my child" chip icons are not exported by Figma, so simple stroke glyphs stand in.
  */
+// Where each quick action goes (the pages are built: To review, Evaluate my child, Link a ward).
+const QUICK_TO = {
+  review: '/parent/review',
+  evaluate: '/parent/evaluate',
+  link: '/parent/link-ward',
+};
+
 const TONES = {
   plain: { bg: 'bg-white', note: 'text-[#1d7c4d]' },
   amber: { bg: 'bg-[#faf4e8]', note: 'text-[#785910]' },
@@ -64,15 +72,15 @@ const ParentHero = ({ firstName = 'Emma', greeting, stats = [] }) => (
       </p>
       <div className="flex flex-wrap gap-[8px]">
         {QUICK_ACTIONS.map((a) => (
-          <button
+          <Link
             key={a.id}
-            type="button"
+            to={QUICK_TO[a.id]}
             onClick={() => log('quick action:', a.id)}
-            className="flex h-[32px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-white px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap text-[#595959] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            className="flex h-[32px] cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-white px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap text-[#595959] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             <ChipGlyph kind={a.icon} />
             {a.label}
-          </button>
+          </Link>
         ))}
       </div>
     </div>
@@ -82,15 +90,17 @@ const ParentHero = ({ firstName = 'Emma', greeting, stats = [] }) => (
         return (
           <li
             key={s.label}
-            className={`flex min-w-0 flex-col items-start gap-[4px] rounded-[18px] border border-solid border-[#1c2a21]/10 p-[16px] shadow-[0_2px_4px_rgba(28,42,33,0.04),0_1px_1px_rgba(28,42,33,0.04)] ${t.bg}`}
+            className={`flex min-w-[150px] flex-col items-start gap-[4px] rounded-[18px] border border-solid border-[#1c2a21]/10 p-[16px] shadow-[0_2px_4px_rgba(28,42,33,0.04),0_1px_1px_rgba(28,42,33,0.04)] ${t.bg}`}
           >
             <span className="font-sans text-[32px] leading-[1.2] font-semibold whitespace-nowrap text-[#1c2a21]">
               {s.value}
             </span>
-            <span className="font-sans text-[13px] leading-normal font-semibold text-[#1c2a21]">
+            <span className="font-sans text-[13px] leading-normal font-semibold whitespace-nowrap text-[#1c2a21]">
               {s.label}
             </span>
-            <span className={`font-sans text-[12px] leading-normal font-medium ${t.note}`}>
+            <span
+              className={`font-sans text-[12px] leading-normal font-medium whitespace-nowrap ${t.note}`}
+            >
               {s.note}
             </span>
           </li>
