@@ -9,6 +9,8 @@ import { TOP_NAV } from './dashboardData.js';
 import DashboardSearchSheet from './DashboardSearchSheet.jsx';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import avatarNav from '../../../assets/community/avatar-recruiter-nav.svg';
+import emmaAvatar from '../../../assets/parent/emma.webp';
+import chipUser from '../../../assets/parent/spaces-user.svg';
 import {
   TalentNavProfileAvatarIllustration,
   TalentNavStreakPlayfulFigureIcon,
@@ -107,7 +109,7 @@ const DashboardTopNav = ({ className, talentHome }) => {
   const nav = isTalent
     ? {
         ...TOP_NAV,
-        ...getTalentNavData(talentHome.stateKey, talentHome.live),
+        ...getTalentNavData(talentHome.stateKey, talentHome.live, talentHome.persona),
         // Optional per-page override (the Notifications frames show streak 12 on the day-1 shell).
         // Demo data only: with real data (`live`) the streak stays "–" until a backend exists.
         ...(talentHome.navStreak && !talentHome.live
@@ -151,7 +153,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
     ? streakParams.get('streak')
     : null;
   // Live streak (GET /streak) for a signed-in talent; `?demo=1` keeps the drawn numbers.
-  const liveStreakOn = isTalent && isLoggedIn() && streakParams.get('demo') !== '1';
+  const liveStreakOn =
+    isTalent && isLoggedIn() && streakParams.get('demo') !== '1' && !talentHome.persona;
   const liveStreak = useLiveStreak({ enabled: liveStreakOn });
   const streakCount = liveStreakOn
     ? liveStreak.data
@@ -287,6 +290,17 @@ const DashboardTopNav = ({ className, talentHome }) => {
 
       {/* Right: streak, utility icons, language, accessibility, profile chip */}
       <div className="flex shrink-0 items-center gap-[clamp(10px,1.39vw,24px)]">
+        {isTalent && talentHome.persona ? (
+          <button
+            type="button"
+            onClick={() => navigate('/parent')}
+            aria-label="Switch space"
+            className="inline-flex h-[32px] shrink-0 cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[14px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] max-md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            <img src={chipUser} alt="" className="size-[14px]" />
+            {talentHome.persona.chip}
+          </button>
+        ) : null}
         {isTalent && (
           <StyleSwitch className="max-md:hidden max-lg:[&_button>span]:sr-only lg:-mr-[4px]" />
         )}
@@ -423,7 +437,14 @@ const DashboardTopNav = ({ className, talentHome }) => {
                 : { backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }
             }
           >
-            {isTalent ? (
+            {isTalent && talentHome.persona ? (
+              <img
+                src={emmaAvatar}
+                alt=""
+                draggable="false"
+                className="absolute inset-0 size-full rounded-full object-cover"
+              />
+            ) : isTalent ? (
               <TalentNavProfileAvatarIllustration className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none" />
             ) : (
               <img

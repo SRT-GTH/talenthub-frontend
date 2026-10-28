@@ -35,10 +35,10 @@ const WardConsentPanelContent = () => {
     <div className="flex w-full max-w-[300px] flex-col text-center">
       {/* Heading — Figma 2864:37799 */}
       <h2
-        className="font-display font-normal"
-        style={{ fontSize: 30, color: '#ffffff', letterSpacing: '-0.8px', lineHeight: '33px' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 30, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: '36px' }}
       >
-        Almost <span className="italic">there.</span>
+        Almost there.
       </h2>
 
       {/* Subtitle — Figma 2864:37800 */}

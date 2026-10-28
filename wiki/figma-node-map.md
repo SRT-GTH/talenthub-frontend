@@ -1976,3 +1976,9 @@ Canvas `8817:693`. Sections: Home, money in and out `8817:694` (collapsed `8891:
 Tuition financing `8824:98` (`8892:482890`) · Credit score and payouts `8825:98` (`8892:488899`). Phase 1 frames (Playful / Focused): W-06 `8817:695` / `8820:464667`, W-07 `8820:98` /
 `8820:465584`, W-08 `8820:1564` / `8820:466982`, W-09 `8820:2921` / `8820:468329`, W-10 `8820:4273` / `8820:469671`, W-11 `8820:5666` / `8820:471054`, W-12 `8820:7035` / `8820:472413`,
 W-13 `8820:7855` / `8820:473223`. Drawer node `8820:8625` (drawn from the frame top, under the Safari toolbar). Full list: [talent-wallet.md](talent-wallet.md).
+
+## Parent · 09 Notifications and milestones (file `SCXc457vwiq6o7d9g4jVbh`, canvas `10057:67396`, 2026-10-28)
+
+Sections: A Panel and full page `10057:67404` · B A milestone shared with you `10057:67411` · C Your child joined, weekly summary and turning 18 `10079:611`. Frames (Focused only): PN-01 `10035:530` (panel `10035:1303`), PN-04 `10043:1351`, PN-03 `10043:913`, PN-03b `10056:156668` (toast `10056:156947`), PN-05b `10079:1025` (modal `10079:1680`), PN-05 `10079:3336`, PN-06 `10079:3360`, PN-07 `10079:3386` (SMS / WhatsApp, 390 x 844, not built). No PN-02 on this canvas: it is in canvas 12 (`10037:4551`). Full table: [parent-notifications.md](parent-notifications.md).
+
+> Flow B update 2026-10-28 (canvas `2864:36854`): headings are **Bricolage Grotesque 600** in the current frames (welcome `2864:36868` 52/57, step headings 36/43, panels 30/36 and 34/41, letter-spacing -0.02em, accent word coloured and not italic); the earlier Instrument Serif / italic notes above are `🪦 STALE`. Header pill "Parent / Guardian" `2864:37214` (136 x 26, fill `#faf4e8`, border `#eedeb8`, icon `2864:37215`) on the identity to consent frames. The frame `2864:36926` ("almost_there_popup") is talent under-18 content, not part of Flow B. See [log.md](log.md).

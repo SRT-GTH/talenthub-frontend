@@ -31,7 +31,7 @@ const Tag = ({ kind, children }) => (
   </span>
 );
 
-const CrewTab = ({ ward }) => {
+const CrewTab = ({ ward, onReport }) => {
   const d = crewData(ward);
   const [rule, setRule] = useState(d.rules[0].id);
   log('render, ward:', ward.id, 'crew:', d.crew.length, 'rule:', rule);
@@ -52,7 +52,10 @@ const CrewTab = ({ ward }) => {
                 <Tag kind={p.tag}>{p.tag}</Tag>
                 <button
                   type="button"
-                  onClick={() => log('report a concern:', p.id)}
+                  onClick={() => {
+                    log('report a concern:', p.id);
+                    onReport?.(p.id);
+                  }}
                   className="shrink-0 cursor-pointer rounded-[4px] border-0 bg-transparent p-0 font-sans text-[13px] leading-normal font-medium whitespace-nowrap text-[#787876] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
                 >
                   Report a concern

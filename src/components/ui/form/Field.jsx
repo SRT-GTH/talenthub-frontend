@@ -70,6 +70,8 @@ const Field = ({
   // override its classes. Defaults leave every existing caller unchanged.
   forceAsterisk = false,
   asteriskClassName = 'font-ui font-semibold text-[#2E8B57] text-[14px] leading-[21px]',
+  // Opt-in extra classes for the label text (parent dialogs draw it ink #1c2a21). Default adds nothing.
+  labelClassName,
   helperIcon,
   helperIconClassName,
   helperTextClassName,
@@ -100,7 +102,10 @@ const Field = ({
           {label ? (
             <label
               htmlFor={htmlFor}
-              className="inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary"
+              className={classNames(
+                'inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary',
+                labelClassName
+              )}
             >
               {label}
               {(required || forceAsterisk) && (

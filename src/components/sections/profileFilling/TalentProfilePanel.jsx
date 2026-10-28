@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
-import { LoadingSpinner, ArrowRightIcon, PanelModifyIcon } from '../../shared/assets.jsx';
+import {
+  LoadingSpinner,
+  ArrowRightIcon,
+  PanelModifyIcon,
+  PanelPersonInfoIcon as PanelPersonIcon,
+} from '../../shared/assets.jsx';
 
 import PlayfulProfilePanel from './PlayfulProfilePanel.jsx';
 import { usePlayfulScopeActive } from './PlayfulScopeState.js';
@@ -276,7 +281,10 @@ const TalentProfilePanel = ({
           // the chat starts collecting this section (5132:46736 "IN
           // PROGRESS") all the way through awaiting-review (5132:46916) —
           // it only becomes a real percentage after the actual save lands.
-          const showInProgressLabel = stage.status === 'in-progress' || isAwaitingReview;
+          // `showPct` (parent screens, Figma 7958:183942): an in-progress section that draws its percentage.
+          const showInProgressLabel =
+            !(stage.showPct && stage.completionPct > 0) &&
+            (stage.status === 'in-progress' || isAwaitingReview);
           const Icon = stage.Icon;
           const fields = mergedFields(stage);
 
@@ -570,25 +578,55 @@ const TalentProfilePanel = ({
                       <>
                         {/* view-details / AWAITING REVIEW (Figma 5132:47002) */}
                         <div className="flex flex-col gap-[18px] mb-[48px]">
-                          {fields.map((field) => (
-                            <div
-                              key={field.label}
-                              className="flex items-start justify-between gap-3"
-                            >
-                              <span className="font-sans font-medium text-[16px] text-[#111] whitespace-nowrap">
-                                {field.label}
-                              </span>
-                              <span
-                                className={classNames(
-                                  'font-sans text-[17px] text-right max-w-[350px] flex items-center gap-[6px] max-lg:min-w-0 max-lg:[overflow-wrap:anywhere]',
-                                  field.verified ? 'text-brand-green' : 'text-[#595959]'
-                                )}
+                          {fields.map((field) =>
+                            field.kind === 'photo' ? (
+                              // Figma 7958:187028: a 56px photo, "Profile Photo" and a green tick line.
+                              <div key={field.label} className="flex items-center gap-[11px]">
+                                <span
+                                  aria-hidden="true"
+                                  className="flex size-[56px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec]"
+                                >
+                                  <PanelPersonIcon className="size-[32px] text-brand-green" />
+                                </span>
+                                <span className="flex flex-col gap-[4px]">
+                                  <span className="font-sans font-medium text-[16px] leading-[19px] text-[#1c2a21]">
+                                    {field.label}
+                                  </span>
+                                  <span className="flex items-center gap-[6px] font-sans text-[14px] leading-[17px] text-[#224626]">
+                                    <CheckBadgeIcon className="size-[18px] text-brand-green" />
+                                    {field.value}
+                                  </span>
+                                </span>
+                              </div>
+                            ) : field.kind === 'bio' ? (
+                              <div key={field.label} className="flex flex-col gap-[14px]">
+                                <span className="font-sans font-medium text-[16px] leading-[19px] text-[#111]">
+                                  {field.label}
+                                </span>
+                                <p className="m-0 rounded-[8px] border border-solid border-[#e9e9e9] bg-[#f8f8f8] px-[16px] py-[12px] font-sans text-[15px] leading-[21px] text-[#70706e]">
+                                  {field.value}
+                                </p>
+                              </div>
+                            ) : (
+                              <div
+                                key={field.label}
+                                className="flex items-start justify-between gap-3"
                               >
-                                {field.verified && <CheckBadgeIcon className="size-[14px]" />}
-                                {field.value}
-                              </span>
-                            </div>
-                          ))}
+                                <span className="font-sans font-medium text-[16px] text-[#111] whitespace-nowrap">
+                                  {field.label}
+                                </span>
+                                <span
+                                  className={classNames(
+                                    'font-sans text-[17px] text-right max-w-[350px] flex items-center gap-[6px] max-lg:min-w-0 max-lg:[overflow-wrap:anywhere]',
+                                    field.verified ? 'text-brand-green' : 'text-[#595959]'
+                                  )}
+                                >
+                                  {field.verified && <CheckBadgeIcon className="size-[14px]" />}
+                                  {field.value}
+                                </span>
+                              </div>
+                            )
+                          )}
                         </div>
                         {!stage.readOnly && (
                           <div className="flex items-center justify-end gap-[16px] w-full">

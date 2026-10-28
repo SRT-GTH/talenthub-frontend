@@ -12,7 +12,7 @@ const TabCard = ({ title, variant = 'title', gap = 8, id, className = '', childr
       (variant === 'label' ? (
         <h2
           id={id}
-          className="m-0 font-sans text-[11px] leading-normal font-bold tracking-[0.88px] text-[#575755] uppercase"
+          className="m-0 font-sans text-[11px] leading-normal max-lg:text-[12px] font-bold tracking-[0.88px] text-[#575755] uppercase"
         >
           {title}
         </h2>

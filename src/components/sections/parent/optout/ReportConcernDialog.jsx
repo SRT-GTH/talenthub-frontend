@@ -52,17 +52,17 @@ const ReportConcernDialog = ({ wards, initial, onClose, onSend }) => {
           <img src={spotPrivacy} alt="" aria-hidden="true" className="size-[80px] shrink-0" />
           <DialogCloseButton onClose={onClose} />
         </div>
-        <h2 className="m-0 text-[24px] leading-[29px] font-semibold text-[#1c2a21]">
+        <h2 className="m-0 text-[24px] leading-normal font-semibold text-[#1c2a21]">
           {copy.title}
         </h2>
-        <p className="m-0 text-[14px] leading-[20px] text-[#575755]">{copy.intro}</p>
+        <p className="m-0 text-[14px] leading-[1.45] text-[#575755]">{copy.intro}</p>
 
-        <span id={whoId} className="text-[13px] leading-[16px] font-semibold text-[#1c2a21]">
+        <span id={whoId} className="text-[13px] leading-normal font-semibold text-[#1c2a21]">
           {copy.who}
         </span>
         <ChoiceChips options={whoOptions} value={who} onChange={setWho} labelledBy={whoId} />
 
-        <span id={worryId} className="text-[13px] leading-[16px] font-semibold text-[#1c2a21]">
+        <span id={worryId} className="text-[13px] leading-normal font-semibold text-[#1c2a21]">
           {copy.worry}
         </span>
         <ChoiceChips
@@ -81,7 +81,7 @@ const ReportConcernDialog = ({ wards, initial, onClose, onSend }) => {
           data-autofocus
         />
 
-        <p className="m-0 rounded-[14px] bg-[#f9ebea] p-[14px] text-[12.5px] leading-[15px] font-semibold text-[#c0392b]">
+        <p className="m-0 rounded-[14px] bg-[#f9ebea] p-[14px] text-[12.5px] leading-normal font-semibold text-[#c0392b]">
           {copy.danger}
         </p>
 

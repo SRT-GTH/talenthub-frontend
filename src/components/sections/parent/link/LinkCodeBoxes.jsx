@@ -58,7 +58,7 @@ const LinkCodeBoxes = ({ value, onChange, tone = 'default', highlight }) => {
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           className={classNames(
-            'h-[64px] w-[56px] min-w-0 rounded-[14px] border-solid bg-white p-0 text-center font-sans text-[26px] leading-[31px] font-semibold text-[#1c2a21] caret-transparent outline-none selection:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green max-[420px]:h-[56px] max-[420px]:w-[44px]',
+            'h-[64px] w-[56px] min-w-0 rounded-[14px] border-solid bg-white p-0 text-center font-sans text-[26px] leading-normal font-semibold text-[#1c2a21] caret-transparent outline-none selection:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green max-[420px]:h-[56px] max-[420px]:w-[44px]',
             tone === 'error'
               ? i === active || i === 4
                 ? 'border-2 border-danger'

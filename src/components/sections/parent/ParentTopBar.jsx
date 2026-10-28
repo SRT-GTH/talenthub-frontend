@@ -18,7 +18,7 @@ const log = debug('ParentTopBar');
 /*
  * ParentTopBar — "GTH · Top bar" as the parent screens draw it (Figma `Nav` 10034:2874, 87 high, white, 1px #e7e7e7 under, shadow 0 1 1 rgba(27,36,44,.12)): logo 71 x 66 + search field 553 wide
  * ("Search opportunities, skills, communities..." with the ⌘K badge), the "Parent view" ink chip, help / notifications / messages (red count badges) / EN / accessibility, and the profile chip "Emma M.".
- * Props: bell (count, default 5), messages (count, default 4), name.
+ * Props: bell (count, default 5), messages (count, default 4), name, onBell (toggles the notifications panel, PN-01), bellOpen (aria-expanded of the bell).
  * ⚠️ ASSUMPTION: the icons, search and profile chip only log (the parent shell has no pop-ups drawn). The Parent view chip sits where the frames put it (58.33% + 23px) and is hidden under 1536px
  * (measured: from 1280 to about 1500px it overlapped the Help icon; at 1536px it clears it by 15px). PD-05 prints the profile as "Emma A." (a Figma typo); every screen here says "Emma M.".
  */
@@ -26,10 +26,11 @@ const log = debug('ParentTopBar');
 // Accessible name of a button that shows only a count badge: the visible number comes first ("5 notifications"), so the name starts with what is on screen (WCAG 2.5.3; voice control says "click 5").
 const countLabel = (count, noun) => `${count} ${noun}${Number(count) === 1 ? '' : 's'}`;
 
-const IconButton = ({ label, size = 36, badge, onClick, children }) => (
+const IconButton = ({ label, size = 36, badge, onClick, children, ...rest }) => (
   <button
     type="button"
     aria-label={label}
+    {...rest}
     onClick={() => {
       log('click', label);
       onClick?.();
@@ -46,7 +47,14 @@ const IconButton = ({ label, size = 36, badge, onClick, children }) => (
   </button>
 );
 
-const ParentTopBar = ({ bell = '5', messages = '4', name = PARENT.short }) => {
+const ParentTopBar = ({
+  bell = '5',
+  messages = '4',
+  name = PARENT.short,
+  onBell,
+  bellOpen = false,
+  onSwitchSpace,
+}) => {
   const navigate = useNavigate();
   return (
     <header className="relative z-20 flex h-[87px] shrink-0 items-center justify-between gap-[16px] border-b border-solid border-[#e7e7e7] bg-white px-[clamp(16px,3.24vw,56px)] py-[12px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]">
@@ -73,19 +81,32 @@ const ParentTopBar = ({ bell = '5', messages = '4', name = PARENT.short }) => {
         </button>
       </div>
 
-      <span className="absolute top-[27.5px] left-[calc(58.33%+23px)] flex h-[32px] items-center gap-[6px] rounded-[999px] border border-solid border-[#1c2a21] bg-[#1c2a21] px-[14px] max-[1535px]:hidden">
+      <button
+        type="button"
+        onClick={onSwitchSpace}
+        disabled={!onSwitchSpace}
+        aria-haspopup={onSwitchSpace ? 'menu' : undefined}
+        className="absolute top-[27.5px] left-[calc(58.33%+23px)] flex h-[32px] cursor-pointer items-center gap-[6px] rounded-[999px] border border-solid border-[#1c2a21] bg-[#1c2a21] px-[14px] disabled:cursor-default max-[1535px]:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+      >
         <img src={parentIcon} alt="" className="size-[14px]" />
         <span className="font-sans text-[13px] leading-[normal] font-semibold whitespace-nowrap text-white">
           Parent view
         </span>
-      </span>
+      </button>
 
       <div className="flex shrink-0 items-center gap-[24px]">
         <div className="flex items-center gap-[8px]">
           <IconButton label="Help" onClick={() => navigate('/parent/help')}>
             <img src={helpIcon} alt="" className="size-[16px]" />
           </IconButton>
-          <IconButton label={countLabel(bell, 'notification')} badge={bell}>
+          <IconButton
+            label={countLabel(bell, 'notification')}
+            badge={bell}
+            onClick={onBell}
+            data-notif-bell=""
+            aria-haspopup="dialog"
+            aria-expanded={bellOpen}
+          >
             <img src={bellIcon} alt="" className="size-[16px]" />
           </IconButton>
           <IconButton label={countLabel(messages, 'message')} badge={messages}>

@@ -43,18 +43,18 @@ const OptOutDialog = ({ ward, initial, onClose, onConfirm }) => {
     >
       <form onSubmit={submit} noValidate className="contents">
         <div className="flex items-start gap-[12px]">
-          <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
-            <h2 className="m-0 text-[26px] leading-[32px] font-semibold tracking-[-0.13px] text-[#1c2a21]">
+          <div className="flex min-w-0 max-w-[500px] flex-1 flex-col gap-[6px]">
+            <h2 className="m-0 text-[26px] leading-[1.25] font-semibold tracking-[-0.13px] text-[#1c2a21]">
               {title}
             </h2>
-            <p className="m-0 text-[15px] leading-[18px] text-[#575755]">{copy.intro(ward)}</p>
+            <p className="m-0 text-[15px] leading-normal text-[#575755]">{copy.intro(ward)}</p>
           </div>
           <DialogCloseButton onClose={onClose} tone="grey" />
         </div>
 
         <span
           id={whyId}
-          className="text-[13px] leading-[16px] font-semibold text-[#575755] max-lg:text-[12px]"
+          className="text-[13px] leading-normal font-semibold text-[#575755] max-lg:text-[12px]"
         >
           {copy.why(ward)}
         </span>
@@ -86,7 +86,7 @@ const OptOutDialog = ({ ward, initial, onClose, onConfirm }) => {
           >
             {ack ? <img src={checkIcon} alt="" className="size-[14px]" /> : null}
           </span>
-          <span className="text-[14px] leading-[17px] font-medium text-[#1c2a21]">
+          <span className="text-[14px] leading-normal font-medium text-[#1c2a21]">
             {copy.ack(ward)}
           </span>
         </label>

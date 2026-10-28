@@ -87,6 +87,8 @@ import {
   PARENT_BUDDY_NODES,
   PARENT_FIRST_TIME_HERO,
   PARENT_MY_PROFILE_STAGES,
+  PARENT_PERSONA_LABEL,
+  WARD_PERSONAL_INFO_FIELDS,
   PARENT_WARD_PROFILE_STAGES,
   PARENT_EMPTY_WARD_STAGES,
   PARENT_GUIDE_START_STAGES,
@@ -930,7 +932,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   const trailStages = isRecruiter
     ? RECRUITER_BUDDY_STAGES
     : isParent
-      ? parentMyStagesWithIcons
+      ? // Figma (7958:183942): the parent's stage trail starts with the done "Avatar" step, like the talent's.
+        [CAREER_BUDDY_STAGES[0], ...parentMyStagesWithIcons]
       : CAREER_BUDDY_STAGES;
   const firstTimeHero = isRecruiter
     ? RECRUITER_FIRST_TIME_HERO
@@ -942,7 +945,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   const personaName = isRecruiter
     ? liveRecruiterName || RECRUITER_NAME
     : isParent
-      ? PARENT_NAME
+      ? PARENT_PERSONA_LABEL
       : TALENT_NAME;
   const withLiveName = (list) =>
     liveRecruiterName
@@ -1054,6 +1057,13 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       next = next.map((stage) =>
         stage.id === 'educational-background'
           ? { ...stage, status: 'in-progress', completionPct: 40 }
+          : stage
+      );
+    }
+    if (guideSeed === 'done') {
+      next = next.map((stage) =>
+        stage.id === 'educational-background'
+          ? { ...stage, status: 'done', completionPct: 100 }
           : stage
       );
     }
@@ -1413,6 +1423,22 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         setToast(null);
         log('branch', { parentWardSetupOpen: seedSetupStep });
       } else if (seedSetupStep === 'success') {
+        // Figma 7958:187028: Elliot's tab with Personal Info open (100 %, the sheet) and the rest as at the start of the guide.
+        const wardNow = parentGuideStartStagesWithIcons.map((st) =>
+          st.id === 'personal-info'
+            ? {
+                ...st,
+                completionPct: 100,
+                status: 'done',
+                showPct: false,
+                fields: WARD_PERSONAL_INFO_FIELDS.map((f) => ({ ...f })),
+              }
+            : st
+        );
+        setParentProfileTab('ward');
+        parentWardStagesRef.current = wardNow;
+        setStages(wardNow);
+        setExpandedPanelId('personal-info');
         setWardSetupOpen(false);
         setToast({
           id: `parent-ward-success-${Date.now()}`,
@@ -1420,7 +1446,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           title: WARD_SETUP_SUCCESS_TOAST.title,
         });
         log('branch', { parentWardSuccessSeed: true });
-      } else if (demoHint === 'welcome' || demoHint === 'ward-uninitiated') {
+      } else if (demoHint === 'welcome') {
         setWardSetupOpen(false);
         setToast({
           id: `parent-welcome-${Date.now()}`,
@@ -2834,10 +2860,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
               : Boolean(demoFrame) ||
                 Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
                 // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
-                (playful && heroMode === 'first-time')
+                (playful && heroMode === 'first-time') ||
+                // The parent frames (Figma 7958:183942) draw the gold "Switch Modes" button on every screen.
+                isParent
           }
           onSwitchModes={handleSwitchModes}
-          switchModesLabel="Change input mode"
+          switchModesLabel={isParent ? 'Switch Modes' : 'Change input mode'}
           className="w-full h-full"
         />
       </div>
@@ -3459,6 +3487,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                 )}
                 {...voiceTurns.chatProps}
                 alignTop={Boolean(demoFrame?.voice)}
+                placeholder={isParent ? 'Write a message…' : undefined}
                 onSend={onSendText}
                 suggestedReplies={
                   demoFrame ? opportunityDemoChips(demoFrame.opportunity) : activeSuggestedReplies

@@ -31,14 +31,14 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
           id="access-banner"
           role="status"
           tabIndex={-1}
-          className="flex items-start gap-[12px] rounded-[16px] bg-[#f9ebea] p-[16px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c0392b]"
+          className="flex items-center gap-[12px] rounded-[16px] bg-[#f9ebea] p-[16px] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c0392b]"
         >
           <img src={pauseIcon} alt="" aria-hidden="true" className="size-[20px] shrink-0" />
           <div className="flex min-w-0 flex-col gap-[2px]">
-            <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+            <span className="font-sans text-[15px] leading-normal font-semibold text-[#1c2a21]">
               {copy.title(ward)}
             </span>
-            <span className="font-sans text-[13px] leading-[16px] text-[#575755] max-lg:text-[12px]">
+            <span className="font-sans text-[13px] leading-normal text-[#575755] max-lg:text-[12px]">
               {copy.sub(ward, access?.at, access?.reasonLabel)}
             </span>
           </div>
@@ -46,7 +46,7 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
 
         <section
           aria-label={`${ward.name} header`}
-          className={`flex flex-wrap items-center gap-x-[18px] gap-y-[16px] p-[22px] ${CARD}`}
+          className={`flex flex-wrap items-center gap-x-[18px] gap-y-[16px] px-[22px] py-[13px] ${CARD}`}
         >
           <img
             src={ward.photo}
@@ -77,7 +77,7 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
           >
             <h3
               id="happens-now"
-              className="m-0 font-sans text-[20px] leading-[25px] font-semibold tracking-[-0.1px] text-[#1c2a21]"
+              className="m-0 font-sans text-[20px] leading-[1.25] font-semibold tracking-[-0.1px] text-[#1c2a21]"
             >
               {copy.happensTitle}
             </h3>
@@ -85,7 +85,7 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
               {copy.happens(ward).map((line) => (
                 <li
                   key={line}
-                  className="font-sans text-[14px] leading-[17px] text-[#1c2a21] max-lg:text-[14px]"
+                  className="max-w-[860px] font-sans text-[14px] leading-normal text-[#1c2a21]"
                 >
                   <span aria-hidden="true">• </span>
                   {line}
@@ -98,10 +98,10 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
             aria-label={copy.safetyTitle}
             className="flex w-full shrink-0 flex-col items-start gap-[14px] rounded-[24px] bg-[#ebf1ec] p-[22px] min-[1280px]:w-[360px]"
           >
-            <h3 className="m-0 font-sans text-[18px] leading-[21px] font-semibold text-[#1c2a21]">
+            <h3 className="m-0 font-sans text-[18px] leading-normal font-semibold text-[#1c2a21]">
               {copy.safetyTitle}
             </h3>
-            <p className="m-0 font-sans text-[13px] leading-[16px] text-[#1c2a21] max-lg:text-[13px]">
+            <p className="m-0 max-w-[300px] font-sans text-[13px] leading-normal text-[#1c2a21]">
               {copy.safetyText}
             </p>
             <ParentButton variant="secondary" onClick={onReport}>

@@ -23,7 +23,7 @@ const CertificateDialog = ({ onClose, onApprove, onDecline }) => (
   >
     <div className="flex items-start gap-[12px]">
       <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
-        <h2 className="m-0 text-[26px] leading-[32px] font-semibold tracking-[-0.13px] text-[#1c2a21]">
+        <h2 className="m-0 text-[26px] leading-[1.25] font-semibold tracking-[-0.13px] text-[#1c2a21]">
           {CERTIFICATE.title}
         </h2>
         <p className="m-0 text-[15px] leading-[18px] text-[#575755]">{CERTIFICATE.sub}</p>

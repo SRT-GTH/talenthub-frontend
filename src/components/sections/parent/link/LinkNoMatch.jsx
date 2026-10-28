@@ -14,13 +14,13 @@ const log = debug('LinkNoMatch');
 const LinkNoMatch = ({ name, dob, onInvite, onHaveCode }) => (
   <div className="flex flex-col items-center gap-[10px] rounded-[16px] bg-neutral p-[24px] text-center font-sans">
     <img src={spotSearch} alt="" aria-hidden="true" className="size-[72px] shrink-0" />
-    <p className="m-0 text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+    <p className="m-0 text-[15px] leading-normal font-semibold text-[#1c2a21]">
       {NO_MATCH_COPY.title(name, dobSentence(dob))}
     </p>
-    <p className="m-0 max-w-[520px] text-[12.5px] leading-[18px] font-normal text-neutral-darker">
+    <p className="m-0 max-w-[520px] text-[12.5px] leading-[1.45] font-normal text-neutral-darker">
       {NO_MATCH_COPY.body}
     </p>
-    <div className="flex flex-wrap items-center justify-center gap-[10px] pt-[6px]">
+    <div className="flex flex-wrap items-center justify-center gap-[10px]">
       <ParentButton
         onClick={() => {
           log('invite by SMS (no screen drawn)');

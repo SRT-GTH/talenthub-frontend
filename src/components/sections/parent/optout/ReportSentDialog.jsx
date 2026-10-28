@@ -32,16 +32,16 @@ const ReportSentDialog = ({ ward, onOptOut, onClose }) => {
         <img src={spotSent} alt="" aria-hidden="true" className="size-[80px] shrink-0" />
         <DialogCloseButton onClose={onClose} />
       </div>
-      <h2 className="m-0 text-[24px] leading-[29px] font-semibold text-[#1c2a21]">{title}</h2>
-      <p className="m-0 text-[14px] leading-[20px] text-[#575755]">
+      <h2 className="m-0 text-[24px] leading-normal font-semibold text-[#1c2a21]">{title}</h2>
+      <p className="m-0 text-[14px] leading-[1.45] text-[#575755]">
         {copy.intro(REPORT_REFERENCE)}
       </p>
       {ward ? (
         <div className="flex flex-col gap-[8px] rounded-[24px] bg-[#ebf1ec] p-[16px]">
-          <span className="text-[13px] leading-[16px] font-semibold text-[#1c2a21]">
+          <span className="text-[13px] leading-normal font-semibold text-[#1c2a21]">
             {copy.waitTitle}
           </span>
-          <span className="text-[12.5px] leading-[18px] text-[#575755]">{copy.wait(ward)}</span>
+          <span className="text-[12.5px] leading-[1.45] text-[#575755]">{copy.wait(ward)}</span>
         </div>
       ) : null}
       <div className="flex flex-wrap items-center justify-end gap-[12px]">

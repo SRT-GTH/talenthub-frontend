@@ -16,6 +16,7 @@ import ParentToast from '../../components/sections/parent/wards/dialogs/ParentTo
 import { visibilityToast } from '../../components/sections/parent/wards/dialogs/data/dialogsData.js';
 import WardFlagsSection from '../../components/sections/parent/flags/WardFlagsSection.jsx';
 import { flagsBadge, useWardFlags } from '../../components/sections/parent/flags/flagsStore.js';
+import WalletsLayer from '../../components/sections/parent/wallets/WalletsLayer.jsx';
 import WardOptedOut from '../../components/sections/parent/optout/WardOptedOut.jsx';
 import WardOptOutLayer from '../../components/sections/parent/optout/WardOptOutLayer.jsx';
 import {
@@ -30,6 +31,7 @@ const log = debug('ParentWardPage');
  *   ?tab=overview (default) PW-02 / PW-02b · evaluations PW-11 · wallet PW-12 · activity PW-13 · crew PW-16
  *   ?tab=profile · flags    Abena only: the Flags and corrections canvas (flags/WardFlagsSection: PW-03 … PW-06c, URL table there, wiki/parent-flags.md); other wards show the overview
  *   ?notice=turning18      PW-10 "Abena turns 18 on 12 March" over the overview (Abena only)
+ *   ?tab=wallet&modal=approve | decline | limits | topup …   the Ward wallets dialogs over the Wallet tab (Abena; wallets/WalletsLayer, wiki/parent-wallets.md)
  *   ?modal=visibility      PW-14 "Who can find Abena"; saving closes it and shows the PW-14b toast
  *   ?modal=unlink          PW-15 "Unlink Elliot"; confirming goes to /parent/wards?unlinked=elliot (PW-15b: list without Elliot + toast)
  *   Opt out and restore (canvas "Parent · 05" 10057:1302, parent/optout/WardOptOutLayer, wiki/parent-opt-out.md): ?modal=opt-out PO-01 · ?state=opted-out PO-02 (the paused view, <WardOptedOut>) ·
@@ -118,7 +120,13 @@ const ParentWardPage = () => {
           {flagsTab ? (
             <WardFlagsSection ward={ward} tab={tab} />
           ) : Tab ? (
-            <Tab ward={ward} />
+            <Tab
+              ward={ward}
+              onDecide={() => setModal('approve')}
+              onTopUp={() => setModal('topup')}
+              onLimits={() => setModal('limits')}
+              onReport={() => setModal('report')}
+            />
           ) : (
             <WardOverview ward={ward} showSide={notice === 'turning18'} />
           )}
@@ -145,6 +153,7 @@ const ParentWardPage = () => {
           }}
         />
       ) : null}
+      {wardId === 'abena' && !optedOut ? <WalletsLayer ward={ward} /> : null}
       {toast ? <ParentToast {...toast} onClose={() => setToast(null)} /> : null}
     </ParentFrame>
   );

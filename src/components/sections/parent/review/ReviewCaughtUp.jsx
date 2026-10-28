@@ -17,13 +17,13 @@ const ReviewCaughtUp = () => {
       className="flex flex-col items-center gap-[16px] rounded-[24px] border border-solid border-black-light bg-white p-[clamp(24px,2.8vw,48px)] text-center font-sans shadow-[0_5px_17px_rgba(28,42,33,0.03)]"
     >
       <img src={spotCaughtUp} alt="" aria-hidden="true" className="size-[96px] shrink-0" />
-      <h2 className="m-0 text-[26px] leading-[32px] font-semibold tracking-[-0.13px] text-[#1c2a21]">
+      <h2 className="m-0 text-[26px] leading-[1.25] font-semibold tracking-[-0.13px] text-[#1c2a21]">
         {CAUGHT_UP.title}
       </h2>
       <p className="m-0 max-w-[442px] text-[15px] leading-[18px] text-[#575755]">
         {CAUGHT_UP.body}
       </p>
-      <ParentButton variant="secondary" to="/parent" className="mt-[2px]">
+      <ParentButton variant="secondary" to="/parent">
         {CAUGHT_UP.home}
       </ParentButton>
     </section>

@@ -15,6 +15,7 @@ import {
   stateKeyFor,
 } from './talentHomeLive.js';
 import { HOME_TABS } from './talentHomeTabsData.js';
+import { EMMA, EMMA_CONTENT } from './emmaPersona.js';
 
 const log = debug('talentHomeState');
 
@@ -142,7 +143,13 @@ const TABS = ['home', 'assessment', 'recruiter'];
 
 export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
-  const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
+  // `?as=emma` (Figma canvas "Parent who is also a talent"): the Discoverable demo home with Emma's details (emmaPersona.js).
+  const asEmma = params.get('as') === 'emma';
+  const demoState = HOME_STATE_KEYS.includes(params.get('state'))
+    ? params.get('state')
+    : asEmma
+      ? 'discoverable'
+      : null;
   const navigate = useNavigate();
   // null = loading, false = failed. Starts from this tab's cached copy when
   // there is one, so returning to /home shows the data at once.
@@ -276,8 +283,14 @@ export const useTalentHomeState = () => {
       setParams(next, { replace: true });
     };
     return {
-      snapshot: live && !demoState ? liveSnapshot(stateKey, live) : getTalentHomeSnapshot(stateKey),
-      content: live && !demoState ? buildLiveContent(stateKey, live) : null,
+      snapshot:
+        live && !demoState
+          ? liveSnapshot(stateKey, live)
+          : asEmma
+            ? { ...getTalentHomeSnapshot(stateKey), profile: EMMA.profile }
+            : getTalentHomeSnapshot(stateKey),
+      content: live && !demoState ? buildLiveContent(stateKey, live) : asEmma ? EMMA_CONTENT : null,
+      persona: asEmma ? EMMA : null,
       // MyAssessment content (null in demo mode or while loading).
       assessment:
         live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
@@ -322,6 +335,7 @@ export const useTalentHomeState = () => {
   }, [
     params,
     setParams,
+    asEmma,
     live,
     demoState,
     assessment,

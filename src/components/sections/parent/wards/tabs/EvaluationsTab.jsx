@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../../utils/debug.js';
 import ParentButton from '../../ParentButton.jsx';
 import WardChip from '../WardChip.jsx';
@@ -15,6 +16,7 @@ const log = debug('EvaluationsTab');
  * ⚠️ ASSUMPTION: the two buttons only log (Figma draws no evaluate / invite screen).
  */
 const EvaluationsTab = ({ ward }) => {
+  const navigate = useNavigate();
   const d = evaluationsData(ward);
   log('render, ward:', ward.id, 'rows:', d.rows.length);
   return (
@@ -37,7 +39,14 @@ const EvaluationsTab = ({ ward }) => {
       <TabCard title={d.add.title} id="ev-add-title" gap={12}>
         <p className="m-0 font-sans text-[13px] leading-[1.45] text-[#575755]">{d.add.body}</p>
         <div className="flex flex-wrap items-center gap-[12px] py-[7px]">
-          <ParentButton onClick={() => log('evaluate', ward.id)}>{d.add.primary}</ParentButton>
+          <ParentButton
+            onClick={() => {
+              log('evaluate', ward.id);
+              navigate('/parent/evaluate');
+            }}
+          >
+            {d.add.primary}
+          </ParentButton>
           <ParentButton variant="secondary" onClick={() => log('invite a teacher', ward.id)}>
             {d.add.secondary}
           </ParentButton>

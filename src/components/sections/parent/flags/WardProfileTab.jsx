@@ -33,16 +33,16 @@ const WardProfileTab = ({ flags, onFlag }) => {
     >
       {PROFILE_GROUPS.map((group) => (
         <div key={group.id} className="flex flex-col gap-[16px]">
-          <h3 className="m-0 pt-[14px] pb-[6px] font-sans text-[12px] leading-[14px] font-semibold tracking-[0.72px] text-[#575755] uppercase">
+          <h3 className="m-0 pt-[14px] pb-[6px] font-sans text-[12px] leading-normal font-semibold tracking-[0.72px] text-[#575755] uppercase">
             {group.label}
           </h3>
           {group.fields.map((field) => (
             <div key={field.id} className="flex items-center gap-[14px] rounded-[12px] p-[12px]">
               <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <span className="font-sans text-[13px] leading-[16px] text-[#575755] max-lg:text-[12px]">
+                <span className="font-sans text-[13px] leading-normal text-[#575755] max-lg:text-[12px]">
                   {field.label}
                 </span>
-                <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+                <span className="font-sans text-[15px] leading-normal font-semibold text-[#1c2a21]">
                   {field.value}
                 </span>
               </div>
@@ -54,7 +54,7 @@ const WardProfileTab = ({ flags, onFlag }) => {
                   log('flag', { field: field.id });
                   onFlag(field);
                 }}
-                className="flex shrink-0 cursor-pointer items-center gap-[6px] rounded-[10px] border-0 bg-transparent px-[10px] py-[6px] font-sans text-[13px] leading-[16px] font-semibold text-[#575755] hover:bg-[#f4f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] max-lg:text-[12px]"
+                className="flex shrink-0 cursor-pointer items-center gap-[6px] rounded-[10px] border-0 bg-transparent px-[10px] py-[6px] font-sans text-[13px] leading-normal font-semibold text-[#575755] hover:bg-[#f4f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] max-lg:text-[12px]"
               >
                 <img src={flagIcon} alt="" aria-hidden="true" className="size-[16px]" />
                 Flag

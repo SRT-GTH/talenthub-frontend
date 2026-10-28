@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ActionToast from '../../../ui/ActionToast.jsx';
 import UnderlineTabs from '../../../ui/UnderlineTabs.jsx';
@@ -35,6 +36,7 @@ const log = debug('ReviewPage');
 const ward = WARDS.abena;
 
 const ReviewPage = () => {
+  const navigate = useNavigate();
   const rv = useReviewState();
   const { update, urlFor } = rv;
   const { flags } = useWardFlags();
@@ -79,7 +81,7 @@ const ReviewPage = () => {
   const handleAction = (kind) => {
     if (kind === 'certificate') update({ modal: 'certificate' });
     else if (kind === 'evaluation') update({ tab: 'evaluations' });
-    else log('payment decision (no screen drawn)');
+    else navigate('/parent/wallets?modal=approve'); // PWa-02, built in the Ward wallets flow
   };
 
   const approveCertificate = () => {
@@ -137,7 +139,7 @@ const ReviewPage = () => {
             )}
           </div>
           {compactHeader ? null : (
-            <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999]">
+            <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#6b6b6b]">
               {REVIEW_INTRO}
             </p>
           )}

@@ -56,7 +56,7 @@ export function emptyWardSetupForm() {
     dobDay: '23',
     dobMonth: '9',
     dobYear: '2004',
-    email: 'elliotwhitmore@gmail.com',
+    email: 'ellwhitmore@gmail.com',
     countryCode: '+233',
     phone: '',
     address: '',

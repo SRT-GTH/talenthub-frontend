@@ -26,15 +26,17 @@ const RestoreDialog = ({ ward, onClose, onConfirm }) => {
       className="items-stretch max-sm:!p-[20px]"
     >
       <div className="flex items-start gap-[12px]">
-        <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
-          <h2 className="m-0 text-[26px] leading-[32px] font-semibold tracking-[-0.13px] text-[#1c2a21]">
+        <div className="flex min-w-0 max-w-[440px] flex-1 flex-col gap-[6px]">
+          <h2 className="m-0 text-[26px] leading-[1.25] font-semibold tracking-[-0.13px] text-[#1c2a21]">
             {title}
           </h2>
-          <p className="m-0 text-[15px] leading-[18px] text-[#575755]">{copy.intro}</p>
+          <p className="m-0 text-[15px] leading-normal text-[#575755]">{copy.intro}</p>
         </div>
         <DialogCloseButton onClose={onClose} tone="grey" />
       </div>
-      <p className="m-0 text-[14px] leading-[17px] text-[#575755]">{copy.note(ward)}</p>
+      <p className="m-0 max-w-[496px] text-[14px] leading-normal text-[#575755]">
+        {copy.note(ward)}
+      </p>
       <div className="flex flex-wrap items-center justify-end gap-[12px]">
         <ParentButton variant="secondary" onClick={onClose}>
           {copy.notNow}

@@ -5,6 +5,7 @@ import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import ParentOverview from '../../components/sections/parent/home/ParentOverview.jsx';
 import ParentNoWard from '../../components/sections/parent/states/ParentNoWard.jsx';
 import WardLinkedDialog from '../../components/sections/parent/link/WardLinkedDialog.jsx';
+import AbenaJoinedNotice from '../../components/sections/parent/notifications/AbenaJoinedNotice.jsx';
 import ParentFirstVisit from '../../components/sections/parent/states/ParentFirstVisit.jsx';
 import ParentHomeError from '../../components/sections/parent/states/ParentHomeError.jsx';
 import {
@@ -72,6 +73,21 @@ const ParentHomePage = () => {
       {state === 'none' ? <ParentNoWard /> : null}
       {state === 'first' ? <ParentFirstVisit /> : null}
       {state === 'error' ? <ParentHomeError onRetry={retry} /> : null}
+      {/* PN-05b (Figma 10079:1025): the in-app notice over the home, `?notice=abena-joined`. */}
+      {params.get('notice') === 'abena-joined' ? (
+        <AbenaJoinedNotice
+          onClose={() =>
+            setParams(
+              (prev) => {
+                const next = new URLSearchParams(prev);
+                next.delete('notice');
+                return next;
+              },
+              { replace: true }
+            )
+          }
+        />
+      ) : null}
       {params.get('modal') === 'ward-linked' ? (
         <WardLinkedDialog
           onClose={() =>

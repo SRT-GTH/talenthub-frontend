@@ -70,6 +70,20 @@ export const SIDEBAR_STATES = {
     ],
     badges: { review: '4', wallets: '1', notifications: '4' },
   },
+  // Three wards (PW-08c: Kwesi accepted the link request); the other numbers are the linked state's.
+  threeWards: {
+    role: 'Mother · 3 wards linked',
+    done: 2,
+    doneText: '2 of 3 done',
+    note: '1 payment waits for you →',
+    stats: [
+      { value: '3', label: 'Wards' },
+      { value: '4', label: 'To review' },
+      { value: '1', label: 'Flag open' },
+      { value: '1', label: 'Evaluation' },
+    ],
+    badges: { review: '4', wallets: '1', notifications: '4' },
+  },
   caughtUp: {
     role: 'Mother · 2 wards linked',
     done: 2,

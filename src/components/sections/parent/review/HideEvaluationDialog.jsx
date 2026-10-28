@@ -21,11 +21,11 @@ const HideEvaluationDialog = ({ onClose, onConfirm }) => (
       <img src={spotPrivacy} alt="" aria-hidden="true" className="size-[80px] shrink-0" />
       <DialogCloseButton onClose={onClose} tone="green" />
     </div>
-    <h2 className="m-0 mt-[4px] text-[24px] leading-[29px] font-semibold text-[#1c2a21]">
+    <h2 className="m-0 text-[24px] leading-normal font-semibold text-[#1c2a21]">
       {HIDE_EVALUATION.title}
     </h2>
-    <p className="m-0 text-[14px] leading-[20px] text-[#575755]">{HIDE_EVALUATION.body}</p>
-    <div className="rounded-[24px] bg-accent-light p-[16px] text-[13px] leading-[16px] font-medium text-[#1c2a21]">
+    <p className="m-0 text-[14px] leading-[1.45] text-[#575755]">{HIDE_EVALUATION.body}</p>
+    <div className="rounded-[24px] bg-accent-light p-[16px] text-[13px] leading-normal font-medium text-[#1c2a21]">
       {HIDE_EVALUATION.tip}
     </div>
     <div className="flex flex-wrap items-center justify-end gap-[12px]">

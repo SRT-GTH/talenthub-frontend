@@ -21,7 +21,7 @@ const RelationChips = ({ items, value, onChange, label = 'Relationship', classNa
           aria-checked={on}
           onClick={() => onChange?.(item.id)}
           className={classNames(
-            'inline-flex h-[32px] cursor-pointer items-center justify-center rounded-full border border-solid px-[14px] font-sans text-[13px] leading-[16px] font-semibold whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+            'inline-flex h-[32px] cursor-pointer items-center justify-center rounded-full border border-solid px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
             on
               ? 'border-[#1c2a21] bg-[#1c2a21] text-white'
               : 'border-brand-green-light-hover bg-white text-[#595959] hover:bg-brand-green-light'

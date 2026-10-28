@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { NAV_MAIN, NAV_SECONDARY, PARENT, SIDEBAR_STATES } from './data/parentCoreData.js';
+import { NO_CAREER } from './switch/switchData.js';
 import emma from '../../../assets/parent/emma.webp';
 import homeActive from '../../../assets/parent/frame-1.svg';
 import navWards from '../../../assets/parent/icon-1.svg';
@@ -107,7 +108,16 @@ const Stat = ({ value, label }) => (
   </span>
 );
 
-const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, className }) => {
+const ParentSidebar = ({
+  state = 'linked',
+  active = 'home',
+  onCollapse,
+  career = 'talent',
+  onSwitch,
+  onBuildCareer,
+  cardRef,
+  className,
+}) => {
   const s = SIDEBAR_STATES[state] || SIDEBAR_STATES.linked;
   const pct = Math.round((s.done / 3) * 1000) / 10;
   return (
@@ -118,7 +128,10 @@ const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, classNam
         className
       )}
     >
-      <div className="flex w-[279px] shrink-0 flex-col items-center gap-[16px] rounded-[16px] border-[1.4px] border-solid border-[#e1eae2] bg-white py-[19px]">
+      <div
+        ref={cardRef}
+        className="flex w-[279px] shrink-0 flex-col items-center gap-[16px] rounded-[16px] border-[1.4px] border-solid border-[#e1eae2] bg-white py-[19px]"
+      >
         <span className="relative block size-[62px] shrink-0 overflow-clip rounded-[31px]">
           <img
             src={emma}
@@ -140,17 +153,43 @@ const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, classNam
                 </span>
               </span>
             ) : null}
-            <img src={switchChevron} alt="" className="size-[16px]" />
+            {onSwitch && career === 'talent' ? (
+              <button
+                type="button"
+                aria-label="Switch space"
+                aria-haspopup="menu"
+                onClick={onSwitch}
+                className="flex cursor-pointer border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                <img src={switchChevron} alt="" className="size-[16px]" />
+              </button>
+            ) : (
+              <img src={switchChevron} alt="" className="size-[16px]" />
+            )}
           </div>
           <span className="font-sans text-[12px] leading-[18px] font-normal tracking-[0.2px] whitespace-nowrap text-[#babab7]">
             {s.role}
           </span>
-          <span className="flex items-center gap-[5px]">
-            <img src={dot} alt="" className="size-[4px]" />
-            <span className="font-sans text-[10px] leading-[16px] font-semibold tracking-[0.2px] whitespace-nowrap text-[#387440]">
-              Parent view · tap to switch
+          {onSwitch && career === 'talent' ? (
+            <button
+              type="button"
+              aria-haspopup="menu"
+              onClick={onSwitch}
+              className="flex cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              <img src={dot} alt="" className="size-[4px]" />
+              <span className="font-sans text-[10px] leading-[16px] font-semibold tracking-[0.2px] whitespace-nowrap text-[#387440]">
+                Parent view · tap to switch
+              </span>
+            </button>
+          ) : (
+            <span className="flex items-center gap-[5px]">
+              <img src={dot} alt="" className="size-[4px]" />
+              <span className="font-sans text-[10px] leading-[16px] font-semibold tracking-[0.2px] whitespace-nowrap text-[#387440]">
+                {career === 'none' ? NO_CAREER.pill : 'Parent view · tap to switch'}
+              </span>
             </span>
-          </span>
+          )}
         </div>
         <div className="flex w-[239px] flex-col justify-center gap-[6px] border-t border-solid border-[#fefefe]">
           <div className="flex items-center justify-between whitespace-nowrap">
@@ -167,9 +206,13 @@ const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, classNam
               style={{ width: s.done ? `${pct}%` : 1 }}
             />
           </div>
-          <span className="font-sans text-[10px] leading-[16px] font-normal tracking-[0.2px] whitespace-nowrap text-[#70706e]">
+          <Link
+            to={state === 'none' ? '/parent/link-ward' : '/parent/review?tab=payments'}
+            onClick={() => log('sidebar note')}
+            className="font-sans text-[10px] leading-[16px] font-normal tracking-[0.2px] whitespace-nowrap text-[#70706e] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
             {s.note}
-          </span>
+          </Link>
         </div>
         <div className="flex w-[257px] items-center justify-center gap-[4px] rounded-[10px] border border-solid border-[#faf4e8] bg-[#ebf1ec] py-[10px]">
           {s.stats.map((st, i) => (
@@ -201,19 +244,32 @@ const ParentSidebar = ({ state = 'linked', active = 'home', onCollapse, classNam
               <img src={linkChain} alt="" className="size-[11.8px]" />
             </span>
             <span className="font-sans text-[13px] leading-[18px] font-medium tracking-[0.2px] whitespace-nowrap text-[#387440]">
-              You’re also a talent
+              {career === 'none' ? NO_CAREER.cardTitle : 'You’re also a talent'}
             </span>
           </span>
           <span className="font-mono text-[10px] leading-[16px] tracking-[0.2px] text-[#32683a]">
-            {PARENT.talentLine}
+            {career === 'none' ? NO_CAREER.cardLine : PARENT.talentLine}
           </span>
-          <Link
-            to="/home"
-            className="flex h-[36px] items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-          >
-            Switch to My career
-            <TalentSidebarPreviewArrowUpRightIcon className="size-[20px]" />
-          </Link>
+          {career === 'none' ? (
+            <button
+              type="button"
+              onClick={() =>
+                onBuildCareer ? onBuildCareer() : log('build my profile (no handler)')
+              }
+              className="flex h-[36px] cursor-pointer items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              {NO_CAREER.cardCta}
+              <TalentSidebarPreviewArrowUpRightIcon className="size-[20px]" />
+            </button>
+          ) : (
+            <Link
+              to="/home"
+              className="flex h-[36px] items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              Switch to My career
+              <TalentSidebarPreviewArrowUpRightIcon className="size-[20px]" />
+            </Link>
+          )}
         </div>
       </nav>
 

@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { debug } from '../../../../utils/debug.js';
+import StatusToast from '../../../ui/StatusToast.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
 import { OWNER_COPY } from './createCommunityData.js';
 import { CcLiveEyeIcon } from './CreateCommunityIcons.jsx';
@@ -10,19 +9,16 @@ const TOAST_MS = 6000;
 
 /*
  * OwnerLiveToast — Figma `toast · … is live` (CC-08): dark pill, gold disc with the eye, "{name} is live · +100 XP" (pts in Focused)
- * and a gold "Share". Props: name, xp ('XP' | 'pts'), onShare(), onDone() (after 6s).
+ * and a gold "Share"; a variant of `ui/StatusToast`. Props: name, xp ('XP' | 'pts'), onShare(), onDone() (after 6s).
  */
 const OwnerLiveToast = ({ name, xp, onShare, onDone }) => {
-  useEffect(() => {
-    log('mount');
-    const timer = window.setTimeout(() => onDone?.(), TOAST_MS);
-    return () => window.clearTimeout(timer);
-  }, [onDone]);
-  return createPortal(
-    <div
-      role="status"
-      aria-live="polite"
-      className="fixed left-1/2 top-[98px] z-[55] flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-[10px] rounded-full bg-[#1c2a21] py-[12px] pl-[14px] pr-[18px] shadow-[0_8px_20px_rgba(28,42,33,0.25)] lg:ml-[63px]"
+  log('mount');
+  return (
+    <StatusToast
+      portal
+      duration={TOAST_MS}
+      onClose={onDone}
+      wrapperClassName="fixed left-1/2 top-[98px] z-[55] flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-[10px] rounded-full bg-[#1c2a21] py-[12px] pl-[14px] pr-[18px] shadow-[0_8px_20px_rgba(28,42,33,0.25)] lg:ml-[63px]"
     >
       <span className="flex size-[26px] shrink-0 items-center justify-center rounded-full bg-[#c8951a]">
         <CcLiveEyeIcon className="size-[15px]" />
@@ -37,8 +33,7 @@ const OwnerLiveToast = ({ name, xp, onShare, onDone }) => {
       >
         {OWNER_COPY.toastShare}
       </button>
-    </div>,
-    document.body
+    </StatusToast>
   );
 };
 

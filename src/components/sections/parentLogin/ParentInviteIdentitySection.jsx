@@ -223,18 +223,15 @@ const ParentInviteIdentitySection = () => {
               Step 1 of 7 — Parent Identity
             </span>
             <h1
-              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
+              className="font-heading font-semibold max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                letterSpacing: '-1px',
+                letterSpacing: '-0.02em',
                 color: '#111',
-                lineHeight: 1.1,
+                lineHeight: 1.2,
               }}
             >
-              Tell us about{' '}
-              <span className="italic" style={{ color: '#c8951a' }}>
-                yourself.
-              </span>
+              Tell us about <span style={{ color: '#c8951a' }}>yourself.</span>
             </h1>
             <p
               className="max-w-[420px] font-sans max-md:leading-5!"

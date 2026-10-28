@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TalentSidebarProfileAvatarIllustration,
@@ -15,6 +16,8 @@ import {
   getTalentSidebarData,
 } from './talentShellData.js';
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
+import SwitchSpaceMenu from '../parent/switch/SwitchSpaceMenu.jsx';
+import emmaPhoto from '../../../assets/parent/emma.webp';
 
 const log = debug('TalentSidebar');
 
@@ -196,10 +199,14 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
   const isCurrent = (item) =>
     activeIdProp || activeNav ? item.id === activeId : isActive(item, home);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const stateKey = home?.stateKey ?? 'day1';
+  // `?as=emma` (a parent who is also a talent, emmaPersona.js): her card, the nav labels and the switch to Parent view.
+  const persona = home?.persona ?? null;
+  const cardRef = useRef(null);
+  const menuOpen = Boolean(persona) && new URLSearchParams(search).get('menu') === 'switch';
   const data = getTalentSidebarData(stateKey, home?.live, activeNav);
-  const profile = getTalentProfile(home?.live);
+  const profile = getTalentProfile(home?.live, persona);
   const { journey } = data;
   const shelf = !data.flat;
   const percent = journey.percent ?? ((journey.done ?? 0) / 9) * 100;
@@ -219,8 +226,8 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
 
   const mainItems = data.wallet ? withWalletItem(TALENT_NAV_MAIN) : TALENT_NAV_MAIN;
   const navBadge = (id) => data.badges[id];
-  const withLabel = (item) =>
-    data.labels?.[item.id] ? { ...item, label: data.labels[item.id] } : item;
+  const labels = persona ? { ...data.labels, ...persona.labels } : data.labels;
+  const withLabel = (item) => (labels?.[item.id] ? { ...item, label: labels[item.id] } : item);
 
   if (compact) {
     return (
@@ -284,6 +291,7 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
     >
       {/* Profile card */}
       <div
+        ref={cardRef}
         className={classNames(
           'flex w-[calc(100%-24px)] shrink-0 flex-col items-center gap-[16px] overflow-clip rounded-[16px] border-[1.4px] border-solid border-[#e1eae2] bg-white py-[19px]',
           data.tight && '!py-[16px]',
@@ -295,7 +303,11 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
           aria-hidden="true"
           className={classNames(avatarClass(shelf), 'size-[62px] rounded-[31px]')}
         >
-          <TalentSidebarProfileAvatarIllustration className="h-[70px] w-[69px] max-w-none shrink-0 select-none" />
+          {persona ? (
+            <img src={emmaPhoto} alt="" className="size-full object-cover" draggable="false" />
+          ) : (
+            <TalentSidebarProfileAvatarIllustration className="h-[70px] w-[69px] max-w-none shrink-0 select-none" />
+          )}
         </span>
 
         <div className="flex max-w-full flex-col items-center gap-[7px] px-[8px]">
@@ -309,6 +321,25 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
                 {data.chip}
               </span>
             </span>
+            {persona ? (
+              <button
+                type="button"
+                aria-label="Switch space"
+                aria-haspopup="menu"
+                onClick={() => home?.update?.({ menu: menuOpen ? null : 'switch' })}
+                className="flex shrink-0 cursor-pointer border-0 bg-transparent p-0 text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 6l4 4 4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            ) : null}
           </div>
           <p className="max-w-full truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
             {data.headline ?? profile.headline}
@@ -386,7 +417,29 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
             </div>
           ))}
         </div>
+        {persona ? (
+          <button
+            type="button"
+            onClick={() => {
+              log('switch link -> Parent view');
+              navigate('/parent');
+            }}
+            className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] leading-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            {persona.switchLink}
+          </button>
+        ) : null}
       </div>
+      {menuOpen ? (
+        <SwitchSpaceMenu
+          anchorRef={cardRef}
+          current="career"
+          offset={{ left: 8, top: 130 }}
+          parentChip={persona.parentChip}
+          onClose={() => home?.update?.({ menu: null })}
+          onSelect={() => navigate('/parent')}
+        />
+      ) : null}
 
       {/* Navigation + public profile */}
       <div className="flex min-h-px w-full flex-1 flex-col items-start gap-[16px] pl-[clamp(14px,1.27vw,22px)] pr-[clamp(10px,0.7vw,12px)]">

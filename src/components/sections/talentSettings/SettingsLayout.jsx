@@ -43,8 +43,16 @@ const ITEM =
  * SettingsLayout — the talent Settings page frame (Figma ST-01 "Main Content Canvas"): heading,
  * section nav (280px card from lg, a scrolling chip row below) and the section body as children.
  * Nav clicks go to `/settings/<section>`; "Log out" opens the shell-level confirm via `?logout=confirm`.
+ * Optional (the parent Settings page, Figma Parents file PS-01): `items` (the nav list, default SETTINGS_NAV), `hrefFor(item)` (default `/settings/<id>`), `onLogout` (default
+ * `settings.update({ logout: 'confirm' })`). Nothing changes for the talent pages, which pass none of them.
  */
-const SettingsLayout = ({ settings, children }) => {
+const SettingsLayout = ({
+  settings,
+  children,
+  items = SETTINGS_NAV,
+  hrefFor = (item) => `/settings/${item.id}`,
+  onLogout,
+}) => {
   const active = settings?.section;
   log('render', { active, state: settings?.state });
   const navRef = useRef(null);
@@ -80,13 +88,13 @@ const SettingsLayout = ({ settings, children }) => {
           aria-label="Settings sections"
           className="relative flex w-[280px] shrink-0 flex-col gap-[8px] rounded-[20px] border border-[rgba(28,42,33,0.1)] bg-white p-[12px] max-lg:w-full max-lg:flex-row max-lg:gap-[4px] max-lg:overflow-x-auto max-lg:p-[8px]"
         >
-          {SETTINGS_NAV.map((item) => {
+          {items.map((item) => {
             const Icon = ICONS[item.icon];
             const isActive = item.id === active;
             return (
               <Link
                 key={item.id}
-                to={`/settings/${item.id}`}
+                to={hrefFor(item)}
                 aria-current={isActive ? 'page' : undefined}
                 onClick={() => log('nav ->', item.id)}
                 className={classNames(
@@ -124,7 +132,8 @@ const SettingsLayout = ({ settings, children }) => {
             type="button"
             onClick={() => {
               log('nav -> log out confirm');
-              settings?.update?.({ logout: 'confirm' });
+              if (onLogout) onLogout();
+              else settings?.update?.({ logout: 'confirm' });
             }}
             className={classNames(
               ITEM,

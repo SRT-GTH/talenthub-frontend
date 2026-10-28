@@ -22,14 +22,14 @@ const CALLOUTS = {
     icon: shieldRed,
     box: 'border-danger/25 bg-[#fcece9]',
     title: 'text-danger',
-    body: 'text-[#1c2a21]',
+    body: 'text-[#1c2a21] opacity-85',
   },
   expired: {
     copy: CODE_COPY.expired,
     icon: infoAmber,
     box: 'border-[#a0700a]/25 bg-[#fdf5e0]',
     title: 'text-[#a0700a]',
-    body: 'text-[#1c2a21]/85',
+    body: 'text-[#1c2a21] opacity-85',
   },
 };
 
@@ -71,10 +71,10 @@ const LinkCodeDialog = ({
         <img src={spotWard} alt="" aria-hidden="true" className="size-[80px] shrink-0" />
         <LinkDialogClose onClose={onClose} />
       </div>
-      <h2 className="m-0 text-[24px] leading-[29px] font-semibold text-[#1c2a21]">
+      <h2 className="m-0 text-[24px] leading-normal font-semibold text-[#1c2a21]">
         {CODE_COPY.title}
       </h2>
-      <p className="m-0 -mt-[4px] text-[14px] leading-[20px] font-normal text-neutral-darker">
+      <p className="m-0 text-[14px] leading-[1.45] font-normal text-neutral-darker">
         {CODE_COPY.body}
       </p>
       <LinkCodeBoxes
@@ -95,17 +95,17 @@ const LinkCodeDialog = ({
             className="mt-px size-[18px] shrink-0"
           />
           <div className="flex min-w-0 flex-col gap-[2px]">
-            <p className={`m-0 text-[14px] leading-[17px] font-semibold ${callout.title}`}>
+            <p className={`m-0 text-[14px] leading-normal font-semibold ${callout.title}`}>
               {callout.copy.title}
             </p>
-            <p className={`m-0 text-[13px] leading-[16px] font-normal ${callout.body}`}>
+            <p className={`m-0 text-[13px] leading-normal font-normal ${callout.body}`}>
               {callout.copy.body}
             </p>
           </div>
         </div>
       ) : null}
-      <div className="flex flex-col gap-[10px]">
-        <p className="m-0 text-[13px] leading-[16px] font-semibold text-[#1c2a21]">
+      <div className="flex flex-col gap-[20px]">
+        <p className="m-0 text-[13px] leading-normal font-semibold text-[#1c2a21]">
           {CODE_COPY.relationLabel}
         </p>
         <RelationChips items={CODE_RELATIONS} value={rel} onChange={onRelChange} />

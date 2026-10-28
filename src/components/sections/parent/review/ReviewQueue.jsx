@@ -1,5 +1,5 @@
 import { debug } from '../../../../utils/debug.js';
-import ParentButton from '../ParentButton.jsx';
+import Button from '../../../ui/Button.jsx';
 import WardChip from '../wards/WardChip.jsx';
 import TabRow from '../wards/tabs/TabRow.jsx';
 import refreshIcon from '../../../../assets/parent/wards-refresh.svg';
@@ -27,7 +27,7 @@ const ReviewQueue = ({ rows, ward, label, hrefFor, onAction }) => {
           {EMPTY_TAB}
         </p>
       ) : (
-        <ul className="m-0 flex list-none flex-col p-0">
+        <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
           {rows.map((row, i) => {
             const item = row.kind === 'correction' ? CORRECTION_ROW : ITEMS[row.kind];
             const title = row.kind === 'correction' ? item.title(row.flag) : item.title;
@@ -44,16 +44,18 @@ const ReviewQueue = ({ rows, ward, label, hrefFor, onAction }) => {
                 last={i === rows.length - 1}
               >
                 <WardChip tone="pending">{item.chip}</WardChip>
-                <ParentButton
+                <Button
+                  variant="primary"
+                  size="sm"
                   to={to}
-                  className="!rounded-[10px] !px-[18px] !py-[12px]"
+                  className="!px-[16px] !pt-[11px] !pb-[10px]"
                   onClick={() => {
                     log('row action', { kind: row.kind });
                     onAction?.(row.kind, row.flag);
                   }}
                 >
                   {item.action}
-                </ParentButton>
+                </Button>
               </TabRow>
             );
           })}

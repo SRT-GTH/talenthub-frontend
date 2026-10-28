@@ -6,19 +6,19 @@
 
 Form values for the frames that show the filled search page: `?name=Kwesi%20Mensah&dob=04062011&rel=nephew` (called `F` below).
 
-| Frame                                                      | Figma id       | URL                                           | Diff % | Status                           |
-| ---------------------------------------------------------- | -------------- | --------------------------------------------- | ------ | -------------------------------- |
-| PD-01c Parent home, no linked ward (context)               | `10057:1108`   | `/parent?state=none` (home build, not redone) | —      | already built (parent-dashboard) |
-| PW-07 Link another ward · Search, "1 match"                | `10034:141501` | `/parent/link-ward?F`                         | 1.6    | ✅                               |
-| PW-07c No match found                                      | `10052:2534`   | `…?F&result=none`                             | 1.8    | ✅                               |
-| PW-08 Link request sent                                    | `10034:142187` | `…?step=sent`                                 | 1.5    | ✅                               |
-| PW-07b Link with a code (modal)                            | `10052:530`    | `…?F&modal=code&code=K7M4`                    | 3.2    | ✅                               |
-| PW-07e Code didn't work                                    | `10077:18651`  | `…?F&modal=code-error&code=K7M4Q2`            | 1.5    | ✅                               |
-| PW-07f Code has expired                                    | `10077:18999`  | `…?F&modal=code-expired&code=K7M4Q2`          | 1.5    | ✅                               |
-| PW-07d Too many wards · Register as an institution (modal) | `10052:3470`   | `…?F&modal=institution`                       | 3.5    | ✅                               |
-| PW-09 New ward linked automatically (modal over home)      | `10035:13112`  | `/parent?modal=ward-linked`                   | 4.3    | ✅                               |
-| PW-08c "Kwesi accepted your request" toast on My wards     | `10056:2958`   | **not built here** (see hand-off)             | —      | ⬜ belongs to the My wards page  |
-| PW-08b My wards · request declined / expired               | `10052:3090`   | **not built here** (see hand-off)             | —      | ⬜ belongs to the My wards page  |
+| Frame                                                      | Figma id       | URL                                           | Diff % | Status                                                          |
+| ---------------------------------------------------------- | -------------- | --------------------------------------------- | ------ | --------------------------------------------------------------- |
+| PD-01c Parent home, no linked ward (context)               | `10057:1108`   | `/parent?state=none` (home build, not redone) | —      | already built (parent-dashboard)                                |
+| PW-07 Link another ward · Search, "1 match"                | `10034:141501` | `/parent/link-ward?F`                         | 1.6    | ✅                                                              |
+| PW-07c No match found                                      | `10052:2534`   | `…?F&result=none`                             | 1.8    | ✅                                                              |
+| PW-08 Link request sent                                    | `10034:142187` | `…?step=sent`                                 | 1.5    | ✅                                                              |
+| PW-07b Link with a code (modal)                            | `10052:530`    | `…?F&modal=code&code=K7M4`                    | 3.2    | ✅                                                              |
+| PW-07e Code didn't work                                    | `10077:18651`  | `…?F&modal=code-error&code=K7M4Q2`            | 1.5    | ✅                                                              |
+| PW-07f Code has expired                                    | `10077:18999`  | `…?F&modal=code-expired&code=K7M4Q2`          | 1.5    | ✅                                                              |
+| PW-07d Too many wards · Register as an institution (modal) | `10052:3470`   | `…?F&modal=institution`                       | 3.5    | ✅                                                              |
+| PW-09 New ward linked automatically (modal over home)      | `10035:13112`  | `/parent?modal=ward-linked`                   | 4.3    | ✅                                                              |
+| PW-08c "Kwesi accepted your request" toast on My wards     | `10056:2958`   | `/parent/wards?toast=accepted`                | —      | ✅ toast + "3 wards" sidebar (2026-10-28, see parent-wiring.md) |
+| PW-08b My wards · request declined / expired               | `10052:3090`   | **not built here** (see hand-off)             | —      | ⬜ belongs to the My wards page                                 |
 
 Diff % is the whole-frame pixel difference against the Figma 0.5x export; the worst cells are the top bar (shell) and the dialog button rows (button text metrics). Every dialog was also compared by eye side by side.
 

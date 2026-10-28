@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import UnderlineTabs from '../../../ui/UnderlineTabs.jsx';
@@ -29,6 +30,7 @@ const WardShell = ({
   children,
 }) => {
   const [dismissed, setDismissed] = useState(null);
+  const navigate = useNavigate();
   const noticeOpen = notice === 'turning18' && Boolean(ward.turning18) && dismissed !== ward.id;
   log('render', { ward: ward.id, tab, notice, noticeOpen });
 
@@ -82,7 +84,13 @@ const WardShell = ({
             >
               Review profile
             </ParentButton>
-            <ParentButton variant="secondary" onClick={() => log('Evaluate:', ward.id)}>
+            <ParentButton
+              variant="secondary"
+              onClick={() => {
+                log('Evaluate:', ward.id);
+                navigate('/parent/evaluate');
+              }}
+            >
               Evaluate {ward.firstName}
             </ParentButton>
             <ParentButton

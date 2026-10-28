@@ -207,10 +207,12 @@ const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
             <ChatFileIcon className="size-4 text-content-secondary shrink-0 playful:size-[26px] playful:text-[#999]" />
             <span className="flex flex-col leading-tight">
               <span className="font-sans text-[12px] font-medium text-content-primary truncate max-w-[140px] playful:max-w-[80px] playful:text-[13px] playful:font-normal playful:leading-[15px] playful:text-[#2e2d2d]">
-                {playful ? pfFileLabel(message.file.name) : message.file.name}
+                {playful
+                  ? pfFileLabel(message.file.name)
+                  : (message.file.displayName ?? message.file.name)}
               </span>
               <span className="font-sans text-[10px] max-lg:text-[12px] text-content-tertiary playful:text-[12px] playful:leading-[15px] playful:text-[#999]">
-                {message.file.size}
+                {message.file.sizeLabel ?? message.file.size}
               </span>
             </span>
           </div>
@@ -432,6 +434,7 @@ const ChatThread = ({
   voiceTurns,
   afterMessages = null,
   alignTop = false,
+  placeholder,
   className,
 }) => {
   const playful = usePlayfulScope();
@@ -631,9 +634,11 @@ const ChatThread = ({
               placeholder={
                 trailingModeCards?.length
                   ? 'Curious about any of these?'
-                  : playful
-                    ? 'Write a message…'
-                    : 'Type Something...'
+                  : placeholder
+                    ? placeholder
+                    : playful
+                      ? 'Write a message…'
+                      : 'Type Something...'
               }
               className="flex-1 min-w-0 border-none outline-none font-sans text-[16px] tracking-[0.2px] text-content-primary placeholder:text-[#999] playful:text-[#1c2a21] playful:placeholder:text-[#999] disabled:opacity-50"
             />

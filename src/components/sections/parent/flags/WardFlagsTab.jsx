@@ -52,7 +52,7 @@ const WardFlagsTab = ({ ward, flags, onReview }) => {
               <StatusChip status={flag.status} />
               {flag.status === 'corrected' ? (
                 <ParentButton
-                  className="!rounded-[10px] !px-[18px] !py-[12px]"
+                  className="!rounded-[10px] !pr-[16px] !pl-[16px] [&&]:!pt-[11px] [&&]:!pb-[10px]"
                   onClick={() => {
                     log('review fix', { flag: flag.id });
                     onReview(flag);
@@ -70,13 +70,13 @@ const WardFlagsTab = ({ ward, flags, onReview }) => {
         aria-label={FLAGS_COPY.keyTitle}
         className={`flex w-full shrink-0 flex-col gap-[14px] p-[22px] min-[1280px]:w-[360px] ${CARD}`}
       >
-        <h3 className="m-0 font-sans text-[18px] leading-[21px] font-semibold text-[#1c2a21]">
+        <h3 className="m-0 font-sans text-[18px] leading-normal font-semibold text-[#1c2a21]">
           {FLAGS_COPY.keyTitle}
         </h3>
         {STATUS_KEY.map((row) => (
           <div key={row.status} className="flex flex-col items-start gap-[4px]">
             <StatusChip status={row.status} />
-            <span className="font-sans text-[12px] leading-[14px] text-[#575755]">
+            <span className="font-sans text-[12px] leading-normal text-[#575755]">
               {row.text.replace('Abena', ward.firstName)}
             </span>
           </div>

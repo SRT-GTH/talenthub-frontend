@@ -11,6 +11,8 @@ const TONES = {
   pending:
     'h-[32px] border border-solid border-[#e1eae2] bg-white px-[14px] text-[13px] text-[#595959]',
   opted: 'bg-[#f9ebea] px-[10px] py-[4px] text-[12px] text-[#c0392b]',
+  // Figma "Chip · Needs you" 10043:1757 (Notifications page): ink face, white label.
+  ink: 'h-[32px] border border-solid border-[#1c2a21] bg-[#1c2a21] px-[14px] text-[13px] text-white',
 };
 
 const StatusPill = ({ tone = 'active', className, children }) => (

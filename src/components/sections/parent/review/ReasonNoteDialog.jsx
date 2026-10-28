@@ -64,12 +64,12 @@ const ReasonNoteDialog = ({
     >
       <form onSubmit={submit} noValidate className="contents">
         <div className="flex items-start gap-[12px]">
-          <h2 className="m-0 min-w-0 flex-1 text-[24px] leading-[29px] font-semibold text-[#1c2a21]">
+          <h2 className="m-0 min-w-0 flex-1 text-[24px] leading-normal font-semibold text-[#1c2a21]">
             {title}
           </h2>
           <DialogCloseButton onClose={onClose} tone="green" />
         </div>
-        <p className="m-0 text-[14px] leading-[20px] text-[#575755]">{intro}</p>
+        <p className="m-0 text-[14px] leading-[1.45] text-[#575755]">{intro}</p>
 
         <div role="radiogroup" aria-label="Reason" className="flex flex-wrap gap-[8px]">
           {reasons.map((r) => {
@@ -106,7 +106,7 @@ const ReasonNoteDialog = ({
         />
 
         {info ? (
-          <div className="rounded-[14px] bg-neutral p-[14px] text-[12.5px] leading-[18px] font-medium text-[#575755] max-lg:text-[12px]">
+          <div className="rounded-[14px] bg-neutral p-[14px] text-[12.5px] leading-[1.45] font-medium text-[#575755] max-lg:text-[12px]">
             {info}
           </div>
         ) : null}

@@ -1,0 +1,18 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.99999 42.0002C6.99999 25.0002 21 10.0002 39 9.00023C57 8.00023 72 21.0002 71 40.0002C70 59.0002 56 72.0002 38 70.0002C21 68.0002 11 58.0002 8.99999 42.0002Z" fill="#E1EAE2"/>
+<path d="M7 42H15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path d="M31 37H21C18.7909 37 17 38.7909 17 41V47C17 49.2091 18.7909 51 21 51H31C33.2091 51 35 49.2091 35 47V41C35 38.7909 33.2091 37 31 37Z" fill="#1C2A21"/>
+<path d="M29 35H19C16.7909 35 15 36.7909 15 39V45C15 47.2091 16.7909 49 19 49H29C31.2091 49 33 47.2091 33 45V39C33 36.7909 31.2091 35 29 35Z" fill="#387440" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path d="M33 39H38M33 45H38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path d="M66 36H55C52.7909 36 51 37.7909 51 40V48C51 50.2091 52.7909 52 55 52H66C68.2091 52 70 50.2091 70 48V40C70 37.7909 68.2091 36 66 36Z" fill="#1C2A21"/>
+<path d="M64 34H53C50.7909 34 49 35.7909 49 38V46C49 48.2091 50.7909 50 53 50H64C66.2091 50 68 48.2091 68 46V38C68 35.7909 66.2091 34 64 34Z" fill="#F3C84B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path d="M55.5 39H55C54.4477 39 54 39.4477 54 40V44C54 44.5523 54.4477 45 55 45H55.5C56.0523 45 56.5 44.5523 56.5 44V40C56.5 39.4477 56.0523 39 55.5 39Z" fill="#1C2A21"/>
+<path d="M62 39H61.5C60.9477 39 60.5 39.4477 60.5 40V44C60.5 44.5523 60.9477 45 61.5 45H62C62.5523 45 63 44.5523 63 44V40C63 39.4477 62.5523 39 62 39Z" fill="#1C2A21"/>
+<path d="M68 42H74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path d="M43 29L40 35L44 38L41 44" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" stroke="#E8672A"/>
+<path d="M37 54L35 58M45 54L47 58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#C8951A"/>
+<path d="M63 12.5C63.54 16.46 63.54 16.46 67.5 17C63.54 17.54 63.54 17.54 63 21.5C62.46 17.54 62.46 17.54 58.5 17C62.46 16.46 62.46 16.46 63 12.5Z" fill="#C8951A"/>
+<path d="M16 20C16.36 22.64 16.36 22.64 19 23C16.36 23.36 16.36 23.36 16 26C15.64 23.36 15.64 23.36 13 23C15.64 22.64 15.64 22.64 16 20Z" fill="#387440"/>
+<path d="M11 65C13 62.3333 15 62.3333 17 65C19 67.6667 21 67.6667 23 65" stroke-width="1.5" stroke-linecap="round" stroke="#C8951A"/>
+<path d="M69.5 62C69.5 63.3807 68.3807 64.5 67 64.5C65.6193 64.5 64.5 63.3807 64.5 62C64.5 60.6193 65.6193 59.5 67 59.5C68.3807 59.5 69.5 60.6193 69.5 62Z" stroke-width="1.5" stroke="#C8951A"/>
+</svg>

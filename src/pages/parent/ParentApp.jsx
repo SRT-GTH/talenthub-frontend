@@ -16,6 +16,13 @@ const ParentReviewPage = lazy(() => import('./ParentReviewPage.jsx'));
 const ParentLinkWardPage = lazy(() => import('./ParentLinkWardPage.jsx'));
 // Help and guides (drawn behind the report dialogs of the Opt out and restore canvas, Figma 10057:1302).
 const ParentHelpPage = lazy(() => import('./ParentHelpPage.jsx'));
+// Notifications and milestones canvas (Figma 10057:67396): the page (PN-04) and a milestone shared with the parent (PN-03 / PN-03b).
+const ParentNotificationsPage = lazy(() => import('./ParentNotificationsPage.jsx'));
+const ParentMilestonePage = lazy(() => import('./ParentMilestonePage.jsx'));
+const ParentSettingsPage = lazy(() => import('./ParentSettingsPage.jsx'));
+const ParentHelpArticlePage = lazy(() => import('./ParentHelpArticlePage.jsx'));
+// Ward wallets canvas (Figma 10057:66889): the wallets page with approve, decline, limits, top-up and open-wallet dialogs.
+const ParentWalletsPage = lazy(() => import('./ParentWalletsPage.jsx'));
 
 /*
  * ParentApp — the /parent/* router (Theme: Parents, Figma file SCXc457vwiq6o7d9g4jVbh). Outside MainLayout, like /admin and /agency; the chrome is ParentFrame.
@@ -54,7 +61,12 @@ const ParentApp = () => (
       <Route path="evaluate/result" element={<ParentEvaluateResultPage />} />
       <Route path="review" element={<ParentReviewPage />} />
       <Route path="link-ward" element={<ParentLinkWardPage />} />
+      <Route path="wallets" element={<ParentWalletsPage />} />
       <Route path="help" element={<ParentHelpPage />} />
+      <Route path="notifications" element={<ParentNotificationsPage />} />
+      <Route path="notifications/milestone" element={<ParentMilestonePage />} />
+      <Route path="settings" element={<ParentSettingsPage />} />
+      <Route path="help/:topicId" element={<ParentHelpArticlePage />} />
       <Route path="*" element={<NotBuilt />} />
     </Routes>
   </Suspense>

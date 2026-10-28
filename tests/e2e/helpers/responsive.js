@@ -539,6 +539,30 @@ export const ROUTES = [
   '/parent/help?modal=report&who=abena&worry=contacted&note=A%20person%20asked%20her%20for%20her%20phone%20number%20in%20a%20club.',
   '/parent/help?modal=report-sent&about=abena',
   '/parent/link-ward',
+  // Ward wallets (wiki/parent-wallets.md)
+  '/parent/wallets',
+  '/parent/wallets?modal=approve',
+  '/parent/wallets?modal=approve-error',
+  '/parent/wallets?toast=approved',
+  '/parent/wallets?modal=decline',
+  '/parent/wallets?toast=declined',
+  '/parent/wallets?view=expired',
+  '/parent/wallets?modal=limits',
+  '/parent/wallets?toast=limits-saved',
+  '/parent/wallets?modal=topup',
+  '/parent/wallets?modal=topup-phone',
+  '/parent/wallets?toast=topup-done',
+  '/parent/wallets?modal=topup-error',
+  '/parent/wallets?modal=open-wallet',
+  '/parent/wallets?toast=elliot-open',
+  // Parent notifications and milestones (wiki/parent-notifications.md): bell panel, page + tabs, milestone shared with you, in-app notice
+  '/parent?notif=open',
+  '/parent/notifications',
+  '/parent/notifications?tab=approvals',
+  '/parent/notifications?tab=from-gth',
+  '/parent/notifications/milestone',
+  '/parent/notifications/milestone?toast=sent',
+  '/parent?notice=abena-joined',
 ];
 
 export const DEFAULT_WIDTHS = [320, 375, 768, 1024, 1440];
@@ -666,23 +690,32 @@ export const probe = ({ width }) => {
   //    Option cards with descriptions are longer than 32 chars and exempt.
   if (belowLg) {
     const wrapped = [];
-    for (const el of document.querySelectorAll('button, [role="button"]')) {
+    for (const el of document.querySelectorAll('button:not([role="radio"]), [role="button"]')) {
       const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!text || text.length > 32 || !visible(el)) continue;
       const range = document.createRange();
       range.selectNodeContents(el);
       const tops = new Set(Array.from(range.getClientRects()).map((r) => Math.round(r.top / 4)));
-      // multiple text lines => more than one distinct row of text boxes
-      const textRows = new Set();
+      // multiple text lines => more than one line of text boxes. Boxes share a line when one's vertical
+      // centre falls inside the other: a label next to a smaller chip text (e.g. "Abena" + "1 flag", 18px and
+      // 14px high, 2.8px apart) is ONE line; bucketing `top / 8` split such pairs whenever they straddled a bucket edge.
+      const lines = [];
       const walker2 = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       while (walker2.nextNode()) {
         const n = walker2.currentNode;
         if (!n.nodeValue.trim()) continue;
         const r2 = document.createRange();
         r2.selectNodeContents(n);
-        for (const rect of r2.getClientRects()) textRows.add(Math.round(rect.top / 4));
+        for (const rect of r2.getClientRects()) {
+          const cy = rect.top + rect.height / 2;
+          const line = lines.find((l) => cy >= l.top && cy <= l.bottom);
+          if (line) {
+            line.top = Math.min(line.top, rect.top);
+            line.bottom = Math.max(line.bottom, rect.bottom);
+          } else lines.push({ top: rect.top, bottom: rect.bottom });
+        }
       }
-      if (textRows.size > 1 && tops.size > 0) wrapped.push(`"${text}"`);
+      if (lines.length > 1 && tops.size > 0) wrapped.push(`"${text}"`);
     }
     if (wrapped.length)
       violations.push(`${wrapped.length} button labels wrap: ${wrapped.slice(0, 3).join(' | ')}`);

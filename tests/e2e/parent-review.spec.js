@@ -244,7 +244,7 @@ test.describe('To review: the flows behind the frames work', () => {
     await page.goto(`${REVIEW}?tab=certificates`);
     await page.getByRole('button', { name: 'Review' }).click();
     await page.getByRole('button', { name: 'Approve', exact: true }).click();
-    await expect(page.getByText('Certificate approved')).toBeVisible();
+    await expect(page.getByText('Certificate approved').first()).toBeVisible();
     await expect(page.getByText('3 waiting')).toBeVisible();
     await page.getByRole('button', { name: 'Undo' }).click();
     await expect(page.getByText('4 waiting')).toBeVisible();
@@ -268,7 +268,7 @@ test.describe('To review: the flows behind the frames work', () => {
     await page.getByRole('button', { name: 'Keep reviewing' }).click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.getByRole('button', { name: 'Approve · send to Elliot' }).click();
-    await expect(page.getByText('Sent to Elliot')).toBeVisible();
+    await expect(page.getByText('Sent to Elliot').first()).toBeVisible();
     await expect(page.getByText('3 waiting')).toBeVisible();
   });
 

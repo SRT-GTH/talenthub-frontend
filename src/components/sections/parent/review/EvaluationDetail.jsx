@@ -25,7 +25,7 @@ const EvaluationDetail = ({ onApprove, onHide }) => {
           {EVALUATION.initials}
         </span>
         <div className="flex min-w-0 flex-col gap-[2px] font-sans">
-          <h2 className="m-0 text-[22px] leading-[28px] font-semibold tracking-[-0.11px] text-[#1c2a21] max-sm:text-[20px]">
+          <h2 className="m-0 text-[22px] leading-[1.25] font-semibold tracking-[-0.11px] text-[#1c2a21] max-sm:text-[20px]">
             {EVALUATION.title}
           </h2>
           <p className="m-0 text-[13px] leading-[16px] text-[#575755] max-lg:text-[12px]">
@@ -43,7 +43,7 @@ const EvaluationDetail = ({ onApprove, onHide }) => {
         </div>
       ))}
 
-      <div className="flex flex-wrap items-center gap-[12px] pt-[8px]">
+      <div className="flex flex-wrap items-center gap-[12px]">
         <ParentButton onClick={onApprove}>{EVALUATION.approve}</ParentButton>
         <ParentButton
           variant="secondary"

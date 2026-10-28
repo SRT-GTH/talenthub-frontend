@@ -77,3 +77,16 @@ Sections B-E (same canvas):
 | `?state=turned18`                               | PE-06 `10034:150815`                                       |
 
 Flow: Start evaluation / Continue -> questions; Next on the last mock question -> `/parent/evaluate/result`. Assumptions: the blocked-word list is invented (Figma shows only `*****`); only the drawn question per set is from Figma, the second is a mock so Next / Back can be used; the PE-05 "Under review" rows open the PE-05c modal (no trigger drawn); PE-05b rows are all "On profile" (Figma's last two layers are misnamed).
+
+## Canvas 10 · Help and safety (node `10057:67418`) — built 2026-10-28
+
+Four frames. PH-01, PH-03 and PH-03b were already built by the opt-out flow ([parent-opt-out.md](parent-opt-out.md): `HelpGuides`, the report dialogs); this canvas has its own copies of those frames, which match. New here: PH-02.
+
+| URL                                                          | Figma frame                                                                                                                         |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `/parent/help`                                               | PH-01 `10043:1849` Help and guides                                                                                                  |
+| `/parent/help/opting-out`                                    | PH-02 `10053:3343` Help article · Opting out and privacy (crumb "Help and guides › Your controls", Related card, Was this helpful?) |
+| `/parent/help?modal=report&who=abena&worry=contacted&note=…` | PH-03 `10053:3719` Report a safety concern                                                                                          |
+| `/parent/help?modal=report-sent&about=abena`                 | PH-03b `10056:156954` Report sent                                                                                                   |
+
+Files: `help/HelpArticle.jsx`, `help/data/articleData.js`, page `src/pages/parent/ParentHelpArticlePage.jsx` (route `help/:topicId`); the "Opting out and privacy" card on `/parent/help` is now a link. The other five topics have no designed article (cards still log; `/parent/help/<other>` shows a "not designed yet" note). The Related links "Flagging your ward's profile" and "When your ward turns 18" only log; "Report a safety concern" opens PH-03. The Yes / Not really chips only toggle a selected look.

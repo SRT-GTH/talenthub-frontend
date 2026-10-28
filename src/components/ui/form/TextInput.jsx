@@ -156,6 +156,7 @@ const TextInput = ({
   helperTextClassName,
   forceAsterisk,
   asteriskClassName,
+  labelClassName,
   type = 'text',
   id,
   className,
@@ -210,6 +211,7 @@ const TextInput = ({
       labelTrailingClassName={labelTrailingClassName}
       forceAsterisk={forceAsterisk}
       asteriskClassName={asteriskClassName}
+      labelClassName={labelClassName}
       helperIcon={helperIcon}
       helperIconClassName={helperIconClassName}
       helperTextClassName={helperTextClassName}

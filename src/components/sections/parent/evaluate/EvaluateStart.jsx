@@ -98,7 +98,7 @@ const EvaluateStart = ({ resume = false }) => {
             aria-label="Continue where you left off"
             className={`${CARD} flex flex-col gap-[14px] overflow-clip p-[24px] shadow-[0_5px_17px_rgba(28,42,33,0.03)]`}
           >
-            <p className="m-0 font-sans text-[10px] leading-[normal] font-bold tracking-[0.8px] whitespace-nowrap text-[#387440] uppercase">
+            <p className="m-0 font-sans text-[10px] max-lg:text-[12px] leading-[normal] font-bold tracking-[0.8px] whitespace-nowrap text-[#387440] uppercase">
               {RESUME.eyebrow}
             </p>
             <div className="flex min-h-[70px] items-center gap-[14px] max-md:flex-wrap">

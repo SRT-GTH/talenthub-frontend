@@ -18,21 +18,21 @@ const InstitutionDialog = ({ onClose, onRegister }) => (
       <img src={spotSettings} alt="" aria-hidden="true" className="size-[80px] shrink-0" />
       <LinkDialogClose onClose={onClose} />
     </div>
-    <h2 className="m-0 mt-[4px] text-[24px] leading-[29px] font-semibold text-[#1c2a21]">
+    <h2 className="m-0 text-[24px] leading-normal font-semibold text-[#1c2a21]">
       {INSTITUTION_COPY.title}
     </h2>
-    <p className="m-0 text-[14px] leading-[20px] font-normal text-neutral-darker">
+    <p className="m-0 text-[14px] leading-[1.45] font-normal text-neutral-darker">
       {INSTITUTION_COPY.body}
     </p>
     <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[24px] bg-brand-green-light p-[18px]">
       {INSTITUTION_COPY.points.map((point) => (
         <li key={point} className="flex items-center gap-[10px]">
           <img src={checkIcon} alt="" aria-hidden="true" className="size-[18px] shrink-0" />
-          <span className="text-[13.5px] leading-[16px] font-medium text-[#1c2a21]">{point}</span>
+          <span className="text-[13.5px] leading-normal font-medium text-[#1c2a21]">{point}</span>
         </li>
       ))}
     </ul>
-    <div className="flex flex-wrap items-center justify-end gap-[12px] pt-[4px]">
+    <div className="flex flex-wrap items-center justify-end gap-[12px]">
       <ParentButton variant="secondary" onClick={onClose}>
         {INSTITUTION_COPY.keep}
       </ParentButton>

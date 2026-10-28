@@ -51,8 +51,8 @@ const LinkWardSearch = ({ link, onSend, onOpenCode }) => {
         />
       </div>
 
-      <div className="flex flex-col gap-[8px]">
-        <p className="m-0 font-sans text-[13px] leading-[16px] font-semibold text-neutral-darker">
+      <div className="flex flex-col gap-[14px]">
+        <p className="m-0 font-sans text-[13px] leading-normal font-semibold text-neutral-darker">
           {SEARCH_COPY.relationLabel}
         </p>
         <RelationChips

@@ -61,25 +61,28 @@ const FlagFieldDialog = ({ ward, mode = 'field', label, current, initial, onClos
             <h2
               className={`m-0 font-semibold text-[#1c2a21] ${
                 again
-                  ? 'text-[24px] leading-[29px]'
-                  : 'text-[26px] leading-[32px] tracking-[-0.13px]'
+                  ? 'text-[24px] leading-normal'
+                  : 'text-[26px] leading-[1.25] tracking-[-0.13px]'
               }`}
             >
               {title}
             </h2>
-            <p
-              className={`m-0 text-[#575755] ${again ? 'text-[14px] leading-[20px]' : 'text-[15px] leading-[18px]'}`}
-            >
-              {again ? FLAGS_COPY.again.intro(ward) : copy.intro(ward)}
-            </p>
+            {again ? null : (
+              <p className="m-0 text-[15px] leading-normal text-[#575755]">{copy.intro(ward)}</p>
+            )}
           </div>
           <DialogCloseButton onClose={onClose} tone={again ? 'green' : 'grey'} />
         </div>
+        {again ? (
+          <p className="m-0 text-[14px] leading-[1.45] text-[#575755]">
+            {FLAGS_COPY.again.intro(ward)}
+          </p>
+        ) : null}
 
         {!again && current ? (
           <div className="flex flex-col gap-[2px] rounded-[14px] bg-[#f8f8f4] p-[14px]">
-            <span className="text-[12px] leading-[14px] text-[#575755]">{copy.current}</span>
-            <span className="text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
+            <span className="text-[12px] leading-normal text-[#575755]">{copy.current}</span>
+            <span className="text-[15px] leading-normal font-semibold text-[#1c2a21]">
               {current}
             </span>
           </div>
@@ -89,7 +92,7 @@ const FlagFieldDialog = ({ ward, mode = 'field', label, current, initial, onClos
           {!again ? (
             <span
               id={`${inputId}-sev`}
-              className="text-[13px] leading-[16px] font-semibold text-[#575755] max-lg:text-[12px]"
+              className="text-[13px] leading-normal font-semibold text-[#575755] max-lg:text-[12px]"
             >
               {copy.severity}
             </span>
@@ -118,7 +121,7 @@ const FlagFieldDialog = ({ ward, mode = 'field', label, current, initial, onClos
         {!again ? (
           <div className="flex items-center gap-[8px] rounded-[12px] bg-[#ebf1ec] p-[12px]">
             <img src={eyeOffIcon} alt="" aria-hidden="true" className="h-[14px] w-4 shrink-0" />
-            <span className="text-[13px] leading-[16px] font-medium text-[#1c2a21] max-lg:text-[12px]">
+            <span className="text-[13px] leading-normal font-medium text-[#1c2a21] max-lg:text-[12px]">
               {copy.hidden}
             </span>
           </div>

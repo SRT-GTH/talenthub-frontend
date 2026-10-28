@@ -24,6 +24,7 @@ import ApplyGateModal from '../../components/sections/talentHome/ApplyGateModal.
 import CareerBuddyFirstChat from '../../components/sections/talentHome/CareerBuddyFirstChat.jsx';
 import TalentHomeLoading from '../../components/sections/talentHome/TalentHomeLoading.jsx';
 import AskBuddyFab from '../../components/sections/talentHome/AskBuddyFab.jsx';
+import SpaceBanner from '../../components/sections/talentHome/SpaceBanner.jsx';
 
 const log = debug('TalentHomePage');
 
@@ -74,6 +75,7 @@ const TalentHomePage = () => {
   return (
     <DashboardShell role="talent" talentHome={home}>
       <UiStyleScope enabled />
+      {home.persona ? <SpaceBanner persona={home.persona} /> : null}
       <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] px-[clamp(12px,1.4vw,24px)] py-[clamp(12px,1.2vw,20px)]">
         {renderBody()}
       </div>

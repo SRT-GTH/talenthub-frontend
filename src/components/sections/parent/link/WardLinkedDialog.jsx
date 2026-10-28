@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import LinkDialogShell, { LinkDialogClose } from './LinkDialogShell.jsx';
@@ -12,15 +13,16 @@ const log = debug('WardLinkedDialog');
  * ⚠️ ASSUMPTION: "Opt out" only logs and closes (the opt-out result belongs to the My wards flow); "See Elliot" goes to /parent/wards/elliot (the My wards session's ward page).
  */
 const WardLinkedDialog = ({ onClose, onOptOut }) => {
+  const navigate = useNavigate();
   const { ward } = WARD_LINKED;
   return (
     <LinkDialogShell label={WARD_LINKED.title} onClose={onClose} width={560} padding={32}>
       <div className="flex items-start justify-between gap-[12px]">
         <div className="flex min-w-0 flex-col gap-[6px]">
-          <h2 className="m-0 text-[26px] leading-[32px] font-semibold tracking-[-0.13px] text-[#1c2a21]">
+          <h2 className="m-0 text-[26px] leading-[1.25] font-semibold tracking-[-0.13px] text-[#1c2a21]">
             {WARD_LINKED.title}
           </h2>
-          <p className="m-0 text-[15px] leading-[18px] font-normal text-neutral-darker">
+          <p className="m-0 text-[15px] leading-normal font-normal text-neutral-darker">
             {WARD_LINKED.body}
           </p>
         </div>
@@ -35,25 +37,25 @@ const WardLinkedDialog = ({ onClose, onOptOut }) => {
           className="size-[40px] shrink-0 rounded-full object-cover"
         />
         <div className="flex min-w-[160px] flex-1 flex-col gap-[3px]">
-          <p className="m-0 text-[15px] leading-[18px] font-semibold text-[#1c2a21]">{ward.name}</p>
-          <p className="m-0 text-[13px] leading-[16px] font-normal text-neutral-darker">
+          <p className="m-0 text-[15px] leading-normal font-semibold text-[#1c2a21]">{ward.name}</p>
+          <p className="m-0 text-[13px] leading-normal font-normal text-neutral-darker">
             {ward.line}
           </p>
         </div>
-        <span className="inline-flex h-[32px] items-center rounded-full border border-solid border-brand-green-light-active bg-brand-green-light px-[14px] text-[13px] leading-[16px] font-semibold text-brand-green">
+        <span className="inline-flex h-[32px] items-center rounded-full border border-solid border-brand-green-light-active bg-brand-green-light px-[14px] text-[13px] leading-normal font-semibold text-brand-green">
           {ward.status}
         </span>
       </div>
-      <p className="m-0 text-[14px] leading-[17px] font-normal text-neutral-darker">
+      <p className="m-0 text-[14px] leading-normal font-normal text-neutral-darker">
         {WARD_LINKED.note}
       </p>
       <div className="flex flex-wrap items-center justify-end gap-[12px]">
         <ParentButton
           variant="secondary"
           onClick={() => {
-            log('opt out (no screen drawn)', { ward: ward.id });
+            log('opt out ->', ward.id);
             onOptOut?.();
-            onClose?.();
+            navigate(`/parent/wards/${ward.id}?modal=opt-out`); // PO-01, built in the Opt out flow
           }}
         >
           {WARD_LINKED.optOut}

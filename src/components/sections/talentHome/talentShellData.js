@@ -386,7 +386,8 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
 };
 
 /** Name / headline for the sidebar and phone nav (real when `live` is given). */
-export const getTalentProfile = (live = null) => {
+export const getTalentProfile = (live = null, persona = null) => {
+  if (persona) return { ...TALENT_PROFILE, ...persona.profile };
   if (!live) return TALENT_PROFILE;
   // Live data still loading and no stored name: show nothing rather than the demo person.
   if (!live.firstName) return { ...TALENT_PROFILE, name: '', headline: '', url: '', navName: '' };
@@ -401,20 +402,27 @@ export const getTalentProfile = (live = null) => {
 };
 
 /* Top nav counts (Nav 8315:461634: bell 5, messages 5; streak per state). */
-export const getTalentNavData = (stateKey = 'day1', live = null) =>
-  live
+export const getTalentNavData = (stateKey = 'day1', live = null, persona = null) =>
+  persona
     ? {
-        streakCount: '–',
-        notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
-        messageCount: '',
-        profileName: getTalentProfile(live).navName,
-      }
-    : {
-        streakCount: getTalentSidebarData(stateKey).streak,
+        streakCount: persona.nav.streakCount,
         notificationCount: '5',
         messageCount: '5',
-        profileName: TALENT_PROFILE.navName,
-      };
+        profileName: persona.profile.navName,
+      }
+    : live
+      ? {
+          streakCount: '–',
+          notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
+          messageCount: '',
+          profileName: getTalentProfile(live).navName,
+        }
+      : {
+          streakCount: getTalentSidebarData(stateKey).streak,
+          notificationCount: '5',
+          messageCount: '5',
+          profileName: TALENT_PROFILE.navName,
+        };
 
 /**
  * Where a rail / sidebar item with a `tab` goes: off /home, the bare tab URL; on /home, the same

@@ -78,3 +78,73 @@ html[data-parent-ui] .leading-normal,
 html[data-parent-ui] [class*='leading-[normal]'] {
   line-height: 1.19;
 }
+
+/*
+ * Parent dialogs and toasts: one swift motion shared by `ui/DialogCard` and `ui/ActionToast`.
+ * In: the scrim fades while the card rises 8px and settles from 97 % (200 ms, ease-out). Out: 140 ms ease-in, played on a non-interactive clone (`utils/ghostOut.js`) so every way of closing gets it.
+ * ⚠️ ASSUMPTION: Figma has no motion export for these; the timings are ours. Reduced motion: no movement.
+ */
+@keyframes gth-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes gth-scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes gth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+@keyframes gth-card-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes gth-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+@keyframes gth-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+.gth-scrim-in {
+  animation: gth-scrim-in 200ms ease-out;
+}
+.gth-scrim-out {
+  animation: gth-scrim-out 140ms ease-in forwards;
+}
+.gth-card-in {
+  animation: gth-card-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gth-card-out {
+  animation: gth-card-out 140ms ease-in forwards;
+}
+.gth-toast-in {
+  animation: gth-toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gth-toast-out {
+  animation: gth-toast-out 140ms ease-in forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gth-scrim-in,
+  .gth-card-in,
+  .gth-toast-in {
+    animation: none;
+  }
+  .gth-scrim-out,
+  .gth-card-out,
+  .gth-toast-out {
+    animation-duration: 1ms;
+  }
+}

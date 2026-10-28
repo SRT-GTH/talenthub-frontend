@@ -77,10 +77,10 @@ const WardInvitePanelContent = () => {
     <div className="flex w-full max-w-[320px] flex-col items-center text-center">
       {/* Heading — Figma 2864:36902 */}
       <h2
-        className="font-display font-normal"
-        style={{ fontSize: 34, color: '#ffffff', letterSpacing: '-0.8px', lineHeight: '36.72px' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 34, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: '41px' }}
       >
-        Supporting <span className="italic">Ghanaian talent</span> starts with you.
+        Supporting Ghanaian talent starts with you.
       </h2>
 
       {/* Subtitle — Figma 2864:36903 */}

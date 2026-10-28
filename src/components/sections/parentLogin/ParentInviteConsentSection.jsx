@@ -155,18 +155,15 @@ const ParentInviteConsentSection = () => {
               Step 6 of 7 — Consent &amp; Rights
             </span>
             <h1
-              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
+              className="font-heading font-semibold max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
                 letterSpacing: '-1.6px',
                 color: '#111',
-                lineHeight: 1.1,
+                lineHeight: 1.2,
               }}
             >
-              Understand your{' '}
-              <span className="italic" style={{ color: '#967014' }}>
-                parent rights.
-              </span>
+              Understand your <span style={{ color: '#967014' }}>parent rights.</span>
             </h1>
             <p
               className="max-w-[380px] font-sans max-md:leading-[18px]!"

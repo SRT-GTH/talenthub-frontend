@@ -72,6 +72,7 @@ const ParentRail = () => (
         <Button
           variant="primary"
           size="lg"
+          to="/parent/notifications/milestone"
           onClick={() => log('Send Abena a note')}
           rightIcon={<ArrowGlyph />}
         >
