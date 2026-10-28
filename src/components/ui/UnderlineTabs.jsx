@@ -7,6 +7,7 @@ import { classNames } from '../../utils/classNames.js';
  * Props: tabs [{ id, label, to?, onClick?, count?, showZero?, countTone? ('mint' default #ebf1ec | 'amber' #c8951a on white) }], activeId, label (the nav's accessible name), className.
  * A count of 0 is hidden unless the tab sets `showZero` (To review "all caught up" draws a "0" on every tab).
  * A tab with `to` is a router <Link> (aria-current on the active one); without it a <button> that calls `onClick` (tabs whose page is not designed yet only log).
+ * Heights as drawn (Figma 10057:648 ward page and 10057:913 To review, the same in both): an inactive tab is 40 high (pt10 + 18 label + pb12), the active one 43 because its 3px underline is added below.
  * The bar scrolls sideways inside itself on narrow screens with no visible scrollbar.
  * Used by parent/wards/WardShell (ward page) and parent/flags/ReviewCorrections (To review); it replaced three copy-pasted tab bars.
  */
@@ -22,7 +23,7 @@ const UnderlineTabs = ({ tabs, activeId, label, className }) => (
   <nav
     aria-label={label}
     className={classNames(
-      'flex gap-[4px] overflow-x-auto border-0 border-b border-solid border-[#e1eae2] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+      'flex items-start gap-[4px] overflow-x-auto border-0 border-b border-solid border-[#e1eae2] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
       className
     )}
   >
@@ -32,7 +33,7 @@ const UnderlineTabs = ({ tabs, activeId, label, className }) => (
         TAB_BASE,
         selected
           ? 'border-[#387440] font-semibold text-[#387440]'
-          : 'border-transparent font-medium text-[#737373]'
+          : '!border-b-0 font-medium text-[#737373]'
       );
       const inner = (
         <>

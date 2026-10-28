@@ -79,7 +79,7 @@ const Turning18Notice = ({ ward, onClose, onPrimary }) => {
             </li>
           ))}
         </ul>
-        <div className="flex flex-wrap items-center justify-end gap-[12px] py-[8px]">
+        <div className="flex flex-wrap items-center justify-end min-h-[71px] gap-[12px]">
           <ParentButton variant="secondary" onClick={onClose}>
             Got it
           </ParentButton>

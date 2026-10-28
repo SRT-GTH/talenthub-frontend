@@ -148,7 +148,13 @@ const QuestionScreen = ({
             </p>
           </div>
         ) : null}
-        <div className="w-full max-w-[435px] [&_.text-content-primary]:!text-[#1c2a21]">
+        <div
+          className={classNames(
+            'w-full max-w-[435px] [&_.text-content-primary]:!text-[#1c2a21]',
+            blocked &&
+              '[&_div:has(>input)]:!border-[1.5px] [&_div:has(>input)]:!border-[#c0392b] [&_div:has(>input)]:!shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)]'
+          )}
+        >
           <TextInput
             label={COPY.noteLabel}
             value={note}
@@ -158,7 +164,7 @@ const QuestionScreen = ({
             helperText={COPY.noteHelp(meta.ward)}
             helperIcon={<img src={alertIcon} alt="" className="size-full" />}
             helperTextClassName={blocked ? 'text-[#c0392b]' : 'text-[#575755]'}
-            inputClassName={blocked ? '!font-normal !text-[#c0392b]' : '!text-[#1c2a21]'}
+            inputClassName={blocked ? '!text-[#c0392b]' : '!text-[#1c2a21]'}
           />
         </div>
         <div className="flex w-full items-center justify-between gap-[16px] max-sm:flex-col max-sm:items-stretch">

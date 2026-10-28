@@ -87,7 +87,7 @@ const WardsAll = ({ onLink, hide = [] }) => {
       </div>
 
       <div className="flex flex-col gap-[20px]">
-        <ul className="m-0 flex list-none flex-col rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[8px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]">
+        <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[8px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]">
           {list.map((w, i) => (
             <WardRow key={w.id} ward={w} last={i === list.length - 1} />
           ))}
@@ -95,7 +95,7 @@ const WardsAll = ({ onLink, hide = [] }) => {
 
         <section
           aria-label="Ward statuses"
-          className="grid grid-cols-1 gap-[20px] rounded-[24px] bg-[#ebf1ec] p-[22px] lg:grid-cols-3 lg:gap-[clamp(24px,6.5vw,112px)]"
+          className="grid grid-cols-1 gap-[20px] rounded-[24px] bg-[#ebf1ec] p-[22px] lg:min-h-[100px] lg:grid-cols-3 lg:items-center lg:gap-[clamp(24px,6.5vw,112px)]"
         >
           {STATUS_LEGEND.map((s) => (
             <div key={s.id} className="flex flex-col items-start gap-[6px]">

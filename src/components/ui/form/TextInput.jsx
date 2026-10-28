@@ -165,6 +165,8 @@ const TextInput = ({
   // calendar-picker indicator in favour of a custom rightIcon button — see
   // AddEditWorkModal.jsx. Optional; omitting it changes nothing.
   inputClassName,
+  // Extra classes on the bordered box around the input (optional, 2026-10-28; omitting it changes nothing). The parent dialogs use it to match Figma's 51px field.
+  boxClassName,
   ref,
   ...inputProps
 }) => {
@@ -217,7 +219,8 @@ const TextInput = ({
         className={classNames(
           isXs ? WRAPPER_XS_BASE : isSm ? WRAPPER_SM_BASE : WRAPPER_BASE,
           hasInscription && WRAPPER_INSCRIPTION_CLASSES,
-          wrapperStateClasses
+          wrapperStateClasses,
+          boxClassName
         )}
       >
         {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}

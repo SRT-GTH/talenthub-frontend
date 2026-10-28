@@ -19,7 +19,7 @@ const ActivityTab = ({ ward }) => {
       <FilterChips items={d.filters} label="Filter activity" />
       {d.groups.map((g) => (
         <TabCard key={g.id} title={g.label} variant="label" id={`activity-${g.id}`}>
-          <ul className="m-0 flex list-none flex-col p-0">
+          <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
             {g.rows.map((r, i) => (
               <TabRow
                 key={r.id}

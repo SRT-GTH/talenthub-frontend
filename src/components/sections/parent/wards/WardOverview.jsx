@@ -96,7 +96,7 @@ const WardOverview = ({ ward, showSide = false }) => {
           </Link>
         </div>
 
-        <ul className={`m-0 flex list-none flex-col px-[22px] py-[8px] ${CARD}`}>
+        <ul className={`m-0 flex list-none flex-col gap-[16px] px-[22px] py-[8px] ${CARD}`}>
           {ward.activity.map((a, i) => (
             <li
               key={a.id}

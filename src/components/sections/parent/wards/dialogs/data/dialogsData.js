@@ -8,7 +8,7 @@
 export const DEFAULT_VISIBILITY = 'partners';
 
 const forms = (ward) => {
-  const her = ward?.pronoun === 'her';
+  const her = ward?.pronoun === 'her' || ward?.pronoun === 'she';
   return {
     subject: her ? 'She' : 'He',
     object: her ? 'her' : 'him',

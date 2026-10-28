@@ -40,7 +40,7 @@ const CrewTab = ({ ward }) => {
       <div className="flex min-w-0 flex-col gap-[20px] lg:flex-1">
         <FilterChips items={d.filters} label="Filter crew" />
         <TabCard title={d.crewLabel} variant="label" id="crew-list">
-          <ul className="m-0 flex list-none flex-col p-0">
+          <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
             {d.crew.map((p, i) => (
               <TabRow
                 key={p.id}
@@ -62,7 +62,7 @@ const CrewTab = ({ ward }) => {
           </ul>
         </TabCard>
         <TabCard title={d.waitingLabel} variant="label" id="crew-waiting">
-          <ul className="m-0 flex list-none flex-col p-0">
+          <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
             {d.waiting.map((p, i) => (
               <TabRow
                 key={p.id}
