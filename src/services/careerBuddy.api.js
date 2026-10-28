@@ -267,6 +267,45 @@ export const sendFeedback = async ({ entityId, message, rating, userMessage }) =
   }
 };
 
+/**
+ * Iteration 9 sec. 5: the details sheet for a search result without a page (career / elective / programme).
+ * GET /api/guidance/search/detail - scoped to the signed-in talent like search. Throws with `.status` on failure.
+ */
+export const fetchSearchDetail = async (type, code) => {
+  try {
+    const { data } = await api.get('/guidance/search/detail', { params: { type, code } });
+    return data?.data || data;
+  } catch (err) {
+    const e = new Error(err?.response?.data?.message || err?.message || 'detail failed');
+    e.status = err?.response?.status || null;
+    throw e;
+  }
+};
+
+/**
+ * Iteration 9 sec. 7: one tap on a search card (open / ask / details / why) - an implicit signal for the
+ * Iteration 8 feedback loop. Fire-and-forget: a failed write never interrupts the conversation.
+ */
+export const sendSignal = async ({ entityId, kind, card, query, messageId }) => {
+  if (!entityId || !card?.id || !card?.type) return;
+  try {
+    await fetch(`${AGENT_BASE}/career-buddy/signal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(await agentAuth()) },
+      body: JSON.stringify({
+        userId: entityId,
+        kind,
+        cardType: card.type,
+        cardId: String(card.code || card.id),
+        query: query || undefined,
+        messageId: messageId || undefined,
+      }),
+    });
+  } catch (err) {
+    log.error('signal failed', err?.message);
+  }
+};
+
 /** "Regenerate response": re-word a reply's prose (never re-runs the turn). */
 export const regenerateReply = async (text) => {
   const res = await fetch(`${AGENT_BASE}/career-buddy/rephrase`, {

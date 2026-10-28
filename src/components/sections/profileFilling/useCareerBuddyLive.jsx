@@ -9,6 +9,7 @@ import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import CareerPostCards from './careerExposure/CareerPostCards.jsx';
 import SearchResultCards from './search/SearchResultCards.jsx';
+import SearchDetailSheet from './search/SearchDetailSheet.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -35,6 +36,7 @@ import {
   currentFirstName,
   currentUserLabel,
   sendFeedback,
+  sendSignal,
   regenerateReply,
   fetchHistory,
   fetchAssessmentResults,
@@ -257,6 +259,8 @@ export function useCareerBuddyLive({
 
   // ---- screen state ----
   const [busy, setBusy] = useState(false);
+  // Iteration 9: the details sheet open for one search card ({ card, messageId }).
+  const [searchDetail, setSearchDetail] = useState(null);
   const [toast, setToast] = useState(null);
   const [profile, setProfile] = useState(null);
   const [journeyPct, setJourneyPct] = useState(null);
@@ -920,14 +924,54 @@ export function useCareerBuddyLive({
   // The match cards for a bot message with `opportunities` - the full screen and the Ask Buddy panel
   // (CareerBuddyFirstChat, `compact`) draw the same cards with the same Why this match? / View opportunity.
   // 2026-10-27: Career Buddy search results (gthSearch) as cards; "Ask Career Buddy" sends the card's question.
+  // Iteration 9: "View details" opens a sheet over the chat (career / elective / programme); every tap on a card is
+  // also an implicit signal (open / ask / details / why) for the feedback loop.
+  // The query: from the reply text, or (cards can sit in a later bubble than the text) the card's "why" line.
+  const searchQueryOf = (m, card) =>
+    /\bon GTH for "([^"]{2,100})"/.exec(m.text || '')?.[1] ||
+    /^Matches "([^"]{2,100})"/.exec(card?.why || '')?.[1] ||
+    null;
+  const cardSignal = (kind, card, m) =>
+    sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
   const renderSearchResults = (m, { compact = false } = {}) => (
-    <SearchResultCards
-      results={m.searchResults}
-      compact={compact}
-      disabled={busy}
-      onOpen={(card) => navigate(card.link)}
-      onAsk={(card) => runTurn(card.ask)}
-    />
+    <>
+      <SearchResultCards
+        results={m.searchResults}
+        compact={compact}
+        disabled={busy}
+        onOpen={(card) => {
+          cardSignal('search_open', card, m);
+          navigate(card.link);
+        }}
+        onAsk={(card) => {
+          cardSignal('search_ask', card, m);
+          runTurn(card.ask);
+        }}
+        onDetails={(card, opener) => {
+          cardSignal('search_details', card, m);
+          setSearchDetail({ card, messageId: m.id, opener });
+        }}
+        onWhy={(card) => cardSignal('search_why', card, m)}
+      />
+      {searchDetail && searchDetail.messageId === m.id ? (
+        <SearchDetailSheet
+          card={searchDetail.card}
+          returnFocusTo={searchDetail.opener}
+          disabled={busy}
+          onClose={() => setSearchDetail(null)}
+          onAsk={(card) => {
+            cardSignal('search_ask', card, m);
+            setSearchDetail(null);
+            runTurn(card.ask);
+          }}
+          onOpen={(card) => {
+            cardSignal('search_open', card, m);
+            setSearchDetail(null);
+            navigate(card.link);
+          }}
+        />
+      ) : null}
+    </>
   );
 
   const renderOpportunities = (m, { compact = false } = {}) => (
