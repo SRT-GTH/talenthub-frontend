@@ -931,6 +931,25 @@ export function useCareerBuddyLive({
     /\bon GTH for "([^"]{2,100})"/.exec(m.text || '')?.[1] ||
     /^Matches "([^"]{2,100})"/.exec(card?.why || '')?.[1] ||
     null;
+  // A card can carry the exact action for its question (an assessment: take_assessment + its type), so the
+  // classifier never has to guess which test was meant. Only that shape is accepted.
+  const askOptionsOf = (card) => {
+    const a = card?.askAction;
+    const type = a?.slots?.find((s) => s?.name === 'assessmentType')?.value;
+    const section = ['personality', 'psychometric'].includes(a?.section) ? a.section : null;
+    return a?.intent === 'take_assessment' &&
+      section &&
+      typeof type === 'string' &&
+      /^[a-z_]{2,40}$/.test(type)
+      ? {
+          chipAction: {
+            intent: 'take_assessment',
+            section,
+            slots: [{ name: 'assessmentType', value: type }],
+          },
+        }
+      : {};
+  };
   const cardSignal = (kind, card, m) =>
     sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
   const renderSearchResults = (m, { compact = false } = {}) => (
@@ -945,7 +964,7 @@ export function useCareerBuddyLive({
         }}
         onAsk={(card) => {
           cardSignal('search_ask', card, m);
-          runTurn(card.ask);
+          runTurn(card.ask, askOptionsOf(card));
         }}
         onDetails={(card, opener) => {
           cardSignal('search_details', card, m);
@@ -962,7 +981,7 @@ export function useCareerBuddyLive({
           onAsk={(card) => {
             cardSignal('search_ask', card, m);
             setSearchDetail(null);
-            runTurn(card.ask);
+            runTurn(card.ask, askOptionsOf(card));
           }}
           onOpen={(card) => {
             cardSignal('search_open', card, m);
