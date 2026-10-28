@@ -13,7 +13,8 @@ const log = debug('SearchResultCards');
  * an Open button for things with a page (post, job, course, community) or "Ask Career Buddy" for those without
  * (career, SHS programme, tertiary programme), and "Why this?" (where the words matched).
  * Props: results (agent searchResults cards), onOpen(card) (navigate to card.link), onAsk(card) (send card.ask),
- * disabled, compact (the narrow Ask Buddy panel on /home).
+ * onDetails(card) (Iteration 9: the details sheet for career / elective / programme), onWhy(card) ("Why this?"
+ * opened - a signal), disabled, compact (the narrow Ask Buddy panel on /home).
  * Every link comes from the server (app paths only); nothing here builds a URL from text.
  */
 const TYPE = {
@@ -50,13 +51,21 @@ const PILL =
 /** An app path only (starts with one slash): never an external or javascript: link. */
 const safePath = (link) => (typeof link === 'string' && /^\/(?![/\\])/.test(link) ? link : null);
 
-export const SearchResultCard = ({ card, onOpen, onAsk, disabled = false }) => {
+/** Types without a page of their own: Iteration 9 shows their details in a sheet over the chat. */
+const DETAIL_TYPES = ['career', 'elective', 'programme'];
+
+const LINK_BUTTON =
+  'min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-normal leading-[18px] tracking-[0.2px] text-[#f3c84b] underline disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f3c84b]';
+
+export const SearchResultCard = ({ card, onOpen, onAsk, onDetails, onWhy, disabled = false }) => {
   const [whyOpen, setWhyOpen] = useState(false);
   const whyId = `search-why-${useId()}`;
   const kind = TYPE[card.type] || TYPE.post;
   const mark = card.type === 'post' ? POST_MARK[card.subtype] || kind.mark : kind.mark;
   const snippet = extraSnippet(card.title, card.snippet);
   const link = safePath(card.link);
+  const hasDetails =
+    !link && DETAIL_TYPES.includes(card.type) && typeof card.code === 'string' && !!onDetails;
   const [lead, ...rest] = Array.isArray(card.facts) ? card.facts : [];
   return (
     <article
@@ -126,6 +135,15 @@ export const SearchResultCard = ({ card, onOpen, onAsk, disabled = false }) => {
             {kind.open || 'Open'}
             <OpportunityArrowRightIcon className="size-[20px] shrink-0 text-[#387440]" />
           </button>
+        ) : hasDetails ? (
+          <button
+            type="button"
+            onClick={(event) => onDetails?.(card, event.currentTarget)}
+            className="flex min-h-[35px] w-full cursor-pointer items-center justify-center gap-[6px] rounded-[10px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[12px] font-sans text-[14px] font-medium leading-[24px] tracking-[0.1px] text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f3c84b] playful:border-[#1c2a21]"
+          >
+            View details
+            <OpportunityArrowRightIcon className="size-[20px] shrink-0 text-[#387440]" />
+          </button>
         ) : card.ask ? (
           <button
             type="button"
@@ -137,13 +155,26 @@ export const SearchResultCard = ({ card, onOpen, onAsk, disabled = false }) => {
             <OpportunityArrowRightIcon className="size-[20px] shrink-0 text-[#387440]" />
           </button>
         ) : null}
+        {hasDetails && card.ask ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => onAsk?.(card)}
+            className={LINK_BUTTON}
+          >
+            Ask Career Buddy
+          </button>
+        ) : null}
         {card.why ? (
           <button
             type="button"
             aria-expanded={whyOpen}
             aria-controls={whyId}
-            onClick={() => setWhyOpen((v) => !v)}
-            className="min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] font-normal leading-[18px] tracking-[0.2px] text-[#f3c84b] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f3c84b]"
+            onClick={() => {
+              if (!whyOpen) onWhy?.(card);
+              setWhyOpen((v) => !v);
+            }}
+            className={LINK_BUTTON}
           >
             {whyOpen ? 'Hide why' : 'Why this?'}
           </button>
@@ -153,7 +184,15 @@ export const SearchResultCard = ({ card, onOpen, onAsk, disabled = false }) => {
   );
 };
 
-const SearchResultCards = ({ results, onOpen, onAsk, disabled = false, compact = false }) => {
+const SearchResultCards = ({
+  results,
+  onOpen,
+  onAsk,
+  onDetails,
+  onWhy,
+  disabled = false,
+  compact = false,
+}) => {
   if (!results?.length) return null;
   return (
     <div
@@ -180,6 +219,11 @@ const SearchResultCards = ({ results, onOpen, onAsk, disabled = false, compact =
               log('ask', c.type, c.id);
               onAsk?.(c);
             }}
+            onDetails={(c, opener) => {
+              log('details', c.type, c.id);
+              onDetails?.(c, opener);
+            }}
+            onWhy={onWhy}
           />
         ))}
       </div>
