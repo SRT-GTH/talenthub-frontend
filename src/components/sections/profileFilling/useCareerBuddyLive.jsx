@@ -8,6 +8,7 @@ import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import CareerPostCards from './careerExposure/CareerPostCards.jsx';
+import SearchResultCards from './search/SearchResultCards.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -918,6 +919,17 @@ export function useCareerBuddyLive({
 
   // The match cards for a bot message with `opportunities` - the full screen and the Ask Buddy panel
   // (CareerBuddyFirstChat, `compact`) draw the same cards with the same Why this match? / View opportunity.
+  // 2026-10-27: Career Buddy search results (gthSearch) as cards; "Ask Career Buddy" sends the card's question.
+  const renderSearchResults = (m, { compact = false } = {}) => (
+    <SearchResultCards
+      results={m.searchResults}
+      compact={compact}
+      disabled={busy}
+      onOpen={(card) => navigate(card.link)}
+      onAsk={(card) => runTurn(card.ask)}
+    />
+  );
+
   const renderOpportunities = (m, { compact = false } = {}) => (
     <>
       <OpportunityMatchCards
@@ -987,6 +999,17 @@ export function useCareerBuddyLive({
         ),
       };
     }
+    if (m.searchResults?.length) {
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            {renderSearchResults(m)}
+          </>
+        ),
+      };
+    }
     if (m.reviewSection) {
       const stage = stageForSection(m.reviewSection);
       out = {
@@ -1024,6 +1047,7 @@ export function useCareerBuddyLive({
     messages,
     enrichedMessages,
     renderOpportunities,
+    renderSearchResults,
     suggestedReplies: busy || reportPending ? [] : chips,
     busy,
     handleSend,

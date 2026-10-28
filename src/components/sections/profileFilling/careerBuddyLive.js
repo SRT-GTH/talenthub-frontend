@@ -14,6 +14,8 @@
  *                the talent's matched postings, drawn as the Figma match cards (opportunityMatchView below)
  *   careerPosts  [{ id, title, type: 'article'|'video'|'qa', authorName, community, communityUrl, career, why }]
  *                GTH posts about a career (career exposure), drawn as post cards (careerPostView below)
+ *   searchResults [{ type, id, title, snippet, facts, link, ask, why, score, subtype?, logo? }]
+ *                Career Buddy search (backend gthSearch.query), drawn by search/SearchResultCards.jsx
  *
  * ChatThread renders a bubble as `text`, then `bullets`, then `followUp`, so
  * blocks are packed into as few bubbles as that shape allows.
@@ -269,6 +271,10 @@ export function turnToBubbles(turn) {
     ? turn.careerPosts.filter((p) => p?.id && p?.title)
     : [];
   if (careerPosts.length) cur.careerPosts = careerPosts;
+  const searchResults = Array.isArray(turn?.searchResults)
+    ? turn.searchResults.filter((r) => r?.id && r?.title && r?.type)
+    : [];
+  if (searchResults.length) cur.searchResults = searchResults;
   const last = bubbles[bubbles.length - 1];
   last.meta = meta;
   last.showActions = true;

@@ -328,6 +328,9 @@ const CareerBuddyFirstChat = ({ home }) => {
               cards={
                 live && m.opportunities?.length ? (
                   L.renderOpportunities(m, { compact: true })
+                ) : live && m.searchResults?.length ? (
+                  // 2026-10-27: Career Buddy search results, as in the full Career Buddy.
+                  L.renderSearchResults(m, { compact: true })
                 ) : live && m.careerPosts?.length ? (
                   // 2026-10-27: GTH posts about a career, as in the full Career Buddy.
                   <CareerPostCards
