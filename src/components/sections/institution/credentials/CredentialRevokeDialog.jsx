@@ -18,7 +18,8 @@ const CredentialRevokeDialog = ({ credential, busy, onCorrected, onConfirm, onCl
   const [reason, setReason] = useState('');
   const first = credential.student.split(' ')[0];
   const approving = credential.status === 'revoking';
-  const title = credential.title.toLowerCase();
+  // Titles are names ("QA Career Fair 2026"): keep the school's own capitalisation.
+  const title = credential.title;
   const words = `${title} credential?`.split(' ');
   const last = words.pop();
 
