@@ -79,6 +79,19 @@ export const unlinkWard = async (wardId) =>
 export const linkWardWithCode = async ({ code, relationship }) =>
   unwrap(await api.post('/parent/link-with-code', { code, relationship }));
 
+/* Evaluate my child (started by the parent; parentDashboard evaluation actions). */
+export const fetchParentEvaluations = async () => unwrap(await api.get('/parent/evaluations'));
+export const fetchParentEvaluation = async (id) =>
+  unwrap(await api.get(`/parent/evaluations/${enc(id)}`));
+export const startParentEvaluation = async ({ wardId, kind }) =>
+  unwrap(await api.post('/parent/evaluations', { wardId, kind }));
+export const saveParentEvaluationDraft = async (id, answers) =>
+  unwrap(await api.put(`/parent/evaluations/${enc(id)}/draft`, { answers }));
+export const submitParentEvaluation = async (id) =>
+  unwrap(await api.post(`/parent/evaluations/${enc(id)}/submit`, {}));
+export const discardParentEvaluation = async (id) =>
+  unwrap(await api.post(`/parent/evaluations/${enc(id)}/discard`, {}));
+
 /** Talent side (Settings › Parent or guardian): a fresh 6-character code, valid 24 h. */
 export const createParentLinkCode = async () => unwrap(await api.post('/parent/link-code', {}));
 

@@ -15,6 +15,7 @@ const log = debug('SwitchSpaceMenu');
  * It opens beside the profile card: a portal at the card's right edge (card left + 212, top + 142 as drawn), closing on Esc or an outside click.
  * Props: anchorRef (the persona card), current ('parent' | 'career'), onClose, onSelect(space), offset ({ left, top } from the card: parent home 212 / 142, talent home 8 / 130 as TC-02 draws it),
  * parentChip (TC-02 shows "4 to review" on the Parent view row). A row for the space you are in only closes the menu.
+ * lines (live): { parent, career, photo } replace the Emma copy; photo null shows the parent glyph instead of her photo.
  */
 const SwitchSpaceMenu = ({
   anchorRef,
@@ -23,7 +24,12 @@ const SwitchSpaceMenu = ({
   onSelect,
   offset = { left: 212, top: 142 },
   parentChip,
+  lines,
 }) => {
+  const parentLine = lines ? lines.parent : SWITCH_MENU.parent.line;
+  const careerLine = lines ? lines.career : SWITCH_MENU.career.line;
+  const careerChip = lines ? null : SWITCH_MENU.career.chip;
+  const parentPhoto = lines ? lines.photo : emma;
   const ref = useRef(null);
   const [pos, setPos] = useState(null);
 
@@ -90,9 +96,19 @@ const SwitchSpaceMenu = ({
       <div className="flex flex-col">
         {row(
           'parent',
-          <img src={emma} alt="" className="size-[36px] shrink-0 rounded-full object-cover" />,
+          parentPhoto ? (
+            <img
+              src={parentPhoto}
+              alt=""
+              className="size-[36px] shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <span className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[#ebf1ec]">
+              <img src={shieldIcon} alt="" className="size-[18px]" />
+            </span>
+          ),
           SWITCH_MENU.parent.title,
-          SWITCH_MENU.parent.line,
+          parentLine,
           current === 'parent' ? (
             tick
           ) : parentChip ? (
@@ -107,14 +123,14 @@ const SwitchSpaceMenu = ({
             <img src={userIcon} alt="" className="size-[18px]" />
           </span>,
           SWITCH_MENU.career.title,
-          SWITCH_MENU.career.line,
+          careerLine,
           current === 'career' ? (
             tick
-          ) : (
+          ) : careerChip ? (
             <span className="inline-flex h-[32px] items-center rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[14px] text-[13px] leading-[16px] font-semibold text-[#387440]">
-              {SWITCH_MENU.career.chip}
+              {careerChip}
             </span>
-          )
+          ) : null
         )}
       </div>
       <span className="h-px w-full bg-[#e7e7e7]" aria-hidden="true" />

@@ -1,15 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
-import { homePathFor } from '../../../services/auth.api.js';
+import { homePathFor, logout } from '../../../services/auth.api.js';
+import { serverLogout } from '../../../services/settings.api.js';
 import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
-import { useParentMe } from './live/parentLive.js';
+import { resetParentLive, useParentMe } from './live/parentLive.js';
+import useParentChrome from './live/useParentChrome.js';
+import { startCareerSpace, switchSpace, useSpaces } from '../../../services/spaces.api.js';
+import { parentError } from '../../../services/parent.api.js';
+import ParentToast from './wards/dialogs/ParentToast.jsx';
+import { useParentNotifications } from './live/parentNotifications.js';
 import AskBuddyFabButton from '../../ui/AskBuddyFabButton.jsx';
 import ParentRailCollapsed from './ParentRailCollapsed.jsx';
 import ParentSidebar from './ParentSidebar.jsx';
 import ParentTopBar from './ParentTopBar.jsx';
 import CareerProfileDialog from './switch/CareerProfileDialog.jsx';
 import SwitchSpaceMenu from './switch/SwitchSpaceMenu.jsx';
+import ParentAccountMenu from './switch/ParentAccountMenu.jsx';
 import ParentBuddyPanel from './buddy/ParentBuddyPanel.jsx';
 import { PHASE_IDS } from './buddy/buddyData.js';
 import NotificationsPanel from './notifications/NotificationsPanel.jsx';
@@ -48,14 +55,50 @@ const ParentFrame = ({
       navigate(homePathFor(user), { replace: true });
     }
   }, [me.live, me.code, navigate]);
+  // Spaces (parent <-> my career): live switching goes through the account's roles (services/spaces.api.js).
+  const spaces = useSpaces();
+  const notif = useParentNotifications();
+  const [switchError, setSwitchError] = useState(null);
+  const [switching, setSwitching] = useState(false);
   const career = me.live
-    ? me.data?.parent?.hasCareerProfile
+    ? spaces.talent || me.data?.parent?.hasCareerProfile
       ? 'talent'
       : 'none'
     : params.get('career') === 'none'
       ? 'none'
       : 'talent';
+  // Live: switch the account to its talent role, then open the talent home fresh (every screen reads the new role).
+  const goToCareer = async (create = false) => {
+    if (!me.live) {
+      navigate(create ? '/home?as=emma&new=welcome' : '/home?as=emma');
+      return;
+    }
+    if (switching) return;
+    setSwitching(true);
+    try {
+      if (create) await startCareerSpace();
+      else if (spaces.talent) await switchSpace(spaces.talent.entityId);
+      else throw new Error('No career profile on this account yet.');
+      log('switched to my career');
+      window.location.assign('/home');
+    } catch (err) {
+      setSwitching(false);
+      setSwitchError(parentError(err, 'Could not switch. Try again.'));
+    }
+  };
   const menuOpen = params.get('menu') === 'switch' && career === 'talent';
+  // The profile chip's account menu (`?menu=account`): spaces, settings, help, log out — at every width.
+  const accountOpen = params.get('menu') === 'account';
+  const chrome = useParentChrome();
+  const signOut = async () => {
+    log('log out');
+    if (me.live) {
+      await serverLogout().catch(() => {});
+      logout();
+      resetParentLive();
+    }
+    window.location.assign('/login');
+  };
   const careerDialog = params.get('modal') === 'career-profile';
   // Ask Buddy (Figma canvas 13): `?buddy=open` or a reply-in-progress state (thinking | working | writing | slow | stopped) opens the panel on any parent page.
   const buddyParam = params.get('buddy');
@@ -123,14 +166,16 @@ const ParentFrame = ({
       </div>
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
         <ParentTopBar
-          // Live: no counts until the notifications and messages are wired (no invented numbers).
-          bell={me.live ? bell || '' : bell}
-          messages={me.live ? messages || '' : messages}
+          // Live: the real unread count; no messages count for parents (no parent inbox yet).
+          bell={me.live ? (notif.unread ? String(Math.min(notif.unread, 99)) : '') : bell}
+          messages={me.live ? '' : messages}
           onBell={toggleNotif}
           bellOpen={panelOpen}
           onSwitchSpace={
             career === 'talent' ? () => setParam('menu', menuOpen ? '' : 'switch') : undefined
           }
+          onAccount={() => setParam('menu', accountOpen ? '' : 'account')}
+          accountOpen={accountOpen}
         />
         {panelOpen ? (
           <NotificationsPanel
@@ -158,6 +203,7 @@ const ParentFrame = ({
                 cardRef={cardRef}
                 onSwitch={() => setParam('menu', menuOpen ? '' : 'switch')}
                 onBuildCareer={() => setParam('modal', 'career-profile')}
+                onCareer={me.live ? () => goToCareer(false) : undefined}
                 className={
                   dimSidebar ? 'pointer-events-none opacity-35 max-lg:hidden' : 'max-lg:hidden'
                 }
@@ -180,13 +226,47 @@ const ParentFrame = ({
           anchorRef={cardRef}
           current="parent"
           onClose={() => setParam('menu', '')}
-          onSelect={() => navigate('/home?as=emma')}
+          onSelect={() => goToCareer(false)}
+          lines={
+            me.live
+              ? {
+                  parent: `${me.data?.counts?.wards ?? 0} ward${me.data?.counts?.wards === 1 ? '' : 's'} linked`,
+                  career: 'Your own profile, learning and matches',
+                  photo: null,
+                }
+              : undefined
+          }
+        />
+      ) : null}
+      {accountOpen ? (
+        <ParentAccountMenu
+          name={chrome.parent.name || chrome.parent.short}
+          detail={chrome.live ? chrome.sidebar.role : 'Parent'}
+          photo={chrome.parent.photo}
+          career={career}
+          busy={switching}
+          onClose={() => setParam('menu', '')}
+          onCareer={() => goToCareer(false)}
+          onBuildCareer={() =>
+            setParams(
+              (prev) => {
+                const next = new URLSearchParams(prev);
+                next.delete('menu');
+                next.set('modal', 'career-profile');
+                return next;
+              },
+              { replace: true }
+            )
+          }
+          onSettings={() => navigate('/parent/settings')}
+          onHelp={() => navigate('/parent/help')}
+          onLogout={signOut}
         />
       ) : null}
       {careerDialog ? (
         <CareerProfileDialog
           onClose={() => setParam('modal', '')}
-          onStart={() => navigate('/home?as=emma&new=welcome')}
+          onStart={() => goToCareer(true)}
         />
       ) : null}
       {buddy ? (
@@ -194,6 +274,13 @@ const ParentFrame = ({
           phase={buddy}
           onPhase={(next) => setParam('buddy', next)}
           onClose={() => setParam('buddy', '')}
+        />
+      ) : null}
+      {switchError ? (
+        <ParentToast
+          message="Couldn’t switch spaces"
+          detail={switchError}
+          onClose={() => setSwitchError(null)}
         />
       ) : null}
       <AskBuddyFabButton

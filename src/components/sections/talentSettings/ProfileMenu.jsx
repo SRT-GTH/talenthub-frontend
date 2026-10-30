@@ -2,6 +2,7 @@ import { savePreferences } from '../../../services/settings.api.js';
 import { invalidateAccountOverview, useAccountOverview } from './useLiveSettings.js';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { switchSpace, useSpaces } from '../../../services/spaces.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -201,6 +202,22 @@ const ProfileMenu = ({ settings }) => {
         { ...ACCOUNT, ...storedAccount(), photo: null, langId: 'en' };
   const cardRef = useRef(null);
   const rootRef = useRef(null);
+  // An account that is also a parent: "Switch to Parent view" (live only; the phone has no sidebar card for it).
+  const spaces = useSpaces();
+  const parentSpace = !settings.demo ? spaces.parent : null;
+  const [switching, setSwitching] = useState(false);
+  const toParent = async () => {
+    if (switching || !parentSpace) return;
+    setSwitching(true);
+    try {
+      await switchSpace(parentSpace.entityId);
+      log('switched to parent view');
+      window.location.assign('/parent');
+    } catch (err) {
+      log('switch to parent failed', err?.message);
+      setSwitching(false);
+    }
+  };
   const languageOpen = settings.menu === 'language';
   const [hot, setHot] = useState(languageOpen ? 'language' : 'settings');
 
@@ -385,6 +402,20 @@ const ProfileMenu = ({ settings }) => {
             ) : null}
           </div>
         </div>
+
+        {parentSpace ? (
+          <>
+            <div className="flex w-full shrink-0 flex-col items-start gap-[6px]">
+              {item('parent-view', {
+                icon: <ProfileMenuUserIcon className="size-[20px]" />,
+                label: switching ? 'Switching…' : 'Switch to Parent view',
+                chevron: true,
+                onActivate: toParent,
+              })}
+            </div>
+            <Divider />
+          </>
+        ) : null}
 
         <div className="flex w-full shrink-0 flex-col items-start gap-[6px]">
           {item('profile', {

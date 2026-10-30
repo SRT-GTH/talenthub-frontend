@@ -54,10 +54,14 @@ const ParentTopBar = ({
   onBell,
   bellOpen = false,
   onSwitchSpace,
+  onAccount,
+  accountOpen = false,
 }) => {
   const navigate = useNavigate();
   const chrome = useParentChrome();
   const name = nameProp || chrome.parent.short;
+  // Live: the parent's own photo (or initials); the frames keep the drawn avatar.
+  const chipPhoto = chrome.live ? chrome.parent.photo : avatar;
   return (
     <header className="relative z-20 flex h-[87px] shrink-0 items-center justify-between gap-[16px] border-b border-solid border-[#e7e7e7] bg-white px-[clamp(16px,3.24vw,56px)] py-[12px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]">
       <div className="flex min-w-0 items-center gap-[clamp(12px,1.97vw,34px)]">
@@ -132,16 +136,26 @@ const ParentTopBar = ({
         </div>
         <button
           type="button"
-          onClick={() => log('profile menu')}
+          onClick={() => {
+            log('profile menu', accountOpen ? 'close' : 'open');
+            onAccount?.();
+          }}
+          data-account-chip=""
+          aria-haspopup="menu"
+          aria-expanded={accountOpen}
           aria-label={`Account menu, ${name}`}
           className="flex cursor-pointer items-center gap-[7px] rounded-[10px] border border-solid border-[#c1d4c4] bg-[#fffefc] px-[16px] py-[8px] max-sm:px-[10px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <span className="relative block size-[24px] shrink-0 overflow-clip rounded-[12px] bg-[#387440]">
-            <img
-              src={avatar}
-              alt=""
-              className="absolute bottom-[-3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2"
-            />
+            {chrome.live ? (
+              <img src={chipPhoto} alt="" className="size-full object-cover" />
+            ) : (
+              <img
+                src={avatar}
+                alt=""
+                className="absolute bottom-[-3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2"
+              />
+            )}
           </span>
           <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] whitespace-nowrap text-[#1c2a21] max-sm:hidden">
             {name}

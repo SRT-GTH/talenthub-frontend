@@ -4,6 +4,8 @@ import { debug } from '../../utils/debug.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import QuestionScreen from '../../components/sections/parent/evaluate/questions/QuestionScreen.jsx';
 import DiscardDialog from '../../components/sections/parent/evaluate/questions/DiscardDialog.jsx';
+import LiveEvaluation from '../../components/sections/parent/evaluate/questions/LiveEvaluation.jsx';
+import { useParentLiveMode } from '../../components/sections/parent/live/parentLive.js';
 import {
   BLOCKED_NOTE,
   QUESTIONS,
@@ -31,7 +33,16 @@ const initial = (set, state) => {
   };
 };
 
+// Live (signed in, ?id=<evaluation>): the real evaluation (LiveEvaluation). Without an id the frames below still render.
 const ParentEvaluateQuestionPage = () => {
+  const [params] = useSearchParams();
+  const live = useParentLiveMode();
+  const liveId = live ? params.get('id') : null;
+  if (liveId) return <LiveEvaluation id={liveId} />;
+  return <DemoQuestions />;
+};
+
+const DemoQuestions = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const state = params.get('state') ?? 'general';

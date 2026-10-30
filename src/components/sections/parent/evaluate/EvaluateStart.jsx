@@ -8,7 +8,7 @@ import {
   EVALUATE_TITLE,
   EVAL_TYPES,
   EVAL_WARDS,
-  RESUME,
+  RESUME as MOCK_RESUME,
 } from './data/evaluateData.js';
 
 const log = debug('EvaluateStart');
@@ -75,11 +75,20 @@ const arrowSelect = (items, current, set) => (e) => {
   e.currentTarget.querySelectorAll('[role=radio]')[items.indexOf(next)]?.focus();
 };
 
-const EvaluateStart = ({ resume = false }) => {
+/*
+ * Live (signed in) `live` = { wards: [{ id, name, age, photo }], types (EVAL_TYPES shape with real question counts),
+ *   resume: { title, progress, done, total, ward (photo), note } | null, onStart(wardId, type), onContinue(), onDiscard(),
+ *   busy, error }: the parent's wards under 18, their open draft and real start / continue / discard.
+ */
+const EvaluateStart = ({ resume: resumeProp = false, live = null }) => {
   const navigate = useNavigate();
-  const [ward, setWard] = useState('abena');
+  const wards = live ? live.wards : EVAL_WARDS;
+  const types = live ? live.types : EVAL_TYPES;
+  const RESUME = live ? live.resume || MOCK_RESUME : MOCK_RESUME;
+  const resume = live ? Boolean(live.resume) : resumeProp;
+  const [ward, setWard] = useState(live ? wards[0]?.id : 'abena');
   const [type, setType] = useState('general');
-  const pct = Math.round((RESUME.done / RESUME.total) * 100);
+  const pct = Math.round((RESUME.done / Math.max(1, RESUME.total)) * 100);
 
   return (
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
@@ -131,14 +140,17 @@ const EvaluateStart = ({ resume = false }) => {
               </div>
               <ParentButton
                 variant="secondary"
-                onClick={() => log('discard (confirm is the next section)')}
+                onClick={() =>
+                  live ? live.onDiscard() : log('discard (confirm is the next section)')
+                }
               >
                 Discard
               </ParentButton>
               <ParentButton
                 onClick={() => {
                   log('continue evaluation');
-                  navigate('/parent/evaluate/questions');
+                  if (live) live.onContinue();
+                  else navigate('/parent/evaluate/questions');
                 }}
               >
                 Continue
@@ -160,10 +172,10 @@ const EvaluateStart = ({ resume = false }) => {
           <div
             role="radiogroup"
             aria-labelledby="eval-who"
-            onKeyDown={arrowSelect(EVAL_WARDS, ward, setWard)}
+            onKeyDown={arrowSelect(wards, ward, setWard)}
             className="flex flex-wrap items-start gap-[12px]"
           >
-            {EVAL_WARDS.map((w) => (
+            {wards.map((w) => (
               <WardOption
                 key={w.id}
                 ward={w}
@@ -178,10 +190,10 @@ const EvaluateStart = ({ resume = false }) => {
           <div
             role="radiogroup"
             aria-labelledby="eval-kind"
-            onKeyDown={arrowSelect(EVAL_TYPES, type, setType)}
+            onKeyDown={arrowSelect(types, type, setType)}
             className="flex w-full flex-col gap-[10px]"
           >
-            {EVAL_TYPES.map((t) => (
+            {types.map((t) => (
               <TypeOption
                 key={t.id}
                 type={t}
@@ -190,10 +202,20 @@ const EvaluateStart = ({ resume = false }) => {
               />
             ))}
           </div>
+          {live?.error ? (
+            <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#c0392b]">
+              {live.error}
+            </p>
+          ) : null}
           <div>
             <ParentButton
+              disabled={live ? live.busy || !ward : undefined}
               onClick={() => {
                 log('start evaluation', { ward, type });
+                if (live) {
+                  live.onStart(ward, type);
+                  return;
+                }
                 navigate(
                   `/parent/evaluate/questions?state=${type === 'academic' || ward === 'elliot' ? 'academic' : 'general'}`
                 );

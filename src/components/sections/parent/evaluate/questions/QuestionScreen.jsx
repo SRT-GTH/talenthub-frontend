@@ -51,8 +51,13 @@ const Option = ({ label, selected, invalid, onSelect, tabIndex, refCb }) => (
   </button>
 );
 
+/*
+ * Live props: meta ({ ward, label, total } instead of SET_META[set]), nextLabel ("Send evaluation" on the last
+ * question), savedText, busy. A question with no options is open text: the box is the answer (up to 1000 characters).
+ */
 const QuestionScreen = ({
   set = 'general',
+  meta: metaProp,
   question,
   answer,
   note,
@@ -62,8 +67,12 @@ const QuestionScreen = ({
   onBack,
   onNext,
   onDiscard,
+  nextLabel,
+  savedText,
+  busy = false,
 }) => {
-  const meta = SET_META[set];
+  const meta = metaProp || SET_META[set];
+  const openText = question.options.length === 0;
   const refs = useRef([]);
   const blocked = hasBlockedWord(note);
   const pct = (question.number / meta.total) * 100;
@@ -119,27 +128,29 @@ const QuestionScreen = ({
         >
           {question.text}
         </h2>
-        <div
-          role="radiogroup"
-          aria-labelledby="eval-question"
-          aria-invalid={invalid || undefined}
-          onKeyDown={onKeyDown}
-          className="flex w-full flex-col gap-[20px]"
-        >
-          {question.options.map((label, i) => (
-            <Option
-              key={label}
-              label={label}
-              selected={answer === i}
-              invalid={invalid}
-              tabIndex={answer === i || (answer == null && i === 0) ? 0 : -1}
-              refCb={(el) => {
-                refs.current[i] = el;
-              }}
-              onSelect={() => onAnswer(i)}
-            />
-          ))}
-        </div>
+        {openText ? null : (
+          <div
+            role="radiogroup"
+            aria-labelledby="eval-question"
+            aria-invalid={invalid || undefined}
+            onKeyDown={onKeyDown}
+            className="flex w-full flex-col gap-[20px]"
+          >
+            {question.options.map((label, i) => (
+              <Option
+                key={label}
+                label={label}
+                selected={answer === i}
+                invalid={invalid}
+                tabIndex={answer === i || (answer == null && i === 0) ? 0 : -1}
+                refCb={(el) => {
+                  refs.current[i] = el;
+                }}
+                onSelect={() => onAnswer(i)}
+              />
+            ))}
+          </div>
+        )}
         {invalid ? (
           <div role="alert" className="flex items-center gap-[8px]">
             <img src={warningIcon} alt="" aria-hidden="true" className="size-[16px] shrink-0" />
@@ -156,9 +167,9 @@ const QuestionScreen = ({
           )}
         >
           <TextInput
-            label={COPY.noteLabel}
+            label={openText ? 'Your answer (optional)' : COPY.noteLabel}
             value={note}
-            maxLength={NOTE_MAX}
+            maxLength={openText ? 1000 : NOTE_MAX}
             onChange={(e) => onNote(e.target.value)}
             error={blocked ? COPY.noteBlocked(meta.ward) : undefined}
             helperText={COPY.noteHelp(meta.ward)}
@@ -169,7 +180,7 @@ const QuestionScreen = ({
         </div>
         <div className="flex w-full items-center justify-between gap-[16px] max-sm:flex-col max-sm:items-stretch">
           <p className="m-0 font-sans text-[13px] leading-[normal] text-[#575755]">
-            {COPY.saved} ·{' '}
+            {savedText ?? COPY.saved} ·{' '}
             <button
               type="button"
               onClick={onDiscard}
@@ -182,8 +193,8 @@ const QuestionScreen = ({
             <ParentButton variant="secondary" onClick={onBack}>
               {COPY.back}
             </ParentButton>
-            <ParentButton onClick={onNext} disabled={blocked}>
-              {COPY.next}
+            <ParentButton onClick={onNext} disabled={blocked || busy}>
+              {nextLabel || COPY.next}
             </ParentButton>
           </div>
         </div>

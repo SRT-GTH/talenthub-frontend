@@ -1,7 +1,7 @@
 import { debug } from '../../../../../utils/debug.js';
 import ParentButton from '../../ParentButton.jsx';
 import spotEvaluations from '../../../../../assets/parent/eval-spot-evaluations.svg';
-import { SUBMITTED } from './data/resultsData.js';
+import { SUBMITTED as MOCK } from './data/resultsData.js';
 
 const log = debug('SubmittedScreen');
 
@@ -10,8 +10,10 @@ const log = debug('SubmittedScreen');
  * one card (r24, p22, gap 14): Spot · Evaluations 80, "Your key observations" 20/600, four #f8f8f4 r14 rows (label 13/600 #575755, text 15 #1c2a21), "Evaluate Elliot next" + "Back to Home".
  * ⚠️ ASSUMPTION: "Evaluate Elliot next" goes to /parent/evaluate (start screen); "Back to Home" goes to /parent.
  */
-const SubmittedScreen = () => {
-  log('render');
+// `content` (live) replaces the SUBMITTED copy: { title, pill, sub, heading, observations, next, home }.
+const SubmittedScreen = ({ content }) => {
+  const SUBMITTED = content || MOCK;
+  log('render', { live: Boolean(content) });
   return (
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
       <div className="flex flex-col gap-[3px]">

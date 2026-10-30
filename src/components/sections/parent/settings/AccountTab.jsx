@@ -5,6 +5,8 @@ import Button from '../../../ui/Button.jsx';
 import ParentButton from '../ParentButton.jsx';
 import ParentTextField from '../ParentTextField.jsx';
 import { ACCOUNT } from './data/settingsData.js';
+import useParentChrome from '../live/useParentChrome.js';
+import { useSpaces } from '../../../../services/spaces.api.js';
 
 const log = debug('SettingsAccountTab');
 
@@ -13,10 +15,33 @@ const log = debug('SettingsAccountTab');
  * parent role with a "Your roles" link, and the profile photo), then Cancel / Save changes. Built on the talent Settings pieces (GroupCard, SettingRow).
  * Props: onRoles (the "Your roles" link). Cancel restores the drawn values; Save only logs (mock data, no backend).
  */
-const initial = () => Object.fromEntries(ACCOUNT.fields.map((f) => [f.id, f.value]));
+const mockInitial = () => Object.fromEntries(ACCOUNT.fields.map((f) => [f.id, f.value]));
 
-const AccountTab = ({ onRoles }) => {
+// Live (`live` = { account, save(values) -> Promise }): the parent's real details (GET /settings/overview); Save sends
+// name, phone, region and city (PUT /settings/account). Email and date of birth are shown but not editable here.
+const liveInitial = (a = {}) => ({
+  fullName: [a.firstName, a.lastName].filter(Boolean).join(' '),
+  email: a.email || '',
+  phone: a.phoneNumber || '',
+  dob: a.dateOfBirth ? new Date(a.dateOfBirth).toLocaleDateString('en-GB') : '',
+  region: a.region || '',
+  city: a.city || '',
+});
+const READ_ONLY = ['email', 'dob'];
+
+const AccountTab = ({ onRoles, live = null }) => {
+  const initial = () => (live ? liveInitial(live.account) : mockInitial());
   const [values, setValues] = useState(initial);
+  const [status, setStatus] = useState(null);
+  const chrome = useParentChrome();
+  const spaces = useSpaces();
+  // Live: the real role line (the sidebar's) and whether a career profile exists yet.
+  const role = live ? chrome.sidebar.role || 'Parent' : ACCOUNT.type.role;
+  const roleDesc = live
+    ? spaces.talent
+      ? ACCOUNT.type.roleDesc
+      : 'You can also build your own career profile. Manage both in Your roles.'
+    : ACCOUNT.type.roleDesc;
 
   return (
     <div className="flex w-full flex-col gap-[20px]" data-settings-section="account">
@@ -29,8 +54,9 @@ const AccountTab = ({ onRoles }) => {
               label={f.label}
               type={f.type ?? 'text'}
               autoComplete={f.autoComplete}
-              verified={f.verified}
+              verified={live ? false : f.verified}
               value={values[f.id]}
+              readOnly={live ? READ_ONLY.includes(f.id) : undefined}
               onChange={(e) => setValues((v) => ({ ...v, [f.id]: e.target.value }))}
             />
           ))}
@@ -40,8 +66,8 @@ const AccountTab = ({ onRoles }) => {
       <GroupCard title={ACCOUNT.type.title}>
         <SettingRow
           top={false}
-          title={ACCOUNT.type.role}
-          description={ACCOUNT.type.roleDesc}
+          title={role}
+          description={roleDesc}
           control={
             <button
               type="button"
@@ -76,10 +102,33 @@ const AccountTab = ({ onRoles }) => {
         >
           {ACCOUNT.cancel}
         </ParentButton>
-        <Button size="sm" onClick={() => log('save changes', Object.keys(values))}>
-          {ACCOUNT.save}
+        <Button
+          size="sm"
+          onClick={async () => {
+            if (!live) {
+              log('save changes', Object.keys(values));
+              return;
+            }
+            setStatus({ busy: true });
+            try {
+              await live.save(values);
+              setStatus({ ok: 'Saved.' });
+            } catch (err) {
+              setStatus({ error: err?.message || 'Could not save. Try again.' });
+            }
+          }}
+        >
+          {status?.busy ? 'Saving…' : ACCOUNT.save}
         </Button>
       </div>
+      {status?.ok || status?.error ? (
+        <p
+          role={status.error ? 'alert' : 'status'}
+          className={`m-0 text-right font-sans text-[14px] font-semibold ${status.error ? 'text-[#c0392b]' : 'text-[#387440]'}`}
+        >
+          {status.ok || status.error}
+        </p>
+      ) : null}
     </div>
   );
 };

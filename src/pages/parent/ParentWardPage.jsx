@@ -11,6 +11,7 @@ import WalletTab from '../../components/sections/parent/wards/tabs/WalletTab.jsx
 import ActivityTab from '../../components/sections/parent/wards/tabs/ActivityTab.jsx';
 import CrewTab from '../../components/sections/parent/wards/tabs/CrewTab.jsx';
 import TabCard from '../../components/sections/parent/wards/tabs/TabCard.jsx';
+import LiveEvaluationsTab from '../../components/sections/parent/wards/tabs/LiveEvaluationsTab.jsx';
 import VisibilityDialog from '../../components/sections/parent/wards/dialogs/VisibilityDialog.jsx';
 import UnlinkDialog from '../../components/sections/parent/wards/dialogs/UnlinkDialog.jsx';
 import ParentToast from '../../components/sections/parent/wards/dialogs/ParentToast.jsx';
@@ -63,8 +64,8 @@ const log = debug('ParentWardPage');
  *   ?state=opted-out&modal=restore PO-03 · ?toast=access-restored PO-04 · ?modal=report PH-03 · ?modal=report-sent PH-03b
  * Demo (`?state=`/`?demo=1` or signed out): the mock wards above. ⚠️ ASSUMPTION: the unlink lives only in the URL (mock); Undo only closes the toast.
  * Live (signed in): :wardId is the ward's entity id; GET /parent/wards/:id fills the header, KPIs, Profile, Flags and
- * Activity tabs; flags, opt out / restore and unlink write to the API and re-read. Evaluations, Wallet and Crew have no
- * parent backend yet, so they say so instead of showing the mock rows.
+ * Activity tabs; flags, opt out / restore and unlink write to the API and re-read. Evaluations lists this parent's
+ * evaluations of the ward. Wallet and Crew have no parent backend yet, so they say so instead of showing the mock rows.
  */
 // The wards the report dialog (PH-03) can be about: the parent's linked wards (Kwesi is only a pending link).
 const LINKED_WARDS = [WARDS.abena, WARDS.elliot];
@@ -77,8 +78,6 @@ const TABS = {
 };
 
 const NOT_YET = {
-  evaluations: (w) =>
-    `Evaluations for ${w.firstName} will show here. Use Evaluate in the menu to write one.`,
   wallet: () => 'Ward wallets are not available yet. Nothing has been charged or paid.',
   crew: (w) => `${w.firstName}’s clubs and crew are not shown to parents yet.`,
 };
@@ -216,6 +215,7 @@ const ParentWardPage = () => {
     }
     if (live && tab === 'activity')
       return <ActivityTab ward={ward} data={activityTab(detail.data, ward)} />;
+    if (live && tab === 'evaluations') return <LiveEvaluationsTab ward={ward} />;
     if (Tab) {
       return (
         <Tab

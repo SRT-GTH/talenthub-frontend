@@ -17,6 +17,7 @@ import {
 } from './talentShellData.js';
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
 import SwitchSpaceMenu from '../parent/switch/SwitchSpaceMenu.jsx';
+import { switchSpace, useSpaces } from '../../../services/spaces.api.js';
 import emmaPhoto from '../../../assets/parent/emma.webp';
 
 const log = debug('TalentSidebar');
@@ -205,6 +206,9 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
   const persona = home?.persona ?? null;
   const cardRef = useRef(null);
   const menuOpen = Boolean(persona) && new URLSearchParams(search).get('menu') === 'switch';
+  // A signed-in account that also holds a parent role (not the ?as=emma demo).
+  const spaces = useSpaces();
+  const liveParent = !persona && home?.live ? spaces.parent : null;
   const data = getTalentSidebarData(stateKey, home?.live, activeNav);
   const profile = getTalentProfile(home?.live, persona);
   const { journey } = data;
@@ -427,6 +431,23 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
             className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] leading-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             {persona.switchLink}
+          </button>
+        ) : liveParent ? (
+          // Live: this account is also a parent / guardian. A real switch of the account's role, then the parent home.
+          <button
+            type="button"
+            onClick={async () => {
+              log('switch -> Parent view (live)');
+              try {
+                await switchSpace(liveParent.entityId);
+                window.location.assign('/parent');
+              } catch (err) {
+                log('switch failed', err?.message);
+              }
+            }}
+            className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] leading-[14px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            Parent view →
           </button>
         ) : null}
       </div>

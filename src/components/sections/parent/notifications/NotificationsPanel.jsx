@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import { PANEL } from './data/notificationsData.js';
 import { SPACES_PANEL } from '../switch/switchData.js';
+import { useParentNotifications } from '../live/parentNotifications.js';
 import iconUserSolo from '../../../../assets/parent/notif-user.svg';
 import iconSpacesUsers from '../../../../assets/parent/spaces-users.svg';
 import iconSpacesUser from '../../../../assets/parent/spaces-user.svg';
@@ -17,7 +18,9 @@ const log = debug('NotificationsPanel');
  * A11y: non-modal dialog; focus moves to the panel on open and returns to the bell on close; Esc and a click outside close it (a click on the bell is left to the bell's own toggle).
  * ⚠️ ASSUMPTION: "Mark all read" only logs (no read state is drawn); each row opens the screen listed in notificationsData.js and closes the panel.
  */
+// Live (signed in): the parent's real notifications; "Mark all read" and opening a row mark them read.
 const NotificationsPanel = ({ onClose, both = false }) => {
+  const notif = useParentNotifications();
   const [filter, setFilter] = useState('all');
   const ref = useRef(null);
   const closeRef = useRef(onClose);
@@ -49,12 +52,14 @@ const NotificationsPanel = ({ onClose, both = false }) => {
     };
   }, []);
 
-  const rows = both
-    ? [
-        ...SPACES_PANEL.careerRows.map((r) => ({ ...r, icon: iconUserSolo, space: 'career' })),
-        ...PANEL.items.map((r) => ({ ...r, space: 'parent' })),
-      ].filter((r) => filter === 'all' || r.space === filter)
-    : PANEL.items;
+  const rows = notif.live
+    ? notif.rows.slice(0, 7)
+    : both
+      ? [
+          ...SPACES_PANEL.careerRows.map((r) => ({ ...r, icon: iconUserSolo, space: 'career' })),
+          ...PANEL.items.map((r) => ({ ...r, space: 'parent' })),
+        ].filter((r) => filter === 'all' || r.space === filter)
+      : PANEL.items;
 
   return (
     <div
@@ -70,7 +75,9 @@ const NotificationsPanel = ({ onClose, both = false }) => {
         </h2>
         <button
           type="button"
-          onClick={() => log('mark all read (no read state drawn)')}
+          onClick={() =>
+            notif.live ? notif.markAllRead() : log('mark all read (no read state drawn)')
+          }
           className="cursor-pointer border-0 bg-transparent p-0 text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           {PANEL.markAllRead}
@@ -104,6 +111,13 @@ const NotificationsPanel = ({ onClose, both = false }) => {
           ))}
         </div>
       ) : null}
+      {notif.live && rows.length === 0 ? (
+        <p className="m-0 py-[14px] text-[14px] leading-[18px] text-[#575755]">
+          {notif.status === 'ready'
+            ? 'Nothing new. We’ll let you know when a ward needs you.'
+            : 'Loading…'}
+        </p>
+      ) : null}
       <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
         {rows.map((item, i) => (
           <li
@@ -113,9 +127,10 @@ const NotificationsPanel = ({ onClose, both = false }) => {
             }
           >
             <Link
-              to={item.to}
+              to={item.to || '/parent/notifications'}
               onClick={() => {
                 log('open row', item.id);
+                if (notif.live) notif.markRead(item.id);
                 onClose();
               }}
               className="flex items-center gap-[14px] py-[14px] text-inherit no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#387440]"

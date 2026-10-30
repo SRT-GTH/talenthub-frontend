@@ -4,6 +4,7 @@ import { debug } from '../../../utils/debug.js';
 import { NAV_MAIN, NAV_SECONDARY } from './data/parentCoreData.js';
 import { NO_CAREER } from './switch/switchData.js';
 import useParentChrome from './live/useParentChrome.js';
+import { useParentNotifications } from './live/parentNotifications.js';
 import homeActive from '../../../assets/parent/frame-1.svg';
 import navWards from '../../../assets/parent/icon-1.svg';
 import navReview from '../../../assets/parent/icon-2.svg';
@@ -117,13 +118,23 @@ const ParentSidebar = ({
   career = 'talent',
   onSwitch,
   onBuildCareer,
+  onCareer,
   cardRef,
   className,
 }) => {
   const chrome = useParentChrome(state);
-  const s = chrome.sidebar;
+  const notif = useParentNotifications();
+  const s = chrome.live
+    ? {
+        ...chrome.sidebar,
+        badges: {
+          ...chrome.sidebar.badges,
+          ...(notif.unread ? { notifications: String(notif.unread) } : {}),
+        },
+      }
+    : chrome.sidebar;
   const PARENT = chrome.parent;
-  if (chrome.live && !chrome.loading) career = PARENT.hasCareerProfile ? 'talent' : 'none';
+
   const noteTo = chrome.live
     ? s.noteTo || '/parent'
     : state === 'none'
@@ -271,6 +282,16 @@ const ParentSidebar = ({
               className="flex h-[36px] cursor-pointer items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
             >
               {NO_CAREER.cardCta}
+              <TalentSidebarPreviewArrowUpRightIcon className="size-[20px]" />
+            </button>
+          ) : onCareer ? (
+            // Live: a real switch of the account's role (ParentFrame goToCareer), not just a link.
+            <button
+              type="button"
+              onClick={onCareer}
+              className="flex h-[36px] cursor-pointer items-center justify-center gap-[6px] rounded-[14px] border-2 border-solid border-[rgba(28,42,33,0.3)] bg-white px-[12px] font-sans text-[13px] leading-[24px] font-bold tracking-[0.1px] whitespace-nowrap text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              Switch to My career
               <TalentSidebarPreviewArrowUpRightIcon className="size-[20px]" />
             </button>
           ) : (

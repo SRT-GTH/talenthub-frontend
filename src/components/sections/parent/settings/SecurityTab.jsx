@@ -28,13 +28,20 @@ const DEVICE_ICONS = {
  * Log out link on the other two, "Log out of all other devices"). Logging a device out removes its row. Local state only.
  * ⚠️ ASSUMPTION: "Change password" and "Disconnect" only log (no dialog is drawn for them in this canvas).
  */
-const SecurityTab = () => {
+// Live (`live` = { sessions, logOut(ids) -> Promise }): the account's real sign-ins (GET /settings/sessions) and
+// real log-outs (DELETE /settings/sessions/:id, POST /settings/sessions/revoke-others). The Google row is mock-only.
+const SecurityTab = ({ live = null }) => {
   const { signIn, devices } = SECURITY;
   const [twoStep, setTwoStep] = useState(true);
-  const [list, setList] = useState(devices.list);
+  const [mockList, setList] = useState(devices.list);
+  const list = live ? live.sessions : mockList;
 
   const logOut = (ids) => {
     log('log out devices', ids);
+    if (live) {
+      live.logOut(ids);
+      return;
+    }
     setList((l) => l.filter((d) => !ids.includes(d.id)));
   };
 
@@ -64,21 +71,23 @@ const SecurityTab = () => {
             <SettingsToggle labelledBy="sec-two-step" checked={twoStep} onChange={setTwoStep} />
           }
         />
-        <SettingRow
-          top={false}
-          title={signIn.google.title}
-          description={signIn.google.email}
-          control={
-            <TextAction tone="danger" onClick={() => log('disconnect google (no dialog drawn)')}>
-              {signIn.google.cta}
-            </TextAction>
-          }
-        />
+        {live ? null : (
+          <SettingRow
+            top={false}
+            title={signIn.google.title}
+            description={signIn.google.email}
+            control={
+              <TextAction tone="danger" onClick={() => log('disconnect google (no dialog drawn)')}>
+                {signIn.google.cta}
+              </TextAction>
+            }
+          />
+        )}
       </GroupCard>
 
       <GroupCard title={devices.title} description={devices.desc}>
         {list.map((d) => {
-          const Icon = DEVICE_ICONS[d.kind];
+          const Icon = DEVICE_ICONS[d.kind] || DEVICE_ICONS.laptop;
           return (
             <div
               key={d.id}

@@ -5,6 +5,7 @@ import ParentButton from '../ParentButton.jsx';
 import NotificationRow from './NotificationRow.jsx';
 import { PAGE } from './data/notificationsData.js';
 import { useNotificationsState } from './notificationsState.js';
+import { groupRows, useParentNotifications } from '../live/parentNotifications.js';
 
 const log = debug('NotificationsPage');
 
@@ -17,12 +18,17 @@ const log = debug('NotificationsPage');
 const CARD =
   'flex flex-col gap-[12px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white p-[24px] shadow-[0_5px_17px_rgba(28,42,33,0.03)]';
 
+// Live (signed in): the parent's real notifications, grouped Today / This week / Earlier; tab counts are real.
 const NotificationsPage = () => {
   const { tab } = useNotificationsState();
+  const notif = useParentNotifications();
+  const source = notif.live ? groupRows(notif.rows) : PAGE.groups;
 
-  const groups = PAGE.groups
+  const groups = source
     .map((g) => ({ ...g, rows: tab === 'all' ? g.rows : g.rows.filter((r) => r.kind === tab) }))
     .filter((g) => g.rows.length > 0);
+  const liveCount = (id) =>
+    id === 'all' ? notif.rows.length : notif.rows.filter((r) => r.kind === id).length;
 
   useEffect(() => {
     log('render', { tab, rows: groups.reduce((n, g) => n + g.rows.length, 0) });
@@ -31,7 +37,7 @@ const NotificationsPage = () => {
   const tabs = PAGE.tabs.map((t) => ({
     id: t.id,
     label: t.label,
-    count: t.count,
+    count: notif.live ? liveCount(t.id) : t.count,
     countTone: t.id === tab ? 'amber' : 'mint',
     to: t.id === 'all' ? '/parent/notifications' : `/parent/notifications?tab=${t.id}`,
     onClick: () => log('tab', t.id),
@@ -44,14 +50,30 @@ const NotificationsPage = () => {
           {PAGE.title}
         </h1>
         <span className="rounded-full bg-brand-green-light px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
-          {PAGE.newSticker}
+          {notif.live ? `${notif.unread} new` : PAGE.newSticker}
         </span>
+        {notif.live && notif.unread ? (
+          <button
+            type="button"
+            onClick={() => notif.markAllRead()}
+            className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
+            Mark all read
+          </button>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-[20px]">
         <UnderlineTabs tabs={tabs} activeId={tab} label={PAGE.tabsLabel} />
         <div className="flex items-start gap-[24px] max-lg:flex-col">
           <div className="flex min-w-0 flex-1 flex-col gap-[20px] max-lg:w-full">
+            {notif.live && groups.length === 0 ? (
+              <section aria-label="No notifications" className={CARD}>
+                <p className="m-0 font-sans text-[14px] text-[#575755]">
+                  {notif.status === 'ready' ? 'Nothing here yet.' : 'Loading…'}
+                </p>
+              </section>
+            ) : null}
             {groups.map((g) => (
               <section key={g.id} aria-label={g.label} className={CARD}>
                 <h2 className="m-0 font-sans text-[11px] leading-[13px] font-bold tracking-[0.88px] text-[#575755] uppercase max-lg:text-[12px]">

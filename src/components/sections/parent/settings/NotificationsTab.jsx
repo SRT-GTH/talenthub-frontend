@@ -44,15 +44,28 @@ const TimePill = ({ value, onChange, label }) => (
  * pickers), Weekly summary (a switch), then "Turn everything off for 24 hours" and Save changes. Local state; Save only logs.
  * ⚠️ ASSUMPTION: "Turn everything off for 24 hours" only logs (the paused state is not drawn in the parent canvas; the talent Settings draw one, ST-03b).
  */
-const NotificationsTab = () => {
+// Live (`live` = { matrix: { rows, quiet, weekly, pausedUntil }, save(body) -> Promise }): the parent's saved
+// preferences (GET /settings/notifications, parent rows) and a real Save / 24-hour pause (PUT /settings/notifications).
+const NotificationsTab = ({ live = null }) => {
   const { matrix, quiet, weekly, pauseAll, save } = NOTIFICATIONS;
+  const saved = live?.matrix;
   const [cells, setCells] = useState(() =>
-    Object.fromEntries(matrix.rows.map((r) => [r.id, [...r.on]]))
+    Object.fromEntries(matrix.rows.map((r) => [r.id, [...(saved?.rows?.[r.id] || r.on)]]))
   );
-  const [quietOn, setQuietOn] = useState(true);
-  const [from, setFrom] = useState(quiet.from);
-  const [to, setTo] = useState(quiet.to);
-  const [weeklyOn, setWeeklyOn] = useState(true);
+  const [quietOn, setQuietOn] = useState(saved ? saved.quiet.on : true);
+  const [from, setFrom] = useState(saved ? saved.quiet.from : quiet.from);
+  const [to, setTo] = useState(saved ? saved.quiet.to : quiet.to);
+  const [weeklyOn, setWeeklyOn] = useState(saved ? saved.weekly : true);
+  const [status, setStatus] = useState(saved?.pausedUntil ? { ok: 'Paused for 24 hours.' } : null);
+  const send = async (body, ok) => {
+    setStatus({ busy: true });
+    try {
+      await live.save(body);
+      setStatus({ ok });
+    } catch (err) {
+      setStatus({ error: err?.message || 'Could not save. Try again.' });
+    }
+  };
 
   const toggleCell = (rowId, col, v) => {
     log('cell', { rowId, channel: matrix.channels[col], on: v });
@@ -134,15 +147,34 @@ const NotificationsTab = () => {
       <div className="flex items-center justify-between gap-[12px] max-sm:flex-wrap">
         <button
           type="button"
-          onClick={() => log('turn everything off for 24 hours (paused state not drawn)')}
+          onClick={() =>
+            live
+              ? send({ pause: true }, 'Paused for 24 hours.')
+              : log('turn everything off for 24 hours (paused state not drawn)')
+          }
           className="cursor-pointer text-[14px] leading-[17px] font-semibold text-[#595959] underline decoration-solid decoration-from-font focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           {pauseAll}
         </button>
-        <Button size="sm" onClick={() => log('save changes', cells)}>
-          {save}
+        <Button
+          size="sm"
+          onClick={() =>
+            live
+              ? send({ rows: cells, quiet: { on: quietOn, from, to }, weekly: weeklyOn }, 'Saved.')
+              : log('save changes', cells)
+          }
+        >
+          {status?.busy ? 'Saving…' : save}
         </Button>
       </div>
+      {status?.ok || status?.error ? (
+        <p
+          role={status.error ? 'alert' : 'status'}
+          className={`m-0 text-right font-sans text-[14px] font-semibold ${status.error ? 'text-[#c0392b]' : 'text-[#387440]'}`}
+        >
+          {status.ok || status.error}
+        </p>
+      ) : null}
     </div>
   );
 };
