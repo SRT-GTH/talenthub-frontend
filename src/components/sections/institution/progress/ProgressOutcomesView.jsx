@@ -79,9 +79,14 @@ const ProgressOutcomesView = ({ data }) => {
         title={D.title}
         subtitle={D.subtitle(session.institution.short || session.institution.name)}
         actions={
-          <InstitutionButton size="sm" onClick={openDownload}>
-            {D.download}
-          </InstitutionButton>
+          <>
+            <InstitutionButton size="sm" to="/institution/report">
+              Board report
+            </InstitutionButton>
+            <InstitutionButton size="sm" onClick={openDownload}>
+              {D.download}
+            </InstitutionButton>
+          </>
         }
       />
       <div

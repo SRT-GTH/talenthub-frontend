@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import { openApiFile } from '../../../../services/agency.api.js';
@@ -130,6 +131,16 @@ const ProgressDownloadDialog = ({ period: initial = 'year', canNames = false, on
             </label>
           ))}
         </fieldset>
+
+        <p className="m-0 font-sans text-[13px] leading-[18px] text-[#575755]">
+          Need a printable report for your board?{' '}
+          <Link
+            to="/institution/report"
+            className="font-semibold text-[#387440] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
+            Open the Board of Governors report
+          </Link>
+        </p>
 
         <div className="flex flex-wrap items-center gap-[10px]">
           <span className="font-sans text-[13px] leading-[16px] text-[#575755]">

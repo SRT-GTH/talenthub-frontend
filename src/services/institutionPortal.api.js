@@ -158,6 +158,10 @@ export const exportOutcomes = ({ period, readiness, names }) =>
     .post('/institution/progress/outcomes/export', { period, readiness, names }, { timeout: 60000 })
     .then(body);
 
+/* ---- Board of Governors report (backend institutionReport.service.js; each view is logged) ---- */
+export const institutionReport = () =>
+  api.get('/institution/report', { timeout: 90000 }).then(body);
+
 /* ---- Programmes (backend institutionProgrammes.service.js) ---- */
 const P = '/institution/programmes';
 export const listProgrammes = () => api.get(P, { timeout: 60000 }).then(body);
