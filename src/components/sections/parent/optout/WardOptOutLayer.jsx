@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import { parentError } from '../../../../services/parent.api.js';
 import ParentToast from '../wards/dialogs/ParentToast.jsx';
 import { focusAfterRender } from '../focusAfterRender.js';
 import OptOutDialog from './OptOutDialog.jsx';
@@ -20,7 +21,9 @@ const log = debug('WardOptOutLayer');
  *   ?toast=access-restored                             PO-04  10052:3799  "Abena’s access is back" toast over the normal page (the store is seeded to restored)
  *   ?modal=report / ?modal=report-sent                 PH-03 / PH-03b: handled by the shared <ReportConcernLayer> (also used by the Help page)
  * Real flow: Opt out -> PO-01 -> "Opt out Abena" -> paused page (URL gets ?state=opted-out, so a reload keeps it) -> Restore access -> PO-03 -> Restore -> normal page + PO-04 toast (state removed from the URL).
- * Props: ward (wardsData entry), linkedWards ([{ id, firstName, … }] for the report's "Who is it about?").
+ * Props: ward (wardsData entry), linkedWards ([{ id, firstName, … }] for the report's "Who is it about?"),
+ *   live (optional): { optedOut, optOut(values), restore() } — the ward's real status and async API writes. Live mode keeps
+ *   no `state` in the URL (the page follows the data) and skips the frame seeds.
  * On this page "Opt <ward> out" on PH-03b only shows when the report is about the ward of this page (ReportConcernLayer optOutIds).
  */
 const DIALOG_KEYS = ['modal', 'reason', 'note', 'ack', 'who', 'worry', 'about'];
@@ -30,12 +33,14 @@ const nowLabel = () => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
-const WardOptOutLayer = ({ ward, linkedWards }) => {
+const WardOptOutLayer = ({ ward, linkedWards, live = null }) => {
   const [params, setParams] = useSearchParams();
   const [toast, setToast] = useState(null);
+  const [busy, setBusy] = useState(false);
   const seeded = useRef(false);
   const access = useWardAccess();
-  const optedOut = isOptedOut(access, ward.id);
+  const optedOut = live ? live.optedOut : isOptedOut(access, ward.id);
+  const failed = (err) => setToast({ message: 'That didn’t go through', detail: parentError(err) });
   const modal = params.get('modal');
   const seedState = params.get('state');
   const seedToast = params.get('toast');
@@ -44,6 +49,7 @@ const WardOptOutLayer = ({ ward, linkedWards }) => {
   useLayoutEffect(() => {
     if (seeded.current) return;
     seeded.current = true;
+    if (live) return; // the frame seeds belong to the mock
     if (seedState === 'opted-out') {
       const safety = OPT_OUT_REASONS.find((r) => r.id === 'safety');
       wardAccessActions.ensureOptedOut(ward.id, {
@@ -57,7 +63,7 @@ const WardOptOutLayer = ({ ward, linkedWards }) => {
       setToast(OPT_OUT_COPY.toast.restored(ward));
     }
     log('seeds', { seedState, seedToast, modal });
-  }, [seedState, seedToast, modal, ward]);
+  }, [seedState, seedToast, modal, ward, live]);
 
   // Replace the dialog params (and optionally set / clear `state`) in one URL update.
   const update = ({ next, state }) => {
@@ -84,7 +90,21 @@ const WardOptOutLayer = ({ ward, linkedWards }) => {
           ward={ward}
           initial={seed}
           onClose={close}
-          onConfirm={(values) => {
+          onConfirm={async (values) => {
+            if (live) {
+              if (busy) return;
+              setBusy(true);
+              try {
+                await live.optOut(values);
+                update({});
+                focusAfterRender('#access-banner');
+              } catch (err) {
+                failed(err);
+              } finally {
+                setBusy(false);
+              }
+              return;
+            }
             wardAccessActions.optOut(ward.id, { ...values, at: nowLabel() });
             update({ state: 'opted-out' });
             // the opened-from button is gone with the ward view: land on the paused banner (a status, so it is read out)
@@ -97,7 +117,22 @@ const WardOptOutLayer = ({ ward, linkedWards }) => {
         <RestoreDialog
           ward={ward}
           onClose={close}
-          onConfirm={() => {
+          onConfirm={async () => {
+            if (live) {
+              if (busy) return;
+              setBusy(true);
+              try {
+                await live.restore();
+                update({});
+                focusAfterRender('main h1');
+                setToast(OPT_OUT_COPY.toast.restored(ward));
+              } catch (err) {
+                failed(err);
+              } finally {
+                setBusy(false);
+              }
+              return;
+            }
             wardAccessActions.restore(ward.id);
             update({ state: null });
             focusAfterRender('main h1');

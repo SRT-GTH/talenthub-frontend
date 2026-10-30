@@ -12,6 +12,18 @@ import tabFlag from '../../../../assets/parent/home-tab-flag.svg';
 import tabEye from '../../../../assets/parent/home-tab-eye.svg';
 import plus from '../../../../assets/parent/home-plus.svg';
 import { HOME_TABS, HOME_VARIANTS, OFFLINE } from './data/parentHomeData.js';
+import {
+  heroDate,
+  homeActivity,
+  homeGuide,
+  homeReadiness,
+  homeTabs,
+  homeVariant,
+  homeWardCards,
+  parentChrome,
+  salutation,
+  waitingItems,
+} from '../live/parentLiveView.js';
 
 const log = debug('ParentOverview');
 
@@ -21,7 +33,8 @@ const log = debug('ParentOverview');
  *   PD-01d 10056:158090 variant="caughtUp" (no "Waiting for your OK" card; Recent activity sits under Your wards)
  *   PD-07  10077:20066  variant="busy" + offline (amber callout 10077:20286 on top: bg #fdf5e0, border rgba(160,112,10,.25), r12)
  * Renders ONLY the column content; <ParentFrame> supplies <main> padding and scroll.
- * Props: variant ('busy' | 'caughtUp'), offline (bool).
+ * Props: variant ('busy' | 'caughtUp'), offline (bool), live (GET /parent/me payload: every card then reads the parent's
+ * real wards, flags and activity; the "Who viewed" card is hidden because no such data exists for parents yet).
  * Layout: >= xl two columns (912fr / 448fr, gap 16), below that one column. Tabs only change the selected look (no routing yet).
  * The Abena / Elliot tabs open that ward's page; the offline banner is role="status".
  */
@@ -29,11 +42,15 @@ const log = debug('ParentOverview');
 const TAB_TO = { abena: '/parent/wards/abena?tab=flags', elliot: '/parent/wards/elliot' };
 const TAB_ICON = { home: tabHome, flag: tabFlag, eye: tabEye };
 
-const ParentOverview = ({ variant = 'busy', offline = false }) => {
+const ParentOverview = ({ variant = 'busy', offline = false, live = null }) => {
   const navigate = useNavigate();
   const [tab, setTab] = useState('overview');
-  const data = HOME_VARIANTS[variant] ?? HOME_VARIANTS.busy;
-  log('render', { variant, offline, tab, showWaiting: data.showWaiting });
+  const data = live ? homeVariant(live) : (HOME_VARIANTS[variant] ?? HOME_VARIANTS.busy);
+  const tabs = live ? homeTabs(live) : HOME_TABS;
+  const tabTo = live
+    ? Object.fromEntries(tabs.filter((t) => t.to).map((t) => [t.id, t.to]))
+    : TAB_TO;
+  log('render', { variant, offline, tab, live: Boolean(live), showWaiting: data.showWaiting });
 
   return (
     <div className="mx-auto flex w-full max-w-[1376px] flex-col gap-[16px]">
@@ -52,14 +69,24 @@ const ParentOverview = ({ variant = 'busy', offline = false }) => {
         </div>
       )}
 
-      <ParentHero greeting={data.greeting} stats={data.stats} />
+      {live ? (
+        <ParentHero
+          firstName={parentChrome(live).firstName}
+          greeting={data.greeting}
+          stats={data.stats}
+          date={heroDate()}
+          salutation={salutation()}
+        />
+      ) : (
+        <ParentHero greeting={data.greeting} stats={data.stats} />
+      )}
 
       <div
         role="tablist"
         aria-label="Home views"
         className="flex items-center gap-[6px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[6px] py-[20px]"
       >
-        {HOME_TABS.map((t) => {
+        {tabs.map((t) => {
           const selected = tab === t.id;
           return (
             <button
@@ -69,7 +96,7 @@ const ParentOverview = ({ variant = 'busy', offline = false }) => {
               aria-selected={selected}
               onClick={() => {
                 log('tab:', t.id);
-                if (TAB_TO[t.id]) navigate(TAB_TO[t.id]);
+                if (tabTo[t.id]) navigate(tabTo[t.id]);
                 else setTab(t.id);
               }}
               className={`flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-[8px] rounded-[12px] px-[16px] py-[12px] font-sans text-[15px] leading-normal whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${
@@ -92,11 +119,34 @@ const ParentOverview = ({ variant = 'busy', offline = false }) => {
 
       <div className="grid grid-cols-1 items-start gap-[16px] xl:grid-cols-[minmax(0,912fr)_minmax(0,448fr)]">
         <div className="flex min-w-0 flex-col gap-[16px]">
-          <WardsCard />
-          {data.showWaiting && <WaitingCard />}
-          <ActivityCard />
+          {live ? (
+            <>
+              <WardsCard wards={homeWardCards(live)} />
+              {data.showWaiting && (
+                <WaitingCard items={waitingItems(live)} reviewCount={live.counts?.toReview || 0} />
+              )}
+              <ActivityCard
+                items={homeActivity(live)}
+                seeAllTo={
+                  live.wards?.[0]
+                    ? `/parent/wards/${live.wards[0].id}?tab=activity`
+                    : '/parent/wards'
+                }
+              />
+            </>
+          ) : (
+            <>
+              <WardsCard />
+              {data.showWaiting && <WaitingCard />}
+              <ActivityCard />
+            </>
+          )}
         </div>
-        <ParentRail />
+        {live ? (
+          <ParentRail guide={homeGuide(live)} readiness={homeReadiness(live)} viewers={null} />
+        ) : (
+          <ParentRail />
+        )}
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-[8px] rounded-[20px] border border-dashed border-[#c1d4c4] px-[20px] py-[24px]">

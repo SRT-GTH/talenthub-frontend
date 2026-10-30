@@ -63,8 +63,9 @@ const WardOptedOut = ({ ward, access, onRestore, onReport }) => {
               <WardChip tone="opted">{copy.chip}</WardChip>
             </div>
             <p className="m-0 font-sans text-[14px] leading-normal text-[#575755]">
-              {ward.relation} · {ward.age} · {ward.grade} · {ward.school} · on GTH since{' '}
-              {ward.since}
+              {[ward.relation, ward.age, ward.grade, ward.school, `on GTH since ${ward.since}`]
+                .filter((v) => v !== null && v !== undefined && v !== '')
+                .join(' · ')}
             </p>
           </div>
           <ParentButton onClick={onRestore}>{copy.restore}</ParentButton>

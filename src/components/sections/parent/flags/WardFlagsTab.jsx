@@ -77,7 +77,13 @@ const WardFlagsTab = ({ ward, flags, onReview }) => {
           <div key={row.status} className="flex flex-col items-start gap-[4px]">
             <StatusChip status={row.status} />
             <span className="font-sans text-[12px] leading-normal text-[#575755]">
-              {row.text.replace('Abena', ward.firstName)}
+              {/* The key is written for Abena ("She changed it"); use this ward's name and pronoun. */}
+              {row.text
+                .replace('Abena', ward.firstName)
+                .replace(
+                  /^She /,
+                  ward.pronoun === 'he' ? 'He ' : ward.pronoun === 'they' ? 'They ' : 'She '
+                )}
             </span>
           </div>
         ))}

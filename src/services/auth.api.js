@@ -70,6 +70,8 @@ export const homePathFor = (user) => {
   const type = String(user?.entityType || user?.type || '').toLowerCase();
   if (type === 'talent') return '/home';
   if (type === 'recruiter') return '/recruiter/home';
+  // Parents and guardians have their own dashboard (they used to land on the talent engagement flow).
+  if (type === 'parent' || type === 'guardian') return '/parent';
   return '/profile/engagement';
 };
 

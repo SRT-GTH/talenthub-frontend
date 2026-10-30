@@ -14,7 +14,8 @@ const log = debug('ActivityCard');
  */
 const TILE_ICON = { check: checkCircle, star };
 
-const ActivityCard = ({ items = ACTIVITY }) => {
+// Live: `seeAllTo` is the first ward's Activity tab; an empty feed says so instead of showing nothing.
+const ActivityCard = ({ items = ACTIVITY, seeAllTo = '/parent/wards/abena?tab=activity' }) => {
   log('render, items:', items.length);
   return (
     <section
@@ -25,9 +26,15 @@ const ActivityCard = ({ items = ACTIVITY }) => {
         icon={clock}
         title={<span id="parent-activity-title">Recent activity</span>}
         linkLabel="See all"
-        to="/parent/wards/abena?tab=activity"
+        to={seeAllTo}
         onLink={() => log('Activity: See all')}
       />
+      {items.length === 0 ? (
+        <p className="m-0 py-[12px] font-sans text-[14px] leading-normal text-[#595959]">
+          Nothing new yet. When your wards finish an assessment, verify a skill or add a
+          certificate, it shows here.
+        </p>
+      ) : null}
       <ul className="m-0 flex list-none flex-col gap-[10px] p-0">
         {items.map((a) => (
           <li

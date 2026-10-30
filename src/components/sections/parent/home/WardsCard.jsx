@@ -71,7 +71,7 @@ const WardCard = ({ ward }) => (
           variant="primary"
           size="sm"
           className="w-full"
-          to={CTA_TO[ward.id]}
+          to={CTA_TO[ward.id] ?? `/parent/wards/${ward.id}`}
           onClick={() => log('ward cta:', ward.id)}
         >
           {ward.cta}
@@ -81,7 +81,7 @@ const WardCard = ({ ward }) => (
           variant="tertiary-subtle"
           size="lg"
           className="w-full !py-[14px] !text-[#165d3a]"
-          to={CTA_TO[ward.id]}
+          to={CTA_TO[ward.id] ?? `/parent/wards/${ward.id}`}
           onClick={() => log('ward cta:', ward.id)}
         >
           {ward.cta}

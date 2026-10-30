@@ -71,8 +71,10 @@ const WardShell = ({
             </div>
             <div>
               <p className="m-0 font-sans text-[14px] leading-normal text-[#575755]">
-                {ward.relation} · {ward.age} · {ward.grade} · {ward.school} · on GTH since{' '}
-                {ward.since}
+                {/* Parts a live ward hasn't filled in yet are left out (no empty " · · "). */}
+                {[ward.relation, ward.age, ward.grade, ward.school, `on GTH since ${ward.since}`]
+                  .filter((v) => v !== null && v !== undefined && v !== '')
+                  .join(' · ')}
               </p>
             </div>
           </div>
