@@ -23,7 +23,8 @@ const log = debug('InstitutionTopBar');
  *           accessibility · profile chip "Iddrisu A." (opens ?modal=profile, 11.6.0a)
  *   < lg  : Figma "Mobile top bar" 8588:961 (phone 360) — h73: menu button 48 · "GTH" · bell 48 · avatar 40 (monogram)
  * ⌘K (or Ctrl+K) focuses the search; Enter goes to the Students roster with ?q=. ⚠️ ASSUMPTION: Figma draws no search results (it searches students, records and credentials; the roster is the nearest page).
- * Help / notifications / messages / accessibility / language only set ?modal=help|notifications|messages|a11y|language (nothing is drawn for them yet).
+ * The bell (phone and desktop) toggles ?modal=notifications, which InstitutionFrame draws as InstitutionNotificationsPanel; the phone bell carries the
+ * unread badge too. Help / messages / accessibility / language only set ?modal=help|messages|a11y|language (nothing is drawn for them yet).
  */
 
 const ROUND =
@@ -39,7 +40,14 @@ const Badge = ({ count }) =>
     </span>
   ) : null;
 
-const InstitutionTopBar = ({ session, data, modalOpen = false, menuButtonRef, className }) => {
+const InstitutionTopBar = ({
+  session,
+  data,
+  modalOpen = false,
+  notificationsOpen = false,
+  menuButtonRef,
+  className,
+}) => {
   const navigate = useNavigate();
   const searchRef = useRef(null);
   const { admin, badges } = session;
@@ -65,6 +73,9 @@ const InstitutionTopBar = ({ session, data, modalOpen = false, menuButtonRef, cl
     );
   };
   const open = (name) => data.update({ modal: name });
+  // The bell toggles; data-admin-topbar-button keeps the panel's outside-click from closing and reopening it.
+  const toggleNotifications = () =>
+    data.update({ modal: notificationsOpen ? null : 'notifications' });
 
   return (
     <header
@@ -95,11 +106,15 @@ const InstitutionTopBar = ({ session, data, modalOpen = false, menuButtonRef, cl
         </Link>
         <button
           type="button"
+          data-admin-topbar-button=""
           aria-label={`Notifications, ${badges.notifications} new`}
-          onClick={() => open('notifications')}
-          className="flex size-[48px] shrink-0 items-center justify-center rounded-[10px] border border-solid border-[#e5e8e3] bg-transparent text-[#111111] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          aria-haspopup="dialog"
+          aria-expanded={notificationsOpen}
+          onClick={toggleNotifications}
+          className="relative flex size-[48px] shrink-0 items-center justify-center rounded-[10px] border border-solid border-[#e5e8e3] bg-transparent text-[#111111] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <InstitutionBellMobileIcon className="size-[20px]" />
+          <Badge count={badges.notifications} />
         </button>
         <button
           type="button"
@@ -163,8 +178,11 @@ const InstitutionTopBar = ({ session, data, modalOpen = false, menuButtonRef, cl
             </button>
             <button
               type="button"
+              data-admin-topbar-button=""
               aria-label={`Notifications, ${badges.notifications} new`}
-              onClick={() => open('notifications')}
+              aria-haspopup="dialog"
+              aria-expanded={notificationsOpen}
+              onClick={toggleNotifications}
               className={classNames(ROUND, 'size-[36px]')}
             >
               <InstitutionBellIcon className="size-[16px]" />

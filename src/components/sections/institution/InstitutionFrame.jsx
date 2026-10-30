@@ -10,6 +10,7 @@ import { activeNavId } from './institutionNav.js';
 import { useInstitutionSession } from './useInstitutionSession.js';
 
 const InstitutionProfileMenu = lazy(() => import('./settings/InstitutionProfileMenu.jsx'));
+const InstitutionNotificationsPanel = lazy(() => import('./InstitutionNotificationsPanel.jsx'));
 
 const log = debug('InstitutionFrame');
 
@@ -23,7 +24,7 @@ const log = debug('InstitutionFrame');
  * defaults from the pathname), children, noFooter (kept for parity with PublicDataFrame: the institution chrome has no footer), className.
  * Children are laid out as a column with a 30px gap (16px on phones) under a 16px top padding; wrap content in ONE element for another layout.
  * The page behind is the shared dashboard background (grid + 3 blurred ellipses). Modals are mounted by the pages that draw them, keyed on data.modal;
- * only ?modal=profile is mounted here (package E's InstitutionProfileMenu (11.6.0a)).
+ * ?modal=profile (package E's InstitutionProfileMenu (11.6.0a)) and ?modal=notifications (the bell's InstitutionNotificationsPanel) are mounted here.
  */
 
 const InstitutionFrame = ({ data, title = 'Institution', active, children, className }) => {
@@ -79,6 +80,7 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
           session={session}
           data={data}
           modalOpen={data.modal === 'profile'}
+          notificationsOpen={data.modal === 'notifications'}
           menuButtonRef={menuButtonRef}
         />
         <div className="flex min-h-0 flex-1">
@@ -145,6 +147,14 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
       {data.modal === 'profile' ? (
         <Suspense fallback={null}>
           <InstitutionProfileMenu data={data} session={session} />
+        </Suspense>
+      ) : null}
+      {data.modal === 'notifications' ? (
+        <Suspense fallback={null}>
+          <InstitutionNotificationsPanel
+            onClose={() => update({ modal: null })}
+            onChanged={() => session.reload?.()}
+          />
         </Suspense>
       ) : null}
     </div>
