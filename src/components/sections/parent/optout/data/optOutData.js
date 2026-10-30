@@ -6,8 +6,11 @@
  */
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-// she -> her, he -> him
-const objective = (ward) => (ward.pronoun === 'she' ? 'her' : 'him');
+// she -> her, he -> him, they -> them (live wards with no gender on record)
+const objective = (ward) =>
+  ward.pronoun === 'she' ? 'her' : ward.pronoun === 'they' ? 'them' : 'him';
+// "She's" / "They've": the contracted "has" for each pronoun.
+const hasBeen = (ward) => `${cap(ward.pronoun)}${ward.pronoun === 'they' ? '’ve' : '’s'} been`;
 
 export const OPT_OUT_REASONS = [
   { id: 'privacy', label: 'Privacy concerns' },
@@ -70,7 +73,7 @@ export const OPT_OUT_COPY = {
   toast: {
     restored: (w) => ({
       message: `${w.firstName}’s access is back`,
-      detail: `${cap(w.pronoun)}’s been told by SMS and in GTH. Everything is as ${w.pronoun} left it.`,
+      detail: `${hasBeen(w)} told by SMS and in GTH. Everything is as ${w.pronoun} left it.`,
     }),
   },
   report: {

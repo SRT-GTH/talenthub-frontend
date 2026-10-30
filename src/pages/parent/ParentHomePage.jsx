@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../utils/debug.js';
+import { loadParentMe, useParentMe } from '../../components/sections/parent/live/parentLive.js';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import ParentOverview from '../../components/sections/parent/home/ParentOverview.jsx';
 import ParentNoWard from '../../components/sections/parent/states/ParentNoWard.jsx';
@@ -25,7 +26,9 @@ const log = debug('ParentHomePage');
  *   none                 PD-01c  10034:2499    no linked ward yet
  *   loading              PD-05   10047:147949  skeleton while the wards load
  *   error                PD-06   10047:148153  couldn't load (offline note)
- * "Try again" on the error state plays the loading skeleton for 1.2 s, then shows the everyday home. Mock data only; no backend.
+ * "Try again" on the error state plays the loading skeleton for 1.2 s, then shows the everyday home.
+ * Live (signed in, no `?state=`): the state follows GET /parent/me instead: loading -> PD-05, failed -> PD-06 (Try again
+ * re-reads), no ward -> PD-01c, otherwise the everyday home with the parent's real data.
  */
 // The dashboard frames (PD-01 / 01d / 05 / 07) put the 1376 main column at x 328 .. 1704 (24 / 25 px side margins); the other canvases use a 1329 column.
 const DASH_MAIN =
@@ -35,8 +38,13 @@ const STATES = ['busy', 'caught-up', 'offline', 'first', 'none', 'loading', 'err
 
 const ParentHomePage = () => {
   const [params, setParams] = useSearchParams();
+  const me = useParentMe();
   const raw = params.get('state');
-  const state = STATES.includes(raw) ? raw : 'busy';
+  let state = STATES.includes(raw) ? raw : 'busy';
+  if (me.live) {
+    if (!me.data) state = me.status === 'error' ? 'error' : 'loading';
+    else state = me.data.wards?.length ? 'busy' : 'none';
+  }
   const timer = useRef();
 
   useEffect(() => {
@@ -45,6 +53,10 @@ const ParentHomePage = () => {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const retry = () => {
+    if (me.live) {
+      loadParentMe(true);
+      return;
+    }
     setParams({ state: 'loading' }, { replace: true });
     timer.current = window.setTimeout(() => setParams({}, { replace: true }), 1200);
   };
@@ -67,7 +79,7 @@ const ParentHomePage = () => {
       sidebar={sidebar}
       mainClassName={['busy', 'caught-up', 'offline'].includes(state) ? DASH_MAIN : undefined}
     >
-      {state === 'busy' ? <ParentOverview /> : null}
+      {state === 'busy' ? <ParentOverview live={me.live ? me.data : null} /> : null}
       {state === 'caught-up' ? <ParentOverview variant="caughtUp" /> : null}
       {state === 'offline' ? <ParentOverview offline /> : null}
       {state === 'none' ? <ParentNoWard /> : null}

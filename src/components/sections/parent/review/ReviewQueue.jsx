@@ -11,7 +11,8 @@ const log = debug('ReviewQueue');
  * ReviewQueue — the white queue card of the To review tabs (Figma "Queue" 10034:145275: r24, #e7e7e7 hairline, soft shadow, p 8 / 22, gap14) with one row per waiting thing:
  * mint icon tile + 15/600 title over a 13 #575755 line + the ward chip + a small 3D button (r10, 18 x 12) — certificate "Review", evaluation "Review", correction "Check", payment "Decide".
  * Props: rows [{ kind: 'certificate' | 'evaluation' | 'correction' | 'payment', flag? }], ward (for the correction line), label (the list's accessible name),
- * hrefFor(kind, flag) -> a link for a row's button (omit to use onAction), onAction(kind, flag).
+ * hrefFor(kind, flag, row) -> a link for a row's button (omit to use onAction), onAction(kind, flag).
+ * Live rows may carry their own `ward` (corrections from several wards in one queue): it then names the row and its chip.
  * An empty list shows EMPTY_TAB (⚠️ ASSUMPTION, the same note as the corrections tab; no empty frame is drawn for a single tab).
  * ⚠️ ASSUMPTION: the payment "Decide" button only logs (no payment decision screen is drawn in this canvas).
  */
@@ -30,20 +31,22 @@ const ReviewQueue = ({ rows, ward, label, hrefFor, onAction }) => {
         <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
           {rows.map((row, i) => {
             const item = row.kind === 'correction' ? CORRECTION_ROW : ITEMS[row.kind];
+            const rowWard = row.ward || ward;
             const title = row.kind === 'correction' ? item.title(row.flag) : item.title;
-            const sub = row.kind === 'correction' ? item.sub(row.flag, ward) : item.sub;
+            const sub = row.kind === 'correction' ? item.sub(row.flag, rowWard) : item.sub;
             const icon = row.kind === 'correction' ? refreshIcon : item.icon;
-            const to = hrefFor?.(row.kind, row.flag);
+            const chip = row.ward ? row.ward.firstName : item.chip;
+            const to = hrefFor?.(row.kind, row.flag, row);
             return (
               <TabRow
-                key={`${row.kind}-${row.flag?.id ?? ''}`}
+                key={`${row.kind}-${row.ward?.id ?? ''}-${row.flag?.id ?? ''}`}
                 size="roomy"
                 icon={icon}
                 title={title}
                 sub={sub}
                 last={i === rows.length - 1}
               >
-                <WardChip tone="pending">{item.chip}</WardChip>
+                <WardChip tone="pending">{chip}</WardChip>
                 <Button
                   variant="primary"
                   size="sm"

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
-import { NAV_MAIN, NAV_SECONDARY, SIDEBAR_STATES } from './data/parentCoreData.js';
-import emma from '../../../assets/parent/emma.webp';
+import { NAV_MAIN, NAV_SECONDARY } from './data/parentCoreData.js';
+import useParentChrome from './live/useParentChrome.js';
 import homeIcon from '../../../assets/parent/frame-1.svg';
 import navWards from '../../../assets/parent/icon-1.svg';
 import navReview from '../../../assets/parent/icon-2.svg';
@@ -53,7 +53,9 @@ const Tile = ({ item, active, dot, tall = true }) => (
 );
 
 const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, className }) => {
-  const badges = (SIDEBAR_STATES[state] || SIDEBAR_STATES.linked).badges;
+  const chrome = useParentChrome(state);
+  const badges = chrome.sidebar.badges;
+  const emma = chrome.parent.photo;
   return (
     <aside
       aria-label="Parent navigation (collapsed)"
@@ -74,7 +76,7 @@ const ParentRailCollapsed = ({ state = 'linked', active = 'home', onExpand, clas
       <span className="flex size-[74px] shrink-0 items-center justify-center rounded-full border-[3px] border-solid border-[#e6e6e6] bg-white">
         <img
           src={emma}
-          alt="Emma Mensah"
+          alt={chrome.parent.name || ''}
           draggable="false"
           className="size-[62px] rounded-full object-cover"
         />

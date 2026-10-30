@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
-import { PARENT } from './data/parentCoreData.js';
+import useParentChrome from './live/useParentChrome.js';
 import logo from '../../../assets/engagement/GTHLogo 1.svg';
 import searchIcon from '../../../assets/parent/search-0-1.svg';
 import helpIcon from '../../../assets/parent/svg.svg';
@@ -50,12 +50,14 @@ const IconButton = ({ label, size = 36, badge, onClick, children, ...rest }) => 
 const ParentTopBar = ({
   bell = '5',
   messages = '4',
-  name = PARENT.short,
+  name: nameProp,
   onBell,
   bellOpen = false,
   onSwitchSpace,
 }) => {
   const navigate = useNavigate();
+  const chrome = useParentChrome();
+  const name = nameProp || chrome.parent.short;
   return (
     <header className="relative z-20 flex h-[87px] shrink-0 items-center justify-between gap-[16px] border-b border-solid border-[#e7e7e7] bg-white px-[clamp(16px,3.24vw,56px)] py-[12px] shadow-[0_1px_1px_rgba(27,36,44,0.12)]">
       <div className="flex min-w-0 items-center gap-[clamp(12px,1.97vw,34px)]">
