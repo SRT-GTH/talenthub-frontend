@@ -25,6 +25,7 @@ import { useIsDesktop } from '../../hooks/useMediaQuery.js';
 import {
   apiMessage,
   institutionHome,
+  institutionHomeFirst,
   institutionWelcomeSeen,
 } from '../../services/institutionPortal.api.js';
 import { debug } from '../../utils/debug.js';
@@ -36,6 +37,7 @@ const log = debug('InstitutionHomePage');
  * Live:
  *   GET /institution/me (session)    greeting, institution name, accreditation gate, hero counts
  *   GET /institution/home            readiness by programme, roster stats, next step, recent students, the "at a glance" cards
+ *                                    (on a full load it was started together with /me: the first load takes that request)
  *   POST /institution/home/welcome-seen   the first time an approved staff member opens the home, the welcome modal opens once and is marked seen
  * The first-login body (checklist + locked cards) shows while the roster is empty (or ?state=new); its "Add your students" step ticks itself once students exist.
  * While the institution is not approved the home redirects to the accreditation page or its status page.
@@ -80,11 +82,14 @@ const InstitutionHomePage = () => {
   const [home, setHome] = useState(null);
   const [error, setError] = useState('');
   const welcomed = useRef(false);
+  const firstLoad = useRef(true);
 
   const load = useCallback(async () => {
     setError('');
+    const first = firstLoad.current;
+    firstLoad.current = false;
     try {
-      setHome(await institutionHome());
+      setHome(await (first ? institutionHomeFirst() : institutionHome()));
     } catch (err) {
       setError(apiMessage(err));
     }

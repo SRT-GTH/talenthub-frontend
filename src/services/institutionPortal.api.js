@@ -246,6 +246,23 @@ export const myCredentials = () =>
   api.get('/school-links/credentials', { timeout: 60000 }).then(body);
 
 export const institutionHome = () => api.get('/institution/home', { timeout: 60000 }).then(body);
+
+/*
+ * Home starts loading together with /institution/me on a full load of /institution: the portal gate renders a page only once /me has
+ * answered, so home's own request would otherwise wait for it. prefetchInstitutionHome() starts it; the home page takes it once with
+ * institutionHomeFirst() (a fresh request when there is none, or it is older than 15 s).
+ */
+let homeEarly = null;
+export const prefetchInstitutionHome = () => {
+  const p = institutionHome();
+  p.catch(() => {}); // the home page reports errors when it takes the promise
+  homeEarly = { at: Date.now(), p };
+};
+export const institutionHomeFirst = () => {
+  const early = homeEarly;
+  homeEarly = null;
+  return early && Date.now() - early.at < 15000 ? early.p : institutionHome();
+};
 export const institutionWelcomeSeen = () =>
   api.post('/institution/home/welcome-seen', {}).then(body);
 export const institutionSettings = () => api.get('/institution/settings').then(body);

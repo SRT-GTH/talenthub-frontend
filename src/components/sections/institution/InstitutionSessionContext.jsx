@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import PageLoader from '../../ui/gthLoader/PageLoader.jsx';
-import { institutionMe } from '../../../services/institutionPortal.api.js';
+import { institutionMe, prefetchInstitutionHome } from '../../../services/institutionPortal.api.js';
 import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import {
@@ -21,11 +21,17 @@ import {
 
 export const InstitutionSessionProvider = ({ children }) => {
   const [state, setState] = useState({ loading: true, me: null, error: null, code: null });
+  const firstLoad = useRef(true);
   const load = useCallback(async () => {
     if (!isLoggedIn()) {
       setState({ loading: false, me: null, error: null, code: 'UNAUTHORIZED' });
       return null;
     }
+    // A full load of the home page: start its data now instead of after /me (the gate waits for /me).
+    if (firstLoad.current && window.location.pathname.replace(/\/+$/, '') === '/institution') {
+      prefetchInstitutionHome();
+    }
+    firstLoad.current = false;
     setState((s) => ({ ...s, loading: true }));
     try {
       const me = await institutionMe();
