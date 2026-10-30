@@ -158,6 +158,10 @@ export const exportOutcomes = ({ period, readiness, names }) =>
     .post('/institution/progress/outcomes/export', { period, readiness, names }, { timeout: 60000 })
     .then(body);
 
+/* ---- A school's public page (backend institutionPublic.service.js). Public: no sign-in needed; 404 until accredited. ---- */
+export const institutionPublicPage = (slug) =>
+  api.get(`/institution-public/${encodeURIComponent(slug)}`, { timeout: 60000 }).then(body);
+
 /* ---- Board of Governors report (backend institutionReport.service.js; each view is logged) ---- */
 export const institutionReport = () =>
   api.get('/institution/report', { timeout: 90000 }).then(body);
