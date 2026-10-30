@@ -16,6 +16,7 @@ const log = debug('WardsAll');
  */
 const WardRow = ({ ward, last }) => {
   const pending = ward.status === 'pending';
+  const opted = Boolean(ward.optedOut);
   const linkCls =
     'shrink-0 rounded-[4px] font-sans text-[14px] leading-normal font-semibold whitespace-nowrap text-[#387440] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
   return (
@@ -37,8 +38,8 @@ const WardRow = ({ ward, last }) => {
         </p>
         <p className="m-0 font-sans text-[13px] text-[#575755]">{ward.listLine}</p>
       </div>
-      <WardChip tone={pending ? 'pending' : 'active'}>
-        {pending ? 'Pending link' : 'Active'}
+      <WardChip tone={pending ? 'pending' : opted ? 'opted' : 'active'}>
+        {pending ? 'Pending link' : opted ? 'Opted out' : 'Active'}
       </WardChip>
       {pending ? (
         <button
@@ -61,8 +62,9 @@ const WardRow = ({ ward, last }) => {
   );
 };
 
-const WardsAll = ({ onLink, hide = [] }) => {
-  const list = WARD_LIST.filter((w) => !hide.includes(w.id));
+// Live passes `wards` (parentLiveView wardView rows) and `empty` copy for a parent with no ward yet.
+const WardsAll = ({ onLink, hide = [], wards = WARD_LIST, empty }) => {
+  const list = wards.filter((w) => !hide.includes(w.id));
   log('render, wards:', list.length);
   return (
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px] pt-[clamp(0px,0.7vw,12px)]">
@@ -88,6 +90,11 @@ const WardsAll = ({ onLink, hide = [] }) => {
 
       <div className="flex flex-col gap-[20px]">
         <ul className="m-0 flex list-none flex-col gap-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[8px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)]">
+          {list.length === 0 && empty ? (
+            <li className="py-[14px] font-sans text-[15px] leading-normal text-[#575755]">
+              {empty}
+            </li>
+          ) : null}
           {list.map((w, i) => (
             <WardRow key={w.id} ward={w} last={i === list.length - 1} />
           ))}

@@ -8,6 +8,10 @@
 export const DEFAULT_VISIBILITY = 'partners';
 
 const forms = (ward) => {
+  // Live wards with no gender on record use they / them / their.
+  if (ward?.pronoun === 'they') {
+    return { subject: 'They', object: 'them', possessive: 'their', possessiveCap: 'Their' };
+  }
   const her = ward?.pronoun === 'her' || ward?.pronoun === 'she';
   return {
     subject: her ? 'She' : 'He',

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { NAV_MAIN, NAV_SECONDARY, PARENT, SIDEBAR_STATES } from './data/parentCoreData.js';
+import { NAV_MAIN, NAV_SECONDARY } from './data/parentCoreData.js';
 import { NO_CAREER } from './switch/switchData.js';
-import emma from '../../../assets/parent/emma.webp';
+import useParentChrome from './live/useParentChrome.js';
 import homeActive from '../../../assets/parent/frame-1.svg';
 import navWards from '../../../assets/parent/icon-1.svg';
 import navReview from '../../../assets/parent/icon-2.svg';
@@ -27,6 +27,8 @@ const log = debug('ParentSidebar');
  * "Parent view · tap to switch", "This week" progress, four stats), the nav (Home · My wards · To review · Evaluate · Ward wallets · Notifications | Settings · Help and guides · My career),
  * the "You're also a talent" switch card, and the collapse toggle. Copy-adapted from the talent sidebar chrome; content from data/parentCoreData.js (SIDEBAR_STATES).
  * Props: state ('none' | 'linked' | 'caughtUp'), active (nav id, default 'home'), className.
+ * Live (signed in, not a frame URL): the parent, counts and note come from GET /parent/me (useParentChrome); `state` is
+ * then ignored and the career card follows whether the parent has a career profile.
  * ⚠️ ASSUMPTION: the collapse toggle (the « at the card's corner) only logs — Figma draws no collapsed parent rail; "tap to switch" and the Verified chevron do nothing (no switcher drawn).
  */
 
@@ -118,7 +120,15 @@ const ParentSidebar = ({
   cardRef,
   className,
 }) => {
-  const s = SIDEBAR_STATES[state] || SIDEBAR_STATES.linked;
+  const chrome = useParentChrome(state);
+  const s = chrome.sidebar;
+  const PARENT = chrome.parent;
+  if (chrome.live && !chrome.loading) career = PARENT.hasCareerProfile ? 'talent' : 'none';
+  const noteTo = chrome.live
+    ? s.noteTo || '/parent'
+    : state === 'none'
+      ? '/parent/link-ward'
+      : '/parent/review?tab=payments';
   const pct = Math.round((s.done / 3) * 1000) / 10;
   return (
     <aside
@@ -134,7 +144,7 @@ const ParentSidebar = ({
       >
         <span className="relative block size-[62px] shrink-0 overflow-clip rounded-[31px]">
           <img
-            src={emma}
+            src={PARENT.photo}
             alt=""
             draggable="false"
             className="size-full rounded-[31px] object-cover"
@@ -206,13 +216,15 @@ const ParentSidebar = ({
               style={{ width: s.done ? `${pct}%` : 1 }}
             />
           </div>
-          <Link
-            to={state === 'none' ? '/parent/link-ward' : '/parent/review?tab=payments'}
-            onClick={() => log('sidebar note')}
-            className="font-sans text-[10px] leading-[16px] font-normal tracking-[0.2px] whitespace-nowrap text-[#70706e] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-          >
-            {s.note}
-          </Link>
+          {s.note ? (
+            <Link
+              to={noteTo}
+              onClick={() => log('sidebar note')}
+              className="font-sans text-[10px] leading-[16px] font-normal tracking-[0.2px] whitespace-nowrap text-[#70706e] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              {s.note}
+            </Link>
+          ) : null}
         </div>
         <div className="flex w-[257px] items-center justify-center gap-[4px] rounded-[10px] border border-solid border-[#faf4e8] bg-[#ebf1ec] py-[10px]">
           {s.stats.map((st, i) => (
@@ -248,7 +260,7 @@ const ParentSidebar = ({
             </span>
           </span>
           <span className="font-mono text-[10px] leading-[16px] tracking-[0.2px] text-[#32683a]">
-            {career === 'none' ? NO_CAREER.cardLine : PARENT.talentLine}
+            {career === 'none' ? NO_CAREER.cardLine : PARENT.talentLine || 'My career'}
           </span>
           {career === 'none' ? (
             <button

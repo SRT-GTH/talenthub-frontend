@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import { parentError } from '../../../../services/parent.api.js';
 import ParentToast from '../wards/dialogs/ParentToast.jsx';
 import { focusAfterRender } from '../focusAfterRender.js';
 import WardProfileTab from './WardProfileTab.jsx';
@@ -24,18 +25,37 @@ const log = debug('WardFlagsSection');
  *     &toast=fix-approved                                                 PW-06b  10051:23020 "Fix approved" toast (Date of birth approved, Flags chip 1)
  * `sev` (know | correcting | critical) and `note` seed the dialog form; `check=1` shows the error at once. The two toast URLs apply their drawn state on load (flagsStore ensureSent / ensureApproved) so a frame
  * reproduces from a fresh load. Real flow: Flag button -> PW-04 -> Send -> toast (Undo reverts) · Review fix -> PW-06 -> Approve fix -> toast, or Flag again -> PW-06c -> Send flag again.
- * Props: ward (wardsData entry), tab ('profile' | 'flags').
+ * Props: ward (wardsData entry), tab ('profile' | 'flags'), live (optional): { groups, flags, send(fieldId, values),
+ *   approve(flagId), again(flagId, values) } — the ward's real fields and flags, and async writes to the parent API. Live sends
+ *   have no Undo (the flag already reached the ward); a failed write shows its error in the toast.
  * ⚠️ ASSUMPTION: the toasts reuse ParentToast (4 s); a flag-again send shows the same "Flag sent to Abena" toast (no frame).
  */
-const WardFlagsSection = ({ ward, tab }) => {
+const WardFlagsSection = ({ ward, tab, live = null }) => {
   const [params, setParams] = useSearchParams();
   const [toast, setToast] = useState(null);
-  const { flags } = useWardFlags();
+  const mock = useWardFlags();
+  const flags = live ? live.flags : mock.flags;
+  const groups = live ? live.groups : PROFILE_GROUPS;
   const seeded = useRef(false);
   const modal = params.get('modal');
   const seedToast = params.get('toast');
-  const field = PROFILE_GROUPS.flatMap((g) => g.fields).find((f) => f.id === params.get('field'));
+  const field = groups.flatMap((g) => g.fields).find((f) => f.id === params.get('field'));
   const flag = flags.find((f) => f.id === params.get('flag'));
+  // Live writes: one at a time; the error (if any) shows in the toast.
+  const [busy, setBusy] = useState(false);
+  const run = async (fn, done) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await fn();
+      done();
+    } catch (err) {
+      log('write failed', err?.message);
+      setToast({ message: 'That didn’t go through', detail: parentError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   useEffect(() => {
     log('mount', { ward: ward.id, tab, modal, seedToast });
@@ -45,6 +65,7 @@ const WardFlagsSection = ({ ward, tab }) => {
   useEffect(() => {
     if (seeded.current) return;
     seeded.current = true;
+    if (live) return; // the frame seeds belong to the mock
     if (seedToast === 'flag-sent') {
       flagsActions.ensureSent();
       log('seed flag-sent');
@@ -54,7 +75,7 @@ const WardFlagsSection = ({ ward, tab }) => {
       flagsActions.ensureApproved('dob');
       setToast(FLAGS_COPY.toast.approved({ label: 'Date of birth' }, ward));
     }
-  }, [seedToast, ward]);
+  }, [seedToast, ward, live]);
 
   // Opens a dialog (next = { modal, … }) or closes it (null) while keeping the tab.
   const setModal = (next) => {
@@ -72,7 +93,11 @@ const WardFlagsSection = ({ ward, tab }) => {
   return (
     <>
       {tab === 'profile' ? (
-        <WardProfileTab flags={flags} onFlag={(f) => setModal({ modal: 'flag', field: f.id })} />
+        <WardProfileTab
+          flags={flags}
+          groups={groups}
+          onFlag={(f) => setModal({ modal: 'flag', field: f.id })}
+        />
       ) : (
         <WardFlagsTab
           ward={ward}
@@ -90,6 +115,20 @@ const WardFlagsSection = ({ ward, tab }) => {
           initial={seed}
           onClose={close}
           onSend={(values) => {
+            if (live) {
+              run(
+                () => live.send(field.id, values),
+                () => {
+                  log('sent (live)', { field: field.id });
+                  close();
+                  setToast({
+                    ...FLAGS_COPY.toast.sent({ label: field.label }, ward),
+                    actionLabel: undefined,
+                  });
+                }
+              );
+              return;
+            }
             const token = flagsActions.sendFlag(field.id, values);
             log('sent', { field: field.id });
             close();
@@ -109,6 +148,20 @@ const WardFlagsSection = ({ ward, tab }) => {
           initial={seed}
           onClose={close}
           onSend={(values) => {
+            if (live) {
+              run(
+                () => live.again(flag.id, values),
+                () => {
+                  close();
+                  focusAfterRender('#flags-list');
+                  setToast({
+                    ...FLAGS_COPY.toast.sent({ label: flag.label }, ward),
+                    actionLabel: undefined,
+                  });
+                }
+              );
+              return;
+            }
             flagsActions.flagAgain(flag.id, values);
             close();
             // "Review fix" is gone from the row: keep focus in the list
@@ -124,6 +177,17 @@ const WardFlagsSection = ({ ward, tab }) => {
           flag={flag}
           onClose={close}
           onApprove={() => {
+            if (live) {
+              run(
+                () => live.approve(flag.id),
+                () => {
+                  close();
+                  focusAfterRender('#flags-list');
+                  setToast(FLAGS_COPY.toast.approved(flag, ward));
+                }
+              );
+              return;
+            }
             flagsActions.approveFix(flag.id);
             close();
             focusAfterRender('#flags-list');

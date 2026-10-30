@@ -6,6 +6,8 @@ import UnderlineTabs from '../../../ui/UnderlineTabs.jsx';
 import ParentFrame from '../ParentFrame.jsx';
 import { useWardFlags } from '../flags/flagsStore.js';
 import { WARDS } from '../wards/data/wardsData.js';
+import { useParentMe, useParentWardsDetail } from '../live/parentLive.js';
+import { flagRows, wardView } from '../live/parentLiveView.js';
 import AssessmentResults from './AssessmentResults.jsx';
 import CertificateDialog from './CertificateDialog.jsx';
 import EvaluationDetail from './EvaluationDetail.jsx';
@@ -32,6 +34,8 @@ const log = debug('ReviewPage');
  * (`?view=assessment`) or the "all caught up" card. Corrections come from the flags store (`useWardFlags`), so a fix approved on the ward page leaves this queue too.
  * URL contract and frame table: reviewState.js and wiki/parent-review.md. What the parent has dealt with lives in the URL (`done=`), so every frame reproduces from a fresh load.
  * Counts: Certificates / Evaluations / Payments are 1 until dealt with, Corrections = the corrected flags, All = the sum. A zero count is hidden, except when everything is zero (PR-05 draws "0" everywhere).
+ * Live (signed in): the corrections of every linked ward (each row names its ward and opens that ward's re-check
+ * dialog). Certificates, evaluations and payments have no parent-approval backend yet, so they count 0.
  */
 const ward = WARDS.abena;
 
@@ -39,8 +43,30 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const rv = useReviewState();
   const { update, urlFor } = rv;
-  const { flags } = useWardFlags();
-  const corrections = flags.filter((f) => f.status === 'corrected');
+  const mock = useWardFlags();
+  const me = useParentMe();
+  const live = me.live;
+  const liveSummaries = me.data?.wards || [];
+  const details = useParentWardsDetail(liveSummaries.map((w) => w.id));
+  const liveCorrections = live
+    ? liveSummaries.flatMap((w) => {
+        const d = details.wards[w.id]?.data;
+        const view = wardView(w, d);
+        return flagRows(d)
+          .filter((f) => f.status === 'corrected')
+          .map((flag) => ({ flag, ward: view }));
+      })
+    : null;
+  const corrections = live
+    ? liveCorrections.map((c) => c.flag)
+    : mock.flags.filter((f) => f.status === 'corrected');
+  // Live: until every ward's flags are in, say so (not "all caught up").
+  const liveLoading =
+    live &&
+    (!me.data ||
+      liveSummaries.some(
+        (w) => !details.wards[w.id]?.data && details.wards[w.id]?.status !== 'error'
+      ));
 
   /* A toast URL carries the state it shows, so the frame reproduces from a fresh load. */
   const done = useMemo(() => {
@@ -49,14 +75,14 @@ const ReviewPage = () => {
     if (rv.toast === 'evaluation-sent') set.add('evaluation');
     return [...set];
   }, [rv.done, rv.toast]);
-  const certPending = !done.some((d) => d.startsWith('certificate'));
-  const evalPending = !done.some((d) => d.startsWith('evaluation'));
+  const certPending = !live && !done.some((d) => d.startsWith('certificate'));
+  const evalPending = !live && !done.some((d) => d.startsWith('evaluation'));
 
   const counts = {
     certificates: rv.caughtUp || !certPending ? 0 : 1,
     evaluations: rv.caughtUp || !evalPending ? 0 : 1,
     corrections: rv.caughtUp ? 0 : corrections.length,
-    payments: rv.caughtUp ? 0 : 1,
+    payments: rv.caughtUp || live ? 0 : 1,
   };
   const total = counts.certificates + counts.evaluations + counts.corrections + counts.payments;
   const empty = total === 0;
@@ -69,8 +95,10 @@ const ReviewPage = () => {
   const rowsFor = (tab) => {
     const cert = certPending ? [{ kind: 'certificate' }] : [];
     const evaluation = evalPending ? [{ kind: 'evaluation' }] : [];
-    const fixes = corrections.map((flag) => ({ kind: 'correction', flag }));
-    const payment = [{ kind: 'payment' }];
+    const fixes = live
+      ? liveCorrections.map((c) => ({ kind: 'correction', flag: c.flag, ward: c.ward }))
+      : corrections.map((flag) => ({ kind: 'correction', flag }));
+    const payment = live ? [] : [{ kind: 'payment' }];
     if (tab === 'certificates') return cert;
     if (tab === 'evaluations') return evaluation;
     if (tab === 'corrections') return fixes;
@@ -148,7 +176,11 @@ const ReviewPage = () => {
         <div className="flex flex-col gap-[20px]">
           <UnderlineTabs label="To review" activeId={activeTab} tabs={tabs} />
 
-          {empty ? (
+          {liveLoading ? (
+            <p role="status" className="m-0 font-sans text-[15px] text-[#575755]">
+              Loading what waits for you…
+            </p>
+          ) : empty ? (
             <ReviewCaughtUp />
           ) : rv.view === 'assessment' ? (
             <AssessmentResults
@@ -165,9 +197,9 @@ const ReviewPage = () => {
               rows={rowsFor(rv.tab)}
               ward={ward}
               label={TABS.find((t) => t.id === rv.tab)?.label ?? 'All'}
-              hrefFor={(kind, flag) =>
+              hrefFor={(kind, flag, row) =>
                 kind === 'correction'
-                  ? `/parent/wards/${ward.id}?tab=flags&modal=recheck&flag=${flag.id}`
+                  ? `/parent/wards/${(row?.ward || ward).id}?tab=flags&modal=recheck&flag=${flag.id}`
                   : undefined
               }
               onAction={handleAction}

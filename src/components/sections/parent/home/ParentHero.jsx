@@ -55,17 +55,24 @@ const ChipGlyph = ({ kind }) => {
   );
 };
 
-const ParentHero = ({ firstName = 'Emma', greeting, stats = [] }) => (
+// Live passes today's date and the time-of-day greeting; the defaults are the Figma frame's.
+const ParentHero = ({
+  firstName = 'Emma',
+  greeting,
+  stats = [],
+  date = HOME_DATE,
+  salutation = 'Good evening',
+}) => (
   <section
     aria-label="Today"
     className="relative flex flex-col gap-[24px] rounded-[28px] border border-solid border-[#1c2a21]/10 bg-white py-[32px] pr-[clamp(16px,2.3vw,32px)] pl-[clamp(20px,2.6vw,36px)] shadow-[0_2px_4px_rgba(28,42,33,0.04),0_1px_1px_rgba(28,42,33,0.04)] 2xl:min-h-[255px] 2xl:flex-row 2xl:items-center"
   >
     <div className="flex min-w-0 flex-1 flex-col items-start gap-[10px]">
       <p className="m-0 font-sans text-[12px] leading-normal font-bold tracking-[1.2px] whitespace-nowrap text-[#387440]">
-        {HOME_DATE}
+        {date}
       </p>
       <h1 className="m-0 font-sans text-[clamp(32px,2.55vw,44px)] leading-[1.1] font-semibold text-[#1c2a21]">
-        Good evening, <span className="text-[#387440]">{firstName}.</span>
+        {salutation}, <span className="text-[#387440]">{firstName}.</span>
       </h1>
       <p className="m-0 max-w-[560px] font-sans text-[16px] leading-[24px] text-[#595959]">
         {greeting}

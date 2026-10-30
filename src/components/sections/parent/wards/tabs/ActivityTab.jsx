@@ -9,10 +9,21 @@ const log = debug('ActivityTab');
 /*
  * ActivityTab — PW-13 10049:1713, content under the ward header + tabs: one 1329-wide column, gap 20.
  * Filter chips (All / Learning / Skills / Clubs / Volunteering), then two cards "This week" and "Earlier" (11/700 uppercase labels) of icon-tile rows without trailing chips.
- * Props: ward (wardsData entry; the rows are the same mock set for every ward).
+ * Props: ward (wardsData entry; the rows are the same mock set for every ward), data (live: { filters, groups } from
+ * parentLiveView activityTab; an empty live feed shows one note card).
  */
-const ActivityTab = ({ ward }) => {
-  const d = activityData();
+const ActivityTab = ({ ward, data }) => {
+  const d = data || activityData();
+  if (data && d.groups.length === 0) {
+    return (
+      <TabCard title="Activity" variant="label" id="activity-empty">
+        <p className="m-0 font-sans text-[14px] leading-normal text-[#575755]">
+          Nothing yet. When {ward.firstName} finishes an assessment, verifies a skill or adds a
+          certificate, it shows here.
+        </p>
+      </TabCard>
+    );
+  }
   log('render, ward:', ward?.id, 'groups:', d.groups.length);
   return (
     <div className="flex w-full min-w-0 flex-col gap-[20px]">

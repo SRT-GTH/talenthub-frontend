@@ -10,7 +10,8 @@ const log = debug('WardProfileTab');
  * (Personal · Education · Interests · Skills · Activities, 12/600 caps, letter-spacing .72). Each field is a row (p12, r12): label 13 #575755 over the value 15/600, an optional status chip, and a "Flag" button
  * (16px flag icon + 13/600 #575755, p 6 / 10, r10). The parent cannot edit a field, only flag it.
  * Chips: a flagged field shows its flag status ("Corrected · re-review" white chip, "Flagged by you" red chip); the Python field carries its static "Verified" chip.
- * Props: flags (flagsStore flags), onFlag(field) — opens the PW-04 dialog.
+ * Props: flags (flagsStore flags), onFlag(field) — opens the PW-04 dialog, groups (live: the ward's real fields; defaults to the mock).
+ * Live fields with no value read "Not added yet" in grey; they can still be flagged ("please add your school").
  * ⚠️ ASSUMPTION: the whole row is not clickable (Figma draws only the Flag button); the button's accessible name carries the field ("Flag Date of birth").
  */
 const FieldChip = ({ field, flag }) => {
@@ -22,7 +23,7 @@ const FieldChip = ({ field, flag }) => {
   return null;
 };
 
-const WardProfileTab = ({ flags, onFlag }) => {
+const WardProfileTab = ({ flags, onFlag, groups = PROFILE_GROUPS }) => {
   log('render', { flags: flags.length });
   const flagFor = (fieldId) => flags.find((f) => f.fieldId === fieldId);
 
@@ -31,7 +32,7 @@ const WardProfileTab = ({ flags, onFlag }) => {
       aria-label="Profile fields"
       className="flex flex-col gap-[16px] rounded-[24px] border border-solid border-[#e7e7e7] bg-white px-[22px] py-[8px] shadow-[0_5px_8.5px_rgba(28,42,33,0.03)] max-sm:px-[14px]"
     >
-      {PROFILE_GROUPS.map((group) => (
+      {groups.map((group) => (
         <div key={group.id} className="flex flex-col gap-[16px]">
           <h3 className="m-0 pt-[14px] pb-[6px] font-sans text-[12px] leading-normal font-semibold tracking-[0.72px] text-[#575755] uppercase">
             {group.label}
@@ -42,7 +43,9 @@ const WardProfileTab = ({ flags, onFlag }) => {
                 <span className="font-sans text-[13px] leading-normal text-[#575755] max-lg:text-[12px]">
                   {field.label}
                 </span>
-                <span className="font-sans text-[15px] leading-normal font-semibold text-[#1c2a21]">
+                <span
+                  className={`font-sans text-[15px] leading-normal ${field.empty ? 'font-normal text-[#999]' : 'font-semibold text-[#1c2a21]'}`}
+                >
                   {field.value}
                 </span>
               </div>
