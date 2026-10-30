@@ -4,6 +4,7 @@ import {
   OpportunityArrowRightIcon,
   OpportunityShieldIcon,
 } from '../opportunityGuidance/opportunityIcons.jsx';
+import { isOwnRecord } from './ownRecords.js';
 
 const log = debug('SearchResultCards');
 
@@ -30,6 +31,16 @@ const TYPE = {
   lab: { mark: 'Lab', open: 'Open lab' },
   game: { mark: 'Play', open: 'Play game' },
   assessment: { mark: 'Quiz', open: null },
+  // Phase 3 (2026-10-30, backend gthSearch.listMyRecords): the talent's own records. Summary facts only; the
+  // first fact names the kind ("Application", "Interview", ...) and the second is its status.
+  application: { mark: '✓', open: 'View application' },
+  interview: { mark: '◷', open: 'View interview' },
+  saved: { mark: '♥', open: 'Open' },
+  result: { mark: '%', open: 'See result' },
+  practice: { mark: 'Q&A', open: null },
+  conversation: { mark: '✉', open: 'Open messages' },
+  enrolment: { mark: '▶', open: 'Continue course' },
+  verification: { mark: '★', open: 'View profile' },
 };
 
 /** "Ama Mensah" -> "AM": a person without a photo. */
@@ -222,7 +233,7 @@ const SearchResultCards = ({
     >
       <div
         role="group"
-        aria-label="Search results"
+        aria-label={results.every(isOwnRecord) ? 'Your records' : 'Search results'}
         className="-mx-[4px] flex max-w-full gap-[12px] overflow-x-auto px-[4px] pb-[8px] [scrollbar-width:thin]"
       >
         {results.map((card) => (

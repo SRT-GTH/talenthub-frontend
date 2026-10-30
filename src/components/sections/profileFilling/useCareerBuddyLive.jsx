@@ -9,6 +9,7 @@ import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import CareerPostCards from './careerExposure/CareerPostCards.jsx';
 import SearchResultCards from './search/SearchResultCards.jsx';
+import { isOwnRecord } from './search/ownRecords.js';
 import SearchDetailSheet from './search/SearchDetailSheet.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
@@ -950,8 +951,11 @@ export function useCareerBuddyLive({
         }
       : {};
   };
+  // Phase 3: the talent's own records are private - opening one is not a search signal.
   const cardSignal = (kind, card, m) =>
-    sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
+    isOwnRecord(card)
+      ? undefined
+      : sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
   const renderSearchResults = (m, { compact = false } = {}) => (
     <>
       <SearchResultCards
