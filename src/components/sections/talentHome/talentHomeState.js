@@ -94,7 +94,21 @@ const liveSnapshot = (stateKey, data) => {
   const doneById = Object.fromEntries((j?.stages || []).map((s) => [s.id, s.done]));
   // The stepper fills stages in order, so stages done = the leading run of done stages
   // shown as doneCount; the real per-stage flags ride along as `done`.
-  const stages = JOURNEY_STAGES.map((s) => ({ ...s, done: Boolean(doneById[s.id]) }));
+  // The backend's stage list decides which stages show (JHS talents have no Work or Pitch); milestone badges sit on
+  // the stage that reaches each milestone (a third, two thirds and all of the stages).
+  const ids = new Set((j?.stages || []).map((s) => s.id));
+  const shown = ids.size ? JOURNEY_STAGES.filter((s) => ids.has(s.id)) : JOURNEY_STAGES;
+  const t = shown.length;
+  const badgeAt = {
+    [Math.round(t / 3) - 1]: 'Discoverable',
+    [Math.round((t * 2) / 3) - 1]: 'Top 20%',
+    [t - 1]: 'Top Talent',
+  };
+  const stages = shown.map((s, i) => ({
+    ...s,
+    badge: badgeAt[i],
+    done: Boolean(doneById[s.id]),
+  }));
   const doneCount = j?.doneCount ?? 0;
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
   return {

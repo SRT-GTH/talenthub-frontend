@@ -1,4 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  PHOTO_TYPES,
+  photoFileProblem,
+  uploadProfilePhoto,
+} from '../../../services/talentProfile.api.js';
+import { saveProfileFields } from '../../../services/profileStages.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -79,7 +85,7 @@ const PitchChip = ({ onClick }) => (
   </button>
 );
 
-const Avatar = ({ editable = true }) => (
+const Avatar = ({ editable = true, onPick, busy = false }) => (
   <div
     className={classNames(
       'relative -mt-[calc(var(--av)/2)] shrink-0 rounded-full bg-white',
@@ -105,8 +111,10 @@ const Avatar = ({ editable = true }) => (
       <button
         type="button"
         data-ax="photo"
-        aria-label="Change photo"
-        onClick={() => log('change photo clicked (no backend)')}
+        aria-label={busy ? 'Uploading photo' : 'Change photo'}
+        aria-busy={busy || undefined}
+        disabled={busy}
+        onClick={() => (onPick ? onPick() : log('change photo clicked (demo)'))}
         className={classNames(
           'absolute right-0 bottom-[2px] flex size-[34px] cursor-pointer items-center justify-center rounded-full border border-[rgba(28,42,33,0.12)] bg-[#ffd86b] playful:border-[1.5px] playful:border-[#1c2a21]',
           FOCUS
@@ -155,8 +163,36 @@ const Stat = ({ value, label, streak }) => (
  * Layout is container-query driven so it works from 320px up; at >= 1024px of content width it
  * matches the 1329px desktop frame.
  */
-const ProfileHeader = ({ profile, mode = 'owner' }) => {
+const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
   const h = PROFILE_HERO;
+  // Live: the camera button uploads a photo (talentProfile.api uploadProfilePhoto) and saves profile.profilePhoto.
+  const fileRef = useRef(null);
+  const [photo, setPhoto] = useState({ busy: false, error: '' });
+  const pickPhoto = () => fileRef.current?.click();
+  const onPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const problem = photoFileProblem(file);
+    if (problem) {
+      setPhoto({ busy: false, error: problem });
+      return;
+    }
+    setPhoto({ busy: true, error: '' });
+    try {
+      const url = await uploadProfilePhoto(file);
+      await saveProfileFields({ profilePhoto: url });
+      log('photo saved');
+      setPhoto({ busy: false, error: '' });
+      onSaved?.();
+    } catch (err) {
+      log.error('photo upload failed:', err?.response?.status || err?.message);
+      setPhoto({
+        busy: false,
+        error: 'Your photo wasn’t uploaded. Check your connection and try again.',
+      });
+    }
+  };
   // Preview modes (P-07 recruiter / PR-02 public / PR-04 recruiter + pitch hidden): same hero with no
   // edit affordances, different buttons + stats, and a "… see these buttons" sticker.
   const owner = mode === 'owner';
@@ -190,6 +226,14 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
         {/* cover */}
         <div className="relative -mx-px -mt-px h-[clamp(112px,8.68vw,150px)] overflow-hidden bg-[#387440] playful:-mx-[1.5px] playful:-mt-[1.5px]">
           <CoverDoodles stripes={mode === 'public' || pitchHidden} />
+          {photo.error || photo.busy ? (
+            <p
+              role={photo.error ? 'alert' : 'status'}
+              className="absolute bottom-[10px] left-1/2 z-10 max-w-[90%] -translate-x-1/2 rounded-full bg-white px-[14px] py-[6px] text-center text-[13px] leading-[normal] font-semibold text-[#1c2a21]"
+            >
+              {photo.error || 'Uploading your photo…'}
+            </p>
+          ) : null}
           <Tag
             size={13}
             className="absolute top-[clamp(12px,1.39vw,24px)] left-[clamp(12px,1.85vw,32px)] z-10 playful:rotate-[5deg]"
@@ -205,7 +249,18 @@ const ProfileHeader = ({ profile, mode = 'owner' }) => {
 
         <div className="flex flex-col px-[clamp(12px,1.85vw,32px)] pb-[clamp(16px,1.56vw,27px)] @5xl:flex-row @5xl:items-start">
           <div className="flex min-w-0 flex-col gap-x-[clamp(12px,1.4vw,24px)] @2xl:flex-row @5xl:flex-1">
-            <Avatar editable={owner} />
+            <Avatar editable={owner} onPick={live ? pickPhoto : undefined} busy={photo.busy} />
+            {owner && live ? (
+              <input
+                ref={fileRef}
+                type="file"
+                accept={PHOTO_TYPES.join(',')}
+                className="hidden"
+                aria-hidden="true"
+                tabIndex={-1}
+                onChange={onPhoto}
+              />
+            ) : null}
 
             <div className="mt-[10px] flex min-w-0 flex-1 flex-col gap-[6px]">
               <div className="flex flex-wrap items-center gap-x-[10px] gap-y-[4px]">

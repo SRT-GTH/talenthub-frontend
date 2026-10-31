@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { classNames } from '../../../utils/classNames.js';
 import {
@@ -20,6 +21,8 @@ import {
 } from '../../shared/assets.jsx';
 import { Bar, CARD_DASHED, CARD_SOFT, Chip, HEAD, Photo } from './coreUi.jsx';
 import { CORE_CONTENT, HERO, JOURNEY_COPY, UNLOCKS } from './talentHomeCoreData.js';
+import { useLiveJourney } from '../engagementShell/useLiveJourney.js';
+import { useLiveMoreForYou } from './useLiveMoreForYou.js';
 import { PERSONALITY, SKILLS_EVIDENCE } from './talentHomeTabsData.js';
 import { HomeCardChrome } from './EditHomePanel.jsx';
 import { useHomeLayout } from './TabsHomeLayoutStore.js';
@@ -55,10 +58,10 @@ const UnlockCard = ({ card }) => {
       <p className="text-[13px] leading-[19px] text-[#595959]">{card.body}</p>
       <div className="flex items-center gap-[10px]">
         <span className="min-w-0 flex-1 lg:max-w-[300px]">
-          <Bar pct={100 / card.progress.of} height={6} />
+          <Bar pct={(100 * (card.progress.done ?? 1)) / card.progress.of} height={6} />
         </span>
         <span className="text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#387440]">
-          1 of {card.progress.of}
+          {card.progress.done ?? 1} of {card.progress.of}
         </span>
       </div>
       <p className="text-[12px] leading-[normal] font-semibold text-[#785910]">{card.at}</p>
@@ -68,7 +71,7 @@ const UnlockCard = ({ card }) => {
 
 // ---- "More for you" (Complete / Top Talent) ----------------------------------------------------
 
-const MoreCard = ({ icon, title, link, children }) => (
+const MoreCard = ({ icon, title, link, to, children }) => (
   <article
     className={classNames(
       'flex min-w-0 flex-col gap-[10px] rounded-[24px] bg-white p-[18px] max-lg:w-[clamp(220px,62vw,264px)] max-lg:shrink-0 max-lg:snap-start',
@@ -85,7 +88,15 @@ const MoreCard = ({ icon, title, link, children }) => (
       <h3 className="text-[15px] leading-[normal] font-semibold text-[#1c2a21]">{title}</h3>
     </div>
     {children}
-    {link ? (
+    {link && to ? (
+      <Link
+        to={to}
+        className="mt-[2px] inline-flex w-fit items-center gap-[4px] rounded-[6px] text-[13px] leading-[normal] font-semibold text-[#387440] no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+      >
+        {link}
+        <TalentHomeArrowRightGreenSmallIcon className="size-[14px]" />
+      </Link>
+    ) : link ? (
       <span className="mt-[2px] inline-flex w-fit items-center gap-[4px] text-[13px] leading-[normal] font-semibold text-[#387440]">
         {link}
         <TalentHomeArrowRightGreenSmallIcon className="size-[14px]" />
@@ -104,9 +115,10 @@ const Row = ({ a, b }) => (
 const BADGE_TILE =
   'flex size-[36px] items-center justify-center rounded-full border border-[rgba(28,42,33,0.12)] playful:border-[1.5px] playful:border-[#1c2a21]';
 
-const MoreForYou = ({ more, editing }) => {
+// live: { learning, saved, community } from useLiveMoreForYou (null = no data); demo cards are dropped when live.
+const MoreForYou = ({ more, editing, live = null }) => {
   const layout = useHomeLayout();
-  const cards = {
+  const demoCards = {
     'my-learning': (
       <MoreCard
         icon={<TalentHomeLearningMortarboardIcon className="size-[17px]" />}
@@ -210,6 +222,43 @@ const MoreForYou = ({ more, editing }) => {
       </MoreCard>
     ),
   };
+  const cards = live
+    ? {
+        'my-learning': live.learning ? (
+          <MoreCard
+            icon={<TalentHomeLearningMortarboardIcon className="size-[17px]" />}
+            title={live.learning.title}
+            link={live.learning.link}
+            to={live.learning.to}
+          >
+            <Bar pct={live.learning.pct} height={8} to="playful:to-[#84cc16]" />
+            <Row a={live.learning.row[0]} b={live.learning.row[1]} />
+          </MoreCard>
+        ) : null,
+        'saved-roles': live.saved ? (
+          <MoreCard
+            icon={<TalentHomeSavedRolesHeartIcon className="size-[17px]" />}
+            title={live.saved.title}
+            link={live.saved.link}
+            to={live.saved.to}
+          >
+            {live.saved.chip ? <Chip className="w-fit">{live.saved.chip}</Chip> : null}
+            <Row a={live.saved.row[0]} b={live.saved.row[1]} />
+          </MoreCard>
+        ) : null,
+        community: live.community ? (
+          <MoreCard
+            icon={<TalentHomeCommunityChatIcon className="size-[17px]" />}
+            title={live.community.title}
+            link={live.community.link}
+            to={live.community.to}
+          >
+            <Row a={live.community.row[0]} b={live.community.row[1]} />
+          </MoreCard>
+        ) : null,
+        'profile-completeness': demoCards['profile-completeness'],
+      }
+    : demoCards;
   return (
     <section
       aria-label="More for you"
@@ -243,13 +292,48 @@ const MoreForYou = ({ more, editing }) => {
   );
 };
 
+/*
+ * The unlock cards for the signed-in talent's journey: milestone thresholds follow its stage count (7 for JHS), JHS
+ * talents unlock learning rather than roles, and under-18s are told recruiter messages need a linked parent.
+ */
+const unlockCardsFor = (journey) => {
+  if (!journey?.total) return UNLOCKS.cards;
+  const t = journey.total;
+  const at = [Math.round(t / 3), Math.round((t * 2) / 3), t];
+  const names = ['Discoverable', 'Top 20%', 'Top Talent'];
+  return UNLOCKS.cards.map((card, i) => {
+    const out = {
+      ...card,
+      progress: { of: at[i], done: Math.min(journey.doneCount || 0, at[i]) },
+      at: `Unlocks at ${names[i]} · ${at[i]} of ${t}`,
+    };
+    if (journey.jhs && card.id === 'roles') {
+      out.title = 'Learning matched to you';
+      out.body = 'See training and scholarships picked for your interests.';
+    }
+    if (journey.isMinor && card.id === 'recruiters') {
+      out.body = 'Verified recruiters can reach you once a parent or guardian links your account.';
+    }
+    return out;
+  });
+};
+
 // Day 1: "What you unlock as you go". Discoverable: nothing. Complete / Top Talent: "More for you".
 const UnlocksSection = ({ home }) => {
+  const journey = useLiveJourney();
+  const liveMore = useLiveMoreForYou(
+    Boolean(home.live) && (home.stateKey === 'complete' || home.stateKey === 'top')
+  );
   log('render', { state: home.stateKey });
   if (home.stateKey === 'complete' || home.stateKey === 'top') {
-    // Real data: "More for you" (learning, saved roles, badges...) is not wired yet.
-    if (home.live) return null;
-    return <MoreForYou more={CORE_CONTENT[home.stateKey].more} editing={home.editOpen} />;
+    if (home.live && !liveMore) return null;
+    return (
+      <MoreForYou
+        more={CORE_CONTENT[home.stateKey].more}
+        editing={home.editOpen}
+        live={home.live ? liveMore : null}
+      />
+    );
   }
   if (home.stateKey !== 'day1') return null;
   return (
@@ -266,7 +350,7 @@ const UnlocksSection = ({ home }) => {
       </div>
       <div className="-mx-[clamp(12px,1.4vw,24px)] overflow-x-auto px-[clamp(12px,1.4vw,24px)] [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
         <div className="flex gap-[16px] max-lg:snap-x lg:grid lg:grid-cols-3 [&>*]:max-lg:w-[clamp(240px,70vw,448px)] [&>*]:max-lg:shrink-0 [&>*]:max-lg:snap-start">
-          {UNLOCKS.cards.map((card) => (
+          {(home.live ? unlockCardsFor(journey) : UNLOCKS.cards).map((card) => (
             <UnlockCard key={card.id} card={card} />
           ))}
         </div>

@@ -6,6 +6,7 @@ import AssessmentFrame from '../../components/sections/talentAssessment/Assessme
 import PersonalityDetail from '../../components/sections/talentAssessment/PersonalityDetail.jsx';
 import SkillEvidence from '../../components/sections/talentAssessment/SkillEvidence.jsx';
 import { buildLivePersonalityDetail } from '../../components/sections/talentAssessment/liveOverview.js';
+import { buildLiveSkillEvidence } from '../../components/sections/talentAssessment/liveSkillEvidence.js';
 import { useAssessmentHome } from '../../components/sections/talentAssessment/useAssessmentHome.js';
 import { useAssessmentState } from '../../components/sections/talentAssessment/assessmentState.js';
 import {
@@ -23,10 +24,14 @@ const log = debug('AssessmentDetailPage');
 const AssessmentDetailPage = () => {
   const assessment = useAssessmentState();
   const { skillId } = useParams();
-  const skill = skillId ? getSkillEvidence(skillId) : null;
-  // Personality is live (latest Big Five / RIASEC / MBTI); per-skill evidence pages stay the drawn mock.
+  // Personality and per-skill evidence are live (profile skills, verifications, games); demo keeps the drawn mock.
   const { demo } = assessment;
-  const data = useAssessmentHome({ enabled: !demo && !skillId });
+  const data = useAssessmentHome({ enabled: !demo });
+  const skill = useMemo(() => {
+    if (!skillId) return null;
+    if (demo) return getSkillEvidence(skillId);
+    return data.assessment ? buildLiveSkillEvidence(skillId, data.assessment) : null;
+  }, [demo, skillId, data.assessment]);
   const personality = useMemo(
     () =>
       !demo && data.live && data.assessment
@@ -34,7 +39,7 @@ const AssessmentDetailPage = () => {
         : null,
     [demo, data.live, data.assessment]
   );
-  const waiting = !demo && !skillId && !data.assessment && !data.failed;
+  const waiting = !demo && !data.assessment && !data.failed;
 
   useEffect(() => {
     log('mount', { skillId: skillId ?? 'personality', found: skillId ? Boolean(skill) : true });
@@ -42,7 +47,7 @@ const AssessmentDetailPage = () => {
 
   return (
     <AssessmentFrame assessment={assessment} home={demo ? null : data.home}>
-      {!skillId && waiting ? (
+      {waiting ? (
         <p className="m-0 px-[clamp(12px,3vw,52px)] pt-[32px] font-sans text-[15px] text-[#595959]">
           Loading your results…
         </p>

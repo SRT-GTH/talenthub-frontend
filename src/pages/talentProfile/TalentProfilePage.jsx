@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import '../../styles/talentA11y.css';
 import '../../styles/profileA11y.css';
 import { debug } from '../../utils/debug.js';
@@ -83,7 +83,15 @@ const useLiveProfileData = () => {
       cancelled = true;
     };
   }, [live, attempt]);
-  return { ...state, retry: () => setAttempt((n) => n + 1) };
+  // After an edit saves: reload in place (no "Loading your profile…" flash); a failed reload keeps the old data.
+  const refresh = () =>
+    fetchTalentProfile()
+      .then((raw) => {
+        applyProfileData(buildProfileData(raw));
+        setState((s) => ({ status: 'live', version: s.version + 1 }));
+      })
+      .catch((err) => log.error('profile refresh failed:', err?.code || err?.message));
+  return { ...state, live, retry: () => setAttempt((n) => n + 1), refresh };
 };
 
 const TalentProfilePage = () => {
@@ -172,10 +180,15 @@ const TalentProfilePage = () => {
             <ProfileEmptyState profile={profile} />
           ) : (
             <>
-              <ProfileHeader key={`h-${data.version}`} profile={page} />
+              <ProfileHeader
+                key={`h-${data.version}`}
+                profile={page}
+                live={data.status === 'live'}
+                onSaved={data.refresh}
+              />
               <ProfileTabBar key={`t-${data.version}`} profile={page} />
               {profile.edit === 'about' ? (
-                <ProfileEditAbout profile={profile} />
+                <ProfileEditAbout profile={profile} live={data.live} onSaved={data.refresh} />
               ) : (
                 <Body key={`b-${data.version}`} profile={page} />
               )}
@@ -183,8 +196,16 @@ const TalentProfilePage = () => {
           )}
         </div>
       </div>
-      {profile.modal === 'experience' && <AddExperienceModal profile={profile} />}
-      {profile.manage && <ManageVisibilityDrawer profile={profile} />}
+      {profile.modal === 'experience' && (
+        <AddExperienceModal profile={profile} live={data.live} onSaved={data.refresh} />
+      )}
+      {/* The drawer's per-field audiences have no backend yet: live talents manage visibility in Settings > Privacy. */}
+      {profile.manage &&
+        (data.live ? (
+          <Navigate to="/settings/privacy" replace />
+        ) : (
+          <ManageVisibilityDrawer profile={profile} />
+        ))}
       {page.share && page.share !== 'whatsapp' && <ShareProfileModal profile={page} />}
       {profile.share === 'whatsapp' && <WhatsAppStatusSheet profile={profile} />}
       {profile.card && <ShareCardBuilder profile={profile} />}

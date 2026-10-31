@@ -10,7 +10,14 @@ import EngagementTopNav from '../engagement/EngagementTopNav.jsx';
 import EngagementStageBar from './EngagementStageBar.jsx';
 import EngagementStageFooter from './EngagementStageFooter.jsx';
 import ModePickerModal from '../engagementV2/journey/ModePickerModal.jsx';
-import { ENGAGEMENT_STAGES, STAGE_BY_ID, buildStageSegments } from './engagementShellData.js';
+import {
+  ENGAGEMENT_STAGES,
+  JHS_HIDDEN_STAGES,
+  JOURNEY_MAP_ROUTE,
+  STAGE_BY_ID,
+  buildStageSegments,
+  stagesFor,
+} from './engagementShellData.js';
 import { useLiveJourney } from './useLiveJourney.js';
 
 const log = debug('EngagementStageFrame');
@@ -67,10 +74,20 @@ const EngagementStageFrame = ({
   }, [stageId]);
 
   const live = useLiveJourney();
+  const jhs = Boolean(live?.jhs);
+  const hidden = jhs && JHS_HIDDEN_STAGES.has(stageId);
+  // JHS talents have no Work or Pitch stage: a bookmarked or typed URL goes back to the map.
+  useEffect(() => {
+    if (hidden) {
+      log('stage not in this journey, back to the map', { stageId });
+      navigate(JOURNEY_MAP_ROUTE, { replace: true });
+    }
+  }, [hidden, stageId, navigate]);
   const shownDoneIds = live ? live.doneIds : doneIds;
+  const shownStage = stage && !hidden ? stagesFor(jhs).find((s) => s.id === stage.id) : null;
   const doneCount = shownDoneIds.length;
-  const segments = stage
-    ? buildStageSegments({ doneIds: shownDoneIds, currentId: stage.id })
+  const segments = shownStage
+    ? buildStageSegments({ doneIds: shownDoneIds, currentId: shownStage.id, jhs })
     : undefined;
   log('render', { stageId, doneCount, live: Boolean(live), footer: footer !== false });
 
@@ -96,10 +113,10 @@ const EngagementStageFrame = ({
           navigate('/home');
         }}
       />
-      {stage && showStageBar ? (
+      {shownStage && showStageBar ? (
         <EngagementStageBar
-          stageNumber={stage.n}
-          stageName={stage.barLabel ?? stage.label}
+          stageNumber={shownStage.n}
+          stageName={shownStage.barLabel ?? shownStage.label}
           segments={segments}
           doneCount={doneCount}
         />

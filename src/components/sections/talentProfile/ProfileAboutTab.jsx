@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -26,6 +27,7 @@ const FOCUS =
 
 /* The pitch video poster: 240px avatar disc, 72px play button, caption + "CC on" chip. */
 const PitchCard = () => {
+  const navigate = useNavigate();
   const p = ABOUT_PITCH;
   return (
     <section
@@ -35,8 +37,8 @@ const PitchCard = () => {
       <header className="flex items-center gap-[10px]">
         <h2 className={classNames(TITLE, 'min-w-0 truncate')}>{p.title}</h2>
         <span aria-hidden="true" className="h-px min-w-px flex-1" />
-        <HeadLink onClick={() => log('re-record pitch (no backend)')}>{p.link}</HeadLink>
-        <EditButton label="Edit pitch" onClick={() => log('edit pitch (no backend)')} />
+        <HeadLink onClick={() => navigate('/profile/filling/pitch')}>{p.link}</HeadLink>
+        <EditButton label="Edit pitch" onClick={() => navigate('/profile/filling/pitch')} />
       </header>
 
       <div className="relative flex min-h-[200px] w-full flex-col items-center gap-[12px] overflow-hidden rounded-[16px] border border-[rgba(28,42,33,0.1)] bg-[#2d5d33] px-[12px] pt-[20px] pb-[12px] @2xl:block @2xl:h-[clamp(240px,17.4vw,300px)] @2xl:p-0">
@@ -216,6 +218,7 @@ const WorkStyleCard = ({ onEdit }) => (
  * in-place editor (`edit=about`).
  */
 const ProfileAboutTab = ({ profile }) => {
+  const navigate = useNavigate();
   useEffect(() => {
     log('mount', { tab: profile?.tab });
   }, [profile?.tab]);
@@ -224,7 +227,17 @@ const ProfileAboutTab = ({ profile }) => {
     log('edit about');
     profile?.update?.({ edit: 'about' });
   };
-  const edit = (what) => () => log('edit', what, '(no frame)');
+  // The cards have no edit frames of their own: each pencil opens the profile stage that saves that data.
+  const EDIT_ROUTE = {
+    traits: '/profile/filling/personality',
+    goals: '/profile/filling/goals',
+    interests: '/profile/filling/interests',
+    'work style': '/profile/filling/personality',
+  };
+  const edit = (what) => () => {
+    log('edit', what, '->', EDIT_ROUTE[what]);
+    navigate(EDIT_ROUTE[what]);
+  };
 
   return (
     <TabLayout

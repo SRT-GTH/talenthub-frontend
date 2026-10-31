@@ -1,4 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { fetchMyProfile, saveProfileFields } from '../../../services/profileStages.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -17,7 +19,9 @@ const log = debug('ProfileEditAbout');
  * ProfileEditAbout — P-08 "Edit About (in place)". Figma Focused 8110:371805 / Playful 7573:1385
  * (card node 8110:371942 / 7573:1540). Replaces the About body when `?edit=about`; Cancel / Save both
  * close it with `profile.update({ edit: null })`. All copy below is verbatim from the frames.
- * No backend: the edited text lives in local state only.
+ * Live (signed in, `live`): the bio loads from and saves to profile.professionalBio (PATCH /profiles/fields), then
+ * `onSaved` reloads the page data. "My vibe" is derived from the personality quiz and hobby interests, so live mode
+ * explains that instead of offering chips it cannot store. Demo: the Figma text and chips, local state only.
  */
 
 export const ABOUT_LIMIT = 400;
@@ -32,14 +36,37 @@ const VIBES = [
 ];
 const VIBE_MAX = 5;
 
-const ProfileEditAbout = ({ profile }) => {
-  const [text, setText] = useState(INITIAL_ABOUT);
+const ProfileEditAbout = ({ profile, live = false, onSaved }) => {
+  const navigate = useNavigate();
+  const [text, setText] = useState(live ? '' : INITIAL_ABOUT);
+  // Live: 'loading' until the saved bio is in (a failed load must not let Save wipe it), then 'ready' / 'saving'.
+  const [status, setStatus] = useState(live ? 'loading' : 'ready');
+  const [error, setError] = useState('');
   const [vibes, setVibes] = useState(VIBES);
   const [removed, setRemoved] = useState([]);
   const areaRef = useRef(null);
   const labelId = useId();
 
-  log('mount', { chars: text.length, vibes: vibes.length });
+  log('mount', { chars: text.length, vibes: vibes.length, live });
+
+  useEffect(() => {
+    if (!live) return undefined;
+    let cancelled = false;
+    fetchMyProfile()
+      .then((p) => {
+        if (cancelled) return;
+        setText(String(p?.professionalBio || '').slice(0, ABOUT_LIMIT));
+        setStatus('ready');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setStatus('failed');
+        setError('We couldn’t load your bio. Close this and try again.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [live]);
 
   // Grow the textarea with its content (Figma: box hugs the text, 46px for two lines).
   useEffect(() => {
@@ -53,9 +80,24 @@ const ProfileEditAbout = ({ profile }) => {
     log('branch', { close: why });
     profile.update({ edit: null });
   };
-  const save = () => {
-    log('save', { chars: text.length, vibes: vibes.map((v) => v.id) });
-    close('save');
+  const save = async () => {
+    log('save', { chars: text.length, vibes: vibes.map((v) => v.id), live });
+    if (!live) {
+      close('save');
+      return;
+    }
+    if (status !== 'ready') return;
+    setStatus('saving');
+    setError('');
+    try {
+      await saveProfileFields({ professionalBio: text.trim() });
+      onSaved?.();
+      close('save');
+    } catch (err) {
+      log.error('bio save failed:', err?.response?.status || err?.message);
+      setStatus('ready');
+      setError('Your bio wasn’t saved. Check your connection and try again.');
+    }
   };
 
   // Esc cancels, ⌘↵ / Ctrl↵ saves (the hint line in the frame).
@@ -128,26 +170,33 @@ const ProfileEditAbout = ({ profile }) => {
           maxLength={ABOUT_LIMIT}
           rows={2}
           aria-label="About"
+          placeholder={live ? 'A few lines about what you do and what you want next' : undefined}
+          disabled={status === 'loading' || status === 'failed'}
           onChange={(e) => setText(e.target.value)}
           className="block w-full resize-none overflow-hidden bg-transparent text-[15px] leading-[23px] text-[#1c2a21] outline-none"
         />
         <div className="flex flex-wrap items-center gap-[8px]">
-          <Chip
-            as="button"
-            type="button"
-            onClick={() => log('chip', 'Make it punchier (no backend)')}
-            className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-          >
-            Make it punchier
-          </Chip>
-          <Chip
-            as="button"
-            type="button"
-            onClick={() => log('chip', 'Add a result (no backend)')}
-            className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-          >
-            Add a result
-          </Chip>
+          {/* The writing-help chips have no backend yet: demo only. */}
+          {!live && (
+            <>
+              <Chip
+                as="button"
+                type="button"
+                onClick={() => log('chip', 'Make it punchier (no backend)')}
+                className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                Make it punchier
+              </Chip>
+              <Chip
+                as="button"
+                type="button"
+                onClick={() => log('chip', 'Add a result (no backend)')}
+                className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                Add a result
+              </Chip>
+            </>
+          )}
           <span className="h-px min-w-px flex-1" aria-hidden="true" />
           <span
             aria-live="polite"
@@ -158,33 +207,48 @@ const ProfileEditAbout = ({ profile }) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-[8px]">
-        <p className="text-[13px] leading-[normal] font-semibold text-[#595959]">
-          My vibe · pick up to 5
-        </p>
-        <div className="flex flex-wrap items-start gap-[8px]">
-          {vibes.map((v) => (
-            <Chip
-              key={v.id}
-              as="button"
-              type="button"
-              aria-label={v.label}
-              onClick={() => dropVibe(v)}
-              icon={<v.Icon />}
-              className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-            >
-              {v.label}
-            </Chip>
-          ))}
+      {live ? (
+        <div className="flex flex-wrap items-center gap-[8px]">
+          <p className="text-[13px] leading-[normal] text-[#595959]">
+            Your vibe comes from your personality quiz and the hobbies in your interests.
+          </p>
           <button
             type="button"
-            onClick={addVibe}
-            className="cursor-pointer rounded-full border border-dashed border-[#bfbfbf] bg-white px-[12px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            onClick={() => navigate('/profile/filling/personality')}
+            className="cursor-pointer text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
-            + Add
+            Take the personality quiz
           </button>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col gap-[8px]">
+          <p className="text-[13px] leading-[normal] font-semibold text-[#595959]">
+            My vibe · pick up to 5
+          </p>
+          <div className="flex flex-wrap items-start gap-[8px]">
+            {vibes.map((v) => (
+              <Chip
+                key={v.id}
+                as="button"
+                type="button"
+                aria-label={v.label}
+                onClick={() => dropVibe(v)}
+                icon={<v.Icon />}
+                className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {v.label}
+              </Chip>
+            ))}
+            <button
+              type="button"
+              onClick={addVibe}
+              className="cursor-pointer rounded-full border border-dashed border-[#bfbfbf] bg-white px-[12px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+            >
+              + Add
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-[8px] rounded-[12px] bg-[#f8f8f4] px-[12px] py-[10px]">
         <ProfileEyeIcon className="size-[14px] shrink-0" />
@@ -201,14 +265,25 @@ const ProfileEditAbout = ({ profile }) => {
         </button>
       </div>
 
+      {error ? (
+        <p role="alert" className="text-[13px] leading-[normal] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center justify-end gap-[10px]">
         <p className="text-[12px] leading-[normal] text-[#737373]">Esc to cancel · ⌘↵ to save</p>
         <span className="h-px min-w-px flex-1" aria-hidden="true" />
         <Button variant="tertiary" size="sm" onClick={() => close('cancel')}>
           Cancel
         </Button>
-        <Button variant="primary" size="sm" onClick={save}>
-          Save
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={save}
+          disabled={status !== 'ready'}
+          aria-busy={status === 'saving' || undefined}
+        >
+          {status === 'saving' ? 'Saving…' : 'Save'}
         </Button>
       </div>
     </section>

@@ -66,3 +66,38 @@ export const fetchTalentProfile = async () => {
   });
   return data;
 };
+
+/*
+ * Profile photo (2026-10-31): POST /media/upload (multipart: type=image, entityType=talent, category=profile_photo;
+ * the backend takes jpg / jpeg / png / gif / webp up to 10 MB), then the caller saves the url as profile.profilePhoto.
+ * Fields go BEFORE the file: the backend's multipart parser only sees fields that arrive ahead of the file.
+ */
+export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+export const PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+
+export const photoFileProblem = (file) => {
+  if (!file) return 'Choose a photo to upload.';
+  if (!PHOTO_TYPES.includes(file.type)) return 'Choose a JPG, PNG, WebP or GIF image.';
+  if (file.size > PHOTO_MAX_BYTES) return 'That photo is over 10 MB. Choose a smaller one.';
+  if (!file.size) return 'That file is empty. Choose another photo.';
+  return null;
+};
+
+export const uploadProfilePhoto = async (file) => {
+  const form = new FormData();
+  form.append('type', 'image');
+  form.append('entityType', 'talent');
+  form.append('category', 'profile_photo');
+  form.append('file', file, file.name || 'profile-photo.jpg');
+  log('photo upload', { bytes: file.size, type: file.type });
+  const res = await api.post('/media/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 2 * 60 * 1000,
+  });
+  // A moleculer-web multipart alias answers with one result per file (an array).
+  const body = Array.isArray(res?.data) ? res.data[0] : res?.data;
+  const data = body?.data !== undefined ? body.data : body;
+  const uploaded = data?.file || body?.file;
+  if (!uploaded?.url) throw new Error('Upload response has no file url');
+  return uploaded.url;
+};
