@@ -79,6 +79,16 @@ const GROUPS = [
     title: 'Send bulk messages',
     text: 'Can send to a group of accounts.',
   },
+  {
+    domain: 'role_group_support',
+    title: 'Answer support queries',
+    text: 'Can work the Support queue: claim, reply, add notes, escalate.',
+  },
+  {
+    domain: 'role_group_support_senior',
+    title: 'Senior support',
+    text: 'Sees safeguarding concerns, takes escalations and can take over any query.',
+  },
 ];
 
 const Pill = ({ on, onClick, children }) => (

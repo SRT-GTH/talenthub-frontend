@@ -197,6 +197,8 @@ export const enumList = async (domain) =>
 export const enumRegister = (p) =>
   post('/platform-enums/register', clean({ scope: 'global', ...p }));
 export const enumDeactivate = (id) => api.put(`/platform-enums/${id}/deactivate`, {}).then(body);
+/** Edit label / description / order / settings (metadata merges one level). Built-in values can be edited too. */
+export const enumUpdate = (id, p) => patch(`/platform-enums/${id}`, p);
 
 // ── Organisations (/api/organizations) ─────────────────────────────────────────────────────────────────
 export const orgList = async () => arr(await get('/organizations'), 'organizations', 'data');

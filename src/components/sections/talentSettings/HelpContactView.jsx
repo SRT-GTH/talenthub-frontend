@@ -1,14 +1,8 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import {
-  HelpArrowRightWhiteIcon,
-  HelpCheck12Icon,
-  HelpCheck10Icon,
-  HelpFileDocumentIcon,
-  HelpImageUploadIcon,
-  HelpRemoveFileIcon,
-} from '../../shared/assets.jsx';
+import { openRequest, supportTypes } from '../../../services/support.api.js';
+import { HelpArrowRightWhiteIcon, HelpCheck10Icon } from '../../shared/assets.jsx';
 import {
   FOCUS_RING,
   HEADING,
@@ -20,15 +14,20 @@ import {
   PageHeader,
 } from './helpUi.jsx';
 import HelpField from './helpFields.jsx';
-import { CONTACT, HS_REQUESTS, SENT } from './helpData.js';
+import HelpRequestsList from './HelpRequests.jsx';
+import { useMyRequests } from './useMyRequests.js';
+import { CONTACT, SENT } from './helpData.js';
 import spotSent from '../../../assets/talent-settings/help/spot-request-sent.svg';
 
 const log = debug('HelpContactView');
 
 /*
- * HP-05 Contact support (Playful 8230:22926→8230:22419 / Focused 8230:419651) and HP-06 Request sent
- * (modal over it, Playful 8230:22926 / Focused 8230:419936). The form starts pre-filled exactly as drawn
- * and is editable. Props: settings ({ update }), sent (true = HP-06 modal open, `?help=sent`).
+ * HP-05 Contact support (Playful 8230:22926→8230:22419 / Focused 8230:419651) and HP-06 Request sent (modal over it), live:
+ *   topics   GET /api/support/types (platformEnum support_case_type: Super / Senior Admins add or edit them in Settings › Reference data)
+ *   send     POST /api/support/cases { type, subject, body, page } → the request's reference (SUP-10001) shown in the sent modal
+ *   aside    Your requests (GET /api/support/cases); "Someone at risk?" → ?help=concern
+ * Replies come back in the app (Your requests + a notification). Screenshots and WhatsApp / email replies aren't supported by the
+ * support service yet, so the form doesn't offer them. Props: settings ({ update }), sent (true = HP-06 modal open, `?help=sent`).
  */
 const SideTitle = ({ children }) => (
   <h2 className={classNames('m-0 text-[18px] leading-[1.2] text-[#1c2a21]', HEADING)}>
@@ -36,16 +35,8 @@ const SideTitle = ({ children }) => (
   </h2>
 );
 
-const Group = ({ title, children }) => (
-  <>
-    <p className="m-0 font-sans text-[15px] font-semibold leading-[1.2] text-[#1c2a21]">{title}</p>
-    {children}
-  </>
-);
-
-const RequestSentModal = ({ onRequests, onBack }) => {
+const RequestSentModal = ({ reference, onRequests, onBack }) => {
   const uid = useId();
-  log('sent modal');
   return (
     <HelpModal
       onClose={onBack}
@@ -69,7 +60,8 @@ const RequestSentModal = ({ onRequests, onBack }) => {
           id={`${uid}-body`}
           className="m-0 w-full text-center font-sans text-[15px] leading-[22px] text-[#595959]"
         >
-          {SENT.body}
+          {reference ? `Request ${reference}. ` : ''}A person from the GTH team will reply in the
+          app. You’ll get a notification.
         </p>
         <ol className="m-0 flex w-full list-none flex-wrap items-center justify-center gap-[8px] rounded-[14px] bg-[#f8f8f4] p-[14px]">
           {SENT.steps.map((step, i) => (
@@ -97,7 +89,7 @@ const RequestSentModal = ({ onRequests, onBack }) => {
         </ol>
         <div className="flex w-full flex-wrap items-start gap-[10px]">
           <HelpButton size="lg" className="min-w-[160px] flex-1" onClick={onRequests}>
-            {SENT.viewRequests}
+            {reference ? 'Open my request' : SENT.viewRequests}
           </HelpButton>
           <HelpButton tone="primary" size="lg" className="min-w-[160px] flex-1" onClick={onBack}>
             {SENT.back}
@@ -110,47 +102,59 @@ const RequestSentModal = ({ onRequests, onBack }) => {
 
 const HelpContactView = ({ settings, sent }) => {
   const uid = useId();
-  const fileInput = useRef(null);
-  const [topic, setTopic] = useState(CONTACT.topicValue);
-  const [subject, setSubject] = useState(CONTACT.subjectValue);
-  const [details, setDetails] = useState(CONTACT.detailsValue);
-  const [files, setFiles] = useState(CONTACT.files);
-  const [reply, setReply] = useState(CONTACT.replyValue);
-  const [device, setDevice] = useState(true);
-  log('mount', { sent, topic, reply, files: files.length });
+  const requests = useMyRequests();
+  const [types, setTypes] = useState(null);
+  const [typesError, setTypesError] = useState(false);
+  const [topic, setTopic] = useState(null);
+  const [subject, setSubject] = useState('');
+  const [details, setDetails] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [reference, setReference] = useState(null);
 
-  const canSend = subject.trim().length > 0 && details.trim().length > 0;
+  useEffect(() => {
+    let live = true;
+    supportTypes()
+      .then((rows) => live && setTypes(rows || []))
+      .catch(() => live && setTypesError(true));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const canSend =
+    Boolean(topic) && subject.trim().length >= 3 && details.trim().length >= 10 && !busy;
   const toCentre = () => settings.update({ help: null, q: null });
 
-  const onFiles = (e) => {
-    const picked = Array.from(e.target.files ?? []).filter((f) => {
-      const ok = /^image\/(png|jpe?g)$/.test(f.type) && f.size <= 5 * 1024 * 1024;
-      if (!ok) log('file rejected', f.name, f.type, f.size);
-      return ok;
-    });
-    setFiles((cur) => [
-      ...cur,
-      ...picked.map((f) => ({
-        name: f.name,
-        size: `${Math.max(1, Math.round(f.size / 1024))} KB`,
-      })),
-    ]);
-    e.target.value = '';
-  };
-
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    if (!canSend) {
-      log('branch: blocked, subject/details empty');
-      return;
+    if (!canSend) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await openRequest({
+        type: topic,
+        subject: subject.trim(),
+        body: details.trim(),
+        page: '/settings/help',
+      });
+      log('sent', res?.ref);
+      setReference(res?.ref || null);
+      requests.reload();
+      settings.update({ help: 'sent', q: null });
+    } catch (err) {
+      setError(err?.response?.data?.message || 'We couldn’t send that. Try again.');
+    } finally {
+      setBusy(false);
     }
-    log('send to support', { topic, reply, device, files: files.length });
-    settings.update({ help: 'sent', q: null });
   };
 
   return (
     <div className="flex flex-col gap-[clamp(16px,1.39vw,24px)]">
-      <PageHeader title={CONTACT.title} subtitle={CONTACT.subtitle} />
+      <PageHeader
+        title={CONTACT.title}
+        subtitle="A real person from the GTH team replies here in the app."
+      />
 
       <div className="flex flex-col gap-[24px] xl:flex-row xl:items-start">
         <form
@@ -160,24 +164,34 @@ const HelpContactView = ({ settings, sent }) => {
             'flex min-w-0 flex-1 flex-col items-start gap-[18px] p-[clamp(18px,1.62vw,28px)]'
           )}
         >
-          <Group title={CONTACT.topicQuestion}>
+          <p className="m-0 font-sans text-[15px] font-semibold leading-[1.2] text-[#1c2a21]">
+            {CONTACT.topicQuestion}
+          </p>
+          {typesError ? (
+            <p role="alert" className="m-0 font-sans text-[14px] text-[#b42318]">
+              We couldn’t load the topics. Refresh the page to try again.
+            </p>
+          ) : !types ? (
+            <p className="m-0 font-sans text-[14px] text-[#595959]">Loading topics…</p>
+          ) : (
             <div
               role="radiogroup"
               aria-label={CONTACT.topicQuestion}
               className="flex flex-wrap gap-[8px]"
             >
-              {CONTACT.topics.map((t) => (
-                <HelpChip key={t} selected={t === topic} onClick={() => setTopic(t)}>
-                  {t}
+              {types.map((t) => (
+                <HelpChip key={t.key} selected={t.key === topic} onClick={() => setTopic(t.key)}>
+                  {t.label}
                 </HelpChip>
               ))}
             </div>
-          </Group>
+          )}
 
           <HelpField
             id={`${uid}-subject`}
             label={CONTACT.subjectLabel}
             required
+            maxLength={140}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
           />
@@ -186,95 +200,16 @@ const HelpContactView = ({ settings, sent }) => {
             label={CONTACT.detailsLabel}
             required
             multiline
-            maxLength={CONTACT.detailsMax}
-            counter={`${details.length} / ${CONTACT.detailsMax}`}
+            maxLength={5000}
+            counter={`${details.length} / 5000`}
             value={details}
             onChange={(e) => setDetails(e.target.value)}
           />
-
-          <div className="flex w-full flex-wrap items-center gap-[14px] rounded-[14px] border border-dashed border-[rgba(28,42,33,0.1)] bg-[#f8f8f4] p-[16px] playful:border-[rgba(28,42,33,0.25)]">
-            <HelpImageUploadIcon className="size-[24px] shrink-0" />
-            <div className="flex min-w-[180px] flex-1 flex-col gap-[2px] leading-[1.2]">
-              <span className="font-sans text-[14px] font-semibold text-[#1c2a21]">
-                {CONTACT.uploadTitle}
-              </span>
-              <span className="font-sans text-[12px] text-[#595959]">{CONTACT.uploadHint}</span>
-            </div>
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/png,image/jpeg"
-              multiple
-              onChange={onFiles}
-              className="hidden"
-              aria-label={CONTACT.uploadTitle}
-            />
-            <HelpButton size="sm" onClick={() => fileInput.current?.click()}>
-              {CONTACT.browse}
-            </HelpButton>
-          </div>
-
-          {files.length > 0 && (
-            <ul className="m-0 flex list-none flex-wrap gap-[8px] p-0">
-              {files.map((f, i) => (
-                <li
-                  key={`${f.name}-${i}`}
-                  className="flex items-center gap-[10px] rounded-[10px] border border-solid border-[rgba(28,42,33,0.1)] bg-white py-[8px] pl-[12px] pr-[10px] playful:border-[rgba(28,42,33,0.15)]"
-                >
-                  <HelpFileDocumentIcon className="size-[16px] shrink-0" />
-                  <span className="font-sans text-[13px] font-medium leading-[1.2] text-[#1c2a21]">
-                    {f.name}
-                  </span>
-                  <span className="font-sans text-[12px] leading-[1.2] text-[#595959]">
-                    {f.size}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${f.name}`}
-                    onClick={() => setFiles((cur) => cur.filter((_, j) => j !== i))}
-                    className={classNames('flex cursor-pointer rounded-full', FOCUS_RING)}
-                  >
-                    <HelpRemoveFileIcon className="size-[14px]" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <Group title={CONTACT.replyQuestion}>
-            <div
-              role="radiogroup"
-              aria-label={CONTACT.replyQuestion}
-              className="flex flex-wrap gap-[8px]"
-            >
-              {CONTACT.replyOptions.map((r) => (
-                <HelpChip key={r} selected={r === reply} onClick={() => setReply(r)}>
-                  {r}
-                </HelpChip>
-              ))}
-            </div>
-          </Group>
-
-          <label className="flex min-h-[24px] cursor-pointer items-center gap-[10px]">
-            <input
-              type="checkbox"
-              checked={device}
-              onChange={(e) => setDevice(e.target.checked)}
-              className="peer sr-only"
-            />
-            <span
-              aria-hidden="true"
-              className={classNames(
-                'flex size-[18px] shrink-0 items-center justify-center rounded-[5px] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-green',
-                device ? 'bg-[#387440]' : 'border border-solid border-[#ccc] bg-white'
-              )}
-            >
-              {device && <HelpCheck12Icon className="size-[12px]" />}
-            </span>
-            <span className="font-sans text-[13px] leading-[1.2] text-[#1c2a21]">
-              {CONTACT.deviceInfo}
-            </span>
-          </label>
+          {error ? (
+            <p role="alert" className="m-0 font-sans text-[14px] text-[#b42318]">
+              {error}
+            </p>
+          ) : null}
 
           <div className="flex w-full items-start gap-[10px]">
             <HelpButton size="lg" onClick={toCentre}>
@@ -288,7 +223,7 @@ const HelpContactView = ({ settings, sent }) => {
               onClick={(e) => e.currentTarget.form?.requestSubmit()}
               iconAfter={<HelpArrowRightWhiteIcon className="size-[20px]" />}
             >
-              {CONTACT.send}
+              {busy ? 'Sending…' : CONTACT.send}
             </HelpButton>
           </div>
         </form>
@@ -306,28 +241,32 @@ const HelpContactView = ({ settings, sent }) => {
             />
             <HelpRow
               icon="shield"
-              title={CONTACT.before[1]}
-              onClick={() => log('before you send (no article drawn)', CONTACT.before[1])}
+              title="Someone at risk? Report a concern"
+              onClick={() => settings.update({ help: 'concern', q: null })}
             />
           </section>
           <section className={classNames(PAGE_CARD, 'flex flex-col gap-[10px] p-[22px]')}>
             <SideTitle>Your requests</SideTitle>
-            {HS_REQUESTS.map((r) => (
-              <div key={r.id} className="flex items-center gap-[10px]">
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px] leading-[1.2]">
-                  <span className="font-sans text-[14px] font-semibold text-[#1c2a21]">
-                    {r.title}
-                  </span>
-                  <span className="font-sans text-[12px] text-[#595959]">{r.meta}</span>
-                </div>
-                <HelpChip soft>{r.status}</HelpChip>
-              </div>
-            ))}
+            <HelpRequestsList
+              requests={requests}
+              onOpen={(ref) => settings.update({ help: 'request', ref, q: null })}
+            />
           </section>
         </aside>
       </div>
 
-      {sent && <RequestSentModal onRequests={toCentre} onBack={toCentre} />}
+      {sent && (
+        <RequestSentModal
+          reference={reference}
+          onRequests={() =>
+            reference ? settings.update({ help: 'request', ref: reference, q: null }) : toCentre()
+          }
+          onBack={toCentre}
+        />
+      )}
+      <span className={classNames('sr-only', FOCUS_RING)} aria-live="polite">
+        {busy ? 'Sending' : ''}
+      </span>
     </div>
   );
 };

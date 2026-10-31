@@ -10,6 +10,7 @@ import DataSourcesSection from './refdata/DataSourcesSection.jsx';
 import FxAutoUpdatePanel from './refdata/FxAutoUpdatePanel.jsx';
 import LocationsSection from './refdata/LocationsSection.jsx';
 import OpportunityTemplatesSection from './refdata/OpportunityTemplatesSection.jsx';
+import PlatformListsSection from './refdata/PlatformListsSection.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import {
   adminError,
@@ -39,7 +40,8 @@ const log = debug('ReferenceDataTab');
  *   Assessment templates    refdata/AssessmentTemplatesSection.jsx (questions view-only)
  *   Locations               refdata/LocationsSection.jsx (CSV import with preview)
  *   Data sources            refdata/DataSourcesSection.jsx (O*NET import, Ghana scrapers, summaries)
- * URL: ?section=categories|currencies|opportunity-templates|assessment-templates|locations|data-sources
+ *   Platform lists          refdata/PlatformListsSection.jsx (platformEnum option lists: support case types, canned replies)
+ * URL: ?section=categories|currencies|opportunity-templates|assessment-templates|locations|data-sources|lists
  */
 
 const Pill = ({ on, onClick, children }) => (
@@ -619,6 +621,7 @@ const SECTIONS = [
   { id: 'assessment-templates', label: 'Assessment templates' },
   { id: 'locations', label: 'Locations' },
   { id: 'data-sources', label: 'Data sources' },
+  { id: 'lists', label: 'Platform lists' },
 ];
 
 const ReferenceDataTab = ({ data, session }) => {
@@ -650,6 +653,7 @@ const ReferenceDataTab = ({ data, session }) => {
         <AssessmentTemplatesSection canEdit={canEdit} toast={toast} />
       ) : null}
       {section === 'locations' ? <LocationsSection canEdit={canEdit} toast={toast} /> : null}
+      {section === 'lists' ? <PlatformListsSection canEdit={canEdit} toast={toast} /> : null}
       {section === 'data-sources' ? (
         <DataSourcesSection
           canEdit={canEdit}
