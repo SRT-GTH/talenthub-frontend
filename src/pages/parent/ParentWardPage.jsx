@@ -6,6 +6,7 @@ import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
 import { WARDS } from '../../components/sections/parent/wards/data/wardsData.js';
 import WardShell from '../../components/sections/parent/wards/WardShell.jsx';
 import WardOverview from '../../components/sections/parent/wards/WardOverview.jsx';
+import WardLearningSettings from '../../components/sections/parent/wards/WardLearningSettings.jsx';
 import EvaluationsTab from '../../components/sections/parent/wards/tabs/EvaluationsTab.jsx';
 import WalletTab from '../../components/sections/parent/wards/tabs/WalletTab.jsx';
 import ActivityTab from '../../components/sections/parent/wards/tabs/ActivityTab.jsx';
@@ -227,7 +228,13 @@ const ParentWardPage = () => {
         />
       );
     }
-    return <WardOverview ward={ward} showSide={notice === 'turning18'} />;
+    return (
+      <>
+        <WardOverview ward={ward} showSide={notice === 'turning18'} />
+        {/* Learning path iteration 4: a parent's learning switches (live wards only). */}
+        {live && <WardLearningSettings wardId={wardId} firstName={ward.firstName} />}
+      </>
+    );
   };
 
   return (
