@@ -14,6 +14,12 @@
  *                the talent's matched postings, drawn as the Figma match cards (opportunityMatchView below)
  *   careerPosts  [{ id, title, type: 'article'|'video'|'qa', authorName, community, communityUrl, career, why }]
  *                GTH posts about a career (career exposure), drawn as post cards (careerPostView below)
+ *   courses      [{ courseId, title, provider, source: 'microsoft_learn'|'curated_youtube'|'curated'|'gth_native',
+ *                  free, durationMinutes, level, skills: [string], career, status: 'not_started'|'started'|'done',
+ *                  needsGuardianConsent, url: '/learning?view=course&course=<courseId>' }]
+ *                recommended GTH courses for the talent's skill gaps (learning guidance), drawn as course cards
+ *                (courseCardView below, learningGuidance/CourseRecommendationCards.jsx); the text blocks no
+ *                longer list them
  *   searchResults [{ type, id, title, snippet, facts, link, ask, why, score, subtype?, logo? }]
  *                Career Buddy search (backend gthSearch.query), drawn by search/SearchResultCards.jsx
  *
@@ -155,6 +161,75 @@ export function careerPostView(card) {
   };
 }
 
+const COURSE_SOURCE = {
+  microsoft_learn: { tag: 'Course', provider: 'Microsoft Learn' },
+  curated_youtube: { tag: 'Video course', provider: 'YouTube', video: true },
+  curated: { tag: 'Course', provider: null },
+  gth_native: { tag: 'Course', provider: 'GTH' },
+};
+const COURSE_STATUS = { done: 'Done', started: 'Started' };
+
+/** "45 min" / "about 1 h" / "about 2.5 h"; '' when unknown. */
+export function courseDurationLabel(minutes) {
+  const m = Number(minutes);
+  if (!Number.isFinite(m) || m <= 0) return '';
+  if (m < 60) return `${Math.max(1, Math.round(m))} min`;
+  const h = Math.round((m / 60) * 2) / 2;
+  return `about ${h} h`;
+}
+
+const joinList = (items) =>
+  items.length <= 1
+    ? items.join('')
+    : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+
+/** Agent CourseCard -> the props CourseRecommendationCard draws (2026-10-31, learning guidance as cards). */
+export function courseCardView(card) {
+  const source = COURSE_SOURCE[card?.source] || null;
+  const isVideo = Boolean(source?.video) || /youtube/i.test(String(card?.provider || ''));
+  const kind = isVideo ? 'Video course' : source?.tag || 'Course';
+  // "CrashCourse (YouTube)" -> tag "Video course · YouTube", fact "by CrashCourse".
+  const rawProvider = String(card?.provider || '').trim();
+  const channel = isVideo ? rawProvider.replace(/\s*\(youtube\)\s*$/i, '').trim() : '';
+  const provider = isVideo ? 'YouTube' : rawProvider || source?.provider || '';
+  const skills = Array.isArray(card?.skills) ? card.skills.filter(Boolean).map(String) : [];
+  const status = COURSE_STATUS[card?.status] ? card.status : 'not_started';
+  const why = skills.length
+    ? `Builds ${joinList(skills)}${card?.career ? ` for ${card.career}` : ''}.`
+    : card?.career
+      ? `Helps you get ready for ${card.career}.`
+      : '';
+  const url = typeof card?.url === 'string' && card.url.startsWith('/') ? card.url : '';
+  return {
+    id: card.courseId,
+    courseId: card.courseId,
+    title: card.title,
+    isVideo,
+    tag: provider ? `${kind} · ${provider}` : kind,
+    facts: [
+      card?.free ? 'Free' : null,
+      courseDurationLabel(card?.durationMinutes) || null,
+      card?.level ? titleCase(card.level) : null,
+      channel && channel.toLowerCase() !== 'youtube' ? `by ${channel}` : null,
+    ].filter(Boolean),
+    why,
+    status,
+    statusLabel: COURSE_STATUS[status] || '',
+    openLabel:
+      status === 'done'
+        ? 'Review course'
+        : status === 'started'
+          ? 'Continue course'
+          : isVideo
+            ? 'Watch course'
+            : 'Open course',
+    guardianNote: card?.needsGuardianConsent
+      ? "You'll need a parent or guardian's OK before you start this one."
+      : '',
+    detailPath: url || `/learning?view=course&course=${encodeURIComponent(card.courseId)}`,
+  };
+}
+
 /** "Why this match?" on card i: the auto bubble text plus the chip action that asks the agent for that posting. */
 export function whyThisMatchAction(card, index) {
   const label = `Card ${index + 1} - Why this match?`;
@@ -271,6 +346,11 @@ export function turnToBubbles(turn) {
     ? turn.careerPosts.filter((p) => p?.id && p?.title)
     : [];
   if (careerPosts.length) cur.careerPosts = careerPosts;
+  // 2026-10-31: recommended courses as cards (learning guidance).
+  const courses = Array.isArray(turn?.courses)
+    ? turn.courses.filter((c) => c?.courseId && c?.title)
+    : [];
+  if (courses.length) cur.courses = courses;
   const searchResults = Array.isArray(turn?.searchResults)
     ? turn.searchResults.filter((r) => r?.id && r?.title && r?.type)
     : [];

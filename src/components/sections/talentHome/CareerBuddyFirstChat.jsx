@@ -15,7 +15,8 @@ import {
 import BuddyThinking, { StopGeneratingPill } from '../../ui/BuddyThinking.jsx';
 import FlowPortal from './FlowPortal.jsx';
 import CareerPostCards from '../profileFilling/careerExposure/CareerPostCards.jsx';
-import { careerPostView } from '../profileFilling/careerBuddyLive.js';
+import CourseRecommendationCards from '../profileFilling/learningGuidance/CourseRecommendationCards.jsx';
+import { careerPostView, courseCardView } from '../profileFilling/careerBuddyLive.js';
 import { buddyDemoThinking } from '../profileFilling/buddyDemoFrames.js';
 import {
   useCareerBuddyLive,
@@ -331,13 +332,25 @@ const CareerBuddyFirstChat = ({ home }) => {
                 ) : live && m.searchResults?.length ? (
                   // 2026-10-27: Career Buddy search results, as in the full Career Buddy.
                   L.renderSearchResults(m, { compact: true })
-                ) : live && m.careerPosts?.length ? (
-                  // 2026-10-27: GTH posts about a career, as in the full Career Buddy.
-                  <CareerPostCards
-                    compact
-                    posts={m.careerPosts.map((p) => careerPostView(p))}
-                    career={m.careerPosts[0]?.career}
-                  />
+                ) : live && (m.careerPosts?.length || m.courses?.length) ? (
+                  <>
+                    {/* 2026-10-27: GTH posts about a career, as in the full Career Buddy. */}
+                    {m.careerPosts?.length ? (
+                      <CareerPostCards
+                        compact
+                        posts={m.careerPosts.map((p) => careerPostView(p))}
+                        career={m.careerPosts[0]?.career}
+                      />
+                    ) : null}
+                    {/* 2026-10-31: recommended courses, as in the full Career Buddy. */}
+                    {m.courses?.length ? (
+                      <CourseRecommendationCards
+                        compact
+                        courses={m.courses.map((c) => courseCardView(c))}
+                        career={m.courses.find((c) => c.career)?.career}
+                      />
+                    ) : null}
+                  </>
                 ) : null
               }
             />

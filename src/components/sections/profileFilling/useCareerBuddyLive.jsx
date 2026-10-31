@@ -8,6 +8,7 @@ import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import CareerPostCards from './careerExposure/CareerPostCards.jsx';
+import CourseRecommendationCards from './learningGuidance/CourseRecommendationCards.jsx';
 import SearchResultCards from './search/SearchResultCards.jsx';
 import { isOwnRecord } from './search/ownRecords.js';
 import SearchDetailSheet from './search/SearchDetailSheet.jsx';
@@ -53,6 +54,7 @@ import {
   opportunityMatchView,
   whyThisMatchAction,
   careerPostView,
+  courseCardView,
   userBubble,
   autoBubble,
   fileBubble,
@@ -1061,6 +1063,22 @@ export function useCareerBuddyLive({
               posts={views}
               career={m.careerPosts[0]?.career}
               onOpen={(post) => navigate(post.detailPath)}
+            />
+          </>
+        ),
+      };
+    }
+    if (m.courses?.length) {
+      // 2026-10-31: recommended courses as cards (learning guidance); each opens the GTH course page.
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            <CourseRecommendationCards
+              courses={m.courses.map((c) => courseCardView(c))}
+              career={m.courses.find((c) => c.career)?.career}
+              onOpen={(course) => navigate(course.detailPath)}
             />
           </>
         ),
