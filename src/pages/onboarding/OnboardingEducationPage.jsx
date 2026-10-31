@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
 import { getApiErrorMessage } from '../../services/apiErrors.js';
-import { captureStep } from '../../services/onboarding.api.js';
-import { mapEducationLevel } from '../../services/onboardingMappers.js';
+import { captureStep, searchSchools } from '../../services/onboarding.api.js';
+import { buildEducationPayload } from '../../services/onboardingMappers.js';
 import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
@@ -92,6 +92,17 @@ const levelsForAge = (age) =>
     ? LEVEL_OPTIONS.filter((o) => !MIN_AGE_BY_LEVEL[o.value] || age >= MIN_AGE_BY_LEVEL[o.value])
     : LEVEL_OPTIONS;
 
+const MIN_AGE_BY_GRADE = {
+  'done-shs': 16,
+  'done-diploma': 18,
+  'done-degree': 19,
+  'done-postgrad': 21,
+};
+const gradesForAge = (grades, age) =>
+  typeof age === 'number'
+    ? grades.filter((g) => !MIN_AGE_BY_GRADE[g.value] || age >= MIN_AGE_BY_GRADE[g.value])
+    : grades;
+
 const SUB_JHS_LEVELS = new Set(['primary']);
 
 // Grade/Year (class) options are level-dependent. Stub data - the backend
@@ -123,7 +134,14 @@ const GRADES_BY_LEVEL = {
     { value: 'masters-2', label: 'Masters Year 2' },
     { value: 'phd', label: 'PhD' },
   ],
-  none: [{ value: 'gap', label: 'Gap year / Not studying' }],
+  // Not studying now: the highest level finished (education v2 post_* levels / a non-current entry).
+  none: [
+    { value: 'done-jhs', label: 'Finished JHS (BECE)' },
+    { value: 'done-shs', label: 'Finished SHS (WASSCE)' },
+    { value: 'done-diploma', label: 'Finished a diploma' },
+    { value: 'done-degree', label: 'Finished a degree' },
+    { value: 'done-postgrad', label: 'Finished postgraduate' },
+  ],
 };
 
 // Programme / course (optional, education v2 -> profile education[].fieldOfStudy).
@@ -438,6 +456,10 @@ const OnboardingEducationPage = () => {
   const [institution, setInstitution] = useState('');
   const [graduation, setGraduation] = useState('');
   const [programme, setProgramme] = useState('');
+  // Institution suggestions (registered schools + the starter directory); free text is still accepted.
+  const [schoolHits, setSchoolHits] = useState([]);
+  const [schoolOpen, setSchoolOpen] = useState(false);
+  const [schoolActive, setSchoolActive] = useState(-1);
   const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -449,8 +471,7 @@ const OnboardingEducationPage = () => {
   const handleLevelChange = (value) => {
     log('level change:', value);
     setLevel(value);
-    // "Not currently studying" has one grade (gap year): pick it so the person isn't asked a question with one answer.
-    setGrade(value === 'none' ? 'gap' : '');
+    setGrade('');
     setGraduation('');
     setProgramme('');
     if (showLevelGate && !SUB_JHS_LEVELS.has(value)) {
@@ -466,12 +487,53 @@ const OnboardingEducationPage = () => {
 
   const handleInstitutionChange = (event) => {
     setInstitution(event.target.value);
+    setSchoolOpen(true);
+    setSchoolActive(-1);
     // Clearing or editing the institution invalidates the downstream
     // graduation field, matching Figma frame 2709:15900.
     if (graduation) setGraduation('');
   };
 
-  const availableGrades = GRADES_BY_LEVEL[level] || [];
+  const availableGrades = gradesForAge(GRADES_BY_LEVEL[level] || [], age);
+
+  const schoolQuery = institution.trim();
+  useEffect(() => {
+    if (!level || schoolQuery.length < 2) return undefined;
+    let live = true;
+    const timer = setTimeout(() => {
+      searchSchools(schoolQuery, level === 'none' ? '' : level)
+        .then((hits) => live && setSchoolHits(hits))
+        .catch(() => live && setSchoolHits([]));
+    }, 250);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [schoolQuery, level]);
+  const visibleHits =
+    schoolQuery.length >= 2
+      ? schoolHits.filter((h) => h.name.toLowerCase() !== schoolQuery.toLowerCase())
+      : [];
+  const showSchools = schoolOpen && visibleHits.length > 0;
+  const pickSchool = (name) => {
+    setInstitution(name);
+    setSchoolOpen(false);
+    setSchoolActive(-1);
+    if (graduation) setGraduation('');
+  };
+  const handleSchoolKeyDown = (event) => {
+    if (!showSchools) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      setSchoolActive((i) => (i + step + visibleHits.length) % visibleHits.length);
+    } else if (event.key === 'Enter' && schoolActive >= 0) {
+      event.preventDefault();
+      pickSchool(visibleHits[schoolActive].name);
+    } else if (event.key === 'Escape') {
+      setSchoolOpen(false);
+    }
+  };
 
   // Per-field validity. We use these to flip both the box chrome (state)
   // and the helper-vs-error message presentation.
@@ -556,8 +618,7 @@ const OnboardingEducationPage = () => {
     setApiError('');
     setIsSubmitting(true);
     captureStep('education', {
-      educationLevel: mapEducationLevel(level),
-      ...(grade ? { educationGrade: grade } : {}),
+      ...buildEducationPayload(level, grade),
       ...(institution.trim() ? { educationInstitution: institution.trim() } : {}),
       ...(graduation ? { expectedGraduationYear: graduation } : {}),
       ...(programmeKind(level) && programme.trim()
@@ -596,7 +657,7 @@ const OnboardingEducationPage = () => {
       icon: <MortarboardIcon />,
     },
     {
-      label: 'Grade',
+      label: notStudying ? 'Finished' : 'Grade',
       value: getGradeLabel(grade),
       icon: <MapIcon />,
     },
@@ -608,18 +669,29 @@ const OnboardingEducationPage = () => {
     ...(programmeKind(level) && programme.trim()
       ? [{ label: 'Programme', value: programme.trim(), icon: <MortarboardIcon /> }]
       : []),
-    {
-      label: 'Graduating',
-      value: graduation ? `Class of ${graduation}` : '—',
-      icon: <MapPinIcon />,
-    },
+    // No graduation year once the talent has finished studying.
+    ...(notStudying
+      ? []
+      : [
+          {
+            label: 'Graduating',
+            value: graduation ? `Class of ${graduation}` : '—',
+            icon: <MapPinIcon />,
+          },
+        ]),
   ];
 
   // Helper-row text mirrors Figma copy and flips between cascade prompts
   // when the parent field hasn't been chosen yet. Institution + Graduation
   // both cascade-block to match frame 2709:15900.
-  const gradeHelper = level ? 'Pick your current grade' : 'Select your level first';
-  const institutionHelper = level ? 'Type to search your school' : 'Select your level first';
+  const gradeHelper = !level
+    ? 'Select your level first'
+    : notStudying
+      ? 'The highest level you finished'
+      : 'Pick your current grade';
+  const institutionHelper = level
+    ? 'Type to search, or enter your school if it is not listed'
+    : 'Select your level first';
   const graduationHelper =
     level && grade && !isInstitutionMissing
       ? 'When do you expect to graduate?'
@@ -716,9 +788,9 @@ const OnboardingEducationPage = () => {
                 <Select
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
-                  label="Grade/Year"
+                  label={notStudying ? 'Highest level finished' : 'Grade/Year'}
                   required
-                  placeholder="Select grade"
+                  placeholder={notStudying ? 'Select the level you finished' : 'Select grade'}
                   options={availableGrades}
                   value={grade}
                   onChange={handleGradeChange}
@@ -730,25 +802,66 @@ const OnboardingEducationPage = () => {
                   state={gradeBoxState}
                   verified={Boolean(grade)}
                 />
-                <TextInput
-                  asteriskClassName={TALENT_ASTERISK}
-                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
-                  label={notStudying ? 'Last school or university (optional)' : 'Institution'}
-                  required={!notStudying}
-                  placeholder={
-                    notStudying ? 'e.g. University of Ghana' : 'Search school or university'
-                  }
-                  value={institution}
-                  onChange={handleInstitutionChange}
-                  leftIcon={<SearchIcon />}
-                  leftIconClassName="text-brand-green"
-                  disabled={!level}
-                  helperText={institutionHelper}
-                  error={institutionError}
-                  state={institutionBoxState}
-                  verified={institution.trim().length > 0}
-                  autoComplete="off"
-                />
+                <div className="relative">
+                  <TextInput
+                    asteriskClassName={TALENT_ASTERISK}
+                    helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
+                    label={notStudying ? 'Last school or university (optional)' : 'Institution'}
+                    required={!notStudying}
+                    placeholder={
+                      notStudying ? 'e.g. University of Ghana' : 'Search school or university'
+                    }
+                    value={institution}
+                    onChange={handleInstitutionChange}
+                    leftIcon={<SearchIcon />}
+                    leftIconClassName="text-brand-green"
+                    disabled={!level}
+                    helperText={institutionHelper}
+                    error={institutionError}
+                    state={institutionBoxState}
+                    verified={institution.trim().length > 0}
+                    autoComplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={showSchools}
+                    aria-controls="school-suggestions"
+                    aria-activedescendant={
+                      showSchools && schoolActive >= 0 ? `school-option-${schoolActive}` : undefined
+                    }
+                    onKeyDown={handleSchoolKeyDown}
+                    onFocus={() => setSchoolOpen(true)}
+                    onBlur={() => setTimeout(() => setSchoolOpen(false), 150)}
+                  />
+                  {showSchools ? (
+                    <ul
+                      id="school-suggestions"
+                      role="listbox"
+                      aria-label="Matching schools"
+                      className="absolute left-0 right-0 top-[76px] z-20 max-h-64 overflow-y-auto rounded-[12px] border border-[#E1EAE2] bg-white py-1 shadow-[0_16px_24px_-6px_rgba(27,36,44,0.16)]"
+                    >
+                      {visibleHits.map((hit, i) => (
+                        <li
+                          key={`${hit.source}-${hit.name}`}
+                          id={`school-option-${i}`}
+                          role="option"
+                          aria-selected={i === schoolActive}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            pickSchool(hit.name);
+                          }}
+                          className={`flex cursor-pointer items-center justify-between gap-3 px-4 py-2 text-[13px] leading-5 text-[#1C2A21] ${i === schoolActive ? 'bg-[#EBF1EC]' : 'hover:bg-[#F5F8F5]'}`}
+                        >
+                          <span className="truncate">{hit.name}</span>
+                          {hit.source === 'registered' ? (
+                            <span className="shrink-0 text-[11px] font-semibold text-brand-green">
+                              On GTH
+                            </span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
                 {notStudying ? null : (
                   <Select
                     asteriskClassName={TALENT_ASTERISK}

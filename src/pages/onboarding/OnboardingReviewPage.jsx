@@ -406,9 +406,9 @@ const EducationSection = ({ data }) => (
     />
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
       <Cell label="Education level" value={data.level} />
-      <Cell label="Grade / Year" value={data.grade} />
+      {data.studying !== false && <Cell label="Grade / Year" value={data.grade} />}
       <Cell label="Programme / Course" value={data.programme} />
-      <Cell label="Expected graduation" value={data.graduation} />
+      {data.studying !== false && <Cell label="Expected graduation" value={data.graduation} />}
     </div>
 
     {/* Institution — full-width row with a "Confirmed" badge on the right */}
@@ -544,7 +544,7 @@ const ConsentBlock = ({
           className="font-bold uppercase text-[#BABAB7]"
           style={{ fontSize: 'var(--fs-10)', letterSpacing: '1px', lineHeight: 'normal' }}
         >
-          Required agreements — all 3 must be accepted
+          Required agreements — both must be accepted
         </span>
         <div className="h-px flex-1" style={{ background: 'rgba(0,0,0,0.07)' }} />
         <span
@@ -633,6 +633,8 @@ const OnboardingReviewPage = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [consentAccepted, setConsentAccepted] = useState(false);
+  // When the account was activated with the agreements (shown on the Terms Accepted card).
+  const [acceptedAt, setAcceptedAt] = useState(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
@@ -744,6 +746,7 @@ const OnboardingReviewPage = () => {
         guardianNotified: Boolean(isMinor && profile.parent),
         email: profile.contact?.email,
       });
+      setAcceptedAt(new Date());
       setShowSuccessModal(true);
     } catch (err) {
       // A retry after a timed-out activation finds the session already used: the account was most likely
@@ -932,6 +935,7 @@ const OnboardingReviewPage = () => {
         <TermsAcceptedModal
           onClose={() => setShowSuccessModal(false)}
           onContinue={handleContinueAfterSuccess}
+          acceptedAt={acceptedAt}
         />
       )}
     </div>

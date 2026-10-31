@@ -138,6 +138,12 @@ export const activateOnboarding = async ({ consentGiven } = {}) => {
 };
 
 /** GET /status?sessionToken= -> current step info (for resume after refresh) */
+/** GET /schools?q&level -> { results: [{ name, source, organizationId? }] } (public, names only) */
+export const searchSchools = async (q, level) => {
+  const { data } = await api.get(`${BASE}/schools`, { params: { q, ...(level ? { level } : {}) } });
+  return Array.isArray(data?.results) ? data.results : [];
+};
+
 export const getOnboardingStatus = async () => {
   const sessionToken = requireToken();
   const { data } = await api.get(`${BASE}/status`, { params: { sessionToken } });

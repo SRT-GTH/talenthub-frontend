@@ -11,13 +11,24 @@ const EDUCATION_LEVEL_LABELS = {
   jhs: 'Junior High School (JHS)',
   shs: 'Senior High School (SHS)',
   tertiary: 'Tertiary / University',
+  technical: 'Technical',
   vocational: 'Vocational',
+  post_grad: 'Postgraduate',
+  post_bece: 'Finished JHS (BECE)',
+  post_shs: 'Finished SHS (WASSCE)',
 };
-// The backend has no "not studying" level yet (it is saved as tertiary + the gap grade): show what was picked.
-const levelLabel = (e) =>
-  e.educationGrade === 'gap'
-    ? 'Not currently studying'
-    : EDUCATION_LEVEL_LABELS[e.educationLevel] || e.educationLevel;
+
+// Not studying now (educationIsCurrent false); older sessions saved this as tertiary + the gap grade.
+const notStudying = (e) => e.educationIsCurrent === false || e.educationGrade === 'gap';
+// Not studying: "Not studying · Finished a degree"; a diploma/degree is told apart by the qualification.
+const levelLabel = (e) => {
+  const base =
+    e.educationQualification && e.educationLevel === 'tertiary'
+      ? `Tertiary (${e.educationQualification})`
+      : EDUCATION_LEVEL_LABELS[e.educationLevel] || e.educationLevel;
+  if (!notStudying(e)) return base;
+  return e.educationGrade === 'gap' ? 'Not currently studying' : `Not studying · ${base}`;
+};
 
 // "year-3" -> "Year 3", "shs-2" -> "SHS 2", "jhs-1" -> "JHS 1"
 const formatGrade = (grade) => {
@@ -95,7 +106,7 @@ export const buildReviewProfile = (summary) => {
   return {
     name: name || 'Your profile',
     // "Not currently studying" is stored with the gap grade: not a student.
-    role: education.educationLevel && education.educationGrade !== 'gap' ? 'Student' : 'Talent',
+    role: education.educationLevel && !notStudying(education) ? 'Student' : 'Talent',
     avatarUrl: identity.profilePhoto || null,
     // No talent score exists until the profile is built after activation.
     score: null,
@@ -138,6 +149,8 @@ export const buildReviewProfile = (summary) => {
         : EMPTY,
       institution: show(education.educationInstitution),
       confirmed: Boolean(education.educationInstitution),
+      // Grade and expected graduation mean nothing once the talent has finished studying.
+      studying: !notStudying(education),
     },
     // Under-18s only (the backend returns `parent: null` for adults): who gets the opt-out notice.
     parent: s.parent
