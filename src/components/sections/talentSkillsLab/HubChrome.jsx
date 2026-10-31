@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { HubStarIcon } from './HubIcons.jsx';
+import { LabArrowLeftIcon } from './LabPlayIcons.jsx';
 import { HEADING, HubButton, HubChip, HubSticker } from './HubParts.jsx';
 import { useXpWord } from './hubShared.js';
 import { HUB_COPY } from './skillsLabData.js';
@@ -14,9 +16,25 @@ const log = debug('HubChrome');
  */
 export const HubHeader = ({ sticker, subtitle, xp, onHow }) => {
   const word = useXpWord();
+  const navigate = useNavigate();
+  // Tester feedback F5: no way back. Go back to where the talent came from (in-app history), else to /home.
+  const goBack = () => {
+    const inApp = (window.history.state?.idx ?? 0) > 0;
+    log('back', { inApp });
+    if (inApp) navigate(-1);
+    else navigate('/home');
+  };
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-[24px] gap-y-[12px]">
       <div className="flex min-w-0 flex-col gap-[3px]">
+        <button
+          type="button"
+          onClick={goBack}
+          className="mb-[6px] inline-flex min-h-[24px] w-fit cursor-pointer items-center gap-[6px] font-sans text-[15px] leading-[18px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+        >
+          <LabArrowLeftIcon className="size-[18px]" />
+          Back
+        </button>
         <div className="flex flex-wrap items-center gap-[12px]">
           <h1
             className={classNames(

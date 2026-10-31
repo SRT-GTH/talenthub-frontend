@@ -24,19 +24,40 @@ const NATIONALITY = {
 };
 export const mapNationality = (v) => NATIONALITY[v] || v || undefined;
 
-// Backend education_level enum: primary, jhs, shs, technical, tertiary.
-// University and postgraduate are tertiary on the backend; "not studying"
-// has no backend value yet, so it is sent as tertiary with the grade "gap".
+// Backend education_level enum (education v2): jhs, post_bece, shs, post_shs, technical, vocational,
+// tertiary, post_grad (+ primary, gated in the UI). Diploma vs degree is the qualification, not the level.
 const EDUCATION_LEVEL = {
   primary: 'primary',
   jhs: 'jhs',
   shs: 'shs',
   tertiary: 'tertiary',
   university: 'tertiary',
-  postgrad: 'tertiary',
-  none: 'tertiary',
+  postgrad: 'post_grad',
 };
 export const mapEducationLevel = (v) => EDUCATION_LEVEL[v] || v;
+
+const QUALIFICATION = { tertiary: 'Diploma', university: 'Degree' };
+
+// "Not currently studying": the grade field asks for the highest level finished instead.
+export const FINISHED_LEVELS = {
+  'done-jhs': { educationLevel: 'post_bece' },
+  'done-shs': { educationLevel: 'post_shs' },
+  'done-diploma': { educationLevel: 'tertiary', educationQualification: 'Diploma' },
+  'done-degree': { educationLevel: 'tertiary', educationQualification: 'Degree' },
+  'done-postgrad': { educationLevel: 'post_grad', educationQualification: 'Masters' },
+};
+
+/** UI level + grade -> the education step body (without institution / year / programme). */
+export const buildEducationPayload = (level, grade) => {
+  if (level === 'none') return { ...(FINISHED_LEVELS[grade] || {}), educationIsCurrent: false };
+  const qualification =
+    level === 'postgrad' ? (grade === 'phd' ? 'PhD' : 'Masters') : QUALIFICATION[level];
+  return {
+    educationLevel: mapEducationLevel(level),
+    ...(grade ? { educationGrade: grade } : {}),
+    ...(qualification ? { educationQualification: qualification } : {}),
+  };
+};
 
 /** UI DOB "DD/MM/YYYY" (or DD-MM-YYYY) -> "YYYY-MM-DD" */
 export const toIsoDate = (raw) => {

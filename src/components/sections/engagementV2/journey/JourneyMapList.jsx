@@ -89,7 +89,7 @@ const JourneyMapList = ({ model }) => (
               {r.tag}
             </span>
             <span className="ml-auto rounded-full border border-[rgba(28,42,33,0.35)] bg-[#f1f1ee] px-[8px] py-[2px] text-[12px] font-semibold text-[#595959]">
-              {r.count}/3
+              {r.count}/{r.size ?? 3}
             </span>
           </div>
           <div className="flex flex-col gap-[8px] border-l-[3px] border-dotted border-[#a9b8a6] pl-[12px]">

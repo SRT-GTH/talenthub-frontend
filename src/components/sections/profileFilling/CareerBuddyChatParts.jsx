@@ -57,12 +57,61 @@ const SUGGESTIONS = [
   },
 ];
 
+/* JHS talents (13-15): school and subjects, learning and scholarships; no jobs or CVs. */
+const SUGGESTIONS_JHS = [
+  {
+    id: 'subjects',
+    icon: <BuddyIconBook className="size-[20px]" />,
+    title: 'Help me choose my SHS programme',
+    text: 'Based on the subjects you enjoy',
+  },
+  {
+    id: 'study',
+    icon: <BuddyIconEdit className="size-[20px]" />,
+    title: 'Make a study plan for a subject',
+    text: 'For the one you find hardest',
+  },
+  {
+    id: 'scholarships',
+    icon: <BuddyIconSparkle className="size-[20px]" />,
+    title: 'Find scholarships and learning programmes',
+    text: 'Open to JHS students',
+  },
+  {
+    id: 'careers',
+    icon: <BuddyIconBriefcase className="size-[20px]" />,
+    title: 'Explore careers I might like',
+    text: 'What people in them study and do',
+  },
+];
+
+/* SHS talents (16-17): internships and apprenticeships, courses after SHS. */
+const SUGGESTIONS_MINOR = [
+  {
+    id: 'internships',
+    icon: <BuddyIconSparkle className="size-[20px]" />,
+    title: 'Find internships and apprenticeships',
+    text: 'Open to SHS students',
+  },
+  {
+    id: 'courses',
+    icon: <BuddyIconBook className="size-[20px]" />,
+    title: 'Choose a course after SHS',
+    text: 'Programmes that lead to careers you like',
+  },
+  SUGGESTIONS[2],
+  SUGGESTIONS[3],
+];
+
 /*
  * NewChatStart — a fresh chat's empty state: avatar, "FRESH START" sticker (Playful), greeting, four starter cards.
- * Focused and Playful word the greeting differently (Figma), so both lines are kept. Props: name, onPick(prompt).
+ * Focused and Playful word the greeting differently (Figma), so both lines are kept. Props: name, onPick(prompt),
+ * band ('jhs' | 'minor' | null): under-18s get starters for their stage (school and subjects for JHS, internships for SHS).
  */
-export const NewChatStart = ({ name, onPick }) => {
+export const NewChatStart = ({ name, onPick, band = null }) => {
   const who = name || 'there';
+  const suggestions =
+    band === 'jhs' ? SUGGESTIONS_JHS : band === 'minor' ? SUGGESTIONS_MINOR : SUGGESTIONS;
   return (
     <div className="mx-auto my-auto flex w-full max-w-[760px] flex-col items-center gap-[16px] py-[12px]">
       <span className="flex size-[72px] shrink-0 items-center justify-center rounded-full playful:border-[1.5px] playful:border-solid playful:border-[#1c2a21] playful:shadow-[3px_3px_0_rgba(28,42,33,0.45)]">
@@ -84,7 +133,7 @@ export const NewChatStart = ({ name, onPick }) => {
         Ask anything about your career. Your last chat is saved in History.
       </p>
       <div className="mt-[2px] grid w-full grid-cols-2 gap-[12px] max-md:grid-cols-1">
-        {SUGGESTIONS.map(({ id, icon, title, text }) => (
+        {suggestions.map(({ id, icon, title, text }) => (
           <button
             key={id}
             type="button"

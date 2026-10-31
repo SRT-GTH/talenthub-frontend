@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { fetchTalentJobs } from '../../../services/talentJobs.api.js';
 import { fetchCommunities } from '../../../services/community.api.js';
+import { circleApi } from '../../../services/circle.api.js';
+import { slugify } from '../talentAssessment/liveOverview.js';
 import { classNames } from '../../../utils/classNames.js';
 import { LIFT } from './TabsParts.jsx';
 import {
@@ -33,8 +35,9 @@ const log = debug('GlobalSearchOverlay');
  * Live (signed in, no `?state=` design frame): the panel has its own query field (the talent top-nav
  * field is read-only and only opens the overlay), and results are searched in the browser over real data
  * loaded once when the overlay opens — roles from the job feed (GET /guidance/jobs), communities from
- * the catalogue (GET /community) and the app's own pages. There is no backend people / skills search yet,
- * so those groups only exist in the demo. Demo (`?state=` frames): the Figma results (talentHomeTabsData).
+ * the catalogue (GET /community), the talent's own skills (-> /my-assessment/skills/<slug>) and the app's own
+ * pages. People come from GET /circle/search as the talent types (2+ characters; the same minor-safe rules as
+ * My circle) and open /community/people/<id>. Demo (`?state=` frames): the Figma results (talentHomeTabsData).
  * Opening a row routes by its type: role -> /job-postings?job=<id>, community -> /community/<slug>,
  * page -> its route; demo skills -> /my-assessment, demo people -> /community. The "Ask Career Buddy" row
  * opens Buddy with the typed query as the talent's message; "See all" opens Browse all on Job Postings.
@@ -102,7 +105,29 @@ const hit = (q, ...fields) =>
       .includes(q)
   );
 
-const liveGroups = (src, q) => {
+const liveGroups = (src, q, people = []) => {
+  const skills = (src.skills || [])
+    .filter((name) => hit(q, name))
+    .map((name) => ({
+      id: `skill-${slugify(name)}`,
+      kind: 'skill',
+      to: `/my-assessment/skills/${slugify(name)}`,
+      parts: highlight(name, q),
+      sub: 'Your skill · how it’s proven',
+      icon: 'function',
+    }));
+  const persons = q
+    ? people.map((p) => ({
+        id: `person-${p.id}`,
+        kind: 'person',
+        to: `/community/people/${encodeURIComponent(p.id)}`,
+        parts: highlight(p.name, q),
+        sub: [p.headline, p.town].filter(Boolean).join(' · ') || 'Talent on GTH',
+        chip: p.status === 'connected' ? 'In your circle' : null,
+        photo: p.photo || null,
+        icon: 'function',
+      }))
+    : [];
   const roles = (src.jobs || [])
     .filter((j) => !j.closed && hit(q, j.title, j.company?.name, j.location))
     .map((j) => ({
@@ -135,6 +160,8 @@ const liveGroups = (src, q) => {
   }));
   return [
     { id: 'roles', label: 'Roles', rows: roles },
+    { id: 'skills', label: 'Skills', rows: skills },
+    { id: 'people', label: 'People', rows: persons },
     { id: 'communities', label: 'Communities', rows: communities },
     { id: 'pages', label: 'Pages', rows: pages },
   ];
@@ -181,6 +208,9 @@ const GlobalSearchOverlay = ({ home }) => {
   // Live sources: null = loading; each list stays [] if its call failed (see `failed`).
   const [src, setSrc] = useState(null);
   const [failed, setFailed] = useState([]);
+  // People are searched on the server as the talent types: { q, items } for the latest finished query.
+  const [people, setPeople] = useState({ q: '', items: [] });
+  const peopleQuery = query.trim();
 
   const close = () => {
     log('close');
@@ -210,6 +240,24 @@ const GlobalSearchOverlay = ({ home }) => {
     };
   }, [live]);
 
+  useEffect(() => {
+    if (!live || peopleQuery.length < 2) return undefined;
+    let alive = true;
+    const timer = setTimeout(() => {
+      circleApi
+        .search(peopleQuery)
+        .then((out) => alive && setPeople({ q: peopleQuery, items: out?.items || [] }))
+        .catch((err) => {
+          log.error('people failed:', err?.response?.status || err?.message);
+          if (alive) setPeople({ q: peopleQuery, items: [] });
+        });
+    }, 300);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [live, peopleQuery]);
+
   // Opening a row: route by its type (see the header), then close the overlay.
   const open = (row) => {
     const to = row.to || DEMO_ROUTE[row.group] || `/job-postings?job=${encodeURIComponent(row.id)}`;
@@ -229,9 +277,26 @@ const GlobalSearchOverlay = ({ home }) => {
     navigate('/job-postings?tab=browse');
   };
 
+  // The talent's own skills (profile technical + soft), from the home data already loaded.
+  const profileSkills = home?.live?.profileSkills;
+  const skills = useMemo(() => {
+    const ps = profileSkills || {};
+    const names = [...(ps.technicalSkills || []), ...(ps.softSkills || [])]
+      .map((s) => (typeof s === 'string' ? s : s?.name))
+      .filter(Boolean);
+    return [...new Set(names)];
+  }, [profileSkills]);
+
   const liveAll = useMemo(
-    () => (live && src ? liveGroups(src, query.trim().toLowerCase()) : null),
-    [live, src, query]
+    () =>
+      live && src
+        ? liveGroups(
+            { ...src, skills },
+            query.trim().toLowerCase(),
+            people.q === peopleQuery && peopleQuery.length >= 2 ? people.items : []
+          )
+        : null,
+    [live, src, skills, query, people, peopleQuery]
   );
   const categories = liveAll
     ? [

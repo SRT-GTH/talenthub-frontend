@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -67,7 +68,7 @@ const WorkItem = ({ item, last, onEdit }) => (
         ))}
       </div>
     </div>
-    <EditButton label={`Edit ${item.title}`} onClick={onEdit} />
+    {onEdit ? <EditButton label={`Edit ${item.title}`} onClick={onEdit} /> : null}
   </li>
 );
 
@@ -91,7 +92,7 @@ const EducationItem = ({ item, onEdit }) => (
         </div>
       ) : null}
     </div>
-    <EditButton label={`Edit ${item.title}`} onClick={onEdit} />
+    {onEdit ? <EditButton label={`Edit ${item.title}`} onClick={onEdit} /> : null}
   </li>
 );
 
@@ -119,10 +120,14 @@ const TipCard = ({ onImprove }) => (
 /*
  * ProfileExperienceTab — P-03 (Figma Focused 8110:369265 / Playful 7571:1007). Timeline of work and
  * volunteering, education, and the dashed "add" card on the left; Buddy tip, CV import and gaps note on
- * the right. Anything that adds or edits a role opens the Add experience modal (`modal=experience`).
+ * the right. Anything that adds a role opens the Add experience modal (`modal=experience`).
+ * Live (signed in): the modal appends a new role; editing a saved role opens the Work stage, which edits and removes
+ * roles. Education has no edit screen after onboarding yet, so its "+ Add" and pencils are demo-only.
  */
 const ProfileExperienceTab = ({ profile }) => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const live = isLoggedIn() && params.get('demo') !== '1';
 
   useEffect(() => {
     log('mount', { tab: profile?.tab });
@@ -132,6 +137,8 @@ const ProfileExperienceTab = ({ profile }) => {
     log('open experience modal');
     profile?.update?.({ modal: 'experience' });
   };
+
+  const editRole = live ? () => navigate('/profile/filling/work') : openModal;
 
   const work = EXPERIENCE_WORK;
   const edu = EXPERIENCE_EDUCATION;
@@ -154,13 +161,13 @@ const ProfileExperienceTab = ({ profile }) => {
                   key={item.key}
                   item={item}
                   last={i === work.items.length - 1}
-                  onEdit={openModal}
+                  onEdit={editRole}
                 />
               ))}
             </ul>
           </ProfileCard>
 
-          <ProfileCard title={edu.title} link={edu.add} onLink={openModal}>
+          <ProfileCard title={edu.title} link={live ? '' : edu.add} onLink={openModal}>
             {edu.items.length ? null : (
               <p className="text-[14px] leading-[1.5] text-[#737373]">
                 Add your school or college.
@@ -168,7 +175,7 @@ const ProfileExperienceTab = ({ profile }) => {
             )}
             <ul className="flex flex-col gap-[16px]">
               {edu.items.map((item) => (
-                <EducationItem key={item.key} item={item} onEdit={openModal} />
+                <EducationItem key={item.key} item={item} onEdit={live ? undefined : openModal} />
               ))}
             </ul>
           </ProfileCard>
@@ -201,7 +208,7 @@ const ProfileExperienceTab = ({ profile }) => {
             <Button
               variant="tertiary-subtle"
               size="sm"
-              onClick={() => log('upload CV (no backend)')}
+              onClick={() => navigate('/profile/filling/cv')}
             >
               {EXPERIENCE_IMPORT.cta}
             </Button>

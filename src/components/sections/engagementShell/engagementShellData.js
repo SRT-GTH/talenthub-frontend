@@ -1,3 +1,5 @@
+import { cachedJourney } from '../../../services/journey.api.js';
+
 /*
  * Engagement revamp — shared stage model (Figma canvas "Engagement 1 - gamified" 3125:10352, refreshed 14 Oct 2026).
  * Nine stages, any order, nothing locked. Copy verbatim from J-01 (journey map, Focused 8285:531 / Playful 7640:13290) and
@@ -23,16 +25,36 @@ export const ENGAGEMENT_STAGES = [
 
 export const STAGE_BY_ID = Object.fromEntries(ENGAGEMENT_STAGES.map((s) => [s.id, s]));
 
+/* Stages a JHS talent skips (backend utils/profileJourney.js): no work history or pitch until SHS. */
+export const JHS_HIDDEN_STAGES = new Set(['work', 'pitch']);
+
+/* This talent's stages, numbered 1..n: JHS talents skip Work and Pitch. */
+export const stagesFor = (jhs) =>
+  jhs
+    ? ENGAGEMENT_STAGES.filter((s) => !JHS_HIDDEN_STAGES.has(s.id)).map((s, i) => ({
+        ...s,
+        n: i + 1,
+      }))
+    : ENGAGEMENT_STAGES;
+
+/* True when the signed-in talent's last journey (GET /profiles/journey) is the JHS one. */
+export const isJhsJourney = () => Boolean(cachedJourney()?.jhs);
+
+/* A stage's number in this talent's journey (Portfolio is 5 of 7 for JHS, 6 of 9 otherwise). */
+export const stageNumber = (id) =>
+  stagesFor(isJhsJourney()).find((s) => s.id === id)?.n ?? STAGE_BY_ID[id]?.n;
+
 export const JOURNEY_MAP_ROUTE = '/profile/engagement';
 
 /* Where "Skip for now" / "Skip this stage" goes: the next stage in journey order; after the last stage, back to the map. */
 export const nextStageRoute = (stageId) => {
-  const i = ENGAGEMENT_STAGES.findIndex((s) => s.id === stageId);
-  return (i >= 0 && ENGAGEMENT_STAGES[i + 1]?.route) || JOURNEY_MAP_ROUTE;
+  const stages = stagesFor(isJhsJourney());
+  const i = stages.findIndex((s) => s.id === stageId);
+  return (i >= 0 && stages[i + 1]?.route) || JOURNEY_MAP_ROUTE;
 };
 
 /* Segment states for the stage bar: stages in doneIds are done, currentId is in progress, the rest are todo. */
-export const buildStageSegments = ({ doneIds = [], currentId = null } = {}) =>
-  ENGAGEMENT_STAGES.map((s) =>
+export const buildStageSegments = ({ doneIds = [], currentId = null, jhs = false } = {}) =>
+  stagesFor(jhs).map((s) =>
     doneIds.includes(s.id) ? 'done' : s.id === currentId ? 'current' : 'todo'
   );

@@ -122,7 +122,9 @@ const DIGITAL_ADDRESS_PATTERN = /^[A-Z]{2}-\d{3}-\d{4}$/;
 // Used in the success-modal summary row for Digital Address.
 const maskDigitalAddress = (raw) => {
   if (!raw) return '—';
-  return `GHA-${'•'.repeat(Math.max(0, raw.length - 3))}`;
+  // Keep the person's own region letters ("GA-•••-••••"), not a fixed prefix.
+  const [prefix, ...rest] = String(raw).split('-');
+  return [prefix, ...rest.map((part) => '•'.repeat(part.length))].join('-');
 };
 
 // ---- success modal ----------------------------------------------------
@@ -266,6 +268,7 @@ const OnboardingAddressPage = () => {
   const [district, setDistrict] = useState('');
   const [townCity, setTownCity] = useState('');
   const [digitalAddress, setDigitalAddress] = useState('');
+  const [digitalTouched, setDigitalTouched] = useState(false);
   const [community, setCommunity] = useState('');
   const [landmark, setLandmark] = useState('');
   const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
@@ -296,8 +299,11 @@ const OnboardingAddressPage = () => {
     digitalAddress.length > 0 && !DIGITAL_ADDRESS_PATTERN.test(digitalAddress);
 
   const districtError = hasSubmittedOnce && !district ? 'District is required' : undefined;
+  // Confirm stays disabled until the form is valid, so a bad code must show once the field is left, not only
+  // after a submit (which can't happen while the button is disabled).
   const digitalAddressError =
-    hasSubmittedOnce && (digitalAddress.length === 0 || digitalAddressInvalid)
+    ((hasSubmittedOnce || digitalTouched) && digitalAddress.length === 0) ||
+    (digitalTouched && digitalAddressInvalid)
       ? 'Format: XX-NNN-NNNN (e.g. GA-123-4567)'
       : undefined;
 
@@ -369,7 +375,7 @@ const OnboardingAddressPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="address" percent={78} />
+      <OnboardingHeader currentKey="address" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
@@ -476,9 +482,10 @@ const OnboardingAddressPage = () => {
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Digital Address"
                   required
-                  placeholder="eg:GH-123-4567"
+                  placeholder="Eg. GA-123-4567"
                   value={digitalAddress}
                   onChange={(e) => setDigitalAddress(e.target.value.toUpperCase())}
+                  onBlur={() => setDigitalTouched(true)}
                   leftIcon={<MapPinIcon />}
                   helperText="Your Ghana Post GPS code"
                   error={digitalAddressError}
@@ -490,10 +497,9 @@ const OnboardingAddressPage = () => {
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Community / Area"
-                  forceAsterisk
                   labelTrailing="Optional"
                   labelTrailingClassName="text-[#595959]"
-                  placeholder="Eg. Near amasaman"
+                  placeholder="Eg. Amasaman"
                   value={community}
                   onChange={(e) => setCommunity(e.target.value)}
                   leftIcon={<MapPinIcon />}
@@ -503,10 +509,9 @@ const OnboardingAddressPage = () => {
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
                   label="Nearby Landmark"
-                  forceAsterisk
                   labelTrailing="Optional"
                   labelTrailingClassName="text-[#595959]"
-                  placeholder="Eg. Near amasaman"
+                  placeholder="Eg. Opposite the police station"
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
                   leftIcon={<MapPinIcon />}

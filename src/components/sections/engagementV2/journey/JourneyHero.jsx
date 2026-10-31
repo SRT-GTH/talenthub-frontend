@@ -39,10 +39,13 @@ const Ring = ({ pct, gold }) => {
 
 /* Progress card of the hero: ring, "n of 9 stages done", next milestone line, 9 segments + milestone captions. */
 const ProgressCard = ({ model }) => {
-  const { done, pct, next, progress, unlocked } = model;
+  const { done, pct, next, progress, unlocked, total, milestones } = model;
   const allDone = !next;
   const NextIcon = allDone ? DiamondIcon : MS_ICON[next.n];
-  const segs = Array.from({ length: 9 }, (_, i) => i);
+  const segs = Array.from({ length: total }, (_, i) => i);
+  // Caption spots are tuned for 9 segments; other journeys (JHS: 7) put each caption under its milestone's segment.
+  const captionLeft = (n) =>
+    total === 9 ? (MS_LEFT[n - 1] / 400) * 100 : ((milestones[n - 1].at - 1) / total) * 100 - 4;
   return (
     <div
       className={classNames(
@@ -87,7 +90,7 @@ const ProgressCard = ({ model }) => {
                   'absolute top-[16px] flex items-center gap-[4px] whitespace-nowrap text-[11px] font-semibold leading-[13px] max-sm:hidden',
                   on ? 'text-[#785910]' : 'text-[#737373]'
                 )}
-                style={{ left: `${(MS_LEFT[n - 1] / 400) * 100}%` }}
+                style={{ left: `${captionLeft(n)}%` }}
               >
                 <Glyph className="size-[12px]" />
                 {['Discoverable', 'Top 20%', 'Top Talent'][n - 1]}
@@ -116,7 +119,10 @@ const JourneyHero = ({ model }) => (
           <span className="text-[#387440]">{COPY.titleAccent}</span>
         </h1>
         <p className="m-0 font-sans text-[16px] font-normal leading-[24px] text-[#595959]">
-          {model.current ? COPY.sub : COPY.subDone}
+          {(model.current ? COPY.sub : COPY.subDone)
+            // JHS journeys have 7 stages (no Work or Pitch).
+            .replace(/^Nine stages/, model.total === 9 ? 'Nine stages' : 'Every stage')
+            .replace('All nine stages done', 'Every stage done')}
         </p>
       </div>
       <ProgressCard model={model} />
