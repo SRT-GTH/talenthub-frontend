@@ -30,6 +30,7 @@ const log = debug('talentLearningState');
  * Live data (2026-10-18): the screens read the training API through LearningDataProvider.
  *   &course=<courseId>               the course open in Course detail / Lesson player (live)
  *   &demo=1                          force the Figma mock data (design QA); `empty` / `loading` imply it
+ *   /learning?view=goals             Career goals + "This week" (learning path iteration 4, live only)
  *
  * The lead owns this file. Section agents may ADD derived fields but must not rename existing ones.
  */
@@ -42,6 +43,7 @@ export const LEARNING_VIEWS = [
   'certificates',
   'recommended',
   'explore',
+  'goals',
 ];
 export const QUICK_STEPS = ['question', 'correct', 'wrong', 'passed', 'retry'];
 export const EXPLORE_STATES = ['category', 'search', 'none'];
