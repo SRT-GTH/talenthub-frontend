@@ -9,6 +9,8 @@ import { TEXT_SIZES, useAdminA11y } from './useAdminA11y.js';
 /*
  * The small top-bar panels: Help, Language, Accessibility, Profile menu (desktop chip and phone avatar).
  * Each takes { onClose } plus what it needs from the session; Profile can open the others (onOpen(name)).
+ * Language and Accessibility are shared with the institution portal: `note` replaces the language footnote and `className` reaches the
+ * panel shell (the institution top bar is 87px tall, so it passes lg:top-[88px]).
  */
 
 const SETTINGS_ROLES = ['super', 'senior'];
@@ -94,8 +96,12 @@ export const AdminHelpPanel = ({ onClose, session }) => {
 };
 
 // ── Language ───────────────────────────────────────────────────────────────
-export const AdminLanguagePanel = ({ onClose }) => (
-  <AdminPanel label="Language" title="Language" onClose={onClose} width={320}>
+export const AdminLanguagePanel = ({
+  onClose,
+  className,
+  note = 'The admin back office is in English. Talents can already preview these languages in the app.',
+}) => (
+  <AdminPanel label="Language" title="Language" onClose={onClose} width={320} className={className}>
     <ul role="radiogroup" aria-label="Language" className="m-0 list-none p-[8px]">
       <li>
         <div
@@ -125,9 +131,7 @@ export const AdminLanguagePanel = ({ onClose }) => (
         </li>
       ))}
     </ul>
-    <p className="m-0 px-[20px] pb-[14px] text-[12.5px] text-[#595959]">
-      The admin back office is in English. Talents can already preview these languages in the app.
-    </p>
+    <p className="m-0 px-[20px] pb-[14px] text-[12.5px] text-[#595959]">{note}</p>
   </AdminPanel>
 );
 
@@ -148,7 +152,7 @@ const Toggle = ({ label, hint, on, onChange }) => (
   </label>
 );
 
-export const AdminA11yPanel = ({ onClose }) => {
+export const AdminA11yPanel = ({ onClose, className }) => {
   const [p, set, reset] = useAdminA11y();
   return (
     <AdminPanel
@@ -156,6 +160,7 @@ export const AdminA11yPanel = ({ onClose }) => {
       title="Accessibility"
       onClose={onClose}
       width={360}
+      className={className}
       footer={
         <button
           type="button"

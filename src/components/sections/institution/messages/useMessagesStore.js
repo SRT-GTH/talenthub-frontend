@@ -32,6 +32,9 @@ const getState = () => state;
 
 export const useMessagesStore = () => useSyncExternalStore(subscribe, getState, getState);
 
+/** One thread row of the list, as last loaded (null if not in the list). */
+export const getStoreThread = (id) => state.threads.find((t) => t.id === id) || null;
+
 export const loadThreads = async () => {
   try {
     const res = await listMessages();

@@ -5,14 +5,8 @@ import InstitutionFrame from '../../components/sections/institution/InstitutionF
 import InstitutionPageHero from '../../components/sections/institution/InstitutionPageHero.jsx';
 import { useInstitutionState } from '../../components/sections/institution/institutionState.js';
 import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
-import {
-  PUBLIC_PAGE_COPY as COPY,
-  regionIdOf,
-} from '../../components/sections/institution/publicPage/data/institutionPublicData.js';
-import InstitutionPublicHeader from '../../components/sections/institution/publicPage/InstitutionPublicHeader.jsx';
-import InstitutionPublicImpactCard from '../../components/sections/institution/publicPage/InstitutionPublicImpactCard.jsx';
-import InstitutionPublicProgrammesCard from '../../components/sections/institution/publicPage/InstitutionPublicProgrammesCard.jsx';
-import InstitutionPublicSideCards from '../../components/sections/institution/publicPage/InstitutionPublicSideCards.jsx';
+import { PUBLIC_PAGE_COPY as COPY } from '../../components/sections/institution/publicPage/data/institutionPublicData.js';
+import InstitutionPublicProfile from '../../components/sections/institution/publicPage/InstitutionPublicProfile.jsx';
 import { apiMessage, institutionPublicPage } from '../../services/institutionPortal.api.js';
 import { debug } from '../../utils/debug.js';
 
@@ -25,8 +19,6 @@ const log = debug('InstitutionPublicPage');
  * owner sees exactly what anyone sees; until the school is accredited (and while paused) that endpoint answers 404 and the preview says why.
  * Aggregates only, no student records. Hero title uses Bricolage as drawn (font-heading).
  */
-
-const zero = (n) => (n === 0 ? '0' : n);
 
 const InstitutionPublicPage = () => {
   const data = useInstitutionState();
@@ -59,10 +51,6 @@ const InstitutionPublicPage = () => {
     load();
   }, [load]);
 
-  const caption = page
-    ? [page.town, page.region && `${page.region} Region`].filter(Boolean).join(' · ') || 'Ghana'
-    : '';
-
   return (
     <InstitutionFrame data={data} title="Institution public page" active="none">
       <InstitutionPageHero
@@ -70,9 +58,16 @@ const InstitutionPublicPage = () => {
         title={COPY.hero.title}
         subtitle={COPY.hero.subtitle}
         actions={
-          <InstitutionButton to="/institution/settings/profile" size="sm">
-            Edit institution page
-          </InstitutionButton>
+          <>
+            {state === 'ready' && page ? (
+              <InstitutionButton to={`/institutions/${encodeURIComponent(page.slug)}`} size="sm">
+                Open public page
+              </InstitutionButton>
+            ) : null}
+            <InstitutionButton to="/institution/settings/profile" size="sm">
+              Edit institution page
+            </InstitutionButton>
+          </>
         }
       />
       <nav aria-label="Breadcrumb" className="text-[14px] leading-[17px]">
@@ -123,36 +118,7 @@ const InstitutionPublicPage = () => {
           </button>
         </p>
       ) : null}
-      {state === 'ready' && page ? (
-        <>
-          <InstitutionPublicHeader institution={page} />
-          <div className="grid min-w-0 grid-cols-1 items-start gap-[24px] xl:grid-cols-[minmax(0,1fr)_456px]">
-            <div className="flex min-w-0 flex-col gap-[24px]">
-              <InstitutionPublicImpactCard
-                impact={{
-                  title: COPY.impactTitle,
-                  hint: page.impact.hint,
-                  tiles: page.impact.tiles.map((t) => ({ ...t, value: zero(t.value) })),
-                }}
-              />
-              <InstitutionPublicProgrammesCard
-                title={COPY.programmesTitle}
-                hint={page.programmes.hint}
-                items={page.programmes.items}
-                empty={COPY.noProgrammes}
-              />
-            </div>
-            <div className="flex min-w-0 flex-col gap-[24px]">
-              <InstitutionPublicSideCards
-                copy={COPY}
-                caption={caption}
-                region={regionIdOf(page.region)}
-                open={page.open}
-              />
-            </div>
-          </div>
-        </>
-      ) : null}
+      {state === 'ready' && page ? <InstitutionPublicProfile page={page} owner /> : null}
     </InstitutionFrame>
   );
 };

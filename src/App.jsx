@@ -133,6 +133,10 @@ const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
 // Theme 11 institution portal (Figma canvas 8520:10): /institution/*, live session (GET /api/institution/me), own router in pages/institution/InstitutionApp.jsx.
 const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
+// A school's public page (no sign-in): GET /api/institution-public/:slug.
+const InstitutionSchoolPublicPage = lazy(
+  () => import('./pages/institution/InstitutionSchoolPublicPage.jsx')
+);
 // A student's "is this your school?" answers and a guardian's consent for an under-18 (institution roster).
 const SchoolLinksPage = lazy(() => import('./pages/SchoolLinksPage.jsx'));
 const GuardianConsentPage = lazy(() => import('./pages/GuardianConsentPage.jsx'));
@@ -1068,6 +1072,14 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <InstitutionApp />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/institutions/:slug'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <InstitutionSchoolPublicPage />
                     </Suspense>
                   }
                 />

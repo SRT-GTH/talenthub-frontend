@@ -13,6 +13,7 @@ import {
   updateMessage,
 } from '../../../../services/institutionPortal.api.js';
 import { MESSAGES_COPY, SCHEDULED_SENTENCE, deliveryProblem } from './data/messagesData.js';
+import { useInstitutionSession } from '../useInstitutionSession.js';
 import ComposeDialog from './ComposeDialog.jsx';
 import ConfirmSendDialog from './ConfirmSendDialog.jsx';
 import EmptyMessages from './EmptyMessages.jsx';
@@ -21,6 +22,7 @@ import ThreadBanner from './ThreadBanner.jsx';
 import ThreadList from './ThreadList.jsx';
 import ThreadPane from './ThreadPane.jsx';
 import {
+  getStoreThread,
   loadThreads,
   resetDraft,
   startDraft,
@@ -62,6 +64,8 @@ const toLocalInput = (iso) => {
 const MessagesView = ({ data, threadId, isNew }) => {
   const navigate = useNavigate();
   const store = useMessagesStore();
+  const session = useInstitutionSession();
+  const reloadSession = session.reload;
   const [needle, setNeedle] = useState('');
   const [announce, setAnnounce] = useState('');
   const [thread, setThread] = useState(null);
@@ -82,18 +86,27 @@ const MessagesView = ({ data, threadId, isNew }) => {
 
   const openId = threadId ?? (!isNew ? store.threads[0]?.id : null);
 
-  const loadThread = useCallback(async (id) => {
-    if (!id) {
-      setThread(null);
-      return;
-    }
-    setThreadError('');
-    try {
-      setThread(await getMessage(id));
-    } catch (err) {
-      setThreadError(apiMessage(err));
-    }
-  }, []);
+  const loadThread = useCallback(
+    async (id) => {
+      if (!id) {
+        setThread(null);
+        return;
+      }
+      setThreadError('');
+      const hadUnread = Boolean(getStoreThread(id)?.unread);
+      try {
+        setThread(await getMessage(id));
+        // opening a thread marks its replies seen: refresh the list and the top-bar Messages badge
+        if (hadUnread) {
+          loadThreads();
+          reloadSession?.();
+        }
+      } catch (err) {
+        setThreadError(apiMessage(err));
+      }
+    },
+    [reloadSession]
+  );
 
   useEffect(() => {
     log('open', { openId });

@@ -5,9 +5,16 @@ import InstitutionPublicMap from './InstitutionPublicMap.jsx';
 /*
  * InstitutionPublicSideCards — right column of Figma 11.6.1h (8746:1768): "Where we are" (map 220 wide, the school's region highlighted, + "Town ·
  * Region") and "Open programmes" (#f2f2ee rows + "See all programmes →", which opens the school's Programmes screen in the portal).
- * Props: copy (PUBLIC_PAGE_COPY), caption, region (map region id), open [{id, title, meta}].
+ * Props: copy (PUBLIC_PAGE_COPY), caption, region (map region id), open [{id, title, meta}], allLink (where "See all programmes" goes;
+ * null hides it: the public page has no portal to send visitors to).
  */
-const InstitutionPublicSideCards = ({ copy, caption, region, open }) => (
+const InstitutionPublicSideCards = ({
+  copy,
+  caption,
+  region,
+  open,
+  allLink = '/institution/programmes',
+}) => (
   <>
     <PublicCard
       title={copy.reachTitle}
@@ -36,12 +43,14 @@ const InstitutionPublicSideCards = ({ copy, caption, region, open }) => (
       ) : (
         <p className="m-0 text-[14px] leading-[20px] text-[#595959]">{copy.noOpen}</p>
       )}
-      <Link
-        to="/institution/programmes"
-        className="inline-flex min-h-[24px] items-center pt-[2px] text-[14px] leading-[17px] font-semibold text-[#387440] no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-      >
-        {copy.all}
-      </Link>
+      {allLink ? (
+        <Link
+          to={allLink}
+          className="inline-flex min-h-[24px] items-center pt-[2px] text-[14px] leading-[17px] font-semibold text-[#387440] no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+        >
+          {copy.all}
+        </Link>
+      ) : null}
     </PublicCard>
   </>
 );

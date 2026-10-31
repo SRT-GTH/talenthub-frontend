@@ -11,7 +11,7 @@ export const HOME_HERO = {
   default: {
     title: 'Welcome back, {first}',
     subtitle:
-      '{institution} on GTH: {students} students on the roster, {pending} records waiting for your check and {scholarships} scholarships live.',
+      '{institution} on GTH: {studentsText} on the roster, {pendingText} waiting for your check and {scholarshipsText} live.',
     action: 'Customise',
   },
   // 11.2.1b: verified, roster still empty.

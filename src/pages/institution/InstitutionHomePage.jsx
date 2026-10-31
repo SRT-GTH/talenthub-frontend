@@ -45,6 +45,8 @@ const log = debug('InstitutionHomePage');
  */
 
 const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+/** "1 student", "7 students" (the hero sentence reads the live counts). */
+const count = (n, one, many = `${one}s`) => `${n ?? 0} ${n === 1 ? one : many}`;
 
 const liveChecklist = (def, total) => {
   const items = def.items.map((it) =>
@@ -129,6 +131,9 @@ const InstitutionHomePage = () => {
     pending: stats.pending,
     credentials: stats.credentials,
     scholarships: counts.scholarshipsLive,
+    studentsText: count(home?.total ?? stats.students, 'student'),
+    pendingText: count(stats.pending, 'record'),
+    scholarshipsText: count(counts.scholarshipsLive, 'scholarship'),
   };
   const heroDef = overlay
     ? HOME_HERO.firstLoginOverlay
