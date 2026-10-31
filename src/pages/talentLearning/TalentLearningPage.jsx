@@ -96,7 +96,7 @@ const TalentLearningBody = ({ learning }) => {
       default:
         return (
           <LearningHub learning={learning}>
-            {data.live && !learning.tab && <LearningThisWeek learning={learning} />}
+            {data.live && learning.tab !== 'saved' && <LearningThisWeek learning={learning} />}
             {renderHubBody()}
           </LearningHub>
         );
