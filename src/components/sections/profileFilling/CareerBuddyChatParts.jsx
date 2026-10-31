@@ -312,6 +312,49 @@ const LengthSegment = ({ value, onChange }) => (
   </div>
 );
 
+/* 2026-10-31: which AI model Buddy answers with (sent to the agent as X-Buddy-Model). */
+const MODELS = [
+  ['claude', 'Claude'],
+  ['gpt-oss', 'GPT-OSS 120B'],
+];
+
+const ModelSegment = ({ value, onChange }) => (
+  <div className="flex flex-col gap-[6px] px-[8px] pb-[8px] pt-[2px]">
+    <div
+      role="radiogroup"
+      aria-label="AI model"
+      className="flex gap-[3px] rounded-[12px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] p-[3px] playful:border-[#1c2a21]/35 playful:px-[3px] playful:py-[4px]"
+    >
+      {MODELS.map(([id, label]) => {
+        const on = (value || 'claude') === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(id)}
+            className={classNames(
+              'flex h-[32px] flex-1 cursor-pointer items-center justify-center rounded-[9px] border-0 px-[8px] font-sans text-[13px] leading-[16px]',
+              on
+                ? 'bg-white font-semibold text-[#387440] shadow-[0_1px_2px_rgba(28,42,33,0.04)] playful:bg-[#387440] playful:text-white playful:shadow-[2px_2px_0_#1c2a21]'
+                : 'bg-transparent font-medium text-[#595959]',
+              FOCUS_RING
+            )}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
+    <p className="m-0 px-[2px] font-sans text-[12px] leading-[14px] text-[#737373]">
+      {(value || 'claude') === 'claude'
+        ? 'If Claude is unavailable, Buddy switches to GPT-OSS 120B for you.'
+        : 'Open-source model. If it is unavailable, Buddy switches to Claude for you.'}
+    </p>
+  </div>
+);
+
 const LanguageView = ({ value, onBack, onPick }) => (
   <>
     <div className="flex items-center gap-[10px] pb-[8px] pl-[8px] pr-[8px]">
@@ -530,6 +573,9 @@ export const BuddySettingsPopover = ({
               value={settings.answerLength}
               onChange={(answerLength) => onChange({ answerLength })}
             />
+            <Divider />
+            <SectionLabel>AI model</SectionLabel>
+            <ModelSegment value={settings.model} onChange={(model) => onChange({ model })} />
             <Divider />
             <SectionLabel>What Buddy can use</SectionLabel>
             <Row

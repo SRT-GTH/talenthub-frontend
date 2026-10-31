@@ -28,6 +28,20 @@ const TURN_URL = `${AGENT_BASE}/api/workflows/turnControllerWorkflow/start-async
 const TURN_TIMEOUT_MS = 120_000;
 
 /**
+ * 2026-10-31: the model the talent picked in Buddy settings (careerBuddy.settings.model), sent with each
+ * turn as inputData.modelPreference. "claude" (default) or "gpt-oss"; the agent falls back to the other
+ * one when it errors. (In the body, not a header, so no CORS change is needed on the agent.)
+ */
+export const buddyModelChoice = () => {
+  try {
+    const m = JSON.parse(localStorage.getItem('careerBuddy.settings') || '{}').model;
+    return m === 'gpt-oss' ? 'gpt-oss' : 'claude';
+  } catch {
+    return 'claude';
+  }
+};
+
+/**
  * 2026-10-25: the agent checks every call against the caller's login token (it used to trust the
  * userId in the body). Same token the API gets; renewed first when it is about to expire.
  */
@@ -85,6 +99,8 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
       ...(chipAction ? { chipAction } : {}),
       // 2026-10-17: 'voice' when the turn came from the live voice call.
       ...(inputMode ? { inputMode } : {}),
+      // 2026-10-31: the AI model picked in Buddy settings (claude | gpt-oss).
+      modelPreference: buddyModelChoice(),
     },
   };
   log('turn ->', { message, chipAction: chipAction?.label, historyLen: history.length });
@@ -133,6 +149,8 @@ export const sendTurnStream = async ({ onStatus, onDelta, signal, ...args }) => 
       history,
       ...(chipAction ? { chipAction } : {}),
       ...(inputMode ? { inputMode } : {}),
+      // 2026-10-31: the AI model picked in Buddy settings (claude | gpt-oss).
+      modelPreference: buddyModelChoice(),
     },
   };
   const controller = new AbortController();

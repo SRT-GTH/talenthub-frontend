@@ -5,4 +5,7 @@ export const DEFAULT_BUDDY_SETTINGS = {
   answerLength: 'balanced',
   useProfile: true,
   rememberChats: true,
+  // 2026-10-31: the AI model Buddy answers with. Claude by default; gpt-oss-120b is the switch and the
+  // automatic fallback when Claude is down (the agent falls back on its own too).
+  model: 'claude',
 };
