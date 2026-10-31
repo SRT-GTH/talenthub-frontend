@@ -14,6 +14,9 @@ const log = debug('InstitutionSchoolPublicPage');
  * without portal links). Live: GET /api/institution-public/:slug, which answers 404 for an unknown slug and for schools that are not
  * accredited, paused or inactive (one "not found" state for all of them, so nothing leaks about schools that are not public).
  * The document title is the school's name. Aggregates only, no student records.
+ * Top bar: Share shares THIS page's address (the phone share sheet when the browser has one, otherwise the link is copied and "Link
+ * copied" is announced); the Theme 8 share dialog and "Download PDF" are left out: they build national-data links and print the national
+ * overview, not a school page.
  */
 
 const NotFound = () => (
@@ -37,6 +40,25 @@ const InstitutionSchoolPublicPage = () => {
   const [page, setPage] = useState(null);
   const [state, setState] = useState('loading');
   const [error, setError] = useState('');
+  const [shareNote, setShareNote] = useState('');
+
+  const share = useCallback(async () => {
+    const url = `${window.location.origin}${window.location.pathname}`;
+    const title = page?.name || 'Ghana Talent Hub';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShareNote('Link copied');
+    } catch (err) {
+      // the person closed the share sheet: nothing to say
+      if (err?.name === 'AbortError') return;
+      setShareNote(`Copy this link: ${url}`);
+    }
+    window.setTimeout(() => setShareNote(''), 4000);
+  }, [page]);
 
   const load = useCallback(() => {
     setState('loading');
@@ -70,7 +92,18 @@ const InstitutionSchoolPublicPage = () => {
   }, [page, state]);
 
   return (
-    <PublicDataFrame data={data} title="Directory" active="directory">
+    <PublicDataFrame data={data} title="Directory" active="directory" onShare={share} hideDownload>
+      <p
+        role="status"
+        aria-live="polite"
+        className={
+          shareNote
+            ? 'fixed bottom-[24px] left-1/2 z-[80] m-0 -translate-x-1/2 rounded-full bg-[#1c2a21] px-[18px] py-[10px] text-[14px] font-semibold text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)]'
+            : 'sr-only'
+        }
+      >
+        {shareNote}
+      </p>
       <div className="flex min-w-0 flex-col gap-[24px]">
         {state === 'loading' ? (
           <p aria-busy="true" className="m-0 text-[14px] leading-[20px] text-[#595959]">
