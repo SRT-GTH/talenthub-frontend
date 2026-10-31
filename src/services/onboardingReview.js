@@ -13,6 +13,11 @@ const EDUCATION_LEVEL_LABELS = {
   tertiary: 'Tertiary / University',
   vocational: 'Vocational',
 };
+// The backend has no "not studying" level yet (it is saved as tertiary + the gap grade): show what was picked.
+const levelLabel = (e) =>
+  e.educationGrade === 'gap'
+    ? 'Not currently studying'
+    : EDUCATION_LEVEL_LABELS[e.educationLevel] || e.educationLevel;
 
 // "year-3" -> "Year 3", "shs-2" -> "SHS 2", "jhs-1" -> "JHS 1"
 const formatGrade = (grade) => {
@@ -50,6 +55,33 @@ const splitStreetAddress = (street) => {
   return { digital, community, landmark };
 };
 
+// The Done page's summary of the account just activated (Review saves it; Done reads it). Kept for this tab only:
+// activation returns no sign-in, so Done has nothing else to load from. No summary = the Figma demo values.
+const DONE_KEY = 'th:onboarding-done';
+
+export const saveDoneSummary = (summary) => {
+  try {
+    sessionStorage.setItem(DONE_KEY, JSON.stringify(summary));
+  } catch {
+    /* storage unavailable: Done shows the demo */
+  }
+};
+
+export const readDoneSummary = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem(DONE_KEY) || 'null');
+  } catch {
+    return null;
+  }
+};
+
+// "older_sibling" -> "Older sibling"
+const formatRelationship = (value) => {
+  if (!value) return null;
+  const text = String(value).replace(/[_-]+/g, ' ').trim();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
 export const buildReviewProfile = (summary) => {
   const s = summary || {};
   const personal = s.personal || {};
@@ -62,7 +94,8 @@ export const buildReviewProfile = (summary) => {
 
   return {
     name: name || 'Your profile',
-    role: education.educationLevel ? 'Student' : 'Talent',
+    // "Not currently studying" is stored with the gap grade: not a student.
+    role: education.educationLevel && education.educationGrade !== 'gap' ? 'Student' : 'Talent',
     avatarUrl: identity.profilePhoto || null,
     // No talent score exists until the profile is built after activation.
     score: null,
@@ -97,7 +130,7 @@ export const buildReviewProfile = (summary) => {
       landmark: show(street.landmark),
     },
     education: {
-      level: show(EDUCATION_LEVEL_LABELS[education.educationLevel] || education.educationLevel),
+      level: show(levelLabel(education)),
       grade: show(formatGrade(education.educationGrade)),
       programme: show(education.educationFieldOfStudy || education.educationCurriculum),
       graduation: education.expectedGraduationYear
@@ -106,5 +139,13 @@ export const buildReviewProfile = (summary) => {
       institution: show(education.educationInstitution),
       confirmed: Boolean(education.educationInstitution),
     },
+    // Under-18s only (the backend returns `parent: null` for adults): who gets the opt-out notice.
+    parent: s.parent
+      ? {
+          name: show([s.parent.parentFirstName, s.parent.parentLastName].filter(Boolean).join(' ')),
+          relationship: show(formatRelationship(s.parent.parentRelationship)),
+          email: show(s.parent.parentEmail),
+        }
+      : null,
   };
 };

@@ -84,6 +84,14 @@ const LEVEL_OPTIONS = [
   { value: 'none', label: 'Not currently studying' },
 ];
 
+// Levels that don't fit the age given on the DOB step are hidden (unknown age shows them all): no tertiary or
+// degree under 16, no postgraduate under 20. Primary keeps its own gating modal.
+const MIN_AGE_BY_LEVEL = { tertiary: 16, university: 16, postgrad: 20 };
+const levelsForAge = (age) =>
+  typeof age === 'number'
+    ? LEVEL_OPTIONS.filter((o) => !MIN_AGE_BY_LEVEL[o.value] || age >= MIN_AGE_BY_LEVEL[o.value])
+    : LEVEL_OPTIONS;
+
 const SUB_JHS_LEVELS = new Set(['primary']);
 
 // Grade/Year (class) options are level-dependent. Stub data - the backend
@@ -423,7 +431,8 @@ const OnboardingEducationPage = () => {
   log('mount');
   const navigate = useNavigate();
   const [apiError, setApiError] = useState('');
-  const { isMinor } = useOnboarding();
+  const { isMinor, age } = useOnboarding();
+  const levelOptions = levelsForAge(age);
   const [level, setLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [institution, setInstitution] = useState('');
@@ -440,7 +449,8 @@ const OnboardingEducationPage = () => {
   const handleLevelChange = (value) => {
     log('level change:', value);
     setLevel(value);
-    setGrade('');
+    // "Not currently studying" has one grade (gap year): pick it so the person isn't asked a question with one answer.
+    setGrade(value === 'none' ? 'gap' : '');
     setGraduation('');
     setProgramme('');
     if (showLevelGate && !SUB_JHS_LEVELS.has(value)) {
@@ -465,10 +475,12 @@ const OnboardingEducationPage = () => {
 
   // Per-field validity. We use these to flip both the box chrome (state)
   // and the helper-vs-error message presentation.
+  // Someone not studying (a graduate, a worker) has no current school or graduation year: both are optional then.
+  const notStudying = level === 'none';
   const isLevelMissing = level === '';
   const isGradeMissing = grade === '';
-  const isInstitutionMissing = institution.trim().length === 0;
-  const isGraduationMissing = graduation === '';
+  const isInstitutionMissing = !notStudying && institution.trim().length === 0;
+  const isGraduationMissing = !notStudying && graduation === '';
 
   // Field-level error chrome / copy — only after the first submit attempt
   // and only for fields whose cascade is satisfied (so cascade-disabled
@@ -615,7 +627,7 @@ const OnboardingEducationPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="education" percent={78} />
+      <OnboardingHeader currentKey="education" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
@@ -691,7 +703,7 @@ const OnboardingEducationPage = () => {
                   label="Education level"
                   required
                   placeholder="Select your level"
-                  options={LEVEL_OPTIONS}
+                  options={levelOptions}
                   value={level}
                   onChange={handleLevelChange}
                   leftIcon={<TrendUpIcon />}
@@ -721,9 +733,11 @@ const OnboardingEducationPage = () => {
                 <TextInput
                   asteriskClassName={TALENT_ASTERISK}
                   helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
-                  label="Institution"
-                  required
-                  placeholder="Search school or university"
+                  label={notStudying ? 'Last school or university (optional)' : 'Institution'}
+                  required={!notStudying}
+                  placeholder={
+                    notStudying ? 'e.g. University of Ghana' : 'Search school or university'
+                  }
                   value={institution}
                   onChange={handleInstitutionChange}
                   leftIcon={<SearchIcon />}
@@ -732,26 +746,28 @@ const OnboardingEducationPage = () => {
                   helperText={institutionHelper}
                   error={institutionError}
                   state={institutionBoxState}
-                  verified={!isInstitutionMissing}
+                  verified={institution.trim().length > 0}
                   autoComplete="off"
                 />
-                <Select
-                  asteriskClassName={TALENT_ASTERISK}
-                  helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
-                  label="Expected graduation"
-                  required
-                  placeholder="yyyy"
-                  options={GRADUATION_YEARS}
-                  value={graduation}
-                  onChange={setGraduation}
-                  leftIcon={<CalendarIcon />}
-                  leftIconClassName="text-brand-green"
-                  disabled={!level || !grade || isInstitutionMissing}
-                  helperText={graduationHelper}
-                  error={graduationError}
-                  state={graduationBoxState}
-                  verified={Boolean(graduation)}
-                />
+                {notStudying ? null : (
+                  <Select
+                    asteriskClassName={TALENT_ASTERISK}
+                    helperIcon={<AlertDiamondIcon className="size-4 shrink-0" />}
+                    label="Expected graduation"
+                    required
+                    placeholder="yyyy"
+                    options={GRADUATION_YEARS}
+                    value={graduation}
+                    onChange={setGraduation}
+                    leftIcon={<CalendarIcon />}
+                    leftIconClassName="text-brand-green"
+                    disabled={!level || !grade || isInstitutionMissing}
+                    helperText={graduationHelper}
+                    error={graduationError}
+                    state={graduationBoxState}
+                    verified={Boolean(graduation)}
+                  />
+                )}
                 {/* Optional programme / course (education v2). Full width under
                   the 2x2 grid; only for levels that have a programme. */}
                 {programmeKind(level) === 'select' && (

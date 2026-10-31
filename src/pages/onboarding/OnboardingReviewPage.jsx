@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApiErrorNote from '../../components/shared/ApiErrorNote.jsx';
-import { getApiErrorMessage } from '../../services/apiErrors.js';
+import { getApiErrorCode, getApiErrorMessage } from '../../services/apiErrors.js';
 import {
   captureStep,
   activateOnboarding,
   clearOnboardingSession,
   getOnboardingStatus,
 } from '../../services/onboarding.api.js';
-import { buildReviewProfile } from '../../services/onboardingReview.js';
+import { buildReviewProfile, saveDoneSummary } from '../../services/onboardingReview.js';
 import { useOnboarding } from '../../hooks/useOnboarding.js';
 import Button from '../../components/ui/Button.jsx';
 import ClampText from '../../components/ui/ClampText.jsx';
@@ -309,7 +309,7 @@ const IdentitySection = ({ data }) => (
       {/* Figma export 8027:210911 (32x32 tile incl. card glyph). */}
       <img src={idTile} alt="" aria-hidden="true" width={32} height={32} className="shrink-0" />
       <div className="flex flex-1 flex-col gap-0.5 max-sm:min-w-[9rem]">
-        <CellLabel>Ghana Card Number</CellLabel>
+        <CellLabel>Ghana Card / Student ID</CellLabel>
         <span
           className="font-bold text-[#575755] max-sm:break-all"
           style={{ fontSize: 12, letterSpacing: '1px', lineHeight: '16px' }}
@@ -430,6 +430,25 @@ const EducationSection = ({ data }) => (
           <VerifiedBadge label="Confirmed" />
         </span>
       )}
+    </div>
+  </div>
+);
+
+// Under-18s: the parent or guardian who gets the opt-out notice, so a wrong email can be caught and fixed here.
+const ParentSection = ({ data }) => (
+  <div
+    className="mx-6 mt-2 flex flex-col gap-3 max-sm:mx-4 max-md:mx-0 max-md:mt-4 max-md:gap-1 pt-6 pb-6"
+    style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
+  >
+    <SectionHeader
+      icon={<ReviewPersonalIcon />}
+      title="Parent / Guardian"
+      editTo={'/onboarding/talent/parent-info'}
+    />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-md:gap-0">
+      <Cell label="Name" value={data.name} />
+      <Cell label="Relationship" value={data.relationship} />
+      <Cell label="Email (gets the opt-out notice)" value={data.email} muted />
     </div>
   </div>
 );
@@ -608,7 +627,7 @@ const OnboardingReviewPage = () => {
   const navigate = useNavigate();
   const [apiError, setApiError] = useState('');
   const [isActivating, setIsActivating] = useState(false);
-  const { isMinor } = useOnboarding();
+  const { isMinor, reset: resetOnboarding } = useOnboarding();
   const [profile, setProfile] = useState(LOADING_PROFILE);
   const [loadError, setLoadError] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -618,6 +637,8 @@ const OnboardingReviewPage = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [maybeActive, setMaybeActive] = useState(false);
+  const activationTried = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -686,6 +707,8 @@ const OnboardingReviewPage = () => {
     }
     setApiError('');
     setIsActivating(true);
+    const isRetry = activationTried.current;
+    activationTried.current = true;
     try {
       if (!isMinor) {
         // Adults record the three consents first; minors activate directly
@@ -701,9 +724,37 @@ const OnboardingReviewPage = () => {
       const res = await activateOnboarding();
       log('account activated:', { userId: res?.userId, isMinor });
       clearOnboardingSession();
+      // Also forget the stored DOB, so a second sign-up in this tab starts fresh.
+      resetOnboarding();
+      // The Done page shows this person's own summary (it has no session or sign-in to load it from).
+      saveDoneSummary({
+        firstName: profile.personal?.firstName,
+        fullName: profile.name,
+        isMinor: Boolean(isMinor),
+        role: profile.role,
+        region: profile.address?.region,
+        education: [
+          profile.education?.level,
+          profile.education?.grade,
+          profile.education?.institution,
+        ]
+          .filter((v) => v && v !== '—')
+          .join(' · '),
+        photoUploaded: Boolean(profile.identity?.photoUploaded),
+        guardianNotified: Boolean(isMinor && profile.parent),
+        email: profile.contact?.email,
+      });
       setShowSuccessModal(true);
     } catch (err) {
-      setApiError(getApiErrorMessage(err));
+      // A retry after a timed-out activation finds the session already used: the account was most likely
+      // created, so send them to log in instead of telling them to start again (which would hit "email taken").
+      const code = getApiErrorCode(err);
+      if (isRetry && (code === 'SESSION_INVALID' || code === 'SESSION_NOT_FOUND')) {
+        setMaybeActive(true);
+        setApiError('Your account looks ready already. Log in with your email and password.');
+      } else {
+        setApiError(getApiErrorMessage(err));
+      }
     } finally {
       setIsActivating(false);
     }
@@ -718,7 +769,7 @@ const OnboardingReviewPage = () => {
 
   return (
     <div className="relative mx-auto flex w-full min-h-[calc(100vh-160px)] flex-1 flex-col overflow-y-auto no-scrollbar bg-white max-md:scroll-pb-28">
-      <OnboardingHeader currentKey="review" percent={78} />
+      <OnboardingHeader currentKey="review" />
 
       <ReviewBackgroundOrbs />
 
@@ -798,6 +849,7 @@ const OnboardingReviewPage = () => {
             <ContactSection data={profile.contact} />
             <AddressSection data={profile.address} />
             <EducationSection data={profile.education} />
+            {profile.parent ? <ParentSection data={profile.parent} /> : null}
           </div>
 
           {/* Consent block */}
@@ -815,6 +867,14 @@ const OnboardingReviewPage = () => {
           {/* CTA */}
           <StickyActionBar bleed={16}>
             <ApiErrorNote message={apiError} className="mx-auto mb-2" />
+            {maybeActive ? (
+              <Link
+                to="/login"
+                className="mx-auto mb-2 font-semibold text-brand-green underline underline-offset-2"
+              >
+                Go to log in
+              </Link>
+            ) : null}
             <Button
               type="button"
               variant="primary"

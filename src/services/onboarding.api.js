@@ -126,10 +126,13 @@ export const resendContactOtp = async () => {
 export const activateOnboarding = async ({ consentGiven } = {}) => {
   const sessionToken = requireToken();
   log('activate, consent provided:', Boolean(consentGiven));
-  const { data } = await api.post(`${BASE}/activate`, {
-    sessionToken,
-    ...(consentGiven ? { consentGiven } : {}),
-  });
+  // Activation creates the account and profile and sends the emails: it can take 30 s or more on a slow
+  // server, longer than the default 15 s. A timed-out activation still finishes on the server.
+  const { data } = await api.post(
+    `${BASE}/activate`,
+    { sessionToken, ...(consentGiven ? { consentGiven } : {}) },
+    { timeout: 90_000 }
+  );
   log('activate response:', { userId: data?.userId, entityId: data?.entityId });
   return data;
 };
