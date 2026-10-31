@@ -2,10 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePublicDataState } from '../../components/sections/publicData/publicDataState.js';
 import PublicDataFrame from '../../components/sections/publicData/PublicDataFrame.jsx';
-import {
-  DATA_AS_OF,
-  mapStateFor,
-} from '../../components/sections/publicData/overview/data/overviewData.js';
+import { mapStateFor } from '../../components/sections/publicData/overview/data/overviewData.js';
 import OverviewInterestsCard from '../../components/sections/publicData/overview/OverviewInterestsCard.jsx';
 import OverviewKpis from '../../components/sections/publicData/overview/OverviewKpis.jsx';
 import OverviewPageHeader from '../../components/sections/publicData/overview/OverviewPageHeader.jsx';
@@ -28,8 +25,21 @@ const log = debug('PublicOverviewPage');
  * PublicOverviewPage — Figma canvas 8477:209484: 8.2.1a-f National overview (default · loading · section error · filtered · mobile · tablet),
  * 8.2.2a-d the map states (the shared RegionalMapCard), 8.2.3a-d filters (one · many · zero matches · fewer than 5), 8.2.1h print (?print=1).
  * URL: region= edu= interest= age= gender= (publicDataState.js), state=loading|error|zero|suppressed, modal=filters|share|download|digest.
- * Every number comes from getOverview(filters) (overview/data/overviewData.js, the mock of GET /public/overview).
+ * Every number comes from GET /api/public-data/overview (useOverviewData; groups under 5 arrive as 0 + suppressed and print "<5").
  */
+
+const LOADING_AS_OF = { label: 'Loading the latest figures…', short: 'loading' };
+
+/** "Updated 4 min ago" from the snapshot time (the facts refresh every 5 minutes). */
+const agoOf = (at) => {
+  const t = at ? new Date(at).getTime() : NaN;
+  if (!Number.isFinite(t)) return '';
+  const min = Math.max(0, Math.round((Date.now() - t) / 60000));
+  if (min < 1) return 'Updated just now';
+  if (min < 60) return `Updated ${min} min ago`;
+  const h = Math.round(min / 60);
+  return `Updated ${h} h ago`;
+};
 
 /* RegionalMapCard shows its Compare button below md too (its `hidden` loses to the Button's own display); the phone frame 8507:86 has none. */
 const HIDE_PHONE_COMPARE = "max-md:[&_button[class*='!w-fit']]:hidden";
@@ -52,7 +62,9 @@ const PublicOverviewPage = () => {
     [data.params, overview.regions]
   );
 
-  const resultCount = status === 'zero' ? 0 : status === 'suppressed' ? 3 : overview.count;
+  // suppressed: the server never sends the real 1-4; any number under 5 prints "<5" in the filter row.
+  const resultCount = status === 'zero' ? 0 : status === 'suppressed' ? 1 : overview.count;
+  const asOf = overview.asOf ? { ...overview.asOf, ago: agoOf(overview.asOf.at) } : LOADING_AS_OF;
   const result = status === 'loading' ? { state: 'loading' } : { count: resultCount };
   const empty = status === 'zero' || status === 'suppressed';
 
@@ -64,7 +76,7 @@ const PublicOverviewPage = () => {
       freshness={FRESHNESS[status]}
     >
       <div className="flex flex-col gap-[16px] overflow-x-clip px-[16px] pt-[16px] pb-[24px] md:gap-[24px] md:px-[28px] md:pt-[32px] md:pb-[48px] xl:px-[40px]">
-        <OverviewPageHeader asOf={DATA_AS_OF} />
+        <OverviewPageHeader asOf={asOf} />
         <FilterBar
           filters={data.filters}
           onChange={filterActions.onChange}

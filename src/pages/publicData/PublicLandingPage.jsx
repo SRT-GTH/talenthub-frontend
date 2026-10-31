@@ -5,8 +5,10 @@ import {
   EXPLORE_CARDS,
   TRUST_ITEMS,
   buildStatCards,
-  getLandingSummary,
+  landingSummaryOf,
 } from '../../components/sections/publicData/landing/data/landingData.js';
+import { useAgencyResource } from '../../components/sections/agency/useAgencyResource.js';
+import { publicOverview } from '../../services/publicData.api.js';
 import LandingExploreCards from '../../components/sections/publicData/landing/LandingExploreCards.jsx';
 import LandingHero from '../../components/sections/publicData/landing/LandingHero.jsx';
 import LandingStats from '../../components/sections/publicData/landing/LandingStats.jsx';
@@ -20,7 +22,8 @@ const log = debug('PublicLandingPage');
 /*
  * PublicLandingPage — Figma canvas 8477:209484: 8.1.1a Landing (default), 8.1.1b returning visitor (?state=returning), 8.1.1c stats fallback
  * (?state=fallback), 8.1.1a-m the phone landing. Hero, stats row, "Explore the data" cards, trust strip; "For partners / For recruiters" lead to
- * PARTNER_SIGN_IN_ROUTE. The numbers are the national ones of the overview (landing/data/landingData.js).
+ * PARTNER_SIGN_IN_ROUTE. The numbers are the national ones of the overview (GET /api/public-data/overview, no filters); until they
+ * arrive (or if they fail) the stats row shows the drawn "Loading live data…" fallback.
  * The phone frame draws no section tabs under the top bar, so they are hidden here (REQUEST: a hideMobileTabs prop on PublicDataFrame).
  */
 
@@ -29,9 +32,16 @@ const HIDE_PHONE_TABS = "max-md:[&_nav[aria-label='Sections']]:hidden";
 const PublicLandingPage = () => {
   const data = usePublicDataState();
   const returning = useReturningVisitor(data.state);
-  const summary = useMemo(() => getLandingSummary(), []);
-  const cards = useMemo(() => buildStatCards(summary), [summary]);
-  const fallback = data.state === 'fallback' && !data.modal;
+  const res = useAgencyResource(() => publicOverview({}), []);
+  const summary = useMemo(() => landingSummaryOf(res.data), [res.data]);
+  const cards = useMemo(
+    () =>
+      buildStatCards(
+        summary || { talents: 0, placements: 0, partners: 0, regions: 16, quarterChangePct: null }
+      ),
+    [summary]
+  );
+  const fallback = (!summary || data.state === 'fallback') && !data.modal;
 
   useEffect(() => {
     log('mount', { state: data.state, returning: Boolean(returning) });
@@ -40,7 +50,7 @@ const PublicLandingPage = () => {
   return (
     <PublicDataFrame data={data} title="Home" active="home" className={HIDE_PHONE_TABS}>
       <div className="flex flex-col gap-[16px] px-[16px] pt-[20px] pb-[24px] md:gap-0 md:p-0">
-        <LandingHero talents={summary.talents} returning={returning} />
+        <LandingHero talents={summary ? summary.talents : null} returning={returning} />
         <LandingStats cards={cards} fallback={fallback} />
         <LandingExploreCards cards={EXPLORE_CARDS} />
         <LandingTrustStrip items={TRUST_ITEMS} />

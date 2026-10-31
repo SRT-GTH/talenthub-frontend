@@ -9,9 +9,11 @@ import CompareInterestsCards from '../../components/sections/publicData/regions/
 import CompareMobileCards from '../../components/sections/publicData/regions/CompareMobileCards.jsx';
 import CompareSelectorDialog from '../../components/sections/publicData/regions/CompareSelectorDialog.jsx';
 import {
-  getCompare,
+  COMPARE_COLOURS,
   parseCompareIds,
 } from '../../components/sections/publicData/regions/data/regionsData.js';
+import { useAgencyResource } from '../../components/sections/agency/useAgencyResource.js';
+import { publicCompare } from '../../services/publicData.api.js';
 import RegionBreadcrumb from '../../components/sections/publicData/regions/RegionBreadcrumb.jsx';
 import PublicDataModals from '../../components/sections/publicData/share/PublicDataModals.jsx';
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
@@ -26,7 +28,8 @@ const log = debug('PublicComparePage');
  * dropped, duplicates ignored, more than three cut to three.
  * ⚠️ ASSUMPTION: without ?regions= the page compares the two largest regions (Greater Accra, Ashanti — the drawn default); with a single valid
  * region (the "Compare with another region" button of a region page sends one, with ?modal=compare) the selector is open and the page shows the pick-more state.
- * Mock-backed: getCompare(ids) stands in for GET /public/compare?regions=…
+ * Live: GET /api/public-data/compare?regions=… (talents, 30-day growth, assessment completion, placements, partners, education / age shares and
+ * top interests per region; under 5 prints "<5"). Colours follow the order of ?regions=.
  */
 
 const PublicComparePage = () => {
@@ -37,7 +40,14 @@ const PublicComparePage = () => {
     () => (raw === null ? ['greater-accra', 'ashanti'] : parseCompareIds(raw)),
     [raw]
   );
-  const regions = useMemo(() => getCompare(ids), [ids]);
+  const res = useAgencyResource(
+    () => (ids.length ? publicCompare(ids) : Promise.resolve([])),
+    [ids.join(',')]
+  );
+  const regions = useMemo(
+    () => (res.data || []).map((r, i) => ({ ...r, colour: COMPARE_COLOURS[i] })),
+    [res.data]
+  );
   const ready = regions.length >= 2;
   const open = modal === 'compare';
 
@@ -61,7 +71,15 @@ const PublicComparePage = () => {
           onRemove={(id) => setRegions(ids.filter((x) => x !== id))}
           onAdd={() => update({ modal: 'compare' })}
         />
-        {ready ? (
+        {res.error ? (
+          <EmptyState
+            variant="zero"
+            title="We couldn’t load the comparison"
+            message="Check your connection and try again."
+            actionLabel="Try again"
+            onAction={res.reload}
+          />
+        ) : ready ? (
           <>
             <CompareHeadlineCard regions={regions} />
             <div className="grid min-w-0 grid-cols-1 gap-[24px] max-md:hidden xl:grid-cols-2">
@@ -71,6 +89,10 @@ const PublicComparePage = () => {
             <CompareInterestsCards regions={regions} />
             <CompareMobileCards regions={regions} />
           </>
+        ) : res.loading && ids.length >= 2 ? (
+          <p role="status" className="m-0 p-[24px] font-sans text-[15px] text-[#737373]">
+            Loading the comparison…
+          </p>
         ) : (
           <EmptyState
             variant="zero"

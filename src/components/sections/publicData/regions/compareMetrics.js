@@ -19,8 +19,9 @@ export const COMPARE_METRICS = [
     key: 'growth',
     label: '30-day growth',
     phone: true,
-    get: (r) => r.trendPct,
-    text: (r) => signedPct(r.trendPct),
+    // null = too few talents 30 days ago to give a growth rate (the server rule): an en dash, not "+0%"
+    get: (r) => r.trendPct ?? 0,
+    text: (r) => (r.trendPct == null ? '–' : signedPct(r.trendPct)),
   },
   {
     key: 'assessment',

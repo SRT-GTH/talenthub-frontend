@@ -39,7 +39,8 @@ const EMPTY = {
 const filterKey = (f) =>
   ['region', 'edu', 'interest', 'age', 'gender'].map((k) => f?.[k] || '').join('|');
 
-export const useAgencyOverview = (filters, state, update) => {
+/* `load` defaults to the agency endpoint; the public /data overview passes publicOverview (same shape). */
+export const useAgencyOverview = (filters, state, update, load = agencyOverview) => {
   const key = filterKey(filters);
   const [res, setRes] = useState({ overview: null, error: null, key: null });
   const [attempt, setAttempt] = useState(0);
@@ -49,7 +50,7 @@ export const useAgencyOverview = (filters, state, update) => {
     latest.current = key;
     let live = true;
     const [region, edu, interest, age, gender] = key.split('|');
-    agencyOverview({ region, edu, interest, age, gender })
+    load({ region, edu, interest, age, gender })
       .then((overview) => {
         if (live && latest.current === key) setRes({ overview, error: null, key });
       })
@@ -60,7 +61,7 @@ export const useAgencyOverview = (filters, state, update) => {
     return () => {
       live = false;
     };
-  }, [key, attempt]);
+  }, [key, attempt, load]);
 
   const forcedState = import.meta.env.DEV && FORCED.includes(state) ? state : null;
   const overview = res.overview || EMPTY;
