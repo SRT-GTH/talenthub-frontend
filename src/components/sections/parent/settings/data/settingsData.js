@@ -8,18 +8,26 @@ export const PAGE = {
   subtitle: 'Manage your account, privacy and how GTH works for you.',
 };
 
-// Settings nav (PS-01 "Settings nav"). `undrawn`: the canvas has no Accessibility / Language and data screen for the parent, so those two only log.
+// Settings nav (PS-01 "Settings nav"). The canvas has no Accessibility / Language and data screens for the parent: those two reuse the talent ones (PreferenceTabs.jsx).
 export const NAV = [
   { id: 'account', label: 'Account', icon: 'user' },
   { id: 'roles', label: 'Your roles', icon: 'users' },
   { id: 'notifications', label: 'Notifications', icon: 'bell' },
-  { id: 'accessibility', label: 'Accessibility', icon: 'sliders', undrawn: true },
-  { id: 'language', label: 'Language and data', icon: 'globe', undrawn: true },
+  { id: 'accessibility', label: 'Accessibility', icon: 'sliders' },
+  { id: 'language', label: 'Language and data', icon: 'globe' },
   { id: 'security', label: 'Security and sign-in', icon: 'lock' },
   { id: 'data', label: 'Data and account', icon: 'folder' },
 ];
 
-export const TAB_IDS = ['account', 'roles', 'notifications', 'security', 'data'];
+export const TAB_IDS = [
+  'account',
+  'roles',
+  'notifications',
+  'accessibility',
+  'language',
+  'security',
+  'data',
+];
 
 /* ---------------- PS-01 Account ---------------- */
 export const ACCOUNT = {

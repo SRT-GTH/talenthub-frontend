@@ -56,6 +56,8 @@ const ParentTopBar = ({
   onSwitchSpace,
   onAccount,
   accountOpen = false,
+  onSearch,
+  searchOpen = false,
 }) => {
   const navigate = useNavigate();
   const chrome = useParentChrome();
@@ -72,14 +74,22 @@ const ParentTopBar = ({
         />
         <button
           type="button"
-          onClick={() => log('search')}
+          onClick={() => {
+            log('search', searchOpen ? 'close' : 'open');
+            onSearch?.();
+          }}
+          data-parent-search=""
+          aria-haspopup="dialog"
+          aria-expanded={searchOpen}
           className="flex w-[clamp(220px,32vw,553px)] min-w-0 cursor-pointer items-center gap-[12px] rounded-[8px] border border-solid border-[#dfdfdc] bg-white py-[10px] pr-[12px] pl-[14px] text-left shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)] max-md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
             <img src={searchIcon} alt="" className="size-[20px]" />
           </span>
           <span className="min-w-0 flex-1 truncate font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#bfbfbf]">
-            Search opportunities, skills, communities...
+            {chrome.live
+              ? 'Search wards, pages and help...'
+              : 'Search opportunities, skills, communities...'}
           </span>
           <span className="shrink-0 rounded-[6px] border border-solid border-[#e5e7eb] bg-white px-[10px] py-[6px] font-sans text-[12px] leading-[normal] font-semibold text-[#2d5d33] shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
             ⌘K
@@ -102,6 +112,17 @@ const ParentTopBar = ({
 
       <div className="flex shrink-0 items-center gap-[24px]">
         <div className="flex items-center gap-[8px]">
+          {/* Phones hide the search field: the same search from an icon. */}
+          <span className="hidden max-md:flex" data-parent-search="">
+            <IconButton
+              label="Search"
+              onClick={onSearch}
+              aria-haspopup="dialog"
+              aria-expanded={searchOpen}
+            >
+              <img src={searchIcon} alt="" className="size-[18px]" />
+            </IconButton>
+          </span>
           <IconButton label="Help" onClick={() => navigate('/parent/help')}>
             <img src={helpIcon} alt="" className="size-[16px]" />
           </IconButton>
@@ -115,13 +136,17 @@ const ParentTopBar = ({
           >
             <img src={bellIcon} alt="" className="size-[16px]" />
           </IconButton>
-          <IconButton label={countLabel(messages, 'message')} badge={messages}>
+          <IconButton
+            label={messages ? countLabel(messages, 'message') : 'Messages'}
+            badge={messages}
+            onClick={() => navigate('/parent/messages')}
+          >
             <img src={messageIcon} alt="" className="size-[18px]" />
           </IconButton>
           <button
             type="button"
             aria-label="EN, language: English"
-            onClick={() => log('language')}
+            onClick={() => navigate('/parent/settings?tab=language')}
             className="flex h-[36px] cursor-pointer items-center gap-[7px] rounded-[99px] border-0 bg-[#f8fafc] py-[8px] pr-[10px] pl-[12px] max-md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             <img src={globeIcon} alt="" className="size-[16px]" />
@@ -130,7 +155,11 @@ const ParentTopBar = ({
             </span>
             <img src={chevronSmall} alt="" className="size-[14px]" />
           </button>
-          <IconButton label="Accessibility" size={38}>
+          <IconButton
+            label="Accessibility"
+            size={38}
+            onClick={() => navigate('/parent/settings?tab=accessibility')}
+          >
             <img src={a11yIcon} alt="" className="size-[20px]" />
           </IconButton>
         </div>

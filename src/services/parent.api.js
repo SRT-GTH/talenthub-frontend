@@ -110,3 +110,10 @@ export const toParentRelationship = (label) =>
       .trim()
       .toLowerCase()
   ] || 'other';
+
+/** The parent's direct conversation with one ward (found or created): { conversationId, created }. Messages then use messages.api.js. */
+export const openWardConversation = async (wardId) =>
+  unwrap(await api.post(`/parent/wards/${encodeURIComponent(wardId)}/conversation`, {}));
+
+/** Talent side: the parents or guardians linked to the signed-in talent: { guardians: [{ linkId, name, relationship, status, linkedAt }] }. */
+export const fetchMyGuardians = async () => unwrap(await api.get('/parent/my-guardians'));

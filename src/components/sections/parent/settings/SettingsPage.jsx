@@ -8,6 +8,7 @@ import CloseAccountDialog from './CloseAccountDialog.jsx';
 import DataTab from './DataTab.jsx';
 import LogoutDialog from './LogoutDialog.jsx';
 import NotificationsTab from './NotificationsTab.jsx';
+import { AccessibilityTab, LanguageTab } from './PreferenceTabs.jsx';
 import RolesTab from './RolesTab.jsx';
 import SecurityTab from './SecurityTab.jsx';
 import SettingsResult from './SettingsResult.jsx';
@@ -26,6 +27,7 @@ import {
   logOutOtherDevices,
   saveAccount,
   saveNotificationSettings,
+  savePreferences,
   serverLogout,
   settingsError,
 } from '../../../../services/settings.api.js';
@@ -38,7 +40,7 @@ const log = debug('ParentSettings');
  *   ?tab=account|roles|notifications|security|data     PS-01 … PS-05
  *   ?modal=logout                                      PS-06 over the Account tab · ?state=logged-out PS-06b
  *   ?tab=data&modal=close-account[&confirm=CLO]        PS-07 over Data and account · ?state=closed PS-07b
- * ⚠️ ASSUMPTION: Accessibility and Language and data (nav items with no parent frame) only log.
+ * Accessibility and Language and data have no parent frames: they reuse the talent screens (PreferenceTabs.jsx).
  * Live (signed in): the settings API the talent Settings use (/settings/*, which serves parents too; the notification
  * matrix has the parent's own rows): Account loads and saves, Notifications loads and saves (and the 24-hour pause),
  * Security lists and logs out real sessions, Data downloads a copy, Log out and Close account are real.
@@ -48,6 +50,8 @@ const TABS = {
   account: AccountTab,
   roles: RolesTab,
   notifications: NotificationsTab,
+  accessibility: AccessibilityTab,
+  language: LanguageTab,
   security: SecurityTab,
   data: DataTab,
 };
@@ -77,6 +81,7 @@ const SettingsPage = () => {
         fetchSessions(),
       ]);
       setData({
+        overview: overview || {},
         account: overview?.account || {},
         notifications,
         sessions: sessions.map(sessionRow),
@@ -92,7 +97,7 @@ const SettingsPage = () => {
   const hrefFor = (item) => {
     if (item.undrawn) return `${pathname}${search}`;
     const p = new URLSearchParams(search);
-    ['modal', 'confirm', 'state'].forEach((k) => p.delete(k));
+    ['modal', 'confirm', 'state', 'pref'].forEach((k) => p.delete(k));
     p.set('tab', item.id);
     return `${pathname}?${p.toString()}`;
   };
@@ -161,6 +166,16 @@ const SettingsPage = () => {
       };
     }
     if (tab === 'data') return { download: () => downloadMyData() };
+    if (tab === 'accessibility' || tab === 'language') {
+      return {
+        overview: data.overview,
+        savePreferences: async (group, values) => {
+          const preferences = await savePreferences({ [group]: values });
+          setData((d) => ({ ...d, overview: { ...d.overview, preferences } }));
+          return preferences;
+        },
+      };
+    }
     return null;
   };
 

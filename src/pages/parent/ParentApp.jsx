@@ -23,6 +23,8 @@ const ParentSettingsPage = lazy(() => import('./ParentSettingsPage.jsx'));
 const ParentHelpArticlePage = lazy(() => import('./ParentHelpArticlePage.jsx'));
 // Ward wallets canvas (Figma 10057:66889): the wallets page with approve, decline, limits, top-up and open-wallet dialogs.
 const ParentWalletsPage = lazy(() => import('./ParentWalletsPage.jsx'));
+// Messages (top bar): the parent's conversations with their wards (not drawn in Figma).
+const ParentMessagesPage = lazy(() => import('./ParentMessagesPage.jsx'));
 
 /*
  * ParentApp — the /parent/* router (Theme: Parents, Figma file SCXc457vwiq6o7d9g4jVbh). Outside MainLayout, like /admin and /agency; the chrome is ParentFrame.
@@ -66,6 +68,7 @@ const ParentApp = () => (
       <Route path="notifications" element={<ParentNotificationsPage />} />
       <Route path="notifications/milestone" element={<ParentMilestonePage />} />
       <Route path="settings" element={<ParentSettingsPage />} />
+      <Route path="messages" element={<ParentMessagesPage />} />
       <Route path="help/:topicId" element={<ParentHelpArticlePage />} />
       <Route path="*" element={<NotBuilt />} />
     </Routes>

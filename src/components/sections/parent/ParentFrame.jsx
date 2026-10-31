@@ -17,6 +17,8 @@ import ParentTopBar from './ParentTopBar.jsx';
 import CareerProfileDialog from './switch/CareerProfileDialog.jsx';
 import SwitchSpaceMenu from './switch/SwitchSpaceMenu.jsx';
 import ParentAccountMenu from './switch/ParentAccountMenu.jsx';
+import ParentSearch from './search/ParentSearch.jsx';
+import { useParentUnreadMessages } from './live/parentMessages.js';
 import ParentBuddyPanel from './buddy/ParentBuddyPanel.jsx';
 import { PHASE_IDS } from './buddy/buddyData.js';
 import NotificationsPanel from './notifications/NotificationsPanel.jsx';
@@ -58,6 +60,19 @@ const ParentFrame = ({
   // Spaces (parent <-> my career): live switching goes through the account's roles (services/spaces.api.js).
   const spaces = useSpaces();
   const notif = useParentNotifications();
+  const unreadMessages = useParentUnreadMessages(me.live);
+  // Search (top bar field, or Ctrl/⌘ K anywhere in the parent shell).
+  const [searchOpen, setSearchOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
   const [switchError, setSwitchError] = useState(null);
   const [switching, setSwitching] = useState(false);
   const career = me.live
@@ -166,9 +181,13 @@ const ParentFrame = ({
       </div>
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
         <ParentTopBar
-          // Live: the real unread count; no messages count for parents (no parent inbox yet).
+          // Live: the real unread counts (notifications; messages across the parent's ward conversations).
           bell={me.live ? (notif.unread ? String(Math.min(notif.unread, 99)) : '') : bell}
-          messages={me.live ? '' : messages}
+          messages={
+            me.live ? (unreadMessages ? String(Math.min(unreadMessages, 99)) : '') : messages
+          }
+          onSearch={() => setSearchOpen((open) => !open)}
+          searchOpen={searchOpen}
           onBell={toggleNotif}
           bellOpen={panelOpen}
           onSwitchSpace={
@@ -238,6 +257,7 @@ const ParentFrame = ({
           }
         />
       ) : null}
+      {searchOpen ? <ParentSearch onClose={() => setSearchOpen(false)} /> : null}
       {accountOpen ? (
         <ParentAccountMenu
           name={chrome.parent.name || chrome.parent.short}
