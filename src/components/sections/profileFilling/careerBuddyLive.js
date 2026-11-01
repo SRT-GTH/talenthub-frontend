@@ -214,6 +214,8 @@ export function courseCardView(card) {
     ].filter(Boolean),
     why,
     status,
+    // 2026-11-01: 'related' courses (a broader skill only) are drawn as a secondary row.
+    match: card?.match === 'related' ? 'related' : 'close',
     statusLabel: COURSE_STATUS[status] || '',
     openLabel:
       status === 'done'

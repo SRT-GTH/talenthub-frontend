@@ -110,41 +110,65 @@ export const CourseRecommendationCard = ({ course, onOpen }) => {
   );
 };
 
+const CourseRow = ({ courses, label, onOpen, navigate }) => (
+  <div
+    role="group"
+    aria-label={label}
+    className="-mx-[4px] flex max-w-full gap-[12px] overflow-x-auto px-[4px] pb-[8px] [scrollbar-width:thin]"
+  >
+    {courses.map((course) => (
+      <CourseRecommendationCard
+        key={course.id}
+        course={course}
+        onOpen={() => {
+          log('open', course.id);
+          if (onOpen) onOpen(course);
+          else navigate(course.detailPath);
+        }}
+      />
+    ))}
+  </div>
+);
+
 /*
  * CourseRecommendationCards - "Courses to get you ready for {career}" and a scrolling row of course cards, under a
  * Career Buddy reply. Props: courses (courseCardView[]), career (heading), onOpen(course) (defaults to the GTH course
  * page, /learning?view=course&course=<id>), compact (the narrow Ask Buddy panel on /home: the row takes its width).
+ * 2026-11-01: courses that only build a broader skill (match 'related') get their own secondary "Also useful" row
+ * under the close matches, so a general course is not presented as the way into the career.
  */
 const CourseRecommendationCards = ({ courses, career, onOpen, compact = false }) => {
   const navigate = useNavigate();
   if (!courses?.length) return null;
+  const close = courses.filter((c) => c.match !== 'related');
+  const related = courses.filter((c) => c.match === 'related');
+  const widest = Math.max(close.length, related.length);
   return (
     <div
       className="mt-[16px] flex min-w-0 max-w-full flex-col gap-[10px]"
-      style={
-        compact ? { width: '100%' } : { width: `min(${courses.length * 332 - 12}px, 660px, 78vw)` }
-      }
+      style={compact ? { width: '100%' } : { width: `min(${widest * 332 - 12}px, 660px, 78vw)` }}
     >
-      <p className="m-0 font-sans text-[14px] font-semibold leading-[20px]">
-        {career ? `Courses to get you ready for ${career}` : 'Courses for you'}
-      </p>
-      <div
-        role="group"
-        aria-label={career ? `Courses for ${career}` : 'Courses'}
-        className="-mx-[4px] flex max-w-full gap-[12px] overflow-x-auto px-[4px] pb-[8px] [scrollbar-width:thin]"
-      >
-        {courses.map((course) => (
-          <CourseRecommendationCard
-            key={course.id}
-            course={course}
-            onOpen={() => {
-              log('open', course.id);
-              if (onOpen) onOpen(course);
-              else navigate(course.detailPath);
-            }}
+      {close.length ? (
+        <>
+          <p className="m-0 font-sans text-[14px] font-semibold leading-[20px]">
+            {career ? `Courses to get you ready for ${career}` : 'Courses for you'}
+          </p>
+          <CourseRow
+            courses={close}
+            label={career ? `Courses for ${career}` : 'Courses'}
+            onOpen={onOpen}
+            navigate={navigate}
           />
-        ))}
-      </div>
+        </>
+      ) : null}
+      {related.length ? (
+        <>
+          <p className="m-0 font-sans text-[13px] font-medium leading-[18px] opacity-70">
+            {close.length ? 'Also useful: broader skills' : career ? `Broader skills for ${career}` : 'Broader skills'}
+          </p>
+          <CourseRow courses={related} label="Also useful courses" onOpen={onOpen} navigate={navigate} />
+        </>
+      ) : null}
     </div>
   );
 };
