@@ -43,8 +43,16 @@ export const GAMES_ARCADE = {
     title: 'Skill games',
     subtitle: 'Pass to verify a skill. 2 of 6 of your skills verified.',
   },
+  // GV-01 (Games v2) renamed the old "Personality games" sub-section "Play style games" and put the whole Arcade block under an
+  // "Arcade" heading (`arcadeHead`).
+  arcadeHead: {
+    title: 'Arcade',
+    chip: 'For fun and practice',
+    subtitle:
+      'Story games and quick challenges. They earn XP but don’t verify skills or appear to recruiters.',
+  },
   personalitySection: {
-    title: 'Personality games',
+    title: 'Play style games',
     subtitle: 'Already have your archetype? Replay any game to sharpen your trait scores.',
   },
   statusLabels: {

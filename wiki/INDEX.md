@@ -86,3 +86,4 @@ _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; back
 - [parent-buddy.md](parent-buddy.md) — Parent Ask Buddy panel `?buddy=` (thinking / working / writing / slow / stopped): 5-frame URL table with diff %, behaviour, assumptions
 - [parent-career-buddy.md](parent-career-buddy.md) — Parent Career Buddy (AI chat, `?role=parent&cb=…`): welcome, guide the ward, resume, ward account set-up; frame→URL table with diff %, what changed, gaps
 - [parent-wiring.md](parent-wiring.md) — how the parent flows link to each other (the buttons that were log-only), what is still log-only because no screen is drawn
+- [talent-games-v2.md](talent-games-v2.md) — Talent Games v2 `/skills-lab/play/:gameId` + Games tab: 13 ranked / practice games, shared shell + result card, 53 frame pairs × 2 styles with diff %, assumptions, known gaps

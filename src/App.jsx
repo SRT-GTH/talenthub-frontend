@@ -176,6 +176,7 @@ const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHub
 const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
 const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
 const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
+const GameV2Page = lazy(() => import('./pages/talentSkillsLab/GameV2Page.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -1292,6 +1293,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <GamePage />
+                    </Suspense>
+                  }
+                />
+                {/* Games v2 (Figma "Games v2 · 1 … 14", wiki/talent-games-v2.md): the 13 new ranked / practice games. */}
+                <Route
+                  path={'/skills-lab/play/:gameId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GameV2Page />
                     </Suspense>
                   }
                 />

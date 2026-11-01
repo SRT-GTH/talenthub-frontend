@@ -261,3 +261,5 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 `/parent/settings` — Parent Settings (tabs `?tab=account|roles|notifications|security|data`; `?modal=logout`, `?tab=data&modal=close-account&confirm=<text>`; result screens `?state=logged-out|closed`), `pages/parent/ParentSettingsPage.jsx` → `components/sections/parent/settings/SettingsPage.jsx`, 9 Figma frames (canvas 11). Wiki: [parent-settings.md](parent-settings.md).
 
 Parent space switching (any `/parent/*` page): `?menu=switch` (switch-space menu), `?career=none` (no career profile yet) with `?modal=career-profile`, `?notif=open&spaces=both` (bell panel with both spaces). Wiki: [parent-spaces.md](parent-spaces.md).
+
+`/skills-lab/play/:gameId` — Talent Games v2 (13 ranked / practice games; `?mode=ranked|practice&level=…&f=<frame>&modal=quit|timeup|offline&view=result&resume=1`), `pages/talentSkillsLab/GameV2Page.jsx`, outside `MainLayout`, own chrome; the details / resume / expired dialogs open over the hub by `/skills-lab?tab=games&game=<id>` / `&dialog=resume|expired`. See [talent-games-v2.md](talent-games-v2.md).

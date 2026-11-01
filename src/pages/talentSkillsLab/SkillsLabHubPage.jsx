@@ -11,9 +11,13 @@ import {
   HubVerifiedTab,
 } from '../../components/sections/talentSkillsLab/HubScreens.jsx';
 import SkillsLabDialogs from '../../components/sections/talentSkillsLab/SkillsLabDialogs.jsx';
+import GameV2DialogLayer from '../../components/sections/talentSkillsLab/gamesV2/GameV2DialogLayer.jsx';
 import SkillsLabFrame from '../../components/sections/talentSkillsLab/SkillsLabFrame.jsx';
 import { useSkillsLabState } from '../../components/sections/talentSkillsLab/skillsLabState.js';
-import { HUB_COPY, HUB_LABS_RESPONSE } from '../../components/sections/talentSkillsLab/skillsLabData.js';
+import {
+  HUB_COPY,
+  HUB_LABS_RESPONSE,
+} from '../../components/sections/talentSkillsLab/skillsLabData.js';
 import HubDataProvider from '../../components/sections/talentSkillsLab/SkillsLabHubDataProvider.jsx';
 import {
   isSkillsLabDemo,
@@ -81,29 +85,33 @@ const SkillsLabHubPage = () => {
 
   return (
     <HubDataProvider value={live}>
-    <SkillsLabFrame skills={skills}>
-      <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[24px] px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
-        <HubHeader
-          sticker={sticker}
-          subtitle={subtitle}
-          xp={loading || empty ? null : summary.xp}
-          onHow={() => skills.update({ modal: 'how' })}
-        />
-        <HubTabs
-          tabs={tabs}
-          tab={empty || loading ? 'all' : skills.tab}
-          onTab={onTab}
-          disabled={loading}
-        />
-        {live?.status === 'error' ? (
-          <p role="alert" className="m-0 rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]">
-            Could not load your labs. Check your connection and refresh.
-          </p>
-        ) : null}
-        {body}
-      </div>
-      <SkillsLabDialogs skills={skills} />
-    </SkillsLabFrame>
+      <SkillsLabFrame skills={skills}>
+        <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[24px] px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
+          <HubHeader
+            sticker={sticker}
+            subtitle={subtitle}
+            xp={loading || empty ? null : summary.xp}
+            onHow={() => skills.update({ modal: 'how' })}
+          />
+          <HubTabs
+            tabs={tabs}
+            tab={empty || loading ? 'all' : skills.tab}
+            onTab={onTab}
+            disabled={loading}
+          />
+          {live?.status === 'error' ? (
+            <p
+              role="alert"
+              className="m-0 rounded-[12px] bg-[#fdecea] p-[12px] font-sans text-[14px] text-[#8a1c1c]"
+            >
+              Could not load your labs. Check your connection and refresh.
+            </p>
+          ) : null}
+          {body}
+        </div>
+        <SkillsLabDialogs skills={skills} />
+        <GameV2DialogLayer />
+      </SkillsLabFrame>
     </HubDataProvider>
   );
 };
