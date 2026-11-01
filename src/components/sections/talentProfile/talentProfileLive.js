@@ -4,6 +4,8 @@ import {
   classYearLabel,
   overallResultLabel,
 } from '../../../utils/education.js';
+import { entryKey, isPlaceholderSchool } from './educationEdit.js';
+import { workStyleRows } from './workStyle.js';
 
 /*
  * talentProfileLive.js (2026-10-18) - turns the real profile (services/talentProfile.api.js)
@@ -288,12 +290,19 @@ export const buildProfileData = (raw) => {
   ];
 
   // ---- education ----
-  const eduItems = edu.map((e, i) => ({
-    key: keyOf(e.institution, i),
+  // 2026-11-01: every entry, with its key for the editor (EducationModal); an entry whose school is still the
+  // onboarding placeholder shows "School not added yet" instead of being hidden.
+  const eduEntries = list(p.education)
+    .map((raw, i) => ({ id: entryKey(raw, i), e: readEducationEntry(raw || {}) }))
+    .filter(({ e }) => e.institution || e.fieldOfStudy || e.qualification || e.educationLevel);
+  const eduItems = eduEntries.map(({ id, e }, i) => ({
+    key: keyOf(e.institution || id, i),
+    id,
+    missingSchool: isPlaceholderSchool(e.institution),
     icon: ['tertiary', 'post_grad'].includes(e.educationLevel) ? 'bldg' : 'company',
     iconBg: ['#faf4e8', '#eaeffb'][i % 2],
     title: educationTitle(e),
-    org: e.institution,
+    org: isPlaceholderSchool(e.institution) ? 'School not added yet' : e.institution,
     meta: [
       [e.startYear, e.isCurrent ? (e.endYear ? `${e.endYear} (expected)` : 'Present') : e.endYear]
         .filter(Boolean)
@@ -314,7 +323,7 @@ export const buildProfileData = (raw) => {
 
   const counts = {
     skills: skills.length,
-    experience: work.length + eduItems.length,
+    experience: work.length + edu.length,
     portfolio: projects.length,
     certs: certs.length,
   };
@@ -646,24 +655,8 @@ export const buildProfileData = (raw) => {
         icon: INTEREST_ICON[x?.category] || 'heart',
       })),
     },
-    ABOUT_WORK_STYLE: {
-      title: 'Work style',
-      rows: [
-        careers.length
-          ? { label: 'Looking for', value: careers.slice(0, 3).map(titleCase).join(' · ') }
-          : null,
-        place ? { label: 'Where', value: place } : null,
-        current
-          ? {
-              label: 'Studying',
-              value:
-                [current.fieldOfStudy || current.qualification, classYearLabel(current.classYear)]
-                  .filter(Boolean)
-                  .join(' · ') || current.levelLabel,
-            }
-          : null,
-        langs.length ? { label: 'Languages', value: langs.join(' · ') } : null,
-      ].filter(Boolean),
-    },
+    // 2026-11-01: the Figma rows (Looking for / Where / Start / Languages) from the talent's own answers, with an
+    // "Add ..." prompt for each one not given yet (workStyle.js). Was: careers, home town and the current course.
+    ABOUT_WORK_STYLE: { title: 'Work style', rows: workStyleRows(p) },
   };
 };

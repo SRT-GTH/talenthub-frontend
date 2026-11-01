@@ -75,7 +75,9 @@ export const useTalentProfileState = () => {
   const card = pick(params.get('card'), CARD_STEPS);
   const ax = pick(params.get('ax'), AX_STATES);
   const edit = params.get('edit') === 'about' ? 'about' : null;
-  const modal = params.get('modal') === 'experience' ? 'experience' : null;
+  // 2026-11-01: + 'education' (add / edit a school; `item` = entry _id or 'new') and 'workstyle' (Work style editor).
+  const modal = pick(params.get('modal'), ['experience', 'education', 'workstyle']);
+  const item = params.get('item') || null;
   const empty = params.get('empty') === '1';
   const manage = params.get('manage') === '1';
   const updated = params.get('updated') === '1';
@@ -85,7 +87,7 @@ export const useTalentProfileState = () => {
   const a11yMode = a11yParam || Boolean(ax && ax !== 'panel');
 
   return useMemo(() => {
-    log('state', { tab, view, share, card, ax, edit, modal, empty, manage, updated, help });
+    log('state', { tab, view, share, card, ax, edit, modal, item, empty, manage, updated, help });
     // Merge a patch into the query string (null/undefined/false removes a key).
     const update = (patch) => {
       const next = new URLSearchParams(params);
@@ -106,6 +108,7 @@ export const useTalentProfileState = () => {
       ax,
       edit,
       modal,
+      item,
       empty,
       manage,
       updated,
@@ -131,6 +134,7 @@ export const useTalentProfileState = () => {
     ax,
     edit,
     modal,
+    item,
     empty,
     manage,
     updated,

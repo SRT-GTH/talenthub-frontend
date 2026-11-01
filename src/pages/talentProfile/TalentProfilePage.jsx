@@ -12,6 +12,8 @@ import ProfileTabBar from '../../components/sections/talentProfile/ProfileTabBar
 import ProfileOverviewTab from '../../components/sections/talentProfile/ProfileOverviewTab.jsx';
 import ProfileSkillsTab from '../../components/sections/talentProfile/ProfileSkillsTab.jsx';
 import ProfileExperienceTab from '../../components/sections/talentProfile/ProfileExperienceTab.jsx';
+import EducationModal from '../../components/sections/talentProfile/EducationModal.jsx';
+import WorkStyleModal from '../../components/sections/talentProfile/WorkStyleModal.jsx';
 import ProfilePortfolioTab from '../../components/sections/talentProfile/ProfilePortfolioTab.jsx';
 import ProfileCertsTab from '../../components/sections/talentProfile/ProfileCertsTab.jsx';
 import ProfileAboutTab from '../../components/sections/talentProfile/ProfileAboutTab.jsx';
@@ -198,6 +200,13 @@ const TalentProfilePage = () => {
       </div>
       {profile.modal === 'experience' && (
         <AddExperienceModal profile={profile} live={data.live} onSaved={data.refresh} />
+      )}
+      {/* 2026-11-01: education editor and Work style editor (signed in only). */}
+      {profile.modal === 'education' && data.live && (
+        <EducationModal profile={profile} onSaved={data.refresh} />
+      )}
+      {profile.modal === 'workstyle' && data.live && (
+        <WorkStyleModal profile={profile} onSaved={data.refresh} />
       )}
       {/* The drawer's per-field audiences have no backend yet: live talents manage visibility in Settings > Privacy. */}
       {profile.manage &&
