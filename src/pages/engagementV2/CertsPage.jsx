@@ -11,6 +11,7 @@ import EngagementStageFrame from '../../components/sections/engagementShell/Enga
 import {
   ENGAGEMENT_STAGES,
   STAGE_BY_ID,
+  stageNumber,
 } from '../../components/sections/engagementShell/engagementShellData.js';
 import {
   AddRow,
@@ -168,7 +169,7 @@ const CertsPage = () => {
 
   const closeModal = () => url.update({ modal: null, id: null });
   const sticker = empty
-    ? 'STAGE 7 · PROVE IT'
+    ? `STAGE ${stageNumber('certs')} · PROVE IT`
     : `${counts.verified} VERIFIED · ${counts.pending} PENDING`;
 
   /* Signed in, status is re-derived from the saved fields (no verification backend yet). */

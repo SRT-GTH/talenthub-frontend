@@ -33,7 +33,8 @@ const ACTION_LOOK = {
   white: 'border-[#e1eae2] bg-white text-[#595959]',
 };
 
-const WaitingCard = ({ items = WAITING_ITEMS }) => {
+// Live rows carry their own `to` (e.g. the ward's Flags tab); `reviewCount` is the To review total in the header link.
+const WaitingCard = ({ items = WAITING_ITEMS, reviewCount = 4 }) => {
   log('render, items:', items.length);
   return (
     <section
@@ -43,9 +44,9 @@ const WaitingCard = ({ items = WAITING_ITEMS }) => {
       <HomeCardHead
         icon={suitcase}
         title={<span id="parent-waiting-title">Waiting for your OK</span>}
-        linkLabel="To review (4)"
+        linkLabel={`To review (${reviewCount})`}
         to="/parent/review"
-        onLink={() => log('To review (4)')}
+        onLink={() => log('To review', reviewCount)}
       />
       <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
         {items.map((it) => {
@@ -70,7 +71,7 @@ const WaitingCard = ({ items = WAITING_ITEMS }) => {
               </div>
               {it.action && (
                 <Link
-                  to={ACTION_TO[it.id] ?? '/parent/review'}
+                  to={it.to ?? ACTION_TO[it.id] ?? '/parent/review'}
                   onClick={() => log('waiting action:', it.id, it.action)}
                   className={`h-[32px] shrink-0 cursor-pointer rounded-full border border-solid px-[14px] font-sans text-[13px] leading-normal font-semibold whitespace-nowrap no-underline inline-flex items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] ${ACTION_LOOK[it.actionLook]}`}
                 >

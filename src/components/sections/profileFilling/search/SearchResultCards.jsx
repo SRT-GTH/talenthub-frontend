@@ -4,6 +4,7 @@ import {
   OpportunityArrowRightIcon,
   OpportunityShieldIcon,
 } from '../opportunityGuidance/opportunityIcons.jsx';
+import { isOwnRecord } from './ownRecords.js';
 
 const log = debug('SearchResultCards');
 
@@ -25,7 +26,31 @@ const TYPE = {
   elective: { mark: 'SHS', open: null },
   programme: { mark: 'Uni', open: null },
   community: { mark: '#', open: 'View community' },
+  // Phase 2: people (My Circle), the Skills Lab catalogue and assessments.
+  person: { mark: '', open: 'View profile' },
+  lab: { mark: 'Lab', open: 'Open lab' },
+  game: { mark: 'Play', open: 'Play game' },
+  assessment: { mark: 'Quiz', open: null },
+  // Phase 3 (2026-10-30, backend gthSearch.listMyRecords): the talent's own records. Summary facts only; the
+  // first fact names the kind ("Application", "Interview", ...) and the second is its status.
+  application: { mark: '✓', open: 'View application' },
+  interview: { mark: '◷', open: 'View interview' },
+  saved: { mark: '♥', open: 'Open' },
+  result: { mark: '%', open: 'See result' },
+  practice: { mark: 'Q&A', open: null },
+  conversation: { mark: '✉', open: 'Open messages' },
+  enrolment: { mark: '▶', open: 'Continue course' },
+  verification: { mark: '★', open: 'View profile' },
 };
+
+/** "Ama Mensah" -> "AM": a person without a photo. */
+const initialsOf = (name) =>
+  String(name || '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('') || '?';
 
 /** Post marks by kind, like the career post cards. */
 const POST_MARK = { article: 'Aa', video: '▶', qa: '?' };
@@ -61,7 +86,12 @@ export const SearchResultCard = ({ card, onOpen, onAsk, onDetails, onWhy, disabl
   const [whyOpen, setWhyOpen] = useState(false);
   const whyId = `search-why-${useId()}`;
   const kind = TYPE[card.type] || TYPE.post;
-  const mark = card.type === 'post' ? POST_MARK[card.subtype] || kind.mark : kind.mark;
+  const mark =
+    card.type === 'post'
+      ? POST_MARK[card.subtype] || kind.mark
+      : card.type === 'person'
+        ? initialsOf(card.title)
+        : kind.mark;
   const snippet = extraSnippet(card.title, card.snippet);
   const link = safePath(card.link);
   const hasDetails =
@@ -77,12 +107,12 @@ export const SearchResultCard = ({ card, onOpen, onAsk, onDetails, onWhy, disabl
           <img
             src={card.logo}
             alt=""
-            className="size-[40px] shrink-0 rounded-[10px] bg-white object-cover"
+            className={`size-[40px] shrink-0 bg-white object-cover ${card.type === 'person' ? 'rounded-full' : 'rounded-[10px]'}`}
           />
         ) : (
           <span
             aria-hidden="true"
-            className="flex size-[40px] shrink-0 items-center justify-center rounded-[10px] bg-white font-sans text-[13px] font-semibold text-[#1f4526]"
+            className={`flex size-[40px] shrink-0 items-center justify-center bg-white font-sans text-[13px] font-semibold text-[#1f4526] ${card.type === 'person' ? 'rounded-full' : 'rounded-[10px]'}`}
           >
             {mark}
           </span>
@@ -203,7 +233,7 @@ const SearchResultCards = ({
     >
       <div
         role="group"
-        aria-label="Search results"
+        aria-label={results.every(isOwnRecord) ? 'Your records' : 'Search results'}
         className="-mx-[4px] flex max-w-full gap-[12px] overflow-x-auto px-[4px] pb-[8px] [scrollbar-width:thin]"
       >
         {results.map((card) => (

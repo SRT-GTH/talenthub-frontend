@@ -30,8 +30,33 @@ const initialState = {
   isMinor: null,
 };
 
+// The DOB is kept in sessionStorage next to the onboarding session token (onboarding.api.js), so a page refresh
+// mid-flow keeps the under-18 path (Parent step, step count). Without it a refreshed minor was treated as an adult.
+const STORE_KEY = 'th:onboarding-dob';
+
+const readStored = () => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORE_KEY) || 'null');
+    if (saved && typeof saved.age === 'number') {
+      return { dob: saved.dob || '', age: saved.age, isMinor: saved.age < 18 };
+    }
+  } catch {
+    /* storage unavailable: start empty */
+  }
+  return initialState;
+};
+
+const writeStored = (value) => {
+  try {
+    if (value) sessionStorage.setItem(STORE_KEY, JSON.stringify(value));
+    else sessionStorage.removeItem(STORE_KEY);
+  } catch {
+    /* storage unavailable: in-memory only */
+  }
+};
+
 export const OnboardingProvider = ({ children }) => {
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState(readStored);
 
   const value = useMemo(
     () => ({
@@ -41,6 +66,7 @@ export const OnboardingProvider = ({ children }) => {
       // stays consistent with the captured age.
       setDateOfBirth: ({ dob, age }) => {
         log('setDateOfBirth:', { dob, age });
+        writeStored(typeof age === 'number' ? { dob, age } : null);
         setState((prev) => ({
           ...prev,
           dob,
@@ -50,6 +76,7 @@ export const OnboardingProvider = ({ children }) => {
       },
       reset: () => {
         log('reset');
+        writeStored(null);
         setState(initialState);
       },
     }),

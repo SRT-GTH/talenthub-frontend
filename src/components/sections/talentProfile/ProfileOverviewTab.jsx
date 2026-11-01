@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { STAGE_BY_ID } from '../engagementShell/engagementShellData.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -37,6 +39,7 @@ import { BADGE_ICONS, CARD_PLAIN, GLYPHS, SHELF, TITLE_SM, coverBg } from './pro
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
 import { ProfileAxVolumeIcon } from './AxAnnotationIcons.jsx';
 import { AX_RAIL_LABEL, AX_READING_NOW } from './ProfileAxData.js';
+import FallbackImage from '../../shared/FallbackImage.jsx';
 
 const log = debug('ProfileOverviewTab');
 
@@ -216,7 +219,11 @@ const ProjectTile = ({ item }) => (
       className="relative w-full overflow-hidden rounded-[14px] border border-[rgba(28,42,33,0.1)]"
       style={{ background: coverBg(item.cover) }}
     >
-      <ProjectCoverArt kind={item.cover} />
+      <FallbackImage
+        src={item.coverUrl}
+        className="block aspect-[264/150] w-full object-cover"
+        fallback={<ProjectCoverArt kind={item.cover} />}
+      />
       <Tag
         tone="white"
         className="absolute top-[11px] left-[11px] playful:bg-white playful:rotate-3"
@@ -276,7 +283,11 @@ const StrengthArc = ({ pct, className }) => {
   );
 };
 
+/* Live steps are journey stage ids: each opens its stage screen (the demo keys have no route and stay plain text). */
+const stageRoute = (key) => STAGE_BY_ID[key]?.route || null;
+
 const StrengthCard = ({ go }) => {
+  const navigate = useNavigate();
   const s = PROFILE_STRENGTH;
   const next = s.steps.find((st) => !st.done);
   return (
@@ -325,16 +336,29 @@ const StrengthCard = ({ go }) => {
             >
               {st.done ? <ProfileCheckWhiteIcon className="size-[13px]" /> : null}
             </span>
-            <span
-              className={classNames(
-                'text-[14px] leading-[normal]',
-                st.done
-                  ? 'text-[#737373] line-through'
-                  : 'font-medium whitespace-nowrap text-[#1c2a21]'
-              )}
-            >
-              {st.label}
-            </span>
+            {!st.done && stageRoute(st.key) ? (
+              <button
+                type="button"
+                onClick={() => {
+                  log('strength step ->', st.key);
+                  navigate(stageRoute(st.key));
+                }}
+                className="cursor-pointer text-left text-[14px] leading-[normal] font-medium text-[#1c2a21] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {st.label}
+              </button>
+            ) : (
+              <span
+                className={classNames(
+                  'text-[14px] leading-[normal]',
+                  st.done
+                    ? 'text-[#737373] line-through'
+                    : 'font-medium whitespace-nowrap text-[#1c2a21]'
+                )}
+              >
+                {st.label}
+              </span>
+            )}
             <span aria-hidden="true" className="h-px min-w-px flex-1" />
             {st.gain ? <ProfileChip tone="green">{st.gain}</ProfileChip> : null}
           </li>
@@ -346,7 +370,12 @@ const StrengthCard = ({ go }) => {
           size="sm"
           onClick={() => {
             log('finish my profile ->', next?.key);
-            go({ tab: next?.key === 'endorse' || next?.key === 'skill' ? 'skills' : 'portfolio' });
+            // Live: the next unfinished stage's screen. Demo keys keep the Figma tab behaviour.
+            if (stageRoute(next?.key)) navigate(stageRoute(next.key));
+            else
+              go({
+                tab: next?.key === 'endorse' || next?.key === 'skill' ? 'skills' : 'portfolio',
+              });
           }}
         >
           {s.cta}

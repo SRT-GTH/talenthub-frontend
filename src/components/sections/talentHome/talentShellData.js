@@ -368,7 +368,7 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
     status: (STATUS_BY_MILESTONE[j.milestone] || STATUS_BY_MILESTONE.none)(j.doneCount),
     journey: {
       label: 'Profile journey',
-      count: `${j.doneCount} of 9`,
+      count: `${j.doneCount} of ${j.total || 9}`,
       done: j.doneCount,
       caption: next ? `Continue: ${next} →` : 'View my profile →',
       // Where the caption goes: the next stage's screen, or the profile once all nine are done.
@@ -377,11 +377,18 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
     stats: [
       { id: 'views', value: live.views ? String(live.views.uniqueViewers) : '–', label: 'Views' },
       { id: 'matches', value: String(matches), label: 'Matches' },
-      { id: 'messages', value: '–', label: 'Messages' },
+      {
+        id: 'messages',
+        value: typeof live.unreadMessages === 'number' ? String(live.unreadMessages) : '–',
+        label: 'Messages',
+      },
       { id: 'skills', value: String(live.verifiedSkills ?? 0), label: 'Skills' },
     ],
-    badges: matches ? { opportunities: String(matches) } : {},
-    streak: '–',
+    badges: {
+      ...(matches ? { opportunities: String(matches) } : {}),
+      ...(live.unreadMessages ? { messages: String(live.unreadMessages) } : {}),
+    },
+    streak: live.streak?.summary ? String(live.streak.summary.current ?? 0) : '–',
   };
 };
 
@@ -412,9 +419,9 @@ export const getTalentNavData = (stateKey = 'day1', live = null, persona = null)
       }
     : live
       ? {
-          streakCount: '–',
+          streakCount: live.streak?.summary ? String(live.streak.summary.current ?? 0) : '–',
           notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
-          messageCount: '',
+          messageCount: live.unreadMessages ? String(live.unreadMessages) : '',
           profileName: getTalentProfile(live).navName,
         }
       : {

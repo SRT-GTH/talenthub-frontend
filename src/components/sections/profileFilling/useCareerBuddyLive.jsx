@@ -8,7 +8,9 @@ import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
 import CareerPostCards from './careerExposure/CareerPostCards.jsx';
+import CourseRecommendationCards from './learningGuidance/CourseRecommendationCards.jsx';
 import SearchResultCards from './search/SearchResultCards.jsx';
+import { isOwnRecord } from './search/ownRecords.js';
 import SearchDetailSheet from './search/SearchDetailSheet.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
@@ -26,6 +28,8 @@ import {
   PanelMicrophoneIcon,
 } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { cvFileType } from '../../../services/cv.api.js';
+import { handOffCv } from '../../../services/cvHandoff.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import {
   sendTurn,
@@ -52,6 +56,7 @@ import {
   opportunityMatchView,
   whyThisMatchAction,
   careerPostView,
+  courseCardView,
   userBubble,
   autoBubble,
   fileBubble,
@@ -764,16 +769,28 @@ export function useCareerBuddyLive({
   };
 
   // ---- attach ----
+  // 2026-11-01: the reply said "I've kept <file> with this conversation. I can't read files yet" - nothing was sent
+  // anywhere. A CV (PDF / .docx) now goes to the CV reader and its review; other files get an honest answer.
+  // ChatThread passes { name, size, sizeLabel, file } - `file` is the real File.
   const handleAttach = (file) => {
+    const isCv = Boolean(cvFileType(file));
     patchThread((t) => ({
       messages: [
         ...t.messages,
         fileBubble(file),
         localBotBubble(
-          `Thanks - I've kept ${file.name} with this conversation. I can't read files yet, so tell me the key details (for example your school, a job or a certificate) and I'll add them to your profile.`
+          isCv
+            ? `Got ${file.name}. I'm reading it now and I'll show you what I found - nothing goes on your profile until you check it.`
+            : /\.(jpe?g|png)$/i.test(file.name || '')
+              ? `I can't read photos yet. If ${file.name} is a certificate, add it in Certifications - the file is stored with it there. For your CV, send a PDF or Word (.docx) file.`
+              : `I can read CVs as PDF or Word (.docx) files. ${file.name} isn't one of those, so tell me the key details (for example your school, a job or a certificate) and I'll add them.`
         ),
       ],
     }));
+    if (isCv && file.file instanceof Blob) {
+      handOffCv(file.file);
+      navigate('/profile/filling/cv');
+    }
   };
   const handleAttachRejected = (name) =>
     showToast('error', 'File too large', `${name} is over 10 MB.`);
@@ -931,8 +948,30 @@ export function useCareerBuddyLive({
     /\bon GTH for "([^"]{2,100})"/.exec(m.text || '')?.[1] ||
     /^Matches "([^"]{2,100})"/.exec(card?.why || '')?.[1] ||
     null;
+  // A card can carry the exact action for its question (an assessment: take_assessment + its type), so the
+  // classifier never has to guess which test was meant. Only that shape is accepted.
+  const askOptionsOf = (card) => {
+    const a = card?.askAction;
+    const type = a?.slots?.find((s) => s?.name === 'assessmentType')?.value;
+    const section = ['personality', 'psychometric'].includes(a?.section) ? a.section : null;
+    return a?.intent === 'take_assessment' &&
+      section &&
+      typeof type === 'string' &&
+      /^[a-z_]{2,40}$/.test(type)
+      ? {
+          chipAction: {
+            intent: 'take_assessment',
+            section,
+            slots: [{ name: 'assessmentType', value: type }],
+          },
+        }
+      : {};
+  };
+  // Phase 3: the talent's own records are private - opening one is not a search signal.
   const cardSignal = (kind, card, m) =>
-    sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
+    isOwnRecord(card)
+      ? undefined
+      : sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
   const renderSearchResults = (m, { compact = false } = {}) => (
     <>
       <SearchResultCards
@@ -945,7 +984,7 @@ export function useCareerBuddyLive({
         }}
         onAsk={(card) => {
           cardSignal('search_ask', card, m);
-          runTurn(card.ask);
+          runTurn(card.ask, askOptionsOf(card));
         }}
         onDetails={(card, opener) => {
           cardSignal('search_details', card, m);
@@ -962,7 +1001,7 @@ export function useCareerBuddyLive({
           onAsk={(card) => {
             cardSignal('search_ask', card, m);
             setSearchDetail(null);
-            runTurn(card.ask);
+            runTurn(card.ask, askOptionsOf(card));
           }}
           onOpen={(card) => {
             cardSignal('search_open', card, m);
@@ -1038,6 +1077,22 @@ export function useCareerBuddyLive({
               posts={views}
               career={m.careerPosts[0]?.career}
               onOpen={(post) => navigate(post.detailPath)}
+            />
+          </>
+        ),
+      };
+    }
+    if (m.courses?.length) {
+      // 2026-10-31: recommended courses as cards (learning guidance); each opens the GTH course page.
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            <CourseRecommendationCards
+              courses={m.courses.map((c) => courseCardView(c))}
+              career={m.courses.find((c) => c.career)?.career}
+              onOpen={(course) => navigate(course.detailPath)}
             />
           </>
         ),

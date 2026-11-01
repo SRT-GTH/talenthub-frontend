@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
+import { homePathFor } from '../../../services/auth.api.js';
+import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
+import { useParentMe } from './live/parentLive.js';
 import AskBuddyFabButton from '../../ui/AskBuddyFabButton.jsx';
 import ParentRailCollapsed from './ParentRailCollapsed.jsx';
 import ParentSidebar from './ParentSidebar.jsx';
@@ -31,7 +34,27 @@ const ParentFrame = ({
   // "Parent who is also a talent" (Figma canvas 12): `?menu=switch` opens the switch-space menu (PD-02), `?career=none` is a parent with no career profile yet (the sidebar card reads "Your own career",
   // PD-04) and `?modal=career-profile` is its "Build your own career profile" dialog.
   const cardRef = useRef(null);
-  const career = params.get('career') === 'none' ? 'none' : 'talent';
+  // Live (signed in, not a frame URL): the parent's own data. Someone signed in who is not a parent goes to their own home.
+  const me = useParentMe();
+  useEffect(() => {
+    if (me.live && me.code === 'NOT_A_PARENT') {
+      let user = null;
+      try {
+        user = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null');
+      } catch {
+        user = null;
+      }
+      log('not a parent: leaving /parent');
+      navigate(homePathFor(user), { replace: true });
+    }
+  }, [me.live, me.code, navigate]);
+  const career = me.live
+    ? me.data?.parent?.hasCareerProfile
+      ? 'talent'
+      : 'none'
+    : params.get('career') === 'none'
+      ? 'none'
+      : 'talent';
   const menuOpen = params.get('menu') === 'switch' && career === 'talent';
   const careerDialog = params.get('modal') === 'career-profile';
   // Ask Buddy (Figma canvas 13): `?buddy=open` or a reply-in-progress state (thinking | working | writing | slow | stopped) opens the panel on any parent page.
@@ -100,8 +123,9 @@ const ParentFrame = ({
       </div>
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
         <ParentTopBar
-          bell={bell}
-          messages={messages}
+          // Live: no counts until the notifications and messages are wired (no invented numbers).
+          bell={me.live ? bell || '' : bell}
+          messages={me.live ? messages || '' : messages}
           onBell={toggleNotif}
           bellOpen={panelOpen}
           onSwitchSpace={

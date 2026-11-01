@@ -43,7 +43,7 @@ const Region = ({ region }) => (
       {region.tag}
     </span>
     <span className="inline-flex rounded-full border border-[rgba(28,42,33,0.35)] bg-[#f1f1ee] px-[8px] py-[2px] text-[12px] font-semibold leading-[14px] text-[#595959]">
-      {region.count}/3
+      {region.count}/{region.size ?? 3}
     </span>
   </div>
 );

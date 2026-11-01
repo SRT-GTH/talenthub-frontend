@@ -791,6 +791,8 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // profile stage pages (Figma J-03): fill it in myself / chat with Career Buddy / upload my CV.
   const [modePickerOpen, setModePickerOpen] = useState(false);
   const liveJourney = useLiveJourney();
+  // Under-18 starters on the new-chat screen (JHS: school and subjects; SHS: internships).
+  const ageBand = liveJourney?.jhs ? 'jhs' : liveJourney?.isMinor ? 'minor' : null;
   // Last mode-cards listing visited — Switch Modes / "Choose different mode"
   const [modeListingNodeId, setModeListingNodeId] = useState(null);
   const [jobPostFormOpen, setJobPostFormOpen] = useState(false);
@@ -3458,7 +3460,9 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                 onNewChat={L.handleNewChat}
                 newChatDisabled={L.freshChat}
                 emptyState={
-                  L.freshChat ? <NewChatStart name={L.firstName} onPick={L.handleSend} /> : null
+                  L.freshChat ? (
+                    <NewChatStart name={L.firstName} onPick={L.handleSend} band={ageBand} />
+                  ) : null
                 }
                 historyOpen={L.historyOpen}
                 settingsOpen={settingsOpen}
@@ -3501,6 +3505,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                   isTalent && freshStart ? (
                     <NewChatStart
                       name={demoFrame ? 'Ama' : undefined}
+                      band={demoFrame ? null : ageBand}
                       onPick={(prompt) => {
                         setFreshStart(false);
                         submit(prompt);

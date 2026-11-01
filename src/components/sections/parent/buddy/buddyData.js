@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from '../../../../constants/storageKeys.js';
+
 /*
  * Copy of the parent Ask Buddy panel (Figma file SCXc457vwiq6o7d9g4jVbh, canvas "Parent · 13 Ask Buddy" 10089:2105, persona Emma Mensah). Verbatim from the Figma `characters`.
  * The five reply-in-progress rows reuse `ui/BuddyThinking` (Figma "Buddy thinking states"); only the parent's sample copy lives here.
@@ -45,3 +47,42 @@ export const PHASES = {
 };
 
 export const PHASE_IDS = Object.keys(PHASES);
+
+/*
+ * Live panel copy (Career Buddy search Phase 3b, 2026-10-30): a signed-in parent talks to the real agent. Same voice as
+ * the Figma copy above, without the Emma Mensah persona. Starter chips carry the agent's exact parent actions.
+ */
+/**
+ * True when the signed-in account holds a parent or guardian role (any of its entities). Only such an account gets
+ * the live panel; anyone else on /parent keeps the demo (the agent decides the role from the login anyway).
+ */
+export const isParentAccount = () => {
+  try {
+    const u = JSON.parse(localStorage.getItem(STORAGE_KEYS.userProfile) || 'null') || {};
+    const types = [
+      u.entityType,
+      ...(Array.isArray(u.entities) ? u.entities.map((e) => e?.entityType) : []),
+    ];
+    return types.some((t) => ['parent', 'guardian'].includes(String(t || '').toLowerCase()));
+  } catch {
+    return false;
+  }
+};
+
+export const LIVE_PANEL = {
+  today: 'Today',
+  greeting: (firstName) =>
+    `${firstName ? `Hi ${firstName}. ` : 'Hi. '}I can tell you how your wards are getting on with their profile, assessments and skills, what needs your review, and how opting out works.`,
+  starters: [
+    { label: 'How are my wards doing?', intent: 'parent_ward' },
+    { label: 'What needs my review?', intent: 'parent_review' },
+    { label: 'How does opting out work?', intent: 'parent_opt_out_help' },
+  ],
+  lookingAt: ['Your wards'],
+  placeholder: 'Ask about your wards, reviews or opting out…',
+  openWard: 'Open',
+  empty: 'I don’t have an answer for that yet.',
+  failed: 'I couldn’t answer that just now. Please try again.',
+  stopped: 'Stopped. Ask again whenever you’re ready.',
+  tryAgain: 'Try again',
+};

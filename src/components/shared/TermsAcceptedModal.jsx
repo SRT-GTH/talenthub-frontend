@@ -26,7 +26,8 @@ const log = debug('TermsAcceptedModal');
  *     timestamp data). It is decorative; the green check chip carries meaning.
  *   - The progress track in Figma has no visible fill (fill colour == track).
  *
- * Props unchanged: onClose, onContinue. Focus moves in, Tab is trapped, Esc
+ * Props: onClose, onContinue, acceptedAt (optional Date: each row then shows the time it was accepted instead
+ * of the Figma dash). Focus moves in, Tab is trapped, Esc
  * closes, focus is restored on unmount.
  */
 
@@ -38,7 +39,13 @@ const RECORD_ROWS = [
 
 const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
-const TermsAcceptedModal = ({ onClose, onContinue }) => {
+const acceptedText = (d) =>
+  d instanceof Date && !Number.isNaN(d.getTime())
+    ? `Accepted ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`
+    : null;
+
+const TermsAcceptedModal = ({ onClose, onContinue, acceptedAt = null }) => {
+  const when = acceptedText(acceptedAt);
   log('mount');
   const cardRef = useRef(null);
 
@@ -155,12 +162,18 @@ const TermsAcceptedModal = ({ onClose, onContinue }) => {
                         {row.label}
                       </span>
                     </span>
-                    <span
-                      aria-hidden="true"
-                      className="font-ui text-[9.3px] leading-[11px] text-[#BABAB7]"
-                    >
-                      &mdash;
-                    </span>
+                    {when ? (
+                      <span className="font-ui text-[9.3px] leading-[11px] text-[#595959]">
+                        {when}
+                      </span>
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="font-ui text-[9.3px] leading-[11px] text-[#BABAB7]"
+                      >
+                        &mdash;
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -20,7 +20,15 @@ import {
   CertsUploadIcon,
 } from './certsIcons.jsx';
 import { COMPLETE_STATS, CONFETTI, STATUS_LABEL, TYPE_OPTIONS } from './certsData.js';
-import { parseMonthYear } from './certsData.js';
+import { parseIssueDate, parseMonthYear } from './certsData.js';
+import {
+  certFileProblem,
+  extractCertificate,
+  fileSizeLabel,
+  toFormMonth,
+  uploadCertificateFile,
+} from '../../../../services/certificate.api.js';
+import { uploadErrorMessage } from '../../../../services/media.api.js';
 
 const log = debug('CertsDialogs');
 
@@ -155,14 +163,100 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
     editing ? { ...blankForm, ...cert, skills: cert.skills.join(', ') } : blankForm
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const issue = parseMonthYear(form.issueDate);
+  const formRef = useRef(form);
+  formRef.current = form;
+  /*
+   * 2026-11-01: the picked file was only logged ("no parsing in the mock") - the stage promised "we fill in the
+   * fields" and threw the file away. Signed in, it is now stored (certificateFile) and a PDF is read into the empty
+   * fields. Fields the talent already typed are never overwritten. Photos aren't read yet: said plainly.
+   */
+  const [upload, setUpload] = useState(null); // { status: 'reading'|'done'|'error', name, size, url, filled, note }
+  const pickFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!live) {
+      log('file chosen (demo: not uploaded)', file.name);
+      return;
+    }
+    const problem = certFileProblem(file);
+    if (problem) {
+      setUpload({
+        status: 'error',
+        name: file.name,
+        size: fileSizeLabel(file.size),
+        note: problem,
+      });
+      return;
+    }
+    const base = { name: file.name, size: fileSizeLabel(file.size) };
+    setUpload({ ...base, status: 'reading', note: 'Uploading and reading your certificate…' });
+    const [stored, read] = await Promise.allSettled([
+      uploadCertificateFile(file),
+      extractCertificate(file),
+    ]);
+    if (stored.status !== 'fulfilled') {
+      log.error('certificate upload failed', stored.reason?.message);
+      setUpload({
+        ...base,
+        status: 'error',
+        note: uploadErrorMessage(
+          stored.reason,
+          'We couldn’t upload this file. Try again, or save the details without it.'
+        ),
+      });
+      return;
+    }
+    const got = read.status === 'fulfilled' ? read.value : null;
+    const x = got?.readable ? got.fields || {} : {};
+    const suggestions = {
+      title: x.name || '',
+      issuer: x.issuingOrganization || '',
+      credentialId: x.credentialId || '',
+      issueDate: toFormMonth(x.issueDate),
+      expiryDate: x.expiryDate?.yearOnly ? '' : toFormMonth(x.expiryDate),
+      link: x.credentialUrl || '',
+      skills: Array.isArray(x.skills) ? x.skills.join(', ') : '',
+    };
+    // Read the latest typed values (the talent may type while the file uploads).
+    const prev = formRef.current;
+    const next = { ...prev };
+    let filled = 0;
+    Object.entries(suggestions).forEach(([k, v]) => {
+      if (v && !String(prev[k] || '').trim()) {
+        next[k] = v;
+        filled += 1;
+      }
+    });
+    setForm(next);
+    const reason = got?.reason;
+    const note = filled
+      ? `${filled} ${filled === 1 ? 'field' : 'fields'} filled from your file. Check them before you save.`
+      : reason === 'PHOTO'
+        ? 'File attached. We can’t read photos yet, so fill in the details below.'
+        : reason === 'NO_TEXT'
+          ? 'File attached. We couldn’t find any text in it (it may be a scan), so fill in the details below.'
+          : 'File attached. We couldn’t read the details from it, so fill them in below.';
+    if (got?.readable && x.issueDate?.yearOnly && !suggestions.issueDate) {
+      setUpload({
+        ...base,
+        status: 'done',
+        url: stored.value,
+        filled,
+        note: `${note} Add the month it was issued.`,
+      });
+      return;
+    }
+    setUpload({ ...base, status: 'done', url: stored.value, filled, note });
+  };
+  const issue = parseIssueDate(form.issueDate);
   /* Typed but unparseable: the save button stays disabled and this says why (an issue date is never invented). */
   const issueBad = Boolean(form.issueDate.trim()) && !issue;
   const expiryOk =
     form.noExpiry || !form.expiryDate.trim() || Boolean(parseMonthYear(form.expiryDate));
-  const valid = Boolean(
-    form.title.trim() && form.issuer.trim() && (live || form.type) && issue && expiryOk
-  );
+  const valid =
+    Boolean(form.title.trim() && form.issuer.trim() && (live || form.type) && issue && expiryOk) &&
+    upload?.status !== 'reading';
   log('render', { mode, valid });
 
   const verifiedHeader = editing && cert.verifiedNote;
@@ -181,6 +275,16 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
         .map((s) => s.trim())
         .filter(Boolean),
       expiryDate: form.noExpiry ? '' : form.expiryDate.trim(),
+      ...(upload?.url
+        ? {
+            upload: {
+              name: upload.name,
+              size: upload.size,
+              url: upload.url,
+              filled: upload.filled,
+            },
+          }
+        : {}),
     });
   };
 
@@ -227,9 +331,48 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
         type="file"
         accept=".pdf,.jpg,.jpeg,.png"
         className="hidden"
-        onChange={(e) => log('file chosen (no parsing in the mock)', e.target.files?.[0]?.name)}
+        onChange={pickFile}
       />
-      {editing ? (
+      {upload ? (
+        <div
+          className={classNames(
+            'flex flex-wrap items-center gap-[14px] rounded-[16px] border border-solid py-[14px] pr-[16px] pl-[14px]',
+            upload.status === 'error'
+              ? 'border-[#e2b4ad] bg-[#fdf3f1]'
+              : 'border-[#e7e7e7] bg-[#f7f8f4]'
+          )}
+          role="status"
+        >
+          <span className="inline-flex size-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec] text-[#387440]">
+            <CertsFileIcon className="size-[22px]" />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+            <p className="m-0 font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21] [overflow-wrap:anywhere]">
+              {upload.name} · {upload.size}
+            </p>
+            <p
+              className={classNames(
+                'm-0 inline-flex items-center gap-[6px] font-sans text-[13px] leading-[16px] font-medium max-lg:text-[12px]',
+                upload.status === 'error' ? 'text-[#a8382b]' : 'text-[#387440]'
+              )}
+            >
+              {upload.status === 'done' ? (
+                <CertsCheckCircleIcon className="size-[13px] shrink-0" />
+              ) : null}
+              {upload.note}
+            </p>
+          </div>
+          <Button
+            variant="tertiary-subtle"
+            size="md"
+            className={SECONDARY}
+            disabled={upload.status === 'reading'}
+            onClick={() => fileRef.current?.click()}
+          >
+            {upload.status === 'error' ? 'Try another file' : 'Re-upload'}
+          </Button>
+        </div>
+      ) : editing ? (
         cert.file ? (
           <div className="flex flex-wrap items-center gap-[14px] rounded-[16px] border border-solid border-[#e7e7e7] bg-[#f7f8f4] py-[14px] pr-[16px] pl-[14px]">
             <span className="inline-flex size-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ebf1ec] text-[#387440]">
@@ -237,11 +380,19 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
               <p className="m-0 font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21] [overflow-wrap:anywhere]">
-                {cert.file.name} · {cert.file.size}
+                {cert.file.name}
+                {cert.file.size ? ` · ${cert.file.size}` : ''}
               </p>
               <p className="m-0 inline-flex items-center gap-[6px] font-sans text-[13px] leading-[16px] font-medium text-[#387440] max-lg:text-[12px]">
                 <CertsCheckCircleIcon className="size-[13px]" />
-                {cert.file.filled} fields filled from your file
+                {cert.file.filled
+                  ? `${cert.file.filled} fields filled from your file`
+                  : 'File attached'}
+                {cert.file.url ? (
+                  <a href={cert.file.url} target="_blank" rel="noreferrer" className="underline">
+                    View
+                  </a>
+                ) : null}
               </p>
             </div>
             <Button
@@ -345,7 +496,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
             id={f('issue')}
             value={form.issueDate}
             onChange={set('issueDate')}
-            placeholder="MM / YYYY"
+            placeholder="MM / YYYY, or just YYYY"
             inputMode="numeric"
             aria-invalid={issueBad || undefined}
             aria-describedby={issueBad ? f('issue-err') : undefined}
@@ -361,7 +512,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
               role="alert"
               className="font-sans text-[13px] leading-[16px] text-[#902b20]"
             >
-              Use month / year, e.g. 03 / 2024.
+              Use month / year, e.g. 03 / 2024, or just the year.
             </span>
           ) : null}
         </Field>

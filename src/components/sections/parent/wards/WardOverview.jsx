@@ -97,6 +97,12 @@ const WardOverview = ({ ward, showSide = false }) => {
         </div>
 
         <ul className={`m-0 flex list-none flex-col gap-[16px] px-[22px] py-[8px] ${CARD}`}>
+          {ward.activity.length === 0 ? (
+            <li className="py-[14px] font-sans text-[14px] leading-normal text-[#575755]">
+              Nothing yet. When {ward.firstName} finishes an assessment, verifies a skill or adds a
+              certificate, it shows here.
+            </li>
+          ) : null}
           {ward.activity.map((a, i) => (
             <li
               key={a.id}

@@ -22,6 +22,7 @@ import {
   PortfolioUserIcon,
   PortfolioUsersIcon,
 } from './portfolioIcons.jsx';
+import FallbackImage from '../../../shared/FallbackImage.jsx';
 
 const log = debug('PortfolioParts');
 
@@ -313,14 +314,22 @@ export const ProjectCard = ({
           <PortfolioDragIcon className="size-[18px]" />
         </button>
       )}
-      <span
-        className={classNames(
-          'flex size-[52px] shrink-0 items-center justify-center rounded-[14px]',
-          filled ? `bg-[#387440] ${CARD}` : 'bg-[#ebf1ec]'
-        )}
-      >
-        <Glyph className={classNames('size-[24px]', filled ? 'text-white' : 'text-[#387440]')} />
-      </span>
+      <FallbackImage
+        src={example ? null : project.cover?.previewUrl}
+        className="size-[52px] shrink-0 rounded-[14px] border border-solid border-[rgba(28,42,33,0.1)] object-cover"
+        fallback={
+          <span
+            className={classNames(
+              'flex size-[52px] shrink-0 items-center justify-center rounded-[14px]',
+              filled ? `bg-[#387440] ${CARD}` : 'bg-[#ebf1ec]'
+            )}
+          >
+            <Glyph
+              className={classNames('size-[24px]', filled ? 'text-white' : 'text-[#387440]')}
+            />
+          </span>
+        }
+      />
       <div className="flex min-w-0 flex-1 flex-col gap-[6px] [&_h3]:m-0">
         <div className="flex flex-wrap items-center gap-[10px]">
           <h3 className="font-sans text-[18px] leading-[21px] font-semibold text-[#1c2a21]">

@@ -57,12 +57,13 @@ const Stat = ({ value, label, gold, playful }) => (
 );
 
 /*
- * MilestoneModal — the celebration dialog (Figma J-04 / J-06 / J-07). Props: n (1|2|3), onClose, onShare (inert: Figma draws
+ * MilestoneModal — the celebration dialog (Figma J-04 / J-06 / J-07). Props: n (1|2|3), copy, onClose, onShare (inert: Figma draws
  * no share flow), onPrimary. Confetti positions are the Figma ones (journeyConfetti.js); Playful swaps "pts" for "XP" and the
  * heading font.
  */
-const MilestoneModal = ({ n, onClose, onShare, onPrimary }) => {
-  const m = MILESTONE_MODALS[n];
+const MilestoneModal = ({ n, copy, onClose, onShare, onPrimary }) => {
+  // `copy` (journeyModel milestoneModalFor) adapts counts and parent wording to the talent; Figma copy otherwise.
+  const m = copy ?? MILESTONE_MODALS[n];
   useEffect(() => {
     log('mount', { n });
   }, [n]);

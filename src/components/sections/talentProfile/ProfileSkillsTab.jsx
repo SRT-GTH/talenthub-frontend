@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -65,50 +66,60 @@ const Faces = ({ count }) => (
   </span>
 );
 
-const SkillRow = ({ row }) => (
-  <li className="flex flex-wrap items-center gap-x-[14px] gap-y-[12px] py-[14px]">
-    <div className="flex min-w-[220px] flex-1 items-center gap-[14px]">
-      <GlyphTile name={row.icon} size={44} glyph={23} />
-      <div className="flex min-w-0 flex-1 flex-col items-start gap-[4px]">
-        <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[4px]">
-          <span className="text-[16px] leading-[normal] font-semibold whitespace-nowrap text-[#1c2a21]">
-            {row.name}
-          </span>
-          <ProfileChip
-            tone={row.chip.tone}
-            icon={row.chip.label === 'Self-added' ? undefined : 'check'}
-          >
-            {row.chip.label}
-          </ProfileChip>
+const SkillRow = ({ row }) => {
+  const navigate = useNavigate();
+  return (
+    <li className="flex flex-wrap items-center gap-x-[14px] gap-y-[12px] py-[14px]">
+      <div className="flex min-w-[220px] flex-1 items-center gap-[14px]">
+        <GlyphTile name={row.icon} size={44} glyph={23} />
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-[4px]">
+          <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[4px]">
+            <span className="text-[16px] leading-[normal] font-semibold whitespace-nowrap text-[#1c2a21]">
+              {row.name}
+            </span>
+            <ProfileChip
+              tone={row.chip.tone}
+              icon={row.chip.label === 'Self-added' ? undefined : 'check'}
+            >
+              {row.chip.label}
+            </ProfileChip>
+          </div>
+          <p className="text-[12px] leading-[normal] whitespace-pre-wrap text-[#737373]">
+            {row.meta}
+          </p>
         </div>
-        <p className="text-[12px] leading-[normal] whitespace-pre-wrap text-[#737373]">
-          {row.meta}
-        </p>
       </div>
-    </div>
-    <Meter
-      pct={row.pct}
-      height={8}
-      track={row.self ? '#e6e6e6' : '#e1eae2'}
-      fill={row.self ? '#bfbfbf' : '#387440'}
-      className="w-[180px] max-w-full shrink-0"
-    />
-    {row.self ? (
-      <div className="flex w-[190px] max-w-full shrink-0 items-center justify-end">
-        <HeadLink onClick={() => log('prove it in Skills Lab', row.key)}>{row.cta}</HeadLink>
-      </div>
-    ) : (
-      <div className="flex h-[24px] w-[150px] max-w-full shrink-0 items-center justify-end gap-[8px]">
-        {row.faces ? <Faces count={row.faces} /> : null}
-        {row.endorsed ? (
-          <span className="text-[12px] leading-[normal] font-medium whitespace-nowrap text-[#737373]">
-            {row.endorsed}
-          </span>
-        ) : null}
-      </div>
-    )}
-  </li>
-);
+      <Meter
+        pct={row.pct}
+        height={8}
+        track={row.self ? '#e6e6e6' : '#e1eae2'}
+        fill={row.self ? '#bfbfbf' : '#387440'}
+        className="w-[180px] max-w-full shrink-0"
+      />
+      {row.self ? (
+        <div className="flex w-[190px] max-w-full shrink-0 items-center justify-end">
+          <HeadLink
+            onClick={() => {
+              log('prove it in Skills Lab', row.key);
+              navigate('/skills-lab');
+            }}
+          >
+            {row.cta}
+          </HeadLink>
+        </div>
+      ) : (
+        <div className="flex h-[24px] w-[150px] max-w-full shrink-0 items-center justify-end gap-[8px]">
+          {row.faces ? <Faces count={row.faces} /> : null}
+          {row.endorsed ? (
+            <span className="text-[12px] leading-[normal] font-medium whitespace-nowrap text-[#737373]">
+              {row.endorsed}
+            </span>
+          ) : null}
+        </div>
+      )}
+    </li>
+  );
+};
 
 const SkillGroup = ({ group }) => (
   <section
@@ -153,43 +164,54 @@ const VerificationCard = () => (
   </section>
 );
 
-const InDemandCard = () => (
-  <section
-    aria-label={SKILLS_IN_DEMAND.title}
-    className={classNames(CARD_PLAIN, 'flex min-w-0 flex-col gap-[16px] overflow-hidden', PAD)}
-  >
-    <header className="flex items-center gap-[10px]">
-      <h2 className={TITLE}>{SKILLS_IN_DEMAND.title}</h2>
-    </header>
-    <p className="text-[13px] leading-[normal] text-[#595959]">{SKILLS_IN_DEMAND.sub}</p>
-    <ul className="flex flex-col gap-[16px]">
-      {SKILLS_IN_DEMAND.rows.map((r) => (
-        <li key={r.label} className="flex items-center gap-[10px]">
-          {r.have ? (
-            <ProfileCheckCircleGlyph className="size-[15px] shrink-0" />
-          ) : (
-            <ProfilePlusGlyph className="size-[15px] shrink-0" />
-          )}
-          <span className="min-w-0 flex-1 text-[14px] leading-[normal] font-medium text-[#1c2a21]">
-            {r.label}
-          </span>
-          <span className="text-[12px] leading-[normal] whitespace-nowrap text-[#737373]">
-            {r.share}
-          </span>
-        </li>
-      ))}
-    </ul>
-    <div>
-      <HeadLink onClick={() => log('start a Tableau course')}>{SKILLS_IN_DEMAND.cta}</HeadLink>
-    </div>
-  </section>
-);
+const InDemandCard = () => {
+  const navigate = useNavigate();
+  return (
+    <section
+      aria-label={SKILLS_IN_DEMAND.title}
+      className={classNames(CARD_PLAIN, 'flex min-w-0 flex-col gap-[16px] overflow-hidden', PAD)}
+    >
+      <header className="flex items-center gap-[10px]">
+        <h2 className={TITLE}>{SKILLS_IN_DEMAND.title}</h2>
+      </header>
+      <p className="text-[13px] leading-[normal] text-[#595959]">{SKILLS_IN_DEMAND.sub}</p>
+      <ul className="flex flex-col gap-[16px]">
+        {SKILLS_IN_DEMAND.rows.map((r) => (
+          <li key={r.label} className="flex items-center gap-[10px]">
+            {r.have ? (
+              <ProfileCheckCircleGlyph className="size-[15px] shrink-0" />
+            ) : (
+              <ProfilePlusGlyph className="size-[15px] shrink-0" />
+            )}
+            <span className="min-w-0 flex-1 text-[14px] leading-[normal] font-medium text-[#1c2a21]">
+              {r.label}
+            </span>
+            <span className="text-[12px] leading-[normal] whitespace-nowrap text-[#737373]">
+              {r.share}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div>
+        <HeadLink
+          onClick={() => {
+            log('in-demand cta -> learning');
+            navigate('/learning');
+          }}
+        >
+          {SKILLS_IN_DEMAND.cta}
+        </HeadLink>
+      </div>
+    </section>
+  );
+};
 
 /*
  * ProfileSkillsTab — P-02 (Figma Focused 8110:368724 / Playful 7571:190). Filter chips narrow the
- * three groups (Verified / Endorsed / Self-added) locally; "+ Add a skill" has no frame of its own.
+ * three groups (Verified / Endorsed / Self-added) locally; "+ Add a skill" opens the Skills stage (/profile/filling/skills).
  */
 const ProfileSkillsTab = ({ profile }) => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
@@ -207,7 +229,11 @@ const ProfileSkillsTab = ({ profile }) => {
           <FilterBar
             active={filter}
             onSelect={setFilter}
-            onAdd={() => log('add a skill (no frame)')}
+            // "+ Add a skill" has no frame of its own: it opens the Skills stage, which adds and saves skills.
+            onAdd={() => {
+              log('add a skill -> skills stage');
+              navigate('/profile/filling/skills');
+            }}
           />
           {groups.map((g) => (
             <SkillGroup key={g.key} group={g} />

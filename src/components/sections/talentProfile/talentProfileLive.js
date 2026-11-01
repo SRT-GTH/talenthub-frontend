@@ -219,6 +219,8 @@ export const buildProfileData = (raw) => {
   const projects = list(p.portfolio).map((x, i) => ({
     key: keyOf(x.title, i),
     cover: ['bars', 'line', 'dots'][i % 3],
+    coverUrl:
+      typeof x.coverImage === 'string' && /^https:\/\//.test(x.coverImage) ? x.coverImage : null,
     category: 'all',
     tag: x.url ? 'Link ↗' : 'Project',
     title: x.title || 'Project',
@@ -245,7 +247,11 @@ export const buildProfileData = (raw) => {
     issuer: c.issuingOrganization || '',
     meta: [
       [
-        monthYear(c.issueDate) ? `Issued ${monthYear(c.issueDate)}` : null,
+        c.issueDateYearOnly && c.issueDate
+          ? `Issued ${new Date(c.issueDate).getUTCFullYear()}`
+          : monthYear(c.issueDate)
+            ? `Issued ${monthYear(c.issueDate)}`
+            : null,
         c.expirationDate ? `Expires ${monthYear(c.expirationDate)}` : 'No expiry',
       ]
         .filter(Boolean)
@@ -376,6 +382,7 @@ export const buildProfileData = (raw) => {
     PROFILE_HERO: {
       name,
       photo: p.profilePhoto || p.avatar?.url || null,
+      banner: p.bannerImage || null,
       openToWork: student ? 'Student' : 'Open to work',
       verified: '',
       level: j
@@ -469,9 +476,14 @@ export const buildProfileData = (raw) => {
       title: 'Portfolio',
       link: projects.length ? `See all ${projects.length} →` : '',
       empty: 'No projects yet. If you made it, it counts.',
-      items: projects
-        .slice(0, 3)
-        .map((x) => ({ key: x.key, cover: x.cover, tag: x.tag, title: x.title, meta: x.meta })),
+      items: projects.slice(0, 3).map((x) => ({
+        key: x.key,
+        cover: x.cover,
+        coverUrl: x.coverUrl,
+        tag: x.tag,
+        title: x.title,
+        meta: x.meta,
+      })),
     },
     PROFILE_STRENGTH: {
       title: 'Profile strength',
@@ -576,8 +588,15 @@ export const buildProfileData = (raw) => {
               ? `“${String(p.videoPitch.transcript).slice(0, 60)}…”`
               : '',
             chip: '',
-            stats: [],
+            // 2026-11-01: the real pitch (profiles/me adds videoPitch from the engagement): length + when it was published.
+            stats: [
+              p.videoPitch.duration ? `${Math.round(p.videoPitch.duration)} sec` : null,
+              monthYear(p.videoPitch.submittedAt)
+                ? `Published ${monthYear(p.videoPitch.submittedAt)}`
+                : null,
+            ].filter(Boolean),
             videoUrl: p.videoPitch.videoUrl || p.videoPitch.url,
+            posterUrl: p.videoPitch.thumbnailUrl || null,
           }
         : null,
     ABOUT_BIO: {

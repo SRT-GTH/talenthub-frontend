@@ -12,6 +12,8 @@
  *     education:    [{ id, title, institution, period, detail, checked, data? }],
  *     skills:       [{ id, label, checked, data? }],
  *     certificates: [{ id, title, issuer, year, note, checked, data?, incomplete? }],
+ *     languages?:   [{ id, label, checked, data: { name, level } }]                       (live only, 2026-11-01)
+ *     projects?:    [{ id, title, meta, checked, data: { title, description, url, role, skills } }]   (live only)
  *     warnings?:    [string] }
  */
 
@@ -158,11 +160,15 @@ export const formatRoleMeta = (role) => {
   return [dates, role.location, role.employmentType].filter(Boolean).join(' · ');
 };
 
+const opt = (list) => (Array.isArray(list) ? list : []);
+
 export const countChecked = (result) =>
   result.roles.filter((r) => r.checked).length +
   result.education.filter((e) => e.checked).length +
   result.skills.filter((s) => s.checked).length +
-  result.certificates.filter((c) => c.checked).length;
+  result.certificates.filter((c) => c.checked).length +
+  opt(result.languages).filter((l) => l.checked).length +
+  opt(result.projects).filter((p) => p.checked).length;
 
 /* ---------------------------------------------------------------- live (signed-in) helpers ---------------------- */
 
@@ -234,7 +240,11 @@ export const educationRow = (id, d, checked = true) => {
   };
 };
 
-/* A certificate needs a name, an issuer and an issue date to be saved (all three are required by the profile). */
+/*
+ * A certificate needs a name, an issuer and an issue date to be saved (all three are required by the profile).
+ * issueDateYearOnly (2026-11-01): the CV only gave the year, so it shows "2024" and is saved with that flag instead of
+ * pretending it was January.
+ */
 export const certRow = (id, d, checked) => {
   const incomplete = !d.name || !d.issuingOrganization || !d.issueDate;
   const missing = [!d.issuingOrganization && 'issuer', !d.issueDate && 'issue date'].filter(
@@ -244,13 +254,28 @@ export const certRow = (id, d, checked) => {
     id,
     title: d.name || 'Certificate',
     issuer: d.issuingOrganization || '',
-    year: monthLabel(d.issueDate),
+    year: d.issueDateYearOnly && d.issueDate ? d.issueDate.slice(0, 4) : monthLabel(d.issueDate),
     note: incomplete ? `no ${missing.join(' or ') || 'name'} found: add it to save this` : '',
     checked: checked ?? true,
     incomplete,
     data: d,
   };
 };
+
+/* Profile skill / language levels; anything else means "not stated in the CV". */
+export const LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+const levelOrNull = (v) => (LEVELS.includes(v) ? v : null);
+
+/* A CV project's review row: role and the first few skills as its meta line. */
+export const projectRow = (id, d, checked = true) => ({
+  id,
+  title: d.title || 'Project',
+  meta:
+    [d.role, d.skills.slice(0, 3).join(', '), d.url ? 'link' : ''].filter(Boolean).join(' · ') ||
+    'Goes to Portfolio',
+  checked,
+  data: d,
+});
 
 /* POST /profiles/cv/extract data -> review result (live). Every item starts ticked. */
 export const resultFromExtraction = (data, file) => ({
@@ -281,33 +306,76 @@ export const resultFromExtraction = (data, file) => ({
       id: `cv-skill-${i}`,
       label: str(s.name),
       checked: true,
-      data: { name: str(s.name), kind: s.kind === 'soft' ? 'soft' : 'technical' },
+      data: {
+        name: str(s.name),
+        kind: s.kind === 'soft' ? 'soft' : 'technical',
+        level: levelOrNull(s.level),
+      },
     })),
-  certificates: (data.certifications || []).map((c, i) =>
-    certRow(`cv-cert-${i}`, {
+  languages: (data.languages || [])
+    .filter((l) => str(l?.name))
+    .map((l, i) => ({
+      id: `cv-lang-${i}`,
+      label: str(l.name),
+      checked: true,
+      data: { name: str(l.name), level: levelOrNull(l.level) },
+    })),
+  projects: (data.projects || [])
+    .filter((p) => str(p?.title))
+    .map((p, i) =>
+      projectRow(`cv-project-${i}`, {
+        title: str(p.title),
+        description: str(p.description),
+        url: str(p.url),
+        role: str(p.role),
+        skills: (Array.isArray(p.skills) ? p.skills : []).map(str).filter(Boolean),
+      })
+    ),
+  certificates: (data.certifications || []).map((c, i) => {
+    const issueDate = parseMonth(c?.issueDate);
+    return certRow(`cv-cert-${i}`, {
       name: str(c?.name),
       issuingOrganization: str(c?.issuingOrganization),
-      issueDate: parseMonth(c?.issueDate),
-    })
-  ),
+      issueDate,
+      issueDateYearOnly: Boolean(issueDate && c?.issueDateYearOnly),
+    });
+  }),
   warnings: data.warnings || [],
 });
 
 export const isEmptyResult = (r) =>
-  !r.roles.length && !r.education.length && !r.skills.length && !r.certificates.length;
+  !r.roles.length &&
+  !r.education.length &&
+  !r.skills.length &&
+  !r.certificates.length &&
+  !opt(r.languages).length &&
+  !opt(r.projects).length;
 
 /* Ticked items that can be saved (certificates missing an issuer or date are left out). */
 export const countAddable = (result) =>
   result.roles.filter((r) => r.checked).length +
   result.education.filter((e) => e.checked).length +
   result.skills.filter((s) => s.checked).length +
-  result.certificates.filter((c) => c.checked && !c.incomplete).length;
+  result.certificates.filter((c) => c.checked && !c.incomplete).length +
+  opt(result.languages).filter((l) => l.checked).length +
+  opt(result.projects).filter((p) => p.checked).length;
 
 const norm = (v) =>
   String(v ?? '')
     .trim()
     .toLowerCase()
     .replace(/\s+/g, ' ');
+/*
+ * An organisation's core name for dedupe (2026-11-01): "Prempeh College, Kumasi" and "Prempeh College" were added as two
+ * schools. Drops a trailing ", <place>", bracketed acronyms ("(KNUST)") and punctuation.
+ */
+const orgKey = (v) =>
+  norm(v)
+    .replace(/\([^)]*\)/g, ' ')
+    .split(',')[0]
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 const toDate = (ym) => (ym ? `${ym}-01` : null);
 /* An item already on the profile, written back as it came (keeps `_id` and fields this screen never shows). */
 const keep = (item) => {
@@ -327,7 +395,16 @@ const arr = (v) => (Array.isArray(v) ? v : []);
  */
 export const mergeCvIntoProfile = (profile, result) => {
   const fields = {};
-  const added = { roles: 0, education: 0, skills: 0, technical: 0, soft: 0, certs: 0 };
+  const added = {
+    roles: 0,
+    education: 0,
+    skills: 0,
+    technical: 0,
+    soft: 0,
+    certs: 0,
+    languages: 0,
+    projects: 0,
+  };
   let duplicates = 0;
 
   const appendInto = (field, existing, items, keyOf, build, counter) => {
@@ -352,7 +429,7 @@ export const mergeCvIntoProfile = (profile, result) => {
     'workExperience',
     arr(profile?.workExperience),
     roles.map((r) => r.data),
-    (x) => `${norm(x.company)}|${norm(x.position)}`,
+    (x) => `${orgKey(x.company)}|${norm(x.position)}`,
     (d) => ({
       company: d.company,
       position: d.position,
@@ -370,7 +447,7 @@ export const mergeCvIntoProfile = (profile, result) => {
     'education',
     arr(profile?.education),
     education.map((e) => e.data),
-    (x) => `${norm(x.institution)}|${norm(x.degree)}`,
+    (x) => `${orgKey(x.institution)}|${norm(x.degree)}`,
     (d) => ({
       institution: d.institution,
       degree: d.degree,
@@ -395,7 +472,9 @@ export const mergeCvIntoProfile = (profile, result) => {
         return;
       }
       seenSkills.add(k);
-      newSkills[s.data.kind].push({ name: s.data.name, proficiency: 'Intermediate' });
+      // 2026-11-01: every skill was saved as Intermediate. The level is the CV's own (null when it gives none; an
+      // explicit null, so the profile's "Intermediate" default doesn't fill it in). The talent sets it in Skills.
+      newSkills[s.data.kind].push({ name: s.data.name, proficiency: s.data.level || null });
     });
   if (newSkills.technical.length)
     fields.technicalSkills = [...technical.map(keep), ...newSkills.technical];
@@ -415,8 +494,39 @@ export const mergeCvIntoProfile = (profile, result) => {
       name: d.name,
       issuingOrganization: d.issuingOrganization,
       issueDate: toDate(d.issueDate),
+      ...(d.issueDateYearOnly ? { issueDateYearOnly: true } : {}),
     }),
     'certs'
+  );
+
+  // Languages (2026-11-01: they were read as skills, or not at all).
+  appendInto(
+    'languages',
+    arr(profile?.languages),
+    opt(result.languages)
+      .filter((l) => l.checked)
+      .map((l) => l.data),
+    (x) => norm(x.name),
+    (d) => ({ name: d.name, proficiency: d.level || null }),
+    'languages'
+  );
+
+  // Projects -> Portfolio (2026-11-01: CV projects were not read).
+  appendInto(
+    'portfolio',
+    arr(profile?.portfolio),
+    opt(result.projects)
+      .filter((p) => p.checked)
+      .map((p) => p.data),
+    (x) => norm(x.title),
+    (d) => ({
+      title: d.title,
+      description: d.description || '',
+      ...(d.url ? { url: d.url } : {}),
+      ...(d.role ? { role: d.role } : {}),
+      skillsUsed: [...d.skills],
+    }),
+    'projects'
   );
 
   return { fields, added, duplicates, leftOut };
