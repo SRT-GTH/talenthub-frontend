@@ -27,6 +27,7 @@ import { PREVIEW_HERO } from './talentProfilePreviewData.js';
 import { ProfileChip, StreakMark, Tag } from './ProfileTabsUi.jsx';
 import { SHELF } from './profileTabsStyles.js';
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
+import FallbackImage from '../../shared/FallbackImage.jsx';
 
 const log = debug('ProfileHeader');
 
@@ -96,16 +97,14 @@ const Avatar = ({ editable = true, onPick, busy = false }) => (
   >
     <span className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
       <span className="relative block size-[89.4%] overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
-        {PROFILE_HERO.photo ? (
-          // Live profile photo (2026-10-18); the illustration stays for the demo / no photo.
-          <img
-            src={PROFILE_HERO.photo}
-            alt=""
-            className="absolute inset-0 size-full object-cover"
-          />
-        ) : (
-          <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
-        )}
+        {/* Live profile photo (2026-10-18); the illustration stays for the demo / no photo / a photo that won't load. */}
+        <FallbackImage
+          src={PROFILE_HERO.photo}
+          className="absolute inset-0 size-full object-cover"
+          fallback={
+            <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.65%] block h-auto w-[111.3%] max-w-none" />
+          }
+        />
       </span>
     </span>
     {editable ? (

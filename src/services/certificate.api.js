@@ -72,8 +72,9 @@ export const extractCertificate = async (file) => {
 };
 
 const MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-/* { value: 'YYYY-MM' } -> 'MM / YYYY' (the form's format); year-only dates are left for the talent to complete. */
+/* { value: 'YYYY-MM', yearOnly } -> 'MM / YYYY' (the form's format), or 'YYYY' when the file only gives the year. */
 export const toFormMonth = (d) => {
   const m = /^(\d{4})-(\d{2})$/.exec(d?.value || '');
-  return m && MONTHS.includes(m[2]) ? `${m[2]} / ${m[1]}` : '';
+  if (!m || !MONTHS.includes(m[2])) return '';
+  return d.yearOnly ? m[1] : `${m[2]} / ${m[1]}`;
 };

@@ -18,6 +18,7 @@ import { LINK_ICONS, SHELF, TITLE_SM, coverBg } from './profileTabsStyles.js';
 import ImageDescriptionsCheck, { AltChip } from './ProfileImageDescriptions.jsx';
 import { useImageDescriptions } from './ProfileImageDescriptionsData.js';
 import ProfileAltTextModal from './ProfileAltTextModal.jsx';
+import FallbackImage from '../../shared/FallbackImage.jsx';
 
 const log = debug('ProfilePortfolioTab');
 
@@ -76,11 +77,11 @@ const ProjectCard = ({ project, alt }) => (
       className="relative h-[190px] w-full shrink-0 overflow-hidden"
       style={{ background: coverBg(project.cover) }}
     >
-      {project.coverUrl ? (
-        <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />
-      ) : (
-        <ProjectCoverArt kind={project.cover} fixed />
-      )}
+      <FallbackImage
+        src={project.coverUrl}
+        className="absolute inset-0 size-full object-cover"
+        fallback={<ProjectCoverArt kind={project.cover} fixed />}
+      />
       {alt ? (
         <AltChip described={alt.described} title={project.title} onClick={alt.onOpen} />
       ) : null}

@@ -20,7 +20,7 @@ import {
   CertsUploadIcon,
 } from './certsIcons.jsx';
 import { COMPLETE_STATS, CONFETTI, STATUS_LABEL, TYPE_OPTIONS } from './certsData.js';
-import { parseMonthYear } from './certsData.js';
+import { parseIssueDate, parseMonthYear } from './certsData.js';
 import {
   certFileProblem,
   extractCertificate,
@@ -214,7 +214,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
       issuer: x.issuingOrganization || '',
       credentialId: x.credentialId || '',
       issueDate: toFormMonth(x.issueDate),
-      expiryDate: toFormMonth(x.expiryDate),
+      expiryDate: x.expiryDate?.yearOnly ? '' : toFormMonth(x.expiryDate),
       link: x.credentialUrl || '',
       skills: Array.isArray(x.skills) ? x.skills.join(', ') : '',
     };
@@ -249,7 +249,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
     }
     setUpload({ ...base, status: 'done', url: stored.value, filled, note });
   };
-  const issue = parseMonthYear(form.issueDate);
+  const issue = parseIssueDate(form.issueDate);
   /* Typed but unparseable: the save button stays disabled and this says why (an issue date is never invented). */
   const issueBad = Boolean(form.issueDate.trim()) && !issue;
   const expiryOk =
@@ -496,7 +496,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
             id={f('issue')}
             value={form.issueDate}
             onChange={set('issueDate')}
-            placeholder="MM / YYYY"
+            placeholder="MM / YYYY, or just YYYY"
             inputMode="numeric"
             aria-invalid={issueBad || undefined}
             aria-describedby={issueBad ? f('issue-err') : undefined}
@@ -512,7 +512,7 @@ export const CertFormDialog = ({ mode, cert, onClose, onSave, onDelete, live = f
               role="alert"
               className="font-sans text-[13px] leading-[16px] text-[#902b20]"
             >
-              Use month / year, e.g. 03 / 2024.
+              Use month / year, e.g. 03 / 2024, or just the year.
             </span>
           ) : null}
         </Field>

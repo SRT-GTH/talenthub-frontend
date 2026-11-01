@@ -255,6 +255,8 @@ const LiveUploadCv = () => {
       education: merged.added.education,
       skills: merged.added.skills,
       certs: merged.added.certs,
+      languages: merged.added.languages,
+      projects: merged.added.projects,
       certsLeftOut: merged.leftOut,
       duplicates: merged.duplicates,
     });

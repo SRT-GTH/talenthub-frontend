@@ -39,6 +39,7 @@ import { BADGE_ICONS, CARD_PLAIN, GLYPHS, SHELF, TITLE_SM, coverBg } from './pro
 import { DISPLAY } from '../talentHome/TabsParts.jsx';
 import { ProfileAxVolumeIcon } from './AxAnnotationIcons.jsx';
 import { AX_RAIL_LABEL, AX_READING_NOW } from './ProfileAxData.js';
+import FallbackImage from '../../shared/FallbackImage.jsx';
 
 const log = debug('ProfileOverviewTab');
 
@@ -218,11 +219,11 @@ const ProjectTile = ({ item }) => (
       className="relative w-full overflow-hidden rounded-[14px] border border-[rgba(28,42,33,0.1)]"
       style={{ background: coverBg(item.cover) }}
     >
-      {item.coverUrl ? (
-        <img src={item.coverUrl} alt="" className="block aspect-[264/150] w-full object-cover" />
-      ) : (
-        <ProjectCoverArt kind={item.cover} />
-      )}
+      <FallbackImage
+        src={item.coverUrl}
+        className="block aspect-[264/150] w-full object-cover"
+        fallback={<ProjectCoverArt kind={item.cover} />}
+      />
       <Tag
         tone="white"
         className="absolute top-[11px] left-[11px] playful:bg-white playful:rotate-3"

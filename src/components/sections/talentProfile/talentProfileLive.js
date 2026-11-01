@@ -247,7 +247,11 @@ export const buildProfileData = (raw) => {
     issuer: c.issuingOrganization || '',
     meta: [
       [
-        monthYear(c.issueDate) ? `Issued ${monthYear(c.issueDate)}` : null,
+        c.issueDateYearOnly && c.issueDate
+          ? `Issued ${new Date(c.issueDate).getUTCFullYear()}`
+          : monthYear(c.issueDate)
+            ? `Issued ${monthYear(c.issueDate)}`
+            : null,
         c.expirationDate ? `Expires ${monthYear(c.expirationDate)}` : 'No expiry',
       ]
         .filter(Boolean)
@@ -583,8 +587,15 @@ export const buildProfileData = (raw) => {
               ? `“${String(p.videoPitch.transcript).slice(0, 60)}…”`
               : '',
             chip: '',
-            stats: [],
+            // 2026-11-01: the real pitch (profiles/me adds videoPitch from the engagement): length + when it was published.
+            stats: [
+              p.videoPitch.duration ? `${Math.round(p.videoPitch.duration)} sec` : null,
+              monthYear(p.videoPitch.submittedAt)
+                ? `Published ${monthYear(p.videoPitch.submittedAt)}`
+                : null,
+            ].filter(Boolean),
             videoUrl: p.videoPitch.videoUrl || p.videoPitch.url,
+            posterUrl: p.videoPitch.thumbnailUrl || null,
           }
         : null,
     ABOUT_BIO: {
