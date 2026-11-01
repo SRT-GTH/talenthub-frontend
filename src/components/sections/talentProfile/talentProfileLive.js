@@ -219,6 +219,8 @@ export const buildProfileData = (raw) => {
   const projects = list(p.portfolio).map((x, i) => ({
     key: keyOf(x.title, i),
     cover: ['bars', 'line', 'dots'][i % 3],
+    coverUrl:
+      typeof x.coverImage === 'string' && /^https:\/\//.test(x.coverImage) ? x.coverImage : null,
     category: 'all',
     tag: x.url ? 'Link ↗' : 'Project',
     title: x.title || 'Project',
@@ -469,9 +471,14 @@ export const buildProfileData = (raw) => {
       title: 'Portfolio',
       link: projects.length ? `See all ${projects.length} →` : '',
       empty: 'No projects yet. If you made it, it counts.',
-      items: projects
-        .slice(0, 3)
-        .map((x) => ({ key: x.key, cover: x.cover, tag: x.tag, title: x.title, meta: x.meta })),
+      items: projects.slice(0, 3).map((x) => ({
+        key: x.key,
+        cover: x.cover,
+        coverUrl: x.coverUrl,
+        tag: x.tag,
+        title: x.title,
+        meta: x.meta,
+      })),
     },
     PROFILE_STRENGTH: {
       title: 'Profile strength',

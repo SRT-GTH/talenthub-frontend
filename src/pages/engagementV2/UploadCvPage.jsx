@@ -36,6 +36,7 @@ import {
 import { useCvState } from '../../components/sections/engagementV2/cv/cvState.js';
 import JourneyHub from '../../components/sections/engagementV2/journey/JourneyHub.jsx';
 import { CV_ERROR, checkCvFile, cvFileType, extractCv } from '../../services/cv.api.js';
+import { peekHandedOffCv, takeHandedOffCv } from '../../services/cvHandoff.js';
 import {
   fetchMyProfile,
   isLiveProfile,
@@ -177,6 +178,21 @@ const LiveUploadCv = () => {
         if (request.current.id === id) request.current.controller = null;
       });
   };
+
+  // A CV dropped in Career Buddy's chat (cvHandoff.js) goes straight into the reader.
+  // Started on the next tick so React's dev double-mount (StrictMode) doesn't start and abort it, then lose the file.
+  useEffect(() => {
+    if (!peekHandedOffCv()) return undefined;
+    const t = setTimeout(() => {
+      const handed = takeHandedOffCv();
+      if (handed) {
+        log('cv handed over from Career Buddy', { bytes: handed.size });
+        onFiles([handed]);
+      }
+    }, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onFiles = (files) => {
     const file = Array.from(files ?? [])[0];

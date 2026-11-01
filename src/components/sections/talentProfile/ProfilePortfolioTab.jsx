@@ -76,7 +76,11 @@ const ProjectCard = ({ project, alt }) => (
       className="relative h-[190px] w-full shrink-0 overflow-hidden"
       style={{ background: coverBg(project.cover) }}
     >
-      <ProjectCoverArt kind={project.cover} fixed />
+      {project.coverUrl ? (
+        <img src={project.coverUrl} alt="" className="absolute inset-0 size-full object-cover" />
+      ) : (
+        <ProjectCoverArt kind={project.cover} fixed />
+      )}
       {alt ? (
         <AltChip described={alt.described} title={project.title} onClick={alt.onOpen} />
       ) : null}
