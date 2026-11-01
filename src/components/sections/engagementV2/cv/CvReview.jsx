@@ -40,14 +40,16 @@ const ItemRow = ({ checked, onToggle, title, meta, muted = false, pill, onEdit, 
       </p>
     </div>
     {pill}
-    <button
-      type="button"
-      aria-label={editLabel}
-      onClick={onEdit}
-      className="inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-    >
-      <CvEditIcon size={18} />
-    </button>
+    {onEdit ? (
+      <button
+        type="button"
+        aria-label={editLabel}
+        onClick={onEdit}
+        className="inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+      >
+        <CvEditIcon size={18} />
+      </button>
+    ) : null}
   </div>
 );
 
@@ -86,11 +88,15 @@ export const CvReviewDialog = ({
   onClose,
 }) => {
   const count = live ? countAddable(result) : countChecked(result);
+  const languages = result.languages || [];
+  const projects = result.projects || [];
   const found =
     result.roles.length +
     result.education.length +
     result.skills.length +
-    result.certificates.length;
+    result.certificates.length +
+    languages.length +
+    projects.length;
   const edit = (group, what) => () =>
     live && onEditItem ? onEditItem(group, what) : log('edit (not drawn)', what);
   const show = (items) => !live || items.length > 0;
@@ -102,7 +108,7 @@ export const CvReviewDialog = ({
       noteIcon={CvCheckCircleIcon}
       note={
         live
-          ? 'Ticked items go to Work, Skills, Certifications and Education'
+          ? 'Ticked items go to Work, Education, Skills, Portfolio and Certifications'
           : 'Ticked items go to Work, Skills and Certifications'
       }
       buttons={
@@ -168,6 +174,22 @@ export const CvReviewDialog = ({
               ))}
             </CvGroup>
           ) : null}
+          {live && projects.length ? (
+            <CvGroup title={`Projects · ${projects.length}`}>
+              {projects.map((p) => (
+                <ItemRow
+                  key={p.id}
+                  checked={p.checked}
+                  onToggle={() => onToggle('projects', p.id)}
+                  title={p.title}
+                  meta={p.meta}
+                />
+              ))}
+              <p className="m-0 font-sans text-[12px] leading-[14px] text-[#737373]">
+                They go to Portfolio, where you can add a cover image and more detail.
+              </p>
+            </CvGroup>
+          ) : null}
         </div>
         <div className="flex flex-col gap-[16px]">
           {show(result.skills) ? (
@@ -177,14 +199,30 @@ export const CvReviewDialog = ({
                   <Chip
                     key={s.id}
                     on={s.checked}
-                    label={s.label}
+                    label={live && s.data?.level ? `${s.label} · ${s.data.level}` : s.label}
                     onToggle={() => onToggle('skills', s.id)}
                   />
                 ))}
               </div>
               <p className="m-0 mt-[0px] pt-[0px] font-sans text-[12px] leading-[14px] text-[#737373]">
-                Tap to remove. Skills you keep can be verified in Skills Lab.
+                {live
+                  ? 'Tap to remove. A level shows only when your CV gives one; set the rest in Skills.'
+                  : 'Tap to remove. Skills you keep can be verified in Skills Lab.'}
               </p>
+            </CvGroup>
+          ) : null}
+          {live && languages.length ? (
+            <CvGroup title={`Languages · ${languages.length}`}>
+              <div className="flex flex-wrap gap-[8px]">
+                {languages.map((l) => (
+                  <Chip
+                    key={l.id}
+                    on={l.checked}
+                    label={l.data.level ? `${l.label} · ${l.data.level}` : l.label}
+                    onToggle={() => onToggle('languages', l.id)}
+                  />
+                ))}
+              </div>
             </CvGroup>
           ) : null}
           {show(result.certificates) ? (
@@ -261,11 +299,11 @@ const Field = ({
   </label>
 );
 
-const MonthHint = ({ show }) =>
+const MonthHint = ({ show, text = 'Use a month and year, like Jan 2024' }) =>
   show ? (
     <span className="flex items-center gap-[8px] px-[8px]">
       <CvWarningIcon className="shrink-0 text-[#a0700a]" />
-      <CvWarningText>Use a month and year, like Jan 2024</CvWarningText>
+      <CvWarningText>{text}</CvWarningText>
     </span>
   ) : null;
 
@@ -405,7 +443,8 @@ export const CvToast = ({ count, onUndo, xp = true }) => (
 /*
  * Live: edit an extracted education or certificate before it is added (local only; nothing is saved here).
  *   kind 'education'    data { institution, degree, fieldOfStudy, startYear, endYear }
- *   kind 'certificates' data { name, issuingOrganization, issueDate:'YYYY-MM'|null }
+ *   kind 'certificates' data { name, issuingOrganization, issueDate:'YYYY-MM'|null, issueDateYearOnly }
+ *     The date can be a month ("Jan 2024") or just the year ("2024", saved with issueDateYearOnly).
  * onSave(newData) gets the same shape back.
  */
 export const CvEditItemDialog = ({ kind, data, onSave, onCancel }) => {
@@ -422,14 +461,24 @@ export const CvEditItemDialog = ({ kind, data, onSave, onCancel }) => {
       : {
           name: data.name || '',
           issuingOrganization: data.issuingOrganization || '',
-          issueDate: data.issueDate ? monthText(data.issueDate) : '',
+          issueDate: data.issueDate
+            ? data.issueDateYearOnly
+              ? data.issueDate.slice(0, 4)
+              : monthText(data.issueDate)
+            : '',
         }
   );
+  const certDate = (text) => {
+    const month = parseMonth(text);
+    if (month) return { issueDate: month, issueDateYearOnly: false };
+    const year = parseYear(text);
+    return year ? { issueDate: `${year}-01`, issueDateYearOnly: true } : null;
+  };
   const set = (patch) => setD((prev) => ({ ...prev, ...patch }));
   const yearBad = (v) => v.trim() !== '' && !parseYear(v);
   const valid = edu
     ? d.institution.trim() && !yearBad(d.startYear) && !yearBad(d.endYear)
-    : d.name.trim() && d.issuingOrganization.trim() && parseMonth(d.issueDate);
+    : d.name.trim() && d.issuingOrganization.trim() && certDate(d.issueDate);
   const save = () => {
     log('save item', kind);
     onSave(
@@ -444,7 +493,7 @@ export const CvEditItemDialog = ({ kind, data, onSave, onCancel }) => {
         : {
             name: d.name.trim(),
             issuingOrganization: d.issuingOrganization.trim(),
-            issueDate: parseMonth(d.issueDate),
+            ...certDate(d.issueDate),
           }
     );
   };
@@ -510,9 +559,14 @@ export const CvEditItemDialog = ({ kind, data, onSave, onCancel }) => {
           <Field
             label="Issue date"
             value={d.issueDate}
-            placeholder="Jan 2024"
+            placeholder="Jan 2024, or just 2024"
             onChange={(v) => set({ issueDate: v })}
-            helper={<MonthHint show={d.issueDate.trim() !== '' && !parseMonth(d.issueDate)} />}
+            helper={
+              <MonthHint
+                show={d.issueDate.trim() !== '' && !certDate(d.issueDate)}
+                text="Use a month and year (Jan 2024), or just the year (2024)"
+              />
+            }
           />
         </>
       )}
