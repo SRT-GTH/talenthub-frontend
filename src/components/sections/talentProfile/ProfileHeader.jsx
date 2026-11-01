@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   PHOTO_TYPES,
   photoFileProblem,
+  uploadProfileBanner,
   uploadProfilePhoto,
 } from '../../../services/talentProfile.api.js';
 import { saveProfileFields } from '../../../services/profileStages.api.js';
@@ -200,6 +201,43 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
       });
     }
   };
+  // Live banner (2026-11-01): the camera button on the cover uploads an image (category profile_banner, scaled to
+  // 2400 px by the backend) and saves profile.bannerImage. Without one the cover keeps its green art.
+  const bannerRef = useRef(null);
+  const [banner, setBanner] = useState({ busy: false, error: '' });
+  const pickBanner = () => bannerRef.current?.click();
+  const onBanner = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const problem = photoFileProblem(file);
+    if (problem) {
+      setBanner({ busy: false, error: problem });
+      return;
+    }
+    setBanner({ busy: true, error: '' });
+    try {
+      const url = await uploadProfileBanner(file);
+      await saveProfileFields({ bannerImage: url });
+      log('banner saved');
+      setBanner({ busy: false, error: '' });
+      onSaved?.();
+    } catch (err) {
+      log.error('banner upload failed:', err?.response?.status || err?.message);
+      setBanner({
+        busy: false,
+        error:
+          err?.response?.status === 415
+            ? uploadErrorMessage(
+                err,
+                'That file isn’t a real image. Choose a JPG, PNG, WebP or GIF image.'
+              )
+            : 'Your banner wasn’t uploaded. Check your connection and try again.',
+      });
+    }
+  };
+  const status = photo.error || banner.error;
+  const statusBusy = photo.busy || banner.busy;
   // Preview modes (P-07 recruiter / PR-02 public / PR-04 recruiter + pitch hidden): same hero with no
   // edit affordances, different buttons + stats, and a "… see these buttons" sticker.
   const owner = mode === 'owner';
@@ -232,14 +270,48 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
       >
         {/* cover */}
         <div className="relative -mx-px -mt-px h-[clamp(112px,8.68vw,150px)] overflow-hidden bg-[#387440] playful:-mx-[1.5px] playful:-mt-[1.5px]">
-          <CoverDoodles stripes={mode === 'public' || pitchHidden} />
-          {photo.error || photo.busy ? (
+          <FallbackImage
+            src={h.banner}
+            className="absolute inset-0 size-full object-cover"
+            fallback={<CoverDoodles stripes={mode === 'public' || pitchHidden} />}
+          />
+          {status || statusBusy ? (
             <p
-              role={photo.error ? 'alert' : 'status'}
-              className="absolute bottom-[10px] left-1/2 z-10 max-w-[90%] -translate-x-1/2 rounded-full bg-white px-[14px] py-[6px] text-center text-[13px] leading-[normal] font-semibold text-[#1c2a21]"
+              role={status ? 'alert' : 'status'}
+              className="absolute bottom-[10px] left-1/2 z-20 max-w-[90%] -translate-x-1/2 rounded-full bg-white px-[14px] py-[6px] text-center text-[13px] leading-[normal] font-semibold text-[#1c2a21]"
             >
-              {photo.error || 'Uploading your photo…'}
+              {status || (banner.busy ? 'Uploading your banner…' : 'Uploading your photo…')}
             </p>
+          ) : null}
+          {owner && live ? (
+            <>
+              <button
+                type="button"
+                data-ax="banner"
+                aria-label={
+                  banner.busy ? 'Uploading banner' : h.banner ? 'Change banner' : 'Add a banner'
+                }
+                title="Wide images work best, about 1500 × 500"
+                aria-busy={banner.busy || undefined}
+                disabled={banner.busy}
+                onClick={pickBanner}
+                className={classNames(
+                  'absolute top-[10px] right-[10px] z-10 flex size-[34px] cursor-pointer items-center justify-center rounded-full border border-[rgba(28,42,33,0.12)] bg-white/90 disabled:cursor-wait playful:border-[1.5px] playful:border-[#1c2a21]',
+                  FOCUS
+                )}
+              >
+                <ProfileCameraIcon className="size-[15px]" />
+              </button>
+              <input
+                ref={bannerRef}
+                type="file"
+                accept={PHOTO_TYPES.join(',')}
+                className="hidden"
+                aria-hidden="true"
+                tabIndex={-1}
+                onChange={onBanner}
+              />
+            </>
           ) : null}
           <Tag
             size={13}
