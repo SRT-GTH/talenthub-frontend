@@ -794,7 +794,13 @@ const ChatThread = ({
           chrome. */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5"
+        className={classNames(
+          'flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5',
+          // 2026-11-01 (live screenshots): scrolled messages ran under the floating History / New Chat /
+          // Settings pills and stayed readable behind them. Fade the top strip so text slips away under them.
+          (onNewChat || onOpenHistory || onOpenVoiceSettings) &&
+            'lg:[mask-image:linear-gradient(to_bottom,transparent_0,transparent_38px,black_72px)] lg:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0,transparent_38px,black_72px)]'
+        )}
       >
         <div
           className={`flex flex-col gap-[16px] max-lg:gap-3 ${emptyState ? 'my-auto' : alignTop ? '' : 'mt-auto'} ${
