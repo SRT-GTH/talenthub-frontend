@@ -83,13 +83,14 @@ export const photoFileProblem = (file) => {
   return null;
 };
 
-export const uploadProfilePhoto = async (file) => {
+/* Profile photo and banner (2026-11-01) go up the same way; the category picks the folder and the size cap. */
+const uploadProfileImage = async (file, category) => {
   const form = new FormData();
   form.append('type', 'image');
   form.append('entityType', 'talent');
-  form.append('category', 'profile_photo');
-  form.append('file', file, file.name || 'profile-photo.jpg');
-  log('photo upload', { bytes: file.size, type: file.type });
+  form.append('category', category);
+  form.append('file', file, file.name || `${category}.jpg`);
+  log('image upload', { category, bytes: file.size, type: file.type });
   const res = await api.post('/media/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 2 * 60 * 1000,
@@ -101,3 +102,8 @@ export const uploadProfilePhoto = async (file) => {
   if (!uploaded?.url) throw new Error('Upload response has no file url');
   return uploaded.url;
 };
+
+export const uploadProfilePhoto = (file) => uploadProfileImage(file, 'profile_photo');
+
+/* The banner across the top of the profile; the caller saves the url as profile.bannerImage. */
+export const uploadProfileBanner = (file) => uploadProfileImage(file, 'profile_banner');

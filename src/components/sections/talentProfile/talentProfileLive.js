@@ -382,6 +382,7 @@ export const buildProfileData = (raw) => {
     PROFILE_HERO: {
       name,
       photo: p.profilePhoto || p.avatar?.url || null,
+      banner: p.bannerImage || null,
       openToWork: student ? 'Student' : 'Open to work',
       verified: '',
       level: j
