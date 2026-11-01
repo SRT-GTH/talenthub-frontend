@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -221,6 +222,7 @@ const InterestsCard = ({ onEdit }) => (
   </ProfileCard>
 );
 
+/* 2026-11-01: a row the talent hasn't filled shows its "Add ..." prompt, which opens the editor (live). */
 const WorkStyleCard = ({ onEdit }) => (
   <ProfileCard title={ABOUT_WORK_STYLE.title} onEdit={onEdit} editLabel="Edit work style">
     <dl className="flex flex-col gap-[16px]">
@@ -230,7 +232,17 @@ const WorkStyleCard = ({ onEdit }) => (
             {r.label}
           </dt>
           <dd className="min-w-0 flex-1 text-[14px] leading-[1.5] font-medium text-[#1c2a21]">
-            {r.value}
+            {r.value ? (
+              r.value
+            ) : (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="cursor-pointer border-0 bg-transparent p-0 text-left text-[14px] leading-[1.5] font-semibold text-[#387440] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {r.prompt}
+              </button>
+            )}
           </dd>
         </div>
       ))}
@@ -245,6 +257,8 @@ const WorkStyleCard = ({ onEdit }) => (
  */
 const ProfileAboutTab = ({ profile }) => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const live = isLoggedIn() && params.get('demo') !== '1';
   useEffect(() => {
     log('mount', { tab: profile?.tab });
   }, [profile?.tab]);
@@ -261,6 +275,12 @@ const ProfileAboutTab = ({ profile }) => {
     'work style': '/profile/filling/personality',
   };
   const edit = (what) => () => {
+    // 2026-11-01: Work style has its own editor now (it opened the personality quiz).
+    if (what === 'work style' && live) {
+      log('edit work style -> modal');
+      profile?.update?.({ modal: 'workstyle' });
+      return;
+    }
     log('edit', what, '->', EDIT_ROUTE[what]);
     navigate(EDIT_ROUTE[what]);
   };
