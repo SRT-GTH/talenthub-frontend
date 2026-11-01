@@ -308,6 +308,17 @@ const norm = (v) =>
     .trim()
     .toLowerCase()
     .replace(/\s+/g, ' ');
+/*
+ * An organisation's core name for dedupe (2026-11-01): "Prempeh College, Kumasi" and "Prempeh College" were added as two
+ * schools. Drops a trailing ", <place>", bracketed acronyms ("(KNUST)") and punctuation.
+ */
+const orgKey = (v) =>
+  norm(v)
+    .replace(/\([^)]*\)/g, ' ')
+    .split(',')[0]
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 const toDate = (ym) => (ym ? `${ym}-01` : null);
 /* An item already on the profile, written back as it came (keeps `_id` and fields this screen never shows). */
 const keep = (item) => {
@@ -352,7 +363,7 @@ export const mergeCvIntoProfile = (profile, result) => {
     'workExperience',
     arr(profile?.workExperience),
     roles.map((r) => r.data),
-    (x) => `${norm(x.company)}|${norm(x.position)}`,
+    (x) => `${orgKey(x.company)}|${norm(x.position)}`,
     (d) => ({
       company: d.company,
       position: d.position,
@@ -370,7 +381,7 @@ export const mergeCvIntoProfile = (profile, result) => {
     'education',
     arr(profile?.education),
     education.map((e) => e.data),
-    (x) => `${norm(x.institution)}|${norm(x.degree)}`,
+    (x) => `${orgKey(x.institution)}|${norm(x.degree)}`,
     (d) => ({
       institution: d.institution,
       degree: d.degree,

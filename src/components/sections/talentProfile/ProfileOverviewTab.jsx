@@ -218,7 +218,11 @@ const ProjectTile = ({ item }) => (
       className="relative w-full overflow-hidden rounded-[14px] border border-[rgba(28,42,33,0.1)]"
       style={{ background: coverBg(item.cover) }}
     >
-      <ProjectCoverArt kind={item.cover} />
+      {item.coverUrl ? (
+        <img src={item.coverUrl} alt="" className="block aspect-[264/150] w-full object-cover" />
+      ) : (
+        <ProjectCoverArt kind={item.cover} />
+      )}
       <Tag
         tone="white"
         className="absolute top-[11px] left-[11px] playful:bg-white playful:rotate-3"

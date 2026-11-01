@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { uploadErrorMessage, uploadTalentFile } from '../../../../services/media.api.js';
 import { useUiStyle } from '../../../../hooks/useUiStyle.js';
 import { MilestoneTrophyIcon } from '../../../shared/assets.jsx';
 import Button from '../../../ui/Button.jsx';
@@ -208,14 +209,50 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live =
     [form.cover?.previewUrl]
   );
 
-  const pickFile = (e) => {
+  /*
+   * 2026-11-01: the cover was only a local preview (blob URL) - it was never uploaded, so a saved project had no
+   * image. Signed in, it is now stored (POST /media/upload, category portfolio) and saved as coverImage.
+   */
+  const pickFile = async (e) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
     log('cover picked', { name: file.name, size: file.size, type: file.type });
-    set({
-      cover: { name: file.name, size: fileSize(file.size), previewUrl: URL.createObjectURL(file) },
-    });
-    e.target.value = '';
+    const base = {
+      name: file.name,
+      size: fileSize(file.size),
+      previewUrl: URL.createObjectURL(file),
+    };
+    if (!live) {
+      set({ cover: base });
+      return;
+    }
+    if (
+      !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
+      file.size > 5 * 1024 * 1024
+    ) {
+      set({
+        cover: { ...base, status: 'error', note: 'Choose a PNG, JPG or WebP image up to 5 MB.' },
+      });
+      return;
+    }
+    set({ cover: { ...base, status: 'uploading', note: 'Uploading…' } });
+    try {
+      const url = await uploadTalentFile(file, { type: 'image', category: 'portfolio' });
+      set({ cover: { ...base, status: 'done', url } });
+    } catch (err) {
+      log.error('cover upload failed', err?.message);
+      set({
+        cover: {
+          ...base,
+          status: 'error',
+          note: uploadErrorMessage(
+            err,
+            'We couldn’t upload this image. Try again, or save without a cover.'
+          ),
+        },
+      });
+    }
   };
 
   const submit = (e) => {
@@ -228,6 +265,7 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live =
     };
     const first = Object.keys(errs).find((k) => errs[k]);
     log('submit', { mode, errs });
+    if (form.cover?.status === 'uploading') return; // wait for the cover to finish uploading
     if (first) {
       setInvalid(errs);
       refs.current[first]?.focus();
@@ -251,7 +289,13 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live =
       tags: project?.tags ?? [],
       links,
       pinned: form.pin,
-      cover: form.cover,
+      // A cover that failed to upload is not kept (it would vanish on reload).
+      cover:
+        live && form.cover && !form.cover.url
+          ? project?.cover?.url
+            ? project.cover
+            : null
+          : form.cover,
       icon: project?.icon ?? 'image',
     });
   };
@@ -317,10 +361,18 @@ export const ProjectDialog = ({ mode, project, onClose, onSave, onDelete, live =
             )}
             <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
               <span className="font-sans text-[15px] leading-[18px] font-semibold break-all text-[#1c2a21]">
-                {form.cover.name} · {form.cover.size}
+                {form.cover.name}
+                {form.cover.size ? ` · ${form.cover.size}` : ''}
               </span>
-              <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
-                Shown on your card and in recruiter search
+              <span
+                role="status"
+                className={
+                  form.cover.status === 'error'
+                    ? 'font-sans text-[13px] leading-[16px] text-[#a8382b]'
+                    : 'font-sans text-[13px] leading-[16px] text-[#595959]'
+                }
+              >
+                {form.cover.note || 'Shown on your card and in recruiter search'}
               </span>
             </span>
             <Button

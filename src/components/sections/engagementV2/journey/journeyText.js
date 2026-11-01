@@ -9,7 +9,9 @@ export const nodeSub = (node, model) => {
   if (node.status === 'current') {
     return model.progress
       ? `In progress · ~${model.progress.minutesLeft} min left`
-      : `Up next · ~${node.copy.eta} min`;
+      : node.copy?.eta
+        ? `Up next · ~${node.copy.eta} min`
+        : 'Up next'; // Avatar has no eta (live: "Up next · ~undefined min")
   }
   return node.copy?.eta ? `Stage ${node.stage.n} · ~${node.copy.eta} min` : `Stage ${node.stage.n}`;
 };

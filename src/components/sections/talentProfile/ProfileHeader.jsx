@@ -5,6 +5,7 @@ import {
   uploadProfilePhoto,
 } from '../../../services/talentProfile.api.js';
 import { saveProfileFields } from '../../../services/profileStages.api.js';
+import { uploadErrorMessage } from '../../../services/media.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -189,7 +190,14 @@ const ProfileHeader = ({ profile, mode = 'owner', live = false, onSaved }) => {
       log.error('photo upload failed:', err?.response?.status || err?.message);
       setPhoto({
         busy: false,
-        error: 'Your photo wasn’t uploaded. Check your connection and try again.',
+        // The server says why when it refuses a file ("This file doesn't look like an image...").
+        error:
+          err?.response?.status === 415
+            ? uploadErrorMessage(
+                err,
+                'That file isn’t a real image. Choose a JPG, PNG, WebP or GIF photo.'
+              )
+            : 'Your photo wasn’t uploaded. Check your connection and try again.',
       });
     }
   };

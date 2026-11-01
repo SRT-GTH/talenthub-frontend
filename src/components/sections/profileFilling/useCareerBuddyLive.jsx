@@ -28,6 +28,8 @@ import {
   PanelMicrophoneIcon,
 } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { cvFileType } from '../../../services/cv.api.js';
+import { handOffCv } from '../../../services/cvHandoff.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import {
   sendTurn,
@@ -767,16 +769,28 @@ export function useCareerBuddyLive({
   };
 
   // ---- attach ----
+  // 2026-11-01: the reply said "I've kept <file> with this conversation. I can't read files yet" - nothing was sent
+  // anywhere. A CV (PDF / .docx) now goes to the CV reader and its review; other files get an honest answer.
+  // ChatThread passes { name, size, sizeLabel, file } - `file` is the real File.
   const handleAttach = (file) => {
+    const isCv = Boolean(cvFileType(file));
     patchThread((t) => ({
       messages: [
         ...t.messages,
         fileBubble(file),
         localBotBubble(
-          `Thanks - I've kept ${file.name} with this conversation. I can't read files yet, so tell me the key details (for example your school, a job or a certificate) and I'll add them to your profile.`
+          isCv
+            ? `Got ${file.name}. I'm reading it now and I'll show you what I found - nothing goes on your profile until you check it.`
+            : /\.(jpe?g|png)$/i.test(file.name || '')
+              ? `I can't read photos yet. If ${file.name} is a certificate, add it in Certifications - the file is stored with it there. For your CV, send a PDF or Word (.docx) file.`
+              : `I can read CVs as PDF or Word (.docx) files. ${file.name} isn't one of those, so tell me the key details (for example your school, a job or a certificate) and I'll add them.`
         ),
       ],
     }));
+    if (isCv && file.file instanceof Blob) {
+      handOffCv(file.file);
+      navigate('/profile/filling/cv');
+    }
   };
   const handleAttachRejected = (name) =>
     showToast('error', 'File too large', `${name} is over 10 MB.`);

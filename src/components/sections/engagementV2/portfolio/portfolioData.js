@@ -128,10 +128,21 @@ export const hostLabel = (url) => {
 /*
  * profile.portfolio item <-> UI project. Schema: { title, description, url, skillsUsed[], startDate, endDate } (+ _id).
  *   title / description <-> title / description;  tags <-> skillsUsed;  first link <-> url;  year <-> startDate (Jan 1).
- * Type, role, the second link and the cover have no schema slot and are not stored. Pinned is list order: the first
+ * Type and the second link have no schema slot and are not stored; the cover (coverImage url) and role are (2026-11-01). Pinned is list order: the first
  * project is the pinned one. Writing spreads the original item's schema keys (keeps _id, endDate, ...).
  */
-const PORTFOLIO_KEYS = ['_id', 'title', 'description', 'url', 'skillsUsed', 'startDate', 'endDate'];
+// 2026-11-01: coverImage (the uploaded cover's url) and role are stored too - they were dropped before.
+const PORTFOLIO_KEYS = [
+  '_id',
+  'title',
+  'description',
+  'url',
+  'skillsUsed',
+  'startDate',
+  'endDate',
+  'coverImage',
+  'role',
+];
 
 const yearOf = (date) => {
   if (!date) return '';
@@ -144,12 +155,14 @@ export const projectFromProfile = (item, index) => ({
   title: item?.title || '',
   type: '',
   year: yearOf(item?.startDate),
-  role: '',
+  role: item?.role || '',
   description: item?.description || '',
   tags: Array.isArray(item?.skillsUsed) ? [...item.skillsUsed] : [],
   links: item?.url ? [{ label: hostLabel(item.url), url: item.url }] : [],
   pinned: index === 0,
-  cover: null,
+  cover: item?.coverImage
+    ? { name: 'Cover image', size: '', previewUrl: item.coverImage, url: item.coverImage }
+    : null,
   icon: 'image',
   raw: item,
 });
@@ -166,6 +179,11 @@ export const projectToProfile = (project) => {
   const url = project.links?.find((l) => l.url)?.url;
   if (url) out.url = url;
   else delete out.url;
+  if (project.cover?.url) out.coverImage = project.cover.url;
+  else delete out.coverImage;
+  const role = (project.role || '').trim();
+  if (role) out.role = role;
+  else delete out.role;
   const year = /^\d{4}$/.test(project.year || '') ? project.year : '';
   if (!year) delete out.startDate;
   else if (yearOf(raw.startDate) !== year) out.startDate = `${year}-01-01`;

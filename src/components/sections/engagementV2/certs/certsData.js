@@ -176,7 +176,7 @@ export const buildCert = (form, prev) => {
     dateLabel,
     linkLabel: form.link.trim() ? (prev?.linkLabel ?? 'Credential link') : '',
     status,
-    file: prev?.file ?? null,
+    file: form.upload?.url ? { ...form.upload } : (prev?.file ?? null),
     verifiedNote: prev?.verifiedNote ?? '',
   };
 };
@@ -237,7 +237,17 @@ export const certFromProfile = (item, index) => {
     status: certStatus(base),
     dateLabel: buildDateLabel(base),
     linkLabel: base.link ? 'Credential link' : '',
-    file: null,
+    // 2026-11-01: the stored certificate file (certificateFile.secure_url) shows on the card and in Edit.
+    file: item?.certificateFile?.secure_url
+      ? {
+          name: decodeURIComponent(
+            String(item.certificateFile.secure_url).split('/').pop() || 'Certificate file'
+          ),
+          size: '',
+          url: item.certificateFile.secure_url,
+          filled: 0,
+        }
+      : null,
     verifiedNote: '',
     raw: item,
   };
@@ -269,6 +279,7 @@ export const certToProfile = (cert) => {
   if (link) out.credentialURL = link;
   else delete out.credentialURL;
   out.skillsGained = [...(cert.skills || [])];
+  if (cert.file?.url) out.certificateFile = { secure_url: cert.file.url };
   return out;
 };
 

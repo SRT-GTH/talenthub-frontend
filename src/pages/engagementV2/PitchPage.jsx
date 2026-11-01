@@ -7,7 +7,7 @@ import {
   isLiveProfile,
   saveProfileFields,
 } from '../../services/profileStages.api.js';
-import { refreshJourney } from '../../services/journey.api.js';
+import { cachedJourney, onJourney, refreshJourney } from '../../services/journey.api.js';
 import {
   deleteVideoPitch,
   fetchVideoPitch,
@@ -94,6 +94,9 @@ const PitchPage = () => {
   const fileInput = useRef(null);
   const [file, setFile] = useState(null);
   const live = isLiveProfile();
+  // The real journey for the complete dialog (refreshed after publish).
+  const [journey, setJourney] = useState(() => (live ? cachedJourney() : null));
+  useEffect(() => (live ? onJourney(setJourney) : undefined), [live]);
   const [text, setText] = useState(live ? '' : PITCH_WRITTEN_SAMPLE);
   const [source, setSource] = useState(null); // 'write' | 'video': what Review and publish was opened from
   const [savedBio, setSavedBio] = useState(false); // live: professionalBio is saved (loaded or published here)
@@ -452,6 +455,7 @@ const PitchPage = () => {
         onBrowse={() => fileInput.current?.click()}
         onDropFile={onFile}
         onReplace={replace}
+        live={live}
       />
     );
   else if (screen === 'write')
@@ -480,6 +484,7 @@ const PitchPage = () => {
         progress={progress ?? undefined}
         playSignal={playSignal}
         busy={busy}
+        live={live}
         lengthRow={
           live && !reviewWritten && (file?.seconds || pitchVideo?.duration)
             ? {
@@ -566,6 +571,7 @@ const PitchPage = () => {
       {st.published && (!live || (kind === 'video' ? pitchVideo : savedBio)) ? (
         <CompleteDialog
           uiStyle={uiStyle}
+          journey={live ? journey || { doneCount: 0, total: 9 } : null}
           onClose={() => update({ step: 'review' })}
           onWatch={() => {
             if (!live) {
