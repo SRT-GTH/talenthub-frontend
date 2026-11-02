@@ -120,14 +120,16 @@ const GridBoard = ({
               )}
             >
               {cell.label ? (
+                /* the cage clue is generated content so the cell's text is the digit alone (responsive audit: no wrapped labels); the
+                   cell's aria-label (describe) already carries the clue */
                 <span
+                  aria-hidden="true"
+                  data-label={cell.label}
                   className={classNames(
-                    'pointer-events-none absolute top-[1.4cqw] left-[1.65cqw] font-sans text-[length:max(12px,var(--label))] leading-[1.2] font-bold',
+                    'pointer-events-none absolute top-[1.4cqw] left-[1.65cqw] font-sans text-[length:max(12px,var(--label))] leading-[1.2] font-bold after:content-[attr(data-label)]',
                     cell.labelBad ? 'text-[#c73326]' : 'text-[#1c2a21]'
                   )}
-                >
-                  {cell.label}
-                </span>
+                />
               ) : null}
               {cell.value || null}
               {!cell.value && cell.notes ? (
