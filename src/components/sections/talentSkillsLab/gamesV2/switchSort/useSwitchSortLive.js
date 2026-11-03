@@ -1,23 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useGameV2Params } from '../gamesV2State.js';
+import { useRoundShown } from '../live/useRoundShown.js';
 
 const log = debug('useSwitchSortLive');
 
-/* How long the tick / cross stays before the next card. Shorter than the mock's 800 ms: the server starts the next card's clock as
- * soon as a card is sorted, and it accepts the browser's own timing (clientMs) only within 1 s of its own. */
+/* How long the tick / cross stays before the next card. The server starts a card's clock when it is told the card is drawn
+ * (round_shown), and by itself 1 s + a short grace after the previous sort, so keep this short. */
 const LIVE_HOLD_MS = 500;
 const TICK_MS = 100;
 
 /*
  * useSwitchSortLive — Switch Sort against the server engine (backend utils/gameEngines/engines/ruleSwitch.js).
  * Same shape as the mock adapter in games/SwitchSort.jsx, so SwitchSortBoard draws both.
- *   view.card { index, total, colour, shape, rule (null at Expert: no sign), responseMs } · view.baskets · view.results
- *   action    { type: 'sort', side: 'left' | 'right', clientMs }  →  result { correct, timedOut, finished }
+ *   view.card { index, total, colour, shape, rule (null at Expert: no sign), responseMs, timeLeftMs } · view.baskets · view.results
+ *   action    { type: 'sort', side: 'left' | 'right', clientMs } · { type: 'timeout', round, clientMs }  →  result { correct, timedOut, finished }
+ *             { type: 'round_shown', round } (quiet) → { roundShown, round, timeLeftMs }
  * Which basket is right is never known here: the tick / cross comes from the result. \"Rule changed\" is shown when the sign's rule
- * differs from the previous card's sign. The card's time is the server's responseMs, counted from when the card is drawn. The engine
- * has no skip / timeout action, so a card left until its time runs out is sent as a sort to the left: the server marks it timed out
- * (missed) whatever the side, and the board shows it as \"too slow\" (no basket lit).
+ * differs from the previous card's sign. The card's time is the server's responseMs, counted from when the card is drawn: the hook
+ * sends { type: 'round_shown', round } then, which starts the server's clock for that card. A card left until its time runs out is
+ * sent as { type: 'timeout', round, clientMs }: the server records a miss and the board shows it as \"too slow\" (no basket lit).
  */
 export const useSwitchSortLive = (run) => {
   const g = useGameV2Params();
@@ -43,6 +45,17 @@ export const useSwitchSortLive = (run) => {
     setNow(at);
   }, [liveIndex]);
 
+  // start the server's clock for the card now drawn; if the server's clock had already started (it starts by itself after a short
+  // grace), count from its start instead
+  useRoundShown(run, liveIndex, (r) => {
+    const responseMs = live?.responseMs;
+    if (!Number.isFinite(r.timeLeftMs) || !Number.isFinite(responseMs)) return;
+    const serverAt = Date.now() - (responseMs - r.timeLeftMs);
+    setClock((c) =>
+      c && c.index === r.round && serverAt < c.at ? { index: c.index, at: serverAt } : c
+    );
+  });
+
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), TICK_MS);
     return () => window.clearInterval(id);
@@ -64,13 +77,18 @@ export const useSwitchSortLive = (run) => {
       const tookMs = Math.max(0, Date.now() - cardClock.at);
       log('sort', { card: card.index + 1, side, tookMs, timedOut });
       setSending(true);
-      const res = await run.act({ type: 'sort', side, clientMs: tookMs });
+      const res = await run.act(
+        timedOut
+          ? { type: 'timeout', round: card.index, clientMs: tookMs }
+          : { type: 'sort', side, clientMs: tookMs }
+      );
       setSending(false);
       if (!res || res.error) {
         if (res?.error) log('refused', res.code);
         return;
       }
       const r = res.result || {};
+      if (r.ignored) return; // a timeout for a card the server had already moved past
       setTimes((t) => [...t, tookMs]);
       setSnapshot(card);
       setFeedback({
@@ -96,7 +114,7 @@ export const useSwitchSortLive = (run) => {
   useEffect(() => {
     if (phase === 'card' && cardClock && !paused && !sending && remainingMs <= 0) {
       log('card time ran out');
-      sort('left', true);
+      sort(null, true);
     }
   }, [phase, cardClock, paused, sending, remainingMs, sort]);
 

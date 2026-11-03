@@ -6,15 +6,19 @@ import {
   fetchProfileScores,
   saveProfileScore,
 } from '../../../services/skillsLab.api.js';
+import { fetchWeekly } from '../../../services/skillsLabWeekly.api.js';
 import { HUB_ATTEMPTS, HUB_LABS_RESPONSE, HUB_PROFILE_SCORES } from './skillsLabData.js';
+import { weeklyCardFrom } from './weekly/weeklyFormat.js';
 
 const log = debug('skillsLabHubData');
 
 /*
  * Where the Skills Lab hub gets its data. Live (the default): GET /skills-lab/labs, /attempts, /profile-scores for the
  * signed-in talent. `?demo=1`: the drawn mock in skillsLabData.js (Kofi's labs, every Figma state).
- * HubScreens read it through useHubData(): { live, status, response, attempts, profileScores, labById, setScoreShown, reload }
- * — `response` has the HUB_LABS_RESPONSE shape, so every screen renders the same either way.
+ * HubScreens read it through useHubData(): { live, status, response, attempts, profileScores, labById, setScoreShown, reload,
+ * weekly, setWeekly } — `response` has the HUB_LABS_RESPONSE shape, so every screen renders the same either way.
+ * Live, `response.weekly` (the hub card) comes from GET /skills-lab/weekly (skillsLabWeekly.api.js) and `weekly` is that
+ * raw payload for the SL-M4 dialog; the mock keeps `weekly: null` and the dialog falls back to the drawn copy.
  */
 export const isSkillsLabDemo = (params) => params?.get?.('demo') === '1';
 
@@ -32,6 +36,8 @@ const MOCK = {
   labById: byId(HUB_LABS_RESPONSE.labs),
   setScoreShown: async () => {},
   reload: () => {},
+  weekly: null,
+  setWeekly: () => {},
 };
 
 export const HubDataContext = createContext(MOCK);
@@ -46,17 +52,23 @@ export const useLiveHub = ({ enabled = true } = {}) => {
     response: null,
     attempts: [],
     profileScores: [],
+    weekly: null,
   });
 
   const load = useCallback(async () => {
     if (!enabled) return;
     try {
-      const [response, attempts, profileScores] = await Promise.all([
+      const [response, attempts, profileScores, weekly] = await Promise.all([
         fetchHub(),
         fetchAttempts(),
         fetchProfileScores(),
+        // The weekly card is optional: a failure only hides it.
+        fetchWeekly().catch((err) => {
+          log('weekly failed', err?.response?.status || err?.message);
+          return null;
+        }),
       ]);
-      setState({ status: 'ready', response, attempts, profileScores });
+      setState({ status: 'ready', response, attempts, profileScores, weekly });
     } catch (err) {
       log('hub failed', err?.response?.status || err?.message);
       setState((s) => ({ ...s, status: 'error' }));
@@ -88,9 +100,11 @@ export const useLiveHub = ({ enabled = true } = {}) => {
     }
   }, []);
 
+  const setWeekly = useCallback((weekly) => setState((s) => ({ ...s, weekly })), []);
+
   return useMemo(() => {
     if (!enabled) return null;
-    const response = state.response ?? {
+    const hub = state.response ?? {
       labs: [],
       summary: {
         ...HUB_LABS_RESPONSE.summary,
@@ -110,6 +124,7 @@ export const useLiveHub = ({ enabled = true } = {}) => {
       popularForNewTalent: [],
       closeMatches: [],
     };
+    const response = { ...hub, weekly: weeklyCardFrom(state.weekly) };
     return {
       live: true,
       status: state.status,
@@ -119,6 +134,8 @@ export const useLiveHub = ({ enabled = true } = {}) => {
       labById: byId(response.labs),
       setScoreShown,
       reload: load,
+      weekly: state.weekly,
+      setWeekly,
     };
-  }, [enabled, state, setScoreShown, load]);
+  }, [enabled, state, setScoreShown, load, setWeekly]);
 };

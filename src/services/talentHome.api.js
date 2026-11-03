@@ -1,6 +1,8 @@
 import api from './api.js';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
+import { notifyXpChanged } from './xp.api.js';
+import { fetchWeeklyQuests } from './quests.api.js';
 
 const log = debug('talentHome.api');
 
@@ -17,6 +19,7 @@ const log = debug('talentHome.api');
  *   GET /activity/me?period=7d            who viewed me this week (backend #156)
  *   GET /streak                           streak card + nav / sidebar streak (2026-10-31)
  *   GET /talent-messages/unread-count     messages badge + sidebar stat (2026-10-31)
+ *   GET /quests/week                      this week's quests on the streak card (2026-11-03)
  *
  * MyAssessment tab (fetchTalentAssessment, loaded when the tab opens):
  *   GET /engagement/summary                    Big Five + RIASEC summary
@@ -92,6 +95,7 @@ export const PENDING_SECTIONS = [
   'streak',
   'messages',
   'xp',
+  'quests',
 ];
 
 /* ---------------- In-memory cache (this tab only) ---------------- */
@@ -155,6 +159,8 @@ const buildHomeData = (r, pendingSet) => {
     streak: r.streak ?? null,
     // GET /xp: the XP ledger total and level (null if it failed).
     xp: r.xp ?? null,
+    // GET /quests/week: this week's quests (null if it failed: the streak card hides them).
+    quests: r.quests ?? null,
     unreadMessages: typeof r.unread?.unread === 'number' ? r.unread.unread : null,
     loginCount: user.loginCount ?? null,
     // Kept for the MyAssessment tab (fetchTalentAssessment adds the rest).
@@ -225,13 +231,24 @@ export const loadTalentHome = ({ onUpdate } = {}) =>
       unwrap(await api.get('/activity/me', { params: { verb: 'view', period: '7d' } }))
     ).then(arrive('views', 'activity'));
     settle('streak', async () => unwrap(await api.get('/streak'))).then(arrive('streak', 'streak'));
-    settle('xp', async () => unwrap(await api.get('/xp'))).then(arrive('xp', 'xp'));
+    // The journey read awards first-time profile-stage XP (backend profile.getJourney), so the XP total is read after it.
+    const journeyP = api.get('/profiles/journey').then(unwrap);
+    settle('xp', async () => {
+      const journey = await journeyP.catch(() => null);
+      if (journey?.xpAwarded?.length) notifyXpChanged();
+      return unwrap(await api.get('/xp'));
+    }).then(arrive('xp', 'xp'));
     settle('unread messages', async () =>
       unwrap(await api.get('/talent-messages/unread-count'))
     ).then(arrive('messages', 'unread'));
+    // Reading the week awards any quest completed but not yet awarded: refresh the XP header / sidebar then.
+    settle('quests', async () => {
+      const quests = await fetchWeeklyQuests();
+      if (quests?.awarded?.length) notifyXpChanged();
+      return quests;
+    }).then(arrive('quests', 'quests'));
 
-    // The core: these decide the layout state, so the page waits for them.
-    const journeyP = api.get('/profiles/journey').then(unwrap);
+    // The core: these decide the layout state, so the page waits for them (journeyP above).
     const profileP = settle('profile', async () => unwrap(await api.get('/profiles/me')));
     const appsP = settle('applications', async () =>
       unwrap(await api.get('/applications/my-applications'))

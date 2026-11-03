@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { formatClock } from '../useGameClock.js';
 import { useGameV2Params } from '../gamesV2State.js';
+import { useRoundShown } from '../live/useRoundShown.js';
 
 const log = debug('useWordShuffleLive');
 
-const NEXT_WORD_SECONDS = 3; // the server starts the next word's clock at once, so the resolved word only stays briefly
+const NEXT_WORD_SECONDS = 3; // the server starts the next word's clock when it is drawn (round_shown), or by itself soon after
 const TICK_MS = 250;
 const HINT_COST = 0.25; // shown in the hint label only; the server scores
 const FRACTION = { 1: '1', 0.75: '¾', 0.5: '½', 0.25: '¼', 0: '0' };
@@ -45,11 +46,13 @@ const lockedFor = (letters, revealed) => {
 /*
  * useWordShuffleLive — Word Shuffle against the server engine (backend utils/gameEngines/engines/wordScramble.js).
  * Same shape as the mock adapter in games/WordShuffle.jsx, so WordShuffleBoard draws both.
- *   view.round { index, total, letters, length, field, revealed, hintsLeft, timeLimitSec, timeLeftSec } · view.results
- *   actions    { type: 'answer', value, clientMs } · { type: 'hint' } · { type: 'skip', clientMs }
+ *   view.round { index, total, letters, length, field, revealed, hintsLeft, timeLimitSec, timeLeftSec, clockRunning } · view.results
+ *   actions    { type: 'answer', value, clientMs } · { type: 'hint' } · { type: 'skip', clientMs } · { type: 'timeout', round, clientMs }
+ *              · { type: 'round_shown', round } (quiet: starts the word's server clock when the word is drawn)
  *   result     answer → { correct, timedOut?, answer, finished } | { correct: false, tryAgain, triesLeft }; hint → { revealed, hintsLeft }
- * The word itself is never on the client until the server resolves the round. Each word has its own server clock (timeLeftSec);
- * at 0 the word is sent as a skip (the server marks a late answer as missed). Hints reveal the next letter (server `revealed`).
+ * The word itself is never on the client until the server resolves the round. Each word has its own server clock (timeLeftSec),
+ * started when the word is drawn (round_shown); at 0 the word is sent as a timeout (a miss). Hints reveal the next letter (server
+ * `revealed`).
  */
 export const useWordShuffleLive = (run) => {
   const g = useGameV2Params();
@@ -77,12 +80,16 @@ export const useWordShuffleLive = (run) => {
 
   const liveIndex = !resolved && live ? live.index : null;
   const liveLeft = live?.timeLeftSec ?? null;
+  const liveRunning = live?.clockRunning !== false;
   useEffect(() => {
     if (liveIndex === null) return;
     const at = Date.now();
-    setClock({ index: liveIndex, deadline: (receivedAt.current || at) + (liveLeft ?? 0) * 1000 });
+    // a clock that has not started yet starts now (round_shown below); a running one counts from when the view arrived
+    const from = liveRunning ? receivedAt.current || at : at;
+    setClock({ index: liveIndex, deadline: from + (liveLeft ?? 0) * 1000 });
     setNow(at);
-  }, [liveIndex, liveLeft]);
+  }, [liveIndex, liveLeft, liveRunning]);
+  useRoundShown(run, liveIndex);
 
   // the clock of the word on show (a just-arrived word has none until its effect has run)
   const wordClock = clock && live && clock.index === live.index ? clock : null;
@@ -174,6 +181,7 @@ export const useWordShuffleLive = (run) => {
         return;
       }
       const r = res.result || {};
+      if (r.ignored) return; // a timeout for a word the server had already moved past
       if (r.tryAgain) {
         log('wrong, one more try');
         setSt((s) => ({ ...s, status: 'wrong', wrongs: s.wrongs + 1 }));
@@ -210,11 +218,11 @@ export const useWordShuffleLive = (run) => {
     if (res?.error) setSt((s) => ({ ...s, notice: res.error }));
   }, [blocked, live, run]);
 
-  /* the word's server clock ran out: send it as a skip (the server marks it timed out) */
+  /* the word's server clock ran out: send a timeout (the server records a miss) */
   useEffect(() => {
     if (!resolved && wordClock && !paused && !sending && seconds <= 0) {
-      log('word clock hit 0 → skip');
-      sendAnswerLike({ type: 'skip' }, 'timeout');
+      log('word clock hit 0 → timeout');
+      sendAnswerLike({ type: 'timeout', round: wordClock.index }, 'timeout');
     }
   }, [resolved, wordClock, paused, sending, seconds, sendAnswerLike]);
 

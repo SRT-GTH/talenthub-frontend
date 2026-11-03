@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Chess } from 'chess.js';
 import { debug } from '../../../../../utils/debug.js';
 import { useGameV2Params } from '../gamesV2State.js';
+import { useRoundShown } from '../live/useRoundShown.js';
 import { GameCheckCircleIcon, GameClockIcon } from '../planningShared/PlanningChessIcons.jsx';
 import { TACTICS_COPY, TACTICS_MEASURES, tacticsTitle } from './chessData.js';
 import { findLegal, fmtClock, humanise, targetsFrom, useServerCountdown } from './chessLive.js';
@@ -22,12 +23,14 @@ const safeChess = (fen) => {
  * Same return shape as useChessTacticsMock, so ChessTacticsBoard draws both.
  *   view.puzzle   { index, total, fen, youPlay, mateIn, theme, legalMoves [{ from, to, promotion }], lastMove, timeLeftSec, timeLimitSec }
  *                 (null once every puzzle is played) · view.results ['solved' | 'missed', …]
- *   actions       { type: 'move', from, to, promotion? } · { type: 'skip' }
+ *   actions       { type: 'move', from, to, promotion? } · { type: 'skip' } · { type: 'timeout', round } ("Next puzzle" at 0:00)
+ *                 · { type: 'round_shown', round } (quiet: sent once per puzzle when it is drawn; starts its server clock)
  *   result        { correct, san, checkmate? } solved · { correct: true, san, reply { from, to, san }, fen, mateIn: 1 } first move of a
  *                 mate in 2 (the server played the defence) · { correct: false, san?, solution [SAN], timedOut? } missed.
  * The server decides every move (any mating move counts); chess.js here only draws the FEN. A missed or solved puzzle moves the
  * server on to the next one at once, so the outcome is shown as a chip over the next puzzle (no review pause that would eat its
- * clock). The per-puzzle clock is the server's `timeLeftSec`, ticked locally; at 0:00 the board locks and "Next puzzle" skips.
+ * clock). The per-puzzle clock is the server's `timeLeftSec` (full and held until the server has it running: `clockRunning`), ticked
+ * locally; at 0:00 the board locks and "Next puzzle" sends a timeout (a timed-out miss).
  */
 export const useChessTacticsLive = (run) => {
   const g = useGameV2Params();
@@ -46,7 +49,12 @@ export const useChessTacticsLive = (run) => {
   const fen = !p && finalFen ? finalFen : cur?.fen;
   const chess = useMemo(() => safeChess(fen), [fen]);
   const side = cur?.youPlay === 'black' ? 'b' : 'w';
-  const left = useServerCountdown(p?.timeLeftSec, run.view, Boolean(p) && !g.modal);
+  useRoundShown(run, p ? p.index : null);
+  const left = useServerCountdown(
+    p?.timeLeftSec,
+    run.view,
+    Boolean(p) && p.clockRunning !== false && !g.modal
+  );
   const outOfTime = left !== null && left <= 0;
   const locked = !p || run.busy || Boolean(g.modal) || outOfTime;
 
@@ -151,11 +159,12 @@ export const useChessTacticsLive = (run) => {
   const skip = useCallback(async () => {
     if (!p || run.busy || g.modal) return;
     const idx = p.index;
-    log('skip', idx);
+    log(outOfTime ? 'timeout' : 'skip', idx);
     setSelected(null);
-    const res = await run.act({ type: 'skip' });
+    const res = await run.act(outOfTime ? { type: 'timeout', round: idx } : { type: 'skip' });
+    if (res?.result?.ignored) return; // the server had already moved past this puzzle
     onResult(res, null, idx);
-  }, [p, run, g.modal, onResult]);
+  }, [p, run, g.modal, outOfTime, onResult]);
 
   const targets = useMemo(
     () => (p ? targetsFrom(p.legalMoves, selected, chess) : []),

@@ -288,10 +288,36 @@ export const buildRecruiterActivity = (views, now = new Date()) => {
 };
 
 /*
+ * GET /quests/week -> the streak card's quests: Playful "THIS WEEK'S QUESTS · +90" rows, Focused "This week ·
+ * n of m steps done" bar. No quests (call failed or still loading) -> quests: null, and the card hides both.
+ */
+const questFields = (q) => {
+  if (!Array.isArray(q?.quests) || !q.quests.length) return { quests: null };
+  const steps = q.steps || { done: 0, target: 0 };
+  return {
+    week: {
+      label: 'This week',
+      done: `${steps.done} of ${steps.target} steps done`,
+      pct: steps.target ? Math.min(100, Math.round((steps.done / steps.target) * 100)) : 0,
+    },
+    questsTitle: 'THIS WEEK’S QUESTS',
+    questsPts: `+${q.xpTotal ?? 0}`,
+    quests: q.quests.map((x) => ({
+      text: x.text,
+      count: `${x.count}/${x.target}`,
+      pts: `+${x.xp}`,
+      // A finished quest is a full bar (pct 100), the same as the design's rows.
+      pct: x.done ? 100 : Math.min(100, Math.max(0, Number(x.pct) || 0)),
+      done: Boolean(x.done),
+    })),
+  };
+};
+
+/*
  * GET /streak -> the home streak card (HomeColumns StreakCard: title, sub, freeze, days, status[]).
  * Day kinds from the backend: 'today-pending' is today not yet done; lit / done / freeze days count as done.
  */
-const streakCard = (s) => {
+const streakCard = (s, quests = null) => {
   if (!s?.summary) return null;
   const current = Number(s.summary.current) || 0;
   const freezes = Number(s.summary.freezes) || 0;
@@ -311,7 +337,7 @@ const streakCard = (s) => {
     freeze: freezes ? `${plural(freezes, 'streak freeze')} left` : 'No streak freezes yet',
     days: week.map((d) => d.letter || ''),
     status: week.map((d) => statusOf(d.kind)),
-    quests: null,
+    ...questFields(quests),
   };
 };
 
@@ -536,7 +562,7 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
     },
     buddy,
     readiness: pending.readiness ? { ...readiness, pending: true } : readiness,
-    streak: pending.streak ? null : streakCard(data.streak),
+    streak: pending.streak ? null : streakCard(data.streak, pending.quests ? null : data.quests),
     looking: pending.views ? { pending: true } : lookingCard(data.views),
     recruiters: pending.views ? { pending: true } : recruitersCard(data.views, now),
     exploreChip:

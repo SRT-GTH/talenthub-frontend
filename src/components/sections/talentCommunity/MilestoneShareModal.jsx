@@ -43,6 +43,8 @@ const AUDIENCE_ICONS = {
  *   onDecline    "No thanks, keep it private" (falls back to onClose)
  *   stageLabel   what was finished, default "Personality Assessment" (⚠️ ASSUMPTION: other stages reuse the same sentence)
  *   authorName   preview name, default "Kofi Agyekum"
+ *   showXp       default true (the drawn "+50 XP" sticker); live callers pass false, since sharing / finishing a stage awards no XP
+ *                in the XP ledger yet (Career Buddy never awards XP)
  */
 const MilestoneShareModal = ({
   isOpen = true,
@@ -51,6 +53,7 @@ const MilestoneShareModal = ({
   onDecline,
   stageLabel = MILESTONE_SHARE.stage,
   authorName = MILESTONE_SHARE.previewName,
+  showXp = true,
 }) => {
   const titleId = useId();
   const fieldId = useId();
@@ -79,9 +82,11 @@ const MilestoneShareModal = ({
         <DialogTitle id={titleId} size={31} lineHeight={37}>
           {copy.title}
         </DialogTitle>
-        <PostSticker tone="gold">
-          {fillCopy(copy.sticker, { xp: uiStyle === 'playful' ? 'XP' : 'pts' })}
-        </PostSticker>
+        {showXp ? (
+          <PostSticker tone="gold">
+            {fillCopy(copy.sticker, { xp: uiStyle === 'playful' ? 'XP' : 'pts' })}
+          </PostSticker>
+        ) : null}
       </div>
 
       <p className="m-0 font-sans text-[14px] leading-[21px] text-[#595959]">

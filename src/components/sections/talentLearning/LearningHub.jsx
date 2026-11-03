@@ -6,6 +6,7 @@ import LearningHubArt from './LearningHubArt.jsx';
 import { HEAD, HubSticker } from './LearningHubParts.jsx';
 import { HEADER, TABS } from './talentLearningHubData.js';
 import { useLearningData } from './useLearningData.js';
+import { useLearningHeaderStats } from './useLearningHeaderStats.js';
 
 const log = debug('LearningHub');
 
@@ -41,6 +42,8 @@ const LearningHub = ({ learning, children }) => {
   // Live counts from the API (mock: the Figma numbers via tabCounts, see LearningDataContext).
   const counts = data.counts;
   const newHere = showEmpty && active === 'progress';
+  // Streak sticker + Playful "+N XP this week": live = GET /streak and the XP ledger (hidden at 0); mock = the drawn copy.
+  const stats = useLearningHeaderStats(Boolean(data.live));
 
   log('render', { active, counts, newHere });
 
@@ -82,16 +85,16 @@ const LearningHub = ({ learning, children }) => {
               <HubSticker tone="gold" size="lg" rotate={6}>
                 {HEADER.newHere}
               </HubSticker>
-            ) : (
+            ) : stats.streak ? (
               <HubSticker
                 tone="gold"
                 size="lg"
                 rotate={6}
                 icon={<LearningStreakFlameIcon className="size-[15px] playful:size-[16.5px]" />}
               >
-                {HEADER.streak}
+                {stats.streak}
               </HubSticker>
-            )}
+            ) : null}
           </div>
           <p className="m-0 font-sans text-[14px] leading-[22px] tracking-[0.2px] text-[#999999] sm:text-[16px] sm:leading-[24px]">
             {HEADER.subtitle}
@@ -103,6 +106,7 @@ const LearningHub = ({ learning, children }) => {
               ? `${counts.progress} course${counts.progress === 1 ? '' : 's'} in progress`
               : undefined
           }
+          xp={stats.xpWeek}
         />
       </div>
 

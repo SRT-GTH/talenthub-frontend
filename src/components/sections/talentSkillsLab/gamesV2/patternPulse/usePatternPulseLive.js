@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useGameV2Params } from '../gamesV2State.js';
+import { useRoundShown } from '../live/useRoundShown.js';
 import { PATTERN_PULSE_REVEAL_SECONDS, PATTERN_PULSE_URGENT_AT } from './patternPulseData.js';
 import { BEAD_COLORS } from './patternPulseRules.js';
 
@@ -24,12 +25,14 @@ const average = (list) =>
 /*
  * usePatternPulseLive — Pattern Pulse against the server engine (backend utils/gameEngines/engines/numberSequence.js).
  * Same shape as the mock adapter in games/PatternPulse.jsx, so PatternPulseBoardView draws both.
- *   view.round { index, total, terms, options, timeLimitSec, timeLeftSec } · view.results ['correct' | 'missed']
- *   actions    { type: 'answer', value, clientMs } · { type: 'skip', clientMs }
+ *   view.round { index, total, terms, options, timeLimitSec, timeLeftSec, clockRunning } · view.results ['correct' | 'missed']
+ *   actions    { type: 'answer', value, clientMs } · { type: 'skip', clientMs } · { type: 'timeout', round, clientMs }
+ *              · { type: 'round_shown', round } (quiet: starts the round's server clock when the round is drawn)
  *   result     { correct, timedOut, answer, explain, finished } — the answer and the rule only arrive with the result.
  * The server moves to the next round as soon as a round is answered, so the answered round is kept on screen (`reveal`) for
- * \"Next round starts in 3 s\". The round clock is the server's (timeLeftSec, counted down locally from when the round is drawn);
- * at 0 the round is sent as a skip and the server marks it timed out. No local answer key, no local score.
+ * \"Next round starts in 3 s\". The round clock is the server's: it starts when the round is drawn (round_shown; until then the view
+ * gives the full limit and clockRunning false) and is counted down locally; at 0 the round is sent as a timeout (a miss).
+ * No local answer key, no local score.
  */
 export const usePatternPulseLive = (run) => {
   const g = useGameV2Params();
@@ -51,17 +54,20 @@ export const usePatternPulseLive = (run) => {
 
   const liveIndex = !reveal && live ? live.index : null;
   const liveLeft = live?.timeLeftSec ?? null;
+  const liveRunning = live?.clockRunning !== false;
   useEffect(() => {
     if (liveIndex === null) return;
     const at = Date.now();
-    log('round drawn', { round: liveIndex + 1, timeLeftSec: liveLeft });
+    log('round drawn', { round: liveIndex + 1, timeLeftSec: liveLeft, running: liveRunning });
     setClock({
       index: liveIndex,
       at,
-      deadline: (receivedAt.current || at) + (liveLeft ?? 0) * 1000,
+      // a clock that has not started yet starts now (round_shown below); a running one counts from when the view arrived
+      deadline: (liveRunning ? receivedAt.current || at : at) + (liveLeft ?? 0) * 1000,
     });
     setNow(at);
-  }, [liveIndex, liveLeft]);
+  }, [liveIndex, liveLeft, liveRunning]);
+  useRoundShown(run, liveIndex);
 
   const phase = reveal ? 'revealed' : sending ? 'sending' : 'thinking';
   // the clock of the round on show (a just-drawn round has none until its effect has run)
@@ -89,6 +95,7 @@ export const usePatternPulseLive = (run) => {
         return;
       }
       const r = res.result || {};
+      if (r.ignored) return; // a timeout for a round the server had already moved past
       const ok = Boolean(r.correct);
       const miss = ok ? null : r.timedOut ? 'timeout' : missKind;
       if (ok) setTimes((t) => [...t, Math.max(1, Math.round((tookMs ?? 0) / 1000))]);
@@ -115,11 +122,11 @@ export const usePatternPulseLive = (run) => {
   );
   const skip = useCallback(() => send({ type: 'skip' }, null, 'skip'), [send]);
 
-  /* the server's round clock ran out: send it as a skip (the server marks a late answer as missed) */
+  /* the server's round clock ran out: send a timeout (the server records a miss) */
   useEffect(() => {
     if (phase === 'thinking' && roundClock && !paused && seconds <= 0) {
-      log('round clock hit 0 → skip');
-      send({ type: 'skip' }, null, 'timeout');
+      log('round clock hit 0 → timeout');
+      send({ type: 'timeout', round: roundClock.index }, null, 'timeout');
     }
   }, [phase, roundClock, paused, seconds, send]);
 

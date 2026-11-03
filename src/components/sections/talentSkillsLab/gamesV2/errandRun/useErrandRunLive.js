@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useGameV2Params } from '../gamesV2State.js';
+import { useRoundShown } from '../live/useRoundShown.js';
 import { GameCheckCircleIcon, GameClockIcon } from '../planningShared/PlanningChessIcons.jsx';
 import { blocksBetween, routeLegs } from './errandRunEngine.js';
 
@@ -41,6 +42,7 @@ const toBoardMap = (m) =>
         blocksSoFar: m.blocksSoFar ?? 0,
         timeLimitSec: m.timeLimitSec ?? null,
         timeLeftSec: m.timeLeftSec ?? null,
+        clockRunning: m.clockRunning !== false,
       }
     : null;
 
@@ -53,8 +55,11 @@ const toBoardMap = (m) =>
  *   The visit that completes a map returns { blocks, shortest, bestOrder, isShortest, timedOut } and the server moves on to the
  *   next map at once, so the finished map is kept here (review) until "Next map". After the last map the result card comes
  *   with that move and useGameRun opens the result (LiveErrandRun passes a longer finishDelayMs so the last map can be read).
- *   The clock is the server's per-map countdown (map.timeLeftSec), ticking locally between moves for display only: it never
- *   ends the game (a map finished after its time is scored by the server as timed out).
+ *   The clock is the server's per-map countdown (map.timeLeftSec). It starts when the map is drawn: the hook sends
+ *   { type: 'round_shown', round } (quiet) once per map, after the previous map's review (until then the view gives the full
+ *   limit and clockRunning false, and the local count holds). It ticks locally between moves; at 0 the hook sends
+ *   { type: 'timeout', round } and the server closes the map as timed out (no credit), shown in the usual review.
+ *   It never ends the game.
  *   Hidden in live: "Best so far" and the nearest-first comparison (the server does not send them).
  */
 export const useErrandRunLive = (run) => {
@@ -68,16 +73,42 @@ export const useErrandRunLive = (run) => {
   useEffect(() => {
     setLeft(Number.isFinite(live?.timeLeftSec) ? live.timeLeftSec : null);
   }, [live]);
+  const running = Boolean(live?.clockRunning);
   useEffect(() => {
-    if (left === null || left <= 0) return undefined;
+    if (!running || left === null || left <= 0) return undefined;
     const id = window.setTimeout(() => setLeft((l) => (l === null ? l : l - 1)), 1000);
     return () => window.clearTimeout(id);
-  }, [left]);
+  }, [running, left]);
 
   const map = review?.map ?? live;
   const done = Boolean(review);
   const visited = useMemo(() => (review ? review.order : (live?.visited ?? [])), [review, live]);
   const locked = done || !live || Boolean(g.modal) || run.status !== 'ready';
+
+  // the map on screen (none during the review of the previous map): start its server clock
+  const shownIndex = !review && live ? live.index : null;
+  useRoundShown(run, shownIndex);
+
+  /* the map's clock ran out: close it as timed out (once per map); the review shows "Time ran out on this map" */
+  const timedOutSent = useRef(null);
+  useEffect(() => {
+    if (shownIndex === null || left === null || left > 0 || !running) return;
+    if (g.modal || run.status !== 'ready' || run.busy || timedOutSent.current === shownIndex)
+      return;
+    timedOutSent.current = shownIndex;
+    const before = live;
+    log('map clock hit 0 → timeout', shownIndex);
+    run.act({ type: 'timeout', round: shownIndex }).then((res) => {
+      const r = res?.result;
+      if (!r || res.error || r.ignored || !('blocks' in r)) return;
+      setReview({
+        map: before,
+        order: [...before.visited],
+        result: r,
+        elapsed: before.timeLimitSec,
+      });
+    });
+  }, [shownIndex, left, running, g.modal, run, live]);
 
   const pick = useCallback(
     async (stop) => {

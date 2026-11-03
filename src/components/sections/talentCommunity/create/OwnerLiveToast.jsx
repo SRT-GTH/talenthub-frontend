@@ -9,7 +9,8 @@ const TOAST_MS = 6000;
 
 /*
  * OwnerLiveToast — Figma `toast · … is live` (CC-08): dark pill, gold disc with the eye, "{name} is live · +100 XP" (pts in Focused)
- * and a gold "Share"; a variant of `ui/StatusToast`. Props: name, xp ('XP' | 'pts'), onShare(), onDone() (after 6s).
+ * and a gold "Share"; a variant of `ui/StatusToast`. Props: name, xp ('XP' | 'pts', or null = no "· +100 XP": live, since
+ * creating a community awards no XP in the ledger), onShare(), onDone() (after 6s).
  */
 const OwnerLiveToast = ({ name, xp, onShare, onDone }) => {
   log('mount');
@@ -24,7 +25,9 @@ const OwnerLiveToast = ({ name, xp, onShare, onDone }) => {
         <CcLiveEyeIcon className="size-[15px]" />
       </span>
       <span className="font-sans text-[14px] font-semibold leading-[17px] text-white">
-        {fillCopy(OWNER_COPY.toastLive, { name, xp })}
+        {xp
+          ? fillCopy(OWNER_COPY.toastLive, { name, xp })
+          : fillCopy(OWNER_COPY.toastLive.split(' · ')[0], { name })}
       </span>
       <button
         type="button"

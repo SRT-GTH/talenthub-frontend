@@ -294,7 +294,7 @@ export const PlanFeedback = ({ attempt, t }) => {
   return (
     <div className="relative">
       <FeedbackCard tone={feedback.tone} title={title} body={feedback.body} />
-      {correct ? (
+      {correct && flow.correctXp ? (
         <span
           data-sticker=""
           className="absolute top-[-21px] right-[41px] hidden -rotate-[6deg] rounded-[8px] border-[1.2px] border-solid border-[#1c2a21] bg-[#ffd86b] px-[11px] py-[5px] font-sans text-[12px] leading-[14px] font-bold tracking-[0.4px] whitespace-nowrap text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] playful:inline-block"

@@ -18,6 +18,26 @@ import { refreshGamesCatalogue } from './useGamesCatalogue.js';
 
 const log = debug('useGameRun');
 
+/*
+ * One start request per game at a time. A second mount of the same game (React StrictMode in dev, or a quick re-render) joins
+ * the request already in flight instead of sending its own: two parallel starts used to race (one restarted the run while the
+ * other resumed the run being ended), and the page then played the ended run.
+ */
+const inflightStarts = new Map();
+const startOnce = (body) => {
+  const key = `${body.gameKey}|${body.mode ?? ''}|${body.difficulty ?? ''}`;
+  const open = inflightStarts.get(key);
+  // a plain start joins the one in flight; an explicit restart waits for it, then restarts
+  if (open && !body.restart) return open;
+  const p = (open ? open.catch(() => null) : Promise.resolve())
+    .then(() => startGameRun(body))
+    .finally(() => {
+      if (inflightStarts.get(key) === p) inflightStarts.delete(key);
+    });
+  inflightStarts.set(key, p);
+  return p;
+};
+
 const fmtClock = (sec) => {
   const s = Math.max(0, Math.floor(sec));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -34,6 +54,8 @@ const fmtClock = (sec) => {
  *   run.lastResult    `result` of the last move (correct / outcome / … per engine)
  *   run.act(action)   → Promise<{ result, view, card? } | { error, code } | null>. Moves are sent one at a time, in order.
  *                     Network failure opens `?modal=offline` and re-sends the move when the player taps Try again.
+ *   run.act(action, { quiet: true })   a bookkeeping message (e.g. { type: 'round_shown', round }): same queue, but it does not
+ *                     set `busy` (taps stay live) and does not replace `lastResult`.
  *   run.busy          a move is in flight
  *   run.submit()      end now (time up / "See my result"): the server scores what was done and the result card opens
  *   run.timeLeft / run.timeLabel   the server clock (when the game has a time limit), ticking locally between moves
@@ -65,6 +87,7 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
   const sawOffline = useRef(false);
   const finished = useRef(false);
   const timers = useRef([]);
+  const startSeq = useRef(0);
   const gRef = useRef(g);
   useEffect(() => {
     gRef.current = g;
@@ -123,6 +146,7 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
   const start = useCallback(
     async ({ restart = false, difficulty, mode } = {}) => {
       if (!gameKey) return;
+      const seq = ++startSeq.current;
       setS((x) => ({ ...x, status: 'loading', error: null }));
       const body = {
         gameKey,
@@ -131,7 +155,8 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
         restart,
       };
       try {
-        const data = await startGameRun(body);
+        const data = await startOnce(body);
+        if (seq !== startSeq.current) return; // a newer start replaced this one
         log('started', {
           runId: data.runId,
           resumed: data.resumed,
@@ -140,6 +165,7 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
         });
         applyRun(data);
       } catch (err) {
+        if (seq !== startSeq.current) return;
         const code = gameErrorCode(err);
         log('start failed', code);
         if (code === 'GAME_IN_PROGRESS') {
@@ -184,16 +210,16 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
   }, [applyRun]);
 
   const sendNow = useCallback(
-    async (action) => {
+    async (action, { quiet = false } = {}) => {
       const runId = runRef.current;
       if (!runId || finished.current) return null;
-      setBusy(true);
+      if (!quiet) setBusy(true);
       try {
         const res = await sendGameAction(runId, action);
         setS((x) => ({
           ...x,
           view: res.view,
-          lastResult: res.result,
+          lastResult: quiet ? x.lastResult : res.result,
           status: res.view?.finished ? 'finished' : x.status,
         }));
         if (Number.isFinite(res.view?.timeLeftSec)) setTimeLeft(res.view.timeLeftSec);
@@ -202,6 +228,11 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
         return res;
       } catch (err) {
         const code = gameErrorCode(err);
+        if (quiet && !err?.response) {
+          // a lost bookkeeping message is not re-sent (the server starts a round's clock by itself after a short grace)
+          log('quiet message failed (offline)', action?.type);
+          return null;
+        }
         if (!err?.response) {
           log.error('move failed (offline), keeping it for Try again', action?.type);
           pending.current = { action };
@@ -221,15 +252,15 @@ export const useGameRun = ({ enabled = true, finishDelayMs = 900 } = {}) => {
         log('move refused', code, gameErrorMessage(err));
         return { error: gameErrorMessage(err), code };
       } finally {
-        setBusy(false);
+        if (!quiet) setBusy(false);
       }
     },
     [showCard, submit, reload]
   );
 
   const act = useCallback(
-    (action) => {
-      const p = queue.current.then(() => sendNow(action));
+    (action, opts) => {
+      const p = queue.current.then(() => sendNow(action, opts));
       queue.current = p.catch(() => null);
       return p;
     },

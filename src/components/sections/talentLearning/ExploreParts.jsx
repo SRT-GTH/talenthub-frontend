@@ -19,6 +19,8 @@ import headDoodleGreen from '../../../assets/notifications/icons/head-doodle-gre
 import headDoodleSquiggle from '../../../assets/notifications/icons/head-doodle-squiggle.svg';
 import headDoodleRing from '../../../assets/notifications/icons/head-doodle-ring.svg';
 import { EXPLORE_HEADER } from './talentLearningExploreData.js';
+import { useLearningData } from './useLearningData.js';
+import { useLearningHeaderStats } from './useLearningHeaderStats.js';
 
 /* Shared building blocks for the Explore courses screens (EX-01..EX-04). */
 
@@ -111,8 +113,17 @@ export const CardGrid = ({ children, cols = 'lg:grid-cols-3', gap = 'gap-[20px]'
   <div className={classNames('grid grid-cols-1 sm:grid-cols-2', cols, gap)}>{children}</div>
 );
 
-/* "GTH · Messages header art" — Playful decoration at the right of the page header (xl+). */
-export const ExploreHeaderArt = () => (
+/*
+ * "GTH · Messages header art" — Playful decoration at the right of the page header (xl+). The "+120 XP this week"
+ * sticker is live (XP ledger `thisWeek`, hidden at 0) when the learning data is live; the mock keeps the drawn copy.
+ */
+export const ExploreHeaderArt = () => {
+  const data = useLearningData();
+  const { xpWeek } = useLearningHeaderStats(Boolean(data.live), { xpWeek: EXPLORE_HEADER.xp });
+  return <ExploreHeaderArtView xpWeek={xpWeek} />;
+};
+
+const ExploreHeaderArtView = ({ xpWeek }) => (
   <div className="relative hidden h-[84px] w-[600px] shrink-0 xl:playful:block" aria-hidden="true">
     <span className="absolute left-0 top-[30px] flex">
       {EXPLORE_HEADER.faces.map((src, i) => (
@@ -136,13 +147,15 @@ export const ExploreHeaderArt = () => (
       <img src={notifHeadSparkle} alt="" className="size-[15px]" />
       {EXPLORE_HEADER.sticker}
     </span>
-    <span
-      className="absolute left-[430px] top-[36px] inline-flex items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_3px_0_rgba(200,149,26,0.45)]"
-      style={{ transform: 'rotate(2deg)' }}
-    >
-      <img src={notifHeadFlame} alt="" className="size-[15px]" />
-      {EXPLORE_HEADER.xp}
-    </span>
+    {xpWeek ? (
+      <span
+        className="absolute left-[430px] top-[36px] inline-flex items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_3px_0_rgba(200,149,26,0.45)]"
+        style={{ transform: 'rotate(2deg)' }}
+      >
+        <img src={notifHeadFlame} alt="" className="size-[15px]" />
+        {xpWeek}
+      </span>
+    ) : null}
     <img src={headDoodleGold} alt="" className="absolute left-[574px] top-0 size-[22px]" />
     <img src={headDoodleGreen} alt="" className="absolute left-[316px] top-[46px] size-[12px]" />
     <img

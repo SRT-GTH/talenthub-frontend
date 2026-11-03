@@ -2947,7 +2947,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           variant={viewToast.variant}
           title={viewToast.title}
           body={viewToast.body}
-          xpBadge={String(viewToast.id ?? '').endsWith('-saved') ? '+20 XP' : undefined}
+          xpBadge={
+            // Live: no "+20 XP" (Career Buddy never awards XP); the scripted demo keeps the drawn badge.
+            !liveMode && String(viewToast.id ?? '').endsWith('-saved') ? '+20 XP' : undefined
+          }
           duration={viewToast.variant === 'welcome' ? 5000 : 4000}
           onDismiss={dismissToast}
         />
@@ -3424,6 +3427,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
             isOpen={Boolean(milestoneStageId)}
             stageLabel={milestoneStageId ? STAGE_MILESTONE_LABELS[milestoneStageId] : undefined}
             authorName={viewPersonaName}
+            showXp={!liveMode /* Career Buddy never awards XP; the demo keeps the drawn "+50 XP" */}
             onClose={() => setMilestoneStageId(null)}
             onShare={(payload) => log('milestone share acknowledged (no backend):', payload)}
             onDecline={() => log('milestone share declined')}
