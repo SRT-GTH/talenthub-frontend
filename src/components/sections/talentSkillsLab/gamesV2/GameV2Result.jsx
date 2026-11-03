@@ -167,10 +167,23 @@ const ScoreCard = ({ data, ranked, minor, onBack, onAgain }) => {
     return () => window.cancelAnimationFrame(id);
   }, []);
   const { gameId, level, score, skills, summary, verifies } = data;
-  const evidence = ranked && verifies && score >= VERIFY_SCORE;
+  // live (data.live): the server decides evidence (≥ 60 on a ranked, finished run) — show it when it named a skill
+  const evidence = data.live
+    ? ranked && Boolean(verifies)
+    : ranked && verifies && score >= VERIFY_SCORE;
   const best = score > GAME_V2_PERSONAL_BEST;
   let chip = null;
-  if (ranked && minor) {
+  if (data.live) {
+    if (!ranked) chip = { Icon: GameV2ShieldIcon, text: COPY.practiceNote };
+    else if (minor) chip = { Icon: GameV2TrendChipIcon, text: data.minorLine };
+    else
+      chip = {
+        Icon: GameV2TrophyChipIcon,
+        text:
+          data.percentileLine ??
+          (data.completed ? 'Ranked result saved' : 'Ranked result saved · not finished'),
+      };
+  } else if (ranked && minor) {
     chip = {
       Icon: GameV2TrendChipIcon,
       text:
@@ -212,7 +225,7 @@ const ScoreCard = ({ data, ranked, minor, onBack, onAgain }) => {
             <ChipIcon className="size-[13px] shrink-0" />
             {chip.text}
           </p>
-          {ranked ? (
+          {ranked && (!data.live || data.xp > 0) ? (
             <p className={classNames(CHIP, 'bg-[#fef8ec] text-[#8a6100]')}>
               <GameV2StarChipIcon className="size-[13px] shrink-0" />+{data.xp ?? xpFor(score)} XP
             </p>
@@ -235,7 +248,11 @@ const ScoreCard = ({ data, ranked, minor, onBack, onAgain }) => {
       ) : null}
       {ranked ? (
         <p className="m-0 font-sans text-[12.5px] leading-[18px] font-normal text-[#6b6b6b]">
-          {minor ? COPY.comparedMinor : COPY.compared}
+          {minor
+            ? COPY.comparedMinor
+            : data.live
+              ? (data.comparedLine ?? data.percentileNote ?? '')
+              : COPY.compared}
         </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-[12px]">
@@ -257,10 +274,11 @@ const ScoreCard = ({ data, ranked, minor, onBack, onAgain }) => {
 const GameV2Result = ({ gameId, mode, level, frame, result, onBack, onAgain }) => {
   const g = useGameV2Params();
   const navigate = useNavigate();
-  const minor = isMinorFlag(frame);
+  // live: the server says whether the talent is under 18 (result.minor); the frames use ?f=GV-11 / ?minor=1
+  const minor = result?.live ? Boolean(result.minor) : isMinorFlag(frame);
   const playStyle = frame === 'GV-12' || (!frame && gameId === 'makola-haggle');
   const drawn = Boolean(frame) || !result;
-  const ranked = (mode ?? 'ranked') === 'ranked';
+  const ranked = ((result?.live ? result.mode : mode) ?? 'ranked') === 'ranked';
 
   useEffect(() => {
     log('mount', {

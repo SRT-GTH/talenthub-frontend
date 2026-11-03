@@ -1,3 +1,4 @@
+import { useLiveXp } from '../talentXp/useLiveXp.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TalentRailAssessmentGlyph,
@@ -114,7 +115,8 @@ const Tile = ({ item, active, badge }) => {
 
 const TalentRailHome = ({ activeId = 'home', home, activeNav, badges, onToggle, className }) => {
   const navigate = useNavigate();
-  const data = getTalentSidebarData(home?.stateKey ?? 'day1', home?.live, activeNav);
+  const liveXp = useLiveXp({ enabled: Boolean(home?.live) && !home?.live?.placeholder });
+  const data = getTalentSidebarData(home?.stateKey ?? 'day1', home?.live, activeNav, liveXp.data);
   const shown = badges ?? data.badges ?? {};
   log('render', { activeId, badges: shown });
   return (

@@ -8,13 +8,32 @@ const readRun = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('f')) return null;
     const raw = JSON.parse(window.sessionStorage.getItem('gth:gv2-result') || 'null');
-    return raw && raw.gameId === 'memory-match' && raw.run ? raw : null;
+    return raw && raw.gameId === 'memory-match' && (raw.run || raw.live) ? raw : null;
   } catch {
     return null;
   }
 };
 export const memoryMatchResultProgress = () => {
   const stored = readRun();
+  if (stored?.live) {
+    // the server's result card (cardToResult): pairs found / total and the engine's own summary line
+    const total = stored.total || 0;
+    const found = stored.correct || 0;
+    const dotCount = Math.min(total, 8);
+    const turns = /in (\d+) turns?/.exec(stored.summary || '')?.[1];
+    return {
+      countLabel: `${found} of ${total} pairs`,
+      summary: turns ? `${turns} turn${turns === '1' ? '' : 's'}` : '',
+      dots: Array.from({ length: dotCount }, (_, i) => ({
+        state: found >= Math.ceil(((i + 1) * total) / dotCount) ? 'ok' : 'todo',
+        label: String(i + 1),
+      })),
+      passMark:
+        stored.mode === 'ranked' && Number.isFinite(stored.previousBest)
+          ? `Best before: ${stored.previousBest}`
+          : undefined,
+    };
+  }
   const run = stored?.run;
   const found = run ? run.found : MEMORY_DRAWN_RESULT.found;
   const total = run ? run.pairs : MEMORY_DRAWN_RESULT.pairs;

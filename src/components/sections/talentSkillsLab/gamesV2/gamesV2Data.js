@@ -396,5 +396,13 @@ export const measuresLine = (game) => {
 // Resume dialog copy: "You have a ranked Pattern Pulse game in progress: round 5 of 8, saved 2 hours ago. It’s kept for 22 more hours."
 export const resumeSentence = (game) => {
   const s = game.status.kind === 'in-progress' ? game.status : gameV2ById('pattern-pulse').status;
-  return `You have a ranked ${game.title} game in progress: round ${s.resumeRound} of ${s.resumeOf}, saved ${s.savedHoursAgo} hours ago. It’s kept for ${s.keptHours} more hours.`;
+  const mode = s.mode === 'practice' ? 'practice' : 'ranked';
+  const plural = (n) => (n === 1 ? 'hour' : 'hours');
+  const saved =
+    s.savedHoursAgo < 1
+      ? 'started less than an hour ago'
+      : `saved ${s.savedHoursAgo} ${plural(s.savedHoursAgo)} ago`;
+  // live rows have no round count (the server keeps the board); the drawn mock does
+  const round = s.resumeRound ? `: round ${s.resumeRound} of ${s.resumeOf}` : '';
+  return `You have a ${mode} ${game.title} game in progress${round}, ${saved}. It’s kept for ${s.keptHours} more ${plural(s.keptHours)}.`;
 };

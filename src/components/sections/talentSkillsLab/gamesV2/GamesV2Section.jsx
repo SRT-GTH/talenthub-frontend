@@ -7,7 +7,8 @@ import GameV2Card from './GameV2Card.jsx';
 import GameV2CategoryFilters from './GameV2CategoryFilters.jsx';
 import GameV2VerifiesChip from './GameV2VerifiesChip.jsx';
 import { GvClockIcon } from './GamesV2Icons.jsx';
-import { GAMES_V2, GAMES_V2_COPY, countByCategory } from './gamesV2Data.js';
+import { GAMES_V2_COPY, countByCategory } from './gamesV2Data.js';
+import { useGamesCatalogue } from './live/useGamesCatalogue.js';
 import { openDialogUrl, openGameUrl } from './gamesV2Urls.js';
 
 const log = debug('GamesV2Section');
@@ -17,7 +18,8 @@ const log = debug('GamesV2Section');
  * 9598:36301), rendered by SkillsLabGamesTab above the Arcade block: heading + "Verifies skills" chip + subtitle, the
  * "My games history" button, the category filter strip (really filters) and the 13 cards in the drawn order.
  * Card buttons open the dialogs by URL (gamesV2Urls.js): details (?game=<id>[&mode=practice]) / resume (?dialog=resume&game=<id>).
- * Data: gamesV2Data.js (mock shaped like `GET /skills-lab/games` v2).
+ * Data: live by default — GET /games/catalogue + /games/history merged into the gamesV2Data.js rows (useGamesCatalogue);
+ * `?demo=1` keeps the drawn mock statuses.
  */
 const HISTORY_BTN =
   'inline-flex min-h-[24px] shrink-0 cursor-pointer items-center justify-center gap-[8px] rounded-[12px] border border-solid border-[#dee5e0] bg-white px-[20px] py-[12px] font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21] ' +
@@ -27,15 +29,21 @@ const GamesV2Section = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [category, setCategory] = useState('all');
-  const counts = useMemo(() => countByCategory(GAMES_V2), []);
+  const catalogue = useGamesCatalogue({ load: true });
+  const games = catalogue.games;
+  const counts = useMemo(() => countByCategory(games), [games]);
   const visible = useMemo(
-    () => (category === 'all' ? GAMES_V2 : GAMES_V2.filter((g) => g.category === category)),
-    [category]
+    () => (category === 'all' ? games : games.filter((g) => g.category === category)),
+    [category, games]
   );
 
   useEffect(() => {
-    log('mount', { games: GAMES_V2.length, categories: Object.keys(counts).length });
-  }, [counts]);
+    log('mount', {
+      games: games.length,
+      categories: Object.keys(counts).length,
+      status: catalogue.status,
+    });
+  }, [games.length, counts, catalogue.status]);
   useEffect(() => {
     log('filter', category, 'cards', visible.length);
   }, [category, visible.length]);
@@ -91,8 +99,19 @@ const GamesV2Section = () => {
         value={category}
         onChange={setCategory}
         counts={counts}
-        total={GAMES_V2.length}
+        total={games.length}
       />
+
+      {catalogue.status === 'error' ? (
+        <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-[#b8452e]">
+          {catalogue.error}
+        </p>
+      ) : null}
+      {catalogue.live && !games.length && catalogue.status !== 'error' ? (
+        <p role="status" className="m-0 font-sans text-[14px] leading-[20px] text-[#6b6b6b]">
+          Loading your games…
+        </p>
+      ) : null}
 
       <div
         aria-live="polite"

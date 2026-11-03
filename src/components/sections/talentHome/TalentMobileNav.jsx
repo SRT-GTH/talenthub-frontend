@@ -1,3 +1,4 @@
+import { useLiveXp } from '../talentXp/useLiveXp.js';
 import { TalentSidebarProfileAvatarIllustration } from '../../shared/assets.jsx';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -53,7 +54,8 @@ const TalentMobileNav = ({ home, className, activeNav }) => {
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   const stateKey = home?.stateKey ?? 'day1';
-  const data = getTalentSidebarData(stateKey, home?.live, activeNav);
+  const liveXp = useLiveXp({ enabled: Boolean(home?.live) && !home?.live?.placeholder });
+  const data = getTalentSidebarData(stateKey, home?.live, activeNav, liveXp.data);
   const navData = getTalentNavData(stateKey, home?.live);
   const profile = getTalentProfile(home?.live);
   // Current item: /profile -> Profile row (More sheet); /notifications -> Messages (like the desktop

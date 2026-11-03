@@ -1,13 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
-import GameV2Shell from '../GameV2Shell.jsx';
 import { useGameClock } from '../useGameClock.js';
 import { useGameV2Params } from '../gamesV2State.js';
-import GridBoard from '../gridLogic/GridBoard.jsx';
-import GridFeedback from '../gridLogic/GridFeedback.jsx';
-import GridHead from '../gridLogic/GridHead.jsx';
-import GridPad from '../gridLogic/GridPad.jsx';
-import GridPlayArea from '../gridLogic/GridPlayArea.jsx';
+import GridGameBoard from '../gridLogic/GridGameBoard.jsx';
 import { makeGridKeyHandler } from '../gridLogic/gridKeys.js';
 import { cageLines } from '../gridLogic/gridLines.js';
 import {
@@ -19,6 +14,10 @@ import {
   scoreRun,
 } from '../gridLogic/gridRules.js';
 import { useGridEntry } from '../gridLogic/useGridEntry.js';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
+import { isMockGamesUrl, liveBestMark, readLiveResult } from '../planningShared/liveResultMeta.js';
 import {
   SUM_GRID_BEST,
   SUM_GRID_COPY,
@@ -33,14 +32,18 @@ import {
   findRowColClashes,
   isSumGridSolved,
 } from '../sumGrid/sumGridRules.js';
+import { useSumGridLive } from '../sumGrid/useSumGridLive.js';
 
 const log = debug('SumGrid');
 
 /*
  * Sum Grid — KenKen-style cage sums (Figma "Games v2 · 8" SG-01 … SG-04). Fill every square with 1…N so no number repeats in a row
- * or column and every cage makes its target with its sign (+ − × ÷). Levels: Beginner 3×3 (⚠️), Intermediate 4×4 (drawn),
- * Advanced 5×5 (⚠️), Expert 6×6 (⚠️). Live clashes (row / column) and full-but-wrong cages are flagged; the grid solves itself the
- * moment it is right (SG-04 "Solved!" → See result). ?f=SG-01…04 boots the exact frame (data + quirks in sumGridData.js).
+ * or column and every cage makes its target with its sign (+ − × ÷).
+ *   Live (default): the server number_grid engine (/api/games, sumGrid/useSumGridLive.js) — size and cages from the view
+ *   (Beginner 3×3 · Intermediate 4×4 · Advanced 5×5 · Expert 6×6), server clashes / broken cages, clock and score.
+ *   Mock (`?f=SG-01…04`, `?demo=1`): Levels: Beginner 3×3 (⚠️), Intermediate 4×4 (drawn), Advanced 5×5 (⚠️), Expert 6×6 (⚠️).
+ *   Live clashes (row / column) and full-but-wrong cages are flagged; the grid solves itself the moment it is right (SG-04
+ *   "Solved!" → See result). ?f=SG-01…04 boots the exact frame (data + quirks in sumGridData.js).
  */
 const PAD_LAYOUTS = {
   3: { cols: 3, keyW: 76, keyH: 64, padW: 300, mobileKeyH: 60, boardPx: 428 },
@@ -48,16 +51,17 @@ const PAD_LAYOUTS = {
   5: { cols: 3, keyW: 76, keyH: 64, padW: 300, mobileKeyH: 56, boardPx: 428 },
   6: { cols: 3, keyW: 76, keyH: 64, padW: 300, mobileKeyH: 56, boardPx: 428 },
 };
+const padFor = (size) => PAD_LAYOUTS[size] ?? PAD_LAYOUTS[6];
 const GIVEN_BLOCKED = 'That number is part of the puzzle. Pick an empty square.';
 
 const toIndex = (size, [row, col]) => (row - 1) * size + (col - 1);
 
-const SumGridRun = ({ level, frame }) => {
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local cages and mock scoring */
+const useSumGridMock = ({ level, frame }) => {
   const g = useGameV2Params();
   const seed = frame ? (SUM_GRID_FRAMES[frame] ?? null) : null;
-  const cfg = SUM_GRID_LEVELS[seed?.level ?? level];
+  const cfg = SUM_GRID_LEVELS[seed?.level ?? level] ?? SUM_GRID_LEVELS.intermediate;
   const { size } = cfg;
-  const pad = PAD_LAYOUTS[size];
 
   const cages = useMemo(() => buildCages(cfg.cages, size), [cfg, size]);
   const cageOf = useMemo(() => cageIndexByCell(cages, size), [cages, size]);
@@ -264,77 +268,76 @@ const SumGridRun = ({ level, frame }) => {
     g.finish(buildResult(false));
   };
 
-  const progress = {
-    countLabel: shown?.filled ?? `${filled} of ${size * size} filled`,
-    summary: shown?.strip ?? `${clock.label} so far`,
-    dots: [],
-    passMark: `Best so far: ${SUM_GRID_BEST}`,
+  return {
+    name: 'Sum Grid',
+    subtitle: `${cfg.subtitleLead} · ${g.ranked ? 'Ranked' : 'Practice doesn’t count to your profile'}`,
+    progress: {
+      countLabel: shown?.filled ?? `${filled} of ${size * size} filled`,
+      summary: shown?.strip ?? `${clock.label} so far`,
+      dots: [],
+      passMark: `Best so far: ${SUM_GRID_BEST}`,
+    },
+    footer: solved
+      ? { note: '', action: { label: 'See result', onClick: seeResult } }
+      : {
+          note: '',
+          link: { label: 'Done for now', onClick: g.exit },
+          action: { label: 'Submit grid', onClick: onSubmit },
+        },
+    timeUp: { summary: `You filled ${filled} of ${size * size} squares.` },
+    onSeeResult: () => g.finish(buildResult(true)),
+    head: {
+      eyebrow: cfg.eyebrow,
+      title: solved ? SUM_GRID_COPY.solvedTitle : SUM_GRID_COPY.title,
+      intro: solved ? SUM_GRID_COPY.solvedIntro : SUM_GRID_COPY.intro,
+      clockLabel: solved ? `${clock.label} total` : `${clock.label} so far`,
+      showSaved: !solved,
+      measures: SUM_GRID_COPY.measures,
+    },
+    size,
+    cells,
+    lines,
+    focusIndex: selected ?? Math.max(0, values.indexOf(0)),
+    onSelect,
+    onKeyDown,
+    focusedWeight: 'font-semibold',
+    ariaLabel: `${size} by ${size} cage grid`,
+    describe: (i, cell) =>
+      `Row ${Math.floor(i / size) + 1}, column ${(i % size) + 1}, ${
+        cell.label ? `cage ${cell.label}, ` : ''
+      }${cell.value ? cell.value : 'empty'}${cell.bad ? ', needs fixing' : ''}`,
+    feedback,
+    pad: {
+      layout: padFor(size),
+      notesOn,
+      onDigit,
+      onErase,
+      onToggleNotes,
+      hint: SUM_GRID_COPY.hint,
+    },
   };
+};
 
-  return (
-    <GameV2Shell
-      name="Sum Grid"
-      subtitle={`${cfg.subtitleLead} · ${g.ranked ? 'Ranked' : 'Practice doesn’t count to your profile'}`}
-      progress={progress}
-      footer={
-        solved
-          ? { note: '', action: { label: 'See result', onClick: seeResult } }
-          : {
-              note: '',
-              link: { label: 'Done for now', onClick: g.exit },
-              action: { label: 'Submit grid', onClick: onSubmit },
-            }
-      }
-      timeUp={{ summary: `You filled ${filled} of ${size * size} squares.` }}
-      onSeeResult={() => g.finish(buildResult(true))}
-    >
-      <GridHead
-        eyebrow={cfg.eyebrow}
-        title={solved ? SUM_GRID_COPY.solvedTitle : SUM_GRID_COPY.title}
-        intro={solved ? SUM_GRID_COPY.solvedIntro : SUM_GRID_COPY.intro}
-        clockLabel={solved ? `${clock.label} total` : `${clock.label} so far`}
-        showSaved={!solved}
-        measures={SUM_GRID_COPY.measures}
-      />
-      <GridPlayArea
-        boardPx={pad.boardPx}
-        onKeyDown={onKeyDown}
-        board={
-          <GridBoard
-            size={size}
-            cells={cells}
-            lines={lines}
-            focusIndex={selected ?? Math.max(0, values.indexOf(0))}
-            onSelect={onSelect}
-            focusedWeight="font-semibold"
-            ariaLabel={`${size} by ${size} cage grid`}
-            describe={(i, cell) =>
-              `Row ${Math.floor(i / size) + 1}, column ${(i % size) + 1}, ${
-                cell.label ? `cage ${cell.label}, ` : ''
-              }${cell.value ? cell.value : 'empty'}${cell.bad ? ', needs fixing' : ''}`
-            }
-          />
-        }
-        feedback={<GridFeedback feedback={feedback} />}
-        pad={
-          <GridPad
-            size={size}
-            layout={pad}
-            notesOn={notesOn}
-            onDigit={onDigit}
-            onErase={onErase}
-            onToggleNotes={onToggleNotes}
-            hint={SUM_GRID_COPY.hint}
-          />
-        }
-      />
-    </GameV2Shell>
-  );
+const MockSumGrid = ({ level, frame }) => <GridGameBoard m={useSumGridMock({ level, frame })} />;
+
+/* live: the server engine holds the solution, judges rows / columns / cages and scores the run */
+const LiveSumGrid = () => {
+  const run = useGameRun();
+  const m = useSumGridLive(run);
+  if (run.status !== 'ready' && run.status !== 'finished') {
+    return <GameV2LiveGate run={run} name="Sum Grid" subtitleLead="Numerical reasoning" />;
+  }
+  return <GridGameBoard m={{ ...m, pad: { ...m.pad, layout: padFor(m.size) } }} />;
 };
 
 const SumGrid = ({ frame }) => {
   const g = useGameV2Params();
-  return <SumGridRun key={`${g.level}-${frame ?? 'live'}`} level={g.level} frame={frame} />;
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? (
+    <LiveSumGrid key={key} />
+  ) : (
+    <MockSumGrid key={key} level={g.level} frame={frame} />
+  );
 };
 
 export default SumGrid;
@@ -346,13 +349,31 @@ export const GAMES_V2 = { 'sum-grid': SumGrid };
 export const GAMES_V2_META = {
   'sum-grid': {
     name: 'Sum Grid',
-    subtitleLead: 'Numerical reasoning · 4×4 · + − × ÷',
-    // ⚠️ ASSUMPTION: the result frame's progress strip (no dots in this game)
-    resultProgress: {
-      countLabel: 'Grid solved',
-      summary: 'Every row, column and cage is right',
-      dots: [],
-      passMark: `Best so far: ${SUM_GRID_BEST}`,
+    // live results do not store the board size or signs, so the live header names the skill only
+    get subtitleLead() {
+      return isMockGamesUrl() ? 'Numerical reasoning · 4×4 · + − × ÷' : 'Numerical reasoning';
+    },
+    /* a getter: the live strip follows the run just finished (the server's correct / total = squares right of the empty ones) */
+    get resultProgress() {
+      const stored = readLiveResult('sum-grid');
+      if (stored) {
+        return {
+          countLabel: stored.completed
+            ? 'Grid solved'
+            : `${stored.correct ?? 0} of ${stored.total ?? 0} squares right`,
+          summary: stored.summary ?? '',
+          dots: [],
+          passMark: liveBestMark(stored),
+        };
+      }
+      if (!isMockGamesUrl()) return null;
+      // ⚠️ ASSUMPTION: the result frame's progress strip (no dots in this game)
+      return {
+        countLabel: 'Grid solved',
+        summary: 'Every row, column and cage is right',
+        dots: [],
+        passMark: `Best so far: ${SUM_GRID_BEST}`,
+      };
     },
   },
 };

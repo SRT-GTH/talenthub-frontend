@@ -1,6 +1,7 @@
 import api from './api.js';
 import { debug } from '../utils/debug.js';
 import { notifyStreakActivity } from './streak.api.js';
+import { notifyXpChanged } from './xp.api.js';
 
 const log = debug('skillsLab.api');
 
@@ -32,16 +33,20 @@ export const fetchHub = async () => {
   return data;
 };
 
-export const fetchAttempts = async () => unwrap(await api.get('/skills-lab/attempts'))?.attempts ?? [];
+export const fetchAttempts = async () =>
+  unwrap(await api.get('/skills-lab/attempts'))?.attempts ?? [];
 
-export const fetchProfileScores = async () => unwrap(await api.get('/skills-lab/profile-scores'))?.scores ?? [];
+export const fetchProfileScores = async () =>
+  unwrap(await api.get('/skills-lab/profile-scores'))?.scores ?? [];
 
 export const saveProfileScore = async (labId, shown) =>
   unwrap(await api.put(`/skills-lab/profile-scores/${enc(labId)}`, { shown }))?.scores ?? [];
 
-export const playLab = async (labId) => unwrap(await api.get(`/skills-lab/labs/${enc(labId)}/play`));
+export const playLab = async (labId) =>
+  unwrap(await api.get(`/skills-lab/labs/${enc(labId)}/play`));
 
-export const restartLab = async (labId) => unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/restart`, {}));
+export const restartLab = async (labId) =>
+  unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/restart`, {}));
 
 // Each recorded answer / game counts as a streak day on the server; tell the nav pill to refresh.
 export const answerLab = async (labId, body) => {
@@ -50,8 +55,12 @@ export const answerLab = async (labId, body) => {
   return data;
 };
 
-export const finishLab = async (labId, attemptId) =>
-  unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/finish`, { attemptId }));
+// A finished lab with earned XP is recorded in the XP ledger on the server; tell the XP header / sidebar to refresh.
+export const finishLab = async (labId, attemptId) => {
+  const data = unwrap(await api.post(`/skills-lab/labs/${enc(labId)}/finish`, { attemptId }));
+  if (data?.earned > 0) notifyXpChanged();
+  return data;
+};
 
 export const fetchGames = async () => unwrap(await api.get('/skills-lab/games'))?.games ?? [];
 
@@ -59,5 +68,6 @@ export const postGameResult = async (gameId, body) => {
   const data = unwrap(await api.post(`/skills-lab/games/${enc(gameId)}/result`, body));
   log('game result', gameId, { passed: data?.passed, verified: data?.verified });
   notifyStreakActivity();
+  notifyXpChanged(); // a first play of an arcade game earns its XP (XP ledger)
   return data;
 };

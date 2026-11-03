@@ -375,7 +375,13 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
         ? `Recruiters see your fit score on every role.${next ? ` Add your ${next.toLowerCase()} next to keep going.` : ''}`
         : `Recruiters can now find you in search.${next && nm ? ` ${plural(toNext, 'stage')} to ${MILESTONE_LABEL[nm.id]}: ${next.toLowerCase()} is next.` : ''}`,
       cta: next ? `Continue: ${next}` : HERO.discoverable.cta,
-      ring: { pct: j.percent, label: `${j.doneCount} of ${T} stages`, xp: null, xpTail: null },
+      // "+420 so far": the talent's XP total from the ledger (GET /xp); hidden until it loads or when there is none
+      ring: {
+        pct: j.percent,
+        label: `${j.doneCount} of ${T} stages`,
+        xp: data.xp?.total ? `+${Number(data.xp.total).toLocaleString('en-GB')}` : null,
+        xpTail: data.xp?.total ? 'so far' : null,
+      },
     };
   } else {
     hero = {

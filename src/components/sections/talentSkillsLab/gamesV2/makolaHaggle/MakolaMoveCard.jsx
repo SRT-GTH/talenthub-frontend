@@ -38,7 +38,7 @@ const MakolaMoveCard = ({ letter, move, icon, picked, locked, onPick }) => {
           {move.sub}
         </span>
       </span>
-      <Glyph className="size-[20px] shrink-0 text-[#1c2a21]" />
+      {Glyph ? <Glyph className="size-[20px] shrink-0 text-[#1c2a21]" /> : null}
       {picked ? (
         <PickSticker className="-top-[21px] max-md:right-[6px] md:-right-[22px]">
           YOUR PICK

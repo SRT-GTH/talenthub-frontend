@@ -2,11 +2,17 @@ import { useEffect, useState } from 'react';
 import { classNames } from '../../../../../utils/classNames.js';
 import { debug } from '../../../../../utils/debug.js';
 import {
+  PieceBlackBishop,
   PieceBlackKing,
+  PieceBlackKnight,
   PieceBlackPawn,
+  PieceBlackQueen,
   PieceBlackRook,
+  PieceWhiteBishop,
   PieceWhiteKing,
+  PieceWhiteKnight,
   PieceWhitePawn,
+  PieceWhiteQueen,
   PieceWhiteRook,
 } from './ChessArt.jsx';
 
@@ -16,7 +22,8 @@ const log = debug('ChessBoard');
  * ChessBoard — the Figma board card (CT-01 "Board" 463 x 476: #fffefc, r20.6, padding 17.2) holding the dark green frame (427 x 440,
  * 135deg #142916 → #2a5730), the 420 x 415 board (squares #e6cb85 / #2f5d37, a8 light), rank numbers outside on the left, file
  * letters in the dark band under the board (DM Mono 10.3), the selected square (#ffd86b @ .75) and legal-move dots (14px, #0b1a0f @ .28).
- * Pieces are the six Figma drawings (king / rook / pawn), sized from the 52px square. Captures show a ring instead of a dot
+ * Pieces are the six Figma drawings (king / rook / pawn) plus queen / bishop / knight (not drawn in Figma, see ChessArt.jsx),
+ * sized from the 52px square. `lastMove` { from, to } tints both squares. Captures show a ring instead of a dot
  * (⚠️ ASSUMPTION: only quiet-move dots are drawn).
  * Props: board (chess.js board()), flipped, selected, targets [{ square, capture }], onSquare(square), disabled.
  * Keyboard: the grid is a roving-tabindex set of square buttons; arrows move, Enter / Space press.
@@ -29,11 +36,25 @@ const ART = {
   bk: [PieceBlackKing, 'w-[61.5%]', 'black king'],
   br: [PieceBlackRook, 'w-[59.6%] -translate-y-[2%]', 'black rook'],
   bp: [PieceBlackPawn, 'w-[51.9%] translate-y-[3%]', 'black pawn'],
+  wq: [PieceWhiteQueen, 'w-[61.5%]', 'white queen'],
+  wb: [PieceWhiteBishop, 'w-[53%]', 'white bishop'],
+  wn: [PieceWhiteKnight, 'w-[57.5%]', 'white knight'],
+  bq: [PieceBlackQueen, 'w-[61.5%]', 'black queen'],
+  bb: [PieceBlackBishop, 'w-[53%]', 'black bishop'],
+  bn: [PieceBlackKnight, 'w-[57.5%]', 'black knight'],
 };
 const SHADOW =
   '[filter:drop-shadow(0_2.6px_2.15px_rgba(0,0,0,0.55))_drop-shadow(0_0.9px_0.86px_rgba(0,0,0,0.35))]';
 
-const ChessBoard = ({ board, flipped = false, selected, targets = [], onSquare, disabled }) => {
+const ChessBoard = ({
+  board,
+  flipped = false,
+  selected,
+  targets = [],
+  onSquare,
+  disabled,
+  lastMove = null,
+}) => {
   const [cursor, setCursor] = useState('e1');
   const rows = flipped ? [...board].reverse() : board;
   const files = flipped ? [...FILES].reverse() : FILES;
@@ -108,6 +129,9 @@ const ChessBoard = ({ board, flipped = false, selected, targets = [], onSquare, 
                     light ? 'bg-[#e6cb85]' : 'bg-[#2f5d37]'
                   )}
                 >
+                  {lastMove && (lastMove.from === square || lastMove.to === square) ? (
+                    <span aria-hidden="true" className="absolute inset-0 bg-[#ffd86b]/40" />
+                  ) : null}
                   {selected === square ? (
                     <span aria-hidden="true" className="absolute inset-0 bg-[#ffd86b]/75" />
                   ) : null}

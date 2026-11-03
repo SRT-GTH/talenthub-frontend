@@ -1,3 +1,4 @@
+import { useLiveXp } from '../talentXp/useLiveXp.js';
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -205,7 +206,8 @@ const TalentSidebar = ({ home, compact = false, className, activeId: activeIdPro
   const persona = home?.persona ?? null;
   const cardRef = useRef(null);
   const menuOpen = Boolean(persona) && new URLSearchParams(search).get('menu') === 'switch';
-  const data = getTalentSidebarData(stateKey, home?.live, activeNav);
+  const liveXp = useLiveXp({ enabled: Boolean(home?.live) && !home?.live?.placeholder });
+  const data = getTalentSidebarData(stateKey, home?.live, activeNav, liveXp.data);
   const profile = getTalentProfile(home?.live, persona);
   const { journey } = data;
   const shelf = !data.flat;

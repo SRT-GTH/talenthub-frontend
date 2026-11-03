@@ -91,6 +91,7 @@ export const PENDING_SECTIONS = [
   'readiness',
   'streak',
   'messages',
+  'xp',
 ];
 
 /* ---------------- In-memory cache (this tab only) ---------------- */
@@ -152,6 +153,8 @@ const buildHomeData = (r, pendingSet) => {
     readiness: r.readiness ?? null,
     // GET /streak (null if it failed) and the unread message count (null if it failed).
     streak: r.streak ?? null,
+    // GET /xp: the XP ledger total and level (null if it failed).
+    xp: r.xp ?? null,
     unreadMessages: typeof r.unread?.unread === 'number' ? r.unread.unread : null,
     loginCount: user.loginCount ?? null,
     // Kept for the MyAssessment tab (fetchTalentAssessment adds the rest).
@@ -222,6 +225,7 @@ export const loadTalentHome = ({ onUpdate } = {}) =>
       unwrap(await api.get('/activity/me', { params: { verb: 'view', period: '7d' } }))
     ).then(arrive('views', 'activity'));
     settle('streak', async () => unwrap(await api.get('/streak'))).then(arrive('streak', 'streak'));
+    settle('xp', async () => unwrap(await api.get('/xp'))).then(arrive('xp', 'xp'));
     settle('unread messages', async () =>
       unwrap(await api.get('/talent-messages/unread-count'))
     ).then(arrive('messages', 'unread'));

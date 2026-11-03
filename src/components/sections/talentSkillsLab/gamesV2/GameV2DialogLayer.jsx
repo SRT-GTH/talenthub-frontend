@@ -7,6 +7,8 @@ import GameV2ResumeDialog from './GameV2ResumeDialog.jsx';
 import { GAME_V2_LEVELS, gameV2ById } from './gamesV2Data.js';
 import { gamePlayUrl } from './gamesV2State.js';
 import { closeDialogUrl, openGameUrl } from './gamesV2Urls.js';
+import { isLiveGames } from './live/gameKeys.js';
+import { liveGameById, useGamesCatalogue } from './live/useGamesCatalogue.js';
 
 const log = debug('GameV2DialogLayer');
 
@@ -26,11 +28,14 @@ const GameV2DialogLayer = () => {
   const onGames = params.get('tab') === 'games';
   const dialog = params.get('dialog');
   const gameId = params.get('game');
+  const live = isLiveGames();
+  const catalogue = useGamesCatalogue(); // live: the talent's real status per game (loaded by GamesV2Section)
   const game = useMemo(() => {
     if (!onGames) return null;
+    if (live) return catalogue.games.length ? liveGameById(gameId) : null;
     if (dialog === 'expired') return gameV2ById(gameId) || gameV2ById('pattern-pulse');
     return gameV2ById(gameId);
-  }, [onGames, dialog, gameId]);
+  }, [onGames, dialog, gameId, live, catalogue.games]);
 
   const levelParam = params.get('level');
   const level = GAME_V2_LEVELS.some((l) => l.id === levelParam) ? levelParam : 'intermediate';
@@ -38,7 +43,8 @@ const GameV2DialogLayer = () => {
   // Cooldown disables Ranked, so Practice is the picked mode there.
   const mode = cooldown || params.get('mode') === 'practice' ? 'practice' : 'ranked';
   const opensAt =
-    (game?.status.kind === 'cooldown' ? game.status : null)?.opensAt || 'Thu 6 Nov, 09:40';
+    (game?.status.kind === 'cooldown' ? game.status : null)?.opensAt ||
+    (live ? 'next week' : 'Thu 6 Nov, 09:40');
 
   useEffect(() => {
     if (!game) return;
@@ -80,12 +86,23 @@ const GameV2DialogLayer = () => {
         game={game}
         onClose={close}
         onResume={() => {
-          const url = gamePlayUrl(game.id, { mode: 'ranked', level, resume: 1 });
+          // live: resume exactly the saved run (its own mode and level)
+          const s = game.status.kind === 'in-progress' ? game.status : {};
+          const url = gamePlayUrl(game.id, {
+            mode: s.mode ?? 'ranked',
+            level: s.level ?? level,
+            resume: 1,
+          });
           log('resume game', url);
           navigate(url);
         }}
         onStartAgain={() => {
-          const url = gamePlayUrl(game.id, { mode: 'ranked', level });
+          const s = game.status.kind === 'in-progress' ? game.status : {};
+          const url = gamePlayUrl(game.id, {
+            mode: s.mode ?? 'ranked',
+            level: s.level ?? level,
+            restart: 1,
+          });
           log('start again', url);
           navigate(url);
         }}
