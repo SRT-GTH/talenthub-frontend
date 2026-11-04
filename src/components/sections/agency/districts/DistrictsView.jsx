@@ -18,6 +18,7 @@ import {
 import { DistrictsCrumbChevronIcon } from './districtsIcons.jsx';
 import DistrictsTable from './DistrictsTable.jsx';
 import DistrictsToolbar from './DistrictsToolbar.jsx';
+import { GOVERNMENT_PAGE_TEXT } from '../../../../copy/portals/governmentCopy.js';
 
 const log = debug('DistrictsView');
 
@@ -92,8 +93,8 @@ const DistrictsView = ({ data }) => {
   return (
     <>
       <AgencyPageHero
-        title="Districts"
-        subtitle="All 261 districts across 16 regions. Pick one to see its talents, skills and outcomes. Counts under 5 are hidden."
+        title={GOVERNMENT_PAGE_TEXT.districts.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.districts.subtitle}
         actions={<AgencyButton onClick={download}>Download CSV</AgencyButton>}
       />
       <p role="status" className="sr-only">

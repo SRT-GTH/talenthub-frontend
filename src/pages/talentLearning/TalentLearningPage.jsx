@@ -23,6 +23,8 @@ import LearningGoals from '../../components/sections/talentLearning/LearningGoal
 import LearningThisWeek from '../../components/sections/talentLearning/LearningThisWeek.jsx';
 import { LearningDataProvider } from '../../components/sections/talentLearning/LearningDataContext.jsx';
 import { useLearningData } from '../../components/sections/talentLearning/useLearningData.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('TalentLearningPage');
 

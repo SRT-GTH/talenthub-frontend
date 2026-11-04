@@ -1,5 +1,6 @@
 import { PUBLIC_COPY_SECTIONS } from './landingHomeCopy.js';
 import { TALENT_COPY_SECTIONS } from './portals/talentCopy.js';
+import { TALENT_PAGES_COPY_SECTIONS } from './portals/talentPagesCopy.js';
 import { PARENT_COPY_SECTIONS } from './portals/parentCopy.js';
 import { INSTITUTION_COPY_SECTIONS } from './portals/institutionCopy.js';
 import { GOVERNMENT_COPY_SECTIONS } from './portals/governmentCopy.js';
@@ -12,6 +13,7 @@ export const COPY_SECTIONS = Object.fromEntries(
   [
     ...Object.values(PUBLIC_COPY_SECTIONS),
     ...TALENT_COPY_SECTIONS,
+    ...TALENT_PAGES_COPY_SECTIONS,
     ...PARENT_COPY_SECTIONS,
     ...INSTITUTION_COPY_SECTIONS,
     ...GOVERNMENT_COPY_SECTIONS,

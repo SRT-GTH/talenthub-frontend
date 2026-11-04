@@ -250,6 +250,7 @@ import { routeLabel } from './components/ui/gthLoader/routeLabel.js';
 import { perfEnabled } from './utils/perf.js';
 import { faroEnabled } from './observability/faro.js';
 import PerfRouteMarker from './components/shared/PerfRouteMarker.jsx';
+import { useCopyVersion } from './copy/useCopyVersion.js';
 
 // Load-time panel: only downloaded when ?perf=1 is on (see utils/perf.js).
 const PerfPanel = lazy(() => import('./components/shared/PerfPanel.jsx'));
@@ -293,6 +294,8 @@ function LegacyRecruiterBuddyRedirect() {
 const UnknownRouteRedirect = () => <Navigate to={logoHomePath()} replace />;
 
 function App() {
+  // Site copy: re-render when newly published copy arrives, so open pages show it (copy/copyBind.js).
+  useCopyVersion();
   return (
     <BrowserRouter>
       {/* Reset window scroll on every route change so each new page

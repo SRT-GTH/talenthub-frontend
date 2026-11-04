@@ -12,6 +12,7 @@ import {
   getOutcomes,
 } from '../../components/sections/publicData/outcomes/data/outcomesData.js';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyOutcomesPage');
 
@@ -57,8 +58,8 @@ const AgencyOutcomesPage = () => {
       {story ? (
         <>
           <AgencyPageHero
-            title="Case study"
-            subtitle="How one partner programme moved talents forward."
+            title={GOVERNMENT_PAGE_TEXT.caseStudy.title}
+            subtitle={GOVERNMENT_PAGE_TEXT.caseStudy.subtitle}
             actions={
               <AgencyButton size="xs" onClick={share}>
                 Share
@@ -78,8 +79,8 @@ const AgencyOutcomesPage = () => {
       ) : (
         <>
           <AgencyPageHero
-            title="Impact and outcomes"
-            subtitle="Placements, scholarships and skills gained through GTH, all partners combined."
+            title={GOVERNMENT_PAGE_TEXT.outcomes.title}
+            subtitle={GOVERNMENT_PAGE_TEXT.outcomes.subtitle}
             actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
           />
           <OutcomesDashboard

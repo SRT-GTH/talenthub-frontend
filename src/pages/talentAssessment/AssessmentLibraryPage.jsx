@@ -8,6 +8,8 @@ import { useTalentHomeState } from '../../components/sections/talentHome/talentH
 import { ASSESSMENT_LIBRARY } from '../../components/sections/talentAssessment/assessmentData.js';
 import { buildLiveLibrary } from '../../components/sections/talentAssessment/liveAssessments.js';
 import { useLiveAssessments } from '../../components/sections/talentAssessment/useLiveAssessments.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('AssessmentLibraryPage');
 

@@ -24,6 +24,7 @@ import {
 } from '../../components/sections/agency/queries/useQueriesStore.js';
 import { useQueryPage } from '../../components/sections/agency/queries/useQueryPage.js';
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyQueriesPage');
 
@@ -130,8 +131,8 @@ const AgencyQueriesPage = () => {
   return (
     <AgencyFrame data={data} title="Queries" active="queries">
       <AgencyPageHero
-        title="Queries"
-        subtitle="Build a cut of the data in your MoU. Pick filters, then save or export it. Data as of 18 Oct 2026, 09:00. Groups under 5 stay hidden."
+        title={GOVERNMENT_PAGE_TEXT.queries.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.queries.subtitle}
         actions={
           <AgencyButton
             size="sm"

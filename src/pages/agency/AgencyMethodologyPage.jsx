@@ -6,6 +6,7 @@ import AgencyPageHero from '../../components/sections/agency/AgencyPageHero.jsx'
 import { useAgencyState } from '../../components/sections/agency/agencyState.js';
 import MethodologyArticle from '../../components/sections/publicData/methodology/MethodologyArticle.jsx';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyMethodologyPage');
 
@@ -31,8 +32,8 @@ const AgencyMethodologyPage = () => {
   return (
     <AgencyFrame data={data} title="How we count">
       <AgencyPageHero
-        title="How we count"
-        subtitle="Where the numbers come from, how often they refresh and why small groups are hidden."
+        title={GOVERNMENT_PAGE_TEXT.methodology.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.methodology.subtitle}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <MethodologyArticle

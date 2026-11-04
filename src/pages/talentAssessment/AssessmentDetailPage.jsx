@@ -13,6 +13,8 @@ import {
   PERSONALITY_DETAIL,
   getSkillEvidence,
 } from '../../components/sections/talentAssessment/assessmentData.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('AssessmentDetailPage');
 

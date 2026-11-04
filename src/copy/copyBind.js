@@ -1,5 +1,5 @@
 import { debug } from '../utils/debug.js';
-import { at, fromStoredText } from './copySections.js';
+import { at, fromStoredText, keepEdges } from './copySections.js';
 import { fillTerms, getCopyState, loadCopyBundle, subscribeCopy } from './copyBundle.js';
 
 const log = debug('copyBind');
@@ -22,7 +22,9 @@ const applyTo = (section, state) => {
     if (!parent || typeof parent !== 'object') return;
     const v = values[f.path];
     parent[f.dataPath[f.dataPath.length - 1]] =
-      typeof v === 'string' && v.trim() ? fillTerms(fromStoredText(v), state.terms) : f.original;
+      typeof v === 'string' && v.trim()
+        ? keepEdges(f.original, fillTerms(fromStoredText(v), state.terms))
+        : f.original;
   });
 };
 
