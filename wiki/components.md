@@ -993,3 +993,7 @@ Details, Figma nodes and open items: [onboarding-redesign.md](onboarding-redesig
 | `GamesV2Section` / `GameV2DialogLayer` | New "Skill games" block and details / resume / expired dialogs | data: `gamesV2Data.js`                                                                                                                                                                                     |
 
 Details and URLs: [talent-games-v2.md](talent-games-v2.md).
+
+## Platform Admin 7.8 (Site copy) components
+
+Under `src/components/sections/admin/siteCopy/`: `browse/` (SiteCopyChip, PageGroup, SectionRow), `editor/`, `publish/` (PublishToast, dialogs), `preview/`, `history/`, `names/`, `sync/` (SyncChip, SyncPagesTree), `media/`, `fields/` (ImageField, VideoField), `roles/`. Pattern used to keep one-line buttons responsive: secondary text rendered as generated content (`data-x` + `after:content-[attr(data-x)]`) with an `aria-label`. See [admin.md](admin.md).

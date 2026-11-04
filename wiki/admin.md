@@ -130,3 +130,35 @@ Built: 94 of 95.
 | 7.3.1 v2 · Platform health · Talent funnel                                          | `8916:357`    | 1123×794  | `/admin/report`                                                 | ✅     |
 | 7.3.1 v2 · Platform health · Quarter highlights                                     | `8916:405`    | 1123×794  | `/admin/report`                                                 | ✅     |
 | 7.3.1 v2 · Platform health · How we count                                           | `8916:456`    | 1123×794  | `/admin/report`                                                 | ✅     |
+
+## 7.8 Site copy, Product names, Media library (added 2026-11-04)
+
+Source: Government file `iErYj7O3ft6WAG2FBT6aEw`, canvas node `8520:12`, new section **7.8** (92 new frames; version history shows 7.8 was the designer's only recent work: versions 28 Oct 14:11/14:17, 1 Nov 16:01/16:32). `🔗 EXTERNAL`. Four existing screens were also corrected (sign-in form, support data, Live Ops restricted view, nav). `✅ VERIFIED` against current source and pixel comparison (frame diffs below).
+
+**Note, correcting the older text above:** the back office now uses real data pages (`services/admin.api.js`, real staff session, role from the account). The Site copy area is the only mock-only part and takes a mock role override `?role=editor|super|senior|support|moderator|dpo` (`useAdminSession.mockCopyRole`). Do not revert the real-data pages.
+
+### Architecture
+
+- `siteCopy/siteCopyScreens.js`: screen registry via `import.meta.glob('./screens/*.jsx')`; each screen exports `COPY_SCREENS` entries `{id, area, priority, match(ctx), Component}`; `AdminCopyArea.jsx` wraps `AdminFrame`. The URL contract is in that file's header.
+- Mock server: `useCopyKv.js` (sessionStorage `gth:copy:<key>`). Canonical shapes: drafts `{[sectionId]:{fields:{[key]:{draft}},savedAt}}`, published flat `{[sectionId]:{[key]:text}}`, history array oldest first.
+- Folders under `siteCopy/`: home, browse, editor, publish, preview, history, names, sync, media, fields, fieldsHost, roles, screens. Assets: `src/assets/admin/site-copy/`.
+- Entry: `pages/admin/AdminHomeEntry.jsx` (Content Editor home). New nav: `adminNav.js` (`COPY_NAV`, `navForRole`).
+
+### URLs (all with `?role=editor` unless noted)
+
+`/admin` (home, `&tour=1`), `/admin?role=super&copy=1`, `/admin/site-copy` (`portal=`, `find=`, `filter=`, `view=after-release|changed|removed`, `state=loading|error`), `/admin/site-copy/section/:id` (+ `/preview`, `/history`, `?modal=`), `/admin/site-copy/publish-demo`, `/admin/site-copy/fields-demo`, `/admin/product-names[/:id]` (`role=super`), `/admin/media[/:id]`, `/admin/site-copy/settings/{roles,staff-create,staff-list}`.
+
+### Verification (2026-11-04)
+
+- Frame diffs against Figma (framecmp): all 92 frames 1.5–8.2% except media-library 7.8.9 frames up to 10.8% (image-heavy). `✅ VERIFIED`.
+- Responsive audit at 320/390/1024/1440 over 104 routes: clean after fixes (generated-content labels, wrapped button rows, toast inside viewport, image row wraps, reset popover right-aligned). Cold-load "blank page (len 40)" flags on the first route of a run are a lazy-route flake, not a screen bug. `🔶 LIKELY`.
+- Cross-screen flow (edit, preview, browse, home count, publish, history, product-name rename): 19/19.
+- eslint clean, `npm run build` passes.
+
+### Known gaps and assumptions
+
+- ⚠️ ASSUMPTION: ImageField/VideoField (7.8.10) are mounted only in `fields-demo`, not inside the section editor (frames 2a vs 10a differ).
+- ⚠️ ASSUMPTION: persona for frames 2k/2l (Kofi Mensah, 40 %, "Staff handbook") is not wired to a URL variant.
+- Top bar shows "Ama O." where Figma draws "Nana A." (Figma inconsistency). Super Admin nav also shows "Observability" (real build, not in Figma).
+- Settings → Roles/Staff 7.8.7 are mock pages; real pages need add-only lines plus a backend Content Editor role (decision pending).
+- AgencyDialog uses 16px gutters vs 12px drawn; Ask Buddy FAB y offset differs slightly.
