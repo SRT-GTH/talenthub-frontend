@@ -144,6 +144,18 @@ Source: Government file `iErYj7O3ft6WAG2FBT6aEw`, canvas node `8520:12`, new sec
 - Folders under `siteCopy/`: home, browse, editor, publish, preview, history, names, sync, media, fields, fieldsHost, roles, screens. Assets: `src/assets/admin/site-copy/`.
 - Entry: `pages/admin/AdminHomeEntry.jsx` (Content Editor home). New nav: `adminNav.js` (`COPY_NAV`, `navForRole`).
 
+### Live mode: Site copy and Product names on the backend (2026-11-04)
+
+With a real staff session and no `?role=` override, the Site copy and Product names screens run on the backend (`/api/admin/copy`, srt-backend `platformCopy`). `?role=…` and frame URLs (`?f=`) keep the mock data. Kill switch: `VITE_SITE_COPY_LIVE=off`.
+
+- `siteCopy/live/copyLive.js` fills the same `useCopyKv` keys from the backend and sends each change back: editor drafts → `PUT /blocks/:key/draft`, publish / discard dialogs → `POST /blocks/:key/publish|discard`, history → `GET /blocks/:key/history`, restore → `POST /blocks/:key/restore`, names → `/terms`. The screens did not change shape.
+- `live/copyFormat.js`: ids `public.home.how-it-works` ↔ keys `public.home.howItWorks`, field keys `primary_cta` ↔ paths `primaryCta`; rich text HTML ↔ the backend's restricted Markdown (`**bold**`, `_italic_`, `- ` / `1. ` lines, `[label](url)`, name tokens `{assistant}`, `{assistant.short}`).
+- `live/copyManifest.js`: the editable sections, built from the screens' own definitions. When a super admin opens the area and the backend lacks sections, it registers them (`POST /manifest`, never retires anything).
+- Versions: the screens call the original text version 1, so a screen version is the backend version + 1. Restoring version 1 saves every field back to the original and publishes.
+- Product names: the backend publishes every saved name draft together; "Send back" saves the live forms again (clears the draft).
+- In live mode the browse list ignores the drawn "edited" statuses and seeded draft counts.
+- Not live yet: Media library (needs media storage credentials to test uploads), Settings → Roles / Staff (still mock), the portal tiles' page / edited counts, the editor Pages card statuses.
+
 ### URLs (all with `?role=editor` unless noted)
 
 `/admin` (home, `&tour=1`), `/admin?role=super&copy=1`, `/admin/site-copy` (`portal=`, `find=`, `filter=`, `view=after-release|changed|removed`, `state=loading|error`), `/admin/site-copy/section/:id` (+ `/preview`, `/history`, `?modal=`), `/admin/site-copy/publish-demo`, `/admin/site-copy/fields-demo`, `/admin/product-names[/:id]` (`role=super`), `/admin/media[/:id]`, `/admin/site-copy/settings/{roles,staff-create,staff-list}`.

@@ -6,6 +6,8 @@ import AdminStub from '../AdminStub.jsx';
 import { useAdminState } from '../adminState.js';
 import { useAdminSession } from '../useAdminSession.js';
 import { resolveScreen } from './siteCopyScreens.js';
+import CopyLiveSync from './live/CopyLiveSync.jsx';
+import { liveEnabled, setCopyLive } from './live/copyLive.js';
 
 const log = debug('AdminCopyArea');
 
@@ -37,6 +39,11 @@ const AdminCopyArea = ({ area }) => {
     search,
   };
   const allowed = session.copy?.read;
+  // Real staff session (no `?role=` mock role, no `?f=` frame URL): the area runs on the backend (live/copyLive.js).
+  const live =
+    Boolean(allowed && session.signedIn && !session.mock && liveEnabled()) &&
+    !new URLSearchParams(search).has('f');
+  setCopyLive(live, session);
   const screen = resolveScreen(allowed ? area : 'noaccess', ctx);
 
   useEffect(() => {
@@ -57,6 +64,7 @@ const AdminCopyArea = ({ area }) => {
       : undefined;
   return (
     <AdminFrame data={data} title={allowed ? 'Site copy' : 'Not available'} active={active}>
+      {live ? <CopyLiveSync area={area} /> : null}
       {Screen ? (
         <Screen ctx={ctx} data={data} session={session} />
       ) : (

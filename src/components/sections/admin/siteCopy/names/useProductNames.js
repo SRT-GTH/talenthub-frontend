@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useCopyKv } from '../useCopyKv.js';
 import { formerNamesAfter } from './productNameRules.js';
+import { publishNameLive, saveNameDraftLive, sendBackNameLive } from '../live/copyLive.js';
 import { NAME_STAFF, PRODUCT_NAMES, SEED_DRAFT, SEED_REASON } from './productNamesData.js';
 
 const log = debug('useProductNames');
@@ -32,6 +33,7 @@ export const useProductNames = () => {
         ...prev,
         [id]: { draft, status: 'draft', reason: '', by, at: new Date().toISOString() },
       }));
+      saveNameDraftLive(id, draft);
     },
     [setRenames]
   );
@@ -44,6 +46,7 @@ export const useProductNames = () => {
         delete next[id];
         return next;
       });
+      sendBackNameLive(id);
     },
     [setRenames]
   );
@@ -77,6 +80,7 @@ export const useProductNames = () => {
           publishedAt: new Date().toISOString(),
         },
       }));
+      publishNameLive(id, draft, reason);
     },
     [setList, setRenames]
   );

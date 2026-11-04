@@ -11,8 +11,12 @@ import {
   previewOf,
   searchSections,
 } from './siteCopyBrowseData.js';
+import { isCopyLive } from '../live/copyLive.js';
 
 const log = debug('siteCopyBrowseModel');
+
+// Live mode (live/copyLive.js): only the store counts; the drawn 'edited' statuses and seeded draft counts are mock data.
+const drawn = () => !isCopyLive();
 
 /*
  * siteCopyBrowseModel — pure functions that turn the seed data (siteCopyBrowseData.js) plus the shared mock "server" (`site-copy.drafts`,
@@ -31,7 +35,7 @@ export const sectionChip = (section, { drafts, published }) => {
   const n = sectionDraftCount(section, { drafts });
   if (n > 0) return { kind: 'draft', count: n };
   if (section.shared) return { kind: 'shared' };
-  if (section.status === 'edited' || isPublishedSection(published, section.id)) {
+  if ((drawn() && section.status === 'edited') || isPublishedSection(published, section.id)) {
     return { kind: 'edited' };
   }
   return { kind: 'default' };
@@ -41,7 +45,7 @@ export const sectionChip = (section, { drafts, published }) => {
 export const pageDraftCount = (page, { drafts, seeds = true }) => {
   const saved = page.sections.reduce((n, s) => n + draftCountOf(drafts, s.id), 0);
   if (saved > 0) return saved;
-  return seeds ? (page.draftSeed ?? 0) : 0;
+  return seeds && drawn() ? (page.draftSeed ?? 0) : 0;
 };
 
 /** The chip of a page row. */
@@ -50,7 +54,7 @@ export const pageChip = (page, ctx) => {
   const n = pageDraftCount(page, ctx);
   if (n > 0) return { kind: 'draft', count: n };
   if (
-    page.status === 'edited' ||
+    (drawn() && page.status === 'edited') ||
     page.sections.some((s) => isPublishedSection(ctx.published, s.id))
   ) {
     return { kind: 'edited' };
@@ -65,7 +69,7 @@ export const listedPages = (portalId) =>
 /** Draft groups of the "Has unpublished changes" view: [{ key, portal, label, count, sections: [{ id, label, summary, count }] }]. */
 export const unpublishedGroups = ({ drafts, seeds = true }) => {
   const groups = [];
-  if (seeds) {
+  if (seeds && drawn()) {
     UNPUBLISHED_SEED.forEach((g) =>
       groups.push({
         key: `${g.portal}/${g.pageId}`,
@@ -116,7 +120,7 @@ export const unpublishedGroups = ({ drafts, seeds = true }) => {
 export const editedGroups = (portalId, { published }) => {
   const portal = portalById(portalId);
   const pool = SITE_PAGES[portalId]?.pages ?? [];
-  const seed = EDITED_VIEW[portalId];
+  const seed = drawn() ? EDITED_VIEW[portalId] : null;
   const extraIds = (pg) =>
     pg.sections.filter((s) => isPublishedSection(published, s.id) && s.status !== 'edited');
   let pages;
@@ -137,17 +141,19 @@ export const editedGroups = (portalId, { published }) => {
     total = EDITED_VIEW.sectionsTotal;
   } else {
     pages = pool
-      .filter((p) => p.listed !== false && (p.status === 'edited' || extraIds(p).length))
+      .filter(
+        (p) => p.listed !== false && ((drawn() && p.status === 'edited') || extraIds(p).length)
+      )
       .map((p) => ({
         id: p.id,
         label: p.label,
         status: 'edited',
         sections: p.sections.filter(
-          (s) => s.status === 'edited' || isPublishedSection(published, s.id)
+          (s) => (drawn() && s.status === 'edited') || isPublishedSection(published, s.id)
         ),
         extra: 0,
       }));
-    total = portal.edited;
+    total = drawn() ? portal.edited : pages.reduce((n, p) => n + p.sections.length, 0);
   }
   // pages that are only edited through the editor (not in the seed view) join the list
   pool.forEach((p) => {
