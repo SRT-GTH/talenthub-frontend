@@ -1,3 +1,4 @@
+import { useCopyRegistryVersion } from '../../../../../copy/copyRegistry.js';
 import { isCopyLive } from '../live/copyLive.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
@@ -50,7 +51,12 @@ const sectionIdOf = (ctx) => {
 };
 
 const SectionEditorBody = ({ ctx, data, session, sectionId, item, preset }) => {
-  const section = useMemo(() => resolveSection(sectionId, item), [sectionId, item]);
+  // Re-resolved when backend-declared sections (emails) arrive after the first render.
+  const registryVersion = useCopyRegistryVersion();
+  const section = useMemo(
+    () => resolveSection(sectionId, item),
+    [sectionId, item, registryVersion] // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const readOnly = !session.copy?.edit;
   const editor = useSectionEditor({ section, preset, readOnly });
   const [query, setQuery] = useState('');

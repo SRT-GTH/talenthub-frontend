@@ -14,6 +14,7 @@ import PreviewToolbar from '../preview/PreviewToolbar.jsx';
 import { PreviewEyeIcon } from '../preview/PreviewIcons.jsx';
 import QuickSectionPanel from '../preview/QuickSectionPanel.jsx';
 import LivePagePreview from '../preview/LivePagePreview.jsx';
+import EmailCopyPreview from '../preview/EmailCopyPreview.jsx';
 import { isCopyLive } from '../live/copyLive.js';
 import { COPY_SECTIONS } from '../../../../../copy/copyRegistry.js';
 import {
@@ -218,7 +219,9 @@ const SectionPreview = ({ ctx, data, session }) => {
                 meta.previewKind === 'faq' && device === 'desktop' ? 'mx-auto max-w-[1100px]' : ''
               }
             >
-              {isCopyLive() && COPY_SECTIONS[sectionId] ? (
+              {isCopyLive() && COPY_SECTIONS[sectionId]?.preview?.email ? (
+                <EmailCopyPreview sectionId={sectionId} view={view} device={device} />
+              ) : isCopyLive() && COPY_SECTIONS[sectionId] ? (
                 <LivePagePreview sectionId={sectionId} view={view} device={device} />
               ) : homeTop ? (
                 <>

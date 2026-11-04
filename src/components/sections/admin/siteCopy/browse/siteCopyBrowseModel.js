@@ -221,6 +221,9 @@ export const subtitleFor = ({ state, searching, filter, portal, drafts, seeds })
     const n = comingSoonPages(portal.id).length;
     return `${portal.subtitle} · ${n} ${n === 1 ? 'page' : 'pages'} not editable yet`;
   }
+  if (portal.id === 'emails' && !drawn()) {
+    return `Emails · ${liveSectionCount('emails')} designed emails · subject and the main lines of each`;
+  }
   if (portal.id === 'emails') {
     return 'Emails · 38 templates · subject, heading, body and button for each';
   }

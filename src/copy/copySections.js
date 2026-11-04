@@ -41,10 +41,14 @@ export const TERM_KEYS = new Set([
 ]);
 export const toStoredText = (text) =>
   typeof text === 'string'
-    ? text.replace(/\{([a-z][a-zA-Z0-9]*)\}/g, (m, k) => (TERM_KEYS.has(k) ? m : `[${k}]`))
+    ? text.replace(/(?<!\{)\{([a-z][a-zA-Z0-9]*)\}(?!\})/g, (m, k) =>
+        TERM_KEYS.has(k) ? m : `[${k}]`
+      )
     : text;
 export const fromStoredText = (text) =>
-  typeof text === 'string' ? text.replace(/\[([a-z][a-zA-Z0-9]*)\](?!\()/g, '{$1}') : text;
+  typeof text === 'string'
+    ? text.replace(/(?<!\[)\[([a-z][a-zA-Z0-9]*)\](?![(\]])/g, '{$1}')
+    : text;
 
 /** Keep the original's leading / trailing spaces (the backend trims saved text; "Good morning, " is followed by a name). */
 export const keepEdges = (original, text) => {
