@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import { isCopyPreview, loadCopyBundle } from './copy/copyBundle.js';
+import { startAutoCopy } from './copy/portals/autoPortalsRuntime.js';
 import { faroEnabled, initFaro } from './observability/faro.js';
 
 const render = () =>
@@ -21,3 +22,6 @@ else {
 
 // Real-user monitoring (Grafana Faro): only when VITE_FARO_URL is set, loaded after first render.
 if (faroEnabled()) initFaro();
+
+// Site copy: portal data files with published text are loaded and bound (copy/portals/autoPortalsRuntime.js).
+startAutoCopy();
