@@ -4,6 +4,7 @@ import { useCopyKv } from '../useCopyKv.js';
 import { countChars, sameValue, unknownChips } from './richText.js';
 import { resolveSection } from './sectionEditorData.js';
 import { savedLabel } from './editorTime.js';
+import { saveDraftField } from '../live/copyLive.js';
 
 const log = debug('useSectionEditor');
 
@@ -88,8 +89,9 @@ export const useSectionEditor = ({ section, preset, readOnly }) => {
         else next[sectionId] = { fields, savedAt: Date.now() };
         return next;
       });
+      if (!preset) saveDraftField(sectionId, f, v); // live mode only (no-op on mock data)
     },
-    [setDrafts, sectionId]
+    [setDrafts, sectionId, preset]
   );
 
   const commit = useCallback(

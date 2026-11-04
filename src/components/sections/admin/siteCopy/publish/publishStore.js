@@ -1,5 +1,6 @@
 import { debug } from '../../../../../utils/debug.js';
 import { seedHistory } from '../preview/previewHistoryData.js';
+import { discardLive, isCopyLive, publishLive } from '../live/copyLive.js';
 
 const log = debug('publishStore');
 
@@ -42,7 +43,7 @@ export const publishChanges = ({ changes, reason, who }) => {
   const when = new Date().toISOString();
   changes.forEach((c) => {
     // Start from the same seed the history screen shows (the drawn versions of the hero), so the new entry is version N + 1.
-    const history = read(historyKey(c.sectionId), seedHistory(c.sectionId));
+    const history = read(historyKey(c.sectionId), isCopyLive() ? [] : seedHistory(c.sectionId));
     const last = history.reduce((m, h) => Math.max(m, h.version ?? 0), c.currentVersion ?? 0);
     const version = last + 1;
     versions[c.sectionId] = version;
@@ -67,6 +68,8 @@ export const publishChanges = ({ changes, reason, who }) => {
   write('site-copy.published', published);
   write('site-copy.drafts', drafts);
   log('published', { sections: changes.map((c) => c.sectionId), versions, reason });
+  // Live mode: the backend publishes and the store is refreshed from its answer (versions, history).
+  if (isCopyLive()) publishLive(changes, reason);
   return { versions };
 };
 
@@ -77,5 +80,6 @@ export const discardChanges = ({ changes }) => {
     delete drafts[c.sectionId];
   });
   write('site-copy.drafts', drafts);
+  if (isCopyLive()) discardLive(changes);
   log('discarded', { sections: changes.map((c) => c.sectionId) });
 };

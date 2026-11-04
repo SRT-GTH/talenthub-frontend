@@ -1,3 +1,8 @@
+import { toPlainText } from '../editor/richText.js';
+
+/** A rich value is stored HTML (chips, bold …); the change line shows its words. */
+const plain = (v) => (typeof v === 'string' && v.includes('<') ? toPlainText(v) : (v ?? ''));
+
 /*
  * publishData — copy, limits, the change model and the demo seeds of the publish flow (Platform Admin 7.8.4a-i).
  *
@@ -58,7 +63,11 @@ export const changeRows = (changes) =>
     c.fields.map((f) => ({
       id: `${c.sectionId}:${f.key}`,
       title: `${c.label} · ${f.label}`,
-      detail: f.summary ?? (f.quoted ? `“${f.before}” → “${f.after}”` : `${f.before} → ${f.after}`),
+      detail:
+        f.summary ??
+        (f.quoted
+          ? `“${plain(f.before)}” → “${plain(f.after)}”`
+          : `${plain(f.before)} → ${plain(f.after)}`),
     }))
   );
 
