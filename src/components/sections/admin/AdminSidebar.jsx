@@ -5,7 +5,8 @@ import AdminNavItem from './AdminNavItem.jsx';
 import AdminHandbookCard from './AdminHandbookCard.jsx';
 import AdminPersonaCard from './AdminPersonaCard.jsx';
 import { AgencyLinkIcon, AgencySidebarToggleIcon } from '../agency/agencyIcons.jsx';
-import { PRIMARY_NAV, SECONDARY_NAV } from './adminNav.js';
+import { useLocation } from 'react-router-dom';
+import { navForRole } from './adminNav.js';
 
 const log = debug('AdminSidebar');
 
@@ -27,7 +28,16 @@ const AdminSidebar = ({
   className,
 }) => {
   const rail = variant === 'rail';
-  log('render', { variant, activeId });
+  const { pathname } = useLocation();
+  const { primary, secondary } = navForRole(session.role, session.copyNav);
+  // Site copy screens (7.8) draw the active item as a gradient; the older screens keep the solid fill.
+  const gradient =
+    session.role === 'editor' || /^\/admin\/(site-copy|product-names|media)/.test(pathname);
+  // The Content Editor's "Site copy" item carries the drafts count (7.8.0a).
+  const badges = {
+    'site-copy': session.role === 'editor' ? session.staff.stats?.[0]?.value : undefined,
+  };
+  log('render', { variant, activeId, role: session.role });
   return (
     <nav
       aria-label="Admin"
@@ -72,25 +82,28 @@ const AdminSidebar = ({
         )}
       >
         <div className={classNames('flex flex-col gap-[4px]', rail && 'items-center')}>
-          {PRIMARY_NAV.map((item) => (
+          {primary.map((item) => (
             <AdminNavItem
               key={item.id}
               item={item}
               variant={variant}
               active={activeId === item.id}
               onNavigate={onNavigate}
+              gradient={gradient}
+              badge={badges[item.id]}
             />
           ))}
         </div>
         <div role="separator" className="h-px w-full rounded-full bg-[#e1eae2]" />
         <div className={classNames('flex flex-col gap-[4px]', rail && 'items-center')}>
-          {SECONDARY_NAV.map((item) => (
+          {secondary.map((item) => (
             <AdminNavItem
               key={item.id}
               item={item}
               variant={variant}
               active={activeId === item.id}
               onNavigate={onNavigate}
+              gradient={gradient}
             />
           ))}
         </div>
@@ -98,8 +111,8 @@ const AdminSidebar = ({
       {rail ? (
         <Link
           to="/admin/settings/roles"
-          aria-label="Staff handbook"
-          title="Staff handbook"
+          aria-label={session.staff.handbookTitle ?? 'Staff handbook'}
+          title={session.staff.handbookTitle ?? 'Staff handbook'}
           className="mt-auto flex size-[44px] items-center justify-center rounded-[10px] bg-[#ebf1ec] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <AgencyLinkIcon className="size-[18px]" />

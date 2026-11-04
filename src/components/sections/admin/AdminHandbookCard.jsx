@@ -14,7 +14,7 @@ const log = debug('AdminHandbookCard');
 
 const AdminHandbookCard = ({ session, onNavigate, className }) => (
   <section
-    aria-label="Staff handbook"
+    aria-label={session.staff.handbookTitle ?? 'Staff handbook'}
     className={classNames(
       'flex flex-col gap-[10px] rounded-[12px] border border-solid border-[#f8f8f4] bg-white p-[11px] shadow-[0_2px_4px_rgba(15,15,10,0.06),0_12px_28px_-6px_rgba(15,15,10,0.1)]',
       className
@@ -23,7 +23,7 @@ const AdminHandbookCard = ({ session, onNavigate, className }) => (
     <div className="flex items-center gap-[6px] rounded-[8px] bg-[#ebf1ec] px-[10px] py-[8px]">
       <AdminLinkChainIcon className="size-[14px] shrink-0 text-[#387440]" />
       <span className="font-sans text-[13px] leading-[18px] font-medium tracking-[0.2px] text-[#387440]">
-        Staff handbook
+        {session.staff.handbookTitle ?? 'Staff handbook'}
       </span>
     </div>
     <p className="m-0 font-['DM_Mono',ui-monospace,monospace] text-[10px] leading-[16px] tracking-[0.2px] break-words text-[#32683a] max-lg:text-[12px]">
@@ -38,7 +38,7 @@ const AdminHandbookCard = ({ session, onNavigate, className }) => (
       rightIcon={<AgencyArrowRightIcon className="size-[20px] text-[#387440]" />}
       className="w-full"
     >
-      Open handbook
+      {session.staff.handbookCta ?? 'Open handbook'}
     </AgencyButton>
   </section>
 );
