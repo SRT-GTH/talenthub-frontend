@@ -45,18 +45,20 @@ const Section = ({ s, selected, onSelect }) => (
     >
       <span className="flex min-h-[32px] items-center gap-[8px]">
         <span
+          aria-hidden="true"
+          data-name={s.name}
           className={classNames(
-            'min-w-0 flex-1 font-sans text-[14px] leading-[17px] text-[#1c2a21]',
+            'min-w-0 flex-1 font-sans text-[14px] leading-[17px] text-[#1c2a21] after:content-[attr(data-name)]',
             selected ? 'font-semibold' : 'font-medium'
           )}
-        >
-          {s.name}
-        </span>
+        />
         <SyncChip tone={s.chip} generated />
       </span>
-      <span className="font-sans text-[12.5px] leading-[15px] text-[#575755] max-lg:text-[12.5px]">
-        {s.sub}
-      </span>
+      <span
+        aria-hidden="true"
+        data-sub={s.sub}
+        className="font-sans text-[12.5px] leading-[15px] text-[#575755] after:content-[attr(data-sub)] max-lg:text-[12.5px]"
+      />
     </button>
   </li>
 );
@@ -72,9 +74,11 @@ const PageRow = ({ ctx, view, page, open, onToggle, selected, onSelect, query })
       ) : (
         <ChevronRightIcon className="size-[16px] shrink-0 text-[#1c2a21]" />
       )}
-      <span className="min-w-0 flex-1 font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
-        {page.name}
-      </span>
+      <span
+        aria-hidden="true"
+        data-name={page.name}
+        className="min-w-0 flex-1 font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21] after:content-[attr(data-name)]"
+      />
       <SyncChip tone={page.chip} generated>
         {page.label}
       </SyncChip>
