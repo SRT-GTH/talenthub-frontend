@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import ParentFrame from '../../components/sections/parent/ParentFrame.jsx';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../copy/portals/parentCopy.js';
 
 const ParentHomePage = lazy(() => import('./ParentHomePage.jsx'));
 const ParentWardsPage = lazy(() => import('./ParentWardsPage.jsx'));

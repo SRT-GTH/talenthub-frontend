@@ -142,6 +142,18 @@ export const HOME_FAQ_COPY = copySection({
   ],
 });
 
+// Site copy list and preview: all on the Home page ("/"), each at its own anchor.
+[
+  [HOME_HERO_COPY, 'lp-hero'],
+  [HOME_HOW_COPY, 'lp-how'],
+  [HOME_FEATURES_COPY, 'lp-features'],
+  [HOME_MADE_FOR_GHANA_COPY, 'made-for-ghana'],
+  [HOME_FAQ_COPY, 'faq'],
+].forEach(([s, anchor]) => {
+  s.pageLabel = 'Home';
+  s.preview = { path: '/', anchor };
+});
+
 /** Every editable section of the public site, by section id (the Site copy screens' ids). */
 export const PUBLIC_COPY_SECTIONS = Object.fromEntries(
   [HOME_HERO_COPY, HOME_HOW_COPY, HOME_FEATURES_COPY, HOME_MADE_FOR_GHANA_COPY, HOME_FAQ_COPY].map(

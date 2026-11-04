@@ -121,7 +121,10 @@ export const resetParentLive = () => emit({ me: empty(), wards: {} });
 /** True when this page shows live data (signed in, not a design frame). */
 export const useParentLiveMode = () => {
   const [params] = useSearchParams();
-  return isLoggedIn() && !params.has('state') && params.get('demo') !== '1';
+  // Site copy → Preview (`?copyPreview=`) shows the sample parent, never the staff member's own account.
+  return (
+    isLoggedIn() && !params.has('state') && params.get('demo') !== '1' && !params.has('copyPreview')
+  );
 };
 
 /** { live, status, data, error, code } for GET /parent/me; loads on first use. */

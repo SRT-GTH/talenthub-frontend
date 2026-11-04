@@ -1,3 +1,4 @@
+import { isCopyLive } from '../live/copyLive.js';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../../utils/debug.js';
@@ -21,7 +22,7 @@ import { BrowseInfoIcon } from '../browse/SiteCopyBrowseIcons.jsx';
 import {
   EMAIL_PREVIEW,
   PORTALS,
-  SITE_PAGES,
+  sitePages,
   portalById,
   previewOf,
 } from '../browse/siteCopyBrowseData.js';
@@ -31,6 +32,7 @@ import {
   editedGroups,
   listedPages,
   pageChip,
+  liveSectionCount,
   pageDraftCount,
   searchGroups,
   sectionChip,
@@ -107,7 +109,7 @@ const SiteCopyBrowse = ({ ctx, data }) => {
   const edited = mode === 'edited' ? editedGroups(portal.id, m) : null;
   const soon = mode === 'soon' ? comingSoonPages(portal.id) : [];
   const pages = listedPages(portal.id);
-  const sharedPages = SITE_PAGES[portal.id]?.shared ?? [];
+  const sharedPages = sitePages()[portal.id]?.shared ?? [];
 
   /* ── per-view UI state (open pages, selected section) resets when the view changes ── */
   const viewKey = `${mode}|${portal.id}|${tooShort ? 'short' : ''}`;
@@ -455,7 +457,13 @@ const SiteCopyBrowse = ({ ctx, data }) => {
     listCard = (
       <SiteCopyPagesCard
         title={isEmails ? 'TEMPLATES' : LIST_TITLES.browse}
-        meta={isEmails ? `${portal.pages} templates` : `${portal.pages} pages`}
+        meta={
+          isEmails
+            ? `${portal.pages} templates`
+            : isCopyLive()
+              ? `${liveSectionCount(portal.id)} sections`
+              : `${portal.pages} pages`
+        }
       >
         {pages.map((pg) => pageGroup(pg))}
         {sharedPages.length ? (

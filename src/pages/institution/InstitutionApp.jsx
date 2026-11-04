@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { Route, Routes } from 'react-router-dom';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../copy/portals/institutionCopy.js';
 
 /*
  * InstitutionApp — the router of the Theme 11 institution portal (Figma canvas 8520:10), mounted by App.jsx as /institution/* outside MainLayout.

@@ -7,6 +7,8 @@ import { homeTabRoute } from './talentShellData.js';
 import { TALENT_NAV_MAIN, TALENT_NAV_SECONDARY } from './talentShellData.js';
 import toggleIcon from '../../../assets/notifications/rail/toggle.svg';
 import publicLinkIcon from '../../../assets/notifications/rail/public-link.svg';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../../copy/portals/talentCopy.js';
 
 const log = debug('TalentRailCollapsed');
 

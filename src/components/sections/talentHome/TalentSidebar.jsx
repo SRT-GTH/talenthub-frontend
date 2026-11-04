@@ -18,6 +18,8 @@ import {
 import PublicProfileCard from './TalentPublicProfileCard.jsx';
 import SwitchSpaceMenu from '../parent/switch/SwitchSpaceMenu.jsx';
 import emmaPhoto from '../../../assets/parent/emma.webp';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../../copy/portals/talentCopy.js';
 
 const log = debug('TalentSidebar');
 

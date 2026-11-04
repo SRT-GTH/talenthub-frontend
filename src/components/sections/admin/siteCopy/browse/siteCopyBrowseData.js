@@ -1,3 +1,5 @@
+import { isCopyLive } from '../live/copyLive.js';
+import { copyPagesOf } from '../../../../../copy/copyRegistry.js';
 import { debug } from '../../../../../utils/debug.js';
 
 const log = debug('siteCopyBrowseData');
@@ -69,6 +71,15 @@ export const PORTALS = [
     iconKey: 'book',
   },
   {
+    id: 'government',
+    label: 'Government',
+    subtitle: 'Government portal',
+    pages: 2,
+    edited: 0,
+    unit: 'pages',
+    iconKey: 'shield',
+  },
+  {
     id: 'emails',
     label: 'Emails',
     subtitle: 'Emails',
@@ -78,6 +89,10 @@ export const PORTALS = [
     iconKey: 'chat',
   },
 ];
+
+/** The pages of every portal: what the pages declare (live), or the drawn lists (mock). */
+export const sitePages = () =>
+  isCopyLive() ? Object.fromEntries(PORTALS.map((p) => [p.id, copyPagesOf(p.id)])) : SITE_PAGES;
 
 export const portalById = (id) => PORTALS.find((p) => p.id === id) ?? PORTALS[0];
 
@@ -429,7 +444,7 @@ export const highlightParts = (text, q) => {
 
 /** Every page of every portal, flattened with its portal (the search corpus and the "not editable yet" view). */
 export const allPages = () =>
-  Object.entries(SITE_PAGES).flatMap(([portal, { pages, shared: sh }]) => [
+  Object.entries(sitePages()).flatMap(([portal, { pages, shared: sh }]) => [
     ...pages.map((p) => ({ ...p, portal, isShared: false })),
     ...sh.map((p) => ({ ...p, portal, isShared: true })),
   ]);

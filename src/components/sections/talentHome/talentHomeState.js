@@ -159,11 +159,14 @@ export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
   // `?as=emma` (Figma canvas "Parent who is also a talent"): the Discoverable demo home with Emma's details (emmaPersona.js).
   const asEmma = params.get('as') === 'emma';
+  // Site copy → Preview (`?copyPreview=`): the day-1 sample home, so staff see every card without a talent account.
   const demoState = HOME_STATE_KEYS.includes(params.get('state'))
     ? params.get('state')
     : asEmma
       ? 'discoverable'
-      : null;
+      : params.has('copyPreview')
+        ? 'day1'
+        : null;
   const navigate = useNavigate();
   // null = loading, false = failed. Starts from this tab's cached copy when
   // there is one, so returning to /home shows the data at once.
