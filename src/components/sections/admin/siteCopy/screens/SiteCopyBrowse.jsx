@@ -459,7 +459,9 @@ const SiteCopyBrowse = ({ ctx, data }) => {
         title={isEmails ? 'TEMPLATES' : LIST_TITLES.browse}
         meta={
           isEmails
-            ? `${portal.pages} templates`
+            ? isCopyLive()
+              ? `${liveSectionCount(portal.id)} emails`
+              : `${portal.pages} templates`
             : isCopyLive()
               ? `${liveSectionCount(portal.id)} sections`
               : `${portal.pages} pages`
@@ -477,7 +479,7 @@ const SiteCopyBrowse = ({ ctx, data }) => {
     const selSection = ui.selected
       ? pages.flatMap((p) => p.sections).find((s) => s.id === ui.selected)
       : null;
-    if (isEmails && selSection && ui.open.length) {
+    if (isEmails && !isCopyLive() && selSection && ui.open.length) {
       const key = selSection.id.split('.')[1];
       right = EMAIL_PREVIEW[key] ? <SiteCopyEmailPreview preview={EMAIL_PREVIEW[key]} /> : null;
     } else if (!isEmails && !firstTour && portal.id === 'public' && ui.open.includes('home')) {

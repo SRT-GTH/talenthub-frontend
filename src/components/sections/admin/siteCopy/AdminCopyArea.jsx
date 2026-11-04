@@ -1,3 +1,4 @@
+import { useCopyRegistryVersion } from '../../../../copy/copyRegistry.js';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
@@ -27,6 +28,7 @@ const BASE = {
 const AdminCopyArea = ({ area }) => {
   const data = useAdminState();
   const session = useAdminSession();
+  useCopyRegistryVersion(); // the list and screens re-render when the backend's email sections arrive
   const { pathname, search } = useLocation();
   const segments = pathname.replace(/\/+$/, '').slice(BASE[area].length).split('/').filter(Boolean);
   const ctx = {
