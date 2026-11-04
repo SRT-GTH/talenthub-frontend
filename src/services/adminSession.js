@@ -6,7 +6,7 @@ const log = debug('adminSession');
 /*
  * The signed-in GTH staff member, read from the normal login session (auth.api verifyLoginOtp stores the token and user).
  * Staff are users whose entityType is one of the backend staff types (services/adminAccount.service.js):
- *   super_admin -> 'super', senior_admin -> 'senior', support_agent -> 'support', content_moderator -> 'moderator'.
+ *   super_admin -> 'super', senior_admin -> 'senior', support_agent -> 'support', content_moderator -> 'moderator', content_editor -> 'editor'.
  * The Platform Admin screens use the short ids. There is no Data Protection Officer type in the backend yet.
  */
 
@@ -15,6 +15,7 @@ export const STAFF_ROLE_BY_TYPE = {
   senior_admin: 'senior',
   support_agent: 'support',
   content_moderator: 'moderator',
+  content_editor: 'editor', // Site copy, Product names and Media library only (Platform Admin 7.8)
 };
 export const STAFF_TYPE_BY_ROLE = Object.fromEntries(
   Object.entries(STAFF_ROLE_BY_TYPE).map(([type, role]) => [role, type]),
