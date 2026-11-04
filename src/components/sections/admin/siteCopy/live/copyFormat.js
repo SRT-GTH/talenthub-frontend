@@ -1,3 +1,4 @@
+import { fromStoredText, toStoredText } from '../../../../../copy/copySections.js';
 /*
  * copyFormat — the translation between the Site copy screens and the backend (srt-backend utils/platformCopy.js).
  *
@@ -170,13 +171,13 @@ export const mdToHtml = (md) => {
 /** Screen value → backend value for a field kind. */
 export const toBackendValue = (field, value) => {
   if (value === null || value === undefined) return null;
-  return field?.kind === 'rich' ? htmlToMd(value) : String(value);
+  return field?.kind === 'rich' ? htmlToMd(value) : toStoredText(String(value));
 };
 
 /** Backend value → screen value for a field kind. */
 export const fromBackendValue = (field, value) => {
   if (value === null || value === undefined) return value;
-  return field?.kind === 'rich' ? mdToHtml(value) : String(value);
+  return field?.kind === 'rich' ? mdToHtml(value) : fromStoredText(String(value));
 };
 
 /** "Today 15:12" · "Yesterday 17:40" · "28 Oct 14:02" (the History rows' style). */

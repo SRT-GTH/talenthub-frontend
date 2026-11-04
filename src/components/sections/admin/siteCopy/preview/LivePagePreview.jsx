@@ -1,36 +1,32 @@
 import { useEffect, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { copyPreviewToken } from '../../../../../services/siteCopy.api.js';
+import { COPY_SECTIONS } from '../../../../../copy/copyRegistry.js';
 import { flushSection } from '../live/copyLive.js';
 
 const log = debug('LivePagePreview');
 
 /*
- * LivePagePreview — the real public page in the preview frame (live mode, see live/copyLive.js). "My draft" loads the page with a
- * 30-minute staff preview token (`?copyPreview=`, the page then reads the drafts from GET /api/copy/bundle?preview=); "What everyone
- * sees now" loads it without one. The page scrolls to the section being previewed.
- * Props: sectionId, view ('draft' | 'published'), device.
+ * LivePagePreview — the real page in the preview frame (live mode, see live/copyLive.js), at the place the section declares
+ * (copy/copySections.js `preview: { path, anchor }`). "My draft" loads it with a 30-minute staff preview token (`?copyPreview=`): the
+ * page reads the drafts from GET /api/copy/bundle?preview= and the portals show their sample account instead of a signed-in one.
+ * "What everyone sees now" loads it without a token. Props: sectionId, view ('draft' | 'published'), device.
  */
-const PAGE_OF = { home: '/' };
-const ANCHOR_OF = {
-  'public.home.hero': 'lp-hero',
-  'public.home.how-it-works': 'lp-how',
-  'public.home.features': 'lp-features',
-  'public.home.made-for-ghana': 'made-for-ghana',
-  'public.home.faq': 'faq',
-};
 const HEIGHT = { desktop: 900, tablet: 1000, phone: 760 };
 
-const livePreviewUrl = (sectionId, token) => {
-  const page = PAGE_OF[String(sectionId).split('.')[1]] ?? '/';
-  const q = token ? `?copyPreview=${encodeURIComponent(token)}` : '';
-  const anchor = ANCHOR_OF[sectionId];
-  return `${page}${q}${anchor ? `#${anchor}` : ''}`;
+const previewUrl = (sectionId, token) => {
+  const p = COPY_SECTIONS[sectionId]?.preview ?? {};
+  const path = p.path ?? '/';
+  const q = new URLSearchParams(p.query ?? {});
+  if (token) q.set('copyPreview', token);
+  const qs = q.toString();
+  return `${path}${qs ? `?${qs}` : ''}${p.anchor ? `#${p.anchor}` : ''}`;
 };
 
 const LivePagePreview = ({ sectionId, view, device }) => {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
+  const anchor = COPY_SECTIONS[sectionId]?.preview?.anchor;
 
   useEffect(() => {
     if (view !== 'draft') return undefined;
@@ -54,7 +50,7 @@ const LivePagePreview = ({ sectionId, view, device }) => {
   if (view === 'draft' && !token) {
     return <p className="m-0 p-6 font-sans text-[15px] text-[#595959]">Opening the preview…</p>;
   }
-  const src = livePreviewUrl(sectionId, view === 'draft' ? token : null);
+  const src = previewUrl(sectionId, view === 'draft' ? token : null);
   return (
     <div className="flex flex-col">
       <iframe
@@ -63,7 +59,6 @@ const LivePagePreview = ({ sectionId, view, device }) => {
         title={view === 'draft' ? 'The page with your draft' : 'The page as everyone sees it'}
         onLoad={(e) => {
           // The page draws its sections after load; jump to the one being previewed once it is there.
-          const anchor = ANCHOR_OF[sectionId];
           const win = e.currentTarget.contentWindow;
           if (!anchor || !win) return;
           let tries = 0;

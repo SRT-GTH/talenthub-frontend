@@ -6,6 +6,19 @@ import { COPY_PATHS, copyUrl } from '../copyUrl.js';
 import CopyStatusChip from './CopyStatusChip.jsx';
 import { EditorChevronDownIcon, EditorChevronRightIcon } from './EditorIcons.jsx';
 import { PAGES, PAGES_TOTAL } from './sectionEditorData.js';
+import { isCopyLive } from '../live/copyLive.js';
+import { copyPagesOf } from '../../../../../copy/copyRegistry.js';
+
+/** Live mode: the pages of the current section's portal as the pages declare them; mock: the drawn Public site tree. */
+const treeFor = (activeId) => {
+  if (!isCopyLive()) return { pages: PAGES, total: PAGES_TOTAL };
+  const { pages, shared } = copyPagesOf(String(activeId).split('.')[0]);
+  const all = [
+    ...pages,
+    ...shared.map((p) => ({ ...p, sections: p.sections.map((s) => ({ ...s, status: 'shared' })) })),
+  ];
+  return { pages: all, total: all.length };
+};
 
 const log = debug('PagesTree');
 
@@ -26,20 +39,27 @@ const statusOf = (section, draftCounts, published) => {
 };
 
 const PagesTree = ({ ctx, activeId, draftCounts, published, summaries = {}, query = '' }) => {
-  const [open, setOpen] = useState({ home: true });
+  const tree = treeFor(activeId);
+  const [open, setOpen] = useState(() =>
+    Object.fromEntries(
+      tree.pages.map((p) => [p.id, p.id === 'home' || p.sections.some((s) => s.id === activeId)])
+    )
+  );
   const q = query.trim().toLowerCase();
 
-  const pages = PAGES.map((p) => {
-    const sections = q
-      ? p.sections.filter((s) => `${s.label} ${s.summary}`.toLowerCase().includes(q))
-      : p.sections;
-    const pageMatch = q && p.label.toLowerCase().includes(q);
-    return {
-      ...p,
-      shown: pageMatch ? p.sections : sections,
-      hit: !q || pageMatch || sections.length > 0,
-    };
-  }).filter((p) => p.hit);
+  const pages = tree.pages
+    .map((p) => {
+      const sections = q
+        ? p.sections.filter((s) => `${s.label} ${s.summary}`.toLowerCase().includes(q))
+        : p.sections;
+      const pageMatch = q && p.label.toLowerCase().includes(q);
+      return {
+        ...p,
+        shown: pageMatch ? p.sections : sections,
+        hit: !q || pageMatch || sections.length > 0,
+      };
+    })
+    .filter((p) => p.hit);
 
   return (
     <section
@@ -52,7 +72,7 @@ const PagesTree = ({ ctx, activeId, draftCounts, published, summaries = {}, quer
         </h2>
         <span className="grow" />
         <span className="font-sans text-[12.5px] leading-[15px] font-medium text-[#575755] max-lg:text-[12px]">
-          {`${PAGES_TOTAL} pages`}
+          {`${tree.total} ${tree.total === 1 ? 'page' : 'pages'}`}
         </span>
       </div>
       {pages.length === 0 ? (
