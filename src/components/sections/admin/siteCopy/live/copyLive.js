@@ -165,8 +165,9 @@ export const hydrateCopy = async ({ force = false } = {}) => {
     const manifest = copyManifest();
     let res = await listCopyBlocks();
     state.permissions = res.permissions ?? [];
-    const known = new Set((res.blocks ?? []).map((b) => b.key));
-    const missing = manifest.blocks.filter((b) => !known.has(b.key));
+    const counts = Object.fromEntries((res.blocks ?? []).map((b) => [b.key, b.fieldCount]));
+    // Missing sections, or sections whose field list changed in this build.
+    const missing = manifest.blocks.filter((b) => counts[b.key] !== b.fields.length);
     if (missing.length && state.permissions.includes('copy.publishTerms')) {
       const r = await syncCopyManifest(manifest.blocks);
       log('manifest synced', r);

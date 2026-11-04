@@ -13,6 +13,9 @@ import PreviewStage from '../preview/PreviewStage.jsx';
 import PreviewToolbar from '../preview/PreviewToolbar.jsx';
 import { PreviewEyeIcon } from '../preview/PreviewIcons.jsx';
 import QuickSectionPanel from '../preview/QuickSectionPanel.jsx';
+import LivePagePreview from '../preview/LivePagePreview.jsx';
+import { isCopyLive } from '../live/copyLive.js';
+import { PUBLIC_COPY_SECTIONS } from '../../../../../copy/landingHomeCopy.js';
 import {
   DRAFTS_KEY,
   LONG_HEADLINE_SAMPLE,
@@ -208,14 +211,18 @@ const SectionPreview = ({ ctx, data, session }) => {
           <div className="flex flex-col items-start gap-[24px] xl:flex-row">
             <PreviewStage
               device={device}
-              withNav={meta.previewKind !== 'faq'}
+              withNav={
+                meta.previewKind !== 'faq' && !(isCopyLive() && PUBLIC_COPY_SECTIONS[sectionId])
+              }
               label={`Preview of ${meta.page} (${device})`}
               className={classNames(open && device !== 'phone' ? 'xl:flex-1' : '')}
               frameClassName={
                 meta.previewKind === 'faq' && device === 'desktop' ? 'mx-auto max-w-[1100px]' : ''
               }
             >
-              {homeTop ? (
+              {isCopyLive() && PUBLIC_COPY_SECTIONS[sectionId] ? (
+                <LivePagePreview sectionId={sectionId} view={view} device={device} />
+              ) : homeTop ? (
                 <>
                   <MockHero
                     device={device}

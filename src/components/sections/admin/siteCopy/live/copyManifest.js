@@ -1,5 +1,6 @@
 import { PAGES, FAQ_ITEMS, SECTION_DEFS, resolveSection } from '../editor/sectionEditorData.js';
 import { SITE_PAGES } from '../browse/siteCopyBrowseData.js';
+import { PUBLIC_COPY_SECTIONS } from '../../../../../copy/landingHomeCopy.js';
 import { htmlToMd, rememberSection, toCopyKey, toFieldPath } from './copyFormat.js';
 
 /*
@@ -13,7 +14,7 @@ import { htmlToMd, rememberSection, toCopyKey, toFieldPath } from './copyFormat.
  */
 
 const allSectionIds = () => {
-  const ids = new Set(Object.keys(SECTION_DEFS));
+  const ids = new Set([...Object.keys(PUBLIC_COPY_SECTIONS), ...Object.keys(SECTION_DEFS)]);
   PAGES.forEach((p) => (p.sections ?? []).forEach((s) => ids.add(s.id)));
   Object.values(SITE_PAGES).forEach((portal) => {
     (portal.pages ?? []).forEach((p) => (p.sections ?? []).forEach((s) => ids.add(s.id)));
@@ -25,6 +26,7 @@ const allSectionIds = () => {
 
 /** Every field of a section (the FAQ: the fields of all its items). */
 export const sectionFields = (sectionId) => {
+  if (PUBLIC_COPY_SECTIONS[sectionId]) return PUBLIC_COPY_SECTIONS[sectionId].fields;
   const def = SECTION_DEFS[sectionId];
   if (def?.fieldsFor) {
     const seen = new Map();
