@@ -1,7 +1,8 @@
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import spotWard from '../../../../assets/parent/spot-ward.svg';
-import { EMPTY, EVALUATE_TITLE } from './data/evaluateData.js';
+import { EMPTY } from './data/evaluateData.js';
+import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
 
 const log = debug('EvaluateEmpty');
 
@@ -13,7 +14,7 @@ const log = debug('EvaluateEmpty');
 const EvaluateEmpty = () => (
   <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
     <h1 className="m-0 font-sans text-[34px] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21] max-sm:text-[28px]">
-      {EVALUATE_TITLE}
+      {PARENT_PAGE_TEXT.evaluate.title}
     </h1>
     <section
       aria-label={EMPTY.title}

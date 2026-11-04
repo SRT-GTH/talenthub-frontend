@@ -4,6 +4,19 @@ import {
   OFFLINE,
   QUICK_ACTIONS,
 } from '../../components/sections/parent/home/data/parentHomeData.js';
+import {
+  WARDS_SUBTITLE,
+  WARDS_TITLE,
+} from '../../components/sections/parent/wards/data/wardsData.js';
+import {
+  REVIEW_INTRO,
+  REVIEW_TITLE,
+} from '../../components/sections/parent/review/data/reviewData.js';
+import { EVALUATE_TITLE } from '../../components/sections/parent/evaluate/data/evaluateData.js';
+import {
+  LINK_SUBTITLE,
+  LINK_TITLE,
+} from '../../components/sections/parent/link/data/linkWardData.js';
 import { copySection } from '../copySections.js';
 import { bindCopy } from '../copyBind.js';
 
@@ -43,6 +56,39 @@ export const PARENT_HOME_COPY = copySection({
   preview: { path: '/parent' },
 });
 
-export const PARENT_COPY_SECTIONS = [PARENT_MENU_COPY, PARENT_HOME_COPY];
+/** Page headings of the other parent pages (the pages read them from here; defaults are the pages' own text). */
+export const PARENT_PAGE_TEXT = {
+  wards: { title: WARDS_TITLE, subtitle: WARDS_SUBTITLE },
+  review: { title: REVIEW_TITLE, intro: REVIEW_INTRO },
+  evaluate: { title: EVALUATE_TITLE },
+  link: { title: LINK_TITLE, subtitle: LINK_SUBTITLE },
+};
+
+export const PARENT_PAGES_COPY = copySection({
+  id: 'parent.pages.headings',
+  label: 'Page headings',
+  pageLabel: 'Other pages',
+  data: { PARENT_PAGE_TEXT },
+  fields: [
+    ['wards-title', 'My wards: heading', ['PARENT_PAGE_TEXT', 'wards', 'title']],
+    [
+      'wards-subtitle',
+      'My wards: line under the heading',
+      ['PARENT_PAGE_TEXT', 'wards', 'subtitle'],
+    ],
+    ['review-title', 'To review: heading', ['PARENT_PAGE_TEXT', 'review', 'title']],
+    ['review-intro', 'To review: line under the heading', ['PARENT_PAGE_TEXT', 'review', 'intro']],
+    ['evaluate-title', 'Evaluate: heading', ['PARENT_PAGE_TEXT', 'evaluate', 'title']],
+    ['link-title', 'Link a ward: heading', ['PARENT_PAGE_TEXT', 'link', 'title']],
+    [
+      'link-subtitle',
+      'Link a ward: line under the heading',
+      ['PARENT_PAGE_TEXT', 'link', 'subtitle'],
+    ],
+  ],
+  preview: { path: '/parent/wards' },
+});
+
+export const PARENT_COPY_SECTIONS = [PARENT_MENU_COPY, PARENT_HOME_COPY, PARENT_PAGES_COPY];
 
 bindCopy(...PARENT_COPY_SECTIONS);

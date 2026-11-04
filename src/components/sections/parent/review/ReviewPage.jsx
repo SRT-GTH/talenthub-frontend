@@ -16,15 +16,8 @@ import ReasonNoteDialog from './ReasonNoteDialog.jsx';
 import ReviewCaughtUp from './ReviewCaughtUp.jsx';
 import ReviewQueue from './ReviewQueue.jsx';
 import { useReviewState } from './reviewState.js';
-import {
-  ASSESSMENT,
-  DECLINE,
-  FLAG_RESULT,
-  REVIEW_INTRO,
-  REVIEW_TITLE,
-  TABS,
-  TOAST,
-} from './data/reviewData.js';
+import { ASSESSMENT, DECLINE, FLAG_RESULT, TABS, TOAST } from './data/reviewData.js';
+import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
 
 const log = debug('ReviewPage');
 
@@ -158,7 +151,7 @@ const ReviewPage = () => {
         <div className="flex flex-col gap-[3px]">
           <div className="flex flex-wrap items-center gap-[12px]">
             <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21]">
-              {REVIEW_TITLE}
+              {PARENT_PAGE_TEXT.review.title}
             </h1>
             {compactHeader ? null : (
               <span className="rounded-full bg-brand-green-light px-[11px] py-[5px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b] max-lg:text-[12px]">
@@ -168,7 +161,7 @@ const ReviewPage = () => {
           </div>
           {compactHeader ? null : (
             <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#6b6b6b]">
-              {REVIEW_INTRO}
+              {PARENT_PAGE_TEXT.review.intro}
             </p>
           )}
         </div>

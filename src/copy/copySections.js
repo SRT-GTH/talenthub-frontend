@@ -46,6 +46,14 @@ export const toStoredText = (text) =>
 export const fromStoredText = (text) =>
   typeof text === 'string' ? text.replace(/\[([a-z][a-zA-Z0-9]*)\](?!\()/g, '{$1}') : text;
 
+/** Keep the original's leading / trailing spaces (the backend trims saved text; "Good morning, " is followed by a name). */
+export const keepEdges = (original, text) => {
+  if (typeof original !== 'string' || typeof text !== 'string') return text;
+  const lead = original.match(/^\s*/)[0];
+  const trail = original.match(/\s*$/)[0];
+  return `${lead}${text.trim()}${trail}`;
+};
+
 export const copySection = ({
   id,
   label,
@@ -66,19 +74,22 @@ export const copySection = ({
     shared,
     preview,
     data,
-    fields: fields.map(([key, fieldLabel, path, opts = {}]) => {
-      const original = at(data, path);
-      if (typeof original !== 'string') throw new Error(`copySection ${id}: ${key} is not text`);
-      return {
-        key,
-        path: fieldPathOf(key),
-        dataPath: path,
-        label: fieldLabel,
-        kind: opts.kind ?? 'text',
-        max: opts.max ?? limitFor(original),
-        original,
-      };
-    }),
+    fields: fields
+      // `{ optional: true }`: a field whose text isn't in this build's data (a block the design dropped) is left out.
+      .filter(([, , path, opts = {}]) => !opts.optional || typeof at(data, path) === 'string')
+      .map(([key, fieldLabel, path, opts = {}]) => {
+        const original = at(data, path);
+        if (typeof original !== 'string') throw new Error(`copySection ${id}: ${key} is not text`);
+        return {
+          key,
+          path: fieldPathOf(key),
+          dataPath: path,
+          label: fieldLabel,
+          kind: opts.kind ?? 'text',
+          max: opts.max ?? limitFor(original),
+          original,
+        };
+      }),
   };
 };
 
@@ -99,7 +110,8 @@ export const applyCopy = (section, values, fill = (t) => t) => {
     const v = values[f.path];
     if (typeof v !== 'string' || !v.trim()) return;
     const parent = at(out, f.dataPath.slice(0, -1));
-    if (parent) parent[f.dataPath[f.dataPath.length - 1]] = fill(fromStoredText(v));
+    if (parent)
+      parent[f.dataPath[f.dataPath.length - 1]] = keepEdges(f.original, fill(fromStoredText(v)));
   });
   return out;
 };

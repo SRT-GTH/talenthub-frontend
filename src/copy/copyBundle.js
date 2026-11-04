@@ -102,13 +102,25 @@ function onFocus() {
   loadCopyBundle();
 }
 
+// While anything listens: check for newly published copy every minute the tab is visible (a preview never changes, so it doesn't poll).
+let timer = null;
+const tick = () => {
+  if (document.visibilityState === 'visible') loadCopyBundle();
+};
+
 export const subscribeCopy = (fn) => {
   subs.add(fn);
-  if (subs.size === 1 && typeof window !== 'undefined') window.addEventListener('focus', onFocus);
+  if (subs.size === 1 && typeof window !== 'undefined') {
+    window.addEventListener('focus', onFocus);
+    if (!isCopyPreview()) timer = window.setInterval(tick, REFRESH_MS);
+  }
   return () => {
     subs.delete(fn);
-    if (subs.size === 0 && typeof window !== 'undefined')
+    if (subs.size === 0 && typeof window !== 'undefined') {
       window.removeEventListener('focus', onFocus);
+      window.clearInterval(timer);
+      timer = null;
+    }
   };
 };
 

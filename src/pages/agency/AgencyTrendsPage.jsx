@@ -7,6 +7,7 @@ import TrendsView from '../../components/sections/publicData/outcomes/TrendsView
 import { AGENCY_TRENDS_24M } from '../../components/sections/agency/national/data/trendsData.js';
 import { getTrends } from '../../components/sections/publicData/outcomes/data/outcomesData.js';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyTrendsPage');
 
@@ -28,8 +29,8 @@ const AgencyTrendsPage = () => {
   return (
     <AgencyFrame data={data} title="Trends">
       <AgencyPageHero
-        title="Trends"
-        subtitle="Sign-ups, assessments and placements over 24 months. Your MoU includes the full history."
+        title={GOVERNMENT_PAGE_TEXT.trends.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.trends.subtitle}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <TrendsView

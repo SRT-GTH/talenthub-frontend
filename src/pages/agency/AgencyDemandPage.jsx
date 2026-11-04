@@ -6,7 +6,6 @@ import { useAgencyState } from '../../components/sections/agency/agencyState.js'
 import {
   COMPACT_SUBTITLE,
   DEMAND_VIEWS,
-  HERO_SUBTITLE,
 } from '../../components/sections/agency/demand/data/demandData.js';
 import DemandTabs from '../../components/sections/agency/demand/DemandTabs.jsx';
 import SkillDemandView from '../../components/sections/agency/demand/SkillDemandView.jsx';
@@ -14,6 +13,7 @@ import SuccessView from '../../components/sections/agency/demand/SuccessView.jsx
 import TrendsView from '../../components/sections/agency/demand/TrendsView.jsx';
 import MoreFiltersDrawer from '../../components/sections/agency/national/MoreFiltersDrawer.jsx';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyDemandPage');
 
@@ -66,8 +66,8 @@ const AgencyDemandPage = () => {
     <AgencyFrame data={data} title="Demand & outcomes">
       <div className="hidden lg:contents">
         <AgencyPageHero
-          title="Demand & outcomes"
-          subtitle={HERO_SUBTITLE[view]}
+          title={GOVERNMENT_PAGE_TEXT.demand.title}
+          subtitle={GOVERNMENT_PAGE_TEXT.demand.subtitle[view]}
           actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
         />
       </div>

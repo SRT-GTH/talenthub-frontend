@@ -5,7 +5,8 @@ import ParentButton from '../ParentButton.jsx';
 import UnderlineTabs from '../../../ui/UnderlineTabs.jsx';
 import WardChip from './WardChip.jsx';
 import Turning18Notice from './Turning18Notice.jsx';
-import { WARDS_TITLE, WARD_TABS } from './data/wardsData.js';
+import { WARD_TABS } from './data/wardsData.js';
+import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
 
 const log = debug('WardShell');
 
@@ -37,7 +38,7 @@ const WardShell = ({
   return (
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px] pt-[clamp(0px,0.7vw,12px)]">
       <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21]">
-        {WARDS_TITLE}
+        {PARENT_PAGE_TEXT.wards.title}
       </h1>
 
       <div className="flex flex-col gap-[20px]">

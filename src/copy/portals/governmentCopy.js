@@ -2,11 +2,14 @@ import { PRIMARY_NAV, SECONDARY_NAV } from '../../components/sections/agency/age
 import {
   HOME_HERO,
   LIMIT_CARDS,
+  MOBILE_HOME,
   MONTH_STATS,
   NATIONAL_SNAPSHOT,
   NEXT_STEP,
   QUICK_ACTIONS,
 } from '../../components/sections/agency/home/data/agencyHomeData.js';
+import { NATIONAL_SUBTITLE } from '../../components/sections/agency/national/data/nationalData.js';
+import { HERO_SUBTITLE } from '../../components/sections/agency/demand/data/demandData.js';
 import { copySection } from '../copySections.js';
 import { bindCopy } from '../copyBind.js';
 
@@ -62,6 +65,111 @@ export const GOVERNMENT_HOME_COPY = copySection({
   preview: { path: '/agency' },
 });
 
-export const GOVERNMENT_COPY_SECTIONS = [GOVERNMENT_MENU_COPY, GOVERNMENT_HOME_COPY];
+const opt = { optional: true };
+
+export const GOVERNMENT_PHONE_COPY = copySection({
+  id: 'government.home.phone',
+  label: 'Phone home',
+  pageLabel: 'Home',
+  data: { MOBILE_HOME },
+  fields: [
+    ['greeting', 'Greeting', ['MOBILE_HOME', 'greeting'], opt],
+    ['sub', 'Line under the greeting', ['MOBILE_HOME', 'sub'], opt],
+    ...[
+      ['mou', 'MoU card'],
+      ['requests', 'Data requests card'],
+      ['programmes', 'Programmes card'],
+      ['applicants', 'Applicants card'],
+      ['changes', 'Saved query changes card'],
+      ['skills', 'Readiness by skill card'],
+    ].flatMap(([k, label]) => [
+      [`${k}-title`, `${label}: title`, ['MOBILE_HOME', k, 'title'], opt],
+      [`${k}-sub`, `${label}: line under the title`, ['MOBILE_HOME', k, 'sub'], opt],
+      [`${k}-action`, `${label}: button`, ['MOBILE_HOME', k, 'action'], opt],
+      [`${k}-all`, `${label}: "see all" link`, ['MOBILE_HOME', k, 'all'], opt],
+    ]),
+  ],
+  preview: { path: '/agency' },
+});
+
+/*
+ * Page headings of the other government pages. The pages used to carry these as literal text; they now read them from here, so
+ * the defaults below ARE the page text.
+ */
+export const GOVERNMENT_PAGE_TEXT = {
+  districts: {
+    title: 'Districts',
+    subtitle:
+      'All 261 districts across 16 regions. Pick one to see its talents, skills and outcomes. Counts under 5 are hidden.',
+  },
+  national: { title: 'National data', subtitle: NATIONAL_SUBTITLE },
+  compare: {
+    title: 'Compare regions',
+    subtitle: 'Side by side with the same filters. Add up to 3 regions.',
+  },
+  demand: { title: 'Demand & outcomes', subtitle: HERO_SUBTITLE },
+  methodology: {
+    title: 'How we count',
+    subtitle:
+      'Where the numbers come from, how often they refresh and why small groups are hidden.',
+  },
+  caseStudy: { title: 'Case study', subtitle: 'How one partner programme moved talents forward.' },
+  outcomes: {
+    title: 'Impact and outcomes',
+    subtitle: 'Placements, scholarships and skills gained through GTH, all partners combined.',
+  },
+  queries: {
+    title: 'Queries',
+    subtitle:
+      'Build a cut of the data in your MoU. Pick filters, then save or export it. Data as of 18 Oct 2026, 09:00. Groups under 5 stay hidden.',
+  },
+  trends: {
+    title: 'Trends',
+    subtitle:
+      'Sign-ups, assessments and placements over 24 months. Your MoU includes the full history.',
+  },
+};
+
+const PAGE_LABELS = {
+  districts: 'Districts',
+  national: 'National data',
+  compare: 'Compare regions',
+  methodology: 'How we count',
+  caseStudy: 'Case study',
+  outcomes: 'Impact and outcomes',
+  queries: 'Queries',
+  trends: 'Trends',
+};
+
+export const GOVERNMENT_PAGES_COPY = copySection({
+  id: 'government.pages.headings',
+  label: 'Page headings',
+  pageLabel: 'Other pages',
+  data: { GOVERNMENT_PAGE_TEXT },
+  fields: [
+    ...Object.entries(PAGE_LABELS).flatMap(([k, label]) => [
+      [`${k}-title`, `${label}: heading`, ['GOVERNMENT_PAGE_TEXT', k, 'title']],
+      [
+        `${k}-subtitle`,
+        `${label}: line under the heading`,
+        ['GOVERNMENT_PAGE_TEXT', k, 'subtitle'],
+      ],
+    ]),
+    ['demand-title', 'Demand & outcomes: heading', ['GOVERNMENT_PAGE_TEXT', 'demand', 'title']],
+    ...Object.keys(HERO_SUBTITLE).map((v) => [
+      `demand-${v}-subtitle`,
+      `Demand & outcomes (${v}): line under the heading`,
+      ['GOVERNMENT_PAGE_TEXT', 'demand', 'subtitle', v],
+    ]),
+  ],
+  preview: { path: '/agency/districts' },
+});
+
+export const GOVERNMENT_COPY_SECTIONS = [
+  GOVERNMENT_MENU_COPY,
+  GOVERNMENT_HOME_COPY,
+  GOVERNMENT_PHONE_COPY,
+  GOVERNMENT_PAGES_COPY,
+];
 
 bindCopy(...GOVERNMENT_COPY_SECTIONS);

@@ -5,6 +5,7 @@ import {
 import {
   GLANCE,
   HOME_HERO,
+  MOBILE_HOME,
   NEXT_STEP,
   QUICK_ACTIONS,
   READINESS_CARD,
@@ -66,6 +67,35 @@ export const INSTITUTION_HOME_COPY = copySection({
   preview: { path: '/institution' },
 });
 
-export const INSTITUTION_COPY_SECTIONS = [INSTITUTION_MENU_COPY, INSTITUTION_HOME_COPY];
+const opt = { optional: true };
+const cap = (k) => `${k[0].toUpperCase()}${k.slice(1)}`;
+
+export const INSTITUTION_PHONE_COPY = copySection({
+  id: 'institution.home.phone',
+  label: 'Phone home',
+  pageLabel: 'Home',
+  data: { MOBILE_HOME },
+  fields: [
+    ['greeting', 'Greeting', ['MOBILE_HOME', 'greeting', 0], opt],
+    ...Object.keys(MOBILE_HOME)
+      .filter(
+        (k) =>
+          MOBILE_HOME[k] && typeof MOBILE_HOME[k] === 'object' && !Array.isArray(MOBILE_HOME[k])
+      )
+      .flatMap((k) => [
+        [`${k}-title`, `${cap(k)} card: title`, ['MOBILE_HOME', k, 'title'], opt],
+        [`${k}-sub`, `${cap(k)} card: line under the title`, ['MOBILE_HOME', k, 'sub'], opt],
+        [`${k}-action`, `${cap(k)} card: button`, ['MOBILE_HOME', k, 'action'], opt],
+        [`${k}-all`, `${cap(k)} card: "see all" link`, ['MOBILE_HOME', k, 'all'], opt],
+      ]),
+  ],
+  preview: { path: '/institution' },
+});
+
+export const INSTITUTION_COPY_SECTIONS = [
+  INSTITUTION_MENU_COPY,
+  INSTITUTION_HOME_COPY,
+  INSTITUTION_PHONE_COPY,
+];
 
 bindCopy(...INSTITUTION_COPY_SECTIONS);
