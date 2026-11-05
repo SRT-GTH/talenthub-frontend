@@ -8,6 +8,8 @@ import {
   LiveMessagesProvider,
   useLiveMessages,
 } from '../../components/sections/talentMessages/useLiveMessages.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('TalentMessagesPage');
 

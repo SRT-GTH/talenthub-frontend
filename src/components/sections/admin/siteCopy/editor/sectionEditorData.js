@@ -1,3 +1,5 @@
+import { COPY_SECTIONS } from '../../../../../copy/copyRegistry.js';
+
 /*
  * sectionEditorData — mock data of the Site copy section editor (Platform Admin 7.8.2, frames 7.8.2a-2n). Shaped like a future API payload;
  * nothing is sent anywhere (⚠️ ASSUMPTION: no backend yet, see wiki/admin.md).
@@ -16,6 +18,7 @@ export const PORTALS = [
   { id: 'parent', label: 'Parent' },
   { id: 'recruiter', label: 'Recruiter' },
   { id: 'institution', label: 'Institution' },
+  { id: 'government', label: 'Government' },
   { id: 'emails', label: 'Emails' },
 ];
 
@@ -200,7 +203,8 @@ const humanise = (s) =>
  */
 export const resolveSection = (sectionId, item) => {
   const [portal = 'public', page = 'home', slug = ''] = String(sectionId).split('.');
-  const known = SECTION_DEFS[sectionId];
+  // A section the public page declares (copy/landingHomeCopy.js) edits the page's real text; the drawn mock defs are the fallback.
+  const known = COPY_SECTIONS[sectionId] ?? SECTION_DEFS[sectionId];
   const fromTree = PAGES.flatMap((p) => p.sections).find((s) => s.id === sectionId);
   const def = known ?? {
     portal,

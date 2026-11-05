@@ -8,18 +8,9 @@ import { LpDoodleStar, LpScribbleUnderline } from './LpAIcons.jsx';
 import { Fi20ArrowRight } from './LpFigmaIcons.jsx';
 import { FcHeroStarIcon } from './LpFeatureCardIcons.jsx';
 import { BuddyCard, DotGrid, MatchCard, RecruiterCard, Sticker, StreakCard } from './LpAParts.jsx';
-import {
-  HERO_AVATARS,
-  HERO_HEADING,
-  HERO_PILL,
-  HERO_POLAROID_CAPTION,
-  HERO_PRIMARY_CTA,
-  HERO_RECRUITER_LINK,
-  HERO_STATS,
-  HERO_STICKERS,
-  HERO_SUB,
-  HERO_TRUST,
-} from './HeroData.js';
+import { HERO_AVATARS, HERO_POLAROID_CAPTION, HERO_STICKERS } from './HeroData.js';
+import { useCopySection } from '../../../../copy/useCopySection.js';
+import { HOME_HERO_COPY } from '../../../../copy/landingHomeCopy.js';
 import heroBg from '../../../../assets/landing/hero-background.webp';
 import heroPhoto from '../../../../assets/landing/hero-student-photo.webp';
 import polaroidPhoto from '../../../../assets/landing/features-preview-photo.webp';
@@ -82,9 +73,21 @@ const FLOAT_FS = 'text-[length:calc(var(--u)*var(--ms))] md:text-[length:var(--u
 const AVATAR_SRC = { a: avatarA, b: avatarB, c: avatarC, d: avatarD, e: avatarE };
 
 const HeroSection = () => {
+  const {
+    HERO_HEADING,
+    HERO_PILL,
+    HERO_PRIMARY_CTA,
+    HERO_RECRUITER_LINK,
+    HERO_STATS,
+    HERO_SUB,
+    HERO_TRUST,
+  } = useCopySection(HOME_HERO_COPY);
+  // Phones break the first line before its last word (drawn: "Stop being / overlooked.", Figma 7815:272277).
+  const h1Words = HERO_HEADING[0].trim().split(/\s+/);
+  const h1Last = h1Words.length > 1 ? h1Words.pop() : '';
   useEffect(() => {
     log('mount: S1 hero, stats', HERO_STATS.length);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount log only
 
   return (
     <section
@@ -122,8 +125,12 @@ const HeroSection = () => {
           >
             <span className="block text-white">
               {/* Mobile frame breaks the line after "Stop being" on purpose (Figma 7815:272277). */}
-              {HERO_HEADING[0].replace(' overlooked.', '')}
-              <br className="md:hidden" /> overlooked.
+              {h1Words.join(' ')}
+              {h1Last ? (
+                <>
+                  <br className="md:hidden" /> {h1Last}
+                </>
+              ) : null}
             </span>
             <span className="relative block text-[#ffd86b]">
               {HERO_HEADING[1]}

@@ -2,7 +2,7 @@ import { debug } from '../../../../../utils/debug.js';
 import {
   EDITED_VIEW,
   PORTALS,
-  SITE_PAGES,
+  sitePages,
   UNPUBLISHED_SEED,
   allPages,
   draftCountOf,
@@ -11,8 +11,12 @@ import {
   previewOf,
   searchSections,
 } from './siteCopyBrowseData.js';
+import { isCopyLive } from '../live/copyLive.js';
 
 const log = debug('siteCopyBrowseModel');
+
+// Live mode (live/copyLive.js): only the store counts; the drawn 'edited' statuses and seeded draft counts are mock data.
+const drawn = () => !isCopyLive();
 
 /*
  * siteCopyBrowseModel — pure functions that turn the seed data (siteCopyBrowseData.js) plus the shared mock "server" (`site-copy.drafts`,
@@ -20,6 +24,12 @@ const log = debug('siteCopyBrowseModel');
  * the subtitle under the title and the draft counts of the portal tabs. `seeds` is false for the "all caught up" frame (7.8.1l), where the drawn drafts
  * do not exist.
  */
+
+/** Live mode: how many sections of a portal the pages declare (shared ones included). */
+export const liveSectionCount = (portalId) => {
+  const { pages = [], shared = [] } = sitePages()[portalId] ?? {};
+  return [...pages, ...shared].reduce((n, p) => n + p.sections.length, 0);
+};
 
 export const FILTERS = ['edited', 'unpublished', 'soon'];
 
@@ -31,7 +41,7 @@ export const sectionChip = (section, { drafts, published }) => {
   const n = sectionDraftCount(section, { drafts });
   if (n > 0) return { kind: 'draft', count: n };
   if (section.shared) return { kind: 'shared' };
-  if (section.status === 'edited' || isPublishedSection(published, section.id)) {
+  if ((drawn() && section.status === 'edited') || isPublishedSection(published, section.id)) {
     return { kind: 'edited' };
   }
   return { kind: 'default' };
@@ -41,7 +51,7 @@ export const sectionChip = (section, { drafts, published }) => {
 export const pageDraftCount = (page, { drafts, seeds = true }) => {
   const saved = page.sections.reduce((n, s) => n + draftCountOf(drafts, s.id), 0);
   if (saved > 0) return saved;
-  return seeds ? (page.draftSeed ?? 0) : 0;
+  return seeds && drawn() ? (page.draftSeed ?? 0) : 0;
 };
 
 /** The chip of a page row. */
@@ -50,7 +60,7 @@ export const pageChip = (page, ctx) => {
   const n = pageDraftCount(page, ctx);
   if (n > 0) return { kind: 'draft', count: n };
   if (
-    page.status === 'edited' ||
+    (drawn() && page.status === 'edited') ||
     page.sections.some((s) => isPublishedSection(ctx.published, s.id))
   ) {
     return { kind: 'edited' };
@@ -60,12 +70,12 @@ export const pageChip = (page, ctx) => {
 
 /** Pages drawn in the "All" list of a portal (listed !== false). */
 export const listedPages = (portalId) =>
-  (SITE_PAGES[portalId]?.pages ?? []).filter((p) => p.listed !== false);
+  (sitePages()[portalId]?.pages ?? []).filter((p) => p.listed !== false);
 
 /** Draft groups of the "Has unpublished changes" view: [{ key, portal, label, count, sections: [{ id, label, summary, count }] }]. */
 export const unpublishedGroups = ({ drafts, seeds = true }) => {
   const groups = [];
-  if (seeds) {
+  if (seeds && drawn()) {
     UNPUBLISHED_SEED.forEach((g) =>
       groups.push({
         key: `${g.portal}/${g.pageId}`,
@@ -115,8 +125,8 @@ export const unpublishedGroups = ({ drafts, seeds = true }) => {
 /** Edited view: [{ id, label, status: 'edited', sections: [section] }] + the number of edited sections, for one portal. */
 export const editedGroups = (portalId, { published }) => {
   const portal = portalById(portalId);
-  const pool = SITE_PAGES[portalId]?.pages ?? [];
-  const seed = EDITED_VIEW[portalId];
+  const pool = sitePages()[portalId]?.pages ?? [];
+  const seed = drawn() ? EDITED_VIEW[portalId] : null;
   const extraIds = (pg) =>
     pg.sections.filter((s) => isPublishedSection(published, s.id) && s.status !== 'edited');
   let pages;
@@ -137,17 +147,19 @@ export const editedGroups = (portalId, { published }) => {
     total = EDITED_VIEW.sectionsTotal;
   } else {
     pages = pool
-      .filter((p) => p.listed !== false && (p.status === 'edited' || extraIds(p).length))
+      .filter(
+        (p) => p.listed !== false && ((drawn() && p.status === 'edited') || extraIds(p).length)
+      )
       .map((p) => ({
         id: p.id,
         label: p.label,
         status: 'edited',
         sections: p.sections.filter(
-          (s) => s.status === 'edited' || isPublishedSection(published, s.id)
+          (s) => (drawn() && s.status === 'edited') || isPublishedSection(published, s.id)
         ),
         extra: 0,
       }));
-    total = portal.edited;
+    total = drawn() ? portal.edited : pages.reduce((n, p) => n + p.sections.length, 0);
   }
   // pages that are only edited through the editor (not in the seed view) join the list
   pool.forEach((p) => {
@@ -169,7 +181,7 @@ export const editedGroups = (portalId, { published }) => {
 
 /** "Not editable yet" view: the pages of the portal still marked Coming soon. */
 export const comingSoonPages = (portalId) =>
-  (SITE_PAGES[portalId]?.pages ?? []).filter((p) => p.status === 'soon');
+  (sitePages()[portalId]?.pages ?? []).filter((p) => p.status === 'soon');
 
 /** Search results: [{ key, label, page, sections }]; label "Talent › Home". */
 export const searchGroups = (term, { drafts }) =>
@@ -215,7 +227,9 @@ export const subtitleFor = ({ state, searching, filter, portal, drafts, seeds })
   const withDrafts = listedPages(portal.id).filter(
     (pg) => pageDraftCount(pg, { drafts, seeds }) > 0
   ).length;
-  const base = `${portal.subtitle} · ${portal.pages} pages · ${portal.edited} edited`;
+  const base = drawn()
+    ? `${portal.subtitle} · ${portal.pages} pages · ${portal.edited} edited`
+    : `${portal.subtitle} · ${liveSectionCount(portal.id)} editable sections`;
   // ⚠️ ASSUMPTION: the "· N with draft changes" part is dropped when no page has drafts (only the "1 with draft changes" wording is drawn).
   return withDrafts > 0 ? `${base} · ${withDrafts} with draft changes` : base;
 };

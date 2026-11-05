@@ -3,7 +3,9 @@ import { debug } from '../../../../utils/debug.js';
 import bgSrc from '../../../../assets/landing/made-for-ghana-background.webp';
 import { LpBFlagGh, LpBIcon } from './LpBIcons.jsx';
 import { AccentTitle, CARD_SHADOW, SectionHead } from './LpBParts.jsx';
-import { GHANA_FEATURES, GHANA_LANGUAGES, MADE_FOR_GHANA_HEAD } from './MadeForGhanaData.js';
+import { GHANA_LANGUAGES } from './MadeForGhanaData.js';
+import { useCopySection } from '../../../../copy/useCopySection.js';
+import { HOME_MADE_FOR_GHANA_COPY } from '../../../../copy/landingHomeCopy.js';
 
 const log = debug('MadeForGhanaSection');
 
@@ -24,9 +26,10 @@ const CARD_MIN_H = {
  * (The kente pattern layer in this frame is hidden in Figma, so it is not built.)
  */
 const MadeForGhanaSection = () => {
+  const { GHANA_FEATURES, MADE_FOR_GHANA_HEAD, TITLE } = useCopySection(HOME_MADE_FOR_GHANA_COPY);
   useEffect(() => {
     log('mount, features:', GHANA_FEATURES.length, 'languages:', GHANA_LANGUAGES.length);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount log only
 
   return (
     <section
@@ -51,8 +54,8 @@ const MadeForGhanaSection = () => {
           }
           title={
             <AccentTitle
-              lead="Made for Ghana. "
-              accent="Made for everyone."
+              lead={`${TITLE.lead} `}
+              accent={TITLE.accent}
               accentClass="text-[#ffd86b]"
             />
           }

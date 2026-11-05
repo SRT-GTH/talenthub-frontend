@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useCopyKv } from '../useCopyKv.js';
 import { PUBLISHED_KEY, historyKey, seedHistory } from '../preview/previewHistoryData.js';
 import { diffStates, nowLabel, sortedVersions, stateAt } from '../preview/previewModel.js';
+import { isCopyLive, loadHistory, restoreLive } from '../live/copyLive.js';
 
 const log = debug('useSectionHistory');
 
@@ -13,7 +14,11 @@ const log = debug('useSectionHistory');
  * Returns { versions (newest first), live, restore(version, reason, actor), undo(), restoredPreview(from, reason, actor) }.
  */
 export const useSectionHistory = (sectionId) => {
-  const [list, setList] = useCopyKv(historyKey(sectionId), seedHistory(sectionId));
+  const isLive = isCopyLive();
+  const [list, setList] = useCopyKv(historyKey(sectionId), isLive ? [] : seedHistory(sectionId));
+  useEffect(() => {
+    if (isLive) loadHistory(sectionId);
+  }, [isLive, sectionId]);
   const [published, setPublished] = useCopyKv(PUBLISHED_KEY, {});
   // The published text each restore replaced, so undo() can bring it back ({ [newVersion]: previous published map of this section }).
   const previousPublished = useRef({});
@@ -55,9 +60,10 @@ export const useSectionHistory = (sectionId) => {
         ...prev,
         [sectionId]: { ...prev[sectionId], ...target },
       }));
+      if (isLive) restoreLive(sectionId, from, reason);
       return entry;
     },
-    [build, published, sectionId, setList, setPublished]
+    [build, published, sectionId, setList, setPublished, isLive]
   );
 
   const undo = useCallback(
@@ -71,17 +77,20 @@ export const useSectionHistory = (sectionId) => {
         else delete next[sectionId];
         return next;
       });
+      // Live: undo = make the version before the restore live again (the backend keeps every version).
+      if (isLive) restoreLive(sectionId, version - 1, 'Undo restore');
     },
-    [sectionId, setList, setPublished]
+    [sectionId, setList, setPublished, isLive]
   );
 
   /** What the list looks like after restoring `from` (used by the 7.8.5d frame URL, which must not depend on stored state). */
   const restoredPreview = useCallback(
     (from, reason, actor) => {
+      if (isLive) return versions; // live: the backend list already holds the restored version
       const { entry } = build(from, reason, actor);
       return sortedVersions([...list, { ...entry, when: 'Today 15:12' }]);
     },
-    [build, list]
+    [build, list, isLive, versions]
   );
 
   return { versions, live, restore, undo, restoredPreview, published };

@@ -25,6 +25,8 @@ import CareerBuddyFirstChat from '../../components/sections/talentHome/CareerBud
 import TalentHomeLoading from '../../components/sections/talentHome/TalentHomeLoading.jsx';
 import AskBuddyFab from '../../components/sections/talentHome/AskBuddyFab.jsx';
 import SpaceBanner from '../../components/sections/talentHome/SpaceBanner.jsx';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../copy/portals/talentCopy.js';
 
 const log = debug('TalentHomePage');
 

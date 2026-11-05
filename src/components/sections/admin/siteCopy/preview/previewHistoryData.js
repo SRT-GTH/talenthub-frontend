@@ -15,6 +15,7 @@ export const PORTAL_TABS = [
   { id: 'parent', label: 'Parent' },
   { id: 'recruiter', label: 'Recruiter' },
   { id: 'institution', label: 'Institution' },
+  { id: 'government', label: 'Government' },
   { id: 'emails', label: 'Emails' },
 ];
 

@@ -3,13 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
-import {
-  EVALUATE_SUB,
-  EVALUATE_TITLE,
-  EVAL_TYPES,
-  EVAL_WARDS,
-  RESUME,
-} from './data/evaluateData.js';
+import { EVALUATE_SUB, EVAL_TYPES, EVAL_WARDS, RESUME } from './data/evaluateData.js';
+import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
 
 const log = debug('EvaluateStart');
 
@@ -85,7 +80,7 @@ const EvaluateStart = ({ resume = false }) => {
     <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
       <div className="flex flex-col gap-[3px]">
         <h1 className="m-0 font-sans text-[34px] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21] max-sm:text-[28px]">
-          {EVALUATE_TITLE}
+          {PARENT_PAGE_TEXT.evaluate.title}
         </h1>
         <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999]">
           {EVALUATE_SUB}

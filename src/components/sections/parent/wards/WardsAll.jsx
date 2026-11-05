@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import ParentButton from '../ParentButton.jsx';
 import WardChip from './WardChip.jsx';
-import { STATUS_LEGEND, WARD_LIST, WARDS_SUBTITLE, WARDS_TITLE } from './data/wardsData.js';
+import { STATUS_LEGEND, WARD_LIST } from './data/wardsData.js';
+import { PARENT_PAGE_TEXT } from '../../../../copy/portals/parentCopy.js';
 
 const log = debug('WardsAll');
 
@@ -71,10 +72,10 @@ const WardsAll = ({ onLink, hide = [], wards = WARD_LIST, empty }) => {
       <div className="flex flex-wrap items-center justify-between gap-x-[24px] gap-y-[16px]">
         <div className="flex min-w-0 flex-col gap-[3px]">
           <h1 className="m-0 font-sans text-[clamp(26px,1.97vw,34px)] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21]">
-            {WARDS_TITLE}
+            {PARENT_PAGE_TEXT.wards.title}
           </h1>
           <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999]">
-            {WARDS_SUBTITLE}
+            {PARENT_PAGE_TEXT.wards.subtitle}
           </p>
         </div>
         <ParentButton

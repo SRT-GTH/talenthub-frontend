@@ -19,7 +19,6 @@ import AgencyFilterRow from './AgencyFilterRow.jsx';
 import BreakdownCard from './BreakdownCard.jsx';
 import {
   MOU_VIEW,
-  NATIONAL_SUBTITLE,
   PERSONALITY_NOTE,
   PERSONALITY_ROWS,
   SAMPLE_VIEW_ROWS,
@@ -27,6 +26,7 @@ import {
 } from './data/nationalData.js';
 import { extraChipLabel, parseMore, regionIds, serializeMore } from './data/moreFiltersData.js';
 import MoreFiltersDrawer from './MoreFiltersDrawer.jsx';
+import { GOVERNMENT_PAGE_TEXT } from '../../../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyNationalView');
 
@@ -111,8 +111,8 @@ const AgencyNationalView = ({ data, classic = false }) => {
   return (
     <>
       <AgencyPageHero
-        title="National data"
-        subtitle={NATIONAL_SUBTITLE}
+        title={GOVERNMENT_PAGE_TEXT.national.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.national.subtitle}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <AgencyFilterRow

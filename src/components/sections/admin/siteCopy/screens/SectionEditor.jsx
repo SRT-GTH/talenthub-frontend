@@ -1,3 +1,4 @@
+import { isCopyLive } from '../live/copyLive.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import PagesTree from '../editor/PagesTree.jsx';
@@ -118,7 +119,9 @@ const SectionEditorBody = ({ ctx, data, session, sectionId, item, preset }) => {
   const summaries = {};
   const heroDraft = editor.drafts['public.home.hero']?.fields?.headline?.draft;
   if (heroDraft && !editor.conflict) summaries['public.home.hero'] = heroDraft;
-  const treeStatus = PAGES.flatMap((p) => p.sections).find((s) => s.id === sectionId)?.status;
+  const treeStatus = isCopyLive()
+    ? undefined
+    : PAGES.flatMap((p) => p.sections).find((s) => s.id === sectionId)?.status;
 
   const rows = (
     THEIR_VERSION && section.id === 'public.home.hero'
