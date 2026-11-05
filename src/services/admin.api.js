@@ -19,6 +19,7 @@ const get = async (url, params) => body(await api.get(url, { params }));
 const post = async (url, data) => body(await api.post(url, data));
 const patch = async (url, data) => body(await api.patch(url, data));
 const del = async (url) => body(await api.delete(url));
+const put = async (url, data) => body(await api.put(url, data));
 
 /** Error message from an axios error (backend sends { message, code, type } or { errors }). */
 export const adminError = (err, fallback = 'Something went wrong. Try again.') => {
@@ -132,6 +133,14 @@ export const updateConfig = (key, value, reason) =>
 export const toggleFlag = (key, enabled, reason) =>
   post(`/admin/config/flags/${encodeURIComponent(key)}/toggle`, { enabled, reason });
 export const configHistory = (key) => get(`/admin/config/${encodeURIComponent(key)}/history`);
+// ── Platform values (platformEnum; SA) ───────────────────────────────────────
+/** Every enum value in the database (active and inactive) + a summary per list: { domains, values }. */
+export const listPlatformValues = () => get('/platform-enums/all');
+/** Add a custom global value (registering a deactivated key turns it back on). */
+export const registerPlatformValue = (p) =>
+  post('/platform-enums/register', clean({ scope: 'global', ...p }));
+export const deactivatePlatformValue = (id) =>
+  put(`/platform-enums/${encodeURIComponent(id)}/deactivate`, {});
 /** Allowlisted settings any signed-in account can read (e.g. onboarding.bulk_roster_template). */
 export const getPublicConfig = (key) => get(`/config/public/${encodeURIComponent(key)}`);
 

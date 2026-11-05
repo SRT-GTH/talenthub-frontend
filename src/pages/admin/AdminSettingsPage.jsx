@@ -9,6 +9,7 @@ import AdminSettingsShell from '../../components/sections/admin/settings/AdminSe
 import DeactivateDialog from '../../components/sections/admin/settings/DeactivateDialog.jsx';
 import PlatformTab from '../../components/sections/admin/settings/PlatformTab.jsx';
 import PlatformConfigTab from '../../components/sections/admin/settings/PlatformConfigTab.jsx';
+import PlatformValuesTab from '../../components/sections/admin/settings/PlatformValuesTab.jsx';
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
@@ -30,6 +31,7 @@ const log = debug('AdminSettingsPage');
  *   /admin/settings/staff                     Staff accounts (7.5.1a) · ?create=1 → create form (7.5.1b) · ?modal=last-super → "You can’t deactivate the last Super Admin" (7.5.1d)
  *   /admin/settings/staff-data                the Platform-settings page drawn behind the deactivate dialog · ?modal=deactivate (7.5.1c)
  *   /admin/settings/roles                     Roles and permissions (7.5.1e)
+ *   /admin/settings/values                    Platform values: the platformEnum lists in the database (PlatformValuesTab)
  *   /admin/settings  (= /admin/settings/platform)   feature flags, maintenance, credentials (7.5.2a) · ?modal=setting (7.5.2b "Change a setting") | in-use (7.5.2c)
  * Real flow (⚠️ ASSUMPTION: mock only): "Create a staff account" opens the form, Send set-up link closes it; a staff "Review" goes to the deactivate dialog; "Turn off" opens the
  * in-use warning and confirming just closes it; the maintenance switch opens the change dialog (Schedule change closes it). The nav items without a screen only log.
@@ -74,6 +76,11 @@ const AdminSettingsPage = () => {
     subtitle =
       'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
     body = <OnboardingTemplateTab session={session} />;
+  } else if (tab === 'values') {
+    active = 'values';
+    subtitle =
+      'The lists the platform checks values against (education levels, consent types, statuses …), as they are in the database. Super Admins only; every change is logged.';
+    body = <PlatformValuesTab session={session} />;
   } else if (tab === 'roles') {
     active = 'roles';
     navOrder = 'roles';

@@ -30,6 +30,7 @@ const BASE = [
   { id: 'observability', label: 'Observability', icon: 'sliders', to: '/admin/observability' },
   { id: 'accessibility', label: 'Accessibility', icon: 'sliders' },
   { id: 'flags', label: 'Feature flags', icon: 'sliders', to: '/admin/settings' },
+  { id: 'values', label: 'Platform values', icon: 'folder', to: '/admin/settings/values' },
   { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integrations' },
   { id: 'security', label: 'Security', icon: 'lock' },
   {
