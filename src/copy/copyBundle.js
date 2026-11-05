@@ -48,7 +48,15 @@ let state = {
   terms: cached?.terms ?? {},
 };
 
-const notify = () => subs.forEach((fn) => fn());
+// Bumped whenever what the pages should show changes (a new bundle, or newly bound data files): useCopyVersion re-renders on it.
+let renderTick = 0;
+export const getCopyTick = () => renderTick;
+const notify = () => {
+  renderTick += 1;
+  subs.forEach((fn) => fn());
+};
+/** Re-render the pages (newly bound data files show their published text). */
+export const refreshCopyViews = () => notify();
 
 export const loadCopyBundle = ({ force = false } = {}) => {
   if (inflight) return inflight;

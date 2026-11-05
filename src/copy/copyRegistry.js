@@ -4,6 +4,7 @@ import { TALENT_PAGES_COPY_SECTIONS } from './portals/talentPagesCopy.js';
 import { PARENT_COPY_SECTIONS } from './portals/parentCopy.js';
 import { INSTITUTION_COPY_SECTIONS } from './portals/institutionCopy.js';
 import { GOVERNMENT_COPY_SECTIONS } from './portals/governmentCopy.js';
+import { AUTO_COPY_SECTIONS } from './portals/autoPortalsAdmin.js';
 
 /*
  * copyRegistry — every section of the site that staff can edit in Site copy, by section id. Used by the admin only (editor, browse
@@ -17,6 +18,7 @@ export const COPY_SECTIONS = Object.fromEntries(
     ...PARENT_COPY_SECTIONS,
     ...INSTITUTION_COPY_SECTIONS,
     ...GOVERNMENT_COPY_SECTIONS,
+    ...AUTO_COPY_SECTIONS,
   ].map((s) => [s.id, s])
 );
 
