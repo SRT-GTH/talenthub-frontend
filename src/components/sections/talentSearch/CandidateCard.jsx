@@ -18,11 +18,9 @@ const log = debug('CandidateCard');
  * Card: 432.33 wide, white, 1px #e6e2d6 border, r12, VERTICAL gap 12,
  * padding 20/16.
  *
- * The match percentage drives BOTH the badge on the avatar and the progress
- * bar. Figma draws Godfred's bar at 128/192 (66.7%) while labelling it 76%,
- * whereas Kofi (174.72/192 = 91%) and Ama (161.28/192 = 84%) are exact — so
- * the bar is computed from `matchPercent` for all three rather than
- * reproducing a bar that disagrees with its own label.
+ * The bar fills `matchBarPercent` when the record has one (Figma draws Godfred's bar at
+ * 128/192 = 66.7% while labelling it 76%: kept as drawn), otherwise `matchPercent`.
+ * The explanation box tint is per card (`explanationTint`): Ama's is #ebf1ec, the others #f3f8f4.
  *
  * Both CTAs use the solid "shelf" shadow Figma specifies (0 Npx 0, no blur),
  * which is a different effect from the theme's blurred --shadow-button-shelf.
@@ -41,13 +39,14 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
         className
       )}
     >
+      {/* The avatar export already carries Figma's 2px #1f6b3f ring. */}
       {/* ── Identity row — Figma 7249:74365, gap 24, py 20 ── */}
       <div className="flex items-center gap-[24px] py-[20px] max-sm:gap-[12px] max-sm:py-0">
         <div className="relative shrink-0">
           <img
             src={avatarSrc}
             alt={candidate.name}
-            className="size-[73.85px] rounded-full border-2 border-[#1f6b3f] object-cover max-sm:size-[52px]"
+            className="size-[74px] rounded-full object-cover max-sm:size-[52px]"
           />
           {/* Match badge — 32x32, #387440, 2px white ring */}
           <span className="absolute -bottom-[2px] -right-[2px] grid size-[32px] place-items-center rounded-full border-2 border-white bg-brand-green max-sm:-bottom-[4px] max-sm:-right-[10px] max-sm:flex max-sm:h-[24px] max-sm:w-auto max-sm:min-w-[24px] max-sm:items-center max-sm:justify-center max-sm:whitespace-nowrap max-sm:px-[6px]">
@@ -59,7 +58,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
 
         <div className="flex min-w-0 flex-1 flex-col gap-[9px] max-sm:gap-[4px]">
           <div className="flex flex-col gap-[2px] max-sm:pr-[72px]">
-            <h3 className="font-display not-italic text-[20px] leading-[26px] tracking-[-0.5px] text-black max-sm:text-[17px] max-sm:leading-[22px]">
+            <h3 className="font-heading text-[19px] font-semibold leading-6 tracking-[-0.5px] text-[#1c2a21] max-sm:text-[17px] max-sm:leading-[22px]">
               {candidate.name}
             </h3>
             <p className="font-sans text-[14px] max-sm:text-[13px] leading-[16.71px] tracking-[0.2px] text-content-muted">
@@ -72,7 +71,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
             <span className="h-[6px] w-full overflow-hidden rounded-full bg-[#f0eee8]">
               <span
                 className="block h-full rounded-full bg-brand-green"
-                style={{ width: `${candidate.matchPercent}%` }}
+                style={{ width: `${candidate.matchBarPercent ?? candidate.matchPercent}%` }}
               />
             </span>
             <span className="pt-[6px] font-sans text-[10px] max-lg:text-[12px] font-semibold leading-4 text-brand-green">
@@ -105,14 +104,14 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
             </div>
 
             {/* Below sm the save / more buttons ride the avatar + name row (top-right of the card). */}
-            <div className="flex shrink-0 items-center gap-[8px] max-sm:absolute max-sm:right-[12px] max-sm:top-[12px] max-sm:gap-[6px]">
+            <div className="flex shrink-0 items-center gap-[8px] self-start max-sm:absolute max-sm:right-[12px] max-sm:top-[12px] max-sm:gap-[6px]">
               <button
                 type="button"
                 aria-label={`Save ${candidate.name}`}
                 onClick={() => log('branch', { action: 'save', id: candidate.id, wired: false })}
                 className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
-                <SaveHeartIcon className="w-[11.67px]" />
+                <SaveHeartIcon className="w-[12px]" />
               </button>
               <button
                 type="button"
@@ -120,7 +119,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
                 onClick={() => log('branch', { action: 'more', id: candidate.id, wired: false })}
                 className="relative grid size-[32px] place-items-center rounded-full max-lg:after:absolute max-lg:after:-inset-1.5 border border-[#e6e6e6] text-content-helper transition-colors hover:bg-neutral"
               >
-                <MoreDotsIcon className="w-[9.33px]" />
+                <MoreDotsIcon className="w-[10px]" />
               </button>
             </div>
           </div>
@@ -128,7 +127,10 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
           {/* Match explanation — Figma 7249:74422, #f3f8f4 on a 1px #00522b border */}
           {/* Figma 7249:74470 — fill #ebf1ec; the 1px #00522b stroke carries
               opacity 0.10, so it reads as almost no border at all. */}
-          <div className="flex gap-[12px] max-sm:gap-[8px] rounded-[8px] border border-[#00522b]/10 bg-brand-green-light p-[16px] max-sm:p-[8px]">
+          <div
+            className="flex gap-[12px] max-sm:gap-[8px] rounded-[8px] border border-[#00522b]/10 p-[16px] max-sm:p-[8px]"
+            style={{ backgroundColor: candidate.explanationTint }}
+          >
             <LightbulbIcon className="size-[20px] shrink-0 text-brand-green" />
             <div className="flex min-w-0 flex-col gap-[3.13px]">
               <p className="font-sans text-[14px] max-sm:sr-only font-semibold leading-5 text-brand-green">

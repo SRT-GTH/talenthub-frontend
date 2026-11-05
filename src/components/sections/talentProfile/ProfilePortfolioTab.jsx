@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -17,6 +18,7 @@ import { LINK_ICONS, SHELF, TITLE_SM, coverBg } from './profileTabsStyles.js';
 import ImageDescriptionsCheck, { AltChip } from './ProfileImageDescriptions.jsx';
 import { useImageDescriptions } from './ProfileImageDescriptionsData.js';
 import ProfileAltTextModal from './ProfileAltTextModal.jsx';
+import FallbackImage from '../../shared/FallbackImage.jsx';
 
 const log = debug('ProfilePortfolioTab');
 
@@ -75,7 +77,11 @@ const ProjectCard = ({ project, alt }) => (
       className="relative h-[190px] w-full shrink-0 overflow-hidden"
       style={{ background: coverBg(project.cover) }}
     >
-      <ProjectCoverArt kind={project.cover} fixed />
+      <FallbackImage
+        src={project.coverUrl}
+        className="absolute inset-0 size-full object-cover"
+        fallback={<ProjectCoverArt kind={project.cover} fixed />}
+      />
       {alt ? (
         <AltChip described={alt.described} title={project.title} onClick={alt.onOpen} />
       ) : null}
@@ -148,9 +154,10 @@ const AddProjectCard = ({ onAdd }) => (
 
 /*
  * ProfilePortfolioTab — P-04 (Figma Focused 8110:369743 / Playful 7572:359). Filter chips narrow the
- * project cards locally (pinned first, as the sort label says). Add / edit have no frame of their own.
+ * project cards locally (pinned first, as the sort label says). Add opens the Portfolio stage (/profile/filling/portfolio).
  */
 const ProfilePortfolioTab = ({ profile }) => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const imageDesc = useImageDescriptions();
   const altMode = profile?.ax === 'images' || profile?.ax === 'alt';
@@ -161,7 +168,8 @@ const ProfilePortfolioTab = ({ profile }) => {
 
   const projects = PORTFOLIO_PROJECTS.filter((p) => filter === 'all' || p.category === filter);
   log('filter', filter, 'projects', projects.length);
-  const onAdd = () => log('add project (no frame)');
+  // No add frame of its own: the Portfolio stage adds and saves projects.
+  const onAdd = () => navigate('/profile/filling/portfolio');
 
   return (
     <TabPanel tab="portfolio">

@@ -1,6 +1,7 @@
 import HomeLogoLink from './HomeLogoLink.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import gthLogoStacked from '../../assets/brand/gth-logo-stacked.webp';
+import parentGuardianShield from '../../assets/onboarding/parent-guardian-shield.svg';
 import { classNames } from '../../utils/classNames.js';
 import { getNavAuthCta } from '../../constants/authRoutes.js';
 import { debug } from '../../utils/debug.js';
@@ -53,11 +54,16 @@ const CREATE_ACCOUNT_CLASSES = classNames(
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green'
 );
 
+// Parent onboarding Flow B step screens (Figma 2864:37043 … 37752) carry a "Parent / Guardian" pill at the right of the header.
+const PARENT_FLOW_B_STEP =
+  /^\/onboarding\/parent-invited-(identity|verification|contact|security|link-ward|consent)$/;
+
 const OnboardingNavbar = () => {
   const { pathname } = useLocation();
   const cta = getNavAuthCta(pathname);
   const showCreate = cta.mode === 'signin';
-  log('render; pathname:', pathname, 'cta:', cta);
+  const showParentPill = PARENT_FLOW_B_STEP.test(pathname);
+  log('render; pathname:', pathname, 'cta:', cta, 'parentPill:', showParentPill);
 
   return (
     <header
@@ -80,6 +86,16 @@ const OnboardingNavbar = () => {
           />
         </HomeLogoLink>
 
+        {/* ⚠️ ASSUMPTION: Figma draws the pill INSTEAD of "Log In" on these screens; the Log In link is kept next to it so a parent with an account can still sign in. */}
+        {showParentPill ? (
+          <span
+            data-testid="parent-guardian-pill"
+            className="ml-auto mr-4 inline-flex h-[26px] items-center gap-[6px] rounded-full border border-solid border-[#eedeb8] bg-[#faf4e8] px-[12px] pl-[13px] font-sans text-[11px] leading-[13px] font-bold whitespace-nowrap text-[#967014] max-md:mr-3 max-lg:text-[12px]"
+          >
+            <img src={parentGuardianShield} alt="" aria-hidden="true" className="size-[12px]" />
+            Parent / Guardian
+          </span>
+        ) : null}
         {showCreate ? (
           <Link to={cta.to} className={CREATE_ACCOUNT_CLASSES}>
             <span className="bg-clip-text text-transparent" style={PRIMARY_GRADIENT}>

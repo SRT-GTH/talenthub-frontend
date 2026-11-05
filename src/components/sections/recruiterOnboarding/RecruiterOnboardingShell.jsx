@@ -8,6 +8,7 @@ import {
 } from '../../shared/recruiterOnboardingSteps.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 
 const log = debug('RecruiterOnboardingShell');
 
@@ -32,6 +33,8 @@ const RecruiterOnboardingShell = ({
   className,
   children,
 }) => {
+  // Figma draws every recruiter screen in SF Pro Rounded (bundled as `GTH Parent Rounded`); scoped to the screen so no other page changes font.
+  useScopedRoundedFont('data-recruiter-ui');
   const route = RECRUITER_ROUTES[routeKey];
   // 2026-10-18: backend failures (services/recruiterOnboarding.api.js) are
   // announced as a window event and shown here, so every step gets the same

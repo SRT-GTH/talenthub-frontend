@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 
@@ -349,6 +350,7 @@ const Button = ({
   type = 'button',
   disabled = false,
   state,
+  to,
   leftIcon,
   rightIcon,
   className,
@@ -462,11 +464,14 @@ const Button = ({
   const usePrimaryGradient = (variant === 'primary' || variant === 'danger') && !effectiveDisabled;
   const textColourClass = usePrimaryGradient ? null : VARIANT_TEXT_CLASSES[variant];
 
+  // `to` (additive, 2026-10-27): the same button drawn as a router <Link> (no type/disabled), for navigation CTAs.
+  const Tag = to ? Link : 'button';
+  const tagProps = to ? { to } : { type, disabled: effectiveDisabled };
+
   return (
-    <button
+    <Tag
       ref={ref}
-      type={type}
-      disabled={effectiveDisabled}
+      {...tagProps}
       className={classNames(
         BASE_CLASSES,
         SIZE_CLASSES[size],
@@ -514,7 +519,7 @@ const Button = ({
           {rightIcon}
         </span>
       )}
-    </button>
+    </Tag>
   );
 };
 

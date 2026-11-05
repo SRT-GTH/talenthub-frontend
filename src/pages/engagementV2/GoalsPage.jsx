@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button.jsx';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
-import { STAGE_BY_ID } from '../../components/sections/engagementShell/engagementShellData.js';
+import {
+  STAGE_BY_ID,
+  stageNumber,
+} from '../../components/sections/engagementShell/engagementShellData.js';
 import {
   DeleteGoalDialog,
   GoalFormDialog,
@@ -218,7 +221,9 @@ const GoalsPage = () => {
           </>
         }
         lead="Tell recruiters the role, place, timing and pay you want. Your primary goal drives your headline match."
-        sticker={hasGoals ? `${goals.length} GOALS · 1 PRIMARY` : 'STAGE 8 · AIM IT'}
+        sticker={
+          hasGoals ? `${goals.length} GOALS · 1 PRIMARY` : `STAGE ${stageNumber('goals')} · AIM IT`
+        }
         stickerClass="rotate-[4deg]"
         card={<HeroInfoCard title="A strong goal has" rows={HERO_CARD_ROWS} />}
       />

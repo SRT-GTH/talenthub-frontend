@@ -183,18 +183,15 @@ const ParentInviteWelcomeSection = () => {
 
         {/* Headline — Figma 2864:36868 */}
         <h1
-          className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
+          className="font-heading font-semibold max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
           style={{
             fontSize: 'clamp(2.25rem, 3.8vw, 3.25rem)',
-            lineHeight: 0.95,
-            letterSpacing: '-2px',
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
             color: '#111',
           }}
         >
-          Your ward is already{' '}
-          <span className="italic" style={{ color: '#967014' }}>
-            on the platform.
-          </span>
+          Your ward is already <span style={{ color: '#967014' }}>on the platform.</span>
         </h1>
 
         {/* Subtitle — Figma 2864:36869 */}

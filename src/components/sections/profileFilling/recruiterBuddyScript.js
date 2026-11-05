@@ -12,6 +12,7 @@
 
 import {
   JOB_FILE_EXTRACTED_BOT,
+  JOB_FILE_EXTRACTED_REVIEW_BOT,
   JOB_FILE_REVIEW_CTA,
   JOB_FILE_UPLOAD_PROMPT,
   JOB_MANUAL_PROMPT_BOT,
@@ -21,37 +22,29 @@ import {
   JOB_CONV_AUTO,
   JOB_CONV_TITLE_ASK,
   JOB_CONV_TITLE_FALLBACK,
-  JOB_CONV_COMPANY_ASK,
-  JOB_CONV_COMPANY_FALLBACK,
-  JOB_CONV_INDUSTRY_ASK,
-  JOB_CONV_INDUSTRY_FALLBACK,
-  JOB_CONV_DEPARTMENT_ASK,
-  JOB_CONV_DEPARTMENT_FALLBACK,
   JOB_CONV_LOCATION_FALLBACK,
   JOB_CONV_TYPE_FALLBACK,
-  JOB_CONV_EXPERIENCE_ASK,
-  JOB_CONV_EXPERIENCE_FALLBACK,
-  JOB_CONV_DESCRIPTION_ASK,
-  JOB_CONV_DESCRIPTION_FALLBACK,
   JOB_CONV_RESP_FALLBACK,
-  JOB_CONV_RESP_REWRITE,
+  jobConvRespRewriteFor,
   JOB_CONV_RESP_CONFIRM_FALLBACK,
   JOB_CONV_QUALS_ASK,
   JOB_CONV_QUALS_FALLBACK,
-  JOB_CONV_QUALS_REWRITE,
+  jobConvQualsRewriteFor,
   JOB_CONV_QUALS_CONFIRM_FALLBACK,
   JOB_CONV_SALARY_ASK,
   JOB_CONV_SALARY_FALLBACK,
   JOB_CONV_BENEFITS_FALLBACK,
-  JOB_CONV_PERKS_ASK,
-  JOB_CONV_PERKS_FALLBACK,
   JOB_CONV_DATES_ASK,
   JOB_CONV_DATES_FALLBACK,
   JOB_CONV_COMPLETE_BOT,
   jobConvLocationAskFor,
+  jobConvLocationSummary,
   jobConvTypeAskFor,
   jobConvRespAskFor,
   jobConvBenefitsAskFor,
+  parseJobTitle,
+  parseJobType,
+  parseSalary,
 } from './jobConversationData.js';
 
 export {
@@ -60,7 +53,70 @@ export {
   buildJobsPanelFields,
 } from './jobConversationData.js';
 
-export const RECRUITER_NAME = 'Mr.Whitmore';
+// The label under the recruiter's own chat bubbles. Figma "Recruiter - AI Chat" (7958:160771) draws "Emma" there, while the toast says Mr. Whitmore: kept as drawn.
+export const RECRUITER_NAME = 'Emma';
+
+// Figma 7958:160771 draws "Completion: 80%" on the idle Company Info row of the recruiter panel, before the company profile is complete.
+export const RECRUITER_IDLE_COMPANY_COMPLETION_PCT = 80;
+
+/**
+ * The file chip the composer shows per `?cb=` state while an upload is under way (Figma 7958:163938 KYB/KYC, 7958:170187 job file):
+ * the name is cut the way the file bubbles cut it, the size reads "uploaded / total", progress is the drawn bar (65 of 113 px).
+ */
+export const RECRUITER_UPLOADING_FILES = {
+  'kyb-uploading': {
+    displayName: 'SRT KYC Docum... .pdf',
+    sizeLabel: '4.5MB / 6MB',
+    progress: 65 / 113,
+  },
+  'post-job-upload': {
+    displayName: 'Marketing j... .pdf',
+    sizeLabel: '5MB / 8MB',
+    progress: 65 / 113,
+  },
+};
+
+/** `?cb=` states that start from the uploaded and extracted job file (Figma 7958:170501, review 7958:170745, confirmation 7958:171927). */
+export const RECRUITER_JOB_UPLOAD_DONE_HINTS = [
+  'post-job-uploaded',
+  'post-job-upload-review',
+  'post-job-upload-confirm',
+];
+
+/** `?cb=` states that start from the whole answered job conversation (Figma 7958:168475 transcript, 7958:168809 fallback form, 7958:169471 confirmation, and the review step). */
+export const RECRUITER_JOB_CHAT_DONE_HINTS = [
+  'post-job-chat-review',
+  'post-job-chat-transcript',
+  'post-job-chat-fallback',
+  'post-job-chat-confirm',
+];
+
+/**
+ * How many steps of the (talent) trail the recruiter frames draw as done, per `?cb=` state (Figma 7958:160771):
+ * the landing, KYB/KYC, chat and file-upload frames show only Avatar; the company-profile frames and the job-post
+ * options, form and confirmation frames show Avatar + Personal Info + Education.
+ * ⚠️ ASSUMPTION: the interactive click-through (no `?cb=`) keeps Avatar only.
+ */
+export const recruiterTrailDoneCount = (hint) =>
+  [
+    'company-start',
+    'company-review',
+    'company-edit',
+    'company-edit-continued',
+    'company-edit-scrolled',
+    'company-conversation',
+    'company-confirmed',
+    'post-job-options',
+    'post-job-manual',
+    'post-job-form',
+    'post-job-confirm',
+    'post-job-success',
+    'post-job-chat-review',
+    'post-job-chat-confirm',
+    'post-job-upload-confirm',
+  ].includes(hint)
+    ? 3
+    : 1;
 
 // Figma 5132:65865 / 65914-65916 — first-visit hero (recruiter).
 // Shape matches CareerBuddyHero (`eyebrow` + `headlineRest`).
@@ -159,7 +215,7 @@ export const COMPANY_PROFILE_AUTO = 'Complete Company Profile';
 
 /** Opening bot — Figma 5132:66562. */
 export const COMPANY_BIO_ASK =
-  "Perfect! Let's have a conversation about your company. This will help candidates understand who you are and what you offer. \uD83C\uDF1F\n\nFirst question: Tell me about your company. What does Silver Rock Technologies do?\nJust describe it naturally — what products/services do you offer? What industry are you in? What makes your company unique?";
+  "Perfect! Let's have a conversation about your company. This will help candidates understand who you are and what you offer. \nFirst question: Tell me about your company. What does Silver Rock Technologies do?\nJust describe it naturally — what products/services do you offer? What industry are you in? What makes your company unique?";
 
 /** Demo fallback user bio — Figma 5132:66563 (used only if input empty). */
 export const COMPANY_BIO_USER_FALLBACK =
@@ -167,7 +223,7 @@ export const COMPANY_BIO_USER_FALLBACK =
 
 /** Bot rewrite — Figma 5132:66564. */
 export const COMPANY_BIO_REWRITE =
-  "That's fantastic! A tech startup helping SMEs — very impactful work. \uD83D\uDC4F\n\nHere's what I've captured:\n\nAbout SRT:\n\"We are a technology startup specializing in mobile application development for small and medium enterprises. Our mission is to help SMEs digitize their operations and expand their customer reach through innovative digital solutions.\"\n\nDoes this sound good, or would you like me to adjust the wording?";
+  "That's fantastic! A tech startup helping SMEs — very impactful work. \nHere's what I've captured:\n\nAbout SRT:\n\"We are a technology startup specializing in mobile application development for small and medium enterprises. Our mission is to help SMEs digitize their operations and expand their customer reach through innovative digital solutions.\"\n\nDoes this sound good, or would you like me to adjust the wording?";
 
 /** Canonical bio written to the panel — Figma 5132:66804. */
 export const COMPANY_BIO_CANONICAL =
@@ -175,14 +231,14 @@ export const COMPANY_BIO_CANONICAL =
 
 /** Culture ask — Figma 5132:66566 (`[Company Name]` verbatim). */
 export const COMPANY_CULTURE_ASK =
-  "Now, tell me about your company culture. What's it like to work at [Company Name]?\n\nThink about:\n- Work environment (collaborative, innovative, fast-paced?)\n- Team values (integrity, creativity, excellence?)\n- What employees love about working there - Any unique perks or traditions";
+  "Now, tell me about your company culture. What's it like to work at [Company Name]?\nThink about: \n- Work environment (collaborative, innovative, fast-paced?) \n- Team values (integrity, creativity, excellence?) \n- What employees love about working there - Any unique perks or traditions";
 
 export const COMPANY_CULTURE_USER_FALLBACK =
   "We have a very collaborative and innovative culture. We encourage creativity and give our team autonomy. We're fast-paced but flexible with work hours. Team lunches every Friday, and we invest heavily in learning and development.";
 
 /** Culture summary — Figma 5132:66568. */
 export const COMPANY_CULTURE_REWRITE =
-  'Wonderful! That sounds like a great place to work. \uD83C\uDF1F\n\nCompany Culture & Values:\n- Collaborative and innovation-driven environment\n- Encourages creativity and employee autonomy\n- Fast-paced yet flexible working arrangements\n- Weekly team bonding (Friday lunches)\n- Strong focus on learning and professional development\n\nCore Values:\n- Innovation\n- Collaboration\n- Autonomy & Trust\n- Continuous Learning\n\n Does this capture your culture well?';
+  'Wonderful! That sounds like a great place to work. \nCompany Culture & Values:\n- Collaborative and innovation-driven environment\n- Encourages creativity and employee autonomy\n- Fast-paced yet flexible working arrangements\n- Weekly team bonding (Friday lunches)\n- Strong focus on learning and professional development\n\nCore Values:\n- Innovation\n- Collaboration  \n- Autonomy & Trust\n- Continuous Learning\n\nDoes this capture your culture well?';
 
 /** Panel Culture & Values — Figma 5132:66804. */
 export const COMPANY_CULTURE_PANEL =
@@ -190,21 +246,21 @@ export const COMPANY_CULTURE_PANEL =
 
 /** Location ask — Figma 5132:66570. */
 export const COMPANY_LOCATION_ASK =
-  'Perfect! \u2705\n\n**Where are your office(s) located?**\nPlease provide:\n- City/Town\n- Specific area/neighborhood (optional)\n- Full address (optional — helps candidates find you)\n\nIf you have multiple locations, list them all!';
+  'Perfect! \n\n**Where are your office(s) located?**\n\nPlease provide:\n- City/Town\n- Specific area/neighborhood (optional)\n- Full address (optional — helps candidates find you)\n\nIf you have multiple locations, list them all!';
 
 export const COMPANY_LOCATION_USER_FALLBACK =
   "We're in East Legon, Accra. Specifically on Liberation Road near the A&C Mall.";
 
 /** Location confirm — Figma 5132:66572. */
 export const COMPANY_LOCATION_REWRITE =
-  'Got it! \u2705\n\n**Office Location:**\nEast Legon, Accra\nLiberation Road (near A&C Mall)\n\nWould you like to add:\n- Google Maps link?\n- Office photos?\n- Multiple locations?';
+  'Got it! \n\n**Office Location:**\nEast Legon, Accra\nLiberation Road (near A&C Mall)\n\nWould you like to add:\n- Google Maps link?\n- Office photos?\n- Multiple locations?';
 
 /** Panel address — Figma 5132:66804 (canonical directory form). */
 export const COMPANY_ADDRESS_PANEL = '10 Jungle Road, East Legon, Accra, Ghana';
 
 /** Socials ask — Figma 5132:66574. */
 export const COMPANY_SOCIALS_ASK =
-  "**Let's add your online presence so candidates can learn more about you. \uD83C\uDF10**\n\nWhat are your company's:\n- Website URL\n- LinkedIn page\n- Facebook page\n- Instagram handle\n- Twitter/X handle\n- Other social media\n\nJust share what you have — no pressure to have everything!";
+  "**Let's add your online presence so candidates can learn more about you. **\n\nWhat are your company's:\n- Website URL\n- LinkedIn page\n- Facebook page  \n- Instagram handle\n- Twitter/X handle\n- Other social media\n\nJust share what you have — no pressure to have everything!";
 
 export const COMPANY_SOCIALS_USER_FALLBACK =
   'Website: www.silverrocktech.com\nLinkedIn: linkedin.com/company/silver-rock-technology-services\nInstagram: @srt_gh';
@@ -215,7 +271,56 @@ export const COMPANY_SOCIALS_USER_FALLBACK =
  * "talent profile panel").
  */
 export const COMPANY_COMPLETE_BOT =
-  "\uD83C\uDF89 Congratulations! Your company profile is now 100% complete! Go ahead and modify or confirm on the recruiter panel.\n\nWhat this means for you:\n- Candidates can now see your full company profile\n- You'll appear in company directory searches\n- Your job posts look more professional and trustworthy\n- Candidates are 3x more likely to apply when they see a complete profile";
+  "Congratulations! Your company profile is now 100% complete!\nGo ahead and modify or confirm on the recruiter panel.\nWhat this means for you:\n- Candidates can now see your full company profile\n- You'll appear in company directory searches\n- Your job posts look more professional and trustworthy\n- Candidates are 3x more likely to apply when they see a complete profile Would you like to:";
+
+/** After the company profile is confirmed — Figma 7958:162367 (the double space before "want" is as drawn). */
+export const COMPANY_FIRST_POST_OFFER =
+  'That’s awesome. Now do you  want to set up your first post';
+export const COMPANY_FIRST_POST_YES = 'Why not?';
+
+/**
+ * The recruiter's own words as a short list: their lines or bullets, else sentences / comma
+ * parts. Used to show back culture & values (the bot never adds claims they didn't make).
+ */
+export const listFromText = (text) => {
+  const raw = String(text || '').trim();
+  if (!raw) return [];
+  const lines = raw
+    .split(/\n|•|^\s*-\s+/m)
+    .map((x) => x.replace(/^[-*\s]+/, '').trim())
+    .filter((x) => x.length > 2);
+  const parts =
+    lines.length >= 2
+      ? lines
+      : raw
+          .split(/(?<=[.!?])\s+|;\s*|,\s*(?:and\s+)?|\s+and\s+(?=[a-z]+\s)/i)
+          .map((x) => x.replace(/[.\s]+$/, '').trim())
+          .filter((x) => x.length > 2);
+  return parts.map((x) => x.charAt(0).toUpperCase() + x.slice(1)).slice(0, 12);
+};
+
+/** Website and social links found in a free-text answer. */
+export const socialsFromText = (text) => {
+  const raw = String(text || '');
+  const pick = (re) => (raw.match(re) || [])[0] || '';
+  const linkedin = pick(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/[^\s,]+/i);
+  const facebook = pick(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/[^\s,]+/i);
+  const instagram =
+    pick(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/[^\s,]+/i) ||
+    (raw.match(/instagram[^@\n]*(@[\w.]+)/i) || [])[1] ||
+    '';
+  const x =
+    pick(/(?:https?:\/\/)?(?:www\.)?(?:x|twitter)\.com\/[^\s,]+/i) ||
+    (raw.match(/(?:twitter|\bx\b)[^@\n]*(@[\w]+)/i) || [])[1] ||
+    '';
+  const website =
+    (raw.match(/website\s*:?\s*((?:https?:\/\/)?[\w.-]+\.[a-z]{2,}(?:\/[^\s,]*)?)/i) || [])[1] ||
+    (raw
+      .match(/(?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:\/[^\s,]*)?/gi)
+      ?.find((u) => !/linkedin|facebook|instagram|twitter|x\.com/i.test(u)) ??
+      '');
+  return { website, socials: { linkedin, facebook, instagram, x } };
+};
 
 /**
  * Full Company Info. field sheet — Figma 5132:66804 (view-details).
@@ -263,6 +368,8 @@ const user = (text, extra = {}) => ({
 });
 
 const SETUP_CHIPS = ['Post Your First Job', 'Complete Company Profile', KYB_UPLOAD_CTA];
+// The recruiter frames (Figma 7958:160961) set these three under the welcome bubble and the FAQ chips above the composer.
+export const RECRUITER_SETUP_CHIPS = SETUP_CHIPS;
 
 const FAQ_CHIPS = [
   'Tell me more about GTH',
@@ -270,15 +377,13 @@ const FAQ_CHIPS = [
   'Is my personal information safe on GTH',
 ];
 
-const NEXT_PROFILE_CHIPS = ['Post Your First Job', KYB_UPLOAD_CTA, 'Tell me more about GTH'];
-
 export const RECRUITER_BUDDY_NODES = {
   welcome: {
     hero: 'first-time',
     seedMessages: () => [
       bot(
         "Hi there! 👋 Welcome to Ghana Talent AI. I'm Career Buddy, I'm here to help you find the best talent in Ghana.\nWith our platform, you can: Post jobs and reach thousands of qualified candidates, Review applicants matched to your requirements, Track applications and manage your hiring pipeline, Access verified talent with complete profiles.",
-        { linkButton: { label: 'Visit our About page' } }
+        { isWelcomeIntro: true }
       ),
     ],
     suggestedReplies: [...SETUP_CHIPS, ...FAQ_CHIPS],
@@ -354,7 +459,7 @@ export const RECRUITER_BUDDY_NODES = {
     reply: () => [
       user('Post Your First Job', { auto: true, autoLabel: '[Auto]' }),
       bot(
-        "Straight to business. I like that! 💼\nLet's get your first job posted. You can create your job posting in three ways:",
+        "Straight to business. I like that! \nLet's get your first job posted. You can create your job posting in three ways:",
         { modeCards: POST_JOB_MODE_CARDS }
       ),
     ],
@@ -395,34 +500,9 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-title': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_TITLE_FALLBACK),
-      bot(JOB_CONV_COMPANY_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-company',
-  },
-
-  'job-conv-company': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_COMPANY_FALLBACK),
-      bot(JOB_CONV_INDUSTRY_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-industry',
-  },
-
-  'job-conv-industry': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_INDUSTRY_FALLBACK),
-      bot(JOB_CONV_DEPARTMENT_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-department',
-  },
-
-  'job-conv-department': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_DEPARTMENT_FALLBACK),
-      bot(jobConvLocationAskFor('this role'), { showActions: true }),
+      bot(jobConvLocationAskFor(parseJobTitle(inputText?.trim() || JOB_CONV_TITLE_FALLBACK)), {
+        showActions: true,
+      }),
     ],
     suggestedReplies: [],
     freeTextNext: 'job-conv-location',
@@ -431,7 +511,10 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-location': {
     reply: (inputText) => {
       const loc = inputText?.trim() || JOB_CONV_LOCATION_FALLBACK;
-      return [user(loc), bot(jobConvTypeAskFor(loc), { showActions: true })];
+      return [
+        user(loc),
+        bot(jobConvTypeAskFor(jobConvLocationSummary(loc)), { showActions: true }),
+      ];
     },
     suggestedReplies: [],
     freeTextNext: 'job-conv-type',
@@ -440,25 +523,9 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-type': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_TYPE_FALLBACK),
-      bot(JOB_CONV_EXPERIENCE_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-experience',
-  },
-
-  'job-conv-experience': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_EXPERIENCE_FALLBACK),
-      bot(JOB_CONV_DESCRIPTION_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-description',
-  },
-
-  'job-conv-description': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_DESCRIPTION_FALLBACK),
-      bot(jobConvRespAskFor('Full-time'), { showActions: true }),
+      bot(jobConvRespAskFor(parseJobType(inputText?.trim() || JOB_CONV_TYPE_FALLBACK)), {
+        showActions: true,
+      }),
     ],
     suggestedReplies: [],
     freeTextNext: 'job-conv-resp',
@@ -467,7 +534,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-resp': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_RESP_FALLBACK),
-      bot(JOB_CONV_RESP_REWRITE, { showActions: true }),
+      bot(jobConvRespRewriteFor(inputText), { showActions: true }),
     ],
     suggestedReplies: [JOB_CONV_RESP_CONFIRM_FALLBACK],
     next: {
@@ -488,7 +555,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-quals': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_QUALS_FALLBACK),
-      bot(JOB_CONV_QUALS_REWRITE, { showActions: true }),
+      bot(jobConvQualsRewriteFor(inputText), { showActions: true }),
     ],
     suggestedReplies: [JOB_CONV_QUALS_CONFIRM_FALLBACK],
     next: {
@@ -509,9 +576,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-salary': {
     reply: (inputText) => {
       const salary = inputText?.trim() || JOB_CONV_SALARY_FALLBACK;
-      const summary = /ghs|usd|eur|\d/i.test(salary)
-        ? salary.replace(/depending on experience/i, '').trim()
-        : salary;
+      const summary = parseSalary(salary).summary;
       return [
         user(salary),
         bot(
@@ -531,15 +596,6 @@ export const RECRUITER_BUDDY_NODES = {
   'job-conv-benefits': {
     reply: (inputText) => [
       user(inputText?.trim() || JOB_CONV_BENEFITS_FALLBACK),
-      bot(JOB_CONV_PERKS_ASK, { showActions: true }),
-    ],
-    suggestedReplies: [],
-    freeTextNext: 'job-conv-perks',
-  },
-
-  'job-conv-perks': {
-    reply: (inputText) => [
-      user(inputText?.trim() || JOB_CONV_PERKS_FALLBACK),
       bot(JOB_CONV_DATES_ASK, { showActions: true }),
     ],
     suggestedReplies: [],
@@ -561,7 +617,7 @@ export const RECRUITER_BUDDY_NODES = {
   'job-manual-prompt': {
     reply: () => [
       user('Manual Creation', { auto: true, autoLabel: '[Auto]' }),
-      bot(JOB_MANUAL_PROMPT_BOT, { linkButton: { label: 'Fill Form' } }),
+      bot(JOB_MANUAL_PROMPT_BOT, { linkButton: { label: 'Fill Form' }, fontFamily: 'raleway' }),
     ],
     suggestedReplies: [],
     next: {},
@@ -599,7 +655,12 @@ export const RECRUITER_BUDDY_NODES = {
   'company-bio-rewrite': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_BIO_USER_FALLBACK),
-      bot(COMPANY_BIO_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim() && inputText.trim() !== COMPANY_BIO_USER_FALLBACK
+          ? `That's great, thank you! \uD83D\uDC4F\n\nHere's what I've captured:\n\n"${inputText.trim()}"\n\nDoes this sound good, or would you like to change anything?`
+          : COMPANY_BIO_REWRITE,
+        { showActions: true }
+      ),
     ],
     suggestedReplies: ["That's perfect!"],
     next: {
@@ -620,7 +681,14 @@ export const RECRUITER_BUDDY_NODES = {
   'company-culture-capture': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_CULTURE_USER_FALLBACK),
-      bot(COMPANY_CULTURE_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim() && inputText.trim() !== COMPANY_CULTURE_USER_FALLBACK
+          ? `Wonderful! \uD83C\uDF1F\n\nCompany Culture & Values:\n${listFromText(inputText)
+              .map((x) => `- ${x}`)
+              .join('\n')}\n\nDoes this capture your culture well?`
+          : COMPANY_CULTURE_REWRITE,
+        { showActions: true }
+      ),
     ],
     suggestedReplies: ['Yes, continue!'],
     next: {
@@ -641,18 +709,23 @@ export const RECRUITER_BUDDY_NODES = {
   'company-location-capture': {
     reply: (inputText) => [
       user(inputText?.trim() || COMPANY_LOCATION_USER_FALLBACK),
-      bot(COMPANY_LOCATION_REWRITE, { showActions: true }),
+      bot(
+        inputText?.trim() && inputText.trim() !== COMPANY_LOCATION_USER_FALLBACK
+          ? `Got it! \u2705\n\nOffice Location:\n${inputText.trim()}\n\nShall we continue?`
+          : COMPANY_LOCATION_REWRITE,
+        { showActions: true }
+      ),
     ],
-    suggestedReplies: ['No thanks — continue'],
+    suggestedReplies: ['Continue'],
     next: {
-      'No thanks — continue': 'company-socials-ask',
+      Continue: 'company-socials-ask',
       '*': 'company-socials-ask',
     },
   },
 
   'company-socials-ask': {
     reply: (inputText) => [
-      user(inputText?.trim() || 'No thanks — continue'),
+      user(inputText?.trim() || 'Continue'),
       bot(COMPANY_SOCIALS_ASK, { showActions: true }),
     ],
     suggestedReplies: [],
@@ -672,17 +745,18 @@ export const RECRUITER_BUDDY_NODES = {
 
   // After panel Confirm succeeds — next-section chips (mirrors KYB hand-off).
   'company-next-section': {
-    reply: () => [
-      bot(
-        'Great — your company profile is locked in. Would you like to keep setting up your recruiter account?'
-      ),
-    ],
-    suggestedReplies: NEXT_PROFILE_CHIPS,
+    reply: () => [bot(COMPANY_FIRST_POST_OFFER)],
+    suggestedReplies: [COMPANY_FIRST_POST_YES],
     next: {
-      'Post Your First Job': 'post-a-job-options',
-      [KYB_UPLOAD_CTA]: 'kyb-prompt',
-      'Tell me more about GTH': 'faq-about',
+      [COMPANY_FIRST_POST_YES]: 'post-a-job-options',
     },
+  },
+
+  // The frame stops after the recruiter's "Why not?": no chips, nothing queued (Figma 7958:162367).
+  'company-first-post-reply-pending': {
+    reply: () => [],
+    suggestedReplies: [],
+    next: {},
   },
 
   // ── KYB / KYC upload (Figma 5132:68604 → 68793 → 68990 / 69042) ─────────
@@ -724,7 +798,7 @@ export const RECRUITER_BUDDY_NODES = {
  * DemoNavigator jump seeds — rebuild the message list for mid-flow hops.
  */
 export function seedRecruiterJump(hint) {
-  if (hint === 'kyb-prompt') {
+  if (hint === 'kyb-prompt' || hint === 'kyb-uploading') {
     return {
       nodeId: 'kyb-prompt',
       messages: [
@@ -764,29 +838,30 @@ export function seedRecruiterJump(hint) {
       ],
     };
   }
-  if (hint === 'company-review') {
-    return {
-      nodeId: 'company-complete',
-      messages: [
-        ...RECRUITER_BUDDY_NODES.welcome.seedMessages(),
-        ...RECRUITER_BUDDY_NODES['company-profile-start'].reply(),
-        ...RECRUITER_BUDDY_NODES['company-bio-rewrite'].reply(COMPANY_BIO_USER_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['company-culture-ask'].reply("That's perfect!"),
-        ...RECRUITER_BUDDY_NODES['company-culture-capture'].reply(COMPANY_CULTURE_USER_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['company-location-ask'].reply('Yes, continue!'),
-        ...RECRUITER_BUDDY_NODES['company-location-capture'].reply(COMPANY_LOCATION_USER_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['company-socials-ask'].reply('No thanks — continue'),
-        ...RECRUITER_BUDDY_NODES['company-complete'].reply(COMPANY_SOCIALS_USER_FALLBACK),
-      ],
-    };
+  // The whole company Q&A up to the "Congratulations" line (Figma 7958:161456 with the panel closed, 7958:161664 with it open).
+  const companyConversation = () => [
+    ...RECRUITER_BUDDY_NODES.welcome.seedMessages(),
+    ...RECRUITER_BUDDY_NODES['company-profile-start'].reply(),
+    ...RECRUITER_BUDDY_NODES['company-bio-rewrite'].reply(COMPANY_BIO_USER_FALLBACK),
+    ...RECRUITER_BUDDY_NODES['company-culture-ask'].reply("That's perfect!"),
+    ...RECRUITER_BUDDY_NODES['company-culture-capture'].reply(COMPANY_CULTURE_USER_FALLBACK),
+    ...RECRUITER_BUDDY_NODES['company-location-ask'].reply('Yes, continue!'),
+    ...RECRUITER_BUDDY_NODES['company-location-capture'].reply(COMPANY_LOCATION_USER_FALLBACK),
+    ...RECRUITER_BUDDY_NODES['company-socials-ask'].reply('Continue'),
+    ...RECRUITER_BUDDY_NODES['company-complete'].reply(COMPANY_SOCIALS_USER_FALLBACK),
+  ];
+  if (hint === 'company-review' || hint === 'company-conversation' || hint === 'company-edit') {
+    return { nodeId: 'company-complete', messages: companyConversation() };
   }
-  if (hint === 'company-confirmed') {
+  if (
+    hint === 'company-confirmed' ||
+    hint === 'company-edit-continued' ||
+    hint === 'company-edit-scrolled'
+  ) {
     return {
-      nodeId: 'company-next-section',
+      nodeId: 'company-first-post-reply-pending',
       messages: [
-        ...RECRUITER_BUDDY_NODES.welcome.seedMessages(),
-        ...RECRUITER_BUDDY_NODES['company-profile-start'].reply(),
-        ...RECRUITER_BUDDY_NODES['company-complete'].reply(COMPANY_SOCIALS_USER_FALLBACK),
+        ...companyConversation(),
         {
           id: nextId(),
           sender: 'user',
@@ -796,10 +871,20 @@ export function seedRecruiterJump(hint) {
           text: 'Company Profile Confirmed',
         },
         ...RECRUITER_BUDDY_NODES['company-next-section'].reply(),
+        user(COMPANY_FIRST_POST_YES),
       ],
     };
   }
-  if (hint === 'post-job-form' || hint === 'post-job-confirm') {
+  if (hint === 'post-job-options') {
+    return {
+      nodeId: 'post-a-job-options',
+      messages: [
+        ...RECRUITER_BUDDY_NODES.welcome.seedMessages(),
+        ...RECRUITER_BUDDY_NODES['post-a-job-options'].reply(),
+      ],
+    };
+  }
+  if (hint === 'post-job-form' || hint === 'post-job-confirm' || hint === 'post-job-manual') {
     return {
       nodeId: 'job-manual-prompt',
       messages: [
@@ -840,7 +925,8 @@ export function seedRecruiterJump(hint) {
       ],
     };
   }
-  if (hint === 'post-job-upload-review') {
+  // The uploaded job file, sent with the recruiter's own line, and the extraction reply (Figma 7958:170501); the review and confirmation modals open over it.
+  if (RECRUITER_JOB_UPLOAD_DONE_HINTS.includes(hint)) {
     return {
       nodeId: 'job-file-extracted',
       messages: [
@@ -853,16 +939,27 @@ export function seedRecruiterJump(hint) {
           personaLabel: RECRUITER_NAME,
           file: {
             name: 'Marketing_Manager_JD.pdf',
-            displayName: 'Marketing_Ma... .pdf',
-            size: 245760,
-            sizeLabel: '240KB',
+            displayName: 'Marketing j... .pdf',
+            size: 6 * 1024 * 1024,
+            sizeLabel: '6MB',
           },
         },
-        ...RECRUITER_BUDDY_NODES['job-file-extracted'].reply(),
+        user(JOB_CONV_TITLE_FALLBACK),
+        ...(hint === 'post-job-uploaded'
+          ? RECRUITER_BUDDY_NODES['job-file-extracted'].reply()
+          : [
+              {
+                id: nextId(),
+                sender: 'bot',
+                text: JOB_FILE_EXTRACTED_REVIEW_BOT,
+                linkButton: { label: JOB_FILE_REVIEW_CTA },
+              },
+            ]),
       ],
     };
   }
-  if (hint === 'post-job-chat-review') {
+  // The whole job conversation, answered (Figma 7958:168475 shows it from the top, 7958:168809 and 7958:169471 over it).
+  if (RECRUITER_JOB_CHAT_DONE_HINTS.includes(hint)) {
     return {
       nodeId: 'job-conv-dates',
       messages: [
@@ -870,20 +967,14 @@ export function seedRecruiterJump(hint) {
         ...RECRUITER_BUDDY_NODES['post-a-job-options'].reply(),
         ...RECRUITER_BUDDY_NODES['job-conv-start'].reply(),
         ...RECRUITER_BUDDY_NODES['job-conv-title'].reply(JOB_CONV_TITLE_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-company'].reply(JOB_CONV_COMPANY_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-industry'].reply(JOB_CONV_INDUSTRY_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-department'].reply(JOB_CONV_DEPARTMENT_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-location'].reply(JOB_CONV_LOCATION_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-type'].reply(JOB_CONV_TYPE_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-experience'].reply(JOB_CONV_EXPERIENCE_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-description'].reply(JOB_CONV_DESCRIPTION_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-resp'].reply(JOB_CONV_RESP_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-resp-confirm'].reply(JOB_CONV_RESP_CONFIRM_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-quals'].reply(JOB_CONV_QUALS_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-quals-confirm'].reply(JOB_CONV_QUALS_CONFIRM_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-salary'].reply(JOB_CONV_SALARY_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-benefits'].reply(JOB_CONV_BENEFITS_FALLBACK),
-        ...RECRUITER_BUDDY_NODES['job-conv-perks'].reply(JOB_CONV_PERKS_FALLBACK),
         ...RECRUITER_BUDDY_NODES['job-conv-dates'].reply(JOB_CONV_DATES_FALLBACK),
       ],
     };
@@ -899,6 +990,9 @@ export const RECRUITER_WELCOME_TOAST = {
   title: 'Welcome Back',
   body: 'Good to see you again, Mr. Whitmore.',
 };
+
+/** The name in the one-line "Welcome Back,  Mr.Whitmore" toast of the recruiter frames (Figma 7958:161266, written without a space after "Mr."). */
+export const RECRUITER_WELCOME_NAME = 'Mr.Whitmore';
 
 /** Panel Confirm success — product wording (Figma toast was job-post copy). */
 export const COMPANY_SAVE_META = {

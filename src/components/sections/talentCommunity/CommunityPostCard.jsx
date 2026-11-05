@@ -11,6 +11,7 @@ import {
   CmThumbUpIcon,
 } from './CommunityPageIcons.jsx';
 import { CARD, FOCUS_RING, STICKER_BASE } from './communityPageStyles.js';
+import { PURPOSE_BY_VALUE } from './postPurpose.js';
 
 const log = debug('CommunityPostCard');
 
@@ -32,6 +33,8 @@ const log = debug('CommunityPostCard');
  *   to         path of the post page (the comment button, the images and the time link there via onOpen).
  *   onOpen(post)    open the post (comment button / image click). onLike / onDislike / onSave / onShare / onMore(post):
  *                   optional; like / save also toggle locally. onMore opens the report flow on the feed pages.
+ *   showMore   false hides the ⋯ button (the author's own post waiting for a moderator has nothing to report).
+ *   onPurpose  (moderators) the purpose badge becomes a button that opens "Change purpose" (US-5.2.2-01/04).
  *   children   rendered after the action row inside the card (C-07 comment thread, gap 20).
  *   className  appended to the card.
  */
@@ -108,10 +111,13 @@ const CommunityPostCard = ({
   onSave,
   onShare,
   onMore,
+  onPurpose,
+  showMore = true,
   className,
   children,
 }) => {
   const [liked, setLiked] = useState(Boolean(post.liked));
+  const purpose = post.purpose ? PURPOSE_BY_VALUE[post.purpose] : null;
   const [disliked, setDisliked] = useState(false);
   const [saved, setSaved] = useState(Boolean(post.saved));
   const likes = post.likes + (liked && !post.liked ? 1 : 0) - (!liked && post.liked ? 1 : 0);
@@ -183,31 +189,62 @@ const CommunityPostCard = ({
             <span className="min-w-0 truncate font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21]">
               {post.author.name}
             </span>
-            <span
-              className={classNames(
-                STICKER_BASE,
-                'h-[22px] text-[10px] leading-[12px] max-lg:text-[12px] playful:h-[27px]'
-              )}
-            >
-              {post.kind}
-            </span>
+            {onPurpose ? (
+              <button
+                type="button"
+                aria-label={
+                  purpose
+                    ? `${purpose.singular} post. Change purpose`
+                    : 'No purpose yet. Set purpose'
+                }
+                onClick={() => onPurpose(post)}
+                className={classNames(
+                  'inline-flex h-[22px] shrink-0 cursor-pointer items-center gap-[4px] whitespace-nowrap rounded-full border-0 px-[10px] font-sans text-[10px] font-bold leading-[12px] max-lg:text-[12px]',
+                  purpose ? purpose.badge : 'bg-[#f0f0f0] text-[#595959]',
+                  FOCUS_RING
+                )}
+              >
+                {purpose ? purpose.singular : 'Set purpose'}
+                <span aria-hidden="true">✎</span>
+              </button>
+            ) : purpose ? (
+              <span
+                className={classNames(
+                  'inline-flex h-[22px] shrink-0 items-center whitespace-nowrap rounded-full px-[10px] font-sans text-[10px] font-bold leading-[12px] max-lg:text-[12px]',
+                  purpose.badge
+                )}
+              >
+                {purpose.singular}
+              </span>
+            ) : (
+              <span
+                className={classNames(
+                  STICKER_BASE,
+                  'h-[22px] text-[10px] leading-[12px] max-lg:text-[12px] playful:h-[27px]'
+                )}
+              >
+                {post.kind}
+              </span>
+            )}
           </div>
           <span className="font-sans text-[12px] leading-[14px] text-[#737373]">{post.time}</span>
         </div>
-        <button
-          type="button"
-          aria-label="More options"
-          onClick={() => {
-            log('more', post.id);
-            onMore?.(post);
-          }}
-          className={classNames(
-            'inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent p-0 text-[#737373]',
-            FOCUS_RING
-          )}
-        >
-          <CmMoreIcon className="size-[20px]" />
-        </button>
+        {showMore ? (
+          <button
+            type="button"
+            aria-label="More options"
+            onClick={() => {
+              log('more', post.id);
+              onMore?.(post);
+            }}
+            className={classNames(
+              'inline-flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent p-0 text-[#737373]',
+              FOCUS_RING
+            )}
+          >
+            <CmMoreIcon className="size-[20px]" />
+          </button>
+        ) : null}
       </header>
 
       {banner}

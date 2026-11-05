@@ -28,6 +28,20 @@ const TURN_URL = `${AGENT_BASE}/api/workflows/turnControllerWorkflow/start-async
 const TURN_TIMEOUT_MS = 120_000;
 
 /**
+ * 2026-10-31: the model the talent picked in Buddy settings (careerBuddy.settings.model), sent with each
+ * turn as inputData.modelPreference. "claude" (default) or "gpt-oss"; the agent falls back to the other
+ * one when it errors. (In the body, not a header, so no CORS change is needed on the agent.)
+ */
+export const buddyModelChoice = () => {
+  try {
+    const m = JSON.parse(localStorage.getItem('careerBuddy.settings') || '{}').model;
+    return m === 'gpt-oss' ? 'gpt-oss' : 'claude';
+  } catch {
+    return 'claude';
+  }
+};
+
+/**
  * 2026-10-25: the agent checks every call against the caller's login token (it used to trust the
  * userId in the body). Same token the API gets; renewed first when it is about to expire.
  */
@@ -85,6 +99,8 @@ export const sendTurn = async ({ entityId, message, history = [], chipAction, in
       ...(chipAction ? { chipAction } : {}),
       // 2026-10-17: 'voice' when the turn came from the live voice call.
       ...(inputMode ? { inputMode } : {}),
+      // 2026-10-31: the AI model picked in Buddy settings (claude | gpt-oss).
+      modelPreference: buddyModelChoice(),
     },
   };
   log('turn ->', { message, chipAction: chipAction?.label, historyLen: history.length });
@@ -133,6 +149,8 @@ export const sendTurnStream = async ({ onStatus, onDelta, signal, ...args }) => 
       history,
       ...(chipAction ? { chipAction } : {}),
       ...(inputMode ? { inputMode } : {}),
+      // 2026-10-31: the AI model picked in Buddy settings (claude | gpt-oss).
+      modelPreference: buddyModelChoice(),
     },
   };
   const controller = new AbortController();
@@ -264,6 +282,45 @@ export const sendFeedback = async ({ entityId, message, rating, userMessage }) =
     });
   } catch (err) {
     log.error('feedback failed', err?.message);
+  }
+};
+
+/**
+ * Iteration 9 sec. 5: the details sheet for a search result without a page (career / elective / programme).
+ * GET /api/guidance/search/detail - scoped to the signed-in talent like search. Throws with `.status` on failure.
+ */
+export const fetchSearchDetail = async (type, code) => {
+  try {
+    const { data } = await api.get('/guidance/search/detail', { params: { type, code } });
+    return data?.data || data;
+  } catch (err) {
+    const e = new Error(err?.response?.data?.message || err?.message || 'detail failed');
+    e.status = err?.response?.status || null;
+    throw e;
+  }
+};
+
+/**
+ * Iteration 9 sec. 7: one tap on a search card (open / ask / details / why) - an implicit signal for the
+ * Iteration 8 feedback loop. Fire-and-forget: a failed write never interrupts the conversation.
+ */
+export const sendSignal = async ({ entityId, kind, card, query, messageId }) => {
+  if (!entityId || !card?.id || !card?.type) return;
+  try {
+    await fetch(`${AGENT_BASE}/career-buddy/signal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(await agentAuth()) },
+      body: JSON.stringify({
+        userId: entityId,
+        kind,
+        cardType: card.type,
+        cardId: String(card.code || card.id),
+        query: query || undefined,
+        messageId: messageId || undefined,
+      }),
+    });
+  } catch (err) {
+    log.error('signal failed', err?.message);
   }
 };
 

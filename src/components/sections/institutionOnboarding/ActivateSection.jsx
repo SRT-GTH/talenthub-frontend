@@ -315,7 +315,7 @@ const ActivateSection = () => {
 
           {/* ── Headline ── */}
           <h1
-            className="font-display font-normal text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="font-heading font-semibold text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
               lineHeight: 1.094,
@@ -323,7 +323,7 @@ const ActivateSection = () => {
               maxWidth: '620px',
             }}
           >
-            Review, accept &amp; <span className="italic text-brand-green">go live.</span>
+            Review, accept &amp; <span className="text-brand-green">go live.</span>
           </h1>
 
           {/* ── Subtext ── */}
@@ -392,7 +392,7 @@ const ActivateSection = () => {
               {/* Right */}
               <div className="flex flex-col gap-2 max-md:contents">
                 <ReviewField
-                  label="Role / Title"
+                  label="Role /Title"
                   value={contact.roleTitle || null}
                   className="max-md:order-2"
                 />
@@ -479,7 +479,7 @@ const ActivateSection = () => {
                 aria-busy={isActivating}
                 className="w-full"
               >
-                {isActivating ? 'Activating…' : 'Activate Institution Account'}
+                {isActivating ? 'Activating Account…' : 'Activate Institution Account'}
               </Button>
             ) : (
               <DisabledCTA />

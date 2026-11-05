@@ -14,6 +14,9 @@ import {
 } from '../../shared/assets.jsx';
 import BuddyThinking, { StopGeneratingPill } from '../../ui/BuddyThinking.jsx';
 import FlowPortal from './FlowPortal.jsx';
+import CareerPostCards from '../profileFilling/careerExposure/CareerPostCards.jsx';
+import CourseRecommendationCards from '../profileFilling/learningGuidance/CourseRecommendationCards.jsx';
+import { careerPostView, courseCardView } from '../profileFilling/careerBuddyLive.js';
 import { buddyDemoThinking } from '../profileFilling/buddyDemoFrames.js';
 import {
   useCareerBuddyLive,
@@ -118,8 +121,11 @@ const OpenFullCard = ({ title, sub, onClick }) => (
   </div>
 );
 
-/** One message. Bot bubbles may carry bullets + a follow-up line (agent blocks). */
-const Bubble = ({ m }) => {
+/**
+ * One message. Bot bubbles may carry bullets + a follow-up line (agent blocks), and `cards` - the opportunity match
+ * cards (2026-10-27: they only rendered on the full screen, so a match reply here was just its lead line).
+ */
+const Bubble = ({ m, cards = null }) => {
   if (m.sender !== 'bot') {
     const text = m.file ? `📎 ${m.file.name || m.text || 'File'}` : m.text;
     return (
@@ -134,7 +140,7 @@ const Bubble = ({ m }) => {
       </div>
     );
   }
-  return (
+  const bubble = (
     <div className="flex items-end gap-[8px]">
       <BuddyAvatar />
       <div className="m-0 flex max-w-[330px] flex-col gap-[6px] rounded-[18px_18px_18px_4px] border border-[#e7e7e7] bg-white px-[14px] py-[12px] text-[14px] leading-[21px] whitespace-pre-line text-[#1c2a21]">
@@ -148,6 +154,13 @@ const Bubble = ({ m }) => {
         ) : null}
         {m.followUp ? <p className="m-0">{m.followUp}</p> : null}
       </div>
+    </div>
+  );
+  if (!cards) return bubble;
+  return (
+    <div className="flex min-w-0 flex-col gap-[8px]">
+      {bubble}
+      <div className="min-w-0 pl-[34px] text-[14px] leading-[21px] text-[#1c2a21]">{cards}</div>
     </div>
   );
 };
@@ -310,7 +323,37 @@ const CareerBuddyFirstChat = ({ home }) => {
             Today
           </span>
           {shown.map((m) => (
-            <Bubble key={m.id} m={m} />
+            <Bubble
+              key={m.id}
+              m={m}
+              cards={
+                live && m.opportunities?.length ? (
+                  L.renderOpportunities(m, { compact: true })
+                ) : live && m.searchResults?.length ? (
+                  // 2026-10-27: Career Buddy search results, as in the full Career Buddy.
+                  L.renderSearchResults(m, { compact: true })
+                ) : live && (m.careerPosts?.length || m.courses?.length) ? (
+                  <>
+                    {/* 2026-10-27: GTH posts about a career, as in the full Career Buddy. */}
+                    {m.careerPosts?.length ? (
+                      <CareerPostCards
+                        compact
+                        posts={m.careerPosts.map((p) => careerPostView(p))}
+                        career={m.careerPosts[0]?.career}
+                      />
+                    ) : null}
+                    {/* 2026-10-31: recommended courses, as in the full Career Buddy. */}
+                    {m.courses?.length ? (
+                      <CourseRecommendationCards
+                        compact
+                        courses={m.courses.map((c) => courseCardView(c))}
+                        career={m.courses.find((c) => c.career)?.career}
+                      />
+                    ) : null}
+                  </>
+                ) : null
+              }
+            />
           ))}
           {needsFull ? (
             <OpenFullCard

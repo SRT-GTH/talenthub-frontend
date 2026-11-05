@@ -1,4 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import {
@@ -24,9 +26,18 @@ const log = debug('ProfileAboutTab');
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]';
 
-/* The pitch video poster: 240px avatar disc, 72px play button, caption + "CC on" chip. */
+/*
+ * The pitch video poster: 240px avatar disc, 72px play button, caption + "CC on" chip.
+ * Live (2026-11-01): Play swaps the poster for the talent's real pitch video (ABOUT_PITCH.videoUrl); it only logged.
+ */
 const PitchCard = () => {
+  const navigate = useNavigate();
   const p = ABOUT_PITCH;
+  const [playing, setPlaying] = useState(false);
+  const play = () => {
+    log('play pitch', p.videoUrl ? 'video' : 'mock');
+    if (p.videoUrl) setPlaying(true);
+  };
   return (
     <section
       aria-label={p.title}
@@ -35,34 +46,52 @@ const PitchCard = () => {
       <header className="flex items-center gap-[10px]">
         <h2 className={classNames(TITLE, 'min-w-0 truncate')}>{p.title}</h2>
         <span aria-hidden="true" className="h-px min-w-px flex-1" />
-        <HeadLink onClick={() => log('re-record pitch (no backend)')}>{p.link}</HeadLink>
-        <EditButton label="Edit pitch" onClick={() => log('edit pitch (no backend)')} />
+        <HeadLink onClick={() => navigate('/profile/filling/pitch')}>{p.link}</HeadLink>
+        <EditButton label="Edit pitch" onClick={() => navigate('/profile/filling/pitch')} />
       </header>
 
-      <div className="relative flex min-h-[200px] w-full flex-col items-center gap-[12px] overflow-hidden rounded-[16px] border border-[rgba(28,42,33,0.1)] bg-[#2d5d33] px-[12px] pt-[20px] pb-[12px] @2xl:block @2xl:h-[clamp(240px,17.4vw,300px)] @2xl:p-0">
-        <div className="relative size-[clamp(130px,13.9vw,240px)] shrink-0 @2xl:absolute @2xl:top-[13%] @2xl:left-1/2 @2xl:-translate-x-1/2">
-          <span className="absolute inset-0 block overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
-            <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.6%] block h-auto w-[111.3%] max-w-none" />
-          </span>
-          <button
-            type="button"
-            aria-label="Play pitch"
-            onClick={() => log('play pitch')}
-            className={classNames(
-              'absolute top-[30.8%] left-1/2 block size-[30%] -translate-x-1/2 cursor-pointer rounded-full',
-              FOCUS
-            )}
-          >
-            <ProfilePitchPlayLargeIcon className="pointer-events-none absolute top-[-19.44%] left-[-33.33%] block size-[166.7%] max-w-none" />
-          </button>
+      {playing ? (
+        <div className="relative w-full overflow-hidden rounded-[16px] border border-[rgba(28,42,33,0.1)] bg-[#1c2a21]">
+          <video
+            src={p.videoUrl}
+            poster={p.posterUrl || undefined}
+            controls
+            autoPlay
+            playsInline
+            aria-label={p.title}
+            className="block max-h-[min(70vh,480px)] w-full bg-[#1c2a21] object-contain"
+          />
         </div>
-        <p className="rounded-[10px] bg-[#1c2a21] px-[12px] py-[8px] text-[13px] leading-[normal] font-medium text-white @2xl:absolute @2xl:bottom-[25px] @2xl:left-[23px]">
-          {p.caption}
-        </p>
-        <ProfileChip className="@2xl:absolute @2xl:right-[5px] @2xl:bottom-[21px]">
-          {p.chip}
-        </ProfileChip>
-      </div>
+      ) : (
+        <div className="relative flex min-h-[200px] w-full flex-col items-center gap-[12px] overflow-hidden rounded-[16px] border border-[rgba(28,42,33,0.1)] bg-[#2d5d33] px-[12px] pt-[20px] pb-[12px] @2xl:block @2xl:h-[clamp(240px,17.4vw,300px)] @2xl:p-0">
+          <div className="relative size-[clamp(130px,13.9vw,240px)] shrink-0 @2xl:absolute @2xl:top-[13%] @2xl:left-1/2 @2xl:-translate-x-1/2">
+            <span className="absolute inset-0 block overflow-hidden rounded-full bg-[#387440] playful:bg-[linear-gradient(135deg,#387440_14.6%,#7aa870_85.3%)]">
+              <TalentSidebarProfileAvatarIllustration className="absolute -top-[6.45%] -left-[5.6%] block h-auto w-[111.3%] max-w-none" />
+            </span>
+            <button
+              type="button"
+              aria-label="Play pitch"
+              onClick={play}
+              className={classNames(
+                'absolute top-[30.8%] left-1/2 block size-[30%] -translate-x-1/2 cursor-pointer rounded-full',
+                FOCUS
+              )}
+            >
+              <ProfilePitchPlayLargeIcon className="pointer-events-none absolute top-[-19.44%] left-[-33.33%] block size-[166.7%] max-w-none" />
+            </button>
+          </div>
+          {p.caption ? (
+            <p className="rounded-[10px] bg-[#1c2a21] px-[12px] py-[8px] text-[13px] leading-[normal] font-medium text-white @2xl:absolute @2xl:bottom-[25px] @2xl:left-[23px]">
+              {p.caption}
+            </p>
+          ) : null}
+          {p.chip ? (
+            <ProfileChip className="@2xl:absolute @2xl:right-[5px] @2xl:bottom-[21px]">
+              {p.chip}
+            </ProfileChip>
+          ) : null}
+        </div>
+      )}
 
       <p className="flex flex-wrap items-center gap-x-[16px] gap-y-[4px] text-[13px] leading-[normal] font-medium text-[#595959]">
         {p.stats.map((s, i) => (
@@ -193,6 +222,7 @@ const InterestsCard = ({ onEdit }) => (
   </ProfileCard>
 );
 
+/* 2026-11-01: a row the talent hasn't filled shows its "Add ..." prompt, which opens the editor (live). */
 const WorkStyleCard = ({ onEdit }) => (
   <ProfileCard title={ABOUT_WORK_STYLE.title} onEdit={onEdit} editLabel="Edit work style">
     <dl className="flex flex-col gap-[16px]">
@@ -202,7 +232,17 @@ const WorkStyleCard = ({ onEdit }) => (
             {r.label}
           </dt>
           <dd className="min-w-0 flex-1 text-[14px] leading-[1.5] font-medium text-[#1c2a21]">
-            {r.value}
+            {r.value ? (
+              r.value
+            ) : (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="cursor-pointer border-0 bg-transparent p-0 text-left text-[14px] leading-[1.5] font-semibold text-[#387440] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                {r.prompt}
+              </button>
+            )}
           </dd>
         </div>
       ))}
@@ -216,6 +256,9 @@ const WorkStyleCard = ({ onEdit }) => (
  * in-place editor (`edit=about`).
  */
 const ProfileAboutTab = ({ profile }) => {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const live = isLoggedIn() && params.get('demo') !== '1';
   useEffect(() => {
     log('mount', { tab: profile?.tab });
   }, [profile?.tab]);
@@ -224,7 +267,23 @@ const ProfileAboutTab = ({ profile }) => {
     log('edit about');
     profile?.update?.({ edit: 'about' });
   };
-  const edit = (what) => () => log('edit', what, '(no frame)');
+  // The cards have no edit frames of their own: each pencil opens the profile stage that saves that data.
+  const EDIT_ROUTE = {
+    traits: '/profile/filling/personality',
+    goals: '/profile/filling/goals',
+    interests: '/profile/filling/interests',
+    'work style': '/profile/filling/personality',
+  };
+  const edit = (what) => () => {
+    // 2026-11-01: Work style has its own editor now (it opened the personality quiz).
+    if (what === 'work style' && live) {
+      log('edit work style -> modal');
+      profile?.update?.({ modal: 'workstyle' });
+      return;
+    }
+    log('edit', what, '->', EDIT_ROUTE[what]);
+    navigate(EDIT_ROUTE[what]);
+  };
 
   return (
     <TabLayout

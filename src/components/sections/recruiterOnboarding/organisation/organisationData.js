@@ -65,6 +65,32 @@ export const ORGANISATIONS = [
 // Sub-line shown under an organisation name in a result row (Figma: "Scancom PLC Â·
 // Telecommunications Â· Accra Â· 500+ staff"). `extended` swaps the city for the longer
 // location + drops nothing else (selected card, 7374:5070).
+/*
+ * mockSearchOrganisations — the directory search over ORGANISATIONS, used only when a page is opened on a Figma frame (`?state=…`, see utils/frameSeed.js) so the
+ * results / "Did you mean?" / not-found frames render without the API or a token. Same result shape as searchOrganisations.
+ * "mtn …" lists the three MTN rows; a name that matches one organisation once spaces are ignored ("SilverRock Technologies") is the fuzzy suggestion; anything else is not found.
+ */
+const squash = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+export const mockSearchOrganisations = async (query) => {
+  const q = String(query || '').trim();
+  if (!q) return { status: 'idle', results: [], suggestion: null };
+  const wanted = squash(q);
+  const sounds = ORGANISATIONS.find((org) => squash(org.name) === wanted);
+  if (sounds && sounds.name.toLowerCase() !== q.toLowerCase()) {
+    return { status: 'suggestion', results: [], suggestion: sounds };
+  }
+  const results = ORGANISATIONS.filter(
+    (org) =>
+      squash(org.name).includes(wanted) ||
+      (wanted.startsWith('mtn') && squash(org.name).startsWith('mtn'))
+  );
+  if (results.length) return { status: 'results', results, suggestion: null };
+  return { status: 'notFound', results: [], suggestion: null };
+};
+
 export const describeOrganisation = (org, { extended = false, withAdmin = false } = {}) => {
   const parts = [
     org.legalName,

@@ -5,7 +5,12 @@ import { debug } from '../../../../utils/debug.js';
 import { usePlayfulDialogA11y } from '../../../ui/PlayfulDialogA11y.js';
 import Button from '../../../ui/Button.jsx';
 import { ArrowRightIcon } from '../../../shared/assets.jsx';
-import { PITCH_COMPLETE, PITCH_DELETE, PITCH_FILE } from './pitchData.js';
+import {
+  PITCH_COMPLETE as PITCH_COMPLETE_MOCK,
+  PITCH_DELETE,
+  PITCH_FILE,
+  pitchCompleteLive,
+} from './pitchData.js';
 import {
   PitchCloseIcon,
   PitchEditIcon,
@@ -88,8 +93,10 @@ const CONFETTI = [
 const STAT_BG = ['!bg-[#f7f8f4]', '!bg-[#e8f2ed]', '!bg-[#faf4e8]'];
 const STAT_FG = ['text-[#1c2a21]', 'text-[#165d3a]', 'text-[#785910]'];
 
-export const CompleteDialog = ({ uiStyle, onClose, onMilestone, onWatch }) => {
+export const CompleteDialog = ({ uiStyle, onClose, onMilestone, onWatch, journey }) => {
   log('mount complete');
+  // Signed in: the real journey decides the copy (never "9 of 9 / 100%" for a profile that isn't).
+  const PITCH_COMPLETE = journey ? pitchCompleteLive(journey) : PITCH_COMPLETE_MOCK;
   return (
     <Shell
       labelId="pitch-complete-title"

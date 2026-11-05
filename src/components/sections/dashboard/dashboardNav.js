@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { icons } from '../community/communityIcons.js';
+import { SidebarProfileNotebookPenIcon } from './RecruiterSidebarIcons.jsx';
 
 /*
  * dashboardNav.js — the ONE list of dashboard destinations, shared by the
@@ -18,6 +19,9 @@ export const NAV_ITEMS = [
     label: 'Home',
     icon: icons.navHome,
     collapsedIcon: icons.navHomeCollapsed,
+    // Figma V2.0 draws Home / Talent Search / Application Pipeline with an 11px icon-to-label gap and the rest with 8px
+    // (label x = 43 vs 40). Kept as drawn.
+    labelGap: 11,
     to: '/recruiter/home',
   },
   {
@@ -26,6 +30,8 @@ export const NAV_ITEMS = [
     tabLabel: 'Talent',
     icon: icons.navTalentSearch,
     collapsedIcon: icons.navTalentSearchCollapsed,
+    labelGap: 11,
+    labelColor: '#737373', // Figma V2.0 draws this one label #737373 while the others are #70706e. Kept as drawn.
     to: '/recruiter/talent-search',
   },
   {
@@ -34,7 +40,7 @@ export const NAV_ITEMS = [
     tabLabel: 'Postings',
     icon: icons.navJobPostings,
     collapsedIcon: icons.navJobPostingsCollapsed,
-    badge: '5',
+    badge: '3', // Figma V2.0 (7249:76140) draws 3; the pre-V2.0 build showed 5.
     to: '/recruiter/job-postings',
   },
   {
@@ -58,12 +64,21 @@ export const NAV_ITEMS = [
     label: 'Application Pipeline',
     icon: icons.navApplicationPipeline,
     collapsedIcon: icons.navApplicationPipelineCollapsed,
+    labelGap: 11,
     to: '/recruiter/application-pipeline',
   },
 ];
 
 export const SECONDARY_NAV_ITEMS = [
-  { id: 'profile', label: 'Profile', icon: icons.navProfile, collapsedIcon: icons.navProfile },
+  {
+    id: 'profile',
+    label: 'Profile',
+    icon: icons.navProfile,
+    collapsedIcon: icons.navProfile,
+    // Figma V2.0 `notebook-pen` (7249:76151); `icon` stays for older consumers (phone More sheet, workspace rail).
+    RecruiterIcon: SidebarProfileNotebookPenIcon,
+    // ⚠️ ASSUMPTION: Figma draws no destination or page for "Profile" (no recruiter profile route exists), so it has no `to`.
+  },
 ];
 
 /* The four primary phone tabs, in display order. The fifth tab is "More". */

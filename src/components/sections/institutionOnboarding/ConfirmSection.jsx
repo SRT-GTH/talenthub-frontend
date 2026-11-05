@@ -88,19 +88,26 @@ const ConfirmStatCard = ({
   log('ConfirmStatCard render', { label, value });
   return (
     <div
-      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black max-md:h-auto! max-md:w-full! max-md:justify-center max-md:gap-0 max-md:border-black/15 max-md:px-2 max-md:py-2 max-md:text-center"
+      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-[rgba(28,42,33,0.07)] max-md:h-auto! max-md:w-full! max-md:flex-col-reverse max-md:justify-center max-md:gap-0 max-md:px-2 max-md:py-2 max-md:text-center"
       style={{ width: '194px', height: '98px', backgroundColor: outerFill }}
     >
+      {/* Outer label */}
+      <span
+        className="font-sans font-medium self-start pl-[9px] max-md:self-center max-md:pl-0"
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
+      >
+        {label}
+      </span>
       {/* Inner box — 177×60 */}
       <div
         className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white max-md:h-auto max-md:w-full max-md:border-0! max-md:bg-transparent max-md:p-0"
-        style={{ border: '0.4px solid rgba(0,0,0,0.4)' }}
+        style={{ border: '0.4px solid rgba(28,42,33,0.07)' }}
       >
         {/* Frame 376 — stacked value + sub-label */}
         <div className="flex flex-col items-center gap-[4px]">
           <span
-            className="font-sans font-normal max-md:text-[28px]! max-md:leading-8!"
-            style={{ fontSize: '32px', lineHeight: '22px', color: valueColor }}
+            className="font-heading font-semibold max-md:text-[28px]! max-md:leading-8!"
+            style={{ fontSize: '29px', lineHeight: '30px', color: valueColor }}
           >
             {value}
           </span>
@@ -112,13 +119,6 @@ const ConfirmStatCard = ({
           </span>
         </div>
       </div>
-      {/* Outer label */}
-      <span
-        className="font-sans font-medium"
-        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
-      >
-        {label}
-      </span>
     </div>
   );
 };
@@ -215,14 +215,14 @@ const ConfirmSection = () => {
                 Instrument Serif fs=64 lh=70 ls=-0.64px CENTER
                 styleTable[73]: "submit?" (indices 9–15) → italic #387440 */}
             <h1
-              className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+              className="text-center font-heading font-semibold text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2rem, 4.4vw, 4rem)',
                 lineHeight: 1.094,
                 letterSpacing: '-0.64px',
               }}
             >
-              Ready to <span className="italic text-brand-green">submit?</span>
+              Ready to <span className="text-brand-green">submit?</span>
             </h1>
 
             {/* Subtitle — Figma 3040:71925 verbatim
@@ -308,7 +308,7 @@ const ConfirmSection = () => {
                 Header strip: "What happens when you click Submit" bg=#f8f8f4
                 4 numbered action items (h=42 each) */}
             <div
-              className="w-full rounded-[16px] border border-black overflow-hidden max-md:overflow-visible max-md:rounded-none max-md:border-0"
+              className="w-full rounded-[16px] border border-[rgba(28,42,33,0.07)] overflow-hidden max-md:overflow-visible max-md:rounded-none max-md:border-0"
               role="list"
               aria-label="What happens when you click Submit"
             >

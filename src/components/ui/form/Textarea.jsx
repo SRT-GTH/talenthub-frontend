@@ -20,6 +20,7 @@ const log = debug('Textarea');
  * Counter colours (Figma description: "turns gold near the limit, red when over"):
  *   normal  — neutral-darker (#575755)
  *   warn    — accent (#c8951a) when length >= warnAt * maxLength
+ *   (add-only) `counterSuffix` appends text to the counter (" · minimum 20"); `counterErrorTone` turns the counter red while `error` is set
  *   over    — danger (#c0392b) when length > maxLength
  *
  * State derivation priority (same as TextInput):
@@ -59,6 +60,17 @@ const Textarea = ({
   required,
   optional,
   optionalClassName,
+  // Opt-in Field passthroughs (recruiter job-post form, Figma 7958:165028);
+  // undefined = unchanged for every other caller.
+  labelTrailing,
+  labelTrailingClassName,
+  labelClassName,
+  labelRowClassName,
+  forceAsterisk,
+  asteriskClassName,
+  // Opt-in extra classes on the bordered box / on the native <textarea>.
+  boxClassName,
+  textareaClassName,
   helperText,
   error,
   state,
@@ -66,6 +78,8 @@ const Textarea = ({
   disabled = false,
   maxLength,
   showCounter,
+  counterSuffix,
+  counterErrorTone = false,
   warnAt = 0.9,
   rows = 4,
   value,
@@ -114,6 +128,7 @@ const Textarea = ({
 
   // Counter colour: red if over, gold if approaching, neutral otherwise.
   let counterColour = 'text-neutral-darker';
+  if (counterErrorTone && error) counterColour = 'text-danger';
   if (maxLength) {
     if (length > maxLength) counterColour = 'text-danger';
     else if (length >= maxLength * warnAt) counterColour = 'text-accent';
@@ -126,11 +141,17 @@ const Textarea = ({
       required={required}
       optional={optional}
       optionalClassName={optionalClassName}
+      labelTrailing={labelTrailing}
+      labelTrailingClassName={labelTrailingClassName}
+      labelClassName={labelClassName}
+      labelRowClassName={labelRowClassName}
+      forceAsterisk={forceAsterisk}
+      asteriskClassName={asteriskClassName}
       helperText={helperText}
       error={error}
       className={className}
     >
-      <div className={classNames(WRAPPER_BASE, wrapperStateClasses)}>
+      <div className={classNames(WRAPPER_BASE, wrapperStateClasses, boxClassName)}>
         <textarea
           ref={ref}
           id={inputId}
@@ -143,7 +164,7 @@ const Textarea = ({
           // server-side rejection.
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error || helperText ? `${inputId}-msg` : undefined}
-          className={TEXTAREA_BASE}
+          className={classNames(TEXTAREA_BASE, textareaClassName)}
           value={isControlled ? currentValue : undefined}
           defaultValue={!isControlled ? defaultValue : undefined}
           onChange={handleChange}
@@ -159,6 +180,7 @@ const Textarea = ({
           aria-live="polite"
         >
           {maxLength ? `${length} / ${maxLength}` : `${length}`}
+          {counterSuffix}
         </div>
       )}
     </Field>

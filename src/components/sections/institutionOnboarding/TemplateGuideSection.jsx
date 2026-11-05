@@ -149,13 +149,13 @@ const TemplateGuideSection = () => {
 
         {/* Headline — Figma 3007:40284 */}
         <h1
-          className="text-center font-serif text-black tracking-[-0.64px] max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="text-center font-heading font-semibold text-black tracking-[-0.64px] max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
           }}
         >
-          Start with the <span className="italic text-brand-green">template.</span>
+          Start with the <span className="text-brand-green">template.</span>
         </h1>
 
         {/* Subtitle — Figma 3007:40286 — verbatim (double space before "column" is intentional) */}

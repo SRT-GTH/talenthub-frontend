@@ -21,6 +21,7 @@ import BreakdownCard from './BreakdownCard.jsx';
 import { MOU_VIEW, PERSONALITY_NOTE } from './data/nationalData.js';
 import { extraChipLabel, parseMore, serializeMore } from './data/moreFiltersData.js';
 import MoreFiltersDrawer from './MoreFiltersDrawer.jsx';
+import { GOVERNMENT_PAGE_TEXT, governmentPageText } from '../../../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyNationalView');
 
@@ -92,8 +93,12 @@ const AgencyNationalView = ({ data, classic = false }) => {
   return (
     <>
       <AgencyPageHero
-        title="National data"
-        subtitle={`The national picture plus the categories in your MoU. ${overview.asOf?.label ? `${overview.asOf.label}. ` : ''}Groups under 5 are hidden.`}
+        title={GOVERNMENT_PAGE_TEXT.national.title}
+        subtitle={governmentPageText(
+          'national',
+          'subtitle',
+          `The national picture plus the categories in your MoU. ${overview.asOf?.label ? `${overview.asOf.label}. ` : ''}Groups under 5 are hidden.`
+        )}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <AgencyFilterRow

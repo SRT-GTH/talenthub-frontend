@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
@@ -7,7 +8,18 @@ import ScheduleSelect from './ScheduleSelect.jsx';
 import { useLivePipeline } from './useLivePipeline.js';
 import { ACTION_LABELS, ACTION_STAGE, buildPipelineColumns, candidateFor } from './pipelineLive.js';
 import { pipelineErrorText } from '../../../services/recruiterPipeline.api.js';
-import { CriteriaChevronIcon } from '../jobScreening/jobScreeningIcons.jsx';
+import {
+  CandidateClockIcon,
+  CandidateRatingStarIcon,
+  MeetingVideoCameraIcon,
+  MeetingHourglassGlyph,
+  MeetingCompletedCircleIcon,
+} from './pipelineBoardIcons.jsx';
+import {
+  PIPELINE_URL_KEYS,
+  SCHEDULE_MODAL_VALUES,
+  readPipelineUrlState,
+} from './pipelineUrlState.js';
 import TagRow from '../../ui/TagRow.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -17,12 +29,12 @@ import {
   CHOOSE_POSTING,
   MEETING_TONES,
   COLUMNS,
+  JOB_POSTING_OPTIONS,
 } from './applicationPipelineData.js';
-// Placeholder portraits — Figma embeds its own image fills and no matching
-// assets exist yet. Swap for src/assets/applicationPipeline/* when they land.
-import avatarEleanor from '../../../assets/community/avatar-roselyn-awinnor.png';
-import avatarJulian from '../../../assets/community/avatar-kingsley-smith.png';
-import avatarElla from '../../../assets/community/avatar-abigail-mensah.png';
+// Figma image fills, exported from V2.0 frame 7249:79474.
+import avatarEleanor from '../../../assets/recruiter/application-pipeline/candidate-avatar-eleanor-fant.png';
+import avatarJulian from '../../../assets/recruiter/application-pipeline/candidate-avatar-julian-reed.png';
+import avatarElla from '../../../assets/recruiter/application-pipeline/candidate-avatar-ella-mensah.png';
 
 const log = debug('ApplicationPipelineSection');
 
@@ -48,62 +60,14 @@ const AVATARS = { eleanor: avatarEleanor, julian: avatarJulian, ella: avatarElla
  * 280 + 16 gap run to 2056px against a 1329px canvas, so the board scrolls.
  */
 
-// 14x14, stroke #bfbfbf — akar-icons:clock in the profile-card footer.
-const ClockIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
-    <circle cx="7" cy="7" r="5.8" stroke="currentColor" strokeWidth="1" />
-    <path d="M7 4.1V7l1.75 1.75" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-  </svg>
-);
-
-// 11.67x11.08, fill #f59e0b — the rating star.
-const RatingStar = ({ className = '' }) => (
-  <svg viewBox="0 0 12 11" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="m6 .8 1.6 3.3 3.6.5-2.6 2.5.6 3.6L6 9l-3.2 1.7.6-3.6L.8 4.6l3.6-.5L6 .8Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-// 16x16, fill #785910 / tone colour — at-icons:video-camera in the status box.
-const VideoCameraIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M1.4 4.6a1.4 1.4 0 0 1 1.4-1.4h6a1.4 1.4 0 0 1 1.4 1.4v6.8a1.4 1.4 0 0 1-1.4 1.4h-6a1.4 1.4 0 0 1-1.4-1.4V4.6Z"
-      fill="currentColor"
-    />
-    <path d="m11.2 7.4 3.4-2v5.2l-3.4-2V7.4Z" fill="currentColor" />
-  </svg>
-);
-
 const STATE_BADGES = {
-  hourglass: (
-    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className="size-[12px]">
-      <path
-        d="M2.6 1.2h6.8M2.6 10.8h6.8M3.6 1.2c0 2.4 2.4 3.2 2.4 4.8S3.6 8.4 3.6 10.8M8.4 1.2c0 2.4-2.4 3.2-2.4 4.8s2.4 2.4 2.4 4.8"
-        stroke="#ffffff"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-      />
-    </svg>
-  ),
+  hourglass: <MeetingHourglassGlyph className="size-[24px] text-white" />,
   alert: (
     <span className="font-sans text-[10px] max-lg:text-[12px] font-bold leading-[15px] text-white">
       !
     </span>
   ),
-  check: (
-    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className="size-[12px]">
-      <path
-        d="m2.6 6.2 2.2 2.2 4.6-4.8"
-        stroke="#ffffff"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
+  check: <MeetingCompletedCircleIcon className="size-[24px] text-brand-green" />,
 };
 
 const actionLabel = (action) => ACTION_LABELS[action] || action;
@@ -197,14 +161,14 @@ const ProfileCard = ({ card, onAction }) => (
         /* Figma 7249:79088 — 1px #e5e5e5 top rule, pad-top 12, SPACE_BETWEEN */
         <div className="flex items-center justify-between gap-2 border-t border-[#e5e5e5] pt-[12px] max-lg:pt-[8px]">
           <span className="flex items-center gap-[4px]">
-            <ClockIcon className="size-[14px] text-[#bfbfbf]" />
+            <CandidateClockIcon className="size-[14px] text-[#bfbfbf]" />
             <span className="font-sans text-[13px] leading-[15.51px] tracking-[0.2px] text-[#bfbfbf]">
               {card.time}
             </span>
           </span>
           {card.rating ? (
             <span className="flex items-center gap-[4px]">
-              <RatingStar className="w-[11.67px] text-[#f59e0b]" />
+              <CandidateRatingStarIcon className="size-[12px] text-[#f59e0b]" />
               <span className="font-sans text-[13px] font-semibold leading-[15px] text-black">
                 {card.rating}
               </span>
@@ -258,7 +222,7 @@ const MeetingCard = ({ card, onAction }) => {
             tone.box
           )}
         >
-          <VideoCameraIcon className={classNames('size-[16px] shrink-0', tone.text)} />
+          <MeetingVideoCameraIcon className={classNames('size-[16px] shrink-0', tone.text)} />
           <span className="flex min-w-0 flex-col gap-[4px]">
             <span
               className={classNames(
@@ -294,9 +258,25 @@ const MeetingCard = ({ card, onAction }) => {
 const jobIdOf = (j) => String(j?._id || j?.id || '');
 
 const ApplicationPipelineSection = () => {
-  // Figma 7249:80368 et al. open from the Shortlisted card's "Schedule
-  // Interview" CTA and from the Interview card's "Reschedule".
-  const [scheduleOpen, setScheduleOpen] = useState(false);
+  // URL state (see the key list at the top of pipelineUrlState.js): the schedule
+  // modal, its confirmations, the job-posting dropdown and its hover are all
+  // addressable, so every Figma frame can be opened by link.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlState = readPipelineUrlState(searchParams);
+  // Several writes can land in one tick (e.g. pick an option, then close the list), and
+  // react-router's updater only sees the URL of the last render, so keep the newest params here.
+  const latestParamsRef = useRef(searchParams);
+  latestParamsRef.current = searchParams;
+  const setUrlKeys = (changes) => {
+    log('url', changes);
+    const next = new URLSearchParams(latestParamsRef.current);
+    Object.entries(changes).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === '') next.delete(key);
+      else next.set(key, value);
+    });
+    latestParamsRef.current = next;
+    setSearchParams(next);
+  };
   // Live: which application the modal is for, and a pending confirmation.
   const [scheduleFor, setScheduleFor] = useState(null);
   const [pending, setPending] = useState(null); // { card, action }
@@ -353,6 +333,11 @@ const ApplicationPipelineSection = () => {
   }, [activeStageId]);
 
   useEffect(() => {
+    log('url state', urlState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
     log('mount', {
       route: '/recruiter/application-pipeline',
       columnCount: COLUMNS.length,
@@ -372,7 +357,7 @@ const ApplicationPipelineSection = () => {
     if (!isLive) {
       if (action === 'Schedule Interview' || action === 'Reschedule') {
         log('branch', { cardId: card.id, action, opens: 'ScheduleInterviewModal' });
-        setScheduleOpen(true);
+        setUrlKeys({ [PIPELINE_URL_KEYS.modal]: 'schedule-interview' });
         return;
       }
       log('branch', { cardId: card.id, action, destination: 'none-in-figma' });
@@ -381,7 +366,7 @@ const ApplicationPipelineSection = () => {
     log('live action', { app: card.applicationId, action });
     if (action === 'schedule' || action === 'reschedule') {
       setScheduleFor(card.applicationId);
-      setScheduleOpen(true);
+      setUrlKeys({ [PIPELINE_URL_KEYS.modal]: 'schedule-interview' });
       return;
     }
     if (CONFIRM_COPY[action]) {
@@ -399,18 +384,40 @@ const ApplicationPipelineSection = () => {
   };
 
   const scheduleApp = pipe.applications.find((a) => String(a._id) === scheduleFor) || null;
+  const scheduleModalActive = SCHEDULE_MODAL_VALUES.includes(urlState.modal);
+  // Live deep links have no application to schedule, so the modal only opens in demo or with one chosen.
+  const scheduleOpen = scheduleModalActive && (!isLive || Boolean(scheduleApp));
+  const scheduleConfirm =
+    urlState.modal === 'cancel-interview'
+      ? 'cancel'
+      : urlState.modal === 'schedule-confirmation'
+        ? 'schedule'
+        : null;
+  const closeScheduleModal = () => {
+    setScheduleFor(null);
+    setUrlKeys({
+      [PIPELINE_URL_KEYS.modal]: null,
+      [PIPELINE_URL_KEYS.state]: null,
+      [PIPELINE_URL_KEYS.format]: null,
+      [PIPELINE_URL_KEYS.interviewers]: null,
+    });
+  };
+  const postingOption =
+    JOB_POSTING_OPTIONS.find((o) => o.id === urlState.posting) || JOB_POSTING_OPTIONS[1];
+  const forceHoverOption = JOB_POSTING_OPTIONS.find((o) => o.id === urlState.forceHover);
 
   return (
-    <DashboardShell>
+    <DashboardShell defaultSidebarCollapsed={urlState.sidebarCollapsed}>
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <RecruiterPageHeading
+          titleStyle="sans-accent"
           lead={PAGE_HEADING.lead}
           accent={PAGE_HEADING.accent}
           subtitle={PAGE_SUBHEADING}
         />
 
-        <label className="flex w-full max-w-[431px] flex-col gap-[8px]">
-          <span className="font-sans text-[14px] font-medium leading-6 tracking-[0.2px] text-black">
+        <div className="flex w-full max-w-[431px] flex-col gap-[8px]">
+          <span className="font-sans text-[16px] font-medium leading-7 tracking-[0.2px] text-[#1c2a21]">
             {CHOOSE_POSTING.label}
             <span className="font-display text-[14px] font-semibold not-italic text-[#2e8b57]">
               {CHOOSE_POSTING.required}
@@ -429,16 +436,27 @@ const ApplicationPipelineSection = () => {
               }}
             />
           ) : (
-            <button
-              type="button"
-              onClick={() => log('branch', { action: 'open-posting-select', wired: false })}
-              className="flex h-[51px] max-lg:h-[44px] items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
-            >
-              <span className="min-w-0 truncate">{CHOOSE_POSTING.value}</span>
-              <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
-            </button>
+            <ScheduleSelect
+              label={CHOOSE_POSTING.label}
+              menuVariant="centered"
+              options={JOB_POSTING_OPTIONS.map((o) => o.label)}
+              value={postingOption.label}
+              open={urlState.dropdownOpen}
+              onOpenChange={(next) =>
+                setUrlKeys({
+                  [PIPELINE_URL_KEYS.dropdown]: next ? 'job-posting' : null,
+                  ...(next ? {} : { [PIPELINE_URL_KEYS.forceHover]: null }),
+                })
+              }
+              pinnedHoverValue={forceHoverOption?.label}
+              onChange={(label) => {
+                const next = JOB_POSTING_OPTIONS.find((o) => o.label === label);
+                log('branch', { demoPosting: next?.id });
+                if (next) setUrlKeys({ [PIPELINE_URL_KEYS.posting]: next.id });
+              }}
+            />
           )}
-        </label>
+        </div>
 
         {pipe.status === 'error' ? (
           <p
@@ -514,7 +532,7 @@ const ApplicationPipelineSection = () => {
             >
               <header className="flex items-center justify-between gap-2">
                 {/* Figma textCase: UPPER */}
-                <h3 className="font-sans text-[16px] max-lg:text-[14px] font-semibold uppercase leading-5 text-black">
+                <h3 className="font-sans text-[16px] max-lg:text-[14px] font-semibold uppercase leading-5 text-[#1c2a21]">
                   {column.label}
                 </h3>
                 <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[8px] py-[6px] max-lg:py-[2px] font-sans text-[14px] max-lg:text-[12px] font-medium leading-[16.71px] text-content-helper">
@@ -538,10 +556,23 @@ const ApplicationPipelineSection = () => {
 
       <ScheduleInterviewModal
         open={scheduleOpen}
-        onClose={() => {
-          setScheduleOpen(false);
-          setScheduleFor(null);
+        confirm={scheduleConfirm}
+        onConfirmChange={(next) =>
+          setUrlKeys({
+            [PIPELINE_URL_KEYS.modal]:
+              next === 'cancel'
+                ? 'cancel-interview'
+                : next === 'schedule'
+                  ? 'schedule-confirmation'
+                  : 'schedule-interview',
+          })
+        }
+        seed={{
+          state: urlState.scheduleState,
+          format: urlState.scheduleFormat,
+          interviewersOpen: urlState.interviewersOpen,
         }}
+        onClose={closeScheduleModal}
         onScheduled={(payload) => log('branch', { scheduled: payload })}
         {...(isLive && scheduleApp
           ? {

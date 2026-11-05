@@ -20,6 +20,8 @@ const log = debug('CircleDialogShell');
  */
 const CircleDialogShell = ({
   personId,
+  personPhoto,
+  personName,
   title,
   subtitle,
   titleId,
@@ -67,7 +69,15 @@ const CircleDialogShell = ({
           </span>
         )}
         <div className="flex items-center gap-[12px]">
-          {personId && <CircleAvatar id={personId} size={48} ring={false} />}
+          {personId && (
+            <CircleAvatar
+              id={personId}
+              size={48}
+              ring={false}
+              photo={personPhoto}
+              name={personName}
+            />
+          )}
           <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
             <h2 id={titleId} className={classNames(HEADING, titleSize)}>
               {title}

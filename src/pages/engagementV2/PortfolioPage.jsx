@@ -7,7 +7,10 @@ import {
   saveProfileFields,
 } from '../../services/profileStages.api.js';
 import EngagementStageFrame from '../../components/sections/engagementShell/EngagementStageFrame.jsx';
-import { nextStageRoute } from '../../components/sections/engagementShell/engagementShellData.js';
+import {
+  nextStageRoute,
+  stageNumber,
+} from '../../components/sections/engagementShell/engagementShellData.js';
 import Button from '../../components/ui/Button.jsx';
 import {
   AddAnotherProject,
@@ -167,7 +170,7 @@ const PortfolioPage = () => {
   };
 
   const sticker = empty
-    ? 'STAGE 6 · SHOW IT'
+    ? `STAGE ${stageNumber('portfolio')} · SHOW IT`
     : `${projects.length} ${projects.length === 1 ? 'PROJECT' : 'PROJECTS'} · ${projects.filter((p) => p.pinned).length} PINNED`;
 
   return (

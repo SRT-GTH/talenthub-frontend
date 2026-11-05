@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { isLoggedIn } from '../../../services/auth.api.js';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -67,7 +68,7 @@ const WorkItem = ({ item, last, onEdit }) => (
         ))}
       </div>
     </div>
-    <EditButton label={`Edit ${item.title}`} onClick={onEdit} />
+    {onEdit ? <EditButton label={`Edit ${item.title}`} onClick={onEdit} /> : null}
   </li>
 );
 
@@ -76,8 +77,28 @@ const EducationItem = ({ item, onEdit }) => (
     <IconTile name={item.icon} bg={item.iconBg} />
     <div className="flex min-w-0 flex-1 flex-col items-start gap-[4px]">
       <h3 className="text-[17px] leading-[normal] font-semibold text-[#1c2a21]">{item.title}</h3>
-      <p className="text-[14px] leading-[normal] font-medium text-[#595959]">{item.org}</p>
-      <p className="text-[13px] leading-[normal] whitespace-pre-wrap text-[#737373]">{item.meta}</p>
+      <p
+        className={classNames(
+          'text-[14px] leading-[normal] font-medium',
+          item.missingSchool ? 'text-[#a0700a]' : 'text-[#595959]'
+        )}
+      >
+        {item.org}
+      </p>
+      {item.meta ? (
+        <p className="text-[13px] leading-[normal] whitespace-pre-wrap text-[#737373]">
+          {item.meta}
+        </p>
+      ) : null}
+      {item.missingSchool && onEdit ? (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="cursor-pointer border-0 bg-transparent p-0 pt-[2px] text-[14px] leading-[normal] font-semibold text-[#387440] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+        >
+          Add your school
+        </button>
+      ) : null}
       {/* Education v2 subjects (live data): electives first, ★ = enjoys. */}
       {item.subjects?.length ? (
         <div className="flex flex-wrap gap-[6px] pt-[6px]">
@@ -91,7 +112,7 @@ const EducationItem = ({ item, onEdit }) => (
         </div>
       ) : null}
     </div>
-    <EditButton label={`Edit ${item.title}`} onClick={onEdit} />
+    {onEdit ? <EditButton label={`Edit ${item.title}`} onClick={onEdit} /> : null}
   </li>
 );
 
@@ -119,10 +140,15 @@ const TipCard = ({ onImprove }) => (
 /*
  * ProfileExperienceTab — P-03 (Figma Focused 8110:369265 / Playful 7571:1007). Timeline of work and
  * volunteering, education, and the dashed "add" card on the left; Buddy tip, CV import and gaps note on
- * the right. Anything that adds or edits a role opens the Add experience modal (`modal=experience`).
+ * the right. Anything that adds a role opens the Add experience modal (`modal=experience`).
+ * Live (signed in): the modal appends a new role; editing a saved role opens the Work stage, which edits and removes
+ * roles. Education (2026-11-01): "+ Add" and each pencil open EducationModal (`modal=education&item=<key|new>`), which
+ * adds, edits and removes schools; an entry still on the onboarding placeholder says "School not added yet".
  */
 const ProfileExperienceTab = ({ profile }) => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const live = isLoggedIn() && params.get('demo') !== '1';
 
   useEffect(() => {
     log('mount', { tab: profile?.tab });
@@ -132,6 +158,8 @@ const ProfileExperienceTab = ({ profile }) => {
     log('open experience modal');
     profile?.update?.({ modal: 'experience' });
   };
+
+  const editRole = live ? () => navigate('/profile/filling/work') : openModal;
 
   const work = EXPERIENCE_WORK;
   const edu = EXPERIENCE_EDUCATION;
@@ -154,13 +182,17 @@ const ProfileExperienceTab = ({ profile }) => {
                   key={item.key}
                   item={item}
                   last={i === work.items.length - 1}
-                  onEdit={openModal}
+                  onEdit={editRole}
                 />
               ))}
             </ul>
           </ProfileCard>
 
-          <ProfileCard title={edu.title} link={edu.add} onLink={openModal}>
+          <ProfileCard
+            title={edu.title}
+            link={edu.add}
+            onLink={live ? () => profile?.update?.({ modal: 'education', item: 'new' }) : openModal}
+          >
             {edu.items.length ? null : (
               <p className="text-[14px] leading-[1.5] text-[#737373]">
                 Add your school or college.
@@ -168,7 +200,17 @@ const ProfileExperienceTab = ({ profile }) => {
             )}
             <ul className="flex flex-col gap-[16px]">
               {edu.items.map((item) => (
-                <EducationItem key={item.key} item={item} onEdit={openModal} />
+                <EducationItem
+                  key={item.key}
+                  item={item}
+                  onEdit={
+                    live && item.id
+                      ? () => profile?.update?.({ modal: 'education', item: item.id })
+                      : live
+                        ? undefined
+                        : openModal
+                  }
+                />
               ))}
             </ul>
           </ProfileCard>
@@ -201,7 +243,7 @@ const ProfileExperienceTab = ({ profile }) => {
             <Button
               variant="tertiary-subtle"
               size="sm"
-              onClick={() => log('upload CV (no backend)')}
+              onClick={() => navigate('/profile/filling/cv')}
             >
               {EXPERIENCE_IMPORT.cta}
             </Button>

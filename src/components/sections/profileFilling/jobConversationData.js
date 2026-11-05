@@ -13,54 +13,38 @@ import { emptyJobPostForm, INDUSTRY_OPTIONS } from './jobPostFormData.js';
 export const JOB_CONV_AUTO = '💬 Conversation with AI';
 
 export const JOB_CONV_TITLE_ASK =
-  "Awesome! Let's have a conversation about this role. I'll ask you questions, and by the end, we'll have a complete job posting ready. ✨\nLet's start with the basics. **What's the job title for this position?** For example: Software Engineer, Marketing Manager, Sales Representative, Accountant, Graphic Designer, etc.";
+  "Awesome! Let's have a conversation about this role. I'll ask you questions, and by the end, we'll have a complete job posting ready. \nLet's start with the basics. **What's the job title for this position?** For example: Software Engineer, Marketing Manager, Sales Representative, Accountant, Graphic Designer, etc.";
 
 export const JOB_CONV_TITLE_FALLBACK = 'We need a Digital Marketing Specialist';
 
-export const JOB_CONV_COMPANY_ASK =
-  'Got it! ✅\n\n**Which company is hiring for this role?**\nUse the official company name candidates will see on the job post.';
-
-export const JOB_CONV_COMPANY_FALLBACK = 'Silver Rock Technologies';
-
-export const JOB_CONV_INDUSTRY_ASK =
-  'Perfect. 👍\n\n**What industry is this role in?**\nExamples: Technology, Finance & Banking, Healthcare, Education, Retail & E-commerce, NGO / Development, Other.';
-
-export const JOB_CONV_INDUSTRY_FALLBACK = 'Technology';
-
-export const JOB_CONV_DEPARTMENT_ASK =
-  'Noted! 🌟\n\n**Which department or team will this person join?**\nFor example: Engineering, Sales, HR, Marketing, Product, Operations.';
-
-export const JOB_CONV_DEPARTMENT_FALLBACK = 'Marketing';
-
 export const JOB_CONV_LOCATION_ASK =
-  'Perfect! A Digital Marketing Specialist — great role. 👍\nWhere will this person be working?\nYou can specify:\n- A specific city (e.g., Accra, Kumasi, Takoradi)\n- Multiple locations\n- Remote\n- Hybrid (office + remote)';
+  'Perfect! A Digital Marketing Specialist — great role. \nWhere will this person be working?\nYou can specify:\n- A specific city (e.g., Accra, Kumasi, Takoradi)\n- Multiple locations\n- Remote\n- Hybrid (office + remote)';
 
-/** Location ask when the title is not the demo fallback — keep structure, swap title. */
+/** Location ask for the title the recruiter gave (Figma 7958:168475: "Perfect! A Digital Marketing Specialist — great role."). */
 export const jobConvLocationAskFor = (title) => {
-  const role = title?.trim() || 'this role';
-  return `Great — ${role} in that department. 👍\nWhere will this person be working?\nYou can specify:\n- A specific city (e.g., Accra, Kumasi, Takoradi)\n- Multiple locations\n- Remote\n- Hybrid (office + remote)`;
+  const role = title?.trim() || 'Digital Marketing Specialist';
+  const article = /^[aeiou]/i.test(role) ? 'An' : 'A';
+  return `Perfect! ${article} ${role} — great role. \nWhere will this person be working?\nYou can specify:\n- A specific city (e.g., Accra, Kumasi, Takoradi)\n- Multiple locations\n- Remote\n- Hybrid (office + remote)`;
 };
 
 export const JOB_CONV_LOCATION_FALLBACK = "Accra, but we're flexible with hybrid";
 
 export const jobConvTypeAskFor = (locationSummary) =>
-  `Got it — ${locationSummary}. That's very attractive to candidates! 🌟\nWhat type of employment is this?\n- Full-time\n- Part-time  \n- Contract\n- Internship\n- Freelance/Project-based`;
+  `Got it — ${locationSummary}. That's very attractive to candidates! \nWhat type of employment is this?\n- Full-time\n- Part-time  \n- Contract\n- Internship\n- Freelance/Project-based`;
+
+/** "Accra, but we're flexible with hybrid" -> "Accra with hybrid flexibility" (the line Figma 7958:168475 echoes). */
+export const jobConvLocationSummary = (text) => {
+  const raw = (text || JOB_CONV_LOCATION_FALLBACK).trim();
+  const { workLocation, workArrangement } = parseLocation(raw);
+  if (workArrangement === 'Hybrid') return `${workLocation} with hybrid flexibility`;
+  if (workArrangement === 'Remote') return `${workLocation} (remote)`;
+  return workLocation || raw;
+};
 
 export const JOB_CONV_TYPE_FALLBACK = 'Full-time';
 
-export const JOB_CONV_EXPERIENCE_ASK =
-  'Excellent. ✅\n\n**What experience level are you looking for?**\nPick one band:\n- 1-5 years\n- 6-10 years\n- 11-20 years\n- 20+ years';
-
-export const JOB_CONV_EXPERIENCE_FALLBACK = '1-5';
-
-export const JOB_CONV_DESCRIPTION_ASK =
-  'Thanks! ✨\n\n**Write a short job description** candidates will read first.\nCover the role, the team, and what success looks like (a few sentences is fine).';
-
-export const JOB_CONV_DESCRIPTION_FALLBACK =
-  'We are hiring a Digital Marketing Specialist to own social, paid, and email campaigns. You will partner with design, track performance closely, and help grow our brand across Ghana.';
-
 export const jobConvRespAskFor = (jobType) =>
-  `Excellent. ${jobType} position noted.\nNow, tell me about the role itself. What will this person be responsible for?\nJust describe it naturally — what will a typical day or week look like? What are the main tasks they'll handle?\nFeel free to list out responsibilities, or just tell me in your own words. 😊`;
+  `${jobType ? `Excellent. ${jobType} position noted.` : 'Thanks, that reads well.'}\nNow, tell me about the role itself. What will this person be responsible for?\nJust describe it naturally — what will a typical day or week look like? What are the main tasks they'll handle?\nFeel free to list out responsibilities, or just tell me in your own words. `;
 
 export const JOB_CONV_RESP_FALLBACK =
   "They'll manage our social media accounts, create content for campaigns, run Google and Facebook ads, analyze performance metrics, and work with our design team on marketing materials. Also handle email marketing campaigns.";
@@ -78,10 +62,20 @@ export const JOB_CONV_RESP_CANONICAL = [
 export const JOB_CONV_RESP_REWRITE =
   "That's really helpful! Let me organize that:\n\nKey Responsibilities:\n- Manage company social media accounts\n- Create and execute marketing campaigns\n- Run paid advertising (Google Ads, Facebook Ads)\n- Manage email marketing campaigns\n- Analyze campaign performance and metrics\n- Collaborate with design team on marketing collateral\n\nDoes that capture everything, or should I add/modify anything?";
 
+/** "Let me organize that" from what the recruiter actually wrote (Figma copy, their own list). */
+export const jobConvRespRewriteFor = (text) =>
+  `That's really helpful! Let me organize that:\n\nKey Responsibilities:\n${linesToList(
+    text || JOB_CONV_RESP_FALLBACK,
+    JOB_CONV_RESP_CANONICAL,
+    JOB_CONV_RESP_FALLBACK
+  )
+    .map((l) => `- ${l}`)
+    .join('\n')}\n\nDoes that capture everything, or should I add/modify anything?`;
+
 export const JOB_CONV_RESP_CONFIRM_FALLBACK = "That's perfect!";
 
 export const JOB_CONV_QUALS_ASK =
-  'Excellent! ✅\n\n\nNow, what qualifications or experience are you looking for?\nThink about:\n- Education level (degree, diploma, etc.)\n- Years of experience\n- Specific skills or software proficiency\n- Certifications (optional but nice to have)\n- Personality traits or soft skills';
+  'Excellent! \n\nNow, what qualifications or experience are you looking for?\nThink about:\n- Education level (degree, diploma, etc.)\n- Years of experience\n- Specific skills or software proficiency\n- Certifications (optional but nice to have)\n- Personality traits or soft skills';
 
 export const JOB_CONV_QUALS_FALLBACK =
   'At least 2 years in digital marketing. Degree in Marketing or Communications preferred. Should know Google Analytics, Meta Ads Manager, and Mailchimp. Creative, detail-oriented, good communication.';
@@ -98,51 +92,61 @@ export const JOB_CONV_QUALS_CANONICAL = [
 export const JOB_CONV_QUALS_REWRITE =
   "Perfect! Here's what I've got:\n\nRequired Qualifications:\n- Minimum 2 years of digital marketing experience\n- Degree in Marketing, Communications, or related field (preferred)\n- Proficiency in Google Analytics, Meta Ads Manager, Mailchimp\n- Creative thinker with strong attention to detail\n- Excellent communication skills\n- Thrives in fast-paced environments\n\nOptional/Nice-to-Have:\n- Digital marketing certifications\n\nDoes this look good?";
 
+export const jobConvQualsRewriteFor = (text) =>
+  !text?.trim() || text.trim() === JOB_CONV_QUALS_FALLBACK
+    ? JOB_CONV_QUALS_REWRITE
+    : `Perfect! Here's what I've got:\n\nRequired Qualifications:\n${linesToList(
+        text || JOB_CONV_QUALS_FALLBACK,
+        JOB_CONV_QUALS_CANONICAL,
+        JOB_CONV_QUALS_FALLBACK
+      )
+        .map((l) => `- ${l}`)
+        .join('\n')}\n\nDoes this look good?`;
+
 export const JOB_CONV_QUALS_CONFIRM_FALLBACK = 'Yes, continue';
 
 export const JOB_CONV_SALARY_ASK =
-  'Great! Now let\'s talk compensation. 💰\n\nWhat\'s the salary range for this position?\n\nYou can:\n- Provide a specific range (e.g., GHS 3,000 - 5,000/month)\n- Provide a fixed amount (e.g., GHS 5,000/month)\n- Say "Competitive" or "Negotiable"\n- Skip this if you prefer not to display salary\n\n*Note: Displaying salary increases applications by 30% on average!*';
+  'Great! Now let\'s talk compensation. \n\nWhat\'s the salary range for this position?\n\nYou can:\n- Provide a specific range (e.g., GHS 3,000 - 5,000/month)\n- Say "Competitive" or "Negotiable"\n- Skip this if you prefer not to display salary\n\n*Note: Displaying salary increases applications by 30% on average!*';
 
 export const JOB_CONV_SALARY_FALLBACK = 'GHS 4,000 to 6,000 per month depending on experience';
 
 export const jobConvBenefitsAskFor = (salarySummary) =>
-  `Excellent! ${salarySummary} is very competitive. ✅\n\nWhat about benefits?\n\nDo you offer any of these?\n- Health insurance\n- Performance bonuses\n- Paid time off\n- Professional development/training\n- Flexible working hours\n- Other perks (specify)\n\nJust list what applies, or type "none" if no additional benefits.`;
+  `Excellent! ${salarySummary} is very competitive. \n\nWhat about benefits?\n\nDo you offer any of these?\n- Health insurance\n- Performance bonuses\n- Paid time off\n- Professional development/training\n- Flexible working hours\n- Other perks (specify)\n\nJust list what applies, or type "none" if no additional benefits.`;
 
 export const JOB_CONV_BENEFITS_FALLBACK =
   'Health insurance, annual bonuses, and training opportunities';
 
-export const JOB_CONV_PERKS_ASK =
-  'Wonderful! 🌟\n\n**Any additional perks** beyond the checklist?\nExamples: remote stipend, laptop, meal allowance — or type "none".';
-
-export const JOB_CONV_PERKS_FALLBACK = 'Laptop provided and flexible Fridays';
-
 export const JOB_CONV_DATES_ASK =
-  'Almost done! 📅\n\n**What\'s the application deadline?**\nYou can give a specific date (day, month, year) or say something like "ASAP" or "Flexible."\nIf you also have a target start date, include that too.';
+  'Wonderful! Those are great benefits that will attract top talent. \n\nLast questions:\n\nWhen do you need someone to start?\nWhat\'s the application deadline?\n\nYou can give specific dates or say something like "ASAP" or "Flexible."';
 
-export const JOB_CONV_DATES_FALLBACK = 'Start in January 2026, deadline December 20th 2025';
+export const JOB_CONV_DATES_FALLBACK = 'Start in January 2026, deadline December 20th';
 
 export const JOB_CONV_COMPLETE_BOT =
-  "Perfect! I've got everything I need. ✅\n\nLet me prepare your complete job post. Check the preview on the progress planner panel in just a moment...";
+  "Perfect! I've got everything I need. \n\nLet me prepare your complete job post. Check the preview on the progress planner panel in just a moment...";
 
 /** Live panel % while Conversation AI runs (final 100% on confirmsStageId). */
 export const JOB_PANEL_PROGRESS = {
-  'job-conv-start': 6,
-  'job-conv-title': 10,
-  'job-conv-company': 16,
-  'job-conv-industry': 22,
-  'job-conv-department': 28,
-  'job-conv-location': 34,
+  'job-conv-start': 8,
+  'job-conv-title': 16,
+  'job-conv-location': 28,
   'job-conv-type': 40,
-  'job-conv-experience': 46,
-  'job-conv-description': 52,
-  'job-conv-resp': 58,
-  'job-conv-resp-confirm': 62,
+  'job-conv-resp': 52,
+  'job-conv-resp-confirm': 60,
   'job-conv-quals': 70,
-  'job-conv-quals-confirm': 74,
-  'job-conv-salary': 80,
-  'job-conv-benefits': 86,
-  'job-conv-perks': 92,
+  'job-conv-quals-confirm': 78,
+  'job-conv-salary': 86,
+  'job-conv-benefits': 94,
   'job-conv-dates': 100,
+};
+
+/** Fields the conversation does not ask about, pre-filled so the draft is complete (⚠️ ASSUMPTION, not drawn in Figma). */
+const JOB_CONV_UNASKED_DEFAULTS = {
+  companyName: 'Silver Rock Technologies',
+  industry: 'technology',
+  department: 'Marketing',
+  experienceLevel: '1-5',
+  description:
+    'We are hiring a Digital Marketing Specialist to own social, paid, and email campaigns. You will partner with design, track performance closely, and help grow our brand across Ghana.',
 };
 
 const BENEFIT_ALIASES = [
@@ -156,7 +160,7 @@ const BENEFIT_ALIASES = [
   { match: /meal/i, value: 'Meal Allowance' },
 ];
 
-const parseJobTitle = (text) => {
+export const parseJobTitle = (text) => {
   const raw = (text || '').trim();
   if (!raw) return 'Digital Marketing Specialist';
   const stripped = raw
@@ -164,25 +168,6 @@ const parseJobTitle = (text) => {
     .replace(/^looking for an?\s+/i, '')
     .trim();
   return stripped || raw;
-};
-
-const parseIndustry = (text) => {
-  const raw = (text || JOB_CONV_INDUSTRY_FALLBACK).trim().toLowerCase();
-  const hit = INDUSTRY_OPTIONS.find(
-    (opt) =>
-      opt.label.toLowerCase() === raw ||
-      opt.value === raw ||
-      opt.label.toLowerCase().includes(raw) ||
-      raw.includes(opt.label.toLowerCase().split('&')[0].trim())
-  );
-  if (hit) return hit.value;
-  if (/tech|software|it\b/.test(raw)) return 'technology';
-  if (/financ|bank/.test(raw)) return 'finance';
-  if (/health|medic/.test(raw)) return 'healthcare';
-  if (/educ|school/.test(raw)) return 'education';
-  if (/retail|e-?comm/.test(raw)) return 'retail';
-  if (/ngo|non-?profit|develop/.test(raw)) return 'ngo';
-  return 'other';
 };
 
 const parseLocation = (text) => {
@@ -196,7 +181,7 @@ const parseLocation = (text) => {
   return { workLocation, workArrangement, summary: raw };
 };
 
-const parseJobType = (text) => {
+export const parseJobType = (text) => {
   const raw = (text || JOB_CONV_TYPE_FALLBACK).trim();
   const lower = raw.toLowerCase();
   if (lower.includes('part')) return 'Part-time';
@@ -207,15 +192,7 @@ const parseJobType = (text) => {
   return 'Full-time';
 };
 
-const parseExperience = (text) => {
-  const raw = (text || JOB_CONV_EXPERIENCE_FALLBACK).trim().toLowerCase();
-  if (/20\+|over 20|more than 20/.test(raw)) return '20+';
-  if (/11|12|13|14|15|16|17|18|19|11-20/.test(raw)) return '11-20';
-  if (/6-10|6 to 10|\b[6-9]\b|\b10\b/.test(raw) && !/1-5/.test(raw)) return '6-10';
-  return '1-5';
-};
-
-const parseSalary = (text) => {
+export const parseSalary = (text) => {
   const raw = (text || JOB_CONV_SALARY_FALLBACK).trim();
   const lower = raw.toLowerCase();
   if (/competit|negoti|skip|n\/a|none/.test(lower)) {
@@ -279,12 +256,6 @@ const parseBenefits = (text) => {
   return { benefits };
 };
 
-const parsePerks = (text) => {
-  const raw = (text || '').trim();
-  if (!raw || /^none$/i.test(raw)) return '';
-  return raw;
-};
-
 const parseDates = (text) => {
   const raw = (text || JOB_CONV_DATES_FALLBACK).trim();
   const deadline = { deadlineDay: '', deadlineMonth: '', deadlineYear: '' };
@@ -311,7 +282,8 @@ const parseDates = (text) => {
   if (named) {
     deadline.deadlineMonth = months[named[1].toLowerCase()];
     deadline.deadlineDay = String(Number(named[2]));
-    deadline.deadlineYear = named[3] || '2025';
+    deadline.deadlineYear =
+      named[3] || nextYearFor(Number(named[2]), Number(deadline.deadlineMonth));
   } else if (slash) {
     deadline.deadlineDay = String(Number(slash[1]));
     deadline.deadlineMonth = String(Number(slash[2]));
@@ -320,16 +292,32 @@ const parseDates = (text) => {
   return deadline;
 };
 
-const linesToList = (text, fallbackList) => {
+/** No year given: this year if that date is still ahead, otherwise next year. */
+const nextYearFor = (day, month) => {
+  const now = new Date();
+  const y = now.getFullYear();
+  return String(new Date(y, month - 1, day, 23, 59) > now ? y : y + 1);
+};
+
+/**
+ * The recruiter's text as a list: their own lines or bullets, else their sentences / comma parts.
+ * The Figma demo list is used only for the demo's own sample answer (`demoText`).
+ */
+function linesToList(text, demoList, demoText) {
   const raw = (text || '').trim();
-  if (!raw) return [...fallbackList];
+  if (!raw || (demoText && raw === demoText)) return [...demoList];
   const bullets = raw
-    .split(/\n|•|-/)
+    .split(/\n|•|^\s*-\s+|\s+-\s+/m)
     .map((s) => s.trim())
     .filter((s) => s.length > 3);
   if (bullets.length >= 2) return bullets;
-  return [...fallbackList];
-};
+  const parts = raw
+    .split(/(?<=[.!?])\s+|;\s*|,\s*(?:and\s+)?|\s+and\s+(?=[a-z]+\s)/i)
+    .map((s) => s.replace(/[.\s]+$/, '').trim())
+    .filter((s) => s.length > 3);
+  const list = parts.length >= 2 ? parts : [raw.replace(/[.\s]+$/, '')];
+  return list.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 12);
+}
 
 /**
  * Apply the answer that *led into* `arrivedNodeId` onto the job draft.
@@ -342,16 +330,8 @@ export const applyJobConvAnswer = (draft, arrivedNodeId, inputText) => {
   switch (arrivedNodeId) {
     case 'job-conv-title': {
       const jobTitle = parseJobTitle(text || JOB_CONV_TITLE_FALLBACK);
-      return { ...base, jobTitle };
-    }
-    case 'job-conv-company': {
-      return { ...base, companyName: text || JOB_CONV_COMPANY_FALLBACK };
-    }
-    case 'job-conv-industry': {
-      return { ...base, industry: parseIndustry(text || JOB_CONV_INDUSTRY_FALLBACK) };
-    }
-    case 'job-conv-department': {
-      return { ...base, department: text || JOB_CONV_DEPARTMENT_FALLBACK };
+      // Figma's chat never asks for these; the form needs them (⚠️ ASSUMPTION: filled from the company profile and the title).
+      return { ...base, jobTitle, ...JOB_CONV_UNASKED_DEFAULTS };
     }
     case 'job-conv-location': {
       const { workLocation, workArrangement } = parseLocation(text || JOB_CONV_LOCATION_FALLBACK);
@@ -360,29 +340,32 @@ export const applyJobConvAnswer = (draft, arrivedNodeId, inputText) => {
     case 'job-conv-type': {
       return { ...base, jobType: parseJobType(text || JOB_CONV_TYPE_FALLBACK) };
     }
-    case 'job-conv-experience': {
-      return { ...base, experienceLevel: parseExperience(text || JOB_CONV_EXPERIENCE_FALLBACK) };
-    }
-    case 'job-conv-description': {
-      return { ...base, description: text || JOB_CONV_DESCRIPTION_FALLBACK };
-    }
     case 'job-conv-resp': {
       return {
         ...base,
-        responsibilities: linesToList(text || JOB_CONV_RESP_FALLBACK, JOB_CONV_RESP_CANONICAL),
+        responsibilities: linesToList(
+          text || JOB_CONV_RESP_FALLBACK,
+          JOB_CONV_RESP_CANONICAL,
+          JOB_CONV_RESP_FALLBACK
+        ),
       };
     }
     case 'job-conv-resp-confirm': {
-      return { ...base, responsibilities: [...JOB_CONV_RESP_CANONICAL] };
+      // "That's perfect!" keeps the list shown above (the recruiter's own).
+      return base;
     }
     case 'job-conv-quals': {
       return {
         ...base,
-        qualifications: linesToList(text || JOB_CONV_QUALS_FALLBACK, JOB_CONV_QUALS_CANONICAL),
+        qualifications: linesToList(
+          text || JOB_CONV_QUALS_FALLBACK,
+          JOB_CONV_QUALS_CANONICAL,
+          JOB_CONV_QUALS_FALLBACK
+        ),
       };
     }
     case 'job-conv-quals-confirm': {
-      return { ...base, qualifications: [...JOB_CONV_QUALS_CANONICAL] };
+      return base;
     }
     case 'job-conv-salary': {
       const salary = parseSalary(text || JOB_CONV_SALARY_FALLBACK);
@@ -399,9 +382,6 @@ export const applyJobConvAnswer = (draft, arrivedNodeId, inputText) => {
     case 'job-conv-benefits': {
       const { benefits } = parseBenefits(text || JOB_CONV_BENEFITS_FALLBACK);
       return { ...base, benefits };
-    }
-    case 'job-conv-perks': {
-      return { ...base, additionalPerks: parsePerks(text || JOB_CONV_PERKS_FALLBACK) };
     }
     case 'job-conv-dates': {
       const dates = parseDates(text || JOB_CONV_DATES_FALLBACK);

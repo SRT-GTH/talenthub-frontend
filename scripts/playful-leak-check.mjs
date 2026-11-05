@@ -49,7 +49,7 @@ for (const route of [
   const attr = await page.evaluate(() => document.documentElement.getAttribute('data-ui-style'));
   const allowed =
     ALLOWED.includes(route.split('?')[0]) ||
-    /^\/skills-lab(\?|$|\/(lab|games)\/)/.test(route) ||
+    /^\/skills-lab(\?|$|\/(lab|games|play)\/)/.test(route) ||
     route.startsWith('/my-assessment') ||
     route.startsWith('/community') ||
     // Career Buddy opportunity matching: the Figma frames draw Focused only, Playful is derived (see wiki/career-buddy-chat-history.md).

@@ -9,7 +9,16 @@ export const toLiveProgress = (journey) => {
   if (!journey || !Array.isArray(journey.stages)) return null;
   const doneIds = journey.stages.filter((s) => s?.done && KNOWN.has(s.id)).map((s) => s.id);
   const nextId = KNOWN.has(journey.nextStage) ? journey.nextStage : null;
-  return { doneIds, nextId, milestone: journey.milestone || 'none' };
+  // jhs: the backend dropped Work and Pitch for this talent; isMinor: under 18 (copy mentions the parent).
+  return {
+    doneIds,
+    nextId,
+    milestone: journey.milestone || 'none',
+    jhs: Boolean(journey.jhs),
+    isMinor: Boolean(journey.isMinor),
+    total: journey.total || ENGAGEMENT_STAGES.length,
+    doneCount: journey.doneCount ?? doneIds.length,
+  };
 };
 
 /*

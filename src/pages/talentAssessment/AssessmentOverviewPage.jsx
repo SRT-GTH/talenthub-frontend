@@ -20,6 +20,8 @@ import { RecruiterView } from '../../components/sections/talentAssessment/Recrui
 import { HubButton } from '../../components/sections/talentSkillsLab/HubParts.jsx';
 import { buildLiveOverview } from '../../components/sections/talentAssessment/liveOverview.js';
 import { useAssessmentHome } from '../../components/sections/talentAssessment/useAssessmentHome.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('AssessmentOverviewPage');
 

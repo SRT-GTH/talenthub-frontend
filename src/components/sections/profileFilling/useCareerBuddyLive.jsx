@@ -7,6 +7,11 @@ import AssessmentReportCard from './AssessmentReportCard.jsx';
 import { createSpeaker } from './speechQueue.js';
 import PracticeReviewCard from './PracticeReviewCard.jsx';
 import OpportunityMatchCards from './opportunityGuidance/OpportunityMatchCards.jsx';
+import CareerPostCards from './careerExposure/CareerPostCards.jsx';
+import CourseRecommendationCards from './learningGuidance/CourseRecommendationCards.jsx';
+import SearchResultCards from './search/SearchResultCards.jsx';
+import { isOwnRecord } from './search/ownRecords.js';
+import SearchDetailSheet from './search/SearchDetailSheet.jsx';
 import { DEFAULT_VOICE_ID } from './careerBuddyVoices.js';
 import { FIRST_TIME_HERO } from './careerBuddyScript.js';
 import {
@@ -23,6 +28,8 @@ import {
   PanelMicrophoneIcon,
 } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { cvFileType } from '../../../services/cv.api.js';
+import { handOffCv } from '../../../services/cvHandoff.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import {
   sendTurn,
@@ -33,6 +40,7 @@ import {
   currentFirstName,
   currentUserLabel,
   sendFeedback,
+  sendSignal,
   regenerateReply,
   fetchHistory,
   fetchAssessmentResults,
@@ -47,6 +55,8 @@ import {
   cardChips,
   opportunityMatchView,
   whyThisMatchAction,
+  careerPostView,
+  courseCardView,
   userBubble,
   autoBubble,
   fileBubble,
@@ -254,6 +264,8 @@ export function useCareerBuddyLive({
 
   // ---- screen state ----
   const [busy, setBusy] = useState(false);
+  // Iteration 9: the details sheet open for one search card ({ card, messageId }).
+  const [searchDetail, setSearchDetail] = useState(null);
   const [toast, setToast] = useState(null);
   const [profile, setProfile] = useState(null);
   const [journeyPct, setJourneyPct] = useState(null);
@@ -298,7 +310,11 @@ export function useCareerBuddyLive({
   );
   const [personalityReq, setPersonalityReq] = useState(null);
   const lastTurnRef = useRef(null);
-  const stoppedRef = useRef(false);
+  // 2026-10-27: the turn on its way, and the one the talent stopped (its reply keeps arriving in the background so
+  // Continue can show it). Each is { seq, stopped, turn, error, done, waiters }.
+  const runSeqRef = useRef(0);
+  const currentRunRef = useRef(null);
+  const stoppedRunRef = useRef(null);
   const openedRef = useRef(false);
   const voiceOpenRef = useRef(false);
   voiceOpenRef.current = voiceCallOpen;
@@ -423,6 +439,17 @@ export function useCareerBuddyLive({
     ) => {
       if (!entityId || busy) return;
       lastTurnRef.current = { text, chipAction };
+      // A new message drops any stopped reply still on its way (it is never shown).
+      stoppedRunRef.current = null;
+      const run = {
+        seq: (runSeqRef.current += 1),
+        stopped: false,
+        turn: null,
+        error: null,
+        done: false,
+        waiters: [],
+      };
+      currentRunRef.current = run;
       setBusy(true);
       const shown = autoText ? [autoBubble(autoText)] : showUser ? [userBubble(text)] : [];
       const startedAt = Date.now();
@@ -432,6 +459,7 @@ export function useCareerBuddyLive({
       abortRef.current = controller;
       // Re-draws the reply-in-progress row (first second -> working -> writing -> slow) every second.
       const draw = () =>
+        !run.stopped &&
         patchThread((t) => ({
           messages: t.messages.map((m) =>
             m.id === THINKING_ID
@@ -477,18 +505,24 @@ export function useCareerBuddyLive({
           signal: controller.signal,
           // 2026-10-19: the row shows what Career Buddy is doing while it works.
           onStatus: (next) => {
-            if (!streamed) {
+            if (!streamed && !run.stopped) {
               status = next;
               draw();
             }
           },
           // Reply words as Career Buddy writes them; the finished turn replaces this row.
           onDelta: (chunk) => {
+            if (run.stopped) return;
             streamed += chunk;
             speaker?.push(chunk);
             draw();
           },
         });
+        if (run.stopped) {
+          // Stopped: keep the finished reply for Continue; the screen stays as the talent left it.
+          run.turn = turn;
+          return;
+        }
         setPracticeActive(isPracticeTurn(turn));
         log('turn', {
           routedTo: turn.routedTo,
@@ -518,39 +552,33 @@ export function useCareerBuddyLive({
           late.finish(turn.reply);
         }
       } catch (err) {
+        if (run.stopped) {
+          run.error = err;
+          return;
+        }
         speaker?.cancel();
         setSpeaking(false);
-        if (controller.signal.aborted && stoppedRef.current) {
-          // The talent pressed "Stop generating": keep what was written, offer Continue / Try again.
-          log('turn stopped', { written: streamed.length });
-          patchThread((t) => ({
-            messages: t.messages.map((m) =>
-              m.id === THINKING_ID ? thinkingBubble({ phase: 'stopped', text: streamed }) : m
-            ),
-            chips: [],
-            chipActions: [],
-          }));
-        } else {
-          patchThread((t) => ({
-            messages: t.messages.filter((x) => x.id !== THINKING_ID),
-            chips: ['Try again'],
-            chipActions: [],
-          }));
-          showToast(
-            'error',
-            'Error',
-            err instanceof AgentError
-              ? err.message
-              : 'Something went wrong talking to Career Buddy.'
-          );
-          log.error('turn failed', err?.detail || err);
-        }
+        patchThread((t) => ({
+          messages: t.messages.filter((x) => x.id !== THINKING_ID),
+          chips: ['Try again'],
+          chipActions: [],
+        }));
+        showToast(
+          'error',
+          'Error',
+          err instanceof AgentError ? err.message : 'Something went wrong talking to Career Buddy.'
+        );
+        log.error('turn failed', err?.detail || err);
       } finally {
         clearInterval(ticker);
-        stoppedRef.current = false;
-        abortRef.current = null;
-        setBusy(false);
-        setConfirming(null);
+        run.done = true;
+        run.waiters.splice(0).forEach((resolve) => resolve());
+        // A stopped run already handed the screen back (handleStop); never touch a newer turn's state.
+        if (!run.stopped) {
+          abortRef.current = null;
+          setBusy(false);
+          setConfirming(null);
+        }
       }
     },
     [entityId, busy, history, patchThread, applyTurnToPanel, refreshProfile]
@@ -582,14 +610,77 @@ export function useCareerBuddyLive({
   }, [entityId, runTurn, refreshProfile, thread.messages.length, navigate, location]);
 
   // ---- stop generating / Continue / Try again (Figma 8993:511908 - 8993:514381) ----
+  // 2026-10-27: Stop no longer cancels the request. The agent finishes the turn either way, so the reply keeps
+  // arriving in the background (not shown) and Continue can show it.
   const handleStop = () => {
-    if (!abortRef.current) return;
-    stoppedRef.current = true;
-    abortRef.current.abort();
+    const run = currentRunRef.current;
+    if (!run || run.done || run.stopped) return;
+    run.stopped = true;
+    stoppedRunRef.current = run;
+    abortRef.current = null;
+    speakerRef.current?.cancel();
+    setSpeaking(false);
+    log('turn stopped', { seq: run.seq });
+    patchThread((t) => ({
+      messages: t.messages.map((m) =>
+        m.id === THINKING_ID
+          ? thinkingBubble({ phase: 'stopped', text: m.thinking?.text || '' })
+          : m
+      ),
+      chips: [],
+      chipActions: [],
+    }));
+    setBusy(false);
+    setConfirming(null);
   };
-  const handleContinueStopped = () =>
-    runTurn('Please continue from where you stopped.', { showUser: false });
+  // 2026-10-27 live: Continue used to send "Please continue from where you stopped." as the talent's words, and the
+  // agent read it as "continue my profile" (an education gather after a stopped readiness reply). The stopped reply
+  // keeps arriving in the background (handleStop), so Continue shows it - waiting for it if it is still on its way.
+  // If it failed, the same message (and chip action) goes again; never new words.
+  const handleContinueStopped = async () => {
+    const last = lastTurnRef.current;
+    const run = stoppedRunRef.current;
+    if (!last || busy || !entityId) return;
+    if (!run) {
+      runTurn(last.text, { chipAction: last.chipAction, showUser: false });
+      return;
+    }
+    if (!run.done) {
+      setBusy(true);
+      patchThread((t) => ({
+        messages: t.messages.map((m) =>
+          m.id === THINKING_ID
+            ? thinkingBubble(thinkingState({ status: 'Finishing the answer' }))
+            : m
+        ),
+      }));
+      await new Promise((resolve) => run.waiters.push(resolve));
+      setBusy(false);
+    }
+    // A newer message replaced this reply while it was finishing: nothing to show.
+    if (stoppedRunRef.current !== run) return;
+    stoppedRunRef.current = null;
+    log('continue stopped', { finished: Boolean(run.turn) });
+    if (!run.turn) {
+      runTurn(last.text, { chipAction: last.chipAction, showUser: false });
+      return;
+    }
+    const turn = run.turn;
+    patchThread((t) => ({
+      messages: [...t.messages.filter((x) => x.id !== THINKING_ID), ...turnToBubbles(turn)],
+      history: [
+        ...t.history,
+        { role: 'user', content: last.text },
+        { role: 'assistant', content: turn.reply },
+      ],
+      ...cardChips(turn),
+    }));
+    setPracticeActive(isPracticeTurn(turn));
+    applyTurnToPanel(turn);
+    refreshProfile();
+  };
   const handleTryAgainStopped = () => {
+    stoppedRunRef.current = null;
     const last = lastTurnRef.current;
     if (last) runTurn(last.text, { chipAction: last.chipAction, showUser: false });
   };
@@ -678,16 +769,28 @@ export function useCareerBuddyLive({
   };
 
   // ---- attach ----
+  // 2026-11-01: the reply said "I've kept <file> with this conversation. I can't read files yet" - nothing was sent
+  // anywhere. A CV (PDF / .docx) now goes to the CV reader and its review; other files get an honest answer.
+  // ChatThread passes { name, size, sizeLabel, file } - `file` is the real File.
   const handleAttach = (file) => {
+    const isCv = Boolean(cvFileType(file));
     patchThread((t) => ({
       messages: [
         ...t.messages,
         fileBubble(file),
         localBotBubble(
-          `Thanks - I've kept ${file.name} with this conversation. I can't read files yet, so tell me the key details (for example your school, a job or a certificate) and I'll add them to your profile.`
+          isCv
+            ? `Got ${file.name}. I'm reading it now and I'll show you what I found - nothing goes on your profile until you check it.`
+            : /\.(jpe?g|png)$/i.test(file.name || '')
+              ? `I can't read photos yet. If ${file.name} is a certificate, add it in Certifications - the file is stored with it there. For your CV, send a PDF or Word (.docx) file.`
+              : `I can read CVs as PDF or Word (.docx) files. ${file.name} isn't one of those, so tell me the key details (for example your school, a job or a certificate) and I'll add them.`
         ),
       ],
     }));
+    if (isCv && file.file instanceof Blob) {
+      handOffCv(file.file);
+      navigate('/profile/filling/cv');
+    }
   };
   const handleAttachRejected = (name) =>
     showToast('error', 'File too large', `${name} is over 10 MB.`);
@@ -835,6 +938,99 @@ export function useCareerBuddyLive({
     handleNewChat();
   };
 
+  // The match cards for a bot message with `opportunities` - the full screen and the Ask Buddy panel
+  // (CareerBuddyFirstChat, `compact`) draw the same cards with the same Why this match? / View opportunity.
+  // 2026-10-27: Career Buddy search results (gthSearch) as cards; "Ask Career Buddy" sends the card's question.
+  // Iteration 9: "View details" opens a sheet over the chat (career / elective / programme); every tap on a card is
+  // also an implicit signal (open / ask / details / why) for the feedback loop.
+  // The query: from the reply text, or (cards can sit in a later bubble than the text) the card's "why" line.
+  const searchQueryOf = (m, card) =>
+    /\bon GTH for "([^"]{2,100})"/.exec(m.text || '')?.[1] ||
+    /^Matches "([^"]{2,100})"/.exec(card?.why || '')?.[1] ||
+    null;
+  // A card can carry the exact action for its question (an assessment: take_assessment + its type), so the
+  // classifier never has to guess which test was meant. Only that shape is accepted.
+  const askOptionsOf = (card) => {
+    const a = card?.askAction;
+    const type = a?.slots?.find((s) => s?.name === 'assessmentType')?.value;
+    const section = ['personality', 'psychometric'].includes(a?.section) ? a.section : null;
+    return a?.intent === 'take_assessment' &&
+      section &&
+      typeof type === 'string' &&
+      /^[a-z_]{2,40}$/.test(type)
+      ? {
+          chipAction: {
+            intent: 'take_assessment',
+            section,
+            slots: [{ name: 'assessmentType', value: type }],
+          },
+        }
+      : {};
+  };
+  // Phase 3: the talent's own records are private - opening one is not a search signal.
+  const cardSignal = (kind, card, m) =>
+    isOwnRecord(card)
+      ? undefined
+      : sendSignal({ entityId, kind, card, query: searchQueryOf(m, card), messageId: m.id });
+  const renderSearchResults = (m, { compact = false } = {}) => (
+    <>
+      <SearchResultCards
+        results={m.searchResults}
+        compact={compact}
+        disabled={busy}
+        onOpen={(card) => {
+          cardSignal('search_open', card, m);
+          navigate(card.link);
+        }}
+        onAsk={(card) => {
+          cardSignal('search_ask', card, m);
+          runTurn(card.ask, askOptionsOf(card));
+        }}
+        onDetails={(card, opener) => {
+          cardSignal('search_details', card, m);
+          setSearchDetail({ card, messageId: m.id, opener });
+        }}
+        onWhy={(card) => cardSignal('search_why', card, m)}
+      />
+      {searchDetail && searchDetail.messageId === m.id ? (
+        <SearchDetailSheet
+          card={searchDetail.card}
+          returnFocusTo={searchDetail.opener}
+          disabled={busy}
+          onClose={() => setSearchDetail(null)}
+          onAsk={(card) => {
+            cardSignal('search_ask', card, m);
+            setSearchDetail(null);
+            runTurn(card.ask, askOptionsOf(card));
+          }}
+          onOpen={(card) => {
+            cardSignal('search_open', card, m);
+            setSearchDetail(null);
+            navigate(card.link);
+          }}
+        />
+      ) : null}
+    </>
+  );
+
+  const renderOpportunities = (m, { compact = false } = {}) => (
+    <>
+      <OpportunityMatchCards
+        matches={m.opportunities.map((o) => opportunityMatchView(o))}
+        followUps={[]}
+        fitWidth={!compact}
+        compact={compact}
+        disabled={busy}
+        onWhy={(_text, _view, i) => {
+          const { label, chipAction } = whyThisMatchAction(m.opportunities[i], i);
+          runTurn(label, { autoText: label, chipAction });
+        }}
+        onView={(view) => navigate(view.detailPath)}
+      />
+      {m.afterCards ? <p className="mt-[8px] whitespace-pre-line">{m.afterCards}</p> : null}
+    </>
+  );
+
   const lastBot = [...messages].reverse().find((m) => m.sender === 'bot' && m.id !== THINKING_ID);
   const reportPending = Boolean(lastBot?.report && !lastBot.reportAnswer);
   const enrichedMessages = messages.map((m) => {
@@ -867,23 +1063,48 @@ export function useCareerBuddyLive({
     }
     if (m.opportunities?.length) {
       // 2026-10-25: the agent's matched postings as the Figma match cards (9053:80615).
-      const views = m.opportunities.map((o) => opportunityMatchView(o));
+      out = { ...out, content: renderOpportunities(m) };
+    }
+    if (m.careerPosts?.length) {
+      // 2026-10-27: GTH posts about a career as cards (career exposure), after anything already drawn.
+      const views = m.careerPosts.map((p) => careerPostView(p));
       out = {
         ...out,
         content: (
           <>
-            <OpportunityMatchCards
-              matches={views}
-              followUps={[]}
-              fitWidth
-              disabled={busy}
-              onWhy={(_text, _view, i) => {
-                const { label, chipAction } = whyThisMatchAction(m.opportunities[i], i);
-                runTurn(label, { autoText: label, chipAction });
-              }}
-              onView={(view) => navigate(view.detailPath)}
+            {out.content || null}
+            <CareerPostCards
+              posts={views}
+              career={m.careerPosts[0]?.career}
+              onOpen={(post) => navigate(post.detailPath)}
             />
-            {m.afterCards ? <p className="mt-[8px] whitespace-pre-line">{m.afterCards}</p> : null}
+          </>
+        ),
+      };
+    }
+    if (m.courses?.length) {
+      // 2026-10-31: recommended courses as cards (learning guidance); each opens the GTH course page.
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            <CourseRecommendationCards
+              courses={m.courses.map((c) => courseCardView(c))}
+              career={m.courses.find((c) => c.career)?.career}
+              onOpen={(course) => navigate(course.detailPath)}
+            />
+          </>
+        ),
+      };
+    }
+    if (m.searchResults?.length) {
+      out = {
+        ...out,
+        content: (
+          <>
+            {out.content || null}
+            {renderSearchResults(m)}
           </>
         ),
       };
@@ -924,6 +1145,8 @@ export function useCareerBuddyLive({
     // conversation
     messages,
     enrichedMessages,
+    renderOpportunities,
+    renderSearchResults,
     suggestedReplies: busy || reportPending ? [] : chips,
     busy,
     handleSend,

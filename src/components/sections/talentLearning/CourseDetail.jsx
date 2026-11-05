@@ -26,6 +26,8 @@ import { COURSE as MOCK_COURSE } from './talentLearningCourseData.js';
 import { useLearningData } from './useLearningData.js';
 import { toCourseView } from './learningMappers.js';
 import LearningLoading from './LearningLoading.jsx';
+import OffPlatformPanel from './OffPlatformPanel.jsx';
+import YouTubeCoursePlayer from './YouTubeCoursePlayer.jsx';
 
 const log = debug('CourseDetail');
 
@@ -113,7 +115,22 @@ const CourseDetail = ({ learning }) => {
   const data = useLearningData();
   const card = data.live ? data.selectedCourse : null;
   const enrolment = card ? data.enrolmentFor(card.id) : null;
-  const COURSE = card ? toCourseView(card, enrolment, MOCK_COURSE) : MOCK_COURSE;
+  const view = card ? toCourseView(card, enrolment, MOCK_COURSE) : MOCK_COURSE;
+  // Learning path iteration 4: courses that run on another site (Microsoft Learn, curated links,
+  // YouTube playlists) get the off-platform panel instead of GTH's module player.
+  const page = data.live ? data.coursePage : null;
+  const external = Boolean(card) && card.raw?.providerType !== 'gth_native';
+  const COURSE = external
+    ? {
+        ...view,
+        meta: view.meta.filter((m) => m.id !== 'modules'),
+        start: page?.player ? 'Watch below' : `Open on ${card.provider || 'the provider’s site'}`,
+        pace: page?.player
+          ? 'Plays here on GTH.'
+          : `Runs on ${card.provider || 'another site'}. Come back here to log your progress.`,
+        finished: false,
+      }
+    : view;
   useEffect(() => {
     log('mount', {
       view: learning?.view,
@@ -142,6 +159,17 @@ const CourseDetail = ({ learning }) => {
   const saved = data.live ? data.isSaved(card?.id) : savedLocal || toastOn;
 
   const startCourse = () => {
+    if (data.live && external) {
+      if (page?.player) {
+        document
+          .querySelector('[data-testid="yt-player"]')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      log('open off-platform course', card.id);
+      data.openOutside(card.id);
+      return;
+    }
     if (data.live) {
       if (!card || COURSE.finished) return;
       log(enrolment ? 'resume -> lesson' : 'enrol -> lesson', card.id);
@@ -180,7 +208,9 @@ const CourseDetail = ({ learning }) => {
       <section className="flex flex-col gap-[16px]">
         <BackRow label={MOCK_COURSE.backLabel} crumb="" onClick={goBack} />
         <p className="m-0 font-sans text-[15px] text-[#595959]">
-          We couldn’t find that course. It may have been retired.
+          {data.coursePageCode === 403
+            ? 'This course isn’t available on your account.'
+            : 'We couldn’t find that course. It may have been retired.'}
         </p>
       </section>
     );
@@ -265,31 +295,51 @@ const CourseDetail = ({ learning }) => {
             </div>
           </article>
 
-          <section
-            className={classNames(
-              'flex flex-col gap-[12px] rounded-[22px] p-[clamp(14px,1.27vw,22px)]',
-              CARD_SOFT
-            )}
-          >
-            <div className="flex items-center gap-[8px]">
-              <h2
-                className={classNames(
-                  HEAD,
-                  'min-w-0 flex-1 text-[clamp(18px,1.27vw,22px)] leading-[1.25] text-[#1c2a21]'
-                )}
-              >
-                {COURSE.insideTitle}
-              </h2>
-              <span className="shrink-0 text-[13.5px] leading-[16.1px] font-semibold whitespace-nowrap text-[#2d5d33]">
-                {COURSE.insideMeta}
-              </span>
-            </div>
-            <ol className="flex flex-col gap-0">
-              {COURSE.modules.map((m) => (
-                <ModuleRow key={m.n} module={m} onStart={startCourse} />
-              ))}
-            </ol>
-          </section>
+          {external ? (
+            <>
+              {page?.player && (
+                <YouTubeCoursePlayer
+                  courseId={card.id}
+                  player={page.player}
+                  onProgress={(r) => {
+                    if (r?.complete) data.refreshCoursePage();
+                  }}
+                />
+              )}
+              <OffPlatformPanel
+                courseId={card.id}
+                courseTitle={card.title}
+                page={page}
+                onChanged={data.refreshCoursePage}
+              />
+            </>
+          ) : (
+            <section
+              className={classNames(
+                'flex flex-col gap-[12px] rounded-[22px] p-[clamp(14px,1.27vw,22px)]',
+                CARD_SOFT
+              )}
+            >
+              <div className="flex items-center gap-[8px]">
+                <h2
+                  className={classNames(
+                    HEAD,
+                    'min-w-0 flex-1 text-[clamp(18px,1.27vw,22px)] leading-[1.25] text-[#1c2a21]'
+                  )}
+                >
+                  {COURSE.insideTitle}
+                </h2>
+                <span className="shrink-0 text-[13.5px] leading-[16.1px] font-semibold whitespace-nowrap text-[#2d5d33]">
+                  {COURSE.insideMeta}
+                </span>
+              </div>
+              <ol className="flex flex-col gap-0">
+                {COURSE.modules.map((m) => (
+                  <ModuleRow key={m.n} module={m} onStart={startCourse} />
+                ))}
+              </ol>
+            </section>
+          )}
         </div>
 
         {/* right column */}

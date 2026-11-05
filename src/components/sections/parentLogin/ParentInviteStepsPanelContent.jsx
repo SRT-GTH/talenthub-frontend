@@ -40,10 +40,12 @@ const WardInviteStepsPanelContent = ({
     <div className="flex w-full max-w-[300px] flex-col text-center">
       {/* Heading — Figma 2864:37148 / 37270 */}
       <h2
-        className="font-display font-normal"
-        style={{ fontSize: 34, color: '#ffffff', letterSpacing: '-0.8px', lineHeight: '36px' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 30, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: '36px' }}
       >
-        {title} <span className="italic">{titleAccent}</span>
+        {title}
+        <br />
+        {titleAccent}
       </h2>
 
       {/* Subtitle — Figma 2864:37149 / 37271 */}

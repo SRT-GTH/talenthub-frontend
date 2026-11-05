@@ -120,9 +120,39 @@ export const ALERT = {
 };
 
 export const RESTRICTED = {
+  heading: 'Live ops',
+  sticker: 'Restricted',
+  subtitle: 'Real-time platform activity, alerts and system health.',
   title: 'Live ops isn’t available for your role',
-  body: 'Live ops is for Senior Admins and Super Admins. Ask one of them if you need to see it.',
-  action: 'Back to home',
+  body: 'Senior Admins and Super Admins can open it. If you need it, ask your Senior Admin. Meanwhile you could:',
+  steps: [
+    {
+      id: 'moderation',
+      icon: 'plus',
+      title: 'Go to the moderation queue',
+      meta: '',
+      to: '/admin/moderation',
+    },
+    {
+      id: 'posts',
+      icon: 'spark',
+      title: 'Review community posts',
+      meta: '',
+      to: '/admin/moderation/posts',
+    },
+    // ⚠️ ASSUMPTION: no access-request endpoint exists, the row only logs.
+    {
+      id: 'access',
+      icon: 'user',
+      title: 'Ask for access',
+      meta: 'Sends a request to your Senior Admin',
+      to: null,
+    },
+  ],
+  primary: 'Go to moderation',
+  primaryTo: '/admin/moderation',
+  secondary: 'View my permissions',
+  secondaryTo: '/admin/settings/roles',
 };
 
 export const LIVE_ROLES = ['senior', 'super'];

@@ -31,11 +31,18 @@ const CircleFrame = ({ circle, children }) => {
     <DashboardShell
       role="talent"
       activeNav="community"
-      talentHome={{ ...circle, navStreak: '12', railHome: true }}
+      // Demo frames draw Kofi's shell (streak 12, rail badges); a signed-in talent's shell is their own.
+      talentHome={
+        circle.demo ? { ...circle, navStreak: '12', railHome: true } : { ...circle, railHome: true }
+      }
       rail={circle.rail}
       onToggleRail={() => circle.update({ rail: circle.rail === 'collapsed' ? null : 'collapsed' })}
       railActiveId="community"
-      railBadges={{ assessment: '142', opportunities: '2', messages: '4', community: '3' }}
+      railBadges={
+        circle.demo
+          ? { assessment: '142', opportunities: '2', messages: '4', community: '3' }
+          : undefined
+      }
     >
       <UiStyleScope enabled />
       {children}

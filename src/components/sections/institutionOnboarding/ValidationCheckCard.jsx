@@ -287,10 +287,17 @@ const PREVIEW_ROWS = 10;
  *   howToFix?: string,
  * }} props
  */
-const ValidationCheckCard = ({ variant, title, description, rows = [], howToFix }) => {
+const ValidationCheckCard = ({
+  variant,
+  title,
+  description,
+  rows = [],
+  howToFix,
+  defaultExpanded = false,
+}) => {
   const cfg = VARIANT[variant] ?? VARIANT.passed;
   const hasRows = rows.length > 0;
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded && hasRows);
 
   log('render', { variant, title, rowCount: rows.length, isExpanded });
 

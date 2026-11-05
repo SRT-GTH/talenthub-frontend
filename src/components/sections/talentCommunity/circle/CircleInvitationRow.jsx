@@ -27,7 +27,6 @@ const CircleInvitationRow = ({
   invite,
   accepted,
   divided,
-  xp,
   onAccept,
   onIgnore,
   onSayHi,
@@ -44,7 +43,7 @@ const CircleInvitationRow = ({
       aria-label={`View ${person.name}'s profile`}
       className={`shrink-0 self-start rounded-full ${FOCUS_RING}`}
     >
-      <CircleAvatar id={person.id} size={56} />
+      <CircleAvatar id={person.id} size={56} photo={person.photo} name={person.name} />
     </Link>
     <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
       <div className="flex flex-wrap items-center gap-[6px]">
@@ -54,9 +53,11 @@ const CircleInvitationRow = ({
         >
           {person.name}
         </Link>
-        <span className="rounded-[6px] bg-[#f8f8f4] px-[6px] py-[1px] font-sans text-[11px] font-semibold leading-[13px] text-[#737373] max-lg:text-[12px]">
-          {person.degree}
-        </span>
+        {person.degree && (
+          <span className="rounded-[6px] bg-[#f8f8f4] px-[6px] py-[1px] font-sans text-[11px] font-semibold leading-[13px] text-[#737373] max-lg:text-[12px]">
+            {person.degree}
+          </span>
+        )}
         {person.verifiedMentor && <CircleMentorChip />}
       </div>
       <p className="m-0 font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[14px] max-lg:leading-[18px]">
@@ -65,7 +66,9 @@ const CircleInvitationRow = ({
       <div className="flex items-center gap-[6px]">
         <CircleMutualFaces ids={FACES[person.id] ?? []} />
         <span className="font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
-          {`${person.mutual} in your circle know them · ${invite.ago}`}
+          {person.mutual > 0
+            ? `${person.mutual} in your circle know them · ${invite.ago}`
+            : invite.ago}
         </span>
       </div>
       {invite.note && (
@@ -81,9 +84,11 @@ const CircleInvitationRow = ({
             <CircleCheckIcon className="size-[13px]" />
             {COPY.inYourCircle}
           </span>
-          <CircleButton tone="soft" onClick={() => onSayHi(person)}>
-            {COPY.sayHi}
-          </CircleButton>
+          {onSayHi && (
+            <CircleButton tone="soft" onClick={() => onSayHi(person)}>
+              {COPY.sayHi}
+            </CircleButton>
+          )}
         </>
       ) : (
         <>
@@ -96,11 +101,7 @@ const CircleInvitationRow = ({
         </>
       )}
     </div>
-    {xp && accepted && (
-      <span className="absolute -top-[64px] right-[40px] z-10 hidden rotate-[4deg] items-center whitespace-nowrap rounded-[8px] border-[1.2px] border-solid border-[#1c2a21] bg-[#ffd86b] px-[10px] py-[8px] font-sans text-[11px] max-lg:text-[12px] font-bold leading-[13px] text-[#1c2a21] shadow-[2px_2px_0_#1c2a21] playful:inline-flex">
-        {COPY.xp}
-      </span>
-    )}
+    {/* No "+5 XP · NEW CONNECTION" sticker: connections earn no XP (US-5.3.1-02). */}
   </li>
 );
 

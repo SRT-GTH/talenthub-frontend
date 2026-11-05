@@ -24,10 +24,11 @@ const initials = (name) =>
     .map((w) => w[0].toUpperCase())
     .join('') || '·';
 
-const OpportunityMatchCard = ({ match, onView, onWhy, whyDisabled = false }) => (
+// `compact`: the narrower card for the Ask Buddy side panel (480px wide), where a 420px card would not leave room to scroll.
+const OpportunityMatchCard = ({ match, onView, onWhy, whyDisabled = false, compact = false }) => (
   <article
     aria-label={match.company ? `${match.title}, ${match.company}` : match.title}
-    className="flex w-[min(420px,84vw)] shrink-0 flex-col gap-[16px] rounded-[16px] bg-[linear-gradient(135deg,#142916,#2a5730)] p-[16px] text-white shadow-[0_5px_17px_rgba(31,69,38,0.09)] playful:border-[1.5px] playful:border-solid playful:border-[#1c2a21]/55 playful:shadow-[4px_4px_0_rgba(28,42,33,0.55)]"
+    className={`flex ${compact ? 'w-[min(320px,78vw)]' : 'w-[min(420px,84vw)]'} shrink-0 flex-col gap-[16px] rounded-[16px] bg-[linear-gradient(135deg,#142916,#2a5730)] p-[16px] text-white shadow-[0_5px_17px_rgba(31,69,38,0.09)] playful:border-[1.5px] playful:border-solid playful:border-[#1c2a21]/55 playful:shadow-[4px_4px_0_rgba(28,42,33,0.55)]`}
   >
     <header className="flex items-center gap-[10px]">
       {match.logo ? (

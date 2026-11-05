@@ -31,10 +31,12 @@ const WardLinkPanelContent = () => {
     <div className="flex w-full max-w-[300px] flex-col items-center text-center">
       {/* Heading — Figma 2864:37685 */}
       <h2
-        className="font-display font-normal"
-        style={{ fontSize: 34, color: '#ffffff', letterSpacing: '-0.8px', lineHeight: '36px' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 30, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: '36px' }}
       >
-        Ward <span className="italic">linked</span> automatically.
+        Ward linked
+        <br />
+        automatically.
       </h2>
 
       {/* Subtitle — Figma 2864:37686 */}

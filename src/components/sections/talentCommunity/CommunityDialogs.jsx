@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -26,6 +26,7 @@ import {
   TextArea,
 } from './CommunityDialogParts.jsx';
 import MilestoneShareModal from './MilestoneShareModal.jsx';
+import PurposePicker from './PurposePicker.jsx';
 import { FOCUS_RING, HEADING, fillCopy } from './communityDialogUtils.js';
 import { CREATE_POST, LEAVE_COMMUNITY, REPORT_POST } from './communityData.js';
 
@@ -52,6 +53,9 @@ const Footer = ({ note, children }) => (
 /*
  * `live` (talent Community on the API): the form opens empty, photo upload and "Help me write it" are hidden (no backend
  * for either yet), `busy` disables Post while the request runs and `error` shows the failure above the footer.
+ * Live posts need a purpose (US-5.2.2-01): the kind pills give way to the required "What's this post for?" dropdown,
+ * limited to `purposes` (what the community accepts). `onSuggest(text)` resolves { purpose, confidence } | null a second
+ * after the talent stops typing; a confident suggestion is offered with a one-tap Yes, never chosen for them.
  */
 export const CreatePostDialog = ({
   onClose,
@@ -60,6 +64,8 @@ export const CreatePostDialog = ({
   live = false,
   busy = false,
   error = null,
+  purposes = null,
+  onSuggest = null,
 }) => {
   const titleId = useId();
   const fieldId = useId();
@@ -71,6 +77,29 @@ export const CreatePostDialog = ({
   const [link, setLink] = useState(live ? '' : copy.seed.link);
   const [draft, setDraft] = useState(null); // { kind: 'tag' | 'link', value }
   const [files, setFiles] = useState(live ? 0 : 1);
+  const [purpose, setPurpose] = useState('');
+  const [suggestion, setSuggestion] = useState(null);
+
+  // Ask for a suggestion a second after typing stops (live only; short texts say too little).
+  // The suggestion is only offered ("does that fit?" + Yes); the talent always makes the choice.
+  useEffect(() => {
+    if (!live || !onSuggest) return undefined;
+    if (text.trim().length < 15) {
+      setSuggestion(null);
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const result = await onSuggest(text.trim()).catch(() => null);
+      if (!cancelled) setSuggestion(result);
+    }, 1000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [live, onSuggest, text]);
+
+  const choosePurpose = (value) => setPurpose(value);
 
   const commitDraft = () => {
     const value = draft?.value.trim();
@@ -81,10 +110,19 @@ export const CreatePostDialog = ({
     setDraft(null);
   };
 
+  const needsPurpose = live && !purpose;
   const submit = () => {
-    if (!text.trim() || busy) return;
-    log('post', { type, tags: tags.length, link: Boolean(link), files });
-    onPost?.({ type, text: text.trim(), tags, link });
+    if (!text.trim() || busy || needsPurpose) return;
+    log('post', { type, purpose, tags: tags.length, link: Boolean(link), files });
+    onPost?.({
+      type,
+      purpose: live ? purpose : undefined,
+      suggestedPurpose: live ? suggestion?.purpose : undefined,
+      suggestionConfidence: live ? suggestion?.confidence : undefined,
+      text: text.trim(),
+      tags,
+      link,
+    });
   };
 
   return (
@@ -103,36 +141,47 @@ export const CreatePostDialog = ({
         <CloseButton onClose={onClose} />
       </div>
 
-      <div role="radiogroup" aria-label="Post type" className="flex flex-wrap gap-[8px]">
-        {copy.types.map((t) => {
-          const Glyph = TYPE_ICONS[t.icon];
-          const on = type === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              onClick={() => setType(t.id)}
-              className={classNames(
-                'inline-flex h-[34px] cursor-pointer items-center gap-[6px] rounded-full border border-solid py-[8px] pl-[12px] pr-[14px] font-sans text-[13px] font-semibold leading-[16px]',
-                FOCUS_RING,
-                on
-                  ? 'border-[rgba(28,42,33,0.12)] bg-[#1c2a21] text-white playful:border-[#1c2a21]'
-                  : 'border-[#e6e6e6] bg-white text-[#595959]'
-              )}
-            >
-              <Glyph className="size-[14px]" />
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+      {live ? null : (
+        <div role="radiogroup" aria-label="Post type" className="flex flex-wrap gap-[8px]">
+          {copy.types.map((t) => {
+            const Glyph = TYPE_ICONS[t.icon];
+            const on = type === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setType(t.id)}
+                className={classNames(
+                  'inline-flex h-[34px] cursor-pointer items-center gap-[6px] rounded-full border border-solid py-[8px] pl-[12px] pr-[14px] font-sans text-[13px] font-semibold leading-[16px]',
+                  FOCUS_RING,
+                  on
+                    ? 'border-[rgba(28,42,33,0.12)] bg-[#1c2a21] text-white playful:border-[#1c2a21]'
+                    : 'border-[#e6e6e6] bg-white text-[#595959]'
+                )}
+              >
+                <Glyph className="size-[14px]" />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex flex-col gap-[8px]">
         <FieldLabel htmlFor={fieldId}>{copy.fieldLabel}</FieldLabel>
         <TextArea id={fieldId} value={text} onChange={setText} label={copy.fieldLabel} />
       </div>
+
+      {live ? (
+        <PurposePicker
+          value={purpose}
+          onChange={choosePurpose}
+          allowed={purposes}
+          suggestion={suggestion}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-[8px]">
         {live ? null : (
@@ -290,7 +339,12 @@ export const CreatePostDialog = ({
         <Button variant="tertiary" size="sm" onClick={onClose}>
           {copy.cancel}
         </Button>
-        <Button variant="primary" size="sm" onClick={submit} disabled={!text.trim() || busy}>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={submit}
+          disabled={!text.trim() || busy || needsPurpose}
+        >
           {copy.post}
         </Button>
       </Footer>

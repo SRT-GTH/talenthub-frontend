@@ -4,7 +4,7 @@
  * Figma quirk kept as drawn: the Data Protection Officer's avatar monogram reads "SU" (name Kwabena Ofori).
  */
 
-export const ROLE_IDS = ['support', 'moderator', 'senior', 'super', 'dpo'];
+export const ROLE_IDS = ['support', 'moderator', 'senior', 'super', 'dpo', 'editor'];
 export const DEFAULT_ROLE = 'senior';
 
 export const STAFF = {
@@ -97,6 +97,27 @@ export const STAFF = {
       { value: '1', label: 'Appeals' },
     ],
     handbook: 'handbook.gth.internal/data-protection',
+  },
+  // Content Editor (Platform Admin 7.8, Figma 7.8.0a). ⚠️ ASSUMPTION: mock persona — the backend has no such role yet.
+  editor: {
+    id: 'editor',
+    name: 'Ama Owusu',
+    shortName: 'Ama O.',
+    firstName: 'Ama',
+    monogram: 'AO',
+    chip: 'Staff',
+    title: 'Content Editor · Product',
+    roleLabel: 'Content Editor',
+    slaLabel: 'Changes published this week',
+    slaPct: 72,
+    stats: [
+      { value: '3', label: 'Drafts' },
+      { value: '12', label: 'Published' },
+      { value: '1', label: 'Name draft' },
+    ],
+    handbook: 'Voice, tone and the word list',
+    handbookTitle: 'GTH writing guide',
+    handbookCta: 'Open guide',
   },
 };
 

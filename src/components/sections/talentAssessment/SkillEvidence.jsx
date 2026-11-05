@@ -120,7 +120,12 @@ const Attempts = ({ attempts }) => (
           {attempts.empty.body}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-[10px]">
-          <HubButton tone="secondary" size="lg" onClick={() => log('empty: chat with buddy')}>
+          <HubButton
+            tone="secondary"
+            size="lg"
+            to={attempts.empty.secondary.to || undefined}
+            onClick={() => log('empty: chat with buddy')}
+          >
             {attempts.empty.secondary.label}
           </HubButton>
           <HubButton

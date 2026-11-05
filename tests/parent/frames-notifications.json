@@ -1,0 +1,49 @@
+{
+  "base": "http://127.0.0.1:5173",
+  "figmaDir": "figma-exports",
+  "outDir": "ours",
+  "canvas": "10057:67396",
+  "note": "Parent · 09 Notifications and milestones. Focused only: playfulId = focusedId. All frames 1728x1117 (52px Safari bar). State is in the URL: src/components/sections/parent/notifications/notificationsState.js + wiki/parent-notifications.md. PN-05/06/07 (SMS / WhatsApp, 390x844) are deliberately not built yet.",
+  "frames": [
+    {
+      "code": "PN-01",
+      "name": "PN-01 · Notifications (panel)",
+      "focusedId": "10035:530",
+      "playfulId": "10035:530",
+      "w": 1728,
+      "url": "/parent?notif=open"
+    },
+    {
+      "code": "PN-04",
+      "name": "PN-04 · Notifications · All (page)",
+      "focusedId": "10043:1351",
+      "playfulId": "10043:1351",
+      "w": 1728,
+      "url": "/parent/notifications"
+    },
+    {
+      "code": "PN-03",
+      "name": "PN-03 · Milestone · Abena wanted you to see this",
+      "focusedId": "10043:913",
+      "playfulId": "10043:913",
+      "w": 1728,
+      "url": "/parent/notifications/milestone"
+    },
+    {
+      "code": "PN-03b",
+      "name": "PN-03b · Reaction sent to Abena (toast)",
+      "focusedId": "10056:156668",
+      "playfulId": "10056:156668",
+      "w": 1728,
+      "url": "/parent/notifications/milestone?toast=sent"
+    },
+    {
+      "code": "PN-05b",
+      "name": "PN-05b · Abena created a GTH account (in-app notice)",
+      "focusedId": "10079:1025",
+      "playfulId": "10079:1025",
+      "w": 1728,
+      "url": "/parent?notice=abena-joined"
+    }
+  ]
+}

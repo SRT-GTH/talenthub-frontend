@@ -21,6 +21,7 @@ const OpportunityMatchCards = ({
   followUps = MATCH_FOLLOW_UP_CHIPS,
   disabled = false,
   fitWidth = false,
+  compact = false,
 }) => {
   const navigate = useNavigate();
   const ask = onWhy ?? sendBuddyChip;
@@ -47,6 +48,7 @@ const OpportunityMatchCards = ({
             }}
             onWhy={() => ask(`Card ${i + 1} - Why this match?`, match, i)}
             whyDisabled={disabled}
+            compact={compact}
           />
         ))}
       </div>

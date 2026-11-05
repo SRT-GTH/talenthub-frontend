@@ -5,6 +5,8 @@ import {
   AgencyGate,
   AgencySessionProvider,
 } from '../../components/sections/agency/AgencySessionContext.jsx';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../copy/portals/governmentCopy.js';
 
 /*
  * AgencyApp — the router of the Theme 11 agency portal (Figma canvas 8605:395409), mounted by App.jsx as /agency/* outside MainLayout.

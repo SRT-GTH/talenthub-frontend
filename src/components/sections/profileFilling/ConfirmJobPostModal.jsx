@@ -12,7 +12,7 @@ const log = debug('ConfirmJobPostModal');
  * Nested confirm after "Post Job". No close (X) — dismiss only via
  * "Go back and edit" or overlay click / Escape.
  */
-const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
+const ConfirmJobPostModal = ({ open, onClose, onConfirm, busy = false, error = '' }) => {
   useEffect(() => {
     if (open) log('mount', { open: true });
   }, [open]);
@@ -24,18 +24,26 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
       size="md"
       ariaLabel={CONFIRM_JOB_POST.title}
       showClose={false}
-      className="!bg-[rgba(17,17,17,0.7)] !backdrop-blur-none"
+      className="!bg-[rgba(28,42,33,0.7)] !backdrop-blur-none"
       contentClassName="!max-w-[528px] !rounded-[24px] max-sm:!rounded-b-none max-sm:!border-0 !overflow-hidden"
     >
-      {/* Figma pad 48×64; title 36px Instrument Serif; body 16/24 #575755; CTA gap 36 then 8. */}
+      {/* Figma 7958:167905 — pad 64/48; title Bricolage 600 32/38 #1c2a21; body 16/24 #575755 (432 wide); CTA gap 36 then 8. */}
       <div className="flex flex-col items-center gap-[36px] px-[48px] py-[64px] text-center">
         <div className="flex w-full flex-col items-center gap-[10px]">
-          <h2 className="font-display text-[36px] font-normal leading-[1.3] text-[#111]">
+          <h2 className="font-heading text-[32px] font-semibold leading-[38px] text-[#1c2a21]">
             {CONFIRM_JOB_POST.title}
           </h2>
           <p className="max-w-[432px] font-sans text-[16px] font-normal leading-6 text-[#575755]">
             {CONFIRM_JOB_POST.body}
           </p>
+          {error ? (
+            <p
+              role="alert"
+              className="max-w-[432px] font-sans text-[14px] leading-5 text-[#C4320A]"
+            >
+              {error}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-[8px] max-sm:flex-nowrap">
@@ -43,14 +51,16 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
             type="button"
             variant="primary"
             size="sm"
-            className="max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
+            className="lg:!py-[10px] lg:!text-[14px] !font-semibold max-sm:flex-1 max-sm:px-4 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5"
             rightIcon={<ArrowRightIcon />}
+            disabled={busy}
             onClick={() => {
+              if (busy) return;
               log('branch', { confirmPost: true });
               onConfirm?.();
             }}
           >
-            {CONFIRM_JOB_POST.confirm}
+            {busy ? 'Posting…' : CONFIRM_JOB_POST.confirm}
           </Button>
           <Button
             type="button"
@@ -61,7 +71,7 @@ const ConfirmJobPostModal = ({ open, onClose, onConfirm }) => {
               log('branch', { goBackEdit: true });
               onClose?.();
             }}
-            className="!rounded-[14px] !gap-[6px] max-sm:px-3 max-sm:py-2 max-sm:leading-5"
+            className="!rounded-[14px] !gap-[6px] !font-semibold !text-[#1c2a21] lg:!py-[10px] lg:!text-[14px] max-sm:px-3 max-sm:py-2 max-sm:leading-5"
           >
             <span className="max-sm:sr-only">{CONFIRM_JOB_POST.edit}</span>
           </Button>

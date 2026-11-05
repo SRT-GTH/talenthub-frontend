@@ -73,6 +73,16 @@ const parseDob = (raw) => {
   return date;
 };
 
+// Digits typed one after another ("10052012", the phone keypad): shape them as DD-MM-YYYY while typing,
+// including after our own dashes appear. Anything with other separators ("1/5/2012", "1-5-2012") is left as typed.
+const shapeDob = (raw) => {
+  if (!/^(\d*|\d{2}-\d*|\d{2}-\d{2}-\d*)$/.test(raw)) return raw;
+  const d = raw.replace(/-/g, '').slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}-${d.slice(2)}`;
+  return `${d.slice(0, 2)}-${d.slice(2, 4)}-${d.slice(4)}`;
+};
+
 const yearsBetween = (date) => {
   const now = new Date();
   let years = now.getFullYear() - date.getFullYear();
@@ -240,6 +250,19 @@ const OnboardingDobPage = () => {
   const age = parsed ? yearsBetween(parsed) : null;
   const isVerified = age !== null && age >= 13 && age <= 99;
   const isUnder18 = isVerified && age < 18;
+  // Why a complete date (DD-MM-YYYY) is refused, so Continue is never disabled without a reason.
+  const dobProblem = (() => {
+    if (isVerified || dob.trim().length < 10) return null;
+    if (!parsed) {
+      const [d, m, y] = dob.trim().split(/[-/]/).map(Number);
+      const date = new Date(y, m - 1, d);
+      const real = date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+      if (real && date > new Date()) return 'That date is in the future.';
+      return "That date doesn't exist. Check the day, month and year.";
+    }
+    if (age < 13) return 'You need to be 13 or older to join GTH.';
+    return 'Check the year: that makes you over 99.';
+  })();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -270,7 +293,7 @@ const OnboardingDobPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="start" percent={78} />
+      <OnboardingHeader currentKey="start" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
@@ -361,13 +384,25 @@ const OnboardingDobPage = () => {
                   placeholder="DD-MM-YYYY"
                   autoComplete="bday"
                   value={dob}
-                  onChange={(e) => setDob(e.target.value)}
+                  onChange={(e) => setDob(shapeDob(e.target.value))}
                   verified={isVerified}
+                  aria-invalid={dobProblem ? true : undefined}
+                  aria-describedby={dobProblem ? 'onboarding-dob-problem' : undefined}
                   leftIcon={<CalendarIcon />}
                   required
                   helperText="Enter your day, month, then year we'll route you to the right experience."
                 />
               </div>
+
+              {dobProblem ? (
+                <p
+                  id="onboarding-dob-problem"
+                  role="alert"
+                  className="w-full text-left text-[13px] font-medium leading-5 text-[#c0392b]"
+                >
+                  {dobProblem}
+                </p>
+              ) : null}
 
               {/* Under-18 notice — Figma node 2282:23881 (notes symbol).
                 Translucent cream bg with a 1px gold-light outline. */}

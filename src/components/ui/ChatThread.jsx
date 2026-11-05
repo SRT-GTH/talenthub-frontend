@@ -1,3 +1,4 @@
+import uploadCancelIcon from '../../assets/recruiter/composer-upload-cancel.svg';
 import { useEffect, useRef, useState } from 'react';
 import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
@@ -104,6 +105,14 @@ const log = debug('ChatThread');
  *   messages         Message[]
  *   onSend           (text: string) => void
  *   suggestedReplies string[]      — rendered as clickable chips above the input bar
+ *   plainBotBubbles boolean — bot messages other than the welcome one are drawn without a bubble (recruiter frames, Figma 7958:164558)
+ *   modeCardTitleFont 'display' | 'heading' — the mode-card titles in Instrument Serif (default) or Bricolage Grotesque 600 21px (recruiter, Figma 7958:164437)
+ *   scrollUpBy     number — keep the thread this many px above its last line (the scrolled company-edit frame, Figma 7958:162080)
+ *   scrollToTop    boolean — keep the thread scrolled to its first message instead of its last (recruiter transcript frames, Figma 7958:168475)
+ *   uploadingFile  { displayName, sizeLabel, progress (0 to 1) } — a file chip with a progress bar above the input row while it uploads
+ *                                    (recruiter KYB/KYC and job-file uploads, Figma 7958:163938); onCancelUpload() is the chip's x button
+ *   inlineSuggestedReplies string[] — chips that belong to the last bot bubble: a wrapping row inside the thread, under the
+ *                                    bubble and aligned with it (recruiter welcome, Figma 7958:160961). Same click as suggestedReplies.
  *   onSelectOption   (optionId: string) => void — fires when an `options` grid
  *                    button (any message) is clicked
  *   onSelectModeCard (cardId: string) => void — fires when a `modeCards`
@@ -116,7 +125,7 @@ const log = debug('ChatThread');
  *   startDictation   boolean       — demo seed: enter voice-to-text recording on mount
  *   enableAttach     boolean       — when true, attach icon triggers a hidden file input
  *                    (recruiter KYB / job JD upload); default false (decorative only)
- *   onAttach         ({name,size,sizeLabel}) => void — called with selected file metadata
+ *   onAttach         ({name,size,sizeLabel,file}) => void — called with selected file metadata (+ the File)
  *   onAttachRejected (name: string) => void — called when selected file exceeds 10 MB
  *   onFeedback       (message, rating: 'up'|'down'|null) => void — thumbs changed (live mode persists it)
  *   voiceTurns       object  — handlers of saved voice turns (messages with `voice: { who, seconds }`), see voiceCaptions/useVoiceTurns
@@ -154,7 +163,14 @@ const TOOLBAR_IDLE =
 const TOOLBAR_ACTIVE =
   'border-[1.5px] border-[#387440] bg-[#ebf1ec] text-[#387440] playful:text-[#1c2a21] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]';
 
-const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
+const MessageBubble = ({
+  message,
+  onRetry,
+  onSelectOption,
+  onFeedback,
+  wideBubbles = false,
+  plainBotBubbles = false,
+}) => {
   // Phones/tablets: smaller avatars + no persona caption (the left/right
   // alignment already says who spoke); >= lg keeps the Figma 48px column.
   const avatarSize = useIsDesktop() ? 48 : 32;
@@ -180,7 +196,9 @@ const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
   return (
     <div
       className={classNames(
-        'flex flex-col gap-[6px] max-w-[750px] max-lg:max-w-full max-lg:gap-1 min-w-0',
+        'flex flex-col gap-[6px] max-lg:max-w-full max-lg:gap-1 min-w-0',
+        // wideBubbles: the bubble is 750 wide beside its 60 + 12 avatar column (Figma 7958:160993).
+        wideBubbles ? 'max-w-[822px]' : 'max-w-[750px]',
         isBot ? 'items-start self-start' : 'items-end self-end'
       )}
     >
@@ -207,10 +225,12 @@ const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
             <ChatFileIcon className="size-4 text-content-secondary shrink-0 playful:size-[26px] playful:text-[#999]" />
             <span className="flex flex-col leading-tight">
               <span className="font-sans text-[12px] font-medium text-content-primary truncate max-w-[140px] playful:max-w-[80px] playful:text-[13px] playful:font-normal playful:leading-[15px] playful:text-[#2e2d2d]">
-                {playful ? pfFileLabel(message.file.name) : message.file.name}
+                {playful
+                  ? pfFileLabel(message.file.name)
+                  : (message.file.displayName ?? message.file.name)}
               </span>
               <span className="font-sans text-[10px] max-lg:text-[12px] text-content-tertiary playful:text-[12px] playful:leading-[15px] playful:text-[#999]">
-                {message.file.size}
+                {message.file.sizeLabel ?? message.file.size}
               </span>
             </span>
           </div>
@@ -219,6 +239,10 @@ const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
             className={classNames(
               'flex flex-col gap-[12px] rounded-[12px] px-[16px] py-[14px] font-sans text-[15px] leading-[26px] text-[#595959] whitespace-pre-line max-lg:min-w-0 max-lg:[overflow-wrap:anywhere] max-lg:gap-2 max-lg:px-3 max-lg:py-2 max-lg:text-[14px] max-lg:leading-[20px]',
               isBot || message.auto ? 'bg-white' : 'bg-white shadow-sm',
+              // plainBotBubbles: the bot lines after the welcome have no fill and 6px side padding (Figma 7958:164558).
+              plainBotBubbles && isBot && !message.isWelcomeIntro && '!bg-transparent !px-[6px]',
+              // A message can ask for Raleway: the one Figma line drawn in it is the manual-form prompt (Figma 7958:164717).
+              message.fontFamily === 'raleway' && '!font-[family-name:var(--font-raleway)]',
               // Playful (Figma 7873:54012/54013/64502): bot = #e5e5e5 @50%,
               // user + [Auto] = #32683a with white text, no shadow.
               isBot
@@ -406,10 +430,49 @@ const MessageBubble = ({ message, onRetry, onSelectOption, onFeedback }) => {
   );
 };
 
+/* The in-progress file chip of the composer (Figma 7958:163938: 168 x 56, white, 1px #eaeaea, r10, 11px name + size, 6px progress bar). */
+const UploadingFileChip = ({ file, onCancel }) => (
+  <div className="relative flex w-fit items-center gap-[7px] rounded-[10px] border border-solid border-[#eaeaea] bg-white py-[8px] pl-[8px] pr-[16px] shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+    <ChatFileIcon className="size-6 shrink-0 text-[#999]" />
+    <span className="flex w-[113px] flex-col gap-[6px]">
+      <span className="flex flex-col">
+        <span className="truncate font-sans text-[11px] font-medium leading-[13px] text-[#2e2d2d] max-lg:text-[12px]">
+          {file.displayName}
+        </span>
+        <span className="font-sans text-[11px] leading-[15px] text-[#a1a1a1] max-lg:text-[12px]">
+          {file.sizeLabel}
+        </span>
+      </span>
+      <span
+        role="progressbar"
+        aria-label={`Uploading ${file.displayName}`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round((file.progress ?? 0) * 100)}
+        className="block h-[6px] w-full overflow-hidden rounded-[4px] bg-[#f7f7f7]"
+      >
+        <span
+          className="block h-full rounded-[4px] bg-[#387440]"
+          style={{ width: `${Math.round((file.progress ?? 0) * 100)}%` }}
+        />
+      </span>
+    </span>
+    <button
+      type="button"
+      onClick={onCancel}
+      aria-label={`Cancel uploading ${file.displayName}`}
+      className="absolute -right-[6px] -top-[7px] flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0"
+    >
+      <img src={uploadCancelIcon} alt="" aria-hidden="true" className="size-4" />
+    </button>
+  </div>
+);
+
 const ChatThread = ({
   messages = [],
   onSend,
   suggestedReplies = [],
+  inlineSuggestedReplies = [],
   onSelectOption,
   onSelectModeCard,
   disabled = false,
@@ -432,6 +495,14 @@ const ChatThread = ({
   voiceTurns,
   afterMessages = null,
   alignTop = false,
+  wideBubbles = false,
+  plainBotBubbles = false,
+  uploadingFile = null,
+  scrollToTop = false,
+  scrollUpBy = 0,
+  modeCardTitleFont = 'display',
+  onCancelUpload,
+  placeholder,
   className,
 }) => {
   const playful = usePlayfulScope();
@@ -503,7 +574,7 @@ const ChatThread = ({
         ? `${(file.size / (1024 * 1024)).toFixed(0)}MB`
         : `${Math.round(file.size / 1024)}KB`;
     log('branch', { attachAccepted: file.name, sizeLabel });
-    onAttach?.({ name: file.name, size: file.size, sizeLabel });
+    onAttach?.({ name: file.name, size: file.size, sizeLabel, file });
   };
 
   log('render', {
@@ -517,8 +588,12 @@ const ChatThread = ({
   // separate pinned footer). Keep it in view as the conversation grows.
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, suggestedReplies]);
+    if (!el) return;
+    if (scrollToTop) el.scrollTop = 0;
+    else if (scrollUpBy > 0)
+      el.scrollTop = Math.max(0, el.scrollHeight - el.clientHeight - scrollUpBy);
+    else el.scrollTop = el.scrollHeight;
+  }, [messages, suggestedReplies, scrollToTop, scrollUpBy]);
 
   const submit = (value) => {
     const trimmed = value.trim();
@@ -576,13 +651,24 @@ const ChatThread = ({
   // are identical either way, so this is built once and placed in whichever
   // wrapper applies.
   const inputBar = (
-    <form onSubmit={handleSubmitForm} className="shrink-0 playful:pointer-events-auto">
+    <form
+      onSubmit={handleSubmitForm}
+      className={classNames(
+        'shrink-0 playful:pointer-events-auto',
+        // A file on its way up sits in the composer box, above the input row (Figma 7958:163938): the form becomes the box.
+        uploadingFile &&
+          'flex flex-col gap-[8px] rounded-[12px] border border-[#e5e7eb] bg-white p-[16px] max-lg:p-2'
+      )}
+    >
+      {uploadingFile && <UploadingFileChip file={uploadingFile} onCancel={onCancelUpload} />}
       <div
         className={classNames(
           'flex items-center gap-[8px]',
-          trailingModeCards?.length
-            ? 'h-[58.5px] border-t border-[#e5e7eb] pt-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:pt-2'
-            : 'h-[72px] rounded-[12px] border border-[#e5e7eb] bg-white p-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:p-1.5',
+          uploadingFile
+            ? 'h-[40px]'
+            : trailingModeCards?.length
+              ? 'h-[58.5px] border-t border-[#e5e7eb] pt-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:pt-2'
+              : 'h-[72px] rounded-[12px] border border-[#e5e7eb] bg-white p-[16px] max-lg:h-auto max-lg:min-h-12 max-lg:p-1.5',
           // Playful composer (Figma 7873:54033 / 64585): white pill, 1.5px
           // #c1d4c4 border. Voice-to-text keeps the 12px box (Figma 7887:90259).
           !recording &&
@@ -594,6 +680,9 @@ const ChatThread = ({
             <input
               ref={fileInputRef}
               type="file"
+              // The visible "Attach a file" button opens it: the input itself is out of the tab order and the accessibility tree.
+              tabIndex={-1}
+              aria-hidden="true"
               className="sr-only"
               accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
               onChange={handleFileChange}
@@ -631,9 +720,11 @@ const ChatThread = ({
               placeholder={
                 trailingModeCards?.length
                   ? 'Curious about any of these?'
-                  : playful
-                    ? 'Write a message…'
-                    : 'Type Something...'
+                  : placeholder
+                    ? placeholder
+                    : playful
+                      ? 'Write a message…'
+                      : 'Type Something...'
               }
               className="flex-1 min-w-0 border-none outline-none font-sans text-[16px] tracking-[0.2px] text-content-primary placeholder:text-[#999] playful:text-[#1c2a21] playful:placeholder:text-[#999] disabled:opacity-50"
             />
@@ -789,7 +880,13 @@ const ChatThread = ({
           chrome. */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5"
+        className={classNames(
+          'flex-1 min-h-0 overflow-y-auto no-scrollbar px-[54px] pt-6 max-lg:px-4 max-lg:pt-3 max-lg:overscroll-contain flex flex-col playful:pb-5',
+          // 2026-11-01 (live screenshots): scrolled messages ran under the floating History / New Chat /
+          // Settings pills and stayed readable behind them. Fade the top strip so text slips away under them.
+          (onNewChat || onOpenHistory || onOpenVoiceSettings) &&
+            'lg:[mask-image:linear-gradient(to_bottom,transparent_0,transparent_38px,black_72px)] lg:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0,transparent_38px,black_72px)]'
+        )}
       >
         <div
           className={`flex flex-col gap-[16px] max-lg:gap-3 ${emptyState ? 'my-auto' : alignTop ? '' : 'mt-auto'} ${
@@ -806,12 +903,31 @@ const ChatThread = ({
                 <MessageBubble
                   key={message.id}
                   message={message}
+                  wideBubbles={wideBubbles}
+                  plainBotBubbles={plainBotBubbles}
                   onSelectOption={onSelectOption}
                   onRetry={onRegenerate ? () => onRegenerate(message) : undefined}
                   onFeedback={onFeedback}
                 />
               )
             )}
+          {inlineSuggestedReplies.length > 0 && !emptyState && (
+            <div className="flex max-w-[822px] flex-wrap gap-[10px] pl-[72px] max-lg:pl-0">
+              {inlineSuggestedReplies.map((reply) => (
+                <Button
+                  key={reply}
+                  type="button"
+                  variant="chip"
+                  size="md"
+                  onClick={() => submit(reply)}
+                  disabled={disabled}
+                  className="shrink-0 max-lg:min-h-8 max-lg:px-3 max-lg:py-1 max-lg:text-[13px]"
+                >
+                  {reply}
+                </Button>
+              ))}
+            </div>
+          )}
           {afterMessages}
         </div>
       </div>
@@ -851,7 +967,14 @@ const ChatThread = ({
                     {card.Icon && <card.Icon className="size-10 max-lg:size-6" />}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-[6px] max-lg:gap-0.5">
-                    <span className="font-display text-[22px] leading-normal text-[#111] group-hover:text-brand-green max-lg:text-[17px] max-lg:leading-tight playful:font-[family-name:var(--pf-font-display)] playful:text-[18px] playful:font-semibold playful:leading-[1.25] playful:text-[#1c2a21] playful:group-hover:text-[#387440] playful:max-lg:text-[17px]">
+                    <span
+                      className={classNames(
+                        modeCardTitleFont === 'heading'
+                          ? 'font-heading text-[21px] font-semibold leading-[25px] text-[#1c2a21]'
+                          : 'font-display text-[22px] leading-normal text-[#111]',
+                        'group-hover:text-brand-green max-lg:text-[17px] max-lg:leading-tight playful:font-[family-name:var(--pf-font-display)] playful:text-[18px] playful:font-semibold playful:leading-[1.25] playful:text-[#1c2a21] playful:group-hover:text-[#387440] playful:max-lg:text-[17px]'
+                      )}
+                    >
                       {card.title}
                     </span>
                     <span className="font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373] max-lg:text-[12px] max-lg:leading-4 max-lg:line-clamp-2">

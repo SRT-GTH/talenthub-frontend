@@ -9,6 +9,7 @@ import OutcomesDashboard from '../../components/sections/publicData/outcomes/Out
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
 import { agencyOutcomes } from '../../services/agency.api.js';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT, governmentPageText } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyOutcomesPage');
 
@@ -32,8 +33,12 @@ const AgencyOutcomesPage = () => {
     return (
       <AgencyFrame data={data} title="Case study">
         <AgencyPageHero
-          title="Case study"
-          subtitle="Stories are shared only with each talent’s written consent."
+          title={GOVERNMENT_PAGE_TEXT.caseStudy.title}
+          subtitle={governmentPageText(
+            'caseStudy',
+            'subtitle',
+            'Stories are shared only with each talent’s written consent.'
+          )}
         />
         <div className="flex flex-col items-start gap-[12px] p-[8px] font-sans">
           <p className="m-0 text-[15px] text-[#595959]">
@@ -50,8 +55,12 @@ const AgencyOutcomesPage = () => {
   return (
     <AgencyFrame data={data} title="Outcomes">
       <AgencyPageHero
-        title="Impact and outcomes"
-        subtitle="Placements, scholarships and skills gained through GTH, all partners combined. Last 12 months."
+        title={GOVERNMENT_PAGE_TEXT.outcomes.title}
+        subtitle={governmentPageText(
+          'outcomes',
+          'subtitle',
+          'Placements, scholarships and skills gained through GTH, all partners combined. Last 12 months.'
+        )}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       {res.error && !res.data ? (

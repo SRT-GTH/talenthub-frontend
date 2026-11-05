@@ -476,6 +476,106 @@ export const ROUTES = [
   '/skills-lab/games/crisis-room?f=GS09',
   '/skills-lab/games/formula-rush?f=GS10',
   '/skills-lab/games/chess-blitz?f=GS11',
+  // Talent Games v2 (Figma 7500:92564 'Games v2 · 1…14', wiki/talent-games-v2.md)
+  '/skills-lab/play/switch-sort?f=SS-01',
+  '/skills-lab/play/switch-sort?f=SS-02',
+  '/skills-lab/play/switch-sort?f=SS-03',
+  '/skills-lab/play/switch-sort?f=SS-04',
+  '/skills-lab/play/three-in-a-row?f=TR-01',
+  '/skills-lab/play/three-in-a-row?f=TR-02',
+  '/skills-lab/play/three-in-a-row?f=TR-03',
+  '/skills-lab/play/three-in-a-row?f=TR-04',
+  '/skills-lab/play/grid-logic?f=GL-01',
+  '/skills-lab/play/grid-logic?f=GL-02',
+  '/skills-lab/play/grid-logic?f=GL-03',
+  '/skills-lab/play/grid-logic?f=GL-04&level=expert',
+  '/skills-lab/play/sum-grid?f=SG-01',
+  '/skills-lab/play/sum-grid?f=SG-02',
+  '/skills-lab/play/sum-grid?f=SG-03',
+  '/skills-lab/play/sum-grid?f=SG-04',
+  '/skills-lab/play/pattern-pulse?f=PP-01',
+  '/skills-lab/play/pattern-pulse?f=PP-02',
+  '/skills-lab/play/pattern-pulse?f=PP-03',
+  '/skills-lab/play/pattern-pulse?f=PP-04',
+  '/skills-lab/play/pattern-pulse?f=PP-05',
+  '/skills-lab/play/pattern-pulse?f=PP-06',
+  '/skills-lab/play/word-shuffle?f=WS-01',
+  '/skills-lab/play/word-shuffle?f=WS-02',
+  '/skills-lab/play/word-shuffle?f=WS-03',
+  '/skills-lab/play/word-shuffle?f=WS-04',
+  '/skills-lab/play/tower-shift?f=TS-01',
+  '/skills-lab/play/tower-shift?f=TS-02',
+  '/skills-lab/play/tower-shift?f=TS-03',
+  '/skills-lab/play/errand-run?f=ER-01',
+  '/skills-lab/play/errand-run?f=ER-02',
+  '/skills-lab/play/errand-run?f=ER-03',
+  '/skills-lab/play/chess-tactics?f=CT-01',
+  '/skills-lab/play/chess-tactics?f=CT-02',
+  '/skills-lab/play/chess-match?f=CM-01',
+  '/skills-lab/play/chess-match?f=CM-02',
+  '/skills-lab/play/memory-match?f=GV-04',
+  '/skills-lab/play/memory-match?mode=practice&f=GV-05',
+  '/skills-lab/play/memory-match?f=GV-06&modal=quit',
+  '/skills-lab/play/memory-match?f=GV-07&modal=timeup',
+  '/skills-lab/play/memory-match?f=GV-08&modal=offline',
+  '/skills-lab/play/memory-match?view=result&f=GV-10',
+  '/skills-lab/play/memory-match?view=result&f=GV-11',
+  '/skills-lab/play/makola-haggle?view=result&f=GV-12',
+  '/skills-lab/play/crisis-room?f=CR-01',
+  '/skills-lab/play/crisis-room?f=CR-02',
+  '/skills-lab/play/makola-haggle?f=MH-01',
+  '/skills-lab/play/makola-haggle?f=MH-02',
+  '/skills-lab?tab=games&demo=1',
+  '/skills-lab?tab=games&demo=1&game=memory-match',
+  '/skills-lab?tab=games&demo=1&game=memory-match&mode=practice&gstate=cooldown',
+  '/skills-lab?tab=games&demo=1&dialog=resume&game=pattern-pulse',
+  '/skills-lab?tab=games&demo=1&dialog=expired&game=pattern-pulse',
+  '/skills-lab?tab=games',
+  '/skills-lab?tab=games&demo=1&game=memory-match&level=advanced',
+  '/skills-lab?tab=games&demo=1&game=memory-match&mode=practice',
+  '/skills-lab?tab=games&demo=1&game=switch-sort&mode=practice',
+  '/skills-lab/play/memory-match',
+  '/skills-lab/play/memory-match?mode=practice&level=beginner',
+  '/skills-lab/play/memory-match?modal=quit',
+  '/skills-lab/play/pattern-pulse',
+  '/skills-lab/play/pattern-pulse?mode=practice&level=beginner',
+  '/skills-lab/play/pattern-pulse?modal=quit',
+  '/skills-lab/play/word-shuffle',
+  '/skills-lab/play/word-shuffle?mode=practice&level=beginner',
+  '/skills-lab/play/word-shuffle?modal=quit',
+  '/skills-lab/play/switch-sort',
+  '/skills-lab/play/switch-sort?mode=practice&level=beginner',
+  '/skills-lab/play/switch-sort?modal=quit',
+  '/skills-lab/play/three-in-a-row',
+  '/skills-lab/play/three-in-a-row?mode=practice&level=beginner',
+  '/skills-lab/play/three-in-a-row?modal=quit',
+  '/skills-lab/play/grid-logic',
+  '/skills-lab/play/grid-logic?mode=practice&level=beginner',
+  '/skills-lab/play/grid-logic?modal=quit',
+  '/skills-lab/play/sum-grid',
+  '/skills-lab/play/sum-grid?mode=practice&level=beginner',
+  '/skills-lab/play/sum-grid?modal=quit',
+  '/skills-lab/play/tower-shift',
+  '/skills-lab/play/tower-shift?mode=practice&level=beginner',
+  '/skills-lab/play/tower-shift?modal=quit',
+  '/skills-lab/play/errand-run',
+  '/skills-lab/play/errand-run?mode=practice&level=beginner',
+  '/skills-lab/play/errand-run?modal=quit',
+  '/skills-lab/play/chess-tactics',
+  '/skills-lab/play/chess-tactics?mode=practice&level=beginner',
+  '/skills-lab/play/chess-tactics?modal=quit',
+  '/skills-lab/play/chess-match',
+  '/skills-lab/play/chess-match?mode=practice&level=beginner',
+  '/skills-lab/play/chess-match?modal=quit',
+  '/skills-lab/play/crisis-room',
+  '/skills-lab/play/crisis-room?mode=practice&level=beginner',
+  '/skills-lab/play/crisis-room?modal=quit',
+  '/skills-lab/play/makola-haggle',
+  '/skills-lab/play/makola-haggle?mode=practice&level=beginner',
+  '/skills-lab/play/makola-haggle?modal=quit',
+  '/skills-lab/play/memory-match?modal=timeup',
+  '/skills-lab/play/memory-match?modal=offline',
+  '/skills-lab/play/memory-match?view=result',
   // Talent My Assessment (Figma 7962:530): full assessment flow (overview/details/library appended below)
   '/my-assessment/full/typescript',
   '/my-assessment/full/typescript?f=MA-04',
@@ -517,6 +617,77 @@ export const ROUTES = [
   '/recruiter/job-screening',
   '/recruiter/application-pipeline',
   '/recruiter/messages',
+  // Parent dashboard: my wards, flags and corrections, opt out and restore, Help and guides, link a ward
+  // (wiki/parent-flags.md, wiki/parent-opt-out.md, wiki/parent-link-ward.md)
+  '/parent/wards',
+  '/parent/wards/abena',
+  '/parent/wards/elliot',
+  '/parent/wards/abena?tab=profile',
+  '/parent/wards/abena?tab=profile&modal=flag&field=volunteering&note=It%20was%20the%20Osu%20library,%20not%20Accra%20Central.',
+  '/parent/wards/abena?tab=profile&modal=flag&field=volunteering&note=wrong&check=1',
+  '/parent/wards/abena?tab=profile&toast=flag-sent',
+  '/parent/wards/abena?tab=flags',
+  '/parent/wards/abena?tab=flags&modal=recheck&flag=dob',
+  '/parent/wards/abena?tab=flags&modal=flag-again&flag=dob&note=The%20day%20is%20right%20but%20the%20month%20should%20be%20May,%20not%20March.',
+  '/parent/wards/abena?tab=flags&toast=fix-approved',
+  '/parent/review?tab=corrections',
+  '/parent/wards/abena?modal=opt-out&reason=safety&note=I%20want%20to%20talk%20with%20her%20about%20who%20she%20chats%20with%20first.&ack=1',
+  '/parent/wards/abena?state=opted-out',
+  '/parent/wards/abena?state=opted-out&modal=restore',
+  '/parent/wards/abena?toast=access-restored',
+  '/parent/help',
+  '/parent/help?modal=report&who=abena&worry=contacted&note=A%20person%20asked%20her%20for%20her%20phone%20number%20in%20a%20club.',
+  '/parent/help?modal=report-sent&about=abena',
+  '/parent/link-ward',
+  // Ward wallets (wiki/parent-wallets.md)
+  '/parent/wallets',
+  '/parent/wallets?modal=approve',
+  '/parent/wallets?modal=approve-error',
+  '/parent/wallets?toast=approved',
+  '/parent/wallets?modal=decline',
+  '/parent/wallets?toast=declined',
+  '/parent/wallets?view=expired',
+  '/parent/wallets?modal=limits',
+  '/parent/wallets?toast=limits-saved',
+  '/parent/wallets?modal=topup',
+  '/parent/wallets?modal=topup-phone',
+  '/parent/wallets?toast=topup-done',
+  '/parent/wallets?modal=topup-error',
+  '/parent/wallets?modal=open-wallet',
+  '/parent/wallets?toast=elliot-open',
+  // Parent notifications and milestones (wiki/parent-notifications.md): bell panel, page + tabs, milestone shared with you, in-app notice
+  '/parent?notif=open',
+  '/parent/notifications',
+  '/parent/notifications?tab=approvals',
+  '/parent/notifications?tab=from-gth',
+  '/parent/notifications/milestone',
+  '/parent/notifications/milestone?toast=sent',
+  '/parent?notice=abena-joined',
+  // Recruiter Career Buddy, Figma 7958:160771 (wiki/recruiter-ai-chat.md): every drawn state by ?cb=
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=landing',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=welcome',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=company-conversation',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=company-review',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=company-edit',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=company-edit-continued',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=kyb-uploading',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=kyb-verified',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-options',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-manual',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-form',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-form&jobform=qualifications',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-form&jobform=job-details',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-form&jobform=level-menu',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-confirm',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-success',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-chat-transcript',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-chat-fallback',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-chat-confirm',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-upload',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-uploaded',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-upload-review',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-upload-review&jobform=level-menu',
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=post-job-upload-confirm',
 ];
 
 export const DEFAULT_WIDTHS = [320, 375, 768, 1024, 1440];
@@ -644,23 +815,32 @@ export const probe = ({ width }) => {
   //    Option cards with descriptions are longer than 32 chars and exempt.
   if (belowLg) {
     const wrapped = [];
-    for (const el of document.querySelectorAll('button, [role="button"]')) {
+    for (const el of document.querySelectorAll('button:not([role="radio"]), [role="button"]')) {
       const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!text || text.length > 32 || !visible(el)) continue;
       const range = document.createRange();
       range.selectNodeContents(el);
       const tops = new Set(Array.from(range.getClientRects()).map((r) => Math.round(r.top / 4)));
-      // multiple text lines => more than one distinct row of text boxes
-      const textRows = new Set();
+      // multiple text lines => more than one line of text boxes. Boxes share a line when one's vertical
+      // centre falls inside the other: a label next to a smaller chip text (e.g. "Abena" + "1 flag", 18px and
+      // 14px high, 2.8px apart) is ONE line; bucketing `top / 8` split such pairs whenever they straddled a bucket edge.
+      const lines = [];
       const walker2 = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       while (walker2.nextNode()) {
         const n = walker2.currentNode;
         if (!n.nodeValue.trim()) continue;
         const r2 = document.createRange();
         r2.selectNodeContents(n);
-        for (const rect of r2.getClientRects()) textRows.add(Math.round(rect.top / 4));
+        for (const rect of r2.getClientRects()) {
+          const cy = rect.top + rect.height / 2;
+          const line = lines.find((l) => cy >= l.top && cy <= l.bottom);
+          if (line) {
+            line.top = Math.min(line.top, rect.top);
+            line.bottom = Math.max(line.bottom, rect.bottom);
+          } else lines.push({ top: rect.top, bottom: rect.bottom });
+        }
       }
-      if (textRows.size > 1 && tops.size > 0) wrapped.push(`"${text}"`);
+      if (lines.length > 1 && tops.size > 0) wrapped.push(`"${text}"`);
     }
     if (wrapped.length)
       violations.push(`${wrapped.length} button labels wrap: ${wrapped.slice(0, 3).join(' | ')}`);

@@ -10,8 +10,10 @@ const log = debug('cv.api');
  *     200 { success, data: { roles:[{ company, position, location, startDate:'YYYY-MM'|null, endDate:'YYYY-MM'|null,
  *                                     isCurrent, description }],
  *                            education:[{ institution, degree, fieldOfStudy, startYear, endYear }],
- *                            skills:[{ name, kind:'technical'|'soft' }],
- *                            certifications:[{ name, issuingOrganization, issueDate:'YYYY-MM'|null }],
+ *                            skills:[{ name, kind:'technical'|'soft', level:'Beginner'..'Expert'|null }],
+ *                            languages:[{ name, level }], projects:[{ title, description, url, role, skills[] }],
+ *                            certifications:[{ name, issuingOrganization, issueDate:'YYYY-MM'|null,
+ *                                              issueDateYearOnly }],
  *                            warnings:[string] } }
  *     422 CV_UNREADABLE (scanned / empty) · 503 CV_EXTRACTION_UNAVAILABLE · 400/413 VALIDATION_ERROR (type / size)
  *
@@ -129,6 +131,8 @@ export const extractCv = async (file, { signal, onUploadProgress } = {}) => {
       roles: list(body?.roles),
       education: list(body?.education),
       skills: list(body?.skills),
+      languages: list(body?.languages),
+      projects: list(body?.projects),
       certifications: list(body?.certifications),
       warnings: list(body?.warnings).filter((w) => typeof w === 'string' && w.trim()),
     };
@@ -136,6 +140,8 @@ export const extractCv = async (file, { signal, onUploadProgress } = {}) => {
       roles: out.roles.length,
       education: out.education.length,
       skills: out.skills.length,
+      languages: out.languages.length,
+      projects: out.projects.length,
       certifications: out.certifications.length,
       warnings: out.warnings.length,
     });

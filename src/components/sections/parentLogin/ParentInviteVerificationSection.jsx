@@ -86,18 +86,15 @@ const ParentInviteVerificationSection = () => {
               Step 2 of 7 — Verification
             </span>
             <h1
-              className="font-display font-normal max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
+              className="font-heading font-semibold max-md:text-[24px]! max-md:leading-tight! max-md:tracking-[-0.5px]!"
               style={{
                 fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                letterSpacing: '-1px',
+                letterSpacing: '-0.02em',
                 color: '#111',
-                lineHeight: 1.1,
+                lineHeight: 1.2,
               }}
             >
-              Verify your{' '}
-              <span className="italic" style={{ color: '#c8951a' }}>
-                identity.
-              </span>
+              Verify your <span style={{ color: '#c8951a' }}>identity.</span>
             </h1>
             <p
               className="max-w-[440px] font-sans max-md:leading-5!"

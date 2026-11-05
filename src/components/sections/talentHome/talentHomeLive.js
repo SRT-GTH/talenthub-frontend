@@ -71,7 +71,8 @@ const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 /** Which Figma home state fits the real journey. */
 export const stateKeyFor = (data) => {
   const done = data?.journey?.doneCount ?? 0;
-  if (done >= 9) return data?.applications?.total > 0 ? 'top' : 'complete';
+  if (done >= (data?.journey?.total || 9))
+    return data?.applications?.total > 0 ? 'top' : 'complete';
   if (done >= 3) return 'discoverable';
   return 'day1';
 };
@@ -286,11 +287,41 @@ export const buildRecruiterActivity = (views, now = new Date()) => {
   };
 };
 
+/*
+ * GET /streak -> the home streak card (HomeColumns StreakCard: title, sub, freeze, days, status[]).
+ * Day kinds from the backend: 'today-pending' is today not yet done; lit / done / freeze days count as done.
+ */
+const streakCard = (s) => {
+  if (!s?.summary) return null;
+  const current = Number(s.summary.current) || 0;
+  const freezes = Number(s.summary.freezes) || 0;
+  const week = Array.isArray(s.popover?.week) ? s.popover.week : [];
+  if (!week.length) return null;
+  const statusOf = (kind) => {
+    const k = String(kind || '');
+    if (k === 'today-pending') return 'today';
+    if (/lit|done|freeze|today-/.test(k)) return 'done';
+    return 'open';
+  };
+  return {
+    title: current ? `${current}-day streak` : 'Start a streak today',
+    sub: current
+      ? `Learn or play one thing today to make it ${current + 1}.`
+      : 'Learn or play one thing today to light your first flame.',
+    freeze: freezes ? `${plural(freezes, 'streak freeze')} left` : 'No streak freezes yet',
+    days: week.map((d) => d.letter || ''),
+    status: week.map((d) => statusOf(d.kind)),
+    quests: null,
+  };
+};
+
 export const buildLiveContent = (stateKey, data, now = new Date()) => {
   const j = data.journey || { doneCount: 0, total: 9, percent: 0, stages: [], nextStage: 'avatar' };
   const first = data.firstName || 'there';
   const next = j.nextStage ? LABEL[j.nextStage] : null;
   const nm = j.nextMilestone;
+  // Stage count: 9, or 7 for JHS talents (no Work or Pitch; backend utils/profileJourney.js).
+  const T = j.total || 9;
   const toNext = nm ? nm.at - j.doneCount : 0;
   const complete = stateKey === 'complete' || stateKey === 'top';
   const base = CORE_CONTENT[stateKey] || CORE_CONTENT.day1;
@@ -301,20 +332,20 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
   const journeyCopy = {
     ...JOURNEY_COPY,
     day1: {
-      metaDone: `${j.doneCount} of 9 done · ${j.percent}%`,
-      metaNext: nm ? `Next milestone: ${MILESTONE_LABEL[nm.id]} at ${nm.at} of 9` : '',
+      metaDone: `${j.doneCount} of ${T} done · ${j.percent}%`,
+      metaNext: nm ? `Next milestone: ${MILESTONE_LABEL[nm.id]} at ${nm.at} of ${T}` : '',
       metaSaved: 'Auto-saved',
     },
     discoverable: {
-      metaDone: `${j.doneCount} of 9 done · ${j.percent}%`,
+      metaDone: `${j.doneCount} of ${T} done · ${j.percent}%`,
       metaNext: nm
-        ? `Next milestone: ${MILESTONE_LABEL[nm.id]} at ${nm.at} of 9${toNext === 1 ? ' · one stage away' : ''}`
+        ? `Next milestone: ${MILESTONE_LABEL[nm.id]} at ${nm.at} of ${T}${toNext === 1 ? ' · one stage away' : ''}`
         : '',
       metaSaved: null,
     },
     min: {
       ...JOURNEY_COPY.min,
-      title: `Profile journey · ${j.doneCount} of 9`,
+      title: `Profile journey · ${j.doneCount} of ${T}`,
       sub: next
         ? `Next: ${next}${nm ? ` · unlocks ${MILESTONE_LABEL[nm.id]} at ${nm.at}` : ''}`
         : 'All stages done',
@@ -328,9 +359,9 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
     hero = {
       ...HERO.day1,
       headline: [[`Akwaaba, ${first}. Let’s `], ['get you seen.', true]],
-      body: `${j.doneCount} of 9 stages done. ${plural(9 - j.doneCount, 'quick stage')} to go. Most people finish in about 20 minutes, and everything saves as you go.`,
+      body: `${j.doneCount} of ${T} stages done. ${plural(T - j.doneCount, 'quick stage')} to go. Most people finish in about 20 minutes, and everything saves as you go.`,
       cta: next ? `Continue: ${next}` : HERO.day1.cta,
-      xp: { big: `${j.doneCount}/9`, caption: 'Stages done' },
+      xp: { big: `${j.doneCount}/${T}`, caption: 'Stages done' },
     };
   } else if (stateKey === 'discoverable') {
     const top20 = j.milestone === 'top_20';
@@ -344,7 +375,7 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
         ? `Recruiters see your fit score on every role.${next ? ` Add your ${next.toLowerCase()} next to keep going.` : ''}`
         : `Recruiters can now find you in search.${next && nm ? ` ${plural(toNext, 'stage')} to ${MILESTONE_LABEL[nm.id]}: ${next.toLowerCase()} is next.` : ''}`,
       cta: next ? `Continue: ${next}` : HERO.discoverable.cta,
-      ring: { pct: j.percent, label: `${j.doneCount} of 9 stages`, xp: null, xpTail: null },
+      ring: { pct: j.percent, label: `${j.doneCount} of ${T} stages`, xp: null, xpTail: null },
     };
   } else {
     hero = {
@@ -499,7 +530,7 @@ export const buildLiveContent = (stateKey, data, now = new Date()) => {
     },
     buddy,
     readiness: pending.readiness ? { ...readiness, pending: true } : readiness,
-    streak: null,
+    streak: pending.streak ? null : streakCard(data.streak),
     looking: pending.views ? { pending: true } : lookingCard(data.views),
     recruiters: pending.views ? { pending: true } : recruitersCard(data.views, now),
     exploreChip:

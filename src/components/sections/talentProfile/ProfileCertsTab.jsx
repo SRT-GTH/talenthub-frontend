@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
@@ -62,6 +63,7 @@ const CertItem = ({ item }) => (
 );
 
 const InProgress = () => {
+  const navigate = useNavigate();
   const c = CERTS_IN_PROGRESS;
   return (
     <section
@@ -90,7 +92,7 @@ const InProgress = () => {
           <Meter pct={c.item.pct} height={8} fill="#c8951a" className="w-full max-w-[420px]" />
           <p className="text-[12px] leading-[normal] text-[#737373]">{c.item.progress}</p>
         </div>
-        <Button variant="tertiary" size="sm" onClick={() => log('continue study (no backend)')}>
+        <Button variant="tertiary" size="sm" onClick={() => navigate('/learning')}>
           {c.item.cta}
         </Button>
       </div>
@@ -146,6 +148,7 @@ const SuggestedCard = () => (
  * private "In progress" card on the left; verification legend + suggestions on the right.
  */
 const ProfileCertsTab = ({ profile }) => {
+  const navigate = useNavigate();
   useEffect(() => {
     log('mount', { tab: profile?.tab });
   }, [profile?.tab]);
@@ -158,7 +161,7 @@ const ProfileCertsTab = ({ profile }) => {
           <ProfileCard
             title={CERTS_LIST.title}
             link={CERTS_LIST.add}
-            onLink={() => log('add certification (no frame)')}
+            onLink={() => navigate('/profile/filling/certs')}
           >
             {CERTS_LIST.items.length ? null : (
               <p className="text-[14px] leading-[1.5] text-[#737373]">

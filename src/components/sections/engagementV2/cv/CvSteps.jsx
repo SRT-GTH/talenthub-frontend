@@ -430,12 +430,18 @@ export const CvFailedDialog = ({
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /*
- * CV-05 live: the real counts from the one profile save. summary = { roles, education, skills, certs, certsLeftOut,
- * duplicates }. No "share my CV" box: the file is not kept, so there is nothing to share.
+ * CV-05 live: the real counts from the one profile save. summary = { roles, education, skills, certs, languages,
+ * projects, certsLeftOut, duplicates }. No "share my CV" box: the file is not kept, so there is nothing to share.
+ * Languages and projects (2026-11-01) only get a row when the CV had some.
  */
 export const CvLiveDoneDialog = ({ summary, onBack, onReview, onClose }) => {
-  const stages = [summary.roles, summary.skills, summary.certs].filter((n) => n > 0).length;
-  const total = summary.roles + summary.education + summary.skills + summary.certs;
+  const languages = summary.languages || 0;
+  const projects = summary.projects || 0;
+  const stages = [summary.roles, summary.skills + languages, summary.certs, projects].filter(
+    (n) => n > 0
+  ).length;
+  const total =
+    summary.roles + summary.education + summary.skills + summary.certs + languages + projects;
   return (
     <CvDialog
       title={
@@ -484,6 +490,20 @@ export const CvLiveDoneDialog = ({ summary, onBack, onReview, onClose }) => {
           sub={summary.education > 0 ? 'Profile › Education' : undefined}
           dim={summary.education === 0}
         />
+        {languages > 0 ? (
+          <CvTextRow
+            icon={CvCheckCircleIcon}
+            title={`Languages · ${languages} added`}
+            sub="Shown on your profile"
+          />
+        ) : null}
+        {projects > 0 ? (
+          <CvTextRow
+            icon={CvCheckCircleIcon}
+            title={`Portfolio · ${plural(projects, 'project')} added`}
+            sub="Add a cover image in Portfolio"
+          />
+        ) : null}
       </div>
       {summary.duplicates > 0 ? (
         <CvCallout title={`${plural(summary.duplicates, 'item')} already on your profile`}>

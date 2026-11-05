@@ -19,6 +19,11 @@ import { CardSkeleton, ShimmerStyle } from './TalentHomeStates.jsx';
 import { CARD, LIFT, DISPLAY, Chip, Sticker, HomeTabs } from './TabsParts.jsx';
 import { RECRUITER_FEED, THIS_WEEK, VISIBILITY, BUDDY_TIP } from './talentHomeTabsData.js';
 import careerBuddy from '../../../assets/talent-home/career-buddy-robot.png';
+import {
+  fetchSettingsOverview,
+  savePrivacy,
+  setProfilePaused,
+} from '../../../services/settings.api.js';
 
 const log = debug('RecruiterActivityTab');
 
@@ -256,16 +261,82 @@ const ThisWeekCard = ({ w }) => (
   </section>
 );
 
-const VisibilityCard = () => {
+/*
+ * Live "Who can see you" (2026-10-31): the same switches, saved through the settings API.
+ *   Open to opportunities      <- not paused             PUT /settings/pause { paused }
+ *   Verified recruiters can message me first  <- privacy.see.message   PUT /settings/privacy { see }
+ *   Hide me from my employer   <- privacy.see.employer   (companies listed in Settings > Privacy)
+ * A switch flips at once and flips back if the save fails.
+ */
+const liveSettingsFrom = (o) => ({
+  open: !o?.paused,
+  'verified-only': Boolean(o?.privacy?.see?.message),
+  'hide-employer': Boolean(o?.privacy?.see?.employer),
+});
+
+const LIVE_VISIBILITY = (companies) => [
+  {
+    id: 'open',
+    title: 'Open to opportunities',
+    hint: 'Turn off to pause your profile: recruiters won’t find you',
+  },
+  {
+    id: 'verified-only',
+    title: 'Verified recruiters can message me first',
+    hint: 'Only recruiters GTH has verified can start a chat with you',
+  },
+  {
+    id: 'hide-employer',
+    title: 'Hide me from my current employer',
+    hint: companies.length
+      ? `Recruiters at ${companies.join(', ')} won’t see your profile`
+      : 'Add your employer in Settings > Privacy first',
+  },
+];
+
+const VisibilityCard = ({ live = false }) => {
   const [settings, setSettings] = useState(() =>
     Object.fromEntries(VISIBILITY.settings.map((s) => [s.id, s.on]))
   );
+  const [companies, setCompanies] = useState([]);
+  const [ready, setReady] = useState(!live);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (!live) return undefined;
+    let alive = true;
+    fetchSettingsOverview()
+      .then((o) => {
+        if (!alive) return;
+        setSettings(liveSettingsFrom(o));
+        setCompanies(o?.privacy?.employerCompanies || []);
+        setReady(true);
+      })
+      .catch((err) => {
+        log.error('privacy load failed:', err?.response?.status || err?.message);
+        if (alive) setError('We couldn’t load these settings.');
+      });
+    return () => {
+      alive = false;
+    };
+  }, [live]);
+  const persist = (id, on) => {
+    if (id === 'open') return setProfilePaused(!on);
+    return savePrivacy({ see: { [id === 'verified-only' ? 'message' : 'employer']: on } });
+  };
   const toggle = (id) => {
-    setSettings((prev) => {
-      log('visibility', id, '->', !prev[id]);
-      return { ...prev, [id]: !prev[id] };
+    if (!ready) return;
+    const next = !settings[id];
+    log('visibility', id, '->', next);
+    setSettings((prev) => ({ ...prev, [id]: next }));
+    if (!live) return;
+    setError('');
+    persist(id, next).catch((err) => {
+      log.error('visibility save failed:', err?.response?.status || err?.message);
+      setSettings((prev) => ({ ...prev, [id]: !next }));
+      setError('That change wasn’t saved. Try again.');
     });
   };
+  const rows = live ? LIVE_VISIBILITY(companies) : VISIBILITY.settings;
   return (
     <section
       aria-labelledby="ra-vis"
@@ -274,7 +345,7 @@ const VisibilityCard = () => {
       <h2 id="ra-vis" className="text-[16px] font-semibold text-[#1c2a21]">
         {VISIBILITY.title}
       </h2>
-      {VISIBILITY.settings.map((s) => (
+      {rows.map((s) => (
         <div key={s.id} className="flex items-center gap-[12px] py-[10px]">
           <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
             <span id={`ra-vis-${s.id}`} className="text-[14px] font-semibold text-[#1c2a21]">
@@ -289,6 +360,7 @@ const VisibilityCard = () => {
             role="switch"
             aria-checked={settings[s.id]}
             aria-labelledby={`ra-vis-${s.id}`}
+            aria-disabled={!ready || undefined}
             onClick={() => toggle(s.id)}
             className="h-[24px] w-[40px] shrink-0 cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
@@ -300,6 +372,11 @@ const VisibilityCard = () => {
           </button>
         </div>
       ))}
+      {error ? (
+        <p role="alert" className="text-[13px] font-medium text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
     </section>
   );
 };
@@ -356,7 +433,7 @@ const RecruiterActivityTab = ({ home }) => {
         <FeedCard f={data.feed} />
         <div className="flex min-w-0 flex-col gap-[16px]">
           <ThisWeekCard w={data.thisWeek} />
-          {data.demo ? <VisibilityCard /> : null}
+          <VisibilityCard live={!data.demo} />
           <BuddyTip text={data.tip} />
         </div>
       </div>

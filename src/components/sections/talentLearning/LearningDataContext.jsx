@@ -10,6 +10,7 @@ import {
   saveCourse,
   unsaveCourse,
 } from '../../../services/learning.api.js';
+import { fetchCoursePage, openCourseOutside } from '../../../services/learningPath.api.js';
 import { savedWhen, shortDate, toCourseCard, toProgressItem } from './learningMappers.js';
 import { STORAGE_KEYS } from '../../../constants/storageKeys.js';
 import {
@@ -102,6 +103,11 @@ const mockData = ({ learning, removed }) => {
     unsave: (key) => savedStore.remove(key),
     completeModule: async () => null,
     refresh: () => {},
+    coursePage: null,
+    coursePageStatus: null,
+    coursePageCode: null,
+    refreshCoursePage: () => {},
+    openOutside: () => {},
   };
 };
 
@@ -115,6 +121,32 @@ export const LearningDataProvider = ({ learning, children }) => {
     bookmarks: [],
   });
   const [busy, setBusy] = useState(null); // courseId being enrolled / saved
+  // Course pages (learning path iteration 4): progress, short check, player - by course id.
+  const [pages, setPages] = useState({});
+
+  const loadPage = useCallback(async (courseId) => {
+    if (!courseId) return;
+    setPages((p) => ({
+      ...p,
+      [courseId]: { ...(p[courseId] || {}), status: p[courseId]?.data ? 'ready' : 'loading' },
+    }));
+    try {
+      const data = await fetchCoursePage(courseId);
+      setPages((p) => ({ ...p, [courseId]: { status: 'ready', data } }));
+    } catch (err) {
+      const status = err?.response?.status;
+      log.error('course page failed:', status || err?.message);
+      setPages((p) => ({
+        ...p,
+        [courseId]: { status: 'error', code: status || null, data: null },
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (demo || learning.view !== 'course' || !learning.course) return;
+    loadPage(learning.course);
+  }, [demo, learning.view, learning.course, loadPage]);
 
   const load = useCallback(async () => {
     const [cat, enrolments, bookmarks] = await Promise.all([
@@ -298,9 +330,37 @@ export const LearningDataProvider = ({ learning, children }) => {
     [enrolmentFor, load]
   );
 
+  /** Open an off-platform course: the window opens now (no popup block), the click-out is logged after. */
+  const openOutside = useCallback(
+    async (courseId) => {
+      const page = pages[courseId]?.data;
+      const url = page?.openUrl || live?.cards[String(courseId)]?.externalUrl;
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      try {
+        await openCourseOutside(courseId);
+      } catch (err) {
+        log.error('click-out failed:', err?.response?.status || err?.message);
+      }
+      loadPage(courseId);
+    },
+    [pages, live, loadPage]
+  );
+
   const value = useMemo(() => {
     if (demo) return mockData({ learning, removed });
-    const loading = state.status === 'loading';
+    const page = learning.course ? pages[learning.course] : null;
+    // A course opened from a learning path may not be on the first catalogue page: use its course page.
+    const pageCard =
+      page?.data?.course &&
+      toCourseCard({
+        ...page.data.course,
+        _id: page.data.course.id,
+        description: page.data.course.summary,
+        providerType: page.data.course.source ? 'external' : page.data.course.providerType,
+      });
+    const loading =
+      state.status === 'loading' ||
+      (Boolean(learning.course) && !live.cards[learning.course] && page?.status === 'loading');
     const savedCount = live.saved.length;
     return {
       live: true,
@@ -331,7 +391,12 @@ export const LearningDataProvider = ({ learning, children }) => {
         completed: live.completed.length,
         certificates: live.completed.length,
       },
-      selectedCourse: learning.course ? live.cards[learning.course] || null : null,
+      selectedCourse: learning.course ? live.cards[learning.course] || pageCard || null : null,
+      coursePage: page?.data || null,
+      coursePageStatus: page?.status || null,
+      coursePageCode: page?.code || null,
+      refreshCoursePage: () => loadPage(learning.course),
+      openOutside,
       isSaved: (id) => Boolean(live.bookmarkByCourse[String(id)]),
       enrolmentFor,
       openCourse,
@@ -357,6 +422,9 @@ export const LearningDataProvider = ({ learning, children }) => {
     unsave,
     completeCurrentModule,
     load,
+    pages,
+    loadPage,
+    openOutside,
   ]);
 
   return <LearningDataContext.Provider value={value}>{children}</LearningDataContext.Provider>;

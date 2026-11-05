@@ -14,6 +14,7 @@ import {
   PITCH_READY,
   PITCH_RECRUITERS,
   PITCH_SELF_CHECK,
+  PITCH_SELF_CHECK_LIVE,
   PITCH_TRIM,
   PITCH_UPLOAD,
   PITCH_WRITE,
@@ -360,7 +361,15 @@ const CheckRow = ({ done, title, sub }) => (
 );
 
 /* ---------- PI-04 / PI-04b upload ---------- */
-export const UploadBody = ({ ready, file, tabs, onBrowse, onDropFile, onReplace }) => (
+export const UploadBody = ({
+  ready,
+  file,
+  tabs,
+  onBrowse,
+  onDropFile,
+  onReplace,
+  live = false,
+}) => (
   <div className="flex flex-col gap-5">
     {tabs}
     {ready ? (
@@ -368,10 +377,10 @@ export const UploadBody = ({ ready, file, tabs, onBrowse, onDropFile, onReplace 
         <FileCard file={file} onReplace={onReplace} />
         <Card className="flex flex-col gap-[10px] rounded-[24px] px-[22px] py-5">
           <h2 className="m-0 font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
-            {PITCH_SELF_CHECK.title}
+            {(live ? PITCH_SELF_CHECK_LIVE : PITCH_SELF_CHECK).title}
           </h2>
           <div className="flex flex-col gap-[10px]">
-            {PITCH_SELF_CHECK.rows.map((r) => (
+            {(live ? PITCH_SELF_CHECK_LIVE : PITCH_SELF_CHECK).rows.map((r) => (
               <CheckRow key={r.title} {...r} />
             ))}
           </div>
@@ -539,6 +548,7 @@ export const ReviewBody = ({
   playSignal,
   busy,
   lengthRow,
+  live = false,
 }) => (
   <div className="flex flex-col gap-5">
     {typeof written === 'string' ? (
@@ -558,10 +568,13 @@ export const ReviewBody = ({
         {PITCH_READY.title}
       </h2>
       <div className="flex flex-col gap-[10px]">
-        {PITCH_READY.rows.map((r, i) => {
-          const row = i === 0 && lengthRow ? lengthRow : r;
-          return <CheckRow key={row.title} done {...row} />;
-        })}
+        {live
+          ? // Signed in: only what was actually checked (the length), never the mock's "stages 1 to 8 complete".
+            [lengthRow].filter(Boolean).map((row) => <CheckRow key={row.title} done {...row} />)
+          : PITCH_READY.rows.map((r, i) => {
+              const row = i === 0 && lengthRow ? lengthRow : r;
+              return <CheckRow key={row.title} done {...row} />;
+            })}
       </div>
     </Card>
     <Card className="flex items-center gap-[14px] rounded-[18px] !bg-[#387440] py-4 pr-4 pl-5">
@@ -570,7 +583,7 @@ export const ReviewBody = ({
       </span>
       <span className="flex min-w-0 flex-col gap-[2px]">
         <span className="font-sans text-[16px] leading-[19px] font-bold text-white">
-          {PITCH_READY.after.title}
+          {live ? 'Publish to finish the Pitch stage' : PITCH_READY.after.title}
         </span>
         <span className="font-sans text-[13px] leading-[16px] font-medium text-white">
           {PITCH_READY.after.sub}

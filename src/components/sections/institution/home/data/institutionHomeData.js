@@ -346,18 +346,30 @@ export const STUDENT_TABLE = {
 };
 
 /* ===== BLOCK 6 · "At a glance" cards (11.2.1a, solid cards), built from GET /institution/home ======================================= */
+// The words of the cards (Site copy: Institution › Home › Overview); {school} is the school's short name. The numbers come from the API.
+export const GLANCE_TEXT = {
+  title: 'Your school at a glance',
+  subtitle: 'How {school} is doing on GTH right now.',
+  cards: {
+    linked: { badge: 'Roster', title: 'Students on GTH' },
+    consent: { badge: 'Under 18', title: 'Guardian consent' },
+    profiles: { badge: 'Linked students', title: 'Profile completion' },
+  },
+};
+
 export const glanceFor = (home, short) => {
   const h = home || {};
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+  const t = GLANCE_TEXT.cards;
   return {
-    title: 'Your school at a glance',
-    subtitle: `How ${short || 'your school'} is doing on GTH right now.`,
+    title: GLANCE_TEXT.title,
+    subtitle: GLANCE_TEXT.subtitle.replace('{school}', short || 'your school'),
     cards: [
       {
         id: 'linked',
         icon: 'eye',
-        badge: 'Roster',
-        title: 'Students on GTH',
+        badge: t.linked.badge,
+        title: t.linked.title,
         text: `${h.linked ?? 0} of ${h.total ?? 0} students have linked their GTH account.`,
         progressLabel: `${h.linkedPct ?? 0}%`,
         fillPct: h.linkedPct ?? 0,
@@ -366,8 +378,8 @@ export const glanceFor = (home, short) => {
       {
         id: 'consent',
         icon: 'shield',
-        badge: 'Under 18',
-        title: 'Guardian consent',
+        badge: t.consent.badge,
+        title: t.consent.title,
         text: h.under18
           ? `${h.consentAgreed ?? 0} of ${h.under18} under-18s have a guardian’s agreement.`
           : 'No students under 18 on the roster.',
@@ -378,8 +390,8 @@ export const glanceFor = (home, short) => {
       {
         id: 'profiles',
         icon: 'sparkle',
-        badge: 'Linked students',
-        title: 'Profile completion',
+        badge: t.profiles.badge,
+        title: t.profiles.title,
         text: h.linked
           ? 'Average GTH profile completion of linked students.'
           : 'Shown once students link their accounts.',

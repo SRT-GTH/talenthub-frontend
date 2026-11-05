@@ -222,6 +222,19 @@ const WorkPage = () => {
               {load === 'error' ? LOAD_ERROR : saveError}
             </p>
           ) : null}
+          {live && loaded ? (
+            // 2026-11-01: the journey's Work stage is "Work & education" - a real school completes it too.
+            <p className="m-0 flex flex-wrap items-center gap-x-[8px] gap-y-[4px] rounded-[14px] bg-[#ebf1ec] px-[16px] py-[12px] font-sans text-[14px] leading-[20px] text-[#2d5d33]">
+              <span>Still studying? Your school counts for this stage too.</span>
+              <button
+                type="button"
+                onClick={() => navigate('/profile?tab=experience')}
+                className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#2d5d33] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+              >
+                Add or fix it in Education
+              </button>
+            </p>
+          ) : null}
           {!loaded ? null : empty ? (
             <>
               <EmptyState

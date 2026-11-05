@@ -30,7 +30,9 @@ const HelpField = ({
           <span
             aria-hidden="true"
             className="font-semibold text-[14px] leading-[21px] text-[#2e8b57]"
-            style={{ fontFamily: "'Instrument Sans', var(--font-sans)" }}
+            style={{
+              fontFamily: "'Instrument Sans Variable', 'Instrument Sans', var(--font-sans)",
+            }}
           >
             *
           </span>

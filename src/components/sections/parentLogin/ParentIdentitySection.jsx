@@ -116,8 +116,8 @@ const IdentityCaptionBadge = () => (
     />
     <span className="flex items-center gap-2">
       <span
-        className="font-display italic"
-        style={{ fontSize: 16, color: '#b5b5b5', lineHeight: 'normal' }}
+        className="font-heading font-semibold"
+        style={{ fontSize: 15, color: '#b5b5b5', lineHeight: 'normal' }}
       >
         03
       </span>
@@ -143,7 +143,7 @@ const ParentIdentitySection = () => {
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -187,17 +187,14 @@ const ParentIdentitySection = () => {
 
           {/* Headline (Figma 2901:81409) */}
           <h1
-            className="max-w-[554px] text-center font-display font-normal text-black max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="max-w-[554px] text-center font-heading font-semibold text-[#1c2a21] max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-              lineHeight: 1.094,
-              letterSpacing: '-0.64px',
+              lineHeight: 0.92,
+              letterSpacing: '-0.045em',
             }}
           >
-            Tell us about{' '}
-            <span className="italic" style={{ color: '#c8951a' }}>
-              yourself.
-            </span>
+            Tell us about <span style={{ color: '#c8951a' }}>yourself.</span>
           </h1>
 
           {/* Subtitle */}
@@ -223,15 +220,16 @@ const ParentIdentitySection = () => {
                 leftIcon={<PersonIcon />}
                 label="First Name"
                 required
-                placeholder="e.g. Abena"
+                placeholder="Enter your first name"
                 error={errors.firstName?.message}
                 {...register('firstName')}
               />
               <TextInput
                 leftIcon={<PersonIcon />}
                 label="Middle Name"
-                optional
-                placeholder="e.g. Kofi"
+                labelTrailing="Optional"
+                labelTrailingClassName="text-brand-green font-medium"
+                placeholder="Enter your middle name"
                 error={errors.middleName?.message}
                 {...register('middleName')}
               />
@@ -243,7 +241,7 @@ const ParentIdentitySection = () => {
                 leftIcon={<PersonIcon />}
                 label="Last Name"
                 required
-                placeholder="e.g. Mensah"
+                placeholder="Enter your last name"
                 error={errors.lastName?.message}
                 {...register('lastName')}
               />
@@ -255,9 +253,9 @@ const ParentIdentitySection = () => {
                   return (
                     <Select
                       leftIcon={<UsersGroupIcon />}
-                      label="Relationship to Ward"
+                      label="Relationship"
                       required
-                      placeholder="Select relationship"
+                      placeholder="Select your relationship"
                       options={RELATIONSHIPS}
                       value={field.value}
                       onChange={(val) => {
@@ -283,7 +281,7 @@ const ParentIdentitySection = () => {
                       leftIcon={<PersonIcon />}
                       label="Gender"
                       required
-                      placeholder="Select gender"
+                      placeholder="Select your Gender"
                       options={GENDERS}
                       value={field.value}
                       onChange={(val) => {
@@ -304,7 +302,7 @@ const ParentIdentitySection = () => {
                     <Select
                       leftIcon={<MapIcon />}
                       label="Nationality"
-                      placeholder="Select nationality"
+                      placeholder="Select your Nationality"
                       options={NATIONALITIES}
                       value={field.value}
                       onChange={(val) => {
@@ -332,18 +330,19 @@ const ParentIdentitySection = () => {
 
             {/* CTA */}
             <StickyActionBar bleed={16}>
-              <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2 w-full">
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <LoadingSpinner className="size-5" />
-                    Saving...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Fill In Your Details
-                    <ArrowRightIcon className="size-5" />
-                  </span>
-                )}
+              {/* Figma: grey + disabled until the form is valid, then green. While saving
+                  the label stays "Fill In Your Details" with a spinner (Figma 'Active'). */}
+              <Button
+                type="submit"
+                size="lg"
+                disabled={!isValid || isSubmitting}
+                state={isSubmitting ? 'active' : undefined}
+                aria-busy={isSubmitting || undefined}
+                leftIcon={isSubmitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                rightIcon={<ArrowRightIcon />}
+                className="mt-2 w-full justify-center"
+              >
+                Fill In Your Details
               </Button>
             </StickyActionBar>
           </form>
@@ -354,7 +353,7 @@ const ParentIdentitySection = () => {
             <Link
               to="/onboarding/parent-login"
               className="font-semibold underline relative max-md:before:absolute max-md:before:-inset-x-1 max-md:before:-inset-y-2.5 max-md:before:content-['']"
-              style={{ color: '#c8951a' }}
+              style={{ color: '#387440' }}
             >
               Log in Instead
             </Link>

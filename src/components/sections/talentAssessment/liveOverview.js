@@ -14,7 +14,7 @@ const shortDate = (iso) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? '' : `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 };
-const slugify = (s) =>
+export const slugify = (s) =>
   String(s || '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -223,7 +223,8 @@ export const buildLiveOverview = (live, assessment) => {
         sub: c.skillsEvidence.intro,
         skills: (c.skillsEvidence.skills || []).map((s, i) => ({
           id: `${slugify(s.name) || 'skill'}-${i}`,
-          to: '/profile',
+          // The live skill detail (liveSkillEvidence.js) is keyed by the skill name's slug.
+          to: `/my-assessment/skills/${slugify(s.name)}`,
           name: s.name,
           level: s.level,
           kind: s.evidence,

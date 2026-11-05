@@ -274,3 +274,43 @@ export const PITCH_DELETE = {
   replace: 'Replace instead',
   confirm: 'Delete pitch',
 };
+
+/*
+ * Signed-in versions (2026-11-01). The drawn copy above is the Figma mock: it said "Profile stages 1 to 8 complete",
+ * "All four parts covered", "Nine of nine stages done. Your profile is 100%" and a self-check naming the mock's
+ * "Accra Bus Tracker, React" - shown to real talents whatever their profile held. Live screens only claim what is true.
+ */
+export const PITCH_SELF_CHECK_LIVE = {
+  title: 'Check before you publish',
+  rows: [
+    { done: false, title: 'You say your name and what you do' },
+    { done: false, title: 'You mention one skill and one project' },
+    { done: false, title: 'You say what role you want next' },
+    { done: false, title: 'Good light on your face', sub: 'Optional, but recruiters notice' },
+  ],
+};
+
+/* The complete dialog from the real journey ({ doneCount, total, percent, nextStage }). */
+export const pitchCompleteLive = (journey) => {
+  const done = Number(journey?.doneCount) || 0;
+  const total = Number(journey?.total) || 9;
+  const percent = Number.isFinite(Number(journey?.percent))
+    ? Math.round(Number(journey.percent))
+    : null;
+  if (done >= total) return PITCH_COMPLETE;
+  const left = total - done;
+  return {
+    ...PITCH_COMPLETE,
+    sticker: 'PITCH PUBLISHED',
+    eyebrow: 'STAGE 9 DONE',
+    title: ['Your pitch is ', 'live.'],
+    body: `${done} of ${total} stages done. ${left === 1 ? 'One more stage' : `${left} more stages`} to reach Top Talent.`,
+    stats: [
+      { value: `${done}/${total}`, label: 'STAGES DONE' },
+      ...(percent != null ? [{ value: `${percent}%`, label: 'PROFILE' }] : []),
+      PITCH_COMPLETE.stats[2],
+    ],
+    unlockedLabel: 'WHAT YOUR PITCH DOES',
+    unlocked: [PITCH_COMPLETE.unlocked[0]],
+  };
+};

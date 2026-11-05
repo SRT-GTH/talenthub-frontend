@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
@@ -8,7 +8,13 @@ import PreviewField from '../../ui/PreviewField.jsx';
 import ClampText from '../../ui/ClampText.jsx';
 import ParentDefRows from './ParentDefRows.jsx';
 import WavyDivider from '../../shared/WavyDivider.jsx';
-import { ArrowRightIcon, IdCardIcon, MailIcon, UserIcon } from '../../shared/assets.jsx';
+import {
+  ArrowRightIcon,
+  IdCardIcon,
+  LoadingSpinner,
+  MailIcon,
+  UserIcon,
+} from '../../shared/assets.jsx';
 import { OptOutModal, ParentRightsModal, DataProcessingModal } from './ConsentModals.jsx';
 import { debug } from '../../../utils/debug.js';
 // Placeholder ward avatar — same as Link Ward step; swap for the real per-ward
@@ -189,13 +195,20 @@ const ParentReviewSection = () => {
     navigate(target);
   };
 
+  // Figma 'Active' CTA: spinner while submitting, then Done (presentational ~800 ms).
+  const [submitting, setSubmitting] = useState(false);
+  const submitTimer = useRef(null);
+  useEffect(() => () => clearTimeout(submitTimer.current), []);
+
   const handleContinue = () => {
     if (!allAccepted) {
       log('continue blocked — not all consents accepted');
       return;
     }
-    log('all accepted — navigating to parent-done');
-    navigate('/onboarding/parent-done');
+    if (submitting) return;
+    log('all accepted — loading, then navigating to parent-done');
+    setSubmitting(true);
+    submitTimer.current = setTimeout(() => navigate('/onboarding/parent-done'), 800);
   };
 
   return (
@@ -212,18 +225,15 @@ const ParentReviewSection = () => {
 
           {/* Headline — Figma 2944:68077 */}
           <h1
-            className="text-center font-display font-normal max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="text-center font-heading font-semibold max-md:self-stretch max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2rem, 4.4vw, 4rem)',
-              lineHeight: 1.094,
-              letterSpacing: '-0.64px',
-              color: '#111',
+              lineHeight: 0.92,
+              letterSpacing: '-0.045em',
+              color: '#1c2a21',
             }}
           >
-            Review your{' '}
-            <span className="italic" style={{ color: '#c8951a' }}>
-              details
-            </span>
+            Review your <span style={{ color: '#c8951a' }}>details</span>
           </h1>
 
           {/* Subtitle — Figma 2944:68079 */}
@@ -613,6 +623,9 @@ const ParentReviewSection = () => {
                 size="lg"
                 className="w-full justify-center"
                 rightIcon={<ArrowRightIcon />}
+                leftIcon={submitting ? <LoadingSpinner stroke="#FEF1E7" /> : undefined}
+                state={submitting ? 'active' : undefined}
+                aria-busy={submitting || undefined}
                 onClick={handleContinue}
               >
                 Accept All Three To Continue

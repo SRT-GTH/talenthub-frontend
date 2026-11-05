@@ -7,6 +7,7 @@ import streakFlame from '../../../assets/talent-messages/inbox/streak-flame.svg'
 import { CommunitySticker } from '../talentCommunity/CommunityParts.jsx';
 import InterviewCard from './cards/InterviewCard.jsx';
 import JobProposalCard from './cards/JobProposalCard.jsx';
+import MessagesInterviewPanel from './MessagesInterviewPanel.jsx';
 import HelpReplyPanel from './HelpReplyPanel.jsx';
 import MessagesA11yExplainCard, { EXPLAIN_DEMO_TEXT } from './MessagesA11yExplainCard.jsx';
 import MessagesA11yReadBar from './MessagesA11yReadBar.jsx';
@@ -328,6 +329,10 @@ const MessagesThread = ({ messages, view, store, offline, loading, empty, onBack
                     </div>
                   ) : null}
                   {items.map(renderItem)}
+                  {/* Live: the interview for the job this conversation is about, once the talent applied. */}
+                  {live && active?.job?.id && active.job.state === 'applied' ? (
+                    <MessagesInterviewPanel key={active.job.id} jobId={active.job.id} />
+                  ) : null}
                   {showTyping ? <TypingIndicator label={active.typing} /> : null}
                   {messages.explain === 'open' && lastReceived ? (
                     <div className="w-[min(560px,100%)] shrink-0">

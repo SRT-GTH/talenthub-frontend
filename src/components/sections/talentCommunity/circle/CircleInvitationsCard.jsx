@@ -24,7 +24,9 @@ const CircleInvitationsCard = ({
   onAccept,
   onIgnore,
   onSayHi,
-  xpFor,
+  people = CIRCLE_PEOPLE,
+  onWithdraw,
+  showManage = true,
 }) => {
   const preview = mode === 'preview';
   const rows = preview ? received.slice(0, 2) : received;
@@ -70,54 +72,74 @@ const CircleInvitationsCard = ({
               );
             })}
           </div>
-          <button
-            type="button"
-            className={`cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#387440] ${FOCUS_RING}`}
-          >
-            {COPY.manage}
-          </button>
+          {showManage && (
+            <button
+              type="button"
+              className={`cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#387440] ${FOCUS_RING}`}
+            >
+              {COPY.manage}
+            </button>
+          )}
         </div>
       )}
       <ul className="m-0 flex list-none flex-col p-0">
         {!preview && sub === 'sent'
-          ? sent.map((item, i) => (
-              <li
-                key={item.id}
-                className={classNames(
-                  'flex items-center gap-[14px] px-[16px] py-[14px]',
-                  i > 0 && 'border-t border-solid border-[#e7e7e7]'
-                )}
-              >
-                <CircleAvatar id={item.id} size={56} />
-                <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
-                  <span className="font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21]">
-                    {CIRCLE_PEOPLE[item.id].name}
-                  </span>
-                  <span className="font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[14px]">
-                    {CIRCLE_PEOPLE[item.id].headline}
-                  </span>
-                  <span className="font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
-                    {item.ago}
-                  </span>
-                </div>
-                <span className="inline-flex h-[22px] items-center rounded-full bg-[#f8f8f4] px-[10px] font-sans text-[12px] font-semibold leading-[14px] text-[#595959]">
-                  {COPY.linkUpSent}
-                </span>
-              </li>
-            ))
-          : rows.map((invite, i) => (
-              <CircleInvitationRow
-                key={invite.id}
-                person={CIRCLE_PEOPLE[invite.id]}
-                invite={invite}
-                accepted={accepted.includes(invite.id)}
-                divided={!preview && i > 0}
-                xp={xpFor === invite.id}
-                onAccept={onAccept}
-                onIgnore={onIgnore}
-                onSayHi={onSayHi}
-              />
-            ))}
+          ? sent
+              .filter((item) => people[item.id])
+              .map((item, i) => (
+                <li
+                  key={item.id}
+                  className={classNames(
+                    'flex items-center gap-[14px] px-[16px] py-[14px]',
+                    i > 0 && 'border-t border-solid border-[#e7e7e7]'
+                  )}
+                >
+                  <CircleAvatar
+                    id={item.id}
+                    size={56}
+                    photo={people[item.id]?.photo}
+                    name={people[item.id]?.name}
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
+                    <span className="font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21]">
+                      {people[item.id]?.name}
+                    </span>
+                    <span className="font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[14px]">
+                      {people[item.id]?.headline}
+                    </span>
+                    <span className="font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
+                      {item.ago}
+                    </span>
+                  </div>
+                  {onWithdraw ? (
+                    <button
+                      type="button"
+                      onClick={() => onWithdraw(item)}
+                      className={`cursor-pointer rounded-full border border-solid border-[#e7e7e7] bg-white px-[12px] py-[6px] font-sans text-[13px] font-semibold leading-[16px] text-[#595959] max-lg:min-h-[44px] ${FOCUS_RING}`}
+                    >
+                      Withdraw
+                    </button>
+                  ) : (
+                    <span className="inline-flex h-[22px] items-center rounded-full bg-[#f8f8f4] px-[10px] font-sans text-[12px] font-semibold leading-[14px] text-[#595959]">
+                      {COPY.linkUpSent}
+                    </span>
+                  )}
+                </li>
+              ))
+          : rows
+              .filter((invite) => people[invite.id])
+              .map((invite, i) => (
+                <CircleInvitationRow
+                  key={invite.id}
+                  person={people[invite.id]}
+                  invite={invite}
+                  accepted={accepted.includes(invite.id)}
+                  divided={!preview && i > 0}
+                  onAccept={onAccept}
+                  onIgnore={onIgnore}
+                  onSayHi={onSayHi}
+                />
+              ))}
       </ul>
     </section>
   );

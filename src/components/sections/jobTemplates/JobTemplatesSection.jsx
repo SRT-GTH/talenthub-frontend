@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import RecruiterJobTabs from '../recruiterShared/RecruiterJobTabs.jsx';
@@ -21,13 +22,14 @@ import {
   CREATE_CUSTOM_LABEL,
   TEMPLATES,
   BLANK_TEMPLATE,
+  FILTERED_SUMMARY,
 } from './jobTemplatesData.js';
 
 const log = debug('JobTemplatesSection');
 
 /*
  * JobTemplatesSection — the recruiter job-template library.
- * Source: Figma 7249:75046, content canvas 7249:75078 (VERTICAL, gap 28,
+ * Source: Figma 7249:75046 (+ filter-pill state 7249:75464), content canvas 7249:75078 (VERTICAL, gap 28,
  * py 32, width 1329).
  *
  * Card anatomy, from a full-depth walk of 7249:75141:
@@ -36,7 +38,7 @@ const log = debug('JobTemplatesSection');
  *   └ body          VERTICAL gap 24
  *     ├ icon tile   48x48, #f3f8f4, r8, glyph #2a5730
  *     └ copy        VERTICAL gap 16
- *       ├ head      VERTICAL gap 12 — title 28/36.4 ls -1.6 Instrument Serif,
+ *       ├ head      VERTICAL gap 12 — title Bricolage Grotesque 25/30 ls -0.5,
  *       │           then a HORIZONTAL gap-6 row: pill + "•" + type
  *       └ desc      14/21.6 #737373, Figma's own hard line breaks and "…"
  *   └ footer        pad-top 30, then a 1px #e6e2d6 TOP border with pad-top 18,
@@ -44,6 +46,15 @@ const log = debug('JobTemplatesSection');
  *
  * The category chip is a PILL (r120.54), not a rounded rectangle, and sits on
  * #f8f8f4 behind a 1.21px #e8e8e4 outline.
+ */
+/*
+ * URL STATE (query string on /recruiter/job-templates)
+ *   (none)                 7249:75046  "All" pill active, every template shown
+ *   ?category=design       7249:75464  "Design" pill active + "Showing 1 template in Design" + the
+ *                                      matching cards + the "Create Custom" tile
+ *   ?category=<technology|healthcare|manufacturing|retail|internship>  same, other pills
+ * Clicking a pill writes the same key ("All" removes it), so reload, deep-link and back all work.
+ * Typing in the search field filters by title locally (no frame draws a typed query).
  */
 const CARD_ICONS = {
   code: TemplateCodeIcon,
@@ -63,13 +74,16 @@ const TemplateCard = ({ template, onUse }) => {
     >
       <span className="flex flex-col gap-[24px] max-sm:gap-[10px]">
         {/* Figma: 48x48 #f3f8f4 r8 tile */}
-        <span className="grid size-[48px] max-sm:size-[40px] place-items-center rounded-[8px] bg-[#f3f8f4]">
-          <Icon className="w-[23.33px] text-brand-green-active" />
+        <span
+          className="grid size-[48px] max-sm:size-[40px] place-items-center rounded-[8px]"
+          style={{ backgroundColor: template.iconTileColor, color: template.iconColor }}
+        >
+          <Icon className="w-[23.33px]" />
         </span>
 
         <span className="flex flex-col gap-[16px] max-sm:gap-[8px]">
           <span className="flex flex-col gap-[12px] max-sm:gap-[6px]">
-            <span className="font-display text-[28px] not-italic leading-[36.4px] tracking-[-1.6px] text-black max-sm:text-[16px] max-sm:leading-6 max-sm:tracking-[-0.3px]">
+            <span className="font-heading text-[25px] font-semibold leading-[30px] tracking-[-0.5px] text-[#1c2a21] max-sm:text-[16px] max-sm:leading-6 max-sm:tracking-[-0.3px]">
               {template.title}
             </span>
             <span className="flex items-center gap-[6px]">
@@ -101,11 +115,40 @@ const TemplateCard = ({ template, onUse }) => {
 };
 
 const JobTemplatesSection = () => {
-  const [activeCategory, setActiveCategory] = useState(CATEGORY_PILLS[0]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchText, setSearchText] = useState('');
+
+  // ?category=design -> the "Design" pill. Unknown values fall back to "All".
+  const categoryParam = searchParams.get('category')?.toLowerCase() ?? '';
+  const activeCategory =
+    CATEGORY_PILLS.find((pill) => pill.toLowerCase() === categoryParam && pill !== 'All') ??
+    CATEGORY_PILLS[0];
+  const isFiltered = activeCategory !== CATEGORY_PILLS[0];
 
   useEffect(() => {
     log('mount', { route: '/recruiter/job-templates', templateCount: TEMPLATES.length });
   }, []);
+
+  useEffect(() => {
+    log('state', { activeCategory, isFiltered, searchLength: searchText.length });
+  }, [activeCategory, isFiltered, searchText]);
+
+  const visibleTemplates = useMemo(() => {
+    const needle = searchText.trim().toLowerCase();
+    return TEMPLATES.filter(
+      (template) =>
+        (!isFiltered || template.category === activeCategory) &&
+        (!needle || template.title.toLowerCase().includes(needle))
+    );
+  }, [activeCategory, isFiltered, searchText]);
+
+  const selectCategory = (pill) => {
+    log('branch', { category: pill });
+    const next = new URLSearchParams(searchParams);
+    if (pill === CATEGORY_PILLS[0]) next.delete('category');
+    else next.set('category', pill.toLowerCase());
+    setSearchParams(next);
+  };
 
   return (
     <DashboardShell>
@@ -113,6 +156,7 @@ const JobTemplatesSection = () => {
         {/* Header block — Figma 7249:75079, gap 16 */}
         <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
           <RecruiterPageHeading
+            titleStyle="sans-accent"
             lead={PAGE_HEADING.lead}
             accent={PAGE_HEADING.accent}
             subtitle={PAGE_SUBHEADING}
@@ -126,62 +170,78 @@ const JobTemplatesSection = () => {
           <RecruiterListToolbar
             chips={CATEGORY_PILLS.map((pill) => ({ id: pill, label: pill }))}
             activeChipId={activeCategory}
-            onChipSelect={(id) => {
-              log('branch', { category: id });
-              setActiveCategory(id);
-            }}
+            onChipSelect={selectCategory}
+            onSearch={setSearchText}
             searchLabel={SEARCH_PLACEHOLDER}
             actionLabel={CREATE_CUSTOM_LABEL}
             onAction={() => log('branch', { action: 'create-custom', wired: false })}
           />
 
-          {/* Grid — Figma 7249:75140: 4 columns of 315.25, 22.67 gutter */}
-          <div className="grid grid-cols-1 gap-[22.67px] max-md:gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
-            {TEMPLATES.map((template) => (
-              <TemplateCard
-                key={template.id}
-                template={template}
-                onUse={(id) => log('branch', { useTemplate: id, destination: 'none-in-figma' })}
-              />
-            ))}
+          {/* Filtered: summary line (Figma 7249:75558, 14/20 #959592, gap 20 to the grid) */}
+          <div className="flex flex-col gap-[20px] max-md:gap-[8px]">
+            {isFiltered && (
+              <p
+                data-testid="job-templates-filter-summary"
+                className="font-sans text-[14px] leading-5 tracking-[0.2px] text-[#959592]"
+              >
+                {FILTERED_SUMMARY.showing} {visibleTemplates.length}{' '}
+                {visibleTemplates.length === 1
+                  ? FILTERED_SUMMARY.singular
+                  : FILTERED_SUMMARY.plural}{' '}
+                {FILTERED_SUMMARY.inWord}{' '}
+                <span className="font-medium text-brand-green">{activeCategory}</span>
+              </p>
+            )}
 
-            {/* Blank tile — Figma 7249:75230: 2px #d6d1c2 dashed [6,4], r14,
+            {/* Grid — Figma 7249:75140: 4 columns of 315.25, 22.67 gutter */}
+            <div className="grid grid-cols-1 gap-[22.67px] max-md:gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
+              {visibleTemplates.map((template) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onUse={(id) => log('branch', { useTemplate: id, destination: 'none-in-figma' })}
+                />
+              ))}
+
+              {/* Blank tile — Figma 7249:75230: 2px #d6d1c2 dashed [6,4], r14,
                 VERTICAL gap 11, pad 44/23, centred, with a 64x64 #f0eee8
                 circle holding an 18.67px #9a988f glyph. */}
-            <button
-              type="button"
-              onClick={() =>
-                log('branch', { action: 'blank-template', destination: 'none-in-figma' })
-              }
-              className="relative flex min-h-[360px] max-sm:min-h-[104px] flex-col items-center justify-center gap-[11px] max-sm:gap-[4px] rounded-[14px] px-[44px] py-[23px] max-sm:py-[12px] text-center transition-colors hover:bg-white/60"
-            >
-              {/* Tailwind cannot express stroke-dasharray, so the 6/4 dash is
-                  drawn as an SVG rect (2px stroke clipped to 2px inset). */}
-              <svg
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 size-full text-[#d6d1c2]"
+              <button
+                type="button"
+                onClick={() =>
+                  log('branch', { action: 'blank-template', destination: 'none-in-figma' })
+                }
+                className="relative flex min-h-[360px] max-sm:min-h-[104px] flex-col items-center justify-center gap-[11px] max-sm:gap-[4px] rounded-[14px] px-[44px] py-[23px] max-sm:py-[12px] text-center transition-colors hover:bg-white/60"
               >
-                <rect
-                  width="100%"
-                  height="100%"
-                  rx="14"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeDasharray="6 4"
-                />
-              </svg>
+                {/* Tailwind cannot express stroke-dasharray, so the 6/4 dash is
+                  drawn as an SVG rect (2px stroke clipped to 2px inset). */}
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 size-full text-[#d6d1c2]"
+                >
+                  <rect
+                    width="100%"
+                    height="100%"
+                    rx="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeDasharray="6 4"
+                  />
+                </svg>
 
-              <span className="relative mb-[16px] max-sm:mb-0 grid size-[64px] max-sm:size-[36px] place-items-center rounded-full bg-[#f0eee8]">
-                <TemplatePlusIcon className="size-[18.67px] text-content-muted" />
-              </span>
-              <span className="relative mb-[8px] max-sm:mb-0 font-display text-[28px] max-sm:text-[16px] not-italic leading-[64px] max-sm:leading-6 tracking-[-1.6px] text-black">
-                {BLANK_TEMPLATE.title}
-              </span>
-              <span className="relative px-[18px] pt-[4px] max-sm:pt-0 font-sans text-[14px] max-sm:text-[13px] leading-[21.6px] max-sm:leading-5 text-content-helper">
-                {BLANK_TEMPLATE.description}
-              </span>
-            </button>
+                <span className="relative mb-[16px] max-sm:mb-0 grid size-[64px] max-sm:size-[36px] place-items-center rounded-full bg-[#f0eee8]">
+                  <TemplatePlusIcon className="size-[19px] text-[#9a988f]" />
+                </span>
+                {/* Figma 7249:75235: the heading box is 58 tall (30 text + empty space below). */}
+                <span className="relative flex h-[58px] max-sm:h-auto items-start font-heading text-[25px] font-semibold leading-[30px] tracking-[-0.5px] text-[#1c2a21] max-sm:text-[16px] max-sm:leading-6">
+                  {BLANK_TEMPLATE.title}
+                </span>
+                <span className="relative px-[18px] pt-[4px] max-sm:pt-0 font-sans text-[14px] max-sm:text-[13px] leading-[21.6px] max-sm:leading-5 text-content-helper">
+                  {BLANK_TEMPLATE.description}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -69,3 +69,7 @@ Each section component receives `home` (see `useTalentHomeState`): `{ snapshot, 
 - Focus ring `✅ VERIFIED`: 3px `#111`, 2px offset, keyboard only, `html[data-talent-home]` (`src/styles/talentA11y.css`). The 2px white gap is an outline-offset (not a white box-shadow).
 - A11Y-02 (`?a11y=1`): `TalentA11yMenu.jsx` (trigger ring + panel, prefs in `useA11yPrefs.js`, localStorage `gth:a11y-prefs`). Shell sets `data-a11y-contrast|motion|links`; CSS sweeps in `talentA11y.css`: text `#595959`→`#2b2b2b` (not chips), `#e7e7e7` borders→`#767676` + no soft shadow, links underlined (`data-link`), blobs/doodle stars hidden, stickers upright, animations off. `prefers-reduced-motion` honoured for all talent-home motion.
 - Not applied: text-size A/small/large has no drawn page effect (control stores the choice only); the stray 38px trigger drawn above the panel in the frame is omitted.
+
+## Persona: Emma (`/home?as=emma`)
+
+A parent who is also a talent sees this same page with her own details (Figma Parents file, canvas 12, frames TC-01 / TC-02): `emmaPersona.js` supplies the profile, nav labels and content, and `home.persona` switches on the "My career" chip, the switch-space menu, the "Parent view · 4 to review →" link and the `SpaceBanner`. Kofi's states are unchanged. Details: [parent-spaces.md](parent-spaces.md).

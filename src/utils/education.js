@@ -5,7 +5,7 @@
  * classYear/qualification/fieldOfStudy/subjects/overallResult) as v2.
  */
 
-const LEVEL_LABELS = {
+export const LEVEL_LABELS = {
   jhs: 'Junior High School',
   post_bece: 'Completed BECE',
   shs: 'Senior High School',

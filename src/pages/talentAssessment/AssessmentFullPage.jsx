@@ -15,6 +15,8 @@ import FullIntroScreen from '../../components/sections/talentAssessment/full/Ful
 import FullPlayScreen from '../../components/sections/talentAssessment/full/FullPlayScreen.jsx';
 import { LIVE_TYPES } from '../../components/sections/talentAssessment/liveAssessments.js';
 import { useLiveAssessments } from '../../components/sections/talentAssessment/useLiveAssessments.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('AssessmentFullPage');
 

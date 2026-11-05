@@ -18,6 +18,7 @@ import { agencyCompare } from '../../services/agency.api.js';
 import RegionBreadcrumb from '../../components/sections/publicData/regions/RegionBreadcrumb.jsx';
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
 import { debug } from '../../utils/debug.js';
+import { GOVERNMENT_PAGE_TEXT } from '../../copy/portals/governmentCopy.js';
 
 const log = debug('AgencyComparePage');
 
@@ -59,8 +60,8 @@ const AgencyComparePage = () => {
   return (
     <AgencyFrame data={data} title="Compare regions" active="districts">
       <AgencyPageHero
-        title="Compare regions"
-        subtitle="Side by side with the same filters. Add up to 3 regions."
+        title={GOVERNMENT_PAGE_TEXT.compare.title}
+        subtitle={GOVERNMENT_PAGE_TEXT.compare.subtitle}
         actions={<AgencyButton to="/agency/briefing?modal=download">Download PDF</AgencyButton>}
       />
       <RegionBreadcrumb

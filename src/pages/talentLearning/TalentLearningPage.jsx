@@ -19,8 +19,12 @@ import LessonPlayer from '../../components/sections/talentLearning/LessonPlayer.
 import CourseComplete from '../../components/sections/talentLearning/CourseComplete.jsx';
 import LearningCertificates from '../../components/sections/talentLearning/LearningCertificates.jsx';
 import ExploreCourses from '../../components/sections/talentLearning/ExploreCourses.jsx';
+import LearningGoals from '../../components/sections/talentLearning/LearningGoals.jsx';
+import LearningThisWeek from '../../components/sections/talentLearning/LearningThisWeek.jsx';
 import { LearningDataProvider } from '../../components/sections/talentLearning/LearningDataContext.jsx';
 import { useLearningData } from '../../components/sections/talentLearning/useLearningData.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('TalentLearningPage');
 
@@ -89,8 +93,15 @@ const TalentLearningBody = ({ learning }) => {
         return <LearningRecommended learning={learning} />;
       case 'explore':
         return <ExploreCourses learning={learning} />;
+      case 'goals':
+        return <LearningGoals learning={learning} />;
       default:
-        return <LearningHub learning={learning}>{renderHubBody()}</LearningHub>;
+        return (
+          <LearningHub learning={learning}>
+            {data.live && learning.tab !== 'saved' && <LearningThisWeek learning={learning} />}
+            {renderHubBody()}
+          </LearningHub>
+        );
     }
   };
 

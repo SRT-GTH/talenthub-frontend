@@ -22,17 +22,14 @@ import {
 } from './LpAIcons.jsx';
 import { DotGrid, RecruiterCard, Sticker } from './LpAParts.jsx';
 import {
-  HOW_CHIP,
-  HOW_HEADING,
-  HOW_STEPS,
-  HOW_STICKER,
-  HOW_SUB,
   JOURNEY_CTA,
   JOURNEY_PING,
   JOURNEY_RAIL,
   JOURNEY_REGIONS,
   JOURNEY_STAGES,
 } from './HowItWorksData.js';
+import { useCopySection } from '../../../../copy/useCopySection.js';
+import { HOME_HOW_COPY } from '../../../../copy/landingHomeCopy.js';
 import madeForGhanaBg from '../../../../assets/landing/made-for-ghana-background.webp';
 import photoFeatures from '../../../../assets/landing/features-preview-photo.webp';
 import photoHow from '../../../../assets/landing/page-hero-how-it-works.webp';
@@ -320,9 +317,10 @@ const JourneyRail = () => (
 );
 
 const HowItWorksSection = () => {
+  const { HOW_CHIP, HOW_HEADING, HOW_STEPS, HOW_STICKER, HOW_SUB } = useCopySection(HOME_HOW_COPY);
   useEffect(() => {
     log('mount: steps', HOW_STEPS.length, 'stages', JOURNEY_STAGES.length);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount log only
 
   return (
     <section
@@ -341,8 +339,7 @@ const HowItWorksSection = () => {
             id="lp-how-heading"
             className="m-0 text-center font-heading text-[32px] font-semibold leading-[1.1] text-[#1c2a21] md:text-[40px] xl:text-[54px]"
           >
-            {HOW_HEADING[0]}
-            <span className="text-[#387440]">{HOW_HEADING[1]}</span>
+            {HOW_HEADING[0].trimEnd()} <span className="text-[#387440]">{HOW_HEADING[1]}</span>
           </h2>
           <p className="m-0 max-w-[754px] text-center font-sans text-[16px] font-normal leading-[27px] text-[#595959] md:text-[18px] xl:max-w-[680px]">
             {HOW_SUB}

@@ -17,9 +17,10 @@ const FACES = {
  * row per skill (name, "Verified · Skills Lab" chip, endorser faces + "12 endorsements · including Kwame Boateng (mentor)") with an
  * Endorse button. Not connected (NW-06b): the buttons are drawn the same but the card ends with the lock line "Link up with Yaw to
  * endorse his skills" — ⚠️ ASSUMPTION: they are aria-disabled then, and clicking one scrolls nothing and does nothing.
- * Props: profile, endorsed (skill ids the talent endorsed this session), locked (bool), onEndorse(skillId).
+ * Props: profile, endorsed (skill ids the talent endorsed this session), locked (bool), onEndorse(skillId),
+ * readOnly (own profile: no Endorse buttons). Live skills carry `endorsedByMe` and a server `line`; those are already counted.
  */
-const CircleSkillsCard = ({ profile, endorsed, locked, onEndorse }) => (
+const CircleSkillsCard = ({ profile, endorsed, locked, onEndorse, readOnly = false }) => (
   <section
     className={classNames(CARD, 'flex flex-col gap-[14px] px-[22px] py-[20px] max-sm:px-[16px]')}
   >
@@ -29,10 +30,16 @@ const CircleSkillsCard = ({ profile, endorsed, locked, onEndorse }) => (
         {profile.endorsePrompt}
       </span>
     </div>
+    {profile.skills.length === 0 && (
+      <p className="m-0 font-sans text-[14px] leading-[20px] text-[#737373]">
+        No skills on this profile yet.
+      </p>
+    )}
     <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
       {profile.skills.map((skill, i) => {
-        const done = endorsed.includes(skill.id);
-        const count = skill.count + (done ? 1 : 0);
+        const fresh = endorsed.includes(skill.id) && !skill.endorsedByMe;
+        const done = fresh || Boolean(skill.endorsedByMe);
+        const count = skill.count + (fresh ? 1 : 0);
         return (
           <li
             key={skill.id}
@@ -54,28 +61,30 @@ const CircleSkillsCard = ({ profile, endorsed, locked, onEndorse }) => (
                 )}
               </div>
               <div className="flex items-center gap-[6px]">
-                <CircleMutualFaces ids={FACES[skill.id] ?? []} />
+                {FACES[skill.id] && <CircleMutualFaces ids={FACES[skill.id]} />}
                 <span className="font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
-                  {done ? skill.line.replace(/^\d+/, String(count)) : skill.line}
+                  {fresh ? skill.line.replace(/^\d+/, String(count)) : skill.line}
                 </span>
               </div>
             </div>
-            <CircleButton
-              tone="soft"
-              className="min-w-[129px]"
-              aria-disabled={locked || undefined}
-              aria-label={`Endorse ${skill.label}`}
-              onClick={() => {
-                if (!locked) onEndorse(skill.id);
-              }}
-            >
-              {done ? 'Endorsed' : COPY.endorse}
-            </CircleButton>
+            {!readOnly && (
+              <CircleButton
+                tone="soft"
+                className="min-w-[129px]"
+                aria-disabled={locked || skill.endorsedByMe || undefined}
+                aria-label={done ? `${skill.label} endorsed` : `Endorse ${skill.label}`}
+                onClick={() => {
+                  if (!locked && !skill.endorsedByMe) onEndorse(skill.id);
+                }}
+              >
+                {done ? 'Endorsed' : COPY.endorse}
+              </CircleButton>
+            )}
           </li>
         );
       })}
     </ul>
-    {locked && (
+    {locked && profile.lockedNote && (
       <p className="m-0 flex items-center gap-[8px] font-sans text-[12px] leading-[14px] text-[#737373] max-lg:text-[13px]">
         <CircleLockIcon className="size-[14px] shrink-0" />
         {profile.lockedNote}

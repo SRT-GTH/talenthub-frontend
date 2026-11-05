@@ -5,6 +5,7 @@ import { debug } from '../../../utils/debug.js';
 import { usePlayfulDialogA11y } from '../../ui/PlayfulDialogA11y.js';
 import Button from '../../ui/Button.jsx';
 import { HEAD } from '../talentHome/coreUi.jsx';
+import { fetchMyProfile, saveProfileFields } from '../../../services/profileStages.api.js';
 import {
   ProfileEditDraftLockIcon,
   ProfileEditHubtelLogoIcon,
@@ -29,6 +30,11 @@ const log = debug('AddExperienceModal');
  * from the Figma render (the overlay layer's own fill could not be read: Figma MCP rate-limited).
  * Validation: the frame draws only the `*` markers (no error state), so an invalid "Add to profile" focuses
  * the first missing field and sets aria-invalid; no invented message is shown.
+ *
+ * Live (signed in, `live`): the form starts empty, dates are month pickers (end date required unless "I'm doing this
+ * now" is on), and "Add to profile" appends to profile.workExperience (PATCH /profiles/fields) and calls `onSaved`.
+ * The profile schema stores company, position, dates, isCurrent and description only, so the type chips, the
+ * organisation suggestions (demo list) and "Skills used" are demo-only for now.
  */
 
 const TYPES = [
@@ -93,7 +99,17 @@ const SkillChip = ({ label, onRemove }) => (
   </button>
 );
 
-const AddExperienceModal = ({ profile }) => {
+/* 'YYYY-MM' -> 'Jun 2026' (for the error copy). */
+const monthLabel = (ym) => {
+  const [y, m] = String(ym || '')
+    .split('-')
+    .map(Number);
+  return y && m
+    ? new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+    : '';
+};
+
+const AddExperienceModal = ({ profile, live = false, onSaved }) => {
   const uid = useId();
   const dialogRef = useRef(null);
   const orgRef = useRef(null);
@@ -103,16 +119,20 @@ const AddExperienceModal = ({ profile }) => {
   const skillInputRef = useRef(null);
 
   // Initial values reproduce the Figma frame.
+  // Initial values reproduce the Figma frame (demo); live starts empty.
   const [type, setType] = useState('internship');
-  const [role, setRole] = useState('Data Analyst Intern');
-  const [org, setOrg] = useState('Hubt');
-  const [orgOpen, setOrgOpen] = useState(true);
+  const [role, setRole] = useState(live ? '' : 'Data Analyst Intern');
+  const [org, setOrg] = useState(live ? '' : 'Hubt');
+  const [orgOpen, setOrgOpen] = useState(!live);
   const [orgIdx, setOrgIdx] = useState(0);
-  const [start, setStart] = useState('Jun 2026');
+  const [start, setStart] = useState(live ? '' : 'Jun 2026');
   const [end, setEnd] = useState('');
-  const [current, setCurrent] = useState(true);
+  const [current, setCurrent] = useState(!live);
   const [desc, setDesc] = useState('');
-  const [skills, setSkills] = useState(['SQL', 'Excel']);
+  const [skills, setSkills] = useState(live ? [] : ['SQL', 'Excel']);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const endRef = useRef(null);
   const [addingSkill, setAddingSkill] = useState(false);
   const [skillDraft, setSkillDraft] = useState('');
   const [invalid, setInvalid] = useState({});
@@ -141,7 +161,8 @@ const AddExperienceModal = ({ profile }) => {
     ...matches.map((o) => ({ kind: 'org', org: o })),
     ...(query && !exact ? [{ kind: 'new' }] : []),
   ];
-  const listOpen = orgOpen && rows.length > 0;
+  // Live: no organisation directory yet, so no suggestion list (the name is saved as typed).
+  const listOpen = !live && orgOpen && rows.length > 0;
 
   const pickRow = (row) => {
     const name = row.kind === 'new' ? query : row.org.name;
@@ -190,12 +211,14 @@ const AddExperienceModal = ({ profile }) => {
     setAddingSkill(false);
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
+    if (saving) return;
     const missing = {
       role: !role.trim(),
       org: !org.trim(),
       start: !start.trim(),
+      end: live && !current && (!end || end < start),
       desc: !desc.trim(),
     };
     setInvalid(missing);
@@ -204,10 +227,39 @@ const AddExperienceModal = ({ profile }) => {
       ['role', roleRef],
       ['org', orgRef],
       ['start', startRef],
+      ['end', endRef],
       ['desc', descRef],
     ].find(([k]) => missing[k]);
     if (first) {
+      if (live && missing.end && end && end < start)
+        setError(`The end date can’t be before the start date (${monthLabel(start)}).`);
       first[1].current?.focus();
+      return;
+    }
+    if (live) {
+      setSaving(true);
+      setError('');
+      try {
+        // Append to the saved list: load it first, so a failed load can never overwrite it with one entry.
+        const saved = await fetchMyProfile();
+        const list = Array.isArray(saved?.workExperience) ? saved.workExperience : [];
+        const item = {
+          position: role.trim(),
+          company: org.trim(),
+          startDate: `${start}-01`,
+          endDate: current ? null : `${end}-01`,
+          isCurrent: current,
+          description: desc.trim(),
+        };
+        await saveProfileFields({ workExperience: [...list, item] });
+        log('entry saved', { position: item.position, count: list.length + 1 });
+        onSaved?.();
+        profile.update({ modal: null });
+      } catch (err) {
+        log.error('experience save failed:', err?.response?.status || err?.message);
+        setSaving(false);
+        setError('That wasn’t saved. Check your connection and try again.');
+      }
       return;
     }
     log('entry added (local only)', {
@@ -270,37 +322,39 @@ const AddExperienceModal = ({ profile }) => {
           </button>
         </div>
 
-        <div
-          role="radiogroup"
-          aria-label="Experience type"
-          className="flex flex-wrap items-start gap-[8px]"
-        >
-          {TYPES.map((t, i) => {
-            const on = type === t.id;
-            return (
-              <button
-                key={t.id}
-                id={`${uid}-type-${t.id}`}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                tabIndex={on ? 0 : -1}
-                onClick={() => setType(t.id)}
-                onKeyDown={(e) => onTypeKey(e, i)}
-                className={classNames(
-                  'flex cursor-pointer items-center gap-[5px] rounded-full border px-[14px] py-[8px] text-[13px] leading-[normal] font-semibold whitespace-nowrap',
-                  on
-                    ? 'border-[rgba(28,42,33,0.12)] bg-[#1c2a21] text-white playful:border-[#1c2a21]'
-                    : 'border-[#e6e6e6] bg-white text-[#595959]',
-                  FOCUS_RING
-                )}
-              >
-                <t.Icon className="size-[15px] shrink-0" />
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
+        {!live && (
+          <div
+            role="radiogroup"
+            aria-label="Experience type"
+            className="flex flex-wrap items-start gap-[8px]"
+          >
+            {TYPES.map((t, i) => {
+              const on = type === t.id;
+              return (
+                <button
+                  key={t.id}
+                  id={`${uid}-type-${t.id}`}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  tabIndex={on ? 0 : -1}
+                  onClick={() => setType(t.id)}
+                  onKeyDown={(e) => onTypeKey(e, i)}
+                  className={classNames(
+                    'flex cursor-pointer items-center gap-[5px] rounded-full border px-[14px] py-[8px] text-[13px] leading-[normal] font-semibold whitespace-nowrap',
+                    on
+                      ? 'border-[rgba(28,42,33,0.12)] bg-[#1c2a21] text-white playful:border-[#1c2a21]'
+                      : 'border-[#e6e6e6] bg-white text-[#595959]',
+                    FOCUS_RING
+                  )}
+                >
+                  <t.Icon className="size-[15px] shrink-0" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex flex-col gap-[8px]">
           <Label htmlFor={`${uid}-role`} required trailing=" ">
@@ -426,7 +480,8 @@ const AddExperienceModal = ({ profile }) => {
             <input
               ref={startRef}
               id={`${uid}-start`}
-              type="text"
+              type={live ? 'month' : 'text'}
+              max={live ? new Date().toISOString().slice(0, 7) : undefined}
               value={start}
               aria-required="true"
               aria-invalid={invalid.start || undefined}
@@ -438,17 +493,40 @@ const AddExperienceModal = ({ profile }) => {
             />
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
-            <Label htmlFor={`${uid}-end`} trailing="Optional">
+            <Label
+              htmlFor={`${uid}-end`}
+              required={live && !current}
+              trailing={live ? (current ? 'Present' : ' ') : 'Optional'}
+            >
               End date
             </Label>
-            <input
-              id={`${uid}-end`}
-              type="text"
-              value={current ? 'Present' : end}
-              readOnly={current}
-              onChange={(e) => setEnd(e.target.value)}
-              className={INPUT_BASE}
-            />
+            {live && !current ? (
+              <input
+                ref={endRef}
+                id={`${uid}-end`}
+                type="month"
+                min={start || undefined}
+                max={new Date().toISOString().slice(0, 7)}
+                value={end}
+                aria-required="true"
+                aria-invalid={invalid.end || undefined}
+                onChange={(e) => {
+                  setEnd(e.target.value);
+                  setInvalid((v) => ({ ...v, end: false }));
+                  setError('');
+                }}
+                className={INPUT_BASE}
+              />
+            ) : (
+              <input
+                id={`${uid}-end`}
+                type="text"
+                value={current ? 'Present' : end}
+                readOnly={current}
+                onChange={(e) => setEnd(e.target.value)}
+                className={INPUT_BASE}
+              />
+            )}
           </div>
         </div>
 
@@ -505,16 +583,19 @@ const AddExperienceModal = ({ profile }) => {
             />
           </div>
           <div className="flex items-center gap-[8px]">
-            <button
-              type="button"
-              onClick={() => log('chip', 'Help me write it (no backend)')}
-              className={classNames(
-                'inline-flex h-[32px] shrink-0 cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#595959]',
-                FOCUS_RING
-              )}
-            >
-              Help me write it
-            </button>
+            {/* No writing-help backend yet: demo only. */}
+            {!live && (
+              <button
+                type="button"
+                onClick={() => log('chip', 'Help me write it (no backend)')}
+                className={classNames(
+                  'inline-flex h-[32px] shrink-0 cursor-pointer items-center rounded-full border border-[#e1eae2] bg-white px-[14px] text-[13px] leading-[normal] font-semibold whitespace-nowrap text-[#595959]',
+                  FOCUS_RING
+                )}
+              >
+                Help me write it
+              </button>
+            )}
             <span className="h-px min-w-px flex-1" aria-hidden="true" />
             <span
               aria-live="polite"
@@ -525,65 +606,79 @@ const AddExperienceModal = ({ profile }) => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-[6px]">
-          <p className="text-[14px] leading-[normal] font-medium text-[#1c2a21]">Skills used</p>
-          <div className="flex flex-wrap items-start gap-[8px]">
-            {skills.map((s) => (
-              <SkillChip
-                key={s}
-                label={s}
-                onRemove={() => {
-                  log('skill removed', s);
-                  setSkills((l) => l.filter((x) => x !== s));
-                }}
-              />
-            ))}
-            {addingSkill ? (
-              <input
-                ref={skillInputRef}
-                autoFocus
-                aria-label="Add skill"
-                value={skillDraft}
-                onChange={(e) => setSkillDraft(e.target.value)}
-                onBlur={addSkill}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addSkill();
-                  } else if (e.key === 'Escape') {
-                    e.stopPropagation();
-                    e.nativeEvent.stopImmediatePropagation?.();
-                    setSkillDraft('');
-                    setAddingSkill(false);
-                  }
-                }}
-                className="h-[28px] w-[110px] rounded-full border border-dashed border-[#bfbfbf] bg-transparent px-[12px] text-[12px] leading-[normal] font-semibold text-[#2d5d33] outline-none focus:border-[#387440]"
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setAddingSkill(true)}
-                className={classNames(
-                  'cursor-pointer rounded-full border border-dashed border-[#bfbfbf] px-[12px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33]',
-                  FOCUS_RING
-                )}
-              >
-                + Add skill
-              </button>
-            )}
+        {!live && (
+          <div className="flex flex-col gap-[6px]">
+            <p className="text-[14px] leading-[normal] font-medium text-[#1c2a21]">Skills used</p>
+            <div className="flex flex-wrap items-start gap-[8px]">
+              {skills.map((s) => (
+                <SkillChip
+                  key={s}
+                  label={s}
+                  onRemove={() => {
+                    log('skill removed', s);
+                    setSkills((l) => l.filter((x) => x !== s));
+                  }}
+                />
+              ))}
+              {addingSkill ? (
+                <input
+                  ref={skillInputRef}
+                  autoFocus
+                  aria-label="Add skill"
+                  value={skillDraft}
+                  onChange={(e) => setSkillDraft(e.target.value)}
+                  onBlur={addSkill}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addSkill();
+                    } else if (e.key === 'Escape') {
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation?.();
+                      setSkillDraft('');
+                      setAddingSkill(false);
+                    }
+                  }}
+                  className="h-[28px] w-[110px] rounded-full border border-dashed border-[#bfbfbf] bg-transparent px-[12px] text-[12px] leading-[normal] font-semibold text-[#2d5d33] outline-none focus:border-[#387440]"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingSkill(true)}
+                  className={classNames(
+                    'cursor-pointer rounded-full border border-dashed border-[#bfbfbf] px-[12px] py-[6px] text-[12px] leading-[normal] font-semibold whitespace-nowrap text-[#2d5d33]',
+                    FOCUS_RING
+                  )}
+                >
+                  + Add skill
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {error ? (
+          <p role="alert" className="text-[13px] leading-[normal] font-medium text-[#c0392b]">
+            {error}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-[10px] pt-[6px]">
           <p className="flex min-w-0 flex-1 items-center gap-[5px] text-[12px] leading-[normal] text-[#737373]">
             <ProfileEditDraftLockIcon className="size-[14px] shrink-0" />
-            Saved as draft until you hit Add
+            {live ? 'Nothing is saved until you hit Add' : 'Saved as draft until you hit Add'}
           </p>
           <Button variant="tertiary" size="sm" onClick={close}>
             Cancel
           </Button>
-          <Button variant="primary" size="sm" type="submit">
-            Add to profile
+          <Button
+            variant="primary"
+            size="sm"
+            type="submit"
+            disabled={saving}
+            aria-busy={saving || undefined}
+          >
+            {saving ? 'Saving…' : 'Add to profile'}
           </Button>
         </div>
       </form>

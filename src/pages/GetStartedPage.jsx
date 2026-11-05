@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { frameSeed } from '../utils/frameSeed.js';
+import useScopedRoundedFont from '../hooks/useScopedRoundedFont.js';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
@@ -168,10 +170,16 @@ const BackgroundOrbs = () => (
 const GetStartedPage = () => {
   log('mount');
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // `?role=recruiter` opens a role selected (Figma R00 7374:904 for the recruiter), `&state=loading` adds the loader (7374:1147); no key = nothing selected, as before.
+  const [selectedRole, setSelectedRole] = useState(() => {
+    const role = frameSeed('role');
+    return ROLES.some((r) => r.id === role) ? role : null;
+  });
+  const [isLoading, setIsLoading] = useState(() => frameSeed() === 'loading');
   log('selectedRole:', selectedRole, 'isLoading:', isLoading);
 
+  // The recruiter frame (Figma R00 7374:904) is drawn in SF Pro Rounded; the other roles keep the app font.
+  useScopedRoundedFont('data-recruiter-ui', selectedRole === 'recruiter');
   const hasSelection = Boolean(selectedRole);
   const selectedRoleData = ROLES.find((r) => r.id === selectedRole);
 

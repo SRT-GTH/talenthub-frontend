@@ -14,12 +14,14 @@ import { ARCADE_GAMES, GAMES_ARCADE } from './skillsLabGamesData.js';
 import { useHubData } from './skillsLabHubData.js';
 import { fetchGames } from '../../../services/skillsLab.api.js';
 import { FOCUS_RING, HEADING, fill, unitFor } from './skillsLabDialogUtils.js';
+import GamesV2Section from './gamesV2/GamesV2Section.jsx';
+import { GvPlayIcon } from './gamesV2/GamesV2Icons.jsx';
 
 const log = debug('SkillsLabGamesTab');
 
 /*
  * SkillsLabGamesTab — the "Games" tab content of the Skills Lab hub (Figma SL-G01 "Games tab (Arcade)", Playful 7943:13442 /
- * Focused 8110:498108, the `arcade` frame 1329 wide: featured banner, "Skill games" grid, "Personality games" grid).
+ * Focused 8110:498108, the `arcade` frame 1329 wide: featured banner, "Skill games" grid, "Play style games" grid — GV-01 renamed it, see skillsLabGamesData.js).
  * The hub page renders it for `?tab=games` UNDER its own header + tab row (title / sticker / chips / "How verification works",
  * and the tab row with the Games tab selected, gold count chip and NEW sticker — those are hub chrome, not drawn here).
  *
@@ -178,6 +180,36 @@ const SectionHead = ({ title, subtitle }) => (
   </div>
 );
 
+/*
+ * "Arcade" heading above the legacy block (GV-01 `arcade head`): hairline divider, h2 (Playful 26 Bricolage / Focused 22), the
+ * "For fun and practice" chip and the subtitle. 24px of air above the divider, 20px between divider and title.
+ */
+const ArcadeHead = () => {
+  const head = GAMES_ARCADE.arcadeHead;
+  return (
+    <div className="flex flex-col gap-[6px] pt-[24px]">
+      <div className="h-px w-full bg-[#dee5e0] playful:bg-[rgba(28,42,33,0.12)]" />
+      <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[6px] pt-[20px]">
+        <h2
+          className={classNames(
+            HEADING,
+            'm-0 text-[clamp(20px,3vw,22px)] font-semibold leading-[1.18] text-[#1c2a21] playful:text-[clamp(22px,3.2vw,26px)]'
+          )}
+        >
+          {head.title}
+        </h2>
+        <span className="inline-flex items-center gap-[5px] rounded-full bg-[#f2f5f4] px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] text-[#6b6b6b]">
+          <GvPlayIcon className="size-[13px] shrink-0" />
+          {head.chip}
+        </span>
+      </div>
+      <p className="m-0 max-w-[760px] font-sans text-[15px] leading-[22px] text-[#6b6b6b]">
+        {head.subtitle}
+      </p>
+    </div>
+  );
+};
+
 const GRID =
   'grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] items-start gap-[24px]';
 
@@ -224,59 +256,63 @@ const SkillsLabGamesTab = () => {
   const personalityGames = games.filter((g) => !g.skill);
 
   return (
-    <div className="flex flex-col gap-[28px]">
-      <section
-        aria-label={featured.title}
-        className="flex flex-col overflow-hidden rounded-[24px] border border-solid border-[rgba(28,42,33,0.12)] bg-[#ebf1ec] md:flex-row"
-      >
-        <img
-          src={featured.cover}
-          alt=""
-          className="aspect-[2/1] w-full object-cover md:aspect-auto md:w-[42.1%] md:shrink-0"
-        />
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-[12px] px-[clamp(20px,3vw,36px)] py-[clamp(20px,2.5vw,28px)]">
-          <span className="font-sans text-[11.5px] font-bold leading-[14px] tracking-[0.06em] text-[#387440] max-lg:text-[12px]">
-            {featured.eyebrow}
-          </span>
-          <h2
-            className={classNames(
-              HEADING,
-              'm-0 text-[clamp(26px,3.2vw,36px)] font-semibold leading-[1.2] tracking-[-0.01em] text-[#1c2a21]'
-            )}
-          >
-            {featured.title}
-          </h2>
-          <p className="m-0 max-w-[695px] font-sans text-[16px] leading-[19px] text-[#595959] max-lg:leading-[22px]">
-            {featured.body}
-          </p>
-          <div>
-            <Button
-              variant="primary"
-              size="lg"
-              rightIcon={<SkillsLabArrowGlyph className="size-[20px]" />}
-              onClick={() => open({ id: featured.gameId })}
+    <div className="flex flex-col gap-[24px]">
+      <GamesV2Section />
+      <ArcadeHead />
+      <div className="flex flex-col gap-[28px]">
+        <section
+          aria-label={featured.title}
+          className="flex flex-col overflow-hidden rounded-[24px] border border-solid border-[rgba(28,42,33,0.12)] bg-[#ebf1ec] md:flex-row"
+        >
+          <img
+            src={featured.cover}
+            alt=""
+            className="aspect-[2/1] w-full object-cover md:aspect-auto md:w-[42.1%] md:shrink-0"
+          />
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-[12px] px-[clamp(20px,3vw,36px)] py-[clamp(20px,2.5vw,28px)]">
+            <span className="font-sans text-[11.5px] font-bold leading-[14px] tracking-[0.06em] text-[#387440] max-lg:text-[12px]">
+              {featured.eyebrow}
+            </span>
+            <h2
+              className={classNames(
+                HEADING,
+                'm-0 text-[clamp(26px,3.2vw,36px)] font-semibold leading-[1.2] tracking-[-0.01em] text-[#1c2a21]'
+              )}
             >
-              {featured.cta}
-            </Button>
+              {featured.title}
+            </h2>
+            <p className="m-0 max-w-[695px] font-sans text-[16px] leading-[19px] text-[#595959] max-lg:leading-[22px]">
+              {featured.body}
+            </p>
+            <div>
+              <Button
+                variant="primary"
+                size="lg"
+                rightIcon={<SkillsLabArrowGlyph className="size-[20px]" />}
+                onClick={() => open({ id: featured.gameId })}
+              >
+                {featured.cta}
+              </Button>
+            </div>
           </div>
+        </section>
+
+        <SectionHead title={GAMES_ARCADE.skillSection.title} subtitle={skillSubtitle} />
+        <div className={GRID}>
+          {skillGames.map((game) => (
+            <GameCard key={game.id} game={game} unit={unit} onOpen={open} />
+          ))}
         </div>
-      </section>
 
-      <SectionHead title={GAMES_ARCADE.skillSection.title} subtitle={skillSubtitle} />
-      <div className={GRID}>
-        {skillGames.map((game) => (
-          <GameCard key={game.id} game={game} unit={unit} onOpen={open} />
-        ))}
-      </div>
-
-      <SectionHead
-        title={GAMES_ARCADE.personalitySection.title}
-        subtitle={GAMES_ARCADE.personalitySection.subtitle}
-      />
-      <div className={GRID}>
-        {personalityGames.map((game) => (
-          <GameCard key={game.id} game={game} unit={unit} onOpen={open} />
-        ))}
+        <SectionHead
+          title={GAMES_ARCADE.personalitySection.title}
+          subtitle={GAMES_ARCADE.personalitySection.subtitle}
+        />
+        <div className={GRID}>
+          {personalityGames.map((game) => (
+            <GameCard key={game.id} game={game} unit={unit} onOpen={open} />
+          ))}
+        </div>
       </div>
     </div>
   );

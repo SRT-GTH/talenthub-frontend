@@ -404,7 +404,7 @@ export const SKILLS_LAB_WEEKLY = {
     ],
   },
   privacy:
-    'Leaderboards show first names and initials only. You can hide yourself in Settings › Profile and privacy.',
+    'Leaderboards are opt-in: only people who join are shown, by first name and initial. Under-18s aren’t listed.',
   later: 'Maybe later',
   start: 'Start challenge',
 };

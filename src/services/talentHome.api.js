@@ -15,6 +15,8 @@ const log = debug('talentHome.api');
  *   GET /engagement/skills/verifications/me   verified skills count
  *   GET /guidance/readiness/:career       job readiness (only at Top 20%+)
  *   GET /activity/me?period=7d            who viewed me this week (backend #156)
+ *   GET /streak                           streak card + nav / sidebar streak (2026-10-31)
+ *   GET /talent-messages/unread-count     messages badge + sidebar stat (2026-10-31)
  *
  * MyAssessment tab (fetchTalentAssessment, loaded when the tab opens):
  *   GET /engagement/summary                    Big Five + RIASEC summary
@@ -87,6 +89,8 @@ export const PENDING_SECTIONS = [
   'verifiedSkills',
   'views',
   'readiness',
+  'streak',
+  'messages',
 ];
 
 /* ---------------- In-memory cache (this tab only) ---------------- */
@@ -146,6 +150,9 @@ const buildHomeData = (r, pendingSet) => {
     // Profile views this week (company level on the free tier); null if it failed.
     views: activity || null,
     readiness: r.readiness ?? null,
+    // GET /streak (null if it failed) and the unread message count (null if it failed).
+    streak: r.streak ?? null,
+    unreadMessages: typeof r.unread?.unread === 'number' ? r.unread.unread : null,
     loginCount: user.loginCount ?? null,
     // Kept for the MyAssessment tab (fetchTalentAssessment adds the rest).
     profileSkills: {
@@ -214,6 +221,10 @@ export const loadTalentHome = ({ onUpdate } = {}) =>
     settle('activity', async () =>
       unwrap(await api.get('/activity/me', { params: { verb: 'view', period: '7d' } }))
     ).then(arrive('views', 'activity'));
+    settle('streak', async () => unwrap(await api.get('/streak'))).then(arrive('streak', 'streak'));
+    settle('unread messages', async () =>
+      unwrap(await api.get('/talent-messages/unread-count'))
+    ).then(arrive('messages', 'unread'));
 
     // The core: these decide the layout state, so the page waits for them.
     const journeyP = api.get('/profiles/journey').then(unwrap);

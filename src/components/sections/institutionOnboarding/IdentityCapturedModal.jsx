@@ -10,6 +10,7 @@ import {
 } from '../../shared/assets.jsx';
 import Captions from '../../ui/Captions.jsx';
 import { debug } from '../../../utils/debug.js';
+import useDialogFocus from './useDialogFocus.js';
 
 const log = debug('IdentityCapturedModal');
 
@@ -71,6 +72,7 @@ const DataRow = ({ label, value, leftIcon }) => (
 // ── main component ────────────────────────────────────────────────────────
 
 const IdentityCapturedModal = ({ data, onClose }) => {
+  const dialogRef = useDialogFocus();
   log('mount', { legalName: data?.legalName, region: data?.region });
 
   const navigate = useNavigate();
@@ -99,10 +101,12 @@ const IdentityCapturedModal = ({ data, onClose }) => {
   return (
     /* Backdrop */
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="identity-captured-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
@@ -142,14 +146,14 @@ const IdentityCapturedModal = ({ data, onClose }) => {
             {/* Title */}
             <h2
               id="identity-captured-title"
-              className="font-display font-normal text-center text-black"
+              className="font-heading font-semibold text-center text-black"
               style={{
                 fontSize: 'clamp(1.375rem, 2.2vw, 32px)' /* 22–32px */,
                 lineHeight: 1.2,
                 letterSpacing: '-0.28px',
               }}
             >
-              Identity <span className="text-brand-green italic">captured.</span>
+              Identity <span className="text-brand-green">captured.</span>
             </h2>
 
             {/* Subtitle */}

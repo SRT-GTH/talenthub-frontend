@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import Button from '../../ui/Button.jsx';
+import RecruiterCompanyEditForm from './RecruiterCompanyEditForm.jsx';
+import companyLogo from '../../../assets/recruiter/company-logo-silver-rock.png';
 import {
   LoadingSpinner,
   ArrowRightIcon,
@@ -57,17 +59,13 @@ const BioChevronIcon = ({ className }) => (
   </svg>
 );
 
-/* Placeholder company mark — Figma circular logo; swap when asset lands. */
+/* The company logo of the Profile Photo row (Figma 7958:162027, exported as recruiter/company-logo-silver-rock.png). */
 const CompanyLogoMark = ({ className }) => (
-  <span
-    className={classNames(
-      'flex size-12 shrink-0 items-center justify-center rounded-full bg-[#1e4fd6] font-sans text-[18px] font-semibold text-white',
-      className
-    )}
-    aria-hidden="true"
-  >
-    S
-  </span>
+  <img
+    src={companyLogo}
+    alt="Silver Rock Technologies logo"
+    className={classNames('size-12 shrink-0 rounded-full object-cover', className)}
+  />
 );
 
 /*
@@ -87,13 +85,21 @@ const RecruiterPanel = ({
   onModify,
   onOpenForm,
   confirming,
+  // The recruiter frames (Figma 7958:160771) draw the Jobs row only once a job post is under way; the signed-in panel always lists it.
+  jobsRowOnlyWhenStarted = false,
+  // Stage id whose fields open in edit mode on mount (the "user edits company info" frames, Figma 7958:161872).
+  initialEditingId = null,
   className,
 }) => {
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState(initialEditingId);
   const [fieldOverrides, setFieldOverrides] = useState({});
   const [bioOpen, setBioOpen] = useState(true);
 
-  const visibleStages = stages.filter((stage) => PANEL_STAGE_IDS.has(stage.id));
+  const visibleStages = stages.filter(
+    (stage) =>
+      PANEL_STAGE_IDS.has(stage.id) &&
+      !(jobsRowOnlyWhenStarted && stage.id === 'jobs' && stage.status === 'not-started')
+  );
 
   log('mount', {
     stageCount: stages.length,
@@ -173,7 +179,7 @@ const RecruiterPanel = ({
     }
     return (
       <>
-        Completion: <span className="text-[#595959]">00%</span>
+        Completion: <span className="text-[#595959]">{padded}</span>
       </>
     );
   };
@@ -187,8 +193,18 @@ const RecruiterPanel = ({
     >
       <header className="flex flex-col gap-[9px] pt-[14px] pb-[20px] max-lg:gap-1 max-lg:pb-3 max-lg:pt-2">
         <h2
-          className="font-display leading-tight tracking-[-1px] text-[#111]"
-          style={{ fontSize: 'clamp(1.5rem, 2.1vw, 2rem)' /* 24→32 */ }}
+          className={classNames(
+            'leading-tight text-[#111]',
+            // Figma 7958:160771: the recruiter panel title is Bricolage Grotesque 600 29px.
+            jobsRowOnlyWhenStarted
+              ? 'font-heading font-semibold text-[#1c2a21] tracking-[-0.02em]'
+              : 'font-display tracking-[-1px]'
+          )}
+          style={{
+            fontSize: jobsRowOnlyWhenStarted
+              ? 'clamp(24px, 1.68vw, 29px)'
+              : 'clamp(1.5rem, 2.1vw, 2rem)' /* 24→32 */,
+          }}
         >
           Recruiter Panel
         </h2>
@@ -251,98 +267,19 @@ const RecruiterPanel = ({
                 <div className="flex flex-col items-end gap-[48px] px-[40px] pb-[29px] pt-[10px] max-lg:gap-8 max-lg:px-0">
                   {canPreview ? (
                     isEditing && !isJobs ? (
-                      <>
-                        {/* edit-details — Figma 5132:67012 (Company Info only) */}
-                        <div className="flex w-full flex-col gap-[18px]">
-                          {fields.map((field) => {
-                            if (field.kind === 'photo') {
-                              return (
-                                <div key={field.label} className="flex items-center gap-[11px]">
-                                  <CompanyLogoMark />
-                                  <div className="flex flex-col gap-[4px]">
-                                    <span className="font-sans text-[16px] font-medium text-[#0a0a0a]">
-                                      {field.label}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      className="w-fit font-sans text-[14px] text-brand-green underline-offset-2 hover:underline"
-                                      onClick={() => log('branch', { changePhoto: true })}
-                                    >
-                                      Change Photo
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            }
-                            if (field.verified) {
-                              return (
-                                <div
-                                  key={field.label}
-                                  className="flex w-full items-start justify-between gap-3"
-                                >
-                                  <span className="shrink-0 whitespace-nowrap font-sans text-[16px] font-medium leading-[1.5] text-[#111]">
-                                    {field.label}
-                                  </span>
-                                  <span className="flex items-center justify-end gap-[6px] font-sans text-[18px] leading-[1.5] text-[#387440]">
-                                    <CheckBadgeIcon className="size-[14px]" />
-                                    {field.value}
-                                  </span>
-                                </div>
-                              );
-                            }
-                            return (
-                              <div
-                                key={field.label}
-                                className="flex w-full items-start justify-between gap-3"
-                              >
-                                <span className="shrink-0 whitespace-nowrap font-sans text-[16px] font-medium leading-[1.5] text-[#111]">
-                                  {field.label}
-                                </span>
-                                {field.kind === 'bio' ? (
-                                  <textarea
-                                    value={field.value}
-                                    rows={5}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      setFieldOverrides((prev) => ({
-                                        ...prev,
-                                        [stage.id]: { ...prev[stage.id], [field.label]: value },
-                                      }));
-                                    }}
-                                    className="min-h-[120px] w-full max-w-[290px] resize-y rounded-[8px] border border-[#e9e9e9] bg-[#f8f8f8] px-[16px] py-[12px] font-sans text-[15px] leading-[1.4] text-[#737373] focus:border-brand-green-light-active focus:outline-none"
-                                  />
-                                ) : (
-                                  <input
-                                    type="text"
-                                    value={field.value}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      setFieldOverrides((prev) => ({
-                                        ...prev,
-                                        [stage.id]: { ...prev[stage.id], [field.label]: value },
-                                      }));
-                                    }}
-                                    className="w-[250px] max-lg:w-full max-w-[290px] rounded-[8px] border border-[#e9e9e9] px-[16px] py-[12px] font-sans text-[16px] leading-[1.4] text-[#737373] focus:border-brand-green-light-active focus:outline-none"
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="flex w-full justify-end">
-                          <Button
-                            variant="primary"
-                            size="md"
-                            className="h-[48px]"
-                            onClick={() => {
-                              log('branch', { update: stage.id });
-                              setEditingId(null);
-                            }}
-                          >
-                            Update
-                          </Button>
-                        </div>
-                      </>
+                      <RecruiterCompanyEditForm
+                        fields={fields}
+                        onChange={(label, value) =>
+                          setFieldOverrides((prev) => ({
+                            ...prev,
+                            [stage.id]: { ...prev[stage.id], [label]: value },
+                          }))
+                        }
+                        onUpdate={() => {
+                          log('branch', { update: stage.id });
+                          setEditingId(null);
+                        }}
+                      />
                     ) : (
                       <>
                         {/* view-details — Figma 5132:66804 pattern (Jobs reuses chrome) */}

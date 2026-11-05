@@ -1,0 +1,150 @@
+/*
+ * Parent dashboard (Figma file SCXc457vwiq6o7d9g4jVbh). Skeleton shimmer for the loading frame PD-05: the skeleton blocks are a #eceee8 -> #f6f7f4 -> #eceee8 gradient (Figma 10047:147980);
+ * the highlight sweeps left to right. ⚠️ ASSUMPTION: Figma draws the gradient only (no motion export), the sweep speed is ours (1.6 s). Reduced motion: still.
+ */
+.pd-skeleton {
+  background-image: linear-gradient(90deg, #eceee8 0%, #f6f7f4 50%, #eceee8 100%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  animation: pd-shimmer 1.6s linear infinite;
+}
+@keyframes pd-shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-skeleton {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
+
+/*
+ * Parent font stack (scoped: only while a parent screen is mounted, ParentFrame sets `data-parent-ui` on <html> (the recruiter Career Buddy sets `data-recruiter-ui`, both through hooks/useScopedRoundedFont), so portalled dialogs and toasts get it too).
+ * Figma draws every parent screen in SF Pro Rounded: the four weights it uses (Regular, Medium, Semibold, Bold; Latin subset, about 200 KB) are bundled as `GTH Parent Rounded` (a parent-only family name, so no other page changes font). The app-wide stack puts `-apple-system` before Nunito, so on a Mac in Chrome the text rendered as plain SF Pro (not rounded, a different
+ * width). Here: SF Pro Rounded when installed -> `ui-rounded` (Safari's name for it) -> Nunito, the closest rounded Google font (about 5 % wider than SF Pro Rounded, measured on the PD-01 strings).
+ */
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'GTH Parent Rounded';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/SF-Pro-Rounded-Bold.woff2') format('woff2');
+}
+html:is([data-parent-ui], [data-recruiter-ui]) {
+  --font-sans: 'GTH Parent Rounded', 'SF Pro Rounded', ui-rounded, 'Nunito', system-ui, sans-serif;
+}
+html:is([data-parent-ui], [data-recruiter-ui]) body {
+  font-family: var(--font-sans);
+}
+
+/*
+ * Weight compensation (only if the bundled SF Pro Rounded fails to load, see ParentFrame): Nunito at weight W looks lighter than SF Pro Rounded at W, so Medium / Semibold / Bold render about half a step heavier (Nunito is a variable font, so 550 / 650 / 750).
+ * Tailwind's font-medium / font-semibold / font-bold read these theme variables; Regular stays as drawn.
+ */
+html:is([data-parent-ui], [data-recruiter-ui])[data-rounded-font='fallback'] {
+  --font-weight-medium: 550;
+  --font-weight-semibold: 650;
+  --font-weight-bold: 750;
+}
+
+/*
+ * Line height "normal" (Figma `leading-[normal]` = the font's own metrics): SF Pro Rounded's is about 1.19 x the font size, Nunito's is about 1.36 and Tailwind's `leading-normal` is 1.5,
+ * so every such line was taller than drawn. Both spellings are pinned to 1.19 on the parent screens (explicit leadings such as leading-[1.2] / leading-[24px] are untouched).
+ */
+html:is([data-parent-ui], [data-recruiter-ui]) .leading-normal,
+html:is([data-parent-ui], [data-recruiter-ui]) [class*='leading-[normal]'] {
+  line-height: 1.19;
+}
+
+/*
+ * Parent dialogs and toasts: one swift motion shared by `ui/DialogCard` and `ui/ActionToast`.
+ * In: the scrim fades while the card rises 8px and settles from 97 % (200 ms, ease-out). Out: 140 ms ease-in, played on a non-interactive clone (`utils/ghostOut.js`) so every way of closing gets it.
+ * ⚠️ ASSUMPTION: Figma has no motion export for these; the timings are ours. Reduced motion: no movement.
+ */
+@keyframes gth-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes gth-scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes gth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+@keyframes gth-card-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes gth-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+@keyframes gth-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+.gth-scrim-in {
+  animation: gth-scrim-in 200ms ease-out;
+}
+.gth-scrim-out {
+  animation: gth-scrim-out 140ms ease-in forwards;
+}
+.gth-card-in {
+  animation: gth-card-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gth-card-out {
+  animation: gth-card-out 140ms ease-in forwards;
+}
+.gth-toast-in {
+  animation: gth-toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gth-toast-out {
+  animation: gth-toast-out 140ms ease-in forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gth-scrim-in,
+  .gth-card-in,
+  .gth-toast-in {
+    animation: none;
+  }
+  .gth-scrim-out,
+  .gth-card-out,
+  .gth-toast-out {
+    animation-duration: 1ms;
+  }
+}

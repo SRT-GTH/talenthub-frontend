@@ -314,6 +314,23 @@ const readTable = async (file) => {
     const { readSheet } = await import('read-excel-file/browser');
     return readSheet(file);
   }
+  if (ext === 'xls') {
+    // Legacy .xls: read-excel-file cannot parse it, so SheetJS (loaded on demand) does.
+    const XLSX = await import('xlsx');
+    const wb = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
+    const sheet = wb.Sheets[wb.SheetNames[0]]; // first sheet only
+    if (!sheet) return [];
+    const table = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+    // SheetJS builds dates in local time; the checks read UTC parts, so re-express
+    // each as UTC midnight of the same calendar day (what read-excel-file yields).
+    return table.map((cells) =>
+      cells.map((v) =>
+        v instanceof Date && !Number.isNaN(v.getTime())
+          ? new Date(Date.UTC(v.getFullYear(), v.getMonth(), v.getDate()))
+          : v
+      )
+    );
+  }
   const err = new Error('Upload a .csv or .xlsx file.');
   err.code = 'UNSUPPORTED_FILE';
   throw err;

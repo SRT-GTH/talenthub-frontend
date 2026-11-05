@@ -131,7 +131,9 @@ const UploadZone = ({
     'relative flex items-center justify-center w-full h-[173px] max-md:h-auto max-md:min-h-[88px] max-md:px-4 max-md:py-3',
     'rounded-[16px] border-2 cursor-pointer select-none',
     'transition-colors duration-150',
-    isUploaded || isHover ? 'bg-[#ebf1ec] border-[#387440]' : 'bg-[#fefef3] border-[#c1d4c4]',
+    isUploaded ? 'bg-[#ebf1ec] border-[#387440]' : '',
+    isHover ? 'bg-[#ebf1ec] border-dashed border-[#387440]' : '',
+    !isUploaded && !isHover ? 'bg-[#fefef3] border-dashed border-[#d9d9d6]' : '',
   ].join(' ');
 
   return (
@@ -209,7 +211,10 @@ const UploadZone = ({
             {isUploaded ? (
               <span className="block max-w-[240px] truncate">{file.name}</span>
             ) : (
-              'Or browser to choose a file'
+              <>
+                Or <span className="text-brand-green underline underline-offset-2">browser</span> to
+                choose a file
+              </>
             )}
           </span>
         </div>
@@ -277,7 +282,7 @@ const UploadSection = () => {
   log('render', { hasFile: !!file, fileName: file?.name, isDragging });
 
   // ── File validation & selection ────────────────────────────────
-  const ACCEPTED_EXTS = new Set(['.csv', '.xlsx']);
+  const ACCEPTED_EXTS = new Set(['.csv', '.xlsx', '.xls']);
 
   const applyFile = useCallback((candidate) => {
     if (!candidate) {
@@ -287,7 +292,7 @@ const UploadSection = () => {
     const ext = '.' + candidate.name.split('.').pop().toLowerCase();
     log('applyFile', { name: candidate.name, ext, accepted: ACCEPTED_EXTS.has(ext) });
     if (!ACCEPTED_EXTS.has(ext)) {
-      setApiError('Upload a .csv or .xlsx file. Save older .xls files as .xlsx first.');
+      setApiError('Upload a .csv, .xlsx or .xls file.');
       return;
     }
     setApiError('');
@@ -372,14 +377,14 @@ const UploadSection = () => {
              Instrument Serif 400 64px lh:70 ls:-0.64 CENTER
              Character override indices 12–24: "student file." → italic #387440 */}
         <h1
-          className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="text-center font-heading font-semibold text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
             letterSpacing: '-0.64px',
           }}
         >
-          Upload your <span className="italic text-brand-green">student file.</span>
+          Upload your <span className="text-brand-green">student file.</span>
         </h1>
 
         {/* ── Subtitle — Figma 3010:43799 — verbatim ──
@@ -408,7 +413,7 @@ const UploadSection = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.xlsx"
+          accept=".csv,.xlsx,.xls"
           className="sr-only"
           onChange={handleInputChange}
           aria-label="Select a CSV or Excel file to upload"

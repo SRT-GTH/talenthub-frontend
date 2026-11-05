@@ -14,6 +14,15 @@ const VALID_ROLES = new Set(['talent', 'recruiter', 'parent']);
  */
 export default function CareerBuddyRoleProvider({ children }) {
   const [role, setRoleState] = useState(() => {
+    // `?role=parent|recruiter|talent` picks the experience from the URL (every Figma frame is a URL: the parent Career Buddy canvas 7958:183942); without it the stored choice applies.
+    const fromUrl =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('role')
+        : null;
+    if (VALID_ROLES.has(fromUrl)) {
+      window.localStorage.setItem(CAREER_BUDDY_ROLE_STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
     const stored =
       typeof window !== 'undefined'
         ? window.localStorage.getItem(CAREER_BUDDY_ROLE_STORAGE_KEY)

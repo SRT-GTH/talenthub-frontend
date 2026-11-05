@@ -131,6 +131,7 @@ const PublicDataApp = lazy(() => import('./pages/publicData/PublicDataApp.jsx'))
 const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 // Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12): /admin/*, mock staff session, own router in pages/admin/AdminApp.jsx.
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
+const ParentApp = lazy(() => import('./pages/parent/ParentApp.jsx'));
 // Theme 11 institution portal (Figma canvas 8520:10): /institution/*, live session (GET /api/institution/me), own router in pages/institution/InstitutionApp.jsx.
 const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
 // A school's public page (no sign-in): GET /api/institution-public/:slug.
@@ -145,6 +146,7 @@ const CompleteInvitePage = lazy(() => import('./pages/CompleteInvitePage.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
+const CareerContentPage = lazy(() => import('./pages/careerContent/CareerContentPage.jsx'));
 // Create your own community (talent-created) — Figma sections 8947:2928 / 8944:2672 (agent: community-create).
 const CommunityCreatePage = lazy(
   () => import('./pages/talentCommunity/create/CommunityCreatePage.jsx')
@@ -183,6 +185,7 @@ const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHub
 const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
 const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
 const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
+const GameV2Page = lazy(() => import('./pages/talentSkillsLab/GameV2Page.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
@@ -256,6 +259,7 @@ import { routeLabel } from './components/ui/gthLoader/routeLabel.js';
 import { perfEnabled } from './utils/perf.js';
 import { faroEnabled } from './observability/faro.js';
 import PerfRouteMarker from './components/shared/PerfRouteMarker.jsx';
+import { useCopyVersion } from './copy/useCopyVersion.js';
 
 // Load-time panel: only downloaded when ?perf=1 is on (see utils/perf.js).
 const PerfPanel = lazy(() => import('./components/shared/PerfPanel.jsx'));
@@ -299,6 +303,8 @@ function LegacyRecruiterBuddyRedirect() {
 const UnknownRouteRedirect = () => <Navigate to={logoHomePath()} replace />;
 
 function App() {
+  // Site copy: re-render when newly published copy arrives, so open pages show it (copy/copyBind.js).
+  useCopyVersion();
   return (
     <BrowserRouter>
       {/* Reset window scroll on every route change so each new page
@@ -324,6 +330,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <AdminApp />
+                    </Suspense>
+                  }
+                />
+                {/* Parents: the signed-in parent dashboard (Figma file SCXc457vwiq6o7d9g4jVbh, canvas 10057:530). Own router in pages/parent/ParentApp.jsx, outside MainLayout. */}
+                <Route
+                  path={'/parent/*'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <ParentApp />
                     </Suspense>
                   }
                 />
@@ -1144,6 +1159,15 @@ function App() {
                     </Suspense>
                   }
                 />
+                {/* Career exposure post reader, opened from Career Buddy's post cards (2026-10-27). */}
+                <Route
+                  path={'/career-content/:contentId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CareerContentPage />
+                    </Suspense>
+                  }
+                />
                 {/* Create your own community (talent-created) — Figma "Create your own community" sections 8947:2928 (Playful) /
             8944:2672 (Focused), CC-02 … CC-17b. URL contract: createCommunityState.js. */}
                 <Route
@@ -1313,6 +1337,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <GamePage />
+                    </Suspense>
+                  }
+                />
+                {/* Games v2 (Figma "Games v2 · 1 … 14", wiki/talent-games-v2.md): the 13 new ranked / practice games. */}
+                <Route
+                  path={'/skills-lab/play/:gameId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GameV2Page />
                     </Suspense>
                   }
                 />

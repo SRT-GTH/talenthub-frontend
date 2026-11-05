@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import {
@@ -8,6 +9,7 @@ import {
   CloseIcon,
 } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import { useParentDialogA11y } from './useParentDialogA11y.js';
 
 const log = debug('ParentIdentityCapturedModal');
 
@@ -145,6 +147,9 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
   log('mount', { fullName, relationship: data?.relationship });
 
   const navigate = useNavigate();
+  const dialogRef = useRef(null);
+  // Focus in, Tab trapped, Esc closes, focus back to the opener.
+  useParentDialogA11y({ dialogRef, onClose });
 
   const handleContinue = () => {
     log('continue clicked — navigating to verification step');
@@ -158,26 +163,19 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      log('escape key — closing modal');
-      onClose?.();
-    }
-  };
-
   return (
     /* Backdrop */
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="parent-identity-captured-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/50 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
-      onKeyDown={handleKeyDown}
     >
       {/* Card */}
       <div
-        className="relative w-full max-w-[440px] overflow-y-auto rounded-3xl bg-white p-8 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
+        ref={dialogRef}
+        className="relative w-full max-w-[440px] overflow-y-auto rounded-3xl border border-[#eedeb8] bg-white p-8 max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:rounded-b-none max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
         style={{
           maxHeight: '90vh',
           boxShadow:
@@ -238,13 +236,10 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
         {/* ── Headline (Figma 2920:89415) ── */}
         <h2
           id="parent-identity-captured-title"
-          className="mb-2 text-center font-display font-normal text-black max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
+          className="mb-2 text-center font-heading font-semibold text-[#111] max-sm:mb-1 max-sm:text-[22px]! max-sm:leading-7!"
           style={{ fontSize: 32, lineHeight: 1, letterSpacing: '-1.2px' }}
         >
-          Identity{' '}
-          <span className="italic" style={{ color: '#b48617' }}>
-            captured.
-          </span>
+          Identity <span style={{ color: '#b48617' }}>captured.</span>
         </h2>
 
         {/* ── Subtitle (Figma 2920:89416) ── */}
@@ -293,6 +288,9 @@ const ParentIdentityCapturedModal = ({ data, onClose }) => {
             rightPrefix={data?.dateOfBirth ? <SmallCheckCircle /> : null}
           />
         </div>
+
+        {/* Plain divider above the CTA (Figma 2920:88190) */}
+        <div className="mb-5 h-px w-full bg-[#e6e6e6] max-sm:mb-3" aria-hidden="true" />
 
         {/* ── CTA (Figma 2920:89451) ── */}
         <Button

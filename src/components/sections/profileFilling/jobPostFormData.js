@@ -14,10 +14,10 @@ export const JOB_POST_HEADLINE = {
 export const JOB_POST_SUBTITLE =
   'Fill in the details below — you can always switch to chat or file upload later if you change your mind.';
 
-/** File-upload review modal — Figma 5132:75730. */
+/** File-upload review modal — Figma 5132:75730 / 7958:170745 (one colour, no green accent run, 34px). */
 export const JOB_POST_UPLOAD_HEADLINE = {
-  before: "Here's what we ",
-  accent: 'found.',
+  before: "Here's what we found.",
+  accent: '',
 };
 
 export const JOB_POST_UPLOAD_SUBTITLE =
@@ -32,17 +32,44 @@ export const JOB_POST_CONVERSATION_HEADLINE = {
 export const JOB_POST_CONVERSATION_SUBTITLE =
   'We built these details from your chat — review and edit anything before posting.';
 
+/** Conversation fallback — the form opens when the chat could not parse an answer (Figma 7958:168809, verbatim). */
+export const JOB_POST_FALLBACK_HEADLINE = {
+  before: "Let's fill this in ",
+  accent: 'manually.',
+};
+
+export const JOB_POST_FALLBACK_SUBTITLE =
+  "We had a little trouble understanding your last answer — no worries, let's use a quick form for this one instead.";
+
 export const JOB_POST_AUTOSAVE = 'Your progress is saved automatically';
 
 export const JOB_POST_CTA = 'Post Job';
 
+/** Section legends — verbatim Figma 7958:165028 (casing is as drawn: only "Description & Requirements" is mixed case). */
+export const JOB_POST_SECTION_LEGENDS = {
+  basic: 'BASIC INFORMATION',
+  description: 'Description & Requirements',
+  details: 'JOB DETAILS',
+  compensation: 'COMPENSATION & BENEFITS',
+  publishing: 'PUBLISHING',
+};
+
+/** Small label-row copy — verbatim Figma 7958:165028. */
+export const JOB_POST_OPTIONAL_LABEL = 'Optional';
+export const JOB_POST_ADD_LABEL = 'Add';
+export const JOB_POST_REMOVE_LABEL = 'Remove';
+
 /** File-upload prompt — Figma 5132:75224 (verbatim). */
 export const JOB_FILE_UPLOAD_PROMPT =
-  "Perfect! Upload your job description document, and I'll do the heavy lifting. 📤\n\nI'll automatically extract:\n- Job title\n- Job description and responsibilities  \n- Required qualifications and skills\n- Salary range (if included)\n- Application deadline\n- And more!\n\nNB: Accepted formats: PDF, Word (.doc, .docx), Text (.txt), Max file size:** 10 MB";
+  "Perfect! Upload your job description document, and I'll do the heavy lifting. \n\nI'll automatically extract:\n- Job title\n- Job description and responsibilities  \n- Required qualifications and skills\n- Salary range (if included)\n- Application deadline\n- And more!\n\nNB: Accepted formats: PDF, Word (.doc, .docx), Text (.txt), Max file size:** 10 MB";
 
 /** After extract — Figma 5132:75538 (verbatim). */
 export const JOB_FILE_EXTRACTED_BOT =
-  "Perfect! I'm processing your document now...\nDone! ✅ I've extracted the following information from your document. \nLet me show you what I found — please click the review button below.";
+  "Perfect! I'm processing your document now...\nDone! I've extracted the following information from your document. \nLet me show you what I found — please click the review button below.";
+
+/** Same reply once the review form is open beside it (Figma 7958:170745, verbatim). */
+export const JOB_FILE_EXTRACTED_REVIEW_BOT =
+  "Perfect! I'm processing your document now...\nDone! I've extracted the following information from your document. \nLet me show you what I found — please review the form on the right panel.";
 
 export const JOB_FILE_REVIEW_CTA = 'Review & Post Job';
 
@@ -56,6 +83,11 @@ export const JOB_TYPE_OPTIONS = [
   'Temporary',
   'Freelance/Project-based',
 ];
+
+/** Figma 7958:165028 draws the last option as "Freelance/ Project-based" (space after the slash); the stored value stays as the chat flow emits it. */
+export const JOB_TYPE_DISPLAY_LABELS = {
+  'Freelance/Project-based': 'Freelance/ Project-based',
+};
 
 export const WORK_ARRANGEMENT_OPTIONS = ['On-site', 'Hybrid', 'Remote'];
 
@@ -125,15 +157,16 @@ export const JOB_POST_PLACEHOLDERS = {
   companyName: 'e.g. Silver Rock Technology',
   department: 'e.g. Engineering, Sales, HR',
   description: 'Describe the role, team, and what success looks like in this position...',
-  qualification: 'e.g. "Bachelor\'s in Marketing"',
-  responsibility: 'e.g. "Develop marketing strategies"',
-  workLocation: 'e.g. Tema community 22 or Accra',
+  // One placeholder per numbered row — verbatim Figma 7958:165666 (note the curly closing quote on row 2).
+  qualifications: ['e.g. "Bachelor\'s in Marketing"', 'e.g. "3+ years experience”'],
+  responsibilities: ['e.g. "Develop marketing strategies"', 'e.g. "Manage social media campaigns"'],
+  workLocation: 'e.g. Tema community 22 st.53',
   additionalPerks: 'Describe other benefits your company offers',
 };
 
 export const CONFIRM_JOB_POST = {
   title: 'Confirm Job Posting',
-  body: "You're about to allow our AI to post this job publicly using the information provided. Please confirm that all details are accurate before continuing.",
+  body: 'You’re about to allow our AI to post this job publicly using the information provided. Please confirm that all details are accurate before continuing.',
   confirm: 'Confirm & Post Job',
   edit: 'Go back and edit',
 };
@@ -145,7 +178,7 @@ export const JOB_POSTED_SUCCESS_TOAST = {
 
 /** Figma 5132:73166 — verbatim success bot copy. */
 export const JOB_POSTED_SUCCESS_BOT =
-  '🎉 Awesome—congratulations on publishing your first job post!\nNow let’s walk you through how to track applications. You can monitor all candidate activity in two simple ways:\n📊 Dashboard\nGo to the Applications section on your dashboard to view, manage, and review all incoming applications in one place.\n🤖 AI Progress Planner Panel\nOn the right-hand panel, locate the Application Pipeline. Open it to see the different stages of your hiring process and track candidate progress in real time.';
+  'Awesome—congratulations on publishing your first job post!\nNow let’s walk you through how to track applications. You can monitor all candidate activity in two simple ways:\nDashboard\nGo to the Applications section on your dashboard to view, manage, and review all incoming applications in one place.\nAI Progress Planner Panel\nOn the right-hand panel, locate the Application Pipeline. Open it to see the different stages of your hiring process and track candidate progress in real time.';
 
 export const JOB_MANUAL_PROMPT_BOT =
   'Prefer to fill everything yourself?\u2028 👇 Click here to manually fill the job details';
@@ -183,10 +216,11 @@ export const seedJobPostFromUpload = () => ({
   ...emptyJobPostForm(),
   jobTitle: 'Marketing Manager',
   companyName: 'Silver Rock Technologies',
-  industry: 'technology',
+  // Figma 7958:170745 draws Industry / Experience Level still on their placeholders.
+  industry: '',
   department: 'Sales',
   description:
-    'We are seeking an experienced Marketing Manager to lead our marketing efforts and drive brand growth. The ideal candidate will have a proven track record in developing and executing successful marketing strategies across',
+    'We are seeking an experienced Marketing Manager to lead our marketing efforts and drive brand growth. The ideal candidate will have a proven track record in developing and executing successful marketing strategies across multiple channels.',
   qualifications: ["Bachelor's in Marketing", '3+ years experience', 'Strong communication skills'],
   responsibilities: [
     'Develop marketing strategies',
@@ -194,13 +228,13 @@ export const seedJobPostFromUpload = () => ({
     'Analyze market trends',
   ],
   jobType: 'Full-time',
-  experienceLevel: '1-5',
+  experienceLevel: '',
   workLocation: '10 Jungle Road, East Legon, Accra, Ghana',
   workArrangement: 'On-site',
   salaryMode: 'range',
   currency: 'GHS',
-  salaryMin: '8000',
-  salaryMax: '12000',
+  salaryMin: '8,000',
+  salaryMax: '12,000',
   salaryFrequency: 'month',
   benefits: [
     'Health Insurance',
@@ -217,3 +251,65 @@ export const seedJobPostFromUpload = () => ({
   deadlineMonth: '12',
   deadlineYear: '2026',
 });
+
+const pad2 = (list) => (list.length >= 2 ? list : [...list, ...Array(2 - list.length).fill('')]);
+
+/** "GHS 8,000 – 12,000 per month" → salary form fields (range or fixed). */
+export const salaryFromText = (text) => {
+  // Leave out lengths like "12-month contract" or "6 months probation": they aren't pay.
+  const s = String(text || '').replace(
+    /\b\d+\s*-?\s*(?:months?|years?|weeks?)\b(?=[\s-]*(?:contract|probation|period|duration|renewable|internship|programme|program))/gi,
+    ' '
+  );
+  const nums = (s.match(/\d[\d,]*(?:\.\d+)?/g) || [])
+    .map((n) => Number(n.replace(/,/g, '')))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  if (!nums.length) return {};
+  const currency = /usd|\$/i.test(s) ? 'USD' : /eur|€/i.test(s) ? 'EUR' : 'GHS';
+  const salaryFrequency = /year|annum|annual/i.test(s)
+    ? 'year'
+    : /week/i.test(s)
+      ? 'week'
+      : 'month';
+  return nums.length >= 2
+    ? {
+        salaryMode: 'range',
+        salaryMin: String(Math.min(nums[0], nums[1])),
+        salaryMax: String(Math.max(nums[0], nums[1])),
+        currency,
+        salaryFrequency,
+      }
+    : { salaryMode: 'fixed', salaryFixed: String(nums[0]), currency, salaryFrequency };
+};
+
+/** "3+ years" → the form's experience bucket. */
+export const experienceBucket = (text) => {
+  const n = Number((String(text || '').match(/\d+/) || [])[0]);
+  if (!n) return '';
+  return n <= 5 ? '1-5' : n <= 10 ? '6-10' : n <= 20 ? '11-20' : '20+';
+};
+
+/**
+ * What the backend read from an uploaded job description (opportunities.extractFromDocument
+ * `fields`) → the job post form. Anything it could not read stays empty for the recruiter to fill.
+ */
+export const jobPostFromExtraction = (fields = {}) => {
+  const f = fields || {};
+  const list = (v) =>
+    Array.isArray(v) ? v.map((x) => String(x || '').trim()).filter(Boolean) : [];
+  return {
+    ...emptyJobPostForm(),
+    jobTitle: String(f.title || '')
+      .trim()
+      .slice(0, 200),
+    companyName: String(f.company || '').trim(),
+    description: String(f.description || '')
+      .trim()
+      .slice(0, JOB_DESCRIPTION_MAX),
+    qualifications: pad2(list(f.requirements).slice(0, 10)),
+    workLocation: String(f.location || '').trim(),
+    experienceLevel: experienceBucket(f.experience),
+    skills: list(f.skills).slice(0, 20),
+    ...salaryFromText(f.salary),
+  };
+};

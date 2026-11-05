@@ -15,6 +15,7 @@ import {
   stateKeyFor,
 } from './talentHomeLive.js';
 import { HOME_TABS } from './talentHomeTabsData.js';
+import { EMMA, EMMA_CONTENT } from './emmaPersona.js';
 
 const log = debug('talentHomeState');
 
@@ -93,7 +94,21 @@ const liveSnapshot = (stateKey, data) => {
   const doneById = Object.fromEntries((j?.stages || []).map((s) => [s.id, s.done]));
   // The stepper fills stages in order, so stages done = the leading run of done stages
   // shown as doneCount; the real per-stage flags ride along as `done`.
-  const stages = JOURNEY_STAGES.map((s) => ({ ...s, done: Boolean(doneById[s.id]) }));
+  // The backend's stage list decides which stages show (JHS talents have no Work or Pitch); milestone badges sit on
+  // the stage that reaches each milestone (a third, two thirds and all of the stages).
+  const ids = new Set((j?.stages || []).map((s) => s.id));
+  const shown = ids.size ? JOURNEY_STAGES.filter((s) => ids.has(s.id)) : JOURNEY_STAGES;
+  const t = shown.length;
+  const badgeAt = {
+    [Math.round(t / 3) - 1]: 'Discoverable',
+    [Math.round((t * 2) / 3) - 1]: 'Top 20%',
+    [t - 1]: 'Top Talent',
+  };
+  const stages = shown.map((s, i) => ({
+    ...s,
+    badge: badgeAt[i],
+    done: Boolean(doneById[s.id]),
+  }));
   const doneCount = j?.doneCount ?? 0;
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
   return {
@@ -142,7 +157,16 @@ const TABS = ['home', 'assessment', 'recruiter'];
 
 export const useTalentHomeState = () => {
   const [params, setParams] = useSearchParams();
-  const demoState = HOME_STATE_KEYS.includes(params.get('state')) ? params.get('state') : null;
+  // `?as=emma` (Figma canvas "Parent who is also a talent"): the Discoverable demo home with Emma's details (emmaPersona.js).
+  const asEmma = params.get('as') === 'emma';
+  // Site copy → Preview (`?copyPreview=`): the day-1 sample home, so staff see every card without a talent account.
+  const demoState = HOME_STATE_KEYS.includes(params.get('state'))
+    ? params.get('state')
+    : asEmma
+      ? 'discoverable'
+      : params.has('copyPreview')
+        ? 'day1'
+        : null;
   const navigate = useNavigate();
   // null = loading, false = failed. Starts from this tab's cached copy when
   // there is one, so returning to /home shows the data at once.
@@ -276,8 +300,14 @@ export const useTalentHomeState = () => {
       setParams(next, { replace: true });
     };
     return {
-      snapshot: live && !demoState ? liveSnapshot(stateKey, live) : getTalentHomeSnapshot(stateKey),
-      content: live && !demoState ? buildLiveContent(stateKey, live) : null,
+      snapshot:
+        live && !demoState
+          ? liveSnapshot(stateKey, live)
+          : asEmma
+            ? { ...getTalentHomeSnapshot(stateKey), profile: EMMA.profile }
+            : getTalentHomeSnapshot(stateKey),
+      content: live && !demoState ? buildLiveContent(stateKey, live) : asEmma ? EMMA_CONTENT : null,
+      persona: asEmma ? EMMA : null,
       // MyAssessment content (null in demo mode or while loading).
       assessment:
         live && !demoState && assessment ? buildAssessmentContent({ ...live, assessment }) : null,
@@ -322,6 +352,7 @@ export const useTalentHomeState = () => {
   }, [
     params,
     setParams,
+    asEmma,
     live,
     demoState,
     assessment,

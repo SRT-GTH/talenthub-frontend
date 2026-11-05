@@ -19,13 +19,13 @@ const log = debug('communityState');
  *   /community/:communityId?state=empty          C-14 empty feed (new community)
  *   /community/:communityId?pending=1            C-13 post pending review
  *   /community/:communityId/post/:postId         C-07 post + comments
- *   &modal=create|report|leave|milestone         C-08 create post · C-10 report post · C-17 leave confirm · C-09 milestone share
+ *   &modal=create|report|leave|milestone|reclassify   C-08 create post · C-10 report post · C-17 leave confirm · C-09 milestone share · moderator changes a post's purpose (US-5.2.2-01)
  *   &rail=collapsed | &help=1                    icon rail / Help pop-over (HP)
  *
  * The lead owns this file. Section agents may ADD derived fields but must not rename existing ones.
  */
 export const COMMUNITY_TABS = ['feed', 'about', 'members'];
-export const COMMUNITY_MODALS = ['create', 'report', 'leave', 'milestone'];
+export const COMMUNITY_MODALS = ['create', 'report', 'leave', 'milestone', 'reclassify'];
 
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);
 

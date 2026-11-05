@@ -1,129 +1,140 @@
 /*
- * jobScreeningIcons.jsx — glyphs and the criteria toggle for Job Screening.
+ * jobScreeningIcons.jsx — glyphs and the criteria switch for Job Screening.
  *
- * Hand-crafted per the session rule: only bounding boxes and fill colours came
- * from Figma (criteria glyphs 19.5x16 #387440, the Assessment/Location card
- * glyphs 18x18 #387440, the rating stars 20x19 — four #eab308 and one
- * #d6d1c2). No path data was copied.
+ * Path data exported from Figma (file OHG2xsfCCskT8xEn356njv, "Job prospecting V2.0",
+ * Job Screening 7249:78066) with figma-tools/export.py, recoloured to `currentColor`
+ * (the glyphs are #387440 on the page, stars #eab308 / #d6d1c2 via the caller).
  */
 import { classNames } from '../../../utils/classNames.js';
 
+// Minimum Experience row — 7249:78262, 20x16
 export const CriteriaExperienceIcon = ({ className = '' }) => (
   <svg viewBox="0 0 20 16" fill="none" aria-hidden="true" className={className}>
-    <rect x="1.2" y="4" width="17.6" height="10.8" rx="2" stroke="currentColor" strokeWidth="1.4" />
     <path
-      d="M6.8 4V2.8a1.6 1.6 0 0 1 1.6-1.6h3.2a1.6 1.6 0 0 1 1.6 1.6V4"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-    />
-    <path d="M1.2 8.6h17.6" stroke="currentColor" strokeWidth="1.4" />
-  </svg>
-);
-
-export const CriteriaSkillsIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 20 16" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M7 3.2h11.4M7 8h11.4M7 12.8h11.4"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-    />
-    <path
-      d="m1.4 3 1.3 1.3 2.1-2.4M1.4 7.8l1.3 1.3 2.1-2.4M1.4 12.6l1.3 1.3 2.1-2.4"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const CriteriaEducationIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 20 16" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M10 1.4 1.4 5.2 10 9l8.6-3.8L10 1.4Z"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4.8 6.8v3.9c0 1.4 2.3 2.5 5.2 2.5s5.2-1.1 5.2-2.5V6.8"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const AssessmentGaugeIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M2 13.4a8 8 0 1 1 14 0"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path d="m9 10.6 3.4-3.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <circle cx="9" cy="12.2" r="1.3" fill="currentColor" />
-  </svg>
-);
-
-export const LocationMatchIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M9 16.2c3.4-3.4 5.2-6 5.2-8.2a5.2 5.2 0 1 0-10.4 0c0 2.2 1.8 4.8 5.2 8.2Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-    <circle cx="9" cy="7.8" r="1.9" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-);
-
-// 20x19 — Estimated Quality rating.
-export const RatingStarIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 20 19" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="m10 1.4 2.6 5.4 5.9.8-4.3 4.2 1 5.9L10 15l-5.2 2.7 1-5.9L1.5 7.6l5.9-.8L10 1.4Z"
+      d="M6.5 16C5.95 16 5.47917 15.8042 5.0875 15.4125C4.69583 15.0208 4.5 14.55 4.5 14V11H7.5V8.75C6.91667 8.71667 6.3625 8.5875 5.8375 8.3625C5.3125 8.1375 4.83333 7.8 4.4 7.35V6.25H3.25L0 3C0.6 2.23333 1.34167 1.69167 2.225 1.375C3.10833 1.05833 4 0.9 4.9 0.9C5.35 0.9 5.7875 0.933333 6.2125 1C6.6375 1.06667 7.06667 1.19167 7.5 1.375V0H19.5V13C19.5 13.8333 19.2083 14.5417 18.625 15.125C18.0417 15.7083 17.3333 16 16.5 16H6.5V16M9.5 11H15.5V13C15.5 13.2833 15.5958 13.5208 15.7875 13.7125C15.9792 13.9042 16.2167 14 16.5 14C16.7833 14 17.0208 13.9042 17.2125 13.7125C17.4042 13.5208 17.5 13.2833 17.5 13V2H9.5V2.6L15.5 8.6V10H14.1L11.25 7.15L11.05 7.35C10.8167 7.58333 10.5708 7.79167 10.3125 7.975C10.0542 8.15833 9.78333 8.3 9.5 8.4V11V11M4.1 4.25H6.4V6.4C6.6 6.53333 6.80833 6.625 7.025 6.675C7.24167 6.725 7.46667 6.75 7.7 6.75C8.08333 6.75 8.42917 6.69167 8.7375 6.575C9.04583 6.45833 9.35 6.25 9.65 5.95L9.85 5.75L8.45 4.35C7.96667 3.86667 7.425 3.50417 6.825 3.2625C6.225 3.02083 5.58333 2.9 4.9 2.9C4.56667 2.9 4.25 2.925 3.95 2.975C3.65 3.025 3.35 3.1 3.05 3.2L4.1 4.25V4.25M13.5 13H6.5V14V14V14H13.65C13.6 13.85 13.5625 13.6917 13.5375 13.525C13.5125 13.3583 13.5 13.1833 13.5 13V13M6.5 14C6.5 13.85 6.5 13.6917 6.5 13.525C6.5 13.3583 6.5 13.1833 6.5 13V13C6.5 13.1667 6.5 13.3333 6.5 13.5C6.5 13.6667 6.5 13.8333 6.5 14V14V14V14"
       fill="currentColor"
     />
   </svg>
 );
 
-// 16x16, #595959 — solar:alt-arrow-down-line-duotone on each criteria select.
+// Required Skills Match row — 7249:78285, 20x20
+export const CriteriaSkillsIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M10 20C8.61667 20 7.31667 19.7375 6.1 19.2125C4.88333 18.6875 3.825 17.975 2.925 17.075C2.025 16.175 1.3125 15.1167 0.7875 13.9C0.2625 12.6833 0 11.3833 0 10C0 8.61667 0.2625 7.31667 0.7875 6.1C1.3125 4.88333 2.025 3.825 2.925 2.925C3.825 2.025 4.88333 1.3125 6.1 0.7875C7.31667 0.2625 8.61667 0 10 0C11.0833 0 12.1083 0.158333 13.075 0.475C14.0417 0.791667 14.9333 1.23333 15.75 1.8L14.3 3.275C13.6667 2.875 12.9917 2.5625 12.275 2.3375C11.5583 2.1125 10.8 2 10 2C7.78333 2 5.89583 2.77917 4.3375 4.3375C2.77917 5.89583 2 7.78333 2 10C2 12.2167 2.77917 14.1042 4.3375 15.6625C5.89583 17.2208 7.78333 18 10 18C12.2167 18 14.1042 17.2208 15.6625 15.6625C17.2208 14.1042 18 12.2167 18 10C18 9.7 17.9833 9.4 17.95 9.1C17.9167 8.8 17.8667 8.50833 17.8 8.225L19.425 6.6C19.6083 7.13333 19.75 7.68333 19.85 8.25C19.95 8.81667 20 9.4 20 10C20 11.3833 19.7375 12.6833 19.2125 13.9C18.6875 15.1167 17.975 16.175 17.075 17.075C16.175 17.975 15.1167 18.6875 13.9 19.2125C12.6833 19.7375 11.3833 20 10 20V20M8.6 14.6L4.35 10.35L5.75 8.95L8.6 11.8L18.6 1.775L20 3.175L8.6 14.6V14.6"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Education Level row — 7249:78306, 22x18
+export const CriteriaEducationIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 22 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M11 18L4 14.2V8.2L0 6L11 0L22 6V14H20V7.1L18 8.2V14.2L11 18V18M11 9.7L17.85 6L11 2.3L4.15 6L11 9.7V9.7M11 15.725L16 13.025V9.25L11 12L6 9.25V13.025L11 15.725V15.725M11 9.7V9.7V9.7V9.7V9.7V9.7M11 11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95M11 11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95V11.95"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Assessment Score card — 7249:78362, 18x18
+export const AssessmentScoreIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4 14H6V9H4V14V14M12 14H14V4H12V14V14M8 14H10V11H8V14V14M8 9H10V7H8V9V9M2 18C1.45 18 0.979167 17.8042 0.5875 17.4125C0.195833 17.0208 0 16.55 0 16V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H16C16.55 0 17.0208 0.195833 17.4125 0.5875C17.8042 0.979167 18 1.45 18 2V16C18 16.55 17.8042 17.0208 17.4125 17.4125C17.0208 17.8042 16.55 18 16 18H2V18M2 16H16V16V16V2V2V2H2V2V2V16V16V16V16M2 2V2V2V2V16V16V16V16V16V16V2V2V2V2"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Location Match card — 7249:78383, 16x20
+export const LocationMatchIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 16 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M8 10C8.55 10 9.02083 9.80417 9.4125 9.4125C9.80417 9.02083 10 8.55 10 8C10 7.45 9.80417 6.97917 9.4125 6.5875C9.02083 6.19583 8.55 6 8 6C7.45 6 6.97917 6.19583 6.5875 6.5875C6.19583 6.97917 6 7.45 6 8C6 8.55 6.19583 9.02083 6.5875 9.4125C6.97917 9.80417 7.45 10 8 10V10M8 17.35C10.0333 15.4833 11.5417 13.7875 12.525 12.2625C13.5083 10.7375 14 9.38333 14 8.2C14 6.38333 13.4208 4.89583 12.2625 3.7375C11.1042 2.57917 9.68333 2 8 2C6.31667 2 4.89583 2.57917 3.7375 3.7375C2.57917 4.89583 2 6.38333 2 8.2C2 9.38333 2.49167 10.7375 3.475 12.2625C4.45833 13.7875 5.96667 15.4833 8 17.35V17.35M8 20C5.31667 17.7167 3.3125 15.5958 1.9875 13.6375C0.6625 11.6792 0 9.86667 0 8.2C0 5.7 0.804167 3.70833 2.4125 2.225C4.02083 0.741667 5.88333 0 8 0C10.1167 0 11.9792 0.741667 13.5875 2.225C15.1958 3.70833 16 5.7 16 8.2C16 9.86667 15.3375 11.6792 14.0125 13.6375C12.6875 15.5958 10.6833 17.7167 8 20V20M8 8V8V8V8V8V8V8V8V8V8"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Location Match "Remote / London Hub" row — 7249:78394, 12x12
+export const RegionHubIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M5.99983 11.9997C5.16986 11.9997 4.38988 11.8422 3.6599 11.5272C2.92992 11.2122 2.29494 10.7847 1.75495 10.2447C1.21497 9.70473 0.787478 9.06975 0.472487 8.33977C0.157496 7.60979 0 6.82981 0 5.99983C0 5.16986 0.157496 4.38988 0.472487 3.6599C0.787478 2.92992 1.21497 2.29494 1.75495 1.75495C2.29494 1.21497 2.92992 0.787478 3.6599 0.472487C4.38988 0.157496 5.16986 0 5.99983 0C6.82981 0 7.60979 0.157496 8.33977 0.472487C9.06975 0.787478 9.70473 1.21497 10.2447 1.75495C10.7847 2.29494 11.2122 2.92992 11.5272 3.6599C11.8422 4.38988 11.9997 5.16986 11.9997 5.99983C11.9997 6.82981 11.8422 7.60979 11.5272 8.33977C11.2122 9.06975 10.7847 9.70473 10.2447 10.2447C9.70473 10.7847 9.06975 11.2122 8.33977 11.5272C7.60979 11.8422 6.82981 11.9997 5.99983 11.9997V11.9997M5.39985 10.7697V9.59973C5.06986 9.59973 4.78737 9.48224 4.55237 9.24724C4.31738 9.01225 4.19988 8.72976 4.19988 8.39977V7.79978L1.31996 4.91986C1.28996 5.09986 1.26246 5.27985 1.23747 5.45985C1.21247 5.63984 1.19997 5.81984 1.19997 5.99983C1.19997 7.2098 1.59746 8.26977 2.39243 9.17974C3.18741 10.0897 4.18988 10.6197 5.39985 10.7697V10.7697M9.53973 9.23974C9.94972 8.78976 10.2622 8.28727 10.4772 7.73228C10.6922 7.1773 10.7997 6.59982 10.7997 5.99983C10.7997 5.01986 10.5272 4.12488 9.98222 3.31491C9.43724 2.50493 8.70976 1.91995 7.79978 1.55996V1.79995C7.79978 2.12994 7.68229 2.41243 7.44729 2.64743C7.2123 2.88242 6.92981 2.99992 6.59982 2.99992H5.39985V4.19988C5.39985 4.36988 5.34235 4.51237 5.22735 4.62737C5.11236 4.74237 4.96986 4.79987 4.79987 4.79987H3.5999V5.99983H7.1998C7.36979 5.99983 7.51229 6.05733 7.62729 6.17233C7.74228 6.28732 7.79978 6.42982 7.79978 6.59982V8.39977H8.39977C8.65976 8.39977 8.89475 8.47726 9.10475 8.63226C9.31474 8.78726 9.45974 8.98975 9.53973 9.23974V9.23974"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Estimated Quality star — 7249:78340, 20x19
+export const RatingStarIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 20 19" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M3.825 19L5.45 11.975L0 7.25L7.2 6.625L10 0L12.8 6.625L20 7.25L14.55 11.975L16.175 19L10 15.275L3.825 19V19"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+// Criteria value select chevron (solar:alt-arrow-down) — 7249:78271, 16x16
 export const CriteriaChevronIcon = ({ className = '' }) => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
     <path
-      d="m3.4 6 4.6 4 4.6-4"
-      stroke="currentColor"
-      strokeWidth="1.2"
+      d="M12.6666 6L7.99992 10L3.33325 6"
       strokeLinecap="round"
       strokeLinejoin="round"
+      stroke="currentColor"
+    />
+  </svg>
+);
+
+// "Applying to" select arrowhead — 7249:78247, 20x20 (#387440)
+export const ApplyingToArrowheadIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M10 13C9.68524 13 9.38885 12.8518 9.2 12.6L6.20001 8.6C5.97274 8.29698 5.93619 7.89157 6.10558 7.55279C6.27497 7.214 6.62123 7 7 7H13C13.3788 7 13.725 7.214 13.8944 7.55279C14.0638 7.89157 14.0273 8.29698 13.8 8.6L10.8 12.6C10.6111 12.8518 10.3148 13 10 13Z"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="currentColor"
     />
   </svg>
 );
 
 /*
- * CriteriaToggle — the pill switch that ends every criteria row (Figma
- * 7249:78279: a 44x24 #387440 track with a 20px white knob) and sits in the
- * Assessment / Location card headers at 39.6x21.6 with an 18px knob. Both are
- * drawn ON in Figma; `size` picks the geometry.
+ * CriteriaToggle — the pill switch that ends every criteria row (Figma 7249:78279:
+ * 44x24 track, 20px knob) and sits in the Assessment / Location card headers
+ * (7249:78364: 40x22 track, 18px knob). ON = #387440 track; OFF (Education Level,
+ * 7249:78315) = #d5d5d5 track with a #d1d5db knob outline. `size` picks the geometry.
  */
-export const CriteriaToggle = ({ size = 'lg', className = '' }) => (
-  <span
-    role="img"
-    aria-label="Criterion enabled"
+export const CriteriaToggle = ({ size = 'lg', checked, onToggle, label, className = '' }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    aria-label={label}
+    onClick={onToggle}
     className={classNames(
-      'inline-flex shrink-0 items-center rounded-full bg-brand-green',
-      size === 'lg' ? 'h-[24px] w-[44px] px-[2px]' : 'h-[21.6px] w-[39.6px] px-[1.8px]',
-      'justify-end',
+      'relative inline-flex shrink-0 items-center rounded-full transition-colors',
+      'max-lg:after:absolute max-lg:after:-inset-[10px]',
+      checked ? 'bg-brand-green' : 'bg-[#d5d5d5]',
+      size === 'lg' ? 'h-[24px] w-[44px]' : 'h-[22px] w-[40px]',
       className
     )}
   >
     <span
-      className={classNames('rounded-full bg-white', size === 'lg' ? 'size-[20px]' : 'size-[18px]')}
+      className={classNames(
+        'absolute rounded-full border bg-white transition-all',
+        checked ? 'border-white' : 'border-[#d1d5db]',
+        size === 'lg' ? 'top-[2px] size-[20px]' : 'top-[2px] size-[18px]',
+        size === 'lg'
+          ? checked
+            ? 'left-[22px]'
+            : 'left-[2px]'
+          : checked
+            ? 'left-[20px]'
+            : 'left-[2px]'
+      )}
     />
-  </span>
+  </button>
 );

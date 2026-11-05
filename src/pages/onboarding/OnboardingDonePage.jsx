@@ -15,6 +15,7 @@ import { classNames } from '../../utils/classNames.js';
 import { debug } from '../../utils/debug.js';
 import TermsModal from '../../components/shared/TermsModal.jsx';
 import PrivacyPolicyModal from '../../components/shared/PrivacyPolicyModal.jsx';
+import { readDoneSummary } from '../../services/onboardingReview.js';
 
 const log = debug('OnboardingDonePage');
 
@@ -59,6 +60,27 @@ const STEPS = [
   ['Address', 'Greater Accra Region'],
   ['Education', 'KNUST · Year 2'],
 ];
+
+// Live (a summary saved by Review after activation): the person's own steps. No talent score, XP, badges or rank
+// exist yet (the profile is built after sign-in), so the live view leaves those out instead of showing demo numbers.
+const liveSteps = (s) => [
+  ['Role', s.role || 'Talent'],
+  ['Date of birth', s.isMinor ? 'Verified · under 18' : 'Verified'],
+  ['Personal info', s.fullName || '—'],
+  ['Contact', 'Phone and email verified'],
+  ['Address', s.region || '—'],
+  ['Education', s.education || 'Not currently studying'],
+  ...(s.isMinor
+    ? [['Parent or guardian', s.guardianNotified ? 'Notified by email' : 'Added']]
+    : []),
+];
+
+const NEXT_LINKS = {
+  skills: '/profile/filling/skills',
+  photo: '/profile',
+  jobs: '/job-postings',
+  mentors: '/community',
+};
 
 const NEXT = [
   {
@@ -141,13 +163,17 @@ const CardHeader = ({ label, children }) => (
 
 const OnboardingDonePage = () => {
   const navigate = useNavigate();
+  const [live] = useState(readDoneSummary);
+  const name = live?.firstName || (live ? 'friend' : DEMO.name);
+  const steps = live ? liveSteps(live) : STEPS;
+  const next = live && live.photoUploaded ? NEXT.filter((n) => n.id !== 'photo') : NEXT;
   const [copied, setCopied] = useState(false);
   // 'privacy' | 'terms' | null — footer links open the legal summary modals in place.
   const [legalModal, setLegalModal] = useState(null);
 
   useEffect(() => {
-    log('mount', DEMO);
-  }, []);
+    log('mount', live ? { live: true, isMinor: live.isMinor } : DEMO);
+  }, [live]);
 
   useEffect(() => {
     if (!copied) return undefined;
@@ -183,44 +209,46 @@ const OnboardingDonePage = () => {
           }}
         />
         <div className="mx-auto flex max-w-[640px] flex-col items-center px-6 pt-[52px] pb-24 text-center">
-          <div
-            className="relative flex size-[148px] flex-col items-center justify-center rounded-full bg-white"
-            style={{
-              border: '4px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 20px 48px rgba(0,0,0,0.3)',
-            }}
-          >
-            <span
-              className="font-ui font-bold uppercase text-[#BABAB7]"
-              style={{ fontSize: 8, letterSpacing: '1px', lineHeight: '9.8px' }}
-            >
-              Talent Score
-            </span>
-            <span
-              className="font-heading font-semibold text-[#387440]"
-              style={{ fontSize: 49, lineHeight: '53.9px', letterSpacing: '-0.98px' }}
-            >
-              {DEMO.score}
-            </span>
-            <span
-              className="font-ui font-semibold text-[#BABAB7]"
-              style={{ fontSize: 9, lineHeight: '11px' }}
-            >
-              out of 100
-            </span>
-            <span
-              className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#C8951A] px-3.5 py-1 font-ui font-bold uppercase text-white"
+          {live ? null : (
+            <div
+              className="relative flex size-[148px] flex-col items-center justify-center rounded-full bg-white"
               style={{
-                bottom: -12,
-                fontSize: 10,
-                lineHeight: '12.2px',
-                letterSpacing: '0.5px',
-                boxShadow: '0 2px 0 rgba(0,0,0,0.2)',
+                border: '4px solid rgba(255,255,255,0.12)',
+                boxShadow: '0 20px 48px rgba(0,0,0,0.3)',
               }}
             >
-              {DEMO.tier}
-            </span>
-          </div>
+              <span
+                className="font-ui font-bold uppercase text-[#BABAB7]"
+                style={{ fontSize: 8, letterSpacing: '1px', lineHeight: '9.8px' }}
+              >
+                Talent Score
+              </span>
+              <span
+                className="font-heading font-semibold text-[#387440]"
+                style={{ fontSize: 49, lineHeight: '53.9px', letterSpacing: '-0.98px' }}
+              >
+                {DEMO.score}
+              </span>
+              <span
+                className="font-ui font-semibold text-[#BABAB7]"
+                style={{ fontSize: 9, lineHeight: '11px' }}
+              >
+                out of 100
+              </span>
+              <span
+                className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#C8951A] px-3.5 py-1 font-ui font-bold uppercase text-white"
+                style={{
+                  bottom: -12,
+                  fontSize: 10,
+                  lineHeight: '12.2px',
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 2px 0 rgba(0,0,0,0.2)',
+                }}
+              >
+                {DEMO.tier}
+              </span>
+            </div>
+          )}
 
           <h1
             className="mt-6 font-heading font-semibold text-white"
@@ -234,15 +262,33 @@ const OnboardingDonePage = () => {
             <br />
             <span style={{ color: '#C1D4C4' }}>Ghana Talent Hub,</span>
             <br />
-            {DEMO.name}.
+            {name}.
           </h1>
 
           <p className="mt-4 font-ui text-[14px] leading-[23.8px]">
-            <span style={{ color: 'rgba(255,255,255,0.6)' }}>Your profile is live. </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)' }}>
+              {live ? 'Your account is ready. ' : 'Your profile is live. '}
+            </span>
             <strong className="font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>
-              Recruiters and institutions across Ghana
-              <br />
-              can now discover you.
+              {live?.isMinor ? (
+                <>
+                  Log in and build your profile.
+                  <br />
+                  We&apos;ve emailed your parent or guardian about GTH.
+                </>
+              ) : live ? (
+                <>
+                  Log in and build your profile so
+                  <br />
+                  recruiters and institutions can find you.
+                </>
+              ) : (
+                <>
+                  Recruiters and institutions across Ghana
+                  <br />
+                  can now discover you.
+                </>
+              )}
             </strong>
           </p>
         </div>
@@ -267,11 +313,12 @@ const OnboardingDonePage = () => {
                 className="inline-flex items-center gap-1.5 rounded-full bg-[#EBF1EC] px-2.5 font-ui font-bold uppercase text-[#2A5730]"
                 style={{ height: 17, fontSize: 'var(--fs-9)', letterSpacing: '0.4px' }}
               >
-                <Check size={9} />7 of 7 done
+                <Check size={9} />
+                {steps.length + 1} of {steps.length + 1} done
               </span>
             </CardHeader>
             <ul className="grid grid-cols-2 gap-x-[9px] gap-y-2 p-3.5 max-sm:grid-cols-1">
-              {STEPS.map(([title, sub]) => (
+              {steps.map(([title, sub]) => (
                 <li
                   key={title}
                   className="flex items-center gap-2.5 px-3"
@@ -337,44 +384,46 @@ const OnboardingDonePage = () => {
             </ul>
           </div>
 
-          {/* XP strip 8027:213966 */}
-          <dl
-            className="grid grid-cols-3 gap-px overflow-hidden"
-            style={{ ...cardBase, background: 'rgba(28,42,33,0.06)' }}
-          >
-            {[
-              ['⭐', DEMO.xp, 'XP earned', '#1C2A21', '#BABAB7'],
-              ['🏅', DEMO.badges, 'Badges', '#967014', '#967014'],
-              ['📊', DEMO.rank, 'Your rank', '#1C2A21', '#BABAB7'],
-            ].map(([emoji, value, label, vColor, lColor]) => (
-              <div
-                key={label}
-                className="flex flex-col items-center justify-center bg-white"
-                style={{ height: 99 }}
-              >
-                <span aria-hidden="true" style={{ fontSize: 20, lineHeight: '20px' }}>
-                  {emoji}
-                </span>
-                <dd
-                  className="font-heading font-semibold"
-                  style={{
-                    fontSize: 25,
-                    lineHeight: '30px',
-                    letterSpacing: '-0.5px',
-                    color: vColor,
-                  }}
+          {/* XP strip 8027:213966 (demo only: no XP, badges or rank exist before the profile is built) */}
+          {live ? null : (
+            <dl
+              className="grid grid-cols-3 gap-px overflow-hidden"
+              style={{ ...cardBase, background: 'rgba(28,42,33,0.06)' }}
+            >
+              {[
+                ['⭐', DEMO.xp, 'XP earned', '#1C2A21', '#BABAB7'],
+                ['🏅', DEMO.badges, 'Badges', '#967014', '#967014'],
+                ['📊', DEMO.rank, 'Your rank', '#1C2A21', '#BABAB7'],
+              ].map(([emoji, value, label, vColor, lColor]) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center justify-center bg-white"
+                  style={{ height: 99 }}
                 >
-                  {value}
-                </dd>
-                <dt
-                  className="font-ui font-bold uppercase"
-                  style={{ fontSize: 'var(--fs-9)', letterSpacing: '0.6px', color: lColor }}
-                >
-                  {label}
-                </dt>
-              </div>
-            ))}
-          </dl>
+                  <span aria-hidden="true" style={{ fontSize: 20, lineHeight: '20px' }}>
+                    {emoji}
+                  </span>
+                  <dd
+                    className="font-heading font-semibold"
+                    style={{
+                      fontSize: 25,
+                      lineHeight: '30px',
+                      letterSpacing: '-0.5px',
+                      color: vColor,
+                    }}
+                  >
+                    {value}
+                  </dd>
+                  <dt
+                    className="font-ui font-bold uppercase"
+                    style={{ fontSize: 'var(--fs-9)', letterSpacing: '0.6px', color: lColor }}
+                  >
+                    {label}
+                  </dt>
+                </div>
+              ))}
+            </dl>
+          )}
 
           {/* Email notice 8027:213980 */}
           <div
@@ -424,13 +473,16 @@ const OnboardingDonePage = () => {
               </span>
             </CardHeader>
             <ul className="px-3.5 py-1">
-              {NEXT.map((item, i) => (
+              {next.map((item, i) => (
                 <li
                   key={item.id}
                   className={classNames(
                     'flex items-center gap-3 py-[11px]',
-                    i < NEXT.length - 1 && 'border-b border-[rgba(28,42,33,0.05)]'
+                    live && 'cursor-pointer',
+                    i < next.length - 1 && 'border-b border-[rgba(28,42,33,0.05)]'
                   )}
+                  // Live: each row opens its page (sign-in first if needed: the protected routes send people to login).
+                  onClick={live ? () => navigate(NEXT_LINKS[item.id]) : undefined}
                 >
                   <span
                     className="flex size-[38px] shrink-0 items-center justify-center rounded-[16px]"
@@ -533,11 +585,12 @@ const OnboardingDonePage = () => {
               className="w-full"
               rightIcon={<ArrowRightIcon />}
               onClick={() => {
-                log('go to dashboard');
-                navigate('/');
+                // Activation doesn't sign the person in: live goes to login (the dashboard follows); demo as drawn.
+                log('go to dashboard', live ? '-> /login' : '-> /');
+                navigate(live ? '/login' : '/');
               }}
             >
-              Go to my dashboard
+              {live ? 'Log in to my dashboard' : 'Go to my dashboard'}
             </Button>
             <button
               type="button"

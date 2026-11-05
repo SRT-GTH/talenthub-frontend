@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="art">
+<path id="Vector" d="M10 42C7 25 20 10 38 9C56 8 72 20 71 39C70 58 55 72 37 70C20 68 13 58 10 42Z" fill="#E1EAE2"/>
+<path id="Vector_2" d="M42 13L63 21V41C63 55 53 65 42 70C31 65 21 55 21 41V21L42 13Z" fill="#1C2A21"/>
+<path id="Vector_3" d="M40 11L61 19V39C61 53 51 63 40 68C29 63 19 53 19 39V19L40 11Z" fill="#387440" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_4" d="M40 17L55 23V39C55 49 48 56.5 40 60.5" stroke-width="1.5" stroke-linecap="round" stroke="white" stroke-opacity="0.35"/>
+<path id="Vector_5" d="M40 40.5C43.0376 40.5 45.5 38.0376 45.5 35C45.5 31.9624 43.0376 29.5 40 29.5C36.9624 29.5 34.5 31.9624 34.5 35C34.5 38.0376 36.9624 40.5 40 40.5Z" fill="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_6" d="M37.5 39H42.5L43.5 50H36.5L37.5 39Z" fill="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_7" d="M62.5 67.5C67.4706 67.5 71.5 63.4706 71.5 58.5C71.5 53.5294 67.4706 49.5 62.5 49.5C57.5294 49.5 53.5 53.5294 53.5 58.5C53.5 63.4706 57.5294 67.5 62.5 67.5Z" fill="#1C2A21"/>
+<path id="Vector_8" d="M61 66C65.9706 66 70 61.9706 70 57C70 52.0294 65.9706 48 61 48C56.0294 48 52 52.0294 52 57C52 61.9706 56.0294 66 61 66Z" fill="#F3C84B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_9" d="M57 57L60 60L65.5 53.5" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" stroke="#1C2A21"/>
+<path id="Vector_10" d="M15 10.5C15.54 14.46 15.54 14.46 19.5 15C15.54 15.54 15.54 15.54 15 19.5C14.46 15.54 14.46 15.54 10.5 15C14.46 14.46 14.46 14.46 15 10.5Z" fill="#C8951A"/>
+<path id="Vector_11" d="M70 17C70.36 19.64 70.36 19.64 73 20C70.36 20.36 70.36 20.36 70 23C69.64 20.36 69.64 20.36 67 20C69.64 19.64 69.64 19.64 70 17Z" fill="#387440"/>
+<path id="Vector_12" d="M11 66C13 63.3333 15 63.3333 17 66C19 68.6667 21 68.6667 23 66" stroke-width="1.5" stroke-linecap="round" stroke="#C8951A"/>
+</g>
+</svg>

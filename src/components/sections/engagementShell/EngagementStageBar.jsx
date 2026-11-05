@@ -27,7 +27,8 @@ const EngagementStageBar = ({
   className,
 }) => {
   const navigate = useNavigate();
-  const total = ENGAGEMENT_STAGES.length;
+  // Segments carry this talent's stage count (7 for JHS, 9 for everyone else).
+  const total = segments?.length || ENGAGEMENT_STAGES.length;
   const pct = Math.round((doneCount / total) * 100);
   const segs = segments ?? ENGAGEMENT_STAGES.map((s) => (s.n <= doneCount ? 'done' : 'todo'));
   log('render', { stageNumber, stageName, doneCount, pct });

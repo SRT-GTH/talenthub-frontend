@@ -197,28 +197,28 @@ const StatCard = ({ value, label, valueColor, labelColor = '#2a5730' }) => {
   log('StatCard render', { label, value });
   return (
     <div
-      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-black bg-[#f8f8f4] max-md:h-auto! max-md:w-full! max-md:gap-0 max-md:border-black/15 max-md:py-2"
+      className="flex flex-col items-center py-[9px] gap-[4px] rounded-[10px] border border-[rgba(28,42,33,0.07)] bg-[#f8f8f4] max-md:h-auto! max-md:w-full! max-md:flex-col-reverse max-md:gap-0 max-md:py-2"
       style={{ width: '194px', height: '98px' }}
     >
-      {/* Inner box */}
-      <div
-        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white max-md:h-auto max-md:w-auto max-md:border-0! max-md:bg-transparent"
-        style={{ border: '0.4px solid rgba(0,0,0,0.4)' }}
-      >
-        <span
-          className="font-sans font-normal max-md:text-[28px]! max-md:leading-8!"
-          style={{ fontSize: '32px', lineHeight: '22px', color: valueColor }}
-        >
-          {value}
-        </span>
-      </div>
       {/* Label */}
       <span
-        className="font-sans font-medium"
+        className="font-sans font-medium self-start pl-[9px] max-md:self-center max-md:pl-0"
         style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
       >
         {label}
       </span>
+      {/* Inner box */}
+      <div
+        className="flex items-center justify-center w-[177px] h-[60px] rounded-[10px] bg-white max-md:h-auto max-md:w-auto max-md:border-0! max-md:bg-transparent"
+        style={{ border: '0.4px solid rgba(28,42,33,0.07)' }}
+      >
+        <span
+          className="font-heading font-semibold max-md:text-[28px]! max-md:leading-8!"
+          style={{ fontSize: '29px', lineHeight: '30px', color: valueColor }}
+        >
+          {value}
+        </span>
+      </div>
     </div>
   );
 };
@@ -301,7 +301,7 @@ const ValidateSection = () => {
           },
           {
             value: missingContact,
-            label: 'Missing Fields',
+            label: 'Missing Contact',
             valueColor: '#c0392b',
             labelColor: '#c0392b',
           },
@@ -348,7 +348,7 @@ const ValidateSection = () => {
                 Instrument Serif fs=64 lh=70 ls=-0.64px CENTER
                 "26 issues found." → italic #387440 */}
             <h1
-              className="text-center font-serif text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+              className="text-center font-heading font-semibold text-black max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
               style={{
                 fontSize: 'clamp(2rem, 4.4vw, 4rem)',
                 lineHeight: 1.094,
@@ -356,7 +356,7 @@ const ValidateSection = () => {
               }}
             >
               File scanned{' '}
-              <span className="italic text-brand-green">
+              <span className="text-brand-green">
                 {failedRows
                   ? `${failedRows} row${failedRows > 1 ? 's' : ''} with issues.`
                   : 'No issues found.'}
@@ -442,6 +442,7 @@ const ValidateSection = () => {
                     description={check.description}
                     rows={check.rows}
                     howToFix={check.howToFix}
+                    defaultExpanded={activeTab === 'failed' && i === 0}
                   />
                 );
               })}

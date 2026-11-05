@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Captions from '../../ui/Captions.jsx';
 import StickyActionBar from '../../ui/form/StickyActionBar.jsx';
 import Loader from '../../ui/Loader.jsx';
+import reportLoaderIcon from '../../../assets/institution/report-loader.svg';
 import WavyDivider from '../../shared/WavyDivider.jsx';
 import { ArrowRightIcon, ArrowLeftIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
@@ -139,45 +140,14 @@ const InfoCircleIcon = () => (
 // + inner circle 34×34 (#ebf1ec/0.5) with small inner element
 // ─────────────────────────────────────────────────────────────────────────────
 const ConcentricRings = () => (
-  <div
+  <img
+    src={reportLoaderIcon}
+    alt=""
     aria-hidden="true"
-    className="relative flex items-center justify-center"
-    style={{ width: '80px', height: '80px' }}
-  >
-    {/* Outermost ring — 80×80 */}
-    <div
-      className="absolute rounded-full"
-      style={{ width: '80px', height: '80px', border: '3px solid #000000', borderRadius: '50%' }}
-    />
-    {/* Middle ring — 64×64 */}
-    <div
-      className="absolute rounded-full"
-      style={{ width: '64px', height: '64px', border: '3px solid #000000', borderRadius: '50%' }}
-    />
-    {/* Inner ring — 48×48 */}
-    <div
-      className="absolute rounded-full"
-      style={{ width: '48px', height: '48px', border: '3px solid #000000', borderRadius: '50%' }}
-    />
-    {/* Innermost filled circle — 34×34, #ebf1ec at 0.5 opacity */}
-    <div
-      className="absolute flex items-center justify-center"
-      style={{
-        width: '34px',
-        height: '34px',
-        backgroundColor: 'rgba(235,241,236,0.5)',
-        borderRadius: '50%',
-      }}
-    >
-      {/* Small inner icon — 16×16 processing indicator */}
-      <div style={{ width: '16px', height: '16px' }} className="flex items-center justify-center">
-        <div
-          className="rounded-full border-[1.5px] border-brand-green animate-spin"
-          style={{ width: '12px', height: '12px', borderTopColor: 'transparent' }}
-        />
-      </div>
-    </div>
-  </div>
+    width={80}
+    height={80}
+    className="block size-[80px]"
+  />
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -190,16 +160,23 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
   log('LoadingStatCard render', { value, label });
   return (
     <div
-      className="flex-1 flex flex-col items-center gap-[4px] max-md:h-auto! max-md:min-w-0 max-md:gap-0.5! max-md:border-black/15! max-md:py-2!"
+      className="flex-1 flex flex-col max-md:flex-col-reverse items-center gap-[4px] max-md:h-auto! max-md:min-w-0 max-md:gap-0.5! max-md:py-2!"
       style={{
         height: '98px',
         backgroundColor: outerFill,
-        border: '1px solid #000000',
+        border: '1px solid rgba(28,42,33,0.07)',
         borderRadius: '10px',
         paddingTop: '9px',
         paddingBottom: '9px',
       }}
     >
+      {/* Label below inner box */}
+      <span
+        className="font-sans font-medium self-start pl-[9px] max-md:self-center max-md:pl-0 max-md:px-1 max-md:text-center max-md:leading-4!"
+        style={{ fontSize: '12px', lineHeight: '20px', color: labelColor, letterSpacing: '0.2px' }}
+      >
+        {label}
+      </span>
       {/* Inner white box */}
       <div
         className="relative flex items-center justify-center overflow-hidden max-md:h-auto! max-md:border-0! max-md:bg-transparent!"
@@ -207,13 +184,13 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
           width: 'calc(100% - 18px)',
           height: '60px',
           backgroundColor: '#fefefe',
-          border: '0.4px solid rgba(0,0,0,0.4)',
+          border: '0.4px solid rgba(28,42,33,0.07)',
           borderRadius: '10px',
         }}
       >
         <span
-          className="font-sans max-md:text-[24px]! max-md:leading-8!"
-          style={{ fontSize: 'clamp(1.5rem, 2.2vw, 2rem)', lineHeight: '22px', color: valueColor }}
+          className="font-heading font-semibold max-md:text-[24px]! max-md:leading-8!"
+          style={{ fontSize: '29px', lineHeight: '30px', color: valueColor }}
         >
           {value}
         </span>
@@ -223,13 +200,6 @@ const LoadingStatCard = ({ value, valueColor, label, labelColor, outerFill }) =>
           style={{ height: '4px', backgroundColor: outerFill, borderRadius: '0 0 10px 10px' }}
         />
       </div>
-      {/* Label below inner box */}
-      <span
-        className="font-sans font-medium max-md:px-1 max-md:text-center max-md:leading-4!"
-        style={{ fontSize: '12px', lineHeight: '20px', color: labelColor, letterSpacing: '0.2px' }}
-      >
-        {label}
-      </span>
     </div>
   );
 };
@@ -251,17 +221,24 @@ const ReportStatCard = ({
   log('ReportStatCard render', { value, label });
   return (
     <div
-      className="flex flex-col items-center gap-[4px] max-md:h-auto! max-md:w-full! max-md:gap-0! max-md:border-black/15! max-md:py-2!"
+      className="flex flex-col items-center gap-[4px] max-md:h-auto! max-md:w-full! max-md:flex-col-reverse max-md:gap-0! max-md:py-2!"
       style={{
         width: '194px',
         height: '98px',
         backgroundColor: outerFill,
-        border: '1px solid #000000',
+        border: '1px solid rgba(28,42,33,0.07)',
         borderRadius: '10px',
         paddingTop: '9px',
         paddingBottom: '9px',
       }}
     >
+      {/* Outer label below inner box */}
+      <span
+        className="font-sans font-medium self-start pl-[9px] max-md:self-center max-md:pl-0"
+        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
+      >
+        {label}
+      </span>
       {/* Inner white box — 177×60 */}
       <div
         className="flex flex-col items-center justify-center gap-[4px] max-md:h-auto! max-md:w-full! max-md:border-0! max-md:bg-transparent! max-md:p-0"
@@ -269,13 +246,13 @@ const ReportStatCard = ({
           width: '177px',
           height: '60px',
           backgroundColor: '#fefefe',
-          border: '0.4px solid rgba(0,0,0,0.4)',
+          border: '0.4px solid rgba(28,42,33,0.07)',
           borderRadius: '10px',
         }}
       >
         <span
-          className="font-sans max-md:text-[28px]! max-md:leading-8!"
-          style={{ fontSize: 'clamp(1.2rem, 2vw, 2rem)', lineHeight: '22px', color: valueColor }}
+          className="font-heading font-semibold max-md:text-[28px]! max-md:leading-8!"
+          style={{ fontSize: '29px', lineHeight: '30px', color: valueColor }}
         >
           {value}
         </span>
@@ -292,13 +269,6 @@ const ReportStatCard = ({
           {subLabel}
         </span>
       </div>
-      {/* Outer label below inner box */}
-      <span
-        className="font-sans font-medium text-center"
-        style={{ fontSize: 'var(--fs-10)', lineHeight: '16px', color: labelColor }}
-      >
-        {label}
-      </span>
     </div>
   );
 };
@@ -327,7 +297,7 @@ const ProcessingLog = ({ entries }) => (
       style={{
         height: '130px',
         backgroundColor: '#f8f8f4',
-        border: '1px solid #000000',
+        border: '1px solid rgba(28,42,33,0.07)',
         borderRadius: '10px',
         padding: '12px 16px',
       }}
@@ -441,7 +411,7 @@ const ReportCheckCard = ({ card }) => {
   return (
     <div
       className="w-full overflow-hidden max-md:rounded-[10px]! max-md:border-black/15!"
-      style={{ border: '1px solid #000000', borderRadius: '16px' }}
+      style={{ border: '1px solid rgba(28,42,33,0.07)', borderRadius: '16px' }}
     >
       {/* ── Header row ── */}
       <div
@@ -600,7 +570,7 @@ const ReportTableFooter = ({ card }) => {
         minHeight: '33px',
         padding: '0 16px',
         backgroundColor: isInfo ? '#fefcf5' : '#ffffff',
-        borderTop: isInfo ? '1px solid #000000' : '1px solid rgba(0,0,0,0.04)',
+        borderTop: isInfo ? '1px solid rgba(28,42,33,0.07)' : '1px solid rgba(0,0,0,0.04)',
       }}
     >
       <span
@@ -816,7 +786,7 @@ const ReportSection = () => {
 
           {/* Headline — loading: "Creating accounts.." / report: "821 students are live" */}
           <h1
-            className="font-display text-center max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+            className="font-heading font-semibold text-center max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
             style={{
               fontSize: 'clamp(2.5rem, 4.4vw, 4rem)',
               lineHeight: '70px',
@@ -826,12 +796,12 @@ const ReportSection = () => {
           >
             {isLoading ? (
               <>
-                Creating <span className="italic text-brand-green">accounts..</span>
+                Creating <span className="text-brand-green">accounts..</span>
               </>
             ) : (
               <>
                 {status?.successful ?? 0} students are{' '}
-                <span className="italic text-brand-green">live</span>
+                <span className="text-brand-green">live</span>
               </>
             )}
           </h1>

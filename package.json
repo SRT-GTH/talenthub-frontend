@@ -26,6 +26,9 @@
     "audit:figma:fetch": "node scripts/figma-fetch.mjs --all --images"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource-variable/raleway": "^5.3.0",
     "@grafana/faro-web-sdk": "^2.13.0",
     "@grafana/faro-web-tracing": "^2.13.0",
     "@hookform/resolvers": "^3.9.1",
@@ -41,6 +44,7 @@
     "read-excel-file": "9.3.10",
     "redux-persist": "^6.0.0",
     "universal-cookie": "^8.0.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^3.24.1"
   },
   "devDependencies": {

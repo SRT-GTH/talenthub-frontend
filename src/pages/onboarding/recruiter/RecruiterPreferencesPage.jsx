@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import StepHeading from '../../../components/sections/recruiterOnboarding/closing/StepHeading.jsx';
@@ -113,10 +114,17 @@ const RecruiterPreferencesPage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
   const saved = data.preferences || {};
-  const [scope, setScope] = useState(saved.scope || '');
-  const [experience, setExperience] = useState(saved.experience || []);
-  const [industries, setIndustries] = useState(saved.industries || []);
-  const [showError, setShowError] = useState(false);
+  // `?state=filled|error` opens Figma R07 7374:9278 (Local, Entry + Mid, Technology + Finance) / 9556 (same chips, no scope, error shown).
+  const seed = frameSeed();
+  const seeded = seed === 'filled' || seed === 'error';
+  const [scope, setScope] = useState(seed === 'filled' ? 'local' : saved.scope || '');
+  const [experience, setExperience] = useState(
+    seeded ? ['Entry-level', 'Mid-level'] : saved.experience || []
+  );
+  const [industries, setIndustries] = useState(
+    seeded ? ['Technology', 'Finance'] : saved.industries || []
+  );
+  const [showError, setShowError] = useState(seed === 'error');
   const [saving, setSaving] = useState(false);
   const alive = useRef(true);
   const uid = useId();

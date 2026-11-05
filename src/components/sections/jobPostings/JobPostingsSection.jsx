@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
@@ -11,6 +12,7 @@ import {
   HatGraduationIcon,
   LocationPinIcon,
   MeatballMenuIcon,
+  PostingPencilIcon,
 } from './jobPostingsIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -18,6 +20,8 @@ import {
   PAGE_HEADING,
   PAGE_SUBHEADING,
   STATUS_PILLS,
+  STATUS_FILTER_IDS,
+  FILTER_SUMMARY,
   SEARCH_PLACEHOLDER,
   CREATE_POST_LABEL,
   STAT_LABELS,
@@ -29,6 +33,18 @@ import {
 } from './jobPostingsData.js';
 
 const log = debug('JobPostingsSection');
+
+/*
+ * URL state (route /recruiter/job-postings) — every Figma frame is reachable:
+ *   (none)                                         7249:75818  All
+ *   ?status=draft                                  7249:76277  Draft (also active | closed)
+ *   ?menu=senior-ux-designer                       7249:76638  Post Card - Menu
+ *   ?menu=senior-ux-designer&menuItem=duplicate    7249:77110  Menu Item Hover (pins the hover
+ *                                                  fill; real :hover also works) — edit | duplicate | close
+ *   ?modal=close-posting&posting=senior-ux-designer 7249:77582 Closing Post Confirmation
+ * Clicking the filter pills, the card "..." trigger, the "Close posting" item and the dialog
+ * buttons writes / clears the same keys, so reload, deep-link and back all work.
+ */
 
 /*
  * JobPostingsSection — the recruiter's own postings list.
@@ -58,40 +74,51 @@ const CARD_ICONS = {
   'hat-graduation': HatGraduationIcon,
 };
 
-const PostingCard = ({ posting, openMenuId, onToggleMenu, onMenuItem, onAction }) => {
+const PostingCard = ({
+  posting,
+  isMenuOpen,
+  forcedHoverItemId,
+  onToggleMenu,
+  onMenuItem,
+  onAction,
+}) => {
   const Icon = CARD_ICONS[posting.icon];
-  const isMenuOpen = openMenuId === posting.id;
 
   return (
     <article className="relative flex min-w-0 flex-col justify-between rounded-[14px] border border-border-card bg-white p-[22px] max-sm:p-[14px]">
-      {/* Overflow trigger — Figma 7249:75929: a white PILL, not a circle */}
-      <div className="absolute right-[22px] top-[22px] max-sm:right-[10px] max-sm:top-[12px]">
+      {/* Overflow trigger — Figma 7249:75929: a white PILL sitting on the card corner (7px above, 4px past the edge) */}
+      <div className="absolute -right-[5px] -top-[8px] z-10 max-sm:right-[10px] max-sm:top-[12px]">
         <button
           type="button"
           aria-label={`Options for ${posting.title}`}
           aria-expanded={isMenuOpen}
           onClick={() => onToggleMenu(posting.id)}
           /* Below lg an invisible ::after grows the hit area to ~60x44 without changing the pill. */
-          className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill bg-white shadow-[0_1.5px_1px_0_rgba(0,0,0,0.12)] transition-colors hover:bg-neutral max-lg:relative max-lg:after:absolute max-lg:after:-inset-x-[10px] max-lg:after:-inset-y-[10px]"
+          className="flex h-[24.25px] w-[40.75px] items-center justify-center rounded-pill bg-white text-[#999999] shadow-[0_1.5px_1px_0_rgba(0,0,0,0.16)] transition-colors hover:bg-neutral max-lg:relative max-lg:after:absolute max-lg:after:-inset-x-[10px] max-lg:after:-inset-y-[10px]"
         >
-          <MeatballMenuIcon className="w-[18.75px] text-[#999999]" />
+          <MeatballMenuIcon className="w-[21px]" />
         </button>
 
         {isMenuOpen && (
-          /* Figma 7249:76889 — 160 wide, r12, 0.7px #e5e5e5, 49px rows */
-          <div className="absolute right-0 top-[30px] z-20 w-[160px] overflow-hidden rounded-[12px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]">
+          /* Figma 7249:76889 — 160 wide, r12, 0.7px #e5e5e5, 49px rows, centred labels */
+          <div
+            role="menu"
+            data-testid={`posting-menu-${posting.id}`}
+            className="absolute right-0 top-[33px] z-20 w-[160px] overflow-hidden rounded-[12px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
+          >
             {CARD_MENU_ITEMS.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-[0.6px] w-full bg-[#e5e5e5]" />}
                 <button
                   type="button"
+                  role="menuitem"
+                  data-testid={`posting-menu-item-${item.id}`}
                   onClick={() => onMenuItem(posting.id, item)}
                   className={classNames(
-                    'flex h-[49px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] tracking-[0.24px] transition-colors',
-                    // Figma highlights one row per menu to show the HOVER state;
-                    // all three menus in this file set use #f6f6f6 for it.
+                    'flex h-[49px] w-full items-center justify-center px-[16px] text-center font-sans text-[14px] leading-[24.31px] tracking-[0.24px] transition-colors',
                     'hover:bg-[#f6f6f6] active:bg-[#ededed]',
-                    item.destructive ? 'text-[#902b20]' : 'text-content-helper'
+                    forcedHoverItemId === item.id && 'bg-[#f6f6f6]',
+                    item.destructive ? 'text-[#902b20]' : 'text-[#737373]'
                   )}
                 >
                   {item.label}
@@ -115,12 +142,12 @@ const PostingCard = ({ posting, openMenuId, onToggleMenu, onMenuItem, onAction }
 
           <div className="flex flex-col gap-[12px] max-sm:min-w-0 max-sm:flex-1 max-sm:gap-[2px] max-sm:pr-[44px]">
             <div className="flex items-center justify-between gap-[12px] pr-[48px] max-sm:flex-wrap max-sm:justify-start max-sm:gap-x-[8px] max-sm:gap-y-[2px] max-sm:pr-0">
-              <h3 className="font-display text-[26px] not-italic leading-[33.8px] tracking-[-1px] text-black max-sm:text-[17px] max-sm:leading-[22px] max-sm:tracking-[-0.3px]">
+              <h3 className="font-heading text-[23px] font-semibold leading-[29px] tracking-[-0.46px] text-[#1c2a21] max-sm:text-[17px] max-sm:leading-[22px] max-sm:tracking-[-0.3px]">
                 {posting.title}
               </h3>
               <span
                 className={classNames(
-                  'inline-flex shrink-0 items-center rounded-pill border-[1.21px] px-[9.64px] py-[6px] font-sans text-[14px] font-medium leading-[16.71px] max-sm:px-[8px] max-sm:py-[1px] max-sm:text-[12px]',
+                  'inline-flex shrink-0 items-center rounded-pill border-[1.21px] px-[9.64px] py-[6px] font-sans text-[14px] font-medium leading-[17px] max-sm:px-[8px] max-sm:py-[1px] max-sm:text-[12px]',
                   STATUS_STYLES[posting.status]
                 )}
               >
@@ -136,47 +163,45 @@ const PostingCard = ({ posting, openMenuId, onToggleMenu, onMenuItem, onAction }
                   {posting.location}
                 </span>
               </span>
-              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[16.71px] text-content-muted">
+              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[16.71px] text-[#9a988f]">
                 •
               </span>
-              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[19.2px] text-content-muted">
+              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[19.2px] text-[#9a988f]">
                 {posting.type}
               </span>
-              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[16.71px] text-content-muted">
+              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[16.71px] text-[#9a988f]">
                 •
               </span>
-              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[19.2px] text-content-muted">
+              <span className="font-sans text-[14px] max-sm:text-[12px] leading-[19.2px] text-[#9a988f]">
                 {posting.age}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Stat strip — Figma 7249:75934 */}
-        <div className="flex items-stretch justify-between gap-[24px] py-[18px] max-sm:gap-[8px] max-sm:py-[8px]">
+        {/* Stat strip — Figma 7249:75934: three 100px columns, equal gaps, 1px rules */}
+        <div className="flex items-stretch justify-between py-[18px] max-sm:gap-[8px] max-sm:py-[8px]">
           {[
             { label: STAT_LABELS.totalApplicants, value: posting.totalApplicants, primary: true },
             { label: STAT_LABELS.awaiting, value: posting.awaiting },
             { label: STAT_LABELS.avgMatch, value: posting.avgMatch },
           ].map((stat, index) => (
-            <div key={stat.label} className="flex flex-1 items-stretch max-sm:flex-auto">
-              {index > 0 && (
-                <span className="mr-[24px] w-px shrink-0 bg-border-card max-sm:mr-[8px]" />
-              )}
-              <span className="flex flex-1 flex-col items-center justify-center gap-[6.59px] max-sm:gap-[2px]">
-                <span className="font-sans text-[14px] leading-5 tracking-[0.2px] text-content-muted max-sm:whitespace-nowrap max-sm:text-[12px]">
+            <Fragment key={stat.label}>
+              {index > 0 && <span className="w-px shrink-0 bg-border-card" />}
+              <span className="flex w-[100px] flex-col items-center justify-center gap-[6.59px] max-sm:w-auto max-sm:flex-1 max-sm:gap-[2px]">
+                <span className="whitespace-nowrap text-center font-sans text-[14px] leading-5 tracking-[0.2px] text-[#9a988f] max-sm:text-[12px]">
                   {stat.label}
                 </span>
                 <span
                   className={classNames(
-                    'font-display text-[25px] not-italic leading-[30px] max-sm:text-[17px] max-sm:leading-[22px]',
+                    'font-heading text-[23px] font-semibold leading-[29px] max-sm:text-[17px] max-sm:leading-[22px]',
                     stat.primary ? 'text-[#00522b]' : 'text-[#43664d]'
                   )}
                 >
                   {stat.value}
                 </span>
               </span>
-            </div>
+            </Fragment>
           ))}
         </div>
       </div>
@@ -187,7 +212,7 @@ const PostingCard = ({ posting, openMenuId, onToggleMenu, onMenuItem, onAction }
         onClick={() => onAction(posting.id, posting.action)}
         className="flex items-center justify-between gap-3 border-t border-border-card pt-[18px] text-left transition-opacity hover:opacity-80 max-sm:pt-[8px]"
       >
-        <span className="font-sans text-[14px] max-sm:text-[13px] leading-[17.6px] text-[#999999]">
+        <span className="font-sans text-[14px] leading-[18px] text-[#999999] max-sm:text-[13px]">
           {posting.action}
         </span>
         <TemplateArrowRightIcon className="size-[24px] max-sm:size-[20px] shrink-0 text-brand-green-dark" />
@@ -197,65 +222,129 @@ const PostingCard = ({ posting, openMenuId, onToggleMenu, onMenuItem, onAction }
 };
 
 const JobPostingsSection = () => {
-  const [activeStatus, setActiveStatus] = useState(STATUS_PILLS[0].id);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [closingPostingId, setClosingPostingId] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchText, setSearchText] = useState('');
+  const [closedPostingIds, setClosedPostingIds] = useState([]);
+
+  const statusParam = searchParams.get('status');
+  const activeStatus = STATUS_FILTER_IDS.includes(statusParam) ? statusParam : 'all';
+  const openMenuId = searchParams.get('menu');
+  const forcedHoverItemId = searchParams.get('menuItem');
+  const closingPostingId =
+    searchParams.get('modal') === 'close-posting' ? searchParams.get('posting') : null;
 
   useEffect(() => {
     log('mount', { route: '/recruiter/job-postings', postingCount: POSTINGS.length });
   }, []);
 
-  const visible =
-    activeStatus === 'all'
-      ? POSTINGS
-      : POSTINGS.filter((p) => p.status.toLowerCase() === activeStatus);
+  useEffect(() => {
+    log('url state', { activeStatus, openMenuId, forcedHoverItemId, closingPostingId });
+  }, [activeStatus, openMenuId, forcedHoverItemId, closingPostingId]);
+
+  // Writes only the keys passed; null removes a key.
+  const updateUrl = (changes) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(changes).forEach(([key, value]) => {
+      if (value == null) next.delete(key);
+      else next.set(key, value);
+    });
+    setSearchParams(next);
+  };
+
+  const postings = useMemo(
+    () => POSTINGS.map((p) => (closedPostingIds.includes(p.id) ? { ...p, status: 'Closed' } : p)),
+    [closedPostingIds]
+  );
+
+  const visible = postings.filter(
+    (p) =>
+      (activeStatus === 'all' || p.status.toLowerCase() === activeStatus) &&
+      p.title.toLowerCase().includes(searchText.trim().toLowerCase())
+  );
+
+  // Only the active pill shows a count (Figma 7249:75818 / 7249:76277).
+  const pills = STATUS_PILLS.map((pill) =>
+    pill.id === activeStatus
+      ? { ...pill, count: pill.fixedCount ?? `(${visible.length})` }
+      : { id: pill.id, label: pill.label }
+  );
+  const activePill = STATUS_PILLS.find((pill) => pill.id === activeStatus);
 
   const handleMenuItem = (postingId, item) => {
     log('branch', { menuItem: item.id, posting: postingId });
-    setOpenMenuId(null);
-    if (item.id === 'close') setClosingPostingId(postingId);
+    if (item.id === 'close') {
+      updateUrl({ menu: null, menuItem: null, modal: 'close-posting', posting: postingId });
+    } else {
+      updateUrl({ menu: null, menuItem: null });
+    }
   };
+
+  const closeDialog = () => updateUrl({ modal: null, posting: null });
 
   return (
     <DashboardShell>
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
-          <RecruiterPageHeading lead={PAGE_HEADING.lead} subtitle={PAGE_SUBHEADING} />
+          <RecruiterPageHeading
+            lead={PAGE_HEADING.lead}
+            accent={PAGE_HEADING.accent}
+            subtitle={PAGE_SUBHEADING}
+            titleStyle="sans-accent"
+          />
           <RecruiterJobTabs />
         </div>
 
         <div className="flex flex-col gap-[32px] pb-[48px] max-md:gap-[12px] max-md:pb-[8px]">
           <RecruiterListToolbar
-            chips={STATUS_PILLS}
+            chips={pills}
             activeChipId={activeStatus}
             onChipSelect={(id) => {
               log('branch', { statusFilter: id });
-              setActiveStatus(id);
+              updateUrl({ status: id === 'all' ? null : id, menu: null, menuItem: null });
             }}
             searchLabel={SEARCH_PLACEHOLDER}
+            onSearch={setSearchText}
             actionLabel={CREATE_POST_LABEL}
+            actionIcon={<PostingPencilIcon className="size-[18px] shrink-0" />}
             onAction={() => log('branch', { action: 'create-post', wired: false })}
           />
 
-          {/* Figma 7249:75902 — HORIZONTAL, gap 16, 3 x 432.33 */}
-          <div className="grid grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
-            {visible.map((posting) => (
-              <PostingCard
-                key={posting.id}
-                posting={posting}
-                openMenuId={openMenuId}
-                onToggleMenu={(id) => setOpenMenuId((prev) => (prev === id ? null : id))}
-                onMenuItem={handleMenuItem}
-                onAction={(id, action) =>
-                  log('branch', { posting: id, action, destination: 'none-in-figma' })
-                }
-              />
-            ))}
+          <div className="flex flex-col gap-[20px]">
+            {activeStatus !== 'all' && (
+              <p
+                data-testid="posting-filter-summary"
+                className="font-sans text-[14px] leading-5 tracking-[0.2px] text-[#959592]"
+              >
+                {FILTER_SUMMARY.prefix} {visible.length}{' '}
+                {visible.length === 1 ? FILTER_SUMMARY.singular : FILTER_SUMMARY.plural}{' '}
+                {FILTER_SUMMARY.connector}{' '}
+                <span className="font-medium text-brand-green">{activePill.label}</span>
+              </p>
+            )}
+
+            {/* Figma 7249:75902 — HORIZONTAL, gap 16, 3 x 432.33 */}
+            <div className="grid grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
+              {visible.map((posting) => (
+                <PostingCard
+                  key={posting.id}
+                  posting={posting}
+                  isMenuOpen={openMenuId === posting.id}
+                  forcedHoverItemId={openMenuId === posting.id ? forcedHoverItemId : null}
+                  onToggleMenu={(id) =>
+                    updateUrl({ menu: openMenuId === id ? null : id, menuItem: null })
+                  }
+                  onMenuItem={handleMenuItem}
+                  onAction={(id, action) =>
+                    log('branch', { posting: id, action, destination: 'none-in-figma' })
+                  }
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Close confirmation — Figma 7249:78032 (528x313, r24, pad 48/64) */}
+      {/* Close confirmation — Figma 7249:78032 (528x304, r24, pad 64/48), scrim #1c2a21 @ 70% */}
       {/* Portalled so it covers the shell's Career Buddy launcher + tab bar. */}
       {closingPostingId &&
         createPortal(
@@ -263,16 +352,17 @@ const JobPostingsSection = () => {
             role="dialog"
             aria-modal="true"
             aria-label={CLOSE_CONFIRMATION.title}
+            data-testid="close-posting-dialog"
             /* Phones: a bottom sheet flush to the screen edges, like the shared Modal. */
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 max-sm:items-end max-sm:px-0"
-            onClick={() => setClosingPostingId(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 px-4 max-sm:items-end max-sm:px-0"
+            onClick={closeDialog}
           >
             <div
               onClick={(event) => event.stopPropagation()}
-              className="flex w-full max-w-[528px] flex-col items-center rounded-[24px] bg-white px-[48px] py-[64px] text-center shadow-[0_4px_0_0_rgba(0,0,0,0.04),0_40px_100px_0_rgba(0,0,0,0.25)] max-sm:max-h-dvh max-sm:overflow-y-auto max-sm:rounded-b-none max-sm:px-[20px] max-sm:pb-[calc(24px+env(safe-area-inset-bottom))] max-sm:pt-[32px]"
+              className="flex w-full max-w-[528px] flex-col rounded-[24px] bg-white px-[48px] py-[64px] shadow-[0_4px_0_0_rgba(0,0,0,0.13),0_40px_100px_0_rgba(0,0,0,0.25)] max-sm:max-h-dvh max-sm:overflow-y-auto max-sm:rounded-b-none max-sm:px-[20px] max-sm:pb-[calc(24px+env(safe-area-inset-bottom))] max-sm:pt-[32px]"
             >
-              <div className="flex flex-col items-center gap-[10px]">
-                <h2 className="font-display text-[36px] not-italic leading-[46.8px] text-black max-sm:text-[22px] max-sm:leading-[28px]">
+              <div className="flex flex-col items-center gap-[10px] text-center">
+                <h2 className="font-heading text-[32px] font-semibold leading-[38px] text-[#1c2a21] max-sm:text-[22px] max-sm:leading-[28px]">
                   {CLOSE_CONFIRMATION.title}
                 </h2>
                 <p className="font-sans text-[16px] leading-6 text-[#575755]">
@@ -280,14 +370,15 @@ const JobPostingsSection = () => {
                 </p>
               </div>
 
-              <div className="mt-[36px] flex flex-wrap items-center justify-center gap-[8px] max-sm:w-full max-sm:flex-col max-sm:gap-[12px]">
+              <div className="mt-[36px] flex flex-wrap items-center justify-end gap-[8px] max-sm:w-full max-sm:flex-col max-sm:gap-[12px]">
                 <button
                   type="button"
                   onClick={() => {
                     log('branch', { action: 'confirm-close-posting', posting: closingPostingId });
-                    setClosingPostingId(null);
+                    setClosedPostingIds((prev) => [...prev, closingPostingId]);
+                    closeDialog();
                   }}
-                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[10px] border-2 border-[#73221a] bg-danger px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#73221a] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[10px] border-2 border-[#73221a] bg-[#c0392b] px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#73221a] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
                 >
                   {CLOSE_CONFIRMATION.confirmLabel}
                 </button>
@@ -295,9 +386,9 @@ const JobPostingsSection = () => {
                   type="button"
                   onClick={() => {
                     log('branch', { action: 'cancel-close-posting' });
-                    setClosingPostingId(null);
+                    closeDialog();
                   }}
-                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[14px] border-2 border-black bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+                  className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[14px] border-2 border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
                 >
                   {CLOSE_CONFIRMATION.cancelLabel}
                 </button>

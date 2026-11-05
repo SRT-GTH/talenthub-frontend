@@ -16,6 +16,7 @@ import {
 } from '../../shared/assets.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import useDialogFocus from './useDialogFocus.js';
 import { verifyContactCode, sendContactCode } from '../../../services/institution.api.js';
 import { getApiErrorCode, getApiErrorMessage } from '../../../services/apiErrors.js';
 import { splitFullName } from '../../../services/onboardingMappers.js';
@@ -55,7 +56,7 @@ const log = debug('ContactVerificationModal');
 const formatTime = (seconds) => {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
 
 const maskPhone = (digits) => {
@@ -97,6 +98,7 @@ const DataRow = ({ label, value, icon }) => (
 // ── main component ────────────────────────────────────────────────────────
 
 const ContactVerificationModal = ({ data, onClose }) => {
+  const dialogRef = useDialogFocus();
   log('mount', { email: data?.email, phoneNumber: data?.phoneNumber });
 
   const navigate = useNavigate();
@@ -225,10 +227,12 @@ const ContactVerificationModal = ({ data, onClose }) => {
   if (stage === 'otp') {
     return (
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="contact-verify-title"
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 p-4 max-sm:items-end max-sm:p-0"
         onClick={handleBackdropClick}
       >
         <div
@@ -256,14 +260,14 @@ const ContactVerificationModal = ({ data, onClose }) => {
             <div className="flex flex-col gap-1">
               <h2
                 id="contact-verify-title"
-                className="font-display font-normal text-black"
+                className="font-heading font-semibold text-black"
                 style={{
                   fontSize: 'clamp(1.375rem, 2.2vw, 1.875rem)',
                   lineHeight: 1.2,
                   letterSpacing: '-0.24px',
                 }}
               >
-                Check your <span className="italic text-brand-green">messages.</span>
+                Check your <span className="text-brand-green">messages.</span>
               </h2>
               <p
                 className="font-sans text-[14px] leading-5 text-[#737373] max-sm:text-[13px]"
@@ -334,6 +338,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
               }}
               autoFocus
               disabled={isExpired}
+              state={error ? 'error' : undefined}
             />
           </div>
 
@@ -352,7 +357,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
 
           {/* ── Resend ── */}
           <div className="mb-5 max-sm:mb-3 flex items-center justify-center gap-1 text-[13px]">
-            <span className="text-content-helper">I didn&apos;t receive a code.</span>
+            <span className="text-content-helper">Didn&apos;t receive it?</span>
             <button
               type="button"
               onClick={handleResend}
@@ -364,7 +369,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
                   : 'text-brand-green hover:underline underline-offset-2'
               )}
             >
-              {resendLeft > 0 ? `Resend in 0:${resendLeft.toString().padStart(2, '0')}` : 'Resend'}
+              {resendLeft > 0 ? `Resend code (${resendLeft}s)` : 'Resend code'}
             </button>
           </div>
 
@@ -378,7 +383,11 @@ const ContactVerificationModal = ({ data, onClose }) => {
             onClick={handleVerify}
             className="w-full mb-4 max-sm:mb-3"
           >
-            {isVerifying ? 'Verifying…' : verifyButtonLabel}
+            {isVerifying
+              ? 'Verifying…'
+              : isCodeComplete
+                ? verifyButtonLabel
+                : 'Enter all 6 digits to continue'}
           </Button>
           {error && (
             <p
@@ -394,7 +403,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
           <div className="flex items-center justify-center gap-1">
             <ShieldCheckIcon className="text-brand-green" />
             <span className="text-[10px] max-lg:text-[12px] text-neutral-dark-hover">
-              Your contact details are encrypted at rest
+              Data encrypted at rest · Ghana Data Protection Act compliant
             </span>
           </div>
         </div>
@@ -407,10 +416,12 @@ const ContactVerificationModal = ({ data, onClose }) => {
   // ─────────────────────────────────────────────────────────────────────
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="contact-success-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 max-sm:items-end max-sm:p-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 p-4 max-sm:items-end max-sm:p-0"
       onClick={handleBackdropClick}
     >
       <div
@@ -438,20 +449,23 @@ const ContactVerificationModal = ({ data, onClose }) => {
           <div className="flex flex-col gap-1">
             <h2
               id="contact-success-title"
-              className="font-display font-normal text-black"
+              className="font-heading font-semibold text-black"
               style={{
                 fontSize: 'clamp(1.375rem, 2.2vw, 2rem)',
                 lineHeight: 1.2,
                 letterSpacing: '-0.28px',
               }}
             >
-              Contact <span className="italic text-brand-green">verified.</span>
+              You’re <span className="text-brand-green">Verified</span>
             </h2>
             <p
               className="font-sans text-[14px] leading-5 text-[#959592] max-sm:text-[13px]"
               style={{ letterSpacing: '0.1px' }}
             >
-              Both your phone and email are confirmed. Here&apos;s what we stored.
+              {/* ⚠️ ASSUMPTION: only the email is verified in this build (SMS_ENABLED is off). */}
+              {SMS_ENABLED
+                ? 'Both your phone and email are confirmed. Here’s what we stored.'
+                : 'Your email has been confirmed. Here’s what we verified.'}
             </p>
           </div>
         </div>
@@ -460,7 +474,7 @@ const ContactVerificationModal = ({ data, onClose }) => {
         <div className="mb-4 rounded-2xl bg-[#EBF1EC]/30 border border-brand-green-light-hover p-4 max-sm:mb-3 max-sm:rounded-xl max-sm:px-3 max-sm:py-1">
           <DataRow icon={<UserIcon />} label="Contact Name" value={data?.fullName} />
           <DataRow icon={<BriefcaseIcon />} label="Role / Title" value={data?.roleTitle} />
-          <DataRow icon={<PhoneIcon />} label="Phone Number" value={maskedPhone} />
+          {SMS_ENABLED && <DataRow icon={<PhoneIcon />} label="Phone Number" value={maskedPhone} />}
           <DataRow icon={<MailIcon />} label="Email Address" value={maskedEmail} />
         </div>
 

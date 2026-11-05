@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import RecruiterOnboardingPanel from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingPanel.jsx';
@@ -74,23 +75,55 @@ const WEBSITE_MESSAGE = 'Enter a valid URL, e.g. https://kentelabs.com.gh';
 const FIELD_MESSAGE_TONE =
   '[&_[role=alert]]:text-[#575755]! [&_[role=alert]>span]:text-brand-green';
 
+/*
+ * `?state=` seeds (Figma R04b 7374:5818…6478): '' default · filled · error (industry and district empty, website "kentelabs", errors shown) · created (filled + the
+ * "Organisation created." modal). Initial values only.
+ */
+const FRAME_VALUES = {
+  legalName: 'Kente Labs Ghana Limited',
+  tradingName: 'Kente Labs',
+  industry: 'Technology',
+  size: '11–50 employees',
+  website: 'kentelabs.com.gh',
+  region: 'Ashanti',
+  district: 'Kumasi Metropolitan',
+};
+const seedValues = (seed) => {
+  if (seed === 'filled' || seed === 'created') return FRAME_VALUES;
+  if (seed === 'error')
+    return { ...FRAME_VALUES, industry: '', website: 'kentelabs', district: '' };
+  return null;
+};
+
 const RecruiterCreateOrganisationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data, setSection } = useRecruiterOnboarding();
 
-  const [values, setValues] = useState(() => ({
-    ...EMPTY,
-    legalName: typeof location.state?.name === 'string' ? location.state.name : '',
-  }));
+  const seed = frameSeed();
+  const [values, setValues] = useState(
+    () =>
+      seedValues(seed) ?? {
+        ...EMPTY,
+        legalName: typeof location.state?.name === 'string' ? location.state.name : '',
+      }
+  );
 
   // Regions and districts (canonical names) from the location API.
   const { regionNames, districtNames: districtOptions } = useAdminAreas(values.region);
   const [touched, setTouched] = useState({});
-  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(seed === 'error');
   const [submitting, setSubmitting] = useState(false);
-  const [created, setCreated] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [created, setCreated] = useState(() =>
+    seed === 'created'
+      ? {
+          ...FRAME_VALUES,
+          id: 'frame-organisation',
+          name: shortOrganisationName(FRAME_VALUES.legalName),
+        }
+      : null
+  );
+  const [modalOpen, setModalOpen] = useState(seed === 'created');
 
   const errors = useMemo(() => {
     const next = {};
@@ -187,7 +220,7 @@ const RecruiterCreateOrganisationPage = () => {
           {...(modalOpen
             ? {
                 copy: {
-                  cardSub: `${data?.profile?.fullName || 'Your profile'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
+                  cardSub: `${data?.profile?.fullName || 'Kwame Asante'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
                 },
               }
             : {})}

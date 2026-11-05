@@ -93,7 +93,9 @@ const UpNext = ({ model }) => {
           <span className="text-[14px] font-medium leading-[17px] text-[#785910]">
             {inProgress
               ? `${progress.picked} of ${progress.of} picked · ~${progress.minutesLeft} min left`
-              : `Not started · ~${copy.eta ?? ''} min`}
+              : copy.eta
+                ? `Not started · ~${copy.eta} min`
+                : 'Not started'}
           </span>
         </span>
       </div>

@@ -4,7 +4,7 @@ import { useMediaQuery } from '../../../../hooks/useMediaQuery.js';
 import { debug } from '../../../../utils/debug.js';
 import EngagementStageFrame from '../../engagementShell/EngagementStageFrame.jsx';
 import { MILESTONES } from './journeyData.js';
-import { buildJourneyModel } from './journeyModel.js';
+import { buildJourneyModel, milestoneModalFor } from './journeyModel.js';
 import { useLiveJourney } from '../../engagementShell/useLiveJourney.js';
 import { useJourneyState } from './journeyState.js';
 import JourneyHero from './JourneyHero.jsx';
@@ -32,7 +32,9 @@ const JourneyHub = ({ defaults, children = null }) => {
   const model = useMemo(() => buildJourneyModel(liveOn ? live : s.done), [liveOn, live, s.done]);
   // Live progress only celebrates a milestone the talent has actually reached (a stage flow may route here early).
   const milestone =
-    s.milestone && (!liveOn || model.done >= MILESTONES[s.milestone - 1].at) ? s.milestone : 0;
+    s.milestone && (!liveOn || model.done >= model.milestones[s.milestone - 1].at)
+      ? s.milestone
+      : 0;
   const wide = useMediaQuery('(min-width: 1024px)');
   const twoCol = useMediaQuery('(min-width: 1536px)');
 
@@ -98,7 +100,12 @@ const JourneyHub = ({ defaults, children = null }) => {
       ) : null}
       {children}
       {milestone ? (
-        <MilestoneModal n={milestone} onClose={closeMilestone} onPrimary={(to) => navigate(to)} />
+        <MilestoneModal
+          n={milestone}
+          copy={milestoneModalFor(milestone, model)}
+          onClose={closeMilestone}
+          onPrimary={(to) => navigate(to)}
+        />
       ) : null}
     </EngagementStageFrame>
   );

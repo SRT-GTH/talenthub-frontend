@@ -275,8 +275,14 @@ const OnboardingPersonalInfoPage = () => {
   };
 
   const passwordsMatch = password.length > 0 && password === retypePassword;
+  // The CTA stays disabled until the form is valid, so these must show while typing, not only after a submit:
+  // a mismatch once the retype is as long as the password, a short password once the retype has started.
   const passwordMismatch =
-    hasSubmittedOnce && retypePassword.length > 0 && password !== retypePassword;
+    retypePassword.length > 0 &&
+    password !== retypePassword &&
+    (hasSubmittedOnce || retypePassword.length >= password.length);
+  const passwordTooShort =
+    password.length > 0 && password.length < 8 && (hasSubmittedOnce || retypePassword.length > 0);
   // Retype-password success helper surfaces "Passwords match" in green
   // (Figma node 2353:16374 helper-row #387440). Only show once the user
   // has actually typed something into Retype Password — keeps the field
@@ -346,7 +352,7 @@ const OnboardingPersonalInfoPage = () => {
   const getGenderLabel = (v) => GENDER_OPTIONS.find((o) => o.value === v)?.label || '—';
   const getNationalityLabel = (v) => NATIONALITY_OPTIONS.find((o) => o.value === v)?.label || '—';
   const maskedId = ghanaCardId
-    ? `${ghanaCardId.slice(0, 4)}-${'•'.repeat(Math.max(0, ghanaCardId.length - 4))}`
+    ? `${ghanaCardId.slice(0, 4).replace(/-$/, '')}-${'•'.repeat(Math.max(0, ghanaCardId.length - 4))}`
     : '—';
 
   const summary = [
@@ -379,7 +385,7 @@ const OnboardingPersonalInfoPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="profile" percent={78} />
+      <OnboardingHeader currentKey="profile" />
       {/* Two-column area — left scrolls, right panel stays fixed */}
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         <div className="flex flex-1 min-h-0 overflow-y-auto no-scrollbar max-md:scroll-pb-28 max-lg:relative max-lg:z-10">
@@ -498,6 +504,8 @@ const OnboardingPersonalInfoPage = () => {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  helperText={passwordTooShort ? undefined : 'At least 8 characters'}
+                  error={passwordTooShort ? 'Use at least 8 characters' : undefined}
                   leftIcon={<LockIcon />}
                   rightIcon={
                     <button
@@ -514,7 +522,7 @@ const OnboardingPersonalInfoPage = () => {
                   label="Retype Password"
                   required
                   type={showRetypePassword ? 'text' : 'password'}
-                  placeholder="Create a password"
+                  placeholder="Type your password again"
                   autoComplete="new-password"
                   value={retypePassword}
                   onChange={(e) => setRetypePassword(e.target.value)}

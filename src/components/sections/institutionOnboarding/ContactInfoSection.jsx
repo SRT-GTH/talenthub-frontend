@@ -152,15 +152,20 @@ const ContactInfoSection = () => {
 
         {/* Headline — Instrument Serif, clamp 2rem→4rem */}
         <h1
-          className="font-display font-normal max-w-[554px] text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold max-w-[554px] text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
             letterSpacing: '-0.64px',
           }}
         >
-          Who can we reach <span className="italic text-brand-green">out to?</span>
+          Who&apos;s the primary <span className="text-brand-green">contact?</span>
         </h1>
+
+        <p className="m-0 max-w-[554px] text-center font-sans text-[16px] leading-6 text-[#737373] max-md:self-start max-md:text-left">
+          This person manages the account, receives credentials, is GTH&apos;s contact, and uploads
+          students.
+        </p>
 
         <WavyDivider />
 
@@ -183,7 +188,7 @@ const ContactInfoSection = () => {
             />
             <TextInput
               leftIcon={<BriefcaseIcon />}
-              label="Role / Title"
+              label="Role /Title"
               required
               placeholder="e.g. Registrar"
               error={errors.roleTitle?.message}
@@ -247,7 +252,7 @@ const ContactInfoSection = () => {
               {...register('password')}
             />
             <PasswordInput
-              label="Confirm Password"
+              label="Retype Password"
               required
               placeholder="Re-enter password"
               successText={passwordsMatch ? 'Passwords match' : undefined}

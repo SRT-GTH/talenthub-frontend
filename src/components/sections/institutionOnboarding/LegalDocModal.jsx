@@ -3,6 +3,7 @@ import Button from '../../ui/Button.jsx';
 import ClampText from '../../ui/ClampText.jsx';
 import { CloseIcon } from '../../shared/assets.jsx';
 import { debug } from '../../../utils/debug.js';
+import useDialogFocus from './useDialogFocus.js';
 
 const log = debug('LegalDocModal');
 
@@ -79,6 +80,7 @@ const TC_CONTENT = {
 // Privacy Policy  (2992:19835 – 2992:19901)
 const PP_CONTENT = {
   title: 'Privacy Policy',
+  bannerTitle: "Your institution's data — protected under Act 843", // 2992:19850
   // 2992:19851
   subtitle:
     "6 key points. This policy covers what GTH holds about your institution and your rights under Ghana's Data Protection Act.",
@@ -132,7 +134,7 @@ const PP_CONTENT = {
 
 // Data Consent & Use Policy  (2992:20197 – 2992:20267)
 const DP_CONTENT = {
-  title: 'Data Consent & Use Policy',
+  title: 'Data Processing Consent',
   // 2992:20212
   bannerTitle: 'Students own their data — your institution sees aggregated only',
   // 2992:20213
@@ -349,24 +351,37 @@ const RightsCard = ({ card }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DPBanner = ({ title, subtitle }) => (
-  <div className="flex items-start gap-3 rounded-[12px] border border-[#c1d4c4] bg-[rgba(235,241,236,0.5)] p-4 mb-3 max-md:p-3">
+  <div className="flex items-start gap-3 rounded-[12px] bg-[rgba(235,241,236,0.6)] px-4 py-4 max-md:px-3 max-md:py-3 mb-3">
     <div
-      className="shrink-0 flex items-center justify-center size-[34px] rounded-[8px]"
+      className="shrink-0 flex items-center justify-center size-[34px] rounded-[10px]"
       style={{ background: '#387440', boxShadow: '0px 2px 0px rgba(0,0,0,0.1)' }}
       aria-hidden="true"
     >
-      <span className="font-display italic text-white text-[16px] leading-none select-none">g</span>
+      {/* Figma 2977:85529 icon export */}
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M5.38454 2.30859H14.6153C16.3146 2.30859 17.6922 3.68618 17.6922 5.38552V14.6163C17.6922 16.3156 16.3146 17.6932 14.6153 17.6932H5.38454C3.6852 17.6932 2.30762 16.3156 2.30762 14.6163V5.38552C2.30762 3.68618 3.6852 2.30859 5.38454 2.30859Z"
+          strokeWidth="1.2"
+          stroke="white"
+        />
+        <path
+          d="M6.1543 7.69141H13.8466M6.1543 10.7683H13.8466M6.1543 13.8453H10.7697"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          stroke="white"
+        />
+      </svg>
     </div>
     <div className="flex flex-col gap-[4px]">
       <p
-        className="font-sans font-bold text-[#111]"
-        style={{ fontSize: '13px', lineHeight: '1.3' }}
+        className="font-sans font-bold text-[#2a5730]"
+        style={{ fontSize: '14px', lineHeight: '1.2' }}
       >
         {title}
       </p>
       <p
-        className="font-sans font-normal text-[#737373]"
-        style={{ fontSize: '12px', lineHeight: '1.6' }}
+        className="font-sans font-medium text-[#2a5730]/80"
+        style={{ fontSize: '12px', lineHeight: '1.4' }}
       >
         {subtitle}
       </p>
@@ -375,28 +390,15 @@ const DPBanner = ({ title, subtitle }) => (
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section label badge (T&C "What you are agreeing to")
-// ─────────────────────────────────────────────────────────────────────────────
-
-const SectionLabel = ({ text }) => (
-  <div className="mb-2">
-    <span className="inline-flex items-center rounded-[4px] border border-[#c6c6c3] bg-[rgba(248,248,244,0.5)] px-2 h-[21px]">
-      <span
-        className="font-sans font-bold uppercase text-[#70706e]"
-        style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.6px' }}
-      >
-        {text}
-      </span>
-    </span>
-  </div>
-);
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
 
 const LegalDocModal = ({ variant, onClose, onAccept }) => {
+  const dialogRef = useDialogFocus();
   const content = CONTENT_MAP[variant];
+  const titleWords = (content?.title ?? '').split(' ');
+  const titleTail = titleWords.pop() ?? '';
+  const titleHead = titleWords.length ? `${titleWords.join(' ')} ` : '';
 
   // ── Mobile drag-to-close state ──────────────────────────────────────────
   const [dragY, setDragY] = useState(0);
@@ -477,19 +479,20 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="legal-modal-title"
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:p-4"
-      style={{ background: 'rgba(0,0,0,0.5)' }}
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ background: 'rgba(28,42,33,0.7)' }}
       onClick={handleBackdropClick}
     >
       {/* ── Sheet (mobile) / Card (desktop) ── */}
       <div
-        className="relative flex flex-col w-full md:max-w-[680px] rounded-t-[20px] md:rounded-[24px] bg-white overflow-hidden max-md:h-[85dvh]! max-md:max-h-[85dvh]!"
+        className="relative flex flex-col w-full md:max-w-[680px] rounded-t-[20px] bg-white overflow-hidden"
         style={{
-          height: '80vh',
-          maxHeight: '80vh',
+          maxHeight: '85dvh',
           transform: `translateY(${dragY}px)`,
           transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.32,0.72,0,1)',
           boxShadow: '0 -4px 40px rgba(0,0,0,0.18)',
@@ -498,7 +501,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
       >
         {/* ── Mobile drag handle (hidden on md+) ── */}
         <div
-          className="flex md:hidden items-center justify-center py-3 max-md:py-2 shrink-0 cursor-grab active:cursor-grabbing select-none"
+          className="flex items-center justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing select-none"
           style={{ touchAction: 'none' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -509,64 +512,61 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
           tabIndex={-1}
         >
           {/* Drag pill — 36×4px rounded, bg-black/20 (Figma: 2992:19831) */}
-          <div className="w-9 h-1 rounded-full bg-black/20" />
+          <div className="w-9 h-1 rounded-full bg-[#c6c6c3]" />
         </div>
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-6 max-md:px-4 pt-3 md:pt-6 pb-4 max-md:pb-3 shrink-0 border-b border-[rgba(0,0,0,0.06)]">
+        <div className="flex flex-col gap-2 px-6 max-md:px-4 pt-2 pb-3 shrink-0 border-b border-[rgba(28,42,33,0.07)]">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex h-[21px] items-center gap-[5px] rounded-[4px] border border-[#c6c6c3] bg-[rgba(248,248,244,0.5)] px-2">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
+                <path
+                  d="M2.5 1H6.5C7.32843 1 8 1.67157 8 2.5V6.5C8 7.32843 7.32843 8 6.5 8H2.5C1.67157 8 1 7.32843 1 6.5V2.5C1 1.67157 1.67157 1 2.5 1Z"
+                  strokeWidth="1.1"
+                  stroke="#70706E"
+                />
+                <path d="M3 4.5H6M3 3H6M3 6H5" strokeLinecap="round" stroke="#70706E" />
+              </svg>
+              <span
+                className="font-sans font-bold uppercase text-[#70706e]"
+                style={{ fontSize: 'var(--fs-10)', letterSpacing: '0.6px' }}
+              >
+                Summary
+              </span>
+            </span>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => {
+                log('close button clicked');
+                onClose?.();
+              }}
+              className="relative ml-4 shrink-0 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#f8f8f4] text-[#1c2a21] transition-colors duration-100 hover:bg-[#ebf1ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-md:before:absolute max-md:before:-inset-2 max-md:before:content-['']"
+            >
+              <CloseIcon />
+            </button>
+          </div>
           <h2
             id="legal-modal-title"
-            className="font-display font-normal text-black"
+            className="font-heading font-semibold text-[#1c2a21]"
             style={{
-              fontSize: 'clamp(1.25rem, 2.5vw, 1.625rem)',
-              lineHeight: 1.15,
-              letterSpacing: '-0.4px',
+              fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)',
+              lineHeight: 1.25,
+              letterSpacing: '-0.48px',
             }}
           >
-            {content.title}
+            {titleHead}
+            <span className="text-brand-green">{titleTail}</span>
           </h2>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={() => {
-              log('close button clicked');
-              onClose?.();
-            }}
-            className="relative ml-4 shrink-0 inline-flex size-[28px] items-center justify-center rounded-[20px] bg-[#ebf1ec] text-[#387440] transition-colors duration-100 hover:bg-[#d4e4d6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 max-md:before:absolute max-md:before:-inset-2 max-md:before:content-['']"
-          >
-            <CloseIcon />
-          </button>
         </div>
 
         {/* ── Scrollable body ── */}
         <div className="flex-1 overflow-y-auto px-6 py-4 max-md:px-4 max-md:py-3">
-          {/* T&C: section label + subtitle */}
-          {variant === 'tc' && (
-            <>
-              <SectionLabel text={content.sectionLabel} />
-              <p
-                className="font-sans font-normal text-[#737373] mb-4"
-                style={{ fontSize: '12px', lineHeight: '1.6' }}
-              >
-                {content.subtitle}
-              </p>
-            </>
-          )}
-
-          {/* PP: subtitle only */}
-          {variant === 'privacy' && (
-            <p
-              className="font-sans font-normal text-[#737373] mb-4"
-              style={{ fontSize: '12px', lineHeight: '1.6' }}
-            >
-              {content.subtitle}
-            </p>
-          )}
-
-          {/* DP: intro banner */}
-          {variant === 'data-processing' && content.bannerTitle && (
-            <DPBanner title={content.bannerTitle} subtitle={content.bannerSubtitle} />
-          )}
+          {/* Intro card — Figma "Intro banner" on all three documents */}
+          <DPBanner
+            title={content.bannerTitle ?? content.sectionLabel}
+            subtitle={content.bannerSubtitle ?? content.subtitle}
+          />
 
           {/* ── Items list ── */}
           <div>
@@ -592,7 +592,7 @@ const LegalDocModal = ({ variant, onClose, onAccept }) => {
         </div>
 
         {/* ── Footer ── */}
-        <div className="shrink-0 border-t border-[rgba(0,0,0,0.06)] px-6 pt-4 pb-6 max-md:px-4 max-md:pt-3 max-md:pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
+        <div className="shrink-0 border-t border-[rgba(28,42,33,0.07)] px-6 pt-4 pb-6 max-md:px-4 max-md:pt-3 max-md:pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
           {/* Summary text + optional Read full document link */}
           <div className="flex items-center justify-between gap-4 mb-4 max-md:mb-3">
             <p

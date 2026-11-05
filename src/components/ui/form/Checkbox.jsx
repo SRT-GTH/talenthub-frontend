@@ -84,6 +84,10 @@ const Checkbox = ({
   // Optional className applied to the label text <span> — lets callers
   // override font size / color without wrapping label in their own element.
   labelClassName,
+  // Opt-in glyph look (recruiter job-post form, Figma 7958:165596 / 7958:165600):
+  // `{ checked, unchecked }` ReactNodes drawn in a bare 16px slot instead of the
+  // 20px shelf box. Undefined = unchanged for every other caller.
+  glyphs,
   className,
   ref,
   ...inputProps
@@ -138,7 +142,8 @@ const Checkbox = ({
       <label
         htmlFor={inputId}
         className={classNames(
-          'inline-flex items-start gap-3 select-none',
+          'inline-flex items-start select-none',
+          glyphs ? 'gap-[6px]' : 'gap-3',
           // Phones: 44px hit row; negative margin keeps the visual rhythm unchanged.
           'max-md:-my-3 max-md:py-3 md:max-lg:-my-1 md:max-lg:py-1',
           disabled ? 'cursor-not-allowed' : 'cursor-pointer'
@@ -150,7 +155,12 @@ const Checkbox = ({
          * 1×1 off-flow rect; inside Modal/overflow scrollers that triggers
          * scrollIntoView and jumps the pane to blank white. Same pattern as Radio.
          */}
-        <span className="relative mt-px inline-flex size-5 shrink-0 items-center justify-center">
+        <span
+          className={classNames(
+            'relative inline-flex shrink-0 items-center justify-center',
+            glyphs ? 'mt-0.5 size-4' : 'mt-px size-5'
+          )}
+        >
           <input
             ref={ref}
             id={inputId}
@@ -165,16 +175,25 @@ const Checkbox = ({
             className="peer absolute inset-0 z-10 m-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
             {...inputProps}
           />
-          <span
-            aria-hidden="true"
-            className={classNames(
-              BOX_BASE,
-              boxClasses,
-              'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2'
-            )}
-          >
-            {showTick && <TickIcon className="size-[14px] text-white" />}
-          </span>
+          {glyphs ? (
+            <span
+              aria-hidden="true"
+              className="inline-flex size-4 items-center justify-center rounded-[4px] peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2 [&>img]:size-full"
+            >
+              {showTick ? glyphs.checked : glyphs.unchecked}
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className={classNames(
+                BOX_BASE,
+                boxClasses,
+                'peer-focus-visible:ring-2 peer-focus-visible:ring-brand-green-light-active peer-focus-visible:ring-offset-2'
+              )}
+            >
+              {showTick && <TickIcon className="size-[14px] text-white" />}
+            </span>
+          )}
         </span>
         {label !== undefined && (
           <span

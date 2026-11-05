@@ -124,9 +124,19 @@ export const parseMonthYear = (value) => {
   return { label: `${MONTHS[month - 1]} ${m[2]}`, year: m[2] };
 };
 
+/*
+ * Issue date: 'MM / YYYY', or just 'YYYY' when that is all the certificate or CV gives (2026-11-01: saved with
+ * issueDateYearOnly instead of passing it off as January). Expiry dates stay month + year.
+ */
+export const parseIssueDate = (value) => {
+  const y = /^\s*(\d{4})\s*$/.exec(value ?? '');
+  if (y) return { label: y[1], year: y[1], yearOnly: true };
+  return parseMonthYear(value);
+};
+
 /* Meta-line text, in the three shapes Figma draws. */
 export const buildDateLabel = ({ issueDate, expiryDate, noExpiry }) => {
-  const issued = parseMonthYear(issueDate);
+  const issued = parseIssueDate(issueDate);
   if (!issued) return '';
   if (noExpiry) return `Issued ${issued.label} · No expiry`;
   const exp = parseMonthYear(expiryDate);
@@ -165,7 +175,7 @@ export const CONFETTI = [
 
 /* Build a stored cert from the form (new certs: ID or link -> pending check, else self-reported). */
 export const buildCert = (form, prev) => {
-  const issue = parseMonthYear(form.issueDate);
+  const issue = parseIssueDate(form.issueDate);
   const dateLabel = buildDateLabel(form);
   const status =
     prev?.status ?? (form.credentialId.trim() || form.link.trim() ? 'pending' : 'self');
@@ -176,7 +186,7 @@ export const buildCert = (form, prev) => {
     dateLabel,
     linkLabel: form.link.trim() ? (prev?.linkLabel ?? 'Credential link') : '',
     status,
-    file: prev?.file ?? null,
+    file: form.upload?.url ? { ...form.upload } : (prev?.file ?? null),
     verifiedNote: prev?.verifiedNote ?? '',
   };
 };
@@ -201,6 +211,7 @@ const CERT_KEYS = [
   'credentialURL',
   'certificateFile',
   'skillsGained',
+  'issueDateYearOnly',
 ];
 
 const toMonthYear = (date) => {
@@ -208,6 +219,14 @@ const toMonthYear = (date) => {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return '';
   return `${String(d.getUTCMonth() + 1).padStart(2, '0')} / ${d.getUTCFullYear()}`;
+};
+
+/* The stored issue date as the form shows it: 'YYYY' when only the year is known, else 'MM / YYYY'. */
+const issueText = (item) => {
+  if (!item?.issueDate) return '';
+  if (!item.issueDateYearOnly) return toMonthYear(item.issueDate);
+  const d = new Date(item.issueDate);
+  return Number.isNaN(d.getTime()) ? '' : String(d.getUTCFullYear());
 };
 
 const toIsoMonth = (value) => {
@@ -225,7 +244,7 @@ export const certFromProfile = (item, index) => {
     title: item?.name || '',
     issuer: item?.issuingOrganization || '',
     type: '',
-    issueDate: toMonthYear(item?.issueDate),
+    issueDate: issueText(item),
     expiryDate: toMonthYear(item?.expirationDate),
     noExpiry: false,
     credentialId: item?.credentialID || '',
@@ -237,7 +256,17 @@ export const certFromProfile = (item, index) => {
     status: certStatus(base),
     dateLabel: buildDateLabel(base),
     linkLabel: base.link ? 'Credential link' : '',
-    file: null,
+    // 2026-11-01: the stored certificate file (certificateFile.secure_url) shows on the card and in Edit.
+    file: item?.certificateFile?.secure_url
+      ? {
+          name: decodeURIComponent(
+            String(item.certificateFile.secure_url).split('/').pop() || 'Certificate file'
+          ),
+          size: '',
+          url: item.certificateFile.secure_url,
+          filled: 0,
+        }
+      : null,
     verifiedNote: '',
     raw: item,
   };
@@ -251,13 +280,16 @@ export const certToProfile = (cert) => {
   });
   out.name = cert.title;
   out.issuingOrganization = cert.issuer;
-  if (!(raw.issueDate && toMonthYear(raw.issueDate) === cert.issueDate)) {
-    const issued = toIsoMonth(cert.issueDate);
+  if (!(raw.issueDate && issueText(raw) === cert.issueDate)) {
+    const yearOnly = /^\s*(\d{4})\s*$/.exec(cert.issueDate ?? '');
+    const issued = yearOnly ? `${yearOnly[1]}-01-01` : toIsoMonth(cert.issueDate);
     if (!issued) {
       log.warn('no valid issue date for', cert.title, '- not saveable');
       return null;
     }
     out.issueDate = issued;
+    if (yearOnly) out.issueDateYearOnly = true;
+    else delete out.issueDateYearOnly;
   }
   const expiry = cert.noExpiry ? null : toIsoMonth(cert.expiryDate);
   if (!expiry) delete out.expirationDate;
@@ -269,6 +301,7 @@ export const certToProfile = (cert) => {
   if (link) out.credentialURL = link;
   else delete out.credentialURL;
   out.skillsGained = [...(cert.skills || [])];
+  if (cert.file?.url) out.certificateFile = { secure_url: cert.file.url };
   return out;
 };
 

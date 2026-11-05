@@ -70,6 +70,10 @@ const Field = ({
   // override its classes. Defaults leave every existing caller unchanged.
   forceAsterisk = false,
   asteriskClassName = 'font-ui font-semibold text-[#2E8B57] text-[14px] leading-[21px]',
+  // Opt-in extra classes for the label text (parent dialogs draw it ink #1c2a21). Default adds nothing.
+  labelClassName,
+  // Opt-in extra classes on the label row (e.g. `!h-[46px]` when the trailing slot holds a taller control). Default adds nothing.
+  labelRowClassName,
   helperIcon,
   helperIconClassName,
   helperTextClassName,
@@ -96,11 +100,19 @@ const Field = ({
   return (
     <div className={classNames('flex flex-col gap-2 max-md:gap-1.5 w-full', className)} {...rest}>
       {showLabelRow && (
-        <div className="flex h-[21px] max-md:h-auto items-center justify-between w-full">
+        <div
+          className={classNames(
+            'flex h-[21px] max-md:h-auto items-center justify-between w-full',
+            labelRowClassName
+          )}
+        >
           {label ? (
             <label
               htmlFor={htmlFor}
-              className="inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary"
+              className={classNames(
+                'inline-flex items-baseline gap-px font-sans font-medium text-[14px] max-md:text-[13px] leading-[24px] max-md:leading-5 tracking-[0.2px] text-content-primary',
+                labelClassName
+              )}
             >
               {label}
               {(required || forceAsterisk) && (

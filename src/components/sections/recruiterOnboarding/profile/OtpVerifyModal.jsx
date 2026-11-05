@@ -125,9 +125,17 @@ const OtpCells = ({ value, onChange, invalid, disabled, describedBy }) => {
   );
 };
 
-const OtpVerifyModal = ({ phoneMasked, emailMasked, onClose, onChangeContact, onVerified }) => {
-  const [code, setCode] = useState('');
-  const [invalid, setInvalid] = useState(false);
+const OtpVerifyModal = ({
+  phoneMasked,
+  emailMasked,
+  onClose,
+  onChangeContact,
+  onVerified,
+  seed = '',
+}) => {
+  // `seed` (Figma R02 frames): 'otp-wrong' = 123456 with the cells marked wrong, 'otp-entered' = 123456 typed; '' = empty as before.
+  const [code, setCode] = useState(seed === 'otp-wrong' || seed === 'otp-entered' ? '123456' : '');
+  const [invalid, setInvalid] = useState(seed === 'otp-wrong');
   const [attempts, setAttempts] = useState(MAX_ATTEMPTS);
   const [secondsLeft, setSecondsLeft] = useState(EXPIRY_SECONDS);
   const [resendIn, setResendIn] = useState(RESEND_SECONDS);

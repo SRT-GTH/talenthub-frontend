@@ -13,6 +13,8 @@
 import { CAREER_BUDDY_NODES } from './careerBuddyScript.js';
 
 export const PARENT_NAME = 'Mr.Whitmore';
+// The label under the parent's own chat bubbles (Figma "AI CHAT parent screens" 7958:183942 draws "Emma" there, while the toast and Buddy's lines say Mr. Whitmore: kept as drawn).
+export const PARENT_PERSONA_LABEL = 'Emma';
 export const WARD_NAME = 'Elliot';
 
 /**
@@ -27,8 +29,26 @@ export const PARENT_GUIDE_EDU_LEVEL_CHIPS = [
 ];
 
 /** Figma 5132:78734 — trailing stray `"` stripped per product decision. */
+// Elliot's Personal Info sheet once the account exists (Figma 7958:187028): a photo row, the details, the bio and the Ghana Card status.
+export const WARD_PERSONAL_INFO_FIELDS = [
+  { label: 'Profile Photo', value: 'Uploaded · Visible to everyone', kind: 'photo' },
+  { label: 'Name', value: 'Elliot Whitmore' },
+  { label: 'Email', value: 'ellwhitmore@gmail.com' },
+  { label: 'Gender', value: 'Male' },
+  { label: 'D.O.B', value: '23/ 09/ 2004' },
+  { label: 'Phone', value: '+233 24 248 4435' },
+  { label: 'Address', value: '45 Kofi Annan St, Accra, Ghana' },
+  {
+    label: 'Bio',
+    kind: 'bio',
+    value:
+      "I'm a Computer Science graduate who believes technology should work for people — not the other way around. From building class projects to freelancing for local businesses, I've always found ways to turn code into impact. Now I'm ready to do that at scale.",
+  },
+  { label: 'Ghana Card Status', value: 'Verified', verified: true },
+];
+
 export const PARENT_GUIDE_OPENING =
-  "That's great, Mr. Whitmore. We noticed that you have already initiated your ward's account, in the earlier stage. We can proceed with getting to know your ward, Elliot. To start, what level of education is Elliot currently in?";
+  'That’s great, Mr. Whitmore. We noticed that you have already initiated your ward’s account, in the earlier stage. We can proceed with getting to know your ward, Elliot.\nTo start, what level of education is Elliot currently in?';
 
 /**
  * Ward Educational Background fields after Guide Q&A (same shape as talent
@@ -83,6 +103,8 @@ export const PARENT_MY_PROFILE_STAGES = [
     panelLabel: 'Personal Info.',
     completionPct: 80,
     status: 'in-progress',
+    // Figma draws "Completion: 80%" here (and 48 % on Skills), not the amber "In Progress".
+    showPct: true,
   },
   {
     id: 'educational-background',
@@ -111,6 +133,7 @@ export const PARENT_MY_PROFILE_STAGES = [
     panelLabel: 'Skills (Competencies)',
     completionPct: 48,
     status: 'in-progress',
+    showPct: true,
   },
   {
     id: 'work-experience',
@@ -163,8 +186,10 @@ export const PARENT_EMPTY_WARD_STAGES = PARENT_MY_PROFILE_STAGES.map((stage) => 
  * Ward panel when starting Guide: Personal Info already done from account
  * init; Educational Background + rest not started (talent-style).
  */
-export const PARENT_GUIDE_START_STAGES = PARENT_EMPTY_WARD_STAGES.map((stage) =>
-  stage.id === 'personal-info' ? { ...stage, completionPct: 100, status: 'done' } : stage
+export const PARENT_GUIDE_START_STAGES = PARENT_MY_PROFILE_STAGES.map((stage) =>
+  stage.id === 'educational-background'
+    ? { ...stage, completionPct: 0, status: 'not-started' }
+    : stage
 );
 
 /**
@@ -272,7 +297,7 @@ const bot = (text, extras = {}) => ({
 const user = (text, extras = {}) => ({
   id: nextId(),
   sender: 'user',
-  personaLabel: PARENT_NAME,
+  personaLabel: PARENT_PERSONA_LABEL,
   text,
   ...extras,
 });
@@ -297,7 +322,8 @@ export const PARENT_WELCOME_INITIALIZED =
 
 /** Welcome when ward account is not initiated — matches setup modal intent. */
 export const PARENT_WELCOME_UNINITIATED =
-  "Hi there! 👋 Welcome to Ghana Talent AI. I'm TALI, your AI mentor.\n⚠️ We noticed your ward's account hasn't been initialized yet. What do you want to do?";
+  // Figma (7958:186400 …) draws the same "already initialized" line behind the ward set-up dialog (a Figma inconsistency, kept as drawn).
+  "Hi there! 👋 Welcome to Ghana Talent AI. I'm TALI, your AI mentor.\n✅ We noticed that you already initialized your wards account. What do you want to do?";
 
 export const PARENT_BUDDY_NODES = {
   welcome: {
@@ -348,7 +374,7 @@ export const PARENT_BUDDY_NODES = {
    */
   'parent-guide-ward': {
     reply: () => [
-      user("Guide my ward's profile"),
+      user("Guide my ward's profile", { auto: true, autoLabel: '[Auto]' }),
       bot(PARENT_GUIDE_OPENING, { showActions: true }),
     ],
     suggestedReplies: PARENT_GUIDE_EDU_LEVEL_CHIPS,
@@ -385,9 +411,9 @@ export const PARENT_BUDDY_NODES = {
   // ── Guide Educational Background Q&A (talent edu-* mirrored for Elliot) ──
   'parent-guide-edu-q1': {
     reply: (level) => [
-      user(level || PARENT_GUIDE_EDU_LEVEL_CHIPS[1]),
+      user(level || 'He’s in the senior high school.'),
       bot(
-        `Got it — ${level || PARENT_GUIDE_EDU_LEVEL_CHIPS[1]}. What school or institution is ${WARD_NAME} attending most recently?`,
+        "Wonderful! Now let's talk about a bit more on Elliot’s educational background.\nWhich school does he currently attend or last attended?",
         { showActions: true }
       ),
     ],
@@ -395,20 +421,18 @@ export const PARENT_BUDDY_NODES = {
   },
   'parent-guide-edu-q2': {
     reply: () => [
-      user(`${WARD_NAME} goes to Achimota Senior High School.`),
+      user('He attends Achimota Senior High School.'),
       bot(
-        `Got it — Achimota Senior High School. What programme or course is ${WARD_NAME} pursuing there?`,
-        {
-          showActions: true,
-        }
+        'Excellent — Achimota Senior High School. What program or track is Elliot studying?  For example: General Arts, General Science, Business, Visual Arts, Home Economics, or Agricultural Science?',
+        { showActions: true }
       ),
     ],
     freeTextNext: 'parent-guide-edu-q3',
   },
   'parent-guide-edu-q3': {
     reply: () => [
-      user('General Science — with a focus on maths, physics and computing.'),
-      bot(`Perfect. Can you tell me the years ${WARD_NAME} started and will finish?`, {
+      user('He’s in the General Science program.'),
+      bot("Great! General Science — that's a strong foundation.\nWhat are his elective subjects?", {
         showActions: true,
       }),
     ],
@@ -416,9 +440,9 @@ export const PARENT_BUDDY_NODES = {
   },
   'parent-guide-edu-q4': {
     reply: () => [
-      user('Started in 2022 and graduating in 2025.'),
+      user('He takes Elective Mathematics, Physics, Chemistry, and Biology.'),
       bot(
-        `Nice — 2022 to 2025. That must be quite a journey!\nDo you recall ${WARD_NAME}'s current grade or classification?`,
+        'Perfect! Those are core STEM subjects. What year did your son start at Achimota, and when is he expected to complete?',
         { showActions: true }
       ),
     ],
@@ -426,21 +450,18 @@ export const PARENT_BUDDY_NODES = {
   },
   'parent-guide-edu-q5': {
     reply: () => [
-      user('Yes — Aggregate 12 so far.'),
-      bot(
-        `That's a strong result for ${WARD_NAME} 👋\nLastly, do you have a transcript you'd like to upload or link to ${WARD_NAME}'s profile?`,
-        { showActions: true }
-      ),
+      user('He started in 2023 and will finish in 2026 Godwilling.'),
+      bot('Got it — 2023 to 2026. Has Elliot taken WASSCE yet, or is that still upcoming?', {
+        showActions: true,
+      }),
     ],
     freeTextNext: 'parent-guide-edu-confirm',
   },
   'parent-guide-edu-confirm': {
     reply: () => [
-      user("Yes, I have a PDF copy — I've attached it.", {
-        file: { name: 'Transcript.pdf', size: '6MB' },
-      }),
+      user("That's still upcoming."),
       bot(
-        `The information gathered from our interaction on ${WARD_NAME}'s educational background is currently displayed on the talent profile panel. Feel free to make changes or confirm so that we continue.`,
+        "Understood! Check the panel on the right to see what I've gathered about your ward's education. Feel free to confirm or make changes.",
         { showActions: true, confirmsStageId: 'educational-background' }
       ),
     ],
@@ -522,7 +543,7 @@ export const PARENT_BUDDY_NODES = {
       {
         id: nextId(),
         sender: 'user',
-        personaLabel: PARENT_NAME,
+        personaLabel: PARENT_PERSONA_LABEL,
         auto: true,
         autoLabel: '[Auto]',
         text: 'Upload resume to automatically populate profile',
@@ -655,6 +676,17 @@ export const PARENT_BUDDY_NODES = {
  * DemoNavigator ?cb= seeds for parent Career Buddy.
  * Returns { nodeId, messages, wardReady, wardSetupStep, panelTab, fillWardFromResume, startWardGuide, guideSeed, startOwnProfile }.
  */
+// The three guide frames (Figma 7958:184903 / 185198 / 185493) keep the four level choices inside the opening bubble after the parent answered: inert options on the seeded copy.
+const withLevelOptions = (list) =>
+  list.map((m) =>
+    m.sender === 'bot' && m.text === PARENT_GUIDE_OPENING
+      ? {
+          ...m,
+          options: PARENT_GUIDE_EDU_LEVEL_CHIPS.map((label, i) => ({ id: `lvl-${i}`, label })),
+        }
+      : m
+  );
+
 export function seedParentJump(hint) {
   if (
     hint === 'ward-uninitiated' ||
@@ -669,6 +701,8 @@ export function seedParentJump(hint) {
         messages,
         wardReady: true,
         wardSetupStep: 'success',
+        // Figma 7958:187028: after the account is created the Elliot tab is the one showing.
+        panelTab: 'ward',
       };
     }
     return {
@@ -737,10 +771,15 @@ export function seedParentJump(hint) {
   // Guide ward — opening (Figma 5132:78578 NOT STARTED).
   if (hint === 'parent-guide') {
     return {
-      nodeId: 'parent-guide-ward',
+      nodeId: 'parent-guide-edu-q5',
       messages: [
         ...PARENT_BUDDY_NODES.welcome.seedMessages(),
-        ...PARENT_BUDDY_NODES['parent-guide-ward'].reply(),
+        ...withLevelOptions(PARENT_BUDDY_NODES['parent-guide-ward'].reply()),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply('He’s in the senior high school.'),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q2'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q3'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q4'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q5'].reply(),
       ],
       wardReady: true,
       wardSetupStep: null,
@@ -753,13 +792,15 @@ export function seedParentJump(hint) {
   // Guide ward — mid Q&A, edu in-progress (Figma 5132:78873).
   if (hint === 'parent-guide-progress') {
     return {
-      nodeId: 'parent-guide-edu-q3',
+      nodeId: 'parent-guide-edu-q5',
       messages: [
         ...PARENT_BUDDY_NODES.welcome.seedMessages(),
-        ...PARENT_BUDDY_NODES['parent-guide-ward'].reply(),
-        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply(PARENT_GUIDE_EDU_LEVEL_CHIPS[1]),
+        ...withLevelOptions(PARENT_BUDDY_NODES['parent-guide-ward'].reply()),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply('He’s in the senior high school.'),
         ...PARENT_BUDDY_NODES['parent-guide-edu-q2'].reply(),
         ...PARENT_BUDDY_NODES['parent-guide-edu-q3'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q4'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q5'].reply(),
       ],
       wardReady: true,
       wardSetupStep: null,
@@ -775,8 +816,8 @@ export function seedParentJump(hint) {
       nodeId: 'parent-guide-edu-confirm',
       messages: [
         ...PARENT_BUDDY_NODES.welcome.seedMessages(),
-        ...PARENT_BUDDY_NODES['parent-guide-ward'].reply(),
-        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply(PARENT_GUIDE_EDU_LEVEL_CHIPS[1]),
+        ...withLevelOptions(PARENT_BUDDY_NODES['parent-guide-ward'].reply()),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply('He’s in the senior high school.'),
         ...PARENT_BUDDY_NODES['parent-guide-edu-q2'].reply(),
         ...PARENT_BUDDY_NODES['parent-guide-edu-q3'].reply(),
         ...PARENT_BUDDY_NODES['parent-guide-edu-q4'].reply(),
@@ -791,6 +832,28 @@ export function seedParentJump(hint) {
     };
   }
 
+  // Figma 7958:185493 COMPLETED: the same conversation with Educational Background confirmed (100 %).
+  if (hint === 'parent-guide-done') {
+    return {
+      nodeId: 'parent-guide-edu-confirm',
+      messages: [
+        ...PARENT_BUDDY_NODES.welcome.seedMessages(),
+        ...withLevelOptions(PARENT_BUDDY_NODES['parent-guide-ward'].reply()),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q1'].reply('He’s in the senior high school.'),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q2'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q3'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q4'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-q5'].reply(),
+        ...PARENT_BUDDY_NODES['parent-guide-edu-confirm'].reply(),
+      ],
+      wardReady: true,
+      wardSetupStep: null,
+      panelTab: 'ward',
+      startWardGuide: true,
+      guideSeed: 'done',
+    };
+  }
+
   // Mid-flow: resume attached, waiting on "Of course" (Figma 5132:79750).
   if (hint === 'parent-resume') {
     return {
@@ -801,7 +864,7 @@ export function seedParentJump(hint) {
         {
           id: nextId(),
           sender: 'user',
-          personaLabel: PARENT_NAME,
+          personaLabel: PARENT_PERSONA_LABEL,
           file: {
             name: 'Resume.pdf',
             displayName: 'Resume... .pdf',
@@ -828,7 +891,7 @@ export function seedParentJump(hint) {
         {
           id: nextId(),
           sender: 'user',
-          personaLabel: PARENT_NAME,
+          personaLabel: PARENT_PERSONA_LABEL,
           file: {
             name: 'Resume.pdf',
             displayName: 'Resume... .pdf',

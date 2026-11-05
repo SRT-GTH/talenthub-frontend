@@ -9,6 +9,8 @@ import { TOP_NAV } from './dashboardData.js';
 import DashboardSearchSheet from './DashboardSearchSheet.jsx';
 import gthLogo from '../../../assets/engagement/GTHLogo 1.svg';
 import avatarNav from '../../../assets/community/avatar-recruiter-nav.svg';
+import emmaAvatar from '../../../assets/parent/emma.webp';
+import chipUser from '../../../assets/parent/spaces-user.svg';
 import {
   TalentNavProfileAvatarIllustration,
   TalentNavStreakPlayfulFigureIcon,
@@ -99,15 +101,18 @@ const StreakPillTag = (props) => {
  * Everything talent-specific is gated on it — recruiter/community pages never pass it and render
  * byte-identically. Adds: search opens the global search (⌘K / Ctrl+K), style switch, Playful streak
  * mark, per-state streak/counts, accessibility toggle (`a11y` param), talent avatar.
+ * `orgSlot` (recruiter dashboard): a node rendered before the profile chip — the org switcher.
+ * `panels` (recruiter dashboard, add-only): { notifications, onNotifications, language, onLanguage, a11yOpen, onA11y, search, searchQuery, onSearchInput, onSearchFocus } — pop-up nodes anchored under the bell / language button and the
+ * state of the shared accessibility menu. Pages that do not pass it render exactly as before.
  */
-const DashboardTopNav = ({ className, talentHome }) => {
+const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
   const isTalent = Boolean(talentHome);
   // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
   const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
   const nav = isTalent
     ? {
         ...TOP_NAV,
-        ...getTalentNavData(talentHome.stateKey, talentHome.live),
+        ...getTalentNavData(talentHome.stateKey, talentHome.live, talentHome.persona),
         // Optional per-page override (the Notifications frames show streak 12 on the day-1 shell).
         // Demo data only: with real data (`live`) the streak stays "–" until a backend exists.
         ...(talentHome.navStreak && !talentHome.live
@@ -151,7 +156,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
     ? streakParams.get('streak')
     : null;
   // Live streak (GET /streak) for a signed-in talent; `?demo=1` keeps the drawn numbers.
-  const liveStreakOn = isTalent && isLoggedIn() && streakParams.get('demo') !== '1';
+  const liveStreakOn =
+    isTalent && isLoggedIn() && streakParams.get('demo') !== '1' && !talentHome.persona;
   const liveStreak = useLiveStreak({ enabled: liveStreakOn });
   const streakCount = liveStreakOn
     ? liveStreak.data
@@ -252,6 +258,8 @@ const DashboardTopNav = ({ className, talentHome }) => {
       className={classNames(
         'relative z-30 flex w-full items-center justify-between gap-4 border-b border-[#e7e7e7] bg-white shadow-bottom-100',
         'px-[clamp(16px,3.24vw,56px)] py-[12px] max-md:py-[8px]',
+        // Recruiter V2.0 nav is 87px tall (Figma 7249:76192: logo 66px at y=10), i.e. 10px vertical padding. Talent keeps 12.
+        !isTalent && 'md:py-[10px]',
         className
       )}
     >
@@ -266,27 +274,79 @@ const DashboardTopNav = ({ className, talentHome }) => {
           />
         </HomeLogoLink>
 
-        <label className="relative hidden min-w-0 max-w-[553px] flex-1 items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
-          <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
-          <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
-            <CommunityIcon src={icons.navSearch} size={20} />
-          </span>
-          <input
-            type="search"
-            placeholder={TOP_NAV.searchPlaceholder}
-            readOnly={isTalent}
-            onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
-            onChange={(event) => log('global search input:', event.target.value.length, 'chars')}
-            className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#bfbfbf]"
-          />
-          <span className="inline-flex shrink-0 items-center rounded-[6px] border border-[#e5e7eb] bg-white px-[10px] py-[6px] font-sans text-[12px] font-semibold text-[#2d5d33] shadow-bottom-100">
-            {TOP_NAV.shortcut}
-          </span>
-        </label>
+        {panels?.search !== undefined ? (
+          <div className="relative hidden min-w-0 max-w-[553px] flex-1 md:block">
+            <label className="relative hidden min-w-0 w-full items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
+              <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
+              <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
+                <CommunityIcon src={icons.navSearch} size={20} />
+              </span>
+              <input
+                type="search"
+                placeholder={TOP_NAV.searchPlaceholder}
+                readOnly={isTalent}
+                onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
+                {...(panels?.onSearchInput
+                  ? {
+                      value: panels.searchQuery ?? '',
+                      onChange: (event) => panels.onSearchInput(event.target.value),
+                      onFocus: panels.onSearchFocus,
+                    }
+                  : {
+                      onChange: (event) =>
+                        log('global search input:', event.target.value.length, 'chars'),
+                    })}
+                className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#bfbfbf]"
+              />
+              <span className="inline-flex shrink-0 items-center rounded-[6px] border border-[#e5e7eb] bg-white px-[10px] py-[6px] font-sans text-[12px] font-semibold text-[#2d5d33] shadow-bottom-100">
+                {TOP_NAV.shortcut}
+              </span>
+            </label>
+            {panels.search}
+          </div>
+        ) : (
+          <label className="relative hidden min-w-0 max-w-[553px] flex-1 items-center gap-[12px] overflow-hidden rounded-[8px] border border-[#dfdfdc] bg-white py-[10px] pl-[14px] pr-[12px] shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.08)] md:flex">
+            <span className="sr-only">{TOP_NAV.searchPlaceholder}</span>
+            <span className="flex size-[28px] shrink-0 items-center justify-center rounded-[14px]">
+              <CommunityIcon src={icons.navSearch} size={20} />
+            </span>
+            <input
+              type="search"
+              placeholder={TOP_NAV.searchPlaceholder}
+              readOnly={isTalent}
+              onClick={isTalent ? () => talentHome.update({ search: true }) : undefined}
+              {...(panels?.onSearchInput
+                ? {
+                    value: panels.searchQuery ?? '',
+                    onChange: (event) => panels.onSearchInput(event.target.value),
+                    onFocus: panels.onSearchFocus,
+                  }
+                : {
+                    onChange: (event) =>
+                      log('global search input:', event.target.value.length, 'chars'),
+                  })}
+              className="min-w-0 flex-1 bg-transparent font-sans text-[14px] leading-5 tracking-[0.2px] text-black outline-none placeholder:text-[#bfbfbf]"
+            />
+            <span className="inline-flex shrink-0 items-center rounded-[6px] border border-[#e5e7eb] bg-white px-[10px] py-[6px] font-sans text-[12px] font-semibold text-[#2d5d33] shadow-bottom-100">
+              {TOP_NAV.shortcut}
+            </span>
+          </label>
+        )}
       </div>
 
       {/* Right: streak, utility icons, language, accessibility, profile chip */}
       <div className="flex shrink-0 items-center gap-[clamp(10px,1.39vw,24px)]">
+        {isTalent && talentHome.persona ? (
+          <button
+            type="button"
+            onClick={() => navigate('/parent')}
+            aria-label="Switch space"
+            className="inline-flex h-[32px] shrink-0 cursor-pointer items-center gap-[6px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[14px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] max-md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            <img src={chipUser} alt="" className="size-[14px]" />
+            {talentHome.persona.chip}
+          </button>
+        ) : null}
         {isTalent && (
           <StyleSwitch className="max-md:hidden max-lg:[&_button>span]:sr-only lg:-mr-[4px]" />
         )}
@@ -346,7 +406,11 @@ const DashboardTopNav = ({ className, talentHome }) => {
                 onClick={() => handleAction('help')}
               />
             </span>
-            <span ref={bellRef} className="inline-flex">
+            <span
+              ref={bellRef}
+              className="relative inline-flex"
+              data-panel-trigger={panels ? '' : undefined}
+            >
               <NavIconButton
                 src={icons.navNotification}
                 label={`Notifications, ${bellCount || 0} unread`}
@@ -360,8 +424,11 @@ const DashboardTopNav = ({ className, talentHome }) => {
                         : undefined
                     : undefined
                 }
-                onClick={() => handleAction('notifications')}
+                onClick={() =>
+                  panels?.onNotifications ? panels.onNotifications() : handleAction('notifications')
+                }
               />
+              {panels?.notifications}
             </span>
             <NavIconButton
               src={icons.navMessage}
@@ -370,20 +437,36 @@ const DashboardTopNav = ({ className, talentHome }) => {
               onClick={() => handleAction('messages')}
             />
 
-            <button
-              type="button"
-              onClick={() => handleAction('language')}
-              className="inline-flex h-[36px] items-center gap-[7px] overflow-hidden rounded-[99px] bg-[#f8fafc] py-[8px] pl-[12px] pr-[10px] max-lg:hidden transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            <span
+              className="relative inline-flex max-lg:hidden"
+              data-panel-trigger={panels ? '' : undefined}
             >
-              <CommunityIcon src={icons.navGlobe} size={16} />
-              <span className="font-sans text-[13px] font-semibold text-neutral-dark">
-                {TOP_NAV.language}
-              </span>
-              <CommunityIcon src={icons.navCaret} size={14} />
-            </button>
+              <button
+                type="button"
+                onClick={() =>
+                  panels?.onLanguage ? panels.onLanguage() : handleAction('language')
+                }
+                aria-haspopup={panels?.onLanguage ? 'menu' : undefined}
+                className="inline-flex h-[36px] items-center gap-[7px] overflow-hidden rounded-[99px] bg-[#f8fafc] py-[8px] pl-[12px] pr-[10px] transition-colors hover:bg-[#eef2f6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+              >
+                <CommunityIcon src={icons.navGlobe} size={16} />
+                <span className="font-sans text-[13px] font-semibold text-neutral-dark">
+                  {TOP_NAV.language}
+                </span>
+                <CommunityIcon src={icons.navCaret} size={14} />
+              </button>
+              {panels?.language}
+            </span>
 
             {isTalent ? (
               <TalentA11yMenu home={talentHome} />
+            ) : panels?.onA11y ? (
+              <TalentA11yMenu
+                home={{
+                  a11yMode: panels.a11yOpen,
+                  update: ({ a11y }) => panels.onA11y(Boolean(a11y)),
+                }}
+              />
             ) : (
               <button
                 type="button"
@@ -396,6 +479,9 @@ const DashboardTopNav = ({ className, talentHome }) => {
             )}
           </div>
         </div>
+
+        {/* Recruiter dashboard only (Figma "Org switcher" 10049:59479): the "Recruiting on behalf of" control sits before the profile chip. lg+ only; below lg the page renders it in its content. */}
+        {orgSlot ? <div className="max-lg:hidden">{orgSlot}</div> : null}
 
         <button
           type="button"
@@ -423,7 +509,14 @@ const DashboardTopNav = ({ className, talentHome }) => {
                 : { backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }
             }
           >
-            {isTalent ? (
+            {isTalent && talentHome.persona ? (
+              <img
+                src={emmaAvatar}
+                alt=""
+                draggable="false"
+                className="absolute inset-0 size-full rounded-full object-cover"
+              />
+            ) : isTalent ? (
               <TalentNavProfileAvatarIllustration className="absolute -bottom-[3px] left-1/2 h-[28px] w-[27px] max-w-none -translate-x-1/2 select-none" />
             ) : (
               <img

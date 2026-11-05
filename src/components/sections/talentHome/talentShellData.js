@@ -368,7 +368,7 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
     status: (STATUS_BY_MILESTONE[j.milestone] || STATUS_BY_MILESTONE.none)(j.doneCount),
     journey: {
       label: 'Profile journey',
-      count: `${j.doneCount} of 9`,
+      count: `${j.doneCount} of ${j.total || 9}`,
       done: j.doneCount,
       caption: next ? `Continue: ${next} →` : 'View my profile →',
       // Where the caption goes: the next stage's screen, or the profile once all nine are done.
@@ -377,16 +377,24 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
     stats: [
       { id: 'views', value: live.views ? String(live.views.uniqueViewers) : '–', label: 'Views' },
       { id: 'matches', value: String(matches), label: 'Matches' },
-      { id: 'messages', value: '–', label: 'Messages' },
+      {
+        id: 'messages',
+        value: typeof live.unreadMessages === 'number' ? String(live.unreadMessages) : '–',
+        label: 'Messages',
+      },
       { id: 'skills', value: String(live.verifiedSkills ?? 0), label: 'Skills' },
     ],
-    badges: matches ? { opportunities: String(matches) } : {},
-    streak: '–',
+    badges: {
+      ...(matches ? { opportunities: String(matches) } : {}),
+      ...(live.unreadMessages ? { messages: String(live.unreadMessages) } : {}),
+    },
+    streak: live.streak?.summary ? String(live.streak.summary.current ?? 0) : '–',
   };
 };
 
 /** Name / headline for the sidebar and phone nav (real when `live` is given). */
-export const getTalentProfile = (live = null) => {
+export const getTalentProfile = (live = null, persona = null) => {
+  if (persona) return { ...TALENT_PROFILE, ...persona.profile };
   if (!live) return TALENT_PROFILE;
   // Live data still loading and no stored name: show nothing rather than the demo person.
   if (!live.firstName) return { ...TALENT_PROFILE, name: '', headline: '', url: '', navName: '' };
@@ -401,20 +409,27 @@ export const getTalentProfile = (live = null) => {
 };
 
 /* Top nav counts (Nav 8315:461634: bell 5, messages 5; streak per state). */
-export const getTalentNavData = (stateKey = 'day1', live = null) =>
-  live
+export const getTalentNavData = (stateKey = 'day1', live = null, persona = null) =>
+  persona
     ? {
-        streakCount: '–',
-        notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
-        messageCount: '',
-        profileName: getTalentProfile(live).navName,
-      }
-    : {
-        streakCount: getTalentSidebarData(stateKey).streak,
+        streakCount: persona.nav.streakCount,
         notificationCount: '5',
         messageCount: '5',
-        profileName: TALENT_PROFILE.navName,
-      };
+        profileName: persona.profile.navName,
+      }
+    : live
+      ? {
+          streakCount: live.streak?.summary ? String(live.streak.summary.current ?? 0) : '–',
+          notificationCount: live.notifications?.unread ? String(live.notifications.unread) : '',
+          messageCount: live.unreadMessages ? String(live.unreadMessages) : '',
+          profileName: getTalentProfile(live).navName,
+        }
+      : {
+          streakCount: getTalentSidebarData(stateKey).streak,
+          notificationCount: '5',
+          messageCount: '5',
+          profileName: TALENT_PROFILE.navName,
+        };
 
 /**
  * Where a rail / sidebar item with a `tab` goes: off /home, the bare tab URL; on /home, the same

@@ -96,14 +96,15 @@ const LEGEND_ITEMS = [
 // Same columns as the upload parser (services/institutionBulk.js); GTH admins can change them, so they're re-read after
 // loadBulkTemplate() (see the component). SAMPLE rows below are keyed by the built-in column order.
 const SAMPLE_KEYS = TEMPLATE_COLUMNS.map((c) => c.key);
-const toColumns = () => TEMPLATE_COLUMNS.map((c) => ({
-  key: c.key,
-  label: c.header,
-  type: c.required ? 'required' : c.minors ? 'minors' : 'optional',
-  star: Boolean(c.required),
-  ...(c.minors ? { subTag: 'Minors', subTagType: 'amber' } : {}),
-  ...(!c.required && !c.minors ? { subTag: 'Optional', subTagType: 'white' } : {}),
-}));
+const toColumns = () =>
+  TEMPLATE_COLUMNS.map((c) => ({
+    key: c.key,
+    label: c.header,
+    type: c.required ? 'required' : c.minors ? 'minors' : 'optional',
+    star: Boolean(c.required),
+    ...(c.minors ? { subTag: 'Minors', subTagType: 'amber' } : {}),
+    ...(!c.required && !c.minors ? { subTag: 'Optional', subTagType: 'white' } : {}),
+  }));
 
 // Column widths (px)
 const COL_W = {
@@ -285,14 +286,14 @@ const TemplateSection = () => {
 
         {/* ── Headline (Figma: 3002:39084) ── */}
         <h1
-          className="font-display font-normal text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
+          className="font-heading font-semibold text-center text-black max-md:self-start max-md:text-left max-md:text-[24px]! max-md:leading-tight!"
           style={{
             fontSize: 'clamp(2rem, 4.4vw, 4rem)',
             lineHeight: 1.094,
             letterSpacing: '-0.64px',
           }}
         >
-          Start with the <span className="italic text-brand-green">template.</span>
+          Start with the <span className="text-brand-green">template.</span>
         </h1>
 
         {/* ── Subtitle (Figma: 3002:39086) — verbatim ── */}

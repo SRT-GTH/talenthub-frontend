@@ -30,6 +30,8 @@ const log = debug('RecruiterListToolbar');
  *   onSearch      (value) => void
  *   actionLabel   primary button text
  *   onAction      () => void
+ *   actionIcon    optional node drawn left of the action label (Job Postings pencil);
+ *                 when given it replaces the phone-only "+" glyph and shows at every width
  */
 const RecruiterListToolbar = ({
   chips,
@@ -39,6 +41,7 @@ const RecruiterListToolbar = ({
   onSearch,
   actionLabel,
   onAction,
+  actionIcon,
   className,
 }) => {
   const chipRowRef = useRef(null);
@@ -106,20 +109,22 @@ const RecruiterListToolbar = ({
           type="button"
           aria-label={actionLabel}
           onClick={onAction}
-          className="inline-flex h-[49px] shrink-0 items-center justify-center whitespace-nowrap rounded-[12.05px] border-[2.41px] border-brand-green-dark bg-brand-green px-[24.11px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.82px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.82px] active:shadow-none max-lg:h-[40px] max-lg:rounded-[10px] max-lg:border max-lg:px-[14px] max-lg:shadow-none max-lg:active:translate-y-0 max-sm:size-[44px] max-sm:shrink-0 max-sm:px-0"
+          className="inline-flex h-[49px] shrink-0 items-center justify-center gap-[7.23px] whitespace-nowrap rounded-[12.05px] border-[2.41px] border-brand-green-dark bg-brand-green px-[24.11px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.82px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.82px] active:shadow-none max-lg:h-[40px] max-lg:rounded-[10px] max-lg:border max-lg:px-[14px] max-lg:shadow-none max-lg:active:translate-y-0 max-sm:size-[44px] max-sm:shrink-0 max-sm:px-0"
         >
           {/* Phones: icon-only so the field keeps the row; the label stays for screen readers. */}
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            aria-hidden="true"
-            className="size-[20px] sm:hidden"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
+          {actionIcon ?? (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              aria-hidden="true"
+              className="size-[20px] sm:hidden"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          )}
           <span className="max-sm:sr-only">{actionLabel}</span>
         </button>
       </div>

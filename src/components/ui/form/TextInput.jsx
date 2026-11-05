@@ -137,6 +137,8 @@ const TextInput = ({
   // Optional in-field top caption (Figma 5132:67856/67862/67867). When set,
   // renders inside the input box; external Field `label` still works if passed.
   inscription,
+  // Extra classes for the in-box caption (e.g. a different font family); defaults unchanged.
+  inscriptionClassName,
   leftIcon,
   // Optional override for the leading-icon color wrapper. Defaults to
   // `text-content-tertiary` (the legacy neutral). The Contact step's
@@ -156,6 +158,8 @@ const TextInput = ({
   helperTextClassName,
   forceAsterisk,
   asteriskClassName,
+  labelClassName,
+  labelRowClassName,
   type = 'text',
   id,
   className,
@@ -165,6 +169,8 @@ const TextInput = ({
   // calendar-picker indicator in favour of a custom rightIcon button — see
   // AddEditWorkModal.jsx. Optional; omitting it changes nothing.
   inputClassName,
+  // Extra classes on the bordered box around the input (optional, 2026-10-28; omitting it changes nothing). The parent dialogs use it to match Figma's 51px field.
+  boxClassName,
   ref,
   ...inputProps
 }) => {
@@ -208,6 +214,8 @@ const TextInput = ({
       labelTrailingClassName={labelTrailingClassName}
       forceAsterisk={forceAsterisk}
       asteriskClassName={asteriskClassName}
+      labelClassName={labelClassName}
+      labelRowClassName={labelRowClassName}
       helperIcon={helperIcon}
       helperIconClassName={helperIconClassName}
       helperTextClassName={helperTextClassName}
@@ -217,10 +225,15 @@ const TextInput = ({
         className={classNames(
           isXs ? WRAPPER_XS_BASE : isSm ? WRAPPER_SM_BASE : WRAPPER_BASE,
           hasInscription && WRAPPER_INSCRIPTION_CLASSES,
-          wrapperStateClasses
+          wrapperStateClasses,
+          boxClassName
         )}
       >
-        {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}
+        {hasInscription && (
+          <span className={classNames(INSCRIPTION_CLASSES, inscriptionClassName)}>
+            {inscription}
+          </span>
+        )}
         {leftIcon && (
           <span
             className={classNames(
