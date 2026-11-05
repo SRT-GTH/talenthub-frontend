@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { Link, useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import ProfileCapturedModal from '../../../components/sections/recruiterOnboarding/profile/ProfileCapturedModal.jsx';
@@ -83,18 +84,50 @@ const Eyebrow = () => (
   </span>
 );
 
+/*
+ * `?state=` seeds (Figma R01 7374:1391…2251, R02 2524…3466): '' default · active (typing the name) · filled · error (taken email, weak password, mismatch) ·
+ * loader (the "profile captured" card) · otp · otp-wrong · otp-entered · verified. Initial values only; typing and submitting behave as always.
+ */
+const FRAME_VALUES = {
+  fullName: 'Kwame Asante',
+  email: 'k.asante@mtn.com.gh',
+  phone: '241234567',
+  password: 'Kwame12345',
+  confirm: 'Kwame12345',
+};
+const seedValues = (seed) => {
+  if (seed === 'active')
+    return { ...FRAME_VALUES, email: '', phone: '', password: '', confirm: '' };
+  if (seed === 'error') return { ...FRAME_VALUES, password: 'kwame12', confirm: 'kwame123' };
+  if (['filled', 'loader', 'otp', 'otp-wrong', 'otp-entered', 'verified'].includes(seed))
+    return FRAME_VALUES;
+  return { fullName: '', email: '', phone: '', password: '', confirm: '' };
+};
+const seedStage = (seed) =>
+  seed === 'loader'
+    ? 'captured'
+    : seed.startsWith('otp')
+      ? 'otp'
+      : seed === 'verified'
+        ? 'verified'
+        : 'form';
+
 const RecruiterProfilePage = () => {
   const navigate = useNavigate();
   const { setSection } = useRecruiterOnboarding();
+  const seed = frameSeed();
+  const initial = seedValues(seed);
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [touched, setTouched] = useState({});
-  const [takenEmail, setTakenEmail] = useState('');
-  const [stage, setStage] = useState('form'); // form | captured | otp | verified
+  const [fullName, setFullName] = useState(initial.fullName);
+  const [email, setEmail] = useState(initial.email);
+  const [phone, setPhone] = useState(initial.phone);
+  const [password, setPassword] = useState(initial.password);
+  const [confirm, setConfirm] = useState(initial.confirm);
+  const [touched, setTouched] = useState(
+    seed === 'error' ? { name: true, email: true, phone: true, password: true, confirm: true } : {}
+  );
+  const [takenEmail, setTakenEmail] = useState(seed === 'error' ? initial.email.toLowerCase() : '');
+  const [stage, setStage] = useState(seedStage(seed)); // form | captured | otp | verified
   const runId = useRef(0);
   const emailRef = useRef(null);
 
@@ -345,6 +378,7 @@ const RecruiterProfilePage = () => {
       )}
       {stage === 'otp' && (
         <OtpVerifyModal
+          seed={seed}
           phoneMasked={maskPhone(phone)}
           emailMasked={maskEmail(email)}
           onClose={closeModal}

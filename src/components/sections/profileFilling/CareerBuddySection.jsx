@@ -26,7 +26,9 @@ import JobPostFormModal from './JobPostFormModal.jsx';
 import ConfirmJobPostModal from './ConfirmJobPostModal.jsx';
 import WardAccountSetupModal from './WardAccountSetupModal.jsx';
 import CareerBuddyAvatar from '../../shared/CareerBuddyAvatar.jsx';
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import CareerBuddyHero from './CareerBuddyHero.jsx';
+import WelcomeBackToast from '../../ui/WelcomeBackToast.jsx';
 import VoiceCallOverlay from './VoiceCallOverlay.jsx';
 import VoiceSettingsOverlay from './VoiceSettingsOverlay.jsx';
 import CareerBuddyOptOutModal from './CareerBuddyOptOutModal.jsx';
@@ -72,6 +74,13 @@ import {
   RECRUITER_BUDDY_STAGES,
   RECRUITER_FIRST_TIME_HERO,
   RECRUITER_NAME,
+  recruiterTrailDoneCount,
+  RECRUITER_JOB_CHAT_DONE_HINTS,
+  RECRUITER_JOB_UPLOAD_DONE_HINTS,
+  RECRUITER_UPLOADING_FILES,
+  RECRUITER_WELCOME_NAME,
+  RECRUITER_SETUP_CHIPS,
+  RECRUITER_IDLE_COMPANY_COMPLETION_PCT,
   COMPANY_INFO_FIELDS,
   COMPANY_PANEL_PROGRESS,
   COMPANY_SAVE_META,
@@ -111,20 +120,14 @@ import {
 } from './jobPostFormData.js';
 import {
   JOB_CONV_TITLE_FALLBACK,
-  JOB_CONV_COMPANY_FALLBACK,
-  JOB_CONV_INDUSTRY_FALLBACK,
-  JOB_CONV_DEPARTMENT_FALLBACK,
   JOB_CONV_LOCATION_FALLBACK,
   JOB_CONV_TYPE_FALLBACK,
-  JOB_CONV_EXPERIENCE_FALLBACK,
-  JOB_CONV_DESCRIPTION_FALLBACK,
   JOB_CONV_RESP_FALLBACK,
   JOB_CONV_RESP_CONFIRM_FALLBACK,
   JOB_CONV_QUALS_FALLBACK,
   JOB_CONV_QUALS_CONFIRM_FALLBACK,
   JOB_CONV_SALARY_FALLBACK,
   JOB_CONV_BENEFITS_FALLBACK,
-  JOB_CONV_PERKS_FALLBACK,
   JOB_CONV_DATES_FALLBACK,
 } from './jobConversationData.js';
 import { useCareerBuddyRole } from '../../../hooks/useCareerBuddyRole.js';
@@ -571,8 +574,8 @@ const STAGE_QA_NODE_PREFIX = {
 // icon instead of the real 80px CareerBuddyAvatar).
 // Extracted 2026-08-10 to src/components/sections/profileFilling/CareerBuddyHero.jsx
 // so the recruiter flow can render the identical hero with its own copy.
-const FirstTimeHero = ({ hero, playful = false }) => (
-  <CareerBuddyHero hero={hero} playful={playful} />
+const FirstTimeHero = ({ hero, playful = false, sansHeading = false }) => (
+  <CareerBuddyHero hero={hero} playful={playful} sansHeading={sansHeading} />
 );
 
 const ReturningHero = ({ name }) => (
@@ -677,6 +680,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   // recruiterLive (2026-10-25): a signed-in recruiter, whatever the demo role switch says.
   const isRecruiter = role === 'recruiter' || recruiterLive;
   const isParent = role === 'parent';
+  // The scripted (signed-out) recruiter screens, drawn in Figma 7958:160771 "Recruiter - AI Chat". The signed-in recruiter keeps the real data.
+  const recruiterFrames = isRecruiter && !recruiterLive;
+  // Figma draws these screens in SF Pro Rounded: the bundled face (styles/parent.css) while they are mounted.
+  useScopedRoundedFont('data-recruiter-ui', recruiterFrames);
   // Playful appearance is talent-only; `playful` also needs the stored choice to be Playful.
   const { uiStyle, vibeChosen } = useUiStyle();
   const isTalent = !isRecruiter && !isParent;
@@ -735,6 +742,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       return next;
     });
   const [toast, setToast] = useState(null);
+  // The file chip shown above the composer while a recruiter upload is in progress (the uploading frames, Figma 7958:163808 / 7958:170187).
+  const [uploadingFile, setUploadingFile] = useState(null);
+  // The transcript frames show the long job conversation from its first line (Figma 7958:168475): the thread starts scrolled to the top.
+  const [threadAtTop, setThreadAtTop] = useState(false);
+  // The scrolled company-edit frame keeps the thread 170px above its last line (Figma 7958:162080).
+  const [threadScrollUp, setThreadScrollUp] = useState(0);
   // Parent panel: My Profile vs Elliot's Profile (Figma 5132:77628).
   const [parentProfileTab, setParentProfileTab] = useState('mine');
   // Stage id currently mid-save (drives the Confirm button's spinner + a
@@ -896,11 +909,19 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   const recruiterStagesWithIcons = useMemo(
     () =>
       RECRUITER_BUDDY_STAGES.map((stage) => {
-        if (stage.id === 'company-info') return { ...stage, Icon: RecruiterCompanyInfoIcon };
+        if (stage.id === 'company-info')
+          return {
+            ...stage,
+            Icon: RecruiterCompanyInfoIcon,
+            // The recruiter frames (Figma 7958:160771) draw "Completion: 80%" on the idle panel and through the whole company Q&A.
+            completionPct: recruiterFrames
+              ? RECRUITER_IDLE_COMPANY_COMPLETION_PCT
+              : stage.completionPct,
+          };
         if (stage.id === 'jobs') return { ...stage, Icon: PanelWorkExperienceIcon };
         return stage;
       }),
-    []
+    [recruiterFrames]
   );
 
   const parentMyStagesWithIcons = useMemo(() => withParentStageIcons(PARENT_MY_PROFILE_STAGES), []);
@@ -932,7 +953,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       ? { ...CAREER_BUDDY_NODES, ...PARENT_BUDDY_NODES }
       : CAREER_BUDDY_NODES;
   const trailStages = isRecruiter
-    ? RECRUITER_BUDDY_STAGES
+    ? // Figma 7958:160771 draws the talent trail (Avatar … Pitch) on every recruiter screen; the signed-in recruiter keeps the recruiter steps.
+      recruiterFrames
+      ? CAREER_BUDDY_STAGES
+      : RECRUITER_BUDDY_STAGES
     : isParent
       ? // Figma (7958:183942): the parent's stage trail starts with the done "Avatar" step, like the talent's.
         [CAREER_BUDDY_STAGES[0], ...parentMyStagesWithIcons]
@@ -949,6 +973,13 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     : isParent
       ? PARENT_PERSONA_LABEL
       : TALENT_NAME;
+  // Which trail steps the recruiter frames draw as done: Avatar alone, or Avatar + Personal Info + Education (varies per frame, see recruiterBuddyScript).
+  const recruiterTrailStatuses = Object.fromEntries(
+    CAREER_BUDDY_STAGES.slice(0, recruiterTrailDoneCount(demoHint)).map((stage) => [
+      stage.id,
+      'completed',
+    ])
+  );
   const withLiveName = (list) =>
     liveRecruiterName
       ? list.map((m) =>
@@ -1122,7 +1153,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     if (isRecruiter) {
       const { nodeId: seedId, messages: seedMsgs } = seedRecruiterJump(demoHint);
       setNodeId(seedId);
-      setMessages(seedMsgs);
+      // Once a chip has been chosen the recruiter frames show a fresh thread, without the welcome bubble.
+      setMessages(
+        recruiterFrames && seedId !== 'welcome'
+          ? seedMsgs.filter((m) => !m.isWelcomeIntro)
+          : seedMsgs
+      );
       setTrailStageIndex(0);
       setConfirmingStageId(null);
       setRetriedStages({});
@@ -1131,7 +1167,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       // Base recruiter stages (no KYB yet for most hints)
       let nextStages = recruiterStagesWithIcons;
 
-      if (demoHint === 'company-review') {
+      if (
+        demoHint === 'company-review' ||
+        demoHint === 'company-edit' ||
+        demoHint === 'company-edit-continued' ||
+        demoHint === 'company-edit-scrolled'
+      ) {
         // Figma company-review frames show KYB already Verified on the panel.
         setKybVerified(true);
         nextStages = recruiterStagesWithIcons.map((stage) => {
@@ -1177,6 +1218,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       }
 
       setStages(nextStages);
+      setUploadingFile(recruiterFrames ? (RECRUITER_UPLOADING_FILES[demoHint] ?? null) : null);
+      setThreadScrollUp(recruiterFrames && demoHint === 'company-edit-scrolled' ? 170 : 0);
+      setThreadAtTop(
+        recruiterFrames &&
+          (demoHint === 'post-job-chat-transcript' || demoHint === 'post-job-chat-fallback')
+      );
       // Welcome toast only on landing — mid-flow demo jumps skip it.
       if (demoHint === 'welcome') {
         setToast({
@@ -1247,12 +1294,13 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           )
         );
         setExpandedPanelId('jobs');
-      } else if (demoHint === 'post-job-upload-review') {
+      } else if (RECRUITER_JOB_UPLOAD_DONE_HINTS.includes(demoHint)) {
         const draft = seedJobPostFromUpload();
         setJobPostFormMode('upload');
         setJobPostDraft(draft);
-        setJobPostFormOpen(true);
-        setConfirmJobPostOpen(false);
+        // Figma: the review modal (7958:170745) or the confirmation (7958:171927) over the chat; the plain chat frame has neither.
+        setJobPostFormOpen(demoHint === 'post-job-upload-review');
+        setConfirmJobPostOpen(demoHint === 'post-job-upload-confirm');
         setStages((prev) =>
           prev.map((stage) =>
             stage.id === 'jobs'
@@ -1266,39 +1314,37 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           )
         );
         setExpandedPanelId('jobs');
-      } else if (demoHint === 'post-job-chat-review') {
-        setJobPostFormMode('conversation');
+      } else if (RECRUITER_JOB_CHAT_DONE_HINTS.includes(demoHint)) {
+        setJobPostFormMode(demoHint === 'post-job-chat-fallback' ? 'fallback' : 'conversation');
         let draft = emptyJobPostForm();
         const steps = [
           ['job-conv-title', JOB_CONV_TITLE_FALLBACK],
-          ['job-conv-company', JOB_CONV_COMPANY_FALLBACK],
-          ['job-conv-industry', JOB_CONV_INDUSTRY_FALLBACK],
-          ['job-conv-department', JOB_CONV_DEPARTMENT_FALLBACK],
           ['job-conv-location', JOB_CONV_LOCATION_FALLBACK],
           ['job-conv-type', JOB_CONV_TYPE_FALLBACK],
-          ['job-conv-experience', JOB_CONV_EXPERIENCE_FALLBACK],
-          ['job-conv-description', JOB_CONV_DESCRIPTION_FALLBACK],
           ['job-conv-resp', JOB_CONV_RESP_FALLBACK],
           ['job-conv-resp-confirm', JOB_CONV_RESP_CONFIRM_FALLBACK],
           ['job-conv-quals', JOB_CONV_QUALS_FALLBACK],
           ['job-conv-quals-confirm', JOB_CONV_QUALS_CONFIRM_FALLBACK],
           ['job-conv-salary', JOB_CONV_SALARY_FALLBACK],
           ['job-conv-benefits', JOB_CONV_BENEFITS_FALLBACK],
-          ['job-conv-perks', JOB_CONV_PERKS_FALLBACK],
           ['job-conv-dates', JOB_CONV_DATES_FALLBACK],
         ];
         for (const [node, answer] of steps) {
           draft = applyJobConvAnswer(draft, node, answer);
         }
-        setJobPostDraft(draft);
-        setJobPostFormOpen(false);
-        setConfirmJobPostOpen(false);
+        // The fallback form opens blank: the chat could not read the last answer (Figma 7958:168809).
+        setJobPostDraft(demoHint === 'post-job-chat-fallback' ? emptyJobPostForm() : draft);
+        // Figma 7958:168809 opens the fallback form over the chat, 7958:169471 the confirmation; the transcript frame has neither.
+        setJobPostFormOpen(demoHint === 'post-job-chat-fallback');
+        setConfirmJobPostOpen(demoHint === 'post-job-chat-confirm');
+        const reviewing =
+          demoHint === 'post-job-chat-review' || demoHint === 'post-job-chat-confirm';
         setStages((prev) =>
           prev.map((stage) =>
             stage.id === 'jobs'
               ? {
                   ...stage,
-                  status: 'awaiting-review',
+                  status: reviewing ? 'awaiting-review' : 'in-progress',
                   completionPct: 100,
                   fields: buildJobsPanelFields(draft),
                 }
@@ -1955,6 +2001,9 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
 
   // forcedNextId: open a node directly (Buddy handoff), whatever the current node is.
   const submit = (text, forcedNextId = null) => {
+    setUploadingFile(null);
+    setThreadAtTop(false);
+    setThreadScrollUp(0);
     const node = scriptNodes[nodeId];
     if (!node && !forcedNextId) return;
     let nextId = forcedNextId ?? node.next?.[text] ?? node.next?.['*'] ?? node.freeTextNext;
@@ -1973,7 +2022,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
     // Pass the user's input so recruiter nodes can echo the real typed text
     // (e.g. company-bio-rewrite echoes the recruiter's own bio draft).
     const newMessages = nextNode.reply ? nextNode.reply(text) : (nextNode.seedMessages?.() ?? []);
-    setMessages((prev) => [...prev, ...newMessages]);
+    // The recruiter frames start a fresh thread once a chip is chosen: the welcome bubble is gone (Figma 7958:161456, 7958:164437).
+    setMessages((prev) => [
+      ...(recruiterFrames ? prev.filter((m) => !m.isWelcomeIntro) : prev),
+      ...newMessages,
+    ]);
     // A node may route the app after its reply (Opportunity Matching: "Apply with my GTH profile").
     if (nextNode.navigateTo) navigate(nextNode.navigateTo);
     // A footer chip answers the fresh-start screen too (otherwise its reply stays hidden behind the "Hi there" empty state).
@@ -2209,6 +2262,7 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
   };
 
   const handleAttach = ({ name, size, sizeLabel, file }) => {
+    setUploadingFile(null);
     const node = scriptNodes[nodeId];
     const displayName =
       name.length > 20 ? `${name.slice(0, 14)}... .${name.split('.').pop()}` : name;
@@ -2863,11 +2917,12 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                 Boolean(showChrome && modeListingNodeId && nodeId !== modeListingNodeId) ||
                 // Figma Playful Welcome frames show the gold button on the first screen too (⚠️ ASSUMPTION: inert until a mode picker exists)
                 (playful && heroMode === 'first-time') ||
-                // The parent frames (Figma 7958:183942) draw the gold "Switch Modes" button on every screen.
-                isParent
+                // The parent frames (Figma 7958:183942) and the recruiter frames (7958:160771) draw the gold "Switch Modes" button on every screen.
+                isParent ||
+                recruiterFrames
           }
           onSwitchModes={handleSwitchModes}
-          switchModesLabel={isParent ? 'Switch Modes' : 'Change input mode'}
+          switchModesLabel={isParent || recruiterFrames ? 'Switch Modes' : 'Change input mode'}
           className="w-full h-full"
         />
       </div>
@@ -2888,7 +2943,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           <EngagementTopBar
             stages={trailStages}
             currentStageIndex={trailStageIndex}
-            completionPct={isRecruiter ? 16 : 0}
+            completionPct={isRecruiter && !recruiterFrames ? 16 : 0}
+            trailLook={recruiterFrames ? 'muted-checks' : undefined}
+            progressWidthClass={recruiterFrames ? 'w-[360px]' : undefined}
+            stageStatuses={recruiterFrames ? recruiterTrailStatuses : undefined}
             interactive={false}
             className="w-full h-full"
           />
@@ -2896,7 +2954,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
       </div>
 
       {/* Chat | Profile switch — below lg only one pane shows at a time. */}
-      <div className="lg:hidden shrink-0 border-b border-border-default bg-white px-4 py-1.5">
+      <div
+        role="region"
+        aria-label="Chat or profile"
+        className="lg:hidden shrink-0 border-b border-border-default bg-white px-4 py-1.5"
+      >
         <div
           role="group"
           aria-label="Career Buddy view"
@@ -2939,7 +3001,10 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         </div>
       </div>
 
-      {viewToast && (
+      {viewToast && recruiterFrames && viewToast.variant === 'welcome' ? (
+        <WelcomeBackToast key={viewToast.id} name={RECRUITER_WELCOME_NAME} onClose={dismissToast} />
+      ) : null}
+      {viewToast && !(recruiterFrames && viewToast.variant === 'welcome') && (
         <Toast
           key={viewToast.id}
           compact={viewToast.variant !== 'welcome'}
@@ -2965,6 +3030,16 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
           no visible scrollbar to reveal why. clip blocks scrolling outright,
           which is correct since this row was never meant to scroll. */}
       <main className="relative z-0 flex-1 min-h-0 overflow-clip flex">
+        {/* Once the hero heading is gone the page would have no level-one heading. */}
+        {!viewHeroMode && (
+          <h1 className="sr-only">
+            {isRecruiter
+              ? 'Recruiter Career Buddy'
+              : isParent
+                ? 'Parent Career Buddy'
+                : 'Career Buddy'}
+          </h1>
+        )}
         {/* Page-level background glow ellipses — fixed regardless of chat
             scroll (siblings of the scrolling column, not inside it), same
             pattern as InstitutionOnboardingLayout/ParentOnboardingLayout.
@@ -3442,7 +3517,11 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
             ) : (
               <>
                 {heroMode === 'first-time' && !demoFrame && (
-                  <FirstTimeHero hero={firstTimeHero} playful={playful} />
+                  <FirstTimeHero
+                    hero={firstTimeHero}
+                    playful={playful}
+                    sansHeading={recruiterFrames}
+                  />
                 )}
                 {heroMode === 'returning' && !isTalent && <ReturningHero name={personaName} />}
               </>
@@ -3490,11 +3569,31 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
                       : enrichedMessages
                 )}
                 {...voiceTurns.chatProps}
-                alignTop={Boolean(demoFrame?.voice)}
-                placeholder={isParent ? 'Write a message…' : undefined}
+                wideBubbles={recruiterFrames}
+                plainBotBubbles={recruiterFrames}
+                alignTop={Boolean(demoFrame?.voice) || (recruiterFrames && nodeId !== 'welcome')}
+                modeCardTitleFont={recruiterFrames ? 'heading' : 'display'}
+                uploadingFile={uploadingFile}
+                scrollToTop={threadAtTop}
+                scrollUpBy={threadScrollUp}
+                onCancelUpload={() => setUploadingFile(null)}
+                placeholder={isParent || recruiterFrames ? 'Write a message…' : undefined}
                 onSend={onSendText}
                 suggestedReplies={
-                  demoFrame ? opportunityDemoChips(demoFrame.opportunity) : activeSuggestedReplies
+                  demoFrame
+                    ? opportunityDemoChips(demoFrame.opportunity)
+                    : recruiterFrames && nodeId === 'welcome'
+                      ? activeSuggestedReplies.filter(
+                          (reply) => !RECRUITER_SETUP_CHIPS.includes(reply)
+                        )
+                      : activeSuggestedReplies
+                }
+                inlineSuggestedReplies={
+                  recruiterFrames && nodeId === 'welcome'
+                    ? activeSuggestedReplies.filter((reply) =>
+                        RECRUITER_SETUP_CHIPS.includes(reply)
+                      )
+                    : undefined
                 }
                 onSelectOption={handleSelectMcqOption}
                 onSelectModeCard={handleSelectModeCard}
@@ -3602,7 +3701,16 @@ const CareerBuddySection = ({ live: liveMode = false, recruiterLive = false }) =
         {/* RIGHT — role-specific panel */}
         {isRecruiter ? (
           <RecruiterPanel
-            className={`w-[clamp(300px,26vw,500px)] shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
+            jobsRowOnlyWhenStarted={recruiterFrames}
+            initialEditingId={
+              recruiterFrames &&
+              (demoHint === 'company-edit' ||
+                demoHint === 'company-edit-continued' ||
+                demoHint === 'company-edit-scrolled')
+                ? 'company-info'
+                : null
+            }
+            className={`${recruiterFrames ? 'w-[clamp(300px,35.6vw,616px)]' : 'w-[clamp(300px,26vw,500px)]'} shrink-0 border-l border-border-default max-lg:min-h-0 max-lg:w-full max-lg:flex-1 max-lg:border-l-0 max-lg:px-4 ${
               mobilePane === 'chat' ? 'max-lg:hidden' : ''
             }`}
             stages={stages}

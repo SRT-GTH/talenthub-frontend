@@ -168,6 +168,10 @@ Frame ↔ URL table: [talent-wallet.md](talent-wallet.md).
 
 ## Recruiter dashboard home
 
+`/recruiter/home` is now the **Recruiter dashboard** (Figma file `OHG2xsfCCskT8xEn356njv`, canvas `10005:38660`): `RecruiterHomePage` renders `recruiterDashboard/RecruiterDashboardSection` and keeps the earlier "Let's get you ready" home reachable at `?view=setup`. Every state is a query param: `?org=` (`mtn` default | `hubtel` | `single` | `pending` | `none`), `?panel=` (`org` | `notifications` | `notifications-empty` | `language` | `a11y`), `?loading=1`, `?toast=`, `?jobs=`, `?pipeline=`, `?talents=`, `?verify=`, `?region=` / `?industry=`, `?feedback=`, `?dialog=` (`pause` | `close` | `invite` | `upload` | `feedback`), `?stage=`, `?window=`, `?menu=`. Full table: [recruiter-dashboard.md](recruiter-dashboard.md). `✅ VERIFIED` (2026-11-04)
+
+### Earlier home (Talent-file frame, now `?view=setup`)
+
 | Path              | Page                                        | Chrome                                  |
 | ----------------- | ------------------------------------------- | --------------------------------------- |
 | `/recruiter/home` | `pages/recruiterHome/RecruiterHomePage.jsx` | `CommunityShell` (outside `MainLayout`) |
@@ -176,7 +180,13 @@ Figma `7249:73882`. Reuses the community chrome rather than a dedicated layout �
 
 `CommunitySidebar`'s active item is now derived from `useLocation().pathname` instead of the hardcoded `active: true` that used to sit on the Community entry; `/community` and `/community/:id` behave exactly as before, and the Home entry (previously destination-less) now points here. ✅ VERIFIED
 
+## Recruiter Career Buddy states
+
+`/profile/filling/career-buddy?role=recruiter&live=0&cb=<state>` (same route as the talent and parent Career Buddy, state in the URL, no route guard): `landing`, `welcome`, `company-conversation`, `company-review`, `company-edit`, `company-edit-continued`, `kyb-uploading`, `kyb-verified`, `post-job-options`, `post-job-manual`, `post-job-form` (+ `&jobform=qualifications|job-details|level-menu`), `post-job-confirm`, `post-job-success`, `post-job-chat-transcript`, `post-job-chat-fallback`, `post-job-upload`, `post-job-uploaded`, `post-job-upload-review`; frame table in [recruiter-ai-chat.md](recruiter-ai-chat.md). ✅ VERIFIED (2026-11-04)
+
 ## Recruiter dashboard screens
+
+Frame→URL table with diff % and the URL keys of these seven screens: [recruiter-job-prospecting.md](recruiter-job-prospecting.md). Other recruiter pages in the Figma file (not built): [recruiter-figma-pages-map.md](recruiter-figma-pages-map.md).
 
 All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
 

@@ -1,3 +1,4 @@
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
@@ -78,21 +79,7 @@ const ParentFrame = ({
   };
 
   // Scoped font stack (styles/parent.css): the bundled SF Pro Rounded while a parent screen is mounted.
-  useEffect(() => {
-    const root = document.documentElement;
-    root.setAttribute('data-parent-ui', '');
-    // The bundled SF Pro Rounded (styles/parent.css, `GTH Parent Rounded`) is the Figma font. Only if it fails to load does styles/parent.css bump the Nunito fallback's weights (`data-parent-font="fallback"`).
-    document.fonts
-      ?.load('600 16px "GTH Parent Rounded"')
-      .then((faces) => {
-        if (!faces.length) root.setAttribute('data-parent-font', 'fallback');
-      })
-      .catch(() => root.setAttribute('data-parent-font', 'fallback'));
-    return () => {
-      root.removeAttribute('data-parent-ui');
-      root.removeAttribute('data-parent-font');
-    };
-  }, []);
+  useScopedRoundedFont('data-parent-ui');
 
   const setRail = (value) => {
     log('rail', value);

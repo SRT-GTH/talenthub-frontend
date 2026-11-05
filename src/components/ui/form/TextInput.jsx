@@ -137,6 +137,8 @@ const TextInput = ({
   // Optional in-field top caption (Figma 5132:67856/67862/67867). When set,
   // renders inside the input box; external Field `label` still works if passed.
   inscription,
+  // Extra classes for the in-box caption (e.g. a different font family); defaults unchanged.
+  inscriptionClassName,
   leftIcon,
   // Optional override for the leading-icon color wrapper. Defaults to
   // `text-content-tertiary` (the legacy neutral). The Contact step's
@@ -157,6 +159,7 @@ const TextInput = ({
   forceAsterisk,
   asteriskClassName,
   labelClassName,
+  labelRowClassName,
   type = 'text',
   id,
   className,
@@ -212,6 +215,7 @@ const TextInput = ({
       forceAsterisk={forceAsterisk}
       asteriskClassName={asteriskClassName}
       labelClassName={labelClassName}
+      labelRowClassName={labelRowClassName}
       helperIcon={helperIcon}
       helperIconClassName={helperIconClassName}
       helperTextClassName={helperTextClassName}
@@ -225,7 +229,11 @@ const TextInput = ({
           boxClassName
         )}
       >
-        {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}
+        {hasInscription && (
+          <span className={classNames(INSCRIPTION_CLASSES, inscriptionClassName)}>
+            {inscription}
+          </span>
+        )}
         {leftIcon && (
           <span
             className={classNames(

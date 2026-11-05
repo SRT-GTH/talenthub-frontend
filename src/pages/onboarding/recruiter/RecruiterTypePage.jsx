@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import OrganisationHeading from '../../../components/sections/recruiterOnboarding/organisation/OrganisationHeading.jsx';
@@ -66,7 +67,11 @@ const IDLE_BANNER =
 const RecruiterTypePage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
-  const [choice, setChoice] = useState(data.recruiterType ?? null);
+  // `?state=dedicated|freelance` opens Figma R03 7374:3962 / 4177 (no key = none selected, 7374:3747).
+  const [choice, setChoice] = useState(() => {
+    const seed = frameSeed();
+    return seed === 'dedicated' || seed === 'freelance' ? seed : (data.recruiterType ?? null);
+  });
   const cardRefs = useRef([]);
 
   const selected = OPTIONS.find((o) => o.value === choice) ?? null;

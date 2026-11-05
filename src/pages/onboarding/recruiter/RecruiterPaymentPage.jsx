@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import RecruiterOnboardingPanel from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingPanel.jsx';
@@ -87,6 +88,26 @@ const DEMO_EMAIL = 'k.asante@mtn.com.gh';
 const EMPTY_CARD = { name: '', number: '', expiry: '', cvc: '' };
 const EMPTY_MOMO = { network: 'mtn', number: '' };
 
+/*
+ * `?state=` seeds (Figma R06 7374:7507…8715): '' / card default · card-filled · declined · momo-filled · momo-awaiting · success. Initial values only; no payment is made.
+ */
+const FRAME_CARD = {
+  name: 'Kwame Asante',
+  number: '4084 0000 0000 4081',
+  expiry: '08 / 28',
+  cvc: '123',
+};
+const FRAME_MOMO = { network: 'mtn', number: '241234567' };
+const seedMethod = (seed) => (seed.startsWith('momo') ? 'momo' : 'card');
+const seedStatus = (seed) =>
+  seed === 'declined'
+    ? 'declined'
+    : seed === 'momo-awaiting'
+      ? 'awaiting'
+      : seed === 'success'
+        ? 'success'
+        : 'idle';
+
 const RecruiterPaymentPage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
@@ -99,13 +120,28 @@ const RecruiterPaymentPage = () => {
   const amount = planPrice(tier, billing);
   const renewal = useMemo(() => renewalDate(billing), [billing]);
 
-  const [method, setMethod] = useState('card');
-  const [card, setCard] = useState(EMPTY_CARD);
-  const [momo, setMomo] = useState(EMPTY_MOMO);
-  const [status, setStatus] = useState('idle'); // idle | processing | declined | awaiting | success
-  const [secondsLeft, setSecondsLeft] = useState(MOMO_PROMPT_TTL_SECONDS);
-  const [settled, setSettled] = useState(null); // display-only masked card snapshot
-  const [receipt, setReceipt] = useState(null);
+  const seed = frameSeed();
+  const [method, setMethod] = useState(seedMethod(seed));
+  const [card, setCard] = useState(
+    ['card-filled', 'declined'].includes(seed) ? FRAME_CARD : EMPTY_CARD
+  );
+  const [momo, setMomo] = useState(seed.startsWith('momo') ? FRAME_MOMO : EMPTY_MOMO);
+  const [status, setStatus] = useState(seedStatus(seed)); // idle | processing | declined | awaiting | success
+  const [secondsLeft, setSecondsLeft] = useState(
+    seed === 'momo-awaiting' ? 102 : MOMO_PROMPT_TTL_SECONDS
+  );
+  const [settled, setSettled] = useState(() =>
+    seed === 'success'
+      ? {
+          name: FRAME_CARD.name,
+          masked: maskCardNumber(FRAME_CARD.number),
+          expiry: formatExpiry(FRAME_CARD.expiry),
+        }
+      : null
+  ); // display-only masked card snapshot
+  const [receipt, setReceipt] = useState(() =>
+    seed === 'success' ? { methodLabel: 'Visa •••• 4081', reference: 'GTH-PAY-48213' } : null
+  );
 
   const numberRef = useRef(null);
   const abortRef = useRef(null);

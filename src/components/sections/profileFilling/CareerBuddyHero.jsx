@@ -89,30 +89,43 @@ const PlayfulHero = ({ hero }) => {
   );
 };
 
-const CareerBuddyHero = ({ hero, playful = false }) => {
+const CareerBuddyHero = ({ hero, playful = false, sansHeading = false }) => {
   log('render', { eyebrow: hero?.eyebrow, buddyCardSubtitle: hero?.buddyCardSubtitle, playful });
   // The mascot keeps its place on phones, just smaller (Figma 80px >= lg).
   const avatarSize = useIsDesktop() ? 80 : 40;
 
   if (playful) return <PlayfulHero hero={hero} />;
 
+  // Figma 7958:160771 (recruiter): the whole headline is SF Pro Rounded (eyebrow 600 green, rest 500), the card is 508 wide on one
+  // line with a semibold label, and the hero sits lower so the chat stack ends at the composer.
+  const eyebrowClass = sansHeading
+    ? 'font-sans font-semibold leading-[42px] text-brand-green max-lg:leading-snug'
+    : 'font-display not-italic leading-[1.3] text-brand-green max-lg:leading-snug';
   return (
-    <div className="flex flex-col items-center text-center px-10 pt-14 pb-6 gap-[14px] shrink-0 max-lg:min-h-0 max-lg:shrink max-lg:max-h-[30%] max-lg:overflow-y-auto max-lg:gap-1.5 max-lg:px-4 max-lg:pb-2 max-lg:pt-2">
+    <div
+      className={`flex flex-col items-center text-center px-10 ${sansHeading ? 'lg:pt-[clamp(56px,calc(100vh-9.89vw-635px),260px)]' : 'lg:pt-14'} pt-14 pb-6 gap-[14px] shrink-0 max-lg:min-h-0 max-lg:shrink max-lg:max-h-[30%] max-lg:overflow-y-auto max-lg:gap-1.5 max-lg:px-4 max-lg:pb-2 max-lg:pt-2`}
+    >
       <h1 className="text-[32px] tracking-[0.1px] text-[#404040] max-w-[782px] max-lg:text-[18px] max-lg:leading-snug">
-        <span className="font-display not-italic leading-[1.3] text-brand-green max-lg:leading-snug">
-          {hero.eyebrow}
-        </span>
-        <span className="font-sans font-medium leading-[1.3] max-lg:leading-snug">
+        <span className={eyebrowClass}>{hero.eyebrow}</span>
+        <span
+          className={`font-sans font-medium ${sansHeading ? 'leading-[42px]' : 'leading-[1.3]'} max-lg:leading-snug`}
+        >
           {hero.headlineRest}
         </span>
       </h1>
       <p className="font-sans text-[18px] text-[#595959] max-lg:max-w-full max-lg:truncate max-lg:text-[12px] max-lg:leading-4">
         {hero.subtitle}
       </p>
-      <div className="mt-[14px] flex w-full max-w-[450px] items-center gap-[14px] rounded-[12px] border border-[#e8e8e7] bg-[#f8f8f4] px-[16px] py-[14px] max-lg:mt-0 max-lg:gap-2.5 max-lg:px-2.5 max-lg:py-2">
+      <div
+        className={`mt-[14px] flex w-full ${sansHeading ? 'max-w-[508px]' : 'max-w-[450px]'} items-center gap-[14px] rounded-[12px] border border-[#e8e8e7] bg-[#f8f8f4] px-[16px] py-[14px] max-lg:mt-0 max-lg:gap-2.5 max-lg:px-2.5 max-lg:py-2`}
+      >
         <CareerBuddyAvatar size={avatarSize} />
-        <p className="text-[18px] leading-normal text-[#404040] text-left max-lg:text-[13px] max-lg:leading-snug">
-          <span className="font-display not-italic">{hero.buddyCardLabel}</span>
+        <p
+          className={`text-[18px] leading-normal text-[#404040] text-left max-lg:text-[13px] max-lg:leading-snug ${sansHeading ? 'lg:whitespace-nowrap' : ''}`}
+        >
+          <span className={sansHeading ? 'font-sans font-semibold' : 'font-display not-italic'}>
+            {hero.buddyCardLabel}
+          </span>
           {'  '}
           <span className="font-sans">{hero.buddyCardSubtitle}</span>
         </p>

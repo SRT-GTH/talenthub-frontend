@@ -29,6 +29,21 @@ export const CHOOSE_POSTING = {
   value: 'Senior UX Designer — London, UK',
 };
 
+/*
+ * Job Posting dropdown rows, verbatim from 7249:79815 (note the double space
+ * after the comma in two labels, kept as drawn). `id` is the URL slug used by
+ * ?posting= and ?forceHover=. Only Senior UX Designer has a board in Figma, so
+ * choosing another posting changes the select but not the columns (⚠️ ASSUMPTION:
+ * no per-posting board data is drawn).
+ */
+export const JOB_POSTING_OPTIONS = [
+  { id: 'none', label: '--None--' },
+  { id: 'senior-ux-designer', label: 'Senior UX Designer — London, UK' },
+  { id: 'devops-engineer', label: 'DevOps Engineer — Ho,  Ghana' },
+  { id: 'data-analyst-intern', label: 'Data Analyst Intern — Accra,  Ghana' },
+];
+export const DEFAULT_JOB_POSTING_ID = 'senior-ux-designer';
+
 // Status-box palettes, straight from the Figma fills.
 export const MEETING_TONES = {
   upcoming: { box: 'bg-[#faf4e8] border-[#f7efdd]', text: 'text-[#785910]', badge: 'bg-[#967014]' },
@@ -36,7 +51,7 @@ export const MEETING_TONES = {
   completed: {
     box: 'bg-brand-green-light border-brand-green-light-hover',
     text: 'text-[#224626]',
-    badge: 'bg-brand-green-dark',
+    badge: '', // 7249:79216 draws the circle-check glyph itself in #387440, no disc
   },
 };
 
@@ -126,8 +141,9 @@ export const COLUMNS = [
         meta: 'Tue, Sept 4 · 2:00 PM',
         statusLabel: 'Past Meeting',
         platform: 'Google Meet',
-        primaryAction: 'Reschedule',
-        secondaryAction: 'Mark as Completed',
+        // V2.0 (7249:79198): Reschedule is the white secondary, Mark as Completed the green primary.
+        primaryAction: 'Mark as Completed',
+        secondaryAction: 'Reschedule',
       },
       {
         id: 'sarah-jenkins',

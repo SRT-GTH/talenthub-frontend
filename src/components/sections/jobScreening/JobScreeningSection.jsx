@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import RecruiterJobTabs from '../recruiterShared/RecruiterJobTabs.jsx';
@@ -6,10 +7,12 @@ import {
   CriteriaExperienceIcon,
   CriteriaSkillsIcon,
   CriteriaEducationIcon,
-  AssessmentGaugeIcon,
+  AssessmentScoreIcon,
   LocationMatchIcon,
+  RegionHubIcon,
   RatingStarIcon,
   CriteriaChevronIcon,
+  ApplyingToArrowheadIcon,
   CriteriaToggle,
 } from './jobScreeningIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -52,12 +55,51 @@ const CRITERIA_ICONS = {
   skills: CriteriaSkillsIcon,
   education: CriteriaEducationIcon,
 };
-const CONTEXT_ICONS = { gauge: AssessmentGaugeIcon, location: LocationMatchIcon };
+const CRITERIA_ICON_SIZES = {
+  experience: 'h-[16px] w-[20px]',
+  skills: 'size-[20px]',
+  education: 'h-[18px] w-[22px]',
+};
+const CONTEXT_ICONS = { gauge: AssessmentScoreIcon, location: LocationMatchIcon };
+
+/*
+ * URL state (route /recruiter/job-screening):
+ *   (none)                                        7249:78066  Screening Criteria
+ *   ?dropdown=experience                          the Minimum Experience value dropdown open
+ *   ?dropdown=experience&dropdownItem=2-5         7249:78533  Dropdown Menu Item Hover (pins the
+ *                                                 #f6f6f6 hover fill on that row; real :hover also works)
+ * dropdownItem values: 0-2 | 2-5 | 5-10 | 10-plus. Opening/choosing writes the same keys.
+ */
 
 const JobScreeningSection = () => {
-  const [openSelectId, setOpenSelectId] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedValues, setSelectedValues] = useState({});
+  const [enabledMap, setEnabledMap] = useState(() => {
+    const initial = {};
+    CORE_REQUIREMENTS.items.forEach((item) => {
+      initial[item.id] = item.enabled;
+    });
+    PERFORMANCE_CONTEXT.forEach((card) => {
+      initial[card.id] = card.enabled;
+    });
+    return initial;
+  });
   const rootRef = useRef(null);
+
+  const openSelectId = searchParams.get('dropdown');
+  const forcedHoverOptionId = searchParams.get('dropdownItem');
+  const setOpenSelectId = (next) => {
+    const params = new URLSearchParams(searchParams);
+    const id = typeof next === 'function' ? next(openSelectId) : next;
+    if (id) params.set('dropdown', id);
+    else params.delete('dropdown');
+    params.delete('dropdownItem');
+    setSearchParams(params);
+  };
+  const toggleEnabled = (id) => {
+    log('branch', { toggle: id, to: !enabledMap[id] });
+    setEnabledMap((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // Close an open menu on any click outside it.
   useEffect(() => {
@@ -67,6 +109,8 @@ const JobScreeningSection = () => {
     };
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
+    // setOpenSelectId only closes over searchParams, which changes with openSelectId
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSelectId]);
 
   useEffect(() => {
@@ -88,6 +132,7 @@ const JobScreeningSection = () => {
             lead={PAGE_HEADING.lead}
             accent={PAGE_HEADING.accent}
             subtitle={PAGE_SUBHEADING}
+            titleStyle="sans-accent"
           />
           <RecruiterJobTabs />
         </div>
@@ -107,7 +152,7 @@ const JobScreeningSection = () => {
               className="flex h-[51px] max-lg:min-h-[44px] max-lg:h-auto items-center justify-between gap-[8px] rounded-[10px] border border-[#cccccc] bg-white px-[16px] text-left font-sans text-[14px] font-medium leading-5 tracking-[0.2px] text-[#595959] shadow-[0_2.5px_0_0_#bfbfbf] max-lg:text-[16px] max-lg:shadow-none"
             >
               <span className="min-w-0 truncate">{APPLYING_TO.value}</span>
-              <CriteriaChevronIcon className="size-[20px] shrink-0 text-[#595959]" />
+              <ApplyingToArrowheadIcon className="size-[20px] shrink-0 text-brand-green" />
             </button>
           </label>
 
@@ -134,7 +179,12 @@ const JobScreeningSection = () => {
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
                         <div className="flex items-center gap-[8px]">
-                          <Icon className="h-[16px] w-[19.5px] shrink-0 text-brand-green" />
+                          <Icon
+                            className={classNames(
+                              CRITERIA_ICON_SIZES[item.icon],
+                              'shrink-0 text-brand-green'
+                            )}
+                          />
                           <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                             {item.title}
                           </span>
@@ -170,31 +220,34 @@ const JobScreeningSection = () => {
                                 /* Figma 7249:78785 */
                                 <span className="absolute left-0 top-[42px] z-20 block w-[115px] max-lg:w-[160px] overflow-hidden rounded-[10px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]">
                                   {item.options.map((option, index) => (
-                                    <span key={option} className="block">
+                                    <span key={option.id} className="block">
                                       {index > 0 && (
                                         <span className="block h-[0.6px] w-full bg-[#e5e5e5]" />
                                       )}
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          log('branch', { select: item.id, chose: option });
+                                          log('branch', { select: item.id, chose: option.id });
                                           setSelectedValues((prev) => ({
                                             ...prev,
-                                            [item.id]: option,
+                                            [item.id]: option.label,
                                           }));
                                           setOpenSelectId(null);
                                         }}
                                         className={classNames(
-                                          'flex h-[41px] max-lg:h-[40px] w-full items-center px-[16px] text-left font-sans text-[14px] leading-[24.31px] text-content-helper transition-colors',
+                                          'flex h-[41px] max-lg:h-[40px] w-full items-center justify-center px-[16px] text-center font-sans text-[14px] leading-[24.31px] text-[#737373] transition-colors',
                                           // Figma highlights one row at #f6f6f6 to show the
                                           // hover state; the same fill marks the ACTIVE row,
                                           // i.e. whichever option is currently selected.
                                           'hover:bg-[#f6f6f6] active:bg-[#ededed]',
-                                          (selectedValues[item.id] ?? item.value) === option &&
+                                          forcedHoverOptionId === option.id && 'bg-[#f6f6f6]',
+                                          (selectedValues[item.id] ?? item.value) ===
+                                            option.label &&
+                                            !forcedHoverOptionId &&
                                             'bg-[#f6f6f6]'
                                         )}
                                       >
-                                        {option}
+                                        {option.label}
                                       </button>
                                     </span>
                                   ))}
@@ -206,7 +259,7 @@ const JobScreeningSection = () => {
                             item.tags.map((tag) => (
                               <span
                                 key={tag}
-                                className="inline-flex h-[34px] items-center rounded-[8px] bg-brand-green-light px-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 text-black"
+                                className="inline-flex h-[34px] items-center rounded-[8px] bg-[#ebf1ec] px-[12px] font-sans text-[15px] leading-[18px] text-[#2a5730]"
                               >
                                 {tag}
                               </span>
@@ -215,10 +268,15 @@ const JobScreeningSection = () => {
                             <button
                               type="button"
                               onClick={() => log('branch', { action: 'add-skill', wired: false })}
-                              className="inline-flex h-[34px] max-lg:min-h-[32px] max-lg:h-auto items-center rounded-[8px] border border-[#00522b]/10 px-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 text-brand-green-dark transition-colors hover:bg-brand-green-light"
+                              className="inline-flex h-[34px] max-lg:min-h-[32px] max-lg:h-auto items-center rounded-[14px] border-2 border-[#1c2a21]/30 bg-white px-[12px] font-sans text-[15px] font-bold leading-6 tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all active:translate-y-[4px] active:shadow-none max-lg:shadow-none"
                             >
                               {item.addLabel}
                             </button>
+                          )}
+                          {item.staticValue && (
+                            <span className="inline-flex h-[38px] items-center rounded-[8px] border border-[#e9e9e9] px-[12px] font-sans text-[16px] leading-[22px] text-[#595959]">
+                              {item.staticValue}
+                            </span>
                           )}
                           {item.meta && (
                             <span className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-content-helper">
@@ -228,7 +286,12 @@ const JobScreeningSection = () => {
                         </div>
                       </div>
 
-                      <CriteriaToggle size="lg" />
+                      <CriteriaToggle
+                        size="lg"
+                        checked={enabledMap[item.id]}
+                        onToggle={() => toggleEnabled(item.id)}
+                        label={item.title}
+                      />
                     </div>
                   );
                 })}
@@ -313,7 +376,7 @@ const JobScreeningSection = () => {
                   <button
                     type="button"
                     onClick={() => log('branch', { action: 'save-as-template', wired: false })}
-                    className="inline-flex h-[44px] max-lg:h-[40px] items-center justify-center rounded-[14px] border-2 border-black/30 max-lg:rounded-[10px] max-lg:border max-lg:shadow-none bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-black shadow-[0_4px_0_0_#111111] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
+                    className="inline-flex h-[44px] max-lg:h-[40px] items-center justify-center rounded-[14px] border-2 border-[#1c2a21]/30 max-lg:rounded-[10px] max-lg:border max-lg:shadow-none bg-white px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-[#1c2a21] shadow-[0_4px_0_0_rgba(17,17,17,0.25)] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
                   >
                     {TALENT_FUNNEL.secondaryAction}
                   </button>
@@ -332,7 +395,12 @@ const JobScreeningSection = () => {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <Icon className="size-[18px] shrink-0 text-brand-green" />
-                      <CriteriaToggle size="sm" />
+                      <CriteriaToggle
+                        size="sm"
+                        checked={enabledMap[card.id]}
+                        onToggle={() => toggleEnabled(card.id)}
+                        label={card.title}
+                      />
                     </div>
                     <h4 className="pt-[12px] font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-black">
                       {card.title}
@@ -352,6 +420,9 @@ const JobScreeningSection = () => {
                             card.badge ? 'bg-[#f3f8f4] text-brand-green' : 'text-brand-green'
                           )}
                         >
+                          {!card.badge && (
+                            <RegionHubIcon className="mr-[8px] size-[12px] shrink-0" />
+                          )}
                           {card.badge ?? card.value}
                         </span>
                         {card.badge && (
@@ -394,7 +465,7 @@ const JobScreeningSection = () => {
                   <h5 className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">
                     {card.title}
                   </h5>
-                  <span className="font-display text-[36px] not-italic leading-[64px] text-black max-lg:text-[17px] max-lg:leading-6">
+                  <span className="font-heading text-[32px] font-semibold leading-[38px] text-[#1c2a21] max-lg:text-[17px] max-lg:leading-6">
                     {card.value}
                   </span>
                   <p className="font-sans text-[16px] max-lg:text-[14px] leading-6 max-lg:leading-5 tracking-[0.2px] text-[#999999]">

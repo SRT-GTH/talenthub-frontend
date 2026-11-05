@@ -1,5 +1,6 @@
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
+import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import { SearchIcon } from '../../shared/assets.jsx';
 import { MoreFiltersIcon } from './talentSearchIcons.jsx';
 import { PAGE_HEADING, PAGE_SUBHEADING, SEARCH_PLACEHOLDER } from './talentSearchData.js';
@@ -10,12 +11,16 @@ const log = debug('TalentSearchHeader');
  * TalentSearchHeader — page title, result count and the in-page search field.
  * Figma 7249:74316.
  *
- * The headline is the project's mixed-style pattern: Figma node 7249:74317
- * carries characterStyleOverrides splitting "Talent Search Results" at index 7
- * — "Talent " stays #111111 while "Search Results" is italic #387440. Both
- * runs are Instrument Serif 40/52 with -2 letter-spacing.
+ * The headline is RecruiterPageHeading titleStyle="sans-accent": Bricolage
+ * Grotesque 600 40/48, "Talent " #1c2a21 + "Search Results" #387440 (not italic).
  */
-const TalentSearchHeader = ({ onSearch, onOpenFilters, filterCount = 0, className }) => {
+const TalentSearchHeader = ({
+  searchValue = '',
+  onSearch,
+  onOpenFilters,
+  filterCount = 0,
+  className,
+}) => {
   log('render', { heading: `${PAGE_HEADING.lead}${PAGE_HEADING.accent}` });
 
   return (
@@ -25,19 +30,12 @@ const TalentSearchHeader = ({ onSearch, onOpenFilters, filterCount = 0, classNam
         className
       )}
     >
-      <div className="flex min-w-0 flex-col gap-[3px]">
-        <h1
-          className="font-display not-italic tracking-[-2px] max-md:tracking-[-0.5px] max-md:text-[24px]! max-md:leading-[1.2]! text-black"
-          /* Figma 40px/52 — clamped per the fluid-sizing rule. */
-          style={{ fontSize: 'clamp(1.75rem, 1.4rem + 1.1vw, 2.5rem)', lineHeight: 1.3 }}
-        >
-          {PAGE_HEADING.lead}
-          <span className="italic text-brand-green">{PAGE_HEADING.accent}</span>
-        </h1>
-        <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999] max-md:hidden">
-          {PAGE_SUBHEADING}
-        </p>
-      </div>
+      <RecruiterPageHeading
+        titleStyle="sans-accent"
+        lead={PAGE_HEADING.lead}
+        accent={PAGE_HEADING.accent}
+        subtitle={PAGE_SUBHEADING}
+      />
 
       {/* Figma 7249:74321 "GTHInput" — 450x49, r12.16, 1.22px #cccccc border,
           solid 3.04px #bfbfbf drop shadow (no blur). */}
@@ -51,6 +49,7 @@ const TalentSearchHeader = ({ onSearch, onOpenFilters, filterCount = 0, classNam
           <input
             type="search"
             placeholder={SEARCH_PLACEHOLDER}
+            value={searchValue}
             onChange={(event) => {
               log('search input', { length: event.target.value.length });
               onSearch?.(event.target.value);

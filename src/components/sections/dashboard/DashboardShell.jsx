@@ -68,6 +68,10 @@ const DashboardShell = ({
   railBadges,
   /* Talent only: which rail item is the current page ('profile' on /profile; default home). */
   activeNav,
+  /* Recruiter dashboard (add-only, defaults unchanged): `orgSlot` is the org switcher node for the top bar; `renderSidebar({ collapsed, onToggle })` may return a replacement for the expanded rail at lg+ (the workspace rail); returning null keeps the standard rail. */
+  orgSlot,
+  panels,
+  renderSidebar,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
 
@@ -99,20 +103,25 @@ const DashboardShell = ({
        annotations describe headers that "remain fixed on scroll". */
     <div className="relative flex h-screen max-lg:h-dvh w-full flex-col overflow-hidden max-lg:overflow-clip bg-white">
       {/* --- page background (Figma 7025:85168 grid + 7025:85170-172 ellipses) --- */}
-      <DashboardPageBackground className="z-0" />
+      <DashboardPageBackground className="z-0" variant="recruiter" />
 
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
-        <DashboardTopNav className="shrink-0" />
+        <DashboardTopNav className="shrink-0" orgSlot={orgSlot} panels={panels} />
 
         <div className={classNames('flex min-h-0 w-full flex-1', contentClassName)}>
-          <DashboardSidebar
-            collapsed={sidebarCollapsed}
-            onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
-            /* No overflow clipping on the rail itself — the collapsed rail's
+          {renderSidebar?.({
+            collapsed: sidebarCollapsed,
+            onToggle: () => setSidebarCollapsed((collapsed) => !collapsed),
+          }) ?? (
+            <DashboardSidebar
+              collapsed={sidebarCollapsed}
+              onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
+              /* No overflow clipping on the rail itself — the collapsed rail's
                public-profile popover has to escape it. The rail scrolls its
                own nav block internally instead. */
-            className="hidden h-full lg:flex"
-          />
+              className="hidden h-full lg:flex"
+            />
+          )}
           {/* md–lg: the same rail, forced collapsed (icon-only) and compact. */}
           <DashboardSidebar collapsed compact className="hidden h-full md:flex lg:hidden" />
 

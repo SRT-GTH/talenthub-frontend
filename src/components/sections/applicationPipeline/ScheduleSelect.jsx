@@ -30,11 +30,25 @@ const ScheduleSelect = ({
   onChange,
   size = 'field',
   className,
+  open: openProp,
+  onOpenChange,
+  pinnedHoverValue,
+  menuVariant = 'list',
+  labelClassName,
 }) => {
   const listboxId = useId();
   const wrapperRef = useRef(null);
   const listRef = useRef(null);
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  // Controlled when `open` is passed (URL-driven dropdown), local otherwise.
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : openState;
+  const setOpen = (next) => {
+    log('open state', { label, next, controlled: isControlled });
+    if (!isControlled) setOpenState(next);
+    onOpenChange?.(next);
+  };
+  const isCentered = menuVariant === 'centered';
   const [activeIndex, setActiveIndex] = useState(0);
 
   const selectedIndex = options.findIndex((option) => option === value);
@@ -59,6 +73,7 @@ const ScheduleSelect = ({
     };
     document.addEventListener('mousedown', onPointerDown);
     return () => document.removeEventListener('mousedown', onPointerDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // Keep the keyboard-active row in view.
@@ -102,25 +117,25 @@ const ScheduleSelect = ({
           'flex w-full items-center justify-between gap-[8px] rounded-[10px] border bg-white text-left',
           'transition-all duration-300 ease-in',
           isChip ? 'h-[36px] max-lg:h-[44px] px-[16px]' : 'h-[51px] max-lg:h-[44px] px-[16px]',
-          open
-            ? 'border-brand-green shadow-[0_2.5px_0_0_rgba(34,70,38,0.8)]'
-            : 'border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] max-lg:shadow-none'
+          // V2.0 draws the open field exactly like the closed one (7249:79474).
+          'border-[#cccccc] shadow-[0_2.5px_0_0_rgba(191,191,191,0.8)] max-lg:shadow-none'
         )}
       >
         <span
           className={classNames(
             'truncate font-sans text-[13px] max-lg:text-[16px] font-medium leading-5 tracking-[0.2px]',
-            // Figma: a chosen field value reads #595959; the Month / Year chips
-            // and any placeholder stay content-helper grey.
-            value && !isChip ? 'text-[#595959]' : 'text-content-helper'
+            // Figma: a chosen field value reads #595959; the placeholder and the
+            // Month / Year chips (V2.0) read #737373.
+            value && !isChip ? 'text-[#595959]' : 'text-[#737373]',
+            labelClassName
           )}
         >
           {value ?? placeholder}
         </span>
         <SelectArrowIcon
           className={classNames(
-            'size-[20px] shrink-0 text-content-helper transition-transform duration-300 ease-in',
-            open && 'rotate-180'
+            // V2.0 draws the solid #387440 arrowhead pointing down, open or closed.
+            'size-[20px] shrink-0 text-brand-green'
           )}
         />
       </button>
@@ -131,10 +146,18 @@ const ScheduleSelect = ({
           id={listboxId}
           role="listbox"
           aria-label={label}
-          className="no-scrollbar absolute left-0 top-[calc(100%+8px)] z-30 max-h-[216px] w-full min-w-[160px] overflow-y-auto rounded-[12px] border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]"
+          className={classNames(
+            'no-scrollbar absolute left-0 z-30 w-full min-w-[160px] overflow-y-auto border-[0.7px] border-[#e5e5e5] bg-white py-[4px] shadow-[0_1.5px_6.1px_0_rgba(64,64,64,0.25)]',
+            // Job Posting dropdown (7249:79815): r10, rows 49 high split by 1px #e5e5e5.
+            isCentered
+              ? 'top-[calc(100%+9px)] max-h-[260px] rounded-[10px]'
+              : 'top-[calc(100%+8px)] max-h-[216px] rounded-[12px]'
+          )}
         >
           {options.map((option, index) => {
             const isSelected = option === value;
+            const isHot =
+              pinnedHoverValue !== undefined ? option === pinnedHoverValue : index === activeIndex;
             return (
               <li
                 key={option}
@@ -142,16 +165,22 @@ const ScheduleSelect = ({
                 aria-selected={isSelected}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => choose(option)}
+                data-force-hover={pinnedHoverValue === option ? 'true' : undefined}
                 className={classNames(
-                  'flex h-[40px] max-lg:h-[44px] cursor-pointer items-center justify-between gap-[8px] px-[16px]',
+                  'flex cursor-pointer items-center gap-[8px] px-[16px]',
                   'font-sans text-[14px] leading-[24px] tracking-[0.24px] transition-colors',
-                  index === activeIndex && 'bg-[#f6f6f6]',
-                  'active:bg-[#ededed]',
-                  isSelected ? 'font-medium text-brand-green' : 'text-content-helper'
+                  isCentered
+                    ? 'min-h-[49px] max-lg:min-h-[49px] justify-center text-center text-[#737373] [&:not(:first-child)]:border-t [&:not(:first-child)]:border-[#e5e5e5]'
+                    : classNames(
+                        'h-[40px] max-lg:h-[44px] justify-between',
+                        isSelected ? 'font-medium text-brand-green' : 'text-content-helper'
+                      ),
+                  isHot && 'bg-[#f6f6f6]',
+                  'active:bg-[#ededed]'
                 )}
               >
                 {option}
-                {isSelected && (
+                {isSelected && !isCentered && (
                   <svg
                     viewBox="0 0 16 16"
                     fill="none"

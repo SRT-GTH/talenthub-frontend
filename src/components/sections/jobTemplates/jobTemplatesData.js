@@ -8,9 +8,9 @@
  * ellipsis characters that end three of the card descriptions — those are
  * literal "…" in Figma, i.e. the design's own truncation, not a CSS clamp.
  *
- * `icon` keys the per-card glyph. Every card carries a distinct 23-26px icon
- * in a 48x48 #f3f8f4 tile (all #2a5730); the glyphs are matched to each card's
- * Figma bounding-box proportions — see jobTemplatesIcons.jsx.
+ * `icon` keys the per-card glyph; `iconTileColor` / `iconColor` are that card's
+ * 48x48 tile fill and glyph fill (V2.0 gives every card its own pair). The glyph
+ * paths are Figma exports — see jobTemplatesIcons.jsx.
  */
 
 // Figma 7249:75082 — characterStyleOverrides split "Job Templates" at index 4.
@@ -19,6 +19,7 @@ export const PAGE_SUBHEADING =
   'Accelerate your hiring process  with a pre-optimized job description';
 
 // Figma 7249:75100 — category filter pills; "All" is the active (filled) pill.
+// The URL carries the pill as ?category=<lowercase label> (Figma 7249:75464 = ?category=design).
 export const CATEGORY_PILLS = [
   'All',
   'Technology',
@@ -36,6 +37,8 @@ export const CREATE_CUSTOM_LABEL = 'Create Custom';
 export const TEMPLATES = [
   {
     id: 'software-engineer',
+    iconTileColor: '#f3f8f4',
+    iconColor: '#2a5730',
     icon: 'code',
     title: 'Software Engineer',
     category: 'Technology',
@@ -47,6 +50,8 @@ export const TEMPLATES = [
   },
   {
     id: 'marketing-associate',
+    iconTileColor: '#ffddb6',
+    iconColor: '#633e00',
     icon: 'megaphone',
     title: 'Marketing Associate',
     category: 'Marketing',
@@ -58,6 +63,8 @@ export const TEMPLATES = [
   },
   {
     id: 'customer-support-rep',
+    iconTileColor: '#c1e9c9',
+    iconColor: '#43664d',
     icon: 'headset',
     title: 'Customer Support Rep',
     category: 'Retail',
@@ -69,6 +76,8 @@ export const TEMPLATES = [
   },
   {
     id: 'general-internship',
+    iconTileColor: '#eae8e2',
+    iconColor: '#404941',
     icon: 'graduation',
     title: 'General Internship',
     category: 'Internship',
@@ -80,6 +89,8 @@ export const TEMPLATES = [
   },
   {
     id: 'product-designer',
+    iconTileColor: '#1f6b3f',
+    iconColor: '#9de9b2',
     icon: 'design',
     title: 'Product Designer',
     category: 'Design',
@@ -95,4 +106,14 @@ export const TEMPLATES = [
 export const BLANK_TEMPLATE = {
   title: 'Create Custom',
   description: 'Start with a blank canvas and build a bespoke job profile from scratch.',
+};
+
+// Figma 7249:75558 — the line shown above the grid while a category pill is active:
+// "Showing 1 template in Design" ("Design" is #387440 weight 500, the rest #959592).
+// ⚠️ ASSUMPTION: Figma only draws the singular ("1 template"); plural is "N templates".
+export const FILTERED_SUMMARY = {
+  showing: 'Showing',
+  singular: 'template',
+  plural: 'templates',
+  inWord: 'in',
 };

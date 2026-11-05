@@ -79,7 +79,7 @@ const OrganisationResultModal = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4 max-sm:items-end max-sm:px-0"
-      style={{ background: 'rgba(0, 0, 0, 0.30)' }}
+      style={{ background: 'rgba(28, 42, 33, 0.7)' }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}
