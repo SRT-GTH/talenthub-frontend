@@ -37,6 +37,7 @@ const BASE = [
     to: '/admin/settings/accessibility',
   },
   { id: 'flags', label: 'Feature flags', icon: 'sliders', to: '/admin/settings#feature_flag' },
+  { id: 'values', label: 'Platform values', icon: 'folder', to: '/admin/settings/values' },
   { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integration' },
   { id: 'security', label: 'Security', icon: 'lock', to: '/admin/settings/security' },
   {

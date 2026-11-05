@@ -5,6 +5,7 @@ import { useAdminState } from '../../components/sections/admin/adminState.js';
 import { useAdminSession } from '../../components/sections/admin/useAdminSession.js';
 import AdminSettingsShell from '../../components/sections/admin/settings/AdminSettingsShell.jsx';
 import PlatformConfigTab from '../../components/sections/admin/settings/PlatformConfigTab.jsx';
+import PlatformValuesTab from '../../components/sections/admin/settings/PlatformValuesTab.jsx';
 import OnboardingTemplateTab from '../../components/sections/admin/settings/OnboardingTemplateTab.jsx';
 import RolesPermissionsTab from '../../components/sections/admin/settings/RolesPermissionsTab.jsx';
 import OrganisationsTab from '../../components/sections/admin/settings/OrganisationsTab.jsx';
@@ -29,6 +30,7 @@ const log = debug('AdminSettingsPage');
  *   /admin/settings/staff-data                old link: shows Staff accounts (deactivating is done from a staff row there)
  *   /admin/settings/overview | security | accessibility   live figures (adminInsights; Senior and Super Admin)
  *   /admin/settings/roles                     Roles and permissions (7.5.1e)
+ *   /admin/settings/values                    Platform values: the platformEnum lists in the database (PlatformValuesTab)
  *   /admin/settings  (= /admin/settings/platform)   platform config groups; #feature_flag / #integration scroll to a group (nav: Feature flags / Integrations)
  * Every nav item has a screen; dialogs live in the tabs that use them (StaffTab, PlatformConfigTab, …).
  */
@@ -69,6 +71,11 @@ const AdminSettingsPage = () => {
     subtitle =
       'Templates institutions and partners use to onboard people in bulk. Super Admins only; every change is logged.';
     body = <OnboardingTemplateTab session={session} />;
+  } else if (tab === 'values') {
+    active = 'values';
+    subtitle =
+      'The lists the platform checks values against (education levels, consent types, statuses …), as they are in the database. Super Admins only; every change is logged.';
+    body = <PlatformValuesTab session={session} />;
   } else if (tab === 'roles') {
     active = 'roles';
     navOrder = 'roles';
