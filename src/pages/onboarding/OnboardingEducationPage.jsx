@@ -615,7 +615,7 @@ const OnboardingEducationPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="education" percent={78} />
+      <OnboardingHeader currentKey="education" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}

@@ -8,6 +8,11 @@ import Button from '../../components/ui/Button.jsx';
 import { TextInput, Select, StickyActionBar } from '../../components/ui/form';
 import WavyDivider from '../../components/shared/WavyDivider.jsx';
 import OnboardingHeader from '../../components/shared/OnboardingHeader.jsx';
+import {
+  getOnboardingPercent,
+  getTalentOnboardingSteps,
+} from '../../components/shared/onboardingSteps.js';
+import { useOnboarding } from '../../hooks/useOnboarding.js';
 import TalentOnboardingPanel from '../../components/sections/talentAuth/TalentOnboardingPanel.jsx';
 import {
   TALENT_CONTACT_PHOTO_CARDS,
@@ -130,6 +135,10 @@ const maskDigitalAddress = (raw) => {
 // Mirrors the IdentityCapturedModal pattern from OnboardingPersonalInfoPage
 // but renders 4 saved-address rows + a "Continue To Education" CTA.
 const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
+  // The address is saved, so the bar shows progress as of the next step (Education), same rule as the header.
+  const { isMinor } = useOnboarding();
+  const steps = getTalentOnboardingSteps({ isMinor: Boolean(isMinor) });
+  const savedPct = getOnboardingPercent(steps, steps.findIndex((s) => s.key === 'address') + 1);
   log('AddressConfirmedModal mount; rows=', summary.length);
   return (
     <div
@@ -230,7 +239,7 @@ const AddressConfirmedModal = ({ summary, onClose, onContinue }) => {
         </ul>
 
         <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-brand-green-light">
-          <div className="h-full rounded-full bg-brand-green" style={{ width: '78%' }} />
+          <div className="h-full rounded-full bg-brand-green" style={{ width: `${savedPct}%` }} />
         </div>
 
         <Button
@@ -369,7 +378,7 @@ const OnboardingAddressPage = () => {
 
   return (
     <section className="relative flex w-full flex-1 min-h-0 flex-col overflow-hidden bg-white">
-      <OnboardingHeader currentKey="address" percent={78} />
+      <OnboardingHeader currentKey="address" />
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Left form column */}
