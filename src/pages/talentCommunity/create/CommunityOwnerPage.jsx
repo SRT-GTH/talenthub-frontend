@@ -313,7 +313,7 @@ const CommunityOwnerPage = () => {
       {create.toast === 'live' ? (
         <OwnerLiveToast
           name={community.name}
-          xp={uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts'}
+          xp={demo ? (uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts') : null}
           onShare={share}
           onDone={hideToast}
         />

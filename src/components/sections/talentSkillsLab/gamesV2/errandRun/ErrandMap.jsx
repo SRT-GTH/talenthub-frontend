@@ -17,16 +17,25 @@ const log = debug('ErrandMap');
  * #d9e8d2 parks) split by seven 10px white@.9 streets every 64px, a route line in 7px, the optional gold "shortest route" (5px,
  * dashed 10/8) and one pin per stop (40px marker + 12/14 700 label). Street crossing (col,row) sits at x = 36 + 64 col,
  * y = 37 + 64 (6 - row). The SVG scales with the box; pins use % positions and a marker that never drops under 28px.
- * Props: stops, visited (ids in order), best (stops[] in shortest order | null), routeTone ('green'|'red'), locked, onPick(stop).
+ * Props: stops, visited (ids in order), best (stops[] in shortest order | null), routeTone ('green'|'red'), locked, onPick(stop),
+ *        grid (street crossings per side, default the drawn 7), home ({ col, row }, default the drawn bottom-left crossing),
+ *        closeLoop (draw the way back home once every stop is visited — Advanced / Expert live maps).
+ * Other grid sizes (live maps: 6–9 crossings) keep the 456 box: the street spacing becomes 384 / (grid − 1); parks follow a
+ * fixed pattern (⚠️ ASSUMPTION — only the 7-crossing town is drawn).
  */
 const SIZE = 456;
-const px = (col) => 36 + 64 * col;
-const py = (row) => 37 + 64 * (6 - row);
-const toPath = (points) =>
-  points.map((p, i) => `${i ? 'L' : 'M'}${px(p.col)} ${py(p.row)}`).join(' ');
-
-const STREETS = Array.from({ length: 7 }, (_, k) => k);
-const BLOCKS = Array.from({ length: 36 }, (_, n) => [n % 6, Math.floor(n / 6)]);
+const geometry = (grid) => {
+  const step = 384 / (grid - 1);
+  const px = (col) => 36 + step * col;
+  const py = (row) => 37 + step * (grid - 1 - row);
+  const blocks = Array.from({ length: (grid - 1) ** 2 }, (_, n) => [
+    n % (grid - 1),
+    Math.floor(n / (grid - 1)),
+  ]);
+  const parks =
+    grid === 7 ? ERRAND_PARK_BLOCKS : blocks.filter(([c, r]) => (c * 3 + r * 5) % 7 === 0);
+  return { step, px, py, blocks, parks, streets: Array.from({ length: grid }, (_, k) => k) };
+};
 
 const MARKER = 'max(28px, calc(40 * 100cqw / 456))';
 
@@ -51,15 +60,15 @@ const PinLabel = ({ children }) => (
   </span>
 );
 
-const Pin = ({ col, row, children, className = '' }) => (
+const Pin = ({ geo, col, row, children, className = '' }) => (
   <div
     className={classNames(
       'absolute flex -translate-x-1/2 flex-col items-center gap-[4px]',
       className
     )}
     style={{
-      left: `${(px(col) / SIZE) * 100}%`,
-      top: `${(py(row) / SIZE) * 100}%`,
+      left: `${(geo.px(col) / SIZE) * 100}%`,
+      top: `${(geo.py(row) / SIZE) * 100}%`,
       marginTop: `calc(${MARKER} / -2)`,
     }}
   >
@@ -67,10 +76,24 @@ const Pin = ({ col, row, children, className = '' }) => (
   </div>
 );
 
-const ErrandMap = ({ stops, visited, best, routeTone, locked, onPick }) => {
+const ErrandMap = ({
+  stops,
+  visited,
+  best,
+  routeTone,
+  locked,
+  onPick,
+  grid = 7,
+  home = ERRAND_HOME,
+  closeLoop = false,
+}) => {
+  const geo = geometry(Math.max(2, grid));
+  const toPath = (points) =>
+    points.map((p, i) => `${i ? 'L' : 'M'}${geo.px(p.col)} ${geo.py(p.row)}`).join(' ');
   const visitedStops = visited.map((id) => stops.find((s) => s.id === id)).filter(Boolean);
-  const routePath = toPath(routePoints(visitedStops));
-  const bestPath = best ? toPath(routePoints(best)) : null;
+  const loop = (list) => (closeLoop && list.length === stops.length ? [...list, home] : list);
+  const routePath = toPath(routePoints(loop(visitedStops), home));
+  const bestPath = best ? toPath(routePoints(loop(best), home)) : null;
   useEffect(() => {
     log('map', { stops: stops.length, visited: visited.length, best: Boolean(best), routeTone });
   }, [stops.length, visited.length, best, routeTone]);
@@ -89,23 +112,21 @@ const ErrandMap = ({ stops, visited, best, routeTone, locked, onPick }) => {
           aria-hidden="true"
           focusable="false"
         >
-          {BLOCKS.map(([c, r]) => (
+          {geo.blocks.map(([c, r]) => (
             <rect
               key={`b-${c}-${r}`}
-              x={44 + 64 * c}
-              y={44 + 64 * r}
-              width="48"
-              height="48"
+              x={44 + geo.step * c}
+              y={44 + geo.step * r}
+              width={geo.step - 16}
+              height={geo.step - 16}
               rx="8"
-              fill={
-                ERRAND_PARK_BLOCKS.some(([pc, pr]) => pc === c && pr === r) ? '#d9e8d2' : '#e4d6ba'
-              }
+              fill={geo.parks.some(([pc, pr]) => pc === c && pr === r) ? '#d9e8d2' : '#e4d6ba'}
             />
           ))}
-          {STREETS.map((k) => (
+          {geo.streets.map((k) => (
             <g key={`s-${k}`} fill="#fff" fillOpacity="0.9">
-              <rect x={31 + 64 * k} y="0" width="10" height={SIZE} />
-              <rect x="0" y={32 + 64 * k} width={SIZE} height="10" />
+              <rect x={31 + geo.step * k} y="0" width="10" height={SIZE} />
+              <rect x="0" y={32 + geo.step * k} width={SIZE} height="10" />
             </g>
           ))}
           {bestPath ? (
@@ -130,7 +151,7 @@ const ErrandMap = ({ stops, visited, best, routeTone, locked, onPick }) => {
             />
           ) : null}
         </svg>
-        <Pin col={ERRAND_HOME.col} row={ERRAND_HOME.row}>
+        <Pin geo={geo} col={home.col} row={home.row}>
           <Marker tone="home">
             <GameBuildingIcon className="size-[18px]" />
           </Marker>
@@ -140,7 +161,7 @@ const ErrandMap = ({ stops, visited, best, routeTone, locked, onPick }) => {
           const at = visited.indexOf(stop.id);
           const Glyph = stop.icon === 'plus' ? GamePlusIcon : GamePinIcon;
           return (
-            <Pin key={stop.id} col={stop.col} row={stop.row}>
+            <Pin key={stop.id} geo={geo} col={stop.col} row={stop.row}>
               <button
                 type="button"
                 disabled={locked || at >= 0}

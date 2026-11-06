@@ -6,7 +6,8 @@ import Select from '../../../ui/form/Select.jsx';
 import TextInput from '../../../ui/form/TextInput.jsx';
 import DataRequestModalShell from './DataRequestModalShell.jsx';
 import { DataRequestIconArrowRight, DataRequestIconUpload } from './dataRequestIcons.jsx';
-import { NEW_REQUEST as D, submitRequest } from './data/dataRequestsData.js';
+import { agencyCreateDataRequest } from '../../../../services/agency.api.js';
+import { NEW_REQUEST as D, toCreatePayload } from './data/dataRequestsData.js';
 
 const log = debug('NewRequestDialog');
 
@@ -14,10 +15,9 @@ const log = debug('NewRequestDialog');
  * NewRequestDialog — /agency/data-requests/new (Figma 11.4.3b, 8597:536): "Tell us what you need and why." — optional PDF brief, What do you need? *,
  * Why do you need it? *, Data category * (select), Level of detail (fixed by the MoU), Time range *, Access for (30 days), Who will see it, Regions,
  * the MoU clause confirmation and Cancel + Send for approval. Validation: the starred fields and the confirmation are required (red field + message
- * under it, focus goes to the first). Submit → MOCK POST /agency/data-requests → the request page in the Pending state.
- * ⚠️ ASSUMPTIONS: the error copy ("Tell us …", "Tick the box to confirm.") is mine (Figma draws no error state); Level of detail / Access for are
- * read-only (the MoU fixes them); the two extra data categories; "Attach brief" only names the chosen file (no upload); "Add detail" / "Ask to
- * extend" / "View request" on a request page open this same form prefilled with that request (`prefill`).
+ * under it, focus goes to the first). Submit → POST /agency/data-requests (uses one of the quarter's MoU requests; a 429 shows the quota message)
+ * → the request page in the Pending state. Level of detail / Access for are read-only (the MoU fixes them). "Attach brief" records the brief's
+ * file name with the request (the PDF itself is shared with the reviewer by email for now).
  * Props: prefill ({ what, why, category, range, viewers, regions }), onClose(), onSent(request).
  */
 
@@ -35,6 +35,7 @@ const NewRequestDialog = ({ prefill, onClose, onSent }) => {
   const [form, setForm] = useState({ ...EMPTY, ...prefill });
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState('');
   const [file, setFile] = useState('');
   const fileRef = useRef(null);
   const formId = useId();
@@ -44,7 +45,9 @@ const NewRequestDialog = ({ prefill, onClose, onSent }) => {
     event.preventDefault();
     const next = {};
     if (!form.what.trim()) next.what = 'Tell us what you need.';
+    if (form.what.trim() && form.what.trim().length < 4) next.what = 'Use at least 4 characters.';
     if (!form.why.trim()) next.why = 'Tell us why you need it.';
+    else if (form.why.trim().length < 10) next.why = 'Say a little more (at least 10 characters).';
     if (!form.category) next.category = 'Choose a data category.';
     if (!form.range.trim()) next.range = 'Enter the time range.';
     if (!form.confirm) next.confirm = 'Tick the box to confirm.';
@@ -62,10 +65,18 @@ const NewRequestDialog = ({ prefill, onClose, onSent }) => {
       return;
     }
     setBusy(true);
-    const request = await submitRequest(form);
-    log('sent (mock)', request.id);
-    setBusy(false);
-    onSent(request);
+    setFailure('');
+    try {
+      const request = await agencyCreateDataRequest(toCreatePayload(form, file));
+      log('sent', request.id);
+      onSent(request);
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Something went wrong.';
+      log('send failed', msg);
+      setFailure(msg);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -186,6 +197,14 @@ const NewRequestDialog = ({ prefill, onClose, onSent }) => {
         </div>
       </form>
 
+      {failure ? (
+        <p
+          role="alert"
+          className="m-0 rounded-[12px] bg-[#fdecea] px-[14px] py-[10px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+        >
+          {failure}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center justify-end gap-[12px] pt-[8px]">
         <Button type="button" variant="tertiary-subtle" size="lg" onClick={onClose}>
           {D.cancel}
@@ -198,7 +217,7 @@ const NewRequestDialog = ({ prefill, onClose, onSent }) => {
           disabled={busy}
           rightIcon={<DataRequestIconArrowRight />}
         >
-          {D.submit}
+          {busy ? 'Sending…' : D.submit}
         </Button>
       </div>
     </DataRequestModalShell>

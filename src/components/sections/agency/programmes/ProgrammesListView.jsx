@@ -27,8 +27,9 @@ const FILTER_FROM_TAB = { drafts: 'draft', live: 'live', closed: 'closed' };
 
 const ProgrammesListView = ({ data }) => {
   const navigate = useNavigate();
-  const { programmes } = useProgrammesStore();
+  const { programmes, loading, error } = useProgrammesStore();
   const [announce, setAnnounce] = useState('');
+  const [busy, setBusy] = useState(false);
   const buttonRefs = useRef({});
   const filter = FILTER_FROM_TAB[data.tab] ?? 'all';
   const needle = data.q.trim().toLowerCase();
@@ -73,9 +74,14 @@ const ProgrammesListView = ({ data }) => {
     log('action', action, p.id);
     if (action === 'edit') navigate(`/agency/programmes/new?programme=${p.id}`);
     else if (action === 'duplicate') {
-      const copy = duplicateProgramme(p.id);
       update({ modal: null, at: null }, { replace: true });
-      setAnnounce(`Duplicated ${p.title} as a draft${copy ? `: ${copy.title}` : ''}.`);
+      duplicateProgramme(p.id)
+        .then((copy) => setAnnounce(`Duplicated ${p.title} as a draft: ${copy?.title ?? ''}.`))
+        .catch((err) =>
+          setAnnounce(
+            err?.response?.data?.message || err?.message || 'Could not duplicate the programme.'
+          )
+        );
     } else if (action === 'close') update({ modal: 'close', at: p.id });
   };
 
@@ -152,7 +158,20 @@ const ProgrammesListView = ({ data }) => {
             <span className="font-medium text-[#387440]">{filterLabel}</span>
           </p>
         ) : null}
-        {visible.length ? (
+        {announce ? (
+          <p className="m-0 -mt-[12px] text-[14px] leading-[20px] text-[#387440]">{announce}</p>
+        ) : null}
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] p-[16px] text-[14px] leading-[20px] text-[#902b20]"
+          >
+            Could not load your programmes. {error.response?.data?.message || error.message}
+          </p>
+        ) : null}
+        {loading && !programmes.length ? (
+          <p className="m-0 text-[14px] leading-[20px] text-[#737373]">Loading programmes…</p>
+        ) : visible.length ? (
           <ul className="m-0 grid list-none grid-cols-1 gap-[16px] p-0 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((p) => (
               <li key={p.id} className="min-w-0">
@@ -176,7 +195,9 @@ const ProgrammesListView = ({ data }) => {
           </ul>
         ) : (
           <p className="m-0 rounded-[14px] border border-solid border-[#e6e2d6] bg-white p-[24px] text-[14px] leading-[20px] text-[#737373]">
-            No programmes to show.
+            {programmes.length
+              ? 'No programmes match this filter.'
+              : 'No programmes yet. Post your first one with “Post a programme”.'}
           </p>
         )}
       </div>
@@ -190,10 +211,20 @@ const ProgrammesListView = ({ data }) => {
           confirmLabel="Yes, close it"
           cancelLabel="No, keep it open"
           width={528}
+          busy={busy}
           onConfirm={() => {
-            closeProgramme(target.id);
-            update({ modal: null, at: null }, { replace: true });
-            setAnnounce(`${target.title} is closed.`);
+            setBusy(true);
+            closeProgramme(target.id)
+              .then(() => setAnnounce(`${target.title} is closed.`))
+              .catch((err) =>
+                setAnnounce(
+                  err?.response?.data?.message || err?.message || 'Could not close the programme.'
+                )
+              )
+              .finally(() => {
+                setBusy(false);
+                update({ modal: null, at: null }, { replace: true });
+              });
           }}
           onCancel={() => update({ modal: null, at: null }, { replace: true })}
         />

@@ -1,6 +1,7 @@
 import api, { freshAccessToken } from './api.js';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
+import { notifyXpChanged } from './xp.api.js';
 
 const log = debug('careerBuddy.api');
 
@@ -248,7 +249,10 @@ export const sendTurnStream = async ({ onStatus, onDelta, signal, ...args }) => 
 /** GET /profiles/journey - the 9-stage journey; its `percent` is the profile % shown everywhere. */
 export const fetchMyJourney = async () => {
   const { data } = await api.get('/profiles/journey');
-  return data?.data || data || null;
+  const journey = data?.data || data || null;
+  // A stage seen done for the first time earns its XP on this read (backend profile.getJourney).
+  if (journey?.xpAwarded?.length) notifyXpChanged();
+  return journey;
 };
 
 /** GET /profiles/me - the live profile shown next to the chat. */

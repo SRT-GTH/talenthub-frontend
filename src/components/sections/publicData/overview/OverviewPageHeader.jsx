@@ -7,7 +7,7 @@ import { PublicIconInfo } from '../publicDataIcons.jsx';
  * Mobile 8.2.1e (8507:41): title 26/31, short sentence 14/20, and one line "Updated 2 min ago · data as of 17 Oct, 14:02" (12/500).
  * Tablet 8.2.1f draws the same row as desktop.
  * The top bar owns the page's <h1> ("National snapshot"), so the big title is an <h2>.
- * Props: asOf { label, short }.
+ * Props: asOf { label, short, ago? } — `ago` ("Updated 4 min ago") leads the phone line when known.
  */
 
 const OverviewPageHeader = ({ asOf }) => (
@@ -25,7 +25,8 @@ const OverviewPageHeader = ({ asOf }) => (
       </p>
     </div>
     <p className="m-0 font-sans text-[12px] leading-[14px] font-medium text-[#595959] md:hidden">
-      Updated 2 min ago · {asOf.short}
+      {asOf.ago ? `${asOf.ago} · ` : ''}
+      {asOf.short}
     </p>
     <div className="hidden shrink-0 items-center gap-[16px] md:flex">
       <span className="font-sans text-[14px] leading-[17px] font-medium text-[#595959]">

@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DISTRICTS_BY_REGION } from '../../../../constants/ghanaDistricts.js';
 import { debug } from '../../../../utils/debug.js';
-import { regionById, REGIONS } from '../../publicData/regionsList.js';
+import { agencyDemandSuccess } from '../../../../services/agency.api.js';
+import { REGIONS } from '../../publicData/regionsList.js';
+import { useAgencyResource } from '../useAgencyResource.js';
 import DemandFilterRow from './DemandFilterRow.jsx';
 import DemandKpiStrip from './DemandKpiStrip.jsx';
 import DemandNote from './DemandNote.jsx';
@@ -12,65 +13,40 @@ import OutcomeFunnelCard from './OutcomeFunnelCard.jsx';
 import ProfileGroupCard from './ProfileGroupCard.jsx';
 import ProgrammeTable from './ProgrammeTable.jsx';
 import RegionRateCard from './RegionRateCard.jsx';
-import {
-  EXTRA_DISTRICTS,
-  FUNNELS,
-  GROUP_ROWS,
-  PERIODS,
-  PROFILE_GROUPS,
-  PROGRAMME_ROWS,
-  PROGRAMME_TOTALS,
-  PROGRAMMES,
-  SMALL_PROGRAMME,
-  SOURCES,
-  SPARKLINE,
-  SUCCESS,
-  SUCCESS_FOOTNOTE,
-} from './data/demandData.js';
-import { programmeFocus } from './demandDerive.js';
+import { PERIODS, SOURCES, SUCCESS_FOOTNOTE } from './data/demandData.js';
 
 const log = debug('SuccessView');
 
 /*
- * SuccessView — body of /agency/demand?view=success, Figma 11.4.5i-l, n. Filter bar (Region · District · Programme · Last quarter · More filters) · Source row (All |
- * Government programmes | Recruiter opportunities) · KPI row · Outcome funnel · regional rate chart + Success by profile group (View by menu) · programme table (All /
- * Government programmes) or job-category table (Recruiter opportunities).
- * URL: source=all|programmes|opportunities · programme=<id> (one of your programmes; youth-enterprise-bootcamp has fewer than 5 placed: 11.4.5n) · groupby=<view-by id> ·
- * modal=view-by (menu open) · region= district= period= · state=suppressed (= the Bootcamp selected under Government programmes).
+ * SuccessView — body of /agency/demand?view=success, Figma 11.4.5i-l, n. Live: GET /agency/demand/success (applications on GTH joined to their opportunity:
+ * government programmes vs recruiter roles; shortlisted / interviewed / hired or placed from the application stage; groups under 5 arrive as "<5", rates
+ * only once 5 or more are hired or placed). Filter bar (Region · Programme · period) · Source row · KPI row · funnels · rate by region + by profile group ·
+ * your programmes (other agencies as one total) or the recruiter roles by type.
+ * URL: source=all|programmes|opportunities · programme=<id> (one of your programmes) · groupby=education|age|readiness · modal=view-by · region= · period=.
  */
-
-const slug = (n) => n.toLowerCase().replace(/[^a-z]+/g, '-');
 
 const SuccessView = ({ data }) => {
   const navigate = useNavigate();
-  const { params, state, modal } = data;
-  const suppressedState = state === 'suppressed';
-  const programmeId =
-    params.get('programme') ?? (suppressedState ? 'youth-enterprise-bootcamp' : null);
-  const sourceParam = params.get('source') ?? (suppressedState ? 'programmes' : 'all');
-  const source =
-    programmeId && sourceParam === 'opportunities'
-      ? 'opportunities'
-      : programmeId
-        ? 'programmes'
-        : sourceParam;
+  const { params, modal } = data;
+  const programmeId = params.get('programme');
+  const sourceParam = params.get('source') ?? 'all';
+  const source = programmeId ? 'programmes' : sourceParam;
   const region = params.get('region');
-  const district = params.get('district');
   const period = params.get('period') ?? 'quarter';
   const groupBy = params.get('groupby') ?? 'education';
-  const focus = useMemo(() => (programmeId ? programmeFocus(programmeId) : null), [programmeId]);
-  const small = programmeId === 'youth-enterprise-bootcamp';
-  const cfg = SUCCESS[source] ?? SUCCESS.all;
+  const res = useAgencyResource(
+    () => agencyDemandSuccess({ period, source, programme: programmeId, region, groupby: groupBy }),
+    [period, source, programmeId, region, groupBy]
+  );
+  const live = res.data;
 
   useEffect(() => {
-    log('state', { source, programmeId, groupBy });
-  }, [source, programmeId, groupBy]);
+    log('state', { source, programmeId, groupBy, period, region });
+  }, [source, programmeId, groupBy, period, region]);
 
   const change = (key, id) => {
     log('filter', key, id);
     const patch = { [key]: id, state: null };
-    if (suppressedState) patch.programme = programmeId;
-    if (key === 'region') patch.district = null;
     if (key === 'programme' && id) patch.source = 'programmes';
     data.update(patch, { replace: true });
   };
@@ -83,110 +59,109 @@ const SuccessView = ({ data }) => {
       allLabel: 'All regions',
     },
     {
-      key: 'district',
-      desktopOnly: true,
-      label: 'District',
-      value: district,
-      options: [
-        ...EXTRA_DISTRICTS,
-        ...(DISTRICTS_BY_REGION[regionById(region)?.name ?? 'Northern'] ?? []).map((n) => ({
-          id: slug(n),
-          label: n,
-        })),
-      ],
-      allLabel: 'All districts',
-    },
-    {
       key: 'programme',
       label: 'Programme',
       value: programmeId,
-      options: PROGRAMMES,
+      options: live?.programmeOptions ?? [],
       allLabel: 'All programmes',
     },
-    { key: 'period', label: 'Last quarter', value: period, options: PERIODS, plain: true },
+    {
+      key: 'period',
+      label: PERIODS.find((p) => p.id === period)?.label ?? 'Last quarter',
+      value: period,
+      options: PERIODS,
+      plain: true,
+    },
   ];
-  const canClear = Boolean(region || district || programmeId);
+  const canClear = Boolean(region || programmeId);
 
-  const result = small ? SMALL_PROGRAMME.result : (focus?.result ?? cfg.result);
-  const hero = small
-    ? SMALL_PROGRAMME.hero
-    : (focus?.hero ?? {
-        eyebrow: cfg.hero.eyebrow,
-        value: cfg.hero.value,
-        label: cfg.hero.label,
-        badge: cfg.hero.change.text,
-        note: cfg.hero.note,
-      });
-  const tiles = small ? SMALL_PROGRAMME.tiles : (focus?.tiles ?? cfg.tiles);
-  const funnels = small
-    ? [FUNNELS.bootcamp]
-    : focus
-      ? [focus.funnel]
-      : cfg.funnels.map((k) => FUNNELS[k]);
-  const regionCfg =
-    focus && !small
-      ? {
-          ...SUCCESS.programmes.region,
-          title: 'Placement rate by region',
-          hint: focus.row.name,
-          series: [{ ...SUCCESS.programmes.region.series[0], values: focus.regionValues }],
-        }
-      : cfg.region;
-  const groupRows = small ? SMALL_PROGRAMME.profileRows : (GROUP_ROWS[groupBy] ?? PROFILE_GROUPS);
-  const rows = programmeId ? PROGRAMME_ROWS.filter((r) => r.id === programmeId) : PROGRAMME_ROWS;
+  const filterRow = (
+    <DemandFilterRow
+      chips={chips}
+      onChange={change}
+      onMore={() => data.update({ modal: 'filters' })}
+      moreActive={modal === 'filters'}
+      result={live ? live.result : res.loading ? 'Loading…' : ''}
+      canClear={canClear}
+      onClearAll={() =>
+        data.update({ region: null, programme: null, state: null }, { replace: true })
+      }
+      onSaveQuery={() => navigate('/agency/queries?modal=save-query&state=results')}
+    />
+  );
 
-  return (
-    <>
-      <DemandFilterRow
-        chips={chips}
-        onChange={change}
-        onMore={() => data.update({ modal: 'filters' })}
-        moreActive={modal === 'filters'}
-        result={result}
-        canClear={canClear}
-        onClearAll={() =>
+  const sourceRow = (
+    <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-[12px] gap-y-[8px]">
+      <DemandSegmented
+        label="Source"
+        options={SOURCES}
+        value={source}
+        onChange={(id) =>
           data.update(
-            { region: null, district: null, programme: null, state: null },
+            {
+              source: id === 'all' ? null : id,
+              programme: id === 'opportunities' ? null : programmeId,
+              state: null,
+            },
             { replace: true }
           )
         }
-        onSaveQuery={() => navigate('/agency/queries?modal=save-query&state=results')}
       />
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-[12px] gap-y-[8px]">
-        <DemandSegmented
-          label="Source"
-          options={SOURCES}
-          value={source}
-          onChange={(id) =>
-            data.update(
-              {
-                source: id === 'all' ? null : id,
-                programme: id === 'opportunities' ? null : programmeId,
-                state: null,
-              },
-              { replace: true }
-            )
-          }
-        />
-        <p className="m-0 font-sans text-[13px] leading-[16px] text-[#575755]">{cfg.range}</p>
-      </div>
-      <DemandKpiStrip
-        hero={{ ...hero, series: small || focus ? (small ? SPARKLINE : SPARKLINE) : SPARKLINE }}
-        tiles={tiles}
-      />
-      <OutcomeFunnelCard funnels={funnels} />
+      {live ? (
+        <p className="m-0 font-sans text-[13px] leading-[16px] text-[#575755]">{live.range}</p>
+      ) : null}
+    </div>
+  );
+
+  if (!live) {
+    return (
+      <>
+        {filterRow}
+        {sourceRow}
+        {res.error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] p-[16px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+          >
+            Could not load success rates. {res.error?.response?.data?.message || res.error.message}{' '}
+            <button
+              type="button"
+              onClick={res.reload}
+              className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[#387440] underline"
+            >
+              Try again
+            </button>
+          </p>
+        ) : (
+          <p className="m-0 font-sans text-[14px] text-[#575755]" aria-busy="true">
+            Loading success rates…
+          </p>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {filterRow}
+      {sourceRow}
+      <DemandKpiStrip hero={{ ...live.hero, series: live.spark }} tiles={live.tiles} />
+      <OutcomeFunnelCard funnels={live.funnels} />
       <div className="grid min-w-0 grid-cols-1 gap-[16px] lg:gap-[24px] xl:grid-cols-[minmax(0,808fr)_minmax(0,497fr)]">
         <RegionRateCard
-          config={regionCfg}
+          config={live.region}
           empty={
-            small
-              ? { title: SMALL_PROGRAMME.regionTitle, message: SMALL_PROGRAMME.regionMessage }
+            live.regionEmpty
+              ? {
+                  title: 'Too few to show by region',
+                  message:
+                    'Every region has fewer than 5 hires or placements in this period. Totals appear above.',
+                }
               : null
           }
-          hintOverride={small ? 'Youth Enterprise Bootcamp' : undefined}
         />
         <ProfileGroupCard
-          rows={groupRows}
+          rows={live.profileRows}
           view={groupBy}
           onView={(id) =>
             data.update({ groupby: id === 'education' ? null : id, modal: null }, { replace: true })
@@ -196,9 +171,9 @@ const SuccessView = ({ data }) => {
         />
       </div>
       {source === 'opportunities' ? (
-        <JobCategoryTable />
+        <JobCategoryTable rows={live.jobRows} />
       ) : (
-        <ProgrammeTable rows={rows} totals={programmeId ? null : PROGRAMME_TOTALS} />
+        <ProgrammeTable rows={live.programmeRows} totals={live.programmeTotals} />
       )}
       <DemandNote icon="shield" className="mx-auto">
         {SUCCESS_FOOTNOTE}

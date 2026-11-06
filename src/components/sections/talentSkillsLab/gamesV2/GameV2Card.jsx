@@ -47,9 +47,11 @@ const BestRow = ({ best }) => (
       /100 · {best.level}
     </span>
     <span className="min-w-0 flex-1" />
-    <span className="inline-flex items-center rounded-full bg-[#e2f1e4] px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] text-[#27522e]">
-      Top {best.topPercent}%
-    </span>
+    {Number.isFinite(best.topPercent) ? (
+      <span className="inline-flex items-center rounded-full bg-[#e2f1e4] px-[10px] py-[4px] font-sans text-[12px] font-semibold leading-[14px] text-[#27522e]">
+        Top {best.topPercent}%
+      </span>
+    ) : null}
   </div>
 );
 
@@ -66,29 +68,35 @@ const Status = ({ status }) => {
     );
   }
   if (status.kind === 'in-progress') {
-    const pct = Math.round((status.done / status.total) * 100);
+    // live rows carry no round count (the server keeps the board): no counter / bar, only the saved note
+    const counted = Number.isFinite(status.total) && status.total > 0;
+    const pct = counted ? Math.round((status.done / status.total) * 100) : 0;
     return (
       <div className="flex flex-col gap-[8px] rounded-[14px] bg-[#f2f5f4] p-[12px]">
         <div className="flex flex-wrap items-center gap-x-[6px] gap-y-[2px]">
           <GvHourglassIcon className="size-[15px] shrink-0 text-[#27522e]" />
           <span className="font-sans text-[13px] font-semibold leading-[16px] text-[#1c2a21]">
-            In progress · Ranked
+            In progress · {status.mode === 'practice' ? 'Practice' : 'Ranked'}
           </span>
           <span className="min-w-0 flex-1" />
-          <span className="font-sans text-[12.5px] font-medium leading-[15px] text-[#6b6b6b]">
-            {status.done} of {status.total} {status.unit}
-          </span>
+          {counted ? (
+            <span className="font-sans text-[12.5px] font-medium leading-[15px] text-[#6b6b6b]">
+              {status.done} of {status.total} {status.unit}
+            </span>
+          ) : null}
         </div>
-        <div
-          role="progressbar"
-          aria-label={`Saved game: ${status.done} of ${status.total} ${status.unit}`}
-          aria-valuemin={0}
-          aria-valuemax={status.total}
-          aria-valuenow={status.done}
-          className="h-[8px] overflow-hidden rounded-[4px] bg-[#dee5e0]"
-        >
-          <div className="h-full rounded-[4px] bg-[#387440]" style={{ width: `${pct}%` }} />
-        </div>
+        {counted ? (
+          <div
+            role="progressbar"
+            aria-label={`Saved game: ${status.done} of ${status.total} ${status.unit}`}
+            aria-valuemin={0}
+            aria-valuemax={status.total}
+            aria-valuenow={status.done}
+            className="h-[8px] overflow-hidden rounded-[4px] bg-[#dee5e0]"
+          >
+            <div className="h-full rounded-[4px] bg-[#387440]" style={{ width: `${pct}%` }} />
+          </div>
+        ) : null}
         <p className="m-0 font-sans text-[12px] leading-[17px] text-[#6b6b6b]">
           {GAMES_V2_COPY.savedNote}
         </p>

@@ -6,7 +6,6 @@ import GhanaMap from '../../publicData/map/GhanaMap.jsx';
 import { REGION_LABELS } from '../../publicData/map/ghanaMapGeometry.js';
 import MapLegend from '../../publicData/map/MapLegend.jsx';
 import MapTopRegions from '../../publicData/map/MapTopRegions.jsx';
-import { MAP_REGIONS_SAMPLE } from '../../publicData/map/data/mapData.js';
 import DemandCard from './DemandCard.jsx';
 import { regionById } from '../../publicData/regionsList.js';
 
@@ -16,7 +15,8 @@ import { regionById } from '../../publicData/regionsList.js';
  * while the list and the hover card speak about OPPORTUNITIES (the demand screen's unit).
  * Theme 8's own hover card says "talents", so it is hidden here and replaced by the opportunity card of 11.4.5m (name · "Too few opportunities to show" /
  * "Fewer than 5 opportunities, hidden to protect privacy"); a REQUEST to the lead asks for an opt-in unit prop on GhanaMap instead.
- * Props: title, hint, opps { [regionId]: number } (opportunities per region), top [{id,count}], forcedHover (region id), onOpenRegion(id), onCompare().
+ * Props: title, hint, opps { [regionId]: number } (opportunities per region), top [{id,count}], regions (talents per region from GET /agency/demand,
+ * the map shading), forcedHover (region id), onOpenRegion(id), onCompare().
  * Click / Enter on a region opens its district drill-down (?region=). Counts only through formatCount (<5 rule).
  */
 
@@ -27,12 +27,12 @@ const DemandRegionMapCard = ({
   hint,
   opps,
   top,
+  regions = [],
   forcedHover,
   onOpenRegion,
   onCompare,
 }) => {
   const [hover, setHover] = useState(null);
-  const regions = MAP_REGIONS_SAMPLE;
   const topRows = useMemo(
     () =>
       top.map((t, i) => ({

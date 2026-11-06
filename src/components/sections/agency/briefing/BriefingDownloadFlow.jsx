@@ -15,17 +15,16 @@ const log = debug('BriefingDownloadFlow');
 
 /*
  * BriefingDownloadFlow — controller of the briefing-pack download (Figma 11.4.4a → b → h), mounted by AgencyBriefingModals for ?modal=download.
- * URL: state=building (resume at step 3, as drawn) · state=failed (the failure dialog) · pdf=fail (make the MOCK build fail so a real run reaches it).
- * Flow: choose → "Download briefing pack" → building (timer + progress, MOCK job) → done: the dialog closes and the A4 agency report opens in a new
- * tab with the browser print dialog ("Save as PDF"); failed: print / share / retry.
- * ⚠️ ASSUMPTION: a real PDF needs the backend (POST /agency/briefing-packs); until then "done" opens /agency/report?print=1 (the 8-page A4 report).
+ * URL: state=building (resume at step 3, as drawn) · state=failed (the failure dialog).
+ * Flow: choose → "Download briefing pack" → building (GET /agency/report builds the live report; the bar moves while it runs) → done: the dialog
+ * closes and the A4 agency report opens in a new tab with the browser print dialog ("Save as PDF"); failed: print / share / retry.
  * Props: data (useAgencyState()), onClose(), onShare().
  */
 
 const REPORT_URL = '/agency/report?page=1&print=1';
 
 const BriefingDownloadFlow = ({ data, onClose, onShare }) => {
-  const { state, params } = data;
+  const { state } = data;
   const [phase, setPhase] = useState(
     state === 'building' ? 'building' : state === 'failed' ? 'failed' : 'choose'
   );
@@ -53,7 +52,7 @@ const BriefingDownloadFlow = ({ data, onClose, onShare }) => {
         startFrom + ((performance.now() - started) / BRIEFING_BUILD_MS) * (1 - startFrom);
       setProgress(Math.min(0.99, next));
     }, 120);
-    requestBriefingBuild({ shouldFail: params.get('pdf') === 'fail', option, regions, note })
+    requestBriefingBuild({ option, regions, note })
       .then(() => {
         if (runRef.current !== run) return;
         log('built');

@@ -31,14 +31,16 @@ const AgencyProgrammesPage = () => {
 
   // the preview carries the talent chrome (Figma 11.5.2b), so it is not wrapped in AgencyFrame
   if (isNew && data.view === 'preview') {
-    return <ProgrammeTalentPreview programmeId={data.params.get('programme') ?? 'ysd-2026'} />;
+    const pid = data.params.get('programme');
+    if (!pid) return <Navigate to="/agency/programmes/new" replace />;
+    return <ProgrammeTalentPreview programmeId={pid} />;
   }
 
   if (isApplicants) {
     return (
       <AgencyFrame data={data} title="Applicants" active="applicants">
         <ApplicantsBoard
-          programmeId={programmeId ?? 'ysd-2026'}
+          programmeId={programmeId}
           onProgramme={(id) => navigate(`/agency/programmes/${id}/applicants`)}
         />
       </AgencyFrame>

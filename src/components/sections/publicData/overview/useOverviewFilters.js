@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import { FILTER_KEYS } from '../publicDataState.js';
-import { getOverview } from './data/overviewData.js';
 
 const log = debug('useOverviewFilters');
 
@@ -14,7 +13,8 @@ const RESULT_STATES = ['zero', 'suppressed'];
  *   onRemoveLast()      "Remove last filter" (8.2.3d): ⚠️ ASSUMPTION the URL keeps no order, so the last of region · edu · interest · age · gender goes
  *   onSaveLink()        copies the current URL; the share package's "Link copied" toast (?toast=copied) confirms; when the clipboard is
  *                       refused the share package's manual-copy dialog (?modal=share&state=fallback, 8.1.2c) opens instead
- *   sheet               { isOpen, open, close, apply, countFor } for the mobile bottom sheet (?modal=filters)
+ *   sheet               { isOpen, open, close, apply, countFor } for the mobile bottom sheet (?modal=filters). The figures are live,
+ *                       so countFor gives no number for a draft (the button reads "Show results") rather than a guessed one
  * `announce` is a polite status message ("All filters cleared") for a live region on the page.
  */
 
@@ -72,7 +72,7 @@ export const useOverviewFilters = (data) => {
         modal: null,
       });
     },
-    countFor: (draft) => getOverview(draft).count,
+    countFor: () => null,
   };
 
   return { filters, onChange, onClearAll, onRemoveLast, onSaveLink, sheet, announce };

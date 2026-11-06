@@ -8,6 +8,10 @@ import AdminSidebar from './AdminSidebar.jsx';
 import AdminTopBar from './AdminTopBar.jsx';
 import { activeNavId } from './adminNav.js';
 import { useAdminSession } from './useAdminSession.js';
+import AdminChromeOverlays from './chrome/AdminChromeOverlays.jsx';
+import { useAdminCounts } from './chrome/useAdminCounts.js';
+import { adminA11yAttrs, useAdminA11y } from './chrome/useAdminA11y.js';
+import '../../../styles/adminA11y.css';
 
 const log = debug('AdminFrame');
 
@@ -26,6 +30,8 @@ const log = debug('AdminFrame');
 const AdminFrame = ({ data, title = 'Admin', active, children, className }) => {
   const { pathname } = useLocation();
   const session = useAdminSession();
+  const counts = useAdminCounts(session.signedIn);
+  const [a11y] = useAdminA11y();
   const activeId = active ?? activeNavId(pathname);
   const { rail, drawer, update } = data;
   const menuButtonRef = useRef(null);
@@ -62,6 +68,7 @@ const AdminFrame = ({ data, title = 'Admin', active, children, className }) => {
   return (
     <div
       data-admin=""
+      {...adminA11yAttrs(a11y)}
       className={classNames('relative min-h-dvh bg-white font-sans text-[#1c2a21]', className)}
     >
       <DashboardPageBackground className="z-0" />
@@ -72,12 +79,8 @@ const AdminFrame = ({ data, title = 'Admin', active, children, className }) => {
         Skip to content
       </a>
       <div className="relative z-10 flex min-h-dvh flex-col">
-        <AdminTopBar
-          session={session}
-          data={data}
-          modalOpen={data.modal === 'profile'}
-          menuButtonRef={menuButtonRef}
-        />
+        <AdminTopBar session={session} data={data} counts={counts} menuButtonRef={menuButtonRef} />
+        <AdminChromeOverlays data={data} session={session} counts={counts} />
         <div className="flex min-h-0 flex-1">
           <aside className="sticky top-[88px] hidden h-[calc(100dvh-88px)] shrink-0 self-start lg:block">
             <div className={classNames('h-full', rail ? 'block' : 'xl:hidden')}>

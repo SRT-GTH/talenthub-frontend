@@ -4,7 +4,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import { formatCount } from '../agencyFormat.js';
 import AgencyButton from '../AgencyButton.jsx';
-import { SAVED_NOTICE, SAVED_SORTS, SAVED_TABS } from '../data/queriesData.js';
+import { SAVED_SORTS } from '../data/queriesData.js';
 import FilterMenu from '../../publicData/ui/FilterMenu.jsx';
 import SavedQueryCard from './SavedQueryCard.jsx';
 import {
@@ -13,12 +13,7 @@ import {
   QueriesIconGrid,
   QueriesIconList,
 } from './queriesIcons.jsx';
-import {
-  removeSavedQuery,
-  spendQuota,
-  togglePausedQuery,
-  useQueriesStore,
-} from './useQueriesStore.js';
+import { useSavedQueries } from './useQueriesStore.js';
 
 const log = debug('SavedQueriesView');
 
@@ -28,9 +23,9 @@ const log = debug('SavedQueriesView');
  *   toolbar: All 4 · Scheduled 3 · Paused 1 chips, the cards / list toggle, the "Recently run" sort, "Refresh · monthly" · the amber notice
  *   ("“NEET by district” moved by 7% ...") · the card grid (3 columns on desktop, 430 wide).
  * URL keys: tab=recent|saved|shared (default saved), show=scheduled|paused (default all), view=list (default cards), sort=name|talents.
- * ⚠️ ASSUMPTIONS: the Recent and Shared tabs list the same cards (Recent = all, Shared with me = the ones another analyst saved) and keep the drawn counts;
- * the list view is not drawn (a table with the same data); "Refresh · monthly" reruns the monthly queries (uses 1 query of the quota each);
- * Delete removes the card at once (mock, in memory); the fourth saved query is sample content (queriesData.js).
+ * Live: GET /agency/queries. Recent = every saved query by last run; Shared with me = the ones another analyst of the agency saved.
+ * The bookmark pauses / resumes refreshing (PATCH), Delete removes it (DELETE), "Refresh · monthly" re-counts the monthly queries now
+ * (POST /:id/refresh, 1 query of the quota each). The notice names the query that moved most (5% or more) at its last run.
  * Props: data (useAgencyState()).
  */
 
@@ -49,7 +44,9 @@ const TabCount = ({ children, active }) => (
 
 const SavedQueriesView = ({ data }) => {
   const navigate = useNavigate();
-  const { saved } = useQueriesStore();
+  const store = useSavedQueries();
+  const saved = store.items;
+  const [busy, setBusy] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [announce, setAnnounce] = useState('');
   const sortRef = useRef(null);
@@ -84,23 +81,51 @@ const SavedQueriesView = ({ data }) => {
 
   const visible = useMemo(() => {
     let list = saved;
-    if (tab === 'shared') list = list.filter((q) => q.by !== 'Efua Owusu');
+    if (tab === 'shared') list = list.filter((q) => !q.mine);
+    if (tab === 'recent')
+      list = [...list].sort((a, b) => new Date(b.lastRunAt || 0) - new Date(a.lastRunAt || 0));
     if (show !== 'all') list = list.filter((q) => q.status === show);
     if (sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     if (sort === 'talents') list = [...list].sort((a, b) => b.talents - a.talents);
     return list;
   }, [saved, tab, show, sort]);
 
-  const featuredId = SAVED_NOTICE.queryId;
-  const notice = saved.find((q) => q.id === featuredId);
+  const notice = saved
+    .filter((q) => q.movedPct !== null && Math.abs(q.movedPct) >= 5)
+    .sort((a, b) => Math.abs(b.movedPct) - Math.abs(a.movedPct))[0];
+  const featuredId = notice?.id ?? null;
+  const tabs = [
+    { id: 'build', label: 'Build', count: '—' },
+    { id: 'recent', label: 'Recent', count: String(saved.length) },
+    { id: 'saved', label: 'Saved', count: String(saved.length) },
+    { id: 'shared', label: 'Shared with me', count: String(saved.filter((q) => !q.mine).length) },
+  ];
 
   const setParam = (patch) => data.update(patch, { replace: true });
 
+  const guard = async (fn, done) => {
+    setBusy(true);
+    try {
+      await fn();
+      if (done) setAnnounce(done);
+    } catch (err) {
+      setAnnounce(err?.response?.data?.message || err?.message || 'That didn’t work.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const refreshMonthly = () => {
-    const due = saved.filter((q) => q.status === 'scheduled' && q.schedule === 'Monthly');
-    spendQuota(due.length);
-    setAnnounce(
-      `Refreshed ${due.length} monthly queries. ${due.length} queries used from your quota.`
+    const due = saved.filter((q) => q.status === 'scheduled' && q.cadence === 'monthly');
+    if (!due.length) {
+      setAnnounce('No monthly queries to refresh.');
+      return;
+    }
+    guard(
+      async () => {
+        for (const q of due) await store.refresh(q.id);
+      },
+      `Refreshed ${due.length} monthly ${due.length === 1 ? 'query' : 'queries'}. ${due.length} used from your quota.`
     );
   };
 
@@ -142,9 +167,9 @@ const SavedQueriesView = ({ data }) => {
       </div>
       <div className="flex flex-col gap-[18px]">
         <div role="tablist" aria-label="Queries" className="flex flex-wrap gap-[4px]">
-          {SAVED_TABS.map((t) => {
+          {tabs.map((t) => {
             const active = t.id === tab;
-            const count = t.id === 'saved' ? String(counts.all) : t.count;
+            const { count } = t;
             const inner = (
               <>
                 <span>{t.label}</span>
@@ -234,8 +259,13 @@ const SavedQueriesView = ({ data }) => {
               />
             ) : null}
           </div>
-          <AgencyButton size="xs" onClick={refreshMonthly} className="!h-[34px] !text-[13px]">
-            Refresh · monthly
+          <AgencyButton
+            size="xs"
+            onClick={refreshMonthly}
+            disabled={busy}
+            className="!h-[34px] !text-[13px]"
+          >
+            {busy ? 'Refreshing…' : 'Refresh · monthly'}
           </AgencyButton>
         </div>
         {notice ? (
@@ -244,15 +274,42 @@ const SavedQueriesView = ({ data }) => {
             className="flex items-center gap-[14px] rounded-[20px] border border-solid border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[18px] pl-[14px] text-[14px] leading-[17px] font-medium text-[#1c2a21] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             <QueriesIconClock className="size-[18px] shrink-0 text-[#967014]" />
-            {SAVED_NOTICE.text}
+            {`“${notice.name}” moved by ${Math.abs(notice.movedPct)}% at its last run. Open it to see what changed.`}
           </Link>
         ) : null}
-        <p role="status" aria-live="polite" className="sr-only">
+        <p
+          role="status"
+          aria-live="polite"
+          className={
+            announce
+              ? 'm-0 rounded-[14px] bg-[#ebf1ec] px-[14px] py-[10px] text-[14px] leading-[20px] font-medium text-[#1f4a2b]'
+              : 'sr-only'
+          }
+        >
           {announce}
         </p>
-        {visible.length === 0 ? (
+        {store.loading ? (
+          <p
+            role="status"
+            className="m-0 rounded-[20px] border border-solid border-[#e1eae2] bg-white p-[24px] text-[14px] leading-[20px] text-[#595959]"
+          >
+            Loading saved queries…
+          </p>
+        ) : store.error ? (
+          <p
+            role="alert"
+            className="m-0 flex flex-wrap items-center gap-[12px] rounded-[20px] border border-solid border-[#e1eae2] bg-white p-[24px] text-[14px] leading-[20px] text-[#902b20]"
+          >
+            We couldn’t load your saved queries.
+            <AgencyButton size="xs" onClick={store.reload}>
+              Try again
+            </AgencyButton>
+          </p>
+        ) : visible.length === 0 ? (
           <p className="m-0 rounded-[20px] border border-solid border-[#e1eae2] bg-white p-[24px] text-[14px] leading-[20px] text-[#595959]">
-            No saved queries here.
+            {saved.length
+              ? 'No saved queries here.'
+              : 'No saved queries yet. Build a query and choose “Save query” to rerun it on a schedule.'}
           </p>
         ) : asList ? (
           <div className="overflow-x-auto rounded-[20px] border border-solid border-[#e1eae2] bg-white">
@@ -313,11 +370,13 @@ const SavedQueriesView = ({ data }) => {
                 key={q.id}
                 query={q}
                 featured={q.id === featuredId}
-                onTogglePause={togglePausedQuery}
-                onDelete={(id) => {
-                  removeSavedQuery(id);
-                  setAnnounce(`Deleted ${q.name}.`);
-                }}
+                onTogglePause={(id) =>
+                  guard(
+                    () => store.togglePause(id),
+                    q.status === 'paused' ? `${q.name} refreshes again.` : `${q.name} paused.`
+                  )
+                }
+                onDelete={(id) => guard(() => store.remove(id), `Deleted ${q.name}.`)}
                 onOpen={(href) => navigate(href)}
               />
             ))}

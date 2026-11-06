@@ -12,7 +12,17 @@ export const GAMES_V2 = { 'memory-match': MemoryMatchGame };
 export const GAMES_V2_META = {
   'memory-match': {
     name: MEMORY_COPY.name,
-    subtitleLead: 'Working memory · 4×4 cards',
+    // the result header: the live run's board size is not stored with the result, so the live header names the skill only
+    get subtitleLead() {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        return p.get('f') || p.get('demo') === '1'
+          ? 'Working memory · 4×4 cards'
+          : 'Working memory';
+      } catch {
+        return 'Working memory · 4×4 cards';
+      }
+    },
     /* a getter so the strip follows the run that was just finished (GameV2Page reads it on every render) */
     get resultProgress() {
       return memoryMatchResultProgress();

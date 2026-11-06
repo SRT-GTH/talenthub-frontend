@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { debug } from '../../../utils/debug.js';
 import { answerLab, finishLab, playLab, restartLab } from '../../../services/skillsLab.api.js';
 import ExtLabScreen from './labScreens/ExtLabScreen.jsx';
+import { useLiveStreak } from '../talentStreak/useLiveStreak.js';
+import { useLiveXp } from '../talentXp/useLiveXp.js';
 
 const log = debug('useLiveLabFlow');
 
@@ -20,6 +22,10 @@ export const useLiveLabFlow = ({ labId, enabled, restart = false }) => {
     error: null,
   });
   const attemptRef = useRef(null);
+  const liveXp = useLiveXp({ enabled });
+  const liveStreak = useLiveStreak({ enabled });
+  const xpTotal = liveXp.data?.total ?? 0;
+  const streakDays = liveStreak.data?.summary?.current || null;
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -62,8 +68,9 @@ export const useLiveLabFlow = ({ labId, enabled, restart = false }) => {
       correctXp: lab.correctXp ?? 10,
       hintCost: lab.hintCost ?? 5,
       questions,
-      // Resume where the server says; XP in the header is this run's (no streak tracking yet).
-      session: { index: attempt.index, results: attempt.results, xp: 0, streakDays: null },
+      // Resume where the server says. The header starts from the talent's XP total (XP ledger) and current streak; this
+      // run's XP adds on top as answers are scored.
+      session: { index: attempt.index, results: attempt.results, xp: xpTotal, streakDays },
       frames: {},
       live: {
         answer: (body) => answerLab(labId, { attemptId: attemptRef.current, ...body }),
@@ -75,7 +82,13 @@ export const useLiveLabFlow = ({ labId, enabled, restart = false }) => {
         },
       },
     };
-  }, [enabled, state, labId]);
+  }, [enabled, state, labId, xpTotal, streakDays]);
 
-  return { status: state.status, error: state.error, flow: liveFlow };
+  // The attempt reads flow.session once, so wait for the XP total (or its failure) before the lab starts.
+  const xpPending = enabled && liveXp.status === 'loading';
+  return {
+    status: state.status === 'ready' && xpPending ? 'loading' : state.status,
+    error: state.error,
+    flow: xpPending ? null : liveFlow,
+  };
 };

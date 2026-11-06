@@ -17,7 +17,8 @@ import {
   ProfileMenuUserIcon,
   ProfileMenuVerifiedCheckIcon,
 } from '../../../shared/assets.jsx';
-import { STAFF, VERIFY_CHIP } from './data/institutionSettingsData.js';
+import { VERIFY_CHIP } from './data/institutionSettingsData.js';
+import { logout } from '../../../../services/auth.api.js';
 
 const log = debug('InstitutionProfileMenu');
 
@@ -217,7 +218,7 @@ const InstitutionProfileMenu = ({ data, session }) => {
           {item('staff', {
             icon: <ProfileMenuSuitcaseIcon className="size-[20px]" />,
             label: 'Staff',
-            value: `${STAFF.length} staff`,
+            value: admin.role,
             onActivate: () => go('/institution/settings/staff'),
           })}
           {item('accreditation', {
@@ -272,7 +273,10 @@ const InstitutionProfileMenu = ({ data, session }) => {
           {item('logout', {
             icon: <ProfileMenuLogoutIcon className="size-[20px]" />,
             label: 'Log out',
-            onActivate: () => go('/institution/sign-up'),
+            onActivate: () => {
+              logout();
+              navigate('/login', { replace: true });
+            },
           })}
         </div>
 

@@ -1,11 +1,5 @@
 import { classNames } from '../../../../utils/classNames.js';
-import {
-  GlyphTile,
-  HeadLink,
-  Meter,
-  ProfileCard,
-  ProfileChip,
-} from '../../talentProfile/ProfileTabsUi.jsx';
+import { GlyphTile, Meter, ProfileCard, ProfileChip } from '../../talentProfile/ProfileTabsUi.jsx';
 import { CARD_PLAIN } from '../../talentProfile/profileTabsStyles.js';
 
 /*
@@ -14,8 +8,10 @@ import { CARD_PLAIN } from '../../talentProfile/profileTabsStyles.js';
  * ⚠️ ASSUMPTION: "See all 7 →" has no target drawn; it is inert (no Skills tab is drawn for the school view).
  */
 
-const ProgressSkillsCard = ({ skills }) => (
-  <ProfileCard title="Top skills" link="See all 7 →" onLink={() => {}}>
+const ProgressSkillsCard = ({ skills, total = 0 }) => (
+  <ProfileCard
+    title={total > skills.length ? `Top skills · ${skills.length} of ${total}` : 'Top skills'}
+  >
     <ul className="m-0 grid list-none grid-cols-1 gap-[12px] p-0 @2xl:grid-cols-2">
       {skills.map((item) => (
         <li

@@ -181,17 +181,36 @@ export const loadBulkTemplate = () => {
         const t = res?.data?.value ?? res?.value;
         if (!t || !Array.isArray(t.columns) || !t.columns.length) return null;
         const known = new Map(DEFAULT_COLUMNS.map((c) => [c.key, c]));
+        const isCustom = (c) => /^custom_[a-z][a-zA-Z0-9]{1,39}$/.test(c.key || '');
         const cols = t.columns
-          .filter((c) => known.has(c.key))
-          .map((c) => ({
-            ...known.get(c.key),
-            header: c.header || known.get(c.key).header,
-            required: Boolean(c.required),
-            minors: Boolean(c.minors ?? known.get(c.key).minors),
-            aliases: [...new Set([...(known.get(c.key).aliases || []), ...(c.aliases || [])])],
-            example: c.example ?? '',
-            help: c.help ?? '',
-          }));
+          .filter((c) => known.has(c.key) || isCustom(c))
+          .map((c) =>
+            isCustom(c)
+              ? {
+                  key: c.key,
+                  header: c.header || c.label,
+                  label: c.label || c.header,
+                  custom: true,
+                  type: c.type || 'text',
+                  options: c.options || [],
+                  required: Boolean(c.required),
+                  minors: Boolean(c.minors),
+                  aliases: c.aliases || [],
+                  example: c.example ?? '',
+                  help: c.help ?? '',
+                }
+              : {
+                  ...known.get(c.key),
+                  header: c.header || known.get(c.key).header,
+                  required: Boolean(c.required),
+                  minors: Boolean(c.minors ?? known.get(c.key).minors),
+                  aliases: [
+                    ...new Set([...(known.get(c.key).aliases || []), ...(c.aliases || [])]),
+                  ],
+                  example: c.example ?? '',
+                  help: c.help ?? '',
+                }
+          );
         if (!cols.length) return null;
         TEMPLATE_COLUMNS.splice(0, TEMPLATE_COLUMNS.length, ...cols);
         EXAMPLE_ROWS.splice(
@@ -228,12 +247,16 @@ const normHeader = (h) =>
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
 
-const HEADER_TO_KEY = new Map();
-for (const col of TEMPLATE_COLUMNS) {
-  HEADER_TO_KEY.set(normHeader(col.header), col.key);
-  HEADER_TO_KEY.set(normHeader(col.key), col.key);
-  for (const a of col.aliases || []) HEADER_TO_KEY.set(a, col.key);
-}
+const headerToKey = () => {
+  const map = new Map();
+  // Built-in spellings first, then the admin template's headers and aliases (which win).
+  for (const col of [...DEFAULT_COLUMNS, ...TEMPLATE_COLUMNS]) {
+    map.set(normHeader(col.header), col.key);
+    map.set(normHeader(col.key), col.key);
+    for (const a of col.aliases || []) map.set(normHeader(a), col.key);
+  }
+  return map;
+};
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const isValidEmail = (v) => EMAIL_RE.test(String(v || '').trim());
@@ -325,6 +348,7 @@ export const parseUploadFile = async (file) => {
     throw err;
   }
   const [headerRow = [], ...body] = table;
+  const HEADER_TO_KEY = headerToKey();
   const keys = headerRow.map((h) => HEADER_TO_KEY.get(normHeader(h)) || null);
   const present = new Set(keys.filter(Boolean));
   const missingColumns = TEMPLATE_COLUMNS.filter((c) => c.required && !present.has(c.key)).map(
@@ -363,7 +387,16 @@ export const checkRows = (rows, now = new Date()) => {
     const problems = [];
     const add = (check, reason) => problems.push({ check, reason });
 
-    const missing = ['firstName', 'lastName', 'email', 'phone'].filter((k) => isBlank(r[k]));
+    const always = ['firstName', 'lastName', 'email', 'phone'];
+    const required = [
+      ...always,
+      ...TEMPLATE_COLUMNS.filter(
+        (c) => c.required && !c.minors && !c.custom && !always.includes(c.key) && c.key !== 'dob'
+      ).map((c) => c.key),
+    ];
+    const missing = required.filter(
+      (k) => TEMPLATE_COLUMNS.some((c) => c.key === k) && isBlank(r[k])
+    );
     if (missing.length) add('required', `Missing ${missing.map(label).join(', ')}`);
     if (!isBlank(r.email) && !isValidEmail(r.email)) add('email', `Invalid email: ${r.email}`);
 
@@ -388,6 +421,24 @@ export const checkRows = (rows, now = new Date()) => {
       add('email', `Invalid parent email: ${r.parentEmail}`);
     }
     if (r.isMinor && isBlank(r.parentEmail)) add('minorParent', 'Under 18: no parent email');
+    for (const c of TEMPLATE_COLUMNS.filter((col) => col.custom)) {
+      const v = String(r[c.key] ?? '').trim();
+      if (!v) {
+        if (c.required && (!c.minors || r.isMinor)) add('custom', `Missing ${c.label}`);
+        continue;
+      }
+      if (c.type === 'number' && !/^-?\d+(\.\d+)?$/.test(v.replace(/,/g, '')))
+        add('custom', `${c.label}: “${v}” isn't a number`);
+      else if (c.type === 'date') {
+        const d = parseDob(v);
+        if (!d) add('custom', `${c.label}: “${v}” isn't a date (use DD/MM/YYYY)`);
+        else r[c.key] = d.iso;
+      } else if (c.type === 'choice') {
+        const hit = (c.options || []).find((o) => o.toLowerCase() === v.toLowerCase());
+        if (!hit) add('custom', `${c.label}: “${v}” isn't one of ${(c.options || []).join(', ')}`);
+        else r[c.key] = hit;
+      } else r[c.key] = v;
+    }
     if (!isBlank(r.parentPhone)) {
       r.parentPhoneE164 = normalizeGhanaPhone(r.parentPhone) || String(r.parentPhone);
     }
@@ -438,9 +489,10 @@ const BACKEND_HEADERS = [
   'parentPhone',
   'sourceRow',
 ];
+const customKeys = () => TEMPLATE_COLUMNS.filter((c) => c.custom).map((c) => c.key);
 export const toBackendCsv = (rows) =>
   toCsv([
-    BACKEND_HEADERS,
+    [...BACKEND_HEADERS, ...customKeys()],
     ...rows.map((r) => [
       r.firstName,
       r.lastName,
@@ -459,6 +511,7 @@ export const toBackendCsv = (rows) =>
         .toLowerCase(),
       r.parentPhoneE164,
       r.row,
+      ...customKeys().map((k) => r[k] ?? ''),
     ]),
   ]);
 
@@ -492,6 +545,12 @@ const CHECKS = [
     title: 'In-file duplicates',
     pass: 'No student appears twice',
     fix: 'Each student should appear once. Remove or correct the repeated rows.',
+  },
+  {
+    id: 'custom',
+    title: 'Your institution’s fields',
+    pass: 'Every extra field is filled in and in the right format',
+    fix: 'Fill in the flagged fields as described in the template (numbers, DD/MM/YYYY dates or one of the listed options).',
   },
   {
     id: 'minorParent',

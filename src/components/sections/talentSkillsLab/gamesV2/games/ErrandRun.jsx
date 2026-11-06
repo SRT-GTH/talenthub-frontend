@@ -20,21 +20,51 @@ import {
   savingSentence,
   shortestRoute,
 } from '../errandRun/errandRunEngine.js';
+import { useErrandRunLive } from '../errandRun/useErrandRunLive.js';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
 import GameV2Head from '../planningShared/GameV2Head.jsx';
 import { GameCheckCircleIcon, GameClockIcon } from '../planningShared/PlanningChessIcons.jsx';
+import { isMockGamesUrl, liveBestMark, readLiveResult } from '../planningShared/liveResultMeta.js';
 
 const log = debug('ErrandRun');
 
+/*
+ * Errand Run — plan the shortest route through town (Figma "Games v2 · 9" ER-01 … ER-03).
+ *   Live (default): the server route_planner engine (/api/games, errandRun/useErrandRunLive.js) — map size, home, stops, shortest
+ *   route and score all come from the server (3 maps; Advanced / Expert must come back home).
+ *   Mock (`?f=ER-01…03`, `?demo=1`): the local maps and rules in errandRun/errandRunEngine.js and the mock score.
+ */
 // eslint-disable-next-line react-refresh/only-export-components
 export const GAMES_V2_META = {
   'errand-run': {
     name: 'Errand Run',
-    subtitleLead: `Planning · ${ERRAND_MAPS_PER_RUN} town maps`,
-    resultProgress: {
-      countLabel: `Map ${ERRAND_MAPS_PER_RUN} of ${ERRAND_MAPS_PER_RUN}`,
-      summary: 'All maps planned',
-      dots: Array.from({ length: ERRAND_MAPS_PER_RUN }, (_, i) => ({ state: 'ok', label: i + 1 })),
-      passMark: `Best so far: ${ERRAND_BEST_SO_FAR}`,
+    // live results do not store the map count, so the live header names the skill only
+    get subtitleLead() {
+      return isMockGamesUrl() ? `Planning · ${ERRAND_MAPS_PER_RUN} town maps` : 'Planning';
+    },
+    /* a getter: the live strip follows the run just finished (server: correct = shortest routes, total = maps) */
+    get resultProgress() {
+      const stored = readLiveResult('errand-run');
+      if (stored) {
+        return {
+          countLabel: `${stored.correct ?? 0} of ${stored.total ?? 0} shortest`,
+          summary: stored.completed ? 'All maps planned' : (stored.summary ?? ''),
+          dots: [],
+          passMark: liveBestMark(stored),
+        };
+      }
+      if (!isMockGamesUrl()) return null;
+      return {
+        countLabel: `Map ${ERRAND_MAPS_PER_RUN} of ${ERRAND_MAPS_PER_RUN}`,
+        summary: 'All maps planned',
+        dots: Array.from({ length: ERRAND_MAPS_PER_RUN }, (_, i) => ({
+          state: 'ok',
+          label: i + 1,
+        })),
+        passMark: `Best so far: ${ERRAND_BEST_SO_FAR}`,
+      };
     },
   },
 };
@@ -42,7 +72,8 @@ export const GAMES_V2_META = {
 const LEAD =
   'Start at home and visit every stop once. A trip costs the blocks across plus the blocks up or down.';
 
-const ErrandRun = ({ frame }) => {
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local maps, rules and mock score */
+const useErrandRunMock = (frame) => {
   const g = useGameV2Params();
   const seed = frame ? ERRAND_SEEDS[frame] : null;
   const level = seed ? 'intermediate' : g.level;
@@ -175,7 +206,6 @@ const ErrandRun = ({ frame }) => {
   });
   const prev = run.results[run.mapIdx - 2];
 
-  const eyebrow = `MAP ${run.mapIdx} · ${level.toUpperCase()} · ${map.stops.length} STOPS`;
   let head;
   let feedback = null;
   let totalLabel = 'Blocks so far';
@@ -206,86 +236,112 @@ const ErrandRun = ({ frame }) => {
   } else {
     head = { title: 'Plan the shortest route.', lead: LEAD };
   }
-  const stats = done
-    ? [
-        { icon: GameClockIcon, label: `Done in ${elapsed} s` },
-        { icon: GameCheckCircleIcon, label: `${cost} ${cost === 1 ? 'block' : 'blocks'}` },
-      ]
-    : [
-        { icon: GameClockIcon, label: `${clock.label} left` },
-        { icon: GameCheckCircleIcon, label: `${cost} ${cost === 1 ? 'block' : 'blocks'} so far` },
-      ];
 
-  return (
-    <GameV2Shell
-      name="Errand Run"
-      subtitleLead={`Planning · ${ERRAND_MAPS_PER_RUN} town maps`}
-      progress={{
-        countLabel: `Map ${run.mapIdx} of ${ERRAND_MAPS_PER_RUN}`,
-        summary: prev
-          ? `Map ${run.mapIdx - 1}: ${prev === 'shortest' ? 'shortest' : 'longer'}`
-          : undefined,
-        dots,
-        passMark: `Best so far: ${ERRAND_BEST_SO_FAR}`,
-      }}
-      footer={
-        done
-          ? {
-              note: '',
-              action: {
-                label: run.mapIdx >= ERRAND_MAPS_PER_RUN ? 'See result' : 'Next map',
-                onClick: nextMap,
-              },
-            }
-          : {
-              note: '',
-              link: {
-                label: 'Clear route',
-                size: 'lg',
-                onClick: clearRoute,
-                disabled: !run.route.length,
-              },
-            }
-      }
-      timeUp={{
-        summary: `You planned ${run.costs.length} of ${ERRAND_MAPS_PER_RUN} maps before time ran out.`,
-      }}
-      onSeeResult={seeResultEarly}
+  return {
+    eyebrow: `MAP ${run.mapIdx} · ${level.toUpperCase()} · ${map.stops.length} STOPS`,
+    head,
+    stats: done
+      ? [
+          { icon: GameClockIcon, label: `Done in ${elapsed} s` },
+          { icon: GameCheckCircleIcon, label: `${cost} ${cost === 1 ? 'block' : 'blocks'}` },
+        ]
+      : [
+          { icon: GameClockIcon, label: `${clock.label} left` },
+          { icon: GameCheckCircleIcon, label: `${cost} ${cost === 1 ? 'block' : 'blocks'} so far` },
+        ],
+    progress: {
+      countLabel: `Map ${run.mapIdx} of ${ERRAND_MAPS_PER_RUN}`,
+      summary: prev
+        ? `Map ${run.mapIdx - 1}: ${prev === 'shortest' ? 'shortest' : 'longer'}`
+        : undefined,
+      dots,
+      passMark: `Best so far: ${ERRAND_BEST_SO_FAR}`,
+    },
+    footer: done
+      ? {
+          note: '',
+          action: {
+            label: run.mapIdx >= ERRAND_MAPS_PER_RUN ? 'See result' : 'Next map',
+            onClick: nextMap,
+          },
+        }
+      : {
+          note: '',
+          link: {
+            label: 'Clear route',
+            size: 'lg',
+            onClick: clearRoute,
+            disabled: !run.route.length,
+          },
+        },
+    timeUpSummary: `You planned ${run.costs.length} of ${ERRAND_MAPS_PER_RUN} maps before time ran out.`,
+    onSeeResult: seeResultEarly,
+    mapProps: {
+      stops: map.stops,
+      visited: run.route,
+      best: done && lastResult === 'longer' ? best.order : null,
+      routeTone,
+      locked: done || clock.ended,
+      onPick: pick,
+    },
+    panel: {
+      slots: map.stops.length,
+      legs,
+      totalLabel,
+      total: cost,
+      totalTone,
+      best: showBest,
+      feedback,
+      onUndo: done ? undefined : undo,
+    },
+  };
+};
+
+const ErrandRunBoard = ({ e }) => (
+  <GameV2Shell
+    name="Errand Run"
+    subtitleLead={`Planning · ${e.progress.dots.length} town maps`}
+    progress={e.progress}
+    footer={e.footer}
+    timeUp={{ summary: e.timeUpSummary }}
+    onSeeResult={e.onSeeResult}
+  >
+    <GameV2Head
+      eyebrow={e.eyebrow}
+      title={e.head.title}
+      lead={e.head.lead}
+      stats={e.stats}
+      measures={ERRAND_MEASURES}
+    />
+    <section
+      aria-label="Errand Run"
+      className="flex flex-wrap items-center justify-center gap-[clamp(16px,2.1vw,36px)] lg:min-h-[493px]"
     >
-      <GameV2Head
-        eyebrow={eyebrow}
-        title={head.title}
-        lead={head.lead}
-        stats={stats}
-        measures={ERRAND_MEASURES}
-      />
-      <section
-        aria-label="Errand Run"
-        className="flex flex-wrap items-center justify-center gap-[clamp(16px,2.1vw,36px)] lg:min-h-[493px]"
-      >
-        <ErrandMap
-          stops={map.stops}
-          visited={run.route}
-          best={done && lastResult === 'longer' ? best.order : null}
-          routeTone={routeTone}
-          locked={done || clock.ended}
-          onPick={pick}
-        />
-        <div className="flex w-full min-w-[min(100%,280px)] flex-1 justify-center lg:w-[380px] lg:flex-none">
-          <ErrandRoutePanel
-            slots={map.stops.length}
-            legs={legs}
-            totalLabel={totalLabel}
-            total={cost}
-            totalTone={totalTone}
-            best={showBest}
-            feedback={feedback}
-            onUndo={done ? undefined : undo}
-          />
-        </div>
-      </section>
-    </GameV2Shell>
-  );
+      <ErrandMap {...e.mapProps} />
+      <div className="flex w-full min-w-[min(100%,280px)] flex-1 justify-center lg:w-[380px] lg:flex-none">
+        <ErrandRoutePanel {...e.panel} />
+      </div>
+    </section>
+  </GameV2Shell>
+);
+
+const MockErrandRun = ({ frame }) => <ErrandRunBoard e={useErrandRunMock(frame)} />;
+
+/* live: the server engine builds the maps, knows the shortest routes and scores the run */
+const LiveErrandRun = () => {
+  // the last map's verdict stays readable a little longer before the result opens
+  const run = useGameRun({ finishDelayMs: 2600 });
+  const e = useErrandRunLive(run);
+  if ((run.status !== 'ready' && run.status !== 'finished') || e.empty) {
+    return <GameV2LiveGate run={run} name="Errand Run" subtitleLead="Planning" />;
+  }
+  return <ErrandRunBoard e={e} />;
+};
+
+const ErrandRun = ({ frame }) => {
+  const g = useGameV2Params();
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? <LiveErrandRun key={key} /> : <MockErrandRun key={key} frame={frame} />;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components

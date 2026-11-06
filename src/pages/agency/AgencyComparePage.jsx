@@ -10,9 +10,11 @@ import CompareHeadlineCard from '../../components/sections/publicData/regions/Co
 import CompareInterestsCards from '../../components/sections/publicData/regions/CompareInterestsCards.jsx';
 import CompareSelectorDialog from '../../components/sections/publicData/regions/CompareSelectorDialog.jsx';
 import {
-  getCompare,
+  COMPARE_COLOURS,
   parseCompareIds,
 } from '../../components/sections/publicData/regions/data/regionsData.js';
+import { useAgencyResource } from '../../components/sections/agency/useAgencyResource.js';
+import { agencyCompare } from '../../services/agency.api.js';
 import RegionBreadcrumb from '../../components/sections/publicData/regions/RegionBreadcrumb.jsx';
 import EmptyState from '../../components/sections/publicData/ui/EmptyState.jsx';
 import { debug } from '../../utils/debug.js';
@@ -23,6 +25,8 @@ const log = debug('AgencyComparePage');
 /*
  * AgencyComparePage — /agency/compare?regions=a,b[,c] (Figma 11.4.2n 2 regions, 11.4.2o selector). Theme 8's compare cards inside the agency chrome.
  * Same URL contract as Theme 8: ?regions= (2-3 ids), ?modal=compare opens the selector; no ?regions= compares Greater Accra and Ashanti.
+ * Live: GET /api/agency/compare (each region's talents, 30-day growth, assessment completion, placements, partners, education / age
+ * shares and top interests; under 5 prints "<5"). Colours follow the order of ?regions=.
  */
 
 const AgencyComparePage = () => {
@@ -33,7 +37,14 @@ const AgencyComparePage = () => {
     () => (raw === null ? ['greater-accra', 'ashanti'] : parseCompareIds(raw)),
     [raw]
   );
-  const regions = useMemo(() => getCompare(ids), [ids]);
+  const res = useAgencyResource(
+    () => (ids.length ? agencyCompare(ids) : Promise.resolve([])),
+    [ids.join(',')]
+  );
+  const regions = useMemo(
+    () => (res.data || []).map((r, i) => ({ ...r, colour: COMPARE_COLOURS[i] })),
+    [res.data]
+  );
   const ready = regions.length >= 2;
   const open = modal === 'compare';
 
@@ -63,7 +74,13 @@ const AgencyComparePage = () => {
         onRemove={(id) => setRegions(ids.filter((x) => x !== id))}
         onAdd={() => update({ modal: 'compare' })}
       />
-      {ready ? (
+      {res.error ? (
+        <EmptyState
+          variant="zero"
+          title="We couldn’t load the comparison"
+          message="Check your connection and try again."
+        />
+      ) : ready ? (
         <>
           <CompareHeadlineCard regions={regions} />
           <div className="grid min-w-0 grid-cols-1 gap-[24px] xl:grid-cols-2">

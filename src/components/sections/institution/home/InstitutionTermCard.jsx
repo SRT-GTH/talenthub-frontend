@@ -1,41 +1,41 @@
-import { useEffect } from 'react';
-import { debug } from '../../../../utils/debug.js';
-import InstitutionButton from '../InstitutionButton.jsx';
-import { formatCount } from '../institutionFormat.js';
+// The school's own roster: exact numbers (formatCount masks small groups for public figures).
+const formatCount = (n) => Number(n || 0).toLocaleString('en-GB');
 import { TERM_STATS as T } from './data/institutionHomeData.js';
 
-const log = debug('InstitutionTermCard');
-
 /*
- * InstitutionTermCard — "This term" stats card (Figma "Background+Border" 8585:83, 878 wide, white, 1.5 #e5e5e5, r16, p 22/24, gap 24): the "This term" button on the right
- * (⚠️ ASSUMPTION: the term switch is not drawn, the button logs the intent), three stat columns (label 16/24 #999, value 22/28 600) split by #dfdfdc dividers and the
- * three-bar glyph (Group 41232, 266 x 64, hidden below md).
- * Props: students (number, from the session), className.
+ * InstitutionTermCard — the roster stats card (Figma "Background+Border" 8585:83, 878 wide, white, 1.5 #e5e5e5, r16, p 22/24, gap 24): three stat columns
+ * (label 16/24 #999, value 22/28 600) split by #dfdfdc dividers and the three-bar glyph (Group 41232, 266 x 64, hidden below md).
+ * Live: GET /institution/home — students on the roster, linked to GTH, and their average profile completion. The Figma "This term" range switch is dropped:
+ * there is no term data behind it yet.
+ * Props: home (the /institution/home response or null), className.
  */
 
-const InstitutionTermCard = ({ students, className }) => {
-  useEffect(() => {
-    log('mount', { students });
-  }, [students]);
+const InstitutionTermCard = ({ home, className }) => {
   const stats = [
-    { id: 'students', label: T.labels.students, value: students, ink: '#1f4a2b' },
-    { id: 'labs', label: T.labels.labs, value: T.skillsLabs, ink: '#32683a' },
-    { id: 'placements', label: T.labels.placements, value: T.placements, ink: '#32683a' },
+    {
+      id: 'students',
+      label: T.labels.students,
+      value: home ? formatCount(home.total) : '…',
+      ink: '#1f4a2b',
+    },
+    {
+      id: 'linked',
+      label: T.labels.linked,
+      value: home ? formatCount(home.linked) : '…',
+      ink: '#32683a',
+    },
+    {
+      id: 'profile',
+      label: T.labels.profile,
+      value: home ? `${home.avgProfile}%` : '…',
+      ink: '#32683a',
+    },
   ];
   return (
     <section
       aria-label={T.title}
-      className={`flex min-w-0 flex-col gap-[24px] rounded-[16px] border-[1.5px] border-solid border-[#e5e5e5] bg-white px-[24px] py-[22px] shadow-[0_1px_2px_rgba(15,15,10,0.05)] ${className ?? ''}`}
+      className={`flex min-w-0 flex-col justify-center gap-[24px] rounded-[16px] border-[1.5px] border-solid border-[#e5e5e5] bg-white px-[24px] py-[22px] shadow-[0_1px_2px_rgba(15,15,10,0.05)] ${className ?? ''}`}
     >
-      <div className="flex justify-end">
-        <InstitutionButton
-          size="md"
-          aria-label="Range: this term"
-          onClick={() => log('term switch')}
-        >
-          {T.title}
-        </InstitutionButton>
-      </div>
       <div className="flex flex-wrap items-end justify-between gap-x-[24px] gap-y-[16px]">
         <dl className="m-0 flex flex-wrap items-stretch gap-y-[16px]">
           {stats.map((s, i) => (
@@ -51,7 +51,7 @@ const InstitutionTermCard = ({ students, className }) => {
                   style={{ color: s.ink }}
                   className="m-0 font-sans text-[22px] leading-[28px] font-semibold tracking-[-0.11px]"
                 >
-                  {formatCount(s.value)}
+                  {s.value}
                 </dd>
               </div>
             </div>

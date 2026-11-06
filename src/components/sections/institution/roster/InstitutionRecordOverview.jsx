@@ -46,15 +46,20 @@ const InstitutionRecordOverview = ({ record }) => {
   const intent = (what) => () => log('link (no destination drawn)', what);
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
+      {record.hiddenNote && !about && !skills && !experience && !portfolio ? (
+        <InstitutionRecordCard id="record-about" title="GTH profile">
+          <p className="m-0 font-sans text-[15px] leading-[23px] text-[#595959]">
+            {record.hiddenNote}
+          </p>
+        </InstitutionRecordCard>
+      ) : null}
       {about ? (
-        <InstitutionRecordCard
-          id="record-about"
-          title="About"
-          link="Read more →"
-          onLink={intent('about')}
-        >
+        <InstitutionRecordCard id="record-about" title="About">
           <p className="m-0 font-sans text-[15px] leading-[23px] text-[#595959]">{about.text}</p>
-          <div className="flex flex-wrap items-center gap-[8px]">
+          <div
+            className="flex flex-wrap items-center gap-[8px] empty:hidden"
+            hidden={!about.vibe.length}
+          >
             <span className="font-sans text-[12px] leading-[14px] font-semibold text-[#737373]">
               My vibe
             </span>

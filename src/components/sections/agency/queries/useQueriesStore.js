@@ -1,73 +1,77 @@
-import { useSyncExternalStore } from 'react';
+import { useCallback, useMemo } from 'react';
+import {
+  agencyDeleteQuery,
+  agencyRefreshQuery,
+  agencySavedQueries,
+  agencyUpdateQuery,
+} from '../../../../services/agency.api.js';
 import { debug } from '../../../../utils/debug.js';
-import { SAVED_QUERIES } from '../data/queriesData.js';
+import { toSavedCard } from '../data/queriesData.js';
+import { useAgencySessionState } from '../agencySessionStore.js';
+import { useAgencyResource } from '../useAgencyResource.js';
 
-const log = debug('queriesStore');
+const log = debug('savedQueries');
 
 /*
- * queriesStore — the MOCK "server state" of the agency queries (saved queries, export log, quota spent this session).
- * ⚠️ ASSUMPTION: in memory only (a reload restores the seed). The future API is POST /agency/queries, DELETE /agency/queries/:id,
- * POST /agency/queries/:id/export. Saving a query and exporting a CSV each use 1 query of the MoU quota (Figma 11.5.1c / 11.5.1d).
- * The persona card in the chrome reads the session, so it does not move with `quotaSpent` (listed in the package report).
+ * useSavedQueries — the agency's saved queries (GET /agency/queries) as cards, with the actions of the Saved queries view:
+ *   togglePause(id)  PATCH status scheduled <-> paused
+ *   remove(id)       DELETE
+ *   refresh(id)      POST /:id/refresh (re-counts now; uses 1 query of the MoU quota)
+ * Every action reloads the list and the session (the quota figures in the chrome).
+ * Returns { loading, error, reload, items (cards), raw, national, togglePause, remove, refresh }.
  */
+export const useSavedQueries = () => {
+  const res = useAgencyResource(agencySavedQueries, []);
+  const session = useAgencySessionState();
+  const raw = res.data?.items;
+  const items = useMemo(() => (raw || []).map(toSavedCard), [raw]);
+  const { reload } = res;
+  const after = useCallback(() => {
+    reload();
+    session?.reload?.();
+  }, [reload, session]);
 
-let state = { saved: SAVED_QUERIES, quotaSpent: 0, exportLog: [] };
-const listeners = new Set();
+  const togglePause = useCallback(
+    async (id) => {
+      const q = (raw || []).find((x) => x.id === id);
+      if (!q) return;
+      const status = q.status === 'paused' ? 'scheduled' : 'paused';
+      log('toggle', id, status);
+      await agencyUpdateQuery(id, {
+        status,
+        ...(status === 'scheduled' && q.cadence === 'none' ? { cadence: 'monthly' } : {}),
+      });
+      after();
+    },
+    [raw, after]
+  );
+  const remove = useCallback(
+    async (id) => {
+      log('delete', id);
+      await agencyDeleteQuery(id);
+      after();
+    },
+    [after]
+  );
+  const refresh = useCallback(
+    async (id) => {
+      log('refresh', id);
+      const out = await agencyRefreshQuery(id);
+      after();
+      return out;
+    },
+    [after]
+  );
 
-const set = (patch) => {
-  state = { ...state, ...patch };
-  listeners.forEach((l) => l());
-};
-
-const subscribe = (listener) => {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-};
-
-const getState = () => state;
-
-export const useQueriesStore = () => useSyncExternalStore(subscribe, getState, getState);
-
-export const addSavedQuery = (query) => {
-  log('save', query.id);
-  set({ saved: [query, ...state.saved], quotaSpent: state.quotaSpent + 1 });
-};
-
-export const removeSavedQuery = (id) => {
-  log('delete', id);
-  set({ saved: state.saved.filter((q) => q.id !== id) });
-};
-
-export const togglePausedQuery = (id) => {
-  log('toggle pause', id);
-  set({
-    saved: state.saved.map((q) =>
-      q.id === id
-        ? q.status === 'paused'
-          ? {
-              ...q,
-              status: 'scheduled',
-              schedule: q.resumeSchedule ?? 'Monthly',
-              movedPct: q.movedPct ?? 0,
-            }
-          : {
-              ...q,
-              status: 'paused',
-              resumeSchedule: q.schedule,
-              schedule: 'Not refreshing',
-              movedPct: null,
-            }
-        : q
-    ),
-  });
-};
-
-export const logExport = (entry) => {
-  log('export', entry.kind);
-  set({ exportLog: [entry, ...state.exportLog], quotaSpent: state.quotaSpent + 1 });
-};
-
-export const spendQuota = (n) => {
-  log('quota', n);
-  set({ quotaSpent: state.quotaSpent + n });
+  return {
+    loading: res.loading && !res.data,
+    error: res.error,
+    reload,
+    items,
+    raw: raw || [],
+    national: res.data?.national ?? null,
+    togglePause,
+    remove,
+    refresh,
+  };
 };

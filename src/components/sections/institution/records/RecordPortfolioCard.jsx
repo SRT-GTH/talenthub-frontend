@@ -7,7 +7,7 @@ const COVERS = { bars, line, dots };
 
 /* RecordPortfolioCard — "Portfolio" (Figma 8593:800): three 264 x 150 covers (Figma exports, the type sticker is part of the art) with title 15/600 and meta 12. Props: detail. */
 const RecordPortfolioCard = ({ detail }) => (
-  <RecordCard id="record-portfolio" title="Portfolio" link="See all 3 →">
+  <RecordCard id="record-portfolio" title="Portfolio">
     <ul className="m-0 grid list-none grid-cols-1 gap-[16px] p-0 sm:grid-cols-3">
       {detail.portfolio.map((p) => (
         <li key={p.id} className="flex min-w-0 flex-col gap-[8px]">

@@ -141,6 +141,19 @@ const PAGE_LABELS = {
   trends: 'Trends',
 };
 
+// The built-in headings (taken before bindCopy applies staff wording), so a page can tell published wording from the default.
+const PAGE_TEXT_DEFAULTS = JSON.parse(JSON.stringify(GOVERNMENT_PAGE_TEXT));
+
+/**
+ * A page heading field. Pages whose subtitle is built from live data (counts, the data date) pass it as `live`: it is shown unless staff
+ * published their own wording for that field (or are previewing a draft of it), which then wins.
+ */
+export const governmentPageText = (page, field, live) => {
+  const current = GOVERNMENT_PAGE_TEXT[page]?.[field];
+  if (live === undefined || live === null || live === '') return current;
+  return current !== PAGE_TEXT_DEFAULTS[page]?.[field] ? current : live;
+};
+
 export const GOVERNMENT_PAGES_COPY = copySection({
   id: 'government.pages.headings',
   label: 'Page headings',

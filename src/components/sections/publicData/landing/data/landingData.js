@@ -1,10 +1,4 @@
 import { DATA_BASE } from '../../publicDataNav.js';
-import {
-  NATIONAL_PARTNERS,
-  NATIONAL_PLACEMENTS,
-  NATIONAL_TALENTS,
-  QUARTER_CHANGE_PCT,
-} from '../../overview/data/overviewData.js';
 import { REGIONS } from '../../regionsList.js';
 import { formatChange } from '../../publicDataFormat.js';
 import regionsPhoto from '../../../../../assets/public-data/landing/explore-regions-notes-on-map.webp';
@@ -13,20 +7,23 @@ import outcomesPhoto from '../../../../../assets/public-data/landing/explore-out
 import directoryPhoto from '../../../../../assets/public-data/landing/explore-directory-portrait-red-light.webp';
 
 /*
- * landingData.js — API-shaped mock data of the landing page (Figma 8.1.1a-c, mobile 8.1.1a-m). SAMPLE CONTENT ONLY.
- * The headline numbers come from the SAME constants as the national overview (overview/data/overviewData.js), so the two pages never disagree.
- * Future endpoint: GET /public/summary → { talents, placements, partners, regions, quarterChangePct }.
+ * landingData.js — the landing page (Figma 8.1.1a-c, mobile 8.1.1a-m). The headline numbers are read from the national overview
+ * (GET /api/public-data/overview with no filters), so the landing page and the national snapshot never disagree.
  */
 
 /* ===== BLOCK 1 · the stats row ======================================================================================== */
 
-export const getLandingSummary = () => ({
-  talents: NATIONAL_TALENTS,
-  placements: NATIONAL_PLACEMENTS,
-  partners: NATIONAL_PARTNERS,
-  regions: REGIONS.length,
-  quarterChangePct: QUARTER_CHANGE_PCT,
-});
+/** { talents, placements, partners, regions, quarterChangePct } from the live national overview; null until it has loaded. */
+export const landingSummaryOf = (overview) =>
+  overview && overview.state === 'ok'
+    ? {
+        talents: overview.count,
+        placements: overview.kpis?.placements?.count ?? 0,
+        partners: overview.kpis?.partners?.count ?? 0,
+        regions: REGIONS.length,
+        quarterChangePct: overview.hero?.change?.pct ?? null,
+      }
+    : null;
 
 /** The four stat cards: desktop draws the first three (8514:216…), the phone draws all four in a 2x2 grid (8515:2703). */
 export const buildStatCards = (summary) => [
@@ -35,7 +32,10 @@ export const buildStatCards = (summary) => [
     eyebrow: 'Talents registered',
     eyebrowShort: 'Talents',
     count: summary.talents,
-    sub: `Across all ${summary.regions} regions · ${formatChange(summary.quarterChangePct)} this quarter`,
+    sub:
+      summary.quarterChangePct == null
+        ? `Across all ${summary.regions} regions`
+        : `Across all ${summary.regions} regions · ${formatChange(summary.quarterChangePct)} this quarter`,
     subShort: `${summary.regions} regions`,
   },
   {
@@ -69,7 +69,7 @@ export const EXPLORE_CARDS = [
   {
     key: 'regions',
     title: 'Regions',
-    text: '16 regions and their districts, side by side.',
+    text: 'All 16 regions, side by side.',
     cta: 'Explore regions →',
     to: `${DATA_BASE}/regions`,
     image: regionsPhoto,

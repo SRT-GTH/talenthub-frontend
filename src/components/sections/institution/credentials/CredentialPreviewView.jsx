@@ -1,124 +1,231 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import {
+  apiMessage,
+  cancelRevokeCredential,
+  correctCredential,
+  issueCredential,
+  revokeCredential,
+} from '../../../../services/institutionPortal.api.js';
 import Button from '../../../ui/Button.jsx';
 import { RecordsIconCheck13 } from '../records/recordsIcons.jsx';
 import CertificateSideRail from './CertificateSideRail.jsx';
+import CredentialCorrectDialog from './CredentialCorrectDialog.jsx';
 import CredentialIssuedDialog from './CredentialIssuedDialog.jsx';
+import CredentialRevokeDialog from './CredentialRevokeDialog.jsx';
 import CredentialToast from './CredentialToast.jsx';
 import {
   CredentialsIconBack,
-  CredentialsIconBookmark,
   CredentialsIconBrief,
   CredentialsIconCal,
   CredentialsIconCash,
-  CredentialsIconFlag13,
   CredentialsIconPin15,
   CredentialsIconPlus,
   CredentialsIconRing,
   CredentialsIconSchoolMark,
-  CredentialsIconShare,
 } from './credentialsIcons.jsx';
-import {
-  ISSUER,
-  LINKED_RECORDS,
-  PREVIEW_GRADE_FALLBACK,
-  PRONOUNS,
-  PRONOUN_FALLBACK,
-  TOAST_LINK_COPIED,
-} from './data/credentialsData.js';
+import { CREDENTIAL_TYPES } from './data/credentialsData.js';
 import {
   dismissToast,
-  issueCredential,
-  parseFormDate,
   resetForm,
+  setIssued,
   showToast,
+  useCredential,
+  useCredentialOptions,
   useCredentialsStore,
 } from './useCredentialsStore.js';
 
 const log = debug('CredentialPreviewView');
 
-/*
- * CredentialPreviewView — the certificate page "Preview as the student sees it" (Figma 11.2.4c 8593:390292) with the "Credential issued!" dialog over it (11.2.4d 8593:390861).
- *   /institution/credentials/new?modal=preview       preview of the form: Draft sticker, "Issue credential" · "Edit details"; "Back to editing" returns to the form
- *   /institution/credentials/new?state=issued        the same page with the issued dialog (Back to credentials · Issue another)
- *   /institution/credentials/:id                     ⚠️ ASSUMPTION: the page of an issued credential (Valid sticker, "Issue a corrected copy" · "Back to credentials")
- * The left column is the certificate (company-style header with the school mark, title 40/44, four meta chips, "What this certifies", "Linked records"); the right column is CertificateSideRail.
- * Props: data (useInstitutionState()), credential (store row, for /:id) — omitted for the preview of the form.
- */
-const CredentialPreviewView = ({ data, credential }) => {
-  const navigate = useNavigate();
-  const { form } = useCredentialsStore();
-  const { state, update } = data;
-  const issuedDialog = !credential && state === 'issued';
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const longDate = (text) => {
+  const m = /^\s*(\d{1,2})\s*[/.-]\s*(\d{1,2})\s*[/.-]\s*(\d{4})\s*$/.exec(text ?? '');
+  return m && +m[2] >= 1 && +m[2] <= 12 ? `${+m[1]} ${MONTHS[+m[2] - 1]} ${m[3]}` : '';
+};
 
-  const date = parseFormDate(form.date);
-  const student = (credential?.student ?? form.student.split(' · ')[0]) || 'the student';
-  const firstName = student.split(' ')[0];
-  const pronoun = PRONOUNS[firstName] ?? PRONOUN_FALLBACK;
-  const grade = credential
-    ? credential.grade || PREVIEW_GRADE_FALLBACK
-    : form.grade || PREVIEW_GRADE_FALLBACK;
-  const programme = credential?.programme ?? form.title;
-  const heading = credential?.title ?? form.type;
-  const signedBy = credential?.signedBy ?? form.signedBy;
-  const second = credential?.second ?? form.second;
-  const cert = {
-    number: credential?.number ?? 'GTH-CR-0412-00318',
-    signedOn: credential?.issuedLong ?? date.long,
-    status: credential ? 'Valid' : 'Valid',
-    firstName,
-    signerName: signedBy.split(',')[0],
-    secondName: second.split(',')[0],
-  };
-  const awarded = credential?.issuedLong ?? date.long;
+const STATUS = {
+  draft: 'Draft',
+  valid: 'Valid',
+  revoking: 'Revoking',
+  revoked: 'Revoked',
+};
+
+/*
+ * CredentialPreviewView — the certificate page "Preview as the student sees it" (Figma 11.2.4c 8593:390292) with the "Credential issued!" dialog (11.2.4d).
+ *   /institution/credentials/new?modal=preview     preview of the issue form: Draft sticker, "Issue credential" (POST /credentials) · "Edit details"
+ *   /institution/credentials/new?state=issued      the issued dialog over it (Back to credentials · Issue another)
+ *   /institution/credentials/:id                   an issued credential (GET /credentials/:id): Issue a corrected copy · Revoke; a revocation someone else
+ *                                                  asked for can be approved; your own can be withdrawn. ?modal=revoke|corrected open the dialogs.
+ * Props: data (useInstitutionState()), credentialId (omitted for the preview of the form).
+ */
+const CredentialPreviewView = ({ data, credentialId }) => {
+  const navigate = useNavigate();
+  const { form, toast, issued } = useCredentialsStore();
+  const { state, modal, update } = data;
+  const { data: credential, error: loadError, reload } = useCredential(credentialId);
+  const { data: options } = useCredentialOptions();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const isPreview = !credentialId;
+  const issuedDialog = isPreview && state === 'issued' && issued;
 
   useEffect(() => {
-    log('mount', { credential: credential?.id, issuedDialog });
-  }, [credential?.id, issuedDialog]);
+    log('mount', { credentialId, issuedDialog: Boolean(issuedDialog), modal });
+  }, [credentialId, issuedDialog, modal]);
 
-  const copyLink = () => {
-    const url = `${window.location.origin}/institution/verify/${cert.number}`;
-    window.navigator.clipboard?.writeText(url).catch(() => {});
-    showToast(TOAST_LINK_COPIED);
+  useEffect(() => {
+    if (isPreview && !form.rosterId && !issued)
+      navigate('/institution/credentials/new', { replace: true });
+  }, [isPreview, form.rosterId, issued, navigate]);
+
+  if (credentialId && loadError) {
+    return (
+      <div className="flex flex-col gap-[12px] pt-[12px] font-sans">
+        <p role="alert" className="m-0 text-[14px] text-[#902b20]">
+          {loadError}
+        </p>
+        <Link to="/institution/credentials" className="text-[14px] font-semibold text-[#2d5d33]">
+          Back to credentials
+        </Link>
+      </div>
+    );
+  }
+  if (credentialId && !credential)
+    return (
+      <p className="m-0 pt-[12px] font-sans text-[14px] text-[#737373]">Loading the credential…</p>
+    );
+
+  const issuer = credential?.issuer ?? options?.issuer ?? { school: '', short: '', line: '' };
+  const c = credential ?? issued;
+  const student = c?.student ?? form.student ?? 'the student';
+  const firstName = student.split(' ')[0];
+  const grade = credential ? credential.grade : form.grade;
+  const programme = credential ? credential.programme : form.title;
+  const heading = credential ? credential.type : form.type;
+  const signedBy = credential ? credential.signedBy : form.signedBy;
+  const second = credential ? credential.second : form.second;
+  const awarded = credential ? credential.issuedLong : longDate(form.date) || form.date;
+  const status = credential ? credential.status : issued ? 'valid' : 'draft';
+  const number = c?.number ?? 'Assigned when issued';
+  const cert = {
+    number,
+    signedOn: credential ? credential.issuedLong : issued ? awarded : 'Not signed yet',
+    status: STATUS[status],
+    firstName,
+    signerName: (signedBy || '').split(',')[0],
+    signerRole: (signedBy || '').split(',').slice(1).join(',').trim(),
+    secondName: (second || '').split(',')[0],
+    issuerShort: issuer.short,
+    verifyPath: c
+      ? `/institution/verify/${encodeURIComponent((c.number || '').replace(/\s*\(v\d+\)$/, ''))}`
+      : null,
   };
 
-  const issue = () => {
-    issueCredential();
-    log('issued');
-    update({ state: 'issued' }, { replace: true });
+  const run = async (fn) => {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      await fn();
+    } catch (err) {
+      setError(apiMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const issue = () =>
+    run(async () => {
+      const type = CREDENTIAL_TYPES.find((t) => t.value === form.type) ?? CREDENTIAL_TYPES[0];
+      const res = await issueCredential({
+        rosterId: form.rosterId,
+        kind: type.kind,
+        type: type.value,
+        title: form.title,
+        date: form.date,
+        grade: form.grade || undefined,
+        signedBy: form.signedBy,
+        second: form.second || undefined,
+        email: form.email,
+      });
+      log('issued', res.id, res.number);
+      setIssued({ ...res, emailed: form.email });
+      update({ modal: null, state: 'issued' }, { replace: true });
+    });
+
+  const closeModal = () => update({ modal: null }, { replace: true });
+
+  const revoke = (reason) =>
+    run(async () => {
+      const res = await revokeCredential(credential.id, reason);
+      closeModal();
+      showToast(
+        res.status === 'revoking'
+          ? 'Revocation asked · a second staff member has to approve it'
+          : `Credential revoked · gth.com/verify now shows it as revoked`
+      );
+      reload();
+    });
+
+  const withdraw = () =>
+    run(async () => {
+      await cancelRevokeCredential(credential.id);
+      showToast('Revocation withdrawn · the credential stays valid');
+      reload();
+    });
+
+  const correct = (patch) =>
+    run(async () => {
+      await correctCredential(credential.id, patch);
+      closeModal();
+      showToast('Corrected copy issued · gth.com/verify shows the new version');
+      reload();
+    });
+
+  const copyLink = () => {
+    if (!cert.verifyPath) return;
+    window.navigator.clipboard
+      ?.writeText(`${window.location.origin}${cert.verifyPath}`)
+      .catch(() => {});
+    showToast('Verify link copied');
   };
 
   const bullets = [
-    `Signed by ${signedBy}`,
-    `Countersigned by ${second}`,
-    `Shows on ${firstName}’s profile under Verified credentials`,
-    `${pronoun.subject} can download it as a PDF or share a link`,
-  ];
+    signedBy ? `Signed by ${signedBy}` : null,
+    second ? `Countersigned by ${second}` : null,
+    `Shows on ${firstName}’s GTH profile${c && !c.linked ? ' once they link it to your school' : ''}`,
+    'Anyone can check it at gth.com/verify with its number',
+  ].filter(Boolean);
 
   const chips = [
     { id: 'who', icon: CredentialsIconPin15, text: student },
     { id: 'programme', icon: CredentialsIconBrief, text: programme },
-    { id: 'grade', icon: CredentialsIconCash, text: grade },
+    grade ? { id: 'grade', icon: CredentialsIconCash, text: grade } : null,
     { id: 'date', icon: CredentialsIconCal, text: `Awarded ${awarded}` },
-  ];
+  ].filter(Boolean);
 
-  const { toast } = useCredentialsStore();
+  const linked = credential?.linkedRecords ?? [];
 
   return (
     <div className="flex flex-col gap-[24px] pt-[12px] font-sans">
       <div className="flex flex-wrap items-center gap-[8px] text-[14px] leading-[17px]">
         <Link
-          to={credential ? '/institution/credentials' : '/institution/credentials/new'}
+          to={credentialId ? '/institution/credentials' : '/institution/credentials/new'}
           className="inline-flex min-h-[24px] items-center gap-[8px] font-semibold text-[#2d5d33] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <CredentialsIconBack className="size-[16px] text-[#2d5d33]" />
-          {credential ? 'Back to credentials' : 'Back to editing'}
+          {credentialId ? 'Back to credentials' : 'Back to editing'}
         </Link>
         <span className="text-[13px] leading-[16px] text-[#737373]">
           · Preview as the student sees it
         </span>
       </div>
+      {error ? (
+        <p role="alert" className="m-0 text-[14px] leading-[20px] text-[#902b20]">
+          {error}
+        </p>
+      ) : null}
       <div className="grid grid-cols-1 gap-[24px] xl:grid-cols-[minmax(0,925fr)_minmax(0,380fr)]">
         <div className="flex min-w-0 flex-col gap-[16px]">
           <section
@@ -130,77 +237,54 @@ const CredentialPreviewView = ({ data, credential }) => {
               <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
                 <div className="flex flex-wrap items-center gap-[6px]">
                   <p className="m-0 text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
-                    {ISSUER.school}
+                    {issuer.school}
                   </p>
-                  <span className="inline-flex h-[18px] items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[2px] pr-[8px] pl-[6px] text-[11.5px] max-lg:text-[12px] leading-[14px] font-semibold text-[#224626]">
+                  <span className="inline-flex h-[18px] items-center gap-[4px] rounded-full bg-[#ebf1ec] py-[2px] pr-[8px] pl-[6px] text-[11.5px] leading-[14px] font-semibold text-[#224626] max-lg:text-[12px]">
                     <RecordsIconCheck13 className="size-[11px] text-[#224626]" />
                     Verified institution
                   </span>
                 </div>
-                <p className="m-0 text-[13px] leading-[16px] text-[#737373]">{ISSUER.line}</p>
+                <p className="m-0 text-[13px] leading-[16px] text-[#737373]">{issuer.line}</p>
               </div>
-              <span className="inline-flex h-[22px] items-center rounded-full bg-[#ebf1ec] px-[10px] text-[11.5px] max-lg:text-[12px] leading-[14px] font-bold text-[#1f4a2b]">
-                {credential ? 'Valid' : 'Draft'}
-              </span>
               <span
-                aria-hidden="true"
-                className="flex size-[42px] shrink-0 items-center justify-center rounded-full border border-solid border-[#1c2a21]/20 bg-white"
+                className={`inline-flex h-[22px] items-center rounded-full px-[10px] text-[11.5px] leading-[14px] font-bold max-lg:text-[12px] ${
+                  status === 'revoked' || status === 'revoking'
+                    ? 'bg-[#f9ebea] text-[#902b20]'
+                    : 'bg-[#ebf1ec] text-[#1f4a2b]'
+                }`}
               >
-                <CredentialsIconBookmark className="size-[20px] text-[#1c2a21]" />
-              </span>
-              <span
-                aria-hidden="true"
-                className="flex size-[42px] shrink-0 items-center justify-center rounded-full border border-solid border-[#1c2a21]/20 bg-white"
-              >
-                <CredentialsIconShare className="size-[20px] text-[#1c2a21]" />
+                {STATUS[status]}
+                {credential?.corrected ? ` · v${credential.version}` : ''}
               </span>
             </div>
             <h1 className="m-0 text-[30px] leading-[34px] font-semibold text-[#1c2a21] md:text-[40px] md:leading-[44px]">
               {heading}
             </h1>
             <ul className="m-0 flex list-none flex-wrap gap-[8px] p-0">
-              {chips.map((c) => {
-                const Icon = c.icon;
+              {chips.map((ch) => {
+                const Icon = ch.icon;
                 return (
                   <li
-                    key={c.id}
+                    key={ch.id}
                     className="inline-flex h-[30px] items-center gap-[6px] rounded-full border border-solid border-[#e1eae2] bg-[#f8f8f4] py-[6px] pr-[12px] pl-[10px] text-[13.5px] leading-[16px] font-medium text-[#1c2a21]"
                   >
                     <Icon className="size-[15px] shrink-0 text-[#595959]" />
-                    {c.text}
+                    {ch.text}
                   </li>
                 );
               })}
             </ul>
             <div className="flex flex-wrap items-center gap-[10px] pt-[4px]">
-              {credential ? (
+              {isPreview ? (
                 <>
                   <Button
                     variant="primary"
                     size="lg"
-                    onClick={() =>
-                      navigate(`/institution/credentials/${credential.id}?modal=corrected`)
-                    }
-                  >
-                    Issue a corrected copy
-                  </Button>
-                  <Button
-                    variant="tertiary"
-                    size="lg"
-                    onClick={() => navigate('/institution/credentials')}
-                  >
-                    Back to credentials
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="primary"
-                    size="lg"
+                    disabled={busy || Boolean(issued)}
                     rightIcon={<CredentialsIconRing className="size-[20px] text-[#fef1e7]" />}
                     onClick={issue}
                   >
-                    Issue credential
+                    {busy ? 'Issuing…' : 'Issue credential'}
                   </Button>
                   <Button
                     variant="tertiary"
@@ -210,26 +294,61 @@ const CredentialPreviewView = ({ data, credential }) => {
                     Edit details
                   </Button>
                   <span className="min-w-[160px] flex-1 text-[13px] leading-[16px] text-[#737373]">
-                    Once issued, you can only revoke it with a second approver.
-                  </span>
-                  <span className="inline-flex items-center gap-[5px] px-[10px] py-[6px] text-[12.5px] leading-[15px] font-semibold text-[#737373]">
-                    <CredentialsIconFlag13 className="size-[13px]" />
-                    Report a problem
+                    Once issued, it can only be corrected (spelling and dates) or revoked.
                   </span>
                 </>
+              ) : status === 'valid' ? (
+                <>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => update({ modal: 'corrected' })}
+                  >
+                    Issue a corrected copy
+                  </Button>
+                  <Button variant="tertiary" size="lg" onClick={() => update({ modal: 'revoke' })}>
+                    Revoke
+                  </Button>
+                </>
+              ) : status === 'revoking' ? (
+                <>
+                  {credential.mineToApprove ? (
+                    <Button variant="danger" size="lg" onClick={() => update({ modal: 'revoke' })}>
+                      Review revocation
+                    </Button>
+                  ) : null}
+                  <Button variant="tertiary" size="lg" disabled={busy} onClick={withdraw}>
+                    Withdraw revocation
+                  </Button>
+                  <span className="min-w-[160px] flex-1 text-[13px] leading-[16px] text-[#737373]">
+                    {credential.askedBy} asked to revoke it: “{credential.reason}”.{' '}
+                    {credential.mineToApprove
+                      ? 'Your approval completes it.'
+                      : 'A second staff member has to approve.'}
+                  </span>
+                </>
+              ) : status === 'revoked' ? (
+                <span className="text-[14px] leading-[20px] text-[#902b20]">
+                  Revoked {credential.revocation?.approvedAt}: {credential.revocation?.reason}
+                </span>
+              ) : (
+                <span className="text-[14px] leading-[20px] text-[#737373]">
+                  Waiting for a second staff member to release this batch.
+                </span>
               )}
             </div>
           </section>
           <section
             aria-label="What this certifies"
-            className="flex flex-col gap-[24px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
+            className="flex flex-col gap-[20px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
           >
             <h2 className="m-0 text-[22px] leading-[28px] font-semibold text-[#1c2a21]">
               What this certifies
             </h2>
             <p className="m-0 text-[15px] leading-[22px] text-[#1c2a21]">
-              {student} completed {programme} at Savannah Hills Senior High School, Tamale, with{' '}
-              {grade.toLowerCase()}.
+              {student} {heading.toLowerCase().startsWith('award') ? 'received' : 'completed'}{' '}
+              {programme} at {issuer.school}
+              {grade ? ` (${grade})` : ''}.
             </p>
             <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
               {bullets.map((b) => (
@@ -246,47 +365,96 @@ const CredentialPreviewView = ({ data, credential }) => {
               ))}
             </ul>
           </section>
-          <section
-            aria-label="Linked records"
-            className="flex flex-col gap-[12px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
-          >
-            <div className="flex items-center justify-between gap-[8px]">
+          {credential?.corrections?.length ? (
+            <section
+              aria-label="Corrections"
+              className="flex flex-col gap-[10px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
+            >
               <h2 className="m-0 text-[22px] leading-[28px] font-semibold text-[#1c2a21]">
-                Linked records
+                Corrections
               </h2>
-              <span className="text-[13.5px] leading-[16px] font-semibold text-[#2d5d33]">
-                4 verified
-              </span>
-            </div>
-            <ul className="m-0 flex list-none flex-wrap gap-[8px] p-0">
-              {LINKED_RECORDS.map((r) =>
-                r.verified ? (
-                  <li
-                    key={r.id}
-                    className="inline-flex h-[32px] items-center gap-[6px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[7px] pr-[12px] pl-[10px] text-[13px] leading-[16px] font-semibold text-[#2d5d33]"
-                  >
-                    <RecordsIconCheck13 className="size-[13px] text-[#387440]" />
-                    {r.label}
+              <ul className="m-0 flex list-none flex-col gap-[8px] p-0 text-[14px] leading-[20px] text-[#1c2a21]">
+                {credential.corrections.map((x) => (
+                  <li key={x.version}>
+                    <strong>v{x.version}</strong> · {x.at} · {x.byName}:{' '}
+                    {x.changes.map((ch) => `${ch.field} “${ch.was}” → “${ch.now}”`).join('; ')}
                   </li>
-                ) : (
-                  <li
-                    key={r.id}
-                    className="inline-flex h-[32px] items-center gap-[6px] rounded-full border border-solid border-[#c8951a] bg-white py-[7px] pr-[12px] pl-[10px] text-[13px] leading-[16px] font-semibold text-[#967014]"
-                  >
-                    <CredentialsIconPlus className="size-[13px]" />
-                    {r.label}
-                  </li>
-                )
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {credentialId ? (
+            <section
+              aria-label="Linked records"
+              className="flex flex-col gap-[12px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
+            >
+              <div className="flex items-center justify-between gap-[8px]">
+                <h2 className="m-0 text-[22px] leading-[28px] font-semibold text-[#1c2a21]">
+                  Linked records
+                </h2>
+                <span className="text-[13.5px] leading-[16px] font-semibold text-[#2d5d33]">
+                  {linked.filter((r) => r.verified).length} verified
+                </span>
+              </div>
+              {linked.length ? (
+                <ul className="m-0 flex list-none flex-wrap gap-[8px] p-0">
+                  {linked.map((r) => (
+                    <li key={r.id}>
+                      <Link
+                        to={`/institution/records/${r.id}`}
+                        className={`inline-flex h-[32px] items-center gap-[6px] rounded-full border border-solid py-[7px] pr-[12px] pl-[10px] text-[13px] leading-[16px] font-semibold no-underline ${
+                          r.verified
+                            ? 'border-[#c1d4c4] bg-[#ebf1ec] text-[#2d5d33]'
+                            : 'border-[#c8951a] bg-white text-[#967014]'
+                        }`}
+                      >
+                        {r.verified ? (
+                          <RecordsIconCheck13 className="size-[13px] text-[#387440]" />
+                        ) : (
+                          <CredentialsIconPlus className="size-[13px]" />
+                        )}
+                        {r.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="m-0 text-[14px] leading-[20px] text-[#737373]">
+                  {firstName} hasn’t sent you any records yet.
+                </p>
               )}
-            </ul>
-          </section>
+            </section>
+          ) : null}
+          {credential?.history?.length ? (
+            <section
+              aria-label="History"
+              className="flex flex-col gap-[10px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[22px]"
+            >
+              <h2 className="m-0 text-[22px] leading-[28px] font-semibold text-[#1c2a21]">
+                History
+              </h2>
+              <ol className="m-0 flex list-none flex-col gap-[6px] p-0 text-[13.5px] leading-[19px] text-[#595959]">
+                {credential.history.map((h, i) => (
+                  <li key={`${h.at}-${i}`}>
+                    <span className="font-semibold text-[#1c2a21]">
+                      {h.what.charAt(0).toUpperCase() + h.what.slice(1)}
+                    </span>
+                    {h.by ? ` · ${h.by}` : ''} · {h.at}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
         </div>
         <CertificateSideRail cert={cert} onCopy={copyLink} />
       </div>
       {issuedDialog ? (
         <CredentialIssuedDialog
-          firstName={firstName}
-          possessive={pronoun.object}
+          sentence={
+            issued.linked
+              ? `${firstName} ${issued.emailed ? 'gets an email and ' : ''}sees it on their GTH profile now. Number ${issued.number}.`
+              : `${firstName} isn’t on GTH yet; it goes on their profile when they link to your school. Number ${issued.number}.`
+          }
           onBack={() => {
             resetForm();
             navigate('/institution/credentials');
@@ -297,7 +465,28 @@ const CredentialPreviewView = ({ data, credential }) => {
           }}
         />
       ) : null}
-      {toast ? <CredentialToast message={toast.message} onDismiss={dismissToast} /> : null}
+      {modal === 'revoke' &&
+      credential &&
+      (credential.status === 'valid' || credential.mineToApprove) ? (
+        <CredentialRevokeDialog
+          credential={credential}
+          busy={busy}
+          onCorrected={() => update({ modal: 'corrected' }, { replace: true })}
+          onConfirm={revoke}
+          onClose={closeModal}
+        />
+      ) : null}
+      {modal === 'corrected' && credential?.status === 'valid' ? (
+        <CredentialCorrectDialog
+          credential={credential}
+          busy={busy}
+          onConfirm={correct}
+          onClose={closeModal}
+        />
+      ) : null}
+      {toast ? (
+        <CredentialToast key={toast.id} message={toast.message} onDismiss={dismissToast} />
+      ) : null}
     </div>
   );
 };

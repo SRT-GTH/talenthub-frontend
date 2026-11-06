@@ -25,16 +25,16 @@ const COLUMNS = [
 
 const cell = (n) => (isSuppressed(n) ? <SuppressedValue value={n} /> : formatCount(n));
 
-const JobCategoryTable = () => {
+const JobCategoryTable = ({ rows: source = JOB_CATEGORIES }) => {
   const [sort, setSort] = useState({ key: 'rate', dir: 'desc' });
   const rows = useMemo(() => {
     const dir = sort.dir === 'desc' ? -1 : 1;
-    return [...JOB_CATEGORIES].sort((a, b) => {
+    return [...source].sort((a, b) => {
       const av = a[sort.key] ?? -1;
       const bv = b[sort.key] ?? -1;
       return typeof av === 'string' ? av.localeCompare(bv) * dir : (av - bv) * dir;
     });
-  }, [sort]);
+  }, [sort, source]);
   const onSort = (key) =>
     setSort((s) =>
       s.key === key

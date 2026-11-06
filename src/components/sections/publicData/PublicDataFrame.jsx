@@ -19,7 +19,9 @@ const log = debug('PublicDataFrame');
  *   tablet md..xl (768-1279): icon rail 80 (Figma "Tablet (1024)")
  *   mobile < md: no sidebar; top bar with the menu button; the drawer (300 + 50% scrim, 8.9.2) opens with ?drawer=1
  * Props: data (usePublicDataState()), title (top-bar context label; it is a <p>: every page renders its own single <h1>), active (nav id;
- * defaults from the pathname), children, noFooter, hideMobileTabs (the mobile methodology frame has no section tabs).
+ * defaults from the pathname), children, noFooter, hideMobileTabs (the mobile methodology frame has no section tabs),
+ * onShare (replaces the Theme 8 share dialog, e.g. a school's public page shares its own address), hideDownload (no "Download PDF": the
+ * page has no printable layout).
  * Modals (share, download, digest ...) are mounted by the sections that draw them, keyed on data.modal; the chrome only opens them
  * (Share / Download PDF / Monthly digest set ?modal=…).
  * The page behind is #f8f8f4. Playful never applies here (Phase 1 of 5 is Focused only).
@@ -33,6 +35,8 @@ const PublicDataFrame = ({
   children,
   noFooter = false,
   hideMobileTabs = false,
+  onShare,
+  hideDownload = false,
   className,
 }) => {
   const { pathname } = useLocation();
@@ -103,8 +107,8 @@ const PublicDataFrame = ({
           freshness={online ? freshness : offlineFreshness()}
           q={data.q}
           onSearch={(q) => update({ q: q || null }, { replace: true })}
-          onShare={() => update({ modal: 'share' })}
-          onDownload={() => update({ modal: 'download' })}
+          onShare={onShare || (() => update({ modal: 'share' }))}
+          onDownload={hideDownload ? undefined : () => update({ modal: 'download' })}
           onMenu={() => update({ drawer: true })}
         />
         <OfflineBanner />

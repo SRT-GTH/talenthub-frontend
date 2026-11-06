@@ -1,3 +1,4 @@
+import { reapplyBoundCopy } from '../../../copy/copyBind.js';
 import farmerline from '../../../assets/talent-jobs/logos/farmerline.svg';
 import accraTech from '../../../assets/talent-jobs/logos/accra-tech.svg';
 import mtn from '../../../assets/talent-jobs/logos/mtn-ghana.svg';
@@ -748,4 +749,6 @@ export const applyJobsData = (data) => {
   MATCH_FOOTER = pick('MATCH_FOOTER');
   JOB_DETAILS = pick('JOB_DETAILS');
   PROFILE_PREVIEW = pick('PROFILE_PREVIEW');
+  // Site copy: the swapped-in objects get the published text too.
+  reapplyBoundCopy();
 };

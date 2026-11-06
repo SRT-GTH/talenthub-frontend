@@ -46,10 +46,10 @@ const DistrictsToolbar = ({
   ];
   const chips = [
     { id: null, label: `All · ${total}` },
-    ...CHIP_REGION_IDS.map((id) => {
-      const r = regions.find((x) => x.id === id);
-      return { id, label: `${r.name} · ${r.districts}` };
-    }),
+    // regions arrive with the first response; until then only "All" shows
+    ...CHIP_REGION_IDS.map((id) => regions.find((x) => x.id === id))
+      .filter(Boolean)
+      .map((r) => ({ id: r.id, label: `${r.name} · ${r.districts}` })),
   ];
 
   return (

@@ -24,6 +24,7 @@ const log = debug('RegionView');
  * States: loading (tile skeletons, no bubbles, skeleton table rows — 8494:8 / 8494:2497) · low-data (the early-rollout card instead of everything
  * below the header — 8494:426 / 8494:2390).
  * Props: view, regionId, allRows (phone list), state ('loading' | 'low-data' | null), switcher, onCompare, onSubscribe.
+ * A view without `map` (the public region page: district figures stay with partner agencies) draws no district map or table.
  */
 
 const RegionView = ({ view, regionId, allRows, state, switcher, onCompare, onSubscribe }) => {
@@ -54,10 +55,12 @@ const RegionView = ({ view, regionId, allRows, state, switcher, onCompare, onSub
         <>
           <RegionHeroRow view={view} loading={loading} />
           <RankChips label={view.chipsLabel} chips={view.chips} />
-          <div className="grid min-w-0 grid-cols-1 gap-[24px] max-md:hidden xl:grid-cols-[minmax(0,700fr)_minmax(0,636fr)]">
-            <DistrictZoomMap regionId={regionId} map={view.map} loading={loading} />
-            <DistrictTable table={view.table} loading={loading} />
-          </div>
+          {view.map ? (
+            <div className="grid min-w-0 grid-cols-1 gap-[24px] max-md:hidden xl:grid-cols-[minmax(0,700fr)_minmax(0,636fr)]">
+              <DistrictZoomMap regionId={regionId} map={view.map} loading={loading} />
+              <DistrictTable table={view.table} loading={loading} />
+            </div>
+          ) : null}
           <div className="grid min-w-0 grid-cols-1 gap-[24px] max-md:hidden md:grid-cols-2 xl:grid-cols-3">
             <EducationCard education={view.education} />
             <AgeCard items={view.age} ariaLabel={`Age distribution of talents in ${view.name}`} />

@@ -1,8 +1,6 @@
-import AgencyButton from '../../agency/AgencyButton.jsx';
-
 /*
  * AdminStatsCard — the "Today" stats card (Figma "Background+Border" 878 x 173, white, 1.5 #e5e5e5, r16, p 20/22, gap 24; the agency "This month" card):
- * the "Today" range button on the right (decorative, ⚠️ ASSUMPTION: the range switch is not drawn), three stat columns (label 16/24 #999, value
+ * the range label on the right ("Today": the figures are today's; no range switch is drawn), three stat columns (label 16/24 #999, value
  * 22/28 600) split by #dfdfdc dividers, and the three-bar glyph (Group 41232, 266 x 64) at the bottom right.
  * Props: stats { range, items [{ label, value, ink }] }.
  */
@@ -13,9 +11,9 @@ const AdminStatsCard = ({ stats, className }) => (
     className={`flex min-w-0 flex-col gap-[24px] rounded-[16px] border-[1.5px] border-solid border-[#e5e5e5] bg-white px-[22px] py-[20px] shadow-[0_1px_2px_rgba(15,15,10,0.05)] ${className ?? ''}`}
   >
     <div className="flex justify-end">
-      <AgencyButton size="md" aria-label={`Range: ${stats.range}`} aria-disabled="true">
+      <span className="inline-flex h-[36px] items-center rounded-[10px] border border-solid border-[#e1eae2] bg-[#f6f8f5] px-[14px] font-sans text-[14px] leading-[20px] font-semibold text-[#1c2a21]">
         {stats.range}
-      </AgencyButton>
+      </span>
     </div>
     <div className="flex flex-wrap items-end justify-between gap-x-[24px] gap-y-[16px]">
       <dl className="m-0 flex items-stretch gap-[8.5px]">

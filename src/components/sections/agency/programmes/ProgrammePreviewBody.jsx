@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
-import efuaPhoto from '../../../../assets/agency/programmes/efua-owusu-recruiter.png';
-import nyaLogo from '../../../../assets/agency/programmes/nya-logo-mark.svg';
 import { JobBriefIcon, JobCashIcon, JobPinIcon } from '../../../shared/assets.jsx';
 import Button from '../../../ui/Button.jsx';
 import {
@@ -27,7 +25,7 @@ import {
   SECTION_CARD,
   SECTION_TITLE,
 } from '../../talentJobs/jobDetailStyles.js';
-import { PREVIEW } from '../data/programmesData.js';
+import { buildPreview } from '../data/programmesData.js';
 
 const log = debug('ProgrammePreviewBody');
 
@@ -36,8 +34,17 @@ const log = debug('ProgrammePreviewBody');
  * the Talent Jobs screens (same 925 | 380 two-column layout and the same tokens: hero card r26, "About the grant", "Good to have", the green match card, the amber
  * "Boost to ~86%" card, "WHO’S RUNNING IT") drawn with the programme's content. Everything on it is read-only (a preview): Apply, Save and Share are inert.
  * Props: published (the primary button reads "Published"), onPublish (shows the "Publish programme" button in the back row; ⚠️ ASSUMPTION: Figma draws no publish
- * control, so the back row carries it), backHref, children (overlay dialogs).
+ * control, so the back row carries it), backHref, children (overlay dialogs), programme (GET /agency/programmes/:id, built by buildPreview),
+ * publishing (busy), error (the server's publish refusal, e.g. contact details or an audience under 5).
  */
+
+const initialsOf = (name = '') =>
+  name
+    .split(/\s+/)
+    .filter((w) => /^[A-Z]/.test(w))
+    .slice(0, 3)
+    .map((w) => w[0])
+    .join('') || 'GA';
 
 const MetaChip = ({ icon, children }) => {
   const Icon = icon;
@@ -75,9 +82,22 @@ const SkillChip = ({ name, verified }) => (
   </span>
 );
 
-const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children }) => {
-  const P = PREVIEW;
-  const metaIcons = [JobPinIcon, JobBriefIcon, JobCashIcon, JobDetailCalIcon];
+const ProgrammePreviewBody = ({
+  published = false,
+  onPublish,
+  backHref,
+  children,
+  programme,
+  publishing = false,
+  error = '',
+}) => {
+  const P = buildPreview(programme);
+  const metaIcons = {
+    where: JobPinIcon,
+    what: JobBriefIcon,
+    pay: JobCashIcon,
+    closes: JobDetailCalIcon,
+  };
   const rowIcons = {
     skills: JobDetailSparkIcon,
     education: JobDetailGradIcon,
@@ -106,11 +126,20 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             size="sm"
             className="ml-auto !py-[8.5px] !text-[14px]"
             onClick={onPublish}
+            disabled={publishing || !programme}
           >
-            Publish programme
+            {publishing ? 'Publishing…' : 'Publish programme'}
           </Button>
         ) : null}
       </div>
+      {error ? (
+        <p
+          role="alert"
+          className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] px-[16px] py-[12px] text-[14px] leading-[20px] text-[#902b20]"
+        >
+          {error}
+        </p>
+      ) : null}
       <div className="flex flex-col gap-[16px] xl:grid xl:grid-cols-[minmax(0,1fr)_clamp(320px,22vw,380px)] xl:items-start xl:gap-[24px]">
         <div className="max-xl:contents xl:flex xl:min-w-0 xl:flex-col xl:gap-[16px] xl:pr-[6px]">
           <article
@@ -120,12 +149,12 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             )}
           >
             <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[10px]">
-              <img
-                src={nyaLogo}
-                alt=""
+              <span
                 aria-hidden="true"
-                className="size-[56px] shrink-0 rounded-[16px] object-cover"
-              />
+                className="grid size-[56px] shrink-0 place-items-center rounded-[16px] bg-[#ebf1ec] font-sans text-[18px] font-semibold text-[#224626]"
+              >
+                {initialsOf(P.agency)}
+              </span>
               <div className="flex min-w-0 flex-[1_1_200px] flex-col gap-[2px]">
                 <div className="flex flex-wrap items-center gap-x-[6px] gap-y-[4px]">
                   <span className="font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
@@ -154,8 +183,8 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               {P.title}
             </h1>
             <div className="flex flex-wrap gap-[8px]">
-              {P.chips.map((c, i) => (
-                <MetaChip key={c.id} icon={metaIcons[i]}>
+              {P.chips.map((c) => (
+                <MetaChip key={c.id} icon={metaIcons[c.id]}>
                   {c.text}
                 </MetaChip>
               ))}
@@ -238,10 +267,12 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               {P.good.items.map((s) => (
                 <SkillChip key={s.id} name={s.text} verified={s.verified} />
               ))}
-              <span className="inline-flex h-[32px] items-center gap-[6px] rounded-full border-[1.2px] border-dashed border-[#c8951a] bg-white py-[7px] pr-[12px] pl-[10px] font-sans text-[13px] leading-[16px] font-semibold text-[#967014]">
-                <JobDetailPlusIcon className="size-[13px]" />
-                {P.good.missing} · missing
-              </span>
+              {P.good.missing ? (
+                <span className="inline-flex h-[32px] items-center gap-[6px] rounded-full border-[1.2px] border-dashed border-[#c8951a] bg-white py-[7px] pr-[12px] pl-[10px] font-sans text-[13px] leading-[16px] font-semibold text-[#967014]">
+                  <JobDetailPlusIcon className="size-[13px]" />
+                  {P.good.missing} · missing
+                </span>
+              ) : null}
             </div>
           </section>
         </div>
@@ -260,7 +291,7 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               <Sticker>{P.match.label}</Sticker>
             </div>
             <p className="m-0 font-sans text-[clamp(48px,3.7vw,64px)] leading-[1.09] font-semibold text-white">
-              {P.match.pct}%
+              {P.match.pct != null ? `${P.match.pct}%` : '—'}
             </p>
             <p className="m-0 font-sans text-[14px] leading-[20px] text-[#e1eae2]">
               {P.match.note}
@@ -297,33 +328,6 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             </button>
           </section>
           <section
-            aria-label="Boost your match"
-            className="flex min-w-0 flex-col gap-[10px] rounded-[22px] border-[1.2px] border-solid border-[#c8951a] bg-[#faf4e8] p-[clamp(16px,1.16vw,20px)] max-xl:order-4"
-          >
-            <div className="flex min-h-[24px] flex-wrap items-center gap-[8px]">
-              <h2 className="m-0 font-sans text-[19px] leading-[24px] font-semibold text-[#1c2a21]">
-                {P.boost.title}
-              </h2>
-              <Sticker
-                tone="white"
-                className="!py-[3px] !text-[11px] !leading-[13px] max-lg:!text-[12px]"
-              >
-                {P.boost.delta}
-              </Sticker>
-            </div>
-            <p className="m-0 font-sans text-[13.5px] leading-[1.4] text-[#595959]">
-              {P.boost.note}
-            </p>
-            <div className="flex flex-wrap gap-[8px] pt-[2px] pb-[10px]">
-              <Button variant="tertiary" size="sm" onClick={() => log('preview only: have it')}>
-                {P.boost.have}
-              </Button>
-              <Button variant="tertiary" size="sm" onClick={() => log('preview only: learn it')}>
-                {P.boost.learn}
-              </Button>
-            </div>
-          </section>
-          <section
             aria-label={P.runner.heading}
             className="flex min-w-0 flex-col gap-[12px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[clamp(16px,1.16vw,20px)] max-xl:order-7"
           >
@@ -332,12 +336,12 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             </span>
             <div className="flex items-center gap-[12px]">
               <span className="relative block size-[48px] shrink-0">
-                <img
-                  src={efuaPhoto}
-                  alt=""
+                <span
                   aria-hidden="true"
-                  className="size-[48px] rounded-full object-cover"
-                />
+                  className="grid size-[48px] place-items-center rounded-full bg-[#ebf1ec] font-sans text-[15px] font-semibold text-[#224626]"
+                >
+                  {initialsOf(P.runner.name)}
+                </span>
                 <span className="absolute -right-[2px] -bottom-[2px] flex size-[18px] items-center justify-center rounded-full border-2 border-solid border-white bg-[#224626] text-white">
                   <JobDetailCheckIcon className="size-[10px]" />
                 </span>

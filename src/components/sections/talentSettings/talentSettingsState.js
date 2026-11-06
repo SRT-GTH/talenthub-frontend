@@ -66,6 +66,10 @@ export const HELP_STATES = [
   'report',
   'contact',
   'sent',
+  // live support (support.service): one of my requests (&ref=SUP-…), and the safeguarding concern form + its confirmation
+  'request',
+  'concern',
+  'concern-sent',
 ];
 
 const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? value : fallback);

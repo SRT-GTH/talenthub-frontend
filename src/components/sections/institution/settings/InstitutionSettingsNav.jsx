@@ -16,6 +16,7 @@ import {
 } from '../../../shared/assets.jsx';
 import InstitutionStatusChip from './InstitutionStatusChip.jsx';
 import { SETTINGS_LOGOUT_LABEL, SETTINGS_NAV } from './data/institutionSettingsData.js';
+import { logout } from '../../../../services/auth.api.js';
 
 const log = debug('InstitutionSettingsNav');
 
@@ -38,7 +39,7 @@ const ITEM =
  * InstitutionSettingsNav — the 280px "Settings nav" card of Figma 11.6.1a (8597:395904): 9 items (icon 20, label 15, active = #ebf1ec tint, green bar,
  * #2a5730 600), a divider and the red "Log out". Below lg it becomes a scrolling chip row. Active ids: profile · notifications · staff · data
  * (public-page and accreditation are links to other screens, the audit log has no nav entry: its frame draws its own heading).
- * Props: active (nav id). ⚠️ ASSUMPTION: Log out has no real session; it returns to the sign-up entry /institution/sign-up.
+ * Props: active (nav id). Log out clears the session and returns to /login.
  */
 const InstitutionSettingsNav = ({ active }) => {
   const navigate = useNavigate();
@@ -108,8 +109,9 @@ const InstitutionSettingsNav = ({ active }) => {
       <button
         type="button"
         onClick={() => {
-          log('log out (mock)');
-          navigate('/institution/sign-up');
+          log('log out');
+          logout();
+          navigate('/login', { replace: true });
         }}
         className={classNames(ITEM, 'w-full cursor-pointer text-left font-semibold text-[#c0392b]')}
       >

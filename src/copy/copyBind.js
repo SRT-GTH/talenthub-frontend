@@ -1,6 +1,12 @@
 import { debug } from '../utils/debug.js';
 import { at, fromStoredText, keepEdges } from './copySections.js';
-import { fillTerms, getCopyState, loadCopyBundle, subscribeCopy } from './copyBundle.js';
+import {
+  fillTerms,
+  getCopyState,
+  loadCopyBundle,
+  refreshCopyViews,
+  subscribeCopy,
+} from './copyBundle.js';
 
 const log = debug('copyBind');
 
@@ -19,17 +25,39 @@ const applyTo = (section, state) => {
   const values = state.blocks?.[section.key] ?? {};
   section.fields.forEach((f) => {
     const parent = at(section.data, f.dataPath.slice(0, -1));
-    if (!parent || typeof parent !== 'object') return;
+    if (!parent || typeof parent !== 'object' || Object.isFrozen(parent)) return;
+    const k = f.dataPath[f.dataPath.length - 1];
     const v = values[f.path];
-    parent[f.dataPath[f.dataPath.length - 1]] =
-      typeof v === 'string' && v.trim()
-        ? keepEdges(f.original, fillTerms(fromStoredText(v), state.terms))
-        : f.original;
+    try {
+      if (typeof v === 'string' && v.trim()) {
+        const text = keepEdges(f.original, fillTerms(fromStoredText(v), state.terms));
+        parent[k] = text;
+        f.lastWritten = text;
+      } else if (f.lastWritten !== undefined) {
+        // Only put back what this module changed: live data written over the defaults since then stays.
+        if (parent[k] === f.lastWritten) parent[k] = f.original;
+        f.lastWritten = undefined;
+      }
+    } catch {
+      /* a read-only object: leave it */
+    }
+  });
+};
+
+/** Write the published text again (a data module swapped its objects, e.g. talentJobsData.applyJobsData). */
+export const reapplyBoundCopy = () => {
+  const state = getCopyState();
+  bound.forEach((s) => {
+    s.fields.forEach((f) => {
+      f.lastWritten = undefined;
+    });
+    applyTo(s, state);
   });
 };
 
 export const bindCopy = (...sections) => {
   const state = getCopyState();
+  let added = 0;
   sections.forEach((s) => {
     if (bound.has(s.key)) return;
     if (s.fields.some((f) => f.dataPath.length < 2)) {
@@ -37,7 +65,10 @@ export const bindCopy = (...sections) => {
     }
     bound.set(s.key, s);
     applyTo(s, state);
+    added += 1;
   });
+  // Pages already on screen show the text of files bound after their first render.
+  if (added && subscribed) refreshCopyViews();
   if (!subscribed && typeof window !== 'undefined') {
     subscribed = true;
     subscribeCopy(() => {

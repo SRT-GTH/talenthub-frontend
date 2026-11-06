@@ -26,7 +26,6 @@ import {
   SECTION_CARD,
   SECTION_TITLE,
 } from '../../talentJobs/jobDetailStyles.js';
-import { PREVIEW } from './data/programmesData.js';
 
 const log = debug('ProgrammePreviewBody');
 
@@ -34,8 +33,11 @@ const log = debug('ProgrammePreviewBody');
  * ProgrammePreviewBody — "Preview as a talent sees it" (Figma 11.5.2b 8597:394257 in the talent chrome; 11.5.2c 8597:394759 in the agency chrome): the posting detail of
  * the Talent Jobs screens (same 925 | 380 two-column layout and the same tokens: hero card r26, "About the grant", "Good to have", the green match card, the amber
  * "Boost to ~86%" card, "WHO’S RUNNING IT") drawn with the programme's content. Everything on it is read-only (a preview): Apply, Save and Share are inert.
- * Props: published (the primary button reads "Published"), onPublish (shows the "Publish programme" button in the back row; ⚠️ ASSUMPTION: Figma draws no publish
- * control, so the back row carries it), backHref, children (overlay dialogs).
+ * Live: the content is the programme's preview from GET /api/institution/programmes/:id (school, title, chips, description, who it's for, the
+ * staff member running it). The match card says why the student sees it (their school picked their year group), not a percentage, and the
+ * "Boost" card shows only when the preview carries one.
+ * Props: preview, published (the primary button reads "Published"), publishing, onPublish (shows the "Publish programme" button in the back row;
+ * ⚠️ ASSUMPTION: Figma draws no publish control, so the back row carries it), backHref, children (overlay dialogs).
  */
 
 const MetaChip = ({ icon, children }) => {
@@ -74,9 +76,20 @@ const SkillChip = ({ name, verified }) => (
   </span>
 );
 
-const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children }) => {
-  const P = PREVIEW;
-  const metaIcons = [JobPinIcon, JobBriefIcon, JobCashIcon, JobDetailCalIcon];
+const ProgrammePreviewBody = ({
+  preview: P,
+  published = false,
+  publishing = false,
+  onPublish,
+  backHref,
+  children,
+}) => {
+  const metaIcons = {
+    where: JobPinIcon,
+    what: JobBriefIcon,
+    pay: JobCashIcon,
+    closes: JobDetailCalIcon,
+  };
   const rowIcons = {
     skills: JobDetailSparkIcon,
     education: JobDetailGradIcon,
@@ -104,9 +117,10 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             variant="primary"
             size="sm"
             className="ml-auto !py-[8.5px] !text-[14px]"
+            disabled={publishing}
             onClick={onPublish}
           >
-            Publish programme
+            {publishing ? 'Publishing…' : 'Publish programme'}
           </Button>
         ) : null}
       </div>
@@ -153,8 +167,8 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               {P.title}
             </h1>
             <div className="flex flex-wrap gap-[8px]">
-              {P.chips.map((c, i) => (
-                <MetaChip key={c.id} icon={metaIcons[i]}>
+              {P.chips.map((c) => (
+                <MetaChip key={c.id} icon={metaIcons[c.id] ?? JobBriefIcon}>
                   {c.text}
                 </MetaChip>
               ))}
@@ -203,9 +217,11 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
             <h2 id="pp-about" className={SECTION_TITLE}>
               {P.about.title}
             </h2>
-            <p className="m-0 font-sans text-[15px] leading-[1.45] text-[#1c2a21]">
-              {P.about.intro}
-            </p>
+            {P.about.intro ? (
+              <p className="m-0 font-sans text-[15px] leading-[1.45] text-[#1c2a21]">
+                {P.about.intro}
+              </p>
+            ) : null}
             <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
               {P.about.bullets.map((b) => (
                 <li
@@ -229,18 +245,22 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               <h2 id="pp-good" className={SECTION_TITLE}>
                 {P.good.title}
               </h2>
-              <span className="font-sans text-[13.5px] leading-[16px] font-semibold text-[#2d5d33]">
-                {P.good.summary}
-              </span>
+              {P.good.summary ? (
+                <span className="font-sans text-[13.5px] leading-[16px] font-semibold text-[#2d5d33]">
+                  {P.good.summary}
+                </span>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-[8px]">
               {P.good.items.map((s) => (
                 <SkillChip key={s.id} name={s.text} verified={s.verified} />
               ))}
-              <span className="inline-flex h-[32px] items-center gap-[6px] rounded-full border-[1.2px] border-dashed border-[#c8951a] bg-white py-[7px] pr-[12px] pl-[10px] font-sans text-[13px] leading-[16px] font-semibold text-[#967014]">
-                <JobDetailPlusIcon className="size-[13px]" />
-                {P.good.missing} · missing
-              </span>
+              {P.good.missing ? (
+                <span className="inline-flex h-[32px] items-center gap-[6px] rounded-full border-[1.2px] border-dashed border-[#c8951a] bg-white py-[7px] pr-[12px] pl-[10px] font-sans text-[13px] leading-[16px] font-semibold text-[#967014]">
+                  <JobDetailPlusIcon className="size-[13px]" />
+                  {P.good.missing} · missing
+                </span>
+              ) : null}
             </div>
           </section>
         </div>
@@ -258,9 +278,11 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               </span>
               <Sticker>{P.match.label}</Sticker>
             </div>
-            <p className="m-0 font-sans text-[clamp(48px,3.7vw,64px)] leading-[1.09] font-semibold text-white">
-              {P.match.pct}%
-            </p>
+            {P.match.pct != null ? (
+              <p className="m-0 font-sans text-[clamp(48px,3.7vw,64px)] leading-[1.09] font-semibold text-white">
+                {P.match.pct}%
+              </p>
+            ) : null}
             <p className="m-0 font-sans text-[14px] leading-[20px] text-[#e1eae2]">
               {P.match.note}
             </p>
@@ -295,33 +317,35 @@ const ProgrammePreviewBody = ({ published = false, onPublish, backHref, children
               How is this worked out?
             </button>
           </section>
-          <section
-            aria-label="Boost your match"
-            className="flex min-w-0 flex-col gap-[10px] rounded-[22px] border-[1.2px] border-solid border-[#c8951a] bg-[#faf4e8] p-[clamp(16px,1.16vw,20px)] max-xl:order-4"
-          >
-            <div className="flex min-h-[24px] flex-wrap items-center gap-[8px]">
-              <h2 className="m-0 font-sans text-[19px] leading-[24px] font-semibold text-[#1c2a21]">
-                {P.boost.title}
-              </h2>
-              <Sticker
-                tone="white"
-                className="!py-[3px] !text-[11px] !leading-[13px] max-lg:!text-[12px]"
-              >
-                {P.boost.delta}
-              </Sticker>
-            </div>
-            <p className="m-0 font-sans text-[13.5px] leading-[1.4] text-[#595959]">
-              {P.boost.note}
-            </p>
-            <div className="flex flex-wrap gap-[8px] pt-[2px] pb-[10px]">
-              <Button variant="tertiary" size="sm" onClick={() => log('preview only: have it')}>
-                {P.boost.have}
-              </Button>
-              <Button variant="tertiary" size="sm" onClick={() => log('preview only: learn it')}>
-                {P.boost.learn}
-              </Button>
-            </div>
-          </section>
+          {P.boost ? (
+            <section
+              aria-label="Boost your match"
+              className="flex min-w-0 flex-col gap-[10px] rounded-[22px] border-[1.2px] border-solid border-[#c8951a] bg-[#faf4e8] p-[clamp(16px,1.16vw,20px)] max-xl:order-4"
+            >
+              <div className="flex min-h-[24px] flex-wrap items-center gap-[8px]">
+                <h2 className="m-0 font-sans text-[19px] leading-[24px] font-semibold text-[#1c2a21]">
+                  {P.boost.title}
+                </h2>
+                <Sticker
+                  tone="white"
+                  className="!py-[3px] !text-[11px] !leading-[13px] max-lg:!text-[12px]"
+                >
+                  {P.boost.delta}
+                </Sticker>
+              </div>
+              <p className="m-0 font-sans text-[13.5px] leading-[1.4] text-[#595959]">
+                {P.boost.note}
+              </p>
+              <div className="flex flex-wrap gap-[8px] pt-[2px] pb-[10px]">
+                <Button variant="tertiary" size="sm" onClick={() => log('preview only: have it')}>
+                  {P.boost.have}
+                </Button>
+                <Button variant="tertiary" size="sm" onClick={() => log('preview only: learn it')}>
+                  {P.boost.learn}
+                </Button>
+              </div>
+            </section>
+          ) : null}
           <section
             aria-label={P.runner.heading}
             className="flex min-w-0 flex-col gap-[12px] rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[clamp(16px,1.16vw,20px)] max-xl:order-7"

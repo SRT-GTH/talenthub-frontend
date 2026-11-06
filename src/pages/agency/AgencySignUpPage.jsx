@@ -1,79 +1,72 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAgencyState } from '../../components/sections/agency/agencyState.js';
-import { AGENCY } from '../../components/sections/agency/data/agencyCoreData.js';
-import AgencyCodeDialog from '../../components/sections/agency/onboarding/AgencyCodeDialog.jsx';
 import AgencyDetailsForm from '../../components/sections/agency/onboarding/AgencyDetailsForm.jsx';
 import AgencyDuplicateDialog from '../../components/sections/agency/onboarding/AgencyDuplicateDialog.jsx';
+import AgencySignUpHeading from '../../components/sections/agency/onboarding/AgencySignUpHeading.jsx';
 import AgencySignUpLayout from '../../components/sections/agency/onboarding/AgencySignUpLayout.jsx';
-import AgencyVerifiedDialog from '../../components/sections/agency/onboarding/AgencyVerifiedDialog.jsx';
-import AgencyVerifyForm from '../../components/sections/agency/onboarding/AgencyVerifyForm.jsx';
-import { SIGNUP } from '../../components/sections/agency/onboarding/data/agencyOnboardingData.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AgencySignUpPage');
 
 /*
- * AgencySignUpPage — /agency/sign-up (Figma 11.4.1a-a5). Package A. Decision: the sign-up and MoU upload frames draw the ONBOARDING layout (nav + step header +
- * form column + green panel), not the rail, because the visitor is not signed in yet — so this page does not use AgencyFrame.
- * URL states: /agency/sign-up (step 03 form, 11.4.1a) · ?state=already-registered (dialog over step 03, 11.4.1a5) · ?step=verify (step 04 form: my key, not drawn alone) ·
- * ?state=code-sent (check your inbox, 11.4.1a3) · ?state=wrong-code (11.4.1a4) · ?state=email-verified (11.4.1a2).
- * Real flow: Continue to verification → ?step=verify → Send verification code → ?state=code-sent → the demo code (agencyOnboardingData.js VERIFY.demoCode, documented in the
- * data module and never shown in the UI) → ?state=email-verified → Continue to MoU → /agency/mou. A wrong code → ?state=wrong-code. Esc / close removes the dialog.
+ * AgencySignUpPage — /agency/sign-up (Figma 11.4.1a). The sign-up draws the ONBOARDING layout (nav + step header + form column + green panel), not the
+ * rail, because the visitor is not signed in yet.
+ * Live flow (matches the platform's agency onboarding): the agency sends an access request (POST /government/register) → a Super / Senior Admin
+ * reviews it in Platform Admin › Agencies → on approval the account is created and the contact gets a temporary password → the agency signs in
+ * and lands in the portal. URL: ?state=sent (the request was sent; kept so a reload still shows the confirmation) · ?state=already-registered
+ * (a pending request or an active account for this email: the server's sentence in the dialog).
  */
-
-const VERIFY_STATES = ['code-sent', 'wrong-code', 'email-verified'];
 
 const AgencySignUpPage = () => {
   const data = useAgencyState();
-  const navigate = useNavigate();
-  const state = data.state;
-  const verifyStep = VERIFY_STATES.includes(state) || data.params.get('step') === 'verify';
+  const { state } = data;
+  const [duplicate, setDuplicate] = useState('');
 
   useEffect(() => {
-    log('mount', { state, step: verifyStep ? 'verify' : 'agency' });
-  }, [state, verifyStep]);
-
-  const closeDialog = () => data.update({ state: null });
+    log('mount', { state });
+  }, [state]);
 
   return (
     <AgencySignUpLayout
-      stepKey={verifyStep ? 'verify' : 'agency'}
-      variant={verifyStep ? 'verify' : state === 'already-registered' ? 'registered' : 'details'}
+      stepKey="agency"
+      variant={state === 'already-registered' ? 'registered' : 'details'}
     >
-      {verifyStep ? (
-        <AgencyVerifyForm
-          verified={state === 'email-verified'}
-          onSend={() => data.update({ step: 'verify', state: 'code-sent' })}
-        />
+      {state === 'sent' ? (
+        <section
+          aria-live="polite"
+          className="flex w-full max-w-[696px] flex-col gap-[20px] font-sans"
+        >
+          <AgencySignUpHeading
+            step="03"
+            label="Request sent"
+            title={['Thanks, your request ', 'is in.']}
+            lead="A GTH administrator reviews every agency request. When yours is approved, the contact person gets an email with a temporary password to sign in and set their own."
+          />
+          <p className="m-0 text-[15px] leading-[22px] text-[#575755]">
+            Nothing else is needed from you now. If your MoU is not signed yet, the reviewer will
+            contact you about it.
+          </p>
+          <Link
+            to="/agency"
+            className="inline-flex min-h-[48px] w-fit items-center rounded-[14px] border-2 border-solid border-[#2a5730] bg-[#387440] px-[28px] font-sans text-[16px] font-bold text-white no-underline shadow-[0_4px_0_#2a5730] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
+            Go to sign in
+          </Link>
+        </section>
       ) : (
         <AgencyDetailsForm
-          registered={state === 'already-registered'}
-          onContinue={() => data.update({ step: 'verify', state: null })}
-          onDuplicate={() => data.update({ state: 'already-registered' })}
+          onSubmitted={() => data.update({ state: 'sent' })}
+          onDuplicate={(message) => {
+            setDuplicate(message);
+            data.update({ state: 'already-registered' });
+          }}
         />
       )}
       {state === 'already-registered' ? (
         <AgencyDuplicateDialog
-          agencyName={AGENCY.name}
-          registeredOn={SIGNUP.registeredOn}
-          onClose={closeDialog}
-        />
-      ) : null}
-      {state === 'code-sent' || state === 'wrong-code' ? (
-        <AgencyCodeDialog
-          key="code"
-          wrong={state === 'wrong-code'}
-          onVerified={() => data.update({ state: 'email-verified' })}
-          onWrong={() => data.update({ state: 'wrong-code' }, { replace: true })}
-          onClose={closeDialog}
-        />
-      ) : null}
-      {state === 'email-verified' ? (
-        <AgencyVerifiedDialog
-          agencyName={AGENCY.name}
-          onContinue={() => navigate('/agency/mou')}
-          onClose={closeDialog}
+          message={duplicate || 'A request from this email is already pending review.'}
+          onClose={() => data.update({ state: null })}
         />
       ) : null}
     </AgencySignUpLayout>

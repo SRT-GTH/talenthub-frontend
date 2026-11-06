@@ -374,6 +374,7 @@ export const buildJobsData = (feed, now = Date.now()) => {
       count: `${plural(open.length, 'open role')} in Ghana`,
       onlyMine: 'Only show my matches',
       unmatched: 'Not matched yet',
+      place: feed?.place || null, // the talent's own { region, district }: the Location filter's "near you"
     },
     // Browse all sorts "Newest" (SORTS.browse): newest posting first.
     BROWSE_ROWS: [...open]
@@ -384,6 +385,13 @@ export const buildJobsData = (feed, now = Date.now()) => {
         meta: metaOf(j),
         match: j.eligible !== false && j.match ? j.match : null,
         age: ageOf(j.posted, now),
+        // read by the Browse filters / sort
+        near: j.near || null,
+        typeLabel: j.typeLabel || null,
+        hasPay: Boolean(j.pay),
+        industry: j.company?.industry || null,
+        posted: j.posted || null,
+        closesInDays: j.closesInDays ?? null,
       })),
     SAVED_COPY: {
       filters: [

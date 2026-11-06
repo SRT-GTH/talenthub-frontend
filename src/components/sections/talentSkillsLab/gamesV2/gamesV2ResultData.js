@@ -67,7 +67,8 @@ export const GAME_V2_RESULT_COPY = {
   practiceKicker: 'PRACTICE RESULT', // ⚠️ ASSUMPTION: only RANKED RESULT is drawn; practice reuses the pattern
   playStyleKicker: 'PLAY STYLE · EARLY READ',
   outOf: 'out of 100',
-  evidence: (skill) => `${skill} is now Game-evidenced on your profile.`,
+  evidence: (skill) =>
+    `${skill} ${/ and /.test(skill) ? 'are' : 'is'} now Game-evidenced on your profile.`,
   compared: 'Compared with 1,240 ranked results from talents aged 18–24.',
   comparedMinor:
     'We compare your score with your own past games. Rankings against others start when you turn 18.',

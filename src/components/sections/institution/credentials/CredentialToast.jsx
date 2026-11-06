@@ -6,11 +6,11 @@ const log = debug('CredentialToast');
 
 /*
  * CredentialToast — "Toast · success" (Figma 11.2.4f 8744:436093, 465x42): #1c2a21 r12 p12/16 gap 10, a check-circle 18 (#ebf1ec), the 14/17 500 message and a 600 "View log" action,
- * centred 14px above the bottom edge; a variant of `ui/StatusToast`. ⚠️ ASSUMPTION: "View log" has no destination in the frames, so it only dismisses the toast; the toast hides itself after 8 seconds
+ * centred 14px above the bottom edge; a variant of `ui/StatusToast`. ⚠️ ASSUMPTION: "View log" has no destination in the frames, so the action reads "Dismiss" and only dismisses the toast; the toast hides itself after 8 seconds
  * unless `sticky` is set (the ?state=revoked frame draws it open).
  * Props: message, actionLabel, onAction (default: dismiss), onDismiss, sticky.
  */
-const CredentialToast = ({ message, actionLabel = 'View log', onDismiss, sticky }) => {
+const CredentialToast = ({ message, actionLabel = 'Dismiss', onDismiss, sticky }) => {
   log('show', message);
   return (
     <StatusToast

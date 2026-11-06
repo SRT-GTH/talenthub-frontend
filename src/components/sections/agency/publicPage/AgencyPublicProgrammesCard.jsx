@@ -3,6 +3,9 @@ import PublicCard from '../../publicData/ui/PublicCard.jsx';
 /* AgencyPublicProgrammesCard — "Programmes on GTH" (Figma 8611:3584): rows py14 with a 1px #e7e7e7 divider, title 16/600, summary 14 #595959, status 13/600 #387440. */
 const AgencyPublicProgrammesCard = ({ programmes }) => (
   <PublicCard title={programmes.title} hint={programmes.hint}>
+    {!programmes.items.length ? (
+      <p className="m-0 text-[14px] leading-[20px] text-[#595959]">No published programmes yet.</p>
+    ) : null}
     <ul className="m-0 flex list-none flex-col p-0">
       {programmes.items.map((p) => (
         <li

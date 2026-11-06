@@ -7,10 +7,10 @@ import { debug } from '../../utils/debug.js';
 const log = debug('InstitutionReportPage');
 
 /*
- * InstitutionReportPage — /institution/report?page=1…8 (Figma 11.3.5 v2, 8914:100 … 8914:452): the 8-page A4 landscape "Board of Governors report ·
- * Term 1, 2026/27" of Savannah Hills SHS. No institution chrome: the page is the document. Print = all eight pages. The v1 PDF cover 11.3.2f is
- * superseded and not built.
- * URL keys: page (1-based, clamped) · print=1 (open the print dialog on load: "Download outcomes report" 11.3.2e hands over to it).
+ * InstitutionReportPage — /institution/report?page=1…8 (Figma 11.3.5 v2, 8914:100 … 8914:452): the 8-page A4 landscape "Board of Governors
+ * report" of the signed-in school for the current term, built live (GET /institution/report). No institution chrome: the page is the document.
+ * Print = all eight pages. The v1 PDF cover 11.3.2f is superseded and not built.
+ * URL keys: page (1-based, clamped) · print=1 (open the print dialog once loaded). Opened from Class outcomes and its download dialog.
  */
 
 const clampPage = (raw) => {

@@ -18,7 +18,7 @@ const log = debug('AdminRecordDialog');
  * (#f8f8f4, r16: tile, title, green check meta, action button) · rows of two fields · checkbox · green notice · red link, then the mint secondary and green primary buttons.
  * Props: chip, title [plain, green], sub, file { title, meta, action }, rows (field specs: id, label, value, ro, tint, select [options], required, optional, placeholder),
  * checkbox { label, checked }, notice, link { label, onClick }, secondary, primary, onSubmit, onClose, label.
- * ⚠️ ASSUMPTION: read-only fields are drawn as filled boxes; the file-strip action only logs (no history / JSON screen is drawn).
+ * Read-only fields are drawn as filled boxes. The file-strip button runs file.onAction (the audit log passes one); without it, it only logs.
  */
 
 const AdminRecordDialog = ({
@@ -97,7 +97,9 @@ const AdminRecordDialog = ({
           </div>
           <button
             type="button"
-            onClick={() => (file.onAction ? file.onAction() : log('file action (no screen drawn)', file.action))}
+            onClick={() =>
+              file.onAction ? file.onAction() : log('file action (no screen drawn)', file.action)
+            }
             className="inline-flex h-[52px] cursor-pointer items-center rounded-[14px] border-2 border-solid border-[#c1d4c4] bg-[#e1eae2] px-[34px] font-sans text-[16px] leading-[24px] font-bold text-[#165d3a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             {file.action}
@@ -138,7 +140,10 @@ const AdminRecordDialog = ({
         {children}
 
         {error ? (
-          <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] font-semibold text-[#902b20]">
+          <p
+            role="alert"
+            className="m-0 font-sans text-[14px] leading-[20px] font-semibold text-[#902b20]"
+          >
             {error}
           </p>
         ) : null}
@@ -161,14 +166,14 @@ const AdminRecordDialog = ({
 
         <div className="flex flex-wrap items-center justify-between gap-[12px] pt-[8px]">
           {link ? (
-          <button
-            type="button"
-            onClick={link.onClick ?? onClose}
-            className="inline-flex cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[17px] font-semibold text-[#902b20] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#902b20]"
-          >
-            <AdminDeleteIcon className="size-[16px]" />
-            {link.label}
-          </button>
+            <button
+              type="button"
+              onClick={link.onClick ?? onClose}
+              className="inline-flex cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[17px] font-semibold text-[#902b20] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#902b20]"
+            >
+              <AdminDeleteIcon className="size-[16px]" />
+              {link.label}
+            </button>
           ) : (
             <span />
           )}

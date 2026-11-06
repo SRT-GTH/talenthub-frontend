@@ -4,11 +4,11 @@ import { INSTITUTION_BASE } from '../institutionNav.js';
 import { ProgressArrowIcon, ProgressCheckIcon, ProgressEyeIcon } from './ProgressIcons.jsx';
 
 /*
- * ProgressStudentRow — one "result" row of the students list (Figma 8602:397936, 1327x70, p 14/20/14/18, gap 14): 42px green monogram · name (16/19 600)
- * + status sticker (On track / Flagged) · line (13/16 #737373) · right cluster: activity pill (gold outline, eye) · skills pill (green check) ·
- * profile pill (>= 50 % solid green, below it pale) · arrow. The flagged row (8602:398081) draws everything at 50 % opacity with the "Form teacher"
- * pill, "Coaching booked" and a View button. The row is one link to the student's progress page.
- * Props: student, flagged (session flag), compact (cards view: stacked card instead of a row).
+ * ProgressStudentRow — one "result" row of the students list (Figma 8602:397936, 1327x70): 42px green monogram · name + status sticker · line ·
+ * right cluster: activity pill (gold outline, eye) · skills pill (green check) · profile pill (>= 50 % solid green, below it pale) · arrow.
+ * Flagged students (live coaching flag) get the "Flagged" sticker and the "Flagged by … · date" pill. Students not linked yet or waiting for a guardian's
+ * consent are drawn at 50 % opacity with no figures. The row links to the student's progress page.
+ * Props: student (a /institution/progress/students item), cards (stacked card instead of a row).
  */
 
 const Sticker = ({ children, large = false }) => (
@@ -16,7 +16,7 @@ const Sticker = ({ children, large = false }) => (
     className={classNames(
       'inline-flex shrink-0 items-center rounded-full bg-[#ebf1ec] px-[10px] py-[4px] font-sans font-bold text-[#1f4d26]',
       large
-        ? 'text-[11.5px] max-lg:text-[12px] leading-[14px]'
+        ? 'text-[11.5px] leading-[14px] max-lg:text-[12px]'
         : 'text-[11px] leading-[13px] max-lg:text-[12px]'
     )}
   >
@@ -25,17 +25,17 @@ const Sticker = ({ children, large = false }) => (
 );
 
 const GreenPill = ({ children }) => (
-  <span className="inline-flex items-center gap-[4px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[3px] pr-[8px] pl-[6px] font-sans text-[11.5px] max-lg:text-[12px] leading-[14px] font-semibold whitespace-nowrap text-[#2d5d33]">
+  <span className="inline-flex items-center gap-[4px] rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] py-[3px] pr-[8px] pl-[6px] font-sans text-[11.5px] leading-[14px] font-semibold whitespace-nowrap text-[#2d5d33] max-lg:text-[12px]">
     <ProgressCheckIcon className="size-[11px] shrink-0 text-[#387440]" />
     {children}
   </span>
 );
 
-const ProgressStudentRow = ({ student, flagged = false, cards = false }) => {
+const ProgressStudentRow = ({ student, cards = false }) => {
   const to = `${INSTITUTION_BASE}/progress/students/${student.id}`;
-  const isFlagged = student.status === 'flagged' || flagged;
+  const hidden = student.status === 'not-linked' || student.status === 'consent';
+  const flagged = student.status === 'flagged';
   const strong = (student.profile ?? 0) >= 50;
-  const dim = student.status === 'flagged';
   return (
     <li className={cards ? 'min-w-0' : undefined}>
       <Link
@@ -51,42 +51,39 @@ const ProgressStudentRow = ({ student, flagged = false, cards = false }) => {
         <span
           aria-hidden="true"
           className={classNames(
-            'flex size-[42px] shrink-0 items-center justify-center rounded-full font-sans text-[15px] leading-[18px] font-semibold text-white',
-            dim ? 'bg-[#f8f8f4] opacity-50' : 'bg-[#387440]'
+            'flex size-[42px] shrink-0 items-center justify-center rounded-full font-sans text-[15px] leading-[18px] font-semibold',
+            hidden ? 'bg-[#e4e2dd] text-[#716e65]' : 'bg-[#387440] text-white'
           )}
         >
           {student.initials}
         </span>
-        <span className={classNames('flex min-w-0 flex-1 flex-col gap-[2px]', dim && 'opacity-50')}>
+        <span
+          className={classNames('flex min-w-0 flex-1 flex-col gap-[2px]', hidden && 'opacity-60')}
+        >
           <span className="flex flex-wrap items-center gap-[8px]">
             <span className="font-sans text-[16px] leading-[19px] font-semibold text-[#1c2a21]">
               {student.name}
             </span>
-            {isFlagged ? (
+            {flagged ? (
               <Sticker large>Flagged</Sticker>
             ) : student.status === 'on-track' ? (
               <Sticker>On track</Sticker>
+            ) : student.status === 'support' ? (
+              <span className="inline-flex shrink-0 items-center rounded-full bg-[#faf4e8] px-[10px] py-[4px] font-sans text-[11px] leading-[13px] font-bold text-[#785910] max-lg:text-[12px]">
+                Needs support
+              </span>
             ) : null}
           </span>
           <span className="font-sans text-[13px] leading-[16px] text-[#737373]">
             {student.meta}
           </span>
         </span>
-        {dim ? (
-          <>
-            <span className="opacity-50">
-              <GreenPill>{student.teacher}</GreenPill>
-            </span>
-            <span className="inline-flex items-center rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[10px] py-[4px] font-sans text-[12.5px] leading-[15px] font-bold text-[#2d5d33] opacity-50">
-              {student.booked}
-            </span>
-            <span className="inline-flex h-[40px] items-center rounded-[10px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[16px] font-sans text-[16px] leading-[24px] font-bold text-[#1c2a21] shadow-[0_4px_0_rgba(17,17,17,0.25)]">
-              View
-            </span>
-          </>
+        {hidden ? (
+          <ProgressArrowIcon className="size-[16px] shrink-0 text-[#2d5d33] opacity-60" />
         ) : (
           <>
-            <span className="inline-flex items-center gap-[5px] rounded-full border border-solid border-[#c8951a] bg-[#faf4e8] px-[9px] py-[4px] font-sans text-[11px] max-lg:text-[12px] leading-[13px] font-semibold whitespace-nowrap text-[#1c2a21]">
+            {flagged && student.flag ? <GreenPill>{student.flag.text}</GreenPill> : null}
+            <span className="inline-flex items-center gap-[5px] rounded-full border border-solid border-[#c8951a] bg-[#faf4e8] px-[9px] py-[4px] font-sans text-[11px] leading-[13px] font-semibold whitespace-nowrap text-[#1c2a21] max-lg:text-[12px]">
               <ProgressEyeIcon className="size-[13px] shrink-0" />
               {student.activity}
             </span>

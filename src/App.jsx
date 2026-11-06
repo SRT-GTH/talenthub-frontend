@@ -132,8 +132,17 @@ const AgencyApp = lazy(() => import('./pages/agency/AgencyApp.jsx'));
 // Theme 7 Platform Admin (GTH staff back office, Figma canvas 8520:12): /admin/*, mock staff session, own router in pages/admin/AdminApp.jsx.
 const AdminApp = lazy(() => import('./pages/admin/AdminApp.jsx'));
 const ParentApp = lazy(() => import('./pages/parent/ParentApp.jsx'));
-// Theme 11 institution portal (Figma canvas 8520:10): /institution/*, mock signed-in session, own router in pages/institution/InstitutionApp.jsx.
+// Theme 11 institution portal (Figma canvas 8520:10): /institution/*, live session (GET /api/institution/me), own router in pages/institution/InstitutionApp.jsx.
 const InstitutionApp = lazy(() => import('./pages/institution/InstitutionApp.jsx'));
+// A school's public page (no sign-in): GET /api/institution-public/:slug.
+const InstitutionSchoolPublicPage = lazy(
+  () => import('./pages/institution/InstitutionSchoolPublicPage.jsx')
+);
+// A student's "is this your school?" answers and a guardian's consent for an under-18 (institution roster).
+const SchoolLinksPage = lazy(() => import('./pages/SchoolLinksPage.jsx'));
+const GuardianConsentPage = lazy(() => import('./pages/GuardianConsentPage.jsx'));
+// The link in an organisation's invite email (school students and staff): choose a password, finish the account.
+const CompleteInvitePage = lazy(() => import('./pages/CompleteInvitePage.jsx'));
 const CommunityBrowsePage = lazy(() => import('./pages/talentCommunity/CommunityBrowsePage.jsx'));
 const CommunityPage = lazy(() => import('./pages/talentCommunity/CommunityPage.jsx'));
 const CommunityPostPage = lazy(() => import('./pages/talentCommunity/CommunityPostPage.jsx'));
@@ -175,6 +184,7 @@ const AssessmentFullPage = lazy(() => import('./pages/talentAssessment/Assessmen
 const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHubPage.jsx'));
 const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
 const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
+const WeeklyPlayPage = lazy(() => import('./pages/talentSkillsLab/WeeklyPlayPage.jsx'));
 const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
 const GameV2Page = lazy(() => import('./pages/talentSkillsLab/GameV2Page.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
@@ -1112,6 +1122,38 @@ function App() {
                     </Suspense>
                   }
                 />
+                <Route
+                  path={'/institutions/:slug'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <InstitutionSchoolPublicPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/school-links'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <SchoolLinksPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/guardian-consent/:token'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <GuardianConsentPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/auth/complete-invite/:token'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CompleteInvitePage />
+                    </Suspense>
+                  }
+                />
                 {/* Talent Wallet — Figma canvas "Talent Wallet" 8817:693 (W-01 … W-27b, Playful + Focused, expanded + collapsed
             sidebar). Frames are query params (see talentWalletState.js / wiki/talent-wallet.md). Mock data only. Outside MainLayout. */}
                 <Route
@@ -1369,6 +1411,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <LabPlayPage />
+                    </Suspense>
+                  }
+                />
+                {/* Skills Lab weekly challenge run + result (SL-M4 "Start challenge"). */}
+                <Route
+                  path={'/skills-lab/weekly'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <WeeklyPlayPage />
                     </Suspense>
                   }
                 />

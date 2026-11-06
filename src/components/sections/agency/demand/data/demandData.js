@@ -5,7 +5,12 @@
  * One marked block per concern.
  */
 
-export const DATA_AS_OF = 'Data as of 18 Oct 2026, 09:00';
+const AS_OF = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+}).format(new Date());
+export const DATA_AS_OF = `Data as of ${AS_OF}`;
 
 /* ===== BLOCK 1 · page copy ================================================================================================ */
 export const DEMAND_VIEWS = [
@@ -15,15 +20,12 @@ export const DEMAND_VIEWS = [
 ];
 
 export const HERO_SUBTITLE = {
-  skills:
-    'What employers and programmes are asking for, how it is changing and what happens to applicants. Data as of 18 Oct 2026, 09:00. Groups under 5 are hidden.',
-  trends:
-    'How talent, opportunities, skills and assessments change over time. Each chart has its own scale. Data as of 18 Oct 2026, 09:00.',
-  success:
-    'How many applicants end up hired or placed, where people drop off and which programmes work best. Data as of 18 Oct 2026, 09:00. Groups under 5 are hidden.',
+  skills: `What employers and programmes are asking for, how it is changing and what happens to applicants. Data as of ${AS_OF}. Groups under 5 are hidden.`,
+  trends: `How talent, opportunities, skills and assessments change over time. Each chart has its own scale. Data as of ${AS_OF}.`,
+  success: `How many applicants end up hired or placed, where people drop off and which programmes work best. Data as of ${AS_OF}. Groups under 5 are hidden.`,
 };
 
-export const COMPACT_SUBTITLE = 'Data as of 18 Oct 2026, 09:00 · groups under 5 hidden';
+export const COMPACT_SUBTITLE = `Data as of ${AS_OF} · groups under 5 hidden`;
 
 export const PRIVACY_FOOTNOTE =
   'Opportunities come from verified recruiters and government programmes on GTH. Districts with fewer than 5 opportunities show as “Too few opportunities to show”. Every view is logged.';
@@ -577,9 +579,9 @@ export const DATE_RANGE = {
   title: 'Custom range',
   from: 'From',
   to: 'To',
-  defaultFrom: '2025-01-01',
-  defaultTo: '2026-10-18',
-  today: '2026-10-18',
+  defaultFrom: new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10),
+  defaultTo: new Date().toISOString().slice(0, 10),
+  today: new Date().toISOString().slice(0, 10),
   cancel: 'Cancel',
   apply: 'Apply range',
   backgroundDays: 90,
@@ -634,13 +636,7 @@ export const REGION_CODES_NOTE =
 const SPARK = [6, 7, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 15, 15, 16, 17, 18, 19];
 
 export const SUCCESS_VIEW_BY = [
-  { id: 'career-interest', label: 'Career interest' },
   { id: 'education', label: 'Education level' },
-  { id: 'personality', label: 'Personality type', note: 'Broad groups only' },
-  { id: 'career-goal', label: 'Career goal' },
-  { id: 'skills-held', label: 'Skills held' },
-  { id: 'work-experience', label: 'Work experience' },
-  { id: 'certifications', label: 'Certifications' },
   { id: 'age', label: 'Age range', note: '14–17 shown as one total' },
   { id: 'readiness', label: 'Readiness level' },
   {

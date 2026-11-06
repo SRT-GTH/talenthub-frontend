@@ -49,7 +49,7 @@ const TopList = ({ view, allRows }) => {
 
 const RegionMobileSections = ({ view, regionId, allRows, onFindTalent }) => (
   <div className="flex flex-col gap-[16px] md:hidden">
-    <TopList view={view} allRows={allRows} />
+    {view.mobile.rows ? <TopList view={view} allRows={allRows} /> : null}
     {view.kind === 'region' ? (
       <>
         <PublicCard id="where" title={view.mobile.mapTitle} hint={view.mobile.mapAside}>

@@ -9,7 +9,7 @@ import { INSTITUTION_BASE } from '../institutionNav.js';
  * Props: detail, flagged, onFlag().
  */
 
-const ProgressPreviewBar = ({ detail, flagged, onFlag }) => (
+const ProgressPreviewBar = ({ detail, flagged, busy = false, onFlag, onClear }) => (
   <section
     aria-label={detail.bar.title}
     className="flex flex-wrap items-center gap-[12px] rounded-[16px] bg-[#1c2a21] py-[12px] pr-[16px] pl-[20px] max-md:gap-[10px] max-md:py-[10px] max-md:pr-[12px] max-md:pl-[14px]"
@@ -24,11 +24,11 @@ const ProgressPreviewBar = ({ detail, flagged, onFlag }) => (
     <div className="flex shrink-0 items-center gap-[2px] rounded-[10px] bg-[#1c2a21] p-[3px]">
       <button
         type="button"
-        onClick={onFlag}
-        disabled={flagged}
+        onClick={flagged ? onClear : onFlag}
+        disabled={busy}
         className="cursor-pointer rounded-[8px] border-0 bg-transparent px-[12px] py-[7px] font-sans text-[13px] leading-[16px] font-semibold text-[#bfbfbf] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffd86b] disabled:cursor-default disabled:opacity-70"
       >
-        {flagged ? 'Flagged' : 'Flag for coaching'}
+        {flagged ? 'Clear flag' : 'Flag for coaching'}
       </button>
       <Link
         to={`${INSTITUTION_BASE}/messages/new`}

@@ -24,22 +24,26 @@ const AgencyPublicHeader = ({ agency }) => (
       <p className="m-0 text-[16px] leading-[24px] text-[#595959]">{agency.about}</p>
     </div>
     <div className="flex shrink-0 flex-wrap items-center gap-[12px]">
-      <AgencyButton
-        size="md"
-        className="!h-[48px] !px-[22px] !text-[16px] !font-bold"
-        onClick={() => window.open(agency.website, '_blank', 'noopener,noreferrer')}
-      >
-        Visit website ↗
-      </AgencyButton>
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => {
-          window.location.href = `mailto:${agency.contactEmail}`;
-        }}
-      >
-        Contact NYA
-      </Button>
+      {agency.website ? (
+        <AgencyButton
+          size="md"
+          className="!h-[48px] !px-[22px] !text-[16px] !font-bold"
+          onClick={() => window.open(agency.website, '_blank', 'noopener,noreferrer')}
+        >
+          Visit website ↗
+        </AgencyButton>
+      ) : null}
+      {agency.contactEmail ? (
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => {
+            window.location.href = `mailto:${agency.contactEmail}`;
+          }}
+        >
+          {`Contact ${agency.short || 'the agency'}`}
+        </Button>
+      ) : null}
     </div>
   </div>
 );

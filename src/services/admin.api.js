@@ -19,6 +19,7 @@ const get = async (url, params) => body(await api.get(url, { params }));
 const post = async (url, data) => body(await api.post(url, data));
 const patch = async (url, data) => body(await api.patch(url, data));
 const del = async (url) => body(await api.delete(url));
+const put = async (url, data) => body(await api.put(url, data));
 
 /** Error message from an axios error (backend sends { message, code, type } or { errors }). */
 export const adminError = (err, fallback = 'Something went wrong. Try again.') => {
@@ -114,6 +115,19 @@ export const exportReport = (reportType, p = {}) =>
   post('/admin/reports/export', clean({ reportType, ...p }));
 export const reportStatus = (id) => get(`/admin/reports/${id}/status`);
 export const realtime = () => get('/admin/reports/realtime');
+/** Live ops: people online, regions, activity, sign-ups vs usual, errors, response times, flags, alerts. */
+export const liveOpsSnapshot = () => get('/admin/live-ops/snapshot');
+
+// Settings › Overview / Security / Accessibility figures (read only)
+export const insightsOverview = () => get('/admin/insights/overview');
+export const insightsSecurity = (p = {}) => get('/admin/insights/security', clean(p));
+export const insightsAccessibility = () => get('/admin/insights/accessibility');
+
+// Verification: recruiter KYB and affiliation requests
+export const verifQueue = (p = {}) => get('/admin/verification/queue', clean(p));
+export const verifGet = (id, kind) => get(`/admin/verification/${id}`, clean({ kind }));
+export const verifDecide = (id, body) => post(`/admin/verification/${id}/decide`, body);
+export const verifAsk = (id, body) => post(`/admin/verification/${id}/ask`, body);
 
 // ── Comms ────────────────────────────────────────────────────────────────────
 export const listTemplates = (p = {}) =>
@@ -132,6 +146,14 @@ export const updateConfig = (key, value, reason) =>
 export const toggleFlag = (key, enabled, reason) =>
   post(`/admin/config/flags/${encodeURIComponent(key)}/toggle`, { enabled, reason });
 export const configHistory = (key) => get(`/admin/config/${encodeURIComponent(key)}/history`);
+// ── Platform values (platformEnum; SA) ───────────────────────────────────────
+/** Every enum value in the database (active and inactive) + a summary per list: { domains, values }. */
+export const listPlatformValues = () => get('/platform-enums/all');
+/** Add a custom global value (registering a deactivated key turns it back on). */
+export const registerPlatformValue = (p) =>
+  post('/platform-enums/register', clean({ scope: 'global', ...p }));
+export const deactivatePlatformValue = (id) =>
+  put(`/platform-enums/${encodeURIComponent(id)}/deactivate`, {});
 /** Allowlisted settings any signed-in account can read (e.g. onboarding.bulk_roster_template). */
 export const getPublicConfig = (key) => get(`/config/public/${encodeURIComponent(key)}`);
 
@@ -149,8 +171,12 @@ export const rbacCreateRole = (p) => post('/rbac/roles', clean(p));
 export const rbacUpdateRole = (id, p) => api.put(`/rbac/roles/${id}`, clean(p)).then(body);
 export const rbacDeleteRole = (id, force = false) =>
   api.delete(`/rbac/roles/${id}`, { params: force ? { force: true } : {} }).then(body);
-export const rbacRolePermissions = async (roleId) =>
-  arr(await get(`/rbac/roles/${roleId}/permissions`), 'permissions', 'data');
+// A role's permissions (optionally one group: { scopeLevel, serviceName, modelName }, or one scope: { scopeId }).
+export const rbacRolePermissions = async (roleId, filter = {}) =>
+  arr(await get(`/rbac/roles/${roleId}/permissions`, filter), 'permissions', 'data');
+// { total, groups: [{ scopeLevel, serviceName, modelName, count }] } — counted on the server (Administrator holds ~12k).
+export const rbacRolePermissionSummary = (roleId) =>
+  get(`/rbac/roles/${roleId}/permissions`, { summary: true });
 export const rbacRoleHolders = async (roleId) =>
   arr(await get(`/rbac/roles/${roleId}/entities`), 'entities', 'data');
 export const rbacAssignPermission = (roleId, permissionId) =>
@@ -168,6 +194,8 @@ export const rbacRemoveRole = (entityId, roleId, removedBy) =>
   api.delete(`/rbac/entities/${entityId}/roles/${roleId}`, { data: { removedBy } }).then(body);
 export const rbacStats = () => get('/rbac/stats');
 export const rbacClearRoleCache = (roleId) => post(`/rbac/cache/role/${roleId}`, {});
+/** Create an account (entity) type; name is a lowercase code such as career_counsellor. Super Admin. */
+export const rbacCreateEntityType = (p) => post('/rbac/entity-types', clean(p));
 export const rbacEntityTypes = async () =>
   arr(
     await get('/rbac/entity-types/with-default-roles').catch(() => get('/rbac/entity-types')),
@@ -184,6 +212,8 @@ export const enumList = async (domain) =>
 export const enumRegister = (p) =>
   post('/platform-enums/register', clean({ scope: 'global', ...p }));
 export const enumDeactivate = (id) => api.put(`/platform-enums/${id}/deactivate`, {}).then(body);
+/** Edit label / description / order / settings (metadata merges one level). Built-in values can be edited too. */
+export const enumUpdate = (id, p) => patch(`/platform-enums/${id}`, p);
 
 // ── Organisations (/api/organizations) ─────────────────────────────────────────────────────────────────
 export const orgList = async () => arr(await get('/organizations'), 'organizations', 'data');
@@ -219,6 +249,70 @@ export const notifTypes = () => get('/notifications/notification-types');
 export const notifCoverage = () => get('/notifications/template-coverage');
 export const notifMappings = () => get('/notifications/template-mappings');
 export const notifRefreshMappings = () => post('/notifications/refresh-mappings', {});
+
+// ── Reference data (/api/admin/catalog; Senior / Super Admin, every change needs a reason) ─────────────
+export const catCategories = () => get('/admin/catalog/categories');
+export const catCurrencies = () => get('/admin/catalog/currencies');
+export const catCreateCurrency = (p) => post('/admin/catalog/currencies', clean(p));
+export const catSetCurrencyRate = (code, p) =>
+  api.put(`/admin/catalog/currencies/${code}/rate`, p).then(body);
+export const catSetCurrencyActive = (code, isActive, reason) =>
+  api.put(`/admin/catalog/currencies/${code}/active`, { isActive, reason }).then(body);
+/** Automatic exchange rates: { enabled, schedule, provider, providerLabel, keyConfigured, attribution, runs }. */
+export const catFxStatus = () => get('/admin/catalog/currencies/auto-update');
+/** { dryRun, reason } → the run: { status, applied, held, skipped, missing, unchanged, error }. */
+export const catFxSync = (p) => post('/admin/catalog/currencies/auto-update/run', clean(p));
+export const catCreateCategory = (p) => post('/admin/catalog/categories', clean(p));
+export const catUpdateCategory = (id, p) =>
+  api.put(`/admin/catalog/categories/${id}`, p).then(body);
+export const catSetCategoryActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/categories/${id}/active`, { isActive, reason }).then(body);
+export const catReorderCategories = (ids, reason) =>
+  post('/admin/catalog/categories/reorder', clean({ ids, reason }));
+export const catDeleteCategory = (id, reason) =>
+  api.delete(`/admin/catalog/categories/${id}`, { data: { reason } }).then(body);
+// Assessment templates: questions and answer keys are view-only here.
+export const catAssessmentTemplates = () => get('/admin/catalog/assessment-templates');
+export const catAssessmentTemplate = (id) => get(`/admin/catalog/assessment-templates/${id}`);
+export const catUpdateAssessmentTemplate = (id, p) =>
+  api.put(`/admin/catalog/assessment-templates/${id}`, p).then(body);
+export const catSetAssessmentTemplateActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/assessment-templates/${id}/active`, { isActive, reason }).then(body);
+
+// Opportunity templates (defaults recruiters start a posting from).
+export const catOppTemplates = () => get('/admin/catalog/opportunity-templates');
+export const catSaveOppTemplate = (id, p) =>
+  id
+    ? api.put(`/admin/catalog/opportunity-templates/${id}`, p).then(body)
+    : post('/admin/catalog/opportunity-templates', p);
+export const catSetOppTemplateActive = (id, isActive, reason) =>
+  api.put(`/admin/catalog/opportunity-templates/${id}/active`, { isActive, reason }).then(body);
+export const catDeleteOppTemplate = (id, reason) =>
+  api.delete(`/admin/catalog/opportunity-templates/${id}`, { data: { reason } }).then(body);
+
+// Data sources: O*NET occupations, Ghana scrapers, exchange-rate and location summaries.
+export const catDataSources = () => get('/admin/catalog/data-sources');
+/** Latest O*NET version vs the last import: { latestVersion, importedVersion, wouldImport, error }. */
+export const catOnetCheck = () => post('/admin/catalog/data-sources/onet/check', {});
+/** Starts an O*NET import in the background: { force, reason } → { started }. */
+export const catOnetRun = (p) => post('/admin/catalog/data-sources/onet/run', clean(p));
+/** Reads a Ghana source without saving: { ok, preview: rows[0..4], summary: { totalRows, degraded, ... } }. */
+// A preview fetches live pages from the source (robots.txt plus a list page), which can outlast the default 15 s.
+export const catScrapeCheck = (key) =>
+  api.post(`/admin/catalog/data-sources/scrape/${key}/check`, {}, { timeout: 60000 }).then(body);
+/** Reads a Ghana source in the background and saves the rows: { reason } → { started }. */
+export const catScrapeRun = (key, reason) =>
+  post(`/admin/catalog/data-sources/scrape/${key}/run`, { reason });
+
+// Locations: list, CSV import (preview first), edit.
+export const catLocations = (params) => get('/admin/catalog/locations', clean(params || {}));
+export const catCoordsStatus = () => get('/admin/catalog/locations/coordinates');
+export const catCoordsRun = (body) => post('/admin/catalog/locations/coordinates/run', body);
+export const catPreviewLocationImport = (rows) =>
+  post('/admin/catalog/locations/import/preview', { rows });
+export const catImportLocations = (rows, reason) =>
+  post('/admin/catalog/locations/import', { rows, reason });
+export const catUpdateLocation = (id, p) => api.put(`/admin/catalog/locations/${id}`, p).then(body);
 
 // ── Observability (Senior / Super Admin; Grafana Cloud read through the server) ─────────────────────
 export const obsStatus = () => get('/admin/observability/status');

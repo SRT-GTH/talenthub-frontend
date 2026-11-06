@@ -9,6 +9,7 @@ import { MessagesIconOpportunity } from './messagesIcons.jsx';
  *          footer 12 #959592 and the decorative "opportunity" mark that overhangs the top right corner (Figma `ep:opportunity`, 59 %).
  *   help   the "Questions? Reply here ..." bubble (same as out, hugging its text).
  *   reply  inbound, left aligned, #32683a, r12, white text 14/20 + time #babab7.
+ * Live: items come from GET /api/institution/messages/:id (each with its day; the pill shows the day of the first one, "Today" for today).
  * Props: items (timeline), scheduled (the thread is not sent yet: status "Not sent yet", footer "Opens for replies when sent").
  */
 
@@ -72,19 +73,26 @@ const Reply = ({ item }) => (
   </li>
 );
 
+const todayLabel = () =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+    new Date()
+  );
+
 const MessageTimeline = ({ items, scheduled = false }) => (
   <div className="flex flex-col items-stretch gap-[15px]">
     <span className="mx-auto rounded-full bg-[#e5e5e5]/50 px-[14px] py-[6px] text-[13px] leading-[16px] text-[#595959]">
-      Today
+      {scheduled
+        ? 'Scheduled'
+        : !items[0]?.day || items[0].day === todayLabel()
+          ? 'Today'
+          : items[0].day}
     </span>
     <ul className="m-0 flex list-none flex-col gap-[14px] p-0">
       {items.map((item) => {
         if (item.scheduledOnly && !scheduled && !item.foot) return null;
         if (item.kind === 'card') return <Card key={item.id} item={item} scheduled={scheduled} />;
         if (item.kind === 'reply') return <Reply key={item.id} item={item} />;
-        return (
-          <Bubble key={item.id} item={item} scheduled={scheduled} narrow={item.kind === 'out'} />
-        );
+        return <Bubble key={item.id} item={item} scheduled={scheduled} narrow={false} />;
       })}
     </ul>
   </div>

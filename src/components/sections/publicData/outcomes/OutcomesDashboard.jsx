@@ -115,7 +115,9 @@ const OutcomesDashboard = ({
         <OutcomesSkillsCard skills={response.skills} />
         <OutcomesPartnersCard partners={response.partners} />
       </div>
-      <OutcomesStoriesSection stories={stories} loading={loading} base={base} />
+      {stories?.length || loading ? (
+        <OutcomesStoriesSection stories={stories || []} loading={loading} base={base} />
+      ) : null}
     </div>
   );
 };

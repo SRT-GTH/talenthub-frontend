@@ -21,12 +21,15 @@ import {
 import { FOCUS_RING, HEADING, HelpButton, HelpChip, PageHeader } from './helpUi.jsx';
 import HelpArticleView from './HelpArticleView.jsx';
 import HelpContactView from './HelpContactView.jsx';
+import HelpConcernView from './HelpConcernView.jsx';
+import HelpRequestView from './HelpRequestView.jsx';
+import HelpRequestsList from './HelpRequests.jsx';
+import { useMyRequests } from './useMyRequests.js';
 import {
   HP_DEFAULT_QUERY,
   HS_CONTACTS,
   HS_COPY,
   HS_FAQ,
-  HS_REQUESTS,
   HS_SAFETY,
   HS_SEARCH_PLACEHOLDER,
   HS_TOPICS,
@@ -45,6 +48,9 @@ const log = debug('HelpSupportPage');
  *   ?help=report                   HP-07 Report a problem (modal over the article)
  *   ?help=contact                  HP-05 Contact support
  *   ?help=sent                     HP-06 Request sent (modal over the contact page)
+ *   ?help=request&ref=SUP-…         one of my support requests (live: GET /api/support/cases/:ref)
+ *   ?help=concern | concern-sent   Report a concern (safeguarding; POST /api/support/concerns) and its confirmation
+ * “Your requests” is live (GET /api/support/cases).
  * Props: settings (useTalentSettingsState): { help, update(patch) }.
  */
 const TOPIC_ICONS = {
@@ -77,6 +83,20 @@ const HelpSupportPage = ({ settings }) => {
   if (help === 'contact' || help === 'sent') {
     return <HelpContactView settings={settings} sent={help === 'sent'} />;
   }
+  if (help === 'request') {
+    return <HelpRequestView settings={settings} />;
+  }
+  if (help === 'concern' || help === 'concern-sent') {
+    return <HelpConcernView settings={settings} sent={help === 'concern-sent'} />;
+  }
+  return (
+    <HelpCentre settings={settings} help={help} q={q} openFaq={openFaq} setOpenFaq={setOpenFaq} />
+  );
+};
+
+/* The Help centre itself (HS-01), split out so the live requests hook only runs here. */
+const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq }) => {
+  const requests = useMyRequests();
 
   const searchValue = help === 'searching' || help === 'none' ? (q ?? HP_DEFAULT_QUERY[help]) : '';
 
@@ -218,13 +238,25 @@ const HelpSupportPage = ({ settings }) => {
                 </p>
                 <p className="m-0 font-sans text-[13.5px] leading-[1.45]">{HS_SAFETY.body}</p>
               </div>
-              <HelpButton
-                size="xl"
-                className="!px-[34px]"
-                onClick={() => settings.update({ help: 'report', q: null })}
-              >
-                {HS_SAFETY.action}
-              </HelpButton>
+              <div className="flex flex-col items-stretch gap-[8px]">
+                <HelpButton
+                  size="xl"
+                  className="!px-[34px]"
+                  onClick={() => settings.update({ help: 'report', q: null })}
+                >
+                  {HS_SAFETY.action}
+                </HelpButton>
+                <button
+                  type="button"
+                  onClick={() => settings.update({ help: 'concern', q: null })}
+                  className={classNames(
+                    'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13.5px] font-semibold text-[#902b20] underline',
+                    FOCUS_RING
+                  )}
+                >
+                  Someone at risk? Report a concern
+                </button>
+              </div>
             </section>
           </div>
 
@@ -279,17 +311,10 @@ const HelpSupportPage = ({ settings }) => {
               >
                 {HS_COPY.requestsTitle}
               </h2>
-              {HS_REQUESTS.map((r) => (
-                <div key={r.id} className="flex items-center gap-[10px]">
-                  <div className="flex min-w-0 flex-1 flex-col gap-[2px] leading-[1.2]">
-                    <span className="font-sans text-[14px] font-semibold text-[#1c2a21]">
-                      {r.title}
-                    </span>
-                    <span className="font-sans text-[12.5px] text-[#595959]">{r.meta}</span>
-                  </div>
-                  <HelpChip tone="status">{r.status}</HelpChip>
-                </div>
-              ))}
+              <HelpRequestsList
+                requests={requests}
+                onOpen={(ref) => settings.update({ help: 'request', ref, q: null })}
+              />
             </section>
           </div>
         </div>

@@ -1,0 +1,51 @@
+/* === Platform Admin · accessibility preferences (top bar › Accessibility; components/sections/admin/chrome/useAdminA11y.js)
+ * Keyed to data-admin-* attributes on the admin root ([data-admin]) or the institution portal root ([data-institution], same
+ * preferences: InstitutionFrame), so no other surface is affected. */
+
+/* Text size: the admin UI is sized in px, so scale the content column and panels as a whole. */
+:is([data-admin], [data-institution])[data-admin-text='large'] :is(#admin-main, #institution-main),
+:is([data-admin], [data-institution])[data-admin-text='large'] [role='dialog'] {
+  zoom: 1.12;
+}
+:is([data-admin], [data-institution])[data-admin-text='larger'] :is(#admin-main, #institution-main),
+:is([data-admin], [data-institution])[data-admin-text='larger'] [role='dialog'] {
+  zoom: 1.25;
+}
+
+/* High contrast: secondary text and hairlines darker, soft shadows off. */
+:is([data-admin], [data-institution])[data-admin-contrast] {
+  --tw-shadow: 0 0 #0000;
+}
+:is([data-admin], [data-institution])[data-admin-contrast] .text-\[\#595959\],
+:is([data-admin], [data-institution])[data-admin-contrast] .text-\[\#737373\],
+:is([data-admin], [data-institution])[data-admin-contrast] .text-\[\#8a8a85\],
+:is([data-admin], [data-institution])[data-admin-contrast] .text-\[\#575755\] {
+  color: #222 !important;
+}
+:is([data-admin], [data-institution])[data-admin-contrast] .border-\[\#e7e7e7\],
+:is([data-admin], [data-institution])[data-admin-contrast] .border-\[\#efefec\],
+:is([data-admin], [data-institution])[data-admin-contrast] .border-\[\#e1eae2\],
+:is([data-admin], [data-institution])[data-admin-contrast] .border-\[\#dfdfdc\] {
+  border-color: #6b6b6b !important;
+}
+:is([data-admin], [data-institution])[data-admin-contrast] :focus-visible {
+  outline: 3px solid #111 !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduce motion. */
+:is([data-admin], [data-institution])[data-admin-motion],
+:is([data-admin], [data-institution])[data-admin-motion] *,
+:is([data-admin], [data-institution])[data-admin-motion] *::before,
+:is([data-admin], [data-institution])[data-admin-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Underline links. */
+:is([data-admin], [data-institution])[data-admin-links] a {
+  text-decoration: underline solid !important;
+  text-underline-position: from-font;
+}

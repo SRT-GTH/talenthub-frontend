@@ -3,9 +3,8 @@ import {
   SECONDARY_NAV,
 } from '../../components/sections/institution/institutionNav.js';
 import {
-  GLANCE,
+  GLANCE_TEXT,
   HOME_HERO,
-  MOBILE_HOME,
   NEXT_STEP,
   QUICK_ACTIONS,
   READINESS_CARD,
@@ -15,7 +14,8 @@ import { bindCopy } from '../copyBind.js';
 
 /*
  * institutionCopy — the institution portal texts staff can edit in Site copy: the menu and the Home texts that read the same for every
- * school. Words in braces ({first}, {pending}, {students} …) are filled in for each school; keep them where they are.
+ * school. Words in braces ({first}, {institution}, {n}, {pct}, {school} …) are filled in for each school; keep them where they are.
+ * The home is built from live data (GET /institution/home); these are its words, the numbers come from the API.
  * Imported by InstitutionApp.
  */
 
@@ -32,16 +32,34 @@ export const INSTITUTION_MENU_COPY = copySection({
   preview: { path: '/institution' },
 });
 
+// The next-step card shows one of these, depending on the roster.
+const NEXT_CASES = [
+  ['consent', 'guardian consent needed'],
+  ['invite', 'students not invited'],
+  ['waiting', 'students still to confirm'],
+  ['add', 'everyone linked'],
+];
+
 export const INSTITUTION_HOME_COPY = copySection({
   id: 'institution.home.overview',
   label: 'Overview',
   pageLabel: 'Home',
-  data: { HOME_HERO, QUICK_ACTIONS, READINESS_CARD, NEXT_STEP, GLANCE },
+  data: { HOME_HERO, QUICK_ACTIONS, READINESS_CARD, NEXT_STEP, GLANCE_TEXT },
   fields: [
     ['hero-title', 'Welcome heading', ['HOME_HERO', 'default', 'title']],
     ['hero-subtitle', 'Welcome line', ['HOME_HERO', 'default', 'subtitle']],
     ['first-title', 'Welcome heading (first visit)', ['HOME_HERO', 'firstLogin', 'title']],
     ['first-subtitle', 'Welcome line (first visit)', ['HOME_HERO', 'firstLogin', 'subtitle']],
+    [
+      'overlay-title',
+      'Welcome heading (first-visit tour)',
+      ['HOME_HERO', 'firstLoginOverlay', 'title'],
+    ],
+    [
+      'overlay-subtitle',
+      'Welcome line (first-visit tour)',
+      ['HOME_HERO', 'firstLoginOverlay', 'subtitle'],
+    ],
     ...QUICK_ACTIONS.default.flatMap((a, i) => [
       [`action-${a.id}-title`, `Quick action ${i + 1}`, ['QUICK_ACTIONS', 'default', i, 'title']],
       [
@@ -52,50 +70,33 @@ export const INSTITUTION_HOME_COPY = copySection({
     ]),
     ['readiness-eyebrow', 'Readiness card: small label', ['READINESS_CARD', 'eyebrow']],
     ['readiness-title', 'Readiness card: title', ['READINESS_CARD', 'title']],
+    ['readiness-empty', 'Readiness card: no students yet', ['READINESS_CARD', 'empty']],
     ['readiness-action', 'Readiness card: button', ['READINESS_CARD', 'action']],
     ['next-eyebrow', 'Next step: small label', ['NEXT_STEP', 'eyebrow']],
-    ['next-title', 'Next step: title', ['NEXT_STEP', 'title']],
-    ['next-body', 'Next step: text', ['NEXT_STEP', 'body']],
-    ['glance-title', 'This term: heading', ['GLANCE', 'title']],
-    ['glance-subtitle', 'This term: line under the heading', ['GLANCE', 'subtitle']],
-    ...GLANCE.cards.map((c, i) => [
-      `glance-${c.id}-title`,
-      `This term card ${i + 1}: title`,
-      ['GLANCE', 'cards', i, 'title'],
+    ...NEXT_CASES.flatMap(([k, what]) => [
+      [`next-${k}-title`, `Next step (${what}): title`, ['NEXT_STEP', k, 'title']],
+      [`next-${k}-body`, `Next step (${what}): text`, ['NEXT_STEP', k, 'body']],
+    ]),
+    ['glance-title', 'At a glance: heading', ['GLANCE_TEXT', 'title']],
+    ['glance-subtitle', 'At a glance: line under the heading', ['GLANCE_TEXT', 'subtitle']],
+    ...Object.keys(GLANCE_TEXT.cards).flatMap((k, i) => [
+      [
+        `glance-${k}-badge`,
+        `At a glance card ${i + 1}: label`,
+        ['GLANCE_TEXT', 'cards', k, 'badge'],
+      ],
+      [
+        `glance-${k}-title`,
+        `At a glance card ${i + 1}: title`,
+        ['GLANCE_TEXT', 'cards', k, 'title'],
+      ],
     ]),
   ],
   preview: { path: '/institution' },
 });
 
-const opt = { optional: true };
-const cap = (k) => `${k[0].toUpperCase()}${k.slice(1)}`;
+// The phone home (InstitutionHomeMobile) is built from live data and the session; it has no editable texts of its own.
 
-export const INSTITUTION_PHONE_COPY = copySection({
-  id: 'institution.home.phone',
-  label: 'Phone home',
-  pageLabel: 'Home',
-  data: { MOBILE_HOME },
-  fields: [
-    ['greeting', 'Greeting', ['MOBILE_HOME', 'greeting', 0], opt],
-    ...Object.keys(MOBILE_HOME)
-      .filter(
-        (k) =>
-          MOBILE_HOME[k] && typeof MOBILE_HOME[k] === 'object' && !Array.isArray(MOBILE_HOME[k])
-      )
-      .flatMap((k) => [
-        [`${k}-title`, `${cap(k)} card: title`, ['MOBILE_HOME', k, 'title'], opt],
-        [`${k}-sub`, `${cap(k)} card: line under the title`, ['MOBILE_HOME', k, 'sub'], opt],
-        [`${k}-action`, `${cap(k)} card: button`, ['MOBILE_HOME', k, 'action'], opt],
-        [`${k}-all`, `${cap(k)} card: "see all" link`, ['MOBILE_HOME', k, 'all'], opt],
-      ]),
-  ],
-  preview: { path: '/institution' },
-});
-
-export const INSTITUTION_COPY_SECTIONS = [
-  INSTITUTION_MENU_COPY,
-  INSTITUTION_HOME_COPY,
-  INSTITUTION_PHONE_COPY,
-];
+export const INSTITUTION_COPY_SECTIONS = [INSTITUTION_MENU_COPY, INSTITUTION_HOME_COPY];
 
 bindCopy(...INSTITUTION_COPY_SECTIONS);

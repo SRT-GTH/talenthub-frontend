@@ -27,6 +27,29 @@ import {
 
 const log = debug('copyLive');
 
+// The manifest a super admin's browser last synced (keys and field paths), so a build that renames fields re-syncs too.
+const SIG_KEY = 'gth.siteCopy.manifestSig';
+const manifestSignature = (blocks) => {
+  let h = 0;
+  const text = blocks.map((b) => `${b.key}:${b.fields.map((f) => f.path).join(',')}`).join(';');
+  for (let i = 0; i < text.length; i += 1) h = (Math.imul(h, 31) + text.charCodeAt(i)) | 0;
+  return `${blocks.length}.${(h >>> 0).toString(36)}`;
+};
+const readSyncedSig = () => {
+  try {
+    return window.localStorage.getItem(SIG_KEY);
+  } catch {
+    return null;
+  }
+};
+const writeSyncedSig = (sig) => {
+  try {
+    window.localStorage.setItem(SIG_KEY, sig);
+  } catch {
+    /* private mode: the next visit syncs again */
+  }
+};
+
 /*
  * copyLive — the Site copy screens on the real backend (/api/admin/copy). The screens keep reading and writing the shared store
  * of useCopyKv (same keys and shapes as before); this module fills those keys from the backend and sends each change back:
@@ -166,11 +189,15 @@ export const hydrateCopy = async ({ force = false } = {}) => {
     let res = await listCopyBlocks();
     state.permissions = res.permissions ?? [];
     const counts = Object.fromEntries((res.blocks ?? []).map((b) => [b.key, b.fieldCount]));
-    // Missing sections, or sections whose field list changed in this build.
+    // Missing sections, or sections whose field list changed in this build (count, or — same count — field paths: the
+    // signature of the last manifest this browser synced).
     const missing = manifest.blocks.filter((b) => counts[b.key] !== b.fields.length);
-    if (missing.length && state.permissions.includes('copy.publishTerms')) {
+    const sig = manifestSignature(manifest.blocks);
+    const changed = missing.length > 0 || readSyncedSig() !== sig;
+    if (changed && state.permissions.includes('copy.publishTerms')) {
       const r = await syncCopyManifest(manifest.blocks);
       log('manifest synced', r);
+      writeSyncedSig(sig);
       res = await listCopyBlocks();
     } else if (missing.length) {
       log('sections not on the backend yet', missing.length);

@@ -45,6 +45,8 @@ const AUDIENCE_ICONS = {
  *   stageLabel   what was finished, default "Personality Assessment" (⚠️ ASSUMPTION: other stages reuse the same sentence)
  *   authorName   preview name, default `copy.previewName` ("Kofi Agyekum")
  *   copy         the copy block (default MILESTONE_SHARE = talent); the recruiter Clubs screen passes RECRUITER_CLUBS_MILESTONE (RC-C09)
+ *   showXp       default true (the drawn "+50 XP" sticker); live callers pass false, since sharing / finishing a stage awards no XP
+ *                in the XP ledger yet (Career Buddy never awards XP)
  */
 const MilestoneShareModal = ({
   isOpen = true,
@@ -54,6 +56,7 @@ const MilestoneShareModal = ({
   copy = MILESTONE_SHARE,
   stageLabel = copy.stage,
   authorName = copy.previewName,
+  showXp = true,
 }) => {
   const titleId = useId();
   const fieldId = useId();
@@ -82,9 +85,11 @@ const MilestoneShareModal = ({
         <DialogTitle id={titleId} size={31} lineHeight={37}>
           {copy.title}
         </DialogTitle>
-        <PostSticker tone="gold">
-          {fillCopy(copy.sticker, { xp: uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts' })}
-        </PostSticker>
+        {showXp ? (
+          <PostSticker tone="gold">
+            {fillCopy(copy.sticker, { xp: uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts' })}
+          </PostSticker>
+        ) : null}
       </div>
 
       <p className="m-0 font-sans text-[14px] leading-[21px] text-[#595959]">

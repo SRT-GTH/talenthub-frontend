@@ -2,11 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import GameV2Shell from '../GameV2Shell.jsx';
 import { useGameV2Params } from '../gamesV2State.js';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
 import MemoryMatchCard from './MemoryMatchCard.jsx';
 import MemoryMatchFeedback from './MemoryMatchFeedback.jsx';
 import MemoryMatchHead from './MemoryMatchHead.jsx';
 import { MEMORY_BEST_SO_FAR, MEMORY_COPY, MEMORY_DRAWN_RESULT } from './memoryMatchData.js';
 import { useMemoryMatch } from './useMemoryMatch.js';
+import { useMemoryMatchLive } from './useMemoryMatchLive.js';
 
 const log = debug('MemoryMatch');
 
@@ -32,8 +36,7 @@ const stripDots = (found, pairs, done) => {
   return dots;
 };
 
-const MemoryMatchBoard = ({ frame }) => {
-  const m = useMemoryMatch(frame);
+const MemoryMatchBoard = ({ m, bestSoFar }) => {
   const { g, level, cards, found, pairs, turns } = m;
   const [active, setActive] = useState(0);
   const refs = useRef([]);
@@ -65,7 +68,10 @@ const MemoryMatchBoard = ({ frame }) => {
     countLabel: `${found} of ${pairs} pairs`,
     summary: `${turns} turn${turns === 1 ? '' : 's'} so far`,
     dots: stripDots(found, pairs, m.done),
-    passMark: g.ranked ? `Best so far: ${MEMORY_BEST_SO_FAR}` : undefined,
+    passMark:
+      g.ranked && bestSoFar !== null && bestSoFar !== undefined
+        ? `Best so far: ${bestSoFar}`
+        : undefined,
   };
 
   /* Footer as drawn: GV-04/05 note + "How to play"; GV-06 only the link; GV-07 / GV-08 empty. */
@@ -127,10 +133,30 @@ const MemoryMatchBoard = ({ frame }) => {
   );
 };
 
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local mock run */
+const MockMemoryMatch = ({ frame }) => (
+  <MemoryMatchBoard m={useMemoryMatch(frame)} bestSoFar={MEMORY_BEST_SO_FAR} />
+);
+
+/* live: the server engine (/api/games) holds the layout and scores the run */
+const LiveMemoryMatch = () => {
+  const run = useGameRun();
+  const m = useMemoryMatchLive(run);
+  if (run.status !== 'ready' && run.status !== 'finished') {
+    return <GameV2LiveGate run={run} name={MEMORY_COPY.name} subtitleLead="Working memory" />;
+  }
+  return <MemoryMatchBoard m={m} bestSoFar={null} />;
+};
+
 const MemoryMatchGame = ({ frame }) => {
   const g = useGameV2Params();
   /* a new run (level / mode / seed changed) starts from scratch */
-  return <MemoryMatchBoard key={`${g.level}-${g.mode}-${frame ?? ''}`} frame={frame} />;
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? (
+    <LiveMemoryMatch key={key} />
+  ) : (
+    <MockMemoryMatch key={key} frame={frame} />
+  );
 };
 
 export default MemoryMatchGame;

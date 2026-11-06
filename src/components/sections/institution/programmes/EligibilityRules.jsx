@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import FilterMenu from '../../publicData/ui/FilterMenu.jsx';
 import QueryChoiceMenu from '../../agency/queries/QueryChoiceMenu.jsx';
-import { FORMS, RESULT_STEPS, STUDY_PROGRAMMES } from './data/programmesData.js';
+import { RESULT_STEPS } from './data/programmesData.js';
 import SwitchControl from './SwitchControl.jsx';
 import {
   ProgrammesIconAge,
@@ -22,9 +22,11 @@ import {
  * Every control is live: the year-group select opens the multi-select menu (one or more forms), "+ Add programme" the single-select listbox, a chip removes itself
  * (its "×" shows on hover / focus), the results meter is a range input (1 · 2 · 3 verified results), the Under-18s switch changes the audience. Esc closes a menu and
  * returns focus to its button.
+ * Live: the year groups (with their roster counts) and the programmes of study come from the school's roster (GET .../programmes/options); "Results"
+ * counts skills verified on GTH (assessments, Skills Lab, Career Buddy). With no year group picked the rule means all forms.
  * ⚠️ ASSUMPTIONS: the Linked-profile "Linked students only" chip is a static label (no other option is drawn); the Under-18s card reads "Not included · Set by your school"
  * when switched off (only the "Included" state is drawn).
- * Props: rules, onChange(patch).
+ * Props: rules, onChange(patch), forms [{ id, label, students }], studyOptions [name].
  */
 
 const Row = ({ icon, title, sentence, checked, onToggle, children, last }) => (
@@ -64,7 +66,7 @@ const SelectButton = ({ children, expanded, onClick, buttonRef, controls, label 
   </button>
 );
 
-const EligibilityRules = ({ rules, onChange }) => {
+const EligibilityRules = ({ rules, onChange, forms = [], studyOptions = [] }) => {
   const [open, setOpen] = useState(null);
   const refs = useRef({});
   const wrapRef = useRef(null);
@@ -88,9 +90,9 @@ const EligibilityRules = ({ rules, onChange }) => {
     [open]
   );
 
-  const picked = FORMS.filter((f) => rules.forms.includes(f.id));
+  const picked = forms.filter((f) => rules.forms.includes(f.id));
   const formLabel = picked.length ? picked.map((f) => f.label).join(', ') : 'All forms';
-  const freeStudy = STUDY_PROGRAMMES.filter((s) => !rules.study.includes(s));
+  const freeStudy = studyOptions.filter((s) => !rules.study.includes(s));
   const step = RESULT_STEPS.find((s) => s.count === rules.results) ?? RESULT_STEPS[0];
   const stepIndex = RESULT_STEPS.indexOf(step);
 
@@ -121,7 +123,7 @@ const EligibilityRules = ({ rules, onChange }) => {
                 id={`${uid}-year`}
                 label="Year group"
                 searchLabel="Search forms"
-                options={FORMS.map((f) => ({ id: f.id, label: f.label }))}
+                options={forms.map((f) => ({ id: f.id, label: `${f.label} (${f.students})` }))}
                 value={rules.forms}
                 noun="form"
                 allLabel="Apply · all forms"
@@ -214,10 +216,10 @@ const EligibilityRules = ({ rules, onChange }) => {
             />
           </div>
           <h3 className="m-0 pt-[12px] text-[16px] leading-[24px] font-normal tracking-[0.2px] text-[#1c2a21]">
-            Results
+            Verified skills
           </h3>
           <p className="m-0 text-[16px] leading-[24px] tracking-[0.2px] text-[#999999]">
-            Students with a verified result.
+            Students with skills verified on GTH.
           </p>
           <div className="flex flex-col gap-[8px] pt-[16px]">
             <div className="flex items-center justify-between gap-[8px]">
@@ -241,7 +243,7 @@ const EligibilityRules = ({ rules, onChange }) => {
                 max={RESULT_STEPS.length - 1}
                 step={1}
                 value={stepIndex}
-                aria-label="Verified results needed"
+                aria-label="Verified skills needed"
                 aria-valuetext={step.label}
                 disabled={!rules.resultsOn}
                 onChange={(e) => onChange({ results: RESULT_STEPS[Number(e.target.value)].count })}
@@ -266,7 +268,7 @@ const EligibilityRules = ({ rules, onChange }) => {
             Under-18s
           </h3>
           <p className="m-0 text-[16px] leading-[24px] tracking-[0.2px] text-[#999999]">
-            Most Form 3 students are 16–17. Parents are copied on every message.
+            An under-18 sees it once a guardian has agreed. Guardians are copied on messages.
           </p>
           <p className="m-0 flex items-center gap-[8px] pt-[12px] text-[16px] leading-[24px] tracking-[0.2px] text-[#387440]">
             <ProgrammesIconGlobe className="size-[12px]" />

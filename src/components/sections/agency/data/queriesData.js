@@ -1,30 +1,30 @@
-import { getOverview, NATIONAL_TALENTS } from '../../publicData/overview/data/overviewData.js';
 import { REGIONS } from '../../publicData/regionsList.js';
-import { MAP_REGIONS_SAMPLE } from '../../publicData/map/data/mapData.js';
 import { FILTER_DEFINITIONS } from '../../publicData/ui/data/uiData.js';
 import { isSuppressed } from '../../publicData/publicDataFormat.js';
 
 /*
- * queriesData.js — API-shaped MOCK data of the agency "Queries" screens (Figma 11.5.1a-h, canvas 8605:395409). SAMPLE CONTENT ONLY.
- * Future endpoints: POST /agency/queries/run (filters -> overview shape), GET/POST /agency/queries (saved queries),
- * POST /agency/queries/:id/export (CSV, logged with a purpose, consumes the MoU quota).
- * The numbers come from Theme 8's getOverview(); extra profile filters multiply the count by a sample share. Every count under 5 is
- * printed through formatCount() / safeShare() by the components ("<5").
+ * queriesData.js — filters, labels and builders of the agency "Queries" screens (Figma 11.5.1a-h).
+ * Live data: GET /agency/overview (filters + ?x= extras -> the overview shape), GET/POST/PATCH/DELETE /agency/queries (saved queries),
+ * POST /agency/exports (server-built CSV, logged with a purpose, uses the MoU CSV quota). Counts under 5 arrive as 0 + suppressed and
+ * are printed "<5" by the components.
  *
- * BLOCK 1 · filters (URL <-> object)   BLOCK 2 · drawer groups   BLOCK 3 · the query model   BLOCK 4 · breakdown
- * BLOCK 5 · saved queries              BLOCK 6 · dialogs (save, export)   BLOCK 7 · quota
+ * BLOCK 1 · filters (URL <-> object)   BLOCK 2 · drawer groups   BLOCK 3 · the query result   BLOCK 4 · breakdown
+ * BLOCK 5 · saved queries              BLOCK 6 · dialogs (save, export)
  */
 
 /* ===== BLOCK 1 · filters (URL <-> object) ============================================================================== */
 
 export const QUERY_FILTER_KEYS = ['region', 'edu', 'interest', 'age', 'gender'];
 
-/** Region menu rows: the 16 regions with their talent counts (Figma 11.5.1a "Oti 5,210 · Savannah 7,418 ..."), alphabetical. */
-export const REGION_OPTIONS = REGIONS.map((r) => ({
-  id: r.id,
-  label: r.name,
-  count: MAP_REGIONS_SAMPLE.find((m) => m.id === r.id)?.count ?? 0,
-})).sort((a, b) => a.label.localeCompare(b.label));
+/** Region menu rows: the 16 regions, alphabetical (live counts are merged in by regionOptionsWith(overview)). */
+export const REGION_OPTIONS = REGIONS.map((r) => ({ id: r.id, label: r.name })).sort((a, b) =>
+  a.label.localeCompare(b.label)
+);
+export const regionOptionsWith = (overview) =>
+  REGION_OPTIONS.map((o) => {
+    const row = overview?.regions?.find((r) => r.id === o.id);
+    return row ? { ...o, count: row.suppressed ? 1 : row.count } : o;
+  });
 
 /**
  * ⚠️ ASSUMPTION: the profile preset of frame 11.5.1g ("?profile=1": Volta + TVET/HND + Internship + Ready now + 1 verified certificate +
@@ -393,82 +393,24 @@ export const queryTitle = (f) => {
   return parts.length ? parts.join(' · ') : 'All talents in your MoU view';
 };
 
-/* ===== BLOCK 3 · the query model ======================================================================================= */
+/* ===== BLOCK 3 · the query result ===================================================================================== */
 
-/** ⚠️ ASSUMPTION: sample shares of each extra value (share of the matching talents). The preset multiplies to 0.00733 (Volta 13,090 -> 96, Figma 11.5.1g). */
-const EXTRA_SHARE = {
-  'edu-level': 0.2,
-  'work-exp': 0.25,
-  readiness: 0.4,
-  certs: 0.5,
-  personality: 0.733,
-};
-const DEFAULT_EXTRA_SHARE = 0.6;
+/** API params of a filter set (GET /agency/overview and saved-query filters). */
+export const queryApiParams = (f) => ({
+  region: f.region.join(','),
+  edu: f.edu,
+  interest: f.interest,
+  age: f.age,
+  gender: f.gender,
+  x: serialiseExtras(f.extras),
+});
 
-const extrasFactor = (extras) =>
-  Object.keys(extras).reduce((acc, id) => acc * (EXTRA_SHARE[id] ?? DEFAULT_EXTRA_SHARE), 1);
-
-const scale = (n, ratio) => (typeof n === 'number' ? Math.round(n * ratio) : n);
-
-const scaleBuckets = (rows, ratio) => rows.map((r) => ({ ...r, count: scale(r.count, ratio) }));
-
-/** Scale a getOverview() answer to a new total (several regions, extra filters). */
-const scaleOverview = (o, count) => {
-  if (!o.count) return o;
-  const ratio = count / o.count;
-  const fixUp = (rows) => {
-    const scaled = scaleBuckets(rows, ratio);
-    const sum = scaled.reduce((a, r) => a + (r.count ?? 0), 0);
-    if (scaled.length && sum !== count) {
-      const biggest = scaled.reduce((bi, r, i) => (r.count > scaled[bi].count ? i : bi), 0);
-      scaled[biggest] = { ...scaled[biggest], count: scaled[biggest].count + (count - sum) };
-    }
-    return scaled;
-  };
-  return {
-    ...o,
-    count,
-    hero: { ...o.hero, count },
-    kpis: {
-      ...o.kpis,
-      placements: { ...o.kpis.placements, count: scale(o.kpis.placements.count, ratio) },
-    },
-    education: fixUp(o.education),
-    ages: fixUp(o.ages),
-    capabilities: fixUp(o.capabilities),
-    gender: fixUp(o.gender),
-    interests: { ...o.interests, rows: scaleBuckets(o.interests.rows, ratio) },
-    regions: o.regions.map((r) => ({
-      ...r,
-      count: r.count === null ? null : scale(r.count, ratio),
-    })),
-  };
-};
-
-/**
- * Mock of POST /agency/queries/run. Returns { status: 'ready' | 'zero' | 'suppressed', count, overview, filters }.
- * `forceZero` is the ?state=zero frame. Counts under 5 never reach the screen as numbers (the components print "<5").
- */
-export const runQuery = (f, { forceZero = false } = {}) => {
-  const others = { edu: f.edu, interest: f.interest, age: f.age, gender: f.gender };
-  let overview;
-  if (f.region.length <= 1) {
-    overview = getOverview({ ...others, region: f.region[0] ?? '' });
-  } else {
-    const nationalCut = getOverview({ ...others, region: '' });
-    const total = f.region.reduce(
-      (sum, id) => sum + (getOverview({ ...others, region: id }).count ?? 0),
-      0
-    );
-    overview = nationalCut.state === 'ok' ? scaleOverview(nationalCut, total) : nationalCut;
-  }
-  const factor = extrasFactor(f.extras);
-  if (factor < 1 && overview.state === 'ok') {
-    overview = scaleOverview(overview, Math.round(overview.count * factor));
-  }
-  const count = forceZero ? 0 : overview.count;
-  const status = count === 0 ? 'zero' : isSuppressed(count) ? 'suppressed' : 'ready';
-  return { status, count, overview, filters: f, nationalCount: NATIONAL_TALENTS };
+/** { status: 'ready' | 'zero' | 'suppressed', count, overview, filters, nationalCount } from a live overview. */
+export const toQueryResult = (f, overview, { forceZero = false } = {}) => {
+  const suppressed = overview?.state === 'suppressed';
+  const count = forceZero ? 0 : suppressed ? 1 : (overview?.count ?? 0);
+  const status = count === 0 ? 'zero' : suppressed || isSuppressed(count) ? 'suppressed' : 'ready';
+  return { status, count, overview, filters: f, nationalCount: overview?.nationalCount ?? null };
 };
 
 /* ===== BLOCK 4 · the Breakdown card ("View by") ======================================================================== */
@@ -482,154 +424,118 @@ export const VIEW_BY = [
   { id: 'capability', label: 'Strongest capability' },
 ];
 
-/** Education levels of the Breakdown (Figma 11.5.1g rows). Weights = share of an unfiltered cut; the drawn cut is TVET 58 · HND 38. */
-const EDU_ROWS = [
-  { id: 'tvet', label: 'TVET certificate', weight: 58 },
-  { id: 'hnd', label: 'HND / diploma', weight: 38 },
-  { id: 'degree', label: 'Tertiary degree', weight: 30 },
-  { id: 'shs', label: 'SHS / WASSCE', weight: 40 },
-];
-
-const distribute = (total, weights) => {
-  const sum = weights.reduce((a, b) => a + b, 0) || 1;
-  const exact = weights.map((w) => (total * w) / sum);
-  const floors = exact.map(Math.floor);
-  let left = total - floors.reduce((a, b) => a + b, 0);
-  exact
-    .map((v, i) => [v - Math.floor(v), i])
-    .sort((a, b) => b[0] - a[0])
-    .forEach(([, i]) => {
-      if (left > 0) {
-        floors[i] += 1;
-        left -= 1;
-      }
-    });
-  return floors;
-};
-
-/** Rows of the Breakdown: [{ key, label, count }] (counts under 5 are printed "<5" by BarRow). */
+/** Rows of the Breakdown: [{ key, label, count }] from the live overview (counts under 5 are printed "<5" by BarRow). */
 export const breakdownRows = (view, result) => {
   const { overview, filters } = result;
+  const rows = (list) =>
+    (list || []).map((r) => ({
+      key: r.key,
+      label: r.label,
+      count: r.count,
+      suppressed: r.suppressed,
+    }));
   switch (view) {
-    case 'education': {
-      const picked = filters.extras['edu-level'];
-      const live = picked ? EDU_ROWS.filter((r) => picked.includes(r.id)) : EDU_ROWS;
-      const counts = distribute(
-        overview.count,
-        live.map((r) => r.weight)
-      );
-      return EDU_ROWS.map((r) => {
-        const i = live.indexOf(r);
-        return { key: r.id, label: r.label, count: i >= 0 ? counts[i] : 3 };
-      });
-    }
+    case 'education':
+      return rows(overview.education);
     case 'region':
-      return overview.regions
-        .filter((r) => r.count !== null)
+      return (overview.regions || [])
+        .filter((r) => r.count || r.suppressed)
         .map((r) => ({
           key: r.id,
-          label: REGIONS.find((x) => x.id === r.id)?.name ?? r.id,
+          label: r.name || REGIONS.find((x) => x.id === r.id)?.name || r.id,
           count: r.count,
+          suppressed: r.suppressed,
         }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+        .slice(0, 16);
     case 'age':
-      return overview.ages.map((a) => ({ key: a.key, label: a.label, count: a.count }));
+      return rows(overview.ages);
     case 'gender':
-      return overview.gender.map((g) => ({ key: g.key, label: g.label, count: g.count }));
+      return rows(overview.gender);
     case 'capability':
-      return overview.capabilities.map((c) => ({ key: c.key, label: c.label, count: c.count }));
+      return rows(overview.capabilities);
     default:
-      return overview.interests.rows.slice(0, filters.interest ? 5 : 10);
+      return (overview.interests?.rows || []).slice(0, filters.interest ? 5 : 10);
   }
 };
 
-/* ===== BLOCK 5 · saved queries (Figma 11.5.1e 8609:2458) ============================================================== */
+/* ===== BLOCK 5 · saved queries (Figma 11.5.1e) ========================================================================= */
 
-/** ⚠️ ASSUMPTION: the fourth saved query is not drawn (the header says "4 saved", the frame shows three); it is sample content. */
-export const SAVED_QUERIES = [
-  {
-    id: 'neet-by-district',
-    name: 'NEET by district',
-    iconKey: 'map',
-    schedule: 'Monthly',
-    movedPct: 7,
-    title: 'Not in work or training · all districts',
-    meta: ['All 16 regions · 261 districts', 'Readiness', 'Ages 18–35'],
-    talents: 12410,
-    barRatio: 0.92,
-    tone: 'green',
-    chips: ['District', 'Readiness', 'Age'],
-    saved: '2 Sep',
-    by: 'Efua Owusu',
-    status: 'scheduled',
-    href: '/agency/queries?state=results',
-  },
-  {
-    id: 'volta-tech-18-24',
-    name: 'Volta tech, 18–24',
-    iconKey: 'chart',
-    schedule: 'Monthly',
-    movedPct: 2,
-    title: 'Technology interest · Volta',
-    meta: ['Volta · 18 districts', 'Any education', 'Ages 18–24'],
-    talents: 237,
-    barRatio: 0.55,
-    tone: 'amber',
-    chips: ['Region', 'Interest', 'Age'],
-    saved: '18 Sep',
-    by: 'Kojo Mensah',
-    status: 'scheduled',
-    href: '/agency/queries?state=results&region=volta&interest=technology&age=18-24',
-  },
-  {
-    id: 'upper-west-placements',
-    name: 'Upper West placements',
-    iconKey: 'filter',
-    schedule: 'Not refreshing',
-    movedPct: null,
-    title: 'Placements · outcomes',
-    meta: ['Upper West · 11 districts', 'Placed', 'Any age'],
-    talents: 3,
-    barRatio: 0.45,
-    tone: 'amber',
-    chips: ['Region', 'Outcome', 'Programme'],
-    saved: '1 Aug',
-    by: 'Efua Owusu',
-    status: 'paused',
-    href: '/agency/queries?state=zero&region=upper-west&interest=technology&age=18-24',
-  },
-  {
-    id: 'northern-readiness',
-    name: 'Northern readiness',
-    iconKey: 'map',
-    schedule: 'Weekly',
-    movedPct: 1,
-    title: 'Ready now · Northern',
-    meta: ['Northern · 14 districts', 'Readiness', 'Any age'],
-    talents: 1860,
-    barRatio: 0.7,
-    tone: 'green',
-    chips: ['Region', 'Readiness'],
-    saved: '9 Sep',
-    by: 'Kojo Mensah',
-    status: 'scheduled',
-    href: '/agency/queries?state=results&region=northern',
-  },
-];
-
-/** The notice bar over the saved queries (Figma: """NEET by district"" moved by 7% since last month ..."). */
-export const SAVED_NOTICE = {
-  queryId: 'neet-by-district',
-  text: '“NEET by district” moved by 7% since last month. Open it to see which districts changed.',
+const CADENCE_LABEL = { weekly: 'Weekly', monthly: 'Monthly', none: 'Not refreshing' };
+const FILTER_CHIP = {
+  region: 'Region',
+  edu: 'Education',
+  interest: 'Interest',
+  age: 'Age',
+  gender: 'Gender',
 };
 
-export const SAVED_TABS = [
-  { id: 'build', label: 'Build', count: '—' },
-  { id: 'recent', label: 'Recent', count: '12' },
-  { id: 'saved', label: 'Saved', count: null },
-  { id: 'shared', label: 'Shared with me', count: '2' },
-];
+/** A saved query's stored filters ({ region: [], edu, interest, age, gender, x, by }) as the page's filter object. */
+export const storedToFilters = (s = {}) => ({
+  region: (Array.isArray(s.region) ? s.region : String(s.region || '').split(',')).filter((id) =>
+    REGION_IDS.includes(id)
+  ),
+  edu: s.edu || '',
+  interest: s.interest || '',
+  age: s.age || '',
+  gender: s.gender || '',
+  extras: parseExtras(s.x),
+  by: s.by || 'interest',
+});
+
+/** The URL of a saved query's results. */
+export const queryHref = (f) => {
+  const p = new URLSearchParams({ state: 'results' });
+  if (f.region.length) p.set('region', f.region.join(','));
+  ['edu', 'interest', 'age', 'gender'].forEach((k) => f[k] && p.set(k, f[k]));
+  const x = serialiseExtras(f.extras);
+  if (x) p.set('x', x);
+  if (f.by && f.by !== 'interest') p.set('by', f.by);
+  return `/agency/queries?${p.toString()}`;
+};
+
+/** API saved query -> the card / table row the Saved queries view draws. */
+export const toSavedCard = (q) => {
+  const f = storedToFilters(q.filters);
+  const count = q.suppressed ? 1 : q.count;
+  const ratio = q.national ? Math.min(1, count / q.national) : 0;
+  const optLabel = (key) => urlOptions(key).find((o) => o.id === f[key])?.label;
+  const regions = f.region.length
+    ? f.region.map((id) => REGIONS.find((r) => r.id === id)?.name).join(', ')
+    : 'All 16 regions';
+  const chips = [
+    ...Object.keys(FILTER_CHIP)
+      .filter((k) => (k === 'region' ? f.region.length : f[k]))
+      .map((k) => FILTER_CHIP[k]),
+    ...Object.keys(f.extras).map((id) => EXTRA_CHIP[id]?.chip ?? fieldById(id)?.label ?? id),
+  ];
+  return {
+    id: q.id,
+    name: q.name,
+    iconKey: f.region.length === 1 ? 'map' : Object.keys(f.extras).length ? 'filter' : 'chart',
+    schedule: q.status === 'paused' ? 'Not refreshing' : CADENCE_LABEL[q.cadence] || 'Monthly',
+    cadence: q.cadence,
+    movedPct: q.status === 'paused' ? null : (q.movedPct ?? 0),
+    title: queryTitle(f),
+    meta: [
+      regions,
+      optLabel('edu') || (f.extras['edu-level'] ? 'Education filter' : 'Any education'),
+      f.age ? `Ages ${optLabel('age')}` : 'Any age',
+    ],
+    talents: count,
+    barRatio: Math.max(0.04, ratio),
+    tone: count >= 50 ? 'green' : 'amber',
+    chips: chips.length ? chips : ['All talents'],
+    saved: q.createdAt
+      ? new Date(q.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+      : '',
+    lastRunAt: q.lastRunAt,
+    by: q.by,
+    mine: q.mine,
+    status: q.status,
+    href: queryHref(f),
+  };
+};
 
 export const SAVED_SORTS = ['Recently run', 'Name', 'Talents'];
 
@@ -648,86 +554,27 @@ export const NOTIFY_CHANNELS = [
 ];
 
 export const EXPORT_PURPOSE_MAX = 200;
-export const EXPORT_PURPOSE_DEFAULT = 'YouthStart 2027 planning · Volta tech cohort';
+export const EXPORT_PURPOSE_DEFAULT = '';
 
 export const EXPORT_OPTIONS = (result) => {
   const f = result.filters;
-  const regions =
-    f.region.length === 1 ? 'Volta’s 18 districts · 252 rows' : 'All 261 districts · 261 rows';
+  const regions = f.region.length
+    ? f.region.map((id) => REGIONS.find((r) => r.id === id)?.name).join(', ')
+    : 'All 16 regions';
   return [
-    { id: 'query', title: 'This query', sub: `${result.count} talents · 14 columns` },
-    { id: 'district', title: 'By district', sub: regions },
-    { id: 'month', title: 'By month', sub: 'Last 24 months · 24 rows' },
+    {
+      id: 'query',
+      title: 'This query',
+      sub: `${result.status === 'suppressed' ? '<5' : result.count.toLocaleString('en-GB')} talents · breakdown by every group`,
+    },
+    {
+      id: 'district',
+      title: 'By district',
+      sub: `${regions} · one row per district (under 5 grouped)`,
+    },
+    { id: 'month', title: 'By month', sub: 'Last 24 months · new and total talents' },
   ];
 };
 
-/* ===== BLOCK 7 · quota (mock) ========================================================================================= */
-
-/** A save or an export uses 1 query of the MoU quota (Figma 11.5.1c: "Each refresh uses 1 query from your quota (64% used)."). */
+/** A save or a refresh uses 1 query of the MoU quota; an export uses 1 CSV export. */
 export const QUOTA_COST = { save: 1, export: 1 };
-
-/* ===== BLOCK 8 · CSV export (mock of POST /agency/queries/:id/export) ================================================= */
-
-const MONTH_NAMES = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const csvCell = (value) => {
-  const text = String(value);
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-};
-
-const printed = (n) => (isSuppressed(n) ? '<5' : String(n));
-
-/**
- * Aggregates only, counts under 5 written as "<5" (privacy rule of the whole programme). ⚠️ ASSUMPTION: the district split is not modelled
- * in the mock, so "By district" lists the selected regions (all 16 when none) and "By month" spreads the total over the last 24 months.
- */
-export const buildExportCsv = (kind, result) => {
-  const { overview, filters } = result;
-  const rows = [];
-  if (kind === 'district') {
-    rows.push(['region', 'talents']);
-    overview.regions
-      .filter((r) => r.count !== null)
-      .forEach((r) =>
-        rows.push([REGIONS.find((x) => x.id === r.id)?.name ?? r.id, printed(r.count)])
-      );
-  } else if (kind === 'month') {
-    rows.push(['month', 'talents']);
-    const weights = Array.from({ length: 24 }, (_, i) => i + 6);
-    const counts = distribute(overview.count, weights);
-    counts.forEach((n, i) => {
-      const d = new Date(2024, 10 + i, 1);
-      rows.push([`${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`, printed(n)]);
-    });
-  } else {
-    rows.push(['group', 'value', 'talents']);
-    overview.education.forEach((e) => rows.push(['Education level', e.label, printed(e.count)]));
-    overview.ages.forEach((a) => rows.push(['Age range', a.label, printed(a.count)]));
-    overview.gender.forEach((g) => rows.push(['Gender', g.label, printed(g.count)]));
-    overview.capabilities.forEach((c) =>
-      rows.push(['Strongest capability', c.label, printed(c.count)])
-    );
-    overview.interests.rows.forEach((i) =>
-      rows.push(['Career interest', i.label, printed(i.count)])
-    );
-    rows.push([
-      'Total',
-      filters.region.length ? 'Selected regions' : 'All regions',
-      printed(overview.count),
-    ]);
-  }
-  return rows.map((r) => r.map(csvCell).join(',')).join('\n');
-};

@@ -5,7 +5,9 @@
  * and the backend decides who is staff.
  */
 
-export const STAFF_DOMAIN = String(import.meta.env.VITE_ADMIN_STAFF_DOMAIN || 'ghanatalenthub.com').trim();
+export const STAFF_DOMAIN = String(
+  import.meta.env.VITE_ADMIN_STAFF_DOMAIN || 'ghanatalenthub.com'
+).trim();
 export const STAFF_DOMAIN_REQUIRED = Boolean(import.meta.env.VITE_ADMIN_STAFF_DOMAIN);
 
 export const ATTEMPTS = 5;
@@ -14,7 +16,10 @@ export const RESEND_IN = 59;
 export const CODE_EXPIRES_IN = 15 * 60;
 
 export const maskEmail = (email) => {
-  const [local = '', domain = STAFF_DOMAIN] = String(email || '').trim().toLowerCase().split('@');
+  const [local = '', domain = STAFF_DOMAIN] = String(email || '')
+    .trim()
+    .toLowerCase()
+    .split('@');
   if (local.length < 2) return `${local}•••@${domain}`;
   return `${local[0]}•••${local[local.length - 1]}@${domain}`;
 };
@@ -22,12 +27,10 @@ export const maskEmail = (email) => {
 export const NOTICES = {
   locked: {
     title: 'Your staff account is locked',
-    body: 'Too many wrong codes, or the account is suspended. A Super Admin can unlock it.',
-    primary: 'Contact a Super Admin',
+    body: 'Too many wrong codes, or the account is suspended. Ask a Super Admin to unlock it in Settings › Staff accounts.',
   },
   expired: {
     title: 'This set-up link has expired',
-    body: 'Set-up links last 24 hours. Ask the Super Admin who invited you to send a new one.',
-    primary: 'Ask for a new link',
+    body: 'Set-up links last 24 hours. Use “Forgot password?” on the sign-in page to set your password, or ask a Super Admin for help.',
   },
 };

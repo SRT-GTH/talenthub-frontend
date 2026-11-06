@@ -1,12 +1,17 @@
 import { lazy, Suspense } from 'react';
 import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { Route, Routes } from 'react-router-dom';
+import {
+  InstitutionGate,
+  InstitutionSessionProvider,
+} from '../../components/sections/institution/InstitutionSessionContext.jsx';
 // Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
 import '../../copy/portals/institutionCopy.js';
 
 /*
  * InstitutionApp — the router of the Theme 11 institution portal (Figma canvas 8520:10), mounted by App.jsx as /institution/* outside MainLayout.
- * Mock signed-in session only (⚠️ ASSUMPTION: no real auth; see useInstitutionSession). Every page is a lazy module in this folder; the work
+ * Real session: InstitutionSessionProvider reads GET /api/institution/me; InstitutionGate sends signed-out visitors to /login and keeps an
+ * institution that is not accredited yet on the accreditation and settings pages. Sign-up and the public credential check stay public. Every page is a lazy module in this folder; the work
  * packages replace the stubs and add NO route to App.jsx (only here, by the foundation / lead). URL contract: institutionState.js + wiki/institution.md.
  *
  *   /institution                            11.2.1a-c home (B)   ?state=new = 11.2.1b · ?modal=welcome = 11.1.3a, ?tour=1|2|3 = 11.1.3b-d (overlay, A)
@@ -47,10 +52,28 @@ const InstitutionNotFoundPage = lazy(() => import('./InstitutionNotFoundPage.jsx
 const Fallback = () => <PageLoader look="focused" />;
 
 const InstitutionApp = () => (
+  <InstitutionSessionProvider>
+    <Suspense fallback={<Fallback />}>
+      <Routes>
+        <Route path="sign-up" element={<InstitutionSignUpPage />} />
+        <Route path="verify/:credentialId" element={<InstitutionVerifyPage />} />
+        <Route
+          path="*"
+          element={
+            <InstitutionGate>
+              <SignedInRoutes />
+            </InstitutionGate>
+          }
+        />
+      </Routes>
+    </Suspense>
+  </InstitutionSessionProvider>
+);
+
+const SignedInRoutes = () => (
   <Suspense fallback={<Fallback />}>
     <Routes>
       <Route index element={<InstitutionHomePage />} />
-      <Route path="sign-up" element={<InstitutionSignUpPage />} />
       <Route path="accreditation" element={<InstitutionAccreditationPage />} />
       <Route path="accreditation/status" element={<InstitutionAccreditationStatusPage />} />
       <Route path="students" element={<InstitutionStudentsPage />} />
@@ -61,7 +84,6 @@ const InstitutionApp = () => (
       <Route path="credentials" element={<InstitutionCredentialsPage />} />
       <Route path="credentials/new" element={<InstitutionCredentialsPage />} />
       <Route path="credentials/:credentialId" element={<InstitutionCredentialsPage />} />
-      <Route path="verify/:credentialId" element={<InstitutionVerifyPage />} />
       <Route path="programmes" element={<InstitutionProgrammesPage />} />
       <Route path="programmes/new" element={<InstitutionProgrammesPage />} />
       <Route path="programmes/:programmeId" element={<InstitutionProgrammesPage />} />

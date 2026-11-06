@@ -8,10 +8,10 @@ const log = debug('AgencyDuplicateDialog');
  * AgencyDuplicateDialog — "Your agency is already on GTH" (Figma 11.4.1a5 8607:2242 "div.vid-card": 528 x 320, white, r24, p 64/48, 4px + 40/100 shadow, #1c2a21 at 70 % scrim):
  * 32/40 600 title, 16/24 #575755 body, red "Ask for an invite" (#c0392b, 2px #73221a, r10, 4px shelf) and white "Contact support" (2px ink@.30, r14).
  * ⚠️ ASSUMPTION: "Ask for an invite" (no request flow drawn) logs the intent and returns to the sign-up form; "Contact support" opens the support mailbox.
- * Props: agencyName, registeredOn, onClose.
+ * Props: agencyName, registeredOn, message (the server's 409 sentence, replaces the drawn one), onClose.
  */
 
-const AgencyDuplicateDialog = ({ agencyName, registeredOn, onClose }) => {
+const AgencyDuplicateDialog = ({ agencyName, registeredOn, message, onClose }) => {
   const navigate = useNavigate();
   return (
     <AgencyDialog
@@ -25,8 +25,9 @@ const AgencyDuplicateDialog = ({ agencyName, registeredOn, onClose }) => {
           Your agency is already on GTH
         </h2>
         <p className="m-0 max-w-[432px] font-sans text-[16px] leading-[24px] text-[#575755]">
-          Someone at the {agencyName} registered on {registeredOn}. Ask them to invite you as an
-          analyst, or contact us if this looks wrong.
+          {message
+            ? `${message} Ask your agency admin to invite you as an analyst, or contact us if this looks wrong.`
+            : `Someone at the ${agencyName} registered on ${registeredOn}. Ask them to invite you as an analyst, or contact us if this looks wrong.`}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-[8px]">
           <button
@@ -42,7 +43,7 @@ const AgencyDuplicateDialog = ({ agencyName, registeredOn, onClose }) => {
             Ask for an invite
           </button>
           <a
-            href="mailto:agencies@ghanatalenthub.example"
+            href="mailto:info@ghanatalenthub.com"
             className="inline-flex min-h-[44px] items-center rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[18px] font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             Contact support

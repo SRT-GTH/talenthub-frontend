@@ -8,7 +8,7 @@ import { GLYPHS } from '../../talentProfile/profileTabsStyles.js';
  */
 
 const ProgressExperienceCard = ({ items }) => (
-  <ProfileCard title="Experience" link="See all 2 →" onLink={() => {}}>
+  <ProfileCard title="Experience">
     <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
       {items.map((exp, i) => {
         const Glyph = GLYPHS[exp.icon];

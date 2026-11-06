@@ -39,7 +39,11 @@ export const ChartQuestion = ({ attempt, t }) => {
           tone={feedback.tone}
           title={feedbackTitle(attempt, t)}
           body={feedback.body}
-          sticker={feedback.tone === 'correct' ? t('+{cost} {xp}', { cost: flow.correctXp }) : null}
+          sticker={
+            feedback.tone === 'correct' && flow.correctXp
+              ? t('+{cost} {xp}', { cost: flow.correctXp })
+              : null
+          }
         />
       ) : null}
     </>

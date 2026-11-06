@@ -1,20 +1,16 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
+import { agencyAudit, agencyAuditExport, saveCsv } from '../../../../services/agency.api.js';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import AgencyButton from '../AgencyButton.jsx';
+import { useAgencyResource } from '../useAgencyResource.js';
 import AgencyAuditRow from './AgencyAuditRow.jsx';
 import {
   AgencySettingsClockIcon,
   AgencySettingsGridIcon,
   AgencySettingsListIcon,
 } from './agencySettingsIcons.jsx';
-import {
-  AUDIT_BANNER,
-  AUDIT_PAGE_SIZE,
-  AUDIT_TABS,
-  TOASTS,
-  buildAuditEvents,
-} from './data/agencySettingsData.js';
+import { AUDIT_PAGE_SIZE, AUDIT_TABS, TOASTS } from './data/agencySettingsData.js';
 
 const log = debug('AgencyAuditLogTab');
 
@@ -24,47 +20,54 @@ const KINDS = [
   { id: 'request', label: 'Requests' },
 ];
 
-const csvCell = (v) => `"${String(v).replace(/"/g, '""')}"`;
+const day = (d) =>
+  new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 /*
  * AgencyAuditLogTab — Figma 11.6.1h "Audit log" (8611:3022): heading + "1,284 events" pill, tabs Overview / Downloads / Requests / Quota (counts),
  * filter chips All · Downloads · Requests, grid / list toggle, DPO banner, the event list. URL keys (own): view=overview|downloads|requests|quota
- * (default requests = the drawn frame), kind=all|download|request, layout=grid, page=n. ⚠️ ASSUMPTIONS: events other than the 3 drawn are generated
- * samples; pagination, the grid layout and the "Export CSV" button (mock: downloads the filtered rows as a CSV file) are not drawn.
+ * (default overview), kind=all|download|request, layout=grid, page=n. Live: GET /agency/audit (agencyActivity: every save, refresh, export,
+ * request, view, download and team change, newest first, server-paged); "Export CSV" is POST /agency/audit/export (that tab, logged).
  * Props: data (useAgencyState()), onToast(toast).
  */
 const AgencyAuditLogTab = ({ data, onToast }) => {
-  const tab = AUDIT_TABS.find((t) => t.id === data.view)?.id ?? 'requests';
+  const tab = AUDIT_TABS.find((t) => t.id === data.view)?.id ?? 'overview';
   const kindParam = data.params.get('kind');
   const kind = KINDS.some((k) => k.id === kindParam) ? kindParam : 'all';
   const grid = data.params.get('layout') === 'grid';
-  const events = useMemo(() => buildAuditEvents(tab), [tab]);
-  const filtered = useMemo(
-    () => (kind === 'all' ? events : events.filter((e) => e.kind === kind)),
-    [events, kind]
+  const pageParam = Math.max(1, Number(data.params.get('page')) || 1);
+  const res = useAgencyResource(
+    () => agencyAudit({ tab, kind, page: pageParam, pageSize: AUDIT_PAGE_SIZE }),
+    [tab, kind, pageParam]
   );
-  const pages = Math.max(1, Math.ceil(filtered.length / AUDIT_PAGE_SIZE));
-  const page = Math.min(Math.max(1, Number(data.params.get('page')) || 1), pages);
-  const slice = filtered.slice((page - 1) * AUDIT_PAGE_SIZE, page * AUDIT_PAGE_SIZE);
-  const from = filtered.length ? (page - 1) * AUDIT_PAGE_SIZE + 1 : 0;
-  const to = Math.min(page * AUDIT_PAGE_SIZE, filtered.length);
+  const [busy, setBusy] = useState(false);
+  const a = res.data;
+  const slice = a?.items ?? [];
+  const total = a?.total ?? 0;
+  const page = a?.page ?? pageParam;
+  const pages = a?.pages ?? 1;
+  const from = total ? (page - 1) * AUDIT_PAGE_SIZE + 1 : 0;
+  const to = Math.min(page * AUDIT_PAGE_SIZE, total);
+  const counts = a?.tabs ?? {};
+  const tabLabel = (t) =>
+    t.id === 'quota' ? `${counts.quotaPct ?? 0}%` : (counts[t.id] ?? 0).toLocaleString('en-GB');
 
-  const exportCsv = () => {
-    log('export csv', { rows: filtered.length });
-    const lines = [
-      ['Event', 'Details', 'Rows', 'Day'],
-      ...filtered.map((e) => [e.title, e.meta, e.rows, e.day]),
-    ];
-    const blob = new Blob([lines.map((l) => l.map(csvCell).join(',')).join('\n')], {
-      type: 'text/csv',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `audit-log-${tab}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    onToast(TOASTS.exported);
+  const exportCsv = async () => {
+    setBusy(true);
+    try {
+      const out = await agencyAuditExport(tab);
+      saveCsv(out.fileName, out.csv);
+      log('export csv', { rows: out.rows });
+      onToast({
+        ...TOASTS.exported,
+        body: `${out.fileName} · ${out.rows} events. The export is logged.`,
+      });
+      res.reload();
+    } catch (err) {
+      onToast({ title: 'Not exported', body: err?.response?.data?.message || err?.message });
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -76,15 +79,15 @@ const AgencyAuditLogTab = ({ data, onToast }) => {
               Audit log
             </h1>
             <span className="rounded-full bg-[#ebf1ec] px-[10px] py-[4px] text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
-              1,284 events
+              {(counts.overview ?? 0).toLocaleString('en-GB')} events
             </span>
           </div>
           <p className="m-0 text-[16px] leading-[24px] tracking-[0.2px] text-[#737373] max-sm:text-[14px]">
             Every view, query, download and request under your MoU. You can’t edit or delete it.
           </p>
         </div>
-        <AgencyButton size="sm" onClick={exportCsv}>
-          Export CSV
+        <AgencyButton size="sm" onClick={exportCsv} disabled={busy}>
+          {busy ? 'Preparing…' : 'Export CSV'}
         </AgencyButton>
       </div>
 
@@ -114,7 +117,7 @@ const AgencyAuditLogTab = ({ data, onToast }) => {
                   t.accent && active ? 'bg-[#c8951a] text-white' : 'bg-[#ebf1ec] text-[#2d5d33]'
                 )}
               >
-                {t.countLabel}
+                {tabLabel(t)}
               </span>
             </button>
           );
@@ -177,11 +180,22 @@ const AgencyAuditLogTab = ({ data, onToast }) => {
 
       <div className="flex items-center gap-[14px] rounded-[20px] border border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[14px] pl-[18px]">
         <AgencySettingsClockIcon className="size-[18px] shrink-0 text-[#967014]" />
-        <p className="m-0 text-[14px] leading-[17px] font-medium text-[#1c2a21]">{AUDIT_BANNER}</p>
+        <p className="m-0 text-[14px] leading-[17px] font-medium text-[#1c2a21]">
+          {a?.nextReport
+            ? `Your DPO gets the next access report on ${day(a.nextReport)}.`
+            : 'Every action under your MoU is logged here.'}
+        </p>
       </div>
 
       <div id="audit-panel" role="tabpanel" aria-labelledby={`audit-tab-${tab}`}>
-        {slice.length ? (
+        {res.loading && !a ? (
+          <p
+            role="status"
+            className="m-0 rounded-[22px] border border-[#e1eae2] bg-white p-[24px] text-[14px] text-[#595959]"
+          >
+            Loading the audit log…
+          </p>
+        ) : slice.length ? (
           <ul
             className={classNames(
               'm-0 list-none p-0',
@@ -201,7 +215,7 @@ const AgencyAuditLogTab = ({ data, onToast }) => {
         )}
         <div className="flex flex-wrap items-center justify-between gap-[12px] pt-[14px]">
           <p role="status" className="m-0 text-[14px] leading-[20px] text-[#737373]">
-            Showing {from} to {to} of {filtered.length.toLocaleString('en-GB')} events
+            Showing {from} to {to} of {total.toLocaleString('en-GB')} events
           </p>
           <div className="flex items-center gap-[8px]">
             <AgencyButton

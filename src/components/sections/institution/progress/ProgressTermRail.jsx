@@ -9,10 +9,9 @@ import {
   ProfileVoiceGlyph,
   ProfileWalletGlyph,
 } from '../../../shared/assets.jsx';
-import { HeadLink, ProfileCard } from '../../talentProfile/ProfileTabsUi.jsx';
-import { BADGE_ICONS, SHELF } from '../../talentProfile/profileTabsStyles.js';
+import { ProfileCard } from '../../talentProfile/ProfileTabsUi.jsx';
 import { INSTITUTION_BASE } from '../institutionNav.js';
-import { BADGES_COPY } from './data/progressData.js';
+import { PROGRESS_RULE } from './data/progressData.js';
 
 /*
  * ProgressTermRail — the right rail of the student detail (Figma 8595:935, 425 wide, gap 20): the dark "Term 1 progress" card (#1c2a21, r20: sticker with eye,
@@ -78,34 +77,7 @@ const ProgressTermRail = ({ detail }) => {
             );
           })}
         </ul>
-        <HeadLink onClick={() => {}} className="self-start">
-          {r.termLink}
-        </HeadLink>
-      </ProfileCard>
-
-      <ProfileCard title={BADGES_COPY.title} link={BADGES_COPY.link} onLink={() => {}}>
-        <ul className="m-0 flex list-none flex-wrap justify-between gap-x-[6px] gap-y-[12px] p-0">
-          {BADGES_COPY.items.map((b) => {
-            const Icon = BADGE_ICONS[b.icon];
-            return (
-              <li key={b.key} className="flex w-[88px] flex-col items-center gap-[6px]">
-                <span
-                  aria-hidden="true"
-                  className={classNames(
-                    'flex size-[56px] items-center justify-center rounded-full',
-                    SHELF
-                  )}
-                  style={{ background: b.bg }}
-                >
-                  <Icon className="size-[25px]" />
-                </span>
-                <span className="font-sans text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#595959] max-lg:text-[12px]">
-                  {b.label}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <p className="m-0 font-sans text-[13px] leading-[18px] text-[#737373]">{PROGRESS_RULE}</p>
       </ProfileCard>
     </>
   );

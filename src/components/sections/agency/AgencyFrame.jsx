@@ -1,9 +1,11 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import DashboardPageBackground from '../dashboard/DashboardPageBackground.jsx';
+import { fetchNotifications } from '../../../services/notifications.api.js';
 import AgencyBuddyFab from './AgencyBuddyFab.jsx';
+import AgencyChromePanels from './AgencyChromePanels.jsx';
 import AgencySidebar from './AgencySidebar.jsx';
 import AgencyTopBar from './AgencyTopBar.jsx';
 import { activeNavId } from './agencyNav.js';
@@ -23,12 +25,26 @@ const log = debug('AgencyFrame');
  * defaults from the pathname), children, noFooter (kept for parity with PublicDataFrame: the agency chrome has no footer), className.
  * Children are laid out as a column with a 30px gap (16px on phones) under a 16px top padding; wrap content in ONE element for another layout.
  * The page behind is the shared dashboard background (grid + 3 blurred ellipses). Modals are mounted by the pages that draw them, keyed on data.modal;
- * only ?modal=profile is mounted here (package E's AgencyProfileMenu).
+ * ?modal=profile (package E's AgencyProfileMenu) and the top-bar panels ?modal=notifications|help|language|a11y (AgencyChromePanels) are mounted here.
  */
+
+const PANELS = ['notifications', 'help', 'language', 'a11y'];
 
 const AgencyFrame = ({ data, title = 'Agency', active, children, className }) => {
   const { pathname } = useLocation();
-  const session = useAgencySession();
+  const baseSession = useAgencySession();
+  const [unread, setUnread] = useState(0);
+  // the bell badge: unread in-app notifications of the signed-in user (GET /notifications)
+  useEffect(() => {
+    fetchNotifications({ limit: 1, isRead: false })
+      .then((r) => setUnread(r.unreadCount || 0))
+      .catch(() => setUnread(0));
+  }, [pathname]);
+  const session = useMemo(
+    () => ({ ...baseSession, badges: { ...baseSession.badges, notifications: unread } }),
+    [baseSession, unread]
+  );
+  const closePanel = useCallback(() => data.update({ modal: null }, { replace: true }), [data]);
   const activeId = active ?? activeNavId(pathname);
   const { rail, drawer, update } = data;
   const menuButtonRef = useRef(null);
@@ -141,6 +157,9 @@ const AgencyFrame = ({ data, title = 'Agency', active, children, className }) =>
             />
           </div>
         </div>
+      ) : null}
+      {PANELS.includes(data.modal) ? (
+        <AgencyChromePanels modal={data.modal} onClose={closePanel} onUnread={setUnread} />
       ) : null}
       {data.modal === 'profile' ? (
         <Suspense fallback={null}>

@@ -15,11 +15,7 @@ import {
   UploadIcon,
   UserIcon,
 } from './institutionOnboardingIcons.jsx';
-import {
-  REGISTERED_GES_NUMBER,
-  isInstitutionComplete,
-  validateInstitution,
-} from './signUpValidation.js';
+import { REGIONS, isInstitutionComplete, validateInstitution } from './signUpValidation.js';
 
 const log = debug('InstitutionDetailsForm');
 
@@ -29,11 +25,11 @@ const log = debug('InstitutionDetailsForm');
  * button, "PNG or SVG · Max 2MB" and the file name), a two-column grid of the design-system fields (Institution name · Short name (optional) · GES / accreditation number ·
  * Institution type · Address · Work email · Password · Retype Password) and the full-width "Continue to verification" button (grey until every required field is filled)
  * + "Already have an account? Log in instead".
- * Interactions: real controlled fields, client-side validation (signUpValidation.js), the crest "upload" only reads the file name and size (no file leaves the browser),
- * the password eyes toggle visibility. Submit: errors are shown inline and the first invalid field is focused; the demo duplicate GES number opens the
- * "already on GTH" dialog (onDuplicate); otherwise onContinue().
- * ⚠️ ASSUMPTION: the form starts empty (11.1.1a); `filled` (?state=filled / already-registered) starts with the demo institution exactly as Figma 11.1.1a2 draws it.
- * Props: filled (bool, decided at mount), onContinue, onDuplicate.
+ * Live: client-side validation (signUpValidation.js), then POST /api/institution-signup/check: a GES number already on GTH opens the "already on GTH"
+ * dialog (onDuplicate({name, registeredOn})), an email that already has an account is shown on the field. The crest is kept in memory and uploaded once the
+ * account exists. The address is the GhanaPost digital address + region; the contact person (you) becomes the institution's admin.
+ * Props: initial (values to start from, e.g. coming back from step 04), initialCrest (File), busy,
+ * onContinue(values, crestFile) -> optional {field, message} to show on a field (the page opens the duplicate dialog itself).
  */
 
 const FieldDot = () => (
@@ -48,7 +44,10 @@ const EMPTY = {
   short: '',
   gesNumber: '',
   type: '',
-  address: '',
+  digitalAddress: '',
+  region: '',
+  contactName: '',
+  contactTitle: '',
   email: '',
   password: '',
   confirm: '',
@@ -66,26 +65,13 @@ const PwToggle = ({ shown, onToggle }) => (
   </button>
 );
 
-const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDuplicate }) => {
-  // The empty and the filled frames are different forms: decided once, at mount.
-  const [filled] = useState(filledProp);
-  const v = SIGNUP.values;
-  const [values, setValues] = useState(
-    filled
-      ? {
-          name: v.name,
-          short: v.short,
-          gesNumber: v.gesNumber,
-          type: v.type,
-          address: v.address,
-          email: v.email,
-          password: v.password,
-          confirm: v.password,
-        }
-      : EMPTY
-  );
+const InstitutionDetailsForm = ({ initial, initialCrest = null, busy = false, onContinue }) => {
+  const [values, setValues] = useState({ ...EMPTY, ...(initial || {}) });
   const [errors, setErrors] = useState({});
-  const [crest, setCrest] = useState(filled ? v.crest : null);
+  const [crestFile, setCrestFile] = useState(initialCrest);
+  const crest = crestFile
+    ? `${crestFile.name} (${Math.max(1, Math.round(crestFile.size / 1024))}KB)`
+    : null;
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
   const fileRef = useRef(null);
@@ -110,33 +96,33 @@ const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDupl
       return;
     }
     log('crest chosen', { name: f.name });
-    setCrest(`${f.name} (${Math.max(1, Math.round(f.size / 1024))}KB)`);
+    setCrestFile(f);
     setErrors((s) => ({ ...s, crest: undefined }));
   };
 
   const complete = isInstitutionComplete(values);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
+    if (busy) return;
     const found = validateInstitution(values);
     setErrors(found);
     const keys = Object.keys(found);
     if (keys.length) {
       log('invalid', { keys });
-      formRef.current?.querySelector('[aria-invalid="true"]')?.focus();
-      return;
-    }
-    if (values.gesNumber.trim().toUpperCase() === REGISTERED_GES_NUMBER) {
-      log('duplicate institution');
-      onDuplicate?.();
+      setTimeout(() => formRef.current?.querySelector('[aria-invalid="true"]')?.focus(), 0);
       return;
     }
     log('continue');
-    onContinue?.();
+    const problem = await onContinue?.(values, crestFile);
+    if (problem?.field) {
+      setErrors((s) => ({ ...s, [problem.field]: problem.message }));
+      setTimeout(() => formRef.current?.querySelector('[aria-invalid="true"]')?.focus(), 0);
+    }
   };
 
   const monogram = (values.short || values.name).trim().slice(0, 2).toUpperCase();
-  const title = filled ? SIGNUP.titleFilled : SIGNUP.titleEmpty;
+  const title = values.name ? SIGNUP.titleFilled : SIGNUP.titleEmpty;
 
   return (
     <form
@@ -155,9 +141,7 @@ const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDupl
       <div className="flex flex-col gap-[8px]">
         <p className="m-0 flex items-baseline gap-px font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#1c2a21]">
           School crest
-          <span aria-hidden="true" className="text-[14px] font-semibold text-[#1d7c4d]">
-            *
-          </span>
+          <span className="ml-[6px] text-[12px] font-normal text-[#737373]">Optional</span>
         </p>
         <div className="flex items-center gap-[8px]">
           <span
@@ -245,15 +229,45 @@ const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDupl
           onChange={set('type')}
           error={errors.type}
         />
+        <TextInput
+          label="Digital address"
+          required
+          leftIcon={<FieldDot />}
+          placeholder="e.g. NT-0123-4567"
+          value={values.digitalAddress}
+          onChange={set('digitalAddress')}
+          error={errors.digitalAddress}
+        />
         <Select
-          label="Address"
+          label="Region"
           leftIcon={<FieldDot />}
           chevronIcon={<ArrowDownIcon className="size-[20px] text-[#387440]" />}
-          options={SIGNUP.addresses}
-          placeholder={SIGNUP.addressPlaceholder}
-          value={values.address}
-          onChange={set('address')}
-          error={errors.address}
+          options={REGIONS}
+          placeholder="Choose your region"
+          value={values.region}
+          onChange={set('region')}
+          error={errors.region}
+        />
+        <TextInput
+          label="Your full name"
+          required
+          leftIcon={<UserIcon />}
+          leftIconClassName="text-[#387440]"
+          placeholder="e.g. Iddrisu Abdul-Rahman"
+          value={values.contactName}
+          onChange={set('contactName')}
+          error={errors.contactName}
+          autoComplete="name"
+        />
+        <TextInput
+          label="Your title"
+          labelTrailing="Optional"
+          leftIcon={<UserIcon />}
+          leftIconClassName="text-[#387440]"
+          placeholder="e.g. Registrar"
+          value={values.contactTitle}
+          onChange={set('contactTitle')}
+          autoComplete="organization-title"
         />
         <TextInput
           label="Work email"
@@ -300,9 +314,9 @@ const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDupl
       <div className="mx-auto flex w-full max-w-[698px] flex-col items-center gap-[8px]">
         <button
           type="submit"
-          aria-disabled={!complete}
+          aria-disabled={!complete || busy}
           onClick={(e) => {
-            if (!complete) {
+            if (!complete || busy) {
               // Figma draws the empty form with the grey button: it stays inert until every required field has a value.
               e.preventDefault();
               log('incomplete');
@@ -315,13 +329,13 @@ const InstitutionDetailsForm = ({ filled: filledProp = false, onContinue, onDupl
               : 'cursor-not-allowed border-[#cccccc] bg-[#bfbfbf] shadow-[0_1px_2px_rgba(15,15,10,0.05),0_2px_8px_rgba(15,15,10,0.08)]'
           )}
         >
-          Continue to verification
+          {busy ? 'Checking…' : 'Continue to verification'}
           <ArrowRightIcon className="size-[20px]" />
         </button>
         <p className="m-0 flex items-center gap-[4px] font-sans text-[14px] leading-[20px] tracking-[0.2px] text-[#737373]">
           Already have an account?
           <Link
-            to="/institution"
+            to="/login"
             className="inline-flex min-h-[24px] items-center font-semibold tracking-[0.1px] text-[#387440] no-underline"
           >
             Log in instead

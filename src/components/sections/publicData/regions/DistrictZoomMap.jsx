@@ -26,9 +26,34 @@ const H = GA_ZOOM.height;
 const BUBBLE = '#387440';
 const BUBBLE_ACTIVE = '#224626';
 
-const useLayout = (regionId, markers) =>
+/** Live records (agency portal) carry lat / lon per district and the region's district box: scale positions into the outline box. */
+const placeByCoordinates = (markers, geo, box, max) => {
+  const spanLon = Math.max(geo.maxLon - geo.minLon, 0.05);
+  const spanLat = Math.max(geo.maxLat - geo.minLat, 0.05);
+  const pad = 0.12;
+  return markers.map((m, i) => {
+    const d = bubbleSize(m.talents, max);
+    const cx = box.x + box.w * (pad + (1 - 2 * pad) * ((m.lon - geo.minLon) / spanLon));
+    const cy = box.y + box.h * (pad + (1 - 2 * pad) * ((geo.maxLat - m.lat) / spanLat));
+    return { ...m, cx, cy, r: d / 2, label: i < 3 ? { x: cx + d / 2 + 4, y: cy + 4 } : null };
+  });
+};
+const hasCoordinates = (markers, geo) =>
+  Boolean(geo) &&
+  markers.length > 0 &&
+  markers.every((m) => Number.isFinite(m.lat) && Number.isFinite(m.lon));
+
+const useLayout = (regionId, markers, geo) =>
   useMemo(() => {
     const max = Math.max(1, ...markers.map((m) => m.talents));
+    const located = hasCoordinates(markers, geo);
+    if (regionId === 'greater-accra' && located) {
+      const o = GA_ZOOM.outline;
+      return {
+        outline: { kind: 'ga' },
+        bubbles: placeByCoordinates(markers, geo, { x: o.x, y: o.y, w: o.w, h: o.h }, max),
+      };
+    }
     if (regionId === 'greater-accra') {
       return {
         outline: { kind: 'ga' },
@@ -49,6 +74,17 @@ const useLayout = (regionId, markers) =>
     const cx0 = ox + ((b.minX + b.maxX) / 2) * k;
     const cy0 = oy + ((b.minY + b.maxY) / 2) * k;
     const reach = Math.min(b.w * k, b.h * k) * 0.42;
+    if (located) {
+      return {
+        outline: { kind: 'region', path, transform: `translate(${ox} ${oy}) scale(${k})` },
+        bubbles: placeByCoordinates(
+          markers,
+          geo,
+          { x: ox + b.minX * k, y: oy + b.minY * k, w: b.w * k, h: b.h * k },
+          max
+        ),
+      };
+    }
     return {
       outline: { kind: 'region', path, transform: `translate(${ox} ${oy}) scale(${k})` },
       bubbles: markers.map((m, i) => {
@@ -66,10 +102,10 @@ const useLayout = (regionId, markers) =>
         };
       }),
     };
-  }, [regionId, markers]);
+  }, [regionId, markers, geo]);
 
 const DistrictZoomMap = ({ regionId, map, loading = false }) => {
-  const layout = useLayout(regionId, map.markers);
+  const layout = useLayout(regionId, map.markers, map.geoBounds);
   log('render', { regionId, markers: map.markers.length, loading });
   return (
     <PublicCard
@@ -174,7 +210,9 @@ const DistrictZoomMap = ({ regionId, map, loading = false }) => {
           className="absolute top-[3.33%] left-[84.97%] w-[12.88%]"
         />
         <p className="absolute bottom-[14px] left-[16px] m-0 max-w-[calc(100%-32px)] font-sans text-[12px] leading-[14px] text-[#595959]">
-          Markers sit at district capitals. Boundaries arrive with GSS district data.
+          {map.geoBounds
+            ? 'Markers sit at district centres; outlines are simplified until GSS boundary data arrives.'
+            : 'Markers sit at district capitals. Boundaries arrive with GSS district data.'}
         </p>
       </div>
     </PublicCard>

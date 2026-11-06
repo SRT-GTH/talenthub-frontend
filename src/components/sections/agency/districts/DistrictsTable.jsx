@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import CardHeader from '../../publicData/ui/CardHeader.jsx';
 import { formatCount } from '../agencyFormat.js';
-import { UPDATED_AT } from './data/districtsData.js';
 import { DistrictsRowChevronIcon, DistrictsShieldIcon } from './districtsIcons.jsx';
 import DistrictsPager from './DistrictsPager.jsx';
 
@@ -13,7 +12,8 @@ import DistrictsPager from './DistrictsPager.jsx';
  *   Columns at >= lg (px caps, the last one takes the rest): 48 # · 300 District · 190 Region · 130 Talents · 150 30-day change · 200 Assessment (90x6 bar #ebf0ec / #387440 + %) · 130 Placements · chevron.
  *   Each row is a link to /agency/regions/:regionId/districts/:districtId (rows whose district the detail mock does not know open the region page).
  *   Below lg there is no Figma frame: ⚠️ ASSUMPTION a dense card per row — rank, name, region, talents and change on top, assessment and placements under.
- * Props: items, hidden, page, pages, from, to, total, onPage(n), sort (the aside says "Ranked by talents registered" only for the talents sort).
+ * Props: items, hidden, page, pages, from, to, total, onPage(n), sort (the aside says "Ranked by talents registered" only for the talents sort),
+ * updated ("data as of …" from the snapshot). Placements under 5 arrive as 0 + placementsSuppressed and read "<5".
  * Counts go through formatCount (< 5 reads "<5"); hidden districts are never rows, only their number is shown.
  */
 
@@ -76,7 +76,9 @@ const Row = ({ d }) => (
       </span>
       <span className="text-[15px] leading-[18px] font-semibold text-[#1c2a21] max-lg:col-span-2 max-lg:col-start-2 max-lg:row-start-4 max-lg:text-[13px] max-lg:leading-[16px] max-lg:font-medium max-lg:text-[#595959]">
         <span className="lg:hidden">Placements </span>
-        <span className="max-lg:font-semibold max-lg:text-[#1c2a21]">{d.placements}</span>
+        <span className="max-lg:font-semibold max-lg:text-[#1c2a21]">
+          {d.placementsSuppressed ? '<5' : formatCount(d.placements)}
+        </span>
       </span>
       <DistrictsRowChevronIcon className="hidden size-[20px] text-[#969694] lg:block" />
     </Link>
@@ -85,14 +87,14 @@ const Row = ({ d }) => (
 
 const HEAD = 'text-[12px] leading-[14px] font-semibold text-[#595959]';
 
-const DistrictsTable = ({ items, hidden, page, pages, from, to, total, onPage, sort }) => (
+const DistrictsTable = ({ items, hidden, page, pages, from, to, total, onPage, sort, updated }) => (
   <section
     aria-label="All districts"
     className="min-w-0 overflow-hidden rounded-[24px] border border-solid border-[#e7e7e7] bg-white pb-[8px] font-sans shadow-[0_5px_17px_rgba(0,0,0,0.04)]"
   >
     <CardHeader
       title="All districts"
-      hint={`${sort === 'talents' ? 'Ranked by talents registered' : 'Sorted as selected'} · ${UPDATED_AT}`}
+      hint={`${sort === 'talents' ? 'Ranked by talents registered' : 'Sorted as selected'}${updated ? ` · ${updated}` : ''}`}
     />
     <div
       aria-hidden="true"

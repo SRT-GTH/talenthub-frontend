@@ -1,3 +1,4 @@
+import { formatCount } from '../agencyFormat.js';
 import { AgencyTrendUpIcon } from '../agencyIcons.jsx';
 import DemandCard from './DemandCard.jsx';
 import DemandNote from './DemandNote.jsx';
@@ -7,14 +8,19 @@ import DemandNote from './DemandNote.jsx';
  * "Category · N opportunities" 12/14 #575755, pill "New" (#ebf1ec r999 12/14 600 #387440). Props: rows [{ name, category, count }], note. Below lg only the first three rows show (11.4.5o/p).
  */
 
-const EmergingSkillsCard = ({ rows, note }) => (
+const EmergingSkillsCard = ({ rows, note, hint = 'New this period' }) => (
   <DemandCard
     id="emerging-skills"
     title="Emerging skills"
-    hint="New this quarter"
+    hint={hint}
     bodyClassName="flex flex-col px-[24px] pt-[16px] pb-[12px] lg:pt-0 lg:pb-[24px]"
     className="flex h-full flex-col"
   >
+    {!rows.length ? (
+      <p className="m-0 py-[12px] text-[14px] leading-[20px] text-[#575755]">
+        No skill appeared for the first time in this period.
+      </p>
+    ) : null}
     <ul className="m-0 flex list-none flex-col p-0">
       {rows.map((r, i) => (
         <li
@@ -33,8 +39,8 @@ const EmergingSkillsCard = ({ rows, note }) => (
             </span>
             <span className="text-[12px] leading-[14px] text-[#575755]">
               <>
-                <span className="lg:hidden">{`${r.count} opportunities`}</span>
-                <span className="max-lg:hidden">{`${r.category} · ${r.count} opportunities`}</span>
+                <span className="lg:hidden">{`${formatCount(r.count)} opportunities`}</span>
+                <span className="max-lg:hidden">{`${r.category} · ${formatCount(r.count)} opportunities`}</span>
               </>
             </span>
           </span>

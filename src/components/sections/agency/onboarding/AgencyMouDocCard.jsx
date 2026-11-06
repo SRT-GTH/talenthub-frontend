@@ -34,6 +34,9 @@ const AgencyMouDocCard = ({
   tags = [],
   link,
   onEdit,
+  editLabel,
+  note,
+  children,
   verified = false,
   pending = false,
   className,
@@ -95,22 +98,29 @@ const AgencyMouDocCard = ({
           ))}
         </ul>
       ) : null}
+      {note ? (
+        <p className="m-0 rounded-[10px] border border-solid border-[#ecd9a3] bg-[#faf4e8] px-[10px] py-[8px] font-sans text-[13px] leading-[18px] text-[#785910]">
+          {note}
+        </p>
+      ) : null}
       {link ? (
         <button
           type="button"
           onClick={link.onClick}
-          className="inline-flex min-h-[24px] w-fit items-center gap-[5px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          disabled={link.disabled}
+          className="inline-flex min-h-[24px] w-fit items-center gap-[5px] font-sans text-[13px] leading-[16px] font-semibold text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440] disabled:opacity-50"
         >
           <AgLink className="size-[14px]" />
           {link.label}
         </button>
       ) : null}
+      {children}
     </div>
     {onEdit ? (
       <button
         type="button"
         onClick={onEdit}
-        aria-label={`Edit ${title}`}
+        aria-label={editLabel || `Edit ${title}`}
         className="grid size-[32px] shrink-0 place-items-center rounded-[8px] border border-solid border-[#1c2a21]/10 bg-white text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
       >
         <AgEdit className="size-[16px]" />

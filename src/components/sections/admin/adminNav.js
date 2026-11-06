@@ -1,7 +1,8 @@
 /*
  * adminNav.js — the ONE list of Platform Admin destinations (Theme 7, Figma canvas 8520:12), shared by the expanded sidebar (303),
  * the icon rail (80) and the phone / tablet drawer. `icon` is a key of NAV_ICONS in AdminNavItem.jsx. `match` lists the pathname
- * prefixes that mark the item active (longest prefix wins). All five staff roles draw the same nine items (7.0.2a-e).
+ * prefixes that mark the item active (longest prefix wins). All five staff roles draw the same items (7.0.2a-e draw nine; Support
+ * was added once support queries went live, 2026-10-31 — before that /admin/support was only reachable from the Support home).
  */
 
 export const ADMIN_BASE = '/admin';
@@ -27,7 +28,14 @@ export const PRIMARY_NAV = [
     label: 'Comms',
     to: `${ADMIN_BASE}/comms`,
     icon: 'message',
-    match: [`${ADMIN_BASE}/comms`, `${ADMIN_BASE}/support`],
+    match: [`${ADMIN_BASE}/comms`],
+  },
+  {
+    id: 'support',
+    label: 'Support',
+    to: `${ADMIN_BASE}/support`,
+    icon: 'message',
+    match: [`${ADMIN_BASE}/support`],
   },
   {
     id: 'verification',

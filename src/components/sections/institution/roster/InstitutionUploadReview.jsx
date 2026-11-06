@@ -9,7 +9,7 @@ import { Roster20ShieldIcon } from './rosterIcons.jsx';
  * 5 Need a fix #f9ebea / 3 At another institution #f8f8f4; value 26/31 600, label 12/14 500 #575755), "Needs a fix (5)" with the table (Row · Student · Problem · action, 710 wide,
  * rows 40 high with a #f1f1f1 rule), the shield note about students at another institution, "Back" + "Add 298 students →".
  * "Fix in file" and "Add phone" send the admin back to choose a corrected file (Figma draws no further step) ⚠️ ASSUMPTION.
- * Props: result ({ fileName, ready, duplicates, elsewhere, failing, fixes }), onBack, onAdd, onFix.
+ * Props: result ({ fileName, ready, duplicates, elsewhere, failing, fixes }), onBack, onAdd, onFix, busy, error.
  */
 
 const TILES = [
@@ -19,7 +19,7 @@ const TILES = [
   { id: 'elsewhere', label: 'At another institution', bg: 'bg-[#f8f8f4]', ink: 'text-[#1c2a21]' },
 ];
 
-const InstitutionUploadReview = ({ result, onBack, onAdd, onFix }) => (
+const InstitutionUploadReview = ({ result, onBack, onAdd, onFix, busy = false, error }) => (
   <>
     <InstitutionDialogHeader
       chip="Upload a class list"
@@ -99,15 +99,19 @@ const InstitutionUploadReview = ({ result, onBack, onAdd, onFix }) => (
         <p className="m-0 flex items-start gap-[8px] font-sans text-[13px] leading-[16px] text-[#575755]">
           <Roster20ShieldIcon className="mt-px size-[16px] shrink-0" />
           {result.elsewhere} students are already enrolled at another institution. They need a
-          transfer from that school first; we’ve emailed both registrars.
+          transfer from that school first, so they are not added.
         </p>
       ) : null}
     </div>
+    <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden">
+      {error}
+    </p>
     <InstitutionDialogActions
       cancelLabel="Back"
       onCancel={onBack}
-      primaryLabel={`Add ${formatRosterCount(result.ready)} students`}
+      primaryLabel={busy ? 'Adding…' : `Add ${formatRosterCount(result.ready)} students`}
       onPrimary={onAdd}
+      primaryDisabled={busy || result.ready === 0}
     />
   </>
 );

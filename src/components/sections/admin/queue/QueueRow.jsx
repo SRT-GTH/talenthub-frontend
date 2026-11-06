@@ -18,8 +18,8 @@ import {
  * 1327 x 70, p 14/18/20/14, gap 14): a 42 x 42 lead (account mark image, or a #ebf1ec r12 tile with a 24px glyph) · title 16/600 + sticker (#ebf1ec, 11/700 #1f4a2b)
  * over the 13 #737373 sub line · up to three chips (amber with an eye, green with a check, grey) · pill (53 x 25: strong green "Open" / mint "Claim", "View") ·
  * age 12.5 #737373 · 34 round save button · arrow, or a white 16/700 button ("Reactivate", "Reassign", "Restore"). A muted row is drawn at 50 % except its button.
- * Props: row { id, lead, title, sticker, sub, chips, pill { label, strong }, age, muted, button, to }, onButton().
- * ⚠️ ASSUMPTION: the save (bookmark) button has no flow drawn (it logs); the pill and the arrow open `to`.
+ * Props: row { id, lead, title, sticker, sub, chips, pill { label, strong }, age, muted, button, to, sortAt? }, layout 'list' | 'cards',
+ * pinned, onButton(row), onSave(row) (the bookmark pins the row to the top; filled when pinned). The pill and the arrow open `to`.
  */
 
 const CHIP = {
@@ -75,11 +75,19 @@ const Lead = ({ lead, dim }) => {
   );
 };
 
-const QueueRow = ({ row, onButton, onSave }) => {
+const QueueRow = ({ row, layout = 'list', pinned = false, onButton, onSave }) => {
   const navigate = useNavigate();
   const dim = row.muted ? 'opacity-50' : '';
   return (
-    <li className="flex flex-wrap items-center gap-x-[14px] gap-y-[8px] px-[18px] py-[14px] pr-[20px]">
+    <li
+      className={classNames(
+        'flex flex-wrap items-center gap-x-[14px] gap-y-[8px]',
+        layout === 'cards'
+          ? 'rounded-[18px] border border-solid border-[#e1eae2] bg-white p-[16px]'
+          : 'px-[18px] py-[14px] pr-[20px]',
+        pinned && layout !== 'cards' && 'bg-[#f6f9f6]'
+      )}
+    >
       <Lead lead={row.lead} dim={dim} />
       <div className={classNames('flex min-w-[200px] flex-1 flex-col gap-[2px]', dim)}>
         <div className="flex flex-wrap items-center gap-[8px]">
@@ -128,10 +136,13 @@ const QueueRow = ({ row, onButton, onSave }) => {
       </span>
       <button
         type="button"
-        aria-label={`Save ${row.title}`}
+        aria-label={`${pinned ? 'Unpin' : 'Pin to top'}: ${row.title}`}
+        aria-pressed={pinned}
+        title={pinned ? 'Pinned to the top for you' : 'Pin to the top'}
         onClick={() => onSave?.(row)}
         className={classNames(
-          'grid size-[34px] shrink-0 cursor-pointer place-items-center rounded-full border border-solid border-[#1c2a21] bg-[#1c2a21] text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+          'grid size-[34px] shrink-0 cursor-pointer place-items-center rounded-full border border-solid border-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
+          pinned ? 'bg-[#1c2a21] text-white' : 'bg-white text-[#1c2a21]',
           dim
         )}
       >
