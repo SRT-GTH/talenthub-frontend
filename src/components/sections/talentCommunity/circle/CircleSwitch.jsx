@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY } from './circleData.js';
 import { CircleSwitchCircleIcon, CircleSwitchCommunitiesIcon } from './circleIcons.jsx';
 import CircleButton from './CircleButton.jsx';
-import { CIRCLE_HREF, COMMUNITY_HREF, CREATE_COMMUNITY_HREF, withRail } from './circleState.js';
+import { withRail } from './circleState.js';
 import { FOCUS_RING } from './circleStyles.js';
+import { useCircleLinks, useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleSwitch — Figma `GTH · Community switch` (Focused 9205:539458 · Playful 9205:539441): the segmented control at the top of
@@ -27,13 +27,13 @@ const Segment = ({ to, selected, icon, children, count }) => {
         selected
           ? 'bg-white font-semibold text-[#1c2a21] shadow-[0_1px_3px_rgba(28,42,33,0.12)] playful:bg-[#387440] playful:text-white playful:shadow-none'
           : 'font-medium text-[#595959] playful:font-semibold playful:text-[#1c2a21]',
-        count !== undefined && 'pr-[12px] playful:pr-[12px]',
+        count != null && 'pr-[12px] playful:pr-[12px]',
         FOCUS_RING
       )}
     >
       <Icon className="size-[18px]" />
       {children}
-      {count !== undefined && (
+      {count != null && (
         <span
           className={classNames(
             'inline-flex h-[18px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-[12px] font-bold leading-[14px]',
@@ -49,32 +49,36 @@ const Segment = ({ to, selected, icon, children, count }) => {
   );
 };
 
-const CircleSwitch = ({ active = 'circle', count = 3, rail, showCreate = false }) => (
-  <div className="flex flex-wrap items-center justify-between gap-[12px]">
-    <nav
-      aria-label="Community views"
-      className="flex w-fit items-center gap-[4px] rounded-[12px] bg-[#f1f2f0] p-[4px] playful:rounded-full playful:border-[1.5px] playful:border-solid playful:border-[#1c2a21] playful:bg-white playful:shadow-[0_3px_0_rgba(28,42,33,0.12)]"
-    >
-      <Segment
-        to={withRail(COMMUNITY_HREF, rail)}
-        selected={active === 'communities'}
-        icon={CircleSwitchCommunitiesIcon}
+const CircleSwitch = ({ active = 'circle', count = 3, rail, showCreate = false }) => {
+  const { copy: COPY } = useCircleVariantData();
+  const links = useCircleLinks();
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-[12px]">
+      <nav
+        aria-label="Community views"
+        className="flex w-fit items-center gap-[4px] rounded-[12px] bg-[#f1f2f0] p-[4px] playful:rounded-full playful:border-[1.5px] playful:border-solid playful:border-[#1c2a21] playful:bg-white playful:shadow-[0_3px_0_rgba(28,42,33,0.12)]"
       >
-        {COPY.switchCommunities}
-      </Segment>
-      <Segment
-        to={withRail(CIRCLE_HREF, rail)}
-        selected={active === 'circle'}
-        icon={CircleSwitchCircleIcon}
-        count={count}
-      >
-        {COPY.switchCircle}
-      </Segment>
-    </nav>
-    {showCreate && (
-      <CircleButton to={withRail(CREATE_COMMUNITY_HREF, rail)}>{COPY.createCommunity}</CircleButton>
-    )}
-  </div>
-);
+        <Segment
+          to={withRail(links.communityHref, rail)}
+          selected={active === 'communities'}
+          icon={CircleSwitchCommunitiesIcon}
+        >
+          {COPY.switchCommunities}
+        </Segment>
+        <Segment
+          to={withRail(links.circleHref, rail)}
+          selected={active === 'circle'}
+          icon={CircleSwitchCircleIcon}
+          count={count}
+        >
+          {COPY.switchCircle}
+        </Segment>
+      </nav>
+      {showCreate && (
+        <CircleButton to={withRail(links.createHref, rail)}>{COPY.createCommunity}</CircleButton>
+      )}
+    </div>
+  );
+};
 
 export default CircleSwitch;

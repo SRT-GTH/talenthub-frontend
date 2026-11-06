@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { CIRCLE_COPY as COPY } from './circleData.js';
 import { CircleSparkleIcon } from './circleIcons.jsx';
 import CircleButton from './CircleButton.jsx';
 import CircleDialogShell from './CircleDialogShell.jsx';
 import CircleNoteField from './CircleNoteField.jsx';
 import { usePlayfulScope } from '../../../ui/PlayfulScope.js';
 import { FOCUS_RING } from './circleStyles.js';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 const log = debug('CircleConnectDialog');
 
@@ -17,6 +17,7 @@ const log = debug('CircleConnectDialog');
  * ⚠️ ASSUMPTIONS (not drawn): the field starts empty with a placeholder; "Help me write it" fills a canned suggestion (no AI call).
  */
 const CircleConnectDialog = ({ person, initialText = '', onSend, onClose }) => {
+  const { copy: COPY } = useCircleVariantData();
   const playful = usePlayfulScope();
   const [note, setNote] = useState(initialText);
   const subtitle = person.mutual ? `${person.headline} · ${person.mutual} mutual` : person.headline;

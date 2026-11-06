@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
+import { useCommunityVariant } from '../communityVariant.js';
 import { FOCUS_RING, PRIMARY_GRADIENT_TEXT } from './circleStyles.js';
 
 /*
@@ -22,6 +23,8 @@ const CircleButton = forwardRef(function CircleButton(
   ref
 ) {
   const primary = tone === 'primary';
+  // Recruiter: an icon + text label ("Link-up sent" with its check) sits on ONE line (Tailwind makes the svg a block, which stacked them).
+  const { isRecruiter } = useCommunityVariant();
   const cls = classNames(
     'inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap border-2 border-solid font-sans text-[16px] font-bold leading-[24px] tracking-[0.1px] no-underline transition-transform max-lg:text-[14px]',
     TONES[tone],
@@ -31,7 +34,13 @@ const CircleButton = forwardRef(function CircleButton(
   );
   const label = (
     <span
-      className={primary ? 'bg-clip-text text-transparent' : undefined}
+      className={
+        primary
+          ? 'bg-clip-text text-transparent'
+          : isRecruiter
+            ? 'inline-flex items-center gap-[8px]'
+            : undefined
+      }
       style={primary ? PRIMARY_GRADIENT_TEXT : undefined}
     >
       {children}

@@ -73,8 +73,8 @@ export const CARD_LABELS = {
   matchExplanation: 'Match Explanation',
   topSkills: 'Top Skills',
   availability: 'Availability',
-  viewProfile: 'View Profile',
-  startConversation: 'Start Conversation',
+  viewProfile: 'View profile', // TS-01 (the pre-V2 frame drew "View Profile")
+  inviteToApply: 'Invite to apply', // TS-01 (the pre-V2 frame drew "Start Conversation")
   matchScore: (percent) => `Match Score: ${percent}%`,
 };
 
@@ -84,6 +84,7 @@ export const CANDIDATES = [
     id: 'kofi-amankwah',
     explanationTint: '#f3f8f4', // Figma 7249:74398
     name: 'Kofi Amankwah',
+    nameBoxWidth: 138, // Figma 7249 / 10102:35274 — the name text box is 138 wide
     role: 'Senior Software Engineer',
     matchPercent: 91,
     tags: ['Full Stack', 'Architecture', 'Cloud Expert'],
@@ -98,6 +99,7 @@ export const CANDIDATES = [
     id: 'ama-boateng',
     explanationTint: '#ebf1ec', // Figma 7249:74470 (the only card on #ebf1ec)
     name: 'Ama Boateng',
+    nameBoxWidth: 109, // Figma 10102:35347 draws this name in a 109px box, so it wraps to two lines (kept as drawn)
     role: 'Product Lead',
     matchPercent: 84,
     tags: ['Strategic Planning', 'SaaS Growth', 'Cloud Expert'],
@@ -114,6 +116,8 @@ export const CANDIDATES = [
     // Figma 7249:74523 draws this bar 128/192 = 66.67% while the label reads 76%: kept as drawn.
     matchBarPercent: 66.67,
     name: 'Godfred Ansah',
+    // Figma 10102:35419 draws this name wrapped to two lines inside a 25px-high box, so "Ansah" overlaps the role line (a Figma defect): not reproduced,
+    // the name stays on one line and the card keeps the layout Figma measures.
     role: 'Senior Software Engineer',
     matchPercent: 76,
     tags: ['SQL', 'Data Visualization', 'Junior'],

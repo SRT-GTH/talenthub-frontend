@@ -4,7 +4,7 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { DialogShell } from '../CommunityDialogParts.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { INVITE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { Callout, DialogHead, FooterBar, Pill, PersonRow, Section } from './CreateDialogParts.jsx';
 import { CcStarIcon } from './CreateCommunityIcons.jsx';
 import { FOCUS_RING, INPUT_BASE, INPUT_OK, LABEL_TEXT } from './createCommunityStyles.js';
@@ -19,6 +19,7 @@ const log = debug('InviteDialog');
 const InviteDialog = ({ community, onClose }) => {
   const titleId = useId();
   const linkId = useId();
+  const { INVITE_COPY } = useCreateCommunityCopy();
   const copy = INVITE_COPY;
   const [copied, setCopied] = useState(false);
   const [invited, setInvited] = useState(() =>

@@ -12,6 +12,7 @@ import {
   BrowseSectionHead,
   BrowseToolbar,
   CommunityCardSkeleton,
+  HostClubTile,
   NoResults,
   RequestTile,
 } from '../../components/sections/talentCommunity/CommunityBrowseParts.jsx';
@@ -20,11 +21,9 @@ import {
   CommunityTargetIcon,
   CommunityUsersIcon,
 } from '../../components/sections/talentCommunity/communityBrowseIcons.jsx';
-import {
-  COMMUNITIES_RESPONSE,
-  COMMUNITY_BROWSE_COPY as COPY,
-  COMMUNITY_CATEGORIES,
-} from '../../components/sections/talentCommunity/communityData.js';
+import { COMMUNITY_CATEGORIES } from '../../components/sections/talentCommunity/communityData.js';
+import { useCommunityContent } from '../../components/sections/talentCommunity/communityContent.js';
+import { communityHref } from '../../components/sections/talentCommunity/communityVariant.js';
 import { useCommunityMembership } from '../../components/sections/talentCommunity/communityMembership.js';
 import { useCommunityState } from '../../components/sections/talentCommunity/communityState.js';
 import { HEADING } from '../../components/sections/talentCommunity/communityStyles.js';
@@ -52,12 +51,13 @@ const CommunityBrowseDemo = () => {
   const { cat, q, view, state, menu, update } = community;
   const navigate = useNavigate();
   const membership = useCommunityMembership();
+  const { browseCopy: COPY, catalogue, base, isRecruiter } = useCommunityContent();
   // undefined = follow `?menu=joined`; string = card id with the menu open; null = closed by the user.
   const [menuId, setMenuId] = useState(undefined);
   const [requested, setRequested] = useState(false);
   const [tileRequested, setTileRequested] = useState(false);
 
-  const { communities, picked, closest, request, total } = COMMUNITIES_RESPONSE;
+  const { communities, picked, closest, request, total } = catalogue;
   const byId = useMemo(() => Object.fromEntries(communities.map((c) => [c.id, c])), [communities]);
   const term = q.trim();
   const loading = state === 'loading';
@@ -84,7 +84,7 @@ const CommunityBrowseDemo = () => {
   // Join: record it and land on the community's "just joined + guidelines" screen (C-05).
   const onJoin = (c) => {
     membership.join(c.id);
-    navigate(`/community/${c.id}?joined=1&welcome=1`);
+    navigate(communityHref(base, `/${c.id}?joined=1&welcome=1`));
   };
 
   // `?menu=joined` opens the menu on the first joined card that is on screen (C-02).
@@ -117,7 +117,7 @@ const CommunityBrowseDemo = () => {
         onToggleMenu={toggleMenu}
         onCloseMenu={closeMenu}
         onMute={(item) => membership.toggleMute(item.id)}
-        onLeave={(item) => navigate(`/community/${item.id}?joined=1&modal=leave`)}
+        onLeave={(item) => navigate(communityHref(base, `/${item.id}?joined=1&modal=leave`))}
         {...extra}
       />
     );
@@ -139,7 +139,11 @@ const CommunityBrowseDemo = () => {
           title={COPY.pickedTitle}
           note={COPY.loadingNote}
         />
-        <BrowseGrid gap="wide" aria-busy="true" aria-label="Loading communities">
+        <BrowseGrid
+          gap="wide"
+          aria-busy="true"
+          aria-label={COPY.loadingAriaLabel ?? 'Loading communities'}
+        >
           {Array.from({ length: 8 }, (_, i) => (
             <CommunityCardSkeleton key={i} />
           ))}
@@ -200,7 +204,11 @@ const CommunityBrowseDemo = () => {
         />
         <BrowseGrid>
           {mine.map((c) => renderCard(c))}
-          <RequestTile requested={tileRequested} onRequest={() => setTileRequested(true)} />
+          {isRecruiter ? (
+            <HostClubTile />
+          ) : (
+            <RequestTile requested={tileRequested} onRequest={() => setTileRequested(true)} />
+          )}
         </BrowseGrid>
         <BrowseSectionHead icon={CommunityGlobeIcon} title={COPY.allCommunities} />
         <BrowseGrid>{rest.map((c) => renderCard(c))}</BrowseGrid>

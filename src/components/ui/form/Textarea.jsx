@@ -80,6 +80,8 @@ const Textarea = ({
   showCounter,
   counterSuffix,
   counterErrorTone = false,
+  // (add-only) `counterInside` draws the counter inside the bordered box, under the text, right-aligned (recruiter invite dialog, Figma 10102:42412); default false = below the box.
+  counterInside = false,
   warnAt = 0.9,
   rows = 4,
   value,
@@ -151,7 +153,14 @@ const Textarea = ({
       error={error}
       className={className}
     >
-      <div className={classNames(WRAPPER_BASE, wrapperStateClasses, boxClassName)}>
+      <div
+        className={classNames(
+          WRAPPER_BASE,
+          counterInside && 'flex-col',
+          wrapperStateClasses,
+          boxClassName
+        )}
+      >
         <textarea
           ref={ref}
           id={inputId}
@@ -170,8 +179,20 @@ const Textarea = ({
           onChange={handleChange}
           {...textareaProps}
         />
+        {showCounterResolved && counterInside && (
+          <div
+            className={classNames(
+              'flex justify-end px-4 pb-3 font-sans text-[12px] leading-5 tracking-[0.2px]',
+              counterColour
+            )}
+            aria-live="polite"
+          >
+            {maxLength ? `${length} / ${maxLength}` : `${length}`}
+            {counterSuffix}
+          </div>
+        )}
       </div>
-      {showCounterResolved && (
+      {showCounterResolved && !counterInside && (
         <div
           className={classNames(
             'flex justify-end mt-1 px-1 font-sans text-[10px] max-lg:text-[12px] leading-4 tracking-[0.2px]',

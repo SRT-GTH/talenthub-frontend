@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { debug } from '../../../../utils/debug.js';
+import { useCommunityVariant } from '../communityVariant.js';
 import CircleSwitch from './CircleSwitch.jsx';
 import { useCirclePending } from './useCirclePending.js';
 
@@ -19,6 +20,8 @@ const CommunitiesSwitchSlot = ({ children, rail }) => {
   const rootRef = useRef(null);
   const [host, setHost] = useState(null);
   const pending = useCirclePending();
+  // Recruiter (RC-C01): the page header carries its own "Host a company club" button, so the switch row has no create button.
+  const { isRecruiter } = useCommunityVariant();
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -50,7 +53,12 @@ const CommunitiesSwitchSlot = ({ children, rail }) => {
       {children}
       {host &&
         createPortal(
-          <CircleSwitch active="communities" count={pending} rail={rail} showCreate />,
+          <CircleSwitch
+            active="communities"
+            count={pending}
+            rail={rail}
+            showCreate={!isRecruiter}
+          />,
           host
         )}
     </div>

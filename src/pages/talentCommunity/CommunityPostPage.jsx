@@ -19,15 +19,12 @@ import PostComments from '../../components/sections/talentCommunity/PostComments
 import { PostedToast } from '../../components/sections/talentCommunity/CommunityPendingParts.jsx';
 import PendingPostCard from '../../components/sections/talentCommunity/CommunityPendingParts.jsx';
 import {
-  COMMUNITY_DETAILS,
-  COMMUNITY_DETAIL_ALIASES,
-  COMMUNITY_PAGE_COPY,
   COMMUNITY_PAGE_FACES,
   COMMUNITY_PAGE_RHYTHM,
-  POST_DETAIL,
-  buildFallbackDetail,
-  getCommunityById,
 } from '../../components/sections/talentCommunity/communityData.js';
+import { useCommunityContent } from '../../components/sections/talentCommunity/communityContent.js';
+import { communityHref } from '../../components/sections/talentCommunity/communityVariant.js';
+import ClubsSwitchRow from '../../components/sections/talentCommunity/ClubsSwitchRow.jsx';
 import { useCommunityState } from '../../components/sections/talentCommunity/communityState.js';
 import {
   SIDE_LEFT,
@@ -49,11 +46,11 @@ const CommunityPostDemo = () => {
   const community = useCommunityState();
   const { communityId, postId } = useParams();
   const navigate = useNavigate();
-  const canonicalId = COMMUNITY_DETAIL_ALIASES[communityId] ?? communityId;
-  const entry = getCommunityById(canonicalId);
-  const detail = useMemo(
-    () => COMMUNITY_DETAILS[canonicalId] ?? (entry ? buildFallbackDetail(entry) : null),
-    [canonicalId, entry]
+  const content = useCommunityContent();
+  const { base, isRecruiter, pageCopy: COMMUNITY_PAGE_COPY, postDetail: POST_DETAIL } = content;
+  const { canonicalId, detail } = useMemo(
+    () => content.resolveDetail(communityId),
+    [content, communityId]
   );
   const [extra, setExtra] = useState(0);
   const [toast, setToast] = useState(Boolean(community.pending));
@@ -64,7 +61,7 @@ const CommunityPostDemo = () => {
     log('mount', { communityId, postId });
   }, [communityId, postId]);
 
-  if (!detail) return <Navigate to="/community" replace />;
+  if (!detail) return <Navigate to={base} replace />;
 
   const posts = detail.posts.length ? detail.posts : [];
   const open = posts.find((p) => p.id === postId) ?? posts.find((p) => p.id === POST_DETAIL.id);
@@ -81,12 +78,13 @@ const CommunityPostDemo = () => {
       inert: true,
     },
   ];
-  const back = `/community/${communityId}`;
+  const back = communityHref(base, `/${communityId}`);
   const onMore = () => community.update({ modal: 'report' });
 
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1506px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)]">
+        {isRecruiter ? <ClubsSwitchRow rail={community.rail} /> : null}
         <CommunityHero
           detail={detail}
           joined

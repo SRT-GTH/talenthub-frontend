@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { COMMUNITY_BROWSE_COPY, COMMUNITY_CARD_FACES, formatMembers } from './communityData.js';
+import { COMMUNITY_CARD_FACES, formatMembers } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
+import { communityHref } from './communityVariant.js';
 import { CommunityMetaUsersIcon, CommunityTagTargetIcon } from './communityBrowseIcons.jsx';
 import { CommunityButton } from './CommunityParts.jsx';
 import CommunityJoinedMenu from './CommunityJoinedMenu.jsx';
@@ -61,11 +63,12 @@ const CommunityCard = ({
   onLeave,
   className,
 }) => {
+  const { browseCopy: COMMUNITY_BROWSE_COPY, base } = useCommunityContent();
   useEffect(() => {
     log('render', community.id, joined ? 'joined' : 'join');
   }, [community.id, joined]);
 
-  const href = to ?? `/community/${community.id}${joined ? '?joined=1' : ''}`;
+  const href = to ?? communityHref(base, `/${community.id}${joined ? '?joined=1' : ''}`);
   const tag = joined ? { kind: 'joined', label: 'You’re in' } : community.tag;
   const membersLabel = formatMembers(community.members);
   const activityLabel = activity ?? community.activity;
@@ -120,22 +123,22 @@ const CommunityCard = ({
         </p>
         <div className={classNames('flex items-center gap-[8px]', joined ? '' : 'py-[5px]')}>
           {faces ? (
-          <>
-          <span className="flex shrink-0 items-center" aria-hidden="true">
-            {faces.map((src, i) => (
-              <img
-                key={src}
-                src={src}
-                alt=""
-                className="-ml-[8px] size-[26px] rounded-full border-2 border-solid border-white object-cover first:ml-0"
-                style={{ zIndex: 3 - i }}
-              />
-            ))}
-          </span>
-          <span className="whitespace-nowrap font-sans text-[11px] font-medium leading-[13px] text-[#737373] max-lg:text-[12px]">
-            {COMMUNITY_BROWSE_COPY.friendsHere}
-          </span>
-          </>
+            <>
+              <span className="flex shrink-0 items-center" aria-hidden="true">
+                {faces.map((src, i) => (
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    className="-ml-[8px] size-[26px] rounded-full border-2 border-solid border-white object-cover first:ml-0"
+                    style={{ zIndex: 3 - i }}
+                  />
+                ))}
+              </span>
+              <span className="whitespace-nowrap font-sans text-[11px] font-medium leading-[13px] text-[#737373] max-lg:text-[12px]">
+                {COMMUNITY_BROWSE_COPY.friendsHere}
+              </span>
+            </>
           ) : null}
           <span className="min-w-0 flex-1" aria-hidden="true" />
           {joined ? (

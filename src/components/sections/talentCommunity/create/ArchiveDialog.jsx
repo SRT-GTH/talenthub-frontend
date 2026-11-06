@@ -3,7 +3,7 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { DialogShell } from '../CommunityDialogParts.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { ARCHIVE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { CheckRow, DialogHead, FooterBar, IconRow } from './CreateDialogParts.jsx';
 import {
   CcCalendarIcon,
@@ -30,6 +30,7 @@ const ICONS = {
 const ArchiveDialog = ({ community, onArchive, onClose }) => {
   const titleId = useId();
   const checkId = useId();
+  const { ARCHIVE_COPY } = useCreateCommunityCopy();
   const copy = ARCHIVE_COPY;
   const [confirmed, setConfirmed] = useState(false);
   return (

@@ -1,8 +1,8 @@
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY } from './circleData.js';
 import { CircleCheckIcon, CircleCommentIcon } from './circleIcons.jsx';
 import CircleButton from './CircleButton.jsx';
 import { FOCUS_RING } from './circleStyles.js';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleCardActions — Figma `Actions` of a circle card: the main button (full width) + the 38px "add a note" square.
@@ -14,6 +14,7 @@ import { FOCUS_RING } from './circleStyles.js';
  * changes to "Link-up sent"); they reuse the soft button with a check.
  */
 const CircleCardActions = ({ person, cta, status, following, onLinkUp, onNote, onLearnFrom }) => {
+  const { copy: COPY } = useCircleVariantData();
   const sent = status === 'pending-sent';
   let main;
   if (cta === 'learn-from') {

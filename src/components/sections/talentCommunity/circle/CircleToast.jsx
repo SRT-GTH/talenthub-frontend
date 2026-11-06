@@ -33,7 +33,7 @@ const CircleToast = ({ text, actionLabel, onAction, onDone }) => {
             onAction?.();
             onDone?.();
           }}
-          className={`cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#ffd86b] ${FOCUS_RING}`}
+          className={`cursor-pointer border-0 bg-transparent -my-[4px] min-h-[28px] min-w-[28px] p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#ffd86b] ${FOCUS_RING}`}
         >
           {actionLabel}
         </button>

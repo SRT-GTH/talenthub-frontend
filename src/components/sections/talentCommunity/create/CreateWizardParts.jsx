@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
-import { CREATE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import {
   FOCUS_RING,
   HELP_TEXT,
@@ -38,6 +38,7 @@ const log = debug('CreateWizardParts');
  *   UploadRow     dashed "Add a cover photo" row with the 56px thumbnail.  props: cover, onPick
  */
 export const Stepper = ({ current }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const steps = CREATE_COPY.steps;
   const at = steps.findIndex((s) => s.id === current);
   return (
@@ -212,6 +213,7 @@ const MAX_COVER_BYTES = 5 * 1024 * 1024;
 
 export const UploadRow = ({ cover, onPick, onError }) => {
   const fileRef = useRef(null);
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.basics;
   const pick = (event) => {
     const file = event.target.files?.[0];

@@ -7,6 +7,10 @@ import {
   buildSubmittedCommunity,
   slugify,
 } from './createCommunityData.js';
+import {
+  buildRecruiterOwnedCommunity,
+  buildRecruiterSubmittedCommunity,
+} from './recruiterCreateCommunityData.js';
 
 const log = debug('createCommunityStore');
 
@@ -85,9 +89,12 @@ export const useCommunityDraft = ({ demo = false, seed = null } = {}) => {
 };
 
 /* POST /communities — turns the draft into an owned community under review; returns it. */
-export const submitCommunity = (draft) => {
+export const submitCommunity = (draft, { recruiter = false } = {}) => {
   const id = slugify(draft.name);
-  const community = buildSubmittedCommunity(draft, id);
+  const community = (recruiter ? buildRecruiterSubmittedCommunity : buildSubmittedCommunity)(
+    draft,
+    id
+  );
   log('submitted', id);
   commit({ draft: null, owned: { ...snapshot.owned, [id]: community } });
   return community;
@@ -103,21 +110,28 @@ export const saveOwnedCommunity = (community) => {
  * the real flow reads the session store. `patch(updater)` applies a change to whichever is active.
  * Returns { community, patch } — community is null when the id is unknown (the page redirects).
  */
-export const useOwnedCommunity = ({ communityId, demo, ownerState, requests = 0 }) => {
+export const useOwnedCommunity = ({
+  communityId,
+  demo,
+  ownerState,
+  requests = 0,
+  recruiter = false,
+}) => {
+  const build = recruiter ? buildRecruiterOwnedCommunity : buildOwnedCommunity;
   const store = useSyncExternalStore(subscribe, getSnapshot);
-  const fixtureKey = `${ownerState ?? 'live'}:${requests}`;
+  const fixtureKey = `${recruiter ? 'r' : 't'}:${ownerState ?? 'live'}:${requests}`;
   const [fixture, setFixture] = useState(() => ({
     key: fixtureKey,
-    value: buildOwnedCommunity(ownerState ?? 'live', { requests }),
+    value: build(ownerState ?? 'live', { requests }),
   }));
   useEffect(() => {
     if (fixture.key !== fixtureKey) {
       setFixture({
         key: fixtureKey,
-        value: buildOwnedCommunity(ownerState ?? 'live', { requests }),
+        value: build(ownerState ?? 'live', { requests }),
       });
     }
-  }, [fixture.key, fixtureKey, ownerState, requests]);
+  }, [fixture.key, fixtureKey, ownerState, requests, build]);
 
   const community = useMemo(() => {
     if (demo) return fixture.key === fixtureKey ? fixture.value : null;

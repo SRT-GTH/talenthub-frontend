@@ -5,6 +5,8 @@ import { ensurePlayfulFont } from '../../../../utils/ensurePlayfulFont.js';
 import DashboardShell from '../../dashboard/DashboardShell.jsx';
 import UiStyleScope from '../../../shared/UiStyleScope.jsx';
 import AskBuddyFab from '../../talentHome/AskBuddyFab.jsx';
+import useScopedRoundedFont from '../../../../hooks/useScopedRoundedFont.js';
+import { useCommunityVariant } from '../communityVariant.js';
 
 const log = debug('CircleFrame');
 
@@ -16,6 +18,9 @@ const log = debug('CircleFrame');
  * (REQUEST): only the dot badges and the Messages "4" pill exist there today.
  */
 const CircleFrame = ({ circle, children }) => {
+  const { isRecruiter } = useCommunityVariant();
+  // Figma draws the recruiter screens in SF Pro Rounded: the bundled face while they are mounted (same as CommunityFrame).
+  useScopedRoundedFont('data-recruiter-ui', isRecruiter);
   useEffect(() => {
     ensurePlayfulFont();
     log('mount', { rail: circle.rail });
@@ -26,6 +31,15 @@ const CircleFrame = ({ circle, children }) => {
     document.documentElement.setAttribute('data-talent-home', '');
     return () => document.documentElement.removeAttribute('data-talent-home');
   }, []);
+
+  // Recruiter variant (Figma 10026:36840, RC-NW01 …): the recruiter dashboard shell, icon rail as drawn, one style, no Playful, no Ask Buddy.
+  if (isRecruiter) {
+    return (
+      <DashboardShell defaultSidebarCollapsed={circle.rail === 'collapsed'}>
+        {children}
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell

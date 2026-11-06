@@ -17,9 +17,17 @@ const log = debug('RecruiterPageHeading');
  *   lead     string — the #111111 run, including its trailing space
  *   accent   string — the italic brand-green run
  *   subtitle string — supporting line, 16/24 #999999
- *   titleStyle 'serif' (default) | 'sans' — see below
+ *   titleStyle 'serif' (default) | 'sans' | 'sans-accent' — see below
+ *   accentClassName (add-only, `titleStyle="sans"` only) — wraps the accent run in a span with this class; Talent Search V2 (Figma 10102:35217) draws the 34px title with a #387440 accent run
  */
-const RecruiterPageHeading = ({ lead, accent, subtitle, className, titleStyle = 'serif' }) => {
+const RecruiterPageHeading = ({
+  lead,
+  accent,
+  subtitle,
+  className,
+  titleStyle = 'serif',
+  accentClassName,
+}) => {
   log('render', { lead, accent, titleStyle });
 
   /* titleStyle="sans" (Job prospecting V2.0): Bricolage Grotesque 600, 34/41, -0.68 tracking, #1c2a21 — the
@@ -53,7 +61,7 @@ const RecruiterPageHeading = ({ lead, accent, subtitle, className, titleStyle = 
           style={{ fontSize: 'clamp(1.625rem, 1.3rem + 0.9vw, 2.125rem)', lineHeight: 1.2 }}
         >
           {lead}
-          {accent}
+          {accentClassName ? <span className={accentClassName}>{accent}</span> : accent}
         </h1>
         {subtitle && (
           <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999] max-md:hidden">

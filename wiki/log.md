@@ -1,3 +1,23 @@
+## [2026-11-06] build | Recruiter Community Engagement (Figma 10026:36840, 48 frames: RC-C01…C17 clubs, RC-CC02…CC17b host, RC-NW01…NW11 network)
+
+The talent Community pages now serve `/recruiter/community…` in the recruiter shell (`communityVariant.js`, per-audience copy hooks, `base` links). Three parallel builders + lead integration. Frames 2.0-11.6 % (font metrics, shell, dialog centring); 35 specs; 59 URLs in the responsive gate pass at 320/390/1024/1440 after the `CircleToast` target fix; eslint + build clean. Top-bar name/search still the shared recruiter shell's. See [recruiter-community.md](recruiter-community.md).
+
+## [2026-11-06] fix | Recruiter job flows: replaced the hand-drawn glyphs with Figma's exported `Icon/*` instances (37 purpose-named svgs in `src/assets/recruiter-jobs/`, inlined via generated `jobGlyphData.js`); e2e 10/10 (two toast tests passed on rerun after slow-server timeouts)
+
+## [2026-11-06] build | Recruiter job flows (Figma 'Recruiter - Job Postings' 10103:59491): 32 new frames (JT-01…11, CT-01…08, JM-01…13, JS-15) + screening flow JS-01…14 by a parallel agent
+
+New `recruiterJobs/` (shared job form, preview, posting detail, manage menu, dialogs), routes `/recruiter/job-postings/new|new/preview|:postingId|:postingId/edit` and `/recruiter/job-templates/new|product-designer/preview`; Job Postings gained the manage menu, five dialogs, toasts and the new posting; Job Templates gained details dialog, My templates, card menu and the Screening criteria tab (`?view=screening`). All 32 frames 1.9–7.5 % (framecmp), eslint/prettier/build clean, e2e 10 passed incl. 320/390. Not verified: exported glyphs (drawn, see page), real API. Details: [recruiter-job-postings.md](recruiter-job-postings.md). `✅ VERIFIED`
+
+## [2026-11-06] docs | Recruiter Talent Search (19 frames) verified by the lead: re-measured 1.3-7.9 %, eslint and build clean, responsive audit on the production build (22 URLs x 4 widths) with the false positives explained; see [recruiter-talent-search.md](recruiter-talent-search.md)
+
+## [2026-11-06] build | Recruiter Talent Search list (Figma 'Recruiter - Talent Search' 10102:34349, TS-01 … TS-10): workspace rail, sort, filter menus, More filters drawer, loading / no-results / first-visit states
+
+`/recruiter/talent-search` re-drawn from TS-01 (3.4 % vs the frame; the old 7249 build differed: "Invite to apply", "View profile", Sort control, removable filter chips, workspace rail `WorkspaceSidebar` via `renderSidebar`, SF Pro Rounded via `useScopedRoundedFont`, 34px title). New: `ui/MenuPanel.jsx` (popover card + rows), `ui/TogglePill.jsx`, `hooks/useDismissableLayer.js`, `sections/talentSearch/` menus, suggestions, More filters (popover at >=1280x960, sheet on smaller viewports so the Ask Buddy button never covers it), states, URL state hook (keys documented in `TalentSearchSection.jsx` header). Mock rules and every ASSUMPTION are tagged in `talentSearchFilterData.js`. `RecruiterPageHeading` got add-only `accentClassName`. The old `TalentSearchFilterSheet` was replaced by the More filters sheet.
+
+## [2026-11-06] verify | Recruiter AI chat follow-up: exact fonts, signed-in recruiter, accessibility, e2e
+
+Follow-up to the 2026-11-04 entry. Fonts: SF Pro Rounded scoped to the recruiter chat (`hooks/useScopedRoundedFont`, shared with the parent screens), Bricolage Grotesque, Instrument Sans and Raleway self-hosted from npm (`@fontsource-variable/*`, imported in `main.jsx`, removed from the Google link); Raleway on the manual-form prompt and the salary captions. Frames re-measured: 2.8 to 4.7 %, the scrolled company frame (`company-edit-scrolled`) 7.4 % (Figma's stray toast and wash). Signed-in recruiter checked with a mocked API (found and fixed: the company edit form now draws only the rows the panel gives it). Accessibility with axe 4.14 + accessibility tree + keyboard (no real screen reader): fixed the unlabeled file input, the trail scroller, missing h1 and landmarks, a second banner in the job form, an unnamed month select, and `ui/Modal` now traps focus and restores it. Full e2e: ran 4,623 of 4,928 before the session ended; 709 visual-baseline failures (no baselines on this machine), 125 responsive failures on pages this work does not touch (e.g. the "Journey map" label wrap in `engagementShell`, `/recruiter/home` labels), 3 `community-browse` failures that pass on rerun, 1 `home` hero-text failure; the last 305 tests (skills-lab responsive) did not run. Details: [recruiter-ai-chat.md](recruiter-ai-chat.md). Nothing committed.
+
 ## [2026-11-04] docs | Recruiter job prospecting V2.0 verified and documented: 29 frames re-measured (1.2–7.4 %), eslint/prettier/build clean, responsive audit 39 URLs (phone checkbox targets fixed; bare /recruiter/home label wrap left to the dashboard session); see [recruiter-job-prospecting.md](recruiter-job-prospecting.md). Removed a duplicated home entry from this log.
 
 ## [2026-11-04] docs | Recruiter Figma page map: the file has separate recruiter pages (Job Postings 56 frames, Talent Search 19, Messages 12, Pipeline 24, Community, Settings) that were not in the Prospecting link and are not built; listed in [recruiter-figma-pages-map.md](recruiter-figma-pages-map.md)
@@ -250,3 +270,11 @@ One page, every state a URL param (org switcher / single / pending / none / revo
 ## [2026-11-05] update | Recruiter onboarding R00–R09 reachable by URL (Figma `7356:96249`, 41 frames)
 
 `?state=` seeds on every step (`utils/frameSeed.js`), mock organisation directory for seeded pages, Figma scrim on the organisation / create modals, SF Pro Rounded scoped to the recruiter screens and dashboard. Table with diff %: [onboarding-redesign.md](onboarding-redesign.md). `tests/e2e/recruiter-onboarding-frames.spec.js` (7).
+
+## [2026-11-06] build | Recruiter candidate profile `/recruiter/talent-search/:candidateId` (Figma "Recruiter - Talent Search" TS-11 … TS-19)
+
+Profile, invite dialog, invite sent, save popover, saved, overflow menu, add-to-pipeline dialog, added, applicant profile; every state a URL key (see header of `TalentCandidateProfileSection.jsx`). Whole-frame diff 1.8–3.3% for page states, 7.2–7.8% for dialog frames (Figma centres them in a 1117px viewport). New `ui/IconTileDialog`; add-only `Modal initialFocus`, `Textarea counterInside`. `candidate-photo-*.webp` added (Figma uses one photo for both people).
+
+## [2026-11-06] build | Recruiter screening flow `/recruiter/job-screening` (Figma "Recruiter - Job Postings" JS-01 … JS-14)
+
+All 14 states are URL keys (header of `JobScreeningSection.jsx`, `wiki/recruiter-job-screening-flow.md`); whole-frame diff 2.3–5.1 %. Pipeline hand-off toast added to `ApplicationPipelineSection.jsx` (`?handoff=N`). e2e `recruiter-job-screening-flow.spec.js` 11/11 (JS-08 and the two toast checks re-run singly after slow-server timeouts).

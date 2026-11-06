@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY, CIRCLE_PEOPLE, CONNECTIONS_RESPONSE } from './circleData.js';
 import {
   CircleBellIcon,
   CircleChevronRightIcon,
@@ -12,17 +10,19 @@ import {
 } from './circleIcons.jsx';
 import CircleAvatar from './CircleAvatar.jsx';
 import CircleButton from './CircleButton.jsx';
-import { personHref } from './circleState.js';
 import { CARD, FOCUS_RING, HEADING } from './circleStyles.js';
+import CirclePersonLink from './CirclePersonLink.jsx';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 const MENU_ICON = {
   'View profile': CircleUserIcon,
   'Mute their posts': CircleBellIcon,
   'Remove connection': CircleCloseIcon,
+  'Remove from network': CircleCloseIcon,
   Block: CircleShieldIcon,
   Report: CircleShieldIcon,
 };
-const DANGER = ['Remove connection', 'Block', 'Report'];
+const DANGER = ['Remove connection', 'Remove from network', 'Block', 'Report'];
 
 /*
  * CircleConnectionsCard — Figma `Connections list` (NW-05): "128 people in your circle" + the sort chips (Recently added · Region ·
@@ -42,9 +42,12 @@ const CircleConnectionsCard = ({
   muted,
   onMessage,
   onMenuAction,
-  people = CIRCLE_PEOPLE,
-  menu = CONNECTIONS_RESPONSE.menu,
+  people: peopleProp,
+  menu: menuProp,
 }) => {
+  const { connections, copy: COPY, people: peopleData } = useCircleVariantData();
+  const people = peopleProp ?? peopleData;
+  const menu = menuProp ?? connections.menu;
   const menuRef = useRef(null);
   useEffect(() => {
     if (!menuId) return undefined;
@@ -71,15 +74,15 @@ const CircleConnectionsCard = ({
     <section className={classNames(CARD, 'flex flex-col gap-[16px] pb-[8px] pt-[16px]')}>
       <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[8px] px-[16px]">
         <h2 className={classNames(HEADING, 'text-[18px] leading-[21px]')}>
-          {`${total} ${total === 1 ? 'person' : 'people'} in your circle`}
+          {COPY.people?.(total) ?? `${total} ${total === 1 ? 'person' : 'people'} in your circle`}
         </h2>
         <span aria-hidden="true" className="hidden min-w-[16px] flex-1 lg:block" />
         <div
           role="group"
-          aria-label="Sort your circle"
+          aria-label={COPY.sortLabel ?? 'Sort your circle'}
           className="ml-auto flex flex-wrap gap-[8px]"
         >
-          {CONNECTIONS_RESPONSE.sorts.map((label, i) => {
+          {connections.sorts.map((label, i) => {
             const on = sort === label;
             return (
               <button
@@ -115,20 +118,20 @@ const CircleConnectionsCard = ({
                 i > 0 && 'border-t border-solid border-[#e7e7e7]'
               )}
             >
-              <Link
-                to={personHref(person.id)}
+              <CirclePersonLink
+                id={person.id}
                 aria-label={`View ${person.name}'s profile`}
                 className={`shrink-0 rounded-full ${FOCUS_RING}`}
               >
                 <CircleAvatar id={person.id} size={48} photo={person.photo} name={person.name} />
-              </Link>
+              </CirclePersonLink>
               <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <Link
-                  to={personHref(person.id)}
+                <CirclePersonLink
+                  id={person.id}
                   className={`w-fit font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21] no-underline ${FOCUS_RING}`}
                 >
                   {person.name}
-                </Link>
+                </CirclePersonLink>
                 <span className="font-sans text-[13px] leading-[16px] text-[#595959] max-lg:text-[14px] max-lg:leading-[18px]">
                   {person.headline}
                 </span>

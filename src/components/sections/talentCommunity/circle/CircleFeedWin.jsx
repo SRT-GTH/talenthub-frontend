@@ -1,12 +1,11 @@
-import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY, CIRCLE_PEOPLE } from './circleData.js';
 import { CircleCommentIcon, CircleTrophyIcon } from './circleIcons.jsx';
 import CircleAvatar from './CircleAvatar.jsx';
 import CircleButton from './CircleButton.jsx';
 import CircleLikeToggle from './CircleLikeToggle.jsx';
-import { personHref } from './circleState.js';
 import { CARD, FOCUS_RING, HEADING, STICKER } from './circleStyles.js';
+import CirclePersonLink from './CirclePersonLink.jsx';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleFeedWin — Figma `Network win · Abena verified…` (NW-09): head (48px avatar, name + "1st", meta), the win box (trophy tile,
@@ -15,7 +14,8 @@ import { CARD, FOCUS_RING, HEADING, STICKER } from './circleStyles.js';
  * ⚠️ ASSUMPTION: the chips and Congratulate send a congratulation (toast); Congratulate then reads "Congratulated".
  */
 const CircleFeedWin = ({ item, liked, likes, congratulated, onLike, onQuick, onCongratulate }) => {
-  const person = CIRCLE_PEOPLE[item.personId];
+  const { copy: COPY, people } = useCircleVariantData();
+  const person = people[item.personId];
   return (
     <article
       className={classNames(
@@ -27,12 +27,12 @@ const CircleFeedWin = ({ item, liked, likes, congratulated, onLike, onQuick, onC
         <CircleAvatar id={person.id} size={48} />
         <div className="flex min-w-0 flex-col gap-[2px]">
           <div className="flex items-center gap-[6px]">
-            <Link
-              to={personHref(person.id)}
+            <CirclePersonLink
+              id={person.id}
               className={`font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21] no-underline ${FOCUS_RING}`}
             >
               {person.name}
-            </Link>
+            </CirclePersonLink>
             <span className="rounded-[6px] bg-[#f8f8f4] px-[6px] py-[1px] font-sans text-[11px] font-semibold leading-[13px] text-[#737373] max-lg:text-[12px]">
               {item.degree}
             </span>

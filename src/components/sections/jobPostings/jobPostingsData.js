@@ -57,6 +57,7 @@ export const STATUS_STYLES = {
   Active: 'bg-brand-green-light border-brand-green-light-hover text-brand-green-dark',
   Draft: 'bg-[#faf4e8] border-[#eedeb8] text-[#935a22]',
   Closed: 'bg-neutral border-border-pill text-content-helper',
+  Paused: 'bg-[#faf4e8] border-[#eedeb8] text-[#463409]', // JM-09 10117:62145
 };
 
 // The 48x48 icon tile and its glyph track the posting's STATUS, not the role —
@@ -66,6 +67,7 @@ export const STATUS_ICON_STYLES = {
   Active: { tile: 'bg-[#f3f8f4]', glyph: 'text-[#2a5730]' },
   Draft: { tile: 'bg-[#faf4e8]', glyph: 'text-[#785910]' },
   Closed: { tile: 'bg-[#eae8e2]', glyph: 'text-[#737373]' },
+  Paused: { tile: 'bg-[#faf4e8]', glyph: 'text-[#785910]' },
 };
 
 export const POSTINGS = [
@@ -131,4 +133,51 @@ export const CLOSE_CONFIRMATION = {
   body: 'Once closed, it stops accepting new applicants and comes off candidate search. You can reopen it anytime.',
   confirmLabel: 'Yes, close posting',
   cancelLabel: 'No, keep it open',
+};
+
+// JT-10 / JT-11 (10117:54589 / :54084): the posting that "Publish job" just created, first in the list with a green outline.
+export const NEW_POSTING = {
+  id: 'product-designer',
+  icon: 'pencil-ruler',
+  title: 'Product Designer',
+  status: 'Active',
+  location: 'Accra,  Ghana',
+  type: 'Full-Time',
+  age: 'Just now',
+  totalApplicants: '0',
+  awaiting: '0',
+  avgMatch: '--',
+  action: 'View Pipeline',
+  isNew: true,
+};
+
+// JM-02 (10117:58656): the manage menu's note on a posting people have applied to.
+export const DELETE_BLOCKED_NOTE = 'Not available once people have applied. Close it instead.';
+
+// JM-09 / JM-11 / JM-13 toasts (10117:62145 / :62599 / :63053).
+export const POSTING_TOASTS = {
+  published: {
+    tone: 'success',
+    title: 'Success',
+    message: 'Product Designer is live.Talent can now find it in Opportunities',
+    actionLabel: 'View posting',
+  },
+  paused: {
+    tone: 'warning',
+    title: 'Warning - Applications paused for Senior UX Designer',
+    message: 'Your pipeline is unchanged',
+    actionLabel: 'Undo',
+  },
+  closed: {
+    tone: 'success',
+    title: 'Success - Senior UX Designer is closed',
+    message: '72 applicants were sent a “role closed” message',
+    actionLabel: 'Reopen',
+  },
+  deleted: {
+    tone: 'success',
+    title: 'Success - Draft deleted',
+    message: 'DevOps Engineer',
+    actionLabel: 'Undo',
+  },
 };

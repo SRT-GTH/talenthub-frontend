@@ -1,5 +1,5 @@
 import Button from '../../../ui/Button.jsx';
-import { CREATE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { Callout, FooterBar, IconRow } from './CreateDialogParts.jsx';
 import { CcCheckCircleIcon, CcInfoIcon, CcWarningIcon } from './CreateCommunityIcons.jsx';
 
@@ -9,6 +9,7 @@ import { CcCheckCircleIcon, CcInfoIcon, CcWarningIcon } from './CreateCommunityI
  * Rows: phone verified · 7 days on GTH · profile ≥ 60% (the open one carries "Finish profile"); the "Under 18?" callout is always shown.
  */
 const CreateNotReady = ({ eligibility, onFinishProfile, onNotNow }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.notReady;
   const profileOk = eligibility.profilePercent >= eligibility.minPercent;
   return (

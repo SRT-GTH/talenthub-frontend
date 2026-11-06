@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import Button from '../../../ui/Button.jsx';
-import { CREATE_AGE_OPTIONS, CREATE_COPY, CREATE_JOIN_OPTIONS } from './createCommunityData.js';
+import { CREATE_AGE_OPTIONS, CREATE_JOIN_OPTIONS } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { Callout, CheckRow, IconRow } from './CreateDialogParts.jsx';
 import CreateDraftPreviewCard from './CreateDraftPreviewCard.jsx';
 import {
@@ -29,6 +30,7 @@ const AGE_SUMMARY = {
  * The preview card + four summary rows read the draft; "Submit for review" stays disabled until the guidelines box is ticked.
  */
 const CreateReviewStep = ({ draft, patchDraft, onBack, onSubmit, submitLabel }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.review;
   const agreeId = useId();
   const join = CREATE_JOIN_OPTIONS.find((o) => o.id === draft.joinPolicy) ?? CREATE_JOIN_OPTIONS[0];

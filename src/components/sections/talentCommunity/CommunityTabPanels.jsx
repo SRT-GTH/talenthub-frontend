@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
-import { COMMUNITY_PAGE_COPY } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
 import {
   CmCalendarIcon,
   CmGlobeIcon,
@@ -43,7 +43,8 @@ const OutlineChip = ({ children, className }) => (
 
 export const AboutPanel = ({ detail }) => {
   const { about } = detail;
-  const copy = COMMUNITY_PAGE_COPY.about;
+  const { pageCopy } = useCommunityContent();
+  const copy = pageCopy.about;
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
       <section className={classNames(CARD, 'flex flex-col gap-[14px] p-[24px] max-sm:p-[16px]')}>
@@ -147,13 +148,16 @@ const Badge = ({ badge }) =>
   );
 
 export const MembersPanel = ({ detail }) => {
-  const copy = COMMUNITY_PAGE_COPY.members;
+  const { pageCopy } = useCommunityContent();
+  const copy = pageCopy.members;
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('All');
   const [follows, setFollows] = useState(() =>
     Object.fromEntries(detail.people.map((person) => [person.id, person.following]))
   );
   // Live pages set `moreMembers: false` (the API returns the members it has) and `membersSearch` (real count).
+  // RC-C12 draws one button as "Follow" among "Link up" buttons: `person.idleLabel` shows until it is first toggled.
+  const [touched, setTouched] = useState({});
   const [more, setMore] = useState(detail.moreMembers !== false);
   const searchLabel = detail.membersSearch || copy.search;
 
@@ -232,30 +236,35 @@ export const MembersPanel = ({ detail }) => {
             {person.me ? (
               <span className="font-sans text-[12px] font-semibold text-[#737373]">You</span>
             ) : (
-            <div className="flex items-center gap-[14px] max-sm:basis-full max-sm:gap-[10px] max-sm:pl-[58px]">
-              <button
-                type="button"
-                aria-label={`Message ${person.name}`}
-                onClick={() => log('message', person.id)}
-                className={classNames(
-                  'inline-flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-solid border-[#e6e6e6] bg-white p-0',
-                  FOCUS_RING
-                )}
-              >
-                <CmMessageIcon className="size-[18px] text-[#387440]" />
-              </button>
-              <PageButton
-                tone="secondary"
-                className="!h-[44px] !px-[16px]"
-                aria-pressed={follows[person.id]}
-                onClick={() => {
-                  log('follow', person.id, !follows[person.id]);
-                  setFollows((current) => ({ ...current, [person.id]: !current[person.id] }));
-                }}
-              >
-                {follows[person.id] ? copy.following : copy.follow}
-              </PageButton>
-            </div>
+              <div className="flex items-center gap-[14px] max-sm:basis-full max-sm:gap-[10px] max-sm:pl-[58px]">
+                <button
+                  type="button"
+                  aria-label={`Message ${person.name}`}
+                  onClick={() => log('message', person.id)}
+                  className={classNames(
+                    'inline-flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-solid border-[#e6e6e6] bg-white p-0',
+                    FOCUS_RING
+                  )}
+                >
+                  <CmMessageIcon className="size-[18px] text-[#387440]" />
+                </button>
+                <PageButton
+                  tone="secondary"
+                  className="!h-[44px] !px-[16px]"
+                  aria-pressed={follows[person.id]}
+                  onClick={() => {
+                    log('follow', person.id, !follows[person.id]);
+                    setTouched((current) => ({ ...current, [person.id]: true }));
+                    setFollows((current) => ({ ...current, [person.id]: !current[person.id] }));
+                  }}
+                >
+                  {follows[person.id]
+                    ? copy.following
+                    : touched[person.id] || !person.idleLabel
+                      ? copy.follow
+                      : person.idleLabel}
+                </PageButton>
+              </div>
             )}
           </div>
         ))}

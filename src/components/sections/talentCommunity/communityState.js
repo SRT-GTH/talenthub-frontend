@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { isRecruiterCommunityPath } from './communityVariant.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('communityState');
@@ -31,6 +32,7 @@ const pick = (value, allowed, fallback = null) => (allowed.includes(value) ? val
 
 export const useCommunityState = () => {
   const [params, setParams] = useSearchParams();
+  const { pathname } = useLocation();
   const cat = params.get('cat');
   const q = params.get('q') ?? '';
   const menu = params.get('menu') === 'joined' ? 'joined' : null;
@@ -47,6 +49,7 @@ export const useCommunityState = () => {
   // Demo = GubliAS's drawn mock (Figma states driven by the URL). Live data otherwise; the demo-only state keys switch it on
   // so every frame URL in wiki/talent-community.md keeps rendering the drawn screen.
   const demo =
+    isRecruiterCommunityPath(pathname) || // the recruiter screens are the drawn mock (no recruiter API yet)
     params.get('demo') === '1' ||
     params.has('state') ||
     params.get('joined') === '1' ||

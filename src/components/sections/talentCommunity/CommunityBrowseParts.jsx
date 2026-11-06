@@ -7,11 +7,11 @@ import headDoodleRing from '../../../assets/talent-community/browse/head-doodle-
 import headDoodleSquiggle from '../../../assets/talent-community/browse/head-doodle-squiggle.svg';
 import headFlame from '../../../assets/talent-community/browse/head-flame.svg';
 import headSparkle from '../../../assets/talent-community/browse/head-sparkle.svg';
-import {
-  COMMUNITY_BROWSE_COPY as COPY,
-  COMMUNITY_CATEGORIES,
-  COMMUNITY_HEADER_FACES,
-} from './communityData.js';
+import { Link } from 'react-router-dom';
+import { COMMUNITY_CATEGORIES, COMMUNITY_HEADER_FACES } from './communityData.js';
+import { COMMUNITY_BROWSE_COPY } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
+import { communityHref } from './communityVariant.js';
 import {
   CommunitySearchBigIcon,
   CommunitySearchIcon,
@@ -48,21 +48,21 @@ const HeaderDecor = () => (
       </span>
       <span className="absolute left-[136px] top-[36px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border border-solid border-[rgba(0,82,43,0.12)] bg-white px-[12px] py-[7px] font-sans text-[12px] leading-[14px] tracking-[0.2px] text-[#1c2a21] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
         <span className="size-[8px] rounded-full bg-[#349643]" />
-        {COPY.header.friends}
+        {COMMUNITY_BROWSE_COPY.header.friends}
       </span>
       <span
         className="absolute left-[338px] top-[9px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full bg-[#387440] px-[14px] py-[8px] font-sans text-[13px] font-medium leading-[16px] tracking-[0.2px] text-white shadow-[0_6px_14px_rgba(31,69,38,0.16)]"
         style={{ transform: 'rotate(5deg)' }}
       >
         <img src={headSparkle} alt="" className="size-[15px]" />
-        {COPY.header.ask}
+        {COMMUNITY_BROWSE_COPY.header.ask}
       </span>
       <span
         className="absolute left-[431px] top-[42px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_6px_14px_rgba(31,69,38,0.16)]"
         style={{ transform: 'rotate(-4deg)' }}
       >
         <img src={headFlame} alt="" className="size-[15px]" />
-        {COPY.header.xp}
+        {COMMUNITY_BROWSE_COPY.header.xp}
       </span>
       <img src={headDoodleGold} alt="" className="absolute left-[574px] top-0 size-[22px]" />
       <img src={headDoodleGreen} alt="" className="absolute left-[316px] top-[46px] size-[12px]" />
@@ -80,27 +80,50 @@ const HeaderDecor = () => (
  * BrowseHeader — "Find your people" + count sticker, subtitle, decoration art.
  * Props: total (number, the "10 communities" sticker).
  */
-export const BrowseHeader = ({ total }) => (
-  <div className="flex items-start justify-between gap-[24px]">
-    <div className="flex min-w-0 flex-col gap-[3px]">
-      <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[6px]">
-        <h1
-          className={classNames(
-            HEADING,
-            'text-[clamp(26px,1.97vw,34px)] leading-[1.2] tracking-[-0.02em]'
-          )}
-        >
-          {COPY.title}
-        </h1>
-        <CommunitySticker>{`${total} communities`}</CommunitySticker>
+export const BrowseHeader = ({ total }) => {
+  const { browseCopy: COPY, isRecruiter, base } = useCommunityContent();
+  return (
+    <div
+      className={classNames(
+        'flex justify-between gap-[24px]',
+        isRecruiter
+          ? 'items-center max-sm:flex-col max-sm:items-start max-sm:gap-[12px]'
+          : 'items-start'
+      )}
+    >
+      <div className="flex min-w-0 flex-col gap-[3px]">
+        <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[6px]">
+          <h1
+            className={classNames(
+              HEADING,
+              'text-[clamp(26px,1.97vw,34px)] leading-[1.2] tracking-[-0.02em]'
+            )}
+          >
+            {COPY.title}
+          </h1>
+          <CommunitySticker>
+            {COPY.countLabel ? COPY.countLabel(total) : `${total} communities`}
+          </CommunitySticker>
+        </div>
+        <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999999] max-sm:text-[14px] max-sm:leading-[20px]">
+          {COPY.subtitle}
+        </p>
       </div>
-      <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999999] max-sm:text-[14px] max-sm:leading-[20px]">
-        {COPY.subtitle}
-      </p>
+      {isRecruiter ? (
+        // RC-C01 / C03: "Host a company club" (Figma instance "Button · Create a community", 191x48) sits at the right of the title row.
+        <CommunityButton
+          tone="primary"
+          to={communityHref(base, '/create')}
+          className="h-[48px] shrink-0 rounded-[10px] px-[18px]"
+        >
+          {COPY.hostButton}
+        </CommunityButton>
+      ) : (
+        <HeaderDecor />
+      )}
     </div>
-    <HeaderDecor />
-  </div>
-);
+  );
+};
 
 /*
  * BrowseToolbar — category chips (All + 8) and the 340px search field.
@@ -108,6 +131,7 @@ export const BrowseHeader = ({ total }) => (
  * The chips are a scroll row on phones, a wrapping row from md.
  */
 export const BrowseToolbar = ({ cat, onCat, q, onQ }) => {
+  const { browseCopy: COPY } = useCommunityContent();
   const [value, setValue] = useState(q);
   useEffect(() => {
     setValue(q);
@@ -117,7 +141,7 @@ export const BrowseToolbar = ({ cat, onCat, q, onQ }) => {
     <div className="flex flex-col gap-[12px] lg:flex-row lg:items-end lg:gap-[16px] playful:lg:min-h-[60px] playful:lg:items-center">
       <div
         role="group"
-        aria-label="Community categories"
+        aria-label={COPY.categoriesAriaLabel ?? 'Community categories'}
         className="no-scrollbar -mx-[12px] flex min-w-0 flex-1 gap-[8px] overflow-x-auto px-[12px] max-md:[mask-image:linear-gradient(to_right,transparent,#000_12px,#000_calc(100%-24px),transparent)] md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
       >
         <CommunityChip
@@ -158,7 +182,7 @@ export const BrowseToolbar = ({ cat, onCat, q, onQ }) => {
             onQ(e.target.value);
           }}
           placeholder={COPY.searchPlaceholder}
-          aria-label="Search communities"
+          aria-label={COPY.searchAriaLabel ?? 'Search communities'}
           autoComplete="off"
           className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[14px] font-medium leading-[24px] tracking-[0.2px] text-[#1c2a21] outline-none placeholder:font-normal placeholder:text-[#595959] [&::-webkit-search-cancel-button]:hidden"
         />
@@ -193,24 +217,27 @@ export const BrowseSectionHead = ({ icon, title, note, sticker }) => {
  * Props: count, label (category name or the search term), term (true = quote the label as a search term), onClear.
  * ⚠️ ASSUMPTION: for a text search the same line reads "Showing N communities for “term” · Clear" (only the category form is drawn).
  */
-export const BrowseResultsLine = ({ count, label, term = false, onClear }) => (
-  <p className="m-0 flex flex-wrap items-center gap-x-[6px] font-sans text-[14px] leading-[17px]">
-    <span className="font-medium text-[#595959]">
-      {term ? COPY.results.showing(count).replace(/ in$/, ' for') : COPY.results.showing(count)}
-    </span>
-    <span className="font-semibold text-[#387440]">{term ? `“${label}”` : label}</span>
-    <button
-      type="button"
-      onClick={onClear}
-      className={classNames(
-        'cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#1c2a21] max-lg:min-h-[32px]',
-        FOCUS_RING
-      )}
-    >
-      {COPY.results.clear}
-    </button>
-  </p>
-);
+export const BrowseResultsLine = ({ count, label, term = false, onClear }) => {
+  const { browseCopy: COPY } = useCommunityContent();
+  return (
+    <p className="m-0 flex flex-wrap items-center gap-x-[6px] font-sans text-[14px] leading-[17px]">
+      <span className="font-medium text-[#595959]">
+        {term ? COPY.results.showing(count).replace(/ in$/, ' for') : COPY.results.showing(count)}
+      </span>
+      <span className="font-semibold text-[#387440]">{term ? `“${label}”` : label}</span>
+      <button
+        type="button"
+        onClick={onClear}
+        className={classNames(
+          'cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold leading-[17px] text-[#1c2a21] max-lg:min-h-[32px]',
+          FOCUS_RING
+        )}
+      >
+        {COPY.results.clear}
+      </button>
+    </p>
+  );
+};
 
 /*
  * BrowseGrid — the card grid: 300px tracks (32px column gap, 20px row gap) from sm, one fluid column on phones.
@@ -257,45 +284,96 @@ export const CommunityCardSkeleton = () => (
  * Props: requested (boolean), onRequest.
  * ⚠️ ASSUMPTION: no request flow is drawn: the link turns into "Request sent" (no extra copy invented beyond that).
  */
-export const RequestTile = ({ requested, onRequest }) => (
-  <div className="relative flex min-h-[334px] w-full flex-col items-center justify-center gap-[10px] rounded-[20px] bg-white px-[16px] text-center">
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full overflow-visible"
-    >
-      <rect
-        x="0.75"
-        y="0.75"
-        rx="19.25"
-        fill="none"
-        stroke="#bfbfbf"
-        strokeWidth="1.5"
-        strokeDasharray="6 5"
-        style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
-      />
-    </svg>
-    <span className="flex size-[52px] items-center justify-center rounded-full border-[1.5px] border-solid border-[rgba(28,42,33,0.1)] bg-[#ffd86b] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]">
-      <CommunityPlusIcon className="size-[22px]" />
-    </span>
-    <h3 className={classNames(HEADING, 'text-[17px] leading-[21px]')}>
-      {COPY.tiles.discoverTitle}
-    </h3>
-    <p className="m-0 max-w-[220px] font-sans text-[13px] font-normal leading-[18px] text-[#737373]">
-      {COPY.tiles.discoverBody}
-    </p>
-    <button
-      type="button"
-      onClick={onRequest}
-      aria-live="polite"
-      className={classNames(
-        'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:min-h-[32px]',
-        FOCUS_RING
-      )}
-    >
-      {requested ? 'Request sent' : COPY.tiles.discoverLink}
-    </button>
-  </div>
-);
+export const RequestTile = ({ requested, onRequest }) => {
+  const { browseCopy: COPY } = useCommunityContent();
+  return (
+    <div className="relative flex min-h-[334px] w-full flex-col items-center justify-center gap-[10px] rounded-[20px] bg-white px-[16px] text-center">
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 size-full overflow-visible"
+      >
+        <rect
+          x="0.75"
+          y="0.75"
+          rx="19.25"
+          fill="none"
+          stroke="#bfbfbf"
+          strokeWidth="1.5"
+          strokeDasharray="6 5"
+          style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
+        />
+      </svg>
+      <span className="flex size-[52px] items-center justify-center rounded-full border-[1.5px] border-solid border-[rgba(28,42,33,0.1)] bg-[#ffd86b] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)] playful:border-[rgba(28,42,33,0.55)] playful:shadow-[4px_4px_0_rgba(28,42,33,0.45),0_10px_24px_rgba(28,42,33,0.06)]">
+        <CommunityPlusIcon className="size-[22px]" />
+      </span>
+      <h3 className={classNames(HEADING, 'text-[17px] leading-[21px]')}>
+        {COPY.tiles.discoverTitle}
+      </h3>
+      <p className="m-0 max-w-[220px] font-sans text-[13px] font-normal leading-[18px] text-[#737373]">
+        {COPY.tiles.discoverBody}
+      </p>
+      <button
+        type="button"
+        onClick={onRequest}
+        aria-live="polite"
+        className={classNames(
+          'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:min-h-[32px]',
+          FOCUS_RING
+        )}
+      >
+        {requested ? 'Request sent' : COPY.tiles.discoverLink}
+      </button>
+    </div>
+  );
+};
+
+/*
+ * HostClubTile — RC-C03 "discover tile" (Figma 10194:19281, recruiter): the same dashed 300x334 tile as RequestTile with the
+ * recruiter copy: "Host a company club" + body, a green "Host a company club" link to `${base}/create`, and the muted
+ * "or request one: 25 asks opens it" line. Reads its copy from useCommunityContent() (recruiter only).
+ */
+export const HostClubTile = () => {
+  const { browseCopy: COPY, base } = useCommunityContent();
+  const copy = COPY.tiles;
+  return (
+    <div className="relative flex min-h-[334px] w-full flex-col items-center justify-center gap-[10px] rounded-[20px] bg-white px-[16px] text-center">
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 size-full overflow-visible"
+      >
+        <rect
+          x="0.75"
+          y="0.75"
+          rx="19.25"
+          fill="none"
+          stroke="#bfbfbf"
+          strokeWidth="1.5"
+          strokeDasharray="6 5"
+          style={{ width: 'calc(100% - 1.5px)', height: 'calc(100% - 1.5px)' }}
+        />
+      </svg>
+      <span className="flex size-[52px] items-center justify-center rounded-full border-[1.5px] border-solid border-[rgba(28,42,33,0.1)] bg-[#ffd86b] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_2px_8px_rgba(28,42,33,0.04)]">
+        <CommunityPlusIcon className="size-[22px]" />
+      </span>
+      <h3 className={classNames(HEADING, 'text-[17px] leading-[21px]')}>{copy.hostTitle}</h3>
+      <p className="m-0 max-w-[220px] font-sans text-[13px] font-normal leading-[18px] text-[#737373]">
+        {copy.hostBody}
+      </p>
+      <Link
+        to={communityHref(base, '/create')}
+        className={classNames(
+          'inline-flex min-h-[24px] cursor-pointer items-center font-sans text-[13px] font-semibold leading-[16px] text-[#387440] no-underline max-lg:min-h-[32px]',
+          FOCUS_RING
+        )}
+      >
+        {copy.hostLink}
+      </Link>
+      <span className="font-sans text-[12px] font-normal leading-[14px] text-[#737373]">
+        {copy.hostAlt}
+      </span>
+    </div>
+  );
+};
 
 /*
  * NoResults — C-16 white panel: search icon tile, "No community for “term” yet", request progress, two buttons.
@@ -304,6 +382,7 @@ export const RequestTile = ({ requested, onRequest }) => (
  *    "Request sent" (no other copy invented).
  */
 export const NoResults = ({ term, asked, needed, requested, onRequest, onClear }) => {
+  const { browseCopy: COPY, isRecruiter, base } = useCommunityContent();
   const count = requested ? asked + 1 : asked;
   return (
     <section
@@ -348,12 +427,26 @@ export const NoResults = ({ term, asked, needed, requested, onRequest, onClear }
         </span>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-[10px] pt-[2px]">
-        <CommunityButton tone="primary" disabled={requested} onClick={onRequest}>
-          {requested ? 'Request sent' : COPY.noResults.request}
-        </CommunityButton>
-        <CommunityButton tone="secondary" onClick={onClear}>
-          {COPY.noResults.clear}
-        </CommunityButton>
+        {isRecruiter ? (
+          // RC-C16: "Start it yourself" (primary, opens the host flow) + "Request this club" (secondary); no "Clear search".
+          <>
+            <CommunityButton tone="primary" to={communityHref(base, '/create')}>
+              {COPY.noResults.start}
+            </CommunityButton>
+            <CommunityButton tone="secondary" disabled={requested} onClick={onRequest}>
+              {requested ? 'Request sent' : COPY.noResults.request}
+            </CommunityButton>
+          </>
+        ) : (
+          <>
+            <CommunityButton tone="primary" disabled={requested} onClick={onRequest}>
+              {requested ? 'Request sent' : COPY.noResults.request}
+            </CommunityButton>
+            <CommunityButton tone="secondary" onClick={onClear}>
+              {COPY.noResults.clear}
+            </CommunityButton>
+          </>
+        )}
       </div>
     </section>
   );

@@ -8,7 +8,7 @@ import {
 } from '../CommunityPageIcons.jsx';
 import { PageButton } from '../CommunityPageParts.jsx';
 import { FOCUS_RING, HEADING, HERO_CHROME, STICKER_BASE } from '../communityPageStyles.js';
-import { OWNER_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 
 const META_ROW =
   'inline-flex items-center gap-[5px] font-sans text-[13px] font-medium leading-[16px]';
@@ -44,6 +44,7 @@ const Collage = ({ photos }) => (
  * Props: community, status, copy (OWNER_STATUS_COPY[status]), photos, faces, showEvents, onAction(id).
  */
 const OwnerHero = ({ community, status, copy, photos, faces, showEvents, onAction }) => {
+  const { OWNER_COPY, base } = useCreateCommunityCopy();
   const count = community.members.length;
   const live = ['live', 'transfer-pending', 'archived'].includes(status);
   return (
@@ -56,7 +57,7 @@ const OwnerHero = ({ community, status, copy, photos, faces, showEvents, onActio
     >
       <div className="flex min-w-0 flex-1 flex-col gap-[10px]">
         <Link
-          to="/community"
+          to={base}
           className={classNames(
             'inline-flex w-fit items-center gap-[6px] font-sans text-[13px] font-semibold leading-[16px] text-[#387440] no-underline',
             FOCUS_RING

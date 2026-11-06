@@ -1026,3 +1026,24 @@ New shared primitives in `src/components/ui/` (all Figma-drawn in `OHG2xsfCCskT8
 Add-only changes to existing components (defaults unchanged): `form/Textarea` got `counterSuffix` and `counterErrorTone`; `dashboard/DashboardShell` got `orgSlot`, `panels`, `renderSidebar`; `dashboard/DashboardTopNav` got `orgSlot` and `panels` (notifications / language pop-ups, shared `TalentA11yMenu` for the accessibility button).
 
 Section components under `src/components/sections/recruiterDashboard/`: `RecruiterDashboardSection` (page), `useRecruiterDashboardState` (URL state), `recruiterDashboardData.js` / `recruiterDashboardIcons.js`, widgets (`DashHero`, `ActiveJobsWidget`, `VerificationWidget`, `PipelineWidget`, `FeedbackWidget`, `TalentsWidget`, `SkillsWidget`, `OrgLinkCard`), `OrgSwitcher`, `WorkspaceSidebar`, `DashboardSkeleton`, dialogs (`JobDialogs`, `TalentDialogs`, `UploadDialog`, `StageDrawer`, `FeedbackParts`) and `TopBarPanels`. Assets: `src/assets/recruiter-dashboard/` (purpose-named, e.g. `clock-urgent.svg`, `org-logo-hubtel.png`).
+
+| Component | File | Figma | Notes |
+| `IconTileDialog` | `ui/IconTileDialog.jsx` | `10102:42398`, `10102:44650` | Recruiter form / confirm dialog: 44px icon tile, Bricolage 24/600 title, body, round close, children, footer slot, `widthClassName`; on `ui/Modal` (added opt-in `initialFocus="dialog"`). `form/Textarea` got add-only `counterInside`. |
+
+Candidate profile (`/recruiter/talent-search/:candidateId`, TS-11 … TS-19) lives in `src/components/sections/talentCandidateProfile/` (section, header, body, match panel, menus, dialogs, URL-state hook, icons, mock data).
+
+Talent Search list (`/recruiter/talent-search`, TS-01 … TS-10), added 2026-11-06:
+
+| Component | File | Figma | Notes |
+| `MenuPanel` (+ `MenuGroupLabel`, `MenuRow`, `MenuDivider`) | `ui/MenuPanel.jsx` | `10102:36674`, `37457`, `38243`, `39005`, `39790` | White r16 popover card with 12/600 group labels and 14px option rows (selected = mint wash + check, `checked` = check only, `muted`). Positioning and dismissal are the caller's. ✅ VERIFIED 2026-11-06 |
+| `TogglePill` | `ui/TogglePill.jsx` | `10102:40554` | Multi-select pill (selected = #ebf1ec, 1.5px green border, 2px shelf). `aria-pressed`. ✅ VERIFIED 2026-11-06 |
+| `useDismissableLayer` | `hooks/useDismissableLayer.js` | n/a | Escape / outside press closes a popover. |
+| Talent search menus, suggestions, More filters, states | `sections/talentSearch/TalentSearch{Menus,Suggestions,MoreFilters,States,FilterBar}.jsx`, `useTalentSearchState.js` | TS-02 … TS-10 | URL-driven; see the header of `TalentSearchSection.jsx`. |
+
+## Recruiter job flows components (2026-11-06)
+
+No new `ui/` primitives. Form-local family in `src/components/sections/recruiterJobs/`: `jobFormControls.jsx` (`Field`, `TextBox`, `Select` with controlled `open`, `SetupPills`, `CheckRow`, `SkillPill`, `AreaBox`; 44px, unlike `ui/form/*` at 51px), `JobFormFields` (five section cards shared by create / template / edit), `jobFlowDialogs.jsx` (`CenterDialog` on `ui/Modal`, `SaveTemplateDialog` on `ui/IconTileDialog`), `jobButtons.jsx` (`JobButton`), `jobFlowParts.jsx` (`PageFrame`, `BackCrumb`, `FlowBanner`). Toasts reuse `ui/BannerToast`. ⚠️ ASSUMPTION: candidates to promote to `ui/` once a second flow needs them: `Select`/`CheckRow`. Gotcha: `ui/Modal`'s box has `sm:pb-0`, so dialog bottom padding needs `sm:!pb-[…]`. See [recruiter-job-postings.md](recruiter-job-postings.md).
+
+## Community variants (2026-11-06)
+
+`talentCommunity/communityVariant.js` (`useCommunityVariant`, `communityHref`), `communityContent.js`, `create/useCreateCommunityCopy.js`, `circle/useCircleVariantData.js`, `ClubsSwitchRow`, `circle/Network*` cards, `CirclePersonLink`. Components read copy/links from the hook, never branch on the audience. See [recruiter-community.md](recruiter-community.md).

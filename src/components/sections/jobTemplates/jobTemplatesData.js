@@ -117,3 +117,84 @@ export const FILTERED_SUMMARY = {
   plural: 'templates',
   inWord: 'in',
 };
+
+// CT-06 / JM-07 (10117:57080 / :63457): the "My templates" view lists what the recruiter saved. Mock data only.
+export const MY_TEMPLATES = {
+  saved: {
+    id: 'junior-frontend-developer',
+    iconTileColor: '#fdebd0',
+    iconColor: '#b8712a',
+    icon: 'megaphone',
+    title: 'Junior Frontend Developer',
+    category: 'Technology',
+    type: 'Full-Time',
+    description:
+      'Entry-level · Hybrid · Accra. React, JavaScript and accessibility, with graduate screening included.',
+    footnote: 'Created just now by you',
+  },
+  copied: {
+    id: 'senior-ux-designer-copy',
+    iconTileColor: '#f3f8f4',
+    iconColor: '#2a5730',
+    icon: 'design',
+    title: 'Senior UX Designer (copy)',
+    category: 'Design',
+    type: 'Full-Time',
+    description:
+      'Senior · Remote · London. Figma, design systems and research, with senior design screening.',
+    footnote: 'Created just now from a live posting',
+  },
+};
+
+export const TEMPLATE_TOASTS = {
+  saved: {
+    tone: 'success',
+    title: 'Success',
+    message: 'Template saved to My templates. Everyone at Silver Rock Technology can use it.',
+    actionLabel: 'Use it now',
+  },
+  copied: {
+    tone: 'success',
+    title: 'Success - Saved as a template',
+    message: 'Senior UX Designer (copy) is in My templates',
+    actionLabel: 'Use it now',
+  },
+};
+
+// CT-07 (10117:57431): the card menu of a saved template.
+export const TEMPLATE_MENU = [
+  { id: 'use', label: 'Use template' },
+  { id: 'preview', label: 'Preview as talent' },
+  { id: 'edit', label: 'Edit template' },
+  { id: 'duplicate', label: 'Duplicate' },
+  { id: 'share', label: 'Share with team', hint: 'Shared with 4 teammates' },
+  { id: 'delete', label: 'Delete template', destructive: true },
+];
+
+// JS-15 (10117:70023): Templates › Screening criteria, where saved screening criteria live. Mock data only.
+export const SCREENING_CRITERIA = [
+  {
+    id: 'senior-design-screening',
+    title: 'Senior design screening',
+    source: 'Saved by you · just now',
+    isNew: true,
+    tags: ['5–10 yrs', 'Figma, Design systems, User research', 'Bachelor’s+', 'Assessment 70+'],
+    usedOn: 'Used on 2 jobs',
+  },
+  {
+    id: 'graduate-intake-screening',
+    title: 'Graduate intake screening',
+    source: 'Saved by Akua M. · Sep 2026',
+    tags: ['0–2 yrs', 'BSc or HND', 'Assessment 60+'],
+    usedOn: 'Used on 6 jobs',
+  },
+  {
+    id: 'product-designer-screening',
+    title: 'Product Designer screening',
+    source: 'From the Product Designer template',
+    tags: ['2–5 yrs', 'Figma, Prototyping', 'Assessment 70+'],
+    usedOn: 'Used on 1 jobs',
+  },
+];
+export const SCREENING_LOAD_LABEL = 'Load on a job';
+export const SCREENING_PILL_LABEL = 'Screening criteria';

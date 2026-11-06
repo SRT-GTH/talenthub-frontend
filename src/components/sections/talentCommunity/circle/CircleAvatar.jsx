@@ -1,5 +1,5 @@
 import { classNames } from '../../../../utils/classNames.js';
-import { PERSON_PHOTOS } from './circlePhotos.js';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleAvatar — round photo of a person (Figma `avatar` ellipses: 56 invitations · 48 connections / dialogs / feed · 44 recs ·
@@ -16,8 +16,9 @@ const initialsOf = (name) =>
 
 /* Live people (no drawn photo): `photo` is their uploaded photo, else their initials. */
 const CircleAvatar = ({ id, size = 48, kind = 'avatar', ring = true, className, photo, name }) => {
-  const photos = PERSON_PHOTOS[id];
-  const src = photos?.[kind] ?? photos?.avatar ?? photos?.card ?? photo;
+  const { photos } = useCircleVariantData();
+  const personPhotos = photos[id];
+  const src = personPhotos?.[kind] ?? personPhotos?.avatar ?? personPhotos?.card ?? photo;
   return (
     <span
       aria-hidden="true"

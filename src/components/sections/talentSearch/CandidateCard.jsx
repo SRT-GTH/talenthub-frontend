@@ -25,7 +25,7 @@ const log = debug('CandidateCard');
  * Both CTAs use the solid "shelf" shadow Figma specifies (0 Npx 0, no blur),
  * which is a different effect from the theme's blurred --shadow-button-shelf.
  */
-const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversation, className }) => {
+const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, className }) => {
   log('render', {
     id: candidate.id,
     matchPercent: candidate.matchPercent,
@@ -58,7 +58,10 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
 
         <div className="flex min-w-0 flex-1 flex-col gap-[9px] max-sm:gap-[4px]">
           <div className="flex flex-col gap-[2px] max-sm:pr-[72px]">
-            <h3 className="font-heading text-[19px] font-semibold leading-6 tracking-[-0.5px] text-[#1c2a21] max-sm:text-[17px] max-sm:leading-[22px]">
+            <h3
+              style={{ maxWidth: candidate.nameBoxWidth }}
+              className="font-heading text-[19px] font-semibold leading-6 tracking-[-0.5px] text-[#1c2a21] max-sm:text-[17px] max-sm:leading-[22px]"
+            >
               {candidate.name}
             </h3>
             <p className="font-sans text-[14px] max-sm:text-[13px] leading-[16.71px] tracking-[0.2px] text-content-muted">
@@ -85,7 +88,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
       <div className="flex flex-1 flex-col">
         <div className="flex flex-col gap-[16px] max-sm:gap-[6px]">
           {/* Tags + row actions — Figma 7249:74384 */}
-          <div className="flex items-start justify-between gap-4 sm:items-center max-sm:gap-[8px]">
+          <div className="flex items-start justify-between gap-[8px] sm:items-center">
             <div className="min-w-0 max-sm:flex-1">
               {/* One line + "+N" circle below lg; wraps from lg up (see TagRow). */}
               <TagRow
@@ -190,7 +193,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
         </div>
 
         {/* CTA row — Figma 7249:74492, right-aligned, gap 11.99, pt 24 */}
-        <div className="flex items-center justify-end gap-[11.99px] pt-[24px] max-sm:gap-[8px] max-sm:pt-[0px]">
+        <div className="mt-auto flex items-center justify-end gap-[11.99px] pt-[24px] pb-[12px] max-sm:gap-[8px] max-sm:pt-[0px] max-sm:pb-0">
           <button
             type="button"
             onClick={() => {
@@ -203,15 +206,15 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onStartConversatio
           </button>
           <button
             type="button"
-            aria-label={CARD_LABELS.startConversation}
+            aria-label={CARD_LABELS.inviteToApply}
             onClick={() => {
-              log('branch', { action: 'start-conversation', id: candidate.id, wired: false });
-              onStartConversation?.(candidate.id);
+              log('branch', { action: 'invite-to-apply', id: candidate.id, wired: false });
+              onInviteToApply?.(candidate.id);
             }}
             className="relative inline-flex h-[40px] max-lg:h-[40px] items-center justify-center gap-[7.17px] whitespace-nowrap max-sm:size-[40px] max-sm:shrink-0 max-sm:px-0 max-lg:after:absolute max-lg:after:-inset-y-[4px] max-lg:after:inset-x-0 max-lg:text-[13px] max-lg:shadow-none max-lg:border max-lg:rounded-[8px] rounded-[11.95px] border-[2.39px] border-brand-green-dark bg-brand-green px-[19.12px] font-sans text-[14px] font-medium leading-[16.71px] tracking-[0.12px] text-white shadow-[0_4.78px_0_0_#224626] transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4.78px] active:shadow-none"
           >
             <ConversationIcon className="size-[22px] shrink-0" />
-            <span className="max-sm:sr-only">{CARD_LABELS.startConversation}</span>
+            <span className="max-sm:sr-only">{CARD_LABELS.inviteToApply}</span>
           </button>
         </div>
       </div>

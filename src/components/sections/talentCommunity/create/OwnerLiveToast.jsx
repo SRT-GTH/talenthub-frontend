@@ -1,7 +1,7 @@
 import { debug } from '../../../../utils/debug.js';
 import StatusToast from '../../../ui/StatusToast.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { OWNER_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { CcLiveEyeIcon } from './CreateCommunityIcons.jsx';
 
 const log = debug('OwnerLiveToast');
@@ -12,6 +12,7 @@ const TOAST_MS = 6000;
  * and a gold "Share"; a variant of `ui/StatusToast`. Props: name, xp ('XP' | 'pts'), onShare(), onDone() (after 6s).
  */
 const OwnerLiveToast = ({ name, xp, onShare, onDone }) => {
+  const { OWNER_COPY } = useCreateCommunityCopy();
   log('mount');
   return (
     <StatusToast

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import { useUiStyle } from '../../../hooks/useUiStyle.js';
-import { COMMUNITY_PAGE_COPY } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
 import CommunityMeAvatar from './CommunityMeAvatar.jsx';
 import {
   CmArrowDownIcon,
@@ -87,6 +87,7 @@ const ROUND =
   'inline-flex size-[42px] shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-[#f0f0f0] p-0';
 
 export const Composer = ({ onCompose }) => {
+  const { pageCopy: COMMUNITY_PAGE_COPY, isRecruiter } = useCommunityContent();
   const copy = COMMUNITY_PAGE_COPY.composer;
   const quick = [
     {
@@ -121,7 +122,13 @@ export const Composer = ({ onCompose }) => {
           )}
         >
           <CmAttachmentIcon className="size-[40px] shrink-0 text-[#595959]" />
-          <span className="min-w-0 flex-1 truncate font-sans text-[13px] leading-[20px] tracking-[0.2px] text-[#999999] max-sm:text-[14px] playful:whitespace-normal playful:text-[16px]">
+          <span
+            className={classNames(
+              'min-w-0 flex-1 font-sans text-[13px] leading-[20px] tracking-[0.2px] text-[#999999] max-sm:text-[14px] playful:whitespace-normal playful:text-[16px]',
+              // RC-C06: the longer recruiter placeholder wraps over two lines (Figma 171px box, 40px tall) instead of truncating.
+              isRecruiter ? 'line-clamp-2' : 'truncate'
+            )}
+          >
             {copy.placeholder}
           </span>
         </button>
@@ -160,23 +167,27 @@ export const Composer = ({ onCompose }) => {
   );
 };
 
-export const PreviewBanner = ({ onJoin }) => (
-  <div className="flex flex-wrap items-center gap-[12px] rounded-[16px] border border-solid border-[#c8951a] bg-[#faf4e8] px-[16px] py-[14px]">
-    <CmEyeIcon className="size-[18px] shrink-0 text-[#785910]" />
-    <div className="flex min-w-0 flex-1 basis-[200px] flex-col gap-[2px]">
-      <span className="font-sans text-[14px] font-semibold leading-[17px] text-[#463409]">
-        {COMMUNITY_PAGE_COPY.preview.title}
-      </span>
-      <span className="font-sans text-[12px] leading-[14px] text-[#785910]">
-        {COMMUNITY_PAGE_COPY.preview.sub}
-      </span>
+export const PreviewBanner = ({ onJoin }) => {
+  const { pageCopy: COMMUNITY_PAGE_COPY } = useCommunityContent();
+  return (
+    <div className="flex flex-wrap items-center gap-[12px] rounded-[16px] border border-solid border-[#c8951a] bg-[#faf4e8] px-[16px] py-[14px]">
+      <CmEyeIcon className="size-[18px] shrink-0 text-[#785910]" />
+      <div className="flex min-w-0 flex-1 basis-[200px] flex-col gap-[2px]">
+        <span className="font-sans text-[14px] font-semibold leading-[17px] text-[#463409]">
+          {COMMUNITY_PAGE_COPY.preview.title}
+        </span>
+        <span className="font-sans text-[12px] leading-[14px] text-[#785910]">
+          {COMMUNITY_PAGE_COPY.preview.sub}
+        </span>
+      </div>
+      <PageButton onClick={onJoin}>{COMMUNITY_PAGE_COPY.preview.join}</PageButton>
     </div>
-    <PageButton onClick={onJoin}>{COMMUNITY_PAGE_COPY.preview.join}</PageButton>
-  </div>
-);
+  );
+};
 
 /* `rules` / `note` (optional) replace the drawn Frontend copy — live pages pass the community's own house rules. */
 export const Guidelines = ({ onGotIt, onReadAll, rules, note }) => {
+  const { pageCopy: COMMUNITY_PAGE_COPY } = useCommunityContent();
   const copy = COMMUNITY_PAGE_COPY.guidelines;
   const list = rules?.length ? rules : copy.rules;
   return (
@@ -208,7 +219,7 @@ export const Guidelines = ({ onGotIt, onReadAll, rules, note }) => {
           type="button"
           onClick={onReadAll}
           className={classNames(
-            'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440]',
+            'min-h-[24px] cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440]',
             FOCUS_RING
           )}
         >
@@ -223,6 +234,7 @@ const IDEA_ICONS = { help: CmHelpIcon, star: CmStarIcon, users: CmUsersIcon };
 
 /* `body` (optional) replaces the drawn line (live pages drop the "Founding Voice badge" promise: no badge backend yet). */
 export const EmptyFeed = ({ onWrite, body }) => {
+  const { pageCopy: COMMUNITY_PAGE_COPY } = useCommunityContent();
   const copy = COMMUNITY_PAGE_COPY.empty;
   return (
     <section className="relative flex flex-col items-center gap-[14px] rounded-[20px] bg-white px-[32px] py-[40px] text-center max-sm:px-[16px] max-sm:py-[28px]">
@@ -286,7 +298,9 @@ const TOAST_MS = 6000;
 
 /* C-05 `toast · joined`: dark pill, green check, 14/17 white label + the "+10 XP / +10 pts" sticker. */
 export const JoinedToast = ({ onDone }) => {
-  const xp = useUiStyle().uiStyle === 'playful' ? 'XP' : 'pts';
+  const { pageCopy: COMMUNITY_PAGE_COPY, isRecruiter } = useCommunityContent();
+  // Recruiter screens are one style (no Playful): the sticker is always "pts" (RC-C05).
+  const xp = useUiStyle().uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts';
   useEffect(() => {
     log('toast mount');
     const timer = window.setTimeout(() => onDone?.(), TOAST_MS);

@@ -1,7 +1,19 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
+import BannerToast from '../../ui/BannerToast.jsx';
+import PostingManageMenu from '../recruiterJobs/PostingManageMenu.jsx';
+import {
+  CloseWithMessageDialog,
+  DeleteDraftDialog,
+  DuplicateDialog,
+  PauseDialog,
+} from '../recruiterJobs/postingActionDialogs.jsx';
+import { PublishedDialog } from '../recruiterJobs/jobFlowDialogs.jsx';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
+import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import RecruiterJobTabs from '../recruiterShared/RecruiterJobTabs.jsx';
 import RecruiterListToolbar from '../recruiterShared/RecruiterListToolbar.jsx';
@@ -30,6 +42,9 @@ import {
   POSTINGS,
   CARD_MENU_ITEMS,
   CLOSE_CONFIRMATION,
+  NEW_POSTING,
+  DELETE_BLOCKED_NOTE,
+  POSTING_TOASTS,
 } from './jobPostingsData.js';
 
 const log = debug('JobPostingsSection');
@@ -78,6 +93,8 @@ const PostingCard = ({
   posting,
   isMenuOpen,
   forcedHoverItemId,
+  manageMenu,
+  onManageAction,
   onToggleMenu,
   onMenuItem,
   onAction,
@@ -85,7 +102,12 @@ const PostingCard = ({
   const Icon = CARD_ICONS[posting.icon];
 
   return (
-    <article className="relative flex min-w-0 flex-col justify-between rounded-[14px] border border-border-card bg-white p-[22px] max-sm:p-[14px]">
+    <article
+      className={classNames(
+        'relative flex min-w-0 flex-col justify-between rounded-[14px] border bg-white p-[22px] max-sm:p-[14px]',
+        posting.isNew ? 'border-2 border-[#387440]' : 'border-border-card'
+      )}
+    >
       {/* Overflow trigger — Figma 7249:75929: a white PILL sitting on the card corner (7px above, 4px past the edge) */}
       <div className="absolute -right-[5px] -top-[8px] z-10 max-sm:right-[10px] max-sm:top-[12px]">
         <button
@@ -99,7 +121,14 @@ const PostingCard = ({
           <MeatballMenuIcon className="w-[21px]" />
         </button>
 
-        {isMenuOpen && (
+        {isMenuOpen && manageMenu ? (
+          <PostingManageMenu
+            hoverId={forcedHoverItemId}
+            deleteDisabledReason={DELETE_BLOCKED_NOTE}
+            onAction={(id) => onManageAction(posting.id, id)}
+          />
+        ) : null}
+        {isMenuOpen && !manageMenu && (
           /* Figma 7249:76889 — 160 wide, r12, 0.7px #e5e5e5, 49px rows, centred labels */
           <div
             role="menu"
@@ -222,9 +251,27 @@ const PostingCard = ({
 };
 
 const JobPostingsSection = () => {
+  useScopedRoundedFont('data-recruiter-ui'); // Figma draws the recruiter pages in SF Pro Rounded
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchText, setSearchText] = useState('');
-  const [closedPostingIds, setClosedPostingIds] = useState([]);
+  const navigate = useNavigate();
+  // Local, URL-seeded state: the toast frames (JM-09 / JM-11 / JM-13 / JT-11) open with the change already applied.
+  const [overrides, setOverrides] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    const id = q.get('posting');
+    const kind = q.get('toast');
+    if (kind === 'paused' && id) return { [id]: 'Paused' };
+    if (kind === 'closed' && id) return { [id]: 'Closed' };
+    return {};
+  });
+  const [deletedIds, setDeletedIds] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    return q.get('toast') === 'deleted' && q.get('posting') ? [q.get('posting')] : [];
+  });
+  const [published] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    return q.get('toast') === 'published' || q.get('modal') === 'published';
+  });
 
   const statusParam = searchParams.get('status');
   const activeStatus = STATUS_FILTER_IDS.includes(statusParam) ? statusParam : 'all';
@@ -252,8 +299,21 @@ const JobPostingsSection = () => {
   };
 
   const postings = useMemo(
-    () => POSTINGS.map((p) => (closedPostingIds.includes(p.id) ? { ...p, status: 'Closed' } : p)),
-    [closedPostingIds]
+    () =>
+      [...(published ? [NEW_POSTING] : []), ...POSTINGS]
+        .filter((p) => !deletedIds.includes(p.id))
+        .map((p) => {
+          const status = overrides[p.id];
+          if (!status) return p;
+          const action =
+            status === 'Paused'
+              ? 'Resume applications'
+              : status === 'Closed'
+                ? 'View summary'
+                : p.action;
+          return { ...p, status, action };
+        }),
+    [overrides, deletedIds, published]
   );
 
   const visible = postings.filter(
@@ -265,7 +325,10 @@ const JobPostingsSection = () => {
   // Only the active pill shows a count (Figma 7249:75818 / 7249:76277).
   const pills = STATUS_PILLS.map((pill) =>
     pill.id === activeStatus
-      ? { ...pill, count: pill.fixedCount ?? `(${visible.length})` }
+      ? {
+          ...pill,
+          count: pill.fixedCount && !deletedIds.length ? pill.fixedCount : `(${visible.length})`,
+        }
       : { id: pill.id, label: pill.label }
   );
   const activePill = STATUS_PILLS.find((pill) => pill.id === activeStatus);
@@ -280,9 +343,34 @@ const JobPostingsSection = () => {
   };
 
   const closeDialog = () => updateUrl({ modal: null, posting: null });
+  const modalKind = searchParams.get('modal');
+  const modalPosting = postings.find((p) => p.id === searchParams.get('posting')) ?? postings[0];
+  const toastKind = searchParams.get('toast');
+  const toast = POSTING_TOASTS[toastKind];
+  const manageMenu = searchParams.get('menuKind') === 'manage';
+  const toastPosting = searchParams.get('posting');
+
+  // Writes the toast + the posting it is about; nothing else in the URL survives.
+  const finishWith = (kind, id) =>
+    setSearchParams(new URLSearchParams({ toast: kind, ...(id ? { posting: id } : {}) }));
+
+  const handleManageAction = (id, action) => {
+    log('branch', { manage: action, posting: id });
+    const base = { menu: null, menuKind: null, menuItem: null };
+    if (action === 'view') navigate(`/recruiter/job-postings/${id}`);
+    else if (action === 'pipeline') navigate('/recruiter/application-pipeline');
+    else if (action === 'edit') navigate(`/recruiter/job-postings/${id}/edit`);
+    else if (action === 'duplicate') updateUrl({ ...base, modal: 'save-template', posting: id });
+    else if (action === 'pause') updateUrl({ ...base, modal: 'pause', posting: id });
+    else if (action === 'close') updateUrl({ ...base, modal: 'close-applicants', posting: id });
+    else {
+      navigator.clipboard?.writeText?.(`gth.com/jobs/silver-rock/${id}`);
+      updateUrl(base);
+    }
+  };
 
   return (
-    <DashboardShell>
+    <DashboardShell renderSidebar={renderWorkspaceSidebar}>
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
           <RecruiterPageHeading
@@ -306,7 +394,10 @@ const JobPostingsSection = () => {
             onSearch={setSearchText}
             actionLabel={CREATE_POST_LABEL}
             actionIcon={<PostingPencilIcon className="size-[18px] shrink-0" />}
-            onAction={() => log('branch', { action: 'create-post', wired: false })}
+            onAction={() => {
+              log('branch', { action: 'create-post', to: '/recruiter/job-postings/new' });
+              navigate('/recruiter/job-postings/new');
+            }}
           />
 
           <div className="flex flex-col gap-[20px]">
@@ -330,13 +421,26 @@ const JobPostingsSection = () => {
                   posting={posting}
                   isMenuOpen={openMenuId === posting.id}
                   forcedHoverItemId={openMenuId === posting.id ? forcedHoverItemId : null}
+                  manageMenu={manageMenu}
+                  onManageAction={handleManageAction}
                   onToggleMenu={(id) =>
-                    updateUrl({ menu: openMenuId === id ? null : id, menuItem: null })
+                    updateUrl({
+                      menu: openMenuId === id ? null : id,
+                      menuItem: null,
+                      menuKind: id === 'senior-ux-designer' && openMenuId !== id ? 'manage' : null,
+                    })
                   }
                   onMenuItem={handleMenuItem}
-                  onAction={(id, action) =>
-                    log('branch', { posting: id, action, destination: 'none-in-figma' })
-                  }
+                  onAction={(id, action) => {
+                    log('branch', { posting: id, action });
+                    if (action === 'Resume applications') {
+                      setOverrides((prev) => ({ ...prev, [id]: undefined }));
+                    } else if (action === 'Continue Editing') {
+                      navigate('/recruiter/job-postings/new');
+                    } else {
+                      navigate('/recruiter/application-pipeline');
+                    }
+                  }}
                 />
               ))}
             </div>
@@ -344,7 +448,7 @@ const JobPostingsSection = () => {
         </div>
       </div>
 
-      {/* Close confirmation — Figma 7249:78032 (528x304, r24, pad 64/48), scrim #1c2a21 @ 70% */}
+      {/* Close confirmation — Figma 7249:78032 (528x304, r24, pad 64/48), scrim #0b1a0f @ 45% (10117:49564) */}
       {/* Portalled so it covers the shell's Career Buddy launcher + tab bar. */}
       {closingPostingId &&
         createPortal(
@@ -354,7 +458,7 @@ const JobPostingsSection = () => {
             aria-label={CLOSE_CONFIRMATION.title}
             data-testid="close-posting-dialog"
             /* Phones: a bottom sheet flush to the screen edges, like the shared Modal. */
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c2a21]/70 px-4 max-sm:items-end max-sm:px-0"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1a0f]/45 px-4 max-sm:items-end max-sm:px-0"
             onClick={closeDialog}
           >
             <div
@@ -375,7 +479,7 @@ const JobPostingsSection = () => {
                   type="button"
                   onClick={() => {
                     log('branch', { action: 'confirm-close-posting', posting: closingPostingId });
-                    setClosedPostingIds((prev) => [...prev, closingPostingId]);
+                    setOverrides((prev) => ({ ...prev, [closingPostingId]: 'Closed' }));
                     closeDialog();
                   }}
                   className="inline-flex h-[44px] max-sm:h-[40px] max-sm:w-full max-sm:shadow-none items-center justify-center rounded-[10px] border-2 border-[#73221a] bg-[#c0392b] px-[18px] font-sans text-[14px] font-semibold leading-6 tracking-[0.1px] text-white shadow-[0_4px_0_0_#73221a] transition-all duration-300 ease-in active:translate-y-[4px] active:shadow-none"
@@ -397,6 +501,74 @@ const JobPostingsSection = () => {
           </div>,
           document.body
         )}
+
+      {modalKind === 'pause' && (
+        <PauseDialog
+          title={modalPosting.title}
+          applicants={modalPosting.totalApplicants}
+          awaiting={72}
+          onKeep={closeDialog}
+          onPause={() => {
+            setOverrides((prev) => ({ ...prev, [modalPosting.id]: 'Paused' }));
+            finishWith('paused', modalPosting.id);
+          }}
+        />
+      )}
+      {modalKind === 'close-applicants' && (
+        <CloseWithMessageDialog
+          waiting={72}
+          onCancel={closeDialog}
+          onClose={() => {
+            setOverrides((prev) => ({ ...prev, [modalPosting.id]: 'Closed' }));
+            finishWith('closed', modalPosting.id);
+          }}
+        />
+      )}
+      {modalKind === 'delete-draft' && (
+        <DeleteDraftDialog
+          title={modalPosting.title}
+          onCancel={closeDialog}
+          onDelete={() => {
+            setDeletedIds((prev) => [...prev, modalPosting.id]);
+            finishWith('deleted', modalPosting.id);
+          }}
+        />
+      )}
+      {modalKind === 'save-template' && (
+        <DuplicateDialog
+          title={modalPosting.title}
+          onClose={closeDialog}
+          onSave={() => navigate('/recruiter/job-templates?mine=1&toast=copied')}
+        />
+      )}
+      {modalKind === 'published' && (
+        <PublishedDialog
+          onBack={closeDialog}
+          onView={() => navigate('/recruiter/job-postings/product-designer')}
+          onAction={(id) => {
+            if (id === 'track') navigate('/recruiter/application-pipeline');
+            else if (id === 'invite') navigate('/recruiter/talent-search');
+          }}
+        />
+      )}
+      {toast && (
+        <BannerToast
+          key={toastKind}
+          tone={toast.tone}
+          title={toast.title}
+          message={toast.message}
+          actionLabel={toast.actionLabel}
+          duration={0}
+          onAction={() => {
+            if (toastKind === 'paused' || toastKind === 'closed')
+              setOverrides((prev) => ({ ...prev, [toastPosting]: undefined }));
+            if (toastKind === 'deleted')
+              setDeletedIds((prev) => prev.filter((id) => id !== toastPosting));
+            if (toastKind === 'published') navigate('/recruiter/job-postings/product-designer');
+          }}
+          onClose={() => updateUrl({ toast: null, posting: null })}
+        />
+      )}
     </DashboardShell>
   );
 };

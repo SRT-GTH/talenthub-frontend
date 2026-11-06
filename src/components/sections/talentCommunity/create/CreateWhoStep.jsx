@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
-import {
-  CREATE_AGE_OPTIONS,
-  CREATE_COPY,
-  CREATE_JOIN_OPTIONS,
-  CREATE_REGIONS,
-} from './createCommunityData.js';
+import { CREATE_AGE_OPTIONS, CREATE_JOIN_OPTIONS, CREATE_REGIONS } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { FilterChip, FooterBar, Section } from './CreateDialogParts.jsx';
 import { ChoiceCard } from './CreateWizardParts.jsx';
 import { CcSettingsIcon } from './CreateCommunityIcons.jsx';
@@ -35,6 +31,7 @@ const ALL = CREATE_REGIONS[0];
  * Join policy + age rule are radio groups; regions are chips ("All of Ghana" excludes the others, none picked falls back to it).
  */
 const CreateWhoStep = ({ draft, patchDraft, onBack, onNext }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.who;
   const [more, setMore] = useState(() => draft.regions.some((r) => MORE_REGIONS.includes(r)));
   const regions = more ? [...CREATE_REGIONS.slice(0, -1), ...MORE_REGIONS] : CREATE_REGIONS;

@@ -82,6 +82,8 @@ const Modal = ({
   contentClassName,
   // Opt-out (default true): the round "scroll down for more" hint above the footer.
   scrollHint = true,
+  // (add-only) 'dialog' puts the first focus on the dialog box itself instead of the close button / first control (no focus ring on open; Tab still enters and wraps inside).
+  initialFocus = 'auto',
   header,
   footer,
   children,
@@ -145,7 +147,8 @@ const Modal = ({
     document.documentElement.style.overflow = 'hidden';
 
     // First focus: the close button, else the first control, else the dialog itself.
-    (closeButtonRef.current ?? focusables()[0] ?? dialogRef.current)?.focus?.();
+    if (initialFocus === 'dialog') dialogRef.current?.focus?.();
+    else (closeButtonRef.current ?? focusables()[0] ?? dialogRef.current)?.focus?.();
 
     requestAnimationFrame(checkScroll);
 
@@ -156,7 +159,7 @@ const Modal = ({
       if (opener instanceof HTMLElement && document.contains(opener)) opener.focus?.();
       log('close');
     };
-  }, [isOpen, onClose, checkScroll]);
+  }, [isOpen, onClose, checkScroll, initialFocus]);
 
   if (!isOpen) return null;
 

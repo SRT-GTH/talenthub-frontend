@@ -190,15 +190,16 @@ Frame→URL table with diff % and the URL keys of these seven screens: [recruite
 
 All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
 
-| Path                              | Page                                                    | Figma        |
-| --------------------------------- | ------------------------------------------------------- | ------------ |
-| `/recruiter/home`                 | `pages/recruiterHome/RecruiterHomePage.jsx`             | `7249:73882` |
-| `/recruiter/talent-search`        | `pages/talentSearch/TalentSearchPage.jsx`               | `7249:74283` |
-| `/recruiter/job-templates`        | `pages/jobTemplates/JobTemplatesPage.jsx`               | `7249:75046` |
-| `/recruiter/job-postings`         | `pages/jobPostings/JobPostingsPage.jsx`                 | `7249:75818` |
-| `/recruiter/job-screening`        | `pages/jobScreening/JobScreeningPage.jsx`               | `7249:78066` |
-| `/recruiter/application-pipeline` | `pages/applicationPipeline/ApplicationPipelinePage.jsx` | `7249:79017` |
-| `/recruiter/messages`             | `pages/recruiterMessages/RecruiterMessagesPage.jsx`     | `7249:83993` |
+| Path                                    | Page                                                    | Figma                                                                    |
+| --------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `/recruiter/home`                       | `pages/recruiterHome/RecruiterHomePage.jsx`             | `7249:73882`                                                             |
+| `/recruiter/talent-search`              | `pages/talentSearch/TalentSearchPage.jsx`               | `7249:74283`                                                             |
+| `/recruiter/talent-search/:candidateId` | `pages/talentSearch/TalentCandidateProfilePage.jsx`     | `10102:41537` ([recruiter-talent-search.md](recruiter-talent-search.md)) |
+| `/recruiter/job-templates`              | `pages/jobTemplates/JobTemplatesPage.jsx`               | `7249:75046`                                                             |
+| `/recruiter/job-postings`               | `pages/jobPostings/JobPostingsPage.jsx`                 | `7249:75818`                                                             |
+| `/recruiter/job-screening`              | `pages/jobScreening/JobScreeningPage.jsx`               | `7249:78066`                                                             |
+| `/recruiter/application-pipeline`       | `pages/applicationPipeline/ApplicationPipelinePage.jsx` | `7249:79017`                                                             |
+| `/recruiter/messages`                   | `pages/recruiterMessages/RecruiterMessagesPage.jsx`     | `7249:83993`                                                             |
 
 `DashboardSidebar` derives its active item from `useLocation().pathname`; Home, Talent Search, Job Postings, Messages and Application Pipeline all resolve to the routes above. Community remains `/community` and `/community/:communityId`. ✅ VERIFIED
 
@@ -273,3 +274,11 @@ Shell: `TalentOnboardingLayout` + `OnboardingProvider` + `RecruiterOnboardingPro
 Parent space switching (any `/parent/*` page): `?menu=switch` (switch-space menu), `?career=none` (no career profile yet) with `?modal=career-profile`, `?notif=open&spaces=both` (bell panel with both spaces). Wiki: [parent-spaces.md](parent-spaces.md).
 
 `/skills-lab/play/:gameId` — Talent Games v2 (13 ranked / practice games; `?mode=ranked|practice&level=…&f=<frame>&modal=quit|timeup|offline&view=result&resume=1`), `pages/talentSkillsLab/GameV2Page.jsx`, outside `MainLayout`, own chrome; the details / resume / expired dialogs open over the hub by `/skills-lab?tab=games&game=<id>` / `&dialog=resume|expired`. See [talent-games-v2.md](talent-games-v2.md).
+
+## Recruiter job flows (2026-11-06)
+
+New lazy routes (all inside the recruiter shell, no guards): `/recruiter/job-postings/new` (`?template=product-designer`, `&menu=employment|location|screening`, `&q=`, `&state=errors|publishing`), `/recruiter/job-postings/new/preview`, `/recruiter/job-postings/:postingId` (`?saved=1`), `/recruiter/job-postings/:postingId/edit` (`?modal=confirm`), `/recruiter/job-templates/new` (`?state=filled`, `?modal=save`, `&menu=category`, `&state=name-taken`), `/recruiter/job-templates/product-designer/preview`. Existing lists gained keys: Job Postings `menuKind=manage`, `modal=pause|close-applicants|delete-draft|save-template|published`, `toast=published|paused|closed|deleted&posting=`; Job Templates `mine=1`, `view=screening`, `modal=details&template=`, `menu=<id>`, `toast=saved|copied`. Full frame table: [recruiter-job-postings.md](recruiter-job-postings.md). `✅ VERIFIED`
+
+## Recruiter Community (2026-11-06)
+
+`/recruiter/community` (browse), `/:communityId`, `/:communityId/post/:postId`, `/create`, `/:communityId/manage`, `/people/:personId`, all state in the URL (`?view=circle`, `?joined=1`, `?modal=…`, `?state=…`, `?rail=collapsed`), no guards, mock data. Same page components as `/community…`; see [recruiter-community.md](recruiter-community.md).

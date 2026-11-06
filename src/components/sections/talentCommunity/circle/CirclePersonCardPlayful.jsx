@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { CIRCLE_COPY as COPY } from './circleData.js';
 import { PERSON_PHOTOS } from './circlePhotos.js';
 import CircleBuddySays from './CircleBuddySays.jsx';
@@ -8,9 +7,9 @@ import CircleMentorChip from './CircleMentorChip.jsx';
 import CircleMutualFaces from './CircleMutualFaces.jsx';
 import CircleRegionPill from './CircleRegionPill.jsx';
 import CircleShareChips from './CircleShareChips.jsx';
-import { personHref } from './circleState.js';
 import { FOCUS_RING, STICKER } from './circleStyles.js';
 import { classNames } from '../../../../utils/classNames.js';
+import CirclePersonLink from './CirclePersonLink.jsx';
 
 // Figma tilts the six cards a little (Abena 1.2°, Yaw -0.8°, Efua 0.6°, Kwame -1.1°, Akosua 0.9°, Kojo -0.7°).
 const TILTS = [1.2, -0.8, 0.6, -1.1, 0.9, -0.7];
@@ -74,12 +73,12 @@ const CirclePersonCardPlayful = ({
         ) : null}
       </span>
       <div className="absolute inset-x-[14px] bottom-[10px] flex flex-col">
-        <Link
-          to={personHref(person.id)}
+        <CirclePersonLink
+          id={person.id}
           className={`font-heading text-[20px] font-semibold leading-[24px] text-white no-underline ${FOCUS_RING}`}
         >
           {person.name}
-        </Link>
+        </CirclePersonLink>
         <span className="font-sans text-[12px] font-medium leading-[14px] text-white/90 max-lg:text-[13px]">
           {person.headline}
         </span>

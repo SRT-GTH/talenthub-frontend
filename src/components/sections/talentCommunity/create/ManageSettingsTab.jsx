@@ -1,7 +1,7 @@
 import Button from '../../../ui/Button.jsx';
 import { classNames } from '../../../../utils/classNames.js';
 import { fillCopy } from '../communityDialogUtils.js';
-import { MANAGE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { IconRow } from './CreateDialogParts.jsx';
 import {
   CcChevronRightIcon,
@@ -37,6 +37,7 @@ const LinkRow = ({ icon, title, body, onClick }) => (
  * Transfer ownership + "Transfer", Archive community + "Archive". Props: community, onEdit(step), onTransfer(), onArchive().
  */
 const ManageSettingsTab = ({ community, onEdit, onTransfer, onArchive }) => {
+  const { MANAGE_COPY } = useCreateCommunityCopy();
   const copy = MANAGE_COPY.settings;
   const join = MANAGE_COPY.joinLabels[community.joinPolicy];
   const age = community.ageRule === 'adults' ? '18 and over' : '14 and up';

@@ -21,25 +21,19 @@ import CircleTabs from '../../../components/sections/talentCommunity/circle/Circ
 import CircleToast from '../../../components/sections/talentCommunity/circle/CircleToast.jsx';
 import LiveCircleFeed from '../../../components/sections/talentCommunity/circle/LiveCircleFeed.jsx';
 import LiveRecommendationsForYou from '../../../components/sections/talentCommunity/circle/LiveRecommendationsForYou.jsx';
+import NetworkHiddenNotice from '../../../components/sections/talentCommunity/circle/NetworkHiddenNotice.jsx';
+import NetworkSideColumn from '../../../components/sections/talentCommunity/circle/NetworkSideColumn.jsx';
 import {
-  CIRCLE_COPY as COPY,
-  CIRCLE_PEOPLE,
-  CIRCLE_SUMMARY,
-  CONNECTIONS_RESPONSE,
-  DISCOVER_RESPONSE,
-  EMPTY_RESPONSE,
-  INVITATIONS_RESPONSE,
-  MINOR_RESPONSE,
-} from '../../../components/sections/talentCommunity/circle/circleData.js';
+  useCircleLinks,
+  useCircleSplitGrid,
+  useCircleVariantData,
+} from '../../../components/sections/talentCommunity/circle/useCircleVariantData.js';
 import {
   circleActions,
   statusOf,
   useCircleStore,
 } from '../../../components/sections/talentCommunity/circle/circleStore.js';
-import {
-  personHref,
-  useCircleState,
-} from '../../../components/sections/talentCommunity/circle/circleState.js';
+import { useCircleState } from '../../../components/sections/talentCommunity/circle/circleState.js';
 import { useCircleToast } from '../../../components/sections/talentCommunity/circle/useCircleToast.js';
 import { useLiveCircle } from '../../../components/sections/talentCommunity/circle/useLiveCircle.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
@@ -67,7 +61,7 @@ const sortKey = (sort, item, people) => {
   if (sort === 'Region') return item.region ?? '';
   if (sort === 'Skills')
     return (person.shares ?? []).find((s) => s.kind === 'skill')?.label ?? 'zz';
-  if (sort === 'Community')
+  if (sort === 'Community' || sort === 'Clubs')
     return (person.shares ?? []).find((s) => s.kind === 'community')?.label ?? 'zz';
   return '';
 };
@@ -82,13 +76,21 @@ const sortKey = (sort, item, people) => {
  */
 const CirclePage = () => {
   const circle = useCircleState();
+  // Recruiter variant (`/recruiter/community?view=circle`, Figma 10026:36840): the same page with "My network" copy, data and links.
+  const V = useCircleVariantData();
+  const splitGrid = useCircleSplitGrid();
+  const links = useCircleLinks();
+  const { isRecruiter, copy: COPY, summary: CIRCLE_SUMMARY, connections: CONNECTIONS_RESPONSE } = V;
+  const { discover: DISCOVER_RESPONSE, empty: EMPTY_RESPONSE, minor: MINOR_RESPONSE } = V;
+  const { invitations: INVITATIONS_RESPONSE, people: CIRCLE_PEOPLE } = V;
   const navigate = useNavigate();
   const store = useCircleStore();
   const { toast, show, hide } = useCircleToast();
   const { tab: urlTab, sub, demoState, q } = circle;
   const [sort, setSort] = useState(CONNECTIONS_RESPONSE.sorts[0]);
   const [params] = useSearchParams();
-  const liveOn = isLoggedIn() && !demoState && params.get('demo') !== '1';
+  // The recruiter screens are always the drawn mock (no recruiter network backend yet).
+  const liveOn = !isRecruiter && isLoggedIn() && !demoState && params.get('demo') !== '1';
   const L = useLiveCircle({ enabled: liveOn });
   const PEOPLE = liveOn ? L.people : CIRCLE_PEOPLE;
   // Live: no Following tab yet (US-5.3.1-01 Q5), so that URL shows Discover; the feed is live (US-5.3.1-04).
@@ -123,7 +125,7 @@ const CirclePage = () => {
       show({
         text: COPY.toast.inCircle('Nana Yaw'),
         actionLabel: COPY.toast.messageAction,
-        onAction: () => navigate('/messages'),
+        onAction: () => navigate(links.messagesHref),
       });
     }
     // run once per demo state
@@ -142,7 +144,7 @@ const CirclePage = () => {
 
   const mockReceived = useMemo(
     () => INVITATIONS_RESPONSE.received.filter((r) => !store.ignored.includes(r.id)),
-    [store.ignored]
+    [store.ignored, INVITATIONS_RESPONSE]
   );
   const received = liveOn ? L.received : mockReceived;
   const sentRows = liveOn ? L.sent : INVITATIONS_RESPONSE.sent;
@@ -168,6 +170,23 @@ const CirclePage = () => {
     circle: total,
     following: liveOn ? null : CIRCLE_SUMMARY.following,
   };
+  // RC-NW10 (under 18) and RC-NW11 (empty) draw their own tab counts and switch badge.
+  const shownTabCounts =
+    isRecruiter && minor
+      ? {
+          invitations: MINOR_RESPONSE.invitationsCount,
+          circle: MINOR_RESPONSE.networkCount,
+          following: MINOR_RESPONSE.followingCount,
+        }
+      : isRecruiter && empty
+        ? { invitations: false, circle: 0, following: 0 }
+        : tabCounts;
+  const switchCount =
+    isRecruiter && minor
+      ? MINOR_RESPONSE.invitationsCount
+      : isRecruiter && empty
+        ? null
+        : pendingCount;
   const liveFail = (err, fallback) => show({ text: circleErrorText(err, fallback) });
 
   /* ---- actions ----------------------------------------------------------------------------------------------- */
@@ -226,7 +245,7 @@ const CirclePage = () => {
     show({
       text: COPY.toast.inCircle(person.firstName),
       actionLabel: COPY.toast.messageAction,
-      onAction: () => navigate('/messages'),
+      onAction: () => navigate(links.messagesHref),
     });
   };
   const ignore = (person) => {
@@ -254,8 +273,9 @@ const CirclePage = () => {
   };
   const way = (id) => {
     log('way in', id);
-    if (id === 'community') navigate('/community');
-    else if (id === 'classmates') navigate('/profile');
+    if (id === 'community') navigate(links.communityHref);
+    // ⚠️ ASSUMPTION (recruiter): no company-page route is drawn, so "Find classmates" opens the recruiter home.
+    else if (id === 'classmates') navigate(isRecruiter ? '/recruiter/home' : '/profile');
     else {
       // ⚠️ ASSUMPTION: "Invite a friend" copies a GTH link (WhatsApp sharing is not wired). Live: the GTH home page
       // (talents have no public profile link yet); the drawn demo keeps Kofi's.
@@ -270,7 +290,7 @@ const CirclePage = () => {
   const liveMenuAction = (person, label) => {
     const first = person.firstName;
     const isMuted = L.connections.items.some((c) => c.id === person.id && c.muted);
-    if (label === 'View profile') navigate(personHref(person.id));
+    if (label === 'View profile') navigate(links.personHref(person.id));
     else if (label === 'Mute their posts') {
       L.actions
         .toggleMute(person, isMuted)
@@ -309,7 +329,7 @@ const CirclePage = () => {
       liveMenuAction(person, label);
       return;
     }
-    if (k === 0) navigate(personHref(person.id));
+    if (k === 0) navigate(links.personHref(person.id));
     else if (k === 1) {
       circleActions.toggleMute(person.id);
       show({
@@ -320,7 +340,8 @@ const CirclePage = () => {
     } else if (k === 2) {
       circleActions.removeConnection(person.id);
       show({
-        text: `${person.firstName} was removed from your circle`,
+        text:
+          COPY.removed?.(person.firstName) ?? `${person.firstName} was removed from your circle`,
         actionLabel: COPY.toast.undo,
         onAction: () => circleActions.restoreConnection(person.id),
       });
@@ -375,7 +396,18 @@ const CirclePage = () => {
       : [...all].sort((a, b) =>
           sortKey(sort, a, CIRCLE_PEOPLE).localeCompare(sortKey(sort, b, CIRCLE_PEOPLE))
         );
-  }, [store.removed, store.relations, acceptedIds, q, sort, liveOn, L.connections, PEOPLE]);
+  }, [
+    store.removed,
+    store.relations,
+    acceptedIds,
+    q,
+    sort,
+    liveOn,
+    L.connections,
+    PEOPLE,
+    CIRCLE_PEOPLE,
+    CONNECTIONS_RESPONSE,
+  ]);
 
   const connectPerson = circle.modal === 'connect' ? PEOPLE[circle.person] : null;
   const mutedIds = liveOn
@@ -443,12 +475,10 @@ const CirclePage = () => {
       />
     );
   } else if (empty && !(liveOn && tab === 'feed')) {
-    body = (
+    const emptyMain = (
       <>
-        <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active="discover" counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
         {/* Playful draws the empty card and the grid in the 1058px left column, Focused across the full 1506px. */}
-        <div className="flex flex-col gap-[22px] playful:max-w-[1058px]">
+        <div className="flex min-w-0 flex-col gap-[22px] playful:max-w-[1058px]">
           <CircleEmptyNetwork onWay={way} />
           <CircleSectionHead
             title={liveOn ? discoverBlock.title : EMPTY_RESPONSE.suggestions.title}
@@ -473,17 +503,46 @@ const CirclePage = () => {
         </div>
       </>
     );
+    body = (
+      <>
+        <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
+        <CircleTabs
+          active="discover"
+          counts={shownTabCounts}
+          onSelect={selectTab}
+          withFeed={liveOn}
+        />
+        {isRecruiter ? (
+          <div className={splitGrid}>
+            <div className="flex min-w-0 flex-col gap-[22px]">{emptyMain}</div>
+            <NetworkSideColumn
+              tiles={EMPTY_RESPONSE.summaryTiles}
+              tip={EMPTY_RESPONSE.tip}
+              grow={EMPTY_RESPONSE.grow}
+              showMentors
+              following={store.following}
+              onFollow={learnFrom}
+              onSeeAll={() => selectTab('discover')}
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-[22px]">{emptyMain}</div>
+        )}
+      </>
+    );
   } else if (minor && !(liveOn && tab === 'feed')) {
     body = (
       <>
         <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
-        <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
+        <CircleTabs active={tab} counts={shownTabCounts} onSelect={selectTab} withFeed={liveOn} />
+        <div className={splitGrid}>
           <div className="flex min-w-0 flex-col gap-[22px]">
-            <CircleMinorBanner
-              onLearnMore={() => circle.update({ help: true })}
-              {...(liveOn && L.discover?.minor ? { banner: L.discover.minor.banner } : {})}
-            />
+            {!isRecruiter && (
+              <CircleMinorBanner
+                onLearnMore={() => circle.update({ help: true })}
+                {...(liveOn && L.discover?.minor ? { banner: L.discover.minor.banner } : {})}
+              />
+            )}
             {liveOn ? (
               <>
                 {/* Live under-18 view (CQ-5): classmates and approved groups only, no mentors. */}
@@ -522,15 +581,35 @@ const CirclePage = () => {
               </>
             )}
           </div>
-          <CircleParentCard
-            {...(liveOn && L.discover?.minor ? { card: L.discover.minor.parentCard } : {})}
-          />
+          {isRecruiter ? (
+            <NetworkSideColumn
+              tiles={MINOR_RESPONSE.summaryTiles}
+              tip={MINOR_RESPONSE.tip}
+              parentCard={MINOR_RESPONSE.parentCard}
+              grow={MINOR_RESPONSE.grow}
+              onStep={(id) => log('grow step', id)}
+            />
+          ) : (
+            <CircleParentCard
+              {...(liveOn && L.discover?.minor ? { card: L.discover.minor.parentCard } : {})}
+            />
+          )}
         </div>
       </>
     );
   } else {
     const side = liveOn ? (
       liveSide
+    ) : isRecruiter ? (
+      <NetworkSideColumn
+        stats={{ inCircle: total }}
+        showMentors={tab === 'discover'}
+        following={store.following}
+        onFollow={learnFrom}
+        onSeeAll={() => selectTab('discover')}
+        onStep={(id) => log('grow step', id)}
+        className="lg:sticky lg:top-[16px]"
+      />
     ) : (
       <CircleSidePanel stats={{ inCircle: total }} className="lg:sticky lg:top-[16px]" />
     );
@@ -551,7 +630,9 @@ const CirclePage = () => {
             onAccept={accept}
             onIgnore={ignore}
             // Live: talent-to-talent messages don't exist yet, so no "Say hi"; sent requests can be withdrawn.
-            onSayHi={liveOn ? undefined : (p) => navigate('/messages', { state: { to: p.id } })}
+            onSayHi={
+              liveOn ? undefined : (p) => navigate(links.messagesHref, { state: { to: p.id } })
+            }
             people={PEOPLE}
             onWithdraw={liveOn ? withdraw : undefined}
             showManage={!liveOn}
@@ -570,7 +651,7 @@ const CirclePage = () => {
           menuId={circle.menu}
           onMenu={(id) => circle.update({ menu: id })}
           muted={mutedIds}
-          onMessage={liveOn ? undefined : () => navigate('/messages')}
+          onMessage={liveOn ? undefined : () => navigate(links.messagesHref)}
           onMenuAction={menuAction}
           people={PEOPLE}
           menu={
@@ -594,7 +675,7 @@ const CirclePage = () => {
               onSeeAll={() => selectTab('invitations')}
               onAccept={accept}
               onIgnore={ignore}
-              onSayHi={liveOn ? undefined : () => navigate('/messages')}
+              onSayHi={liveOn ? undefined : () => navigate(links.messagesHref)}
               people={PEOPLE}
             />
           )}
@@ -625,8 +706,8 @@ const CirclePage = () => {
     body = (
       <>
         <CircleHeader q={q} onQ={(text) => circle.update({ q: text })} />
-        <CircleTabs active={tab} counts={tabCounts} onSelect={selectTab} withFeed={liveOn} />
-        <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
+        <CircleTabs active={tab} counts={shownTabCounts} onSelect={selectTab} withFeed={liveOn} />
+        <div className={splitGrid}>
           <div className="flex min-w-0 flex-col gap-[28px]">{main}</div>
           {side}
         </div>
@@ -637,7 +718,8 @@ const CirclePage = () => {
   return (
     <CircleFrame circle={circle}>
       <CirclePageWrap>
-        <CircleSwitch active="circle" count={pendingCount} rail={circle.rail} />
+        {isRecruiter && minor && <NetworkHiddenNotice />}
+        <CircleSwitch active="circle" count={switchCount} rail={circle.rail} />
         {body}
       </CirclePageWrap>
       {connectPerson && (

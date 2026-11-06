@@ -1,19 +1,19 @@
-import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY, CIRCLE_PEOPLE } from './circleData.js';
 import { CircleCommentIcon } from './circleIcons.jsx';
 import CircleAvatar from './CircleAvatar.jsx';
 import CircleLikeToggle from './CircleLikeToggle.jsx';
 import CircleMentorChip from './CircleMentorChip.jsx';
-import { personHref } from './circleState.js';
 import { CARD, FOCUS_RING } from './circleStyles.js';
+import CirclePersonLink from './CirclePersonLink.jsx';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleFeedPost — Figma `Mentor post · Kwame` (NW-09): 44px avatar, name + Verified mentor + "Following" chip, the meta line, the
  * post text 14/21, like (214) + comments (41). Props: item (FEED_RESPONSE.items[2]), liked, likes, onLike().
  */
 const CircleFeedPost = ({ item, liked, likes, onLike }) => {
-  const person = CIRCLE_PEOPLE[item.personId];
+  const { copy: COPY, people } = useCircleVariantData();
+  const person = people[item.personId];
   return (
     <article
       className={classNames(CARD, 'flex flex-col gap-[12px] px-[20px] py-[16px] max-sm:px-[14px]')}
@@ -22,12 +22,12 @@ const CircleFeedPost = ({ item, liked, likes, onLike }) => {
         <CircleAvatar id={person.id} size={44} />
         <div className="flex min-w-0 flex-col gap-[2px]">
           <div className="flex flex-wrap items-center gap-[6px]">
-            <Link
-              to={personHref(person.id)}
+            <CirclePersonLink
+              id={person.id}
               className={`font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21] no-underline ${FOCUS_RING}`}
             >
               {person.name}
-            </Link>
+            </CirclePersonLink>
             <CircleMentorChip />
             {item.following && (
               <span className="inline-flex h-[22px] items-center rounded-full bg-[#f8f8f4] px-[10px] font-sans text-[12px] font-semibold leading-[14px] text-[#595959] playful:border playful:border-solid playful:border-[rgba(28,42,33,0.35)]">

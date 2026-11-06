@@ -2,21 +2,13 @@ import { useId } from 'react';
 import Button from '../../../ui/Button.jsx';
 import { DialogShell } from '../CommunityDialogParts.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { MANAGE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { DialogHead, FilterChip, FooterBar, IconRow } from './CreateDialogParts.jsx';
 import { CcSettingsIcon, CcShieldIcon, CcUsersIcon } from './CreateCommunityIcons.jsx';
 import ManageModerators from './ManageModerators.jsx';
 import ManageReportsTab from './ManageReportsTab.jsx';
 import ManageRequestsTab from './ManageRequestsTab.jsx';
 import ManageSettingsTab from './ManageSettingsTab.jsx';
-
-const NOTES = {
-  reports: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
-  requests: { text: MANAGE_COPY.requestsNote, icon: CcUsersIcon },
-  members: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
-  moderators: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
-  settings: { text: MANAGE_COPY.settingsNote, icon: CcSettingsIcon },
-};
 
 /*
  * ManageDialog — "Manage #Name" (Figma CC-10 Reports · CC-14 Requests · CC-15 Settings). Props: community, tab, onTab(id),
@@ -26,7 +18,15 @@ const NOTES = {
  */
 const ManageDialog = ({ community, tab, onTab, onClose, actions }) => {
   const titleId = useId();
+  const { MANAGE_COPY } = useCreateCommunityCopy();
   const copy = MANAGE_COPY;
+  const NOTES = {
+    reports: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
+    requests: { text: MANAGE_COPY.requestsNote, icon: CcUsersIcon },
+    members: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
+    moderators: { text: MANAGE_COPY.reportsNote, icon: CcShieldIcon },
+    settings: { text: MANAGE_COPY.settingsNote, icon: CcSettingsIcon },
+  };
   const moderatorsCount = community.moderators.filter((m) => m.state !== 'invited').length;
   const tabs = [
     { id: 'reports', label: `${copy.tabs.reports} · ${community.reports.length}` },

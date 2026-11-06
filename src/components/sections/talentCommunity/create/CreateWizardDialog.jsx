@@ -9,7 +9,8 @@ import CreateRulesStep from './CreateRulesStep.jsx';
 import CreateWhoStep from './CreateWhoStep.jsx';
 import { DialogHead } from './CreateDialogParts.jsx';
 import { Stepper } from './CreateWizardParts.jsx';
-import { CREATE_COPY, DEMO_DRAFT, ELIGIBILITY } from './createCommunityData.js';
+import { DEMO_DRAFT, ELIGIBILITY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { submitCommunity, useCommunityDraft } from './createCommunityStore.js';
 
 const log = debug('CreateWizardDialog');
@@ -23,6 +24,7 @@ const log = debug('CreateWizardDialog');
  */
 const CreateWizardDialog = ({ create, seed = null, onSubmitted, onClose }) => {
   const navigate = useNavigate();
+  const { CREATE_COPY, isRecruiter, base } = useCreateCommunityCopy();
   const titleId = useId();
   const { step, wizardState, demo, update } = create;
   const nameTakenFrame = demo && wizardState === 'name-taken';
@@ -49,8 +51,8 @@ const CreateWizardDialog = ({ create, seed = null, onSubmitted, onClose }) => {
       onSubmitted(draft);
       return;
     }
-    const community = submitCommunity(draft);
-    navigate(`/community/${community.id}/manage`);
+    const community = submitCommunity(draft, { recruiter: isRecruiter });
+    navigate(`${base}/${community.id}/manage`);
   };
 
   let title = CREATE_COPY.title;
@@ -102,7 +104,7 @@ const CreateWizardDialog = ({ create, seed = null, onSubmitted, onClose }) => {
         onChecked={setChecked}
         onNext={() => go('who')}
         onCancel={onClose}
-        onView={(id) => navigate(`/community/${id}`)}
+        onView={(id) => navigate(`${base}/${id}`)}
       />
     );
   }

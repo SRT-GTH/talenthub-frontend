@@ -28,7 +28,7 @@ import {
 import MilestoneShareModal from './MilestoneShareModal.jsx';
 import PurposePicker from './PurposePicker.jsx';
 import { FOCUS_RING, HEADING, fillCopy } from './communityDialogUtils.js';
-import { CREATE_POST, LEAVE_COMMUNITY, REPORT_POST } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
 
 const log = debug('CommunityDialogs');
 
@@ -70,7 +70,7 @@ export const CreatePostDialog = ({
   const titleId = useId();
   const fieldId = useId();
   const fileRef = useRef(null);
-  const copy = CREATE_POST;
+  const { createPost: copy } = useCommunityContent();
   const [type, setType] = useState(copy.seed.type);
   const [text, setText] = useState(live ? '' : copy.seed.text);
   const [tags, setTags] = useState(live ? [] : copy.seed.tags);
@@ -364,7 +364,7 @@ export const ReportPostDialog = ({
 }) => {
   const titleId = useId();
   const fieldId = useId();
-  const copy = REPORT_POST;
+  const { reportPost: copy } = useCommunityContent();
   const [reason, setReason] = useState(live ? null : copy.seed.reason);
   const [note, setNote] = useState(live ? '' : copy.seed.note);
 
@@ -459,7 +459,7 @@ export const ReportPostDialog = ({
 /* `onMute` (optional): "Mute" mutes instead of leaving and closes the dialog. `busy` disables "Leave community". */
 export const LeaveCommunityDialog = ({ onClose, onLeave, onMute, communityName, busy = false }) => {
   const titleId = useId();
-  const copy = LEAVE_COMMUNITY;
+  const { leave: copy } = useCommunityContent();
   return (
     <DialogShell width={520} onClose={onClose} labelId={titleId}>
       <span
@@ -500,7 +500,7 @@ export const LeaveCommunityDialog = ({ onClose, onLeave, onMute, communityName, 
             onMute?.();
           }}
           className={classNames(
-            'shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440]',
+            'min-h-[24px] shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440]',
             FOCUS_RING
           )}
         >
@@ -534,6 +534,7 @@ export const LeaveCommunityDialog = ({ onClose, onLeave, onMute, communityName, 
  * create | report | leave | milestone. Closing = `community.update({ modal: null })`.
  */
 const CommunityDialogs = ({ community, communityName = '#Frontend Devs Ghana', onLeft }) => {
+  const { milestone } = useCommunityContent();
   const close = () => community.update({ modal: null });
   switch (community.modal) {
     case 'create':
@@ -558,7 +559,9 @@ const CommunityDialogs = ({ community, communityName = '#Frontend Devs Ghana', o
         />
       );
     case 'milestone':
-      return <MilestoneShareModal onClose={close} onShare={close} onDecline={close} />;
+      return (
+        <MilestoneShareModal copy={milestone} onClose={close} onShare={close} onDecline={close} />
+      );
     default:
       return null;
   }

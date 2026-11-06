@@ -22,6 +22,7 @@ import {
 } from './CommunityDialogParts.jsx';
 import { FOCUS_RING, fillCopy } from './communityDialogUtils.js';
 import { MILESTONE_SHARE } from './communityData.js';
+import { useCommunityVariant } from './communityVariant.js';
 
 const log = debug('MilestoneShareModal');
 
@@ -42,20 +43,22 @@ const AUDIENCE_ICONS = {
  *   onShare      ({ audience, message }) -> Share button
  *   onDecline    "No thanks, keep it private" (falls back to onClose)
  *   stageLabel   what was finished, default "Personality Assessment" (⚠️ ASSUMPTION: other stages reuse the same sentence)
- *   authorName   preview name, default "Kofi Agyekum"
+ *   authorName   preview name, default `copy.previewName` ("Kofi Agyekum")
+ *   copy         the copy block (default MILESTONE_SHARE = talent); the recruiter Clubs screen passes RECRUITER_CLUBS_MILESTONE (RC-C09)
  */
 const MilestoneShareModal = ({
   isOpen = true,
   onClose,
   onShare,
   onDecline,
-  stageLabel = MILESTONE_SHARE.stage,
-  authorName = MILESTONE_SHARE.previewName,
+  copy = MILESTONE_SHARE,
+  stageLabel = copy.stage,
+  authorName = copy.previewName,
 }) => {
   const titleId = useId();
   const fieldId = useId();
   const { uiStyle } = useUiStyle();
-  const copy = MILESTONE_SHARE;
+  const { isRecruiter } = useCommunityVariant();
   const [message, setMessage] = useState(fillCopy(copy.message, { stage: stageLabel }));
   const [audience, setAudience] = useState('connections');
 
@@ -80,7 +83,7 @@ const MilestoneShareModal = ({
           {copy.title}
         </DialogTitle>
         <PostSticker tone="gold">
-          {fillCopy(copy.sticker, { xp: uiStyle === 'playful' ? 'XP' : 'pts' })}
+          {fillCopy(copy.sticker, { xp: uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts' })}
         </PostSticker>
       </div>
 
@@ -164,7 +167,7 @@ const MilestoneShareModal = ({
             (onDecline ?? onClose)?.();
           }}
           className={classNames(
-            'inline-flex cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#595959]',
+            'inline-flex min-h-[24px] cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#595959]',
             FOCUS_RING
           )}
         >

@@ -4,6 +4,7 @@ import { debug } from '../../../utils/debug.js';
 import CreateWizardDialog from '../../../components/sections/talentCommunity/create/CreateWizardDialog.jsx';
 import { useCreateCommunityState } from '../../../components/sections/talentCommunity/create/createCommunityState.js';
 import { useOwnedCommunity } from '../../../components/sections/talentCommunity/create/createCommunityStore.js';
+import { useCreateCommunityCopy } from '../../../components/sections/talentCommunity/create/useCreateCommunityCopy.js';
 import CommunityBrowsePage from '../CommunityBrowsePage.jsx';
 
 const log = debug('CommunityCreatePage');
@@ -31,23 +32,25 @@ const toDraft = (community) => ({
 const CommunityCreatePage = () => {
   const create = useCreateCommunityState();
   const navigate = useNavigate();
+  const { isRecruiter, base } = useCreateCommunityCopy();
   const { edit, from, demo } = create;
   const { community, patch } = useOwnedCommunity({
     communityId: edit,
     demo: demo && Boolean(edit),
     ownerState: from ?? 'live',
     requests: 0,
+    recruiter: isRecruiter,
   });
   const seed = useMemo(() => (edit && community ? toDraft(community) : null), [edit, community]);
   const ownerUrl = edit
-    ? `/community/${edit}/manage${from && demo ? `?state=${from}&demo=1` : ''}`
+    ? `${base}/${edit}/manage${from && demo ? `?state=${from}&demo=1` : ''}`
     : null;
 
   useEffect(() => {
     log('mount', edit ? `edit ${edit}` : 'new');
   }, [edit]);
 
-  const close = useCallback(() => navigate(ownerUrl ?? '/community'), [navigate, ownerUrl]);
+  const close = useCallback(() => navigate(ownerUrl ?? base), [navigate, ownerUrl, base]);
 
   const saved = (draft) => {
     const renamed = draft.name.trim() !== community.name;
@@ -68,7 +71,7 @@ const CommunityCreatePage = () => {
       status,
       feedback: null,
     }));
-    navigate(`/community/${edit}/manage${demo ? `?state=${status}&demo=1` : ''}`);
+    navigate(`${base}/${edit}/manage${demo ? `?state=${status}&demo=1` : ''}`);
   };
 
   return (

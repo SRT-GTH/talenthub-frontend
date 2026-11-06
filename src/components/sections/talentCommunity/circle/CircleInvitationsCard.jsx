@@ -1,8 +1,8 @@
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY, CIRCLE_PEOPLE } from './circleData.js';
 import CircleAvatar from './CircleAvatar.jsx';
 import CircleInvitationRow from './CircleInvitationRow.jsx';
 import { CARD, FOCUS_RING, HEADING } from './circleStyles.js';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleInvitationsCard — Figma `Invitations preview` (NW-01: title + "See all 3" + the first two invitations) and `Invitations`
@@ -24,10 +24,12 @@ const CircleInvitationsCard = ({
   onAccept,
   onIgnore,
   onSayHi,
-  people = CIRCLE_PEOPLE,
+  people: peopleProp,
   onWithdraw,
   showManage = true,
 }) => {
+  const { copy: COPY, people: peopleData } = useCircleVariantData();
+  const people = peopleProp ?? peopleData;
   const preview = mode === 'preview';
   const rows = preview ? received.slice(0, 2) : received;
   return (

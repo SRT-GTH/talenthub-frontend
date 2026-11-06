@@ -10,7 +10,12 @@ import CircleProfileHero from '../../../components/sections/talentCommunity/circ
 import CircleRecommendDialog from '../../../components/sections/talentCommunity/circle/CircleRecommendDialog.jsx';
 import CircleRecommendationsCard from '../../../components/sections/talentCommunity/circle/CircleRecommendationsCard.jsx';
 import CircleSkillsCard from '../../../components/sections/talentCommunity/circle/CircleSkillsCard.jsx';
+import NetworkRestrictionDialog from '../../../components/sections/talentCommunity/circle/NetworkRestrictionDialog.jsx';
+import NetworkYouBothKnowCard from '../../../components/sections/talentCommunity/circle/NetworkYouBothKnowCard.jsx';
+import CircleSwitch from '../../../components/sections/talentCommunity/circle/CircleSwitch.jsx';
+import { useCirclePending } from '../../../components/sections/talentCommunity/circle/useCirclePending.js';
 import CircleToast from '../../../components/sections/talentCommunity/circle/CircleToast.jsx';
+import { NETWORK_RESTRICTIONS } from '../../../components/sections/talentCommunity/circle/recruiterCircleData.js';
 import {
   buildGenericProfile,
   CIRCLE_COPY as COPY,
@@ -27,6 +32,12 @@ import {
   useCircleState,
   withRail,
 } from '../../../components/sections/talentCommunity/circle/circleState.js';
+import {
+  useCircleLinks,
+  useCircleSplitGrid,
+  useCircleVariantData,
+} from '../../../components/sections/talentCommunity/circle/useCircleVariantData.js';
+import { useCommunityVariant } from '../../../components/sections/talentCommunity/communityVariant.js';
 import { useCircleToast } from '../../../components/sections/talentCommunity/circle/useCircleToast.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
 import { circleApi, circleErrorText } from '../../../services/circle.api.js';
@@ -335,7 +346,8 @@ const CircleProfilePage = () => {
   const { personId } = useParams();
   const circle = useCircleState();
   const [params] = useSearchParams();
-  const liveOn = isLoggedIn() && !circle.demoState && params.get('demo') !== '1';
+  const { isRecruiter } = useCommunityVariant();
+  const liveOn = !isRecruiter && isLoggedIn() && !circle.demoState && params.get('demo') !== '1';
   if (liveOn) return <LiveCircleProfile personId={personId} circle={circle} />;
   return <MockCircleProfile personId={personId} circle={circle} />;
 };
@@ -343,20 +355,26 @@ const CircleProfilePage = () => {
 /* The drawn mock profile (Figma frames, `&state=…` / `?demo=1`). */
 const MockCircleProfile = ({ personId, circle }) => {
   const navigate = useNavigate();
+  // Recruiter variant (`/recruiter/community/people/:id`, Figma RC-NW06 …): same page, recruiter data / copy / links, no endorse or recommend.
+  const V = useCircleVariantData();
+  const splitGrid = useCircleSplitGrid();
+  const links = useCircleLinks();
+  const { isRecruiter, copy: COPY, people: CIRCLE_PEOPLE } = V;
   const store = useCircleStore();
+  const pendingCount = useCirclePending();
   const { toast, show, hide } = useCircleToast();
   const person = CIRCLE_PEOPLE[personId];
 
   const profile = useMemo(
-    () => (person ? (PROFILE_RESPONSE[personId] ?? buildGenericProfile(person)) : null),
-    [person, personId]
+    () => (person ? (V.profiles[personId] ?? V.buildProfile(person)) : null),
+    [person, personId, V]
   );
 
   useEffect(() => {
     log('mount', { personId, modal: circle.modal, demoState: circle.demoState });
   }, [personId, circle.modal, circle.demoState]);
 
-  if (!person) return <Navigate to={withRail(CIRCLE_HREF, circle.rail)} replace />;
+  if (!person) return <Navigate to={withRail(links.circleHref, circle.rail)} replace />;
 
   // Yaw is a 1st-degree connection in the frames; the "not-connected" demo state draws him as a 2nd-degree suggestion.
   const baseStatus =
@@ -370,6 +388,10 @@ const MockCircleProfile = ({ personId, circle }) => {
     ? `You wrote a recommendation for ${person.firstName}. ${person.firstName} will see it first and choose whether to show it on their profile.`
     : null;
   const closeModal = () => circle.update({ modal: null, skills: null, draft: null, person: null });
+
+  // ⚠️ ASSUMPTION (recruiter): no role picker is drawn, so "Invite to apply" confirms with a toast.
+  const inviteToApply = () =>
+    show({ text: `Choose a live role to invite ${person.firstName} to apply` });
 
   const sendLinkUp = (note) => {
     log('link up', personId, note ? 'with note' : 'no note');
@@ -385,6 +407,7 @@ const MockCircleProfile = ({ personId, circle }) => {
   return (
     <CircleFrame circle={circle}>
       <CirclePageWrap>
+        {isRecruiter && <CircleSwitch active="circle" count={pendingCount} rail={circle.rail} />}
         <CircleProfileHero
           person={person}
           profile={profile}
@@ -393,16 +416,23 @@ const MockCircleProfile = ({ personId, circle }) => {
           pending={pending}
           following={following}
           onLinkUp={() => circle.update({ modal: 'connect' })}
-          onMessage={() => navigate('/messages')}
+          onMessage={() => navigate(links.messagesHref)}
           onFollow={() => circleActions.toggleFollow(personId)}
+          // Recruiter (RC-NW06): a connected talent shows Message · "In your network" · "…" (no Follow).
+          showFollowWhenConnected={!isRecruiter}
+          showMore={isRecruiter}
         />
-        <div className="grid grid-cols-1 items-start gap-[28px] lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
+        <div className={splitGrid}>
           <div className="flex min-w-0 flex-col gap-[28px]">
             <CircleSkillsCard
               profile={profile}
               endorsed={endorsed}
               locked={!connected}
               onEndorse={(skillId) => circle.update({ modal: 'endorse', skills: skillId })}
+              // Recruiter (RC-NW06): "Invite to apply" replaces Endorse; the prompt line opens the "can't endorse" explanation.
+              inviteLabel={isRecruiter ? NETWORK_RESTRICTIONS.inviteToApply : undefined}
+              onInvite={inviteToApply}
+              onPromptClick={() => circle.update({ modal: 'endorse' })}
             />
             <CircleRecommendationsCard
               recommendations={profile.recommendations}
@@ -410,7 +440,15 @@ const MockCircleProfile = ({ personId, circle }) => {
               onWrite={() => circle.update({ modal: 'recommend' })}
             />
           </div>
-          <CircleInCommonCard items={profile.inCommon} />
+          <div className="flex min-w-0 flex-col gap-[18px]">
+            <CircleInCommonCard items={profile.inCommon} />
+            {isRecruiter && profile.youBothKnow && (
+              <NetworkYouBothKnowCard
+                block={profile.youBothKnow}
+                onSeeAll={() => navigate(links.circleHref)}
+              />
+            )}
+          </div>
         </div>
       </CirclePageWrap>
 
@@ -423,7 +461,25 @@ const MockCircleProfile = ({ personId, circle }) => {
           onClose={closeModal}
         />
       )}
-      {circle.modal === 'endorse' && (
+      {isRecruiter && (circle.modal === 'endorse' || circle.modal === 'recommend') && (
+        <NetworkRestrictionDialog
+          key={circle.modal}
+          kind={circle.modal}
+          person={person}
+          onSaveToList={() => {
+            log('save to list', personId);
+            closeModal();
+            show({ text: `${person.firstName} saved to your list` });
+          }}
+          onInviteToApply={() => {
+            log('invite to apply', personId);
+            closeModal();
+            inviteToApply();
+          }}
+          onClose={closeModal}
+        />
+      )}
+      {!isRecruiter && circle.modal === 'endorse' && (
         <CircleEndorseDialog
           key="endorse"
           person={person}
@@ -441,7 +497,7 @@ const MockCircleProfile = ({ personId, circle }) => {
           onClose={closeModal}
         />
       )}
-      {circle.modal === 'recommend' && (
+      {!isRecruiter && circle.modal === 'recommend' && (
         <CircleRecommendDialog
           key="recommend"
           person={person}

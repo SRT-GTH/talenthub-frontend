@@ -4,7 +4,7 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { DialogShell } from '../CommunityDialogParts.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { MENTOR_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { DialogHead, FooterBar, Pill, PersonRow, Section } from './CreateDialogParts.jsx';
 import { CcShieldIcon } from './CreateCommunityIcons.jsx';
 import { FOCUS_RING, INPUT_BASE, INPUT_OK, LABEL_TEXT } from './createCommunityStyles.js';
@@ -20,6 +20,7 @@ const log = debug('MentorDialog');
 const MentorDialog = ({ community, onInvite, onClose }) => {
   const titleId = useId();
   const searchId = useId();
+  const { MENTOR_COPY } = useCreateCommunityCopy();
   const copy = MENTOR_COPY;
   const [query, setQuery] = useState('');
   const [sent, setSent] = useState(() =>

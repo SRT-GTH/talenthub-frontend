@@ -2,7 +2,8 @@ import { classNames } from '../../../../utils/classNames.js';
 import { COMMUNITY_CARD_FACES } from '../communityData.js';
 import { CmUsersIcon } from '../CommunityPageIcons.jsx';
 import { CommunityTagTargetIcon } from '../communityBrowseIcons.jsx';
-import { CREATE_COPY, DEFAULT_COVER, toCardBlurb } from './createCommunityData.js';
+import { DEFAULT_COVER, toCardBlurb } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 
 /*
  * CreateDraftPreviewCard — Figma `preview · community card` (CC-05, 300x342): the card people will see, as a Draft.
@@ -10,6 +11,7 @@ import { CREATE_COPY, DEFAULT_COVER, toCardBlurb } from './createCommunityData.j
  * 13/19 description, three faces + "Just you so far". Props: name, about, cover ({ src } | null → the drawn default cover).
  */
 const CreateDraftPreviewCard = ({ name, about, cover }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.review;
   return (
     <article className="flex w-full min-w-0 flex-col rounded-[20px] border border-solid border-[#e6e6e6] bg-white">

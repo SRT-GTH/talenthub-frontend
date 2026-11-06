@@ -155,18 +155,22 @@ const welcomedAlready = () => {
 
 const TABS = ['home', 'assessment', 'recruiter'];
 
-export const useTalentHomeState = () => {
+// `enabled: false` (recruiter screens that reuse the talent shell hooks) = never call the talent API, so a recruiter
+// session's 401 cannot send them to /login; the hook then returns the drawn day-1 sample.
+export const useTalentHomeState = ({ enabled = true } = {}) => {
   const [params, setParams] = useSearchParams();
   // `?as=emma` (Figma canvas "Parent who is also a talent"): the Discoverable demo home with Emma's details (emmaPersona.js).
   const asEmma = params.get('as') === 'emma';
   // Site copy → Preview (`?copyPreview=`): the day-1 sample home, so staff see every card without a talent account.
-  const demoState = HOME_STATE_KEYS.includes(params.get('state'))
-    ? params.get('state')
-    : asEmma
-      ? 'discoverable'
-      : params.has('copyPreview')
-        ? 'day1'
-        : null;
+  const demoState = !enabled
+    ? 'day1'
+    : HOME_STATE_KEYS.includes(params.get('state'))
+      ? params.get('state')
+      : asEmma
+        ? 'discoverable'
+        : params.has('copyPreview')
+          ? 'day1'
+          : null;
   const navigate = useNavigate();
   // null = loading, false = failed. Starts from this tab's cached copy when
   // there is one, so returning to /home shows the data at once.

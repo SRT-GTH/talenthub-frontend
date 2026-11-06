@@ -48,8 +48,8 @@ export const NAV_ITEMS = [
     label: 'Community',
     icon: icons.navCommunityActive,
     collapsedIcon: icons.navCommunityActiveCollapsed,
-    // No destination on purpose: the recruiter Community screens are not designed yet (the talent Community v2 lives at
-    // /community inside the talent shell). Add `to` back when the recruiter version is built.
+    // The recruiter Community (Figma "Recruiter - Community Engagement" 10026:36840): the talent Community pages in the recruiter shell.
+    to: '/recruiter/community',
   },
   {
     id: 'messages',

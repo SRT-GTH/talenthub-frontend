@@ -11,13 +11,10 @@ import OwnerHero from '../../../components/sections/talentCommunity/create/Owner
 import OwnerLiveToast from '../../../components/sections/talentCommunity/create/OwnerLiveToast.jsx';
 import TransferDialog from '../../../components/sections/talentCommunity/create/TransferDialog.jsx';
 import { Callout } from '../../../components/sections/talentCommunity/create/CreateDialogParts.jsx';
-import {
-  OWNER_COPY,
-  OWNER_PAGE_ASSETS,
-  OWNER_STATUS_COPY,
-} from '../../../components/sections/talentCommunity/create/createCommunityData.js';
+import { OWNER_PAGE_ASSETS } from '../../../components/sections/talentCommunity/create/createCommunityData.js';
 import { useCreateCommunityState } from '../../../components/sections/talentCommunity/create/createCommunityState.js';
 import { useOwnedCommunity } from '../../../components/sections/talentCommunity/create/createCommunityStore.js';
+import { useCreateCommunityCopy } from '../../../components/sections/talentCommunity/create/useCreateCommunityCopy.js';
 import CommunityDialogs from '../../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../../components/sections/talentCommunity/CommunityFrame.jsx';
 import {
@@ -31,7 +28,8 @@ import {
   RelatedCard,
   TopicsCard,
 } from '../../../components/sections/talentCommunity/CommunityPageParts.jsx';
-import { COMMUNITY_PAGE_COPY } from '../../../components/sections/talentCommunity/communityData.js';
+import ClubsSwitchRow from '../../../components/sections/talentCommunity/ClubsSwitchRow.jsx';
+import { useCommunityContent } from '../../../components/sections/talentCommunity/communityContent.js';
 import {
   SIDE_LEFT,
   SIDE_RIGHT,
@@ -56,8 +54,16 @@ const CommunityOwnerPage = () => {
   const create = useCreateCommunityState();
   const shell = useCommunityState();
   const { uiStyle } = useUiStyle();
+  const { OWNER_COPY, OWNER_STATUS_COPY, isRecruiter, base } = useCreateCommunityCopy();
+  const { pageCopy: COMMUNITY_PAGE_COPY } = useCommunityContent();
   const { modal, tab, demo, ownerState, requests, update } = create;
-  const { community, patch } = useOwnedCommunity({ communityId, demo, ownerState, requests });
+  const { community, patch } = useOwnedCommunity({
+    communityId,
+    demo,
+    ownerState,
+    requests,
+    recruiter: isRecruiter,
+  });
   const [filter, setFilter] = useState(COMMUNITY_PAGE_COPY.filters[0]);
   const status = demo ? (ownerState ?? 'live') : (community?.status ?? 'under-review');
   const copy = OWNER_STATUS_COPY[status] ?? OWNER_STATUS_COPY.live;
@@ -79,8 +85,8 @@ const CommunityOwnerPage = () => {
 
   const editUrl = useCallback(
     (step) =>
-      `/community/create?edit=${communityId}&from=${status}${step && step !== 'basics' ? `&step=${step}` : ''}${demo ? '&demo=1' : ''}`,
-    [communityId, status, demo]
+      `${base}/create?edit=${communityId}&from=${status}${step && step !== 'basics' ? `&step=${step}` : ''}${demo ? '&demo=1' : ''}`,
+    [base, communityId, status, demo]
   );
 
   const onAction = (id) => {
@@ -221,9 +227,9 @@ const CommunityOwnerPage = () => {
       topics: OWNER_PAGE_ASSETS.topics,
       related: OWNER_PAGE_ASSETS.related,
     };
-  }, [community, live]);
+  }, [community, live, OWNER_COPY]);
 
-  if (!community || !detail) return demo ? null : <Navigate to="/community" replace />;
+  if (!community || !detail) return demo ? null : <Navigate to={base} replace />;
 
   const empty = copy.empty;
   const tabs = [
@@ -254,6 +260,7 @@ const CommunityOwnerPage = () => {
   return (
     <CommunityFrame community={shell}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
+        {isRecruiter ? <ClubsSwitchRow rail={shell.rail} /> : null}
         {copy.banner ? (
           <Callout
             role="status"
@@ -306,7 +313,7 @@ const CommunityOwnerPage = () => {
       {create.toast === 'live' ? (
         <OwnerLiveToast
           name={community.name}
-          xp={uiStyle === 'playful' ? 'XP' : 'pts'}
+          xp={uiStyle === 'playful' && !isRecruiter ? 'XP' : 'pts'}
           onShare={share}
           onDone={hideToast}
         />

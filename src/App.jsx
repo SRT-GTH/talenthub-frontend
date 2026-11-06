@@ -178,8 +178,39 @@ const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx')
 const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
 const GameV2Page = lazy(() => import('./pages/talentSkillsLab/GameV2Page.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
+const TalentCandidateProfilePage = lazy(
+  () => import('./pages/talentSearch/TalentCandidateProfilePage.jsx')
+);
 const JobTemplatesPage = lazy(() => import('./pages/jobTemplates/JobTemplatesPage.jsx'));
 const JobPostingsPage = lazy(() => import('./pages/jobPostings/JobPostingsPage.jsx'));
+const CreateJobPage = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({ default: m.CreateJobPage }))
+);
+const BuildTemplatePage = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({
+    default: m.BuildTemplatePage,
+  }))
+);
+const EditPostingPage = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({
+    default: m.EditPostingPage,
+  }))
+);
+const TemplatePreviewPage = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({
+    default: m.TemplatePreviewPage,
+  }))
+);
+const JobPreviewBeforePublishPage = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({
+    default: m.JobPreviewBeforePublishPage,
+  }))
+);
+const PostingDetailRoute = lazy(() =>
+  import('./pages/recruiterJobs/RecruiterJobPages.jsx').then((m) => ({
+    default: m.PostingDetailRoute,
+  }))
+);
 const JobScreeningPage = lazy(() => import('./pages/jobScreening/JobScreeningPage.jsx'));
 const ApplicationPipelinePage = lazy(
   () => import('./pages/applicationPipeline/ApplicationPipelinePage.jsx')
@@ -1118,6 +1149,56 @@ function App() {
                     </Suspense>
                   }
                 />
+                {/* Recruiter Community — Figma "Recruiter - Community Engagement" 10026:36840 (RC-C01 … RC-NW11): the same pages under the
+            recruiter dashboard shell (communityVariant.js). Wiki: recruiter-community.md. */}
+                <Route
+                  path={'/recruiter/community'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityBrowsePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/community/:communityId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/community/:communityId/post/:postId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityPostPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/community/create'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityCreatePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/community/:communityId/manage'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CommunityOwnerPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/community/people/:personId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CircleProfilePage />
+                    </Suspense>
+                  }
+                />
                 {/* Career exposure post reader, opened from Career Buddy's post cards (2026-10-27). */}
                 <Route
                   path={'/career-content/:contentId'}
@@ -1382,6 +1463,17 @@ function App() {
                   }
                 />
 
+                {/* Recruiter candidate profile (Figma page "Recruiter - Talent Search",
+            frames TS-11 to TS-19): opened from a result card's View profile. */}
+                <Route
+                  path={'/recruiter/talent-search/:candidateId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TalentCandidateProfilePage />
+                    </Suspense>
+                  }
+                />
+
                 {/* Remaining recruiter dashboard screens — Figma page "Job -
             Prospecting screens" (5566:50658), sections 7249:75045 / :75817 /
             :78065 / :79016 / :83992. All share DashboardShell chrome. */}
@@ -1398,6 +1490,54 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <JobPostingsPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-postings/new'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <CreateJobPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-postings/new/preview'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <JobPreviewBeforePublishPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-postings/:postingId'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <PostingDetailRoute />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-postings/:postingId/edit'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <EditPostingPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-templates/new'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <BuildTemplatePage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={'/recruiter/job-templates/product-designer/preview'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <TemplatePreviewPage />
                     </Suspense>
                   }
                 />

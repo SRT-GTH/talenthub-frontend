@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '../../../ui/Button.jsx';
-import { MANAGE_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { IconRow, Section } from './CreateDialogParts.jsx';
 import { CcCheckCircleIcon, CcHourglassIcon, CcStarIcon } from './CreateCommunityIcons.jsx';
 
@@ -12,6 +12,7 @@ const ICONS = { owner: CcStarIcon, active: CcCheckCircleIcon, invited: CcHourgla
  * onRemind(moderator).
  */
 const ManageModerators = ({ moderators, showTitle = true, onRemind }) => {
+  const { MANAGE_COPY } = useCreateCommunityCopy();
   const [reminded, setReminded] = useState([]);
   const rows = (
     <div className="flex flex-col gap-[8px]">

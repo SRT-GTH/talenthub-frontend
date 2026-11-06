@@ -1,19 +1,20 @@
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY, CIRCLE_SUMMARY } from './circleData.js';
-import { BUDDY_AVATAR } from './circlePhotos.js';
 import { CARD, HEADING } from './circleStyles.js';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleSidePanel — Figma `Your network` right-rail card: "Your circle" + three stat tiles (128 · 46 · 31) + the Buddy tip
  * (#faf4e8, r14, Buddy avatar). Props: stats ({ inCircle, following, profileViews } — defaults to the summary block), className.
  */
 /* `tiles` ([{ value, label }]) replaces the three drawn stats on the live screen (no follow or profile-view counts yet). */
-const CircleSidePanel = ({ stats, className, tiles, tip = CIRCLE_SUMMARY.tip }) => {
+const CircleSidePanel = ({ stats, className, tiles, tip: tipProp }) => {
+  const { assistantAvatar, copy: COPY, summary } = useCircleVariantData();
+  const tip = tipProp ?? summary.tip;
   const shown = tiles ?? [
-    { value: stats?.inCircle ?? CIRCLE_SUMMARY.inCircle, label: COPY.stats[0] },
-    { value: stats?.following ?? CIRCLE_SUMMARY.following, label: COPY.stats[1] },
+    { value: stats?.inCircle ?? summary.inCircle, label: COPY.stats[0] },
+    { value: stats?.following ?? summary.following, label: COPY.stats[1] },
     {
-      value: stats?.profileViews ?? CIRCLE_SUMMARY.profileViewsThisWeek,
+      value: stats?.profileViews ?? summary.profileViewsThisWeek,
       label: COPY.stats[2],
     },
   ];
@@ -37,7 +38,7 @@ const CircleSidePanel = ({ stats, className, tiles, tip = CIRCLE_SUMMARY.tip }) 
       </div>
       <div className="flex gap-[10px] rounded-[14px] bg-[#faf4e8] p-[12px]">
         <img
-          src={BUDDY_AVATAR}
+          src={assistantAvatar}
           alt=""
           draggable="false"
           className="size-[32px] shrink-0 rounded-full object-cover"

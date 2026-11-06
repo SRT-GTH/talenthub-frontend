@@ -3,7 +3,8 @@ import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { CREATE_COPY, CREATE_TOPICS, findNameConflict, toHashtag } from './createCommunityData.js';
+import { CREATE_TOPICS, findNameConflict, toHashtag } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { Callout, FilterChip, FooterBar, Section } from './CreateDialogParts.jsx';
 import { AreaField, TextField, UploadRow } from './CreateWizardParts.jsx';
 import { CcCheckCircleIcon, CcInfoIcon, CcWarningIcon } from './CreateCommunityIcons.jsx';
@@ -18,6 +19,7 @@ const log = debug('CreateBasicsStep');
  * "Next" is disabled until name, about and topic are filled. A taken name shows the CC-02b view instead of the rest of the form.
  */
 const CreateBasicsStep = ({ draft, patchDraft, checked, onChecked, onNext, onCancel, onView }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.basics;
   const nameId = useId();
   const aboutId = useId();

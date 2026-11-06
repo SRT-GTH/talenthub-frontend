@@ -76,3 +76,13 @@ Nobody is assigned these. When a flow you are building needs one of the componen
 - **Notification Centre** (`6375:85`): the recruiter pop-up is `recruiterDashboard/TopBarPanels.jsx` (`RecruiterNotificationsPanel`), a sibling of the parent and talent ones; the three are still not consolidated.
 - **Persona colour**: Forest Green `#1F4A2B` appears in none of the 51 dashboard frames (they use Brand Green `#387440` throughout), so no `--color-persona-recruiter` token was added.
 - The global search overlay (`SearchPanel`, D13–D15) is built as a recruiter-specific panel; still missing from the list above: the shared Search field, Icon button, Kbd, Help row, Streak mark, Process log, Inline alert.
+
+## Built for the Talent Search profile (2026-11-06)
+
+- Icon-tile dialog (Figma `10102:42398`) -> `ui/IconTileDialog.jsx`; Textarea with the counter inside the box -> `form/Textarea` `counterInside`.
+
+## Built for the Talent Search list (2026-11-06)
+
+- ~~Dropdown / popover menu card~~ built, `ui/MenuPanel.jsx` (Figma `10102:37457` …); ~~multi-select pill~~ built, `ui/TogglePill.jsx`; escape / outside-press hook `hooks/useDismissableLayer.js`. Skeleton / empty state reused `SkeletonBlock`, `Chip`, `Button`.
+
+- 2026-11-06 (job flows): confirm dialog with icon tile (centred) -> `recruiterJobs/jobFlowDialogs.jsx` `CenterDialog`; context banner with action -> `jobFlowParts.jsx` `FlowBanner`; dropdown field with description rows / footer rows -> `jobFormControls.jsx` `Select`. Still local, not in `ui/`.

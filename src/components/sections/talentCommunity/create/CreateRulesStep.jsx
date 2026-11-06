@@ -2,7 +2,8 @@ import { useEffect, useId, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { CREATE_COPY, GTH_RULES, MAX_OWN_RULES } from './createCommunityData.js';
+import { GTH_RULES, MAX_OWN_RULES } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { CheckRow, FooterBar, IconRow, Pill, Section } from './CreateDialogParts.jsx';
 import { CcEditIcon, CcLockIcon, CcPlusIcon, CcShieldIcon } from './CreateCommunityIcons.jsx';
 import { FOCUS_RING, INPUT_BASE, INPUT_OK, TEXT_ACTION } from './createCommunityStyles.js';
@@ -71,6 +72,7 @@ const RuleEditor = ({ rule, onSave, onRemove, onCancel }) => {
  * two moderation checkboxes. The drawn Edit / Add flows have no frames: ⚠️ ASSUMPTION inline editor with Save / Cancel / Remove.
  */
 const CreateRulesStep = ({ draft, patchDraft, onBack, onNext }) => {
+  const { CREATE_COPY } = useCreateCommunityCopy();
   const copy = CREATE_COPY.rules;
   const checkId = useId();
   const [editing, setEditing] = useState(null);

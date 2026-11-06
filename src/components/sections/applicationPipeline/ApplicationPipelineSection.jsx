@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
+import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
+import BannerToast from '../../ui/BannerToast.jsx';
+import { HANDOFF_TOAST } from '../jobScreening/screeningFlowData.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
 import InterviewConfirmModal from './InterviewConfirmModal.jsx';
@@ -263,6 +267,10 @@ const ApplicationPipelineSection = () => {
   // addressable, so every Figma frame can be opened by link.
   const [searchParams, setSearchParams] = useSearchParams();
   const urlState = readPipelineUrlState(searchParams);
+  // Screening hand-off (Figma JS-11 10117:68136): /recruiter/application-pipeline?handoff=46 — the toast "Success - 46 applicants moved to Screening" over the
+  // workspace sidebar. Only with this key the page draws that sidebar and SF Pro Rounded; without it every other pipeline frame is unchanged.
+  const handoff = searchParams.get('handoff');
+  useScopedRoundedFont('data-recruiter-ui', handoff !== null);
   // Several writes can land in one tick (e.g. pick an option, then close the list), and
   // react-router's updater only sees the URL of the last render, so keep the newest params here.
   const latestParamsRef = useRef(searchParams);
@@ -407,7 +415,10 @@ const ApplicationPipelineSection = () => {
   const forceHoverOption = JOB_POSTING_OPTIONS.find((o) => o.id === urlState.forceHover);
 
   return (
-    <DashboardShell defaultSidebarCollapsed={urlState.sidebarCollapsed}>
+    <DashboardShell
+      defaultSidebarCollapsed={urlState.sidebarCollapsed}
+      renderSidebar={handoff !== null ? renderWorkspaceSidebar : undefined}
+    >
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <RecruiterPageHeading
           titleStyle="sans-accent"
@@ -591,6 +602,17 @@ const ApplicationPipelineSection = () => {
         onConfirm={confirmPending}
         onCancel={() => setPending(null)}
       />
+      {handoff !== null ? (
+        <BannerToast
+          tone="success"
+          title={HANDOFF_TOAST.title(handoff)}
+          message={HANDOFF_TOAST.message}
+          actionLabel={HANDOFF_TOAST.action}
+          onClose={() => setUrlKeys({ handoff: null })}
+          duration={0}
+          placement="fixed top-[22px] left-1/2 z-[70] w-max max-w-[calc(100vw-32px)] -translate-x-1/2 max-md:top-[72px]"
+        />
+      ) : null}
     </DashboardShell>
   );
 };

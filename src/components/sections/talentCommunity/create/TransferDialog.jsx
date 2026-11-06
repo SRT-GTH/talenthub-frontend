@@ -4,7 +4,7 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { DialogShell } from '../CommunityDialogParts.jsx';
 import { fillCopy } from '../communityDialogUtils.js';
-import { TRANSFER_COPY } from './createCommunityData.js';
+import { useCreateCommunityCopy } from './useCreateCommunityCopy.js';
 import { CheckRow, DialogHead, IconRow, Section } from './CreateDialogParts.jsx';
 import {
   CcClockIcon,
@@ -34,6 +34,7 @@ const POINT_ICONS = { clock: CcClockIcon, user: CcUserIcon, shield: CcShieldIcon
 const TransferDialog = ({ community, initialConfirmed = false, onSend, onClose }) => {
   const titleId = useId();
   const checkId = useId();
+  const { TRANSFER_COPY } = useCreateCommunityCopy();
   const copy = TRANSFER_COPY;
   const candidates = community.moderators.filter((m) => m.state !== 'owner');
   const firstActive = candidates.find((m) => m.state === 'active') ?? null;
@@ -76,7 +77,7 @@ const TransferDialog = ({ community, initialConfirmed = false, onSend, onClose }
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
                   <span className="font-sans text-[15px] font-semibold leading-[18px] text-[#1c2a21]">
-                    {mod.name}
+                    {mod.transferName ?? mod.name}
                   </span>
                   <span className="font-sans text-[13px] leading-[18px] text-[#737373] max-lg:text-[12px]">
                     {active ? copy.adjoaDetail : copy.ransfordDetail}

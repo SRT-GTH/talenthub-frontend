@@ -10,6 +10,7 @@ import {
 } from './CommunityPostIcons.jsx';
 import { INPUT, LINK_BTN } from './postCommentStyles.js';
 import { POST_DETAIL } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
 
 const log = debug('PostComments');
 
@@ -80,7 +81,7 @@ export const Comment = ({ comment, onLike, liked, replyOpen, onReply, children }
  * ⚠️ ASSUMPTION: the 4 replies / 10 more comments are not drawn, "View 4 replies" and "View 10 more comments" only log.
  */
 const PostComments = ({ onCount }) => {
-  const copy = POST_DETAIL;
+  const { postDetail: copy } = useCommunityContent();
   const [draft, setDraft] = useState(copy.composer.value);
   const [added, setAdded] = useState([]);
   const [liked, setLiked] = useState({});
@@ -96,7 +97,7 @@ const PostComments = ({ onCount }) => {
       ...added,
       {
         id: `me-${added.length}`,
-        author: 'Kofi Agyekum',
+        author: copy.meName ?? 'Kofi Agyekum',
         time: 'Just now',
         text,
         likes: 0,

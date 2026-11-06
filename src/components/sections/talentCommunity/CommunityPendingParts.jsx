@@ -6,6 +6,7 @@ import { CommunityCheckCircleFillGlyph } from './CommunityDialogIcons.jsx';
 import { CommunityPostClockGlyph } from './CommunityPostIcons.jsx';
 import { FOCUS_RING } from './communityDialogUtils.js';
 import { PENDING_POST, TOAST_POSTED } from './communityData.js';
+import { useCommunityContent } from './communityContent.js';
 
 const log = debug('CommunityPendingParts');
 
@@ -46,7 +47,7 @@ export const PendingBanner = ({ onEdit, text = PENDING_POST.banner }) => (
       <button
         type="button"
         onClick={onEdit}
-        className={`shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[14px] ${FOCUS_RING}`}
+        className={`min-h-[24px] shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[13px] font-semibold leading-[16px] text-[#387440] max-lg:text-[14px] ${FOCUS_RING}`}
       >
         {PENDING_POST.edit}
       </button>
@@ -84,25 +85,28 @@ export const LivePendingPostCard = ({ post }) => (
  * Props: community (useCommunityState(), "Edit" reopens the create dialog), body (text, default = the frame's post),
  * onMore (opens the report flow, like the other cards).
  */
-const PendingPostCard = ({ community, body, onMore }) => (
-  <CommunityPostCard
-    tone="pending"
-    className="!border-dashed"
-    actionsOpacity={0.4}
-    post={{
-      id: PENDING_POST.id,
-      author: { name: PENDING_POST.author, me: true },
-      kind: PENDING_POST.tag,
-      time: PENDING_POST.time,
-      body:
-        body ??
-        'Shipped the dark mode toggle on my portfolio this weekend. Took 3 tries to get the system preference + manual override working together. Happy to share the hook if anyone needs it. #PortfolioWeekend #ReactGh',
-      likes: Number(PENDING_POST.likes),
-      comments: Number(PENDING_POST.comments),
-    }}
-    banner={<PendingBanner onEdit={() => community?.update({ modal: 'create' })} />}
-    onMore={onMore}
-  />
-);
+const PendingPostCard = ({ community, body, onMore }) => {
+  const { pendingPost } = useCommunityContent();
+  return (
+    <CommunityPostCard
+      tone="pending"
+      className="!border-dashed"
+      actionsOpacity={0.4}
+      post={{
+        id: pendingPost.id,
+        author: { name: pendingPost.author, me: true },
+        kind: pendingPost.tag,
+        time: pendingPost.time,
+        body:
+          body ??
+          'Shipped the dark mode toggle on my portfolio this weekend. Took 3 tries to get the system preference + manual override working together. Happy to share the hook if anyone needs it. #PortfolioWeekend #ReactGh',
+        likes: Number(pendingPost.likes),
+        comments: Number(pendingPost.comments),
+      }}
+      banner={<PendingBanner onEdit={() => community?.update({ modal: 'create' })} />}
+      onMore={onMore}
+    />
+  );
+};
 
 export default PendingPostCard;

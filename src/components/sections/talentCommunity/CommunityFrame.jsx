@@ -6,6 +6,8 @@ import DashboardShell from '../dashboard/DashboardShell.jsx';
 import UiStyleScope from '../../shared/UiStyleScope.jsx';
 import AskBuddyFab from '../talentHome/AskBuddyFab.jsx';
 import { useTalentHomeState } from '../talentHome/talentHomeState.js';
+import { useCommunityVariant } from './communityVariant.js';
+import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 
 const log = debug('CommunityFrame');
 
@@ -17,7 +19,11 @@ const log = debug('CommunityFrame');
  * the demo keeps the drawn Kofi shell.
  */
 const CommunityFrame = ({ community, children }) => {
-  const home = useTalentHomeState();
+  const { isRecruiter } = useCommunityVariant();
+  // A recruiter session must never hit the talent home API (its 401 redirects to /login).
+  const home = useTalentHomeState({ enabled: !isRecruiter });
+  // Figma draws the recruiter screens in SF Pro Rounded: the bundled face (styles/parent.css) while they are mounted.
+  useScopedRoundedFont('data-recruiter-ui', isRecruiter);
   // While home data loads, `live.placeholder` draws the dashed card (never the drawn Kofi) on live pages.
   const liveShell = !community.demo && Boolean(home?.live);
   useEffect(() => {
@@ -30,6 +36,15 @@ const CommunityFrame = ({ community, children }) => {
     document.documentElement.setAttribute('data-talent-home', '');
     return () => document.documentElement.removeAttribute('data-talent-home');
   }, []);
+
+  // Recruiter variant (Figma 10026:36840): the recruiter dashboard shell (top bar, profile card rail, Community active), one style, no Playful.
+  if (isRecruiter) {
+    return (
+      <DashboardShell defaultSidebarCollapsed={community.rail === 'collapsed'}>
+        {children}
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell

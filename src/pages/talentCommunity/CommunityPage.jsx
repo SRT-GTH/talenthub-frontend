@@ -29,14 +29,12 @@ import {
   MembersPanel,
 } from '../../components/sections/talentCommunity/CommunityTabPanels.jsx';
 import {
-  COMMUNITY_DETAILS,
-  COMMUNITY_DETAIL_ALIASES,
-  COMMUNITY_PAGE_COPY,
   COMMUNITY_PAGE_FACES,
   COMMUNITY_PAGE_RHYTHM,
-  buildFallbackDetail,
-  getCommunityById,
 } from '../../components/sections/talentCommunity/communityData.js';
+import { useCommunityContent } from '../../components/sections/talentCommunity/communityContent.js';
+import { communityHref } from '../../components/sections/talentCommunity/communityVariant.js';
+import ClubsSwitchRow from '../../components/sections/talentCommunity/ClubsSwitchRow.jsx';
 import { useCommunityMembership } from '../../components/sections/talentCommunity/communityMembership.js';
 import { useCommunityState } from '../../components/sections/talentCommunity/communityState.js';
 // Create your own community: a community the talent created opens on its owner view (Manage, status banner).
@@ -60,11 +58,11 @@ const CommunityPageDemo = () => {
   const { communityId } = useParams();
   const navigate = useNavigate();
   const membership = useCommunityMembership();
-  const canonicalId = COMMUNITY_DETAIL_ALIASES[communityId] ?? communityId;
-  const entry = getCommunityById(canonicalId);
-  const detail = useMemo(
-    () => COMMUNITY_DETAILS[canonicalId] ?? (entry ? buildFallbackDetail(entry) : null),
-    [canonicalId, entry]
+  const content = useCommunityContent();
+  const { base, isRecruiter, pageCopy: COMMUNITY_PAGE_COPY } = content;
+  const { canonicalId, detail } = useMemo(
+    () => content.resolveDetail(communityId),
+    [content, communityId]
   );
 
   const { joined, tab, welcome, pending, state, update } = community;
@@ -112,11 +110,11 @@ const CommunityPageDemo = () => {
     if (navigator.share) navigator.share({ title, url }).catch(() => {});
     else navigator.clipboard?.writeText(url).catch(() => {});
   };
-  const onOpenPost = (post) => navigate(`/community/${communityId}/post/${post.id}`);
+  const onOpenPost = (post) => navigate(communityHref(base, `/${communityId}/post/${post.id}`));
   const hideWelcomeToast = useCallback(() => setWelcomeToast(false), []);
   const hidePostedToast = useCallback(() => setPostedToast(false), []);
 
-  if (!detail) return <Navigate to="/community" replace />;
+  if (!detail) return <Navigate to={base} replace />;
 
   const empty = state === 'empty' || detail.posts.length === 0;
   const rhythm = !joined
@@ -175,7 +173,10 @@ const CommunityPageDemo = () => {
             onOpen={onOpenPost}
             onMore={onMorePost}
             onShare={(shared) =>
-              shareLink(`/community/${communityId}/post/${shared.id}`, shared.author.name)
+              shareLink(
+                communityHref(base, `/${communityId}/post/${shared.id}`),
+                shared.author.name
+              )
             }
           />
         ))
@@ -190,14 +191,15 @@ const CommunityPageDemo = () => {
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1602px] flex-col gap-[20px] pb-[32px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.39vw,24px)]">
+        {isRecruiter ? <ClubsSwitchRow rail={community.rail} /> : null}
         <CommunityHero
           detail={detail}
           joined={joined}
           faces={COMMUNITY_PAGE_FACES}
           onJoin={onJoin}
           onLeave={() => update({ modal: 'leave' })}
-          onShare={() => shareLink(`/community/${communityId}`, detail.name)}
-          onInvite={() => shareLink(`/community/${communityId}`, detail.name)}
+          onShare={() => shareLink(communityHref(base, `/${communityId}`), detail.name)}
+          onInvite={() => shareLink(communityHref(base, `/${communityId}`), detail.name)}
         />
         <CommunityTabs
           tabs={tabs}

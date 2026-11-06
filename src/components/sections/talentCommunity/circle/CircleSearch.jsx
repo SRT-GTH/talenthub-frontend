@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
-import { CIRCLE_COPY as COPY } from './circleData.js';
 import { CircleSearchIcon } from './circleIcons.jsx';
+import { useCircleVariantData } from './useCircleVariantData.js';
 
 /*
  * CircleSearch — Figma `Search people` (300x40, white, 1px #e7e7e7, r12, 13px placeholder #9a9a98). Controlled by the `q` query
  * param: typing filters the lists on the page (debounce-free, local state mirrors the URL). Props: value, onChange(text), className.
  */
 const CircleSearch = ({ value, onChange, className }) => {
+  const { copy: COPY } = useCircleVariantData();
   const [text, setText] = useState(value);
   useEffect(() => {
     setText(value);
