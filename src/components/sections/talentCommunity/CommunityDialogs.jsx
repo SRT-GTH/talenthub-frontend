@@ -558,7 +558,15 @@ const CommunityDialogs = ({ community, communityName = '#Frontend Devs Ghana', o
         />
       );
     case 'milestone':
-      return <MilestoneShareModal onClose={close} onShare={close} onDecline={close} />;
+      // Live: no "+50 XP" sticker (no XP in the ledger for this); `?demo=1` keeps the drawn one.
+      return (
+        <MilestoneShareModal
+          onClose={close}
+          onShare={close}
+          onDecline={close}
+          showXp={Boolean(community.demo)}
+        />
+      );
     default:
       return null;
   }

@@ -2,6 +2,10 @@ import { useEffect } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import GameV2Shell from '../GameV2Shell.jsx';
 import { useGameV2Params } from '../gamesV2State.js';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
+import { isLivePage, liveResultProgress, readLiveResult } from '../numbersWords/liveResultStrip.js';
 import NumbersWordsFeedback from '../numbersWords/NumbersWordsFeedback.jsx';
 import NumbersWordsHead from '../numbersWords/NumbersWordsHead.jsx';
 import { NwStatCheckIcon } from '../numbersWords/NumbersWordsIcons.jsx';
@@ -12,6 +16,7 @@ import {
   PATTERN_PULSE_ROUNDS_PER_RUN,
 } from '../patternPulse/patternPulseData.js';
 import { usePatternPulseGame } from '../patternPulse/usePatternPulseGame.js';
+import { usePatternPulseLive } from '../patternPulse/usePatternPulseLive.js';
 
 const log = debug('PatternPulse');
 
@@ -20,7 +25,8 @@ const log = debug('PatternPulse');
  * PP-04 Wrong · answer shown, PP-05 Time almost up, PP-06 Expert · two patterns take turns; Playful + Focused).
  * Route /skills-lab/play/pattern-pulse[?mode=ranked|practice&level=…&f=PP-0x]. Eight rounds; every round has its own countdown ring
  * on the "?" bead; keys 1-4 (or a click) answer; the rule is revealed after each round and the next one starts after 3 s.
- * Content beyond the drawn rounds is ⚠️ ASSUMPTION — see patternPulse/patternPulseData.js.
+ * Live (default): the server engine (number_sequence) holds the sequences, the answers and the score — see
+ * patternPulse/usePatternPulseLive.js. The `?f=` frames and `?demo=1` keep the local mock (content: patternPulse/patternPulseData.js).
  */
 const LEVEL_LABELS = {
   beginner: 'Beginner',
@@ -33,32 +39,25 @@ const HINT_ASK = 'Press 1–4 on your keyboard, or click an answer.';
 const HINT_SENDING = 'Checking your answer. This takes a moment.';
 const SKIP_NOTE = 'A skip counts as missed.';
 
-const dotsFor = (history) =>
-  Array.from({ length: PATTERN_PULSE_ROUNDS_PER_RUN }, (_, i) => {
+const dotsFor = (history, total) =>
+  Array.from({ length: total }, (_, i) => {
     const label = String(i + 1);
     if (i < history.length) return { state: history[i].result === 'ok' ? 'ok' : 'bad', label };
     return { state: i === history.length ? 'now' : 'todo', label };
   });
 
-const PatternPulse = ({ frame }) => {
+const PatternPulseBoardView = ({ game }) => {
   const g = useGameV2Params();
   const paused = Boolean(g.modal);
-  const game = usePatternPulseGame({
-    frame,
-    level: g.level,
-    paused,
-    onFinish: g.finish,
-    resume: g.resume,
-  });
-  const { phase, round, spec, choices, correctIndex, picked, miss, history } = game;
+  const { phase, round, spec, choices, correctIndex, picked, miss } = game;
   const revealed = phase === 'revealed';
   const sending = phase === 'sending';
   const correct = revealed && picked === correctIndex && !miss;
   const twoPatterns = Boolean(spec.a);
 
   useEffect(() => {
-    log('mount', { level: game.levelKey, round: game.roundNumber, phase, frame, mode: g.mode });
-  }, [game.levelKey, game.roundNumber, phase, frame, g.mode]);
+    log('mount', { level: game.levelKey, round: game.roundNumber, phase, mode: g.mode });
+  }, [game.levelKey, game.roundNumber, phase, g.mode]);
 
   /* keys 1-4 answer ("Press 1–4 on your keyboard") */
   useEffect(() => {
@@ -100,7 +99,6 @@ const PatternPulse = ({ frame }) => {
   });
 
   const timer = { fraction: game.ring, urgent: game.urgent, label: `${game.seconds} s` };
-  const beads = round.beads;
   const answerBead = revealed
     ? { value: round.answer, color: round.target.color, mark: correct }
     : null;
@@ -111,8 +109,8 @@ const PatternPulse = ({ frame }) => {
   const progress = {
     countLabel: `Round ${game.roundNumber} of ${game.totalRounds}`,
     summary,
-    dots: dotsFor(history),
-    passMark: `Best so far: ${PATTERN_PULSE_BEST_SO_FAR}`,
+    dots: game.dots,
+    passMark: game.bestSoFar === null ? undefined : `Best so far: ${game.bestSoFar}`,
   };
 
   let footer = { note: SKIP_NOTE, link: { label: 'Skip this one', onClick: game.skip } };
@@ -133,31 +131,33 @@ const PatternPulse = ({ frame }) => {
   return (
     <GameV2Shell
       name="Pattern Pulse"
-      subtitleLead={`Pattern recognition · ${PATTERN_PULSE_ROUNDS_PER_RUN} rounds`}
+      subtitleLead={`Pattern recognition · ${game.totalRounds} rounds`}
       progress={progress}
       footer={footer}
       timeUp={{
-        summary: `You got ${game.rightCount} of ${history.length} rounds right before time ran out.`,
+        summary: `You got ${game.rightCount} of ${game.answeredCount} rounds right before time ran out.`,
       }}
       onSeeResult={game.finishNow}
     >
       <NumbersWordsHead
-        eyebrow={`ROUND ${game.roundNumber} · ${LEVEL_LABELS[game.levelKey].toUpperCase()}`}
+        eyebrow={`ROUND ${game.roundNumber} · ${(LEVEL_LABELS[game.levelKey] ?? game.levelKey ?? '').toUpperCase()}`}
         title={title}
         sub={sub}
-        stats={[{ icon: NwStatCheckIcon, label: `${game.rightCount} of ${history.length} right` }]}
+        stats={[
+          { icon: NwStatCheckIcon, label: `${game.rightCount} of ${game.answeredCount} right` },
+        ]}
         measures={MEASURES}
       />
       <div className="flex flex-col pt-[clamp(8px,2vw,30px)]">
         <PatternPulseBoard
-          beads={beads}
+          beads={round.beads}
           slot={revealed ? null : { timer }}
           answer={answerBead}
           jumps={revealed ? round.jumps : null}
           twoPatterns={twoPatterns}
         />
         <NumbersWordsFeedback
-          tone={revealed ? (correct ? 'ok' : 'info') : null}
+          tone={revealed && spec.ruleText ? (correct ? 'ok' : 'info') : null}
           message={spec.ruleText}
         />
         <PatternAnswerChoices
@@ -174,22 +174,81 @@ const PatternPulse = ({ frame }) => {
   );
 };
 
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local mock run */
+const MockPatternPulse = ({ frame }) => {
+  const g = useGameV2Params();
+  const game = usePatternPulseGame({
+    frame,
+    level: g.level,
+    paused: Boolean(g.modal),
+    onFinish: g.finish,
+    resume: g.resume,
+  });
+  const view = {
+    ...game,
+    dots: dotsFor(game.history, PATTERN_PULSE_ROUNDS_PER_RUN),
+    answeredCount: game.history.length,
+    bestSoFar: PATTERN_PULSE_BEST_SO_FAR,
+  };
+  return <PatternPulseBoardView game={view} />;
+};
+
+/* live: the server engine (/api/games, number_sequence) holds the sequences and scores the run */
+const LivePatternPulse = () => {
+  const run = useGameRun();
+  const game = usePatternPulseLive(run);
+  if ((run.status !== 'ready' && run.status !== 'finished') || !game) {
+    return <GameV2LiveGate run={run} name="Pattern Pulse" subtitleLead="Pattern recognition" />;
+  }
+  return <PatternPulseBoardView game={game} />;
+};
+
+const PatternPulse = ({ frame }) => {
+  const g = useGameV2Params();
+  /* a new run (level / mode / frame changed) starts from scratch */
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? (
+    <LivePatternPulse key={key} />
+  ) : (
+    <MockPatternPulse key={key} frame={frame} />
+  );
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const GAMES_V2 = { 'pattern-pulse': PatternPulse };
+
+const mockResultProgress = {
+  countLabel: `Round ${PATTERN_PULSE_ROUNDS_PER_RUN} of ${PATTERN_PULSE_ROUNDS_PER_RUN}`,
+  summary: 'All rounds played',
+  dots: Array.from({ length: PATTERN_PULSE_ROUNDS_PER_RUN }, (_, i) => ({
+    state: 'ok',
+    label: String(i + 1),
+  })),
+  passMark: `Best so far: ${PATTERN_PULSE_BEST_SO_FAR}`,
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const GAMES_V2_META = {
   'pattern-pulse': {
     name: 'Pattern Pulse',
-    subtitleLead: `Pattern recognition · ${PATTERN_PULSE_ROUNDS_PER_RUN} rounds`,
-    resultProgress: {
-      countLabel: `Round ${PATTERN_PULSE_ROUNDS_PER_RUN} of ${PATTERN_PULSE_ROUNDS_PER_RUN}`,
-      summary: 'All rounds played',
-      dots: Array.from({ length: PATTERN_PULSE_ROUNDS_PER_RUN }, (_, i) => ({
-        state: 'ok',
-        label: String(i + 1),
-      })),
-      passMark: `Best so far: ${PATTERN_PULSE_BEST_SO_FAR}`,
+    /* getters: GameV2Page reads them on every render, so a live result header follows the server's card, never the mock numbers */
+    get subtitleLead() {
+      const stored = readLiveResult('pattern-pulse');
+      if (stored?.total) return `Pattern recognition · ${stored.total} rounds`;
+      return isLivePage()
+        ? 'Pattern recognition'
+        : `Pattern recognition · ${PATTERN_PULSE_ROUNDS_PER_RUN} rounds`;
+    },
+    get resultProgress() {
+      const stored = readLiveResult('pattern-pulse');
+      if (stored) {
+        const total = stored.total || 0;
+        return liveResultProgress(stored, {
+          countLabel: `Round ${total} of ${total}`,
+          summary: `${stored.correct ?? 0} of ${total} right`,
+        });
+      }
+      return isLivePage() ? null : mockResultProgress;
     },
   },
 };

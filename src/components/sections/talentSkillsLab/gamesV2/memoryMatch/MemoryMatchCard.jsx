@@ -34,10 +34,14 @@ const MemoryMatchCard = forwardRef(function MemoryMatchCard(
   { card, row, col, tabbable, dimmed, onFlip, onKeyDown },
   ref
 ) {
-  const Face = MEMORY_ICONS[card.sym];
+  // live: a face-down card has no symbol at all (the server only reveals a card once it is turned)
+  const Face = card.sym ? MEMORY_ICONS[card.sym] : null;
   const revealed = card.state !== 'down';
   const tone = card.state === 'found' ? 'found' : card.state === 'wrong' ? 'wrong' : 'open';
-  const name = MEMORY_SYMBOL_NAMES[card.sym];
+  // live cards carry the server's symbol name (cocoa_pod → "Cocoa pod"), so the label matches what the server checks
+  const name = card.symbolName
+    ? card.symbolName.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase())
+    : MEMORY_SYMBOL_NAMES[card.sym];
   const label = !revealed
     ? `Card, row ${row}, column ${col}, face down`
     : `${name}, row ${row}, column ${col}${
@@ -83,7 +87,7 @@ const MemoryMatchCard = forwardRef(function MemoryMatchCard(
             FRONT[tone]
           )}
         >
-          <Face className="size-1/2" />
+          {Face ? <Face className="size-1/2" /> : null}
         </span>
       </span>
     </button>

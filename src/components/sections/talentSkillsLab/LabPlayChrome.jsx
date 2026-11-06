@@ -44,67 +44,93 @@ const log = debug('LabPlayChrome');
  */
 
 /* ---------- top bar ---------- */
+/*
+ * The signed-in talent's "Ama G." / "AG" from the stored session profile (th:user-profile). Figma frames (`?f=`) and `?demo=1`
+ * keep the drawn "Kofi A." / "KA".
+ */
+const signedInName = () => {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('f') || p.get('demo') === '1') return null;
+    const u = JSON.parse(window.localStorage.getItem('th:user-profile') || 'null');
+    const first = (u?.firstName || '').trim();
+    const last = (u?.lastName || '').trim();
+    if (!first) return null;
+    return {
+      name: last ? `${first} ${last[0].toUpperCase()}.` : first,
+      initials: `${first[0]}${last[0] || ''}`.toUpperCase(),
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const LabTopBar = ({
-  userName = 'Kofi A.',
-  userInitials = 'KA',
+  userName: userNameProp,
+  userInitials: userInitialsProp,
   onSaveExit,
   onHelp,
   className,
-}) => (
-  <header
-    className={classNames(
-      'flex w-full items-center justify-between gap-[12px] border-b border-solid border-[#e7e7e7] bg-[#f8f8f4]',
-      'px-[clamp(16px,3.7vw,64px)] py-[clamp(6px,0.7vw,12px)] shadow-[0_1px_1px_rgba(27,36,44,0.12)]',
-      className
-    )}
-  >
-    <img
-      src={gthLogo}
-      alt="Ghana Talent Hub"
-      draggable="false"
-      className="block h-[40px] w-auto select-none md:h-[clamp(44px,3.82vw,66px)]"
-    />
-    <div className="flex items-center gap-[clamp(10px,1.4vw,24px)]">
-      <StyleSwitch />
-      {/* Figma keeps the (hidden) "Switch Modes" button's 162px slot between the style switch and Save & Exit. */}
-      <span aria-hidden="true" className="hidden w-[clamp(0px,9.4vw,162px)] lg:block" />
-      <button
-        type="button"
-        onClick={onSaveExit}
-        className={classNames(
-          'inline-flex min-h-[44px] items-center rounded font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-transparent underline decoration-[#2a5730] underline-offset-4 hover:opacity-80',
-          'bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] bg-clip-text',
-          FOCUS_RING
-        )}
-      >
-        Save &amp; Exit
-      </button>
-      <button
-        type="button"
-        onClick={onHelp}
-        aria-label="Help"
-        className={classNames(
-          'hidden size-[36px] items-center justify-center rounded-[18px] border border-solid border-[#e2e8f0] bg-[#f8fafc] hover:bg-white md:inline-flex',
-          FOCUS_RING
-        )}
-      >
-        <img src={navHelp} alt="" aria-hidden="true" draggable="false" className="size-[16px]" />
-      </button>
-      <div className="inline-flex items-center gap-[7px] rounded-[10px] border border-solid border-[#c1d4c4] bg-[#fffefc] px-[8px] py-[8px] md:px-[16px]">
-        <span
-          aria-hidden="true"
-          className="inline-flex size-[24px] shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] font-bold text-[10px] text-white max-lg:text-[12px]"
-          style={{ fontFamily: "'Instrument Sans Variable', 'Instrument Sans', sans-serif" }}
+}) => {
+  const me = userNameProp ? null : signedInName();
+  const userName = userNameProp ?? me?.name ?? 'Kofi A.';
+  const userInitials = userInitialsProp ?? me?.initials ?? 'KA';
+  return (
+    <header
+      className={classNames(
+        'flex w-full items-center justify-between gap-[12px] border-b border-solid border-[#e7e7e7] bg-[#f8f8f4]',
+        'px-[clamp(16px,3.7vw,64px)] py-[clamp(6px,0.7vw,12px)] shadow-[0_1px_1px_rgba(27,36,44,0.12)]',
+        className
+      )}
+    >
+      <img
+        src={gthLogo}
+        alt="Ghana Talent Hub"
+        draggable="false"
+        className="block h-[40px] w-auto select-none md:h-[clamp(44px,3.82vw,66px)]"
+      />
+      <div className="flex items-center gap-[clamp(10px,1.4vw,24px)]">
+        <StyleSwitch />
+        {/* Figma keeps the (hidden) "Switch Modes" button's 162px slot between the style switch and Save & Exit. */}
+        <span aria-hidden="true" className="hidden w-[clamp(0px,9.4vw,162px)] lg:block" />
+        <button
+          type="button"
+          onClick={onSaveExit}
+          className={classNames(
+            'inline-flex min-h-[44px] items-center rounded font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-transparent underline decoration-[#2a5730] underline-offset-4 hover:opacity-80',
+            'bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] bg-clip-text',
+            FOCUS_RING
+          )}
         >
-          {userInitials}
-        </span>
-        <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#1c2a21] max-md:sr-only">
-          {userName}
-        </span>
+          Save &amp; Exit
+        </button>
+        <button
+          type="button"
+          onClick={onHelp}
+          aria-label="Help"
+          className={classNames(
+            'hidden size-[36px] items-center justify-center rounded-[18px] border border-solid border-[#e2e8f0] bg-[#f8fafc] hover:bg-white md:inline-flex',
+            FOCUS_RING
+          )}
+        >
+          <img src={navHelp} alt="" aria-hidden="true" draggable="false" className="size-[16px]" />
+        </button>
+        <div className="inline-flex items-center gap-[7px] rounded-[10px] border border-solid border-[#c1d4c4] bg-[#fffefc] px-[8px] py-[8px] md:px-[16px]">
+          <span
+            aria-hidden="true"
+            className="inline-flex size-[24px] shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] font-bold text-[10px] text-white max-lg:text-[12px]"
+            style={{ fontFamily: "'Instrument Sans Variable', 'Instrument Sans', sans-serif" }}
+          >
+            {userInitials}
+          </span>
+          <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#1c2a21] max-md:sr-only">
+            {userName}
+          </span>
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 /* ---------- lab header ---------- */
 const PILL =

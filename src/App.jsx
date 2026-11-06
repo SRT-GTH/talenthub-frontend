@@ -184,6 +184,7 @@ const AssessmentFullPage = lazy(() => import('./pages/talentAssessment/Assessmen
 const SkillsLabHubPage = lazy(() => import('./pages/talentSkillsLab/SkillsLabHubPage.jsx'));
 const LabDetailPage = lazy(() => import('./pages/talentSkillsLab/LabDetailPage.jsx'));
 const LabPlayPage = lazy(() => import('./pages/talentSkillsLab/LabPlayPage.jsx'));
+const WeeklyPlayPage = lazy(() => import('./pages/talentSkillsLab/WeeklyPlayPage.jsx'));
 const GamePage = lazy(() => import('./pages/talentSkillsLab/GamePage.jsx'));
 const GameV2Page = lazy(() => import('./pages/talentSkillsLab/GameV2Page.jsx'));
 const TalentSearchPage = lazy(() => import('./pages/talentSearch/TalentSearchPage.jsx'));
@@ -1329,6 +1330,15 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <LabPlayPage />
+                    </Suspense>
+                  }
+                />
+                {/* Skills Lab weekly challenge run + result (SL-M4 "Start challenge"). */}
+                <Route
+                  path={'/skills-lab/weekly'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <WeeklyPlayPage />
                     </Suspense>
                   }
                 />

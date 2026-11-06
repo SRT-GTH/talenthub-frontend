@@ -28,7 +28,7 @@ const log = debug('CommunityBrowseParts');
  */
 
 /* The decoration sticker row of the "GTH · Messages header art" instance (Playful only, hidden in Focused and below xl). */
-const HeaderDecor = () => (
+const HeaderDecor = ({ xp }) => (
   <div
     className="relative hidden h-[69px] w-[600px] shrink-0 xl:playful:block"
     aria-hidden="true"
@@ -57,13 +57,15 @@ const HeaderDecor = () => (
         <img src={headSparkle} alt="" className="size-[15px]" />
         {COPY.header.ask}
       </span>
-      <span
-        className="absolute left-[431px] top-[42px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_6px_14px_rgba(31,69,38,0.16)]"
-        style={{ transform: 'rotate(-4deg)' }}
-      >
-        <img src={headFlame} alt="" className="size-[15px]" />
-        {COPY.header.xp}
-      </span>
+      {xp ? (
+        <span
+          className="absolute left-[431px] top-[42px] inline-flex items-center gap-[6px] whitespace-nowrap rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] font-semibold leading-[14px] tracking-[0.2px] text-[#c8951a] shadow-[0_6px_14px_rgba(31,69,38,0.16)]"
+          style={{ transform: 'rotate(-4deg)' }}
+        >
+          <img src={headFlame} alt="" className="size-[15px]" />
+          {COPY.header.xp}
+        </span>
+      ) : null}
       <img src={headDoodleGold} alt="" className="absolute left-[574px] top-0 size-[22px]" />
       <img src={headDoodleGreen} alt="" className="absolute left-[316px] top-[46px] size-[12px]" />
       <img
@@ -78,9 +80,10 @@ const HeaderDecor = () => (
 
 /*
  * BrowseHeader — "Find your people" + count sticker, subtitle, decoration art.
- * Props: total (number, the "10 communities" sticker).
+ * Props: total (number, the "10 communities" sticker), xp (default true: the drawn "+20 XP per helpful answer" sticker;
+ * live passes false, since posting / answering in community awards no XP in the ledger).
  */
-export const BrowseHeader = ({ total }) => (
+export const BrowseHeader = ({ total, xp = true }) => (
   <div className="flex items-start justify-between gap-[24px]">
     <div className="flex min-w-0 flex-col gap-[3px]">
       <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[6px]">
@@ -98,7 +101,7 @@ export const BrowseHeader = ({ total }) => (
         {COPY.subtitle}
       </p>
     </div>
-    <HeaderDecor />
+    <HeaderDecor xp={xp} />
   </div>
 );
 

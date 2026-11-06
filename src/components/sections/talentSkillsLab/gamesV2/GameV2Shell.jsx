@@ -3,6 +3,9 @@ import { debug } from '../../../../utils/debug.js';
 import { LabHeaderBar, LabProgressStrip, LabTopBar } from '../LabPlayChrome.jsx';
 import { useLabText } from '../labFormat.js';
 import { useGameV2Params } from './gamesV2State.js';
+import { isLiveGames } from './live/gameKeys.js';
+import { useLiveStreak } from '../../talentStreak/useLiveStreak.js';
+import { useLiveXp } from '../../talentXp/useLiveXp.js';
 import GameV2Footer from './GameV2Footer.jsx';
 import { GameV2OfflineBanner, GameV2QuitDialog, GameV2TimeUpCard } from './GameV2Dialogs.jsx';
 
@@ -30,7 +33,8 @@ const log = debug('GameV2Shell');
  *   onSeeResult        called by the Time's up card ("See my result")
  *   overlay            extra overlay nodes (game dialogs)
  *   contentClassName   extra classes for the column
- * Header quirks (kept as drawn): XP "240 XP" / "240 pts" and "7-day streak" are mock values (⚠️ ASSUMPTION: static).
+ * Header XP and streak: live = the talent's XP total (GET /xp, the XP ledger) and current streak (GET /streak); the Figma frames
+ * (`?f=`) and `?demo=1` keep the drawn "240 XP" / "7-day streak".
  * Leaving: × and Save & Exit ask first in a ranked game (GV-06); practice leaves straight away (⚠️ ASSUMPTION, only GV-06 is drawn).
  */
 const RANKED_NOTE = 'Your game saves as you play. You can resume within 24 hours.';
@@ -52,6 +56,11 @@ const GameV2Shell = ({
   const { t } = useLabText();
   const g = useGameV2Params();
   const { ranked, modal } = g;
+  const live = isLiveGames();
+  const xp = useLiveXp({ enabled: live });
+  const streak = useLiveStreak({ enabled: live });
+  const xpTotal = live ? (xp.data?.total ?? null) : 240;
+  const streakDays = live ? (streak.data?.summary?.current ?? null) : 7;
 
   useEffect(() => {
     log('mount', { game: g.gameId, mode: g.mode, level: g.level, frame: g.frame, modal });
@@ -81,8 +90,8 @@ const GameV2Shell = ({
         title={`Skills Lab · ${name}`}
         subtitle={subtitle}
         sticker={sticker}
-        xp={t('240 {xp}')}
-        streak="7-day streak"
+        xp={xpTotal === null ? undefined : t(`${xpTotal.toLocaleString('en-GB')} {xp}`)}
+        streak={streakDays ? `${streakDays}-day streak` : undefined}
         onExit={leave}
       />
       {progress ? <LabProgressStrip {...progress} /> : null}

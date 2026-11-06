@@ -32,6 +32,10 @@ import {
   SKILLS_LAB_WEEKLY,
 } from './skillsLabData.js';
 import { FOCUS_RING, fill, suggestionDraft, unitFor } from './skillsLabDialogUtils.js';
+import { useHubData } from './skillsLabHubData.js';
+import { saveWeeklyOptIn } from '../../../services/skillsLabWeekly.api.js';
+import { WeeklyBoard, WeeklyOptIn } from './weekly/WeeklyBoard.jsx';
+import { weeklyDialogCopy } from './weekly/weeklyFormat.js';
 
 const log = debug('SkillsLabDialogs');
 
@@ -323,19 +327,55 @@ const SuggestDialog = ({ onClose, skills }) => {
 };
 
 /* ---- SL-M4 · Weekly challenge (Playful 7854:13342 / Focused 8110:490918) ---- */
+/*
+ * Live (hub data from the API): this week's challenge from GET /skills-lab/weekly (copy, board, playing count), an opt-in
+ * switch (adults only) and "Start challenge" → /skills-lab/weekly (WeeklyPlayPage), which starts or resumes the one
+ * attempt of the week. Demo / Figma frames (`?demo=1`): the drawn SKILLS_LAB_WEEKLY copy, as before.
+ */
 const WeeklyDialog = ({ onClose }) => {
+  const hub = useHubData();
+  const live = hub.live ? hub.weekly : null;
+  // Live with no challenge this week (or still loading): never show the drawn mock board with made-up names.
+  if (hub.live && !live?.available) return null;
+  return <WeeklyDialogBody key={live?.id ?? 'mock'} onClose={onClose} hub={hub} live={live} />;
+};
+
+const WeeklyDialogBody = ({ onClose, hub, live }) => {
   const titleId = useId();
-  const copy = SKILLS_LAB_WEEKLY;
+  const copy = live?.available ? weeklyDialogCopy(live) : SKILLS_LAB_WEEKLY;
   const { uiStyle } = useUiStyle();
   const navigate = useNavigate();
   const unit = unitFor(uiStyle);
+  const mine = live?.myAttempt ?? null;
+  const [optIn, setOptIn] = useState(Boolean(live?.optedIn));
+  const [optError, setOptError] = useState(null);
 
-  // ⚠️ ASSUMPTION: the Figma frame has no destination; the Excel speed run opens the Excel game.
-  const start = () => {
-    log('start weekly challenge', copy.id);
-    onClose();
-    navigate('/skills-lab/games/formula-rush');
+  // Before the first play the choice travels with "Start challenge"; afterwards it is saved straight away.
+  const changeOptIn = async (on) => {
+    setOptIn(on);
+    setOptError(null);
+    if (!mine) return;
+    try {
+      const next = await saveWeeklyOptIn(on);
+      hub.setWeekly(next);
+      setOptIn(Boolean(next?.optedIn));
+    } catch (err) {
+      log('opt-in failed', err?.response?.status || err?.message);
+      setOptIn(!on);
+      setOptError('Could not save that. Try again.');
+    }
   };
+
+  // ⚠️ ASSUMPTION (demo only): the Figma frame has no destination; the drawn Excel speed run opens the Excel game.
+  const start = () => {
+    log('start weekly challenge', copy.id, { live: Boolean(live), optIn });
+    onClose();
+    if (!live) navigate('/skills-lab/games/formula-rush');
+    else navigate(!mine && optIn ? '/skills-lab/weekly?optIn=1' : '/skills-lab/weekly');
+  };
+  let startLabel = copy.start;
+  if (mine?.status === 'in_progress') startLabel = 'Resume challenge';
+  else if (mine?.status === 'finished') startLabel = 'See your result';
 
   return (
     <DialogShell width={560} onClose={onClose} labelId={titleId}>
@@ -352,41 +392,14 @@ const WeeklyDialog = ({ onClose }) => {
         ))}
       </div>
       <p className="m-0 font-sans text-[15px] leading-[22px] text-[#1c2a21]">{copy.body}</p>
-      <div className="flex flex-col gap-[6px] rounded-[16px] bg-[#f8f8f4] p-[16px]">
-        <div className="flex items-center justify-between gap-[8px]">
-          <span className="font-sans text-[14px] font-semibold leading-[17px] text-[#1c2a21]">
-            {copy.board.title}
-          </span>
-          <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
-            {copy.board.playing}
-          </span>
-        </div>
-        {copy.board.rows.map((row) => (
-          <div
-            key={row.name}
-            className={classNames(
-              'flex items-center gap-[12px] rounded-[10px] px-[10px] py-[8px]',
-              row.you && 'bg-[#ffd86b]'
-            )}
-          >
-            <span className="w-[24px] shrink-0 font-sans text-[14px] font-bold leading-[17px] text-[#1c2a21]">
-              {row.rank}
-            </span>
-            <span
-              className={classNames(
-                'min-w-0 flex-1 font-sans text-[14px] leading-[17px] text-[#1c2a21]',
-                row.you ? 'font-bold' : 'font-medium'
-              )}
-            >
-              {row.name}
-            </span>
-            <span className="shrink-0 font-sans text-[13px] font-medium leading-[16px] text-[#1c2a21]">
-              {row.score}
-            </span>
-          </div>
-        ))}
-      </div>
+      <WeeklyBoard board={copy.board} />
       <p className="m-0 font-sans text-[12.5px] leading-[18px] text-[#595959]">{copy.privacy}</p>
+      {live?.available && live.canOptIn ? <WeeklyOptIn on={optIn} onChange={changeOptIn} /> : null}
+      {optError ? (
+        <p role="alert" className="m-0 font-sans text-[13px] leading-[18px] text-[#8a1c1c]">
+          {optError}
+        </p>
+      ) : null}
       <ButtonRow a={244} b={244}>
         <SecondaryButton onClick={onClose}>{copy.later}</SecondaryButton>
         <PrimaryButton
@@ -394,7 +407,7 @@ const WeeklyDialog = ({ onClose }) => {
           onClick={start}
           rightIcon={<SkillsLabArrowGlyph className="size-[20px]" />}
         >
-          {copy.start}
+          {startLabel}
         </PrimaryButton>
       </ButtonRow>
     </DialogShell>

@@ -2,6 +2,10 @@ import { useEffect } from 'react';
 import { debug } from '../../../../../utils/debug.js';
 import { useGameV2Params } from '../gamesV2State.js';
 import GameV2Shell from '../GameV2Shell.jsx';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
+import { isLivePage, liveResultProgress, readLiveResult } from '../numbersWords/liveResultStrip.js';
 import SwitchSortBasket from '../switchSort/SwitchSortBasket.jsx';
 import SwitchSortCard from '../switchSort/SwitchSortCard.jsx';
 import SwitchSortHead from '../switchSort/SwitchSortHead.jsx';
@@ -16,6 +20,7 @@ import {
 } from '../switchSort/switchSortData.js';
 import { useDotWindowSize, windowDots } from '../switchSort/useDotWindow.js';
 import { useSwitchSortGame } from '../switchSort/useSwitchSortGame.js';
+import { useSwitchSortLive } from '../switchSort/useSwitchSortLive.js';
 
 const log = debug('SwitchSort');
 
@@ -23,30 +28,24 @@ const log = debug('SwitchSort');
  * Switch Sort — `/skills-lab/play/switch-sort` (Figma "Games v2 · Switch Sort": SS-01 … SS-04, Playful + Focused).
  * Cards arrive one at a time; sort each into the left (Red · Circle) or right (Blue · Square) basket with a tap or ← / →. The rule —
  * sort by colour or by shape — flips without warning; a sign says which (hidden at Expert, where the tick / cross is the only clue).
- * `?f=SS-01…04` boots the exact frame, frozen (no timers, no input).
+ * Live (default): the server engine (rule_switch) deals the cards, judges each sort and scores the run — see
+ * switchSort/useSwitchSortLive.js. `?f=SS-01…04` boots the exact frame, frozen (no timers, no input); `?demo=1` plays the mock.
  */
 const MEASURES = ['Cognitive flexibility', 'Attention to detail', 'Processing speed'];
 const fixed1 = (ms) => (ms / 1000).toFixed(1);
 
-export const SwitchSort = ({ frame }) => {
+const SwitchSortBoard = ({ game }) => {
   const g = useGameV2Params();
-  const game = useSwitchSortGame({
-    level: g.level,
-    frame,
-    paused: Boolean(g.modal),
-    onDone: g.finish,
-  });
-  const { cfg, deck, answers, phase, feedback, shown, frozen, pick } = game;
-  const seed = SS_SEEDS[frame] ?? null;
-  const expert = !cfg.sign;
-  const total = deck.length;
+  const { perCardMs, answers, phase, feedback, shown, frozen, pick, total } = game;
+  const expert = !game.sign;
   const dotSize = useDotWindowSize();
   const answered = answers.length;
   const right = answers.filter((a) => a.correct).length;
+  const overrides = game.overrides ?? null;
 
   useEffect(() => {
-    log('mount', { level: game.level, total, perCardMs: cfg.perCardMs, frame, frozen });
-  }, [game.level, total, cfg.perCardMs, frame, frozen]);
+    log('mount', { level: game.level, total, perCardMs, frozen });
+  }, [game.level, total, perCardMs, frozen]);
 
   useEffect(() => {
     if (frozen || g.modal) return undefined;
@@ -71,8 +70,7 @@ export const SwitchSort = ({ frame }) => {
       : SS_COPY.sub;
   log('render', { phase, answered, rule: shown.rule, switched: shown.switched, signMode });
 
-  const avgMs = answered ? answers.reduce((s, a) => s + a.ms, 0) / answered : 0;
-  const summary = seed?.summary ?? `${right} right · avg ${fixed1(avgMs)} s`;
+  const summary = game.summary ?? `${right} right · avg ${fixed1(game.avgMs)} s`;
   const progress = {
     countLabel: `Card ${Math.min(answered + 1, total)} of ${total}`,
     summary,
@@ -94,7 +92,7 @@ export const SwitchSort = ({ frame }) => {
             dotSize
           )
         : [],
-    passMark: SS_COPY.best,
+    passMark: game.bestSoFar ?? undefined,
   };
 
   const basketState = (side) => {
@@ -103,23 +101,20 @@ export const SwitchSort = ({ frame }) => {
   };
   const barRatio =
     phase === 'card'
-      ? game.remainingMs / cfg.perCardMs
+      ? game.remainingMs / perCardMs
       : feedback?.correct
-        ? feedback.remainingAtPick / cfg.perCardMs
-        : game.holdMs / cfg.perCardMs;
-  const caption =
-    seed?.overrides?.caption ??
-    (phase === 'card'
-      ? `${fixed1(game.remainingMs)} s for this card`
-      : feedback?.correct
-        ? `Sorted in ${fixed1(feedback.tookMs)} s`
-        : `Next card in ${fixed1(game.holdMs)} s`);
+        ? feedback.remainingAtPick / perCardMs
+        : game.holdMs / perCardMs;
+  let caption;
+  if (overrides?.caption) caption = overrides.caption;
+  else if (phase === 'card') caption = `${fixed1(game.remainingMs)} s for this card`;
+  else if (feedback?.correct) caption = `Sorted in ${fixed1(feedback.tookMs)} s`;
+  else if (game.live && feedback && feedback.side === null)
+    caption = 'Too slow · this one counts as missed';
+  else caption = `Next card in ${fixed1(game.holdMs)} s`;
   const timeLeft =
-    seed?.overrides?.statLeft ??
-    `${fixed1(phase === 'card' ? game.remainingMs : cfg.perCardMs)} s left`;
-  const tally = seed?.overrides?.statRight ?? `${right} of ${answered} right`;
-
-  const finishNow = () => g.finish(scoreRun({ answers, total, perCardMs: cfg.perCardMs }));
+    overrides?.statLeft ?? `${fixed1(phase === 'card' ? game.remainingMs : perCardMs)} s left`;
+  const tally = overrides?.statRight ?? `${right} of ${answered} right`;
 
   return (
     <GameV2Shell
@@ -128,10 +123,10 @@ export const SwitchSort = ({ frame }) => {
       progress={progress}
       footer={{ note: SS_COPY.footerNote }}
       timeUp={{ summary: `You sorted ${right} of ${answered} cards correctly.` }}
-      onSeeResult={finishNow}
+      onSeeResult={game.finishNow}
     >
       <SwitchSortHead
-        eyebrow={`${game.level.toUpperCase()} · ${ssPerCardLabel(cfg.perCardMs)} S PER CARD`}
+        eyebrow={`${(game.level ?? '').toUpperCase()} · ${ssPerCardLabel(perCardMs)} S PER CARD`}
         headline={expert ? SS_COPY.headlineExpert : SS_COPY.headline}
         sentence={sentence}
         timeLeft={timeLeft}
@@ -167,22 +162,82 @@ export const SwitchSort = ({ frame }) => {
   );
 };
 
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local mock run */
+const MockSwitchSort = ({ frame }) => {
+  const g = useGameV2Params();
+  const game = useSwitchSortGame({
+    level: g.level,
+    frame,
+    paused: Boolean(g.modal),
+    onDone: g.finish,
+  });
+  const seed = SS_SEEDS[frame] ?? null;
+  const { cfg, deck, answers } = game;
+  const answered = answers.length;
+  const view = {
+    ...game,
+    perCardMs: cfg.perCardMs,
+    sign: cfg.sign,
+    total: deck.length,
+    avgMs: answered ? answers.reduce((s, a) => s + a.ms, 0) / answered : 0,
+    overrides: seed?.overrides ?? null,
+    summary: seed?.summary ?? null,
+    bestSoFar: SS_COPY.best,
+    finishNow: () => g.finish(scoreRun({ answers, total: deck.length, perCardMs: cfg.perCardMs })),
+  };
+  return <SwitchSortBoard game={view} />;
+};
+
+/* live: the server engine (/api/games, rule_switch) deals the cards and scores the run */
+const LiveSwitchSort = () => {
+  const run = useGameRun();
+  const game = useSwitchSortLive(run);
+  if ((run.status !== 'ready' && run.status !== 'finished') || !game) {
+    return <GameV2LiveGate run={run} name="Switch Sort" subtitleLead="Adaptability" />;
+  }
+  return <SwitchSortBoard game={game} />;
+};
+
+export const SwitchSort = ({ frame }) => {
+  const g = useGameV2Params();
+  /* a new run (level / mode / frame changed) starts from scratch */
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? <LiveSwitchSort key={key} /> : <MockSwitchSort key={key} frame={frame} />;
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const GAMES_V2 = { 'switch-sort': SwitchSort };
+
+const mockResultProgress = {
+  countLabel: `Card ${SS_LEVELS.intermediate.total} of ${SS_LEVELS.intermediate.total}`,
+  summary: '10 right · avg 1.4 s',
+  dots: Array.from({ length: SS_LEVELS.intermediate.total }, (_, i) => ({
+    state: 'ok',
+    label: String(i + 1),
+  })),
+  passMark: SS_COPY.best,
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const GAMES_V2_META = {
   'switch-sort': {
     name: 'Switch Sort',
-    subtitleLead: `Adaptability · ${SS_LEVELS.intermediate.total} cards`,
-    resultProgress: {
-      countLabel: `Card ${SS_LEVELS.intermediate.total} of ${SS_LEVELS.intermediate.total}`,
-      summary: '10 right · avg 1.4 s',
-      dots: Array.from({ length: SS_LEVELS.intermediate.total }, (_, i) => ({
-        state: 'ok',
-        label: String(i + 1),
-      })),
-      passMark: SS_COPY.best,
+    /* getters: GameV2Page reads them on every render, so a live result header follows the server's card, never the mock numbers */
+    get subtitleLead() {
+      const stored = readLiveResult('switch-sort');
+      if (stored?.total) return `Adaptability · ${stored.total} cards`;
+      return isLivePage() ? 'Adaptability' : `Adaptability · ${SS_LEVELS.intermediate.total} cards`;
+    },
+    get resultProgress() {
+      const stored = readLiveResult('switch-sort');
+      if (stored) {
+        const total = stored.total || 0;
+        return liveResultProgress(stored, {
+          countLabel: `Card ${total} of ${total}`,
+          summary: `${stored.correct ?? 0} of ${total} right`,
+        });
+      }
+      return isLivePage() ? null : mockResultProgress;
     },
   },
 };

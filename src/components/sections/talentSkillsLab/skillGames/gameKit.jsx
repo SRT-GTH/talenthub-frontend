@@ -12,6 +12,8 @@ import { useLabText } from '../labFormat.js';
 import { FOCUS_RING } from '../labPlayStyles.js';
 import { GameBulbIcon, GameCheckLargeIcon, GameCloseXlIcon } from './GameIcons.jsx';
 import { EYEBROW, HAIR, ensureGameFonts } from './gameKitUtils.js';
+import { useLiveStreak } from '../../talentStreak/useLiveStreak.js';
+import { useLiveXp } from '../../talentXp/useLiveXp.js';
 
 const log = debug('gameKit');
 
@@ -172,6 +174,12 @@ export const GameFrame = (props) => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { t } = useLabText();
+  // Header XP / streak: live = the talent's XP total (XP ledger) and current streak; Figma frames (`?f=`) and `?demo=1` keep the drawn numbers.
+  const live = !params.get('f') && params.get('demo') !== '1';
+  const liveXp = useLiveXp({ enabled: live });
+  const liveStreak = useLiveStreak({ enabled: live });
+  const headerXp = live ? (liveXp.data?.total ?? null) : xp;
+  const headerStreak = live ? (liveStreak.data?.summary?.current ?? null) : streakDays;
   log('render', { game: game.label, hasResult: Boolean(result) });
   useReportGameResult(result, { kind: 'skill' });
   const modal = params.get('modal');
@@ -248,8 +256,10 @@ export const GameFrame = (props) => {
         title={game.title}
         subtitle={game.subtitle}
         sticker={game.sticker}
-        xp={`${xp} ${t('{xp}')}`}
-        streak={`${streakDays}-day streak`}
+        xp={
+          headerXp === null ? undefined : `${Number(headerXp).toLocaleString('en-GB')} ${t('{xp}')}`
+        }
+        streak={headerStreak ? `${headerStreak}-day streak` : undefined}
         onExit={() => setModal('leave')}
         onSaveExit={() => navigate(arcadePath)}
         onHelp={() => {

@@ -13,9 +13,9 @@ const log = debug('errandRunEngine');
    the nearest-first route, and a deterministic map generator. */
 export const blocksBetween = (a, b) => Math.abs(a.col - b.col) + Math.abs(a.row - b.row);
 
-/** Legs of a route (stop objects in visiting order) starting at Home: [{ stop, cost }]. */
-export const routeLegs = (stopsInOrder) => {
-  let at = ERRAND_HOME;
+/** Legs of a route (stop objects in visiting order) starting at Home: [{ stop, cost }]. `home` defaults to the drawn (0,0). */
+export const routeLegs = (stopsInOrder, home = ERRAND_HOME) => {
+  let at = home;
   return stopsInOrder.map((stop) => {
     const cost = blocksBetween(at, stop);
     at = stop;
@@ -59,9 +59,9 @@ export const nearestFirstRoute = (stops) => {
 };
 
 /** Polyline of street crossings for a route: Home → each stop, up/down the street first, then across. */
-export const routePoints = (stopsInOrder) => {
-  const pts = [{ col: 0, row: 0 }];
-  let at = ERRAND_HOME;
+export const routePoints = (stopsInOrder, home = ERRAND_HOME) => {
+  const pts = [{ col: home.col, row: home.row }];
+  let at = home;
   stopsInOrder.forEach((s) => {
     if (s.row !== at.row) pts.push({ col: at.col, row: s.row });
     if (s.col !== at.col) pts.push({ col: s.col, row: s.row });

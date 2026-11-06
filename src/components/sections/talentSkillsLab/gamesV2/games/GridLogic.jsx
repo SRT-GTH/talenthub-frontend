@@ -1,13 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { debug } from '../../../../../utils/debug.js';
-import GameV2Shell from '../GameV2Shell.jsx';
 import { useGameClock } from '../useGameClock.js';
 import { useGameV2Params } from '../gamesV2State.js';
-import GridBoard from '../gridLogic/GridBoard.jsx';
-import GridFeedback from '../gridLogic/GridFeedback.jsx';
-import GridHead from '../gridLogic/GridHead.jsx';
-import GridPad from '../gridLogic/GridPad.jsx';
-import GridPlayArea from '../gridLogic/GridPlayArea.jsx';
+import GridGameBoard from '../gridLogic/GridGameBoard.jsx';
 import {
   GRID_LOGIC_BEST,
   GRID_LOGIC_COPY,
@@ -29,14 +24,22 @@ import {
   scoreRun,
 } from '../gridLogic/gridRules.js';
 import { useGridEntry } from '../gridLogic/useGridEntry.js';
+import { describeSudokuCell, useGridLogicLive } from '../gridLogic/useGridLogicLive.js';
+import GameV2LiveGate from '../live/GameV2LiveGate.jsx';
+import { isLiveGames } from '../live/gameKeys.js';
+import { useGameRun } from '../live/useGameRun.js';
+import { isMockGamesUrl, liveBestMark, readLiveResult } from '../planningShared/liveResultMeta.js';
 
 const log = debug('GridLogic');
 
 /*
- * Grid Logic — Sudoku (Figma "Games v2 · 8" GL-01 … GL-04). Levels: Beginner 4×4 (⚠️), Intermediate 6×6 (drawn, boxes 2×3),
- * Advanced 6×6 harder (⚠️), Expert 9×9 (drawn). Real play: select a square (tap / arrows), number pad or keys 1…N, Notes mode
- * (pencil marks), Erase, live clash highlighting (row → column → box), puzzle squares are locked ("not allowed"), Submit grid
- * validates, Done for now leaves (progress is "saved as you go" — a mock, nothing persists).
+ * Grid Logic — Sudoku (Figma "Games v2 · 8" GL-01 … GL-04).
+ *   Live (default): the server sudoku engine (/api/games, gridLogic/useGridLogicLive.js) — board size by level from the view
+ *   (Beginner 4×4 · Intermediate 6×6 · Advanced / Expert 9×9), server clashes, server clock, server score.
+ *   Mock (`?f=GL-01…04`, `?demo=1`): the local puzzle below. Levels: Beginner 4×4 (⚠️), Intermediate 6×6 (drawn, boxes 2×3),
+ *   Advanced 6×6 harder (⚠️), Expert 9×9 (drawn). Real play: select a square (tap / arrows), number pad or keys 1…N, Notes mode
+ *   (pencil marks), Erase, live clash highlighting (row → column → box), puzzle squares are locked ("not allowed"), Submit grid
+ *   validates, Done for now leaves (progress is "saved as you go" — a mock, nothing persists).
  *   ?f=GL-01…04 boots the exact frame state with the clock frozen (data in gridLogicData.js, frame quirks listed there).
  */
 const PAD_LAYOUTS = {
@@ -44,25 +47,15 @@ const PAD_LAYOUTS = {
   6: { cols: 3, keyW: 76, keyH: 64, padW: 300, mobileKeyH: 56, boardPx: 428 },
   9: { cols: 3, keyW: 64, keyH: 64, padW: 280, mobileKeyH: 52, boardPx: 431 },
 };
+const padFor = (size) => PAD_LAYOUTS[size] ?? PAD_LAYOUTS[9];
 
-const describeCell = (size) => (i, cell) => {
-  const row = Math.floor(i / size) + 1;
-  const col = (i % size) + 1;
-  const what = cell.value
-    ? `${cell.given ? 'puzzle number ' : ''}${cell.value}`
-    : cell.notes
-      ? 'empty, with pencil marks'
-      : 'empty';
-  return `Row ${row}, column ${col}, ${what}${cell.bad ? ', clashes' : ''}`;
-};
-
-const GridLogicRun = ({ level, frame }) => {
+/* the drawn Figma frames (`?f=`) and `?demo=1`: the local puzzle and mock scoring */
+const useGridLogicMock = ({ level, frame }) => {
   const g = useGameV2Params();
   const seed = frame ? (GRID_LOGIC_FRAMES[frame] ?? null) : null;
-  const cfg = GRID_LOGIC_LEVELS[seed?.level ?? level];
+  const cfg = GRID_LOGIC_LEVELS[seed?.level ?? level] ?? GRID_LOGIC_LEVELS.intermediate;
   const { size } = cfg;
   const shape = useMemo(() => boxShape(size), [size]);
-  const pad = PAD_LAYOUTS[size];
 
   // the puzzle: drawn givens (+ the bonus givens of a fresh run, see gridLogicData.js)
   const { locked, startValues } = useMemo(() => {
@@ -245,67 +238,71 @@ const GridLogicRun = ({ level, frame }) => {
     g.finish(buildResult(false));
   };
 
-  const progress = {
-    countLabel: shown?.filled ?? `${filled} of ${size * size} filled`,
-    summary: shown?.strip ?? `${clock.label} so far`,
-    dots: [],
-    passMark: `Best so far: ${GRID_LOGIC_BEST}`,
+  return {
+    name: 'Grid Logic',
+    subtitleLead: cfg.subtitleLead,
+    progress: {
+      countLabel: shown?.filled ?? `${filled} of ${size * size} filled`,
+      summary: shown?.strip ?? `${clock.label} so far`,
+      dots: [],
+      passMark: `Best so far: ${GRID_LOGIC_BEST}`,
+    },
+    footer: {
+      note: '',
+      link: { label: 'Done for now', onClick: g.exit },
+      action: { label: 'Submit grid', onClick: onSubmit },
+    },
+    timeUp: { summary: `You filled ${filled} of ${size * size} squares.` },
+    onSeeResult: () => g.finish(buildResult(true)),
+    head: {
+      eyebrow: cfg.eyebrow,
+      title: GRID_LOGIC_COPY.title,
+      intro: notesOn ? GRID_LOGIC_COPY.notesIntro : cfg.intro,
+      clockLabel: `${clock.label} so far`,
+      measures: GRID_LOGIC_COPY.measures,
+    },
+    size,
+    cells,
+    lines,
+    focusIndex: selected ?? Math.max(0, values.indexOf(0)),
+    onSelect,
+    onKeyDown,
+    ariaLabel: `${size} by ${size} grid`,
+    describe: describeSudokuCell(size),
+    feedback,
+    pad: {
+      layout: padFor(size),
+      notesOn,
+      onDigit,
+      onErase,
+      onToggleNotes,
+      hint: notesOn ? GRID_LOGIC_COPY.notesHint : cfg.hint,
+    },
   };
+};
 
-  return (
-    <GameV2Shell
-      name="Grid Logic"
-      subtitleLead={cfg.subtitleLead}
-      progress={progress}
-      footer={{
-        note: '',
-        link: { label: 'Done for now', onClick: g.exit },
-        action: { label: 'Submit grid', onClick: onSubmit },
-      }}
-      timeUp={{ summary: `You filled ${filled} of ${size * size} squares.` }}
-      onSeeResult={() => g.finish(buildResult(true))}
-    >
-      <GridHead
-        eyebrow={cfg.eyebrow}
-        title={GRID_LOGIC_COPY.title}
-        intro={notesOn ? GRID_LOGIC_COPY.notesIntro : cfg.intro}
-        clockLabel={`${clock.label} so far`}
-        measures={GRID_LOGIC_COPY.measures}
-      />
-      <GridPlayArea
-        boardPx={pad.boardPx}
-        onKeyDown={onKeyDown}
-        board={
-          <GridBoard
-            size={size}
-            cells={cells}
-            lines={lines}
-            focusIndex={selected ?? Math.max(0, values.indexOf(0))}
-            onSelect={onSelect}
-            ariaLabel={`${size} by ${size} grid`}
-            describe={describeCell(size)}
-          />
-        }
-        feedback={<GridFeedback feedback={feedback} />}
-        pad={
-          <GridPad
-            size={size}
-            layout={pad}
-            notesOn={notesOn}
-            onDigit={onDigit}
-            onErase={onErase}
-            onToggleNotes={onToggleNotes}
-            hint={notesOn ? GRID_LOGIC_COPY.notesHint : cfg.hint}
-          />
-        }
-      />
-    </GameV2Shell>
-  );
+const MockGridLogic = ({ level, frame }) => (
+  <GridGameBoard m={useGridLogicMock({ level, frame })} />
+);
+
+/* live: the server engine holds the solution, judges clashes and scores the run */
+const LiveGridLogic = () => {
+  const run = useGameRun();
+  const m = useGridLogicLive(run);
+  if (run.status !== 'ready' && run.status !== 'finished') {
+    return <GameV2LiveGate run={run} name="Grid Logic" subtitleLead="Logical reasoning" />;
+  }
+  return <GridGameBoard m={{ ...m, pad: { ...m.pad, layout: padFor(m.size) } }} />;
 };
 
 const GridLogic = ({ frame }) => {
   const g = useGameV2Params();
-  return <GridLogicRun key={`${g.level}-${frame ?? 'live'}`} level={g.level} frame={frame} />;
+  const key = `${g.level}-${g.mode}-${frame ?? ''}`;
+  return isLiveGames() ? (
+    <LiveGridLogic key={key} />
+  ) : (
+    <MockGridLogic key={key} level={g.level} frame={frame} />
+  );
 };
 
 export default GridLogic;
@@ -317,13 +314,31 @@ export const GAMES_V2 = { 'grid-logic': GridLogic };
 export const GAMES_V2_META = {
   'grid-logic': {
     name: 'Grid Logic',
-    subtitleLead: 'Logical reasoning · 6×6 puzzle',
-    // ⚠️ ASSUMPTION: the result frame's progress strip (no dots in this game)
-    resultProgress: {
-      countLabel: 'Grid complete',
-      summary: 'Every row, column and box once',
-      dots: [],
-      passMark: `Best so far: ${GRID_LOGIC_BEST}`,
+    // live results do not store the board size, so the live header names the skill only
+    get subtitleLead() {
+      return isMockGamesUrl() ? 'Logical reasoning · 6×6 puzzle' : 'Logical reasoning';
+    },
+    /* a getter: the live strip follows the run just finished (the server's correct / total = squares right of the empty ones) */
+    get resultProgress() {
+      const stored = readLiveResult('grid-logic');
+      if (stored) {
+        return {
+          countLabel: stored.completed
+            ? 'Grid complete'
+            : `${stored.correct ?? 0} of ${stored.total ?? 0} squares right`,
+          summary: stored.summary ?? '',
+          dots: [],
+          passMark: liveBestMark(stored),
+        };
+      }
+      if (!isMockGamesUrl()) return null;
+      // ⚠️ ASSUMPTION: the result frame's progress strip (no dots in this game)
+      return {
+        countLabel: 'Grid complete',
+        summary: 'Every row, column and box once',
+        dots: [],
+        passMark: `Best so far: ${GRID_LOGIC_BEST}`,
+      };
     },
   },
 };

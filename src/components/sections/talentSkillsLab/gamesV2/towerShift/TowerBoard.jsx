@@ -45,7 +45,7 @@ const Disc = ({ disc, discs, x, bottom, state }) => {
         height: 'var(--dh)',
         left: `calc(${ux(x)} - ${discPx(disc, discs)} / 2)`,
         bottom,
-        background: TOWER_DISC_COLORS[disc - 1],
+        background: TOWER_DISC_COLORS[disc - 1] ?? '#6b6b6b',
       }}
     >
       <span className="flex h-full w-[24px] gap-[3px]">

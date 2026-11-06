@@ -24,7 +24,10 @@ import {
   COMMUNITY_CATEGORIES,
 } from '../../../components/sections/talentCommunity/communityData.js';
 import { useCommunityMembership } from '../../../components/sections/talentCommunity/communityMembership.js';
-import { BROWSE_PICKED, useLiveBrowse } from '../../../components/sections/talentCommunity/useLiveCommunity.js';
+import {
+  BROWSE_PICKED,
+  useLiveBrowse,
+} from '../../../components/sections/talentCommunity/useLiveCommunity.js';
 import { basedOnNote } from '../../../components/sections/talentCommunity/liveCommunity.js';
 import { HEADING } from '../../../components/sections/talentCommunity/communityStyles.js';
 import { LiveError } from './LiveStates.jsx';
@@ -118,7 +121,12 @@ const CommunityBrowseLive = ({ community }) => {
 
   const showMore =
     browse.nextOffset != null ? (
-      <ShowMore loading={browse.loadingMore} shown={cards.length} total={browse.total} onClick={browse.loadMore} />
+      <ShowMore
+        loading={browse.loadingMore}
+        shown={cards.length}
+        total={browse.total}
+        onClick={browse.loadMore}
+      />
     ) : null;
 
   const clearFilters = () => {
@@ -129,11 +137,20 @@ const CommunityBrowseLive = ({ community }) => {
 
   let body;
   if (browse.status === 'error') {
-    body = <LiveError message="Couldn’t load communities. Check your connection and try again." onRetry={browse.reload} />;
+    body = (
+      <LiveError
+        message="Couldn’t load communities. Check your connection and try again."
+        onRetry={browse.reload}
+      />
+    );
   } else if (loading) {
     body = (
       <>
-        <BrowseSectionHead icon={CommunityTargetIcon} title={COPY.pickedTitle} note={COPY.loadingNote} />
+        <BrowseSectionHead
+          icon={CommunityTargetIcon}
+          title={COPY.pickedTitle}
+          note={COPY.loadingNote}
+        />
         <BrowseGrid gap="wide" aria-busy="true" aria-label="Loading communities">
           {Array.from({ length: BROWSE_PICKED }, (_, i) => (
             <CommunityCardSkeleton key={i} />
@@ -156,7 +173,9 @@ const CommunityBrowseLive = ({ community }) => {
           }}
           onClear={clearFilters}
         />
-        <h2 className={`${HEADING} text-[21px] leading-[26px] max-lg:text-[20px]`}>{COPY.closest}</h2>
+        <h2 className={`${HEADING} text-[21px] leading-[26px] max-lg:text-[20px]`}>
+          {COPY.closest}
+        </h2>
         <BrowseGrid gap="tight">{closest.map((c) => renderCard(c))}</BrowseGrid>
       </>
     );
@@ -176,7 +195,11 @@ const CommunityBrowseLive = ({ community }) => {
   } else if (view === 'all') {
     body = (
       <>
-        <BrowseSectionHead icon={CommunityUsersIcon} title={COPY.yourCommunities} sticker={`${mine.length} joined`} />
+        <BrowseSectionHead
+          icon={CommunityUsersIcon}
+          title={COPY.yourCommunities}
+          sticker={`${mine.length} joined`}
+        />
         <BrowseGrid>
           {mine.map((c) => renderCard(c))}
           <RequestTile requested={tileRequested} onRequest={() => setTileRequested(true)} />
@@ -192,7 +215,11 @@ const CommunityBrowseLive = ({ community }) => {
       <>
         {mine.length ? (
           <>
-            <BrowseSectionHead icon={CommunityUsersIcon} title={COPY.yourCommunities} sticker={`${mine.length} joined`} />
+            <BrowseSectionHead
+              icon={CommunityUsersIcon}
+              title={COPY.yourCommunities}
+              sticker={`${mine.length} joined`}
+            />
             <BrowseGrid>{mine.map((c) => renderCard(c))}</BrowseGrid>
           </>
         ) : null}
@@ -210,7 +237,7 @@ const CommunityBrowseLive = ({ community }) => {
   return (
     <CommunityFrame community={community}>
       <div className="mx-auto flex w-full max-w-[1425px] flex-col gap-[24px] pl-[clamp(12px,2.31vw,40px)] pr-[clamp(12px,3.24vw,56px)] pt-[clamp(16px,1.85vw,32px)] pb-[24px]">
-        <BrowseHeader total={browse.catalogueTotal ?? cards.length + mine.length} />
+        <BrowseHeader total={browse.catalogueTotal ?? cards.length + mine.length} xp={false} />
         <BrowseToolbar
           cat={cat}
           onCat={(id) => {

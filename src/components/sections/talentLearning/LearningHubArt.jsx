@@ -13,9 +13,9 @@ import { HEADER } from './talentLearningHubData.js';
  * aligned in the title row): four overlapping faces, an inbox label, two tilted stickers and four
  * doodles. Hidden in Focused (the Focused frames set the instance to opacity 0) and below xl, where
  * the title row has no room for it. Decorative only (aria-hidden). Positions are Figma offsets from
- * the art's top-left.
+ * the art's top-left. `xp`: the "+120 XP this week" sticker text (live: from the XP ledger); null hides it.
  */
-const LearningHubArt = ({ inbox = HEADER.art.inbox }) => (
+const LearningHubArt = ({ inbox = HEADER.art.inbox, xp = HEADER.art.xp }) => (
   <div
     aria-hidden="true"
     className="relative -mt-[2px] hidden h-[84px] w-[600px] shrink-0 select-none xl:playful:block"
@@ -55,10 +55,12 @@ const LearningHubArt = ({ inbox = HEADER.art.inbox }) => (
       {HEADER.art.sticker}
     </span>
 
-    <span className="absolute top-[41px] left-[431px] inline-flex -rotate-[4deg] items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] leading-[14.3px] font-semibold tracking-[0.2px] whitespace-nowrap text-[#c8951a] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
-      <LearningHeaderFlameIcon className="size-[14.9px]" />
-      {HEADER.art.xp}
-    </span>
+    {xp ? (
+      <span className="absolute top-[41px] left-[431px] inline-flex -rotate-[4deg] items-center gap-[6px] rounded-full border-[1.5px] border-solid border-[#c8951a] bg-[#faf4e8] px-[12px] py-[7px] font-sans text-[12px] leading-[14.3px] font-semibold tracking-[0.2px] whitespace-nowrap text-[#c8951a] shadow-[0_6px_14px_rgba(31,69,38,0.16)]">
+        <LearningHeaderFlameIcon className="size-[14.9px]" />
+        {xp}
+      </span>
+    ) : null}
   </div>
 );
 

@@ -1,6 +1,7 @@
 import api from './api.js';
 import { isLoggedIn } from './auth.api.js';
 import { debug } from '../utils/debug.js';
+import { notifyXpChanged } from './xp.api.js';
 
 const log = debug('journey.api');
 
@@ -28,6 +29,8 @@ export const fetchJourney = () => {
         if (!journey || !Array.isArray(journey.stages)) return null;
         cached = journey;
         log('journey', { doneCount: journey.doneCount, nextStage: journey.nextStage });
+        // A stage seen done for the first time earns its XP on this read (backend profile.getJourney).
+        if (journey.xpAwarded?.length) notifyXpChanged();
         listeners.forEach((fn) => fn(journey));
         return journey;
       })

@@ -1,4 +1,101 @@
-/* Chess pieces exported from Figma (Talent - Skills Lab, Games v2 · 10, board 9623:59059): the six drawn pieces only (king, rook, pawn in black and white). Each svg is sized by its viewBox (stroke included); the board scales it from the 52px Figma square. */
+/* Chess pieces exported from Figma (Talent - Skills Lab, Games v2 · 10, board 9623:59059): the six drawn pieces (king, rook, pawn in black and white). Each svg is sized by its viewBox (stroke included); the board scales it from the 52px Figma square.
+   ⚠️ ASSUMPTION: queen, bishop and knight are NOT drawn in Figma. The live games use the server's positions (full chess sets), so
+   simple pieces in the same style (fill, #1C2A21 stroke 1.62, #CCCCCC detail on black) are drawn below until design supplies them. */
+
+const INK = '#1C2A21';
+const pieceFill = (black) => (black ? '#1A1A1A' : 'white');
+const detail = (black) => (black ? '#CCCCCC' : INK);
+
+const Queen = ({ black, className }) => (
+  <svg viewBox="0 0 32 37" fill="none" aria-hidden="true" focusable="false" className={className}>
+    <path
+      d="M5 29L2 10.5L9.5 19L9 6.5L14 17L16 4.5L18 17L23 6.5L22.5 19L30 10.5L27 29Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+    {[
+      [2, 9],
+      [9, 5],
+      [16, 3],
+      [23, 5],
+      [30, 9],
+    ].map(([cx, cy]) => (
+      <circle
+        key={cx}
+        cx={cx}
+        cy={cy}
+        r="1.9"
+        fill={pieceFill(black)}
+        stroke={INK}
+        strokeWidth="1.3"
+      />
+    ))}
+    <path
+      d="M4 29H28V33.5C28 34.9 26.9 36 25.5 36H6.5C5.1 36 4 34.9 4 33.5Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+    <path d="M6.5 25H25.5" stroke={detail(black)} strokeWidth="1.62" strokeLinecap="round" />
+  </svg>
+);
+
+const Bishop = ({ black, className }) => (
+  <svg viewBox="0 0 28 37" fill="none" aria-hidden="true" focusable="false" className={className}>
+    <circle cx="14" cy="3" r="2.2" fill={pieceFill(black)} stroke={INK} strokeWidth="1.3" />
+    <path
+      d="M14 5.5C8.5 10.5 6.2 15.5 7.8 20.2C8.8 23 11 24.4 14 24.4C17 24.4 19.2 23 20.2 20.2C21.8 15.5 19.5 10.5 14 5.5Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+    <path d="M15.8 10.5L12 16.5" stroke={detail(black)} strokeWidth="1.62" strokeLinecap="round" />
+    <path
+      d="M8.5 24.4H19.5V27.8H8.5Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3.5 32C9 28.6 19 28.6 24.5 32V35.8H3.5Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const Knight = ({ black, className }) => (
+  <svg viewBox="0 0 30 37" fill="none" aria-hidden="true" focusable="false" className={className}>
+    <path
+      d="M8 35.5H27C27 25 26 15 20.5 8.5C18.5 6.3 16.5 5 14.5 2L13.2 5.8C10 7 7.2 10 5.2 14L2.8 19C2.4 21 4.6 22.6 6.8 21.4L10.2 19.4C11.2 20.4 12.6 20.4 13.6 19.2C11.4 23.4 8 27.6 8 35.5Z"
+      fill={pieceFill(black)}
+      stroke={INK}
+      strokeWidth="1.62"
+      strokeLinejoin="round"
+    />
+    <circle cx="12.6" cy="10.6" r="1.3" fill={detail(black)} />
+    <path
+      d="M17 9.5C20.5 14 22 20 22 27"
+      stroke={detail(black)}
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const PieceWhiteQueen = ({ className = '' }) => <Queen className={className} />;
+export const PieceBlackQueen = ({ className = '' }) => <Queen black className={className} />;
+export const PieceWhiteBishop = ({ className = '' }) => <Bishop className={className} />;
+export const PieceBlackBishop = ({ className = '' }) => <Bishop black className={className} />;
+export const PieceWhiteKnight = ({ className = '' }) => <Knight className={className} />;
+export const PieceBlackKnight = ({ className = '' }) => <Knight black className={className} />;
 
 export const PieceBlackKing = ({ className = '' }) => (
   <svg viewBox="0 0 32 38" fill="none" aria-hidden="true" focusable="false" className={className}>

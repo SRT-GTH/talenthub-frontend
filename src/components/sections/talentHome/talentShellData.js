@@ -335,7 +335,28 @@ const STATUS_BY_MILESTONE = {
  * Figma demo numbers are replaced by real ones; numbers with no backend yet
  * (views, streak, XP level) show "–".
  */
-export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) => {
+/* The XP variant of the progress block (Figma "Top" frames): "Level 5 · Standout / 1,240 XP / 260 XP to Level 6 →", from GET /xp. */
+const xpJourney = (xp) => {
+  const span = Math.max(1, (xp.nextLevelAt ?? 0) - (xp.levelStart ?? 0));
+  const total = Number(xp.total || 0).toLocaleString('en-GB');
+  const toNext = Number(xp.xpToNextLevel || 0).toLocaleString('en-GB');
+  return {
+    label: `Level ${xp.level} · ${xp.levelName}`,
+    count: `${total} pts`,
+    countPlayful: `${total} XP`,
+    percent: Math.min(100, Math.round(((xp.xpIntoLevel ?? 0) / span) * 1000) / 10),
+    caption: `${toNext} pts to Level ${xp.level + 1} →`,
+    captionPlayful: `${toNext} XP to Level ${xp.level + 1} →`,
+    xp: true,
+    to: '/skills-lab?tab=games',
+  };
+};
+
+/**
+ * `xp` (optional): the talent's XP summary (GET /xp, useLiveXp). With a complete profile journey the live block switches to the
+ * XP level variant, as the Figma "Top" frames draw it; before that it shows the journey.
+ */
+export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav, xp = null) => {
   // `activeNav` ('profile' on /profile) swaps in the profile-page rail card; omitted = home data.
   // The page-specific Figma cards are demo data; with live data every page draws the talent's own card.
   if (activeNav === 'profile' && !live) return PROFILE_PAGE;
@@ -366,14 +387,17 @@ export const getTalentSidebarData = (stateKey = 'day1', live = null, activeNav) 
   return {
     ...base,
     status: (STATUS_BY_MILESTONE[j.milestone] || STATUS_BY_MILESTONE.none)(j.doneCount),
-    journey: {
-      label: 'Profile journey',
-      count: `${j.doneCount} of ${j.total || 9}`,
-      done: j.doneCount,
-      caption: next ? `Continue: ${next} →` : 'View my profile →',
-      // Where the caption goes: the next stage's screen, or the profile once all nine are done.
-      to: next ? STAGE_BY_ID[j.nextStage]?.route || JOURNEY_MAP_ROUTE : '/profile',
-    },
+    journey:
+      xp && Number.isFinite(xp.level) && j.doneCount >= (j.total || 9)
+        ? xpJourney(xp)
+        : {
+            label: 'Profile journey',
+            count: `${j.doneCount} of ${j.total || 9}`,
+            done: j.doneCount,
+            caption: next ? `Continue: ${next} →` : 'View my profile →',
+            // Where the caption goes: the next stage's screen, or the profile once all nine are done.
+            to: next ? STAGE_BY_ID[j.nextStage]?.route || JOURNEY_MAP_ROUTE : '/profile',
+          },
     stats: [
       { id: 'views', value: live.views ? String(live.views.uniqueViewers) : '–', label: 'Views' },
       { id: 'matches', value: String(matches), label: 'Matches' },

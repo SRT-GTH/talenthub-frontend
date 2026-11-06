@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { isLiveProfile } from '../../../../services/profileStages.api.js';
 import Button from '../../../ui/Button.jsx';
+import { isLiveGames } from '../../talentSkillsLab/gamesV2/live/gameKeys.js';
+import { useLiveStreak } from '../../talentStreak/useLiveStreak.js';
+import { formatXp, useLiveXp } from '../../talentXp/useLiveXp.js';
 import { HubButton } from '../../talentSkillsLab/HubParts.jsx';
 import { ARCADE_GAMES } from '../../talentSkillsLab/skillsLabGamesData.js';
 import { GAMES_HEAD, LAB_GAME_IDS, LAB_HERO, LAB_ROWS, LAB_STATUS_LABEL } from './skillsData.js';
@@ -22,6 +26,9 @@ const log = debug('SkillsLabScreen');
  * INSTEAD" game cards, own footer). It is a different layout from the standalone /skills-lab hub, so it is built here and
  * only reuses that hub's game catalogue (copy + cover art) and HubButton.
  * Props: onStartLab(labId) (play route), onPlayGame(gameId).
+ * Hero XP / streak chips: live (signed in, no `?f=` / `?demo=1`) = the talent's XP total (GET /xp, the XP ledger; hidden until
+ * it loads) and current streak (GET /streak; hidden at 0), as GameV2Shell does. Signed-out demo and Figma frames keep the
+ * drawn "240 XP" / "7-day streak". The "2 verified" / "4 ready from your skills" chips and the lab / game cards are still static.
  */
 const StickerChip = ({ children, ready }) => (
   <span
@@ -170,8 +177,26 @@ const GRID = 'grid grid-cols-1 items-start gap-[16px] sm:grid-cols-2 lg:grid-col
 const EYEBROW =
   'm-0 font-sans text-[11px] font-bold uppercase leading-[13px] tracking-[0.109em] text-[#595959] max-lg:text-[12px]';
 
+/* LAB_HERO.stats = [verified, ready, xp, streak]; live mode swaps the last two for the ledger / streak values. */
+const useHeroStats = () => {
+  const live = isLiveProfile() && isLiveGames();
+  const xp = useLiveXp({ enabled: live });
+  const streak = useLiveStreak({ enabled: live });
+  if (!live) return LAB_HERO.stats;
+  const [verified, ready] = LAB_HERO.stats;
+  const total = xp.data?.total;
+  const days = streak.data?.summary?.current ?? 0;
+  return [
+    verified,
+    ready,
+    typeof total === 'number' ? formatXp(total) : null,
+    days ? `${days}-day streak` : null,
+  ].filter(Boolean);
+};
+
 const SkillsLabScreen = ({ onStartLab, onPlayGame }) => {
   const games = LAB_GAME_IDS.map((id) => ARCADE_GAMES.find((g) => g.id === id)).filter(Boolean);
+  const heroStats = useHeroStats();
   useEffect(() => {
     log('mount', { labs: LAB_ROWS.reduce((n, r) => n + r.labs.length, 0), games: games.length });
   }, [games.length]);
@@ -210,7 +235,7 @@ const SkillsLabScreen = ({ onStartLab, onPlayGame }) => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-[10px] lg:mr-[clamp(0px,4vw,69px)] lg:mt-[46px]">
-            {LAB_HERO.stats.map((s) => (
+            {heroStats.map((s) => (
               <SkChip key={s}>{s}</SkChip>
             ))}
           </div>
