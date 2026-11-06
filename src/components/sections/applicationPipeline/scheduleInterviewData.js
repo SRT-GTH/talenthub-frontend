@@ -16,9 +16,14 @@
  * `format` state rather than three screens.
  */
 
+// V2.0: title is Bricolage 600 with the last word in #387440; the subtitle bolds the name.
 export const SCHEDULE_HEADER = {
+  titleLead: 'Schedule an ',
+  titleAccent: 'Interview',
   title: 'Schedule an Interview',
-  subtitle: 'Set up a session with Ama Boateng for the Senior Product Designer role.',
+  subtitleLead: 'Set up a session with ',
+  subtitleName: 'Ama Boateng',
+  subtitleTail: ' for the Senior Product Designer role.',
 };
 
 // Figma 7249:80374 — the candidate card at the top of the left column.
@@ -67,6 +72,7 @@ export const FORMAT_FIELDS = {
   },
   phone: {
     kind: 'phone',
+    label: 'Phone',
     toggleLabel: 'Use recruiter’s phone',
     dialCode: '+233',
     number: '54 905 8090',
@@ -158,18 +164,18 @@ export const buildScheduleDays = (month, year) => {
   });
 };
 
-// Figma 7249:80499 onwards — 10:00 AM, 11:30 AM and 09:00 AM are drawn at NODE
-// opacity 0.40 (unavailable). Order is Figma's own grid order, which does put
-// 09:00 AM last. The selected slot takes a #387440 fill.
+// V2.0 (7249:81736): a 4-column grid whose first cell is empty, so the order
+// below starts at column 2 and 10:00 AM lands alone on the third row. Nothing is
+// drawn unavailable any more (all nodes opacity 1). The selected slot takes #387440.
 export const SCHEDULE_TIMES = [
-  { id: '1000', label: '10:00 AM', disabled: true },
-  { id: '1130', label: '11:30 AM', disabled: true },
+  { id: '1130', label: '11:30 AM' },
   { id: '1300', label: '01:00 PM' },
   { id: '1400', label: '02:00 PM' },
   { id: '1530', label: '03:30 PM' },
   { id: '1600', label: '04:00 PM' },
   { id: '1730', label: '05:30 PM' },
-  { id: '0900', label: '09:00 AM', disabled: true },
+  { id: '0900', label: '09:00 AM' },
+  { id: '1000', label: '10:00 AM' },
 ];
 
 // Figma 7249:81755 — appears once a day + time are both chosen.
@@ -198,4 +204,46 @@ export const SCHEDULE_CONFIRMATION = {
   confirmLabel: 'Schedule Interview',
   cancelLabel: 'No, keep editing',
   tone: 'brand',
+  withArrow: true, // 20-arrow-right after the label (7249:82692)
+};
+
+/*
+ * Filled-state seeds for the URL states (?modal=schedule-interview&state=filled&format=...).
+ * Figma 7249:81163 (online), :82719 (in person), :83356 (phone). Interviewer names
+ * are not drawn, only their photos: the `name` values are ⚠️ ASSUMPTION labels.
+ * Two Figma inconsistencies are kept as drawn:
+ *   - the phone frame highlights the "In person" pill while showing the Phone fields
+ *     (`pillFormat`), and
+ *   - the in-person and phone frames select 03:30 PM but print "10:00 AM" in the
+ *     tentative line (`tentativeTimeLabel`).
+ */
+export const FILLED_SCHEDULE_SEEDS = {
+  online: {
+    format: 'online',
+    pillFormat: 'online',
+    interviewerAvatars: ['primary'],
+    tentativeTimeLabel: null,
+  },
+  'in-person': {
+    format: 'in-person',
+    pillFormat: 'in-person',
+    interviewerAvatars: ['primary', 'secondary'],
+    tentativeTimeLabel: '10:00 AM',
+  },
+  phone: {
+    format: 'phone',
+    pillFormat: 'in-person',
+    interviewerAvatars: ['primary'],
+    tentativeTimeLabel: '10:00 AM',
+  },
+};
+export const FILLED_SCHEDULE_COMMON = {
+  assessment: ASSESSMENT_FILLED,
+  dayId: 'wed-07',
+  timeId: '1530',
+  notes: RECRUITER_NOTES.body,
+};
+export const SEEDED_INTERVIEWER_LABELS = {
+  primary: 'Interviewer 1',
+  secondary: 'Interviewer 2',
 };

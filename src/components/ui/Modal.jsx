@@ -69,6 +69,9 @@ const ScrollDownChevron = ({ className }) => (
   </svg>
 );
 
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
 const Modal = ({
   isOpen,
   onClose,
@@ -77,11 +80,14 @@ const Modal = ({
   showClose = true,
   className,
   contentClassName,
+  // Opt-out (default true): the round "scroll down for more" hint above the footer.
+  scrollHint = true,
   header,
   footer,
   children,
 }) => {
   const closeButtonRef = useRef(null);
+  const dialogRef = useRef(null);
   const scrollRef = useRef(null);
   const [canScrollDown, setCanScrollDown] = useState(false);
 
@@ -102,8 +108,34 @@ const Modal = ({
     if (!isOpen) return undefined;
     log('open');
 
+    // Keyboard containment (WCAG 2.4.3): Tab wraps inside the dialog while focus is in it, and focus returns to where it was on close.
+    const opener = document.activeElement;
+    const focusables = () =>
+      [...(dialogRef.current?.querySelectorAll(FOCUSABLE) ?? [])].filter(
+        (el) => el.offsetParent !== null || el === document.activeElement
+      );
     const onKey = (e) => {
       if (e.key === 'Escape') onClose?.();
+      if (e.key !== 'Tab') return;
+      const nodes = focusables();
+      const active = document.activeElement;
+      if (!dialogRef.current?.contains(active)) {
+        // Focus escaped (or is on <body>): bring it back in.
+        e.preventDefault();
+        (nodes[0] ?? dialogRef.current)?.focus?.();
+        return;
+      }
+      if (!nodes.length) {
+        e.preventDefault();
+        return;
+      }
+      if (e.shiftKey && (active === nodes[0] || active === dialogRef.current)) {
+        e.preventDefault();
+        nodes[nodes.length - 1].focus();
+      } else if (!e.shiftKey && active === nodes[nodes.length - 1]) {
+        e.preventDefault();
+        nodes[0].focus();
+      }
     };
     document.addEventListener('keydown', onKey);
 
@@ -112,7 +144,8 @@ const Modal = ({
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
-    closeButtonRef.current?.focus?.();
+    // First focus: the close button, else the first control, else the dialog itself.
+    (closeButtonRef.current ?? focusables()[0] ?? dialogRef.current)?.focus?.();
 
     requestAnimationFrame(checkScroll);
 
@@ -120,6 +153,7 @@ const Modal = ({
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
+      if (opener instanceof HTMLElement && document.contains(opener)) opener.focus?.();
       log('close');
     };
   }, [isOpen, onClose, checkScroll]);
@@ -145,6 +179,8 @@ const Modal = ({
     // viewport (`max-h-full`), so the overlay never grows a page scrollbar.
     // Internal scroll lives on the children region below.
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
@@ -152,7 +188,7 @@ const Modal = ({
       className={classNames(
         'fixed inset-0 z-50 flex items-end justify-center overflow-hidden sm:items-center',
         'px-0 pt-[env(safe-area-inset-top)] sm:px-[clamp(12px,2vw,32px)] sm:py-[clamp(16px,3vw,40px)]',
-        'bg-black/30 backdrop-blur-[2px]',
+        'bg-black/30 backdrop-blur-[2px] focus:outline-none',
         className
       )}
     >
@@ -191,7 +227,7 @@ const Modal = ({
 
         {footer && (
           <div className="relative shrink-0">
-            {canScrollDown && (
+            {scrollHint && canScrollDown && (
               <button
                 type="button"
                 onClick={handleScrollClick}
@@ -204,7 +240,7 @@ const Modal = ({
             {footer}
           </div>
         )}
-        {!footer && canScrollDown && (
+        {!footer && scrollHint && canScrollDown && (
           <div className="relative shrink-0">
             <button
               type="button"

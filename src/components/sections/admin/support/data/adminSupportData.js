@@ -1,7 +1,7 @@
 /*
  * adminSupportData — copy of Support queries (Figma canvas 8520:12): 7.7.1a query queue 8666:415975, 7.7.1b query detail 8666:416513, 7.7.1c reply with template 8666:417042,
- * 7.7.1d escalate to Senior Admin 8666:417619. ⚠️ ASSUMPTION: frontend only; three fixed sample queries (the queue shows 3 of "9 open"); the two sticker labels the frames do
- * not spell out ("Mine" on the first row) are inferred from the claimed state; lead glyphs use the closest tiles the queue row has.
+ * 7.7.1d escalate to Senior Admin 8666:417619. ⚠️ ASSUMPTION: frontend only; three fixed sample queries (the queue shows 3 of "9 open"); the sticker labels the frames do
+ * not spell out are inferred; lead glyphs use the closest tiles the queue row has.
  */
 
 export const QUERY_ID = 'SUP-10451';
@@ -10,7 +10,7 @@ export const SUPPORT = {
   title: 'Support queries',
   sticker: '9 open',
   subtitle:
-    'Questions users send through Help. Reply with an approved template. Anything that changes an account goes to a Senior Admin.',
+    'Questions users send through Help. Reply with an approved template. Anything that needs an account change goes to a Senior Admin.',
   tabs: [
     { id: 'open', label: 'Open', count: '9' },
     { id: 'waiting', label: 'Waiting on user', count: '2' },
@@ -33,7 +33,7 @@ export const SUPPORT = {
       id: 'r1',
       lead: { icon: 'shield' },
       title: 'SUP-10451 · Can’t sign in after phone change',
-      sticker: 'Mine',
+      sticker: 'New',
       sub: 'Kofi Agyekum · talent · sent 40m ago',
       chips: [
         { label: 'Sign-in', tone: 'amber' },

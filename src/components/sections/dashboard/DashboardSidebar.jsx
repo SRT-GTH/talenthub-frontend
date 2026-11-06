@@ -35,10 +35,11 @@ const log = debug('DashboardSidebar');
 const GREEN_GRADIENT = 'linear-gradient(171.84deg, #387440 14.637%, #84cc16 85.349%)';
 
 const ExpandedNavItem = ({ item, onNavigate }) => {
+  const RecruiterIcon = item.RecruiterIcon;
   const content = (
     <>
       <span className="flex w-[20px] shrink-0 items-center justify-center">
-        {/* These glyphs are <img> assets with Figma's fills baked in, so they
+        {/* Most glyphs are <img> assets with Figma's fills baked in, so they
             cannot be recoloured with a text class.
             `brightness-0` flattens any glyph to solid black (alpha, and so the
             shape, survives); `invert(n)` then lifts that black to a flat tone:
@@ -49,31 +50,39 @@ const ExpandedNavItem = ({ item, onNavigate }) => {
             is nav-community-active.svg, stroked #EBF1EC for the green pill, and
             desaturating near-white leaves it near-white, i.e. invisible on the
             white rail. Normalising through black fixes every icon regardless of
-            its baked colour. */}
-        <CommunityIcon
-          src={item.icon}
-          size={18}
-          className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
-        />
+            its baked colour. Icons that ship as `currentColor` components
+            (`item.RecruiterIcon`, e.g. the V2.0 "Profile" notebook-pen) are tinted by
+            colour instead: #999999 at rest, #EBF1EC when active. */}
+        {RecruiterIcon ? (
+          <RecruiterIcon className={item.active ? 'text-[#ebf1ec]' : 'text-[#999999]'} />
+        ) : (
+          <CommunityIcon
+            src={item.icon}
+            size={18}
+            className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
+          />
+        )}
       </span>
       <span
-        className={classNames(
-          'min-w-0 flex-1 text-left font-sans text-[14px] leading-6 tracking-[0.2px]',
-          item.active ? 'text-white' : 'text-neutral-dark-active'
-        )}
+        className="min-w-0 flex-1 text-left font-sans text-[14px] leading-6 tracking-[0.2px]"
+        style={{ color: item.active ? '#ebf1ec' : (item.labelColor ?? '#70706e') }}
       >
         {item.label}
       </span>
-      {item.badge && <NavBadge count={item.badge} />}
+      {item.badge && <NavBadge count={item.badge} solid />}
     </>
   );
 
   const shared = classNames(
-    'flex w-full items-center gap-[11px] rounded-[10px] px-[12px] py-[10px] transition-colors',
+    'flex min-h-[44px] w-full items-center rounded-[10px] px-[12px] py-[10px] transition-colors',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
     !item.active && 'hover:bg-brand-green-light'
   );
-  const style = item.active ? { backgroundImage: GREEN_GRADIENT } : undefined;
+  // Icon-to-label gap: Figma draws 11px on some items and 8px on others (see dashboardNav.js `labelGap`).
+  const style = {
+    columnGap: item.labelGap ?? 8,
+    ...(item.active ? { backgroundImage: GREEN_GRADIENT } : null),
+  };
 
   if (item.to) {
     return (
@@ -96,13 +105,18 @@ const ExpandedNavItem = ({ item, onNavigate }) => {
 };
 
 const CollapsedNavItem = ({ item, onNavigate }) => {
+  const RecruiterIcon = item.RecruiterIcon;
   const content = (
     <>
-      <CommunityIcon
-        src={item.collapsedIcon}
-        size={item.active ? 18 : 20}
-        className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
-      />
+      {RecruiterIcon ? (
+        <RecruiterIcon className={item.active ? 'text-[#ebf1ec]' : 'text-[#999999]'} />
+      ) : (
+        <CommunityIcon
+          src={item.collapsedIcon}
+          size={item.active ? 18 : 20}
+          className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
+        />
+      )}
       {item.badge && (
         <NavBadge count={item.badge} className="absolute right-[10px] top-[10px] !text-[12px]" />
       )}
@@ -194,7 +208,7 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
       className={classNames(
         'absolute top-[22px] z-10 inline-flex items-center justify-center rounded-[6px] p-[2px] transition-colors hover:bg-brand-green-light',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-        collapsed ? 'right-[8px]' : 'right-[14px]'
+        collapsed ? 'right-[8px]' : 'right-[11px]'
       )}
     >
       <CommunityIcon
@@ -282,7 +296,7 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
           </button>
 
           {profilePopoverOpen && (
-            <PublicProfileCard className="absolute bottom-0 left-[57px] z-20 w-[249px] shadow-bottom-300" />
+            <PublicProfileCard className="absolute bottom-0 left-[57px] z-20 w-[249px]" />
           )}
         </div>
       </aside>
@@ -290,19 +304,22 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
   }
 
   return (
+    /* Figma V2.0 rail (7249:76053 / :86046): 303px wide, padding 56/16/40/16, gap 20. The profile card is 279px wide
+       (4px wider than the padded column), the nav is 255px, and the public-profile card sits at the bottom with a
+       50px gap above it (Figma nominal 60, drawn 50 at 977px tall). */
     <aside
       className={classNames(
-        'relative flex w-[clamp(280px,19.62vw,339px)] shrink-0 flex-col items-center justify-end gap-[28px] border-r-2 border-white bg-white px-[16px] pb-[48px] pt-[60px]',
+        'relative flex w-[clamp(264px,17.54vw,303px)] shrink-0 flex-col items-center gap-[20px] bg-white px-[16px] pb-[40px] pt-[56px]',
         className
       )}
-      aria-label="Community navigation"
+      aria-label="Recruiter navigation"
     >
       {toggleButton}
 
       {/* Profile card. Every child carries shrink-0 (as Figma's own auto-layout
           does) — without it the flex column squashes the getting-started block
           to zero height whenever the rail is short on space. */}
-      <div className="flex w-full shrink-0 flex-col items-center justify-center gap-[16px] overflow-hidden rounded-[16px] border-2 border-brand-green-light-hover bg-white px-[12px] py-[18px]">
+      <div className="-mx-[4px] flex shrink-0 flex-col items-center justify-center gap-[16px] self-stretch overflow-hidden rounded-[16px] border-[1.4px] border-[#e1eae2] bg-white px-[11px] py-[17.6px]">
         <span
           className="flex size-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[31px]"
           style={{ backgroundImage: 'linear-gradient(135deg, #387440 14.637%, #84cc16 85.349%)' }}
@@ -315,41 +332,41 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
           />
         </span>
 
-        <div className="flex shrink-0 flex-col items-center gap-[7px]">
+        <div className="flex w-full shrink-0 flex-col items-center gap-[7px]">
           <div className="flex items-center gap-[5px] overflow-hidden">
-            <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-black">
+            <span className="font-sans text-[14px] font-semibold leading-6 tracking-[0.2px] text-[#1c2a21]">
               {SIDEBAR_PROFILE.name}
             </span>
-            <span className="inline-flex h-[18px] items-center gap-[3px] overflow-hidden rounded-[4px] bg-informative-light py-[2px] pl-[6px] pr-[7px]">
+            <span className="inline-flex h-[18px] items-center gap-[3px] overflow-hidden rounded-[4px] bg-[#eaeffb] py-[2px] pl-[6px] pr-[7px]">
               <CommunityIcon src={icons.newBadge} size={8} />
-              <span className="font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-informative-dark">
+              <span className="font-sans text-[10px] max-lg:text-[12px] font-semibold leading-5 tracking-[0.2px] text-[#244a9f]">
                 {SIDEBAR_PROFILE.badge}
               </span>
             </span>
           </div>
-          <p className="text-center font-sans text-[12.5px] leading-[18px] tracking-[0.2px] text-neutral-dark-hover">
+          <p className="w-full text-center font-sans text-[12px] leading-[18px] tracking-[0.2px] text-[#babab7]">
             {SIDEBAR_PROFILE.meta}
           </p>
           <div className="flex items-center gap-[5px] overflow-hidden">
             <CommunityIcon src={icons.dotProgress} size={4} />
-            <span className="font-sans text-[12px] font-medium leading-4 tracking-[0.2px] text-brand-green">
+            <span className="font-sans text-[12px] font-medium leading-4 tracking-[0.2px] text-[#387440]">
               {SIDEBAR_PROFILE.progressNote}
             </span>
           </div>
         </div>
 
         {/* Getting started progress */}
-        <div className="flex w-full max-w-[250px] shrink-0 flex-col items-start justify-center gap-[6px] overflow-hidden border-t border-neutral-light">
+        <div className="flex w-full shrink-0 flex-col items-start justify-center gap-[8px] overflow-hidden">
           <div className="flex w-full items-center justify-between overflow-hidden tracking-[0.2px]">
-            <span className="font-sans text-[13px] font-semibold leading-5 text-black">
+            <span className="font-sans text-[13px] font-semibold leading-4 text-[#1c2a21]">
               {SIDEBAR_PROFILE.gettingStartedLabel}
             </span>
-            <span className="font-sans text-[11px] max-lg:text-[12px] font-medium leading-4 text-neutral-dark">
+            <span className="font-sans text-[11px] max-lg:text-[12px] font-medium leading-4 text-[#babab7]">
               {SIDEBAR_PROFILE.gettingStartedCount}
             </span>
           </div>
           <div
-            className="flex h-[7px] w-full overflow-hidden rounded-[4px] bg-brand-green-light/50"
+            className="flex h-[7px] w-full overflow-hidden rounded-[4px] bg-[#ebf1ec]/50"
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={100}
@@ -367,22 +384,22 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
           <button
             type="button"
             onClick={() => log('continue setup clicked (no destination wired yet)')}
-            className="font-sans text-[12px] leading-4 tracking-[0.2px] text-neutral-dark-active hover:text-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="font-sans text-[11px] max-lg:text-[12px] leading-[13px] tracking-[0.2px] text-[#70706e] hover:text-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
           >
             {SIDEBAR_PROFILE.continueLabel}
           </button>
         </div>
 
         {/* Stats strip */}
-        <div className="flex shrink-0 items-center justify-center gap-[4px] rounded-[10px] border border-accent-light bg-brand-green-light/50 px-[8px] py-[10px]">
+        <div className="flex shrink-0 items-center justify-center gap-[4px] rounded-[10px] border border-[#faf4e8] bg-[#ebf1ec]/50 px-[16px] py-[9px]">
           {SIDEBAR_PROFILE.stats.map((stat, index) => (
             <div key={stat.id} className="flex items-center">
-              {index > 0 && <span className="mr-[4px] h-[28px] w-px bg-brand-green-light" />}
+              {index > 0 && <span className="mr-[4px] h-[28px] w-px bg-[#ebf1ec]" />}
               <div className="flex w-[60px] flex-col items-center justify-center gap-[2px] overflow-hidden px-[2px] text-center">
-                <span className="font-sans text-[12px] font-semibold leading-5 tracking-[0.2px] text-brand-green">
+                <span className="font-sans text-[12px] font-semibold leading-5 tracking-[0.2px] text-[#387440]">
                   {stat.value}
                 </span>
-                <span className="font-sans text-[11px] max-lg:text-[12px] text-[#999]">
+                <span className="font-sans text-[11px] max-lg:text-[12px] leading-[13px] text-[#999]">
                   {stat.label}
                 </span>
               </div>
@@ -391,25 +408,26 @@ const DashboardSidebar = ({ collapsed, onToggle, compact = false, className }) =
         </div>
       </div>
 
-      {/* Nav */}
-      {/* The nav is the only flexible band — the profile card and the
-          public-profile card are shrink-0, so a short viewport scrolls here
-          instead of silently clipping either card. */}
-      <nav className="flex min-h-0 w-full flex-col items-start gap-[12px] overflow-y-auto pt-[6px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-full flex-col items-start gap-[4px]">
-          {navItems.map((item) => (
-            <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
-          ))}
-        </div>
-        <div className="h-px w-full rounded-[30px] bg-brand-green-light-hover" />
-        <div className="flex w-full flex-col items-start gap-[4px]">
-          {secondaryNavItems.map((item) => (
-            <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
-          ))}
-        </div>
-      </nav>
+      {/* Nav + public-profile card. The nav is the only flexible band — the profile card and the
+          public-profile card are shrink-0, so a short viewport scrolls the nav instead of silently clipping either
+          card. `justify-between` pins the public-profile card to the bottom like Figma's space-between frame. */}
+      <div className="flex min-h-0 w-full flex-1 flex-col justify-between gap-[50px] px-[8px]">
+        <nav className="flex min-h-0 flex-col items-start gap-[12px] overflow-y-auto pt-[6px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-full shrink-0 flex-col items-start gap-[4px]">
+            {navItems.map((item) => (
+              <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
+            ))}
+          </div>
+          <div className="h-px w-full shrink-0 rounded-[30px] bg-[#e1eae2]" />
+          <div className="flex w-full shrink-0 flex-col items-start gap-[4px]">
+            {secondaryNavItems.map((item) => (
+              <ExpandedNavItem key={item.id} item={item} onNavigate={handleNavigate} />
+            ))}
+          </div>
+        </nav>
 
-      <PublicProfileCard className="w-full shrink-0" />
+        <PublicProfileCard className="w-full shrink-0 lg:h-[125px]" />
+      </div>
     </aside>
   );
 };

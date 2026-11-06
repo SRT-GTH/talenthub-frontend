@@ -9,7 +9,8 @@ import { readStaffSession } from '../../services/adminSession.js';
  * the role comes from the account, not the URL. Every page is a lazy module in this folder. URL contract: adminState.js + wiki/admin.md.
  *
  *   /admin/sign-in                         7.0.1a-d staff sign-in (?state=code|locked|expired)
- *   /admin                                 7.0.2a-e staff home, one per role (?role=support|moderator|senior|super|dpo)
+ *   /admin                                 7.0.2a-e staff home, one per role (role comes from the account); 7.8.0 Content Editor home (?role=editor)
+ *   /admin/site-copy|product-names|media   7.8 Site copy, Product names, Media library (mock data, ?role= override): siteCopy/siteCopyScreens.js
  *   /admin/accounts[/merge|/:accountId]    7.1 accounts
  *   /admin/moderation[/...]                7.2 moderation (flags, removed content, community posts, community reviews)
  *   /admin/verification[/...]              7.6 verification and approvals (+ data requests, appeals)
@@ -22,7 +23,10 @@ import { readStaffSession } from '../../services/adminSession.js';
  *   /admin/*                               not-found
  */
 
-const AdminHomePage = lazy(() => import('./AdminHomePage.jsx'));
+const AdminHomeEntry = lazy(() => import('./AdminHomeEntry.jsx'));
+const AdminCopyArea = lazy(
+  () => import('../../components/sections/admin/siteCopy/AdminCopyArea.jsx')
+);
 const AdminSignInPage = lazy(() => import('./AdminSignInPage.jsx'));
 const AdminAccountsPage = lazy(() => import('./AdminAccountsPage.jsx'));
 const AdminModerationPage = lazy(() => import('./AdminModerationPage.jsx'));
@@ -52,25 +56,28 @@ const AdminApp = () => (
     <Routes>
       <Route path="sign-in" element={<AdminSignInPage />} />
       <Route element={<RequireStaff />}>
-      <Route index element={<AdminHomePage />} />
-      <Route path="accounts" element={<AdminAccountsPage />} />
-      <Route path="accounts/merge" element={<AdminAccountsPage />} />
-      <Route path="accounts/:accountId" element={<AdminAccountsPage />} />
-      <Route path="moderation/*" element={<AdminModerationPage />} />
-      <Route path="verification/*" element={<AdminVerificationPage />} />
-      <Route path="reports/*" element={<AdminReportsPage />} />
-      <Route path="live-ops" element={<AdminLiveOpsPage />} />
-          <Route path="observability" element={<AdminObservabilityPage />} />
-      <Route path="comms/*" element={<AdminCommsPage />} />
-      <Route path="support" element={<AdminSupportPage />} />
-      <Route path="support/:queryId" element={<AdminSupportPage />} />
-      <Route path="staff" element={<Navigate to="/admin/settings/staff" replace />} />
-      <Route path="settings" element={<AdminSettingsPage />} />
-      <Route path="settings/:tab" element={<AdminSettingsPage />} />
-      <Route path="audit-log" element={<AdminAuditPage />} />
-      <Route path="audit-log/:eventId" element={<AdminAuditPage />} />
-      <Route path="report" element={<AdminReportPrintPage />} />
-      <Route path="*" element={<AdminNotFoundPage />} />
+        <Route index element={<AdminHomeEntry />} />
+        <Route path="accounts" element={<AdminAccountsPage />} />
+        <Route path="accounts/merge" element={<AdminAccountsPage />} />
+        <Route path="accounts/:accountId" element={<AdminAccountsPage />} />
+        <Route path="moderation/*" element={<AdminModerationPage />} />
+        <Route path="verification/*" element={<AdminVerificationPage />} />
+        <Route path="reports/*" element={<AdminReportsPage />} />
+        <Route path="live-ops" element={<AdminLiveOpsPage />} />
+        <Route path="observability" element={<AdminObservabilityPage />} />
+        <Route path="comms/*" element={<AdminCommsPage />} />
+        <Route path="support" element={<AdminSupportPage />} />
+        <Route path="support/:queryId" element={<AdminSupportPage />} />
+        <Route path="staff" element={<Navigate to="/admin/settings/staff" replace />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="settings/:tab" element={<AdminSettingsPage />} />
+        <Route path="site-copy/*" element={<AdminCopyArea area="site-copy" />} />
+        <Route path="product-names/*" element={<AdminCopyArea area="product-names" />} />
+        <Route path="media/*" element={<AdminCopyArea area="media" />} />
+        <Route path="audit-log" element={<AdminAuditPage />} />
+        <Route path="audit-log/:eventId" element={<AdminAuditPage />} />
+        <Route path="report" element={<AdminReportPrintPage />} />
+        <Route path="*" element={<AdminNotFoundPage />} />
       </Route>
     </Routes>
   </Suspense>

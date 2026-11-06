@@ -33,7 +33,7 @@ export const NAV_SEARCH_PLACEHOLDER = 'Search opportunities, skills, communities
 export const SIDEBAR_PROFILE = {
   name: 'Joel Adade Kofie',
   badge: 'New',
-  meta: 'HR Lead · Silver Rock Technology · Accra, Ghana',
+  meta: 'HR Lead · Silver Rock Technology · Accra, GH', // Figma V2.0 (7249:86094) reads "Accra, GH"
   progressNote: '1 of 5 steps complete',
   gettingStartedLabel: 'Getting started',
   gettingStartedCount: '1 of 5',

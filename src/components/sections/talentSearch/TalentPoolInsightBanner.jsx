@@ -12,13 +12,8 @@ const log = debug('TalentPoolInsightBanner');
  * (878 + 24 + 427 = 1329). Figma's child ORDER lists the tile first, but the
  * x coordinates are what place them — hence green-then-white here.
  *
- * FONT NOTE — Figma sets the banner heading in Playfair Display 18/28
- * (7249:74595). Playfair is not loaded anywhere in this project and appears on
- * this one node only; every other serif in the file (including the "78%" stat
- * right next to it) is Instrument Serif, which IS the documented display face.
- * Treated as designer drift and rendered in `font-display` rather than pulling
- * in a second serif family for a single string. Flagged in
- * wiki/figma-node-map.md — swap to Playfair if it was deliberate.
+ * FONT NOTE — Figma sets the banner heading in Playfair Display 18/28 (7249:74597),
+ * weight 400, loaded in index.html (Georgia stays as the fallback).
  */
 const TalentPoolInsightBanner = ({ onViewReport, className }) => {
   log('render', { averageMatch: AVERAGE_MATCH.value });
@@ -36,8 +31,8 @@ const TalentPoolInsightBanner = ({ onViewReport, className }) => {
             panel, so it bleeds off the bottom-right corner and gets clipped. */}
         <InsightTrendWatermark className="pointer-events-none absolute left-[90.43%] top-[76.6%] h-[60px] w-[100px] text-white opacity-[0.10] max-sm:bottom-[-6px] max-sm:left-auto max-sm:right-[-10px] max-sm:top-auto max-sm:h-[48px] max-sm:w-[80px] max-sm:opacity-[0.2]" />
 
-        <div className="relative flex max-w-[433px] flex-col gap-[8px]">
-          <h3 className="font-display not-italic text-[18px] max-sm:text-[16px] leading-7 max-sm:leading-6 text-white">
+        <div className="relative flex flex-col gap-[8px]">
+          <h3 className="font-['Playfair_Display',Georgia,serif] text-[18px] font-normal max-sm:text-[16px] leading-7 max-sm:leading-6 text-white">
             {TALENT_POOL_INSIGHT.heading}
           </h3>
           {/* Figma node opacity 0.90 on the body block; whitespace-pre-line
@@ -62,7 +57,7 @@ const TalentPoolInsightBanner = ({ onViewReport, className }) => {
         <p className="font-sans text-[11px] max-lg:text-[12px] font-semibold leading-[15.4px] tracking-[0.44px] text-content-muted">
           {AVERAGE_MATCH.label}
         </p>
-        <p className="font-display not-italic text-[36px] max-sm:text-[26px] leading-10 max-sm:leading-8 text-brand-green">
+        <p className="font-heading text-[32px] font-semibold max-sm:text-[26px] leading-[38px] max-sm:leading-8 text-brand-green">
           {AVERAGE_MATCH.value}
         </p>
         <p className="pt-[7px] font-sans text-[11px] max-lg:text-[12px] leading-[17.6px] text-[#6b6a63]">

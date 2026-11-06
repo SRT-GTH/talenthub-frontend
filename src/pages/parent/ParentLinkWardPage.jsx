@@ -10,11 +10,8 @@ import LinkCodeDialog from '../../components/sections/parent/link/LinkCodeDialog
 import LinkWardSearch from '../../components/sections/parent/link/LinkWardSearch.jsx';
 import LinkWardSent from '../../components/sections/parent/link/LinkWardSent.jsx';
 import { useLinkWardState } from '../../components/sections/parent/link/linkWardState.js';
-import {
-  LINK_SUBTITLE,
-  LINK_TITLE,
-  MOCK_CODES,
-} from '../../components/sections/parent/link/data/linkWardData.js';
+import { MOCK_CODES } from '../../components/sections/parent/link/data/linkWardData.js';
+import { PARENT_PAGE_TEXT } from '../../copy/portals/parentCopy.js';
 
 const log = debug('ParentLinkWardPage');
 
@@ -114,11 +111,11 @@ const ParentLinkWardPage = () => {
       <div className="mx-auto flex w-full max-w-[1329px] flex-col gap-[24px]">
         <header className="flex flex-col gap-[3px]">
           <h1 className="m-0 font-sans text-[clamp(26px,2vw,34px)] leading-[1.2] font-semibold tracking-[-0.68px] text-[#1c2a21]">
-            {LINK_TITLE}
+            {PARENT_PAGE_TEXT.link.title}
           </h1>
           {step === 'search' && !me.live ? (
             <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#999]">
-              {LINK_SUBTITLE}
+              {PARENT_PAGE_TEXT.link.subtitle}
             </p>
           ) : null}
         </header>

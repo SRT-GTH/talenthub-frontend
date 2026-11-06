@@ -141,7 +141,7 @@ export const TalentContactOverlay = () => {
               lineHeight: px(12.2),
               color: '#FEFEFE',
               opacity: 0.72,
-              fontFamily: "'Instrument Sans', var(--font-sans)",
+              fontFamily: "'Instrument Sans Variable', 'Instrument Sans', var(--font-sans)",
             }}
           >
             SMS + Email · expires in 10 min
@@ -225,7 +225,7 @@ export const TalentContactOverlay = () => {
               fontSize: px(12),
               lineHeight: px(14.6),
               color: '#1C2A21',
-              fontFamily: "'Instrument Sans', var(--font-sans)",
+              fontFamily: "'Instrument Sans Variable', 'Instrument Sans', var(--font-sans)",
             }}
           >
             Phone

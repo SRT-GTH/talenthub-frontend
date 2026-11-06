@@ -100,7 +100,16 @@ export const logout = () => {
   localStorage.removeItem(STORAGE_KEYS.userProfile);
 };
 
-export const isLoggedIn = () => Boolean(localStorage.getItem(STORAGE_KEYS.authToken));
+// Site copy → Preview (`?copyPreview=`): pages show their sample account, never the staff member's own session.
+const inCopyPreview = () => {
+  try {
+    return new URLSearchParams(window.location.search).has('copyPreview');
+  } catch {
+    return false;
+  }
+};
+export const isLoggedIn = () =>
+  !inCopyPreview() && Boolean(localStorage.getItem(STORAGE_KEYS.authToken));
 
 /* entityType from the stored access token, for sessions whose stored profile lacks it. */
 const tokenEntityType = () => {

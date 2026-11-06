@@ -7,13 +7,18 @@ import { classNames } from '../../../utils/classNames.js';
  */
 export const BADGE_GRADIENT = 'linear-gradient(136.55deg, #387440 14.637%, #84cc16 85.349%)';
 
-const NavBadge = ({ count, className, style }) => (
+/* `solid` = the V2.0 recruiter rail's flat #387440 pill (Figma 7249:76140 badge); default stays the gradient. */
+const NavBadge = ({ count, className, style, solid = false }) => (
   <span
     className={classNames(
       'inline-flex h-[18px] items-center justify-center overflow-hidden rounded-[99px] px-[6px] py-[2px] font-sans text-[10px] max-lg:text-[12px] font-medium text-white',
       className
     )}
-    style={{ backgroundImage: BADGE_GRADIENT, ...style }}
+    style={
+      solid
+        ? { backgroundColor: '#387440', ...style }
+        : { backgroundImage: BADGE_GRADIENT, ...style }
+    }
   >
     {count}
   </span>

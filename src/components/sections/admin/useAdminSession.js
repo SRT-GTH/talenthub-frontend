@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { debug } from '../../../utils/debug.js';
 import { readStaffSession } from '../../../services/adminSession.js';
-import { BADGES, STAFF, STAFF_STATUS_LINE } from './data/adminCoreData.js';
+import { BADGES, ROLE_IDS, STAFF, STAFF_STATUS_LINE } from './data/adminCoreData.js';
+import { copyAccess, copyNavIds } from './siteCopy/copyAccess.js';
 
 const log = debug('useAdminSession');
 
@@ -40,13 +41,52 @@ export const staffFromUser = (user, role) => {
   };
 };
 
+/*
+ * Mock role override for the Site copy area (Platform Admin 7.8): the backend has no Content Editor role and the area runs on mock data,
+ * so `?role=editor|super|senior|support|moderator|dpo` picks the role of the screen INSIDE that area only (the paths below, and `/admin`
+ * for the Content Editor home `?role=editor` / name-change home `?role=super&copy=1`). It needs a real staff session first and grants
+ * nothing on real-data pages: everywhere else the role still comes from the account.
+ */
+const MOCK_ROLE_PREFIXES = ['/admin/site-copy', '/admin/product-names', '/admin/media'];
+export const mockCopyRole = (pathname, search) => {
+  const q = new URLSearchParams(search);
+  const role = q.get('role');
+  if (!role || !ROLE_IDS.includes(role)) return null;
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const inArea = MOCK_ROLE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+  const home = path === '/admin' && (role === 'editor' || q.has('copy'));
+  return inArea || home ? role : null;
+};
+
 export const useAdminSession = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   return useMemo(() => {
     const s = readStaffSession();
     if (!s) {
       log('no staff session');
-      return { signedIn: false, role: null, staff: STAFF.senior, badges: BADGES, statusLine: STAFF_STATUS_LINE };
+      return {
+        signedIn: false,
+        role: null,
+        staff: STAFF.senior,
+        badges: BADGES,
+        statusLine: STAFF_STATUS_LINE,
+      };
+    }
+    const mock = mockCopyRole(pathname, search);
+    if (mock) {
+      log('session (mock site-copy role)', { real: s.role, mock });
+      return {
+        signedIn: true,
+        role: mock,
+        mock: true,
+        realRole: s.role,
+        user: s.user,
+        staff: STAFF[mock],
+        badges: BADGES,
+        statusLine: STAFF_STATUS_LINE,
+        copy: copyAccess(mock),
+        copyNav: copyNavIds(mock),
+      };
     }
     log('session', { role: s.role });
     return {
@@ -58,8 +98,9 @@ export const useAdminSession = () => {
       staff: staffFromUser(s.user, s.role),
       badges: BADGES,
       statusLine: STAFF_STATUS_LINE,
+      copy: copyAccess(s.role),
+      copyNav: copyNavIds(s.role),
     };
     // Re-read on navigation so a sign-in / sign-out shows up without a reload.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, search]);
 };

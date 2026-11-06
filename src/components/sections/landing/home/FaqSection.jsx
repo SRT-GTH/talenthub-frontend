@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { debug } from '../../../../utils/debug.js';
 import { LpBIcon } from './LpBIcons.jsx';
 import { AccentTitle, Chip, SectionHead } from './LpBParts.jsx';
-import { FAQ_DEFAULT_OPEN, FAQ_HEAD, FAQ_HELP, FAQ_ITEMS } from './FaqData.js';
+import { FAQ_DEFAULT_OPEN } from './FaqData.js';
+import { useCopySection } from '../../../../copy/useCopySection.js';
+import { HOME_FAQ_COPY } from '../../../../copy/landingHomeCopy.js';
 
 const log = debug('FaqSection');
 
@@ -13,11 +15,13 @@ const log = debug('FaqSection');
  * The answer expands with a height + fade animation; the toggle swaps + / ×.
  */
 const FaqSection = () => {
+  // Text: the page's own copy with what staff published in Site copy (Platform Admin 7.8) applied.
+  const { FAQ_HEAD, FAQ_HELP, FAQ_ITEMS, TITLE } = useCopySection(HOME_FAQ_COPY);
   const [openId, setOpenId] = useState(FAQ_DEFAULT_OPEN);
 
   useEffect(() => {
     log('mount, items:', FAQ_ITEMS.length, 'open:', FAQ_DEFAULT_OPEN);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount log only
 
   const toggle = (id) => {
     const next = openId === id ? null : id;
@@ -39,7 +43,11 @@ const FaqSection = () => {
             </Chip>
           }
           title={
-            <AccentTitle lead="Questions? We’ve " accent="got you." accentClass="text-[#387440]" />
+            <AccentTitle
+              lead={`${TITLE.lead} `}
+              accent={TITLE.accent}
+              accentClass="text-[#387440]"
+            />
           }
           titleClass="font-heading font-semibold text-[#1c2a21]"
         />

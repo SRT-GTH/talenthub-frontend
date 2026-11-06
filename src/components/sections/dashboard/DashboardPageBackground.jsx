@@ -37,49 +37,85 @@ import bgEllipse3 from '../../../assets/community/bg-ellipse-3.svg';
  *        hatch: it's a paint-time positioning rule for the background image,
  *        the element itself stays a completely normal, clippable box.
  */
-const DashboardPageBackground = ({ className }) => (
-  <div
-    aria-hidden="true"
-    className={classNames(
-      'pointer-events-none absolute inset-0 overflow-hidden bg-white',
-      className
-    )}
-  >
+/*
+ * `variant="recruiter"` — the "Job prospecting V2.0" recruiter canvas (Figma frame 7249:75818, measured 2026-11-04):
+ *   - base = white + #E1EAE2 at 20% = #F9FBF9 (the frame's two fills), not plain white
+ *   - the grid texture is drawn twice: full width, plus a 767px-wide copy rotated 180deg on the left
+ *   - the three blurred ellipses are 571 / 473 / 571px circles (the ellipse SVGs carry a 200px blur margin, so each
+ *     SVG is drawn 971 / 873 / 971px) at Figma's absolute coordinates, expressed in vw so they scale with the frame
+ *     (frame y has the 52px Safari toolbar subtracted). The default variant sizes the same SVGs at the circle
+ *     diameter, which shrinks the circles to ~59% — left untouched for the other consumers.
+ */
+const RECRUITER_ELLIPSE_LAYERS = {
+  backgroundImage: (a, b, c) => `url("${a}"), url("${b}"), url("${c}")`,
+  backgroundPosition: '-22.11vw -29.63vw, 27.55vw -21.93vw, 70.83vw 20.72vw',
+  backgroundSize: '56.19vw auto, 50.52vw auto, 56.19vw auto',
+};
+
+const DashboardPageBackground = ({ className, variant = 'default' }) => {
+  const recruiter = variant === 'recruiter';
+  return (
     <div
-      className="absolute inset-0 opacity-70"
-      style={{
-        backgroundImage: `url(${bgGrid})`,
-        backgroundAttachment: 'fixed',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-      }}
-    />
-    <div
-      className="absolute inset-0"
-      style={{
-        // Quoted `url("...")`, not bare `url(...)` — Vite dev inlines these
-        // small SVGs as unquoted data URIs, and the SVGs' own
-        // `filter='url(#id)'` attributes contain literal, unescaped parens.
-        // Bare inside a CSS url() token, an unescaped `(`/`)` terminates the
-        // token early, which silently invalidates this ENTIRE multi-layer
-        // background-image (all 3 ellipses, not just the offending one) —
-        // the browser drops the whole declaration with no console error.
-        // Quoting lets the string carry parens safely. Root-caused
-        // 2026-09-18 after the ellipses render fine on some assets (the
-        // grid PNG's own plain path has no special characters) but silently
-        // vanish here.
-        backgroundImage: `url("${bgEllipse2}"), url("${bgEllipse3}"), url("${bgEllipse1}")`,
-        backgroundAttachment: 'fixed, fixed, fixed',
-        backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
-        // left/top offsets as vw/vh lengths (not %) = the original absolute
-        // `left/top` percentages, but resolved against the viewport instead
-        // of whichever element happens to render this.
-        backgroundPosition: '-10.53vw -23.28vh, 39.12vw -11.37vh, 82.41vw 54.61vh',
-        backgroundSize: '33.04vw auto, 27.37vw auto, 33.04vw auto',
-      }}
-    />
-  </div>
-);
+      aria-hidden="true"
+      className={classNames(
+        'pointer-events-none absolute inset-0 overflow-hidden',
+        recruiter ? 'bg-[#f9fbf9]' : 'bg-white',
+        className
+      )}
+    >
+      <div
+        className="absolute inset-0 opacity-70"
+        style={{
+          backgroundImage: `url(${bgGrid})`,
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          // Quoted `url("...")`, not bare `url(...)` — Vite dev inlines these
+          // small SVGs as unquoted data URIs, and the SVGs' own
+          // `filter='url(#id)'` attributes contain literal, unescaped parens.
+          // Bare inside a CSS url() token, an unescaped `(`/`)` terminates the
+          // token early, which silently invalidates this ENTIRE multi-layer
+          // background-image (all 3 ellipses, not just the offending one) —
+          // the browser drops the whole declaration with no console error.
+          // Quoting lets the string carry parens safely. Root-caused
+          // 2026-09-18 after the ellipses render fine on some assets (the
+          // grid PNG's own plain path has no special characters) but silently
+          // vanish here.
+          backgroundImage: recruiter
+            ? RECRUITER_ELLIPSE_LAYERS.backgroundImage(bgEllipse2, bgEllipse3, bgEllipse1)
+            : `url("${bgEllipse2}"), url("${bgEllipse3}"), url("${bgEllipse1}")`,
+          backgroundAttachment: 'fixed, fixed, fixed',
+          backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
+          // left/top offsets as vw/vh lengths (not %) = the original absolute
+          // `left/top` percentages, but resolved against the viewport instead
+          // of whichever element happens to render this.
+          backgroundPosition: recruiter
+            ? RECRUITER_ELLIPSE_LAYERS.backgroundPosition
+            : '-10.53vw -23.28vh, 39.12vw -11.37vh, 82.41vw 54.61vh',
+          backgroundSize: recruiter
+            ? RECRUITER_ELLIPSE_LAYERS.backgroundSize
+            : '33.04vw auto, 27.37vw auto, 33.04vw auto',
+        }}
+      />
+      {recruiter && (
+        <div
+          className="absolute inset-y-0 left-0 w-[44.39vw] rotate-180 opacity-70"
+          style={{
+            backgroundImage: `url(${bgGrid})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+          }}
+        />
+      )}
+    </div>
+  );
+};
 
 export default DashboardPageBackground;

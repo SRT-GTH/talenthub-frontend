@@ -1,12 +1,17 @@
 /*
  * jobScreeningData.js — verbatim content for the Recruiter Job Screening
- * screen. Source: Figma Bin8roWL8sloyc36IgFMuT, frame 7249:78066
+ * screen. Source: Figma OHG2xsfCCskT8xEn356njv (Job prospecting V2.0), frame 7249:78066
  * ("RECRUITER - JOB SCREENING / Screening Criteria"), canvas 7249:78213.
  *
  * The section's second frame (7249:78533 "Dropdown Menu Item Hover") is the
- * same screen with the "Applying to" select open, i.e. a state of this one.
+ * same screen with the Minimum Experience value dropdown open and its "2 - 5" row
+ * hovered. (The "Applying to" select is closed in both frames.)
+ *
+ * `enabled` = the switch state drawn at the end of each criteria row / card
+ * header: on everywhere except Education Level (7249:78315, grey track).
  */
 
+// V2.0 (7249:78217): Bricolage Grotesque 600, 'Job ' #1c2a21 + 'Screening' #387440.
 export const PAGE_HEADING = { lead: 'Job ', accent: 'Screening' };
 export const PAGE_SUBHEADING =
   "Automatically filter out applicants who don't meet your requirements.";
@@ -27,10 +32,16 @@ export const CORE_REQUIREMENTS = {
       title: 'Minimum Experience',
       description: 'Filter candidates based on total years in a relevant strategic role.',
       value: '10+ Years',
+      enabled: true,
       // Figma 7249:78785 — the only dropdown this frame set opens. 115x174,
       // white, 0.7px #e5e5e5, r10, 4px vertical padding; 41px rows separated
       // by 0.6px #e5e5e5 rules, hovered row #f6f6f6, labels 14/400 #737373.
-      options: ['0 - 2', '2 - 5', '5 - 10', '10+'],
+      options: [
+        { id: '0-2', label: '0 - 2' },
+        { id: '2-5', label: '2 - 5' },
+        { id: '5-10', label: '5 - 10' },
+        { id: '10-plus', label: '10+' },
+      ],
       meta: 'Weight',
     },
     {
@@ -40,13 +51,16 @@ export const CORE_REQUIREMENTS = {
       description: 'Mandatory match for primary skills: Strategy, Financial Modeling, SQL.',
       tags: ['Strategy', 'Modeling', 'Leadership'],
       addLabel: '+ Add Skill',
+      enabled: true,
     },
     {
       id: 'education',
       icon: 'education',
       title: 'Education Level',
       description: 'Verified degree from institutional partners or accredited universities.',
-      value: 'Master’s Degree',
+      // Figma 7249:78313 — a plain bordered chip, no chevron, switch OFF.
+      staticValue: 'Master’s Degree',
+      enabled: false,
     },
   ],
 };
@@ -75,6 +89,7 @@ export const PERFORMANCE_CONTEXT = [
   {
     id: 'assessment',
     icon: 'gauge',
+    enabled: true,
     title: 'Assessment Score',
     description: 'Minimum GTH threshold score.',
     badge: 'MIN THRESHOLD',
@@ -85,6 +100,7 @@ export const PERFORMANCE_CONTEXT = [
   {
     id: 'location',
     icon: 'location',
+    enabled: true,
     title: 'Location Match',
     description: 'Proximity to regional hub.',
     value: 'Remote / London Hub',

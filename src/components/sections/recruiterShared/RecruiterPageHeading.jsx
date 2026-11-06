@@ -17,9 +17,52 @@ const log = debug('RecruiterPageHeading');
  *   lead     string — the #111111 run, including its trailing space
  *   accent   string — the italic brand-green run
  *   subtitle string — supporting line, 16/24 #999999
+ *   titleStyle 'serif' (default) | 'sans' — see below
  */
-const RecruiterPageHeading = ({ lead, accent, subtitle, className }) => {
-  log('render', { lead, accent });
+const RecruiterPageHeading = ({ lead, accent, subtitle, className, titleStyle = 'serif' }) => {
+  log('render', { lead, accent, titleStyle });
+
+  /* titleStyle="sans" (Job prospecting V2.0): Bricolage Grotesque 600, 34/41, -0.68 tracking, #1c2a21 — the
+     Messages frames 7249:83993 onwards. Clamped. Default 'serif' = the original Instrument Serif title. */
+  /* titleStyle="sans-accent" (Talent Search 7249:74318, Job Templates 7249:75082): Bricolage Grotesque 600
+     40/48, -0.8 tracking; lead run #1c2a21, accent run #387440 (same weight, NOT italic). Clamped. */
+  if (titleStyle === 'sans-accent') {
+    return (
+      <div className={classNames('flex min-w-0 flex-col gap-[3px]', className)}>
+        <h1
+          className="font-heading font-semibold tracking-[-0.02em] text-[#1c2a21]"
+          style={{ fontSize: 'clamp(1.75rem, 1.4rem + 1.1vw, 2.5rem)', lineHeight: 1.2 }}
+        >
+          {lead}
+          <span className="text-brand-green">{accent}</span>
+        </h1>
+        {subtitle && (
+          <p className="whitespace-pre-wrap font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999] max-md:hidden">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (titleStyle === 'sans') {
+    return (
+      <div className={classNames('flex min-w-0 flex-col gap-[3px]', className)}>
+        <h1
+          className="font-heading font-semibold tracking-[-0.02em] text-[#1c2a21]"
+          style={{ fontSize: 'clamp(1.625rem, 1.3rem + 0.9vw, 2.125rem)', lineHeight: 1.2 }}
+        >
+          {lead}
+          {accent}
+        </h1>
+        {subtitle && (
+          <p className="font-sans text-[16px] leading-6 tracking-[0.2px] text-[#999999] max-md:hidden">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={classNames('flex min-w-0 flex-col gap-[3px]', className)}>

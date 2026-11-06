@@ -2,37 +2,38 @@
  * talentSearchIcons.jsx — small UI glyphs for the Recruiter Talent Search
  * screen (Figma 7249:74283).
  *
- * Hand-crafted per the session rule: only each icon's bounding box, stroke /
- * fill colour and stroke weight were taken from Figma; no path data was
- * copied. All use `currentColor` so callers set colour with a token class.
+ * Every path is the Figma REST `svg` export of the glyph itself (file
+ * OHG2xsfCCskT8xEn356njv) with the baked colour replaced by `currentColor`, so
+ * callers set the colour with a token class. Nothing is hand-drawn.
+ *
+ *   FilterRemoveIcon     7x7    x on an active filter chip   (7249:74335)
+ *   MoreFiltersIcon      11x11  "More Filters" sliders       (7249:74353)
+ *   LightbulbIcon        20x20  Match Explanation bulb       (7249:74400)
+ *   SaveHeartIcon        12x11  save-candidate button        (7249:74394)
+ *   MoreDotsIcon         10x3   row-actions button           (7249:74397)
+ *   ConversationIcon     22x22  "Start Conversation" mail    (7249:74430; Figma strokes it with a
+ *                               near-white gradient #FEF1E7 -> #E8F2ED, rendered here as currentColor)
+ *   InsightTrendWatermark 100x60 trend arrow in the green banner (7249:74594)
  */
 
-// Figma 7249:74337 — 7x7 remove control on each active filter chip.
 export const FilterRemoveIcon = ({ className = '' }) => (
   <svg viewBox="0 0 7 7" fill="none" aria-hidden="true" className={className}>
     <path
-      d="M1.3 1.3 5.7 5.7M5.7 1.3 1.3 5.7"
-      stroke="currentColor"
-      strokeWidth="1.1"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-// Figma 7249:74352 — 10.5x10.5 #387440 filter glyph on "More Filters".
-// Path supplied verbatim by the user from the Figma node; `currentColor`
-// replaces the baked #387440 so callers set the colour.
-export const MoreFiltersIcon = ({ className = '' }) => (
-  <svg viewBox="0 0 11 11" fill="none" aria-hidden="true" className={className}>
-    <path
-      d="M4.66667 10.5V7H5.83333V8.16667H10.5V9.33333H5.83333V10.5H4.66667ZM0 9.33333V8.16667H3.5V9.33333H0ZM2.33333 7V5.83333H0V4.66667H2.33333V3.5H3.5V7H2.33333ZM4.66667 5.83333V4.66667H10.5V5.83333H4.66667ZM7 3.5V0H8.16667V1.16667H10.5V2.33333H8.16667V3.5H7ZM0 2.33333V1.16667H5.83333V2.33333H0Z"
+      d="M0.7 7L0 6.3L2.8 3.5L0 0.7L0.7 0L3.5 2.8L6.3 0L7 0.7L4.2 3.5L7 6.3L6.3 7L3.5 4.2L0.7 7V7"
       fill="currentColor"
     />
   </svg>
 );
 
-// Figma 7249:74472 (hugeicons:bulb) — 20x20, stroke 1.8. Match Explanation.
-// Path supplied verbatim by the user; `currentColor` replaces the baked fill.
+export const MoreFiltersIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 11 11" fill="none" aria-hidden="true" className={className}>
+    <path
+      d="M4.88889 11V7.33333H6.11111V8.55556H11V9.77778H6.11111V11H4.88889V11M0 9.77778V8.55556H3.66667V9.77778H0V9.77778M2.44444 7.33333V6.11111H0V4.88889H2.44444V3.66667H3.66667V7.33333H2.44444V7.33333M4.88889 6.11111V4.88889H11V6.11111H4.88889V6.11111M7.33333 3.66667V0H8.55556V1.22222H11V2.44444H8.55556V3.66667H7.33333V3.66667M0 2.44444V1.22222H6.11111V2.44444H0V2.44444"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export const LightbulbIcon = ({ className = '' }) => (
   <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
     <path
@@ -45,51 +46,43 @@ export const LightbulbIcon = ({ className = '' }) => (
   </svg>
 );
 
-// Figma 7249:74401 — 11.67x10.70, fill #737373. Save / favourite control.
 export const SaveHeartIcon = ({ className = '' }) => (
   <svg viewBox="0 0 12 11" fill="none" aria-hidden="true" className={className}>
     <path
-      d="M6 10.2 1.6 6.1a2.7 2.7 0 0 1 3.8-3.8L6 2.9l.6-.6a2.7 2.7 0 0 1 3.8 3.8L6 10.2Z"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinejoin="round"
+      d="M5.99459 11.0001L5.12537 10.2208C4.11628 9.31159 3.28204 8.5273 2.62263 7.8679C1.96323 7.20849 1.4387 6.61652 1.04905 6.092C0.659405 5.56747 0.38715 5.08541 0.23229 4.6458C0.0774301 4.2062 0 3.75661 0 3.29702C0 2.35787 0.314716 1.57358 0.944147 0.944147C1.57358 0.314716 2.35787 0 3.29702 0C3.81655 0 4.31111 0.109901 4.78068 0.329702C5.25026 0.549504 5.65489 0.859224 5.99459 1.25886C6.33428 0.859224 6.73891 0.549504 7.20849 0.329702C7.67807 0.109901 8.17262 0 8.69215 0C9.6313 0 10.4156 0.314716 11.045 0.944147C11.6745 1.57358 11.9892 2.35787 11.9892 3.29702C11.9892 3.75661 11.9117 4.2062 11.7569 4.6458C11.602 5.08541 11.3298 5.56747 10.9401 6.092C10.5505 6.61652 10.0259 7.20849 9.36654 7.8679C8.70714 8.5273 7.87289 9.31159 6.8638 10.2208L5.99459 11.0001V11.0001M5.99459 9.38153C6.95372 8.5223 7.74301 7.78547 8.36245 7.17102C8.98189 6.55658 9.47145 6.02206 9.83112 5.56747C10.1908 5.11288 10.4406 4.70825 10.5804 4.35357C10.7203 3.99889 10.7903 3.64671 10.7903 3.29702C10.7903 2.69756 10.5904 2.19802 10.1908 1.79838C9.79116 1.39874 9.29161 1.19892 8.69215 1.19892C8.22257 1.19892 7.78797 1.3313 7.38833 1.59606C6.98869 1.86082 6.71394 2.19802 6.56407 2.60765V2.60765H5.4251V2.60765C5.27524 2.19802 5.00048 1.86082 4.60085 1.59606C4.20121 1.3313 3.7666 1.19892 3.29702 1.19892C2.69756 1.19892 2.19802 1.39874 1.79838 1.79838C1.39874 2.19802 1.19892 2.69756 1.19892 3.29702C1.19892 3.64671 1.26885 3.99889 1.40873 4.35357C1.5486 4.70825 1.79838 5.11288 2.15805 5.56747C2.51773 6.02206 3.00728 6.55658 3.62673 7.17102C4.24617 7.78547 5.03545 8.5223 5.99459 9.38153V9.38153"
+      fill="currentColor"
     />
   </svg>
 );
 
-// Figma 7249:74408 — 9.33x2.33, fill #737373. Overflow menu.
 export const MoreDotsIcon = ({ className = '' }) => (
   <svg viewBox="0 0 10 3" fill="none" aria-hidden="true" className={className}>
-    <circle cx="1.2" cy="1.5" r="1.2" fill="currentColor" />
-    <circle cx="5" cy="1.5" r="1.2" fill="currentColor" />
-    <circle cx="8.8" cy="1.5" r="1.2" fill="currentColor" />
+    <path
+      d="M1.25001 2.50002C0.906258 2.50002 0.611984 2.37762 0.367191 2.13283C0.122397 1.88804 0 1.59376 0 1.25001C0 0.906258 0.122397 0.611984 0.367191 0.367191C0.611984 0.122397 0.906258 0 1.25001 0C1.59376 0 1.88804 0.122397 2.13283 0.367191C2.37762 0.611984 2.50002 0.906258 2.50002 1.25001C2.50002 1.59376 2.37762 1.88804 2.13283 2.13283C1.88804 2.37762 1.59376 2.50002 1.25001 2.50002V2.50002M5.00004 2.50002C4.65629 2.50002 4.36202 2.37762 4.11722 2.13283C3.87243 1.88804 3.75003 1.59376 3.75003 1.25001C3.75003 0.906258 3.87243 0.611984 4.11722 0.367191C4.36202 0.122397 4.65629 0 5.00004 0C5.3438 0 5.63807 0.122397 5.88286 0.367191C6.12766 0.611984 6.25005 0.906258 6.25005 1.25001C6.25005 1.59376 6.12766 1.88804 5.88286 2.13283C5.63807 2.37762 5.3438 2.50002 5.00004 2.50002V2.50002M8.75008 2.50002C8.40632 2.50002 8.11205 2.37762 7.86726 2.13283C7.62246 1.88804 7.50007 1.59376 7.50007 1.25001C7.50007 0.906258 7.62246 0.611984 7.86726 0.367191C8.11205 0.122397 8.40632 0 8.75008 0C9.09383 0 9.3881 0.122397 9.6329 0.367191C9.87769 0.611984 10.0001 0.906258 10.0001 1.25001C10.0001 1.59376 9.87769 1.88804 9.6329 2.13283C9.3881 2.37762 9.09383 2.50002 8.75008 2.50002V2.50002"
+      fill="currentColor"
+    />
   </svg>
 );
 
-// Figma 7249:74497 (lets-icons:message) — 22x22, stroke 1.5. "Start Conversation".
 export const ConversationIcon = ({ className = '' }) => (
   <svg viewBox="0 0 22 22" fill="none" aria-hidden="true" className={className}>
     <path
-      d="M3.7 5.5a1.8 1.8 0 0 1 1.8-1.8h11a1.8 1.8 0 0 1 1.8 1.8v7.3a1.8 1.8 0 0 1-1.8 1.8H8.3l-4.6 3.2V5.5Z"
+      d="M5.50008 5.5H16.5001C17.5126 5.5 18.3334 6.32081 18.3334 7.33333V14.6667C18.3334 15.6792 17.5126 16.5 16.5001 16.5H5.50008C4.48756 16.5 3.66675 15.6792 3.66675 14.6667V7.33333C3.66675 6.32081 4.48756 5.5 5.50008 5.5Z"
       stroke="currentColor"
       strokeWidth="1.5"
-      strokeLinejoin="round"
     />
-    <path d="M7 8.2h8M7 11h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path
+      d="M3.66675 8.25L10.1806 11.5069C10.435 11.6341 10.7156 11.7003 11.0001 11.7003C11.2845 11.7003 11.5651 11.6341 11.8196 11.5069L18.3334 8.25"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
   </svg>
 );
 
-// Figma 7249:74593/74594 — the insight banner's watermark: a 100x60 white
-// arrow at 10% NODE opacity, sitting 794px from the banner's left edge and
-// 144px down, so it bleeds off the bottom-right corner and is clipped.
-// Path supplied verbatim by the user. Their snippet declared viewBox
-// "0 0 84 44" while the path itself spans 0-100 x 0-60 (which is exactly the
-// Figma node size), so the viewBox is set to 0 0 100 60 — otherwise the glyph
-// would be cropped before the banner even clips it.
 export const InsightTrendWatermark = ({ className = '' }) => (
   <svg viewBox="0 0 100 60" fill="none" aria-hidden="true" className={className}>
     <path
-      d="M7 60L0 53L37 15.75L57 35.75L83 10H70V0H100V30H90V17L57 50L37 30L7 60Z"
+      d="M7 60L0 53L37 15.75L57 35.75L83 10H70V0H100V30H90V17L57 50L37 30L7 60V60"
       fill="currentColor"
     />
   </svg>

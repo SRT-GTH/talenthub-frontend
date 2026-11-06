@@ -172,10 +172,154 @@ export const COMING_UP = {
   ],
 };
 
-// Figma 7249:73914 + 7249:73974 — the brand gradient, same two stops the
-// sidebar already uses (DashboardSidebar GREEN_GRADIENT / BADGE_GRADIENT),
-// at this frame's own angle. Figma handles (0.146,0.146) → (0.853,0.853)
-// across a 1329x176 box resolve to ~97.5deg in CSS terms; the stop
-// percentages follow the handle positions, matching the existing constants'
-// convention.
-export const HERO_GRADIENT = 'linear-gradient(97.54deg, #387440 14.637%, #84cc16 85.349%)';
+// Figma 7249:73914 + 7249:73974 (V2.0, 3 Nov) — the hero and the Get-ready progress fill share one gradient:
+// Forest Green #1f4a2b (stop 0) -> #3f7f4c (stop 1). Handles (0.146,0.146) -> (0.853,0.853) across a 1329x176 box resolve to ~97.5deg
+// in CSS terms; the stop percentages follow the handle positions. (The 3 Oct build used #387440 -> #84cc16; Figma replaced it.)
+export const HERO_GRADIENT = 'linear-gradient(97.54deg, #1f4a2b 14.637%, #3f7f4c 85.349%)';
+
+/*
+ * ---- Existing-user home (V2.0 frames 8063:45341, 8193:78567, 8193:79434, 8193:80078) ----
+ * Shaped like the future API payload (GET /recruiter/home?user=existing -> hiring overview + applicants page).
+ * All strings are the Figma node `characters`, verbatim.
+ */
+
+// Figma 8080:49909 (stats card) + 8080:49927 (recommendation card)
+export const HIRING_OVERVIEW = {
+  sortLabel: 'Sort by Match',
+  stats: [
+    { id: 'total-applicants', label: 'Total Applicants', value: '128', valueColor: '#00522b' },
+    { id: 'screening', label: 'Screening', value: '42', valueColor: '#43664d' },
+    { id: 'average-match', label: 'Avg. Match', value: '84%', valueColor: '#43664d' },
+  ],
+  nextStepRecommendation: {
+    label: 'Next Step Recommendation',
+    title: 'Schedule Panel Interviews',
+    description: 'Top 5 candidates have passed technical screening.',
+  },
+};
+
+// Figma 8121:19114 table header
+export const APPLICANT_TABLE_COLUMNS = {
+  applicantName: 'Applicant Name',
+  currentStage: 'Current Stage',
+  matchScore: 'Match Score',
+  appliedDate: 'Applied Date',
+  actions: 'Actions',
+};
+
+// Stage pill look per stage (Figma 8155:27469 interview/screening, 8155:27475 accepted, 8121:19223 rejected).
+export const APPLICANT_STAGES = {
+  interview: { label: 'Interview', pillClass: 'border-[#e8e8e4] bg-[#f8f8f4] text-[#737373]' },
+  screening: { label: 'Screening', pillClass: 'border-[#e8e8e4] bg-[#f8f8f4] text-[#737373]' },
+  accepted: { label: 'Accepted', pillClass: 'border-[#e1eae2] bg-[#f3f8f4] text-[#2a5730]' },
+  rejected: { label: 'Rejected', pillClass: 'border-[#ebc2bd] bg-[#f9ebea] text-[#902b20]' },
+};
+
+// Figma 8121:19129 body rows. `matchBarFillPercent` is the bar fill AS DRAWN (42/48, 37/48, 45/48, 12/48 px): it does not equal the score for
+// 82% and 15% in Figma, so it is kept separate from `matchScorePercent` (which is the number shown).
+export const APPLICANTS_PAGE = {
+  applicants: [
+    {
+      id: 'elena-sterling',
+      initials: 'ES',
+      avatarClass: 'bg-[#c1e9c9] text-[#43664d]',
+      name: 'Elena Sterling',
+      headline: 'Formerly at Vercel • 8 yrs exp.',
+      stage: 'interview',
+      matchScorePercent: 88,
+      matchBarFillPercent: (42 / 48) * 100,
+      matchColor: '#00522b',
+      appliedDate: 'Oct 24, 2026',
+    },
+    {
+      id: 'marcus-jensen',
+      initials: 'MJ',
+      avatarClass: 'bg-[#a7f4bb] text-[#00522b]',
+      name: 'Marcus Jensen',
+      headline: 'Freelance Architect • 5 yrs exp.',
+      stage: 'screening',
+      matchScorePercent: 82,
+      matchBarFillPercent: (37 / 48) * 100,
+      matchColor: '#43664d',
+      appliedDate: 'Oct 25, 2026',
+    },
+    {
+      id: 'leila-wong',
+      initials: 'LW',
+      avatarClass: 'bg-[#ffddb6] text-[#633e00]',
+      name: 'Leila Wong',
+      headline: 'Senior Dev at Shopify • 10 yrs exp.',
+      stage: 'accepted',
+      matchScorePercent: 94,
+      matchBarFillPercent: (45 / 48) * 100,
+      matchColor: '#00522b',
+      appliedDate: 'Oct 26, 2026',
+    },
+    {
+      id: 'arthur-blair',
+      initials: 'AB',
+      avatarClass: 'bg-[#e4e2dd] text-[#6b6a63]',
+      name: 'Arthur Blair',
+      headline: 'Junior Dev at Bloom • 2 yrs exp.',
+      stage: 'rejected',
+      matchScorePercent: 15,
+      matchBarFillPercent: (12 / 48) * 100,
+      matchColor: '#b23b3b',
+      appliedDate: 'Oct 27, 2026',
+    },
+  ],
+  pagination: {
+    summary: 'Showing 1 to 4 of 42 applicants',
+    previousLabel: 'Previous',
+    nextLabel: 'Next',
+    pages: [1, 2, 3],
+    currentPage: 1,
+  },
+};
+
+// Row-action menu per applicant stage. Figma 8193:79206 (interview), 8193:79366 (screening), 8193:79660 (accepted), 8193:80703 (rejected).
+// `widthPx` = the menu panel width as drawn (164, or 153 for the single "Reconsider" row); `iconGapPx` = icon/label gap (8 in the first two
+// menus, 6 in the last two). `iconKey` maps to recruiterHomeApplicantIcons.jsx; `tone: 'danger'` = #c0392b text + icon, `'muted'` = #70706e text.
+// The label 'Reshedule interview' (sic) is the node text, kept as drawn (Figma typo) — ⚠️ confirm the intended spelling with design.
+export const APPLICANT_ROW_MENU_BY_STAGE = {
+  interview: {
+    widthPx: 164,
+    iconGapPx: 8,
+    actions: [
+      { id: 'extend-offer', label: 'Extend Offer', iconKey: 'extend-offer' },
+      { id: 'mark-as-accepted', label: 'Mark as Accepted', iconKey: 'mark-as-accepted' },
+      {
+        id: 'reschedule-interview',
+        label: 'Reshedule interview',
+        iconKey: 'reschedule-interview-clock',
+      },
+      { id: 'reject', label: 'Reject', iconKey: 'reject', tone: 'danger' },
+    ],
+  },
+  screening: {
+    widthPx: 164,
+    iconGapPx: 8,
+    actions: [
+      { id: 'shortlist', label: 'Shortlist', iconKey: 'shortlist' },
+      {
+        id: 'reschedule-interview',
+        label: 'Reshedule interview',
+        iconKey: 'reschedule-interview-add',
+      },
+      { id: 'reject', label: 'Reject', iconKey: 'reject', tone: 'danger' },
+    ],
+  },
+  accepted: {
+    widthPx: 164,
+    iconGapPx: 6,
+    actions: [
+      { id: 'message-candidate', label: 'Message candidate', iconKey: 'message-candidate' },
+      { id: 'undo', label: 'Undo', iconKey: 'undo', tone: 'danger' },
+    ],
+  },
+  rejected: {
+    widthPx: 153,
+    iconGapPx: 6,
+    actions: [{ id: 'reconsider', label: 'Reconsider', iconKey: 'reconsider', tone: 'muted' }],
+  },
+};

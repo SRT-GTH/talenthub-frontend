@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import RecruiterOnboardingPanel from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingPanel.jsx';
@@ -14,7 +15,9 @@ import {
   StatusMailIcon,
 } from '../../../components/sections/recruiterOnboarding/organisation/OrganisationIcons.jsx';
 import {
+  ORGANISATIONS,
   describeOrganisation,
+  mockSearchOrganisations,
   requestAffiliation,
   searchOrganisations,
 } from '../../../components/sections/recruiterOnboarding/organisation/organisationData.js';
@@ -81,6 +84,20 @@ const CreateRow = ({ id, label, active, onSelect, onHover }) => (
   </div>
 );
 
+/*
+ * `?state=` seeds (Figma R04 7374:4393…5519): '' default · results (query "MTN Gha") · fuzzy ("SilverRock Technologies") · notfound ("Kente Labs Ghana") ·
+ * selected (MTN Ghana chosen) · sent (MTN Ghana chosen + the "Request sent." modal). The search itself runs as usual after the debounce.
+ */
+const SEED_QUERY = {
+  results: 'MTN Gha',
+  fuzzy: 'SilverRock Technologies',
+  notfound: 'Kente Labs Ghana',
+  selected: 'MTN Ghana',
+  sent: 'MTN Ghana',
+};
+const seedOrg = (seed) =>
+  seed === 'selected' || seed === 'sent' ? ORGANISATIONS.find((o) => o.id === 'mtn-ghana') : null;
+
 const RecruiterOrganisationPage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
@@ -88,14 +105,15 @@ const RecruiterOrganisationPage = () => {
   const listboxId = `${inputId}-listbox`;
   const helperId = `${inputId}-help`;
 
-  const [query, setQuery] = useState('');
+  const seed = frameSeed();
+  const [query, setQuery] = useState(SEED_QUERY[seed] ?? '');
   const [search, setSearch] = useState({ status: 'idle', results: [], suggestion: null });
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(() => seedOrg(seed));
   const [activeIndex, setActiveIndex] = useState(-1);
   const [listClosed, setListClosed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [requested, setRequested] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [requested, setRequested] = useState(seed === 'sent');
+  const [modalOpen, setModalOpen] = useState(seed === 'sent');
   const searchToken = useRef(0);
 
   log('render', { query, status: search.status, selected: selected?.id, modalOpen });
@@ -111,7 +129,7 @@ const RecruiterOrganisationPage = () => {
     const token = (searchToken.current += 1);
     const timer = setTimeout(() => {
       log('search fire', q);
-      searchOrganisations(q)
+      (seed ? mockSearchOrganisations : searchOrganisations)(q)
         .then((res) => {
           if (token !== searchToken.current) {
             log('search stale, dropped', q);
@@ -124,7 +142,7 @@ const RecruiterOrganisationPage = () => {
         .catch((err) => log('search failed', err?.code));
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [query, selected]);
+  }, [query, selected, seed]);
 
   const trimmed = query.trim();
   const mode = selected
@@ -278,7 +296,7 @@ const RecruiterOrganisationPage = () => {
           {...(modalOpen
             ? {
                 copy: {
-                  cardSub: `${data?.profile?.fullName || 'Your profile'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
+                  cardSub: `${data?.profile?.fullName || 'Kwame Asante'} · ${data?.recruiterType === 'freelance' ? 'Freelance' : 'Dedicated'}`,
                 },
               }
             : {})}

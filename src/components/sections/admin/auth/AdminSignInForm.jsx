@@ -72,7 +72,7 @@ const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
           <span className="block text-brand-green">Ghana Talent Hub.</span>
         </h1>
         <p className="m-0 mt-2 max-w-[482px] py-1 text-[16px] max-md:text-[14px] leading-6 text-[#737373]">
-          Use your GTH staff account. 2-step sign-in is required for every role.
+          Use your @{STAFF_DOMAIN} account. 2-step sign-in is required for every role.
         </p>
         <span className="mt-4 flex">
           <WavyDivider />

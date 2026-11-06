@@ -169,8 +169,21 @@ const EngagementTopBar = ({
   stageStatuses,
   trackPct,
   progressWidthClass = 'w-[323px]',
+  // 'muted-checks' (recruiter frames, Figma 7958:160771): future stages are a grey check circle with a
+  // #babab7 label, done and current labels are green, and the arrowheads are green up to the last done step.
+  trailLook = 'default',
   className,
 }) => {
+  const mutedChecks = trailLook === 'muted-checks';
+  // Index of the last done or current stage (green arrowheads stop there).
+  const lastReachedIndex = stages.reduce(
+    (last, stage, i) =>
+      i === currentStageIndex ||
+      (stageStatuses ? stageStatuses[stage.id] === 'completed' : i < currentStageIndex)
+        ? i
+        : last,
+    0
+  );
   const { uiStyle } = useUiStyle();
   const isPlayful = uiStyle === 'playful';
   log('branch', { playfulProgress: isPlayful });
@@ -227,6 +240,8 @@ const EngagementTopBar = ({
         <nav
           ref={trailRef}
           aria-label="Profile engagement stages"
+          // Non-interactive trail (Career Buddy): the scroller itself takes focus so the keyboard can scroll it (axe: scrollable-region-focusable).
+          tabIndex={interactive ? undefined : 0}
           className="flex flex-nowrap items-center gap-x-2 overflow-x-auto no-scrollbar scroll-smooth playful:gap-x-[12px]"
           style={{
             // Fade-out at whichever edge currently has hidden overflow (Figma
@@ -254,16 +269,25 @@ const EngagementTopBar = ({
 
             // Completed and active stages share a green check-circle; future
             // stages use a grey outline circle to signal they're not yet reached.
-            const StageIcon = isFuture ? EmptyCircleIcon : CheckCircleIcon;
+            const StageIcon = isFuture && !mutedChecks ? EmptyCircleIcon : CheckCircleIcon;
             // Playful: future stages use the same filled check-circle, in grey (Figma 7873:50492).
-            const arrowSrc = index <= currentStageIndex ? trailArrowGreen : trailArrowGrey;
+            const arrowSrc =
+              index <= (mutedChecks ? lastReachedIndex : currentStageIndex)
+                ? trailArrowGreen
+                : trailArrowGrey;
 
             const stageClassName = classNames(
               'inline-flex items-center gap-[12px] rounded px-1 py-0.5 playful:px-0 playful:py-0',
               'transition-colors duration-150',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
               // Icon colour: green for completed/active, neutral-dark for future.
-              isCompleted || isCurrent ? 'text-brand-green' : 'text-neutral-dark',
+              isCompleted || isCurrent
+                ? mutedChecks
+                  ? 'text-[#387440]'
+                  : 'text-brand-green'
+                : mutedChecks
+                  ? 'text-[#babab7]'
+                  : 'text-neutral-dark',
               // Hover brings all stages to brand-green as a preview affordance.
               interactive && 'hover:text-brand-green'
             );
@@ -279,7 +303,14 @@ const EngagementTopBar = ({
                     'font-sans text-[14px] leading-[24px] tracking-[0.14px]',
                     // Text colour is independent of icon: only the active step
                     // reads brand-green; completed + future both read neutral-dark.
-                    isCurrent ? 'font-semibold text-brand-green' : 'font-medium text-neutral-dark',
+                    mutedChecks
+                      ? // Muted-checks: the label takes the icon's colour (set on the wrapper); the current step and the one after it are Semibold.
+                        index === currentStageIndex || index === currentStageIndex + 1
+                        ? 'font-semibold'
+                        : 'font-medium'
+                      : isCurrent
+                        ? 'font-semibold text-brand-green'
+                        : 'font-medium text-neutral-dark',
                     'playful:capitalize',
                     // Figma 7873:50496: the stage right after the current one is Semibold in every frame
                     index === currentStageIndex + 1 && 'playful:font-semibold'
@@ -318,7 +349,10 @@ const EngagementTopBar = ({
                     src={arrowhead}
                     alt=""
                     aria-hidden="true"
-                    className="block size-6 select-none opacity-70 shrink-0 playful:hidden"
+                    className={classNames(
+                      'block size-6 select-none opacity-70 shrink-0 playful:hidden',
+                      mutedChecks && 'hidden'
+                    )}
                     draggable="false"
                   />
                 )}
@@ -327,7 +361,10 @@ const EngagementTopBar = ({
                     src={arrowSrc}
                     alt=""
                     aria-hidden="true"
-                    className="hidden size-[14px] select-none shrink-0 playful:block"
+                    className={classNames(
+                      'size-[14px] select-none shrink-0 playful:block',
+                      mutedChecks ? 'block' : 'hidden'
+                    )}
                     draggable="false"
                   />
                 )}
@@ -368,6 +405,8 @@ const EngagementTopBar = ({
 
       {/* Right: step counter + progress bar, right-aligned (items-end in flex-col) */}
       <div
+        role="region"
+        aria-label="Profile progress"
         className={classNames(
           progressWidthClass,
           'shrink-0 flex flex-col gap-[4px] items-end justify-center max-md:hidden pl-4 playful:w-auto playful:min-w-[323px]'
@@ -395,7 +434,11 @@ const EngagementTopBar = ({
       {/* Phones: one "Step 4 of 9 · Skills  33%" line + bar. The shared
           EngagementProgressIndicator's right-hand copy is ~200px of nowrap
           text, which cannot fit beside the step label at 320px. */}
-      <div className="flex w-full min-w-0 flex-col gap-1 md:hidden">
+      <div
+        role="region"
+        aria-label="Profile progress"
+        className="flex w-full min-w-0 flex-col gap-1 md:hidden"
+      >
         <div className="flex items-center justify-between gap-3">
           <p className="min-w-0 truncate font-sans text-[12px] leading-[18px] tracking-[0.2px] text-yellow-dark-active">
             Step {Math.min(currentStageIndex + 1, stages.length)} of {stages.length} ·{' '}

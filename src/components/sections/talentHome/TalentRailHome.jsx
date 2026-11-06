@@ -18,6 +18,8 @@ import { debug } from '../../../utils/debug.js';
 import avatarPortrait from '../../../assets/talent-settings/menu/kofi-avatar-portrait.svg';
 import { homeTabRoute } from './talentShellData.js';
 import { TALENT_NAV_MAIN, TALENT_NAV_SECONDARY, getTalentSidebarData } from './talentShellData.js';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../../copy/portals/talentCopy.js';
 
 const log = debug('TalentRailHome');
 

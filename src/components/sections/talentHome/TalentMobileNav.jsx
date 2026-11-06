@@ -19,6 +19,8 @@ import {
   getTalentNavData,
   getTalentSidebarData,
 } from './talentShellData.js';
+// Site copy: the texts staff edit are applied to this portal's data (copy/copyBind.js).
+import '../../../copy/portals/talentCopy.js';
 
 const log = debug('TalentMobileNav');
 

@@ -1,30 +1,45 @@
 /*
  * jobPostingsData.js — verbatim content for the Recruiter Job Postings screen.
- * Source: Figma Bin8roWL8sloyc36IgFMuT, frame 7249:75818
+ * Source: Figma OHG2xsfCCskT8xEn356njv (Job prospecting V2.0), frame 7249:75818
  * ("RECRUITER - JOB POSTINGS / All"), content canvas 7249:75849.
  *
- * HEADING NOTE — unlike every other screen in this set, 7249:75853's
- * `characterStyleOverrides` array is EMPTY, so "Job Postings" renders
- * uniformly in its base style (#111111 Instrument Serif, not italic). The node
- * still carries a vestigial styleOverrideTable copied from a sibling heading,
- * but nothing references it. Reproduced as Figma renders it — `accent` is
- * omitted — rather than assuming the split was intended.
+ * HEADING NOTE — V2.0 draws "Job Postings" with a two-tone run split (7249:75853:
+ * 'Job ' #1c2a21, 'Postings' #387440, Bricolage Grotesque 600), same as Job Screening.
  *
  * Double spaces in "Ho,  Ghana" and "Accra,  Ghana" are literal in Figma.
  * "--" is the design's own placeholder for a stat a draft/closed post has no
  * value for.
  */
 
-export const PAGE_HEADING = { lead: 'Job Postings' };
+// V2.0 (7249:75853): Bricolage Grotesque 600, "Job " #1c2a21 + "Postings" #387440.
+export const PAGE_HEADING = { lead: 'Job ', accent: 'Postings' };
 export const PAGE_SUBHEADING = "Track every posting's progress, from draft to hire";
 
-// Figma 7249:75871 — status filter pills. "All" is active and carries a count.
+// Figma 7249:75871 — status filter pills. Only the ACTIVE pill carries a count
+// ("All (5)" in 7249:75818, "Draft (1)" in 7249:76277); the inactive pills are
+// label-only. `count` here is the label Figma draws when that pill is active and
+// the posting list cannot derive it: "All (5)" is kept VERBATIM although the mock
+// list holds 3 cards (Figma inconsistency kept as drawn). Every other pill derives
+// its count from the visible postings.
 export const STATUS_PILLS = [
-  { id: 'all', label: 'All', count: '(5)' },
+  { id: 'all', label: 'All', fixedCount: '(5)' },
   { id: 'active', label: 'Active' },
   { id: 'draft', label: 'Draft' },
   { id: 'closed', label: 'Closed' },
 ];
+
+// URL key values accepted by ?status= (anything else falls back to 'all').
+export const STATUS_FILTER_IDS = STATUS_PILLS.map((pill) => pill.id);
+
+// Figma 7249:76361 — the helper line under the toolbar when a status is filtered:
+// "Showing 1 posting in Draft" ("Draft" is #387440 / 500). Only the singular is
+// drawn; the plural/zero forms below are ⚠️ ASSUMPTION.
+export const FILTER_SUMMARY = {
+  prefix: 'Showing',
+  singular: 'posting',
+  plural: 'postings', // ⚠️ ASSUMPTION — Figma only draws "1 posting"
+  connector: 'in',
+};
 
 export const SEARCH_PLACEHOLDER = 'Search your postings...';
 export const CREATE_POST_LABEL = 'Create Post';
@@ -45,12 +60,12 @@ export const STATUS_STYLES = {
 };
 
 // The 48x48 icon tile and its glyph track the posting's STATUS, not the role —
-// Figma 7249:75907 / :75957 / :76007 give three different tile fills, and only
-// the Active card's glyph is green (#2a5730); Draft and Closed are #999999.
+// Figma 7249:75907 / :75957 / :76007: Active tile #f3f8f4 + glyph #2a5730, Draft
+// tile #faf4e8 + glyph #785910, Closed tile #eae8e2 + glyph #737373.
 export const STATUS_ICON_STYLES = {
-  Active: { tile: 'bg-[#f3f8f4]', glyph: 'text-brand-green-dark' },
-  Draft: { tile: 'bg-[#faf4e8]', glyph: 'text-[#999999]' },
-  Closed: { tile: 'bg-[#eae8e2]', glyph: 'text-[#999999]' },
+  Active: { tile: 'bg-[#f3f8f4]', glyph: 'text-[#2a5730]' },
+  Draft: { tile: 'bg-[#faf4e8]', glyph: 'text-[#785910]' },
+  Closed: { tile: 'bg-[#eae8e2]', glyph: 'text-[#737373]' },
 };
 
 export const POSTINGS = [
@@ -99,16 +114,18 @@ export const POSTINGS = [
 ];
 
 // Figma 7249:76889 — the per-card overflow menu. 160x156, white, r12,
-// 0.7px #e5e5e5 outline, 49px rows separated by 0.6px #e5e5e5 rules.
-// "Close posting" is the destructive item (#902b20); the others are #737373.
+// 0.7px #e5e5e5 outline, 49px rows separated by 0.6px #e5e5e5 rules, labels
+// CENTRED. "Close posting" is the destructive item (#902b20); the others are
+// #737373. Hover (7249:77110, "Duplicate" row) fills the row #f6f6f6.
 export const CARD_MENU_ITEMS = [
   { id: 'edit', label: 'Edit Posting' },
   { id: 'duplicate', label: 'Duplicate' },
   { id: 'close', label: 'Close posting', destructive: true },
 ];
 
-// Figma 7249:78032 — the modal the "Close posting" item opens. 528x313,
-// white, r24, padding 48/64, centred text, danger + outline button pair.
+// Figma 7249:78032 — the modal the "Close posting" item opens. 528x304,
+// white, r24, padding 64/48, centred title + body, danger + outline button pair
+// flush RIGHT under them, over a #1c2a21 @ 70% scrim.
 export const CLOSE_CONFIRMATION = {
   title: 'Close this posting?',
   body: 'Once closed, it stops accepting new applicants and comes off candidate search. You can reopen it anytime.',

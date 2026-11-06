@@ -34,7 +34,7 @@ Every claim in this wiki carries a tag:
 - [debugging-workflow.md](debugging-workflow.md) — Console-log convention + Playwright verification
 - [figma-fidelity.md](figma-fidelity.md) — Pixel-perfect implementation rules (`clamp()`, `get_design_context`)
 - [pre-commit-workflow.md](pre-commit-workflow.md) — Lint, format, build, husky hooks
-- [onboarding-redesign.md](onboarding-redesign.md) — Recruiter onboarding flow (R01-R09, mock), shared responsive `OnboardingPanel`, talent/entry corrections to the 8027 frames, Figma-export asset rule, demo triggers, **open items** (read this first when resuming)
+- [onboarding-redesign.md](onboarding-redesign.md) — Recruiter onboarding flow (R00-R09; every Figma state by URL `?state=`, table with diff %), shared responsive `OnboardingPanel`, talent/entry corrections to the 8027 frames, Figma-export asset rule, demo triggers, **open items** (read this first when resuming)
 - [responsive-plan.md](responsive-plan.md) — Master plan to make every page responsive down to 320px (audit findings, patterns, phases) — EXECUTED 2026-10-10
 - [playful-mode.md](playful-mode.md) — Playful visual theme layer (Career Buddy + talent home): plumbing, rules, ownership, final Figma audit, accepted differences
 - [talent-home.md](talent-home.md) — Talent home `/home` (Focused + Playful): state→URL→Figma table, file ownership, status, decisions, a11y
@@ -73,7 +73,7 @@ Every claim in this wiki carries a tag:
 _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; backend wiring for login / talent onboarding / institution; responsive pass executed)_
 
 - [parent-dashboard.md](parent-dashboard.md) — Parent dashboard `/parent/*` (Figma Parents file, canvas 01 Home and dashboard): chrome, 7 home states by `?state=`, files, assumptions
-- [admin.md](admin.md) — Theme 7 Platform Admin `/admin/*` (GTH staff back office, 5 roles, mock session): chrome reused from agency, URL contract, frame checklist (95 frames), fidelity notes
+- [admin.md](admin.md) — Theme 7 Platform Admin `/admin/*` (GTH staff back office, 5 roles, mock session): chrome reused from agency, URL contract, frame checklist (95 frames), 7.8 Site copy / Product names / Media (92 frames), fidelity notes
 - [parent-flags.md](parent-flags.md) — Parent flags and corrections: ward Profile + Flags tabs, flag/re-review dialogs, To review `/parent/review`; frame→URL table with diff %, consolidation candidates, gaps
 - [parent-link-ward.md](parent-link-ward.md) — Parent Link a ward `/parent/link-ward` (+ `/parent?modal=ward-linked`): search, no match, request sent, link-code dialogs (entry / error / expired), 100+ children dialog; frame→URL table with diff %, My wards hand-off, consolidation candidates, gaps
 - [parent-opt-out.md](parent-opt-out.md) — Parent opt out and restore on `/parent/wards/:id`: opt-out / restore dialogs, the paused ward page, "access is back" toast, report-a-concern dialogs; frame→URL table with diff %, consolidation notes, gaps
@@ -87,3 +87,8 @@ _Last updated: 2026-10-16 (recruiter onboarding + talent/entry corrections; back
 - [parent-career-buddy.md](parent-career-buddy.md) — Parent Career Buddy (AI chat, `?role=parent&cb=…`): welcome, guide the ward, resume, ward account set-up; frame→URL table with diff %, what changed, gaps
 - [parent-wiring.md](parent-wiring.md) — how the parent flows link to each other (the buttons that were log-only), what is still log-only because no screen is drawn
 - [talent-games-v2.md](talent-games-v2.md) — Talent Games v2 `/skills-lab/play/:gameId` + Games tab: 13 ranked / practice games, shared shell + result card, 53 frame pairs × 2 styles with diff %, assumptions, known gaps
+- [recruiter-design-system-gaps.md](recruiter-design-system-gaps.md) — Recruiter Figma design-system (components page) audit: canvas map, chosen recruiter colour (Forest Green #1F4A2B), missing/duplicated shared components, not-checked list, suggested split for parallel sessions
+- [recruiter-dashboard.md](recruiter-dashboard.md) — Recruiter dashboard `/recruiter/home` (Figma Recruiter file, canvas "Recruiter - Dashboard"): 51 frames as one page with URL states (org switcher, jobs, talents, funnel, verification, heat map, feedback, top-bar panels); frame→URL table with diff %, assumptions, Figma inconsistencies
+- [recruiter-ai-chat.md](recruiter-ai-chat.md) — Recruiter Career Buddy (Figma 'Recruiter - AI Chat', `?role=recruiter&cb=…`): landing, company profile Q&A + edit, KYB/KYC upload, post a job (manual form, AI conversation, file upload); 30-frame URL table with diff %, what changed, Figma inconsistencies, assumptions
+- [recruiter-figma-pages-map.md](recruiter-figma-pages-map.md) — Map of every recruiter page in the Recruiter Figma file: what is built, what the newer Job Postings / Talent Search / Messages / Pipeline / Community / Settings pages hold and are not built (guide for next sessions)
+- [recruiter-job-prospecting.md](recruiter-job-prospecting.md) — Recruiter job prospecting V2.0 (Figma page 'Job - Prospecting screens', 29 frames): home setup view, talent search, job templates / postings / screening, application pipeline, messages; frame→URL table with diff %, URL keys, verification, gaps

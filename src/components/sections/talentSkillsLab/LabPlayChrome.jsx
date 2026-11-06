@@ -119,7 +119,7 @@ export const LabTopBar = ({
           <span
             aria-hidden="true"
             className="inline-flex size-[24px] shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(135deg,#142916_0%,#2a5730_100%)] font-bold text-[10px] text-white max-lg:text-[12px]"
-            style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+            style={{ fontFamily: "'Instrument Sans Variable', 'Instrument Sans', sans-serif" }}
           >
             {userInitials}
           </span>

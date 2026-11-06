@@ -15,18 +15,8 @@ import {
   FcWalletWhiteIcon,
 } from './LpFeatureCardIcons.jsx';
 import { DotGrid } from './LpAParts.jsx';
-import {
-  ASSESSMENT_CARD,
-  BUDDY_CARD,
-  FEATURES_CHIP,
-  FEATURES_HEADING,
-  FEATURES_SUB,
-  MATCHING_CARD,
-  READINESS_CARD,
-  SKILLS_LAB_CARD,
-  STREAK_CARD,
-  VERIFIED_CARD,
-} from './FeaturesData.js';
+import { useCopySection } from '../../../../copy/useCopySection.js';
+import { HOME_FEATURES_COPY } from '../../../../copy/landingHomeCopy.js';
 
 const log = debug('FeaturesSection');
 
@@ -102,6 +92,18 @@ const VERIFIED_CHIP = {
 };
 
 const FeaturesSection = () => {
+  const {
+    ASSESSMENT_CARD,
+    BUDDY_CARD,
+    FEATURES_CHIP,
+    FEATURES_HEADING,
+    FEATURES_SUB,
+    MATCHING_CARD,
+    READINESS_CARD,
+    SKILLS_LAB_CARD,
+    STREAK_CARD,
+    VERIFIED_CARD,
+  } = useCopySection(HOME_FEATURES_COPY);
   useEffect(() => {
     log('mount: 8 feature cards');
   }, []);
@@ -126,7 +128,7 @@ const FeaturesSection = () => {
             id="lp-features-heading"
             className="m-0 text-center font-heading text-[32px] font-semibold leading-[1.1] text-white md:text-[40px] xl:text-[54px]"
           >
-            {FEATURES_HEADING[0]}
+            {FEATURES_HEADING[0].trimEnd()}{' '}
             <span className="text-[#ffd86b]">{FEATURES_HEADING[1]}</span>
           </h2>
           <p className="m-0 max-w-[754px] text-center font-sans text-[16px] font-normal leading-[27px] text-white/[0.85] md:text-[18px] xl:max-w-[700px]">

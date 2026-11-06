@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import BillingHeading from '../../../components/sections/recruiterOnboarding/billing/BillingHeading.jsx';
@@ -50,8 +51,16 @@ const log = debug('RecruiterPlanPage');
 const RecruiterPlanPage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
-  const [tier, setTier] = useState(() => normaliseTier(data.plan?.tier));
-  const [billing, setBilling] = useState(() => normaliseBilling(data.plan?.billing));
+  // `?state=free|professional|enterprise` opens Figma R05 7374:6764 / 7012 / 7258 (enterprise is drawn with annual billing).
+  const [tier, setTier] = useState(() => {
+    const seed = frameSeed();
+    return ['free', 'professional', 'enterprise'].includes(seed)
+      ? seed
+      : normaliseTier(data.plan?.tier);
+  });
+  const [billing, setBilling] = useState(() =>
+    frameSeed() === 'enterprise' ? 'annual' : normaliseBilling(data.plan?.billing)
+  );
 
   useEffect(() => {
     log('mount', { tier, billing });

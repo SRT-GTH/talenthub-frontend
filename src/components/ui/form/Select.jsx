@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import Field from './Field.jsx';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
@@ -115,6 +115,16 @@ const Select = ({
   helperTextClassName,
   forceAsterisk,
   asteriskClassName,
+  // Opt-in (recruiter job-post form, Figma 7958:165028): label ink colour override.
+  labelClassName,
+  labelRowClassName,
+  // Opt-in: extra classes on the trigger button / on the closed-state text span.
+  triggerClassName,
+  valueClassName,
+  placeholderClassName,
+  // Opt-in menu look. `default` = green-tinted shelf menu. `divided` = plain
+  // white card with 0.8px dividers between options (Figma 7958:166942).
+  menuVariant = 'default',
   error,
   state,
   options = [],
@@ -130,6 +140,8 @@ const Select = ({
   size = 'md',
   // Optional in-field top caption (Figma 5132:67856 / 67872 — Currency / Frequency).
   inscription,
+  // Extra classes for the in-box caption (e.g. a different font family); defaults unchanged.
+  inscriptionClassName,
   // Swap the default stroke chevron (e.g. filled ArrowheadDownIcon on salary selects).
   chevronIcon,
   leftIcon,
@@ -162,18 +174,21 @@ const Select = ({
   const effectiveDisabled = disabled || state === 'disabled';
   const isSm = size === 'sm';
   const isXs = size === 'xs';
+  const isDividedMenu = menuVariant === 'divided';
   const hasInscription = Boolean(inscription) && !isSm && !isXs;
 
   log('render', { label, inscription, size, state, open: effectiveOpen, value: currentValue });
 
   // Resolve trigger visual state — earliest match wins.
   const triggerState = isForced
-    ? state
+    ? state === 'open' && isDividedMenu
+      ? 'default'
+      : state
     : effectiveDisabled
       ? 'disabled'
       : error
         ? 'error'
-        : effectiveOpen
+        : effectiveOpen && !isDividedMenu
           ? 'open'
           : verified
             ? 'verified'
@@ -274,6 +289,8 @@ const Select = ({
       helperTextClassName={helperTextClassName}
       forceAsterisk={forceAsterisk}
       asteriskClassName={asteriskClassName}
+      labelClassName={labelClassName}
+      labelRowClassName={labelRowClassName}
       error={error}
       className={className}
     >
@@ -293,11 +310,16 @@ const Select = ({
           className={classNames(
             isXs ? TRIGGER_XS_BASE : isSm ? TRIGGER_SM_BASE : TRIGGER_BASE,
             hasInscription && TRIGGER_INSCRIPTION_CLASSES,
-            triggerStateClasses[triggerState]
+            triggerStateClasses[triggerState],
+            triggerClassName
           )}
           {...rest}
         >
-          {hasInscription && <span className={INSCRIPTION_CLASSES}>{inscription}</span>}
+          {hasInscription && (
+            <span className={classNames(INSCRIPTION_CLASSES, inscriptionClassName)}>
+              {inscription}
+            </span>
+          )}
           {leftIcon && (
             <span
               className={classNames(
@@ -326,7 +348,9 @@ const Select = ({
                     : 'text-content-primary font-medium'
                 : isXs
                   ? 'text-[#757575] font-normal'
-                  : 'text-[#595959] font-normal'
+                  : 'text-[#595959] font-normal',
+              valueClassName,
+              !selected && placeholderClassName
             )}
           >
             {selected?.label || placeholder}
@@ -336,7 +360,7 @@ const Select = ({
             className={classNames(
               'inline-flex shrink-0 items-center justify-center transition-transform duration-150 [&>svg]:size-full',
               isXs ? 'size-4' : isSm ? 'size-[14px]' : 'size-5',
-              effectiveOpen && 'rotate-180',
+              effectiveOpen && !isDividedMenu && 'rotate-180',
               !chevronIcon && 'text-content-tertiary'
             )}
           >
@@ -349,7 +373,11 @@ const Select = ({
             id={listboxId}
             role="listbox"
             aria-labelledby={triggerId}
-            className="absolute top-full left-0 right-0 mt-3 z-20 bg-white border-2 border-brand-green-light-active rounded-md shadow-[0_-4px_0_0_rgba(34,70,38,0.8)] p-3 max-h-[340px] overflow-y-auto"
+            className={
+              isDividedMenu
+                ? 'absolute top-full left-0 right-0 mt-[5px] z-20 bg-white border border-[#e6e6e6] rounded-[10px] py-3 max-h-[340px] overflow-y-auto'
+                : 'absolute top-full left-0 right-0 mt-3 z-20 bg-white border-2 border-brand-green-light-active rounded-md shadow-[0_-4px_0_0_rgba(34,70,38,0.8)] p-3 max-h-[340px] overflow-y-auto'
+            }
           >
             {searchable && (
               <>
@@ -368,33 +396,43 @@ const Select = ({
               </>
             )}
 
-            <div className="flex flex-col gap-1" role="none">
+            <div
+              className={classNames('flex flex-col', isDividedMenu ? 'gap-3' : 'gap-1')}
+              role="none"
+            >
               {filteredOptions.length === 0 ? (
                 <p className="px-3 py-2 font-sans text-[12px] leading-[18px] tracking-[0.2px] text-content-tertiary">
                   No options found
                 </p>
               ) : (
-                filteredOptions.map((option) => {
+                filteredOptions.map((option, optionIndex) => {
                   const isSelected = option.value === currentValue;
                   return (
-                    <button
-                      type="button"
-                      key={option.value}
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => handleSelect(option)}
-                      className={classNames(
-                        'flex items-center px-3 py-2 rounded-sm text-left cursor-pointer',
-                        'font-sans text-[12px] leading-[18px] tracking-[0.2px]',
-                        'max-md:py-3 max-md:text-[14px]',
-                        'hover:bg-brand-green-light',
-                        isSelected
-                          ? 'bg-brand-green-light text-content-primary font-medium'
-                          : 'text-[#595959] font-normal'
+                    <Fragment key={option.value}>
+                      {isDividedMenu && optionIndex > 0 && (
+                        <div
+                          role="presentation"
+                          className="mx-[10px] h-0 border-t-[0.8px] border-[#e6e6e6]"
+                        />
                       )}
-                    >
-                      {option.label}
-                    </button>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => handleSelect(option)}
+                        className={classNames(
+                          'flex items-center text-left cursor-pointer',
+                          isDividedMenu
+                            ? 'px-5 font-sans text-[14px] leading-5 tracking-[0.2px] max-md:py-1.5 hover:bg-brand-green-light'
+                            : 'px-3 py-2 rounded-sm font-sans text-[12px] leading-[18px] tracking-[0.2px] max-md:py-3 max-md:text-[14px] hover:bg-brand-green-light',
+                          isSelected
+                            ? 'bg-brand-green-light text-content-primary font-medium'
+                            : 'text-[#595959] font-normal'
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    </Fragment>
                   );
                 })
               )}

@@ -22,6 +22,8 @@ import SettingsAppearance from '../../components/sections/talentSettings/Setting
 import HelpSupportPage from '../../components/sections/talentSettings/HelpSupportPage.jsx';
 import { useLiveSettings } from '../../components/sections/talentSettings/useLiveSettings.js';
 import { useTalentHomeState } from '../../components/sections/talentHome/talentHomeState.js';
+// Site copy: the texts staff edit are applied to this page's data (copy/copyBind.js).
+import '../../copy/portals/talentPagesCopy.js';
 
 const log = debug('TalentSettingsPage');
 
@@ -46,8 +48,13 @@ const SECTION_BODIES = {
 /* Live data loading / failed (never the drawn mock in its place). */
 const LiveSettingsStatus = ({ live }) =>
   live.status === 'error' ? (
-    <div role="alert" className="flex flex-col items-start gap-[12px] rounded-[20px] bg-white p-[24px]">
-      <p className="m-0 text-[15px] font-medium text-[#c0392b]">Couldn’t load your settings. Check your connection and try again.</p>
+    <div
+      role="alert"
+      className="flex flex-col items-start gap-[12px] rounded-[20px] bg-white p-[24px]"
+    >
+      <p className="m-0 text-[15px] font-medium text-[#c0392b]">
+        Couldn’t load your settings. Check your connection and try again.
+      </p>
       <button
         type="button"
         onClick={live.reload}
@@ -94,7 +101,9 @@ const TalentSettingsPage = ({ sectionParam }) => {
     <DashboardShell
       role="talent"
       activeNav="settings"
-      talentHome={liveShell ? { ...home, update: base.update, collapsed: base.collapsed } : settings}
+      talentHome={
+        liveShell ? { ...home, update: base.update, collapsed: base.collapsed } : settings
+      }
     >
       <UiStyleScope enabled />
       <div className="flex flex-col gap-[clamp(12px,0.926vw,16px)] px-[clamp(12px,1.4vw,24px)] py-[clamp(12px,1.2vw,20px)]">

@@ -1,20 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import TalentSearchHeader from './TalentSearchHeader.jsx';
 import TalentSearchFilterBar from './TalentSearchFilterBar.jsx';
 import TalentSearchFilterSheet from './TalentSearchFilterSheet.jsx';
 import CandidateCard from './CandidateCard.jsx';
 import TalentPoolInsightBanner from './TalentPoolInsightBanner.jsx';
-import { CANDIDATES, FILTER_CHIPS, RESULT_TABS } from './talentSearchData.js';
+import {
+  CANDIDATES,
+  FILTER_CHIPS,
+  NO_RESULTS_LABEL,
+  RESULT_TABS,
+  TOP_MATCH_THRESHOLD_PERCENT,
+} from './talentSearchData.js';
 import { debug } from '../../../utils/debug.js';
-// PLACEHOLDER AVATARS — Figma embeds its own image fills for the three
-// candidates and no matching assets exist in the project yet. Existing
-// community portraits stand in so the layout is honest about its shape; swap
-// these three imports for src/assets/talentSearch/avatar-<name>.png when the
-// real photography lands. Flagged in the delivery report.
-import avatarKofi from '../../../assets/community/avatar-samuel-boateng.png';
-import avatarAma from '../../../assets/community/avatar-akosua-mansa.png';
-import avatarGodfred from '../../../assets/community/avatar-michael-asante.png';
+import avatarKofiAmankwah from '../../../assets/recruiter/talent-search/candidate-avatar-kofi-amankwah.webp';
+import avatarAmaBoateng from '../../../assets/recruiter/talent-search/candidate-avatar-ama-boateng.webp';
+import avatarGodfredAnsah from '../../../assets/recruiter/talent-search/candidate-avatar-godfred-ansah.webp';
 
 const log = debug('TalentSearchSection');
 
@@ -40,20 +42,28 @@ const log = debug('TalentSearchSection');
  * separated by the insight banner. The second grid's text is byte-identical to
  * the first, so the same three records render twice, exactly as designed.
  *
+ * URL STATE (query string on /recruiter/talent-search)
+ *   (none)                7249:74283  "All Matches" tab, both grids + insight banner (the frame)
+ *   ?tab=top-matches      "Top Matches" tab active (matchPercent >= 80)       ⚠️ ASSUMPTION filter rule
+ *   ?tab=available-now    "Available now" tab active (available candidates)   ⚠️ ASSUMPTION filter rule
+ *   ?q=<text>             search-by-name-or-keyword field filled + results filtered
+ *   ?filters=open         the phone filter sheet open (design of our own, not in Figma)
+ * Clicking a tab / typing / opening the sheet writes the same keys.
+ *
  * NOT BUILT — hidden in Figma: the trust bar (7249:74289) and the Ask Buddy
  * FAB (7249:74311, already supplied by DashboardShell). 7249:74936 is a Safari
  * browser-chrome mockup and 7249:75042 a stray avatar showcase.
  */
 const AVATARS = {
-  'kofi-amankwah': avatarKofi,
-  'ama-boateng': avatarAma,
-  'godfred-ansah': avatarGodfred,
+  'kofi-amankwah': avatarKofiAmankwah,
+  'ama-boateng': avatarAmaBoateng,
+  'godfred-ansah': avatarGodfredAnsah,
 };
 
-const CandidateGrid = ({ keyPrefix, onViewProfile, onStartConversation }) => (
+const CandidateGrid = ({ keyPrefix, candidates, onViewProfile, onStartConversation }) => (
   // Figma lm=GRID: 3 x 432.33 + 2 x 16 = 1329
   <div className="grid w-full grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
-    {CANDIDATES.map((candidate) => (
+    {candidates.map((candidate) => (
       <CandidateCard
         key={`${keyPrefix}-${candidate.id}`}
         candidate={candidate}
@@ -66,12 +76,44 @@ const CandidateGrid = ({ keyPrefix, onViewProfile, onStartConversation }) => (
 );
 
 const TalentSearchSection = () => {
-  const [activeTabId, setActiveTabId] = useState(RESULT_TABS[0].id);
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const activeTabId = RESULT_TABS.some((tab) => tab.id === tabParam) ? tabParam : RESULT_TABS[0].id;
+  const searchText = searchParams.get('q') ?? '';
+  const filterSheetOpen = searchParams.get('filters') === 'open';
+
+  const updateParams = (changes) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(changes).forEach(([key, value]) => {
+      if (value === null || value === '') next.delete(key);
+      else next.set(key, value);
+    });
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
     log('mount', { route: '/recruiter/talent-search', candidateCount: CANDIDATES.length });
   }, []);
+
+  useEffect(() => {
+    log('state', { activeTabId, searchLength: searchText.length, filterSheetOpen });
+  }, [activeTabId, searchText, filterSheetOpen]);
+
+  const visibleCandidates = useMemo(() => {
+    const needle = searchText.trim().toLowerCase();
+    const result = CANDIDATES.filter((candidate) => {
+      if (activeTabId === 'top-matches' && candidate.matchPercent < TOP_MATCH_THRESHOLD_PERCENT)
+        return false;
+      if (activeTabId === 'available-now' && !candidate.available) return false;
+      if (!needle) return true;
+      return [candidate.name, candidate.role, ...candidate.tags, ...candidate.topSkills]
+        .join(' ')
+        .toLowerCase()
+        .includes(needle);
+    });
+    log('branch: visible candidates', { activeTabId, needle, count: result.length });
+    return result;
+  }, [activeTabId, searchText]);
 
   const handleViewProfile = (id) => {
     // No candidate-profile frame exists in this Figma set yet.
@@ -88,23 +130,30 @@ const TalentSearchSection = () => {
         {/* Header — padded column. Figma gap to the filter row is 20. */}
         <div className="w-full pb-[20px] max-md:pb-[10px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)]">
           <TalentSearchHeader
-            onSearch={(value) => log('search', { length: value.length })}
+            searchValue={searchText}
+            onSearch={(value) => updateParams({ q: value })}
             filterCount={FILTER_CHIPS.length}
-            onOpenFilters={() => setFilterSheetOpen(true)}
+            onOpenFilters={() => updateParams({ filters: 'open' })}
           />
         </div>
 
         {/* Full-bleed sticky bar — see LAYOUT NOTE above. */}
         <TalentSearchFilterBar
           activeTabId={activeTabId}
-          onSelectTab={setActiveTabId}
+          onSelectTab={(id) => updateParams({ tab: id === RESULT_TABS[0].id ? null : id })}
           onOpenMoreFilters={() => log('branch', { moreFilters: true, wired: false })}
         />
 
         {/* Results — Figma 7249:74362: VERTICAL gap 16, pb 48, after a 40 gap. */}
         <div className="flex w-full flex-col gap-[16px] pb-[48px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] pt-[40px] max-md:gap-[10px] max-md:pb-[8px] max-md:pt-[10px]">
+          {visibleCandidates.length === 0 && (
+            <p className="py-[24px] text-center font-sans text-[14px] text-content-helper">
+              {NO_RESULTS_LABEL}
+            </p>
+          )}
           <CandidateGrid
             keyPrefix="a"
+            candidates={visibleCandidates}
             onViewProfile={handleViewProfile}
             onStartConversation={handleStartConversation}
           />
@@ -113,12 +162,16 @@ const TalentSearchSection = () => {
           />
           <CandidateGrid
             keyPrefix="b"
+            candidates={visibleCandidates}
             onViewProfile={handleViewProfile}
             onStartConversation={handleStartConversation}
           />
         </div>
       </div>
-      <TalentSearchFilterSheet isOpen={filterSheetOpen} onClose={() => setFilterSheetOpen(false)} />
+      <TalentSearchFilterSheet
+        isOpen={filterSheetOpen}
+        onClose={() => updateParams({ filters: null })}
+      />
     </DashboardShell>
   );
 };

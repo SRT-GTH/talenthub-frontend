@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { frameSeed } from '../../../utils/frameSeed.js';
 import { Link, useNavigate } from 'react-router-dom';
 import RecruiterOnboardingShell from '../../../components/sections/recruiterOnboarding/RecruiterOnboardingShell.jsx';
 import StepHeading from '../../../components/sections/recruiterOnboarding/closing/StepHeading.jsx';
@@ -152,8 +153,10 @@ const RecruiterReviewPage = () => {
   const navigate = useNavigate();
   const { data, setSection } = useRecruiterOnboarding();
   const s = buildSummary(data);
-  const [terms, setTerms] = useState(Boolean(data.terms?.accepted));
-  const [privacy, setPrivacy] = useState(Boolean(data.terms?.accepted));
+  // `?state=accepted` opens Figma R08 7374:10128 (both boxes ticked); no key = not accepted (7374:9838).
+  const seededAccepted = frameSeed() === 'accepted';
+  const [terms, setTerms] = useState(seededAccepted || Boolean(data.terms?.accepted));
+  const [privacy, setPrivacy] = useState(seededAccepted || Boolean(data.terms?.accepted));
   const [busy, setBusy] = useState(false);
   const alive = useRef(true);
   const allAccepted = terms && privacy;

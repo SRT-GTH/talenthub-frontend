@@ -1,3 +1,23 @@
+## [2026-11-04] docs | Recruiter job prospecting V2.0 verified and documented: 29 frames re-measured (1.2–7.4 %), eslint/prettier/build clean, responsive audit 39 URLs (phone checkbox targets fixed; bare /recruiter/home label wrap left to the dashboard session); see [recruiter-job-prospecting.md](recruiter-job-prospecting.md). Removed a duplicated home entry from this log.
+
+## [2026-11-04] docs | Recruiter Figma page map: the file has separate recruiter pages (Job Postings 56 frames, Talent Search 19, Messages 12, Pipeline 24, Community, Settings) that were not in the Prospecting link and are not built; listed in [recruiter-figma-pages-map.md](recruiter-figma-pages-map.md)
+
+## [2026-11-04] build | Recruiter AI chat (Figma 'Recruiter - AI Chat' 7958:160771): 30 frames compared with the existing recruiter Career Buddy and aligned
+
+The recruiter Career Buddy (`/profile/filling/career-buddy?role=recruiter&live=0&cb=<state>`) already existed; this canvas re-draws it, so every frame was compared (framecmp 2.4 to 4.8 %, one scroll-position frame 7.4 %; a verbatim text check) and fixed: talent trail with muted checks, Switch Modes, Emma label, wider Bricolage panel, hero and chips as drawn, new one-line `WelcomeBackToast`, the whole company Q&A / job conversation / upload copy verbatim, a new company edit form, an uploading file chip in the composer, fallback form headline, 14 new `cb=` states and `?jobform=` scroll / dropdown states. 12 Playwright tests, 24 URLs in the responsive gate (96 runs at 320 / 390 / 1024 / 1440 pass), no console errors, lint, prettier and build pass. Not verified: the signed-in recruiter, a screen reader, a machine with SF Pro Rounded. Figma inconsistencies (talent trail and 'Talent Profile Panel' on recruiter screens, 'Emma' vs 'Mr.Whitmore') kept as drawn. Details: [recruiter-ai-chat.md](recruiter-ai-chat.md). Nothing committed.
+
+## [2026-11-04] build | Recruiter shell V2.0 (DashboardSidebar/TopNav/PageBackground/PublicProfileCard): 303px rail with Figma card+nav+Profile item, 87px top bar, #F9FBF9 canvas with correctly sized ellipses (`variant="recruiter"`), solid nav badges; new RecruiterSidebarIcons.jsx. Job Postings frame 4.2% -> 1.6%. Profile item has no destination (assumption).
+
+## [2026-11-04] build | Recruiter Messages V2.0: 5 frames reachable by URL
+
+Frames 7249:83993/84379/84775/85147/85536 → `/recruiter/messages` with `view`, `tab`, `conversation`, `thread`, `menu`, `compareMenu`, `forceHover`, `rail` (see useRecruiterMessagesUrlState.js). New list rows, sans title, thread menus, talent-side mirrored thread + dark proposal card; avatars exported to `src/assets/recruiter/messages/`.
+
+## [2026-11-04] docs | Recruiter design-system gap audit (Figma OHG2xsfCCskT8xEn356njv, canvas 1:2): 12 missing shared components, persona colour token missing, per-portal duplicates; see [recruiter-design-system-gaps.md](recruiter-design-system-gaps.md)
+
+## [2026-11-04] build | Platform Admin 7.8: Site copy, Product names, Media library, Content Editor role (92 new frames) + 4 corrections
+
+Compared the Government file `8520:12` against the build using version history (7.8 was the only recent work), built every missing 7.8 frame (foundation by lead, seven parallel builders), corrected sign-in form, support data, Live Ops restricted view and nav. Frame diffs 1.5–8.2% (media up to 10.8%), responsive audit clean at 4 widths on 104 routes, cross-flow 19/19, eslint clean, build passes. Details, URLs, assumptions: [admin.md](admin.md).
+
 ## [2026-11-01] build | Talent Games v2: Games tab, 13 ranked / practice games, shared shell, result card (53 frame pairs)
 
 Figma canvas "Talent - Skills Lab" `7500:92564`, sections "Games v2 · 1 … 14" (new since the Arcade build): GV-01 Games tab (new "Skill games" block above the Arcade, which gets the "Arcade" head and "Play style games"), GV-02/03/09/13 details / cooldown / resume / expired dialogs, GV-04…GV-12 Memory Match + quit / time's up / connection lost + result cards (ranked, under 18, play style), and the games Pattern Pulse, Word Shuffle, Switch Sort, Three in a Row, Grid Logic, Sum Grid, Tower Shift, Errand Run, Chess Tactics, Chess Match, Crisis Room, Makola Haggle (PP/WS/SS/TR/GL/SG/TS/ER/CT/CM/CR/MH frames). New route `/skills-lab/play/:gameId` (`GameV2Page`, games auto-discovered from `gamesV2/games/*.jsx`), all state in the URL. Legacy Arcade games untouched. Existing files edited add-only: `App.jsx` (route), `SkillsLabHubPage.jsx` (dialog layer), `SkillsLabGamesTab.jsx` + `skillsLabGamesData.js` (new block + copy), `scripts/playful-leak-check.mjs`, `tests/e2e/helpers/responsive.js` (98 URLs). Built by seven parallel builders on a lead-built foundation; frame table with diff %, assumptions and Figma inconsistencies: [talent-games-v2.md](talent-games-v2.md).
@@ -206,3 +226,27 @@ Canvas `8605:395409` (Government bodies / agencies), 112 screens under `/agency/
 ## [2026-10-28] build | Parent Ward wallets (canvas 08)
 
 `/parent/wallets` (PWa-01) with approve / decline / limits / top-up / open-wallet dialogs and five toasts over `walletsStore`, shared with the ward page Wallet tab (PW-12). 15 frames diffed 2.1-3.8 %, behaviour 61/61, e2e 57/57, axe clean apart from the shell contrast. Frame to URL table, assumptions, Figma inconsistencies: [parent-wallets.md](parent-wallets.md).
+
+## [2026-11-04] update | recruiter talent-search + job-templates V2.0
+
+Sans titles (RecruiterPageHeading titleStyle="sans-accent"), exported icons + candidate avatars (src/assets/recruiter/talent-search), per-card template tiles, URL state: talent-search ?tab= ?q= ?filters=open; job-templates ?category=. Playfair Display not loaded (banner heading falls back to Georgia).
+
+## [2026-11-04] update | recruiterHome V2.0 (setup view)
+
+New-user hero/gradient restyled (Forest Green #1f4a2b -> #3f7f4c, Bricolage title, shared tertiary Button for Customize, 176px hero). Added existing-user layout (?user=existing): RecruiterHiringOverview, RecruiterApplicantsTable (+ row-action menus via ?actionsMenu=<applicantId>&hoveredAction=<actionId>), recruiterHomeState.js, recruiterHomeApplicantIcons.jsx. Reached at /recruiter/home?view=setup (the dashboard agent owns the bare route). Diff vs Figma: new 2.7
+
+## [2026-11-04] update | jobPostings + jobScreening V2.0
+
+Job Postings/Screening rebuilt to Job prospecting V2.0: Bricolage titles (titleStyle sans-accent), Figma-exported icons (jobPostingsIcons/jobScreeningIcons), corner "..." pill, centred card menu, new Close dialog (scrim #1c2a21@70, 528x304, buttons right). URL state: /recruiter/job-postings ?status= ?menu= ?menuItem= ?modal=close-posting&posting=; /recruiter/job-screening ?dropdown=experience&dropdownItem=. RecruiterListToolbar gained additive `actionIcon` prop. Criteria switches are real toggles (Education off).
+
+## [2026-11-04] build | Recruiter Application Pipeline V2.0: 9 frames reachable by URL
+
+Frames 7249:79017/79474/79940/80546/81163/82719/83356/81797/82258 on `/recruiter/application-pipeline`. Keys `modal` (schedule-interview | cancel-interview | schedule-confirmation), `state` (empty|filled), `format`, `interviewers=open`, `dropdown=job-posting`, `forceHover`, `posting`, `sidebar=collapsed` (see pipelineUrlState.js). Schedule modal restyled to V2.0 (Bricolage titles, 3D time slots in a 4-col grid, Summary Action Bar, open interviewer row, avatars), confirmations now sit over the page; icons are Figma exports (scheduleInterviewIcons.jsx, pipelineBoardIcons.jsx); live wiring (useLivePipeline/pipelineLive) untouched.
+
+## [2026-11-04] build | Recruiter dashboard (Figma OHG2xsfCCskT8xEn356njv, canvas "Recruiter - Dashboard" 10005:38660): 51 distinct frames at `/recruiter/home`
+
+One page, every state a URL param (org switcher / single / pending / none / revoked, jobs row menu + pause + close + empty / suspended / error, talents filter + invite + hint + empty + loading, funnel filter + 7d + drill-in + empty + loading, verification verified / rejected / owner + upload, heat-map region / industry / national / sparse / none, feedback tab + form + validation + withdrew, notifications / language / accessibility pop-ups). New `ui/` primitives Chip, WidgetCard, FilterSelect, Callout, BannerToast, InlineState, SkeletonBlock; add-only props on Textarea, DashboardShell, DashboardTopNav. Old home kept at `?view=setup`. Not built: only the "5+" bell badge of D12. Frame table with diff %: [recruiter-dashboard.md](recruiter-dashboard.md). `tests/e2e/recruiter-dashboard.spec.js` (15). Found and fixed on the way: a URL helper that wrote over a stale copy of the params (org switch lost its `org`), and two org-switcher copies both reacting to outside clicks.
+
+## [2026-11-05] update | Recruiter onboarding R00–R09 reachable by URL (Figma `7356:96249`, 41 frames)
+
+`?state=` seeds on every step (`utils/frameSeed.js`), mock organisation directory for seeded pages, Figma scrim on the organisation / create modals, SF Pro Rounded scoped to the recruiter screens and dashboard. Table with diff %: [onboarding-redesign.md](onboarding-redesign.md). `tests/e2e/recruiter-onboarding-frames.spec.js` (7).
