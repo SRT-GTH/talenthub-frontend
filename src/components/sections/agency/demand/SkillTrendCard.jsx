@@ -2,6 +2,7 @@ import DemandCard from './DemandCard.jsx';
 import ChartLegend from './ChartLegend.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
 import TrendHeadline from './TrendHeadline.jsx';
+import { niceTicks } from './trendModel.js';
 
 /*
  * SkillTrendCard — "Skill trend" (Figma 8704:782, 652 wide): headline = the fastest riser of the top 5 ("Data analysis ▲ +77% fastest rise of the top 5"), five 2px
@@ -15,14 +16,25 @@ const SkillTrendCard = ({ model, text }) => {
   const n = model.labels.length;
   const step = model.unit === 'week' ? 3 : model.unit === 'month' ? 2 : Math.ceil(n / 6);
   const all = Object.values(model.skills).flat();
-  const unitMonth = model.unit === 'month';
-  const yMin = unitMonth ? 100 : Math.floor(Math.min(...all) / 5) * 5;
-  const yMax = unitMonth ? 220 : Math.ceil(Math.max(...all) / 5) * 5;
-  const stepY = unitMonth ? 40 : 5;
-  const ticks = Array.from(
-    { length: Math.round((yMax - yMin) / stepY) + 1 },
-    (_, i) => yMin + i * stepY
-  );
+  const axis = niceTicks(Math.max(...all, 1));
+  const yMin = 0;
+  const yMax = axis.max;
+  const ticks = axis.ticks;
+  if (!names.length) {
+    return (
+      <DemandCard
+        id="skill-trend"
+        title="Skill trend"
+        hint={text.skillHint}
+        className="flex flex-col"
+        bodyClassName="px-[24px] pb-[24px]"
+      >
+        <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+          No skill has 5 or more opportunities in this period yet, so there is no trend to draw.
+        </p>
+      </DemandCard>
+    );
+  }
   return (
     <DemandCard
       id="skill-trend"
@@ -34,7 +46,11 @@ const SkillTrendCard = ({ model, text }) => {
       <TrendHeadline
         value={names[0]}
         change={model.totals.skillChange}
-        note="fastest rise of the top 5"
+        note={
+          typeof model.totals.skillChange === 'number'
+            ? 'change of the top 5 vs the period before'
+            : 'most asked-for skill'
+        }
       />
       <LineTrendChart
         series={names.map((name, i) => ({ name, values: model.skills[name], color: COLORS[i] }))}

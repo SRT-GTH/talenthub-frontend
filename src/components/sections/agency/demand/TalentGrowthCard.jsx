@@ -3,6 +3,8 @@ import ChartLegend from './ChartLegend.jsx';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import LineTrendChart from './LineTrendChart.jsx';
 import TrendHeadline from './TrendHeadline.jsx';
+import { formatCount } from '../agencyFormat.js';
+import { autoFormat, niceTicks } from './trendModel.js';
 
 /*
  * TalentGrowthCard — "Talent growth" (Figma 8704:617, 652 wide): headline (194,400 ▲ +87% "new talents in 12 months"), column chart of new registrations with the previous
@@ -10,19 +12,15 @@ import TrendHeadline from './TrendHeadline.jsx';
  * Props: model (trendSeries()), text (TREND_TEXT[unit]). Counts here are aggregates of the whole platform, far above 5 (the <5 rule cannot trigger).
  */
 
-const k = (v) => `${v}k`;
-
 const TalentGrowthCard = ({ model, text }) => {
   const n = model.labels.length;
   const step = model.unit === 'week' ? 3 : model.unit === 'month' ? 2 : Math.ceil(n / 6);
-  const cumMin = model.unit === 'month' ? 0 : Math.floor(Math.min(...model.cumulative) / 25) * 25;
-  const cumMax = model.unit === 'month' ? 240 : Math.ceil(Math.max(...model.cumulative) / 25) * 25;
-  const cumTicks =
-    model.unit === 'month'
-      ? [0, 80, 160, 240]
-      : Array.from({ length: Math.round((cumMax - cumMin) / 25) + 1 }, (_, i) => cumMin + i * 25);
-  const regStep = model.unit === 'month' ? 5 : 2;
-  const regTicks = Array.from({ length: model.regYMax / regStep + 1 }, (_, i) => i * regStep);
+  const cum = niceTicks(Math.max(...model.cumulative, 1));
+  const cumMin = 0;
+  const cumMax = cum.max;
+  const cumTicks = cum.ticks;
+  const reg = niceTicks(Math.max(...model.registrations, ...model.previous, 1));
+  const regTicks = reg.ticks;
   return (
     <DemandCard
       id="talent-growth"
@@ -32,7 +30,7 @@ const TalentGrowthCard = ({ model, text }) => {
       bodyClassName="flex flex-col gap-[12px] px-[24px] pb-[24px]"
     >
       <TrendHeadline
-        value={model.totals.registrations.toLocaleString('en-GB')}
+        value={formatCount(model.totals.registrations)}
         change={model.totals.regChange}
         note={text.regNote}
       />
@@ -42,10 +40,10 @@ const TalentGrowthCard = ({ model, text }) => {
         previous={model.previous}
         ticks={model.ticks}
         yTicks={regTicks}
-        yMax={model.regYMax}
-        format={k}
-        caption="New talent registrations, thousands"
-        headers={['Period', 'New registrations (thousands)', 'Previous period (thousands)']}
+        yMax={reg.max}
+        format={autoFormat}
+        caption="New talent registrations"
+        headers={['Period', 'New registrations', 'Previous period']}
       />
       <ChartLegend
         items={[
@@ -58,18 +56,16 @@ const TalentGrowthCard = ({ model, text }) => {
         Cumulative talents
       </p>
       <LineTrendChart
-        series={[
-          { name: 'Cumulative talents (thousands)', values: model.cumulative, color: '#387440' },
-        ]}
+        series={[{ name: 'Cumulative talents', values: model.cumulative, color: '#387440' }]}
         labels={model.labels}
         xTicks={model.labels.map((l, i) => ({ i, label: l })).filter((t) => t.i % step === 0)}
         yTicks={cumTicks}
         yMin={cumMin}
         yMax={cumMax}
-        format={k}
+        format={autoFormat}
         height={120}
-        endLabel={`${model.cumulative[n - 1]}k`}
-        caption="Cumulative registered talents, thousands"
+        endLabel={autoFormat(model.cumulative[n - 1] ?? 0)}
+        caption="Cumulative registered talents"
       />
     </DemandCard>
   );

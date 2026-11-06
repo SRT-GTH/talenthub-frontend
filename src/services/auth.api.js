@@ -70,9 +70,31 @@ export const homePathFor = (user) => {
   const type = String(user?.entityType || user?.type || '').toLowerCase();
   if (type === 'talent') return '/home';
   if (type === 'recruiter') return '/recruiter/home';
+  // Government agencies: a temporary password from the GTH team must be replaced first.
+  if (type === 'government_institution' || type === 'government') {
+    return user?.metadata?.mustChangePassword ? '/agency/set-password' : '/agency';
+  }
   // Parents and guardians have their own dashboard (they used to land on the talent engagement flow).
   if (type === 'parent' || type === 'guardian') return '/parent';
   return '/profile/engagement';
+};
+
+/**
+ * homePathFor, plus the one case it can't tell from the login response: a school's staff member is a talent account that belongs to an
+ * education organisation. When the user has an organisation, GET /institution/me decides (403 for the school's students).
+ */
+export const resolveHomePath = async (user) => {
+  const type = String(user?.entityType || user?.type || '').toLowerCase();
+  const m = user?.metadata || {};
+  if (type === 'talent' && (user?.organizationId || m.isPrimaryContact || m.institutionRole)) {
+    try {
+      await api.get('/institution/me');
+      return '/institution';
+    } catch {
+      // not an institution's staff member
+    }
+  }
+  return homePathFor(user);
 };
 
 export const resendLoginOtp = async ({ identity }) => {

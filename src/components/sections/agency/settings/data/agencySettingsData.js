@@ -39,8 +39,8 @@ export const SETTINGS_TABS = [
 ];
 
 export const SETTINGS_SUBTITLE = {
-  default: 'Manage NYA’s access, analysts and audit trail.',
-  'api-keys': 'Manage NYA’s access, analysts and API keys.',
+  default: 'Manage your agency’s access, analysts and audit trail.',
+  'api-keys': 'Manage your agency’s access, analysts and API keys.',
 };
 
 /* ---- agency profile (11.6.1a) ---- */

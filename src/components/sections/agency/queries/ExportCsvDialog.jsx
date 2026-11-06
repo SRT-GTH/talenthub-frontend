@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Button from '../../../ui/Button.jsx';
 import { debug } from '../../../../utils/debug.js';
+import { agencyExportCsv, saveCsv } from '../../../../services/agency.api.js';
 import {
   EXPORT_OPTIONS,
   EXPORT_PURPOSE_DEFAULT,
   EXPORT_PURPOSE_MAX,
-  buildExportCsv,
+  queryApiParams,
+  queryTitle,
 } from '../data/queriesData.js';
 import ShareDialogShell from '../../publicData/share/ShareDialogShell.jsx';
 import ShareRadioCard from '../../publicData/share/ShareRadioCard.jsx';
@@ -16,15 +18,17 @@ const log = debug('ExportCsvDialog');
 /*
  * ExportCsvDialog — "Export as CSV" (Figma 11.5.1d, 8597:393645 "Modal · Download a PDF" re-used: 600 wide, header 22/26 + 14/20 sentence + close,
  * three radio cards This query · By district · By month, "Purpose (logged)" field with its counter "44 / 200", Cancel + "Download CSV").
- * Theme 8's ShareDialogShell / ShareRadioCard carry the chrome (Esc, Tab trap, scrim, scroll lock). The CSV is built client side from the mock
- * (aggregates only, counts under 5 written "<5"); a purpose is required (the export is logged with name and purpose) and the export uses 1 query
- * of the MoU quota (⚠️ ASSUMPTION: the frame prints no quota line). Focus returns to the opener on close.
- * Props: result (runQuery), onExported({ kind, purpose, fileName }), onClose.
+ * Theme 8's ShareDialogShell / ShareRadioCard carry the chrome (Esc, Tab trap, scrim, scroll lock). The CSV is built by the server
+ * (POST /agency/exports: aggregates only, counts under 5 written "<5"); a purpose is required (the export is logged with name and purpose)
+ * and it uses 1 CSV export of the MoU quota (a 429 shows the quota message). Focus returns to the opener on close.
+ * Props: result (toQueryResult), onExported({ kind, purpose, fileName }), onClose.
  */
 
 const ExportCsvDialog = ({ result, onExported, onClose }) => {
   const [kind, setKind] = useState('query');
   const [purpose, setPurpose] = useState(EXPORT_PURPOSE_DEFAULT);
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState('');
   const inputId = useId();
   const openerRef = useRef(typeof document === 'undefined' ? null : document.activeElement);
 
@@ -36,25 +40,28 @@ const ExportCsvDialog = ({ result, onExported, onClose }) => {
     };
   }, []);
 
-  const canSubmit = purpose.trim().length > 0;
+  const canSubmit = purpose.trim().length >= 3 && !busy;
 
-  const submit = () => {
+  const submit = async () => {
     if (!canSubmit) return;
-    const csv = buildExportCsv(kind, result);
-    const fileName = `nya-query-${kind}-2026-10-18.csv`;
+    setBusy(true);
+    setFailure('');
     try {
-      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const out = await agencyExportCsv({
+        kind,
+        purpose: purpose.trim(),
+        filters: queryApiParams(result.filters),
+        name: queryTitle(result.filters).slice(0, 80),
+      });
+      saveCsv(out.fileName, out.csv);
+      log('exported', out.fileName, out.rows);
+      onExported({ kind, purpose: purpose.trim(), fileName: out.fileName });
     } catch (error) {
-      log.error('download failed', error);
+      log.error('export failed', error?.response?.status || error?.message);
+      setFailure(error?.response?.data?.message || error?.message || 'The export failed.');
+    } finally {
+      setBusy(false);
     }
-    onExported({ kind, purpose: purpose.trim(), fileName });
   };
 
   return (
@@ -82,7 +89,7 @@ const ExportCsvDialog = ({ result, onExported, onClose }) => {
             disabled={!canSubmit}
             onClick={submit}
           >
-            Download CSV
+            {busy ? 'Preparing…' : 'Download CSV'}
           </Button>
         </>
       }
@@ -115,6 +122,7 @@ const ExportCsvDialog = ({ result, onExported, onClose }) => {
             value={purpose}
             maxLength={EXPORT_PURPOSE_MAX}
             required
+            placeholder="e.g. YouthStart 2027 planning"
             onChange={(e) => setPurpose(e.target.value)}
             className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[15px] leading-[18px] text-[#1c2a21] outline-none"
           />
@@ -123,6 +131,14 @@ const ExportCsvDialog = ({ result, onExported, onClose }) => {
           </span>
         </div>
       </div>
+      {failure ? (
+        <p
+          role="alert"
+          className="m-0 rounded-[12px] bg-[#fdecea] px-[14px] py-[10px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+        >
+          {failure}
+        </p>
+      ) : null}
     </ShareDialogShell>
   );
 };

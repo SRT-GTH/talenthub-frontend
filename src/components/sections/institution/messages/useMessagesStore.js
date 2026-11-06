@@ -1,23 +1,22 @@
 import { useSyncExternalStore } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { DEFAULT_DRAFT, SCHEDULED_AT, THREADS } from './data/messagesData.js';
+import { apiMessage, listMessages } from '../../../../services/institutionPortal.api.js';
+import { EMPTY_DRAFT } from './data/messagesData.js';
 
 const log = debug('messagesStore');
 
 /*
- * messagesStore — the MOCK "server state" of the institution Messages (in memory only: a reload restores the seed).
- * Future API: POST /institution/messages (send), PATCH /institution/messages/:id (edit schedule), POST /institution/messages/:id/retry-sms.
- * Holds the thread list, the compose draft, the scheduled time of thread-3 and the SMS retry state of thread-1 (idle | retrying | done).
+ * messagesStore — the thread list as GET /api/institution/messages returns it, and the compose draft (kept while the dialog moves from
+ * "New message" to the "Send to n students?" confirmation). draftId is the saved draft / scheduled message being edited, if any.
  */
 
 let state = {
-  threads: THREADS,
-  draft: DEFAULT_DRAFT,
-  scheduledAt: SCHEDULED_AT,
-  scheduledSent: false,
-  retry: 'idle',
-  followUps: {},
-  counter: 0,
+  threads: [],
+  counts: { all: 0, drafts: 0 },
+  loaded: false,
+  error: '',
+  draft: EMPTY_DRAFT,
+  draftId: null,
 };
 const listeners = new Set();
 
@@ -33,68 +32,28 @@ const getState = () => state;
 
 export const useMessagesStore = () => useSyncExternalStore(subscribe, getState, getState);
 
+/** One thread row of the list, as last loaded (null if not in the list). */
+export const getStoreThread = (id) => state.threads.find((t) => t.id === id) || null;
+
+export const loadThreads = async () => {
+  try {
+    const res = await listMessages();
+    log('threads', res?.items?.length);
+    set({
+      threads: res?.items ?? [],
+      counts: res?.counts ?? { all: 0, drafts: 0 },
+      loaded: true,
+      error: '',
+    });
+  } catch (err) {
+    set({ loaded: true, error: apiMessage(err) });
+  }
+};
+
 export const updateDraft = (patch) => set({ draft: { ...state.draft, ...patch } });
 
-/** Send the draft: a new thread goes to the top of the list. Returns its id. */
-export const sendDraft = ({ title, stat, header, initials, text }) => {
-  const id = `thread-new-${state.counter + 1}`;
-  log('send', id);
-  set({
-    counter: state.counter + 1,
-    draft: DEFAULT_DRAFT,
-    threads: [
-      {
-        id,
-        initials,
-        title,
-        when: 'Today',
-        stat,
-        header,
-        placeholder: 'Write a follow-up…',
-        timeline: [{ id: 'm1', kind: 'out', text, time: 'Now', status: '0 opened' }],
-      },
-      ...state.threads,
-    ],
-  });
-  return id;
-};
+/** Start a new message (draftId null) or edit a saved one. */
+export const startDraft = (draft = EMPTY_DRAFT, draftId = null) =>
+  set({ draft: { ...EMPTY_DRAFT, ...draft }, draftId });
 
-/** Saves the compose draft on the "Draft · …" thread. */
-export const saveDraftThread = ({ title }) => {
-  log('save draft');
-  set({
-    threads: state.threads.map((t) =>
-      t.draft ? { ...t, title: `Draft · ${title}`, when: 'Today', stat: 'Not sent yet' } : t
-    ),
-  });
-};
-
-export const sendScheduledNow = () => {
-  log('send scheduled now');
-  set({ scheduledSent: true });
-};
-
-export const setScheduledAt = (value) => {
-  log('reschedule', value);
-  set({ scheduledAt: value });
-};
-
-export const retryDelivery = () => {
-  log('retry sms');
-  set({ retry: 'retrying' });
-  setTimeout(() => set({ retry: 'done' }), 1500);
-};
-
-export const addFollowUp = (threadId, text) => {
-  log('follow-up', threadId);
-  const list = state.followUps[threadId] ?? [];
-  set({
-    followUps: {
-      ...state.followUps,
-      [threadId]: [
-        ...list,
-        { id: `f${list.length + 1}`, kind: 'out', text, time: 'Now', status: 'Sent' },
-      ],
-    },
-  });
-};
+export const resetDraft = () => set({ draft: EMPTY_DRAFT, draftId: null });

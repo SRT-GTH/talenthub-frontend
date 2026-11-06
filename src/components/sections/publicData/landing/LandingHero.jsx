@@ -51,11 +51,13 @@ const LandingHero = ({ talents, returning = null }) => (
         </h2>
         <p className="m-0 max-w-[620px] font-sans text-[15px] leading-[21px] text-white md:text-[20px] md:leading-[30px] md:text-[#e1eae2]">
           <span className="md:hidden">
-            Live, anonymised data on {formatCount(talents)} young Ghanaians.
+            {typeof talents === 'number'
+              ? `Live, anonymised data on ${formatCount(talents)} young Ghanaians.`
+              : 'Live, anonymised data on young Ghanaians.'}
           </span>
           <span className="hidden md:inline">
-            Live, anonymised data on more than two hundred thousand young Ghanaians: where they are,
-            what they want to do, and what they achieve.
+            Live, anonymised data on young Ghanaians: where they are, what they want to do, and what
+            they achieve.
           </span>
         </p>
         <LandingHeroActions layout="row" className="max-md:hidden" />

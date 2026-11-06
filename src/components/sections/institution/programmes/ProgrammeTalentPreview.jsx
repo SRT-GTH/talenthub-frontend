@@ -1,26 +1,34 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../../styles/talentA11y.css';
 import { debug } from '../../../../utils/debug.js';
+import {
+  apiMessage,
+  getProgramme,
+  publishProgramme,
+} from '../../../../services/institutionPortal.api.js';
 import DashboardShell from '../../dashboard/DashboardShell.jsx';
 import AskBuddyFab from '../../talentHome/AskBuddyFab.jsx';
 import { useTalentJobsState } from '../../talentJobs/talentJobsState.js';
-import { publishProgramme } from './useProgrammesStore.js';
+import { upsertProgramme } from './useProgrammesStore.js';
 import ProgrammePreviewBody from './ProgrammePreviewBody.jsx';
 
 const log = debug('ProgrammeTalentPreview');
 
 /*
- * ProgrammeTalentPreview — Figma 11.5.2b (8597:394257): "Preview as a talent" drawn in the TALENT dashboard chrome (Kofi Agyekum's rail and top bar), because the
- * preview shows exactly what a talent sees. The shell is the same DashboardShell the Talent Jobs / Opportunity Guidance pages mount (role "talent", Opportunities
- * highlighted); the body is ProgrammePreviewBody. The rail collapse toggle uses the shared ?rail=collapsed key. "Publish programme" publishes (mock) and opens the
- * published confirmation (/institution/programmes/<id>?state=published); "Back to editing" returns to the form.
+ * ProgrammeTalentPreview — Figma 11.5.2b (8597:394257): "Preview as a student" drawn in the TALENT dashboard chrome, because the preview shows exactly
+ * what a student sees. The body is ProgrammePreviewBody filled from GET /api/institution/programmes/:id (preview). "Publish programme" publishes
+ * (POST .../publish: the contact-details check and the 5-student minimum run on the server; a refusal is shown here) and opens the published
+ * confirmation (/institution/programmes/<id>?state=published); "Back to editing" returns to the form.
  * Props: programmeId.
  */
 
 const ProgrammeTalentPreview = ({ programmeId }) => {
   const jobs = useTalentJobsState();
   const navigate = useNavigate();
+  const [programme, setProgramme] = useState(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   // same marker as /home so talentA11y.css (focus ring, reduced motion) covers the talent chrome
   useEffect(() => {
@@ -29,8 +37,34 @@ const ProgrammeTalentPreview = ({ programmeId }) => {
   }, []);
 
   useEffect(() => {
+    let alive = true;
     log('mount', { programmeId });
+    if (!programmeId) {
+      setError('Pick a programme to preview.');
+      return undefined;
+    }
+    getProgramme(programmeId)
+      .then((p) => alive && setProgramme(p))
+      .catch((err) => alive && setError(apiMessage(err)));
+    return () => {
+      alive = false;
+    };
   }, [programmeId]);
+
+  const publish = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    try {
+      const card = await publishProgramme(programmeId);
+      upsertProgramme(card);
+      navigate(`/institution/programmes/${programmeId}?state=published`);
+    } catch (err) {
+      setError(apiMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <DashboardShell
@@ -40,16 +74,29 @@ const ProgrammeTalentPreview = ({ programmeId }) => {
       rail={jobs.rail}
       onToggleRail={() => jobs.update({ rail: jobs.rail === 'collapsed' ? null : 'collapsed' })}
       railActiveId="opportunities"
-      railBadges={{ opportunities: '2' }}
     >
-      <div className="mx-auto flex w-full max-w-[1433px] flex-col px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(24px,3vw,56px)]">
-        <ProgrammePreviewBody
-          backHref={`/institution/programmes/new?programme=${programmeId}`}
-          onPublish={() => {
-            publishProgramme(programmeId);
-            navigate(`/institution/programmes/${programmeId}?state=published`);
-          }}
-        />
+      <div className="mx-auto flex w-full max-w-[1433px] flex-col gap-[16px] px-[clamp(12px,3vw,52px)] pt-[clamp(16px,1.85vw,32px)] pb-[clamp(24px,3vw,56px)]">
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[12px] border border-solid border-[#f6e1df] bg-[#f9ebea] px-[16px] py-[12px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+          >
+            {error}
+          </p>
+        ) : null}
+        {programme ? (
+          <ProgrammePreviewBody
+            preview={programme.preview}
+            published={programme.status === 'live'}
+            publishing={busy}
+            backHref={`/institution/programmes/new?programme=${programmeId}`}
+            onPublish={programme.status === 'draft' ? publish : undefined}
+          />
+        ) : !error ? (
+          <p className="m-0 font-sans text-[14px] leading-[20px] text-[#737373]">
+            Loading the preview…
+          </p>
+        ) : null}
       </div>
       <AskBuddyFab home={jobs} />
     </DashboardShell>

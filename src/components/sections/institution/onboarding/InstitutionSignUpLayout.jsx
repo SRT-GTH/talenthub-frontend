@@ -19,7 +19,7 @@ const InstitutionSignUpLayout = ({ stepKey, variant, children }) => {
     <div className="flex min-h-dvh flex-col bg-[#f8f8f4] font-sans text-[#1c2a21]">
       <header className="sticky top-0 z-40 w-full shrink-0 border-b border-solid border-[#e7e7e7] bg-[#f8f8f4] shadow-[0_1px_2px_rgba(27,36,44,0.12)]">
         <div className="flex items-center justify-between px-4 py-3 max-md:py-1.5 md:px-16">
-          <Link to="/institution" aria-label="Ghana Talent Hub, institution home">
+          <Link to="/" aria-label="Ghana Talent Hub home">
             <img
               src={gthLogoStacked}
               alt="Ghana Talent Hub"
@@ -27,7 +27,7 @@ const InstitutionSignUpLayout = ({ stepKey, variant, children }) => {
             />
           </Link>
           <Link
-            to="/institution"
+            to="/login"
             className="inline-flex min-h-[24px] items-center px-[8px] text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#387440] underline decoration-[#387440]/60 underline-offset-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
           >
             Log In

@@ -10,16 +10,27 @@ import { ProgrammesIconStar } from './programmesIcons.jsx';
  *   five stars (#eab308, the unused #d6d1c2) + "81%" · the sentence (#999999) · "Save and continue" (green) + "Save as Template" (white, 2px).
  * Privacy: every count goes through formatCount(). ⚠️ Figma draws the real numbers "4" and "2 of 4" under 5 (frame 11.5.2h); the card prints "<5" instead,
  * and "Save and continue" is disabled while fewer than 5 talents match ("Groups under 5 can’t be targeted").
- * Props: audience (computeAudience), onContinue(), onTemplate().
+ * Props: audience (POST /agency/programmes/audience: { pool, match, matchSuppressed, readyNow, readyPct, stars }, null while loading),
+ * onContinue(), onTemplate() ("Save draft"), busy, error, note.
  */
 
-const POOL_REF = 356000;
+const EMPTY = { pool: 0, match: 0, readyNow: 0, readyPct: 0, stars: 0 };
 
-const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
-  const blocked = audienceBlocked(audience);
-  const ready = blocked
-    ? `Ready now: ${formatCount(audience.readyNow)} of ${formatCount(audience.match)}`
-    : `Ready now: ${audience.readyPct}% of matches`;
+const AudiencePreviewCard = ({
+  audience: live,
+  onContinue,
+  onTemplate,
+  busy = false,
+  error = '',
+  note = '',
+}) => {
+  const audience = live ?? EMPTY;
+  const blocked = audienceBlocked(live);
+  const ready = !live
+    ? 'Counting matching talents…'
+    : blocked
+      ? `Ready now: ${formatCount(audience.readyNow)} of ${formatCount(audience.match)}`
+      : `Ready now: ${audience.readyPct}% of matches`;
   return (
     <section
       aria-labelledby="audience-title"
@@ -39,7 +50,9 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
         <div aria-hidden="true" className="h-[7px] overflow-hidden rounded-full bg-[#e6e6e6]">
           <div
             className="h-full bg-[#387440]"
-            style={{ width: `${Math.max(1, Math.min(100, (audience.pool / POOL_REF) * 100))}%` }}
+            style={{
+              width: `${audience.pool ? Math.max(1, Math.min(100, ((audience.matchSuppressed ? 0 : audience.match) / audience.pool) * 100)) : 0}%`,
+            }}
           />
         </div>
         <div className="flex items-center justify-between text-[16px] leading-[24px] tracking-[0.2px]">
@@ -73,28 +86,37 @@ const AudiencePreviewCard = ({ audience, onContinue, onTemplate }) => {
           </span>
         </div>
         <p className="m-0 pt-[4px] text-center text-[16px] leading-[24px] tracking-[0.2px] text-[#999999]">
-          {audienceNote(audience, formatCount)}
+          {live ? audienceNote(audience, formatCount) : ''}
         </p>
+        {error ? (
+          <p role="alert" className="m-0 text-center text-[14px] leading-[20px] text-[#902b20]">
+            {error}
+          </p>
+        ) : null}
+        {note && !error ? (
+          <p className="m-0 text-center text-[14px] leading-[20px] text-[#387440]">{note}</p>
+        ) : null}
       </div>
       <div className="flex flex-col gap-[12px] pt-[16px]">
         <Button
           type="button"
           variant="primary"
           size="sm"
-          disabled={blocked}
+          disabled={blocked || busy}
           onClick={onContinue}
           className="!w-full !py-[8.5px] !text-[14px] !font-semibold"
         >
-          Save and continue
+          {busy ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
           type="button"
           variant="tertiary"
           size="sm"
           onClick={onTemplate}
+          disabled={busy}
           className="!w-full !rounded-[14px] !py-[8.5px] !text-[14px] !font-semibold"
         >
-          Save as Template
+          Save draft
         </Button>
       </div>
     </section>

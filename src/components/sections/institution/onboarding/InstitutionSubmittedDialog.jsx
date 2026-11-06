@@ -48,12 +48,13 @@ const CONFETTI = [
  * 176 high art band with the 100 round green medallion + 20 confetti rects and the 36 round close; body (p 32, gap 32): eyebrow, 35/42 headline (green "submitted."),
  * 15/22 text, three stat tiles (r16), "What happens next" two rows, "Go to my status page" (mint) + "Next: Review" (green shelf).
  * ⚠️ ASSUMPTION: the Review step is not drawn, so "Next: Review" also lands on the status page (in review).
- * Props: onClose.
+ * Props: onClose, documents (how many were sent).
  */
 
-const InstitutionSubmittedDialog = ({ onClose }) => {
+const InstitutionSubmittedDialog = ({ onClose, documents = 4 }) => {
   const S = ACCREDITATION.submitted;
-  const statusTo = '/institution/accreditation/status?verify=under-review';
+  const statusTo = '/institution/accreditation/status';
+  const text = `${documents} ${documents === 1 ? 'document' : 'documents'} sent. You can set up while we check, but students and credentials open once you’re approved.`;
   return (
     <AgencyDialog
       label="Documents submitted"
@@ -92,7 +93,7 @@ const InstitutionSubmittedDialog = ({ onClose }) => {
               {S.title[0]}
               <span className="text-[#387440]">{S.title[1]}</span>
             </h2>
-            <p className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">{S.text}</p>
+            <p className="m-0 font-sans text-[15px] leading-[22px] text-[#595959]">{text}</p>
           </div>
           <ul className="m-0 grid list-none grid-cols-3 gap-[10px] p-0">
             {S.stats.map((s) => (

@@ -19,8 +19,8 @@ const log = debug('DataRequestRow');
  * DataRequestRow — one request of the list (Figma 11.4.3a, "result" rows 8597:58 / 89 / 117): 42px data icon tile · title + status sticker + detail
  * line · the review note pill (eye) · tag chips + "+n" · the action pill (Open data · Pending · View reason) · bookmark · arrow. A rejected row is
  * drawn at 50 % with a full-strength "Appeal" button instead of the arrow. The title is the row's link (stretched over the row); the other controls
- * sit above it. ⚠️ ASSUMPTION: the bookmark pins the request in the list (Figma draws it without a behaviour): aria-pressed, local state.
- * Props: request (see dataRequestsData.REQUESTS), grid (card layout for the grid view).
+ * sit above it. The bookmark pins the request on this device (remembered in localStorage). "Appeal" shows only while the 14-day window is open.
+ * Props: request (see dataRequestsData.toRow), grid (card layout for the grid view).
  */
 
 const ICONS = {
@@ -29,8 +29,30 @@ const ICONS = {
   lock: DataRequestIconLock,
 };
 
+const PIN_KEY = 'gth.agency.pinnedRequests';
+const readPins = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(PIN_KEY) || '[]');
+  } catch {
+    return [];
+  }
+};
+
 const DataRequestRow = ({ request, grid = false }) => {
-  const [saved, setSaved] = useState(false);
+  const [saved, setSavedState] = useState(() => readPins().includes(request.id));
+  const setSaved = (fn) =>
+    setSavedState((prev) => {
+      const next = fn(prev);
+      try {
+        const pins = readPins().filter((id) => id !== request.id);
+        window.localStorage.setItem(PIN_KEY, JSON.stringify(next ? [request.id, ...pins] : pins));
+      } catch {
+        /* storage unavailable: the pin lasts for this page only */
+      }
+      log('pin', request.id, next);
+      return next;
+    });
+  const appealable = request.note?.label?.startsWith('Appeal by');
   const Icon = ICONS[request.icon] ?? DataRequestIconMap;
   const to = `/agency/data-requests/${request.id}`;
   const rejected = request.status === 'rejected';
@@ -140,7 +162,7 @@ const DataRequestRow = ({ request, grid = false }) => {
         >
           <DataRequestIconBookmark className="size-[15px]" />
         </button>
-        {rejected ? (
+        {rejected && appealable ? (
           <Link
             to={`${to}?modal=appeal`}
             className="inline-flex h-[40px] items-center rounded-[10px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[16px] font-sans text-[16px] leading-[24px] font-bold tracking-[0.1px] text-[#1c2a21] no-underline shadow-[0_4px_0_rgba(17,17,17,0.25)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"

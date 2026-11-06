@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
+import { apiMessage, verifyCredential } from '../../../../services/institutionPortal.api.js';
 import Button from '../../../ui/Button.jsx';
 import { RecordsIconArrowr } from '../records/recordsIcons.jsx';
 import {
@@ -9,21 +10,15 @@ import {
   CredentialsIconSearch,
   CredentialsIconShield,
 } from './credentialsIcons.jsx';
-import {
-  VERIFY_CHECKED_AT,
-  VERIFY_ISSUED_BY,
-  VERIFY_POINTS,
-  VERIFY_RECORDS,
-} from './data/credentialsData.js';
+import { VERIFY_POINTS } from './data/credentialsData.js';
 
 const log = debug('CredentialVerifyView');
 
 /*
- * CredentialVerifyView — the public "Verify a credential" page (Figma 11.2.4i Valid 8744:437743, 11.2.4j Revoked 8744:437962), drawn inside the Theme 8 public chrome (PublicDataFrame, "Directory").
- * Breadcrumb · title 36/43 · sentence · the check form · the result card (status banner, seven detail rows, "Checked …" footer) · three "how it works" tiles.
- * Which record shows: ?state=valid|revoked wins; otherwise the number in the URL (…00203 is the revoked sample, …00297 the valid one); any other id shows the valid sample (⚠️ ASSUMPTION: the
- * frames draw no "not found" state, so there is none: the form just checks again). "Check credential" goes to /institution/verify/<number>.
- * Props: credentialId (route param), state (?state).
+ * CredentialVerifyView — the public "Verify a credential" page (Figma 11.2.4i Valid 8744:437743, 11.2.4j Revoked 8744:437962), inside the Theme 8 public chrome.
+ * Breadcrumb · title · sentence · the check form · the result card (status banner, detail rows, "Checked …" footer) · three "how it works" tiles.
+ * Live: GET /api/verify/:number (no sign-in). An unknown number shows "No credential with that ID" (not drawn; same card in grey).
+ * /institution/verify (no number) shows only the form. Props: credentialId (the number from the URL).
  */
 const BANNERS = {
   valid: {
@@ -32,7 +27,6 @@ const BANNERS = {
     iconTone: 'text-[#387440]',
     title: 'Valid credential',
     titleTone: 'text-[#387440]',
-    sentence: 'Signed by a verified institution and unchanged since it was issued.',
   },
   revoked: {
     bg: 'bg-[#f9ebea]',
@@ -40,54 +34,76 @@ const BANNERS = {
     iconTone: 'text-[#c0392b]',
     title: 'Revoked credential',
     titleTone: 'text-[#c0392b]',
-    sentence: 'Savannah Hills SHS revoked this on 18 Oct 2026. Don’t accept it as proof.',
+  },
+  'not-found': {
+    bg: 'bg-[#f3f3ef]',
+    Icon: CredentialsIconError30,
+    iconTone: 'text-[#595959]',
+    title: 'No credential with that ID',
+    titleTone: 'text-[#1c2a21]',
   },
 };
 
-const resolve = (credentialId, state) => {
-  if (state === 'revoked' || state === 'valid') return state;
-  return /00203$/.test(credentialId ?? '') ? 'revoked' : 'valid';
-};
-
-const CredentialVerifyView = ({ credentialId, state }) => {
+const CredentialVerifyView = ({ credentialId }) => {
   const navigate = useNavigate();
   const inputId = useId();
-  const outcome = resolve(credentialId, state);
-  const record = VERIFY_RECORDS[outcome];
-  const banner = BANNERS[outcome];
-  const BannerIcon = banner.Icon;
-  const [text, setText] = useState(record.number);
+  const [text, setText] = useState(credentialId ?? '');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    log('mount', { credentialId, outcome });
-    setText(VERIFY_RECORDS[outcome].number);
-  }, [credentialId, outcome]);
+    setText(credentialId ?? '');
+    setResult(null);
+    setError('');
+    if (!credentialId) return undefined;
+    let live = true;
+    log('check', credentialId);
+    verifyCredential(credentialId)
+      .then((r) => live && setResult(r))
+      .catch((err) => live && setError(apiMessage(err)));
+    return () => {
+      live = false;
+    };
+  }, [credentialId]);
 
-  const rows =
-    outcome === 'valid'
+  const banner = result ? (BANNERS[result.status] ?? BANNERS['not-found']) : null;
+  const BannerIcon = banner?.Icon;
+  const issuedBy = result?.issuer?.verifiedLine ?? '';
+  const sentence = !result
+    ? ''
+    : result.status === 'valid'
+      ? 'Signed by a verified institution and unchanged since it was issued.'
+      : result.status === 'revoked'
+        ? `${result.issuer?.short ?? 'The school'} revoked this on ${String(result.revoked).split(' · ')[0]}. Don’t accept it as proof.`
+        : `Check the ID on the certificate and try again. IDs look like GTH-CR-0412-00297.`;
+
+  const rows = !result
+    ? []
+    : result.status === 'valid'
       ? [
-          ['Holder', record.holder],
-          ['Credential', record.credential],
-          ['Credential ID', record.credentialId],
-          ['Issued by', VERIFY_ISSUED_BY],
-          ['Issued', record.issued],
-          ['Signed by', record.signedBy],
-          ['Signature', record.signature],
+          ['Holder', result.holder],
+          ['Credential', result.credential],
+          ['Credential ID', result.credentialId],
+          ['Issued by', issuedBy],
+          ['Issued', result.issued],
+          ['Signed by', result.signedBy],
+          ['Signature', result.signature],
         ]
-      : [
-          ['Holder', record.holder],
-          ['Credential', record.credential],
-          ['Credential ID', record.credentialId],
-          ['Issued by', VERIFY_ISSUED_BY],
-          ['Issued', record.issued],
-          ['Revoked', record.revoked, 'text-[#c0392b]'],
-          ['Reason', record.reason],
-        ];
+      : result.status === 'revoked'
+        ? [
+            ['Holder', result.holder],
+            ['Credential', result.credential],
+            ['Credential ID', result.credentialId],
+            ['Issued by', issuedBy],
+            ['Issued', result.issued],
+            ['Revoked', result.revoked, 'text-[#c0392b]'],
+            ['Reason', result.reason],
+          ]
+        : [['You entered', result.number]];
 
   const submit = (e) => {
     e.preventDefault();
     const value = text.trim();
-    log('check', value);
     if (value) navigate(`/institution/verify/${encodeURIComponent(value)}`);
   };
 
@@ -112,8 +128,7 @@ const CredentialVerifyView = ({ credentialId, state }) => {
           Verify a credential
         </h1>
         <p className="m-0 text-[15px] leading-[18px] text-[#575755]">
-          Enter the ID printed on the certificate, or scan its QR code. Checking is free and doesn’t
-          need an account.
+          Enter the ID printed on the certificate. Checking is free and doesn’t need an account.
         </p>
       </header>
       <form onSubmit={submit} className="flex max-w-[702px] flex-wrap gap-[12px]">
@@ -127,6 +142,7 @@ const CredentialVerifyView = ({ credentialId, state }) => {
             id={inputId}
             type="text"
             value={text}
+            placeholder="GTH-CR-0000-00000"
             onChange={(e) => setText(e.target.value)}
             autoComplete="off"
             spellCheck={false}
@@ -143,45 +159,60 @@ const CredentialVerifyView = ({ credentialId, state }) => {
           Check credential
         </Button>
       </form>
-      <section
-        aria-label={banner.title}
-        className="max-w-[900px] overflow-hidden rounded-[24px] border border-solid border-[#e7e7e7] bg-white"
-      >
-        <div
-          className={`flex items-center gap-[14px] px-[clamp(16px,2vw,28px)] py-[20px] ${banner.bg}`}
-        >
-          <BannerIcon className={`size-[30px] shrink-0 ${banner.iconTone}`} />
-          <div className="flex min-w-0 flex-col gap-[4px]">
-            <h2 className={`m-0 text-[22px] leading-[26px] font-semibold ${banner.titleTone}`}>
-              {banner.title}
-            </h2>
-            <p className="m-0 text-[14px] leading-[17px] text-[#1c2a21]">{banner.sentence}</p>
-          </div>
-        </div>
-        <dl className="m-0 px-[clamp(16px,2vw,28px)] pt-[8px] pb-[20px]">
-          {rows.map(([label, value, tone]) => (
-            <div
-              key={label}
-              className="flex flex-col gap-[4px] py-[14px] sm:flex-row sm:gap-[16px]"
-            >
-              <dt className="text-[14px] leading-[17px] font-medium text-[#575755] sm:w-[180px] sm:shrink-0">
-                {label}
-              </dt>
-              <dd
-                className={`m-0 min-w-0 flex-1 text-[15px] leading-[18px] font-semibold ${tone ?? 'text-[#1c2a21]'}`}
-              >
-                {value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="m-0 flex items-start gap-[10px] px-[clamp(16px,2vw,28px)] pt-[16px] pb-[20px] text-[13px] leading-[16px] text-[#575755]">
-          <CredentialsIconShield className="size-[16px] shrink-0 text-[#575755]" />
-          <span>
-            {VERIFY_CHECKED_AT} This page shows only what the holder shares. Report a problem →
-          </span>
+      {error ? (
+        <p role="alert" className="m-0 text-[14px] leading-[20px] text-[#902b20]">
+          {error}
         </p>
-      </section>
+      ) : null}
+      {credentialId && !result && !error ? (
+        <p className="m-0 text-[14px] text-[#737373]" role="status">
+          Checking {credentialId}…
+        </p>
+      ) : null}
+      {result ? (
+        <section
+          aria-label={banner.title}
+          className="max-w-[900px] overflow-hidden rounded-[24px] border border-solid border-[#e7e7e7] bg-white"
+        >
+          <div
+            className={`flex items-center gap-[14px] px-[clamp(16px,2vw,28px)] py-[20px] ${banner.bg}`}
+          >
+            <BannerIcon className={`size-[30px] shrink-0 ${banner.iconTone}`} />
+            <div className="flex min-w-0 flex-col gap-[4px]">
+              <h2 className={`m-0 text-[22px] leading-[26px] font-semibold ${banner.titleTone}`}>
+                {banner.title}
+              </h2>
+              <p className="m-0 text-[14px] leading-[17px] text-[#1c2a21]">{sentence}</p>
+            </div>
+          </div>
+          <dl className="m-0 px-[clamp(16px,2vw,28px)] pt-[8px] pb-[20px]">
+            {rows.map(([label, value, tone]) => (
+              <div
+                key={label}
+                className="flex flex-col gap-[4px] py-[14px] sm:flex-row sm:gap-[16px]"
+              >
+                <dt className="text-[14px] leading-[17px] font-medium text-[#575755] sm:w-[180px] sm:shrink-0">
+                  {label}
+                </dt>
+                <dd
+                  className={`m-0 min-w-0 flex-1 text-[15px] leading-[18px] font-semibold ${tone ?? 'text-[#1c2a21]'}`}
+                >
+                  {value || '—'}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {result.checkedAt ? (
+            <p className="m-0 flex items-start gap-[10px] px-[clamp(16px,2vw,28px)] pt-[16px] pb-[20px] text-[13px] leading-[16px] text-[#575755]">
+              <CredentialsIconShield className="size-[16px] shrink-0 text-[#575755]" />
+              <span>
+                {result.checkedAt} This page shows only what the certificate carries, nothing else
+                about the holder.
+              </span>
+            </p>
+          ) : null}
+        </section>
+      ) : null}
       <ul className="m-0 grid max-w-[906px] list-none grid-cols-1 gap-[24px] p-0 md:grid-cols-3">
         {VERIFY_POINTS.map((p) => (
           <li

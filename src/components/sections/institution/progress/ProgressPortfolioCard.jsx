@@ -8,7 +8,7 @@ import { coverBg } from '../../talentProfile/profileTabsStyles.js';
  */
 
 const ProgressPortfolioCard = ({ items }) => (
-  <ProfileCard title="Portfolio" link="See all 3 →" onLink={() => {}}>
+  <ProfileCard title="Portfolio">
     <ul className="m-0 grid list-none grid-cols-1 gap-[16px] p-0 @lg:grid-cols-2 @3xl:grid-cols-3">
       {items.map((item) => (
         <li key={item.key} className="flex min-w-0 flex-col items-start gap-[8px]">

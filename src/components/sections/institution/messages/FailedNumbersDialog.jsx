@@ -1,18 +1,20 @@
+import { Link } from 'react-router-dom';
 import Button from '../../../ui/Button.jsx';
 import AgencyDialogShell from '../../agency/queries/AgencyDialogShell.jsx';
-import { FAILED_NUMBERS } from './data/messagesData.js';
 import { MessagesIconClose } from './messagesIcons.jsx';
 
 /*
- * FailedNumbersDialog — "See the 12" (⚠️ ASSUMPTION: the list behind the button is not drawn). A 480 wide white card (r24, p 28, same shell as "New message"):
- * the guardians whose SMS failed, each with the student, the relation and the MASKED number (never a full number), and a "Fix number" link to the roster record.
- * Focus trap, Esc, scrim click and focus return come from AgencyDialogShell.
- * Props: rows (defaults to FAILED_NUMBERS, first `count` used), count, onClose().
+ * FailedNumbersDialog — "See the n" (⚠️ ASSUMPTION: the list behind the button is not drawn). A 520 wide white card (r24, p 28, same shell as "New message"):
+ * the guardians whose copy failed (GET /api/institution/messages/:id/failures), each with the student, the relation and the MASKED number or email
+ * (never in full), and a "Fix contact" link to the student's roster record. Focus trap, Esc, scrim click and focus return from AgencyDialogShell.
+ * Props: items ([{ rosterId, student, relation, contact }] | null while loading), onClose().
  */
 
-const FailedNumbersDialog = ({ count, onClose }) => {
-  const rows = FAILED_NUMBERS.slice(0, count);
-  const title = `${count} guardians didn’t get the SMS`;
+const FailedNumbersDialog = ({ items, onClose }) => {
+  const n = items?.length ?? 0;
+  const title = items
+    ? `${n} ${n === 1 ? 'guardian' : 'guardians'} didn’t get the copy`
+    : 'Guardian copies';
   return (
     <AgencyDialogShell
       title={title}
@@ -34,29 +36,37 @@ const FailedNumbersDialog = ({ count, onClose }) => {
             <MessagesIconClose className="size-[18px]" />
           </button>
         </div>
-        <ul className="m-0 flex min-h-0 list-none flex-col overflow-y-auto p-0">
-          {rows.map(([student, relation, number]) => (
-            <li
-              key={student}
-              className="flex items-center justify-between gap-[12px] border-0 border-t border-solid border-[#f2f2f2] py-[10px] first:border-t-0"
-            >
-              <span className="flex min-w-0 flex-col">
-                <span className="text-[15px] leading-[18px] font-medium text-[#1c2a21]">
-                  {student}
-                </span>
-                <span className="text-[13px] leading-[16px] text-[#737373]">
-                  {relation} · {number}
-                </span>
-              </span>
-              <a
-                href="/institution/students"
-                className="inline-flex min-h-[24px] items-center text-[13px] font-semibold text-[#387440] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+        {!items ? (
+          <p className="m-0 text-[14px] leading-[20px] text-[#737373]">Loading…</p>
+        ) : n ? (
+          <ul className="m-0 flex min-h-0 list-none flex-col overflow-y-auto p-0">
+            {items.map((r) => (
+              <li
+                key={r.rosterId}
+                className="flex items-center justify-between gap-[12px] border-0 border-t border-solid border-[#f2f2f2] py-[10px] first:border-t-0"
               >
-                Fix number
-              </a>
-            </li>
-          ))}
-        </ul>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[15px] leading-[18px] font-medium text-[#1c2a21]">
+                    {r.student}
+                  </span>
+                  <span className="text-[13px] leading-[16px] text-[#737373]">
+                    {r.relation} · {r.contact}
+                  </span>
+                </span>
+                <Link
+                  to={`/institution/students/${r.rosterId}`}
+                  className="inline-flex min-h-[24px] items-center text-[13px] font-semibold text-[#387440] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+                >
+                  Fix contact
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 text-[14px] leading-[20px] text-[#737373]">
+            Every guardian copy went through.
+          </p>
+        )}
         <Button
           type="button"
           variant="tertiary"

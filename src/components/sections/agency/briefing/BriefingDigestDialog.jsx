@@ -4,41 +4,29 @@ import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { PRIMARY_BUTTON, TERTIARY_BUTTON } from '../../publicData/share/shareButtonClasses.js';
 import ShareDialogShell from '../../publicData/share/ShareDialogShell.jsx';
-import { BRIEFING_DIGEST as D, subscribeToBriefingDigest } from './data/briefingData.js';
+import { useAgencySession } from '../useAgencySession.js';
+import { subscribeToBriefingDigest } from './data/briefingData.js';
 
 const log = debug('BriefingDigestDialog');
 
 /*
- * BriefingDigestDialog — Figma 11.4.4e "Monthly digest for your agency" (8605:406838): email (required) · name (optional) · role · regions of
- * interest · "Send the digest to my analysts too (3 people)…" checkbox (checked as drawn) · Cancel + Subscribe.
- * ⚠️ ASSUMPTIONS: Figma draws no error or success state. An empty / invalid email shows a red line (copy "Enter a valid email address." borrowed from
- * Theme 8); on success (MOCK request) the dialog closes and the result is announced to screen readers only (sr-only live region on the page).
- * Props: onClose(), onSubscribed(payload).
+ * BriefingDigestDialog — Figma 11.4.4e "Digest for your agency" (8605:406838). The digest goes to the signed-in user's account address (shown
+ * read-only: the server never sends it anywhere else); "Subscribe" turns on the email digest of Settings › Notifications
+ * (PATCH /agency/settings/notifications { weekly: true }), the same switch as on the settings page. Errors from the server are shown in the dialog.
+ * Props: onClose(), onSubscribed().
  */
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
 const FIELD =
-  'w-full min-h-[44px] rounded-[12px] border border-solid bg-white px-[14px] py-[12px] font-sans text-[15px] leading-[18px] text-[#1c2a21] outline-none focus-visible:border-[#387440] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#387440]';
-
-const Label = ({ htmlFor, children }) => (
-  <label
-    htmlFor={htmlFor}
-    className="font-sans text-[13px] leading-[16px] font-semibold text-[#1c2a21]"
-  >
-    {children}
-  </label>
-);
+  'w-full min-h-[44px] rounded-[12px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[14px] py-[12px] font-sans text-[15px] leading-[18px] text-[#1c2a21]';
 
 const BriefingDigestDialog = ({ onClose, onSubscribed }) => {
-  const [email, setEmail] = useState(D.email);
-  const [name, setName] = useState(D.name);
-  const [role, setRole] = useState(D.roles[0]);
-  const [regions, setRegions] = useState(D.regions[0]);
-  const [analysts, setAnalysts] = useState(true);
+  const session = useAgencySession();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const ids = useId();
+  const email = session?.analyst?.email || '';
+  const name = session?.analyst?.name || '';
+  const agency = session?.agency?.short || session?.agency?.name || 'your agency';
 
   useEffect(() => {
     log('mount');
@@ -46,30 +34,23 @@ const BriefingDigestDialog = ({ onClose, onSubscribed }) => {
 
   const submit = async (event) => {
     event.preventDefault();
-    const trimmed = email.trim();
-    if (!EMAIL_PATTERN.test(trimmed)) {
-      log('invalid email');
-      setError('Enter a valid email address.');
-      return;
-    }
     setError('');
     setBusy(true);
-    const result = await subscribeToBriefingDigest({
-      email: trimmed,
-      name: name.trim(),
-      role,
-      regions,
-      analysts,
-    });
-    log('subscribed (mock)', result.ok);
-    setBusy(false);
-    onSubscribed?.(result.payload);
+    try {
+      await subscribeToBriefingDigest();
+      log('subscribed');
+      onSubscribed?.();
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Could not subscribe.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <ShareDialogShell
-      title="Monthly digest for your agency"
-      description="A one-page email on the 1st of each month with your MoU view: national, regional and district movement. Sent only to verified NYA addresses."
+      title="Email digest for your agency"
+      description={`A short email with your MoU view: national, regional and district movement. Sent only to your ${agency} account address.`}
       onClose={onClose}
       width={600}
       footer={
@@ -89,85 +70,41 @@ const BriefingDigestDialog = ({ onClose, onSubscribed }) => {
             variant="primary"
             size="sm"
             className={PRIMARY_BUTTON}
-            disabled={busy}
+            disabled={busy || !email}
           >
-            Subscribe
+            {busy ? 'Subscribing…' : 'Subscribe'}
           </Button>
         </>
       }
     >
       <form id={`${ids}-form`} noValidate onSubmit={submit} className="contents">
         <div className="flex flex-col gap-[6px]">
-          <Label htmlFor={`${ids}-email`}>Email address</Label>
-          <input
-            id={`${ids}-email`}
-            type="email"
-            autoComplete="email"
-            data-autofocus=""
-            value={email}
-            aria-invalid={error ? 'true' : undefined}
-            aria-describedby={error ? `${ids}-error` : undefined}
-            onChange={(event) => setEmail(event.target.value)}
-            className={classNames(FIELD, error ? 'border-[#902b20]' : 'border-[#e7e7e7]')}
-          />
-          {error ? (
-            <p
-              id={`${ids}-error`}
-              role="alert"
-              className="m-0 font-sans text-[13px] leading-[16px] font-medium text-[#902b20]"
-            >
-              {error}
-            </p>
-          ) : null}
+          <label
+            htmlFor={`${ids}-email`}
+            className="font-sans text-[13px] leading-[16px] font-semibold text-[#1c2a21]"
+          >
+            Sent to
+          </label>
+          <input id={`${ids}-email`} type="email" readOnly value={email} className={FIELD} />
         </div>
-        <div className="flex flex-col gap-[6px]">
-          <Label htmlFor={`${ids}-name`}>Name (optional)</Label>
-          <input
-            id={`${ids}-name`}
-            type="text"
-            autoComplete="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={classNames(FIELD, 'border-[#e7e7e7]')}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-[16px] sm:grid-cols-2">
-          <div className="flex flex-col gap-[6px]">
-            <Label htmlFor={`${ids}-role`}>Your role</Label>
-            <select
-              id={`${ids}-role`}
-              value={role}
-              onChange={(event) => setRole(event.target.value)}
-              className={classNames(FIELD, 'border-[#e7e7e7]')}
-            >
-              {D.roles.map((r) => (
-                <option key={r}>{r}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-[6px]">
-            <Label htmlFor={`${ids}-regions`}>Regions of interest</Label>
-            <select
-              id={`${ids}-regions`}
-              value={regions}
-              onChange={(event) => setRegions(event.target.value)}
-              className={classNames(FIELD, 'border-[#e7e7e7]')}
-            >
-              {D.regions.map((r) => (
-                <option key={r}>{r}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <label className="flex cursor-pointer items-start gap-[10px] font-sans text-[13px] leading-[18px] text-[#1c2a21]">
-          <input
-            type="checkbox"
-            checked={analysts}
-            onChange={(event) => setAnalysts(event.target.checked)}
-            className="mt-[1px] size-[18px] shrink-0 accent-[#387440]"
-          />
-          {D.analystsLabel}
-        </label>
+        {name ? (
+          <p className="m-0 font-sans text-[13px] leading-[18px] text-[#595959]">
+            {name} · change the address in your account settings.
+          </p>
+        ) : null}
+        <p className="m-0 font-sans text-[13px] leading-[18px] text-[#595959]">
+          You can turn it off any time in Settings › Notifications.
+        </p>
+        {error ? (
+          <p
+            role="alert"
+            className={classNames(
+              'm-0 font-sans text-[13px] leading-[16px] font-medium text-[#902b20]'
+            )}
+          >
+            {error}
+          </p>
+        ) : null}
       </form>
     </ShareDialogShell>
   );

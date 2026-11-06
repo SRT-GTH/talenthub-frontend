@@ -3,7 +3,11 @@ import AgencyFrame from '../../components/sections/agency/AgencyFrame.jsx';
 import AgencyButton from '../../components/sections/agency/AgencyButton.jsx';
 import AgencyPageHero from '../../components/sections/agency/AgencyPageHero.jsx';
 import { useAgencyState } from '../../components/sections/agency/agencyState.js';
-import { PUBLIC_AGENCY } from '../../components/sections/agency/publicPage/data/agencyPublicData.js';
+import { buildPublicAgency } from '../../components/sections/agency/publicPage/data/agencyPublicData.js';
+import { useProgrammesStore } from '../../components/sections/agency/programmes/useProgrammesStore.js';
+import { useAgencyResource } from '../../components/sections/agency/useAgencyResource.js';
+import { useAgencySession } from '../../components/sections/agency/useAgencySession.js';
+import { agencySettings } from '../../services/agency.api.js';
 import AgencyPublicHeader from '../../components/sections/agency/publicPage/AgencyPublicHeader.jsx';
 import AgencyPublicImpactCard from '../../components/sections/agency/publicPage/AgencyPublicImpactCard.jsx';
 import AgencyPublicProgrammesCard from '../../components/sections/agency/publicPage/AgencyPublicProgrammesCard.jsx';
@@ -15,11 +19,15 @@ const log = debug('AgencyPublicPage');
 /*
  * AgencyPublicPage — /agency/public-page (Figma 11.6.1i "Agency page · Public view", 8611:3509). The frame draws the AGENCY chrome (rail, top bar, green
  * "Your agency page" hero with "Edit agency page"), i.e. the owner's preview of the public directory page, so it is built inside AgencyFrame.
- * Aggregates only, no MoU data. Hero title uses Bricolage as drawn (font-heading).
+ * Aggregates only, no MoU data: the agency profile (GET /agency/settings) and its published programmes (GET /agency/programmes). Hero title uses
+ * Bricolage as drawn (font-heading).
  */
 const AgencyPublicPage = () => {
   const data = useAgencyState();
-  const a = PUBLIC_AGENCY;
+  const session = useAgencySession();
+  const settings = useAgencyResource(() => agencySettings(), []);
+  const { programmes } = useProgrammesStore();
+  const a = buildPublicAgency({ session, settings: settings.data, programmes });
   log('render');
   return (
     <AgencyFrame data={data} title="Agency public page">
@@ -28,7 +36,7 @@ const AgencyPublicPage = () => {
         title={a.hero.title}
         subtitle={a.hero.subtitle}
         actions={
-          <AgencyButton to="/agency/settings" size="sm">
+          <AgencyButton to="/agency/settings/profile" size="sm">
             Edit agency page
           </AgencyButton>
         }

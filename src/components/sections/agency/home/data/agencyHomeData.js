@@ -261,6 +261,211 @@ export const LIMIT_CARDS = [
   },
 ];
 
+/* ===== BLOCK 6b · live builders (GET /agency/home) ====================================================================== */
+
+const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** Quick actions with live metas (the frames' copy, real counts). */
+export const liveQuickActions = (kind, counts) => {
+  if (!counts) return QUICK_ACTIONS[kind];
+  const free = Math.max(0, (counts.seats || 0) - (counts.analysts || 0));
+  const meta = {
+    invite:
+      kind === 'default'
+        ? `${plural(counts.analysts, 'analyst')} active`
+        : `${plural(free, 'analyst seat')} free`,
+    query: counts.savedQueries
+      ? plural(counts.savedQueries, 'saved query', 'saved queries')
+      : 'None saved yet',
+    applicants: `${counts.applicantsToReview || 0} to review`,
+    programme: kind === 'default' ? `${counts.programmesLive || 0} live` : 'Reach eligible talents',
+  };
+  return QUICK_ACTIONS[kind].map((a) => (meta[a.id] ? { ...a, meta: meta[a.id] } : a));
+};
+
+/** "Get set up" checklist from the agency's real progress. */
+export const liveChecklist = (base, home) => {
+  if (!home) return base;
+  const c = home.checklist || {};
+  const free = Math.max(0, (home.counts?.seats || 0) - (home.counts?.analysts || 0));
+  const done = {
+    mou: true,
+    query: c.firstQuery,
+    invite: c.invited,
+    programme: (home.counts?.programmesLive || 0) > 0,
+  };
+  const items = base.items.map((i) => {
+    const isDone = Boolean(done[i.id]);
+    const sub = i.id === 'invite' ? `Invite your analysts · ${plural(free, 'seat')} free` : i.sub;
+    return isDone
+      ? { ...i, sub, state: 'done', trailing: 'Done', action: undefined }
+      : { ...i, sub, state: 'todo' };
+  });
+  const n = items.filter((i) => i.state === 'done').length;
+  const pct = Math.round((n / items.length) * 100);
+  return {
+    ...base,
+    items,
+    pct,
+    badge: `${n} of ${items.length}${n === items.length ? ' · all set!' : n > 1 ? ' · good progress' : ' · nice start!'}`,
+  };
+};
+
+/** "Get more from GTH" unlock cards from the agency's real progress. */
+export const liveUnlockCards = (base, home) => {
+  if (!home) return base;
+  const unlocked = {
+    refresh: (home.counts?.savedQueries || 0) > 0,
+    pipeline: (home.counts?.programmesLive || 0) > 0,
+    packs: (home.counts?.programmesLive || 0) > 0,
+  };
+  return {
+    ...base,
+    cards: base.cards.map((c) =>
+      unlocked[c.id]
+        ? { ...c, badge: 'Open', progressLabel: '1/1', fillPct: 100, foot: 'Unlocked' }
+        : c
+    ),
+  };
+};
+
+const CHIP_TONES = [
+  { bg: '#c1e9c9', ink: '#32683a' },
+  { bg: '#a7f4bb', ink: '#1f4a2b' },
+  { bg: '#fbe7b5', ink: '#5a430c' },
+  { bg: '#e4e2dd', ink: '#716e65' },
+];
+const DIM_LABEL = {
+  region: 'Region',
+  edu: 'education',
+  interest: 'interest',
+  age: 'age',
+  gender: 'gender',
+  x: 'profile',
+};
+
+/** A saved query from GET /agency/home as a row of the home table. */
+export const toHomeQueryRow = (q, i) => {
+  const paused = q.status === 'paused';
+  const count = q.suppressed ? 1 : q.count;
+  const dims = Object.keys(DIM_LABEL)
+    .filter((k) => (k === 'region' ? (q.filters?.region || []).length : q.filters?.[k]))
+    .map((k) => DIM_LABEL[k]);
+  const words = q.name
+    .replace(/[^\p{L}\p{N} ]/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  const params = new URLSearchParams({ state: 'results' });
+  if ((q.filters?.region || []).length) params.set('region', q.filters.region.join(','));
+  ['edu', 'interest', 'age', 'gender', 'x'].forEach(
+    (k) => q.filters?.[k] && params.set(k, q.filters[k])
+  );
+  return {
+    id: q.id,
+    initials: (
+      words
+        .slice(0, 2)
+        .map((w) => w[0])
+        .join('') || 'Q'
+    ).toUpperCase(),
+    chip: paused ? CHIP_TONES[3] : CHIP_TONES[i % 3],
+    name: q.name,
+    dims: dims.length ? dims.join(' · ').replace(/^./, (c) => c.toUpperCase()) : 'All talents',
+    cadence: paused ? 'Paused' : q.cadence === 'weekly' ? 'Weekly' : 'Monthly',
+    result: count,
+    bar: q.national ? Math.max(4, Math.round((count / q.national) * 100)) : 0,
+    barFill: paused ? '#b23b3b' : '#00522b',
+    resultInk: paused ? '#ad3327' : '#1f4a2b',
+    lastRun: q.lastRunAt,
+    href: `/agency/queries?${params.toString()}`,
+  };
+};
+
+/** The phone home (MOBILE_HOME shape) filled from GET /agency/home and the session. */
+export const liveMobile = (M, home, session) => {
+  if (!home || !session) return M;
+  const fmtDay = (d) =>
+    d
+      ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '—';
+  const cats = session.mou.categoryNames || [];
+  const rows = (home.savedQueries || []).map(toHomeQueryRow);
+  const moves = (home.savedQueries || [])
+    .map((q, i) => ({ q, row: rows[i] }))
+    .sort((a, b) => Math.abs(b.q.movedPct || 0) - Math.abs(a.q.movedPct || 0))
+    .map(({ q, row }) => ({
+      name: q.name,
+      meta: `${q.suppressed ? '<5' : q.count.toLocaleString('en-GB')} talents · ${q.status === 'paused' ? 'paused' : row.cadence.toLowerCase()}`,
+      tags: row.dims.split(' · ').slice(0, 2),
+      delta: q.movedPct == null ? '—' : `${q.movedPct > 0 ? '+' : ''}${q.movedPct}%`,
+      href: row.href,
+    }));
+  return {
+    ...M,
+    org: session.agency.short || session.agency.name,
+    mou: {
+      ...M.mou,
+      sub: session.mou.approved ? 'Your MoU is active' : session.mou.label,
+      director: {
+        title: `${session.analyst.role} · ${session.analyst.name}`,
+        sub: session.mou.signed
+          ? `Signed on ${fmtDay(session.mou.signed)}`
+          : 'Signed copy on file with GTH',
+        chip: 'Verified',
+        tone: 'ok',
+      },
+      ref: {
+        title: `MoU · ${session.mou.reference || 'reference pending'}`,
+        sub: `Ends ${fmtDay(session.mou.expires)}`,
+        chip: session.mou.approved ? 'Verified' : 'Pending',
+        tone: 'warn',
+      },
+      docs: cats.length
+        ? cats.map((c) => ({ name: `Data category · ${c}`, chip: 'Accepted', tone: 'mint' }))
+        : [{ name: 'Data categories', chip: 'None yet', tone: 'plain' }],
+      docsLabel: 'MOU DATA CATEGORIES',
+      note: session.mou.expires ? `Renewal due ${fmtDay(session.mou.expires)}.` : '',
+    },
+    requests: {
+      ...M.requests,
+      tabs: [
+        { id: 'pending', label: `Pending · ${home.requests?.pending ?? 0}` },
+        { id: 'approved', label: `Approved · ${home.requests?.approved ?? 0}` },
+      ],
+      items: (home.requests?.items || []).map((r) => ({
+        id: r.id,
+        name: r.name,
+        status: r.line,
+        state: r.status,
+        tone: r.tone,
+        action: r.status === 'approved' ? 'Open' : 'View',
+        to: `/agency/data-requests/${r.id}${r.status === 'approved' ? '?view=dataset' : ''}`,
+      })),
+    },
+    programmes: { ...M.programmes, count: String(home.counts?.programmesLive || 0), items: [] },
+    applicants: {
+      ...M.applicants,
+      stages: M.applicants.stages.map((s) => ({ ...s, n: 0, pct: 0, from: undefined })),
+      notEligible: 'Not eligible · 0',
+      withdrawn: 'Withdrawn · 0',
+    },
+    changes: {
+      ...M.changes,
+      set: `Query set: ${session.agency.short || 'your'} analysts`,
+      movesCount: `${moves.length} quer${moves.length === 1 ? 'y' : 'ies'}`,
+      moves,
+    },
+    skills: {
+      ...M.skills,
+      rows: (home.skills || []).map((s) => ({
+        name: s.name,
+        talents: s.talents,
+        delta: `${s.readyPct}% ready`,
+      })),
+    },
+  };
+};
+
 /* ===== BLOCK 7 · phone home (Figma 11.4.0d 8613:8) ====================================================================== */
 export const MOBILE_HOME = {
   greeting: 'Good morning, ',

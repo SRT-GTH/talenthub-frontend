@@ -1,6 +1,9 @@
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { openApiFile } from '../../../../services/agency.api.js';
+import { apiMessage, exportOutcomes } from '../../../../services/institutionPortal.api.js';
 import Button from '../../../ui/Button.jsx';
 import AgencyDialogShell from '../../agency/queries/AgencyDialogShell.jsx';
 import {
@@ -9,45 +12,51 @@ import {
   ProgressCloseIcon,
   ProgressInfoIcon,
 } from './ProgressIcons.jsx';
-import { DOWNLOAD_COPY as D, requestOutcomesReport } from './data/progressData.js';
+import { DOWNLOAD_COPY as D, OUTCOMES_PAGE } from './data/progressData.js';
 
 const log = debug('ProgressDownloadDialog');
 
 /*
- * ProgressDownloadDialog — 11.3.2e "Download the class outcomes report" (Figma 8745:1157, 820x666, r28, p 36/40/32/40, on the #0b1a0f scrim at 55 %):
- * chip "Outcomes report", title 32/38 600, intro 15/22, four option rows (checkbox + label 14/17 600 + hint 12/14; names are off by default), the "Period"
- * segmented control (This term · This year · Class of 2026 · Custom) and the "Prepared for" note, then Cancel + "Download PDF →"; 40px round close top right.
- * Submit runs the MOCK PDF job (POST /institution/progress/outcomes-reports, announced in an aria-live line) and then onDone() opens the 8-page A4
- * board report with the print dialog. ⚠️ ASSUMPTION: a real PDF needs the backend; no progress / failure state is drawn.
- * Props: onClose(), onDone().
+ * ProgressDownloadDialog — 11.3.2e "Download the class outcomes report" (Figma 8745:1157): chip, title, intro, option rows (readiness by form and
+ * programme; student names, off by default and only for admins / records officers), the Period control and Cancel + "Download CSV →".
+ * Live: POST /institution/progress/outcomes/export -> a CSV the browser saves; the export is logged in the audit log. The Figma PDF / "Prepared for"
+ * cover line is left out: the printable board report is the Report page.
+ * Props: period (initial), canNames, onClose().
  */
 
-const ProgressDownloadDialog = ({ onClose, onDone }) => {
+const ProgressDownloadDialog = ({ period: initial = 'year', canNames = false, onClose }) => {
   const [picked, setPicked] = useState(() =>
     Object.fromEntries(D.options.map((o) => [o.id, o.on]))
   );
-  const [period, setPeriod] = useState('class');
+  const [period, setPeriod] = useState(initial);
   const [busy, setBusy] = useState(false);
-  const runRef = useRef(0);
+  const [message, setMessage] = useState('');
   const descId = useId();
+  const options = D.options.filter((o) => o.id !== 'names' || canNames);
 
-  const submit = () => {
-    const run = ++runRef.current;
+  const submit = async () => {
     setBusy(true);
+    setMessage('');
     log('submit', { picked, period });
-    requestOutcomesReport({ picked, period }).then(() => {
-      if (runRef.current === run) onDone();
-    });
-  };
-  const cancel = () => {
-    runRef.current += 1;
-    onClose();
+    try {
+      const file = await exportOutcomes({
+        period,
+        readiness: picked.readiness,
+        names: canNames && picked.names,
+      });
+      openApiFile(file);
+      setMessage(`${file.fileName} is downloading. The export is logged.`);
+      setTimeout(onClose, 1200);
+    } catch (err) {
+      setMessage(`That didn’t work: ${apiMessage(err)}`);
+      setBusy(false);
+    }
   };
 
   return (
     <AgencyDialogShell
       title={D.title}
-      onClose={cancel}
+      onClose={onClose}
       scrim="bg-[#0b1a0f]/55"
       describedBy={descId}
       className="mx-auto max-w-[820px]"
@@ -55,7 +64,7 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
       <div className="relative flex flex-col gap-[20px] rounded-[28px] border border-solid border-[#1c2a21]/10 bg-white px-[clamp(20px,2.3vw,40px)] pt-[36px] pb-[32px] shadow-[0_1px_2px_rgba(28,42,33,0.04),0_24px_64px_rgba(0,0,0,0.2)]">
         <button
           type="button"
-          onClick={cancel}
+          onClick={onClose}
           aria-label="Close"
           className="absolute top-[24px] right-[24px] flex size-[40px] cursor-pointer items-center justify-center rounded-full border-0 bg-[#f3f3ef] text-[#1c2a21] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
@@ -75,7 +84,23 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
 
         <fieldset className="m-0 flex min-w-0 flex-col gap-[16px] border-0 p-0">
           <legend className="sr-only">What to include</legend>
-          {D.options.map((o) => (
+          <div className="flex items-center gap-[12px] rounded-[12px] border border-solid border-[#e7e7e7] bg-[#f8f8f4] px-[14px] py-[12px]">
+            <span
+              aria-hidden="true"
+              className="flex size-[20px] shrink-0 items-center justify-center rounded-[5px] border border-solid border-[#387440] bg-[#387440] text-white"
+            >
+              <ProgressChecksmallIcon className="size-[16px]" />
+            </span>
+            <span className="flex min-w-0 flex-col gap-[2px]">
+              <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#1c2a21]">
+                Class snapshot
+              </span>
+              <span className="font-sans text-[12px] leading-[14px] text-[#575755]">
+                Applications, placements, skills evidenced and organisations (always included)
+              </span>
+            </span>
+          </div>
+          {options.map((o) => (
             <label
               key={o.id}
               className="flex cursor-pointer items-center gap-[12px] rounded-[12px] border border-solid border-[#e7e7e7] px-[14px] py-[12px] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#387440]"
@@ -107,6 +132,16 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
           ))}
         </fieldset>
 
+        <p className="m-0 font-sans text-[13px] leading-[18px] text-[#575755]">
+          Need a printable report for your board?{' '}
+          <Link
+            to="/institution/report"
+            className="font-semibold text-[#387440] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
+          >
+            Open the Board of Governors report
+          </Link>
+        </p>
+
         <div className="flex flex-wrap items-center gap-[10px]">
           <span className="font-sans text-[13px] leading-[16px] text-[#575755]">
             {D.periodLabel}
@@ -116,7 +151,7 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
             aria-label={D.periodLabel}
             className="flex flex-wrap gap-[2px] rounded-[10px] bg-[#efefea] p-[3px]"
           >
-            {D.periods.map((p) => {
+            {OUTCOMES_PAGE.periods.map((p) => {
               const on = p.id === period;
               return (
                 <button
@@ -139,17 +174,22 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
           </div>
         </div>
 
-        <p className="m-0 flex items-start gap-[8px] font-sans text-[13px] leading-[16px] text-[#575755]">
-          <ProgressInfoIcon className="mt-px size-[16px] shrink-0" />
-          {D.note}
-        </p>
+        {message ? (
+          <p
+            role="status"
+            className="m-0 flex items-start gap-[8px] font-sans text-[13px] leading-[16px] text-[#1c2a21]"
+          >
+            <ProgressInfoIcon className="mt-px size-[16px] shrink-0" />
+            {message}
+          </p>
+        ) : null}
 
         <div className="flex flex-wrap items-center justify-end gap-[12px] pt-[8px]">
           <Button
             type="button"
             variant="tertiary-subtle"
             size="lg"
-            onClick={cancel}
+            onClick={onClose}
             data-autofocus=""
           >
             {D.cancel}
@@ -162,12 +202,9 @@ const ProgressDownloadDialog = ({ onClose, onDone }) => {
             rightIcon={<ProgressArrowrightIcon className="size-[20px]" />}
             onClick={submit}
           >
-            {D.submit}
+            {busy ? 'Preparing…' : D.submit}
           </Button>
         </div>
-        <p role="status" aria-live="polite" className="sr-only">
-          {busy ? 'Preparing the PDF' : ''}
-        </p>
       </div>
     </AgencyDialogShell>
   );

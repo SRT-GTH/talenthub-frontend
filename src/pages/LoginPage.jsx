@@ -13,7 +13,7 @@ import {
   requestLoginOtp,
   verifyLoginOtp,
   resendLoginOtp,
-  homePathFor,
+  resolveHomePath,
 } from '../services/auth.api.js';
 import { toGhanaE164 } from '../services/onboardingMappers.js';
 import WavyDivider from '../components/shared/WavyDivider.jsx';
@@ -213,7 +213,7 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
     try {
       const { accessToken, user } = await verifyLoginOtp({ identity, otp: value });
       if (!accessToken) throw new Error('No token returned');
-      const home = homePathFor(user);
+      const home = await resolveHomePath(user);
       log('logged in; going to', home);
       navigate(home, { replace: true });
     } catch (err) {

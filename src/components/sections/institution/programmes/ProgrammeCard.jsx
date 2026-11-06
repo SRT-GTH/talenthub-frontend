@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { classNames } from '../../../../utils/classNames.js';
-import { formatCount } from '../institutionFormat.js';
+import { formatCount, isSuppressed } from '../institutionFormat.js';
 import ProgrammeActionsMenu from './ProgrammeActionsMenu.jsx';
 import {
   ProgrammesIconArrowRight,
@@ -14,7 +14,7 @@ import {
 /*
  * ProgrammeCard — one programme of "Your programmes" (Figma "Software Engineer Card" 8610:400679 re-used: 432 wide, white, 1px #e6e2d6, r14, p22):
  *   48px tile (r8) + the "⋯" button (41 x 24 white pill, top right) · title 22/28 600 + status pill (Active #ebf1ec · Draft #faf4e8 · Closed #f8f8f4, 14/500)
- *   place · kind · stamp (14/400 #999999, 18px pin icon) · three stats (Applicants · To review · Avg. match, 22/600, "--" while empty) split by 1px rules ·
+ *   place · kind · stamp (14/400 #999999, 18px pin icon) · three stats (Sign-ups · To review · Completed, 22/600, "--" while empty) split by 1px rules ·
  *   the success-rate panel (r14, p 12/14: rate 18/700 + delta, a 6px track, "620 placed of 1,840 enrolled · See outcomes"; a draft says "Not yet" + the sentence)
  *   · footer rule + "View applicants" 14/400 #999999 + the arrow.
  * Counts go through formatCount() ("<5" under 5). The whole footer is the card's link (applicants / summary / the form for a draft).
@@ -33,6 +33,9 @@ const PILL = {
   closed: 'border-[#e8e8e4] bg-[#f8f8f4] text-[#737373]',
 };
 
+/** Zero is not a small group: it reads 0; 1-4 read "<5". */
+const count = (n) => (n === 0 ? '0' : formatCount(n));
+
 const Stat = ({ label, value, className }) => (
   <div className={classNames('flex flex-1 flex-col items-center gap-[6.6px]', className)}>
     <span className="text-[14px] leading-[20px] tracking-[0.2px] text-[#959592]">{label}</span>
@@ -41,6 +44,23 @@ const Stat = ({ label, value, className }) => (
 );
 
 const SuccessPanel = ({ success }) => {
+  if (success && isSuppressed(success.of)) {
+    return (
+      <div className="flex flex-col gap-[8px] rounded-[14px] bg-[#f8f8f4] px-[14px] py-[12px]">
+        <div className="flex items-center justify-between gap-[8px]">
+          <span className="text-[12px] leading-[14px] font-medium text-[#575755]">
+            Success rate
+          </span>
+          <span className="rounded-full bg-[#efefea] px-[8px] py-[3px] text-[12px] leading-[14px] font-semibold text-[#575755]">
+            Too few
+          </span>
+        </div>
+        <p className="m-0 text-[12px] leading-[14px] text-[#575755]">
+          Shows once 5 or more students have signed up.
+        </p>
+      </div>
+    );
+  }
   if (!success) {
     return (
       <div className="flex flex-col gap-[8px] rounded-[14px] bg-[#f8f8f4] px-[14px] py-[12px]">
@@ -83,7 +103,7 @@ const SuccessPanel = ({ success }) => {
       </div>
       <p className="m-0 flex flex-wrap items-center gap-x-[6px] text-[12px] leading-[14px] text-[#575755]">
         <span>
-          {formatCount(success.placed)} placed of {formatCount(success.of)} applicants
+          {formatCount(success.placed)} completed of {formatCount(success.of)} sign-ups
         </span>
         <span aria-hidden="true">·</span>
         <Link
@@ -173,17 +193,13 @@ const ProgrammeCard = ({
         />
       ) : null}
       <div className="flex gap-[24px] py-[18px]">
-        <Stat
-          label="Applicants"
-          value={dash(p.applicants, formatCount)}
-          className="text-[#1f4a2b]"
-        />
+        <Stat label="Sign-ups" value={dash(p.applicants, count)} className="text-[#1f4a2b]" />
         <span aria-hidden="true" className="w-px self-stretch bg-[#e6e2d6]" />
-        <Stat label="To review" value={dash(p.toReview, formatCount)} className="text-[#32683a]" />
+        <Stat label="To review" value={dash(p.toReview, count)} className="text-[#32683a]" />
         <span aria-hidden="true" className="w-px self-stretch bg-[#e6e2d6]" />
         <Stat
-          label="Avg. match"
-          value={dash(p.avgMatch, (n) => `${n}%`)}
+          label="Completed"
+          value={dash(p.completed ?? null, count)}
           className="text-[#32683a]"
         />
       </div>

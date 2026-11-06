@@ -3,23 +3,19 @@ import { debug } from '../../../../utils/debug.js';
 import AgencyCodeBoxes from '../../agency/onboarding/AgencyCodeBoxes.jsx';
 import AgencyDialog from '../../agency/onboarding/AgencyDialog.jsx';
 import { AgArrowRight, AgClose } from '../../agency/onboarding/agencyOnboardingIcons.jsx';
-import {
-  AdminAppBadgeIcon,
-  AdminAuthenticatorIcon,
-  AdminBackupBadgeIcon,
-  AdminShield12Icon,
-} from '../adminIcons.jsx';
+import { AdminAppBadgeIcon, AdminAuthenticatorIcon, AdminShield12Icon } from '../adminIcons.jsx';
 import { ATTEMPTS, CODE_EXPIRES_IN, RESEND_IN, maskEmail } from './data/adminAuthData.js';
 
 const log = debug('AdminCodeDialog');
 
 /*
  * AdminCodeDialog — "Enter your 2-step code" (Figma 7.0.1b 8640:415778 "MODAL": 460 x 634, white, r24, p 40 / content 382, scrim #0f1f14 at 45 %; the
- * agency "Check your inbox" dialog with staff copy): close 28 round · authenticator tile 64 · "App + Backup code" badges · title 25/30 600 (green
- * "code") · 14/20 #70706e text · masked address 12/20 600 #2a5730 · "Use a backup code" · six code boxes · "Code expires in 09:58" · "Didn't receive it?
+ * agency "Check your inbox" dialog with staff copy): close 28 round · authenticator tile 64 · "Code sent by email" badge · title 25/30 600 (green
+ * "code") · 14/20 #70706e text · masked address 12/20 600 #2a5730 · six code boxes · "Code expires in 09:58" · "Didn't receive it?
  * Resend code (59s)" · grey "Enter all 6 digits to continue" until six digits · "Wrong email?" · "5 attempts remaining" · "Staff sign-ins are logged with device
  * and location". Real interaction: the countdowns tick, the demo code (adminAuthData.js, never shown) verifies, any other code costs an attempt; at 0 the
- * account locks (onLocked). ⚠️ ASSUMPTION: "Use a backup code" has no flow drawn (logs only); "Wrong email?" goes back to the form (onBack).
+ * account locks (onLocked). The code is emailed (staff have no authenticator app or backup codes, so the Figma "App + Backup code" badges and link are left out);
+ * "Wrong email?" goes back to the form (onBack).
  * Props: email, onVerify(code) -> Promise<{ ok, message? }> (the page calls the backend), onResend() -> Promise, onLocked, onBack, onClose.
  * The code is emailed (auth.service login), so the copy says "we emailed" rather than the drawn authenticator line.
  */
@@ -103,12 +99,7 @@ const AdminCodeDialog = ({ email, onVerify, onResend, onLocked, onBack, onClose 
           <p className="m-0 flex items-center gap-[8px] font-sans text-[10px] leading-[16px] tracking-[0.2px] text-[#387440]">
             <span className="inline-flex h-[24px] items-center gap-[4px] rounded-[4px] border border-solid border-[#e1eae2] bg-[#ebf1ec] px-[12px]">
               <AdminAppBadgeIcon className="size-[12px]" />
-              App
-            </span>
-            <span className="text-[11px] leading-[13px] text-[#babab7]">+</span>
-            <span className="inline-flex h-[24px] items-center gap-[4px] rounded-[4px] border border-solid border-[#e1eae2] bg-[#ebf1ec] px-[12px] font-medium">
-              <AdminBackupBadgeIcon className="size-[12px]" />
-              Backup code
+              Code sent by email
             </span>
           </p>
           <div className="flex flex-col items-center gap-[8px] text-center">
@@ -125,13 +116,6 @@ const AdminCodeDialog = ({ email, onVerify, onResend, onLocked, onBack, onClose 
               <p className="m-0 font-sans text-[12px] leading-[20px] font-semibold tracking-[0.2px] text-[#2a5730]">
                 {maskEmail(email)}
               </p>
-              <button
-                type="button"
-                onClick={() => log('use a backup code (no flow drawn)')}
-                className="min-h-[24px] cursor-pointer border-0 bg-transparent font-sans text-[12px] leading-[15px] font-medium tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
-              >
-                Use a backup code
-              </button>
             </div>
           </div>
         </div>

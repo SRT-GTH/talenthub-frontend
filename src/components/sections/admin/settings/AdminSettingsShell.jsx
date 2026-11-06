@@ -24,7 +24,8 @@ const log = debug('AdminSettingsShell');
  * (+ the green "Create a staff account →" button on the staff screens), the 280 "Settings nav" card (9 items, icon 20, label 15, selected = #ebf1ec tint + green bar + 600
  * #2a5730, an "Admin" chip on Staff accounts, divider, red "Log out") and the tab body (gap 20). Below lg the nav becomes a scrolling chip row.
  * Props: active (nav id), subtitle, action ({ label, onClick }), navOrder ('roles' draws the Roles frame's order), children.
- * ⚠️ ASSUMPTION: only Roles and permissions, Staff accounts and Platform settings have a screen; the other items only log; Log out ends the staff session and goes to /admin/sign-in.
+ * Every nav item has a screen (AdminSettingsPage routes /admin/settings/:tab; Feature flags and Integrations scroll Platform settings to
+ * #feature_flag / #integration). Log out ends the staff session and goes to /admin/sign-in.
  */
 
 const ICONS = {

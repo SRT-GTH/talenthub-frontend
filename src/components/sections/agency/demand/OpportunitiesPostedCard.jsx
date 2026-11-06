@@ -4,6 +4,7 @@ import ChartLegend from './ChartLegend.jsx';
 import ColumnTrendChart from './ColumnTrendChart.jsx';
 import DemandNote from './DemandNote.jsx';
 import TrendHeadline from './TrendHeadline.jsx';
+import { autoFormat, niceTicks } from './trendModel.js';
 
 /*
  * OpportunitiesPostedCard — "Opportunities posted" (Figma 8704:713, 652 wide): headline (14,630 ▲ +34% "opportunities in 12 months"), paired columns per period —
@@ -11,11 +12,9 @@ import TrendHeadline from './TrendHeadline.jsx';
  * Props: model (trendSeries()), text (TREND_TEXT[unit]). Cell values go through formatCount (<5 rule).
  */
 
-const fmt = (v) => (v >= 1000 ? `${v / 1000}k` : String(v));
-
 const OpportunitiesPostedCard = ({ model, text }) => {
-  const step = model.oppYMax >= 1000 ? 500 : 100;
-  const ticks = Array.from({ length: model.oppYMax / step + 1 }, (_, i) => i * step);
+  const axis = niceTicks(Math.max(...model.recruiter, ...model.programmes, 1));
+  const ticks = axis.ticks;
   return (
     <DemandCard
       id="opportunities-posted"
@@ -35,8 +34,8 @@ const OpportunitiesPostedCard = ({ model, text }) => {
         pairs={model.programmes}
         ticks={model.ticks}
         yTicks={ticks}
-        yMax={model.oppYMax}
-        format={fmt}
+        yMax={axis.max}
+        format={autoFormat}
         caption="Opportunities posted per period, recruiter roles and government programme places"
         headers={['Period', 'Recruiter roles', 'Government programme places']}
         formatCell={formatCount}

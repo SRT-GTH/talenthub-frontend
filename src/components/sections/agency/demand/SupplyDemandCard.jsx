@@ -36,6 +36,12 @@ const SupplyDemandCard = ({ rows, selectedId, hint, hintCompact, note, className
     className={classNames('h-full', className)}
     bodyClassName="flex flex-col px-[24px] pt-[8px] pb-[37px] lg:pt-0 lg:pb-[24px] lg:gap-[12px]"
   >
+    {!rows.length ? (
+      <p className="m-0 py-[12px] text-[14px] leading-[20px] text-[#575755]">
+        Too few opportunities or talents for any skill to compare yet. A skill shows here once both
+        sides have 5 or more.
+      </p>
+    ) : null}
     <ul
       aria-label="Talents per open opportunity by skill"
       className="m-0 flex list-none flex-col gap-[24px] p-0 lg:gap-[10px]"

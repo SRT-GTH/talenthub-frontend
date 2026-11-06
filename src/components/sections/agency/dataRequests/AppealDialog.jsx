@@ -11,7 +11,11 @@ import {
   DataRequestIconFile,
   DataRequestIconTrash,
 } from './dataRequestIcons.jsx';
-import { APPEAL as D, submitAppeal } from './data/dataRequestsData.js';
+import {
+  agencyAppealDataRequest,
+  agencyWithdrawDataRequest,
+} from '../../../../services/agency.api.js';
+import { APPEAL as D, fmtDay } from './data/dataRequestsData.js';
 
 const log = debug('AppealDialog');
 
@@ -19,17 +23,27 @@ const log = debug('AppealDialog');
  * AppealDialog — ?modal=appeal on a rejected request (Figma 11.4.3i, 8609:1674): chip "Appeal this decision", the title, the decision card (file icon,
  * "Under-18 skills by school · rejected 19 Oct", reason line, View decision), What would you accept instead? *, Why you need it *, Level of detail *,
  * Policy reference, Time range *, Access for (greyed, 30 days), Link to file, Who will see it, the aggregates confirmation, the green "District totals
- * are inside your MoU" check and Withdraw request · Cancel · Send appeal. The form opens with the sample values the frame shows.
- * Validation: the starred fields must not be empty and the confirmation must be ticked. Send → MOCK POST /agency/data-requests/:id/appeal.
- * ⚠️ ASSUMPTIONS: error copy is mine; "View decision" closes the dialog (the decision is the request page behind it); "Withdraw request" closes the
- * dialog and reports `withdrawn` (nothing is deleted); the green check line is shown while Level of detail is a district-or-wider choice.
- * Props: onClose(), onSent(), onWithdraw().
+ * are inside your MoU" check and Withdraw request · Cancel · Send appeal. The form opens with the request's own purpose, range and viewers.
+ * Send → POST /agency/data-requests/:id/appeal (a different programme manager reviews it). Withdraw → POST …/withdraw (the request is closed,
+ * nothing is deleted). "View decision" closes the dialog (the decision is the request page behind it).
+ * Props: request (GET /agency/data-requests/:id), onClose(), onSent(updated), onWithdraw(updated).
  */
 
-const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
-  const [form, setForm] = useState({ ...D.defaults, confirm: true });
+const AppealDialog = ({ request, onClose, onSent, onWithdraw }) => {
+  const [form, setForm] = useState({
+    accept: '',
+    why: request.why || '',
+    detail: D.levels[1],
+    policy: '',
+    range: request.range || '',
+    link: '',
+    viewers: (request.viewers || []).join(', '),
+    confirm: false,
+  });
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState('');
+  const rejected = (request.steps || []).find((s) => s.status === 'rejected') || {};
   const formId = useId();
   const set = (key) => (event) => setForm((f) => ({ ...f, [key]: event.target.value }));
 
@@ -37,7 +51,7 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
     event.preventDefault();
     const next = {};
     if (!form.accept.trim()) next.accept = 'Tell us what you would accept.';
-    if (!form.why.trim()) next.why = 'Tell us why you need it.';
+    if (form.why.trim().length < 10) next.why = 'Tell us why you need it (at least 10 characters).';
     if (!form.detail) next.detail = 'Choose a level of detail.';
     if (!form.range.trim()) next.range = 'Enter the time range.';
     if (!form.confirm) next.confirm = 'Tick the box to confirm.';
@@ -47,10 +61,43 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
       return;
     }
     setBusy(true);
-    const result = await submitAppeal(form);
-    log('sent (mock)', result.ok);
-    setBusy(false);
-    onSent();
+    setFailure('');
+    try {
+      const updated = await agencyAppealDataRequest(request.id, {
+        why: form.why.trim(),
+        detail: [
+          `Would accept: ${form.accept.trim()}`,
+          `Level of detail: ${form.detail}`,
+          form.policy.trim() ? `Policy reference: ${form.policy.trim()}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        range: form.range.trim(),
+        link: form.link.trim() || undefined,
+        viewers: form.viewers,
+        confirm: true,
+      });
+      log('appeal sent', request.id);
+      onSent(updated);
+    } catch (err) {
+      setFailure(err?.response?.data?.message || err?.message || 'Something went wrong.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const withdraw = async () => {
+    setBusy(true);
+    setFailure('');
+    try {
+      const updated = await agencyWithdrawDataRequest(request.id);
+      log('withdrawn', request.id);
+      onWithdraw(updated);
+    } catch (err) {
+      setFailure(err?.response?.data?.message || err?.message || 'Something went wrong.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -72,15 +119,15 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
         </span>
         <div className="flex min-w-[200px] flex-1 flex-col gap-[2px]">
           <span className="font-sans text-[15px] leading-[18px] font-semibold text-[#1c2a21]">
-            {D.file.title}
+            {request.title} · rejected {fmtDay(rejected.at)}
           </span>
           <span className="flex items-center gap-[6px] font-sans text-[13px] leading-[16px] font-medium text-[#387440]">
             <DataRequestIconCheckCircle className="size-[13px]" />
-            {D.file.reason}
+            Reason: {request.rejectionReason || rejected.note || 'not given'}
           </span>
         </div>
         <Button type="button" variant="tertiary-subtle" size="lg" onClick={onClose}>
-          {D.file.button}
+          {D.viewButton}
         </Button>
       </div>
 
@@ -93,6 +140,7 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
         <TextInput
           label="What would you accept instead?"
           required
+          placeholder="e.g. Regional totals only"
           value={form.accept}
           onChange={set('accept')}
           error={errors.accept}
@@ -113,7 +161,13 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
           onChange={(value) => setForm((f) => ({ ...f, detail: value }))}
           error={errors.detail}
         />
-        <TextInput label="Policy reference" value={form.policy} onChange={set('policy')} />
+        <TextInput
+          label="Policy reference"
+          optional
+          placeholder="e.g. Cabinet memo CM/2026/114"
+          value={form.policy}
+          onChange={set('policy')}
+        />
         <TextInput
           label="Time range"
           required
@@ -125,7 +179,7 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
         <TextInput
           label="Link to file"
           optional
-          placeholder="Supporting letter (PDF)"
+          placeholder="Link to a supporting letter"
           value={form.link}
           onChange={set('link')}
         />
@@ -153,10 +207,19 @@ const AppealDialog = ({ onClose, onSent, onWithdraw }) => {
         {D.verified}
       </p>
 
+      {failure ? (
+        <p
+          role="alert"
+          className="m-0 rounded-[12px] bg-[#fdecea] px-[14px] py-[10px] font-sans text-[14px] leading-[20px] text-[#902b20]"
+        >
+          {failure}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-[12px] pt-[8px]">
         <button
           type="button"
-          onClick={onWithdraw}
+          disabled={busy}
+          onClick={withdraw}
           className="inline-flex cursor-pointer items-center gap-[6px] border-0 bg-transparent p-[4px] font-sans text-[14px] leading-[17px] font-semibold text-[#902b20] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]"
         >
           <DataRequestIconTrash className="size-[16px] text-[#c0392b]" />

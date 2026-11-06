@@ -1,15 +1,12 @@
 import { Link } from 'react-router-dom';
-import { debug } from '../../../../utils/debug.js';
 import { Roster20EyeIcon } from './rosterIcons.jsx';
-
-const log = debug('InstitutionRecordBar');
 
 /*
  * InstitutionRecordBar — the dark bar over the student record (Figma "preview bar" 8744:433489, 1329 x 72, #1c2a21, r16, p 12/16/12/20, gap 12): eye glyph 19 white · "Kofi Danso · student record"
  * 15/18 600 white over the 12/14 #bfbfbf sentence · a 196 x 36 segmented block ("Edit record" #bfbfbf, "Message Kofi" on #ffd86b) · "Back to students" (white shelf, 48 high).
  * "Edit record" has no destination drawn (logs). Props: title, text, name (first name), messageTo (route), backTo (route).
  */
-const InstitutionRecordBar = ({ title, text, firstName, messageTo, backTo }) => (
+const InstitutionRecordBar = ({ title, text, firstName, messageTo, backTo, onEdit }) => (
   <div className="flex flex-wrap items-center gap-[12px] rounded-[16px] bg-[#1c2a21] py-[12px] pr-[16px] pl-[20px]">
     <Roster20EyeIcon className="size-[19px] shrink-0 text-white" />
     <div className="flex min-w-[200px] flex-1 flex-col gap-[2px]">
@@ -21,7 +18,7 @@ const InstitutionRecordBar = ({ title, text, firstName, messageTo, backTo }) => 
     <div className="flex h-[36px] items-center gap-[2px] rounded-[10px] bg-[#1c2a21] p-[3px]">
       <button
         type="button"
-        onClick={() => log('edit record (no destination drawn)')}
+        onClick={onEdit}
         className="inline-flex h-[30px] cursor-pointer items-center rounded-[8px] border-0 bg-transparent px-[12px] font-sans text-[13px] leading-[16px] font-semibold text-[#bfbfbf] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white"
       >
         Edit record

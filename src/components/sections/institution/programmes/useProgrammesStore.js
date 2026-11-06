@@ -1,16 +1,24 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { debug } from '../../../../utils/debug.js';
-import { PROGRAMMES } from './data/programmesData.js';
+import {
+  apiMessage,
+  closeProgramme as apiClose,
+  duplicateProgramme as apiDuplicate,
+  listProgrammes,
+} from '../../../../services/institutionPortal.api.js';
 
 const log = debug('programmesStore');
 
 /*
- * programmesStore — the MOCK "server state" of the agency programmes (status changes, duplicates, publishing).
- * ⚠️ ASSUMPTION: in memory only (a reload restores the seed). Future API: PATCH /institution/programmes/:id { status }, POST /institution/programmes/:id/duplicate,
- * POST /institution/programmes/:id/publish. Closing a programme is logged under the MoU (Figma 11.5.2k).
+ * programmesStore — the school's programmes as the API returns them (GET /api/institution/programmes), shared by the list, the
+ * "Who can apply" select and the applicants board. Closing and duplicating go to the API and replace the card with the server's copy.
+ * Stale-while-revalidate: a page that opens the store shows the cached list at once and, when it is older than STALE_MS, refreshes it
+ * quietly (no loading state) so new sign-ups and changes made by colleagues appear without a full reload.
  */
 
-let state = { programmes: PROGRAMMES, log: [] };
+const STALE_MS = 30 * 1000;
+let state = { programmes: [], loaded: false, loading: false, error: '', loadedAt: 0 };
+let pending = null;
 const listeners = new Set();
 
 const set = (patch) => {
@@ -25,63 +33,57 @@ const subscribe = (listener) => {
 
 const getState = () => state;
 
-export const useProgrammesStore = () => useSyncExternalStore(subscribe, getState, getState);
+export const loadProgrammes = (force = false) => {
+  if (pending) return pending;
+  if (state.loaded && !force) return Promise.resolve(state.programmes);
+  // a refresh of a list already on screen stays silent: no loading state, the old list stays until the new one arrives
+  set(state.loaded ? { error: '' } : { loading: true, error: '' });
+  pending = listProgrammes()
+    .then((res) => {
+      const items = res?.items ?? [];
+      log('loaded', items.length);
+      set({ programmes: items, loaded: true, loading: false, loadedAt: Date.now() });
+      return items;
+    })
+    .catch((err) => {
+      set({ loading: false, error: apiMessage(err) });
+      return state.programmes;
+    })
+    .finally(() => {
+      pending = null;
+    });
+  return pending;
+};
 
-export const closeProgramme = (id) => {
+/** The store, loaded on first use and refreshed in the background when a page opens it with a stale list. */
+export const useProgrammesStore = () => {
+  const s = useSyncExternalStore(subscribe, getState, getState);
+  useEffect(() => {
+    loadProgrammes(state.loaded && Date.now() - state.loadedAt > STALE_MS);
+  }, []);
+  return s;
+};
+
+export const upsertProgramme = (card) => {
+  if (!card?.id) return;
+  const has = state.programmes.some((p) => p.id === card.id);
+  set({
+    programmes: has
+      ? state.programmes.map((p) => (p.id === card.id ? { ...p, ...card } : p))
+      : [card, ...state.programmes],
+  });
+};
+
+export const closeProgramme = async (id) => {
   log('close', id);
-  set({
-    programmes: state.programmes.map((p) =>
-      p.id === id
-        ? {
-            ...p,
-            status: 'closed',
-            statusLabel: 'Closed',
-            tile: { bg: 'bg-[#eae8e2]', fg: 'text-[#737373]' },
-            action: 'View summary',
-          }
-        : p
-    ),
-    log: [{ at: Date.now(), event: 'close', id }, ...state.log],
-  });
+  const card = await apiClose(id);
+  upsertProgramme(card);
+  return card;
 };
 
-export const duplicateProgramme = (id) => {
-  const src = state.programmes.find((p) => p.id === id);
-  if (!src) return null;
-  const copy = {
-    ...src,
-    id: `${src.id}-copy-${state.programmes.length + 1}`,
-    title: `${src.title} (copy)`,
-    optionLabel: `${src.title} (copy)`,
-    status: 'draft',
-    statusLabel: 'Draft',
-    stamp: 'Draft · saved today',
-    applicants: null,
-    toReview: null,
-    avgMatch: null,
-    success: null,
-    action: 'Continue editing',
-    tile: { bg: 'bg-[#faf4e8]', fg: 'text-[#785910]' },
-  };
-  log('duplicate', id, '->', copy.id);
-  set({ programmes: [...state.programmes, copy] });
+export const duplicateProgramme = async (id) => {
+  log('duplicate', id);
+  const copy = await apiDuplicate(id);
+  upsertProgramme(copy);
   return copy;
-};
-
-export const publishProgramme = (id) => {
-  log('publish', id);
-  set({
-    programmes: state.programmes.map((p) =>
-      p.id === id
-        ? {
-            ...p,
-            status: 'live',
-            statusLabel: 'Active',
-            action: 'View applicants',
-            tile: { bg: 'bg-[#f3f8f4]', fg: 'text-[#2a5730]' },
-          }
-        : p
-    ),
-    log: [{ at: Date.now(), event: 'publish', id }, ...state.log],
-  });
 };

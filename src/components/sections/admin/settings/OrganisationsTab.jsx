@@ -11,6 +11,7 @@ import {
 } from '../../talentSettings/SettingsBUi.jsx';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
+import InstitutionAccreditationReview from './InstitutionAccreditationReview.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import {
   adminError,
@@ -735,6 +736,8 @@ const OrganisationsTab = ({ data, session }) => {
           Organisations ({all.length - tenants.length})
         </Pill>
       </div>
+
+      {selected ? null : <InstitutionAccreditationReview canEdit={canEdit} toast={toast} />}
 
       {selected ? (
         <OrgDetail

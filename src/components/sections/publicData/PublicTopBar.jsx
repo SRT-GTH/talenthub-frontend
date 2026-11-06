@@ -14,6 +14,7 @@ const log = debug('PublicTopBar');
  *   tablet md..xl  : h77, px32 — title (16/700) · freshness pill · Share icon button · Download PDF (no search drawn)
  *   mobile < md    : h60, px16 — logo · "GTH" · Live pill · menu button (the section tabs sit in the page body, see PublicMobileTabs)
  * Props: title (the page's context label, e.g. "Home", "National snapshot"), freshness { label } , q / onSearch, onShare(), onDownload(), onMenu().
+ * Without onDownload the "Download PDF" button is left out (pages that have no printable layout).
  * ⚠️ ASSUMPTION: the search box is a plain field that writes ?q= (no results page is drawn); the sections that use it read `q`.
  */
 
@@ -99,9 +100,11 @@ const PublicTopBar = ({
           >
             <PublicIconShare className="size-[20px]" />
           </button>
-          <Button type="button" variant="primary" size="sm" onClick={onDownload}>
-            Download PDF
-          </Button>
+          {onDownload ? (
+            <Button type="button" variant="primary" size="sm" onClick={onDownload}>
+              Download PDF
+            </Button>
+          ) : null}
         </div>
       </div>
       {/* mobile */}

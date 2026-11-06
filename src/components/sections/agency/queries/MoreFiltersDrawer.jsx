@@ -11,9 +11,10 @@ import {
   fieldById,
   optionLabel,
   optionsOfField,
+  queryApiParams,
   querySummary,
-  runQuery,
 } from '../data/queriesData.js';
+import { agencyFilterOptions, agencyOverview } from '../../../../services/agency.api.js';
 import { PublicIconSearch } from '../../publicData/publicDataIcons.jsx';
 import { useDialogBehaviour } from '../../publicData/share/useDialogBehaviour.js';
 import { QueriesIconChevronDown, QueriesIconClose, QueriesIconShield } from './queriesIcons.jsx';
@@ -26,7 +27,9 @@ const log = debug('MoreFiltersDrawer');
  * "6 on:" pills, the scrolling list of groups (Location · About them · Education · Experience · Certifications · Interests and goals ·
  * Personality and strengths · Skills and readiness · Programmes and outcomes; header 15/600 + "1 selected" / "3 filters" + chevron, fields in
  * two columns), and the footer (shield note, "Clear all", "Show 96 talents →").
- * The draft is local: nothing reaches the URL until "Show N talents" (onApply). The count on the button is the live mock count of the draft.
+ * The draft is local: nothing reaches the URL until "Show N talents" (onApply). The count on the button is the live count of the draft
+ * (GET /agency/overview?countOnly, debounced). GET /agency/filters says which fields the platform collects: the others are locked
+ * ("Not collected yet"); district and skill options are the live ones (skills held by 5 or more talents).
  * Fields open in place (checkbox list, single-select fields behave like radios); the pills remove one filter; the search narrows groups / fields.
  * Esc / scrim / the close button close without applying; focus is trapped and returns to the opener.
  * Props: filters (parseQueryFilters), onApply(draft), onClose.
@@ -52,11 +55,24 @@ const writeField = (draft, field, values) => {
   return { ...draft, [field.id]: values[0] ?? '' };
 };
 
-const Field = ({ field, draft, open, onToggleOpen, onChange }) => {
+const Field = ({ field, draft, open, onToggleOpen, onChange, locked = false, liveOptions }) => {
   const values = readField(draft, field);
-  const options = optionsOfField(field);
-  const multi = Boolean(field.multi);
+  const options = liveOptions || optionsOfField(field);
   const id = useId();
+  if (locked) {
+    return (
+      <div className="flex min-w-0 flex-col gap-[8px] opacity-60">
+        <span className="text-[14px] leading-[17px] font-medium text-[#1c2a21]">{field.label}</span>
+        <span
+          aria-disabled="true"
+          className="flex min-h-[44px] w-full items-center rounded-[12px] border border-dashed border-[#cfcfca] bg-[#f8f8f4] px-[14px] py-[10px] text-[13px] leading-[16px] text-[#575755]"
+        >
+          Not collected yet
+        </span>
+      </div>
+    );
+  }
+  const multi = Boolean(field.multi);
   const text = values.length ? values.map((v) => optionLabel(field, v)).join(', ') : 'Any';
   return (
     <div className="flex min-w-0 flex-col gap-[8px]">
@@ -153,7 +169,42 @@ const MoreFiltersDrawer = ({ filters, onApply, onClose }) => {
   }, []);
 
   const total = activeFilterCount(draft);
-  const liveCount = useMemo(() => runQuery(draft).count, [draft]);
+  const [opts, setOpts] = useState(null);
+  const [live, setLive] = useState({ key: null, count: null });
+  const draftKey = JSON.stringify(queryApiParams(draft));
+  useEffect(() => {
+    let on = true;
+    agencyFilterOptions()
+      .then((o) => on && setOpts(o))
+      .catch((err) => log.error('filter options failed', err?.message));
+    return () => {
+      on = false;
+    };
+  }, []);
+  useEffect(() => {
+    let on = true;
+    const t = setTimeout(() => {
+      agencyOverview({ ...JSON.parse(draftKey), countOnly: true })
+        .then(
+          (o) => on && setLive({ key: draftKey, count: o.state === 'suppressed' ? 1 : o.count })
+        )
+        .catch(() => on && setLive({ key: draftKey, count: null }));
+    }, 300);
+    return () => {
+      on = false;
+      clearTimeout(t);
+    };
+  }, [draftKey]);
+  const liveCount = live.key === draftKey ? live.count : null;
+  const unsupported = opts?.unsupported || [];
+  const liveOptionsOf = (f) =>
+    f.id === 'skills' && opts?.skills?.length
+      ? opts.skills.map((s) => ({ id: s.value, label: s.label }))
+      : f.id === 'district' && opts?.districts?.length
+        ? opts.districts
+            .filter((d) => !draft.region.length || draft.region.includes(d.regionId))
+            .map((d) => ({ id: d.value, label: d.label }))
+        : undefined;
   const pills = useMemo(() => querySummary(draft), [draft]);
 
   const clearPill = (key) => {
@@ -297,6 +348,8 @@ const MoreFiltersDrawer = ({ filters, onApply, onClose }) => {
                         open={openField === f.id}
                         onToggleOpen={() => setOpenField((cur) => (cur === f.id ? null : f.id))}
                         onChange={(values) => setDraft((d) => writeField(d, f, values))}
+                        locked={f.source === 'x' && unsupported.includes(f.id)}
+                        liveOptions={liveOptionsOf(f)}
                       />
                     ))}
                   </div>
@@ -341,7 +394,9 @@ const MoreFiltersDrawer = ({ filters, onApply, onClose }) => {
               rightIcon={<AgencyArrowRightIcon />}
               onClick={() => onApply(draft)}
             >
-              Show {formatCount(liveCount)} talents
+              {liveCount === null
+                ? 'Counting…'
+                : `Show ${liveCount === 0 ? '0' : formatCount(liveCount)} talents`}
             </Button>
           </div>
         </div>

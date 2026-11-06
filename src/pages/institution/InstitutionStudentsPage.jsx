@@ -16,10 +16,9 @@ import InstitutionRosterToolbar from '../../components/sections/institution/rost
 import InstitutionStudentRecord from '../../components/sections/institution/roster/InstitutionStudentRecord.jsx';
 import InstitutionTransferDialog from '../../components/sections/institution/roster/InstitutionTransferDialog.jsx';
 import InstitutionUploadDialog from '../../components/sections/institution/roster/InstitutionUploadDialog.jsx';
-import {
-  PAGE_SIZE,
-  SEED_STUDENTS,
-} from '../../components/sections/institution/roster/data/rosterData.js';
+import { PAGE_SIZE } from '../../components/sections/institution/roster/data/rosterData.js';
+import { useInstitutionSession } from '../../components/sections/institution/useInstitutionSession.js';
+import PageLoader from '../../components/ui/gthLoader/PageLoader.jsx';
 import { formatRosterCount } from '../../components/sections/institution/roster/rosterFormat.js';
 import {
   rosterActions,
@@ -31,18 +30,17 @@ import { debug } from '../../utils/debug.js';
 const log = debug('InstitutionStudentsPage');
 
 /*
- * InstitutionStudentsPage — the student roster (Figma 11.2.2a-l, canvas 8520:10). Package B. Mock in-memory store (rosterStore.js), no API.
+ * InstitutionStudentsPage — the student roster (Figma 11.2.2a-l, canvas 8520:10). Package B. Live: rosterStore.js (GET /api/institution/students and the
+ * add / import / remind / consent / remove / transfer / edit calls of services/institutionRoster.service.js).
  * Routes: /institution/students (list) · /institution/students/new (the add-one dialog over the list) · /institution/students/:studentId (the student record, 11.2.2j).
  * URL KEYS (shared keys from institutionState.js plus the ones this page owns; every Figma frame is a URL):
  *   modal=add-student | upload | remove | transfer | consent     the dialog that is open (11.2.2b, c, e, f, i)
- *   state=empty                                                  a new institution: 0 students (11.2.2l; the chrome draws 0 % and 0 · 0 · 0)
+ *   (empty)                                                      no students yet: the empty roster (11.2.2l)
  *   state=checking | review | errors  (with modal=upload)        the CSV flow step (11.2.2g, h, d); no state = the file / mapping step (11.2.2c)
- *   student=<id>                                                 who the remove / transfer dialog is about (default: Yaw Adomako / Kofi Danso, as drawn)
+ *   student=<id>                                                 who the remove / transfer dialog is about
  *   filter=linked | not-linked                                   the filter chips (11.2.2k = not-linked)
- *   form=1 | 2 | 3 | graduates                                   the class tab (default 3, the one Figma fills)
+ *   form=1 | 2 | 3 | graduates                                   the class tab (default: the first class with students)
  *   q=<text>  sort=surname-az | surname-za | profile  view=cards  page=<n>
- * ⚠️ ASSUMPTIONS: the search field, sort options, cards view, pagination (only when more than 6 rows match) and the status lines are not drawn; the list shows the Form 3 rows of the
- * frames, the other class tabs have no sample rows; the default sort ("Surname A–Z" is the drawn label) keeps the drawn row order until the admin picks a sort.
  */
 
 const MODALS = ['add-student', 'upload', 'remove', 'transfer', 'consent'];
@@ -64,15 +62,18 @@ const ZERO = {
 const InstitutionStudentsPage = () => {
   const data = useInstitutionState();
   const store = useRosterStore();
+  const session = useInstitutionSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { studentId } = useParams();
   const { params, update, modal, state } = data;
   const isNew = /\/students\/new\/?$/.test(pathname);
-  const empty = state === 'empty';
+  const tabs = store.counts.tabs;
+  const empty = store.loaded && !store.students.length;
+  const firstTab = ['1', '2', '3', 'graduates'].find((t) => tabs[t] > 0) || '1';
   const formTab = ['1', '2', '3', 'graduates'].includes(params.get('form'))
     ? params.get('form')
-    : '3';
+    : firstTab;
   const filter = ['linked', 'not-linked'].includes(data.filter) ? data.filter : 'all';
   const view = params.get('view') === 'cards' ? 'cards' : 'list';
   const sortParam = params.get('sort');
@@ -80,12 +81,20 @@ const InstitutionStudentsPage = () => {
   const page = Math.max(1, Number(params.get('page')) || 1);
   const q = data.q;
 
-  const counts = useMemo(() => (empty ? ZERO : rosterCounts(store)), [empty, store]);
+  const counts = useMemo(
+    () => (empty ? ZERO : rosterCounts(store, formTab)),
+    [empty, store, formTab]
+  );
+
+  useEffect(() => {
+    rosterActions.load();
+  }, []);
 
   const rows = useMemo(() => {
-    if (empty || formTab !== '3') return [];
+    if (empty) return [];
     let list = store.students.filter(
-      (s) => filter === 'all' || (filter === 'linked' ? s.linked : !s.linked)
+      (s) =>
+        s.form === formTab && (filter === 'all' || (filter === 'linked' ? s.linked : !s.linked))
     );
     if (q.trim()) list = list.filter((s) => MATCH(s, q));
     if (sortParam) list = [...list].sort(SORTERS[sortParam] ?? SORTERS['surname-az']);
@@ -118,27 +127,49 @@ const InstitutionStudentsPage = () => {
   const set = (patch) => update({ page: null, ...patch }, { replace: true });
 
   const activeModal = isNew ? 'add-student' : MODALS.includes(modal) ? modal : null;
-  const find = (id, fallback) =>
-    store.students.find((s) => s.id === id) ?? SEED_STUDENTS.find((s) => s.id === (id ?? fallback));
-  const aboutStudent = find(
-    params.get('student'),
-    activeModal === 'transfer' ? 'kofi-danso' : 'yaw-adomako'
-  );
+  const find = (id) => (id ? store.students.find((s) => s.id === id) : null);
+  const aboutStudent = find(params.get('student') || studentId);
   const recordStudent = studentId ? find(studentId) : null;
 
-  const remind = (s) => {
-    log('remind (mock)', s.id);
-    rosterActions.toast(`Reminder sent to ${s.name.split(' ')[0]}.`);
-  };
-  const sendReminders = () => {
-    log('send reminders (mock)', selected.length);
+  const remindIds = async (ids, label) => {
+    const out = await rosterActions.remind(ids);
+    if (!out.ok) {
+      rosterActions.toast(out.message);
+      return;
+    }
+    const { sent = 0 } = out.result || {};
+    log('reminded', sent);
     rosterActions.toast(
-      `Reminder sent to ${selected.length} student${selected.length === 1 ? '' : 's'} by SMS and email.`
+      sent
+        ? `Reminder sent to ${label || `${sent} student${sent === 1 ? '' : 's'}`}.`
+        : 'Nobody to remind: these students have no pending invite or link request.'
     );
   };
+  const remind = (s) => remindIds([s.id], s.name.split(' ')[0]);
+  const sendReminders = () => remindIds(selected.map((s) => s.id));
+
+  if (!store.loaded && store.loading) return <PageLoader look="focused" />;
 
   let body;
-  if (studentId) {
+  if (store.error && !store.loaded) {
+    body = (
+      <section
+        role="alert"
+        className="rounded-[20px] border border-solid border-[#e6e6e6] bg-white p-[24px]"
+      >
+        <p className="m-0 font-sans text-[15px] text-[#1c2a21]">
+          We couldn’t load your students. {store.error}
+        </p>
+        <button
+          type="button"
+          onClick={() => rosterActions.load()}
+          className="mt-[8px] font-semibold text-[#387440] underline"
+        >
+          Try again
+        </button>
+      </section>
+    );
+  } else if (studentId) {
     body = recordStudent ? (
       <InstitutionStudentRecord
         student={recordStudent}
@@ -173,14 +204,15 @@ const InstitutionStudentsPage = () => {
             </span>
           </div>
           <p className="m-0 font-sans text-[16px] leading-[24px] tracking-[0.2px] text-[#737373]">
-            Everyone enrolled at Savannah Hills SHS. Students link their own GTH profiles.
+            Everyone enrolled at {session.institution.short || session.institution.name}. Students
+            link their own GTH profiles.
           </p>
         </header>
         <div className="flex flex-col gap-[18px]">
           <InstitutionRosterTabs
             counts={counts.tabs}
             current={formTab}
-            onChange={(id) => set({ form: id === '3' ? null : id, filter: null })}
+            onChange={(id) => set({ form: id === firstTab ? null : id, filter: null })}
           />
           <InstitutionRosterToolbar
             counts={counts}
@@ -198,11 +230,11 @@ const InstitutionStudentsPage = () => {
             <InstitutionRosterEmpty onUpload={() => open('upload')} onAdd={openAdd} />
           ) : (
             <>
-              {formTab === '3' && counts.notLinked > 0 ? (
+              {counts.notLinked > 0 ? (
                 <InstitutionRosterBanner>
                   {filter === 'not-linked'
-                    ? `Showing the ${counts.notLinked} students who haven’t linked their GTH profile. Select some or all, then send a reminder by SMS and email.`
-                    : `${counts.notLinked} students haven’t linked their GTH profile yet. Send them a reminder.`}
+                    ? `Showing the ${counts.notLinked === 1 ? 'student who hasn’t' : `${counts.notLinked} students who haven’t`} linked their GTH profile. Select some or all, then send a reminder by email.`
+                    : `${counts.notLinked === 1 ? '1 student hasn’t' : `${counts.notLinked} students haven’t`} linked their GTH profile yet. Send a reminder.`}
                 </InstitutionRosterBanner>
               ) : null}
               {selectable && visible.length ? (
@@ -245,9 +277,9 @@ const InstitutionStudentsPage = () => {
                   role="status"
                   className="m-0 rounded-[22px] border border-solid border-[#e1eae2] bg-white p-[24px] font-sans text-[14px] leading-[20px] text-[#595959]"
                 >
-                  {formTab !== '3'
-                    ? 'This demo roster only has sample students in Form 3.'
-                    : 'No students match.'}
+                  {q.trim() || filter !== 'all'
+                    ? 'No students match.'
+                    : 'No students in this class yet.'}
                 </p>
               )}
               {pages > 1 ? (
@@ -278,6 +310,7 @@ const InstitutionStudentsPage = () => {
             else update({ modal: 'upload', state: null }, { replace: true });
           }}
           onConsent={() => open('consent')}
+          programmes={store.programmes}
         />
       ) : null}
       {activeModal === 'upload' ? (

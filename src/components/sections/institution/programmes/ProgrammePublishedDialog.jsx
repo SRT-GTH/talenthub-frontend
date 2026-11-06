@@ -15,7 +15,7 @@ import AgencyDialogShell from '../../agency/queries/AgencyDialogShell.jsx';
  * confetti, the yellow disc with the tick and the white "Live now" sticker; title 32/600 · "9,870 matched talents will see YouthStart Digital Grant in their
  * feed today." · three "what next" rows · "Back to programmes" + "View applicants"). Same construction as the Talent Jobs "application sent" dialog (JobApplyDialogs),
  * Focused only. The count goes through formatCount(). Focus trap, Esc (= back to programmes) and focus return from AgencyDialogShell.
- * Props: count (matching talents), onBack(), onView().
+ * Props: count (matching students), visible (of them, those who can see it now), title (the programme), onBack(), onView().
  */
 
 const CONFETTI = [
@@ -31,7 +31,7 @@ const CONFETTI = [
 
 const ICONS = [JobDetailClockIcon, JobDetailChatIcon, JobDetailBuddySparkIcon];
 
-const ProgrammePublishedDialog = ({ count, onBack, onView }) => (
+const ProgrammePublishedDialog = ({ count, visible, title, onBack, onView }) => (
   <AgencyDialogShell title={PUBLISHED.title} onClose={onBack} className="mx-auto max-w-[560px]">
     <div className="overflow-hidden rounded-[24px] bg-white shadow-[0_24px_64px_rgba(0,0,0,0.2)]">
       <div className="relative h-[200px] overflow-hidden bg-[#387440]" aria-hidden="true">
@@ -64,7 +64,7 @@ const ProgrammePublishedDialog = ({ count, onBack, onView }) => (
           {PUBLISHED.title}
         </h2>
         <p className="m-0 text-center font-sans text-[15px] leading-[21px] text-[#595959]">
-          {PUBLISHED.body(formatCount(count))}
+          {PUBLISHED.body(formatCount(count), formatCount(visible), title)}
         </p>
         <ul className="m-0 flex list-none flex-col gap-[4px] overflow-hidden rounded-[18px] border border-solid border-[#e1eae2] bg-[#f8f8f4] p-0">
           {PUBLISHED.next.map((text, i) => {

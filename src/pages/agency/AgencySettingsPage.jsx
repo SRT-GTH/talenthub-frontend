@@ -64,7 +64,7 @@ const AgencySettingsPage = () => {
           active={tab}
           subtitle={
             tab === 'analysts'
-              ? 'Everyone gets their own login. 3 of 5 analyst seats used under the MoU.'
+              ? 'Everyone gets their own login. Seats are set by your MoU.'
               : (SETTINGS_SUBTITLE[tab] ?? SETTINGS_SUBTITLE.default)
           }
         >

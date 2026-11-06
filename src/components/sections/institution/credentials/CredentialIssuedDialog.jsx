@@ -33,9 +33,9 @@ const NEXT = [
 /*
  * CredentialIssuedDialog — "Credential issued!" (Figma 11.2.4d 8593:390861, modal 8593:391249, 560 wide) over the preview page: green celebration band (200) with the gold tick disc, the
  * "Signed" sticker and eight confetti chips, the title 34/41, the sentence, three "what next" rows, then "Back to credentials" and "Issue another".
- * Props: firstName, pronoun ("her"), onBack(), onAnother().
+ * Props: sentence (who sees it and where, with the number), onBack(), onAnother().
  */
-const CredentialIssuedDialog = ({ firstName, possessive, onBack, onAnother }) => {
+const CredentialIssuedDialog = ({ sentence, onBack, onAnother }) => {
   useEffect(() => {
     log('open');
   }, []);
@@ -81,7 +81,7 @@ const CredentialIssuedDialog = ({ firstName, possessive, onBack, onAnother }) =>
             id="credential-issued-desc"
             className="m-0 text-center text-[15px] leading-[21px] text-[#595959]"
           >
-            {firstName} gets an email and sees it on {possessive} profile now.
+            {sentence}
           </p>
           <ul className="m-0 flex list-none flex-col gap-[4px] rounded-[18px] border border-solid border-[#e1eae2] bg-[#f8f8f4] p-0">
             {NEXT.map((n, i) => {

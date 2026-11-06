@@ -1,12 +1,10 @@
-import { MAP_REGIONS_SAMPLE } from '../../publicData/map/data/mapData.js';
 import { REGIONS } from '../../publicData/regionsList.js';
-import { isSuppressed } from '../../publicData/publicDataFormat.js';
 
 /*
- * programmesData.js — API-shaped MOCK data of the agency programmes (Figma 11.5.2a-k, canvas 8605:395409). SAMPLE CONTENT ONLY.
- * Future endpoints: GET /agency/programmes, POST /agency/programmes (draft), PATCH /agency/programmes/:id (close, duplicate),
- * GET /agency/programmes/:id/audience?rules (the "Audience preview"), POST /agency/programmes/:id/publish,
- * GET /agency/programmes/:id/applicants (the pipeline). Counts under 5 are printed "<5" by the components (formatCount).
+ * programmesData.js — copy, option lists and builders of the agency programmes (Figma 11.5.2a-k, canvas 8605:395409).
+ * The data itself comes from the server (agency.api.js): GET/POST/PATCH /agency/programmes, POST /agency/programmes/audience,
+ * GET /agency/programmes/insights, POST /agency/programmes/:id/publish|close|duplicate, GET /agency/programmes/:id/applicants.
+ * Templates are starting points only (they prefill the form). Counts under 5 are printed "<5" by the components (formatCount).
  *
  * BLOCK 1 programmes   BLOCK 2 templates   BLOCK 3 eligibility rules + audience   BLOCK 4 supply insights
  * BLOCK 5 talent preview + published   BLOCK 6 applicant pipeline
@@ -26,99 +24,6 @@ export const PROGRAMME_FILTERS = [
   { id: 'draft', label: 'Draft' },
   { id: 'closed', label: 'Closed' },
 ];
-
-/* status: live | draft | closed. The card tile colours are the Figma ones. ⚠️ ASSUMPTION: the last two rows are sample content
-   (the header counts "All (5)", the frame draws three cards). */
-export const PROGRAMMES = [
-  {
-    id: 'ysd-2026',
-    title: 'YouthStart Digital Grant',
-    optionLabel: 'YouthStart Digital Grant — national',
-    status: 'live',
-    statusLabel: 'Active',
-    icon: 'pencil',
-    tile: { bg: 'bg-[#f3f8f4]', fg: 'text-[#2a5730]' },
-    place: 'National · all 16 regions',
-    kind: 'Start-up grant · 8-week course',
-    stamp: 'Posted 2 Oct',
-    applicants: 1912,
-    toReview: 340,
-    avgMatch: 79,
-    success: { rate: '33.7%', delta: '▲ +3.1 pts', placed: 620, enrolled: 1840, bar: 302 / 358 },
-    action: 'View applicants',
-  },
-  {
-    id: 'nss-2027',
-    title: 'NSS Placement Matching 2027',
-    optionLabel: 'NSS Placement Matching 2027 — national',
-    status: 'draft',
-    statusLabel: 'Draft',
-    icon: 'board',
-    tile: { bg: 'bg-[#faf4e8]', fg: 'text-[#785910]' },
-    place: 'National · NSS secretariat',
-    kind: 'National Service · 12 months',
-    stamp: 'Draft · saved 15 Oct',
-    applicants: null,
-    toReview: null,
-    avgMatch: null,
-    success: null,
-    action: 'Continue editing',
-  },
-  {
-    id: 'agri-2026',
-    title: 'Youth in Agribusiness Training',
-    optionLabel: 'Youth in Agribusiness Training — Bono East · Northern · Savannah',
-    status: 'closed',
-    statusLabel: 'Closed',
-    icon: 'hat',
-    tile: { bg: 'bg-[#eae8e2]', fg: 'text-[#737373]' },
-    place: 'Bono East · Northern · Savannah',
-    kind: '6-week training + inputs',
-    // Figma draws "Draft · saved 15 Oct" here too (a copy slip on a closed programme); kept as drawn.
-    stamp: 'Draft · saved 15 Oct',
-    applicants: 412,
-    toReview: null,
-    avgMatch: 71,
-    success: { rate: '23.3%', delta: 'Final', placed: 294, enrolled: 1260, bar: 302 / 358 },
-    action: 'View summary',
-  },
-  {
-    id: 'job-fair-2026',
-    title: 'District Job Fair Series',
-    optionLabel: 'District Job Fair Series — Northern',
-    status: 'live',
-    statusLabel: 'Active',
-    icon: 'board',
-    tile: { bg: 'bg-[#faf4e8]', fg: 'text-[#785910]' },
-    place: 'Northern',
-    kind: 'Events · 1 day',
-    stamp: 'Posted 9 Sep',
-    applicants: 236,
-    toReview: 41,
-    avgMatch: 68,
-    success: { rate: '18.0%', delta: '▲ +1.2 pts', placed: 42, enrolled: 233, bar: 0.45 },
-    action: 'View applicants',
-  },
-  {
-    id: 'skills-pilot-2025',
-    title: 'Skills for Work Pilot',
-    optionLabel: 'Skills for Work Pilot — Volta',
-    status: 'closed',
-    statusLabel: 'Closed',
-    icon: 'hat',
-    tile: { bg: 'bg-[#eae8e2]', fg: 'text-[#737373]' },
-    place: 'Volta',
-    kind: 'Training · 8–12 weeks',
-    stamp: 'Closed 30 Jun',
-    applicants: 188,
-    toReview: null,
-    avgMatch: 64,
-    success: { rate: '27.1%', delta: 'Final', placed: 51, enrolled: 188, bar: 0.68 },
-    action: 'View summary',
-  },
-];
-
-export const programmeById = (id) => PROGRAMMES.find((p) => p.id === id) ?? null;
 
 export const ACTION_MENU = [
   { id: 'edit', label: 'Edit programme' },
@@ -228,51 +133,20 @@ export const READINESS_STEPS = [
 export const DEFAULT_RULES = {
   ageOn: true,
   age: '18-35',
-  skillsOn: true,
-  skills: ['Digital marketing', 'Web design', 'Bookkeeping'],
+  skillsOn: false,
+  skills: [],
   regionOn: false,
   regions: [],
-  readinessOn: true,
+  readinessOn: false,
   readiness: 3,
   under18: false,
 };
 
-const POOL = 42610;
-const MATCH_DEFAULT = 9870;
-const NATIONAL = MAP_REGIONS_SAMPLE.reduce((a, r) => a + (r.count ?? 0), 0) || 1;
-
 export const REGION_CHOICES = REGIONS.map((r) => ({ id: r.id, label: r.name }));
 
-/**
- * Mock of GET /agency/programmes/:id/audience. Returns { pool, match, readyPct, readyNow, stars }.
- * Counts under 5 are returned raw: the components print them "<5" (formatCount), and "Save and continue" is blocked
- * while fewer than 5 talents match ("Groups under 5 can’t be targeted").
- * ⚠️ ASSUMPTION: every factor is sample maths calibrated to the drawn default (42,610 in the pool, 9,870 matching, 81 % ready now).
- */
-export const computeAudience = (rules, { forceUnder5 = false } = {}) => {
-  if (forceUnder5) return { pool: 6, match: 4, readyPct: 50, readyNow: 2, stars: 4 };
-  const regionShare =
-    rules.regionOn && rules.regions.length
-      ? rules.regions.reduce(
-          (a, id) => a + (MAP_REGIONS_SAMPLE.find((r) => r.id === id)?.count ?? 0),
-          0
-        ) / NATIONAL
-      : 1;
-  const age = AGE_RANGES.find((a) => a.id === rules.age)?.factor ?? 1;
-  const ageF = rules.ageOn ? age : 1;
-  const skillsF = rules.skillsOn
-    ? Math.min(1.5, Math.sqrt(Math.max(1, rules.skills.length) / 3))
-    : 1.6;
-  const readyF = rules.readinessOn
-    ? (READINESS_STEPS.find((s) => s.months === rules.readiness)?.factor ?? 1)
-    : 1.4;
-  const pool = Math.round(POOL * regionShare);
-  const match = Math.min(pool, Math.round(MATCH_DEFAULT * regionShare * ageF * skillsF * readyF));
-  const readyPct = 81;
-  return { pool, match, readyPct, readyNow: Math.round((match * readyPct) / 100), stars: 4 };
-};
-
-export const audienceBlocked = (audience) => isSuppressed(audience.match);
+/** Under 5 matching talents (or the audience not loaded yet) blocks "Save and continue": groups under 5 can’t be targeted. */
+export const audienceBlocked = (audience) =>
+  !audience || audience.matchSuppressed || audience.match < 5;
 
 /** The sentence under the stars. */
 export const audienceNote = (audience, formatCount) =>
@@ -280,107 +154,112 @@ export const audienceNote = (audience, formatCount) =>
     ? `Only ${formatCount(audience.match)} talents match these rules. Groups under 5 can’t be targeted. Widen the age range or add a region.`
     : `About ${formatCount(audience.match)} talents will see this programme in their feed.`;
 
-/** ⚠️ ASSUMPTION: the phone number the policy check finds in the description (Figma 11.5.2i), masked as drawn. */
-export const POLICY_FINDING = {
-  title: 'Remove contact details to publish',
-  sentence:
-    'Your description includes a phone number (030 •••• 412). Talents reach NYA through GTH, so contact details can’t go in programmes.',
+/** The contact-details rule the server applies at publish (agencyProgrammes.service.js POLICY): phone numbers, emails, links. */
+const CONTACT_RULES = [
+  { re: /(\+?233|0)[\s-]?\d{2}[\s-]?\d{3}[\s-]?\d{3,4}/g, what: 'a phone number' },
+  { re: /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, what: 'an email address' },
+  { re: /(https?:\/\/|www\.)\S+/gi, what: 'a web link' },
+];
+
+/** The first contact detail in the text, masked ("030 •••• 412"), or null. */
+export const findContactDetails = (text = '') => {
+  for (const rule of CONTACT_RULES) {
+    const m = String(text).match(new RegExp(rule.re.source, rule.re.flags.replace('g', '')));
+    if (m) {
+      const hit = m[0];
+      return {
+        what: rule.what,
+        masked: hit.length > 6 ? `${hit.slice(0, 3)} •••• ${hit.slice(-3)}` : '••••',
+      };
+    }
+  }
+  return null;
 };
 
-/* ===== BLOCK 4 · supply insights ======================================================================================= */
-
-export const SUPPLY_INSIGHTS = [
-  {
-    id: 'stipend',
-    label: 'Typical stipend',
-    value: '₵5k – ₵20k',
-    note: 'What similar national grants paid in 2025.',
-  },
-  {
-    id: 'speed',
-    label: 'Response speed',
-    value: 'Fast',
-    note: 'Talents here usually reply within 2 days.',
-  },
-  {
-    id: 'gender',
-    label: 'Gender balance',
-    value: '52% women',
-    note: 'Your rules keep a balanced audience.',
-  },
-];
+/** The text with every contact detail removed. */
+export const stripContactDetails = (text = '') =>
+  CONTACT_RULES.reduce((acc, rule) => acc.replace(rule.re, ''), String(text))
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
 
 /* ===== BLOCK 5 · talent preview + published (Figma 11.5.2b / c) ======================================================== */
 
-export const PREVIEW = {
-  agency: 'National Youth Authority',
-  agencyLine: 'Agency · Accra · national',
-  agencyBadge: 'Government agency · MoU active',
-  sticker: 'New today',
-  title: 'YouthStart Digital Grant',
-  chips: [
-    { id: 'where', text: 'All regions · Online + hubs' },
-    { id: 'what', text: '8-week course, then grant' },
-    { id: 'pay', text: 'Grant up to GHS 20,000' },
-    { id: 'closes', text: 'Closes 30 Nov' },
-  ],
-  hint: 'Takes 1 minute. You’ll preview what they see first.',
-  about: {
-    title: 'About the grant',
-    intro:
-      'A government start-up grant for young Ghanaians with a digital business idea. Finish the 8-week course to unlock funding.',
-    bullets: [
-      'Learn to plan, price and market a small business',
-      'Pitch to a regional YouthStart panel',
-      'Weekly mentoring at your nearest NYA hub',
-      'Graduates get a GTH-verified certificate',
-    ],
-  },
-  good: {
-    title: 'Good to have',
-    summary: 'You have 3 of 4',
-    items: [
-      { id: 'dm', text: 'Digital marketing', verified: true },
-      { id: 'bk', text: 'Bookkeeping' },
-      { id: 'bp', text: 'Business plan draft' },
-      { id: 'gc', text: 'Ghana Card' },
-    ],
-    missing: 'Business registration',
-  },
-  match: {
-    pct: 79,
-    label: 'Strong match',
-    note: 'NYA sees you in the top matches for this grant in Greater Accra.',
-    rows: [
-      { id: 'skills', label: 'Skills', value: '3 of 4' },
-      { id: 'education', label: 'Education', value: 'BSc' },
-      { id: 'region', label: 'Region', value: 'Greater Accra' },
-    ],
-  },
-  boost: {
-    title: 'Boost to ~86%',
-    delta: '+7%',
-    note: 'Register your business name with ORC and your match jumps.',
-    have: 'I’ve registered',
-    learn: 'How to register',
-  },
-  runner: {
-    heading: 'WHO’S RUNNING IT',
-    name: 'Efua Owusu',
-    role: 'Director, Research & Data · NYA',
-    reply: 'Usually replies within 3 days',
-  },
+const fmtDay = (v) =>
+  v
+    ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(v))
+    : null;
+
+/**
+ * The talent-preview content of one programme (GET /agency/programmes/:id → { title, place, kind, form, agency }).
+ * Only what the programme says is shown; the talent-specific parts (match, "good to have") are drawn as the preview's frame.
+ */
+export const buildPreview = (p) => {
+  const f = p?.form ?? {};
+  const skills = (f.rules?.skillsOn ? f.rules.skills : []) ?? [];
+  const lines = String(f.description || '')
+    .split(/\n+/)
+    .map((l) => l.replace(/^[-•*]\s*/, '').trim())
+    .filter(Boolean);
+  return {
+    agency: p?.agency?.name || 'Your agency',
+    agencyLine: `Agency · ${p?.place || 'National'}`,
+    agencyBadge: 'Government agency · MoU active',
+    sticker: p?.status === 'live' ? 'Live' : 'Preview',
+    title: p?.title || 'Untitled programme',
+    chips: [
+      { id: 'where', text: p?.place || 'National' },
+      { id: 'what', text: p?.kind || 'Government programme' },
+      f.amount
+        ? { id: 'pay', text: `Up to GHS ${new Intl.NumberFormat('en-GH').format(f.amount)}` }
+        : null,
+      f.deadline ? { id: 'closes', text: `Closes ${fmtDay(f.deadline)}` } : null,
+    ].filter(Boolean),
+    hint: 'Takes 1 minute. You’ll preview what they see first.',
+    about: {
+      title: 'About the programme',
+      intro: lines[0] || 'No description yet. Add one in Back to editing.',
+      bullets: lines.slice(1, 7),
+    },
+    good: {
+      title: 'Good to have',
+      summary: skills.length
+        ? `${skills.length} skill${skills.length === 1 ? '' : 's'}`
+        : 'No skills set',
+      items: skills.map((s) => ({ id: s, text: s })),
+      missing: null,
+    },
+    match: {
+      pct: null,
+      label: 'Your match',
+      note: 'Each talent sees their own match, worked out from their profile against these rules.',
+      rows: [
+        { id: 'skills', label: 'Skills', value: skills.length ? `${skills.length} asked` : 'Any' },
+        {
+          id: 'education',
+          label: 'Age',
+          value: f.rules?.ageOn === false ? 'Any' : (f.rules?.age || '18-35').replace('-', '–'),
+        },
+        { id: 'region', label: 'Region', value: p?.place || 'National' },
+      ],
+    },
+    runner: {
+      heading: 'WHO’S RUNNING IT',
+      name: p?.agency?.name || 'Your agency',
+      role: 'Government agency on GTH',
+      reply: 'Replies through GTH messages',
+    },
+  };
 };
 
 export const PUBLISHED = {
   sticker: 'Live now',
   title: 'Programme published!',
-  body: (count) =>
-    `${count} matched talents will see YouthStart Digital Grant in their feed today.`,
+  body: (count, title = 'this programme') =>
+    `${count} matched talents will see ${title} in their feed today.`,
   next: [
     'Applicants land in your pipeline',
-    'We email you a daily digest',
-    'Broadcast it to a saved filter',
+    'Each talent is told when you move their application',
+    'Close it any time from Programmes',
   ],
   back: 'Back to programmes',
   view: 'View applicants',
@@ -397,90 +276,6 @@ export const PIPELINE_COLUMNS = [
   { id: 'offered', label: 'Grant offered' },
   { id: 'funded', label: 'FUNDED' },
   { id: 'declined', label: 'not selected' },
-];
-
-export const APPLICANTS = [
-  {
-    id: 'a1',
-    stage: 'applied',
-    initials: 'KA',
-    tint: '#fae7b5',
-    name: 'Kwame A.',
-    sub: 'Match 91% • BSc · Accra',
-    skills: ['Digital marketing', 'Business plan'],
-    ago: '2h ago',
-    rating: '4.8',
-  },
-  {
-    id: 'a2',
-    stage: 'applied',
-    name: 'Yaa D.',
-    sub: 'Match 84% • HND · Kumasi',
-    skills: ['Bookkeeping', 'Ghana Card'],
-    ago: '5h ago',
-    rating: '3.2',
-  },
-  {
-    id: 'a3',
-    stage: 'screening',
-    initials: 'FI',
-    tint: '#e6e1fa',
-    name: 'Fuseini I.',
-    sub: 'Match 76% • WASSCE · Tamale',
-    skills: ['Web design', 'Bookkeeping'],
-    next: { title: 'Next: eligibility call', when: 'Tuesday at 14:00' },
-  },
-  {
-    id: 'a4',
-    stage: 'shortlisted',
-    initials: 'AS',
-    tint: '#dce7fa',
-    name: 'Adwoa S.',
-    sub: 'Match 88% • BA · Ho',
-    skills: ['E-commerce', 'Registered business'],
-    invite: 'Invite to pitch day',
-  },
-  {
-    id: 'a5',
-    stage: 'pitch',
-    name: 'Kwesi O.',
-    sub: 'Tue 20 Oct · 10:00',
-    pitch: { tone: 'amber', title: 'Pitch day', place: 'Accra hub' },
-    primary: null,
-    secondary: 'View details',
-    badge: 'hourglass',
-  },
-  {
-    id: 'a6',
-    stage: 'pitch',
-    name: 'Ibrahim Y.',
-    sub: 'Mon 19 Oct · 10:00',
-    pitch: { tone: 'red', title: 'Missed pitch', place: 'Accra hub' },
-    primary: 'Mark as attended',
-    secondary: 'Reschedule',
-    badge: 'alert',
-  },
-  {
-    id: 'a7',
-    stage: 'pitch',
-    name: 'Abena M.',
-    sub: 'Thu 15 Oct · 10:00',
-    pitch: { tone: 'green', title: 'Pitched · scored 78', place: 'Accra hub' },
-    primary: null,
-    secondary: 'View scores',
-    badge: 'done',
-  },
-  {
-    id: 'a8',
-    stage: 'offered',
-    initials: 'EK',
-    tint: '#f8dccf',
-    name: 'Efia K.',
-    sub: 'Awaiting response',
-    subTone: 'amber',
-  },
-  { id: 'a9', stage: 'funded', name: 'Akua N.', sub: 'Funded Oct 14' },
-  { id: 'a10', stage: 'declined', name: 'Kojo B.', sub: 'Outside age range', dim: true },
 ];
 
 export const APPLICANTS_COPY = {

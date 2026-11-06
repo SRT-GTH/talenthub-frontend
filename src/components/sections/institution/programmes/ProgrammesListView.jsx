@@ -9,6 +9,7 @@ import ProgrammeConfirmDialog from './ProgrammeConfirmDialog.jsx';
 import ProgrammesHeader from './ProgrammesHeader.jsx';
 import { ProgrammesIconWrite } from './programmesIcons.jsx';
 import { closeProgramme, duplicateProgramme, useProgrammesStore } from './useProgrammesStore.js';
+import { apiMessage } from '../../../../services/institutionPortal.api.js';
 import Button from '../../../ui/Button.jsx';
 
 const log = debug('ProgrammesListView');
@@ -18,8 +19,8 @@ const log = debug('ProgrammesListView');
  * 8610:403837): header + tabs, the filter chips (All (5) · Live · Draft · Closed; the active chip carries its count), the search field, "Post a programme",
  * "Showing 1 programme in Draft" under a filter, and the card grid (3 columns at 1329).
  * URL keys: tab=live|drafts|closed (default all), q= (search text), modal=actions|close with at=<programme id> (the card's menu / the close confirmation).
- * ⚠️ ASSUMPTIONS: Edit / "Continue editing" open the form with ?programme=<id>; Duplicate adds a draft "<title> (copy)"; closing sets the programme to Closed
- * (mock, in memory) and announces it; "View summary" of a closed programme opens its applicants; the card count is "All (n)" of the whole list.
+ * Live: the cards come from GET /api/institution/programmes. Edit / "Continue editing" open the form with ?programme=<id>; Duplicate saves a draft
+ * "<title> (copy)" (POST .../duplicate); closing a live programme (POST .../close) is logged; "View summary" of a closed programme opens its applicants.
  * Props: data (useAgencyState()).
  */
 
@@ -27,8 +28,9 @@ const FILTER_FROM_TAB = { drafts: 'draft', live: 'live', closed: 'closed' };
 
 const ProgrammesListView = ({ data }) => {
   const navigate = useNavigate();
-  const { programmes } = useProgrammesStore();
+  const { programmes, loaded, error } = useProgrammesStore();
   const [announce, setAnnounce] = useState('');
+  const [busy, setBusy] = useState(false);
   const buttonRefs = useRef({});
   const filter = FILTER_FROM_TAB[data.tab] ?? 'all';
   const needle = data.q.trim().toLowerCase();
@@ -74,14 +76,29 @@ const ProgrammesListView = ({ data }) => {
       ? `/institution/programmes/new?programme=${p.id}`
       : `/institution/programmes/${p.id}/applicants`;
 
-  const choose = (p, action) => {
+  const choose = async (p, action) => {
     log('action', action, p.id);
     if (action === 'edit') navigate(`/institution/programmes/new?programme=${p.id}`);
     else if (action === 'duplicate') {
-      const copy = duplicateProgramme(p.id);
       update({ modal: null, at: null }, { replace: true });
-      setAnnounce(`Duplicated ${p.title} as a draft${copy ? `: ${copy.title}` : ''}.`);
-    } else if (action === 'close') update({ modal: 'close', at: p.id });
+      try {
+        const copy = await duplicateProgramme(p.id);
+        setAnnounce(`Duplicated ${p.title} as a draft${copy ? `: ${copy.title}` : ''}.`);
+      } catch (err) {
+        setAnnounce(apiMessage(err));
+      }
+    } else if (action === 'close') {
+      if (p.status !== 'live') {
+        update({ modal: null, at: null }, { replace: true });
+        setAnnounce(
+          p.status === 'draft'
+            ? 'A draft isn’t live yet, so there is nothing to close.'
+            : `${p.title} is already closed.`
+        );
+        return;
+      }
+      update({ modal: 'close', at: p.id });
+    }
   };
 
   const target = at ? programmes.find((p) => p.id === at) : null;
@@ -157,7 +174,19 @@ const ProgrammesListView = ({ data }) => {
             <span className="font-medium text-[#387440]">{filterLabel}</span>
           </p>
         ) : null}
-        {visible.length ? (
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[14px] border border-solid border-[#f6e1df] bg-[#f9ebea] p-[16px] text-[14px] leading-[20px] text-[#902b20]"
+          >
+            {error}
+          </p>
+        ) : null}
+        {!loaded && !error ? (
+          <p className="m-0 rounded-[14px] border border-solid border-[#e6e2d6] bg-white p-[24px] text-[14px] leading-[20px] text-[#737373]">
+            Loading your programmes…
+          </p>
+        ) : visible.length ? (
           <ul className="m-0 grid list-none grid-cols-1 gap-[16px] p-0 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((p) => (
               <li key={p.id} className="min-w-0">
@@ -181,25 +210,43 @@ const ProgrammesListView = ({ data }) => {
           </ul>
         ) : (
           <p className="m-0 rounded-[14px] border border-solid border-[#e6e2d6] bg-white p-[24px] text-[14px] leading-[20px] text-[#737373]">
-            No programmes to show.
+            {programmes.length
+              ? 'No programmes to show.'
+              : 'No programmes yet. Post one from a template and only the students you pick will see it.'}
           </p>
         )}
       </div>
-      <p role="status" aria-live="polite" className="sr-only">
+      <p
+        role="status"
+        aria-live="polite"
+        className={
+          announce
+            ? 'm-0 rounded-[12px] border border-solid border-[#e1eae2] bg-[#f3f8f4] px-[16px] py-[12px] text-[14px] leading-[20px] text-[#224626]'
+            : 'sr-only'
+        }
+      >
         {announce}
       </p>
       {modal === 'close' && target ? (
         <ProgrammeConfirmDialog
           title="Close this programme?"
           body={closeSentence(target.applicants ?? 0)}
-          confirmLabel="Yes, close it"
+          confirmLabel={busy ? 'Closing…' : 'Yes, close it'}
           cancelLabel="No, keep it open"
           width={528}
-          onConfirm={() => {
-            closeProgramme(target.id);
-            update({ modal: null, at: null }, { replace: true });
-            setAnnounce(`${target.title} is closed.`);
-            returnToCard(target.id);
+          onConfirm={async () => {
+            if (busy) return;
+            setBusy(true);
+            try {
+              await closeProgramme(target.id);
+              setAnnounce(`${target.title} is closed.`);
+            } catch (err) {
+              setAnnounce(apiMessage(err));
+            } finally {
+              setBusy(false);
+              update({ modal: null, at: null }, { replace: true });
+              returnToCard(target.id);
+            }
           }}
           onCancel={() => {
             update({ modal: null, at: null }, { replace: true });

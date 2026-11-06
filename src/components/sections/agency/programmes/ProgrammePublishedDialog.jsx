@@ -31,7 +31,7 @@ const CONFETTI = [
 
 const ICONS = [JobDetailClockIcon, JobDetailChatIcon, JobDetailBuddySparkIcon];
 
-const ProgrammePublishedDialog = ({ count, onBack, onView }) => (
+const ProgrammePublishedDialog = ({ count, title, onBack, onView }) => (
   <AgencyDialogShell title={PUBLISHED.title} onClose={onBack} className="mx-auto max-w-[560px]">
     <div className="overflow-hidden rounded-[24px] bg-white shadow-[0_24px_64px_rgba(0,0,0,0.2)]">
       <div className="relative h-[200px] overflow-hidden bg-[#387440]" aria-hidden="true">
@@ -64,7 +64,7 @@ const ProgrammePublishedDialog = ({ count, onBack, onView }) => (
           {PUBLISHED.title}
         </h2>
         <p className="m-0 text-center font-sans text-[15px] leading-[21px] text-[#595959]">
-          {PUBLISHED.body(formatCount(count))}
+          {PUBLISHED.body(formatCount(count), title)}
         </p>
         <ul className="m-0 flex list-none flex-col gap-[4px] overflow-hidden rounded-[18px] border border-solid border-[#e1eae2] bg-[#f8f8f4] p-0">
           {PUBLISHED.next.map((text, i) => {

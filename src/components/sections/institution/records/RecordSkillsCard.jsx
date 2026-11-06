@@ -5,7 +5,7 @@ import { RecordsIconCheck13 } from './recordsIcons.jsx';
 
 /* RecordSkillsCard — "Top skills" (Figma 8593:727): 2 x 2 skill tiles (icon, name, Assessed / Skills Lab / Endorsed chip, 6px meter, note). Props: detail. */
 const RecordSkillsCard = ({ detail }) => (
-  <RecordCard id="record-skills" title="Top skills" link="See all 7 →">
+  <RecordCard id="record-skills" title="Top skills">
     <ul className="m-0 grid list-none grid-cols-1 gap-[12px] p-0 md:grid-cols-2">
       {detail.skills.map((s) => (
         <li

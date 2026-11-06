@@ -17,10 +17,11 @@ const log = debug('InstitutionAddStudentDialog');
  * InstitutionAddStudentDialog — "One student. We check their Ghana Card." (Figma 11.2.2b 8590:383922, ?modal=add-student or /institution/students/new).
  * Upload strip ("Have a class list? Upload a CSV instead" → switches to the upload dialog) · "or add one student" · Full name *, Ghana Card number *, Programme * (General Science),
  * Index number, Date of birth *, Year group, Student email (Optional), Parent or guardian phone · "Send the student an invite to link their profile" · Cancel + "Add student →".
- * Validation (rosterValidation.js): required fields, Ghana Card format, a real past date, a guardian phone under 18; the first invalid field gets focus. Submit → MOCK POST
- * /institution/students → the roster store; the dialog closes with a status line (and, for an under-18, an "Ask for consent" action that opens the consent dialog).
- * ⚠️ ASSUMPTION: error copy is mine; the invite checkbox starts unticked as drawn; a student added here is "Not linked" until they link their own GTH profile.
- * Props: onClose, onUpload (switch to the CSV dialog), onConsent (open the consent dialog).
+ * Validation (rosterValidation.js, repeated by the server); the first invalid field gets focus. Submit → POST /api/institution/students: a student who
+ * already has a GTH account (same email) gets a "Is this your school?" request, anyone else an email invite when "Send the student an invite" is ticked.
+ * The dialog closes with a status line (and, for an under-18, an "Ask for consent" action that opens the consent dialog). A server problem (duplicate, already
+ * at another school) is shown above the buttons. The Ghana Card number is optional and never stored: only a hash to spot duplicates.
+ * Props: onClose, onUpload (switch to the CSV dialog), onConsent (open the consent dialog), programmes (the roster's programmes, merged with the usual SHS ones).
  */
 
 const EMPTY = {
@@ -32,18 +33,23 @@ const EMPTY = {
   year: '',
   email: '',
   guardian: '',
-  invite: false,
+  guardianEmail: '',
+  invite: true,
 };
 
-const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
+const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent, programmes = [] }) => {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  const options = [...new Set([...PROGRAMMES, ...programmes])];
   const formId = useId();
   const set = (key) => (event) => setForm((f) => ({ ...f, [key]: event.target.value }));
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
-    const { errors: next, under18 } = validateStudent(form);
+    if (busy) return;
+    const { errors: next, under18, dob } = validateStudent(form);
     setErrors(next);
     const first = Object.keys(next)[0];
     if (first) {
@@ -57,10 +63,37 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
       );
       return;
     }
-    const student = rosterActions.addStudent({ ...form, under18 });
-    log('added (mock)', student.id);
+    setBusy(true);
+    setProblem('');
+    const out = await rosterActions.addStudent({
+      name: form.name.trim(),
+      ghanaCard: form.card.trim() || undefined,
+      programme: form.programme,
+      indexNumber: form.index.trim() || undefined,
+      dateOfBirth: dob ? dob.toISOString().slice(0, 10) : undefined,
+      form: form.year.trim().replace(/\D/g, '') || '1',
+      email: form.email.trim() || undefined,
+      guardianPhone: form.guardian.trim() || undefined,
+      guardianEmail: form.guardianEmail.trim() || undefined,
+      invite: form.invite,
+    });
+    setBusy(false);
+    if (!out.ok) {
+      setProblem(out.message);
+      return;
+    }
+    const s = out.student || {};
+    log('added', s.id, s.status);
+    const how =
+      s.status === 'invited'
+        ? ' We emailed them an invite to link their profile.'
+        : s.status === 'pending-confirmation'
+          ? ' They already have a GTH profile: we asked them to confirm your school.'
+          : s.status === 'linked'
+            ? ' Their GTH profile is linked.'
+            : '';
     rosterActions.toast({
-      message: `${student.name} was added to your roster.`,
+      message: `${s.name || form.name.trim()} was added to your roster.${how}`,
       action: under18 ? { label: 'Ask for consent', onClick: onConsent } : undefined,
     });
     onClose();
@@ -70,12 +103,12 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
     <InstitutionDialogShell label="Add a student" onClose={onClose}>
       <InstitutionDialogHeader
         chip="Add a student"
-        title={['One student. ', 'We check their Ghana Card.']}
-        text="We check the Ghana Card against NIA before the student joins your roster. Students under 18 need a parent or guardian phone."
+        title={['One student. ', 'They link their own profile.']}
+        text="The student links their own GTH profile from the invite. Students under 18 need a parent or guardian phone or email."
       />
       <InstitutionUploadBar
         title="Have a class list? Upload a CSV instead"
-        hint="Up to 10,000 rows per file · we check every Ghana Card"
+        hint="Up to 2,000 rows per file · we check every row before importing"
         action="Upload CSV"
         onAction={onUpload}
       />
@@ -109,8 +142,14 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
         </div>
         <div data-field="card">
           <TextInput
-            label="Ghana Card number"
-            required
+            label={
+              <>
+                Ghana Card number{' '}
+                <span className="ml-[6px] text-[12px] leading-[18px] font-normal text-[#595959]">
+                  Optional · spots duplicates
+                </span>
+              </>
+            }
             placeholder="GHA-000000000-0"
             value={form.card}
             onChange={set('card')}
@@ -121,7 +160,7 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
           <Select
             label="Programme"
             required
-            options={PROGRAMMES}
+            options={options}
             value={form.programme}
             onChange={(v) => setForm((f) => ({ ...f, programme: v?.target ? v.target.value : v }))}
             error={errors.programme}
@@ -181,6 +220,23 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
             error={errors.guardian}
           />
         </div>
+        <div data-field="guardianEmail">
+          <TextInput
+            label={
+              <>
+                Parent or guardian email{' '}
+                <span className="ml-[6px] text-[12px] leading-[18px] font-normal text-[#595959]">
+                  Optional
+                </span>
+              </>
+            }
+            type="email"
+            placeholder="For the consent request"
+            value={form.guardianEmail}
+            onChange={set('guardianEmail')}
+            error={errors.guardianEmail}
+          />
+        </div>
         <div className="md:col-span-2">
           <Checkbox
             label="Send the student an invite to link their profile"
@@ -189,10 +245,14 @@ const InstitutionAddStudentDialog = ({ onClose, onUpload, onConsent }) => {
           />
         </div>
       </form>
+      <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-danger empty:hidden">
+        {problem}
+      </p>
       <InstitutionDialogActions
         cancelLabel="Cancel"
         onCancel={onClose}
-        primaryLabel="Add student"
+        primaryDisabled={busy}
+        primaryLabel={busy ? 'Adding…' : 'Add student'}
         primaryType="submit"
         form={formId}
       />

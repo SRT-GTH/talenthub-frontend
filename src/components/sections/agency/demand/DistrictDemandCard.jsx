@@ -42,9 +42,11 @@ const DistrictDemandCard = ({ title, hint, rows, more, note }) => (
                 formatCount(r.count)
               )}
             </td>
-            <td className={classNames(TD, 'text-right')}>{low ? '—' : `${r.share}%`}</td>
             <td className={classNames(TD, 'text-right')}>
-              {low ? (
+              {low || typeof r.share !== 'number' ? '—' : `${r.share}%`}
+            </td>
+            <td className={classNames(TD, 'text-right')}>
+              {low || typeof r.growth !== 'number' ? (
                 '—'
               ) : (
                 <span

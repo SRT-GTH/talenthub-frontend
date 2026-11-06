@@ -1,16 +1,15 @@
 /*
- * reportData.js — MOCK content of the agency report "Youth skills and outcomes Q3 2026" (Figma 11.4.4i–p v2, ids 8932:18920 … 8932:19360,
- * instances of the GTH Report kit). Shaped like the future GET /agency/reports/q3-2026 response. Texts are verbatim from the frames
- * (including the typo "A opportunity" on page 5, kept as drawn). Counts go through formatCount in the components.
+ * reportData.js — layout constants of the agency report (Figma 11.4.4i–p v2, the GTH Report kit) and buildReport(), which puts the
+ * live figures of GET /agency/report (+ the region counts of GET /agency/home) into the shapes the eight page components draw.
+ * Counts go through formatCount in the components (1-4 arrive as 1 and print "<5").
  */
+import { MAP_BINS, MAP_SUPPRESSED_BIN } from '../../../publicData/map/mapBins.js';
 
 /* ---- BLOCK 1 · shared ---- */
 export const AGENCY_REPORT_PAGE_COUNT = 8;
-export const AGENCY_REPORT_FOOTER =
-  'National Youth Authority  ·  Youth skills and outcomes  ·  Q3 2026';
 
 /* ---- BLOCK 2 · cover, contents, opener (pages 1-3) ---- */
-export const AGENCY_REPORT_COVER = {
+const BASE_COVER = {
   brand: 'Ghana Talent Hub',
   eyebrow: 'Agency report  ·  Q3 2026 (July – September)',
   titleLines: ['Where Ghana’s', 'young talent'],
@@ -26,7 +25,7 @@ export const AGENCY_REPORT_COVER = {
   footer: 'Data as of 30 Sep 2026  ·  MoU GTH-MOU-2026-004  ·  Aggregates only',
 };
 
-export const AGENCY_REPORT_CONTENTS = {
+const BASE_CONTENTS = {
   vertical: 'Contents',
   inside: 'Inside this snapshot',
   meta: ['8 pages  ·  30 September 2026', 'Aggregates only. Groups under 5 hidden.'],
@@ -63,7 +62,7 @@ export const AGENCY_REPORT_CONTENTS = {
   ],
 };
 
-export const AGENCY_REPORT_OPENER = {
+const BASE_OPENER = {
   photoHeadline: ['YOUTH IN', 'NUMBERS'],
   eyebrow: 'Section 1  ·  Where young people are',
   title: 'Every region counted',
@@ -76,7 +75,7 @@ export const AGENCY_REPORT_OPENER = {
 };
 
 /* ---- BLOCK 3 · where young people are (page 4) ---- */
-export const AGENCY_REPORT_REGIONS = {
+const BASE_REGIONS = {
   eyebrow: '01  ·  Where young people are',
   title: 'Talents aged 15–35 by home region',
   sub: 'Darker green means more talents. Groups under 5 are hidden; ages 14–17 are counted as totals only.',
@@ -111,7 +110,7 @@ export const AGENCY_REPORT_REGIONS = {
 };
 
 /* ---- BLOCK 4 · skills in demand (page 5) ---- */
-export const AGENCY_REPORT_SKILLS = {
+const BASE_SKILLS = {
   eyebrow: '02  ·  Skills in demand',
   title: 'Service, digital and farm skills lead demand.',
   sub: 'Opportunities posted on GTH, by skill, July–September 2026.',
@@ -140,7 +139,7 @@ export const AGENCY_REPORT_SKILLS = {
 };
 
 /* ---- BLOCK 5 · from programme to work (page 6) ---- */
-export const AGENCY_REPORT_FLOW = {
+const BASE_FLOW = {
   eyebrow: '03  ·  From programme to work',
   title: 'Apply, train, verify, place',
   sub: 'Four steps for every NYA programme applicant. Q3 2026, all NYA programmes on GTH.',
@@ -178,7 +177,7 @@ export const AGENCY_REPORT_FLOW = {
 };
 
 /* ---- BLOCK 6 · programme stories (page 7) ---- */
-export const AGENCY_REPORT_STORIES = {
+const BASE_STORIES = {
   eyebrow: '04  ·  Programmes',
   sub: 'Three NYA programmes, told with verified numbers.',
   bigTitle: ['PROGRAMME', 'STORIES'],
@@ -226,7 +225,7 @@ export const AGENCY_REPORT_STORIES = {
 };
 
 /* ---- BLOCK 7 · how we count (page 8) ---- */
-export const AGENCY_REPORT_METHOD = {
+const BASE_METHOD = {
   eyebrow: '05  ·  How we count',
   title: 'Aggregates only, every number checked',
   sub: 'All figures come from GTH records at 30 September 2026, shared under MoU GTH-MOU-2026-004. NYA sees totals, never individuals.',
@@ -278,3 +277,88 @@ export const AGENCY_REPORT_METHOD = {
   verifyUrl: 'gh-talenthub.gov.gh/verify/R-2026-NYA-Q3',
   questions: ['Questions about this report', 'research@nya.gov.gh'],
 };
+
+const CASE_BG = ['#387440', '#2a5730', '#387440'];
+const CASE_PHOTOS = ['agri', 'nss', 'fair'];
+
+/** The live report: GET /agency/report (api) + the talents per region of GET /agency/home (regionCounts). */
+export const buildReport = (api, regionCounts = []) => ({
+  FOOTER: api.footer,
+  COVER: { ...BASE_COVER, ...api.cover },
+  CONTENTS: {
+    ...BASE_CONTENTS,
+    meta: api.contentsMeta,
+    sections: BASE_CONTENTS.sections.map((s) =>
+      s.numeral === '3'
+        ? { ...s, items: ['Apply, shortlist,', 'interview, place'] }
+        : s.numeral === '4'
+          ? { ...s, items: ['Your programmes', 'How we count'] }
+          : s
+    ),
+  },
+  OPENER: { ...BASE_OPENER, body: api.opener.body, quote: null, quoteBy: null },
+  REGIONS: {
+    ...BASE_REGIONS,
+    title: 'Talents by home region',
+    sub: 'Darker green means more talents. Groups under 5 are hidden.',
+    mapAlt: api.regions.mapAlt,
+    regionCounts,
+    legend: [...MAP_BINS, MAP_SUPPRESSED_BIN].map((b) => ({ swatch: b.fill, label: b.label })),
+    top: api.regions.top,
+    calloutText: api.regions.calloutText,
+    stats: api.regions.stats,
+  },
+  SKILLS: { ...BASE_SKILLS, ...api.skills },
+  FLOW: {
+    ...BASE_FLOW,
+    title: 'Apply, shortlist, interview, place',
+    sub: api.flow.sub,
+    steps: api.flow.steps,
+    policies: [],
+  },
+  STORIES: {
+    ...BASE_STORIES,
+    sub: api.stories.sub,
+    cases: api.stories.cases.map((c, i) => ({
+      ...c,
+      bg: CASE_BG[i % 3],
+      photo: CASE_PHOTOS[i % 3],
+      chipWidth: Math.min(160, 24 + String(c.region).length * 7),
+    })),
+  },
+  METHOD: {
+    ...BASE_METHOD,
+    title: 'Aggregates only, every view logged',
+    sub: api.method.sub,
+    blocks: BASE_METHOD.blocks.map((b) =>
+      b.title === 'Access'
+        ? {
+            ...b,
+            text: 'Every view of this report is logged under the reader’s name in your audit log.',
+          }
+        : b.title === 'Demand'
+          ? {
+              ...b,
+              text: 'Opportunities posted by recruiters and programmes in the period. Employers are never named.',
+            }
+          : b.title === 'Placed'
+            ? {
+                ...b,
+                text: 'An application moved to accepted, hired or funded on GTH. Work found outside GTH is not counted.',
+              }
+            : b.title === 'Source'
+              ? {
+                  ...b,
+                  text: 'GTH profiles, assessment results, opportunities and applications. No survey data.',
+                }
+              : b
+    ),
+    dataLine: api.method.dataLine,
+    backTitle: 'Logged and aggregated',
+    backText:
+      'This report is built from the live GTH figures each time it opens. Every view is logged in your audit log.',
+    verifyUrl: typeof window !== 'undefined' ? `${window.location.host}/agency/report` : '',
+    showQr: false,
+    questions: api.method.questions,
+  },
+});

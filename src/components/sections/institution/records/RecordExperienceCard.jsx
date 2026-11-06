@@ -5,7 +5,7 @@ import RecordIcon from './RecordIcon.jsx';
 
 /* RecordExperienceCard — "Experience" (Figma 8593:773): 48px icon tile (blue / cream, 1.5px #1c2a21), role 16/600, meta 13, body 14, tag chips, a #e6e6e6 divider between entries. Props: detail. */
 const RecordExperienceCard = ({ detail }) => (
-  <RecordCard id="record-experience" title="Experience" link="See all 2 →">
+  <RecordCard id="record-experience" title="Experience">
     <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
       {detail.experience.map((e, i) => (
         <li

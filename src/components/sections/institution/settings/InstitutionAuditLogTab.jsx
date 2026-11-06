@@ -1,68 +1,77 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { classNames } from '../../../../utils/classNames.js';
 import { debug } from '../../../../utils/debug.js';
+import { openApiFile } from '../../../../services/agency.api.js';
+import {
+  apiMessage,
+  institutionAudit,
+  institutionAuditExport,
+} from '../../../../services/institutionPortal.api.js';
 import InstitutionButton from '../InstitutionButton.jsx';
 import InstitutionAuditRow from './InstitutionAuditRow.jsx';
 import {
-  InstitutionSettingsClockIcon,
   InstitutionSettingsGridIcon,
   InstitutionSettingsListIcon,
 } from './institutionSettingsIcons.jsx';
-import {
-  AUDIT_BANNER,
-  AUDIT_KINDS,
-  AUDIT_PAGE_SIZE,
-  AUDIT_TABS,
-  AUDIT_TOTAL,
-  TOASTS,
-  buildAuditEvents,
-} from './data/institutionSettingsData.js';
+import { AUDIT_KINDS, AUDIT_TABS, TOASTS } from './data/institutionSettingsData.js';
 
 const log = debug('InstitutionAuditLogTab');
-
-const csvCell = (v) => `"${String(v).replace(/"/g, '""')}"`;
+const fmt = (n) => Number(n || 0).toLocaleString('en-GB');
 
 /*
- * InstitutionAuditLogTab — Figma 11.6.1g "Audit log" (8746:1175): heading + "2,946 events" pill, tabs All / Roster / Records / Credentials (counts),
- * filter chips All · Downloads · Requests, grid / list toggle, head-of-school banner, the event list. URL keys (own): view=all|roster|records|credentials
- * (default records = the drawn frame), kind=all|download|request, layout=grid, page=n. ⚠️ ASSUMPTIONS: events other than the 3 drawn are generated
- * samples; pagination, the grid layout and the "Export CSV" button (mock: downloads the filtered rows as a CSV file) are not drawn. The frame also holds
- * an invisible (opacity 0) "Next DPO report · 1 Nov" chip in the heading area: not rendered.
+ * InstitutionAuditLogTab — Figma 11.6.1g "Audit log" (8746:1175): heading + events pill, tabs All / Roster / Records / Credentials (counts), filter chips,
+ * grid / list toggle, the event list, pagination. Live: GET /institution/audit?tab&kind&page (the school's institutionActivity, newest first, 10 a page);
+ * "Export CSV" downloads the current tab (POST /institution/audit/export, itself logged). Records and Credentials fill in once those areas go live.
+ * The Figma head-of-school summary banner is left out: no summary is sent yet.
+ * URL keys (own): view=all|roster|records|credentials (default all), kind=all|download|request, layout=grid, page=n.
  * Props: data (useInstitutionState()), onToast(toast).
  */
 const InstitutionAuditLogTab = ({ data, onToast }) => {
-  const tab = AUDIT_TABS.find((t) => t.id === data.view)?.id ?? 'records';
+  const tab = AUDIT_TABS.find((t) => t.id === data.view)?.id ?? 'all';
   const kindParam = data.params.get('kind');
   const kind = AUDIT_KINDS.some((k) => k.id === kindParam) ? kindParam : 'all';
   const grid = data.params.get('layout') === 'grid';
-  const events = useMemo(() => buildAuditEvents(tab), [tab]);
-  const filtered = useMemo(
-    () => (kind === 'all' ? events : events.filter((e) => e.kind === kind)),
-    [events, kind]
-  );
-  const pages = Math.max(1, Math.ceil(filtered.length / AUDIT_PAGE_SIZE));
-  const page = Math.min(Math.max(1, Number(data.params.get('page')) || 1), pages);
-  const slice = filtered.slice((page - 1) * AUDIT_PAGE_SIZE, page * AUDIT_PAGE_SIZE);
-  const from = filtered.length ? (page - 1) * AUDIT_PAGE_SIZE + 1 : 0;
-  const to = Math.min(page * AUDIT_PAGE_SIZE, filtered.length);
+  const page = Math.max(1, Number(data.params.get('page')) || 1);
+  const [res, setRes] = useState(null);
+  const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
 
-  const exportCsv = () => {
-    log('export csv', { rows: filtered.length });
-    const lines = [
-      ['Event', 'Details', 'Rows', 'Day'],
-      ...filtered.map((e) => [e.title, e.meta, e.rows, e.day]),
-    ];
-    const blob = new Blob([lines.map((l) => l.map(csvCell).join(',')).join('\n')], {
-      type: 'text/csv',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `audit-log-${tab}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    onToast(TOASTS.exported);
+  const load = useCallback(async () => {
+    setError('');
+    try {
+      setRes(await institutionAudit({ tab, kind, page }));
+    } catch (err) {
+      setError(apiMessage(err));
+    }
+  }, [tab, kind, page]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const file = await institutionAuditExport(tab);
+      openApiFile(file);
+      log('export', { tab, rows: file.rows });
+      onToast({
+        ...TOASTS.exported,
+        body: `${file.fileName} · ${file.rows} events. The export itself is logged.`,
+      });
+      load();
+    } catch (err) {
+      onToast({ ...TOASTS.failed, body: apiMessage(err) });
+    } finally {
+      setExporting(false);
+    }
   };
+
+  const items = res?.items ?? [];
+  const total = res?.total ?? 0;
+  const pages = res?.pages ?? 1;
+  const from = total ? (page - 1) * 10 + 1 : 0;
+  const to = Math.min(page * 10, total);
 
   return (
     <div className="flex flex-col gap-[18px] pt-[clamp(0px,0.93vw,16px)]">
@@ -73,7 +82,7 @@ const InstitutionAuditLogTab = ({ data, onToast }) => {
               Audit log
             </h1>
             <span className="rounded-full bg-[#ebf1ec] px-[11px] py-[5px] text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
-              {AUDIT_TOTAL}
+              {res ? `${fmt(res.tabs.all)} events` : '…'}
             </span>
           </div>
           <p className="m-0 text-[16px] leading-[24px] tracking-[0.2px] text-[#737373] max-sm:text-[14px]">
@@ -81,8 +90,8 @@ const InstitutionAuditLogTab = ({ data, onToast }) => {
             edit or delete it.
           </p>
         </div>
-        <InstitutionButton size="sm" onClick={exportCsv}>
-          Export CSV
+        <InstitutionButton size="sm" onClick={exportCsv} disabled={exporting}>
+          {exporting ? 'Preparing…' : 'Export CSV'}
         </InstitutionButton>
       </div>
 
@@ -112,7 +121,7 @@ const InstitutionAuditLogTab = ({ data, onToast }) => {
                   t.accent && active ? 'bg-[#c8951a] text-white' : 'bg-[#ebf1ec] text-[#2d5d33]'
                 )}
               >
-                {t.countLabel}
+                {res ? fmt(res.tabs[t.id]) : '…'}
               </span>
             </button>
           );
@@ -172,13 +181,22 @@ const InstitutionAuditLogTab = ({ data, onToast }) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-[14px] rounded-[20px] border border-[#eedeb8] bg-[#faf4e8] py-[14px] pr-[14px] pl-[18px]">
-        <InstitutionSettingsClockIcon className="size-[18px] shrink-0 text-[#967014]" />
-        <p className="m-0 text-[14px] leading-[17px] font-medium text-[#1c2a21]">{AUDIT_BANNER}</p>
-      </div>
-
       <div id="audit-panel" role="tabpanel" aria-labelledby={`audit-tab-${tab}`}>
-        {slice.length ? (
+        {error ? (
+          <p
+            role="alert"
+            className="m-0 rounded-[22px] border border-[#ebc2bd] bg-[#f9ebea] p-[24px] text-[14px] text-[#902b20]"
+          >
+            Could not load the audit log: {error}{' '}
+            <button type="button" className="cursor-pointer font-semibold underline" onClick={load}>
+              Try again
+            </button>
+          </p>
+        ) : !res ? (
+          <p className="m-0 rounded-[22px] border border-[#e1eae2] bg-white p-[24px] text-[14px] text-[#595959]">
+            Loading…
+          </p>
+        ) : items.length ? (
           <ul
             className={classNames(
               'm-0 list-none p-0',
@@ -187,18 +205,20 @@ const InstitutionAuditLogTab = ({ data, onToast }) => {
                 : 'overflow-hidden rounded-[22px] border border-[#e1eae2] bg-white'
             )}
           >
-            {slice.map((e) => (
+            {items.map((e) => (
               <InstitutionAuditRow key={e.id} event={e} grid={grid} />
             ))}
           </ul>
         ) : (
           <p className="m-0 rounded-[22px] border border-[#e1eae2] bg-white p-[24px] text-[14px] text-[#595959]">
-            No events match this filter.
+            {tab === 'records' || tab === 'credentials'
+              ? 'Nothing here yet. Record decisions and credentials show up once those areas are live.'
+              : 'No events match this filter.'}
           </p>
         )}
         <div className="flex flex-wrap items-center justify-between gap-[12px] pt-[14px]">
           <p role="status" className="m-0 text-[14px] leading-[20px] text-[#737373]">
-            Showing {from} to {to} of {filtered.length.toLocaleString('en-GB')} events
+            Showing {from} to {to} of {fmt(total)} events
           </p>
           <div className="flex items-center gap-[8px]">
             <InstitutionButton

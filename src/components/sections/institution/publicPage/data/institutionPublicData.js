@@ -1,68 +1,30 @@
 /*
- * institutionPublicData.js — MOCK data of the public institution page (Figma 11.6.1h, 8746:1675). Shaped like the future GET /institutions/:slug response.
- * Aggregates only: no student records appear on this page; counts go through formatCount at the call site. ⚠️ ASSUMPTION: all values are mock
- * (website and contact address included).
+ * institutionPublicData.js — fixed copy of the institution page preview (Figma 11.6.1h, 8746:1675). The school's own content comes live from the
+ * public endpoint GET /institution-public/:slug (backend institutionPublic.service.js): profile, aggregate counts and programmes. No student
+ * records appear on this page; counts go through formatCount at the call site (1 = "<5").
  */
-export const PUBLIC_INSTITUTION = {
-  slug: 'savannah-hills-shs',
-  monogram: 'SH',
-  type: 'Senior High School · GES accredited',
-  name: 'Savannah Hills Senior High School',
-  about:
-    'A public senior high school in Tamale offering science, business, technical and arts programmes. On GTH since September 2026.',
-  website: 'https://savannahhills.edu.gh',
-  contactEmail: 'registrar@savannahhills.edu.gh',
+export const PUBLIC_PAGE_COPY = {
   hero: {
     title: 'Your institution page',
     subtitle:
       'What students, recruiters and the public see in the institution directory. No student records appear here.',
   },
   breadcrumb: ['Directory', 'Institutions'],
-  impact: {
-    title: 'Programmes through GTH',
-    hint: 'Aggregated · since October 2026',
-    tiles: [
-      { id: 'students', value: 847, label: 'Students on GTH' },
-      { id: 'credentials', value: 312, label: 'Credentials issued' },
-      { id: 'placed', value: 186, label: 'Placed after school' },
-      { id: 'girls', value: '52%', label: 'Girls on the roster' },
-    ],
-  },
-  programmes: {
-    title: 'Programmes on GTH',
-    hint: '3 active',
-    items: [
-      {
-        id: 'holiday-internships',
-        title: 'Form 3 Holiday Internships',
-        summary: '6-week placements with local businesses',
-        status: 'Open · Form 3',
-      },
-      {
-        id: 'scholarship-2027',
-        title: 'Scholarship Nominations 2027',
-        summary: 'Nominations to 4 partner universities',
-        status: 'Opens 1 December',
-      },
-      {
-        id: 'coding-club',
-        title: 'Coding Club Bootcamp',
-        summary: '8-week coding club with Kumasi Hive',
-        status: 'Applications close 30 Nov',
-      },
-    ],
-  },
-  reach: { title: 'Where we are', caption: 'Tamale · Northern Region' },
-  open: {
-    title: 'Open programmes',
-    items: [
-      {
-        id: 'holiday-internships',
-        title: 'Form 3 Holiday Internships',
-        meta: 'Internship · closes 30 Nov',
-      },
-      { id: 'coding-club', title: 'Coding Club Bootcamp', meta: 'Club · closes 30 Nov' },
-    ],
-    all: 'See all programmes →',
-  },
+  impactTitle: 'Programmes through GTH',
+  programmesTitle: 'Programmes on GTH',
+  noProgrammes: 'No programmes published yet. Programmes you publish to your students show here.',
+  reachTitle: 'Where we are',
+  openTitle: 'Open programmes',
+  noOpen: 'No programme is open right now.',
+  all: 'See all programmes →',
+  notPublic:
+    'Your page goes public once your accreditation is approved and the account is not paused. Until then nobody else can see it.',
 };
+
+/** "Greater Accra" → "greater-accra" (the region ids of the Ghana map geometry). */
+export const regionIdOf = (name) =>
+  String(name || '')
+    .toLowerCase()
+    .replace(/\bregion\b/g, '')
+    .trim()
+    .replace(/\s+/g, '-');

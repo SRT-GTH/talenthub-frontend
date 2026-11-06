@@ -7,8 +7,6 @@ import AccountSuspendDialog from '../../components/sections/admin/accounts/Accou
 import AdminAccountDetail from '../../components/sections/admin/accounts/AdminAccountDetail.jsx';
 import AdminQueueView from '../../components/sections/admin/queue/AdminQueueView.jsx';
 import AdminActionsMenu from '../../components/sections/admin/accounts/AdminActionsMenu.jsx';
-import AdminMergeView from '../../components/sections/admin/accounts/AdminMergeView.jsx';
-import { BLOCKED, PARENT } from '../../components/sections/admin/accounts/data/adminMergeData.js';
 import {
   ACCOUNT_CHIPS,
   ACCOUNT_TABS,
@@ -49,8 +47,8 @@ const log = debug('AdminAccountsPage');
  *   detail  GET /admin/accounts/:id (user _id) + GET /audit/entity/:entityId (recent activity)
  *   actions POST /admin/lifecycle/:id/{suspend | unsuspend | delete | cancel-delete | override | reverse-override}, POST /admin/lifecycle/merge
  * URL states: ?q= search · ?tab=all|talents|orgs|staff · ?chip=all|active|suspended · ?modal=actions|suspend|reactivate|delete|override|merge|cancel-delete|reverse
- * Role gates come from the backend (403 shows a notice). The /merge screen is still the design mock: the backend merge takes two ids and a reason only
- * (no field-by-field choice), so real merges go through the "Merge duplicates" dialog.
+ * Role gates come from the backend (403 shows a notice). The backend merge takes two ids and a reason only (no field-by-field choice), so
+ * /admin/accounts/merge opens the list with the "Merge duplicates" dialog (the Figma 7.1.5 field picker is not built).
  */
 
 const LIMIT = 200;
@@ -65,17 +63,22 @@ const listFor = async ({ tab, q, status }) => {
       ? recs.filter((r) =>
           [r.email, r.username, r.metadata?.displayName, r.firstName, r.lastName]
             .filter(Boolean)
-            .some((v) => String(v).toLowerCase().includes(n)),
+            .some((v) => String(v).toLowerCase().includes(n))
         )
       : recs;
   }
-  const res = await searchAccounts({ limit: LIMIT, searchQuery: q.trim() || undefined, accountType: t.accountType, status });
+  const res = await searchAccounts({
+    limit: LIMIT,
+    searchQuery: q.trim() || undefined,
+    accountType: t.accountType,
+    status,
+  });
   return res?.records ?? [];
 };
 
 const settledCount = (p) => p.then((r) => r.length).catch(() => null);
 
-const AccountsList = ({ data, role }) => {
+const AccountsList = ({ data, role, openMerge = false, onMergeClosed }) => {
   const navigate = useNavigate();
   const tab = data.tab ?? 'all';
   const chip = data.params.get('chip') ?? 'all';
@@ -83,19 +86,22 @@ const AccountsList = ({ data, role }) => {
   const q = data.q;
   const [toastEl, toast] = useAdminToast();
   const [reactivate, setReactivate] = useState(null);
-  const [merge, setMerge] = useState(false);
+  const [merge, setMerge] = useState(openMerge);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
   const list = useAdminData(() => listFor({ tab, q, status }), [tab, q, status]);
   const counts = useAdminData(async () => {
     const [all, talents, orgs, staff] = await Promise.all(
-      ACCOUNT_TABS.map((t) => settledCount(listFor({ tab: t.id, q, status }))),
+      ACCOUNT_TABS.map((t) => settledCount(listFor({ tab: t.id, q, status })))
     );
     const chips = await Promise.all(
-      ACCOUNT_CHIPS.map((c) => settledCount(listFor({ tab, q, status: c.status }))),
+      ACCOUNT_CHIPS.map((c) => settledCount(listFor({ tab, q, status: c.status })))
     );
-    return { tabs: { all, talents, orgs, staff }, chips: Object.fromEntries(ACCOUNT_CHIPS.map((c, i) => [c.id, chips[i]])) };
+    return {
+      tabs: { all, talents, orgs, staff },
+      chips: Object.fromEntries(ACCOUNT_CHIPS.map((c, i) => [c.id, chips[i]])),
+    };
   }, [q, status, tab]);
 
   const rows = useMemo(() => (list.data ?? []).map(accountRow), [list.data]);
@@ -128,8 +134,15 @@ const AccountsList = ({ data, role }) => {
     <>
       {list.loading || list.error ? (
         <div className="flex flex-col gap-[16px] pt-[4px]">
-          <h1 className="m-0 font-sans text-[34px] leading-[41px] font-semibold text-[#1c2a21]">Accounts</h1>
-          <AdminLoadNotice loading={list.loading} error={list.error} status={list.status} onRetry={list.reload} />
+          <h1 className="m-0 font-sans text-[34px] leading-[41px] font-semibold text-[#1c2a21]">
+            Accounts
+          </h1>
+          <AdminLoadNotice
+            loading={list.loading}
+            error={list.error}
+            status={list.status}
+            onRetry={list.reload}
+          />
         </div>
       ) : (
         <AdminQueueView
@@ -156,13 +169,19 @@ const AccountsList = ({ data, role }) => {
         <MergeDialog
           busy={busy}
           error={err}
-          onClose={() => setMerge(false)}
+          onClose={() => {
+            setMerge(false);
+            onMergeClosed?.();
+          }}
           onSubmit={async (p) => {
             setBusy(true);
             setErr('');
             try {
               await mergeAccounts(p.primary, p.secondary, p.reason);
-              toast('Accounts merged', 'The duplicate is now inactive and points to the kept account.');
+              toast(
+                'Accounts merged',
+                'The duplicate is now inactive and points to the kept account.'
+              );
               setMerge(false);
               navigate(`/admin/accounts/${p.primary}`);
             } catch (e) {
@@ -182,19 +201,36 @@ const MergeDialog = ({ primaryId = '', busy, error, onClose, onSubmit }) => {
   const [primary, setPrimary] = useState(primaryId);
   const [secondary, setSecondary] = useState('');
   const [reason, setReason] = useState('');
-  const ok = /^[a-f0-9]{24}$/i.test(primary.trim()) && /^[a-f0-9]{24}$/i.test(secondary.trim()) && reason.trim().length >= 3;
+  const ok =
+    /^[a-f0-9]{24}$/i.test(primary.trim()) &&
+    /^[a-f0-9]{24}$/i.test(secondary.trim()) &&
+    reason.trim().length >= 3;
   return (
     <AdminConfirmDialog
       title="Merge duplicate accounts"
       body="The duplicate is marked inactive and linked to the account you keep. Staff accounts can’t be merged. Paste both account ids (from the account page)."
       primary={{ label: busy ? 'Merging…' : 'Merge', arrow: true }}
       secondary="Cancel"
-      onPrimary={() => ok && !busy && onSubmit({ primary: primary.trim(), secondary: secondary.trim(), reason: reason.trim() })}
+      onPrimary={() =>
+        ok &&
+        !busy &&
+        onSubmit({ primary: primary.trim(), secondary: secondary.trim(), reason: reason.trim() })
+      }
       onClose={onClose}
     >
       <div className="flex flex-col gap-[12px]">
-        <TextInput label="Account to keep (id)" required value={primary} onChange={(e) => setPrimary(e.target.value)} />
-        <TextInput label="Duplicate to retire (id)" required value={secondary} onChange={(e) => setSecondary(e.target.value)} />
+        <TextInput
+          label="Account to keep (id)"
+          required
+          value={primary}
+          onChange={(e) => setPrimary(e.target.value)}
+        />
+        <TextInput
+          label="Duplicate to retire (id)"
+          required
+          value={secondary}
+          onChange={(e) => setSecondary(e.target.value)}
+        />
         <TextInput
           label="Reason (logged)"
           required
@@ -219,7 +255,9 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
   // Lifecycle actions log the user id, other services the entity id: load both, newest first, without the "viewed" noise.
   const activity = useAdminData(async () => {
     const ids = [...new Set([String(entityId || ''), String(accountId)].filter(Boolean))];
-    const res = await Promise.all(ids.map((x) => accountActivity(x).catch(() => ({ records: [] }))));
+    const res = await Promise.all(
+      ids.map((x) => accountActivity(x).catch(() => ({ records: [] })))
+    );
     const seen = new Set();
     const records = res
       .flatMap((r) => r?.records ?? [])
@@ -260,7 +298,11 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
     try {
       const res = await fn();
       if (res?.requiresApproval) {
-        toast('Sent for approval', res.message || 'A Senior Admin must approve this suspension.', 'info');
+        toast(
+          'Sent for approval',
+          res.message || 'A Senior Admin must approve this suspension.',
+          'info'
+        );
       } else if (success) {
         toast(...success);
       }
@@ -277,7 +319,12 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
   if (acc.loading || acc.error) {
     return (
       <div className="flex flex-col gap-[16px] pt-[12px]">
-        <AdminLoadNotice loading={acc.loading} error={acc.error} status={acc.status} onRetry={acc.reload} />
+        <AdminLoadNotice
+          loading={acc.loading}
+          error={acc.error}
+          status={acc.status}
+          onRetry={acc.reload}
+        />
         <button
           type="button"
           onClick={() => navigate('/admin/accounts')}
@@ -306,9 +353,13 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           setReverseIndex(i);
           pick('reverse');
         }}
-        onActivity={() => navigate(`/admin/audit-log?q=${encodeURIComponent(String(entityId || id))}`)}
+        onActivity={() =>
+          navigate(`/admin/audit-log?q=${encodeURIComponent(String(entityId || id))}`)
+        }
       />
-      {modal === 'actions' ? <AdminActionsMenu allowed={allowed} onPick={pick} onClose={close} /> : null}
+      {modal === 'actions' ? (
+        <AdminActionsMenu allowed={allowed} onPick={pick} onClose={close} />
+      ) : null}
       {modal === 'suspend' ? (
         <AccountSuspendDialog
           name={account.name}
@@ -316,10 +367,10 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onSubmit={({ duration, reason, silent }) =>
-            act(() => suspendAccount(id, { reason, suspendUntil: suspendUntil(duration), silent }), [
-              'Account suspended',
-              `${account.name} is signed out and can’t sign in.`,
-            ])
+            act(
+              () => suspendAccount(id, { reason, suspendUntil: suspendUntil(duration), silent }),
+              ['Account suspended', `${account.name} is signed out and can’t sign in.`]
+            )
           }
         />
       ) : null}
@@ -330,7 +381,11 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           primary={{ label: busy ? 'Reactivating…' : 'Reactivate', arrow: true }}
           secondary="Cancel"
           onPrimary={() =>
-            !busy && act(() => unsuspendAccount(id, 'Reactivated by staff'), ['Account reactivated', `${account.name} can sign in again.`])
+            !busy &&
+            act(
+              () => unsuspendAccount(id, 'Reactivated by staff'),
+              ['Account reactivated', `${account.name} can sign in again.`]
+            )
           }
           onClose={close}
         >
@@ -344,10 +399,13 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onSubmit={(reason) =>
-            act(() => deleteAccount(id, reason), [
-              'Deletion requested',
-              'The account is hidden. A second Super Admin must approve the purge.',
-            ])
+            act(
+              () => deleteAccount(id, reason),
+              [
+                'Deletion requested',
+                'The account is hidden. A second Super Admin must approve the purge.',
+              ]
+            )
           }
         />
       ) : null}
@@ -360,7 +418,10 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onSubmit={(reason) =>
-            act(() => cancelDeleteAccount(id, reason), ['Deletion cancelled', `${account.name}’s account is restored.`])
+            act(
+              () => cancelDeleteAccount(id, reason),
+              ['Deletion cancelled', `${account.name}’s account is restored.`]
+            )
           }
         />
       ) : null}
@@ -371,7 +432,12 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onHistory={close}
-          onSubmit={(p) => act(() => overrideField(id, p), ['Field updated', 'The old value is kept in the admin history.'])}
+          onSubmit={(p) =>
+            act(
+              () => overrideField(id, p),
+              ['Field updated', 'The old value is kept in the admin history.']
+            )
+          }
         />
       ) : null}
       {modal === 'reverse' && reverseIndex != null ? (
@@ -383,7 +449,10 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onSubmit={(reason) =>
-            act(() => reverseOverride(id, reverseIndex, reason), ['Override reversed', 'The previous value is restored.'])
+            act(
+              () => reverseOverride(id, reverseIndex, reason),
+              ['Override reversed', 'The previous value is restored.']
+            )
           }
         />
       ) : null}
@@ -394,10 +463,10 @@ const AccountDetailScreen = ({ data, role, accountId }) => {
           error={err}
           onClose={close}
           onSubmit={(p) =>
-            act(() => mergeAccounts(p.primary, p.secondary, p.reason), [
-              'Accounts merged',
-              'The duplicate is now inactive and points to this account.',
-            ])
+            act(
+              () => mergeAccounts(p.primary, p.secondary, p.reason),
+              ['Accounts merged', 'The duplicate is now inactive and points to this account.']
+            )
           }
         />
       ) : null}
@@ -436,44 +505,20 @@ const AdminAccountsPage = () => {
   const { pathname } = useLocation();
   const merge = pathname.endsWith('/accounts/merge');
   const modal = data.modal;
-  const [parentLink, setParentLink] = useState(PARENT.options[0]);
 
   useEffect(() => {
     log('mount', { accountId, merge, q: data.q, modal, role });
   }, [accountId, merge, data.q, modal, role]);
 
-  const close = () => data.update({ modal: null });
-
   if (merge) {
-    const minors = data.view === 'minors';
     return (
-      <AdminFrame data={data} title="Merge accounts">
-        <AdminMergeView variant={minors ? 'minors' : 'adults'} onMerge={() => data.update({ modal: minors ? 'parent' : 'blocked' })} />
-        {modal === 'blocked' ? (
-          <AdminConfirmDialog
-            title={BLOCKED.title}
-            body={BLOCKED.body}
-            primary={{ label: BLOCKED.primary, tone: 'red' }}
-            secondary={BLOCKED.secondary}
-            onPrimary={() => navigate('/admin/comms/message?to=finance')}
-            onClose={close}
-          />
-        ) : null}
-        {modal === 'parent' ? (
-          <AdminConfirmDialog
-            title={PARENT.title}
-            body={PARENT.body}
-            primary={{ label: PARENT.primary, arrow: true }}
-            secondary={PARENT.secondary}
-            onPrimary={() => {
-              log('merge minors with the chosen parent link (design mock)', parentLink);
-              close();
-            }}
-            onClose={close}
-          >
-            <Select label={PARENT.label} required options={PARENT.options} value={parentLink} onChange={setParentLink} />
-          </AdminConfirmDialog>
-        ) : null}
+      <AdminFrame data={data} title="Accounts">
+        <AccountsList
+          data={data}
+          role={role}
+          openMerge
+          onMergeClosed={() => navigate('/admin/accounts')}
+        />
       </AdminFrame>
     );
   }

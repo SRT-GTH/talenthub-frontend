@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { agencyOverview } from '../../../../services/agency.api.js';
 import { debug } from '../../../../utils/debug.js';
 import {
   parseQueryFilters,
-  runQuery,
+  queryApiParams,
   serialiseExtras,
+  toQueryResult,
   QUERY_FILTER_KEYS,
 } from '../data/queriesData.js';
 
@@ -18,8 +20,50 @@ const log = debug('useQueryPage');
  *   state=results|zero        results = the query was built (summary pills); zero = the forced "no results" frame
  *   menu=region               the Region menu is open (so the frame 11.5.1a is a URL)
  *   modal=save-query|export|filters
- * Returns { filters, result, announce, actions }.
+ * The figures are live: GET /agency/overview with the five keys and ?x= (the server applies the extras it can; groups under 5 come back
+ * suppressed). The previous result stays on screen while a new one loads.
+ * Returns { filters, result, loading, error, retry, actions }.
  */
+
+const EMPTY_OVERVIEW = {
+  count: 0,
+  state: 'loading',
+  regions: [],
+  interests: { aside: '', rows: [] },
+  education: [],
+  ages: [],
+  capabilities: [],
+  gender: [],
+  kpis: {},
+};
+
+/** Live overview of a filter set ({ overview, loading, error, retry }). */
+export const useLiveOverview = (filters) => {
+  const params = queryApiParams(filters);
+  const key = JSON.stringify(params);
+  const [res, setRes] = useState({ key: null, overview: null, error: null });
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let live = true;
+    agencyOverview(JSON.parse(key))
+      .then((overview) => live && setRes({ key, overview, error: null }))
+      .catch((error) => {
+        log.error('overview failed', error?.response?.status || error?.message);
+        if (live) setRes((r) => ({ ...r, key, error }));
+      });
+    return () => {
+      live = false;
+    };
+  }, [key, attempt]);
+  const retry = useCallback(() => setAttempt((n) => n + 1), []);
+  return {
+    overview: res.overview || EMPTY_OVERVIEW,
+    loading: res.key !== key,
+    first: !res.overview,
+    error: res.key === key ? res.error : null,
+    retry,
+  };
+};
 
 const CLEAR_ALL = {
   ...Object.fromEntries(QUERY_FILTER_KEYS.map((k) => [k, null])),
@@ -33,9 +77,10 @@ const CLEAR_ALL = {
 export const useQueryPage = (data) => {
   const { params, update, state } = data;
   const filters = useMemo(() => parseQueryFilters(params), [params]);
+  const live = useLiveOverview(filters);
   const result = useMemo(
-    () => runQuery(filters, { forceZero: state === 'zero' }),
-    [filters, state]
+    () => toQueryResult(filters, live.overview, { forceZero: state === 'zero' }),
+    [filters, live.overview, state]
   );
 
   useEffect(() => {
@@ -104,5 +149,14 @@ export const useQueryPage = (data) => {
     [filters, freeze, update]
   );
 
-  return { filters, result, actions };
+  return {
+    filters,
+    result,
+    loading: live.loading,
+    first: live.first,
+    error: live.error,
+    retry: live.retry,
+    overview: live.overview,
+    actions,
+  };
 };

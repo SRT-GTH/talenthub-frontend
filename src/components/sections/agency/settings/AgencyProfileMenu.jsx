@@ -17,7 +17,9 @@ import {
   ProfileMenuUserIcon,
   ProfileMenuVerifiedCheckIcon,
 } from '../../../shared/assets.jsx';
-import { ANALYSTS } from './data/agencySettingsData.js';
+import { agencyAnalysts } from '../../../../services/agency.api.js';
+import { logout } from '../../../../services/auth.api.js';
+import { useAgencyResource } from '../useAgencyResource.js';
 
 const log = debug('AgencyProfileMenu');
 
@@ -74,7 +76,7 @@ const FOOT =
  * agency + "MoU active"), your agency page / preview / analysts / MoU, Agency settings (highlighted as drawn), accessibility, language, help, feedback,
  * invite an analyst, log out, footer. Mounted by AgencyFrame while ?modal=profile. Keyboard: arrows / Home / End move, Esc closes, focus returns to the
  * element that opened it (the top-bar chip); outside click closes. ⚠️ ASSUMPTIONS: Accessibility / Language / Help set the chrome's inert ?modal= keys,
- * Send feedback / Privacy / Terms just close, Log out returns to /agency/sign-up (no real session).
+ * Send feedback / Privacy / Terms just close, Log out clears the session and goes to the sign-in page.
  * Props: data (useAgencyState()), session (useAgencySession()).
  */
 const AgencyProfileMenu = ({ data, session }) => {
@@ -83,7 +85,8 @@ const AgencyProfileMenu = ({ data, session }) => {
   const openerRef = useRef(null);
   const [hot, setHot] = useState('settings');
   const { analyst, agency, mou } = session;
-  const analystsActive = ANALYSTS.filter((a) => a.status === 'active').length;
+  const team = useAgencyResource(agencyAnalysts, []);
+  const analystsActive = (team.data?.items ?? []).filter((a) => a.status === 'active').length;
   const { update } = data;
 
   useEffect(() => {
@@ -254,7 +257,11 @@ const AgencyProfileMenu = ({ data, session }) => {
           {item('logout', {
             icon: <ProfileMenuLogoutIcon className="size-[20px]" />,
             label: 'Log out',
-            onActivate: () => go('/agency/sign-up'),
+            onActivate: () => {
+              log('log out');
+              logout();
+              window.location.assign('/login');
+            },
           })}
         </div>
 

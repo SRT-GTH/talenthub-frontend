@@ -8,17 +8,17 @@ import KpiTile from '../../publicData/ui/KpiTile.jsx';
 import AgencyButton from '../AgencyButton.jsx';
 import AgencyPageHero from '../AgencyPageHero.jsx';
 import {
-  DEFAULT_SORT,
-  SORTS,
-  getDistrictRegions,
-  getDistricts,
-  getRegionTotals,
-  districtsCsv,
-} from './data/districtsData.js';
+  agencyDistricts,
+  agencyDistrictsExport,
+  saveCsv,
+} from '../../../../services/agency.api.js';
+import { useAgencySessionState } from '../agencySessionStore.js';
+import { useAgencyResource } from '../useAgencyResource.js';
+import { DEFAULT_SORT, PAGE_SIZE, SORTS } from './data/districtsData.js';
 import { DistrictsCrumbChevronIcon } from './districtsIcons.jsx';
 import DistrictsTable from './DistrictsTable.jsx';
 import DistrictsToolbar from './DistrictsToolbar.jsx';
-import { GOVERNMENT_PAGE_TEXT } from '../../../../copy/portals/governmentCopy.js';
+import { GOVERNMENT_PAGE_TEXT, governmentPageText } from '../../../../copy/portals/governmentCopy.js';
 
 const log = debug('DistrictsView');
 
@@ -28,9 +28,9 @@ const log = debug('DistrictsView');
  * State lives in the URL (agencyState.js keys + three own ones): q=<text> · region=<region id> · sort=growth|assessment|placements|name (talents = absent)
  * · page=<n> (1 = absent) · view=map (table = absent). Changing q / region / sort goes back to page 1. All use replace so Back leaves the page.
  * Props: data (useAgencyState()).
- * ⚠️ ASSUMPTIONS (not drawn): the Map view (the shared Theme 8 "Regional distribution" card, shaded by the talents of each region's visible districts;
- *   its "View … details" opens the region page); the empty state (no match); the tiles follow the region filter but not the search text; the CSV is a mock
- *   file of every row matching the current filters.
+ * Live: GET /agency/districts (rows, KPI tiles, region chips, map totals); "Download CSV" is POST /agency/districts/export (every matching row,
+ *   logged, 1 CSV export of the MoU quota). ⚠️ ASSUMPTIONS (not drawn): the Map view (the shared Theme 8 "Regional distribution" card, shaded by the
+ *   talents of each region's visible districts); the empty state (no match); the tiles follow the region filter but not the search text.
  */
 
 const VALID_SORTS = SORTS.map((s) => s.id);
@@ -45,16 +45,39 @@ const DistrictsView = ({ data }) => {
   const view = data.view === 'map' ? 'map' : 'table';
   const pageParam = Number(params.get('page')) || 1;
   const [downloaded, setDownloaded] = useState('');
+  const [busy, setBusy] = useState(false);
+  const session = useAgencySessionState();
 
-  const { regions, total: allTotal } = useMemo(() => {
-    const r = getDistrictRegions();
-    return { regions: r.regions, total: r.total };
-  }, []);
-  const result = useMemo(
-    () => getDistricts({ region, sort, q, page: pageParam }),
+  const res = useAgencyResource(
+    () => agencyDistricts({ region, sort, q, page: pageParam, pageSize: PAGE_SIZE }),
     [region, sort, q, pageParam]
   );
-  const regionTotals = useMemo(() => getRegionTotals(), []);
+  const result = useMemo(
+    () =>
+      res.data || {
+        scope: { regionId: null, regionName: null },
+        summary: {
+          withTalents: 0,
+          of: 0,
+          hidden: 0,
+          fastest: null,
+          best: null,
+          nationalAssessment: 0,
+        },
+        items: [],
+        total: 0,
+        hidden: 0,
+        page: 1,
+        pages: 1,
+        from: 0,
+        to: 0,
+        regions: { total: 0, regions: [] },
+        regionTotals: [],
+      },
+    [res.data]
+  );
+  const regions = result.regions.regions;
+  const allTotal = result.regions.total;
 
   useEffect(() => {
     log('state', { region, sort, q, page: result.page, view, total: result.total });
@@ -73,18 +96,19 @@ const DistrictsView = ({ data }) => {
     [update]
   );
 
-  const download = () => {
-    const csv = districtsCsv({ region, sort, q });
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'districts.csv';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    log('csv downloaded', result.total);
-    setDownloaded(`Downloaded districts.csv with ${result.total} districts`);
+  const download = async () => {
+    setBusy(true);
+    try {
+      const out = await agencyDistrictsExport({ region, sort, q });
+      saveCsv(out.fileName, out.csv);
+      log('csv downloaded', out.rows);
+      setDownloaded(`Downloaded ${out.fileName} with ${out.rows} districts. The export is logged.`);
+      session?.reload?.();
+    } catch (err) {
+      setDownloaded(err?.response?.data?.message || err?.message || 'The download failed.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const { summary } = result;
@@ -94,10 +118,25 @@ const DistrictsView = ({ data }) => {
     <>
       <AgencyPageHero
         title={GOVERNMENT_PAGE_TEXT.districts.title}
-        subtitle={GOVERNMENT_PAGE_TEXT.districts.subtitle}
-        actions={<AgencyButton onClick={download}>Download CSV</AgencyButton>}
+        subtitle={governmentPageText(
+          'districts',
+          'subtitle',
+          `All ${allTotal || 261} districts across 16 regions. Pick one to see its talents, skills and outcomes. Counts under 5 are hidden.`
+        )}
+        actions={
+          <AgencyButton onClick={download} disabled={busy || !result.total}>
+            {busy ? 'Preparing…' : 'Download CSV'}
+          </AgencyButton>
+        }
       />
-      <p role="status" className="sr-only">
+      <p
+        role="status"
+        className={
+          downloaded
+            ? 'm-0 rounded-[14px] bg-[#ebf1ec] px-[14px] py-[10px] font-sans text-[14px] text-[#1f4a2b]'
+            : 'sr-only'
+        }
+      >
         {downloaded}
       </p>
       <nav aria-label="Breadcrumb" className="font-sans">
@@ -157,9 +196,20 @@ const DistrictsView = ({ data }) => {
           sub="fewer than 5 talents each"
         />
       </KpiStrip>
-      {view === 'map' ? (
+      {res.error && !res.data ? (
+        <EmptyState
+          title="We couldn’t load the districts"
+          message="Check your connection and try again."
+          actionLabel="Try again"
+          onAction={res.reload}
+        />
+      ) : res.loading && !res.data ? (
+        <p role="status" className="m-0 p-[24px] font-sans text-[15px] text-[#737373]">
+          Loading districts…
+        </p>
+      ) : view === 'map' ? (
         <RegionalMapCard
-          regions={regionTotals}
+          regions={result.regionTotals}
           onOpenRegion={(id) => navigate(`/agency/regions/${id}`)}
           onCompare={() => navigate('/agency/compare')}
         />
@@ -181,6 +231,7 @@ const DistrictsView = ({ data }) => {
           total={result.total}
           onPage={onPage}
           sort={sort}
+          updated={result.asOf?.short}
         />
       )}
     </>

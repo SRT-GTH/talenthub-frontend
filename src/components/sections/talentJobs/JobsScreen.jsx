@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { classNames } from '../../../utils/classNames.js';
+import JobsMenu from './JobsMenu.jsx';
 import { debug } from '../../../utils/debug.js';
 import {
   JobArrowIcon,
@@ -217,13 +218,62 @@ const MatchedTab = ({ jobs, saved, toggle }) => {
   );
 };
 
+const LOCATION_OPTIONS = (place) => [
+  { id: 'any', label: 'Anywhere in Ghana' },
+  {
+    id: 'district',
+    label: place?.district ? `Near you · ${place.district}` : 'Near you',
+    disabled: !place?.district,
+  },
+  {
+    id: 'region',
+    label: place?.region ? `In ${place.region}` : 'In your region',
+    disabled: !place?.region,
+  },
+  { id: 'remote', label: 'Remote' },
+];
+const BROWSE_SORTS = [
+  { id: 'newest', label: 'Newest' },
+  { id: 'match', label: 'Best match' },
+  { id: 'closing', label: 'Closing soon' },
+];
+const distinct = (rows, key) => [...new Set(rows.map((r) => r[key]).filter(Boolean))].sort();
+
 const BrowseTab = ({ jobs, saved, toggle }) => {
   const [mine, setMine] = useState(false);
   const [query, setQuery] = useState('');
+  const [where, setWhere] = useState('any');
+  const [type, setType] = useState('any');
+  const [pay, setPay] = useState('any');
+  const [industry, setIndustry] = useState('any');
+  const [sort, setSort] = useState('newest');
   const q = query.trim().toLowerCase();
-  const rows = (mine ? BROWSE_ROWS.filter((r) => r.match) : BROWSE_ROWS).filter(
-    (r) => !q || `${r.title} ${r.meta}`.toLowerCase().includes(q)
-  );
+  const place = BROWSE_COPY.place;
+  const types = distinct(BROWSE_ROWS, 'typeLabel');
+  const industries = distinct(BROWSE_ROWS, 'industry');
+  const rows = (mine ? BROWSE_ROWS.filter((r) => r.match) : BROWSE_ROWS)
+    .filter((r) => !q || `${r.title} ${r.meta}`.toLowerCase().includes(q))
+    .filter((r) =>
+      where === 'any'
+        ? true
+        : where === 'district'
+          ? r.near === 'district'
+          : where === 'region'
+            ? r.near === 'district' || r.near === 'region'
+            : r.near === 'remote'
+    )
+    .filter((r) => type === 'any' || r.typeLabel === type)
+    .filter((r) => pay === 'any' || r.hasPay)
+    .filter((r) => industry === 'any' || r.industry === industry)
+    .sort((a, b) =>
+      sort === 'match'
+        ? (b.match || 0) - (a.match || 0)
+        : sort === 'closing'
+          ? (a.closesInDays ?? 9999) - (b.closesInDays ?? 9999)
+          : String(b.posted || '').localeCompare(String(a.posted || ''))
+    );
+  const filtered =
+    where !== 'any' || type !== 'any' || pay !== 'any' || industry !== 'any' || mine || q;
   const open = (r) => jobs.update({ job: r.id });
   return (
     <>
@@ -239,16 +289,61 @@ const BrowseTab = ({ jobs, saved, toggle }) => {
             className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[13px] text-[#1c2a21] outline-none placeholder:text-[#999999] max-lg:text-[14px]"
           />
         </label>
-        {BROWSE_COPY.filters.map((f) => (
-          <Chip key={f}>{f}</Chip>
-        ))}
+        <JobsMenu
+          label={
+            where === 'any' ? 'Location' : LOCATION_OPTIONS(place).find((o) => o.id === where).label
+          }
+          value={where}
+          active={where !== 'any'}
+          options={LOCATION_OPTIONS(place)}
+          onChange={setWhere}
+          hint={place?.district ? null : 'Add your district to your profile to see roles near you.'}
+        />
+        {types.length ? (
+          <JobsMenu
+            label={type === 'any' ? 'Job type' : type}
+            value={type}
+            active={type !== 'any'}
+            options={[{ id: 'any', label: 'Any type' }, ...types.map((t) => ({ id: t, label: t }))]}
+            onChange={setType}
+          />
+        ) : null}
+        <JobsMenu
+          label={pay === 'any' ? 'Pay' : 'Pay listed'}
+          value={pay}
+          active={pay !== 'any'}
+          options={[
+            { id: 'any', label: 'Any' },
+            { id: 'listed', label: 'Pay listed', note: 'Only roles that show their pay' },
+          ]}
+          onChange={setPay}
+        />
+        {industries.length ? (
+          <JobsMenu
+            label={industry === 'any' ? 'Industry' : industry}
+            value={industry}
+            active={industry !== 'any'}
+            options={[
+              { id: 'any', label: 'Any industry' },
+              ...industries.map((t) => ({ id: t, label: t })),
+            ]}
+            onChange={setIndustry}
+          />
+        ) : null}
         <ViewToggle view={jobs.view} onView={(v) => jobs.update({ view: v })} />
-        <SortSelect label={SORTS.browse} />
+        <JobsMenu
+          shape="sort"
+          align="right"
+          label={BROWSE_SORTS.find((o) => o.id === sort).label}
+          value={sort}
+          options={BROWSE_SORTS}
+          onChange={setSort}
+        />
         <AlertsButton onClick={() => jobs.update({ modal: 'alerts' })} />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-[10px]">
         <span className="font-sans text-[14px] leading-[normal] font-semibold text-[#1c2a21]">
-          {BROWSE_COPY.count}
+          {filtered ? `${rows.length} of ${BROWSE_COPY.count}` : BROWSE_COPY.count}
         </span>
         <label className="flex cursor-pointer items-center gap-[8px] font-sans text-[12.5px] text-[#595959]">
           {BROWSE_COPY.onlyMine}

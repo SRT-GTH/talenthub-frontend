@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { classNames } from '../../../utils/classNames.js';
 import { debug } from '../../../utils/debug.js';
 import DashboardPageBackground from '../dashboard/DashboardPageBackground.jsx';
+import { adminA11yAttrs, useAdminA11y } from '../admin/chrome/useAdminA11y.js';
+import '../../../styles/adminA11y.css';
 import InstitutionBuddyFab from './InstitutionBuddyFab.jsx';
 import InstitutionSidebar from './InstitutionSidebar.jsx';
 import InstitutionTopBar from './InstitutionTopBar.jsx';
@@ -10,6 +12,9 @@ import { activeNavId } from './institutionNav.js';
 import { useInstitutionSession } from './useInstitutionSession.js';
 
 const InstitutionProfileMenu = lazy(() => import('./settings/InstitutionProfileMenu.jsx'));
+const InstitutionNotificationsPanel = lazy(() => import('./InstitutionNotificationsPanel.jsx'));
+const InstitutionTopPanels = lazy(() => import('./InstitutionTopPanels.jsx'));
+const TOP_PANELS = ['help', 'language', 'a11y'];
 
 const log = debug('InstitutionFrame');
 
@@ -23,7 +28,9 @@ const log = debug('InstitutionFrame');
  * defaults from the pathname), children, noFooter (kept for parity with PublicDataFrame: the institution chrome has no footer), className.
  * Children are laid out as a column with a 30px gap (16px on phones) under a 16px top padding; wrap content in ONE element for another layout.
  * The page behind is the shared dashboard background (grid + 3 blurred ellipses). Modals are mounted by the pages that draw them, keyed on data.modal;
- * only ?modal=profile is mounted here (package E's InstitutionProfileMenu (11.6.0a)).
+ * ?modal=profile (package E's InstitutionProfileMenu (11.6.0a)), ?modal=notifications (the bell's InstitutionNotificationsPanel) and
+ * ?modal=help | language | a11y (InstitutionTopPanels) are mounted here. The accessibility preferences (text size, contrast, motion, links)
+ * are the admin ones (useAdminA11y, saved per browser), applied as data-admin-* attributes on this root.
  */
 
 const InstitutionFrame = ({ data, title = 'Institution', active, children, className }) => {
@@ -34,6 +41,7 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
   const menuButtonRef = useRef(null);
   const drawerRef = useRef(null);
   const wasOpen = useRef(false);
+  const [a11y] = useAdminA11y();
 
   useEffect(() => {
     log('mount', { pathname, rail, drawer, activeId, verify: session.verify.status });
@@ -65,6 +73,7 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
   return (
     <div
       data-institution=""
+      {...adminA11yAttrs(a11y)}
       className={classNames('relative min-h-dvh bg-white font-sans text-[#1c2a21]', className)}
     >
       <DashboardPageBackground className="z-0" />
@@ -79,6 +88,8 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
           session={session}
           data={data}
           modalOpen={data.modal === 'profile'}
+          notificationsOpen={data.modal === 'notifications'}
+          openModal={data.modal}
           menuButtonRef={menuButtonRef}
         />
         <div className="flex min-h-0 flex-1">
@@ -145,6 +156,23 @@ const InstitutionFrame = ({ data, title = 'Institution', active, children, class
       {data.modal === 'profile' ? (
         <Suspense fallback={null}>
           <InstitutionProfileMenu data={data} session={session} />
+        </Suspense>
+      ) : null}
+      {TOP_PANELS.includes(data.modal) ? (
+        <Suspense fallback={null}>
+          <InstitutionTopPanels
+            modal={data.modal}
+            onClose={() => update({ modal: null })}
+            session={session}
+          />
+        </Suspense>
+      ) : null}
+      {data.modal === 'notifications' ? (
+        <Suspense fallback={null}>
+          <InstitutionNotificationsPanel
+            onClose={() => update({ modal: null })}
+            onChanged={() => session.reload?.()}
+          />
         </Suspense>
       ) : null}
     </div>
