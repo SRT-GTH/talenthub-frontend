@@ -185,12 +185,13 @@ const WorkspaceSidebar = ({
             <span className="font-sans text-[12px] leading-[20px] font-semibold tracking-[0.1px] text-[#2a5730]">
               {S.plan.title}
             </span>
-            <button
-              type="button"
+            {/* Upgrade -> Settings > Plan and billing (Figma "Recruiter - Settings & Account" SR-11); the rail itself draws no link ⚠️ ASSUMPTION */}
+            <Link
+              to="/recruiter/settings?tab=billing"
               className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#387440] underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
             >
               {S.plan.upgrade}
-            </button>
+            </Link>
           </div>
           {S.plan.usage.map((row) => (
             <div key={row.id} className="flex flex-col gap-[4px]">

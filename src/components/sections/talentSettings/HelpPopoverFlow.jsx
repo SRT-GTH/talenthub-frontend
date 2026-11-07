@@ -207,7 +207,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close, data = TALENT_DAT
                 size="md"
                 className="min-w-px flex-1"
                 icon={<img src={iconBulb} alt="" aria-hidden="true" className="size-[20px]" />}
-                onClick={() => log('ask buddy')}
+                onClick={() => (data.onAsk ? data.onAsk() : log('ask buddy'))}
               >
                 {copy.buddy}
               </HelpButton>
@@ -245,7 +245,11 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close, data = TALENT_DAT
               <span className="min-w-px flex-1 font-sans text-[13px] font-medium leading-[1.2] text-[#1c2a21]">
                 {copy.notFound}
               </span>
-              <HelpButton tone="primary" size="sm" onClick={() => log('ask buddy')}>
+              <HelpButton
+                tone="primary"
+                size="sm"
+                onClick={() => (data.onAsk ? data.onAsk() : log('ask buddy'))}
+              >
                 {copy.buddy}
               </HelpButton>
             </div>
@@ -272,7 +276,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close, data = TALENT_DAT
                 size="md"
                 className="min-w-px flex-1"
                 icon={<img src={iconBulb} alt="" aria-hidden="true" className="size-[20px]" />}
-                onClick={() => log('ask buddy')}
+                onClick={() => (data.onAsk ? data.onAsk() : log('ask buddy'))}
               >
                 {copy.buddy}
               </HelpButton>

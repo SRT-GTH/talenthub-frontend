@@ -1,3 +1,7 @@
+## [2026-11-07] fix | Recruiter Settings: buttons that had no destination re-checked against the whole Figma file
+
+The Settings canvas draws no prototype links (all `ON_CLICK` reactions have a null target), so the other recruiter canvases and the repo were searched. Wired: Ask Hiring Assistant → recruiter AI chat; Compare plans / Upgrade / Change payment method → onboarding R05 / R06 (⚠️ ASSUMPTION); rail plan-card Upgrade → Plan and billing. Still not drawn anywhere: WhatsApp us, invoice download, Leave organisation, Preview as talent / View my recruiter profile, Privacy, Terms, Replay the tour. New `recruiter-settings-destinations.spec.js`. See [recruiter-settings.md](recruiter-settings.md).
+
 ## [2026-11-07] build | Recruiter Settings & Account + Help (Figma 10161:75722, 38 frames: SR-01…27, R-FB/IV/HS-01, R-HP-01…08)
 
 `/recruiter/settings?tab=…` (nine tabs) and `/recruiter/help`, built on the talent Settings / Help pieces by four parallel builders + lead integration; top-bar Help pop-over and profile-menu slots (`DashboardTopNav panels`), the help pop-over also wired into `/recruiter/job-postings`. Frames 0.3-7.0 % (shell, fonts, dialog centring); 60 specs pass; 39 URLs in the responsive gate pass at 320/390/1024/1440; eslint + build clean; the login-bounce regression now covers Settings and Help (renamed `recruiter-no-login-bounce.spec.js`). Found on the way: a truncated Figma PNG export (read as a false 16 % diff), nav glyphs the builders had not compared (four exported from Figma). See [recruiter-settings.md](recruiter-settings.md).

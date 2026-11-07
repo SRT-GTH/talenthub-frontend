@@ -60,5 +60,5 @@ The same `?help=` / `?modal=feedback|invite` URLs work on `/recruiter/settings` 
 
 ## Not verified / not done
 
-- "Ask Hiring Assistant", "WhatsApp us" (no number), "Replay the recruiter tour" (no tour exists) only log.
+- "Ask Hiring Assistant" now opens the recruiter AI chat (wired by the lead 2026-11-07, see [recruiter-settings.md](recruiter-settings.md)); "WhatsApp us" (no number is drawn) and "Replay the recruiter tour" (no tour is drawn) only log.
 - No Playful variants, no phone-specific Figma frames (the "?" button is hidden below lg by the shell; modals and the Help page are fluid).

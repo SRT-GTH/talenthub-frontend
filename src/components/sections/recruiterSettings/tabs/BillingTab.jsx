@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import { GroupCard, SettingRow } from '../../talentSettings/SettingsBUi.jsx';
@@ -6,6 +7,11 @@ import { CalendarIcon, UploadArrowIcon } from '../hiring/hiringIcons.jsx';
 import { BILLING } from '../hiring/hiringData.js';
 
 const log = debug('BillingTab');
+
+// The plan and payment screens are drawn in "Recruiter - Onboarding Screens" (R05 Plan, R06 Payment: built at /onboarding/recruiter/*);
+// the Settings frames wire no prototype links, so these hand-offs are ⚠️ ASSUMPTION (the only drawn plan / payment screens).
+const PLAN_ROUTE = '/onboarding/recruiter/plan';
+const PAYMENT_ROUTE = '/onboarding/recruiter/payment';
 
 const BAR_TONES = { green: 'bg-[#387440]', amber: 'bg-[#c8951a]' };
 
@@ -63,6 +69,11 @@ const UsageCard = ({ item }) => {
  * payment-method form or invoice file exists in Figma.
  */
 const BillingTab = () => {
+  const navigate = useNavigate();
+  const go = (to, what) => {
+    log('hand-off', what, '->', to);
+    navigate(to);
+  };
   useEffect(() => {
     log('mount', { plan: BILLING.plan.name, invoices: BILLING.invoices.rows.length });
   }, []);
@@ -86,10 +97,18 @@ const BillingTab = () => {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-[10px]">
-            <Button variant="tertiary" size="lg" onClick={() => log('compare plans (not drawn)')}>
+            <Button
+              variant="tertiary"
+              size="lg"
+              onClick={() => go(`${PLAN_ROUTE}?state=professional`, 'compare plans')}
+            >
               {BILLING.plan.compare}
             </Button>
-            <Button variant="primary" size="sm" onClick={() => log('upgrade (not drawn)')}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => go(`${PLAN_ROUTE}?state=enterprise`, 'upgrade')}
+            >
               {BILLING.plan.upgrade}
             </Button>
           </div>
@@ -111,7 +130,7 @@ const BillingTab = () => {
               <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[8px] py-[3px] text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#2a5730]">
                 {BILLING.payment.badge}
               </span>
-              <GreenLink onClick={() => log('change payment method (not drawn)')}>
+              <GreenLink onClick={() => go(PAYMENT_ROUTE, 'change payment method')}>
                 {BILLING.payment.change}
               </GreenLink>
             </div>

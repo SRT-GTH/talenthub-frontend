@@ -53,7 +53,7 @@
 
 ## Not drawn (not built)
 
-Compare plans, Upgrade checkout, Change payment method, invoice file / preview, usage-limit warnings, notification time pickers for Quiet hours, any toast for Notifications / Accessibility saves, the Accessibility effects themselves (nothing is applied to the page), Hiring pause entry on the Hiring tab (the "Pause hiring" card is drawn on Language and data only).
+Invoice file / preview (Compare plans, Upgrade and Change payment method now hand off to the onboarding plan / payment screens, see [recruiter-settings.md](recruiter-settings.md); no checkout is drawn in Settings), usage-limit warnings, notification time pickers for Quiet hours, any toast for Notifications / Accessibility saves, the Accessibility effects themselves (nothing is applied to the page), Hiring pause entry on the Hiring tab (the "Pause hiring" card is drawn on Language and data only).
 
 ## Not verified
 

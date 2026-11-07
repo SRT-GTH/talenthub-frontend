@@ -17,6 +17,9 @@
  */
 
 export const RECRUITER_HELP_ROUTE = '/recruiter/help';
+// "Ask Hiring Assistant": the recruiter AI chat (Figma "Recruiter - AI Chat", built; `live=0` keeps the scripted demo).
+export const RECRUITER_ASSISTANT_ROUTE =
+  '/profile/filling/career-buddy?role=recruiter&live=0&cb=landing';
 
 /* ---- R-HS-01 Help and support page ---- */
 export const RECRUITER_HS_COPY = {

@@ -10,6 +10,7 @@ import {
   RECRUITER_FEEDBACK,
   RECRUITER_HELP_PAGE_VALUES,
   RECRUITER_HELP_POPOVER_VALUES,
+  RECRUITER_ASSISTANT_ROUTE,
   RECRUITER_HELP_ROUTE,
   RECRUITER_INVITE,
   RECRUITER_SHORTCUTS_COPY,
@@ -42,7 +43,17 @@ const RecruiterHelpPopover = () => {
   const isPopover = Boolean(help) && !isPage && !isShortcuts;
   // `?help=page|searching|none` as drawn; any other non-empty value (the "?" button's open flag) shows the default pop-over.
   const flow = RECRUITER_HELP_POPOVER_VALUES.includes(help) ? help : 'page';
-  const data = useMemo(() => recruiterPopoverData(pathname), [pathname]);
+  // "Ask Hiring Assistant" opens the recruiter AI chat (Figma "Recruiter - AI Chat" 7958:160771, `/profile/filling/career-buddy?role=recruiter`).
+  const data = useMemo(
+    () => ({
+      ...recruiterPopoverData(pathname),
+      onAsk: () => {
+        log('ask hiring assistant -> recruiter AI chat');
+        navigate(RECRUITER_ASSISTANT_ROUTE);
+      },
+    }),
+    [pathname, navigate]
+  );
 
   const close = () => {
     log('close');
