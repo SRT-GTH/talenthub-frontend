@@ -13,6 +13,7 @@ import {
   ResetHeader,
   ResetStatusNote,
 } from './ForgotPasswordPage.jsx';
+import { signInPathFromSearch } from './passwordResetPaths.js';
 
 const log = debug('ResetPasswordPage');
 
@@ -23,7 +24,8 @@ const log = debug('ResetPasswordPage');
  *
  * new password + confirm (min 6 chars, show/hide, must match) ->
  * POST /auth/reset-password { token, newPassword }.
- *   success        -> "Password updated", then /login after a short pause
+ *   success        -> "Password updated", then the account's sign-in after a short pause: the backend's signInPath
+ *                     (/admin/sign-in for staff, /login for everyone else); staff reset links also carry ?for=staff
  *   INVALID_TOKEN  -> "link expired or already used" state + link to /forgot-password
  *   other failure  -> stays on the form with a role=status note
  * A missing ?token shows the invalid-link state straight away (no call).
@@ -37,6 +39,10 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const token = params.get('token') || '';
+  // the backend's answer wins; until then the link's ?for=staff hint
+  const [serverSignInPath, setSignInPath] = useState(null);
+  const signInPath = serverSignInPath || signInPathFromSearch(params);
+  const forgotPath = signInPath === '/login' ? '/forgot-password' : '/forgot-password?for=staff';
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [passwordError, setPasswordError] = useState(null);
@@ -47,9 +53,9 @@ const ResetPasswordPage = () => {
 
   useEffect(() => {
     if (phase !== 'done') return undefined;
-    const t = setTimeout(() => navigate('/login', { replace: true }), REDIRECT_MS);
+    const t = setTimeout(() => navigate(signInPath, { replace: true }), REDIRECT_MS);
     return () => clearTimeout(t);
-  }, [phase, navigate]);
+  }, [phase, navigate, signInPath]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -69,8 +75,10 @@ const ResetPasswordPage = () => {
     setIsSaving(true);
     setFailure('');
     try {
-      await resetPassword({ token, newPassword: password });
-      log('password reset');
+      const res = await resetPassword({ token, newPassword: password });
+      const next = res?.signInPath || res?.data?.signInPath;
+      if (next === '/admin/sign-in' || next === '/login') setSignInPath(next);
+      log('password reset', { next });
       setPhase('done');
     } catch (err) {
       const code = getApiErrorCode(err);
@@ -95,7 +103,7 @@ const ResetPasswordPage = () => {
               and only for 60 minutes. Request a new one to continue.
             </p>
           </ResetHeader>
-          <Link to="/forgot-password" className="w-full">
+          <Link to={forgotPath} className="w-full">
             <Button
               variant="primary"
               size="lg"
@@ -105,7 +113,7 @@ const ResetPasswordPage = () => {
               Request A New Link
             </Button>
           </Link>
-          <BackToLogin />
+          <BackToLogin to={signInPath} />
         </div>
       </PasswordResetShell>
     );
@@ -123,7 +131,7 @@ const ResetPasswordPage = () => {
               You can now log in with your new password. Taking you to the log-in page…
             </p>
           </ResetHeader>
-          <Link to="/login" replace className="w-full">
+          <Link to={signInPath} replace className="w-full">
             <Button
               variant="primary"
               size="lg"
@@ -197,7 +205,7 @@ const ResetPasswordPage = () => {
           {isSaving ? 'Updating Password' : 'Update Password'}
         </Button>
 
-        <BackToLogin />
+        <BackToLogin to={signInPath} />
       </form>
     </PasswordResetShell>
   );
