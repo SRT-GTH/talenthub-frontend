@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../ui/Button.jsx';
 import BannerToast from '../../ui/BannerToast.jsx';
@@ -65,6 +65,17 @@ const TalentCandidateProfileSection = () => {
   const { candidateId } = useParams();
   const { get, set } = useCandidateProfileState();
   const candidate = CANDIDATES[candidateId];
+  // A toast action navigates away and then the toast calls onClose; without this flag the close would rewrite
+  // this page's URL on top of the navigation and the user would stay here.
+  const leavingRef = useRef(false);
+  const leaveTo = (path) => {
+    leavingRef.current = true;
+    navigate(path);
+  };
+  const closeToast = () => {
+    if (leavingRef.current) return;
+    set({ toast: '' });
+  };
 
   const modal = get('modal');
   const menu = get('menu');
@@ -171,8 +182,8 @@ const TalentCandidateProfileSection = () => {
           title={INVITE_SENT.toast.title}
           message={INVITE_SENT.toast.message(candidate.name)}
           actionLabel={INVITE_SENT.toast.action}
-          onAction={() => navigate('/recruiter/messages')}
-          onClose={() => set({ toast: '' })}
+          onAction={() => leaveTo('/recruiter/messages')}
+          onClose={closeToast}
           placement={`${TOAST_PLACEMENT} ${INVITE_SENT.toast.width}`}
         />
       );
@@ -198,8 +209,8 @@ const TalentCandidateProfileSection = () => {
           title={PIPELINE_DIALOG.toast.title}
           message={PIPELINE_DIALOG.toast.message(candidate.firstName, stageLabel ?? '', job.title)}
           actionLabel={PIPELINE_DIALOG.toast.action}
-          onAction={() => navigate('/recruiter/application-pipeline')}
-          onClose={() => set({ toast: '' })}
+          onAction={() => leaveTo('/recruiter/application-pipeline')}
+          onClose={closeToast}
           placement={`${TOAST_PLACEMENT} ${PIPELINE_DIALOG.toast.width}`}
         />
       );

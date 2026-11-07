@@ -1,24 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
-import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
+import WorkspaceSidebar from '../recruiterDashboard/WorkspaceSidebar.jsx';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
 import { HANDOFF_TOAST } from '../jobScreening/screeningFlowData.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
+import PipelineMeetingCard, { SecondaryButton } from './PipelineMeetingCard.jsx';
+import PipelineBoard from './PipelineBoard.jsx';
+import PipelineActionLayer from './actions/PipelineActionLayer.jsx';
+import { ACTION_SCENARIOS } from './actions/pipelineActionScenarios.js';
+import { BASE_BOARD, EMPTY_BOARD } from './pipelineBoardData.js';
+import { moveCard } from './pipelineBoardModel.js';
 import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
 import InterviewConfirmModal from './InterviewConfirmModal.jsx';
 import ScheduleSelect from './ScheduleSelect.jsx';
 import { useLivePipeline } from './useLivePipeline.js';
 import { ACTION_LABELS, ACTION_STAGE, buildPipelineColumns, candidateFor } from './pipelineLive.js';
 import { pipelineErrorText } from '../../../services/recruiterPipeline.api.js';
-import {
-  CandidateClockIcon,
-  CandidateRatingStarIcon,
-  MeetingVideoCameraIcon,
-  MeetingHourglassGlyph,
-  MeetingCompletedCircleIcon,
-} from './pipelineBoardIcons.jsx';
+import { CandidateClockIcon, CandidateRatingStarIcon } from './pipelineBoardIcons.jsx';
 import {
   PIPELINE_URL_KEYS,
   SCHEDULE_MODAL_VALUES,
@@ -31,7 +31,6 @@ import {
   PAGE_HEADING,
   PAGE_SUBHEADING,
   CHOOSE_POSTING,
-  MEETING_TONES,
   COLUMNS,
   JOB_POSTING_OPTIONS,
 } from './applicationPipelineData.js';
@@ -64,16 +63,6 @@ const AVATARS = { eleanor: avatarEleanor, julian: avatarJulian, ella: avatarElla
  * 280 + 16 gap run to 2056px against a 1329px canvas, so the board scrolls.
  */
 
-const STATE_BADGES = {
-  hourglass: <MeetingHourglassGlyph className="size-[24px] text-white" />,
-  alert: (
-    <span className="font-sans text-[10px] max-lg:text-[12px] font-bold leading-[15px] text-white">
-      !
-    </span>
-  ),
-  check: <MeetingCompletedCircleIcon className="size-[24px] text-brand-green" />,
-};
-
 const actionLabel = (action) => ACTION_LABELS[action] || action;
 
 // Live-only confirmations for actions that change things for the candidate.
@@ -100,18 +89,6 @@ const CONFIRM_COPY = {
     tone: 'danger',
   },
 };
-
-const SecondaryButton = ({ card, onAction }) =>
-  card.secondaryAction ? (
-    /* Figma 7249:79181 — white, 1px #e5e5e5, r8, 12/14.32 #111111 */
-    <button
-      type="button"
-      onClick={() => onAction(card, card.secondaryAction)}
-      className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border border-[#e5e5e5] bg-white px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-black transition-colors hover:bg-neutral"
-    >
-      {actionLabel(card.secondaryAction)}
-    </button>
-  ) : null;
 
 const ProfileCard = ({ card, onAction }) => (
   <article className="relative flex flex-col gap-[14px] max-lg:gap-[8px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] max-lg:p-[12px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
@@ -190,74 +167,10 @@ const ProfileCard = ({ card, onAction }) => (
           {actionLabel(card.primaryAction)}
         </button>
       )}
-      <SecondaryButton card={card} onAction={onAction} />
+      <SecondaryButton card={card} onAction={onAction} labelFor={actionLabel} />
     </div>
   </article>
 );
-
-const MeetingCard = ({ card, onAction }) => {
-  const tone = MEETING_TONES[card.tone];
-  return (
-    <article className="relative flex flex-col gap-[14px] max-lg:gap-[8px] rounded-[10px] border border-[#00522b]/10 bg-white p-[18px] max-lg:p-[12px] shadow-[0_1px_2px_0_rgba(0,0,0,0.08)]">
-      {/* 24px round state badge — Figma 7249:79183 / :79186 / :79216 */}
-      <span
-        className={classNames(
-          'absolute right-[18px] max-lg:right-[12px] top-[18px] max-lg:top-[12px] grid size-[24px] place-items-center rounded-full',
-          tone.badge
-        )}
-      >
-        {STATE_BADGES[card.badge]}
-      </span>
-
-      <div className="flex flex-col gap-[14px] max-lg:gap-[8px] pr-[32px]">
-        <div className="flex flex-col gap-[4px]">
-          <h4 className="font-sans text-[16px] max-lg:text-[15px] font-medium leading-[19.09px] text-[#1c1c1a]">
-            {card.name}
-          </h4>
-          <p className="font-sans text-[14px] leading-5 tracking-[0.2px] text-neutral-dark-hover">
-            {card.meta}
-          </p>
-        </div>
-
-        {/* Status box — Figma 7249:79175, r8, 1.21px outline, pad 14/10 */}
-        <div
-          className={classNames(
-            'flex items-center gap-[8px] rounded-[8px] border-[1.21px] px-[14px] py-[10px] max-lg:px-[10px] max-lg:py-[6px]',
-            tone.box
-          )}
-        >
-          <MeetingVideoCameraIcon className={classNames('size-[16px] shrink-0', tone.text)} />
-          <span className="flex min-w-0 flex-col gap-[4px]">
-            <span
-              className={classNames(
-                'font-sans text-[13px] font-medium leading-[15.51px]',
-                tone.text
-              )}
-            >
-              {card.statusLabel}
-            </span>
-            <span className="font-sans text-[14px] leading-[16.71px] tracking-[0.2px] text-content-helper">
-              {card.platform}
-            </span>
-          </span>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-[6px] max-lg:gap-[6px]">
-        {card.primaryAction && (
-          <button
-            type="button"
-            onClick={() => onAction(card, card.primaryAction)}
-            className="inline-flex relative h-[30px] max-lg:h-[36px] items-center justify-center whitespace-nowrap rounded-[8px] max-lg:after:absolute max-lg:after:-inset-x-0 max-lg:after:-inset-y-[4px] border-2 border-brand-green-dark bg-brand-green px-[18px] font-sans text-[12px] max-lg:text-[13px] font-medium leading-[14.32px] tracking-[0.1px] text-white shadow-[0_4px_0_0_#224626] max-lg:shadow-none transition-all duration-300 ease-in hover:bg-brand-green-hover active:translate-y-[4px] max-lg:active:translate-y-0 active:shadow-none"
-          >
-            {actionLabel(card.primaryAction)}
-          </button>
-        )}
-        <SecondaryButton card={card} onAction={onAction} />
-      </div>
-    </article>
-  );
-};
 
 const jobIdOf = (j) => String(j?._id || j?.id || '');
 
@@ -270,7 +183,12 @@ const ApplicationPipelineSection = () => {
   // Screening hand-off (Figma JS-11 10117:68136): /recruiter/application-pipeline?handoff=46 — the toast "Success - 46 applicants moved to Screening" over the
   // workspace sidebar. Only with this key the page draws that sidebar and SF Pro Rounded; without it every other pipeline frame is unchanged.
   const handoff = searchParams.get('handoff');
-  useScopedRoundedFont('data-recruiter-ui', handoff !== null);
+  const pipe = useLivePipeline();
+  const isLive = pipe.status !== 'demo';
+  // The legacy board (older design, frames 7249:*) stays for the `sidebar=collapsed` schedule frames, the screening hand-off and signed-in data; every other demo URL is the new board.
+  const legacy = isLive || urlState.sidebarCollapsed || handoff !== null;
+  useScopedRoundedFont('data-recruiter-ui', handoff !== null || !legacy);
+  const navigate = useNavigate();
   // Several writes can land in one tick (e.g. pick an option, then close the list), and
   // react-router's updater only sees the URL of the last render, so keep the newest params here.
   const latestParamsRef = useRef(searchParams);
@@ -289,8 +207,6 @@ const ApplicationPipelineSection = () => {
   const [scheduleFor, setScheduleFor] = useState(null);
   const [pending, setPending] = useState(null); // { card, action }
   const [error, setError] = useState(null);
-  const pipe = useLivePipeline();
-  const isLive = pipe.status !== 'demo';
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
   // Signed in, the board never shows the Figma demo people — empty columns while loading.
   const columns = isLive
@@ -414,10 +330,119 @@ const ApplicationPipelineSection = () => {
     JOB_POSTING_OPTIONS.find((o) => o.id === urlState.posting) || JOB_POSTING_OPTIONS[1];
   const forceHoverOption = JOB_POSTING_OPTIONS.find((o) => o.id === urlState.forceHover);
 
+  // New board data: base (or empty) board, then the `moved` URL pairs, then the action scenario (ACTIONS agent). Unknown scenario keys change nothing.
+  const baseBoard = urlState.pipelineEmpty ? EMPTY_BOARD : BASE_BOARD;
+  const movedBoard = urlState.moved.reduce((acc, [id, to]) => moveCard(acc, id, to), baseBoard);
+  const scenario = urlState.scenario ? ACTION_SCENARIOS[urlState.scenario] : null;
+  const board = scenario ? scenario(movedBoard) : movedBoard;
+
+  const moveCardTo = (cardId, toStage) => {
+    const found = board.stages.find((st) => st.cards.some((c) => c.id === cardId));
+    if (!found || found.id === toStage) return;
+    log('move', { cardId, from: found.id, to: toStage });
+    const moved = [...urlState.moved.map((pair) => pair.join(':')), `${cardId}:${toStage}`].join(
+      ','
+    );
+    setUrlKeys({
+      moved,
+      modal: 'move-notify',
+      candidate: cardId,
+      from: found.id,
+      to: toStage,
+      menu: null,
+      menuItem: null,
+    });
+  };
+
+  const handleBoardAction = (card, action, ids) => {
+    log('board action', { card: card?.id, action, ids });
+    if (action === 'schedule-interview' || action === 'Reschedule') {
+      setUrlKeys({ modal: 'schedule-interview', candidate: card.id });
+    } else if (action === 'Mark as Completed') {
+      setUrlKeys({ modal: 'interview-completed', candidate: card.id });
+    } else if (action === 'View Details' || action === 'View Meeting') {
+      setUrlKeys({ drawer: card.id });
+    } else if (action === 'bulk-move') {
+      setUrlKeys({ modal: 'bulk-move', candidate: ids.join(',') });
+    } else if (action === 'bulk-not-progressing') {
+      setUrlKeys({ modal: 'not-progressing', candidate: ids.join(',') });
+    } else if (action === 'bulk-message') {
+      navigate('/recruiter/messages');
+    }
+  };
+
+  const handleBoardMenuItem = (card, row) => {
+    log('menu item', { card: card.id, item: row.id });
+    setUrlKeys({ menu: null, menuItem: null });
+    if (row.id === 'view-profile' || row.id === 'open-application') {
+      setUrlKeys({ drawer: card.id });
+    } else if (row.id === 'message') navigate('/recruiter/messages');
+    else if (row.moveTo) moveCardTo(card.id, row.moveTo);
+    else if (row.id === 'schedule-interview') {
+      setUrlKeys({ modal: 'schedule-interview', candidate: card.id });
+    } else if (row.id === 'not-progressing') {
+      setUrlKeys({ modal: 'not-progressing', candidate: card.id });
+    }
+  };
+
+  const postingField = (
+    <>
+      <span
+        className={classNames(
+          'font-sans text-[16px] font-medium leading-7 tracking-[0.2px] text-[#1c2a21]',
+          !legacy && 'block h-[21px] -translate-y-[4px]'
+        )}
+      >
+        {CHOOSE_POSTING.label}
+        <span className="font-display text-[14px] font-semibold not-italic text-[#2e8b57]">
+          {CHOOSE_POSTING.required}
+        </span>
+      </span>
+      {isLive ? (
+        <ScheduleSelect
+          label={CHOOSE_POSTING.label}
+          options={jobOptions.map((o) => o.label)}
+          value={jobOptions.find((o) => o.id === pipe.jobId)?.label ?? null}
+          placeholder={pipe.status === 'loading' ? 'Loading your postings…' : 'No postings yet'}
+          onChange={(label) => {
+            const next = jobOptions.find((o) => o.label === label);
+            log('branch', { posting: next?.id });
+            if (next) pipe.setJobId(next.id);
+          }}
+        />
+      ) : (
+        <ScheduleSelect
+          label={CHOOSE_POSTING.label}
+          menuVariant="centered"
+          options={JOB_POSTING_OPTIONS.map((o) => o.label)}
+          value={postingOption.label}
+          open={urlState.dropdownOpen}
+          onOpenChange={(next) =>
+            setUrlKeys({
+              [PIPELINE_URL_KEYS.dropdown]: next ? 'job-posting' : null,
+              ...(next ? {} : { [PIPELINE_URL_KEYS.forceHover]: null }),
+            })
+          }
+          pinnedHoverValue={forceHoverOption?.label}
+          onChange={(label) => {
+            const next = JOB_POSTING_OPTIONS.find((o) => o.label === label);
+            log('branch', { demoPosting: next?.id });
+            if (next) setUrlKeys({ [PIPELINE_URL_KEYS.posting]: next.id });
+          }}
+        />
+      )}
+    </>
+  );
+
   return (
     <DashboardShell
       defaultSidebarCollapsed={urlState.sidebarCollapsed}
-      renderSidebar={handoff !== null ? renderWorkspaceSidebar : undefined}
+      renderSidebar={
+        legacy && handoff === null
+          ? undefined
+          : ({ collapsed, onToggle }) =>
+              collapsed ? null : <WorkspaceSidebar onToggle={onToggle} showSettings={!legacy} />
+      }
     >
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <RecruiterPageHeading
@@ -427,47 +452,9 @@ const ApplicationPipelineSection = () => {
           subtitle={PAGE_SUBHEADING}
         />
 
-        <div className="flex w-full max-w-[431px] flex-col gap-[8px]">
-          <span className="font-sans text-[16px] font-medium leading-7 tracking-[0.2px] text-[#1c2a21]">
-            {CHOOSE_POSTING.label}
-            <span className="font-display text-[14px] font-semibold not-italic text-[#2e8b57]">
-              {CHOOSE_POSTING.required}
-            </span>
-          </span>
-          {isLive ? (
-            <ScheduleSelect
-              label={CHOOSE_POSTING.label}
-              options={jobOptions.map((o) => o.label)}
-              value={jobOptions.find((o) => o.id === pipe.jobId)?.label ?? null}
-              placeholder={pipe.status === 'loading' ? 'Loading your postings…' : 'No postings yet'}
-              onChange={(label) => {
-                const next = jobOptions.find((o) => o.label === label);
-                log('branch', { posting: next?.id });
-                if (next) pipe.setJobId(next.id);
-              }}
-            />
-          ) : (
-            <ScheduleSelect
-              label={CHOOSE_POSTING.label}
-              menuVariant="centered"
-              options={JOB_POSTING_OPTIONS.map((o) => o.label)}
-              value={postingOption.label}
-              open={urlState.dropdownOpen}
-              onOpenChange={(next) =>
-                setUrlKeys({
-                  [PIPELINE_URL_KEYS.dropdown]: next ? 'job-posting' : null,
-                  ...(next ? {} : { [PIPELINE_URL_KEYS.forceHover]: null }),
-                })
-              }
-              pinnedHoverValue={forceHoverOption?.label}
-              onChange={(label) => {
-                const next = JOB_POSTING_OPTIONS.find((o) => o.label === label);
-                log('branch', { demoPosting: next?.id });
-                if (next) setUrlKeys({ [PIPELINE_URL_KEYS.posting]: next.id });
-              }}
-            />
-          )}
-        </div>
+        {legacy ? (
+          <div className="flex w-full max-w-[431px] flex-col gap-[8px]">{postingField}</div>
+        ) : null}
 
         {pipe.status === 'error' ? (
           <p
@@ -495,74 +482,95 @@ const ApplicationPipelineSection = () => {
           </p>
         ) : null}
 
-        {/* Stage jump nav — below lg only. Sticky under the top bar while the page scrolls. */}
-        <nav
-          aria-label="Pipeline stages"
-          className="sticky top-0 z-20 -mx-4 -mb-[12px] border-b border-border-card bg-white/95 backdrop-blur lg:hidden"
-        >
-          <div
-            ref={chipRowRef}
-            className="no-scrollbar flex gap-[8px] overflow-x-auto px-4 py-[8px] [mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]"
-          >
-            {columns.map((column) => {
-              const isActive = column.id === activeStageId;
-              return (
-                <button
-                  key={column.id}
-                  type="button"
-                  aria-current={isActive ? 'true' : undefined}
-                  onClick={() => jumpToStage(column.id)}
-                  className={classNames(
-                    'relative inline-flex h-[30px] shrink-0 items-center gap-[6px] rounded-pill border-[1.22px] px-[12px] font-sans text-[13px] transition-colors after:absolute after:-inset-y-[7px] after:inset-x-0',
-                    isActive
-                      ? 'border-brand-green bg-brand-green font-semibold text-white'
-                      : 'border-brand-green-light-hover bg-white font-medium text-content-helper'
-                  )}
-                >
-                  {column.label}
-                  <span className={isActive ? 'text-white/80' : 'text-content-muted'}>
-                    {column.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        {/* Board — Figma 7249:79069, HORIZONTAL gap 16. Below lg: scroll-snap strip. */}
-        <div
-          ref={boardRef}
-          onScroll={handleBoardScroll}
-          className="relative -mx-2 flex items-start gap-[16px] overflow-x-auto px-2 pb-[48px] max-lg:-mx-4 max-lg:snap-x max-lg:snap-mandatory max-lg:px-4 max-lg:scroll-px-4"
-        >
-          {columns.map((column) => (
-            <section
-              key={column.id}
-              data-stage={column.id}
-              className="flex w-[280px] shrink-0 flex-col gap-[16px] rounded-[12px] max-lg:w-[min(85vw,360px)] max-lg:snap-start border border-[#00522b]/10 bg-[#f3f8f4]/28 px-[14px] pb-[24px] pt-[24px] max-lg:gap-[8px] max-lg:border-0 max-lg:bg-transparent max-lg:px-0 max-lg:pb-[12px] max-lg:pt-[4px]"
+        {legacy ? (
+          <>
+            {/* Stage jump nav — below lg only. Sticky under the top bar while the page scrolls. */}
+            <nav
+              aria-label="Pipeline stages"
+              className="sticky top-0 z-20 -mx-4 -mb-[12px] border-b border-border-card bg-white/95 backdrop-blur lg:hidden"
             >
-              <header className="flex items-center justify-between gap-2">
-                {/* Figma textCase: UPPER */}
-                <h3 className="font-sans text-[16px] max-lg:text-[14px] font-semibold uppercase leading-5 text-[#1c2a21]">
-                  {column.label}
-                </h3>
-                <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[8px] py-[6px] max-lg:py-[2px] font-sans text-[14px] max-lg:text-[12px] font-medium leading-[16.71px] text-content-helper">
-                  {column.count}
-                </span>
-              </header>
-
-              <div className="flex flex-col gap-[12px] max-lg:gap-[8px]">
-                {column.cards.map((card) =>
-                  card.kind === 'meeting' ? (
-                    <MeetingCard key={card.id} card={card} onAction={handleAction} />
-                  ) : (
-                    <ProfileCard key={card.id} card={card} onAction={handleAction} />
-                  )
-                )}
+              <div
+                ref={chipRowRef}
+                className="no-scrollbar flex gap-[8px] overflow-x-auto px-4 py-[8px] [mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)]"
+              >
+                {columns.map((column) => {
+                  const isActive = column.id === activeStageId;
+                  return (
+                    <button
+                      key={column.id}
+                      type="button"
+                      aria-current={isActive ? 'true' : undefined}
+                      onClick={() => jumpToStage(column.id)}
+                      className={classNames(
+                        'relative inline-flex h-[30px] shrink-0 items-center gap-[6px] rounded-pill border-[1.22px] px-[12px] font-sans text-[13px] transition-colors after:absolute after:-inset-y-[7px] after:inset-x-0',
+                        isActive
+                          ? 'border-brand-green bg-brand-green font-semibold text-white'
+                          : 'border-brand-green-light-hover bg-white font-medium text-content-helper'
+                      )}
+                    >
+                      {column.label}
+                      <span className={isActive ? 'text-white/80' : 'text-content-muted'}>
+                        {column.count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            </section>
-          ))}
-        </div>
+            </nav>
+
+            {/* Board — Figma 7249:79069, HORIZONTAL gap 16. Below lg: scroll-snap strip. */}
+            <div
+              ref={boardRef}
+              onScroll={handleBoardScroll}
+              className="relative -mx-2 flex items-start gap-[16px] overflow-x-auto px-2 pb-[48px] max-lg:-mx-4 max-lg:snap-x max-lg:snap-mandatory max-lg:px-4 max-lg:scroll-px-4"
+            >
+              {columns.map((column) => (
+                <section
+                  key={column.id}
+                  data-stage={column.id}
+                  className="flex w-[280px] shrink-0 flex-col gap-[16px] rounded-[12px] max-lg:w-[min(85vw,360px)] max-lg:snap-start border border-[#00522b]/10 bg-[#f3f8f4]/28 px-[14px] pb-[24px] pt-[24px] max-lg:gap-[8px] max-lg:border-0 max-lg:bg-transparent max-lg:px-0 max-lg:pb-[12px] max-lg:pt-[4px]"
+                >
+                  <header className="flex items-center justify-between gap-2">
+                    {/* Figma textCase: UPPER */}
+                    <h3 className="font-sans text-[16px] max-lg:text-[14px] font-semibold uppercase leading-5 text-[#1c2a21]">
+                      {column.label}
+                    </h3>
+                    <span className="inline-flex items-center rounded-pill border-[1.21px] border-border-pill bg-neutral px-[8px] py-[6px] max-lg:py-[2px] font-sans text-[14px] max-lg:text-[12px] font-medium leading-[16.71px] text-content-helper">
+                      {column.count}
+                    </span>
+                  </header>
+
+                  <div className="flex flex-col gap-[12px] max-lg:gap-[8px]">
+                    {column.cards.map((card) =>
+                      card.kind === 'meeting' ? (
+                        <PipelineMeetingCard
+                          key={card.id}
+                          card={card}
+                          onAction={handleAction}
+                          labelFor={actionLabel}
+                        />
+                      ) : (
+                        <ProfileCard key={card.id} card={card} onAction={handleAction} />
+                      )
+                    )}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </>
+        ) : (
+          <PipelineBoard
+            board={board}
+            jobSelect={postingField}
+            urlState={urlState}
+            setUrlKeys={setUrlKeys}
+            onCardAction={handleBoardAction}
+            onMenuItem={handleBoardMenuItem}
+            onOpenDetails={(id) => setUrlKeys({ drawer: id })}
+            onMove={moveCardTo}
+            onInvite={() => navigate('/recruiter/talent-search')}
+          />
+        )}
       </div>
 
       <ScheduleInterviewModal
@@ -595,6 +603,8 @@ const ApplicationPipelineSection = () => {
             }
           : {})}
       />
+
+      {isLive ? null : <PipelineActionLayer board={board} />}
 
       <InterviewConfirmModal
         open={Boolean(pending)}

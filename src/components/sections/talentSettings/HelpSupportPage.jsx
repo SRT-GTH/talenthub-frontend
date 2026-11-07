@@ -27,13 +27,13 @@ import HelpRequestsList from './HelpRequests.jsx';
 import { useMyRequests } from './useMyRequests.js';
 import {
   HP_DEFAULT_QUERY,
-  HS_CONTACTS,
-  HS_COPY,
-  HS_FAQ,
-  HS_SAFETY,
-  HS_SEARCH_PLACEHOLDER,
-  HS_TOPICS,
-  searchHelp,
+  HS_CONTACTS as HS_CONTACTS_TALENT,
+  HS_COPY as HS_COPY_TALENT,
+  HS_FAQ as HS_FAQ_TALENT,
+  HS_SAFETY as HS_SAFETY_TALENT,
+  HS_SEARCH_PLACEHOLDER as HS_SEARCH_PLACEHOLDER_TALENT,
+  HS_TOPICS as HS_TOPICS_TALENT,
+  searchHelp as searchHelpTalent,
 } from './helpData.js';
 import iconSearch from '../../../assets/notifications/help/search.svg';
 
@@ -51,7 +51,9 @@ const log = debug('HelpSupportPage');
  *   ?help=request&ref=SUP-…         one of my support requests (live: GET /api/support/cases/:ref)
  *   ?help=concern | concern-sent   Report a concern (safeguarding; POST /api/support/concerns) and its confirmation
  * “Your requests” is live (GET /api/support/cases).
- * Props: settings (useTalentSettingsState): { help, update(patch) }.
+ * Props: settings (useTalentSettingsState): { help, update(patch) }. Add-only (the recruiter Help set, `/recruiter/help`): `data` (replaces the talent
+ * copy: { copy, searchPlaceholder, topics, faq, safety, contacts, search, defaultQuery, article, concernLink }), `requests` (own rows in the
+ * useMyRequests() shape, so no /api/support call is made) and `ContactView` (replaces the live contact form).
  */
 const TOPIC_ICONS = {
   user: HelpTopicUserIcon,
@@ -70,35 +72,54 @@ const CONTACT_ICONS = {
 
 const CARD = 'rounded-[20px] border border-solid border-[rgba(28,42,33,0.1)] bg-white';
 
-const HelpSupportPage = ({ settings }) => {
+const HelpSupportPage = ({ settings, data, requests, ContactView }) => {
   const [params] = useSearchParams();
   const help = settings?.help ?? null;
   const q = params.get('q');
-  const [openFaq, setOpenFaq] = useState('fit-score');
+  const [openFaq, setOpenFaq] = useState(data?.faq?.find((i) => i.answer)?.id ?? 'fit-score');
   log('mount', { help, q });
 
   if (help === 'article' || help === 'report') {
-    return <HelpArticleView settings={settings} reporting={help === 'report'} />;
+    return <HelpArticleView settings={settings} reporting={help === 'report'} data={data} />;
   }
   if (help === 'contact' || help === 'sent') {
-    return <HelpContactView settings={settings} sent={help === 'sent'} />;
+    const Contact = ContactView ?? HelpContactView;
+    return <Contact settings={settings} sent={help === 'sent'} />;
   }
-  if (help === 'request') {
+  if (!data && help === 'request') {
     return <HelpRequestView settings={settings} />;
   }
-  if (help === 'concern' || help === 'concern-sent') {
+  if (!data && (help === 'concern' || help === 'concern-sent')) {
     return <HelpConcernView settings={settings} sent={help === 'concern-sent'} />;
   }
   return (
-    <HelpCentre settings={settings} help={help} q={q} openFaq={openFaq} setOpenFaq={setOpenFaq} />
+    <HelpCentre
+      settings={settings}
+      help={help}
+      q={q}
+      openFaq={openFaq}
+      setOpenFaq={setOpenFaq}
+      data={data}
+      ownRequests={requests}
+    />
   );
 };
 
 /* The Help centre itself (HS-01), split out so the live requests hook only runs here. */
-const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq }) => {
-  const requests = useMyRequests();
+const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq, data, ownRequests }) => {
+  const live = useMyRequests({ enabled: !ownRequests });
+  const requests = ownRequests ?? live;
+  const HS_COPY = data?.copy ?? HS_COPY_TALENT;
+  const HS_SEARCH_PLACEHOLDER = data?.searchPlaceholder ?? HS_SEARCH_PLACEHOLDER_TALENT;
+  const HS_TOPICS = data?.topics ?? HS_TOPICS_TALENT;
+  const HS_FAQ = data?.faq ?? HS_FAQ_TALENT;
+  const HS_SAFETY = data?.safety ?? HS_SAFETY_TALENT;
+  const HS_CONTACTS = data?.contacts ?? HS_CONTACTS_TALENT;
+  const searchHelp = data?.search ?? searchHelpTalent;
+  const defaultQuery = data?.defaultQuery ?? HP_DEFAULT_QUERY;
+  const concernLink = data ? Boolean(data.concernLink) : true;
 
-  const searchValue = help === 'searching' || help === 'none' ? (q ?? HP_DEFAULT_QUERY[help]) : '';
+  const searchValue = help === 'searching' || help === 'none' ? (q ?? defaultQuery[help]) : '';
 
   const onSearch = (value) => {
     if (!value.trim()) {
@@ -246,16 +267,18 @@ const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq }) => {
                 >
                   {HS_SAFETY.action}
                 </HelpButton>
-                <button
-                  type="button"
-                  onClick={() => settings.update({ help: 'concern', q: null })}
-                  className={classNames(
-                    'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13.5px] font-semibold text-[#902b20] underline',
-                    FOCUS_RING
-                  )}
-                >
-                  Someone at risk? Report a concern
-                </button>
+                {concernLink && (
+                  <button
+                    type="button"
+                    onClick={() => settings.update({ help: 'concern', q: null })}
+                    className={classNames(
+                      'cursor-pointer border-0 bg-transparent p-0 font-sans text-[13.5px] font-semibold text-[#902b20] underline',
+                      FOCUS_RING
+                    )}
+                  >
+                    Someone at risk? Report a concern
+                  </button>
+                )}
               </div>
             </section>
           </div>
@@ -313,7 +336,11 @@ const HelpCentre = ({ settings, help, q, openFaq, setOpenFaq }) => {
               </h2>
               <HelpRequestsList
                 requests={requests}
-                onOpen={(ref) => settings.update({ help: 'request', ref, q: null })}
+                onOpen={(ref) =>
+                  data
+                    ? log('request row (no request view drawn)', ref)
+                    : settings.update({ help: 'request', ref, q: null })
+                }
               />
             </section>
           </div>

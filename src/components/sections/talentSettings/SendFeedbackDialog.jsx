@@ -11,7 +11,7 @@ import {
   HelpModalCloseIcon,
 } from '../../shared/assets.jsx';
 import { DIALOG_CARD, FOCUS_RING, HEADING, HelpButton, HelpModal } from './helpUi.jsx';
-import { FEEDBACK } from './helpData.js';
+import { FEEDBACK as FEEDBACK_COPY } from './helpData.js';
 
 const log = debug('SendFeedbackDialog');
 
@@ -20,16 +20,17 @@ const log = debug('SendFeedbackDialog');
  * 8110:39739). Opened by `?dialog=feedback` (mounted by TalentShellOverlays). Starts pre-filled exactly as
  * drawn (rating "Love it", the sample comment, screenshot ticked); everything is editable.
  *
- * Props (all optional): `settings` ({ update }) or `onClose`. With neither, it closes by removing `dialog`
+ * Props (all optional): `settings` ({ update }) or `onClose`; `copy` (add-only, merged over FEEDBACK: the recruiter set overrides `textValue`). With neither, it closes by removing `dialog`
  * from the URL itself (useSearchParams).
  */
 const RATINGS = [
-  { label: FEEDBACK.ratings[0], Icon: FeedbackEmojiSadIcon },
-  { label: FEEDBACK.ratings[1], Icon: FeedbackEmojiSmileIcon },
-  { label: FEEDBACK.ratings[2], Icon: FeedbackEmojiBigSmileIcon },
+  { label: FEEDBACK_COPY.ratings[0], Icon: FeedbackEmojiSadIcon },
+  { label: FEEDBACK_COPY.ratings[1], Icon: FeedbackEmojiSmileIcon },
+  { label: FEEDBACK_COPY.ratings[2], Icon: FeedbackEmojiBigSmileIcon },
 ];
 
-const SendFeedbackDialog = ({ settings, onClose }) => {
+const SendFeedbackDialog = ({ settings, onClose, copy }) => {
+  const FEEDBACK = { ...FEEDBACK_COPY, ...copy };
   const uid = useId();
   const [params, setParams] = useSearchParams();
   const [rating, setRating] = useState(FEEDBACK.ratingValue);

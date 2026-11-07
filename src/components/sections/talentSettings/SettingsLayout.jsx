@@ -44,7 +44,7 @@ const ITEM =
  * section nav (280px card from lg, a scrolling chip row below) and the section body as children.
  * Nav clicks go to `/settings/<section>`; "Log out" opens the shell-level confirm via `?logout=confirm`.
  * Optional (the parent Settings page, Figma Parents file PS-01): `items` (the nav list, default SETTINGS_NAV), `hrefFor(item)` (default `/settings/<id>`), `onLogout` (default
- * `settings.update({ logout: 'confirm' })`). Nothing changes for the talent pages, which pass none of them.
+ * `settings.update({ logout: 'confirm' })`), `heading` / `subheading` (recruiter copy) and per-item `Icon` / `chipClassName`. Nothing changes for the talent pages, which pass none of them.
  */
 const SettingsLayout = ({
   settings,
@@ -52,6 +52,8 @@ const SettingsLayout = ({
   items = SETTINGS_NAV,
   hrefFor = (item) => `/settings/${item.id}`,
   onLogout,
+  heading = SETTINGS_HEADING,
+  subheading = SETTINGS_SUBHEADING,
 }) => {
   const active = settings?.section;
   log('render', { active, state: settings?.state });
@@ -75,10 +77,10 @@ const SettingsLayout = ({
             'text-[clamp(26px,1.97vw,34px)] leading-[1.2] tracking-[-0.68px] text-[#1c2a21]'
           )}
         >
-          {SETTINGS_HEADING}
+          {heading}
         </h1>
         <p className="text-[16px] leading-[24px] tracking-[0.2px] text-[#595959] max-sm:text-[14px]">
-          {SETTINGS_SUBHEADING}
+          {subheading}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ const SettingsLayout = ({
           className="relative flex w-[280px] shrink-0 flex-col gap-[8px] rounded-[20px] border border-[rgba(28,42,33,0.1)] bg-white p-[12px] max-lg:w-full max-lg:flex-row max-lg:gap-[4px] max-lg:overflow-x-auto max-lg:p-[8px]"
         >
           {items.map((item) => {
-            const Icon = ICONS[item.icon];
+            const Icon = item.Icon ?? ICONS[item.icon];
             const isActive = item.id === active;
             return (
               <Link
@@ -114,7 +116,12 @@ const SettingsLayout = ({
                 </span>
                 <span className="min-w-0 flex-1 max-lg:flex-none">{item.label}</span>
                 {item.chip ? (
-                  <span className="leading-[13px] rounded-full bg-[#faf4e8] px-[7px] py-[2px] text-[11px] font-semibold whitespace-nowrap text-[#c8951a] max-lg:text-[12px]">
+                  <span
+                    className={classNames(
+                      'leading-[13px] rounded-full px-[7px] py-[2px] text-[11px] font-semibold whitespace-nowrap max-lg:text-[12px]',
+                      item.chipClassName ?? 'bg-[#faf4e8] text-[#c8951a]'
+                    )}
+                  >
                     {item.chip}
                   </span>
                 ) : null}

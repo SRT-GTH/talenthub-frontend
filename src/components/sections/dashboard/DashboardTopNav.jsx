@@ -103,7 +103,7 @@ const StreakPillTag = (props) => {
  * mark, per-state streak/counts, accessibility toggle (`a11y` param), talent avatar.
  * `orgSlot` (recruiter dashboard): a node rendered before the profile chip — the org switcher.
  * `panels` (recruiter dashboard, add-only): { notifications, onNotifications, language, onLanguage, a11yOpen, onA11y, search, searchQuery, onSearchInput, onSearchFocus } — pop-up nodes anchored under the bell / language button and the
- * state of the shared accessibility menu. Pages that do not pass it render exactly as before.
+ * state of the shared accessibility menu. Recruiter Settings & Account (add-only, inert unless passed): `onHelp` / `helpOpen` / `help` (the ? button and its pop-over node) and `onProfile` / `profileOpen` / `profileMenu` (the profile chip and its menu node). Pages that do not pass it render exactly as before.
  */
 const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
   const isTalent = Boolean(talentHome);
@@ -399,12 +399,17 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
           {/* md–lg keeps only notifications + messages (help / language / accessibility
               stay lg+); phones reach them through the tab bar's More sheet. */}
           <div className="hidden items-center gap-[8px] md:flex">
-            <span ref={helpRef} className="inline-flex max-lg:hidden">
+            <span
+              ref={helpRef}
+              className={classNames('inline-flex max-lg:hidden', panels?.onHelp && 'relative')}
+            >
               <NavIconButton
                 src={icons.navHelp}
                 label="Help"
-                onClick={() => handleAction('help')}
+                active={panels?.helpOpen}
+                onClick={() => (panels?.onHelp ? panels.onHelp() : handleAction('help'))}
               />
+              {panels?.help}
             </span>
             <span
               ref={bellRef}
@@ -485,11 +490,17 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
 
         <button
           type="button"
-          onClick={() => handleAction('profile-menu')}
+          onClick={() => (panels?.onProfile ? panels.onProfile() : handleAction('profile-menu'))}
           aria-label={`Profile menu, ${nav.profileName}`}
           data-profile-chip={isTalent ? '' : undefined}
-          aria-haspopup={isTalent ? 'menu' : undefined}
-          aria-expanded={isTalent ? Boolean(streakParams.get('menu')) : undefined}
+          aria-haspopup={isTalent || panels?.onProfile ? 'menu' : undefined}
+          aria-expanded={
+            panels?.onProfile
+              ? Boolean(panels.profileOpen)
+              : isTalent
+                ? Boolean(streakParams.get('menu'))
+                : undefined
+          }
           /* Phones: collapse to a 44px avatar-only button (the name + caret
              don't fit beside the logo, search and streak at 320). */
           className="inline-flex shrink-0 items-center gap-[7px] rounded-[10px] border border-brand-green-light-active bg-[#fffefc] px-[16px] py-[8px] max-md:relative max-md:size-[32px] max-md:justify-center max-md:rounded-[16px] max-md:p-0 max-md:after:absolute max-md:after:-inset-2 transition-colors hover:bg-brand-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
@@ -532,6 +543,8 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
           </span>
           <CommunityIcon src={icons.navChipCaret} size={14} className="max-md:hidden" />
         </button>
+        {/* Recruiter Settings (Figma SR-14): the profile menu node, positioned by its owner against the header. */}
+        {panels?.profileMenu}
       </div>
 
       <DashboardSearchSheet isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

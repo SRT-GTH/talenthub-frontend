@@ -22,6 +22,20 @@ const log = debug('pipelineUrlState');
  *   sidebar       collapsed                                      the state frames are drawn with the
  *                                                               sidebar collapsed (7249:79474 onwards)
  *
+ * NEW BOARD (page "Recruiter - Application Pipeline" 10172:10101; the legacy board above is kept for `sidebar=collapsed`, live data and `handoff`):
+ *   stage=<stageId>        filter chip (applied|screening|shortlisted|interview|offer-extended|hired|not-progressed), default all   PL-01
+ *   qualified=1            "Show qualified only (46)" on
+ *   q=<text>               search in this pipeline
+ *   menu=<cardId>          card "..." menu open (menuItem=<item> pins the row hover)                                                PL-02  ?menu=ama-boateng&menuItem=move-shortlisted
+ *   selected=<id,id,…>     bulk selection, shows the "N selected" bar                                                               PL-06
+ *   drag=<ghostId>&over=<stageId>   card in flight over a dashed drop column                                                        PL-04  ?drag=nana-kwarteng&over=shortlisted
+ *   justMoved=<ghostId>    copy of a card just moved ("2m in stage")                                                                PL-06
+ *   scroll=end             board scrolled to Hired / Not progressed                                                                 PL-01b
+ *   moved=<cardId>:<stageId>,…   cards already moved (written by menu / drop; applied with moveCard)
+ *   scenario=<key>         board preset from actions/pipelineActionScenarios.js (ACTIONS agent)
+ *   selectionBar=hidden    hide the "N selected" bar while cards stay ticked (also hidden automatically while any dialog except modal=bulk-move is open)
+ *   pipeline=empty         brand-new posting, every stage empty                                                                     PL-15
+ *
  * Frames:
  *   7249:79017 Pipeline                     /recruiter/application-pipeline
  *   7249:79474 Job Posting Dropdown Hover   ?sidebar=collapsed&dropdown=job-posting&forceHover=senior-ux-designer
@@ -42,6 +56,21 @@ export const PIPELINE_URL_KEYS = {
   forceHover: 'forceHover',
   posting: 'posting',
   sidebar: 'sidebar',
+  // New board design (Figma page "Recruiter - Application Pipeline", frames PL-01 … PL-16)
+  stage: 'stage',
+  qualified: 'qualified',
+  q: 'q',
+  menu: 'menu',
+  menuItem: 'menuItem',
+  selected: 'selected',
+  drag: 'drag',
+  over: 'over',
+  justMoved: 'justMoved',
+  scroll: 'scroll',
+  moved: 'moved',
+  scenario: 'scenario',
+  pipeline: 'pipeline',
+  selectionBar: 'selectionBar',
 };
 
 export const SCHEDULE_MODAL_VALUES = [
@@ -63,6 +92,23 @@ export const readPipelineUrlState = (searchParams) => {
     forceHover: get('forceHover'),
     posting: get('posting'),
     sidebarCollapsed: get('sidebar') === 'collapsed',
+    stage: get('stage'),
+    qualifiedOnly: get('qualified') === '1',
+    query: get('q') ?? '',
+    menu: get('menu'),
+    menuItem: get('menuItem'),
+    selected: (get('selected') ?? '').split(',').filter(Boolean),
+    drag: get('drag'),
+    over: get('over'),
+    justMoved: get('justMoved'),
+    scrollEnd: get('scroll') === 'end',
+    moved: (get('moved') ?? '')
+      .split(',')
+      .filter(Boolean)
+      .map((pair) => pair.split(':')),
+    scenario: get('scenario'),
+    pipelineEmpty: get('pipeline') === 'empty',
+    selectionBarHidden: get('selectionBar') === 'hidden',
   };
   log('read', state);
   return state;

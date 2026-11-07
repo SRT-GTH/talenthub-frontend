@@ -1,3 +1,17 @@
+## [2026-11-07] build | Recruiter Settings & Account + Help (Figma 10161:75722, 38 frames: SR-01…27, R-FB/IV/HS-01, R-HP-01…08)
+
+`/recruiter/settings?tab=…` (nine tabs) and `/recruiter/help`, built on the talent Settings / Help pieces by four parallel builders + lead integration; top-bar Help pop-over and profile-menu slots (`DashboardTopNav panels`), the help pop-over also wired into `/recruiter/job-postings`. Frames 0.3-7.0 % (shell, fonts, dialog centring); 60 specs pass; 39 URLs in the responsive gate pass at 320/390/1024/1440; eslint + build clean; the login-bounce regression now covers Settings and Help (renamed `recruiter-no-login-bounce.spec.js`). Found on the way: a truncated Figma PNG export (read as a false 16 % diff), nav glyphs the builders had not compared (four exported from Figma). See [recruiter-settings.md](recruiter-settings.md).
+
+## [2026-11-07] docs | Recruiter Application Pipeline (24 frames) verified by the lead: re-measured 1.9-4.4 % (new frames) and 2.9-5.8 % (7 older), eslint and build clean, responsive audit on the production build (27 URLs x 4 widths), click-through of menus, drawer and cross-flow links; fixed the talent profile toast navigation bug; see [recruiter-application-pipeline.md](recruiter-application-pipeline.md)
+
+## [2026-11-07] build | Recruiter Application Pipeline board, new design (Figma 'Recruiter - Application Pipeline' 10172:10101): PL-01, PL-01b, PL-02, PL-04, PL-06, PL-15 (1.9-3.4 %)
+
+New board (`PipelineBoard`, `PipelineCandidateCard`, `PipelineCardMenu`, board data model + `pipelineBoardModel` helpers, stage chips, qualified switch, search, card menu, drag, bulk bar, empty pipeline), workspace rail with opt-in Settings row. The older board stays for `sidebar=collapsed` (AP3-AP9, re-measured 2.9-5.8 %), hand-off and live data. Dialogs / drawer / toasts: `actions/` (separate agent). See [recruiter-application-pipeline.md](recruiter-application-pipeline.md).
+
+## [2026-11-07] build | Recruiter Messages inbox (Figma 'Recruiter - Messages' 10124:23474): R-MSG-01…11 on `/recruiter/messages` (1.8–6.5 %), replaces the V2.0 recruiter view
+
+New `recruiterMessages/RecruiterInbox*` (list, thread with application card, archive view, empty states, toasts), 25 purpose-named Figma exports in `assets/recruiter-messages/`, e2e 5 tests incl. 320/390. `?view=talent` untouched; T-MSG-01 (talent frame on the same canvas) NOT rebuilt. See [recruiter-messages-inbox.md](recruiter-messages-inbox.md). `✅ VERIFIED`
+
 ## [2026-11-06] build | Recruiter Community Engagement (Figma 10026:36840, 48 frames: RC-C01…C17 clubs, RC-CC02…CC17b host, RC-NW01…NW11 network)
 
 The talent Community pages now serve `/recruiter/community…` in the recruiter shell (`communityVariant.js`, per-audience copy hooks, `base` links). Three parallel builders + lead integration. Frames 2.0-11.6 % (font metrics, shell, dialog centring); 35 specs; 59 URLs in the responsive gate pass at 320/390/1024/1440 after the `CircleToast` target fix; eslint + build clean. Top-bar name/search still the shared recruiter shell's. See [recruiter-community.md](recruiter-community.md).

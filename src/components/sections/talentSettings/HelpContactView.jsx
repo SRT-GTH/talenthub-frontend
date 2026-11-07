@@ -16,7 +16,7 @@ import {
 import HelpField from './helpFields.jsx';
 import HelpRequestsList from './HelpRequests.jsx';
 import { useMyRequests } from './useMyRequests.js';
-import { CONTACT, SENT } from './helpData.js';
+import { CONTACT, SENT as SENT_COPY } from './helpData.js';
 import spotSent from '../../../assets/talent-settings/help/spot-request-sent.svg';
 
 const log = debug('HelpContactView');
@@ -35,7 +35,9 @@ const SideTitle = ({ children }) => (
   </h2>
 );
 
-const RequestSentModal = ({ reference, onRequests, onBack }) => {
+/* Exported for the recruiter Help set (add-only): `copy` ({ title, body, steps, viewRequests, back }) replaces the talent copy; `reference` is then not prefixed. */
+export const RequestSentModal = ({ reference, onRequests, onBack, copy }) => {
+  const SENT = copy ?? SENT_COPY;
   const uid = useId();
   return (
     <HelpModal
@@ -60,8 +62,9 @@ const RequestSentModal = ({ reference, onRequests, onBack }) => {
           id={`${uid}-body`}
           className="m-0 w-full text-center font-sans text-[15px] leading-[22px] text-[#595959]"
         >
-          {reference ? `Request ${reference}. ` : ''}A person from the GTH team will reply in the
-          app. You’ll get a notification.
+          {copy
+            ? copy.body
+            : `${reference ? `Request ${reference}. ` : ''}A person from the GTH team will reply in the app. You’ll get a notification.`}
         </p>
         <ol className="m-0 flex w-full list-none flex-wrap items-center justify-center gap-[8px] rounded-[14px] bg-[#f8f8f4] p-[14px]">
           {SENT.steps.map((step, i) => (
@@ -89,7 +92,7 @@ const RequestSentModal = ({ reference, onRequests, onBack }) => {
         </ol>
         <div className="flex w-full flex-wrap items-start gap-[10px]">
           <HelpButton size="lg" className="min-w-[160px] flex-1" onClick={onRequests}>
-            {reference ? 'Open my request' : SENT.viewRequests}
+            {reference && !copy ? 'Open my request' : SENT.viewRequests}
           </HelpButton>
           <HelpButton tone="primary" size="lg" className="min-w-[160px] flex-1" onClick={onBack}>
             {SENT.back}

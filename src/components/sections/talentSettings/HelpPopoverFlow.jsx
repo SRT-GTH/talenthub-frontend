@@ -33,7 +33,7 @@ const log = debug('HelpPopoverFlow');
 const SECTION_LABEL =
   'font-sans text-[11px] font-semibold leading-[1.2] tracking-[0.66px] max-lg:text-[12px] text-[#387440]';
 
-const Footer = ({ onReplay, onShortcuts, onCentre }) => (
+const Footer = ({ copy, onReplay, onShortcuts, onCentre }) => (
   <>
     <div className="h-px w-full shrink-0 bg-[rgba(28,42,33,0.08)]" />
     <div className="flex w-full flex-wrap items-center gap-x-[8px] gap-y-[6px]">
@@ -46,11 +46,11 @@ const Footer = ({ onReplay, onShortcuts, onCentre }) => (
         )}
       >
         <img src={iconPlay} alt="" aria-hidden="true" className="size-[16px]" />
-        {HP_COPY.replay}
+        {copy.replay}
       </button>
       <span className="h-px min-w-px flex-1" />
       <span className="inline-flex items-center gap-[6px] font-sans text-[13px] font-medium leading-[1.2] text-[#595959]">
-        {HP_COPY.shortcuts}
+        {copy.shortcuts}
         <button
           type="button"
           onClick={onShortcuts}
@@ -68,27 +68,38 @@ const Footer = ({ onReplay, onShortcuts, onCentre }) => (
           FOCUS_RING
         )}
       >
-        {HP_COPY.centre}
+        {copy.centre}
         <img src={iconArrow} alt="" aria-hidden="true" className="size-[14px]" />
       </button>
     </div>
   </>
 );
 
-const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
+/* `data` (optional, add-only; defaults to the talent set): { copy, pageRows, popularRows, search(query), defaultQuery, helpRoute, onReplay } — the recruiter Help set passes its own. */
+const TALENT_DATA = {
+  copy: HP_COPY,
+  pageRows: HP_PAGE_ROWS,
+  popularRows: HP_POPULAR_ROWS,
+  search: searchHelp,
+  defaultQuery: HP_DEFAULT_QUERY,
+  helpRoute: HELP_ROUTE,
+};
+
+const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close, data = TALENT_DATA }) => {
+  const { copy, pageRows, popularRows, search: searchHelpFn, defaultQuery, helpRoute } = data;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const onHelpPage = pathname === HELP_ROUTE;
+  const onHelpPage = pathname === helpRoute;
 
-  const query = flow === 'page' ? '' : (q ?? HP_DEFAULT_QUERY[flow] ?? '');
-  const results = flow === 'page' ? [] : searchHelp(query);
+  const query = flow === 'page' ? '' : (q ?? defaultQuery[flow] ?? '');
+  const results = flow === 'page' ? [] : searchHelpFn(query);
   const view = flow === 'page' ? 'page' : results.length > 0 ? 'results' : 'none';
   log('render', { flow, query, view, results: results.length });
 
   const go = (state) => {
     log('go', state);
     if (onHelpPage) home.update({ help: state, q: null });
-    else navigate(`${HELP_ROUTE}?help=${state}`);
+    else navigate(`${helpRoute}?help=${state}`);
   };
 
   const onType = (value) => {
@@ -97,7 +108,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
       home.update({ help: 'page', q: null });
       return;
     }
-    const next = searchHelp(value).length > 0 ? 'searching' : 'none';
+    const next = searchHelpFn(value).length > 0 ? 'searching' : 'none';
     log('branch: query', { value, next });
     home.update({ help: next, q: value });
   };
@@ -113,7 +124,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
   const onCentre = () => {
     log('help centre');
     if (onHelpPage) home.update({ help: null, q: null });
-    else navigate(HELP_ROUTE);
+    else navigate(helpRoute);
   };
 
   return (
@@ -138,10 +149,10 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
         <div className="flex w-full items-center gap-[12px]">
           <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
             <h2 className={classNames('m-0 text-[22px] leading-[1.2] text-[#1c2a21]', HEADING)}>
-              {HP_COPY.title}
+              {copy.title}
             </h2>
             <p className="m-0 font-sans text-[13px] leading-[1.2] text-[#595959]">
-              {view === 'page' ? HP_COPY.subtitleDefault : HP_COPY.subtitleSearch}
+              {view === 'page' ? copy.subtitleDefault : copy.subtitleSearch}
             </p>
           </div>
           <button
@@ -164,7 +175,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
           <input
             type="search"
             value={query}
-            placeholder={HP_COPY.search}
+            placeholder={copy.search}
             aria-label="Search help"
             autoFocus={flow !== 'page'}
             onFocus={(e) => {
@@ -179,14 +190,14 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
         {view === 'page' && (
           <>
             <div className="flex w-full flex-col items-start gap-[8px]">
-              <span className={SECTION_LABEL}>{HP_COPY.pageLabel}</span>
-              {HP_PAGE_ROWS.map((r) => (
+              <span className={SECTION_LABEL}>{copy.pageLabel}</span>
+              {pageRows.map((r) => (
                 <HelpRow key={r.id} icon={r.icon} title={r.title} onClick={() => openRow(r)} />
               ))}
             </div>
             <div className="flex w-full flex-col items-start gap-[8px]">
-              <span className={SECTION_LABEL}>{HP_COPY.popularLabel}</span>
-              {HP_POPULAR_ROWS.map((r) => (
+              <span className={SECTION_LABEL}>{copy.popularLabel}</span>
+              {popularRows.map((r) => (
                 <HelpRow key={r.id} icon={r.icon} title={r.title} onClick={() => openRow(r)} />
               ))}
             </div>
@@ -198,7 +209,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 icon={<img src={iconBulb} alt="" aria-hidden="true" className="size-[20px]" />}
                 onClick={() => log('ask buddy')}
               >
-                {HP_COPY.buddy}
+                {copy.buddy}
               </HelpButton>
               <HelpButton
                 size="md"
@@ -206,7 +217,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 icon={<img src={iconWhatsapp} alt="" aria-hidden="true" className="size-[20px]" />}
                 onClick={() => log('whatsapp')}
               >
-                {HP_COPY.whatsapp}
+                {copy.whatsapp}
               </HelpButton>
             </div>
           </>
@@ -232,10 +243,10 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
             </div>
             <div className="flex w-full items-center gap-[10px] overflow-hidden rounded-[12px] bg-[#faf4e8] px-[12px] py-[10px]">
               <span className="min-w-px flex-1 font-sans text-[13px] font-medium leading-[1.2] text-[#1c2a21]">
-                {HP_COPY.notFound}
+                {copy.notFound}
               </span>
               <HelpButton tone="primary" size="sm" onClick={() => log('ask buddy')}>
-                {HP_COPY.buddy}
+                {copy.buddy}
               </HelpButton>
             </div>
           </>
@@ -252,7 +263,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 {`No answers for “${query}” yet`}
               </p>
               <p className="m-0 w-full text-center font-sans text-[13px] leading-[1.2] text-[#595959]">
-                {HP_COPY.noResultsBody}
+                {copy.noResultsBody}
               </p>
             </div>
             <div className="flex h-[55px] w-full items-center gap-[8px]">
@@ -263,7 +274,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 icon={<img src={iconBulb} alt="" aria-hidden="true" className="size-[20px]" />}
                 onClick={() => log('ask buddy')}
               >
-                {HP_COPY.buddy}
+                {copy.buddy}
               </HelpButton>
               <HelpButton
                 size="md"
@@ -271,7 +282,7 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 icon={<HelpMailInkIcon className="size-[20px]" />}
                 onClick={() => go('contact')}
               >
-                {HP_COPY.contact}
+                {copy.contact}
               </HelpButton>
             </div>
             <button
@@ -282,13 +293,14 @@ const HelpPopoverFlow = ({ home, flow, q, pos, cardRef, close }) => {
                 FOCUS_RING
               )}
             >
-              {HP_COPY.suggest}
+              {copy.suggest}
             </button>
           </>
         )}
 
         <Footer
-          onReplay={() => log('replay the tour')}
+          copy={copy}
+          onReplay={() => (data.onReplay ? data.onReplay() : log('replay the tour'))}
           onShortcuts={() => home.update({ help: 'shortcuts', q: null })}
           onCentre={onCentre}
         />

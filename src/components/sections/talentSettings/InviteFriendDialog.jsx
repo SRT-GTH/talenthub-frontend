@@ -12,7 +12,7 @@ import {
   InviteWhatsappIcon,
 } from '../../shared/assets.jsx';
 import { DIALOG_CARD, FOCUS_RING, HEADING, HelpButton, HelpModal } from './helpUi.jsx';
-import { INVITE } from './helpData.js';
+import { INVITE as INVITE_COPY } from './helpData.js';
 
 const log = debug('InviteFriendDialog');
 
@@ -22,19 +22,17 @@ const log = debug('InviteFriendDialog');
  * link to the clipboard, the share tiles open the matching share intent. Copy differs per style (Focused
  * "pts", Playful "XP") — both are in the DOM, one is `display:none` via the `playful:` variant.
  *
- * Props (all optional): `settings` ({ update }) or `onClose`; otherwise closes by editing the URL itself.
+ * Props (all optional): `settings` ({ update }) or `onClose`; otherwise closes by editing the URL itself. Add-only: `copy` (an override object, merged over INVITE;
+ * an empty `unitFocused` drops the pts / XP unit), `linkClassName` (the link text style, default the talent monospace).
  */
 const SHARE = [
-  { label: INVITE.share[0], Icon: InviteWhatsappIcon },
-  { label: INVITE.share[1], Icon: InviteEmailIcon },
-  { label: INVITE.share[2], Icon: InviteSmsIcon },
-  { label: INVITE.share[3], Icon: InviteMoreShareIcon },
+  { label: INVITE_COPY.share[0], Icon: InviteWhatsappIcon },
+  { label: INVITE_COPY.share[1], Icon: InviteEmailIcon },
+  { label: INVITE_COPY.share[2], Icon: InviteSmsIcon },
+  { label: INVITE_COPY.share[3], Icon: InviteMoreShareIcon },
 ];
 
-const LINK = `https://${INVITE.link}`;
-const MESSAGE = `Join me on Ghana Talent Hub: ${LINK}`;
-
-const shareHref = (label) => {
+const shareHref = (label, MESSAGE) => {
   if (label === 'WhatsApp') return `https://wa.me/?text=${encodeURIComponent(MESSAGE)}`;
   if (label === 'Email')
     return `mailto:?subject=${encodeURIComponent('Ghana Talent Hub')}&body=${encodeURIComponent(MESSAGE)}`;
@@ -42,14 +40,23 @@ const shareHref = (label) => {
   return null;
 };
 
-const Unit = () => (
-  <>
-    <span className="playful:hidden">{INVITE.unitFocused}</span>
-    <span className="hidden playful:inline">{INVITE.unitPlayful}</span>
-  </>
-);
+const Unit = ({ copy }) =>
+  copy.unitFocused ? (
+    <>
+      <span className="playful:hidden">{copy.unitFocused}</span>
+      <span className="hidden playful:inline">{copy.unitPlayful}</span>
+    </>
+  ) : null;
 
-const InviteFriendDialog = ({ settings, onClose }) => {
+const InviteFriendDialog = ({
+  settings,
+  onClose,
+  copy: copyOverride,
+  linkClassName = 'font-mono text-[15px]',
+}) => {
+  const INVITE = { ...INVITE_COPY, ...copyOverride };
+  const LINK = `https://${INVITE.link}`;
+  const MESSAGE = INVITE.message ?? `Join me on Ghana Talent Hub: ${LINK}`;
   const uid = useId();
   const [params, setParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
@@ -91,7 +98,7 @@ const InviteFriendDialog = ({ settings, onClose }) => {
       }
       return;
     }
-    const href = shareHref(label);
+    const href = shareHref(label, MESSAGE);
     if (href) window.open(href, '_blank', 'noopener');
     else copy();
   };
@@ -132,12 +139,17 @@ const InviteFriendDialog = ({ settings, onClose }) => {
 
         <p className="m-0 font-sans text-[15px] leading-[1.45] text-[#1c2a21]">
           {INVITE.bodyPre}
-          <Unit />
+          <Unit copy={INVITE} />
           {INVITE.bodyPost}
         </p>
 
         <div className="flex items-center gap-[10px] rounded-[14px] bg-[#f8f8f4] py-[6px] pl-[16px] pr-[6px]">
-          <span className="min-w-0 flex-1 truncate font-mono text-[15px] leading-[1.2] text-[#1c2a21]">
+          <span
+            className={classNames(
+              'min-w-0 flex-1 truncate leading-[1.2] text-[#1c2a21]',
+              linkClassName
+            )}
+          >
             {INVITE.link}
           </span>
           <HelpButton
@@ -180,7 +192,7 @@ const InviteFriendDialog = ({ settings, onClose }) => {
           <InviteFriendsJoinedIcon className="size-[18px] shrink-0" />
           <p className="m-0 min-w-0 flex-1 font-sans text-[14px] font-semibold leading-[1.2] text-[#2a5730]">
             {INVITE.statsPre}
-            <Unit />
+            <Unit copy={INVITE} />
             {INVITE.statsPost}
           </p>
         </div>

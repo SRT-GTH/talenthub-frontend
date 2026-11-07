@@ -6,6 +6,7 @@ import { useDashboardNav } from '../dashboard/dashboardNav.js';
 import avatarKwame from '../../../assets/recruiter-dashboard/recruiter-avatar-kwame-asante.png';
 import badgeProSparkle from '../../../assets/recruiter-dashboard/badge-pro-sparkle.svg';
 import { dashIcons } from './recruiterDashboardIcons.js';
+import WorkspaceSettingsIcon from './WorkspaceSettingsIcon.jsx';
 import { WORKSPACE_SIDEBAR as S } from './recruiterDashboardData.js';
 
 /*
@@ -13,7 +14,7 @@ import { WORKSPACE_SIDEBAR as S } from './recruiterDashboardData.js';
  * "Profile journey 5 of 9" bar, three stats), the nav (Home active as a flat #387440 pill), the plan-usage card, the public link and "Preview as talent".
  * Different from the older rail (`DashboardSidebar`, "Getting started" + gradient pill): that one still serves the other recruiter pages, this one is passed
  * to `DashboardShell` through `renderSidebar` on the dashboard only. Collapsing falls back to the standard collapsed rail.
- * Props: onToggle (collapse), className.
+ * Props: onToggle (collapse), className, showSettings (opt-in: a "Settings" row under Profile, drawn on the Application Pipeline frames PL-01 … PL-16, Figma 10173:11581; off everywhere else).
  */
 const NAV_ORDER = [
   'home',
@@ -27,11 +28,15 @@ const NAV_ORDER = [
 const NavItem = ({ item, badge }) => {
   const body = (
     <>
-      <CommunityIcon
-        src={item.icon}
-        size={18}
-        className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
-      />
+      {item.Icon ? (
+        <item.Icon className="size-[18px] shrink-0 text-[#999]" />
+      ) : (
+        <CommunityIcon
+          src={item.icon}
+          size={18}
+          className={item.active ? 'brightness-0 invert' : 'brightness-0 invert-[.6]'}
+        />
+      )}
       <span
         className={classNames(
           'min-w-0 flex-1 text-left font-sans text-[14px] leading-[24px] tracking-[0.2px]',
@@ -62,7 +67,15 @@ const NavItem = ({ item, badge }) => {
   );
 };
 
-const WorkspaceSidebar = ({ onToggle, className }) => {
+const SETTINGS_ITEM = { id: 'settings', label: 'Settings', Icon: WorkspaceSettingsIcon };
+
+// `settingsActive`: the Recruiter Settings page (Figma SR-01 …): the Settings row links to /recruiter/settings and is the current page.
+const WorkspaceSidebar = ({
+  onToggle,
+  className,
+  showSettings = false,
+  settingsActive = false,
+}) => {
   const { navItems, secondaryNavItems } = useDashboardNav();
   const ordered = NAV_ORDER.map((id) => navItems.find((item) => item.id === id)).filter(Boolean);
 
@@ -154,6 +167,15 @@ const WorkspaceSidebar = ({ onToggle, className }) => {
           {secondaryNavItems.map((item) => (
             <NavItem key={item.id} item={item} />
           ))}
+          {showSettings ? (
+            <NavItem
+              item={
+                settingsActive
+                  ? { ...SETTINGS_ITEM, to: '/recruiter/settings', active: true }
+                  : { ...SETTINGS_ITEM, to: '/recruiter/settings' }
+              }
+            />
+          ) : null}
         </div>
       </nav>
 

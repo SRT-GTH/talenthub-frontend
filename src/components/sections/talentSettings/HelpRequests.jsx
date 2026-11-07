@@ -3,7 +3,7 @@ import { FOCUS_RING, HelpChip } from './helpUi.jsx';
 
 /*
  * Your support requests (useMyRequests: GET /api/support/cases) for the Help page and the Contact support aside. Each row opens
- * ?help=request&ref=SUP-… (HelpRequestView). Props: requests (useMyRequests()), onOpen(ref), limit.
+ * ?help=request&ref=SUP-… (HelpRequestView). Props: requests (useMyRequests()), onOpen(ref), limit, chipTone ('status' ink pill, default; 'soft' green tint — add-only).
  */
 
 const agoOf = (at) => {
@@ -15,7 +15,7 @@ const agoOf = (at) => {
   return d === 1 ? 'yesterday' : `${d} days ago`;
 };
 
-const HelpRequestsList = ({ requests, onOpen, limit = 5 }) => {
+const HelpRequestsList = ({ requests, onOpen, limit = 5, chipTone = 'status' }) => {
   if (requests.loading) {
     return <p className="m-0 font-sans text-[13px] text-[#595959]">Loading your requests…</p>;
   }
@@ -66,7 +66,12 @@ const HelpRequestsList = ({ requests, onOpen, limit = 5 }) => {
                   : ''}
               </span>
             </span>
-            <HelpChip tone="status">{r.statusLabel}</HelpChip>
+            <HelpChip
+              tone={chipTone === 'status' ? 'status' : undefined}
+              soft={chipTone === 'soft'}
+            >
+              {r.statusLabel}
+            </HelpChip>
           </button>
         </li>
       ))}

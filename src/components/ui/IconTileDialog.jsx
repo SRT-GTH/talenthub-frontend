@@ -5,7 +5,7 @@ import { classNames } from '../../utils/classNames.js';
  * IconTileDialog — the recruiter confirm / form dialog: a 24px-radius white card on a #0b1a0f 45 % scrim (Figma "Modal · Invite Kofi to apply" 10102:42398 and "Modal · Add Kofi to a pipeline" 10102:44650).
  * Header: a 44px #ebf1ec tile with a 22px glyph, a Bricolage 24/600 title, a 14/24 #575755 body and a 32px #fffefc round close button. Below: the children (gap 14), then the footer slot (gap 20 above it).
  * Built on `ui/Modal` (focus containment, Escape, scroll lock; a bottom sheet below `sm`).
- * Props: icon (node, the 22px glyph, coloured by the caller), title, body, onClose, widthClassName (a literal `!max-w-[…px]` class, default 600px; 540px for the pipeline dialog), children, footer, className.
+ * Props: icon (node, the 22px glyph, coloured by the caller), title, body, onClose, widthClassName (a literal `!max-w-[…px]` class, default 600px; 540px for the pipeline dialog), iconTileClassName (add-only: tile fill + glyph colour, default green; the pipeline's Not progressing dialog passes red), children, footer, className.
  */
 const CloseGlyph = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="size-[16px]">
@@ -32,6 +32,7 @@ const IconTileDialog = ({
   body,
   onClose,
   widthClassName = '!max-w-[600px]',
+  iconTileClassName = 'bg-[#ebf1ec] text-[#2a5730]',
   children,
   footer,
   className,
@@ -53,7 +54,12 @@ const IconTileDialog = ({
   >
     <div className="flex flex-col gap-[20px]">
       <div className="flex items-start gap-[12px]">
-        <span className="flex size-[44px] shrink-0 items-center justify-center rounded-[10px] bg-[#ebf1ec] text-[#2a5730]">
+        <span
+          className={classNames(
+            'flex size-[44px] shrink-0 items-center justify-center rounded-[10px]',
+            iconTileClassName
+          )}
+        >
           {icon}
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-[4px]">

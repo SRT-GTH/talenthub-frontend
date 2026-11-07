@@ -8,6 +8,7 @@ import { useRecruiterMessagesUrlState } from './useRecruiterMessagesUrlState.js'
 import MessagesInboxPanel from './MessagesInboxPanel.jsx';
 import MessagesThreadPanel from './MessagesThreadPanel.jsx';
 import RecruiterMessagesTalentShell from './RecruiterMessagesTalentShell.jsx';
+import RecruiterInboxSection from './RecruiterInboxSection.jsx';
 
 const log = debug('RecruiterMessagesSection');
 
@@ -34,6 +35,9 @@ const RecruiterMessagesSection = () => {
   useEffect(() => {
     log('mount/update', { viewId, conversationId, threadOpen, rail: state.railCollapsed });
   }, [viewId, conversationId, threadOpen, state.railCollapsed]);
+
+  // The recruiter view is the Figma "Recruiter - Messages" inbox (10124:23474); the talent view keeps the earlier screens.
+  if (viewId === 'recruiter') return <RecruiterInboxSection />;
 
   const workspace = (
     <div

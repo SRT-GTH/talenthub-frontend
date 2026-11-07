@@ -26,7 +26,7 @@ import {
   PageHeader,
 } from './helpUi.jsx';
 import HelpField from './helpFields.jsx';
-import { ARTICLE, REPORT } from './helpData.js';
+import { ARTICLE as ARTICLE_COPY, REPORT as REPORT_COPY } from './helpData.js';
 import iconBulb from '../../../assets/notifications/help/bulb.svg';
 
 const log = debug('HelpArticleView');
@@ -34,7 +34,8 @@ const log = debug('HelpArticleView');
 /*
  * HP-04 Help article · Recruiter asked for a fee (Playful 8229:22097 / Focused 8230:419009) and
  * HP-07 Report a problem (modal over it, Playful 8229:22572 / Focused 8230:419313).
- * Props: settings ({ update }), reporting (true = the HP-07 modal is open, `?help=report`).
+ * Props: settings ({ update }), reporting (true = the HP-07 modal is open, `?help=report`); `data` (optional, add-only: `{ article, report }` shaped like
+ * ARTICLE / REPORT — the recruiter Help set passes its own).
  */
 const Step = ({ n, title, body }) => (
   <div className="flex items-start gap-[14px]">
@@ -58,7 +59,7 @@ const SideTitle = ({ children }) => (
   </h2>
 );
 
-const ReportProblemModal = ({ onClose }) => {
+const ReportProblemModal = ({ onClose, REPORT }) => {
   const uid = useId();
   const [reason, setReason] = useState(REPORT.options[0]);
   const [details, setDetails] = useState(REPORT.detailsValue);
@@ -188,7 +189,9 @@ const ReportProblemModal = ({ onClose }) => {
   );
 };
 
-const HelpArticleView = ({ settings, reporting }) => {
+const HelpArticleView = ({ settings, reporting, data }) => {
+  const ARTICLE = data?.article ?? ARTICLE_COPY;
+  const REPORT = data?.report ?? REPORT_COPY;
   log('mount', { reporting });
   const toCentre = () => settings.update({ help: null, q: null });
   const openReport = () => settings.update({ help: 'report', q: null });
@@ -347,7 +350,9 @@ const HelpArticleView = ({ settings, reporting }) => {
         </aside>
       </div>
 
-      {reporting && <ReportProblemModal onClose={() => settings.update({ help: 'article' })} />}
+      {reporting && (
+        <ReportProblemModal REPORT={REPORT} onClose={() => settings.update({ help: 'article' })} />
+      )}
     </div>
   );
 };

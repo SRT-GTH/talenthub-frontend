@@ -228,6 +228,12 @@ const ApplicationPipelinePage = lazy(
 const RecruiterMessagesPage = lazy(
   () => import('./pages/recruiterMessages/RecruiterMessagesPage.jsx')
 );
+const RecruiterHelpSupportPage = lazy(
+  () => import('./pages/recruiterSettings/RecruiterHelpSupportPage.jsx')
+);
+const RecruiterSettingsPage = lazy(
+  () => import('./pages/recruiterSettings/RecruiterSettingsPage.jsx')
+);
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import ParentOnboardingLayout from './layout/ParentOnboardingLayout.jsx';
 const ParentLoginPage = lazy(() => import('./pages/parentLogin/ParentLoginPage.jsx'));
@@ -1613,6 +1619,24 @@ function App() {
                   element={
                     <Suspense fallback={<RouteFallback />}>
                       <RecruiterMessagesPage />
+                    </Suspense>
+                  }
+                />
+                {/* Recruiter Settings & Account, Figma 10161:75722 (SR-01 ... SR-27, help / feedback / invite R-*). Wiki: recruiter-settings.md. */}
+                <Route
+                  path={'/recruiter/settings'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <RecruiterSettingsPage />
+                    </Suspense>
+                  }
+                />
+                {/* Recruiter Help and support page (Figma R-HS-01 10161:87217 + the help article / report / contact / sent views). */}
+                <Route
+                  path={'/recruiter/help'}
+                  element={
+                    <Suspense fallback={<RouteFallback />}>
+                      <RecruiterHelpSupportPage />
                     </Suspense>
                   }
                 />

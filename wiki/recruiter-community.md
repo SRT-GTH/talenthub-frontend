@@ -27,7 +27,7 @@
 
 ## Known gaps / Figma inconsistencies
 
-- **Login bounce (fixed 2026-11-06):** `CommunityFrame` called `useTalentHomeState()` on recruiter pages; the talent home API 401 then ran `navigate('/login')` (seen on `/create`, `…/manage?state=live`, intermittently). Now `useTalentHomeState({ enabled: !isRecruiter })` never calls it; regression: `recruiter-community-no-login-bounce.spec.js` (reproduced the bug with the fix off). A signed-in recruiter's real data is not checked: these pages are mock only.
+- **Login bounce (fixed 2026-11-06):** `CommunityFrame` called `useTalentHomeState()` on recruiter pages; the talent home API 401 then ran `navigate('/login')` (seen on `/create`, `…/manage?state=live`, intermittently). Now `useTalentHomeState({ enabled: !isRecruiter })` never calls it; regression: `recruiter-no-login-bounce.spec.js` (reproduced the bug with the fix off). A signed-in recruiter's real data is not checked: these pages are mock only.
 - Top bar still reads "Kofi A." and "Search opportunities, skills, communities…" (Figma: "Joel K.", "Search talent, jobs and clubs…"). The recruiter `DashboardShell` is shared with every other recruiter flow, so it was left alone. ⚠️ needs a decision.
 - Ask Assistant fab drawn only on RC-C01 in Figma; not rendered. Sidebar Community "3" badge and the "New" tag not drawn.
 - Shell calls the talent-home API unauthenticated (401 console noise in demo).

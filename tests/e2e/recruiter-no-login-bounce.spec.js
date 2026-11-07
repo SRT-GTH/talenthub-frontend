@@ -6,9 +6,17 @@ const URLS = [
   '/recruiter/community?view=circle',
   '/recruiter/community/people/yaw-darko',
   '/recruiter/community/frontend-devs-ghana',
+  '/recruiter/settings',
+  '/recruiter/settings?tab=team',
+  '/recruiter/settings?tab=security',
+  '/recruiter/settings?menu=open',
+  '/recruiter/settings?help=page',
+  '/recruiter/help',
+  '/recruiter/help?help=contact',
+  '/recruiter/job-postings?help=page',
 ];
 // A recruiter session's 401 from the talent home API must never send /recruiter/community… to /login (CommunityFrame passes enabled:false).
-test.describe('recruiter community: no login bounce on 401', () => {
+test.describe('recruiter community / settings / help: no login bounce on 401', () => {
   for (const u of URLS) {
     test(u, async ({ page }) => {
       test.setTimeout(120000);

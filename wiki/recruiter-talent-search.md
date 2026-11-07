@@ -52,6 +52,8 @@ Diff % = our screenshot vs the Figma export (`recmp`, whole frame, 2026-11-06). 
 - Smoke render of the other recruiter pages and Talent `/job-postings` after the shared-component edits: they render, no overflow, no errors. There is no pixel baseline from before the edits.
 - The dev server dropped module fetches (`net::ERR_NETWORK_CHANGED`) during measuring, so some first loads were blank; those frames were re-run until they rendered.
 
+- Fixed 2026-11-07 (found while wiring the pipeline): the profile toasts "Open Conversation" and "View in Pipeline" navigated away and then the toast's close rewrote the profile URL, so the user stayed on the page; now guarded by a `leavingRef` in `TalentCandidateProfileSection.jsx`. Before that fix the click-through listed above for those two toast buttons had not been run.
+
 ## Known gaps, assumptions, Figma inconsistencies
 
 - Filters (skills, location, More filters) are stored in the URL and shown on the chips but do not change which of the three mock candidates show; only the tab, the search text and `exp=10-plus` with remote off do. Sort reorders using invented ranking fields. Suggestion text other than "react nat", the city names, the education / score / pay option lists, what each Apply does and the first-visit controls are `⚠️ ASSUMPTION` (tagged in `talentSearchFilterData.js`).

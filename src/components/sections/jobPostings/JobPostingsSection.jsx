@@ -13,6 +13,7 @@ import {
 import { PublishedDialog } from '../recruiterJobs/jobFlowDialogs.jsx';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
+import { useRecruiterHelpPanels } from '../recruiterSettings/help/useRecruiterHelpPanels.jsx';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import RecruiterJobTabs from '../recruiterShared/RecruiterJobTabs.jsx';
@@ -252,6 +253,7 @@ const PostingCard = ({
 
 const JobPostingsSection = () => {
   useScopedRoundedFont('data-recruiter-ui'); // Figma draws the recruiter pages in SF Pro Rounded
+  const helpPanels = useRecruiterHelpPanels(); // top-bar "?" pop-over + feedback / invite dialogs (?help=, ?modal=feedback|invite; wiki recruiter-settings-help.md)
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
@@ -370,7 +372,7 @@ const JobPostingsSection = () => {
   };
 
   return (
-    <DashboardShell renderSidebar={renderWorkspaceSidebar}>
+    <DashboardShell renderSidebar={renderWorkspaceSidebar} panels={helpPanels}>
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
         <div className="flex flex-col gap-[16px] max-md:gap-[8px]">
           <RecruiterPageHeading

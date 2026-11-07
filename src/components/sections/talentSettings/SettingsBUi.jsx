@@ -18,12 +18,14 @@ const ROW_TITLE = 'text-[15px] leading-[normal] font-semibold whitespace-nowrap 
 const ROW_DESC = 'text-[13.5px] leading-[1.45] text-[#595959]';
 
 // Group card (Figma `group · …`): white, 20px radius, hairline border, 24px padding.
+// (add-only) `recruiter`: the recruiter Settings card (Figma "Card · …", 10161:80007): 16px radius, #e5e8e3 border + soft shadow, gap 16, Bricolage 22/26 title, 12/20 description.
 export const GroupCard = ({
   title,
   description,
   children,
   gap = 'gap-[8px]',
   danger = null,
+  recruiter = false,
   className,
   headClassName,
   ...rest
@@ -39,9 +41,10 @@ export const GroupCard = ({
   return (
     <section
       className={classNames(
-        'flex w-full flex-col items-start rounded-[20px] bg-white p-[clamp(14px,1.4vw,24px)]',
-        border,
-        gap,
+        'flex w-full flex-col items-start bg-white p-[clamp(14px,1.4vw,24px)]',
+        recruiter
+          ? 'gap-[16px] rounded-[16px] border border-[#e5e8e3] shadow-[0_1px_2px_rgba(15,15,10,0.05),0_6px_16px_-4px_rgba(15,15,10,0.07)]'
+          : `rounded-[20px] ${border} ${gap}`,
         className
       )}
       {...rest}
@@ -49,22 +52,33 @@ export const GroupCard = ({
       {title && (
         <header
           className={classNames(
-            'flex w-full flex-col items-start pb-[8px]',
-            description && 'gap-[4px]',
+            'flex w-full flex-col items-start',
+            recruiter ? 'gap-[2px]' : 'pb-[8px]',
+            !recruiter && description && 'gap-[4px]',
             headClassName
           )}
         >
           <h2
             className={classNames(
-              HEAD_FONT,
-              'text-[19px] leading-[1.25] tracking-[-0.19px] whitespace-nowrap',
-              titleColor
+              recruiter ? 'font-heading font-semibold' : HEAD_FONT,
+              recruiter
+                ? 'text-[22px] leading-[26px] tracking-[-0.44px] text-[#111]'
+                : `text-[19px] leading-[1.25] tracking-[-0.19px] whitespace-nowrap ${titleColor}`
             )}
           >
             {title}
           </h2>
           {description && (
-            <p className="w-full text-[14px] leading-[1.45] text-[#595959]">{description}</p>
+            <p
+              className={classNames(
+                'w-full',
+                recruiter
+                  ? 'text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]'
+                  : 'text-[14px] leading-[1.45] text-[#595959]'
+              )}
+            >
+              {description}
+            </p>
           )}
         </header>
       )}
@@ -84,53 +98,97 @@ export const SettingRow = ({
   nowrapControl = true,
   className,
   titleId,
+  recruiter = false,
 }) => (
   <div
     className={classNames(
-      'flex w-full items-center gap-x-[20px] gap-y-[10px] py-[14px]',
-      top && 'border-t border-[rgba(28,42,33,0.08)]',
+      'flex w-full items-center',
+      // (add-only) `recruiter`: Figma "Setting · …" rows: no divider, gap 12, 14/24 title and 12/20 description.
+      recruiter ? 'gap-x-[12px] gap-y-[10px]' : 'gap-x-[20px] gap-y-[10px] py-[14px]',
+      !recruiter && top && 'border-t border-[rgba(28,42,33,0.08)]',
       nowrapControl ? 'flex-nowrap' : 'flex-wrap',
       className
     )}
   >
-    <div className="flex min-w-0 flex-[1_1_220px] flex-col items-start gap-[3px]">
+    <div
+      className={classNames(
+        'flex min-w-0 flex-[1_1_220px] flex-col items-start',
+        recruiter ? 'gap-[2px]' : 'gap-[3px]'
+      )}
+    >
       <div className="flex items-center gap-[8px]">
-        <p id={titleId} className={ROW_TITLE}>
+        <p
+          id={titleId}
+          className={
+            recruiter
+              ? 'text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]'
+              : ROW_TITLE
+          }
+        >
           {title}
         </p>
         {chip}
       </div>
-      {description && <p className={ROW_DESC}>{description}</p>}
+      {description && (
+        <p
+          className={
+            recruiter ? 'text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]' : ROW_DESC
+          }
+        >
+          {description}
+        </p>
+      )}
     </div>
     {control}
   </div>
 );
 
 // Switch 44x26 — Focused: 1px .12 ring; Playful: 1.5px ink ring and half-pixel knob offsets.
-export const SettingsToggle = ({ checked, onChange, label, labelledBy, className }) => (
+// (add-only) `recruiter`: the 40x22 recruiter switch (Figma "Toggle · On/Off": #387440 / #babab7, 18px white knob with a soft shadow, no ring); `disabled` is also new.
+export const SettingsToggle = ({
+  checked,
+  onChange,
+  label,
+  labelledBy,
+  className,
+  recruiter = false,
+  disabled = false,
+}) => (
   <button
     type="button"
     role="switch"
     aria-checked={checked}
     aria-label={labelledBy ? undefined : label}
     aria-labelledby={labelledBy}
+    disabled={disabled}
     onClick={() => {
       log('toggle', { label: label ?? labelledBy, next: !checked });
       onChange(!checked);
     }}
     className={classNames(
-      'relative h-[26px] w-[44px] shrink-0 cursor-pointer rounded-full transition-colors duration-150',
-      'shadow-[inset_0_0_0_1px_rgba(28,42,33,0.12)] playful:shadow-[inset_0_0_0_1.5px_#1c2a21]',
-      checked ? 'bg-[#387440]' : 'bg-[#e1eae2]',
+      'relative shrink-0 cursor-pointer rounded-full transition-colors duration-150 disabled:cursor-not-allowed',
+      recruiter
+        ? 'h-[22px] w-[40px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]'
+        : 'h-[26px] w-[44px] shadow-[inset_0_0_0_1px_rgba(28,42,33,0.12)] playful:shadow-[inset_0_0_0_1.5px_#1c2a21]',
+      checked ? 'bg-[#387440]' : recruiter ? 'bg-[#babab7]' : 'bg-[#e1eae2]',
       className
     )}
   >
     <span
       aria-hidden="true"
       className={classNames(
-        'absolute top-[3px] size-[20px] rounded-full border-[1.2px] border-[#1c2a21] bg-white',
+        'absolute rounded-full bg-white',
         'motion-safe:transition-[left] motion-safe:duration-150',
-        checked ? 'left-[21px] playful:left-[20.5px]' : 'left-[3px] playful:left-[3.5px]'
+        recruiter
+          ? 'top-[2px] size-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.18)]'
+          : 'top-[3px] size-[20px] border-[1.2px] border-[#1c2a21]',
+        recruiter
+          ? checked
+            ? 'left-[20px]'
+            : 'left-[2px]'
+          : checked
+            ? 'left-[21px] playful:left-[20.5px]'
+            : 'left-[3px] playful:left-[3.5px]'
       )}
     />
   </button>

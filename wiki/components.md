@@ -1047,3 +1047,19 @@ No new `ui/` primitives. Form-local family in `src/components/sections/recruiter
 ## Community variants (2026-11-06)
 
 `talentCommunity/communityVariant.js` (`useCommunityVariant`, `communityHref`), `communityContent.js`, `create/useCreateCommunityCopy.js`, `circle/useCircleVariantData.js`, `ClubsSwitchRow`, `circle/Network*` cards, `CirclePersonLink`. Components read copy/links from the hook, never branch on the audience. See [recruiter-community.md](recruiter-community.md).
+
+## Application Pipeline actions (2026-11-07)
+
+`ui/CenteredIconDialog.jsx` (centred 56px icon tile, Bricolage 28 title, centred body, left-aligned children, centred footer; sibling of `IconTileDialog`; Figma PL-07 / PL-12 / PL-13); `ui/IconTileDialog` got add-only `iconTileClassName` (red tile for "Not progressing"). Section code in `sections/applicationPipeline/actions/`: `PipelineActionLayer` (URL-driven drawer / dialogs / toasts), `CandidateDrawer`, `ActionDialogs` (bulk move, Not progressing, offer accepted / declined), `OfferInterviewDialogs` (extend offer, interview feedback), `PipelineToast` (`ui/BannerToast` + the 3 % page tint), `ActionFormParts` (`HintCheckbox`, `RadioOptionRow`), `actionIcons.jsx` (Figma `Icon/*` exports), `pipelineActionData.js`, `pipelineActionScenarios.js`. URL keys are listed in the header of `PipelineActionLayer.jsx`.
+
+## Recruiter inbox components (2026-11-07)
+
+No new `ui/` primitives. `recruiterMessages/`: `RecruiterInboxSection`, `RecruiterInboxList`, `RecruiterThreadView`, `recruiterInboxParts.jsx` (`Avatar`, `StageChip`, `EmptyTile`). `ui/BannerToast` for toasts; `ThreadOptionsMenu` reused. See [recruiter-messages-inbox.md](recruiter-messages-inbox.md).
+
+## Application Pipeline board components (2026-11-07)
+
+No new `ui/` primitives (`Button` primary / tertiary reused). `sections/applicationPipeline/`: `PipelineBoard`, `PipelineCandidateCard`, `PipelineCardMenu` (265px r18 popover, not `MenuPanel`: different radius, dividers and two-line rows), `PipelineMeetingCard` (shared with the legacy board; `secondaryFirst`), `pipelineStageIcons.jsx`. `recruiterDashboard/WorkspaceSidebar` prop `showSettings`. See [recruiter-application-pipeline.md](recruiter-application-pipeline.md).
+
+## Recruiter Settings & Help (2026-11-07)
+
+`ui/RecruiterSettingsCard` (card / row / link), `recruiter` props on `SettingsBUi` (`GroupCard`, `SettingRow`, `SettingsToggle`), `SettingsLayout` `heading` / `subheading` / item `Icon`, `WorkspaceSidebar settingsActive`, `DashboardTopNav panels` help / profile slots, `help/useRecruiterHelpPanels`, `data` / `copy` props on the talent help components, `recruiterSettings/settingsNavIcons`. See [recruiter-settings.md](recruiter-settings.md).

@@ -190,16 +190,16 @@ Frame→URL table with diff % and the URL keys of these seven screens: [recruite
 
 All mounted outside `MainLayout`, all wrapped in `DashboardShell`. ✅ VERIFIED
 
-| Path                                    | Page                                                    | Figma                                                                    |
-| --------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `/recruiter/home`                       | `pages/recruiterHome/RecruiterHomePage.jsx`             | `7249:73882`                                                             |
-| `/recruiter/talent-search`              | `pages/talentSearch/TalentSearchPage.jsx`               | `7249:74283`                                                             |
-| `/recruiter/talent-search/:candidateId` | `pages/talentSearch/TalentCandidateProfilePage.jsx`     | `10102:41537` ([recruiter-talent-search.md](recruiter-talent-search.md)) |
-| `/recruiter/job-templates`              | `pages/jobTemplates/JobTemplatesPage.jsx`               | `7249:75046`                                                             |
-| `/recruiter/job-postings`               | `pages/jobPostings/JobPostingsPage.jsx`                 | `7249:75818`                                                             |
-| `/recruiter/job-screening`              | `pages/jobScreening/JobScreeningPage.jsx`               | `7249:78066`                                                             |
-| `/recruiter/application-pipeline`       | `pages/applicationPipeline/ApplicationPipelinePage.jsx` | `7249:79017`                                                             |
-| `/recruiter/messages`                   | `pages/recruiterMessages/RecruiterMessagesPage.jsx`     | `7249:83993`                                                             |
+| Path                                    | Page                                                    | Figma                                                                                                                                                      |
+| --------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/recruiter/home`                       | `pages/recruiterHome/RecruiterHomePage.jsx`             | `7249:73882`                                                                                                                                               |
+| `/recruiter/talent-search`              | `pages/talentSearch/TalentSearchPage.jsx`               | `7249:74283`                                                                                                                                               |
+| `/recruiter/talent-search/:candidateId` | `pages/talentSearch/TalentCandidateProfilePage.jsx`     | `10102:41537` ([recruiter-talent-search.md](recruiter-talent-search.md))                                                                                   |
+| `/recruiter/job-templates`              | `pages/jobTemplates/JobTemplatesPage.jsx`               | `7249:75046`                                                                                                                                               |
+| `/recruiter/job-postings`               | `pages/jobPostings/JobPostingsPage.jsx`                 | `7249:75818`                                                                                                                                               |
+| `/recruiter/job-screening`              | `pages/jobScreening/JobScreeningPage.jsx`               | `7249:78066`                                                                                                                                               |
+| `/recruiter/application-pipeline`       | `pages/applicationPipeline/ApplicationPipelinePage.jsx` | `7249:79017` (older board); new board and actions `10173:11112`..`10173:21199`, see [recruiter-application-pipeline.md](recruiter-application-pipeline.md) |
+| `/recruiter/messages`                   | `pages/recruiterMessages/RecruiterMessagesPage.jsx`     | `7249:83993`                                                                                                                                               |
 
 `DashboardSidebar` derives its active item from `useLocation().pathname`; Home, Talent Search, Job Postings, Messages and Application Pipeline all resolve to the routes above. Community remains `/community` and `/community/:communityId`. ✅ VERIFIED
 
@@ -282,3 +282,11 @@ New lazy routes (all inside the recruiter shell, no guards): `/recruiter/job-pos
 ## Recruiter Community (2026-11-06)
 
 `/recruiter/community` (browse), `/:communityId`, `/:communityId/post/:postId`, `/create`, `/:communityId/manage`, `/people/:personId`, all state in the URL (`?view=circle`, `?joined=1`, `?modal=…`, `?state=…`, `?rail=collapsed`), no guards, mock data. Same page components as `/community…`; see [recruiter-community.md](recruiter-community.md).
+
+## Recruiter inbox (2026-11-07)
+
+`/recruiter/messages` (recruiter view) is now the Figma "Recruiter - Messages" inbox: `?tab=all|unread|applicants`, `?conversation=<id>|none`, `?inbox=empty|none`, `?archived=1`, `?toast=archived|unarchived`, `?menu=thread`, `?thread=open`. `?view=talent` keeps the earlier talent screens. Table: [recruiter-messages-inbox.md](recruiter-messages-inbox.md). `✅ VERIFIED`
+
+## Recruiter Settings & Help (2026-11-07)
+
+`/recruiter/settings` (`?tab=account|organisation|team|hiring|notifications|billing|accessibility|language|security`, plus `?modal=`, `?state=logged-out`, `?toast=`, `?menu=open`, `?help=…`) and `/recruiter/help` (`?help=article|report|contact|sent`); state in the URL, mock data, no guards. The Help pop-over (`?help=page|searching|none|shortcuts`, `?modal=feedback|invite`) also opens on `/recruiter/job-postings`. See [recruiter-settings.md](recruiter-settings.md).

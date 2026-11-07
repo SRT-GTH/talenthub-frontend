@@ -8,9 +8,9 @@ const log = debug('KeyboardShortcutsModal');
 /*
  * HP-08 Keyboard shortcuts — `?help=shortcuts` (Playful 8228:14879 / Focused 8230:418325, modal
  * 8228:15813 / 8230:418939). 560px, r24, p28, gap 20, scrim rgba(28,42,33,.45). Mounted by HelpPopover.
- * Props: onClose.
+ * Props: onClose, copy (optional, add-only: the recruiter set passes its own `SHORTCUTS_COPY`-shaped object).
  */
-const KeyboardShortcutsModal = ({ onClose }) => {
+const KeyboardShortcutsModal = ({ onClose, copy = SHORTCUTS_COPY }) => {
   log('mount');
   return (
     <HelpModal
@@ -25,13 +25,11 @@ const KeyboardShortcutsModal = ({ onClose }) => {
             id="help-shortcuts-title"
             className={classNames('m-0 text-[26px] leading-[1.2] text-[#1c2a21]', HEADING)}
           >
-            {SHORTCUTS_COPY.title}
+            {copy.title}
           </h2>
-          <p className="m-0 font-sans text-[14px] leading-[1.2] text-[#595959]">
-            {SHORTCUTS_COPY.subtitle}
-          </p>
+          <p className="m-0 font-sans text-[14px] leading-[1.2] text-[#595959]">{copy.subtitle}</p>
         </div>
-        {SHORTCUTS_COPY.groups.map((group) => (
+        {copy.groups.map((group) => (
           <section key={group.label} className="flex flex-col gap-[8px]">
             <h3 className="m-0 font-sans text-[11px] font-semibold leading-[1.2] tracking-[0.66px] max-lg:text-[12px] text-[#387440]">
               {group.label}
@@ -60,7 +58,7 @@ const KeyboardShortcutsModal = ({ onClose }) => {
           className="w-full !px-[28px] !text-[15px]"
           onClick={onClose}
         >
-          {SHORTCUTS_COPY.done}
+          {copy.done}
         </HelpButton>
       </div>
     </HelpModal>

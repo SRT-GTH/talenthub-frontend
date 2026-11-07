@@ -61,8 +61,19 @@ const LANGUAGES = [
 const RING =
   'focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-solid focus-visible:outline-[#1c2a21]';
 
-/* GTH · Menu item — 44px row, px12 py10, radius 12. Hover / `hot` = green tint (#ebf1ec, medium green label). */
-const MenuItem = ({ icon, label, value, chevron, hot, onActivate, onHot, expanded, id }) => (
+/* GTH · Menu item — 44px row, px12 py10, radius 12. Hover / `hot` = green tint (#ebf1ec, medium green label). `danger` (add-only, recruiter Log out row): red label. */
+export const MenuItem = ({
+  icon,
+  label,
+  value,
+  chevron,
+  hot,
+  onActivate,
+  onHot,
+  expanded,
+  id,
+  danger = false,
+}) => (
   <button
     type="button"
     role="menuitem"
@@ -83,7 +94,11 @@ const MenuItem = ({ icon, label, value, chevron, hot, onActivate, onHot, expande
     <span
       className={classNames(
         'min-w-0 flex-1',
-        hot ? 'font-medium text-[#387440]' : 'font-normal text-[#575755]'
+        danger
+          ? 'font-normal text-[#c0392b]'
+          : hot
+            ? 'font-medium text-[#387440]'
+            : 'font-normal text-[#575755]'
       )}
     >
       {label}
@@ -103,7 +118,9 @@ const MenuItem = ({ icon, label, value, chevron, hot, onActivate, onHot, expande
   </button>
 );
 
-const Divider = () => <div aria-hidden="true" className="h-px w-full shrink-0 bg-[#e7e7e7]" />;
+export const Divider = () => (
+  <div aria-hidden="true" className="h-px w-full shrink-0 bg-[#e7e7e7]" />
+);
 
 // Settings stores the language as en | tw | ga | ee | dag | ha (talentSettingsBData LANGUAGES).
 const toSettingsLang = (id) => (id === 'en-GH' ? 'en' : id);
