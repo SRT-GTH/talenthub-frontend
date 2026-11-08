@@ -60,6 +60,10 @@ const liveToast = (kind, posting) => {
   if (kind === 'closed')
     return { tone: 'success', title: `Success - ${title} is closed`, message: 'It no longer accepts applications and is hidden from talent search.', actionLabel: 'Reopen' };
   if (kind === 'deleted') return { tone: 'success', title: 'Success - Draft deleted', message: title };
+  if (kind === 'published')
+    return { tone: 'success', title: 'Success', message: `${title} is live. Talent can now find it in Opportunities` };
+  if (kind === 'drafted')
+    return { tone: 'warning', title: `${title} was saved as a draft`, message: 'It goes live once your organisation approves your affiliation, or after a content review.' };
   return null;
 };
 

@@ -208,6 +208,12 @@ const ApplicationPipelineSection = () => {
   const [pending, setPending] = useState(null); // { card, action }
   const [error, setError] = useState(null);
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
+  // Live: open on the posting named in the URL ("View Pipeline" on /recruiter/job-postings passes ?posting=<id>).
+  const urlPosting = searchParams.get('posting');
+  const { jobs: liveJobs, setJobId: setLiveJobId } = pipe;
+  useEffect(() => {
+    if (isLive && urlPosting && liveJobs.some((j) => jobIdOf(j) === urlPosting)) setLiveJobId(urlPosting);
+  }, [isLive, urlPosting, liveJobs, setLiveJobId]);
   // Signed in, the board never shows the Figma demo people — empty columns while loading.
   const columns = isLive
     ? buildPipelineColumns(COLUMNS, pipe.status === 'live' ? pipe.applications : [], pipe.jobId)
@@ -438,10 +444,12 @@ const ApplicationPipelineSection = () => {
     <DashboardShell
       defaultSidebarCollapsed={urlState.sidebarCollapsed}
       renderSidebar={
-        legacy && handoff === null
+        legacy && !isLive && handoff === null
           ? undefined
           : ({ collapsed, onToggle }) =>
-              collapsed ? null : <WorkspaceSidebar onToggle={onToggle} showSettings={!legacy} />
+              collapsed ? null : (
+                <WorkspaceSidebar onToggle={onToggle} showSettings={!legacy || isLive} />
+              )
       }
     >
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">

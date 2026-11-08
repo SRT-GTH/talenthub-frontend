@@ -31,6 +31,10 @@ import {
   SENIOR_UX,
 } from './jobFormData.js';
 
+import { isRecruiterSession, refreshRecruiterShell } from '../../../services/recruiterShell.api.js';
+import { jobPostErrorText, postJobFromBuddy } from '../../../services/recruiterJobs.api.js';
+import { toBuddyForm } from './liveJobForm.js';
+
 const log = debug('JobFormPage');
 
 /*
@@ -278,6 +282,9 @@ const JobFormPage = ({ mode = 'job' }) => {
   const [ask, setAsk] = useState(false);
   const timers = useRef([]);
   const [step, setStep] = useState(1);
+  // Signed-in recruiter: "Publish job" creates the posting for real (POST /opportunities/from-buddy).
+  const live = isRecruiterSession();
+  const [postError, setPostError] = useState(null);
 
   const update = useCallback(
     (patch) => {
@@ -323,6 +330,27 @@ const JobFormPage = ({ mode = 'job' }) => {
     log('publish start');
     update({ state: 'publishing', menu: null });
     setStep(0);
+    if (live) {
+      setPostError(null);
+      timers.current.push(setTimeout(() => setStep(1), 900));
+      postJobFromBuddy(toBuddyForm(values))
+        .then((out) => {
+          setStep(2);
+          refreshRecruiterShell();
+          const id = out?.opportunity?.id || '';
+          const status = out?.opportunity?.status || 'published';
+          log('posted', id, status, out?.reason || '');
+          navigate(
+            `/recruiter/job-postings?toast=${status === 'published' ? 'published' : 'drafted'}&posting=${id}`
+          );
+        })
+        .catch((err) => {
+          log.error('post failed:', err?.response?.status, err?.response?.data?.type);
+          setPostError(jobPostErrorText(err));
+          update({ state: null });
+        });
+      return;
+    }
     timers.current.push(setTimeout(() => setStep(1), 900));
     timers.current.push(setTimeout(() => setStep(2), 1800));
     timers.current.push(
@@ -374,6 +402,14 @@ const JobFormPage = ({ mode = 'job' }) => {
         />
       )}
 
+      {postError ? (
+        <FlowBanner
+          tone="danger"
+          icon={<InfoCircle size={18} />}
+          title="The job wasn\u2019t posted"
+          body={postError}
+        />
+      ) : null}
       {isEdit ? (
         <FlowBanner
           tone="warning"

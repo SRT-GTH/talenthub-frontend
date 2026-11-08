@@ -25,6 +25,7 @@ import { fetchNotifications } from '../../../services/notifications.api.js';
 import StreakPopover from '../talentStreak/StreakPopover.jsx';
 import { useLiveStreak } from '../talentStreak/useLiveStreak.js';
 import { isLoggedIn } from '../../../services/auth.api.js';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 
 const log = debug('DashboardTopNav');
 
@@ -107,6 +108,8 @@ const StreakPillTag = (props) => {
  */
 const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
   const isTalent = Boolean(talentHome);
+  // Signed-in recruiter: their own name and unread count, never the demo "Kofi A." / bell 5 (null for demo sessions).
+  const recruiter = useRecruiterShell();
   // Playful complete/top frames draw a lime-gradient avatar; day 1/discoverable a softer #7aa870 one.
   const talentFlat = isTalent && Boolean(getTalentSidebarData(talentHome.stateKey).flat);
   const nav = isTalent
@@ -123,7 +126,15 @@ const DashboardTopNav = ({ className, talentHome, orgSlot, panels }) => {
           ? { messageCount: talentHome.navMessageCount }
           : null),
       }
-    : TOP_NAV;
+    : recruiter
+      ? {
+          ...TOP_NAV,
+          profileName: recruiter.shortName || '\u00a0',
+          messageCount: recruiter.unreadMessages || 0,
+          notificationCount: 0,
+          streakCount: '\u2013',
+        }
+      : TOP_NAV;
   // Phone-only: the inline search field is `md:flex`, so < md gets an icon
   // button that opens DashboardSearchSheet instead.
   const [searchOpen, setSearchOpen] = useState(false);
