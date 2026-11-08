@@ -7,7 +7,49 @@ import avatarKwame from '../../../assets/recruiter-dashboard/recruiter-avatar-kw
 import badgeProSparkle from '../../../assets/recruiter-dashboard/badge-pro-sparkle.svg';
 import { dashIcons } from './recruiterDashboardIcons.js';
 import WorkspaceSettingsIcon from './WorkspaceSettingsIcon.jsx';
-import { WORKSPACE_SIDEBAR as S } from './recruiterDashboardData.js';
+import { WORKSPACE_SIDEBAR } from './recruiterDashboardData.js';
+import { useRecruiterShell, dash } from '../../../hooks/useRecruiterShell.js';
+
+/* The rail's content: the Figma demo when signed out, the signed-in recruiter's own data otherwise (no demo numbers). */
+const liveSidebar = (shell) => {
+  if (!shell) return WORKSPACE_SIDEBAR;
+  const jobs = shell.jobs;
+  const plan = shell.plan || { label: 'Free', badge: 'Free', jobPosts: 1, inmails: 5 };
+  const used = jobs ? jobs.postedThisMonth : null;
+  const pct = (n, of) => (n === null || !of ? 0 : Math.min(100, (n / of) * 100));
+  const completion = shell.companyCompletion;
+  return {
+    ...WORKSPACE_SIDEBAR,
+    name: shell.fullName || '\u00a0',
+    initials: shell.initials,
+    badge: plan.badge,
+    meta: ['Recruiter', shell.orgName, shell.place].filter(Boolean).join(' \u00b7 '),
+    journeyLabel: 'Company profile',
+    journeyCount: completion === null || completion === undefined ? '\u2014' : `${completion}%`,
+    journeyPercent: completion || 0,
+    journeyNext: completion >= 100 ? 'Company profile complete' : 'Continue: Company profile \u2192',
+    stats: [
+      { id: 'jobs', value: dash(jobs ? jobs.active : null), label: 'Active Jobs' },
+      { id: 'applicants', value: dash(shell.applicants), label: 'Applicants' },
+      { id: 'messages', value: dash(shell.conversations), label: 'Messages' },
+    ],
+    plan: {
+      ...WORKSPACE_SIDEBAR.plan,
+      title: `${plan.label} plan`,
+      usage: [
+        {
+          id: 'posts',
+          label: 'Job posts this month',
+          value: plan.jobPosts === null ? `${dash(used)} / Unlimited` : `${dash(used)} / ${plan.jobPosts}`,
+          percent: plan.jobPosts === null ? 0 : pct(used, plan.jobPosts),
+        },
+        { id: 'inmails', label: 'InMails', value: `${plan.inmails} / month`, percent: 0 },
+      ],
+    },
+    url: shell.publicSlug ? `gth.com/recruiter/${shell.publicSlug}` : '',
+    navBadges: jobs && jobs.active ? { 'job-postings': String(jobs.active) } : {},
+  };
+};
 
 /*
  * WorkspaceSidebar — the recruiter dashboard's left rail at lg+ (Figma "Sidebar · talent" 10068:42622, 303×977): profile card (photo, name + Pro badge, meta line,
@@ -77,6 +119,8 @@ const WorkspaceSidebar = ({
   settingsActive = false,
 }) => {
   const { navItems, secondaryNavItems } = useDashboardNav();
+  const shell = useRecruiterShell();
+  const S = liveSidebar(shell);
   const ordered = NAV_ORDER.map((id) => navItems.find((item) => item.id === id)).filter(Boolean);
 
   return (
@@ -98,7 +142,13 @@ const WorkspaceSidebar = ({
 
       <div className="mx-[12px] flex flex-col items-center gap-[16px] rounded-[16px] border-[1.4px] border-solid border-[#e1eae2] bg-white py-[19px]">
         <span className="flex size-[62px] items-center justify-center overflow-hidden rounded-full bg-[#387440]">
-          <img src={avatarKwame} alt={S.name} className="h-[70px] w-[69px] max-w-none" />
+          {shell ? (
+            <span className="font-sans text-[22px] font-semibold text-white" aria-hidden="true">
+              {S.initials || ''}
+            </span>
+          ) : (
+            <img src={avatarKwame} alt={S.name} className="h-[70px] w-[69px] max-w-none" />
+          )}
         </span>
         <div className="flex flex-col items-center gap-[7px] px-[12px]">
           <div className="flex items-center gap-[5px]">
