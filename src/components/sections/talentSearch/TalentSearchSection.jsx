@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import WorkspaceSidebar from '../recruiterDashboard/WorkspaceSidebar.jsx';
@@ -15,6 +15,9 @@ import CandidateCard from './CandidateCard.jsx';
 import TalentPoolInsightBanner from './TalentPoolInsightBanner.jsx';
 import { useTalentSearchState } from './useTalentSearchState.js';
 import { useLiveTalentSearch } from './useLiveTalentSearch.js';
+import LiveTalentDrawer from './LiveTalentDrawer.jsx';
+import { isRecruiterSession, jobBucket } from '../../../services/recruiterShell.api.js';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 import {
   CANDIDATES,
   PAGE_HEADING,
@@ -107,7 +110,7 @@ const CandidateGrid = ({ keyPrefix, candidates, onViewProfile, onInviteToApply }
 const TalentSearchSection = () => {
   useScopedRoundedFont('data-recruiter-ui');
   const navigate = useNavigate();
-  const state = useTalentSearchState();
+  const state = useTalentSearchState({ live: isRecruiterSession() });
   const { update, menu, pageState, query, typed, tabId, expId } = state;
   const isXlUp = useMediaQuery('(min-width: 1280px) and (min-height: 960px)');
   const jobId = state.jobId ?? DEFAULT_JOB_ID;
@@ -118,8 +121,27 @@ const TalentSearchSection = () => {
   }, []);
 
   // Signed-in recruiter: the real (adult) talent pool from the search index; demo people otherwise.
-  const live = useLiveTalentSearch({ query, tabId, sortId: state.sortId });
+  const live = useLiveTalentSearch({
+    query,
+    tabId,
+    sortId: state.sortId,
+    skills: state.skills,
+    expId,
+    locationId: state.locationId,
+    availability: state.availability,
+    jobId: state.jobId,
+  });
   const isLive = live.status !== 'demo';
+  // The recruiter's open postings: "Searching for" (lets minors appear for internships / training) and invites.
+  const shell = useRecruiterShell();
+  const postings = useMemo(
+    () =>
+      (shell?.jobList || [])
+        .filter((j) => jobBucket(j) === 'active')
+        .map((j) => ({ id: String(j._id || j.id), title: j.title || 'Untitled', type: j.type })),
+    [shell]
+  );
+  const [drawer, setDrawer] = useState(null); // { id, invite }
 
   const demoCandidates = useMemo(() => {
     const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -186,8 +208,14 @@ const TalentSearchSection = () => {
     update({ q: text.trim(), typed: null, menu: null, state: null });
   };
 
-  const goToProfile = (id) => navigate(`/recruiter/talent-search/${id}?${jobQuery}`);
-  const goToInvite = (id) => navigate(`/recruiter/talent-search/${id}?modal=invite&${jobQuery}`);
+  const goToProfile = (id) =>
+    isLive
+      ? setDrawer({ id, invite: false })
+      : navigate(`/recruiter/talent-search/${id}?${jobQuery}`);
+  const goToInvite = (id) =>
+    isLive
+      ? setDrawer({ id, invite: true })
+      : navigate(`/recruiter/talent-search/${id}?modal=invite&${jobQuery}`);
 
   const applySuggestion = (suggestion) => {
     log('branch: apply no-results suggestion', suggestion.id);
@@ -273,7 +301,48 @@ const TalentSearchSection = () => {
         {/* Results — Figma: VERTICAL gap 16, pb 48, after a 40 gap. */}
         <div className="flex w-full flex-col gap-[16px] pt-[40px] pr-[clamp(16px,3.24vw,56px)] pb-[48px] pl-[clamp(16px,2.3vw,40px)] max-md:gap-[10px] max-md:pt-[10px] max-md:pb-[8px]">
           {view === 'loading' ? <TalentResultsLoading /> : null}
-          {view === 'empty' ? (
+          {isLive ? (
+            <label className="flex w-fit flex-wrap items-center gap-[8px] font-sans text-[14px] text-[#575755]">
+              Searching for
+              <select
+                value={postings.some((p) => p.id === state.jobId) ? state.jobId : ''}
+                onChange={(e) => update({ job: e.target.value || null })}
+                className="h-[36px] rounded-[10px] border border-[#dbded9] bg-white px-[10px] font-sans text-[14px] text-[#1c2a21]"
+              >
+                <option value="">Any role (adults only)</option>
+                {postings.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                    {p.type === 'internship' || p.type === 'training-program'
+                      ? ' (under-18s included)'
+                      : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {view === 'empty' && isLive ? (
+            <div className="flex flex-col items-start gap-[10px] rounded-[16px] border border-[#e1eae2] bg-white p-[24px]">
+              <h2 className="m-0 font-heading text-[20px] font-semibold text-[#1c2a21]">
+                No talents match yet
+              </h2>
+              <p className="m-0 max-w-[560px] font-sans text-[14px] leading-[21px] text-[#575755]">
+                {query.trim()
+                  ? `Nobody matches \u201c${query.trim()}\u201d with these filters. Try a shorter search or another skill.`
+                  : 'Nobody matches these filters. Try removing one.'}{' '}
+                Talents who hide their profile, under-18s (except for internship and training
+                postings) and people who blocked your company never appear.
+              </p>
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="h-[40px] cursor-pointer rounded-[10px] border-2 border-[#2a5730] bg-[#387440] px-[16px] font-sans text-[14px] font-semibold text-white"
+              >
+                Clear search and filters
+              </button>
+            </div>
+          ) : null}
+          {view === 'empty' && !isLive ? (
             <TalentNoResults
               onApply={applySuggestion}
               onClearAll={clearAllFilters}
@@ -314,6 +383,16 @@ const TalentSearchSection = () => {
           ) : null}
         </div>
       </div>
+      {drawer ? (
+        <LiveTalentDrawer
+          key={drawer.id}
+          profileId={drawer.id}
+          postings={postings}
+          jobId={state.jobId}
+          startWithInvite={drawer.invite}
+          onClose={() => setDrawer(null)}
+        />
+      ) : null}
       <TalentSearchMoreFiltersSheet
         open={menu === 'more-filters' && !isXlUp}
         filters={state}

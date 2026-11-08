@@ -91,10 +91,8 @@ const Body = ({ filters, onChange, onClose, showHead = true }) => {
               selected={filters.availability.includes(option.id)}
               onClick={() =>
                 onChange({
-                  availability: listParam(
-                    togglePick(filters.availability, option.id),
-                    MORE_FILTERS.defaultAvailability
-                  ),
+                  // Explicit (signed in, no key = no filter).
+                  availability: togglePick(filters.availability, option.id).join(',') || 'none',
                 })
               }
             >

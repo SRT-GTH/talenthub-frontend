@@ -74,7 +74,53 @@ export const toCandidate = (hit) => {
   };
 };
 
-export const useLiveTalentSearch = ({ query, tabId, sortId }) => {
+/* Filter chips -> POST /search/talents params. Locations are searched by region (the profile city is optional). */
+const YEARS = {
+  '0-2': { maxYears: 2 },
+  '2-5': { minYears: 2, maxYears: 5 },
+  '5-plus': { minYears: 5 },
+  '10-plus': { minYears: 10 },
+};
+const REGION = {
+  accra: 'Greater Accra',
+  tema: 'Greater Accra',
+  kumasi: 'Ashanti',
+  takoradi: 'Western',
+};
+const AVAIL = { 'available-now': 'available', 'open-to-work': 'open_to_offers' };
+const isObjectId = (v) => /^[a-f0-9]{24}$/i.test(String(v || ''));
+
+export const searchParamsFor = ({
+  query,
+  tabId,
+  sortId,
+  skills = [],
+  expId,
+  locationId,
+  availability = [],
+  jobId,
+}) => {
+  const q = String(query || '').trim();
+  const avail = availability.map((a) => AVAIL[a]).filter(Boolean);
+  return {
+    ...(q.length >= 2 ? { query: q } : {}),
+    ...(skills.length ? { skills } : {}),
+    ...(YEARS[expId] || {}),
+    ...(REGION[locationId] ? { location: { region: REGION[locationId] } } : {}),
+    ...(tabId === 'available-now'
+      ? { availability: 'available' }
+      : avail.length === 1
+        ? { availability: avail[0] }
+        : {}),
+    ...(isObjectId(jobId) ? { opportunityId: jobId } : {}),
+    ...(SORT[sortId] || SORT['best-match']),
+    limit: 30,
+  };
+};
+
+export const useLiveTalentSearch = (filters) => {
+  const body = searchParamsFor(filters);
+  const key = JSON.stringify(body);
   const live = isRecruiterSession();
   const [state, setState] = useState({
     status: live ? 'loading' : 'demo',
@@ -85,16 +131,10 @@ export const useLiveTalentSearch = ({ query, tabId, sortId }) => {
   useEffect(() => {
     if (!live) return undefined;
     let alive = true;
-    const q = String(query || '').trim();
     setState((s) => ({ ...s, status: 'loading' }));
     const timer = setTimeout(() => {
       api
-        .post('/search/talents', {
-          ...(q.length >= 2 ? { query: q } : {}),
-          ...(tabId === 'available-now' ? { availability: 'available' } : {}),
-          ...(SORT[sortId] || SORT['best-match']),
-          limit: 30,
-        })
+        .post('/search/talents', JSON.parse(key))
         .then((res) => {
           const d = res?.data?.data !== undefined ? res.data.data : res?.data;
           if (!alive) return;
@@ -112,7 +152,7 @@ export const useLiveTalentSearch = ({ query, tabId, sortId }) => {
       alive = false;
       clearTimeout(timer);
     };
-  }, [live, query, tabId, sortId]);
+  }, [live, key]);
 
   return state;
 };
