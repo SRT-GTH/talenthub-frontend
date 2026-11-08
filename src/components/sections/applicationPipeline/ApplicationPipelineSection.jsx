@@ -9,6 +9,7 @@ import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import PipelineMeetingCard, { SecondaryButton } from './PipelineMeetingCard.jsx';
 import PipelineBoard from './PipelineBoard.jsx';
 import PipelineActionLayer from './actions/PipelineActionLayer.jsx';
+import LivePipelineActions from './actions/LivePipelineActions.jsx';
 import { ACTION_SCENARIOS } from './actions/pipelineActionScenarios.js';
 import { BASE_BOARD, EMPTY_BOARD } from './pipelineBoardData.js';
 import { moveCard } from './pipelineBoardModel.js';
@@ -208,6 +209,8 @@ const ApplicationPipelineSection = () => {
   // Live: which application the modal is for, and a pending confirmation.
   const [scheduleFor, setScheduleFor] = useState(null);
   const [pending, setPending] = useState(null); // { card, action }
+  // Live drawer / dialogs: { kind: drawer | bulk-move | not-progressing | extend-offer | interview-completed, id | ids }
+  const [liveModal, setLiveModal] = useState(null);
   const [error, setError] = useState(null);
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
   // Live: open on the posting named in the URL ("View Pipeline" on /recruiter/job-postings passes ?posting=<id>).
@@ -358,14 +361,16 @@ const ApplicationPipelineSection = () => {
     log('live board action', { app: card?.applicationId, action, ids });
     if (['schedule-interview', 'Schedule interview', 'Reschedule'].includes(action))
       openSchedule(card.applicationId);
-    else if (action === 'Mark as Completed') setPending({ card, action: 'complete' });
+    else if (action === 'Mark as Completed')
+      setLiveModal({ kind: 'interview-completed', id: card.applicationId });
+    else if (action === 'View Details' || action === 'View Meeting')
+      setLiveModal({ kind: 'drawer', id: card.applicationId });
     else if (action === 'Cancel interview') setPending({ card, action: 'cancel-interview' });
     else if (action === 'bulk-not-progressing')
       runLive(Promise.all(ids.map((id) => pipe.move(id, 'rejected'))));
     else if (action === 'bulk-move' || action === 'bulk-message') {
       if (action === 'bulk-message') navigate('/recruiter/messages');
-      else
-        setError('Moving several candidates at once isn\u2019t live yet. Move them one at a time.');
+      else setLiveModal({ kind: 'bulk-move', ids });
     } else log('no live destination yet for', action);
   };
 
@@ -375,10 +380,10 @@ const ApplicationPipelineSection = () => {
     if (isLive) {
       log('live move', { app: cardId, from: found.id, to: toStage });
       if (toStage === 'interview') openSchedule(cardId);
-      else if (toStage === 'not-progressed')
-        setPending({ card: { applicationId: cardId }, action: 'reject' });
+      else if (toStage === 'not-progressed') setLiveModal({ kind: 'not-progressing', id: cardId });
+      else if (toStage === 'offer-extended') setLiveModal({ kind: 'extend-offer', id: cardId });
       else if (MOVE_STAGE[toStage]) runLive(pipe.move(cardId, MOVE_STAGE[toStage]));
-      else setError('Offers and hires are made from the candidate, not by dragging.');
+      else setError('A hire is recorded when the candidate accepts your offer.');
       return;
     }
     log('move', { cardId, from: found.id, to: toStage });
@@ -423,8 +428,10 @@ const ApplicationPipelineSection = () => {
     if (isLive) {
       if (row.moveTo) moveCardTo(card.id, row.moveTo);
       else if (row.id === 'schedule-interview') openSchedule(card.applicationId);
-      else if (row.id === 'not-progressing') setPending({ card, action: 'reject' });
+      else if (row.id === 'not-progressing') setLiveModal({ kind: 'not-progressing', id: card.id });
       else if (row.id === 'message') navigate('/recruiter/messages');
+      else if (row.id === 'view-profile' || row.id === 'open-application')
+        setLiveModal({ kind: 'drawer', id: card.id });
       else log('no live destination yet for menu item', row.id);
       return;
     }
@@ -623,7 +630,7 @@ const ApplicationPipelineSection = () => {
             onCardAction={handleBoardAction}
             onMenuItem={handleBoardMenuItem}
             onOpenDetails={(id) =>
-              isLive ? log('candidate drawer not live yet', id) : setUrlKeys({ drawer: id })
+              isLive ? setLiveModal({ kind: 'drawer', id }) : setUrlKeys({ drawer: id })
             }
             onMove={moveCardTo}
             onInvite={() => navigate('/recruiter/talent-search')}
@@ -662,7 +669,20 @@ const ApplicationPipelineSection = () => {
           : {})}
       />
 
-      {isLive ? null : <PipelineActionLayer board={board} />}
+      {isLive ? (
+        <LivePipelineActions
+          board={board}
+          applications={pipe.applications}
+          jobTitle={selectedJob?.title || ''}
+          modal={liveModal}
+          setModal={setLiveModal}
+          reload={pipe.reload}
+          onSchedule={openSchedule}
+          onError={setError}
+        />
+      ) : (
+        <PipelineActionLayer board={board} />
+      )}
 
       <InterviewConfirmModal
         open={Boolean(pending)}

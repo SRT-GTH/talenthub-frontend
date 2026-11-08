@@ -8,6 +8,7 @@ import Select from '../../ui/form/Select.jsx';
 import { CheckIcon, CloseIcon } from './talentSearchMenuIcons.jsx';
 import { MORE_FILTERS } from './talentSearchFilterData.js';
 import { listParam } from './useTalentSearchState.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 
 const log = debug('TalentSearchMoreFilters');
 
@@ -32,7 +33,14 @@ const EmptyBoxGlyph = () => (
   <span className="inline-flex size-[18px] rounded-[5px] border-[1.5px] border-solid border-[#dbded9] bg-white" />
 );
 
+/*
+ * Signed in, only what talent profiles hold is offered: availability (open to work / available now) and education.
+ * Work setup, pay, assessment scores and verified skills aren't on profiles yet; under-18s follow the posting rule.
+ */
+const LIVE_AVAILABILITY = new Set(['open-to-work', 'available-now']);
+
 const Body = ({ filters, onChange, onClose, showHead = true }) => {
+  const live = isRecruiterSession();
   const clearAll = () => {
     log('clear all');
     onChange({
@@ -85,61 +93,80 @@ const Body = ({ filters, onChange, onClose, showHead = true }) => {
           {MORE_FILTERS.availabilityLabel}
         </legend>
         <div className="flex flex-wrap gap-[8px]">
-          {MORE_FILTERS.availability.map((option) => (
-            <TogglePill
-              key={option.id}
-              selected={filters.availability.includes(option.id)}
-              onClick={() =>
-                onChange({
-                  // Explicit (signed in, no key = no filter).
-                  availability: togglePick(filters.availability, option.id).join(',') || 'none',
-                })
-              }
-            >
-              {option.label}
-            </TogglePill>
-          ))}
+          {MORE_FILTERS.availability
+            .filter((o) => !live || LIVE_AVAILABILITY.has(o.id))
+            .map((option) => (
+              <TogglePill
+                key={option.id}
+                selected={filters.availability.includes(option.id)}
+                onClick={() =>
+                  onChange({
+                    // Explicit (signed in, no key = no filter).
+                    availability: togglePick(filters.availability, option.id).join(',') || 'none',
+                  })
+                }
+              >
+                {option.label}
+              </TogglePill>
+            ))}
         </div>
       </fieldset>
 
-      <fieldset className="m-0 flex min-w-0 flex-col gap-[18px] border-0 p-0">
-        <legend className="mb-[18px] p-0 font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#111]">
-          {MORE_FILTERS.workSetupLabel}
-        </legend>
-        <div className="flex flex-wrap gap-[8px]">
-          {MORE_FILTERS.workSetup.map((option) => (
-            <TogglePill
-              key={option.id}
-              selected={filters.workSetup.includes(option.id)}
-              onClick={() =>
-                onChange({
-                  setup: listParam(
-                    togglePick(filters.workSetup, option.id),
-                    MORE_FILTERS.defaultWorkSetup
-                  ),
-                })
-              }
-            >
-              {option.label}
-            </TogglePill>
-          ))}
-        </div>
-      </fieldset>
+      {live ? null : (
+        <fieldset className="m-0 flex min-w-0 flex-col gap-[18px] border-0 p-0">
+          <legend className="mb-[18px] p-0 font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#111]">
+            {MORE_FILTERS.workSetupLabel}
+          </legend>
+          <div className="flex flex-wrap gap-[8px]">
+            {MORE_FILTERS.workSetup.map((option) => (
+              <TogglePill
+                key={option.id}
+                selected={filters.workSetup.includes(option.id)}
+                onClick={() =>
+                  onChange({
+                    setup: listParam(
+                      togglePick(filters.workSetup, option.id),
+                      MORE_FILTERS.defaultWorkSetup
+                    ),
+                  })
+                }
+              >
+                {option.label}
+              </TogglePill>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
-      {selectDefs.map(({ key, param, def, value }) => (
-        <Select
-          key={key}
-          label={def.label}
-          required
-          options={def.options}
-          value={value}
-          onChange={(next) => onChange({ [param]: next === def.defaultId ? null : next })}
-          labelClassName="!text-[#111]"
-        />
-      ))}
+      {selectDefs
+        .filter((d) => !live || d.key === 'education')
+        .map(({ key, param, def, value }) => (
+          <Select
+            key={key}
+            label={def.label}
+            required
+            options={def.options}
+            value={value}
+            onChange={(next) =>
+              onChange({
+                [param]:
+                  next === (live && key === 'education' ? 'any' : def.defaultId) ? null : next,
+              })
+            }
+            labelClassName="!text-[#111]"
+          />
+        ))}
+
+      {live ? (
+        <p className="m-0 font-sans text-[12px] leading-[20px] text-[#575755]">
+          Talent profiles don’t hold work setup, expected pay or assessment scores yet, so those
+          filters aren’t offered. People under 18 only appear when you search for one of your
+          internships or training programmes.
+        </p>
+      ) : null}
 
       <div className="flex flex-col gap-[18px]">
-        {MORE_FILTERS.checkboxes.map((box) => (
+        {(live ? [] : MORE_FILTERS.checkboxes).map((box) => (
           <Checkbox
             key={box.id}
             checked={checkboxValues[box.id]}
@@ -169,7 +196,7 @@ const Body = ({ filters, onChange, onClose, showHead = true }) => {
           {MORE_FILTERS.clearAll}
         </button>
         <Button variant="primary" size="sm" onClick={onClose}>
-          {MORE_FILTERS.showResults(MORE_FILTERS.resultCount)}
+          {live ? 'Show results' : MORE_FILTERS.showResults(MORE_FILTERS.resultCount)}
         </Button>
       </div>
     </div>

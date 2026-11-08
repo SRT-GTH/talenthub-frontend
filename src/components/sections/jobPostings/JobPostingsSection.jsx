@@ -49,6 +49,7 @@ import {
 } from './jobPostingsData.js';
 
 import { useLivePostings } from './useLivePostings.js';
+import { saveTemplate } from '../../../services/recruiterPostings.api.js';
 
 const log = debug('JobPostingsSection');
 
@@ -70,7 +71,14 @@ const liveToast = (kind, posting) => {
       actionLabel: 'Reopen',
     };
   if (kind === 'deleted')
-    return { tone: 'success', title: 'Success - Draft deleted', message: title };
+    return {
+      tone: 'success',
+      title:
+        posting?.status && posting.status !== 'Draft'
+          ? 'Success - Posting deleted'
+          : 'Success - Draft deleted',
+      message: title,
+    };
   if (kind === 'published')
     return {
       tone: 'success',
@@ -162,7 +170,9 @@ const PostingCard = ({
         {isMenuOpen && manageMenu ? (
           <PostingManageMenu
             hoverId={forcedHoverItemId}
-            deleteDisabledReason={DELETE_BLOCKED_NOTE}
+            deleteDisabledReason={
+              posting.live && !posting.applicantCount ? null : DELETE_BLOCKED_NOTE
+            }
             onAction={(id) => onManageAction(posting.id, id)}
           />
         ) : null}
@@ -416,6 +426,7 @@ const JobPostingsSection = () => {
     else if (action === 'duplicate') updateUrl({ ...base, modal: 'save-template', posting: id });
     else if (action === 'pause') updateUrl({ ...base, modal: 'pause', posting: id });
     else if (action === 'close') updateUrl({ ...base, modal: 'close-applicants', posting: id });
+    else if (action === 'delete') updateUrl({ ...base, modal: 'delete-draft', posting: id });
     else {
       navigator.clipboard?.writeText?.(
         isLive ? `${window.location.origin}/jobs/${id}` : `gth.com/jobs/silver-rock/${id}`
@@ -613,10 +624,10 @@ const JobPostingsSection = () => {
         <CloseWithMessageDialog
           waiting={isLive ? Number(modalPosting.awaiting) || 0 : 72}
           onCancel={closeDialog}
-          onClose={() => {
+          onClose={(tell) => {
             if (isLive) {
               const id = modalPosting.id;
-              live.close(id).then((ok) => (ok ? finishWith('closed', id) : closeDialog()));
+              live.close(id, tell).then((ok) => (ok ? finishWith('closed', id) : closeDialog()));
               return;
             }
             setOverrides((prev) => ({ ...prev, [modalPosting.id]: 'Closed' }));
@@ -627,6 +638,7 @@ const JobPostingsSection = () => {
       {modalKind === 'delete-draft' && (
         <DeleteDraftDialog
           title={modalPosting.title}
+          isDraft={!isLive || modalPosting.status === 'Draft'}
           onCancel={closeDialog}
           onDelete={() => {
             if (isLive) {
@@ -646,7 +658,22 @@ const JobPostingsSection = () => {
         <DuplicateDialog
           title={modalPosting.title}
           onClose={closeDialog}
-          onSave={() => navigate('/recruiter/job-templates?mine=1&toast=copied')}
+          onSave={(name) => {
+            if (!isLive) {
+              navigate('/recruiter/job-templates?mine=1&toast=copied');
+              return;
+            }
+            saveTemplate({ name, fromOpportunityId: modalPosting.id })
+              .then(() =>
+                navigate(
+                  `/recruiter/job-templates?mine=1&toast=copied&name=${encodeURIComponent(name)}`
+                )
+              )
+              .catch((err) => {
+                log.error('save template failed:', err?.response?.status);
+                closeDialog();
+              });
+          }}
         />
       )}
       {modalKind === 'published' && (

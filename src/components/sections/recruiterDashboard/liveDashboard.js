@@ -33,7 +33,17 @@ export const liveHero = (shell, apps = [], now = new Date()) => {
       ? `Here's what's happening at ${shell.orgName} today — ${fresh} new applicant${fresh === 1 ? '' : 's'} in the last 24 hours.`
       : HERO.noOrg,
     stats: [
-      { ...s.views, value: '—', note: 'Coming soon' },
+      // Recruiters have no profile page of their own yet: the tile counts views of their postings (viewCount).
+      (() => {
+        const list = Array.isArray(shell.jobList) ? shell.jobList : [];
+        const views = list.reduce((n, j) => n + (Number(j.viewCount) || 0), 0);
+        return {
+          ...s.views,
+          label: 'Posting views',
+          value: list.length ? String(views) : '—',
+          note: list.length ? `Across ${list.length} posting${list.length === 1 ? '' : 's'}` : '',
+        };
+      })(),
       {
         ...s.applicants,
         value: dash(shell.applicants),

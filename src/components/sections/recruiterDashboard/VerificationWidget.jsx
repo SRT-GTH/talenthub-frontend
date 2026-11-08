@@ -52,16 +52,71 @@ const documentsFor = (variant) => {
   return VERIFICATION.documents;
 };
 
-const VerificationWidget = ({ org, variant = '', readOnly = false, onUpload, onNotifyOwner }) => {
-  const kyb = VERIFICATION.kyb(org);
+/* Signed in: GET /recruiter/company kyb { status, verified, verifiedAt, rejectionReason, documents[{ id, label, status }] }. */
+const LIVE_DOC_STATUS = {
+  verified: 'Verified',
+  approved: 'Verified',
+  rejected: 'Rejected',
+  missing: 'Missing',
+};
+const liveDocs = (live) =>
+  (live.documents || []).map((d) => ({
+    id: d.id,
+    label: d.label,
+    status: LIVE_DOC_STATUS[d.status] || 'In review',
+  }));
+const liveKybText = (live, docs) => {
+  if (live.verified) {
+    const on = live.verifiedAt
+      ? new Date(live.verifiedAt).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+      : '';
+    return on ? `Organisation verified on ${on}` : 'Organisation verified';
+  }
+  if (live.status === 'kyb_rejected')
+    return live.rejectionReason
+      ? `Not approved: ${live.rejectionReason}`
+      : 'Not approved. Upload clearer copies.';
+  const missing = docs.filter((d) => d.status === 'Missing').length;
+  const review = docs.filter((d) => d.status === 'In review').length;
+  if (missing)
+    return `${review ? 'In review · ' : ''}${missing} document${missing === 1 ? '' : 's'} missing`;
+  return review ? 'Documents in review' : 'Not verified yet';
+};
+
+const VerificationWidget = ({
+  org,
+  variant = '',
+  readOnly = false,
+  onUpload,
+  onNotifyOwner,
+  live = null,
+}) => {
+  const kyb = live
+    ? {
+        title: `KYB · ${org}`,
+        chip: live.status === 'kyb_submitted' ? 'In review' : live.label || 'Not verified',
+      }
+    : VERIFICATION.kyb(org);
   const verified = variant === 'verified';
-  const needsAction = variant === 'rejected' || variant === 'owner';
-  const documents = documentsFor(variant);
-  const kybText = verified
-    ? VERIFICATION_STATES.verified.kybText
-    : needsAction
-      ? VERIFICATION_STATES.rejected.kybText
-      : kyb.text;
+  const needsAction = !live && (variant === 'rejected' || variant === 'owner');
+  // A verified organisation lists only the documents it actually sent (some were verified another way).
+  const documents = live
+    ? liveDocs(live).filter((d) => !live.verified || d.status !== 'Missing')
+    : documentsFor(variant);
+  const kybText = live
+    ? liveKybText(live, documents)
+    : verified
+      ? VERIFICATION_STATES.verified.kybText
+      : needsAction
+        ? VERIFICATION_STATES.rejected.kybText
+        : kyb.text;
+  const kyc = live
+    ? { ...VERIFICATION.kyc, text: 'Your account email is verified' }
+    : VERIFICATION.kyc;
 
   return (
     <WidgetCard
@@ -77,14 +132,14 @@ const VerificationWidget = ({ org, variant = '', readOnly = false, onUpload, onN
           <div className="flex flex-col gap-[6px] rounded-[10px] bg-[#ebf1ec]/50 px-[16px] py-[12px]">
             <div className="flex flex-col gap-[2px]">
               <span className="font-sans text-[14px] leading-[24px] font-semibold tracking-[0.1px] text-[#111]">
-                {VERIFICATION.kyc.title}
+                {kyc.title}
               </span>
               <span className="font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
-                {VERIFICATION.kyc.text}
+                {kyc.text}
               </span>
             </div>
             <Chip tone="outline-success" className="self-start py-[4px]">
-              {VERIFICATION.kyc.chip}
+              {kyc.chip}
             </Chip>
           </div>
           <div
@@ -125,7 +180,7 @@ const VerificationWidget = ({ org, variant = '', readOnly = false, onUpload, onN
           </div>
         </div>
 
-        <div className="flex flex-col gap-[8px]">
+        <div className={classNames('flex flex-col gap-[8px]', !documents.length && 'hidden')}>
           <span className="font-sans text-[12px] leading-[20px] font-semibold tracking-[0.2px] text-[#575755]">
             {VERIFICATION.documentsLabel}
           </span>

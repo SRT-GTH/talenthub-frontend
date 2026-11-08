@@ -73,15 +73,17 @@ const RecruiterInboxSection = () => {
           : CONVERSATIONS.filter((c) => !archivedIds.includes(c.id)),
     [isLive, live.items, inboxState, archivedIds]
   );
-  // Live: archived conversations are not listed by the API (a reply brings them back).
+  // Live: GET /talent-messages/conversations?folder=archived (a reply from either side brings one back).
   const archivedItems = useMemo(
     () =>
-      isLive || inboxState === 'empty'
-        ? []
-        : [...CONVERSATIONS.filter((c) => archivedIds.includes(c.id)), ...ARCHIVED].filter(
-            (c, i, all) => all.findIndex((x) => x.id === c.id) === i
-          ),
-    [isLive, inboxState, archivedIds]
+      isLive
+        ? live.archived
+        : inboxState === 'empty'
+          ? []
+          : [...CONVERSATIONS.filter((c) => archivedIds.includes(c.id)), ...ARCHIVED].filter(
+              (c, i, all) => all.findIndex((x) => x.id === c.id) === i
+            ),
+    [isLive, live.archived, inboxState, archivedIds]
   );
 
   const items = archivedView
@@ -144,6 +146,19 @@ const RecruiterInboxSection = () => {
   };
   const restore = (id) => {
     log('branch', { restore: id });
+    if (isLive) {
+      live
+        .unarchive(id)
+        .then((ok) =>
+          ok
+            ? update(
+                { archived: null, toast: 'unarchived', conversation: id, menu: null },
+                { push: true }
+              )
+            : null
+        );
+      return;
+    }
     setArchivedIds((prev) => prev.filter((x) => x !== id));
     update({ archived: null, toast: 'unarchived', conversation: null, menu: null }, { push: true });
   };
@@ -151,10 +166,18 @@ const RecruiterInboxSection = () => {
     isLive && toastKind === 'archived'
       ? {
           ...TOASTS.archived,
-          message: 'It comes back to your inbox when either of you replies.',
+          title: 'Success - Conversation archived',
+          message: 'Find it with the archive button next to search. A reply brings it back.',
           actionLabel: undefined,
         }
-      : TOASTS[toastKind];
+      : isLive && toastKind === 'unarchived'
+        ? {
+            ...TOASTS.unarchived,
+            title: 'Success - Moved back to your inbox',
+            message: selected?.name || '',
+            actionLabel: undefined,
+          }
+        : TOASTS[toastKind];
 
   return (
     <DashboardShell

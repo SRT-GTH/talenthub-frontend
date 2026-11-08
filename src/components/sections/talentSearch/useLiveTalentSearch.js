@@ -10,8 +10,10 @@ const log = debug('useLiveTalentSearch');
  * (POST /search/talents -> backend search.searchTalents on the Meilisearch talent index, adults only,
  * contact details never included). Signed out -> { status: 'demo' } and the page keeps its Figma people.
  *
- * Mapping to the card (CandidateCard): there is no per-job match score yet, so `matchPercent` is null and
- * the card shows profile completion instead; the "explanation" box shows the talent's own summary.
+ * Mapping to the card (CandidateCard): with a posting chosen ("Searching for") the backend scores each talent for
+ * it (postingMatch { score, reasons }, utils/talentMatch.js): `matchPercent` is that score and the explanation box
+ * says why. Without a posting the card shows profile completion and the talent's own summary.
+ * Top matches: with a posting, the ten best fits (sortBy "match"); without one it is the same as All matches.
  */
 
 const SORT = {
@@ -60,13 +62,17 @@ export const toCandidate = (hit) => {
       t.headline ||
       [t.fieldOfStudy || t.educationLevel, t.institution].filter(Boolean).join(' · ') ||
       'GTH talent',
-    matchPercent: null,
+    matchPercent: hit?.postingMatch ? Math.round(hit.postingMatch.score) : null,
     completion: typeof t.profileCompletion === 'number' ? Math.round(t.profileCompletion) : 0,
     tags: [
       ...new Set([...(t.careers || []), t.location?.city || t.location?.region].filter(Boolean)),
     ].slice(0, 3),
-    explanationTitle: 'Summary',
-    explanation: summaryOf(t),
+    explanationTitle: hit?.postingMatch ? 'Why this match' : 'Summary',
+    explanation: hit?.postingMatch
+      ? hit.postingMatch.reasons?.length
+        ? hit.postingMatch.reasons.join(' · ')
+        : 'Little overlap with this posting’s skills, field or location yet.'
+      : summaryOf(t),
     explanationTint: '#f3f8f4',
     topSkills: skills.length > 3 ? [...skills.slice(0, 3), `+${skills.length - 3} more`] : skills,
     availability: AVAILABILITY[t.availability] || 'Open to offers',
@@ -74,18 +80,19 @@ export const toCandidate = (hit) => {
   };
 };
 
-/* Filter chips -> POST /search/talents params. Locations are searched by region (the profile city is optional). */
+/* Filter chips -> POST /search/talents params. A picked town filters by city (talents who hide their city don't match it). */
 const YEARS = {
   '0-2': { maxYears: 2 },
   '2-5': { minYears: 2, maxYears: 5 },
   '5-plus': { minYears: 5 },
   '10-plus': { minYears: 10 },
 };
-const REGION = {
-  accra: 'Greater Accra',
-  tema: 'Greater Accra',
-  kumasi: 'Ashanti',
-  takoradi: 'Western',
+const CITY = { accra: 'Accra', tema: 'Tema', kumasi: 'Kumasi', takoradi: 'Takoradi' };
+// Education labels as the index stores them (backend utils/talentSearchDoc.js EDUCATION_LEVEL).
+const EDUCATION = {
+  diploma: ['Diploma', 'TVET', 'University', 'Undergraduate', 'Graduate', 'Postgraduate'],
+  bachelors: ['University', 'Undergraduate', 'Graduate', 'Postgraduate'],
+  masters: ['Postgraduate'],
 };
 const AVAIL = { 'available-now': 'available', 'open-to-work': 'open_to_offers' };
 const isObjectId = (v) => /^[a-f0-9]{24}$/i.test(String(v || ''));
@@ -99,22 +106,27 @@ export const searchParamsFor = ({
   locationId,
   availability = [],
   jobId,
+  education,
 }) => {
   const q = String(query || '').trim();
   const avail = availability.map((a) => AVAIL[a]).filter(Boolean);
+  const forJob = isObjectId(jobId);
+  // Best match and Top matches rank by fit for the chosen posting.
+  const byMatch = forJob && (tabId === 'top-matches' || !sortId || sortId === 'best-match');
   return {
     ...(q.length >= 2 ? { query: q } : {}),
     ...(skills.length ? { skills } : {}),
     ...(YEARS[expId] || {}),
-    ...(REGION[locationId] ? { location: { region: REGION[locationId] } } : {}),
+    ...(CITY[locationId] ? { location: { city: CITY[locationId] } } : {}),
+    ...(EDUCATION[education] ? { educationLevels: EDUCATION[education] } : {}),
     ...(tabId === 'available-now'
       ? { availability: 'available' }
       : avail.length === 1
         ? { availability: avail[0] }
         : {}),
-    ...(isObjectId(jobId) ? { opportunityId: jobId } : {}),
-    ...(SORT[sortId] || SORT['best-match']),
-    limit: 30,
+    ...(forJob ? { opportunityId: jobId } : {}),
+    ...(byMatch ? { sortBy: 'match' } : SORT[sortId] || SORT['best-match']),
+    limit: forJob && tabId === 'top-matches' ? 10 : 30,
   };
 };
 

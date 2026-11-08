@@ -33,7 +33,42 @@ import {
 
 import { isRecruiterSession, refreshRecruiterShell } from '../../../services/recruiterShell.api.js';
 import { jobPostErrorText, postJobFromBuddy } from '../../../services/recruiterJobs.api.js';
-import { toBuddyForm } from './liveJobForm.js';
+import { fromOpportunity, toBuddyForm, toPostingUpdates } from './liveJobForm.js';
+import { useLivePosting } from './useLivePosting.js';
+import {
+  fetchMyTemplates,
+  saveDraftFromForm,
+  saveTemplate,
+  updatePosting,
+} from '../../../services/recruiterPostings.api.js';
+
+/* Edit posting: what changed since the posting was loaded (the aside list and the confirm dialog). */
+const CHANGE_FIELDS = [
+  { key: 'title', label: 'Job title', notify: true },
+  { key: 'location', label: 'Location', notify: true },
+  { key: 'setup', label: 'Work setup', notify: true },
+  { keys: ['payType', 'min', 'max'], label: 'Pay', notify: true },
+  { key: 'skills', label: 'Required skills', notify: true },
+  { key: 'deadline', label: 'Deadline' },
+  { key: 'employment', label: 'Employment type' },
+  { keys: ['about', 'responsibilities'], label: 'Description' },
+];
+const same = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
+const diffChanges = (initial, values) =>
+  initial
+    ? CHANGE_FIELDS.filter((f) =>
+        (f.keys || [f.key]).some((k) => !same(initial[k], values[k]))
+      ).map((f) => {
+        const k = f.key;
+        const from = k && typeof initial[k] === 'string' ? initial[k] : '';
+        const to = k && typeof values[k] === 'string' ? values[k] : '';
+        return {
+          label: from && to ? `${f.label}: ${from} → ${to}` : `${f.label} changed`,
+          note: f.notify ? 'Applicants see this change' : 'Safe change',
+          notify: Boolean(f.notify),
+        };
+      })
+    : null;
 
 const log = debug('JobFormPage');
 
@@ -233,14 +268,18 @@ const TemplateAside = ({
   );
 };
 
-const EditAside = ({ onSave, onCancel }) => {
+const EditAside = ({ onSave, onCancel, changes, saving }) => {
   const a = EDIT_POSTING.aside;
+  const list = changes || a.changes;
   return (
     <Aside>
       <AsideCard>
         <Eyebrow>{a.title}</Eyebrow>
+        {changes && !changes.length ? (
+          <p className="m-0 font-sans text-[12px] leading-[16px] text-[#575755]">No changes yet.</p>
+        ) : null}
         <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
-          {a.changes.map((change) => (
+          {list.map((change) => (
             <li key={change.label} className="flex items-start gap-[8px]">
               <span className={change.notify ? 'text-[#c8951a]' : 'text-[#2a5730]'}>
                 {change.notify ? <BellGlyph size={14} /> : <CheckCircle size={14} />}
@@ -257,8 +296,12 @@ const EditAside = ({ onSave, onCancel }) => {
           ))}
         </ul>
         <div className="flex flex-col gap-[12px]">
-          <JobButton onClick={onSave} className="w-full">
-            {a.save}
+          <JobButton
+            onClick={onSave}
+            disabled={Boolean(saving) || (changes && !changes.length)}
+            className="w-full"
+          >
+            {saving ? 'Saving…' : a.save}
           </JobButton>
           <JobButton tone="ghost" onClick={onCancel} className="w-full">
             {a.cancel}
@@ -285,6 +328,37 @@ const JobFormPage = ({ mode = 'job' }) => {
   // Signed-in recruiter: "Publish job" creates the posting for real (POST /opportunities/from-buddy).
   const live = isRecruiterSession();
   const [postError, setPostError] = useState(null);
+  // Edit posting, signed in: the stored posting fills the form; Save sends only owner fields.
+  const posting = useLivePosting(mode === 'edit' ? postingId : '');
+  const editLive = mode === 'edit' && posting.status === 'live';
+  const [initial, setInitial] = useState(null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    if (posting.status === 'live' && !initial) {
+      setInitial(posting.values);
+      setValues((prev) => ({ ...prev, ...posting.values, payHint: '' }));
+    }
+  }, [posting.status, posting.values, initial]);
+  const changes = editLive ? diffChanges(initial, values) : null;
+  // Create job from one of your saved templates (?template=<id>): its fields fill the form once.
+  const templateParam = params.get('template');
+  const [templateLoaded, setTemplateLoaded] = useState(false);
+  useEffect(() => {
+    if (!live || mode !== 'job' || templateLoaded || !/^[a-f0-9]{24}$/i.test(templateParam || ''))
+      return;
+    setTemplateLoaded(true);
+    fetchMyTemplates()
+      .then((rows) => {
+        const t = rows.find((r) => String(r.id || r._id) === templateParam);
+        if (t)
+          setValues((prev) => ({
+            ...prev,
+            ...fromOpportunity(t.defaultFields || {}),
+            payHint: '',
+          }));
+      })
+      .catch((err) => log.error('template load failed:', err?.response?.status));
+  }, [live, mode, templateParam, templateLoaded]);
 
   const update = useCallback(
     (patch) => {
@@ -319,6 +393,47 @@ const JobFormPage = ({ mode = 'job' }) => {
   const query = params.get('q') ?? '';
   const setMenu = (key) => update({ menu: key || null, q: key === 'location' ? query : null });
   const errors = state === 'errors' ? validate(values, mode) : {};
+  // A typed location counts even when no suggestion was picked.
+  const withTypedLocation = () =>
+    values.location || !query.trim() ? values : { ...values, location: query.trim() };
+
+  const saveDraft = () => {
+    if (!live) {
+      navigate('/recruiter/job-postings?status=draft');
+      return;
+    }
+    if (!values.title.trim()) {
+      setPostError('Add a job title to save a draft.');
+      return;
+    }
+    setPostError(null);
+    saveDraftFromForm(toBuddyForm(withTypedLocation()))
+      .then((out) => {
+        refreshRecruiterShell();
+        navigate(
+          `/recruiter/job-postings?status=draft&toast=drafted&posting=${out?.opportunity?.id || ''}`
+        );
+      })
+      .catch((err) => {
+        log.error('draft failed:', err?.response?.status, err?.response?.data?.type);
+        setPostError(jobPostErrorText(err));
+      });
+  };
+
+  const saveEdits = () => {
+    setSaving(true);
+    setPostError(null);
+    updatePosting(postingId, toPostingUpdates(withTypedLocation(), posting.raw))
+      .then(() => navigate(`/recruiter/job-postings/${postingId}?saved=1`))
+      .catch((err) => {
+        log.error('save failed:', err?.response?.status, err?.response?.data?.type);
+        setPostError(
+          err?.response?.data?.message || 'Your changes weren’t saved. Please try again.'
+        );
+        update({ modal: null });
+      })
+      .finally(() => setSaving(false));
+  };
 
   const publish = () => {
     const found = validate(values, mode);
@@ -333,7 +448,7 @@ const JobFormPage = ({ mode = 'job' }) => {
     if (live) {
       setPostError(null);
       timers.current.push(setTimeout(() => setStep(1), 900));
-      postJobFromBuddy(toBuddyForm(values))
+      postJobFromBuddy(toBuddyForm(withTypedLocation()))
         .then((out) => {
           setStep(2);
           refreshRecruiterShell();
@@ -359,12 +474,33 @@ const JobFormPage = ({ mode = 'job' }) => {
   };
 
   const nameTaken = state === 'name-taken';
-  const saveTemplate = () => {
+  const saveAsTemplate = () => {
     if (nameTaken) {
       log('save template blocked: name already used', values.templateName);
       return;
     }
-    navigate('/recruiter/job-templates?mine=1&toast=saved');
+    if (!live) {
+      navigate('/recruiter/job-templates?mine=1&toast=saved');
+      return;
+    }
+    const name = String(values.templateName || values.title || '').trim();
+    if (name.length < 2) {
+      setPostError('Give the template a name.');
+      update({ modal: null });
+      return;
+    }
+    const fields = toPostingUpdates(withTypedLocation(), {});
+    saveTemplate({ name, category: values.category || undefined, fields })
+      .then(() =>
+        navigate(`/recruiter/job-templates?mine=1&toast=saved&name=${encodeURIComponent(name)}`)
+      )
+      .catch((err) => {
+        log.error('template save failed:', err?.response?.status);
+        setPostError(
+          err?.response?.data?.message || 'The template wasn’t saved. Please try again.'
+        );
+        update({ modal: null });
+      });
   };
 
   const isTemplate = mode === 'template';
@@ -380,13 +516,23 @@ const JobFormPage = ({ mode = 'job' }) => {
       <BackCrumb
         to={backTo}
         label={isEdit ? EDIT_POSTING.back : (isTemplate ? BUILD_TEMPLATE : CREATE_JOB).back}
-        crumb={isEdit ? EDIT_POSTING.crumb : (isTemplate ? BUILD_TEMPLATE : CREATE_JOB).crumb}
+        crumb={
+          editLive
+            ? `Job Postings / ${posting.view.title} / Edit`
+            : isEdit
+              ? EDIT_POSTING.crumb
+              : (isTemplate ? BUILD_TEMPLATE : CREATE_JOB).crumb
+        }
       />
       {isEdit ? (
         <FlowHeading
           lead={EDIT_POSTING.titleLead}
           accent={EDIT_POSTING.titleAccent}
-          subtitle={EDIT_POSTING.subtitle}
+          subtitle={
+            editLive
+              ? `${posting.view.title} · ${posting.view.status} · ${posting.view.pipeline.total}`
+              : EDIT_POSTING.subtitle
+          }
         />
       ) : isTemplate ? (
         <FlowHeading
@@ -406,15 +552,33 @@ const JobFormPage = ({ mode = 'job' }) => {
         <FlowBanner
           tone="danger"
           icon={<InfoCircle size={18} />}
-          title="The job wasn\u2019t posted"
+          title={isEdit ? 'Not saved' : 'The job wasn\u2019t posted'}
           body={postError}
         />
       ) : null}
-      {isEdit ? (
+      {isEdit && posting.status === 'loading' ? (
+        <FlowBanner
+          tone="info"
+          icon={<InfoCircle size={18} />}
+          title="Loading the posting…"
+          body=""
+        />
+      ) : isEdit && (posting.status === 'missing' || posting.status === 'error') ? (
+        <FlowBanner
+          tone="danger"
+          icon={<InfoCircle size={18} />}
+          title="This posting couldn’t be loaded"
+          body="It may have been deleted, or it isn’t one of yours."
+        />
+      ) : editLive && !posting.view.applicantCount ? null : isEdit ? (
         <FlowBanner
           tone="warning"
           icon={<WarnTriangle size={18} />}
-          title={EDIT_POSTING.warning.title}
+          title={
+            editLive
+              ? `${posting.view.applicantCount} ${posting.view.applicantCount === 1 ? 'person has' : 'people have'} already applied`
+              : EDIT_POSTING.warning.title
+          }
           body={EDIT_POSTING.warning.body}
         />
       ) : isTemplate ? (
@@ -462,7 +626,11 @@ const JobFormPage = ({ mode = 'job' }) => {
         />
         {isEdit ? (
           <EditAside
-            onSave={() => update({ modal: 'confirm' })}
+            changes={changes}
+            saving={saving}
+            onSave={() =>
+              editLive && !posting.view.applicantCount ? saveEdits() : update({ modal: 'confirm' })
+            }
             onCancel={() => navigate(backTo)}
           />
         ) : isTemplate ? (
@@ -482,7 +650,7 @@ const JobFormPage = ({ mode = 'job' }) => {
             errors={errors}
             onPublish={publish}
             onPreview={() => navigate(previewTo)}
-            onDraft={() => navigate('/recruiter/job-postings?status=draft')}
+            onDraft={saveDraft}
           />
         )}
       </div>
@@ -500,7 +668,7 @@ const JobFormPage = ({ mode = 'job' }) => {
           visibility={visibility}
           setVisibility={setVisibility}
           onCancel={() => update({ modal: null, menu: null, state: null })}
-          onSave={saveTemplate}
+          onSave={saveAsTemplate}
         />
       ) : null}
       {isEdit && modal === 'confirm' ? (
@@ -511,7 +679,9 @@ const JobFormPage = ({ mode = 'job' }) => {
           setAsk={setAsk}
           onKeep={() => update({ modal: null })}
           onSave={() =>
-            navigate(`/recruiter/job-postings/${postingId ?? 'senior-ux-designer'}?saved=1`)
+            editLive
+              ? saveEdits()
+              : navigate(`/recruiter/job-postings/${postingId ?? 'senior-ux-designer'}?saved=1`)
           }
         />
       ) : null}

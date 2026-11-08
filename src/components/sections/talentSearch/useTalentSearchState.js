@@ -103,7 +103,8 @@ export const useTalentSearchState = ({ live = false } = {}) => {
         live ? LIVE_DEFAULTS.availability : MORE_FILTERS.defaultAvailability
       ),
       workSetup: csv(get('setup'), live ? LIVE_DEFAULTS.workSetup : MORE_FILTERS.defaultWorkSetup),
-      education: get('education') ?? MORE_FILTERS.education.defaultId,
+      // Signed in: no education filter until one is picked (the Figma default is a demo value).
+      education: get('education') ?? (live ? 'any' : MORE_FILTERS.education.defaultId),
       minScore: get('score') ?? MORE_FILTERS.minScore.defaultId,
       pay: get('pay') ?? MORE_FILTERS.pay.defaultId,
       verified: get('verified') !== '0',

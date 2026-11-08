@@ -6,6 +6,7 @@ import {
   fetchConversations,
   markConversationRead,
   sendMessage,
+  unarchiveConversation,
 } from '../../../services/messages.api.js';
 import { debug } from '../../../utils/debug.js';
 
@@ -21,6 +22,8 @@ const log = debug('useLiveRecruiterInbox');
  *   POST /talent-messages/conversations/:id/messages    { text }
  *   POST /talent-messages/conversations/:id/read
  *   POST /talent-messages/conversations/:id/archive     (a reply from either side brings it back)
+ *   GET  /talent-messages/conversations?folder=archived  the archived list
+ *   POST /talent-messages/conversations/:id/unarchive   back to the inbox
  *
  * The backend's row is shaped for the talent's view ("role" is the recruiter's line), so the recruiter's
  * list line is built here from the linked job instead.
@@ -102,6 +105,7 @@ export const useLiveRecruiterInbox = (selectedId) => {
   const live = isRecruiterSession();
   const [status, setStatus] = useState(live ? 'loading' : 'demo');
   const [items, setItems] = useState([]);
+  const [archived, setArchived] = useState([]);
   const [thread, setThread] = useState(null);
   const [error, setError] = useState(null);
   const [sending, setSending] = useState(false);
@@ -116,6 +120,10 @@ export const useLiveRecruiterInbox = (selectedId) => {
         ? out
         : [];
     setItems(rows.map(toItem));
+    // The archived folder loads alongside; a failure there never blocks the inbox.
+    fetchConversations({ folder: 'archived' })
+      .then((a) => setArchived((a?.conversations || []).map(toItem)))
+      .catch((err) => log.warn('archived list failed:', err?.response?.status));
     return rows;
   }, []);
 
@@ -189,5 +197,30 @@ export const useLiveRecruiterInbox = (selectedId) => {
     [loadList]
   );
 
-  return { status, items, thread, error, sending, send, archive, clearError: () => setError(null) };
+  const unarchive = useCallback(
+    async (id) => {
+      try {
+        await unarchiveConversation(id);
+        await loadList();
+        return true;
+      } catch (err) {
+        setError(err?.response?.data?.message || 'The conversation couldn’t be moved back.');
+        return false;
+      }
+    },
+    [loadList]
+  );
+
+  return {
+    status,
+    items,
+    archived,
+    thread,
+    error,
+    sending,
+    send,
+    archive,
+    unarchive,
+    clearError: () => setError(null),
+  };
 };

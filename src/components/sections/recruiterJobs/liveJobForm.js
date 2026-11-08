@@ -11,8 +11,9 @@ const JOB_TYPE = {
   'part-time': 'part-time',
   contract: 'contract',
   internship: 'internship',
-  // NSS has no backend job type yet: posted as a fixed-term role (⚠️ ASSUMPTION).
-  'national service (nss)': 'temporary',
+  // National Service: backend type government-program (utils/jobPostForm.js "national-service").
+  'national service (nss)': 'national-service',
+  apprenticeship: 'temporary',
 };
 
 const ARRANGEMENT = { 'on-site': 'on-site', hybrid: 'hybrid', remote: 'remote' };
@@ -20,7 +21,7 @@ const ARRANGEMENT = { 'on-site': 'on-site', hybrid: 'hybrid', remote: 'remote' }
 const FREQUENCY = {
   'monthly salary': 'month',
   'yearly salary (gbp)': 'year',
-  'hourly rate': 'month', // no hourly rate in the backend: sent as monthly (⚠️ ASSUMPTION)
+  'hourly rate': 'hour',
   stipend: 'month',
 };
 
@@ -44,6 +45,125 @@ export const parseDeadline = (text) => {
 const amount = (text) => {
   const n = Number(String(text ?? '').replace(/[^0-9.]/g, ''));
   return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/* ---------- stored posting <-> page values (posting detail, Edit posting) ---------- */
+
+const EMPLOYMENT_OF = (opp) => {
+  if (opp.type === 'internship') return 'Internship';
+  if (opp.type === 'government-program') return 'National Service (NSS)';
+  const d = opp.duration?.type;
+  if (d === 'contract') return 'Contract';
+  if (d === 'temporary') return 'Contract';
+  return 'Full-time';
+};
+const SETUP_OF = { onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' };
+const PAY_OF = {
+  monthly: 'Monthly salary',
+  yearly: 'Yearly salary (GBP)',
+  hourly: 'Hourly rate',
+  weekly: 'Monthly salary',
+};
+const pad = (n) => String(n).padStart(2, '0');
+
+/** "About" and the bullet lists back out of the description the backend built (formToOpportunity). */
+export const splitDescription = (text) => {
+  const s = String(text || '');
+  const grab = (label) => {
+    const m = s.match(new RegExp(`${label}:\\n((?:- .*(?:\\n|$))+)`));
+    return m
+      ? m[1]
+          .split('\n')
+          .map((l) => l.replace(/^- /, '').trim())
+          .filter(Boolean)
+      : [];
+  };
+  const first = s.split(/\n\n(?:Responsibilities|Qualifications):\n/)[0].trim();
+  // "Description to follow." is the backend's stand-in for a draft saved without one.
+  const about = first === 'Description to follow.' ? '' : first;
+  return {
+    about,
+    responsibilities: grab('Responsibilities'),
+    qualifications: grab('Qualifications'),
+  };
+};
+
+export const placeLabel = (loc = {}) => {
+  if (loc.type === 'remote' && !loc.address && !loc.city) return 'Remote · anywhere in Ghana';
+  return loc.address || [loc.city, loc.region].filter(Boolean).join(', ') || '';
+};
+
+export const fromOpportunity = (opp = {}) => {
+  const { about, responsibilities } = splitDescription(opp.description);
+  const d = opp.deadlineDate ? new Date(opp.deadlineDate) : null;
+  const sal = opp.salary || {};
+  return {
+    title: opp.title || '',
+    department:
+      (opp.tags || []).find((t) =>
+        ['Design', 'Engineering', 'Marketing', 'Operations', 'Finance'].includes(t)
+      ) || '',
+    employment: EMPLOYMENT_OF(opp),
+    experience: '',
+    setup: SETUP_OF[opp.location?.type] || 'On-site',
+    location: placeLabel(opp.location),
+    openings: '1',
+    payType:
+      sal.min || sal.max
+        ? PAY_OF[sal.type] || 'Monthly salary'
+        : opp.type === 'internship'
+          ? 'Stipend'
+          : '',
+    min: sal.min != null ? String(sal.min) : '0',
+    max: sal.max != null ? String(sal.max) : '0',
+    showPay: Boolean(sal.min || sal.max),
+    about,
+    responsibilities,
+    skills: (opp.skills || []).map((s) => (typeof s === 'string' ? s : s?.name)).filter(Boolean),
+    deadline:
+      d && !Number.isNaN(d.getTime())
+        ? `${pad(d.getUTCDate())} / ${pad(d.getUTCMonth() + 1)} / ${d.getUTCFullYear()}`
+        : '',
+    screening: '',
+    confirmation: true,
+    gthProfile: true,
+    under18: false,
+  };
+};
+
+/** Page values -> PUT /opportunities/:id updates (owner fields only; status is never sent from here). */
+export const toPostingUpdates = (values, current = {}) => {
+  const form = toBuddyForm(values);
+  const sections = [form.description];
+  if (form.responsibilities.length)
+    sections.push(`Responsibilities:\n${form.responsibilities.map((r) => `- ${r}`).join('\n')}`);
+  const kept = splitDescription(current.description).qualifications;
+  if (kept.length) sections.push(`Qualifications:\n${kept.map((q) => `- ${q}`).join('\n')}`);
+  const description = sections.filter(Boolean).join('\n\n').slice(0, 5000);
+  const arrangement =
+    { 'on-site': 'onsite', hybrid: 'hybrid', remote: 'remote' }[form.workArrangement] || 'onsite';
+  const updates = {
+    title: form.jobTitle,
+    description,
+    shortDescription: (form.description || description).slice(0, 300),
+    // City and region are worked out from the address by the backend (utils/jobPostForm.js placeOf).
+    location: { type: arrangement, address: form.workLocation, country: 'Ghana' },
+    skills: form.skills.map((name) => ({ name, isRequired: true })),
+  };
+  if (form.salaryMin != null || form.salaryMax != null) {
+    updates.salary = {
+      currency: form.currency || 'GHS',
+      min: form.salaryMin,
+      max: form.salaryMax,
+      type: { month: 'monthly', year: 'yearly', hour: 'hourly' }[form.salaryFrequency] || 'monthly',
+    };
+  }
+  if (form.deadlineDay) {
+    updates.deadlineDate = new Date(
+      Date.UTC(form.deadlineYear, form.deadlineMonth - 1, form.deadlineDay, 23, 59, 59)
+    ).toISOString();
+  }
+  return updates;
 };
 
 export const toBuddyForm = (values) => {

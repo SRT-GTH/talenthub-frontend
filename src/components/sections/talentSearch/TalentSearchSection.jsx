@@ -130,6 +130,7 @@ const TalentSearchSection = () => {
     locationId: state.locationId,
     availability: state.availability,
     jobId: state.jobId,
+    education: state.education,
   });
   const isLive = live.status !== 'demo';
   // The recruiter's open postings: "Searching for" (lets minors appear for internships / training) and invites.

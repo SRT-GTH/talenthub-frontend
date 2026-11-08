@@ -365,6 +365,7 @@ const RecruiterDashboardSection = () => {
                   />
                   <VerificationWidget
                     org={org.name}
+                    live={isLive ? shell.kyb || { documents: [] } : null}
                     readOnly={pending}
                     variant={
                       isLive

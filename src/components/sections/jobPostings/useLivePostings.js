@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import api from '../../../services/api.js';
 import { isRecruiterSession, refreshRecruiterShell } from '../../../services/recruiterShell.api.js';
 import { fetchMyJobs, fetchReceivedApplications } from '../../../services/recruiterPipeline.api.js';
+import { closePosting } from '../../../services/recruiterPostings.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('useLivePostings');
@@ -13,7 +14,8 @@ const log = debug('useLivePostings');
  *   GET    /opportunities/my/list        my postings (newest 20)
  *   GET    /applications/received        applications to me -> per-posting totals and "awaiting review"
  *   PUT    /opportunities/:id            { updates: { status } }  paused | expired (closed) | published (reopen / resume)
- *   DELETE /opportunities/:id            drafts with no applicants only
+ *   POST   /opportunities/:id/close      { tell } close; "message" tells applicants not heard back yet
+ *   DELETE /opportunities/:id            postings nobody applied to (409 HAS_APPLICANTS otherwise)
  *
  * Backend statuses: draft, published, paused, expired, filled. The cards show Active (published),
  * Draft, Paused, Closed (expired or filled). Every mutation reloads the list and the shell counts.
@@ -166,7 +168,8 @@ export const useLivePostings = () => {
     clearError: () => setError(null),
     pause: (id) => setJobStatus(id, 'paused', 'pause'),
     resume: (id) => setJobStatus(id, 'published', 'resume'),
-    close: (id) => setJobStatus(id, 'expired', 'close'),
+    // tell: message (kind role-closed note to people not heard back yet) | keep | nothing
+    close: (id, tell = 'nothing') => run(id, 'close', () => closePosting(id, tell)),
     reopen: (id) => setJobStatus(id, 'published', 'reopen'),
     remove: (id) => run(id, 'delete', () => api.delete(`/opportunities/${id}`)),
   };

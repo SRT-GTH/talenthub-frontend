@@ -17,7 +17,8 @@ import {
   LinkGlyph,
   MapPin,
 } from './jobIcons.jsx';
-import { EDIT_POSTING, POSTING_DETAIL as D, SENIOR_UX } from './jobFormData.js';
+import { EDIT_POSTING, POSTING_DETAIL, SENIOR_UX } from './jobFormData.js';
+import { useLivePosting } from './useLivePosting.js';
 
 /*
  * PostingDetailPage — the recruiter's view of one live posting (Figma JM-01 "Job detail · recruiter view" 10117:58288; JM-05 "Changes saved · applicants notified" 10117:61762).
@@ -37,6 +38,27 @@ const Card = ({ children, className }) => (
 );
 
 const NOTE_TONE = { good: 'text-[#387440]', warn: 'text-[#463409]' };
+const STATUS_PILL = {
+  Active: 'bg-[#ebf1ec] text-[#165d3a]',
+  Draft: 'bg-[#f3f3f1] text-[#575755]',
+  Paused: 'bg-[#faf4e8] text-[#7a5a12]',
+  Closed: 'bg-[#fbeceb] text-[#902b20]',
+};
+
+const LiveNote = ({ children, tone }) => (
+  <PageFrame>
+    <BackCrumb to="/recruiter/job-postings" label={POSTING_DETAIL.back} crumb="Job Postings" />
+    <p
+      role={tone === 'error' ? 'alert' : undefined}
+      className={classNames(
+        'm-0 font-sans text-[14px] leading-[20px]',
+        tone === 'error' ? 'text-[#c0392b]' : 'text-[#575755]'
+      )}
+    >
+      {children}
+    </p>
+  </PageFrame>
+);
 
 const PostingDetailPage = () => {
   const { postingId = 'senior-ux-designer' } = useParams();
@@ -44,8 +66,36 @@ const PostingDetailPage = () => {
   const navigate = useNavigate();
   const saved = params.get('saved') === '1';
   const [copied, setCopied] = useState(false);
-  const max = Math.max(...D.pipeline.rows.map((row) => row.value));
-  const job = SENIOR_UX;
+  const posting = useLivePosting(postingId);
+  if (posting.status === 'loading') return <LiveNote>Loading the posting…</LiveNote>;
+  if (posting.status === 'missing')
+    return <LiveNote tone="error">This posting doesn’t exist or isn’t one of yours.</LiveNote>;
+  if (posting.status === 'error')
+    return (
+      <LiveNote tone="error">
+        We couldn’t load this posting. Refresh the page to try again.
+      </LiveNote>
+    );
+  const isLive = posting.status === 'live';
+  const v = posting.view;
+  // Live: the stored posting; demo: the Figma Senior UX Designer.
+  const D = isLive
+    ? {
+        ...POSTING_DETAIL,
+        crumb: `Job Postings / ${v.title}`,
+        posted: v.posted,
+        status: v.status,
+        chips: v.chips,
+        stats: v.stats,
+        pipeline: { ...POSTING_DETAIL.pipeline, total: v.pipeline.total, rows: v.pipeline.rows },
+        share: { ...POSTING_DETAIL.share, url: v.share },
+      }
+    : POSTING_DETAIL;
+  const max = Math.max(1, ...D.pipeline.rows.map((row) => row.value));
+  const job = isLive
+    ? { title: v.title, about: v.about, responsibilities: v.responsibilities, skills: v.skills }
+    : SENIOR_UX;
+  const company = isLive ? v.company : 'Silver Rock Technology';
 
   return (
     <PageFrame>
@@ -61,12 +111,14 @@ const PostingDetailPage = () => {
                 <div className="flex flex-col">
                   <div className="flex flex-wrap items-center gap-[8px]">
                     <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
-                      Silver Rock Technology
+                      {company}
                     </span>
-                    <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] px-[8px] py-[2px] font-sans text-[12px] leading-[16px] font-medium text-[#2a5730]">
-                      <BadgeCheck size={12} />
-                      Verified employer
-                    </span>
+                    {isLive ? null : (
+                      <span className="inline-flex items-center gap-[4px] rounded-full bg-[#ebf1ec] px-[8px] py-[2px] font-sans text-[12px] leading-[16px] font-medium text-[#2a5730]">
+                        <BadgeCheck size={12} />
+                        Verified employer
+                      </span>
+                    )}
                   </div>
                   <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
                     {saved ? EDIT_POSTING.saved.meta : D.posted}
@@ -74,8 +126,13 @@ const PostingDetailPage = () => {
                 </div>
               </div>
               <div className="flex items-center gap-[8px]">
-                <span className="inline-flex h-[24px] items-center gap-[4px] rounded-full bg-[#ebf1ec] px-[10px] font-sans text-[12px] leading-[16px] font-medium text-[#165d3a]">
-                  <CheckGlyph size={12} />
+                <span
+                  className={classNames(
+                    'inline-flex h-[24px] items-center gap-[4px] rounded-full px-[10px] font-sans text-[12px] leading-[16px] font-medium',
+                    STATUS_PILL[D.status] || STATUS_PILL.Active
+                  )}
+                >
+                  {D.status === 'Active' ? <CheckGlyph size={12} /> : null}
                   {D.status}
                 </span>
                 {saved ? (
@@ -90,12 +147,27 @@ const PostingDetailPage = () => {
                 >
                   {D.edit}
                 </JobButton>
-                <span className="flex size-[32px] items-center justify-center rounded-[8px] border border-solid border-[#e1eae2] text-[#1c2a21]">
+                <button
+                  type="button"
+                  aria-label="Copy the job link"
+                  onClick={() => {
+                    navigator.clipboard?.writeText?.(D.share.url);
+                    setCopied(true);
+                  }}
+                  className="flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] border border-solid border-[#e1eae2] bg-white text-[#1c2a21]"
+                >
                   <LinkGlyph size={16} />
-                </span>
-                <span className="flex size-[32px] items-center justify-center rounded-[8px] border border-solid border-[#e1eae2] text-[#1c2a21]">
+                </button>
+                <button
+                  type="button"
+                  aria-label="More actions"
+                  onClick={() =>
+                    navigate(`/recruiter/job-postings?menu=${postingId}&menuKind=manage`)
+                  }
+                  className="flex size-[32px] cursor-pointer items-center justify-center rounded-[8px] border border-solid border-[#e1eae2] bg-white text-[#1c2a21]"
+                >
                   <DotsGlyph size={16} />
-                </span>
+                </button>
               </div>
             </div>
             <h1 className="m-0 font-heading text-[36px] leading-[44px] font-semibold tracking-[-0.72px] text-[#111] max-sm:text-[28px] max-sm:leading-[34px]">
@@ -146,6 +218,11 @@ const PostingDetailPage = () => {
               {D.aboutTitle}
             </h2>
             <p className="m-0 font-sans text-[14px] leading-[24px] text-[#111]">{job.about}</p>
+            {isLive && !job.about && !job.responsibilities.length ? (
+              <p className="m-0 font-sans text-[14px] leading-[24px] text-[#575755]">
+                No description yet. Use Edit posting to add one.
+              </p>
+            ) : null}
             <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
               {job.responsibilities.map((line) => (
                 <li
@@ -176,6 +253,11 @@ const PostingDetailPage = () => {
                 {D.editScreening}
               </button>
             </div>
+            {isLive && !job.skills.length ? (
+              <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+                No skills listed. Talent Search ranks people by the skills you add here.
+              </p>
+            ) : null}
             <div className="flex flex-wrap gap-[8px]">
               {job.skills.map((skill) => (
                 <span
@@ -221,35 +303,62 @@ const PostingDetailPage = () => {
             </ul>
             <JobButton
               className="w-full"
-              onClick={() => navigate('/recruiter/application-pipeline')}
+              onClick={() =>
+                navigate(
+                  isLive
+                    ? `/recruiter/application-pipeline?posting=${postingId}`
+                    : '/recruiter/application-pipeline'
+                )
+              }
             >
               {D.pipeline.open}
             </JobButton>
           </Card>
 
-          <Card className="flex flex-col gap-[12px] !p-[20px]">
-            <div className="flex items-center gap-[12px]">
-              <span className="flex size-[36px] items-center justify-center rounded-[10px] bg-[#ebf1ec] text-[#2a5730]">
-                <FilterGlyph size={18} />
+          {isLive ? (
+            <Card className="flex flex-col gap-[12px] !p-[20px]">
+              <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
+                Find people for this role
               </span>
-              <div className="flex flex-col">
-                <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
-                  {D.screening.title}
+              <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
+                Talent Search ranks matching talent by fit for this posting.
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`/recruiter/talent-search?job=${postingId}&tab=top-matches`)
+                }
+                className="inline-flex w-fit cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[20px] font-medium text-[#387440]"
+              >
+                Search talent
+                <ArrowRight size={14} />
+              </button>
+            </Card>
+          ) : (
+            <Card className="flex flex-col gap-[12px] !p-[20px]">
+              <div className="flex items-center gap-[12px]">
+                <span className="flex size-[36px] items-center justify-center rounded-[10px] bg-[#ebf1ec] text-[#2a5730]">
+                  <FilterGlyph size={18} />
                 </span>
-                <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
-                  {D.screening.body}
-                </span>
+                <div className="flex flex-col">
+                  <span className="font-sans text-[14px] leading-[20px] font-semibold text-[#111]">
+                    {D.screening.title}
+                  </span>
+                  <span className="font-sans text-[12px] leading-[16px] text-[#575755]">
+                    {D.screening.body}
+                  </span>
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate('/recruiter/job-screening')}
-              className="inline-flex w-fit cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[20px] font-medium text-[#387440]"
-            >
-              {D.screening.link}
-              <ArrowRight size={14} />
-            </button>
-          </Card>
+              <button
+                type="button"
+                onClick={() => navigate('/recruiter/job-screening')}
+                className="inline-flex w-fit cursor-pointer items-center gap-[6px] border-0 bg-transparent p-0 font-sans text-[14px] leading-[20px] font-medium text-[#387440]"
+              >
+                {D.screening.link}
+                <ArrowRight size={14} />
+              </button>
+            </Card>
+          )}
 
           <Card className="flex flex-col gap-[8px] !p-[20px]">
             <span className="font-sans text-[12px] leading-[16px] font-semibold tracking-[0.4px] text-[#575755]">
