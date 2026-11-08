@@ -14,6 +14,7 @@ import { TalentFirstVisit, TalentNoResults, TalentResultsLoading } from './Talen
 import CandidateCard from './CandidateCard.jsx';
 import TalentPoolInsightBanner from './TalentPoolInsightBanner.jsx';
 import { useTalentSearchState } from './useTalentSearchState.js';
+import { useLiveTalentSearch } from './useLiveTalentSearch.js';
 import {
   CANDIDATES,
   PAGE_HEADING,
@@ -116,7 +117,11 @@ const TalentSearchSection = () => {
     log('mount', { route: '/recruiter/talent-search', candidateCount: CANDIDATES.length });
   }, []);
 
-  const visibleCandidates = useMemo(() => {
+  // Signed-in recruiter: the real (adult) talent pool from the search index; demo people otherwise.
+  const live = useLiveTalentSearch({ query, tabId, sortId: state.sortId });
+  const isLive = live.status !== 'demo';
+
+  const demoCandidates = useMemo(() => {
     const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const result = CANDIDATES.filter((candidate) => {
       if (tabId === 'top-matches' && candidate.matchPercent < TOP_MATCH_THRESHOLD_PERCENT)
@@ -138,9 +143,16 @@ const TalentSearchSection = () => {
     });
     return result;
   }, [tabId, query, expId, state.remote, state.sortId]);
+  const visibleCandidates = isLive ? live.candidates : demoCandidates;
 
   // The page state: an explicit ?state= wins, otherwise "no results" appears on its own.
-  const view = pageState ?? (visibleCandidates.length === 0 ? 'empty' : 'results');
+  const view = isLive
+    ? live.status === 'loading'
+      ? 'loading'
+      : visibleCandidates.length === 0
+        ? 'empty'
+        : 'results'
+    : (pageState ?? (visibleCandidates.length === 0 ? 'empty' : 'results'));
   useEffect(() => {
     log('state', { view, menu, tabId });
   }, [view, menu, tabId]);
@@ -150,7 +162,11 @@ const TalentSearchSection = () => {
     loading: LOADING_SUBTITLE,
     empty: NO_RESULTS.subtitle,
     'first-visit': FIRST_VISIT.subtitle,
-    results: job ? `Found 12 highly compatible matches for ${job.title}` : PAGE_SUBHEADING, // ⚠️ ASSUMPTION for roles other than Senior Product Engineer
+    results: isLive
+      ? `${live.total} talent${live.total === 1 ? '' : 's'} ${query.trim() ? `match \u201c${query.trim()}\u201d` : 'in the GTH talent pool'}`
+      : job
+        ? `Found 12 highly compatible matches for ${job.title}`
+        : PAGE_SUBHEADING, // ⚠️ ASSUMPTION for roles other than Senior Product Engineer
   };
   const heading =
     view === 'first-visit'
@@ -280,15 +296,20 @@ const TalentSearchSection = () => {
                 onViewProfile={goToProfile}
                 onInviteToApply={goToInvite}
               />
-              <TalentPoolInsightBanner
-                onViewReport={() => log('branch', { viewMarketReport: true, wired: false })}
-              />
-              <CandidateGrid
-                keyPrefix="b"
-                candidates={visibleCandidates}
-                onViewProfile={goToProfile}
-                onInviteToApply={goToInvite}
-              />
+              {/* Signed in: one grid of real results; the insight banner and the repeated grid are Figma demo. */}
+              {isLive ? null : (
+                <>
+                  <TalentPoolInsightBanner
+                    onViewReport={() => log('branch', { viewMarketReport: true, wired: false })}
+                  />
+                  <CandidateGrid
+                    keyPrefix="b"
+                    candidates={visibleCandidates}
+                    onViewProfile={goToProfile}
+                    onInviteToApply={goToInvite}
+                  />
+                </>
+              )}
             </>
           ) : null}
         </div>
