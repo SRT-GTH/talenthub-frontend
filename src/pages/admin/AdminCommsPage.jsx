@@ -68,7 +68,9 @@ const AUDIENCES = [
 const Heading = ({ title, sub, active }) => (
   <div className="flex flex-col gap-[16px]">
     <header className="flex flex-col gap-[3px]">
-      <h1 className="m-0 font-sans text-[32px] leading-[40px] font-semibold text-[#1c2a21]">{title}</h1>
+      <h1 className="m-0 font-sans text-[32px] leading-[40px] font-semibold text-[#1c2a21]">
+        {title}
+      </h1>
       <p className="m-0 font-sans text-[16px] leading-[24px] text-[#999999]">{sub}</p>
     </header>
     <CommsTabs active={active} />
@@ -100,7 +102,9 @@ const TemplateDialog = ({ template, role, onClose, onSaved, onDeleted }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e?.target ? e.target.value : e }));
-  const placeholders = [...new Set((f.body + f.subject).match(/\{\{\s*[\w.]+\s*\}\}/g) || [])].map((p) => p.replace(/[{}\s]/g, ''));
+  const placeholders = [...new Set((f.body + f.subject).match(/\{\{\s*[\w.]+\s*\}\}/g) || [])].map(
+    (p) => p.replace(/[{}\s]/g, '')
+  );
   const ready = f.name.trim() && f.subject.trim() && f.body.trim() && !busy && !locked;
 
   const save = async (e) => {
@@ -111,7 +115,9 @@ const TemplateDialog = ({ template, role, onClose, onSaved, onDeleted }) => {
     try {
       // The backend stores placeholders as { key, description, required } objects.
       const payload = { ...f, placeholders: placeholders.map((key) => ({ key, required: false })) };
-      const res = template ? await updateTemplate(docId(template), payload) : await createTemplate(payload);
+      const res = template
+        ? await updateTemplate(docId(template), payload)
+        : await createTemplate(payload);
       onSaved(res?.template ?? res, Boolean(template));
     } catch (err) {
       setError(adminError(err));
@@ -146,35 +152,94 @@ const TemplateDialog = ({ template, role, onClose, onSaved, onDeleted }) => {
       <form onSubmit={save} className="flex flex-col gap-[16px]">
         {locked ? (
           <p className="m-0 rounded-[14px] bg-[#faf4e8] p-[12px] font-sans text-[14px] leading-[20px] text-[#463409]">
-            This template is used by the “{humanize(template.systemEventTrigger)}” system event, so the backend doesn’t allow edits.
+            This template is used by the “{humanize(template.systemEventTrigger)}” system event, so
+            the backend doesn’t allow edits.
           </p>
         ) : null}
         <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
-          <TextInput label="Name" required value={f.name} onChange={set('name')} disabled={locked} />
-          <TextInput label="Description" optional value={f.description} onChange={set('description')} disabled={locked} />
-          <Select label="Channel" required options={CHANNELS} value={f.channel} onChange={set('channel')} disabled={locked} />
-          <Select label="Status" required options={STATUSES} value={f.status} onChange={set('status')} disabled={locked} />
+          <TextInput
+            label="Name"
+            required
+            value={f.name}
+            onChange={set('name')}
+            disabled={locked}
+          />
+          <TextInput
+            label="Description"
+            optional
+            value={f.description}
+            onChange={set('description')}
+            disabled={locked}
+          />
+          <Select
+            label="Channel"
+            required
+            options={CHANNELS}
+            value={f.channel}
+            onChange={set('channel')}
+            disabled={locked}
+          />
+          <Select
+            label="Status"
+            required
+            options={STATUSES}
+            value={f.status}
+            onChange={set('status')}
+            disabled={locked}
+          />
         </div>
-        <TextInput label="Subject" required value={f.subject} onChange={set('subject')} disabled={locked} />
-        <Textarea label="Message" required rows={6} value={f.body} onChange={set('body')} disabled={locked} />
+        <TextInput
+          label="Subject"
+          required
+          value={f.subject}
+          onChange={set('subject')}
+          disabled={locked}
+        />
+        <Textarea
+          label="Message"
+          required
+          rows={6}
+          value={f.body}
+          onChange={set('body')}
+          disabled={locked}
+        />
         <p className="m-0 font-sans text-[13px] leading-[18px] text-[#737373]">
-          Use {'{{name}}'} style variables.{placeholders.length ? ` Found: ${placeholders.join(', ')}.` : ''}
-          {template ? ` Version ${template.version ?? 1} · last changed ${shortDate(template.updatedAt)}.` : ''}
+          Use {'{{name}}'} style variables.
+          {placeholders.length ? ` Found: ${placeholders.join(', ')}.` : ''}
+          {template
+            ? ` Version ${template.version ?? 1} · last changed ${shortDate(template.updatedAt)}.`
+            : ''}
         </p>
-        {error ? <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">
+            {error}
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center justify-between gap-[12px]">
           {template && role === 'super' && !locked ? (
-            <button type="button" onClick={remove} className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold text-[#902b20] underline">
+            <button
+              type="button"
+              onClick={remove}
+              className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] font-semibold text-[#902b20] underline"
+            >
               Delete template
             </button>
           ) : (
             <span />
           )}
           <div className="flex items-center gap-[12px]">
-            <button type="button" onClick={onClose} className="h-[52px] cursor-pointer rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[22px] font-sans text-[16px] font-bold">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-[52px] cursor-pointer rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white px-[22px] font-sans text-[16px] font-bold"
+            >
               {locked ? 'Close' : 'Cancel'}
             </button>
-            {locked ? null : <GreenButton disabled={!ready}>{busy ? 'Saving…' : template ? 'Save changes' : 'Create template'}</GreenButton>}
+            {locked ? null : (
+              <GreenButton disabled={!ready}>
+                {busy ? 'Saving…' : template ? 'Save changes' : 'Create template'}
+              </GreenButton>
+            )}
           </div>
         </div>
       </form>
@@ -188,7 +253,8 @@ const TemplatesScreen = ({ data, role }) => {
   const list = useAdminData(() => listTemplates({ limit: 200 }), []);
   const templates = list.data?.templates ?? [];
   const filter = data.params.get('chip') ?? 'all';
-  const editing = data.modal === 'edit' ? templates.find((t) => docId(t) === data.params.get('template')) : null;
+  const editing =
+    data.modal === 'edit' ? templates.find((t) => docId(t) === data.params.get('template')) : null;
   const canEdit = role === 'super' || role === 'senior';
   const shown = templates.filter((t) => {
     if (filter === 'system' && !t.systemEventTrigger) return false;
@@ -211,8 +277,17 @@ const TemplatesScreen = ({ data, role }) => {
     <>
       {list.loading || list.error ? (
         <div className="flex flex-col gap-[16px] pt-[4px]">
-          <Heading title="Notification templates" sub="Messages staff send to users." active="templates" />
-          <AdminLoadNotice loading={list.loading} error={list.error} status={list.status} onRetry={list.reload} />
+          <Heading
+            title="Notification templates"
+            sub="Messages staff send to users."
+            active="templates"
+          />
+          <AdminLoadNotice
+            loading={list.loading}
+            error={list.error}
+            status={list.status}
+            onRetry={list.reload}
+          />
         </div>
       ) : (
         <TemplatesView
@@ -234,7 +309,10 @@ const TemplatesScreen = ({ data, role }) => {
           role={role}
           onClose={close}
           onSaved={(t, updated) => {
-            toast(updated ? 'Template saved' : 'Template created', `${t?.name ?? ''}${t?.version ? ` · v${t.version}` : ''}`);
+            toast(
+              updated ? 'Template saved' : 'Template created',
+              `${t?.name ?? ''}${t?.version ? ` · v${t.version}` : ''}`
+            );
             close();
             list.reload();
           }}
@@ -255,7 +333,10 @@ const MessageScreen = ({ data, role }) => {
   const navigate = useNavigate();
   const accountId = data.params.get('account');
   const [toastEl, toast] = useAdminToast();
-  const acc = useAdminData(() => (accountId ? viewAccount(accountId) : Promise.resolve(null)), [accountId]);
+  const acc = useAdminData(
+    () => (accountId ? viewAccount(accountId) : Promise.resolve(null)),
+    [accountId]
+  );
   const tpls = useAdminData(() => listTemplates({ status: 'active', limit: 200 }), []);
   const active = (tpls.data?.templates ?? []).filter((t) => t.status === 'active');
   const [mode, setMode] = useState('template');
@@ -278,8 +359,13 @@ const MessageScreen = ({ data, role }) => {
     try {
       await sendDirect(
         free
-          ? { recipientId: accountId, reasonCode, freeTextSubject: subject.trim(), freeTextBody: body.trim() }
-          : { recipientId: accountId, reasonCode, templateId },
+          ? {
+              recipientId: accountId,
+              reasonCode,
+              freeTextSubject: subject.trim(),
+              freeTextBody: body.trim(),
+            }
+          : { recipientId: accountId, reasonCode, templateId }
       );
       toast('Message sent', `${name} gets it by email and in the app.`);
       setTimeout(back, 1200);
@@ -293,7 +379,11 @@ const MessageScreen = ({ data, role }) => {
   if (!accountId) {
     return (
       <div className="flex flex-col gap-[16px] pt-[4px]">
-        <Heading title="Message a user" sub="Open an account and choose “Message user”." active="sent" />
+        <Heading
+          title="Message a user"
+          sub="Open an account and choose “Message user”."
+          active="sent"
+        />
         <AdminLoadNotice error="No account chosen." status={400} />
       </div>
     );
@@ -301,8 +391,17 @@ const MessageScreen = ({ data, role }) => {
   return (
     <>
       <div className="flex flex-col gap-[16px] pt-[4px]">
-        <Heading title={`Message ${name}`} sub="Sent by email and in the app. Every message is logged with its reason." active="sent" />
-        <AdminLoadNotice loading={acc.loading} error={acc.error} status={acc.status} onRetry={acc.reload} />
+        <Heading
+          title={`Message ${name}`}
+          sub="Sent by email and in the app. Every message is logged with its reason."
+          active="sent"
+        />
+        <AdminLoadNotice
+          loading={acc.loading}
+          error={acc.error}
+          status={acc.status}
+          onRetry={acc.reload}
+        />
       </div>
       <SettingsDialog
         open
@@ -315,7 +414,11 @@ const MessageScreen = ({ data, role }) => {
       >
         <form onSubmit={send} className="flex flex-col gap-[16px]">
           {role === 'super' ? (
-            <div role="radiogroup" aria-label="Message type" className="grid grid-cols-2 gap-[10px]">
+            <div
+              role="radiogroup"
+              aria-label="Message type"
+              className="grid grid-cols-2 gap-[10px]"
+            >
               {[
                 { id: 'template', label: 'Use a template' },
                 { id: 'free', label: 'Write my own' },
@@ -327,7 +430,9 @@ const MessageScreen = ({ data, role }) => {
                   aria-checked={mode === m.id}
                   onClick={() => setMode(m.id)}
                   className={`h-[56px] cursor-pointer rounded-[14px] border border-solid font-sans text-[14px] font-semibold ${
-                    mode === m.id ? 'border-[#387440] bg-[#ebf1ec] text-[#2a5730]' : 'border-[#1c2a21]/15 bg-white text-[#1c2a21]'
+                    mode === m.id
+                      ? 'border-[#387440] bg-[#ebf1ec] text-[#2a5730]'
+                      : 'border-[#1c2a21]/15 bg-white text-[#1c2a21]'
                   }`}
                 >
                   {m.label}
@@ -335,11 +440,28 @@ const MessageScreen = ({ data, role }) => {
               ))}
             </div>
           ) : null}
-          <Select label="Reason" required options={REASON_CODES} value={reasonCode} onChange={setReasonCode} />
+          <Select
+            label="Reason"
+            required
+            options={REASON_CODES}
+            value={reasonCode}
+            onChange={setReasonCode}
+          />
           {free ? (
             <>
-              <TextInput label="Subject" required value={subject} onChange={(e) => setSubject(e.target.value)} />
-              <Textarea label="Message" required rows={5} value={body} onChange={(e) => setBody(e.target.value)} />
+              <TextInput
+                label="Subject"
+                required
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+              <Textarea
+                label="Message"
+                required
+                rows={5}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+              />
             </>
           ) : (
             <>
@@ -349,7 +471,13 @@ const MessageScreen = ({ data, role }) => {
                 options={active.map((t) => ({ value: docId(t), label: t.name }))}
                 value={templateId}
                 onChange={setTemplateId}
-                helperText={tpls.loading ? 'Loading templates…' : active.length ? undefined : 'No active templates yet: create one under Templates.'}
+                helperText={
+                  tpls.loading
+                    ? 'Loading templates…'
+                    : active.length
+                      ? undefined
+                      : 'No active templates yet: create one under Templates.'
+                }
               />
               {templateId ? (
                 <p className="m-0 rounded-[14px] bg-[#f8f8f4] p-[12px] font-sans text-[14px] leading-[20px] whitespace-pre-wrap text-[#1c2a21]">
@@ -358,9 +486,17 @@ const MessageScreen = ({ data, role }) => {
               ) : null}
             </>
           )}
-          {error ? <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">{error}</p> : null}
+          {error ? (
+            <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">
+              {error}
+            </p>
+          ) : null}
           <div className="grid grid-cols-[1fr_219px] gap-[12px]">
-            <button type="button" onClick={back} className="h-[56px] cursor-pointer rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white font-sans text-[16px] font-bold">
+            <button
+              type="button"
+              onClick={back}
+              className="h-[56px] cursor-pointer rounded-[14px] border-2 border-solid border-[#1c2a21]/30 bg-white font-sans text-[16px] font-bold"
+            >
               Cancel
             </button>
             <GreenButton disabled={!ready}>{busy ? 'Sending…' : 'Send message'}</GreenButton>
@@ -387,12 +523,21 @@ const BulkScreen = ({ role }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [job, setJob] = useState(null);
-  const reach = useAdminData(() => searchAccounts({ accountType: audience, status: 'active', limit: 200 }).then((r) => r?.records ?? []), [audience]);
-  const estimate = (reach.data ?? []).filter((a) => (!region || a.region === region) && (includeMinors || !a.isMinor)).length;
+  const reach = useAdminData(
+    () =>
+      searchAccounts({ accountType: audience, status: 'active', limit: 200 }).then(
+        (r) => r?.records ?? []
+      ),
+    [audience]
+  );
+  const estimate = (reach.data ?? []).filter(
+    (a) => (!region || a.region === region) && (includeMinors || !a.isMinor)
+  ).length;
   const filter = useMemo(() => {
     const f = { entityType: audience, status: 'active' };
     if (region.trim()) f.region = region.trim();
-    if (!includeMinors) f.isMinor = { $ne: true };
+    // false = adults only; the backend builds the Mongo filter (no query operators from the browser).
+    if (!includeMinors) f.isMinor = false;
     return f;
   }, [audience, region, includeMinors]);
   const allowed = role === 'super' || role === 'senior';
@@ -406,10 +551,17 @@ const BulkScreen = ({ role }) => {
       setConfirming(false);
       setWord('');
       if (res?.status === 'pending_approval') {
-        toast('Sent for approval', `${res.recipientCount} recipients. A second admin must approve it.`, 'info');
+        toast(
+          'Sent for approval',
+          `${res.recipientCount} recipients. A second admin must approve it.`,
+          'info'
+        );
       } else {
         setJob(res);
-        toast('Sending', `${res?.recipientCount ?? 0} recipients · ${res?.deliveryMethod === 'inline' ? 'sent now' : 'queued'}.`);
+        toast(
+          'Sending',
+          `${res?.recipientCount ?? 0} recipients · ${res?.deliveryMethod === 'inline' ? 'sent now' : 'queued'}.`
+        );
       }
     } catch (err) {
       setError(adminError(err));
@@ -418,13 +570,23 @@ const BulkScreen = ({ role }) => {
     }
   };
 
-  const status = useAdminData(() => (job?.jobId ? bulkStatus(job.jobId) : Promise.resolve(null)), [job?.jobId]);
+  const status = useAdminData(
+    () => (job?.jobId ? bulkStatus(job.jobId) : Promise.resolve(null)),
+    [job?.jobId]
+  );
 
   return (
     <div className="flex flex-col gap-[24px] pt-[4px]">
-      <Heading title="Bulk notification" sub="Send an active template to a group of users. Every send is logged." active="bulk" />
+      <Heading
+        title="Bulk notification"
+        sub="Send an active template to a group of users. Every send is logged."
+        active="bulk"
+      />
       {!allowed ? (
-        <AdminLoadNotice error="Bulk messages are for Senior Admins and Super Admins." status={403} />
+        <AdminLoadNotice
+          error="Bulk messages are for Senior Admins and Super Admins."
+          status={403}
+        />
       ) : (
         <form
           onSubmit={(e) => {
@@ -437,21 +599,54 @@ const BulkScreen = ({ role }) => {
             <Select
               label="Template"
               required
-              options={active.map((t) => ({ value: docId(t), label: `${t.name} · ${humanize(t.channel)}` }))}
+              options={active.map((t) => ({
+                value: docId(t),
+                label: `${t.name} · ${humanize(t.channel)}`,
+              }))}
               value={templateId}
               onChange={setTemplateId}
               helperText={active.length ? undefined : 'No active templates yet.'}
             />
-            <Select label="Reason" required options={REASON_CODES} value={reasonCode} onChange={setReasonCode} />
-            <Select label="Who gets it" required options={AUDIENCES} value={audience} onChange={setAudience} />
-            <TextInput label="Region" optional placeholder="Greater Accra" value={region} onChange={(e) => setRegion(e.target.value)} />
+            <Select
+              label="Reason"
+              required
+              options={REASON_CODES}
+              value={reasonCode}
+              onChange={setReasonCode}
+            />
+            <Select
+              label="Who gets it"
+              required
+              options={AUDIENCES}
+              value={audience}
+              onChange={setAudience}
+            />
+            <TextInput
+              label="Region"
+              optional
+              placeholder="Greater Accra"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+            />
           </div>
-          <Checkbox label="Include under-18 accounts" checked={includeMinors} onChange={(e) => setIncludeMinors(e.target.checked)} labelClassName="text-[14px] font-medium" />
+          <Checkbox
+            label="Include under-18 accounts"
+            checked={includeMinors}
+            onChange={(e) => setIncludeMinors(e.target.checked)}
+            labelClassName="text-[14px] font-medium"
+          />
           <p className="m-0 rounded-[14px] bg-[#faf4e8] p-[12px] font-sans text-[14px] leading-[20px] text-[#463409]">
-            About {reach.loading ? '…' : `${estimate}${(reach.data?.length ?? 0) >= 200 ? '+' : ''}`} active {AUDIENCES.find((a) => a.value === audience)?.label.toLowerCase()} match.
-            Over 1,000 recipients needs a second admin’s approval. The backend has no test send or schedule yet.
+            About{' '}
+            {reach.loading ? '…' : `${estimate}${(reach.data?.length ?? 0) >= 200 ? '+' : ''}`}{' '}
+            active {AUDIENCES.find((a) => a.value === audience)?.label.toLowerCase()} match. Over
+            1,000 recipients needs a second admin’s approval. The backend has no test send or
+            schedule yet.
           </p>
-          {error ? <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">{error}</p> : null}
+          {error ? (
+            <p role="alert" className="m-0 font-sans text-[14px] font-semibold text-[#902b20]">
+              {error}
+            </p>
+          ) : null}
           <div>
             <GreenButton disabled={!templateId}>Review and send</GreenButton>
           </div>
@@ -459,10 +654,15 @@ const BulkScreen = ({ role }) => {
       )}
       {job ? (
         <div className="max-w-[760px] rounded-[20px] border border-solid border-[#e1eae2] bg-white p-[18px] font-sans text-[14px] leading-[21px] text-[#1c2a21]">
-          <strong>Last send:</strong> {job.recipientCount} recipients · {job.successCount ?? 0} sent · {job.failCount ?? 0} failed
+          <strong>Last send:</strong> {job.recipientCount} recipients · {job.successCount ?? 0} sent
+          · {job.failCount ?? 0} failed
           {job.jobId ? ` · job ${job.jobId} · ${status.data?.state ?? 'checking…'}` : ''}
           {job.jobId ? (
-            <button type="button" onClick={status.reload} className="ml-[10px] cursor-pointer border-0 bg-transparent font-semibold text-[#387440] underline">
+            <button
+              type="button"
+              onClick={status.reload}
+              className="ml-[10px] cursor-pointer border-0 bg-transparent font-semibold text-[#387440] underline"
+            >
               Refresh
             </button>
           ) : null}
@@ -477,7 +677,13 @@ const BulkScreen = ({ role }) => {
           onPrimary={send}
           onClose={() => setConfirming(false)}
         >
-          <TextInput label="Type CONFIRM" value={word} onChange={(e) => setWord(e.target.value)} autoComplete="off" error={error || undefined} />
+          <TextInput
+            label="Type CONFIRM"
+            value={word}
+            onChange={(e) => setWord(e.target.value)}
+            autoComplete="off"
+            error={error || undefined}
+          />
         </AdminConfirmDialog>
       ) : null}
       {toastEl}
@@ -489,23 +695,39 @@ const BulkScreen = ({ role }) => {
 const SentScreen = ({ data }) => {
   const navigate = useNavigate();
   const sent = useAdminData(async () => {
-    const r = await Promise.all(['DIRECT_COMM_SENT', 'BULK_COMM_SENT'].map((action) => searchAudit({ action, limit: 100 })));
+    const r = await Promise.all(
+      ['DIRECT_COMM_SENT', 'BULK_COMM_SENT'].map((action) => searchAudit({ action, limit: 100 }))
+    );
     return r
       .flatMap((x) => x?.records ?? [])
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, []);
   const records = sent.data ?? [];
   const tab = data.tab ?? 'all';
-  const shown = records.filter((e) => (tab === 'bulk' ? e.action === 'BULK_COMM_SENT' : tab === 'direct' ? e.action === 'DIRECT_COMM_SENT' : true));
+  const shown = records.filter((e) =>
+    tab === 'bulk'
+      ? e.action === 'BULK_COMM_SENT'
+      : tab === 'direct'
+        ? e.action === 'DIRECT_COMM_SENT'
+        : true
+  );
   const rows = shown.map((e) => {
     const p = e.payload || {};
     const bulk = e.action === 'BULK_COMM_SENT';
     return {
       id: docId(e),
       lead: { icon: bulk ? 'company' : 'book' },
-      title: bulk ? `Bulk · ${p.templateName || p.templateId || 'template'}` : `Direct message · ${humanize(p.reasonCode || 'message')}`,
+      title: bulk
+        ? `Bulk · ${p.templateName || p.templateId || 'template'}`
+        : `Direct message · ${humanize(p.reasonCode || 'message')}`,
       sticker: bulk ? `${p.recipientCount ?? p.successCount ?? '?'} people` : null,
-      sub: [shortDate(e.createdAt), humanize(e.actorType), bulk ? null : `to ${String(e.affectedEntityId || '').slice(-8)}`].filter(Boolean).join(' · '),
+      sub: [
+        shortDate(e.createdAt),
+        humanize(e.actorType),
+        bulk ? null : `to ${String(e.affectedEntityId || '').slice(-8)}`,
+      ]
+        .filter(Boolean)
+        .join(' · '),
       chips: [{ label: p.isFreeText ? 'Free text' : 'Template', tone: 'green' }],
       pill: { label: 'View', strong: false },
       age: timeAgo(e.createdAt),
@@ -515,8 +737,17 @@ const SentScreen = ({ data }) => {
   if (sent.loading || sent.error) {
     return (
       <div className="flex flex-col gap-[16px] pt-[4px]">
-        <Heading title="Sent messages" sub="Direct and bulk messages, newest first." active="sent" />
-        <AdminLoadNotice loading={sent.loading} error={sent.error} status={sent.status} onRetry={sent.reload} />
+        <Heading
+          title="Sent messages"
+          sub="Direct and bulk messages, newest first."
+          active="sent"
+        />
+        <AdminLoadNotice
+          loading={sent.loading}
+          error={sent.error}
+          status={sent.status}
+          onRetry={sent.reload}
+        />
       </div>
     );
   }
@@ -527,11 +758,20 @@ const SentScreen = ({ data }) => {
       config={{
         title: 'Sent messages',
         sticker: `${records.length} sent`,
-        subtitle: 'Direct and bulk messages from the audit log. Open rates, bounces and drafts aren’t tracked by the backend yet.',
+        subtitle:
+          'Direct and bulk messages from the audit log. Open rates, bounces and drafts aren’t tracked by the backend yet.',
         tabs: [
           { id: 'all', label: 'All', count: records.length },
-          { id: 'direct', label: 'Direct', count: records.filter((e) => e.action === 'DIRECT_COMM_SENT').length },
-          { id: 'bulk', label: 'Bulk', count: records.filter((e) => e.action === 'BULK_COMM_SENT').length },
+          {
+            id: 'direct',
+            label: 'Direct',
+            count: records.filter((e) => e.action === 'DIRECT_COMM_SENT').length,
+          },
+          {
+            id: 'bulk',
+            label: 'Bulk',
+            count: records.filter((e) => e.action === 'BULK_COMM_SENT').length,
+          },
         ],
         defaultTab: 'all',
         chips: [{ id: 'all', label: 'All' }],
@@ -546,9 +786,27 @@ const SentScreen = ({ data }) => {
               title: 'Nothing sent yet',
               text: 'Messages you send to users show up here.',
               steps: [
-                { id: 's1', icon: 'plus', title: 'Send a bulk notification', meta: 'Comms › Bulk', to: '/admin/comms/bulk' },
-                { id: 's2', icon: 'spark', title: 'Manage templates', meta: 'Comms › Templates', to: '/admin/comms/templates' },
-                { id: 's3', icon: 'user', title: 'Message one user', meta: 'From their account page', to: '/admin/accounts' },
+                {
+                  id: 's1',
+                  icon: 'plus',
+                  title: 'Send a bulk notification',
+                  meta: 'Comms › Bulk',
+                  to: '/admin/comms/bulk',
+                },
+                {
+                  id: 's2',
+                  icon: 'spark',
+                  title: 'Manage templates',
+                  meta: 'Comms › Templates',
+                  to: '/admin/comms/templates',
+                },
+                {
+                  id: 's3',
+                  icon: 'user',
+                  title: 'Message one user',
+                  meta: 'From their account page',
+                  to: '/admin/accounts',
+                },
               ],
               primary: 'New bulk message',
               onPrimary: '/admin/comms/bulk',
