@@ -148,17 +148,21 @@ const PipelineCandidateCard = ({
             {card.name}
           </button>
           <span className="font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
-            {card.role} · {card.years} yrs
+            {card.years === null || card.years === undefined
+              ? card.role
+              : `${card.role} · ${card.years} yrs`}
           </span>
         </div>
-        <span
-          className={classNames(
-            'shrink-0 font-sans leading-[16px] font-semibold tracking-[0.1px]',
-            matchStyle(card.matchPercent)
-          )}
-        >
-          {card.matchPercent}%
-        </span>
+        {card.matchPercent === null || card.matchPercent === undefined ? null : (
+          <span
+            className={classNames(
+              'shrink-0 font-sans leading-[16px] font-semibold tracking-[0.1px]',
+              matchStyle(card.matchPercent)
+            )}
+          >
+            {card.matchPercent}%
+          </span>
+        )}
       </div>
 
       {card.tags.length > 0 || card.criteria ? (
