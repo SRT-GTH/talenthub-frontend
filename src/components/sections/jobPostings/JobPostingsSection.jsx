@@ -56,14 +56,34 @@ const log = debug('JobPostingsSection');
 const liveToast = (kind, posting) => {
   const title = posting?.title || 'Posting';
   if (kind === 'paused')
-    return { tone: 'warning', title: `Warning - Applications paused for ${title}`, message: 'Your pipeline is unchanged', actionLabel: 'Undo' };
+    return {
+      tone: 'warning',
+      title: `Warning - Applications paused for ${title}`,
+      message: 'Your pipeline is unchanged',
+      actionLabel: 'Undo',
+    };
   if (kind === 'closed')
-    return { tone: 'success', title: `Success - ${title} is closed`, message: 'It no longer accepts applications and is hidden from talent search.', actionLabel: 'Reopen' };
-  if (kind === 'deleted') return { tone: 'success', title: 'Success - Draft deleted', message: title };
+    return {
+      tone: 'success',
+      title: `Success - ${title} is closed`,
+      message: 'It no longer accepts applications and is hidden from talent search.',
+      actionLabel: 'Reopen',
+    };
+  if (kind === 'deleted')
+    return { tone: 'success', title: 'Success - Draft deleted', message: title };
   if (kind === 'published')
-    return { tone: 'success', title: 'Success', message: `${title} is live. Talent can now find it in Opportunities` };
+    return {
+      tone: 'success',
+      title: 'Success',
+      message: `${title} is live. Talent can now find it in Opportunities`,
+    };
   if (kind === 'drafted')
-    return { tone: 'warning', title: `${title} was saved as a draft`, message: 'It goes live once your organisation approves your affiliation, or after a content review.' };
+    return {
+      tone: 'warning',
+      title: `${title} was saved as a draft`,
+      message:
+        'It goes live once your organisation approves your affiliation, or after a content review.',
+    };
   return null;
 };
 
@@ -351,7 +371,9 @@ const JobPostingsSection = () => {
       ? {
           ...pill,
           count:
-            pill.fixedCount && !deletedIds.length && !isLive ? pill.fixedCount : `(${visible.length})`,
+            pill.fixedCount && !deletedIds.length && !isLive
+              ? pill.fixedCount
+              : `(${visible.length})`,
         }
       : { id: pill.id, label: pill.label }
   );
@@ -368,14 +390,12 @@ const JobPostingsSection = () => {
 
   const closeDialog = () => updateUrl({ modal: null, posting: null });
   const modalKind = searchParams.get('modal');
-  const modalPosting = postings.find((p) => p.id === searchParams.get('posting')) ??
+  const modalPosting =
+    postings.find((p) => p.id === searchParams.get('posting')) ??
     (isLive ? { id: '', title: '', totalApplicants: '0', awaiting: '0' } : postings[0]);
   const toastKind = searchParams.get('toast');
   const toast = isLive
-    ? liveToast(
-        toastKind,
-        postings.find((p) => p.id === searchParams.get('posting')) || lastActed
-      )
+    ? liveToast(toastKind, postings.find((p) => p.id === searchParams.get('posting')) || lastActed)
     : POSTING_TOASTS[toastKind];
   const manageMenu = searchParams.get('menuKind') === 'manage';
   const toastPosting = searchParams.get('posting');
@@ -389,7 +409,9 @@ const JobPostingsSection = () => {
     const base = { menu: null, menuKind: null, menuItem: null };
     if (action === 'view') navigate(`/recruiter/job-postings/${id}`);
     else if (action === 'pipeline')
-      navigate(isLive ? `/recruiter/application-pipeline?posting=${id}` : '/recruiter/application-pipeline');
+      navigate(
+        isLive ? `/recruiter/application-pipeline?posting=${id}` : '/recruiter/application-pipeline'
+      );
     else if (action === 'edit') navigate(`/recruiter/job-postings/${id}/edit`);
     else if (action === 'duplicate') updateUrl({ ...base, modal: 'save-template', posting: id });
     else if (action === 'pause') updateUrl({ ...base, modal: 'pause', posting: id });
@@ -447,7 +469,9 @@ const JobPostingsSection = () => {
             )}
 
             {isLive && live.status === 'loading' ? (
-              <p className="font-sans text-[14px] leading-5 text-[#959592]">Loading your postings…</p>
+              <p className="font-sans text-[14px] leading-5 text-[#959592]">
+                Loading your postings…
+              </p>
             ) : null}
             {isLive && live.status === 'error' ? (
               <p role="alert" className="font-sans text-[14px] leading-5 text-[#c0392b]">
@@ -608,7 +632,9 @@ const JobPostingsSection = () => {
             if (isLive) {
               const target = modalPosting;
               setLastActed(target);
-              live.remove(target.id).then((ok) => (ok ? finishWith('deleted', target.id) : closeDialog()));
+              live
+                .remove(target.id)
+                .then((ok) => (ok ? finishWith('deleted', target.id) : closeDialog()));
               return;
             }
             setDeletedIds((prev) => [...prev, modalPosting.id]);

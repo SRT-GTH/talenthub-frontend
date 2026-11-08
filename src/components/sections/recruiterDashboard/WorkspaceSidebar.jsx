@@ -27,7 +27,8 @@ const liveSidebar = (shell) => {
     journeyLabel: 'Company profile',
     journeyCount: completion === null || completion === undefined ? '\u2014' : `${completion}%`,
     journeyPercent: completion || 0,
-    journeyNext: completion >= 100 ? 'Company profile complete' : 'Continue: Company profile \u2192',
+    journeyNext:
+      completion >= 100 ? 'Company profile complete' : 'Continue: Company profile \u2192',
     stats: [
       { id: 'jobs', value: dash(jobs ? jobs.active : null), label: 'Active Jobs' },
       { id: 'applicants', value: dash(shell.applicants), label: 'Applicants' },
@@ -40,7 +41,10 @@ const liveSidebar = (shell) => {
         {
           id: 'posts',
           label: 'Job posts this month',
-          value: plan.jobPosts === null ? `${dash(used)} / Unlimited` : `${dash(used)} / ${plan.jobPosts}`,
+          value:
+            plan.jobPosts === null
+              ? `${dash(used)} / Unlimited`
+              : `${dash(used)} / ${plan.jobPosts}`,
           percent: plan.jobPosts === null ? 0 : pct(used, plan.jobPosts),
         },
         { id: 'inmails', label: 'InMails', value: `${plan.inmails} / month`, percent: 0 },

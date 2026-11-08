@@ -19,7 +19,13 @@ const log = debug('useLivePostings');
  * Draft, Paused, Closed (expired or filled). Every mutation reloads the list and the shell counts.
  */
 
-const STATUS_LABEL = { published: 'Active', draft: 'Draft', paused: 'Paused', expired: 'Closed', filled: 'Closed' };
+const STATUS_LABEL = {
+  published: 'Active',
+  draft: 'Draft',
+  paused: 'Paused',
+  expired: 'Closed',
+  filled: 'Closed',
+};
 const ACTION_FOR = {
   Active: 'View Pipeline',
   Draft: 'Continue Editing',
@@ -61,14 +67,17 @@ export const ago = (iso, now = Date.now()) => {
 };
 
 const iconFor = (job) => {
-  if (job.type === 'internship' || /intern|graduate|trainee/i.test(job.title || '')) return 'hat-graduation';
+  if (job.type === 'internship' || /intern|graduate|trainee/i.test(job.title || ''))
+    return 'hat-graduation';
   if (/design|ux|ui|creative|architect/i.test(job.title || '')) return 'pencil-ruler';
   return 'developer-board';
 };
 
 const placeOf = (loc = {}) => {
   if (loc.type === 'remote') return 'Remote';
-  const where = [loc.city, loc.country === 'GH' || !loc.country ? 'Ghana' : loc.country].filter(Boolean).join(', ');
+  const where = [loc.city, loc.country === 'GH' || !loc.country ? 'Ghana' : loc.country]
+    .filter(Boolean)
+    .join(', ');
   return where || 'Ghana';
 };
 
@@ -103,7 +112,10 @@ export const useLivePostings = () => {
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
-    const [jobs, apps] = await Promise.all([fetchMyJobs(), fetchReceivedApplications().catch(() => [])]);
+    const [jobs, apps] = await Promise.all([
+      fetchMyJobs(),
+      fetchReceivedApplications().catch(() => []),
+    ]);
     setPostings(jobs.map((j) => toPosting(j, apps)));
   }, []);
 

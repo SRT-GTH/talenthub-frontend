@@ -61,7 +61,8 @@ export const summariseJobs = (jobs = []) => {
   jobs.forEach((j) => {
     out[jobBucket(j)] += 1;
     const d = new Date(j.publishDate || j.createdAt);
-    if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) out.postedThisMonth += 1;
+    if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth())
+      out.postedThisMonth += 1;
   });
   return out;
 };
@@ -141,12 +142,16 @@ export const loadRecruiterShell = ({ force = false } = {}) => {
     emit();
   };
   const fast = Promise.all([
-    settle(api.get('/recruiter/onboarding').then((r) => unwrap(r)?.onboarding)).then((v) => put('onboarding', v)),
+    settle(api.get('/recruiter/onboarding').then((r) => unwrap(r)?.onboarding)).then((v) =>
+      put('onboarding', v)
+    ),
     settle(api.get('/recruiter/company').then(unwrap)).then((v) => put('company', v)),
-    settle(
-      api.get('/opportunities/my/list').then((r) => unwrap(r)?.opportunities || [])
-    ).then((v) => put('jobs', v)),
-    settle(api.get('/messaging/stats').then((r) => unwrap(r)?.stats)).then((v) => put('messaging', v)),
+    settle(api.get('/opportunities/my/list').then((r) => unwrap(r)?.opportunities || [])).then(
+      (v) => put('jobs', v)
+    ),
+    settle(api.get('/messaging/stats').then((r) => unwrap(r)?.stats)).then((v) =>
+      put('messaging', v)
+    ),
   ]);
   // The applicant stats can take >10 s on staging: do not hold the shell for them.
   settle(api.get('/applications/stats/received').then((r) => unwrap(r)?.stats)).then((v) =>

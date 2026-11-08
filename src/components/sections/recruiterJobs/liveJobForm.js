@@ -60,7 +60,9 @@ export const toBuddyForm = (values) => {
     jobType: JOB_TYPE[String(v.employment || '').toLowerCase()] || 'full-time',
     department: String(v.department || '').trim(),
     workArrangement: ARRANGEMENT[String(v.setup || '').toLowerCase()] || 'on-site',
-    workLocation: String(v.location || '').replace(/\s*·\s*/g, ', ').trim(),
+    workLocation: String(v.location || '')
+      .replace(/\s*·\s*/g, ', ')
+      .trim(),
     ...(paid
       ? {
           salaryMode: 'range',

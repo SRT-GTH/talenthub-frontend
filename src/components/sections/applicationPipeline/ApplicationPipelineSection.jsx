@@ -212,7 +212,8 @@ const ApplicationPipelineSection = () => {
   const urlPosting = searchParams.get('posting');
   const { jobs: liveJobs, setJobId: setLiveJobId } = pipe;
   useEffect(() => {
-    if (isLive && urlPosting && liveJobs.some((j) => jobIdOf(j) === urlPosting)) setLiveJobId(urlPosting);
+    if (isLive && urlPosting && liveJobs.some((j) => jobIdOf(j) === urlPosting))
+      setLiveJobId(urlPosting);
   }, [isLive, urlPosting, liveJobs, setLiveJobId]);
   // Signed in, the board never shows the Figma demo people — empty columns while loading.
   const columns = isLive
