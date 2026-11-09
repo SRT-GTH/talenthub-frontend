@@ -5,6 +5,7 @@ import DashboardShell from '../../dashboard/DashboardShell.jsx';
 import { renderWorkspaceSidebar } from '../../recruiterDashboard/renderWorkspaceSidebar.jsx';
 import HelpSupportPage from '../../talentSettings/HelpSupportPage.jsx';
 import RecruiterContactView from './RecruiterContactView.jsx';
+import { isRecruiterSession } from '../../../../services/recruiterShell.api.js';
 import { useRecruiterHelpPanels } from './useRecruiterHelpPanels.jsx';
 import { useRecruiterHelpState } from './useRecruiterHelpState.js';
 import {
@@ -46,6 +47,7 @@ const RecruiterHelpSupportSection = () => {
   useScopedRoundedFont('data-recruiter-ui', true);
   const state = useRecruiterHelpState();
   const panels = useRecruiterHelpPanels();
+  const live = isRecruiterSession();
   useEffect(() => {
     log('mount', { help: state.help, q: state.q });
   }, [state.help, state.q]);
@@ -53,11 +55,12 @@ const RecruiterHelpSupportSection = () => {
   return (
     <DashboardShell renderSidebar={renderWorkspaceSidebar} panels={panels}>
       <div className="w-full py-[32px] pr-[clamp(16px,3.24vw,56px)] pl-[clamp(16px,2.3vw,40px)] max-md:py-[12px]">
+        {/* Signed in: real support requests (GET/POST /api/support/cases) and the live contact form; otherwise the Figma demo rows and form. */}
         <HelpSupportPage
           settings={state}
           data={PAGE_DATA}
-          requests={recruiterRequests()}
-          ContactView={RecruiterContactView}
+          requests={live ? undefined : recruiterRequests()}
+          ContactView={live ? undefined : RecruiterContactView}
         />
       </div>
     </DashboardShell>

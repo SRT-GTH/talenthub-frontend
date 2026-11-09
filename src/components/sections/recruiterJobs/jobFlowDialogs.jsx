@@ -336,8 +336,9 @@ export const SaveAsTemplateDialog = ({ copy, onClose, onSave, name, setName }) =
   </IconTileDialog>
 );
 
-export const ConfirmSaveDialog = ({ onKeep, onSave, notify, setNotify, ask, setAsk }) => {
-  const c = EDIT_POSTING.confirm;
+/* copy (live): { body, notify, notifyHint } replace the Figma wording (128 applicants, Silver Rock). */
+export const ConfirmSaveDialog = ({ onKeep, onSave, notify, setNotify, ask, setAsk, copy }) => {
+  const c = { ...EDIT_POSTING.confirm, ...(copy || {}) };
   return (
     <CenterDialog
       title={c.title}

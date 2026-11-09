@@ -6,6 +6,7 @@ import { RecruiterSettingsCard, RecruiterSettingsRow } from '../../../ui/Recruit
 import InviteDialog from '../account/InviteDialog.jsx';
 import RemoveDialog from '../account/RemoveDialog.jsx';
 import TeamMemberRow from '../account/TeamMemberRow.jsx';
+import { useLiveTeam } from '../account/useLiveTeam.js';
 import {
   DEFAULT_REMOVE_ID,
   DEFAULT_TOAST_EMAIL,
@@ -49,7 +50,62 @@ const DIALOG_BUTTON = '!h-[40px] !py-0 max-sm:w-full';
  * Mock, in memory: a role change updates the row, "Send invite" adds a pending row (and a seat), "Resend" / "Cancel invite" act on pending rows, "Remove teammate" drops the row.
  * Wiki: recruiter-settings-account.md.
  */
+// Live copy (signed-in recruiter): the real people at the organisation, read-only until invites and roles are built.
+const LIVE_TEAM = {
+  count: (n, org) => `${n} ${n === 1 ? 'person' : 'people'} at ${org || 'your organisation'}.`,
+  description:
+    'Teammates join by choosing your organisation when they set up their recruiter account. Your admin approves them.',
+  loading: 'Loading your team…',
+  error: 'We couldn’t load your team. Refresh the page to try again.',
+  empty: 'Your account isn’t linked to an organisation yet.',
+  soon: 'Inviting teammates and changing roles from here is coming soon.',
+};
+
+const LiveTeam = ({ team }) => (
+  <>
+    <RecruiterSettingsCard
+      title={TEAM_CARD.title}
+      description={
+        team.status === 'live' && team.organisation
+          ? LIVE_TEAM.count(team.members.length, team.organisation.name)
+          : undefined
+      }
+    >
+      <p className="m-0 font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
+        {team.status === 'loading'
+          ? LIVE_TEAM.loading
+          : team.status === 'error'
+            ? LIVE_TEAM.error
+            : !team.organisation
+              ? LIVE_TEAM.empty
+              : `${LIVE_TEAM.description} ${LIVE_TEAM.soon}`}
+      </p>
+      {team.members.length ? (
+        <ul className="m-0 flex list-none flex-col gap-[16px] p-0">
+          {team.members.map((member) => (
+            <li key={member.id} className="flex flex-col gap-[16px]">
+              <hr className="m-0 h-px w-full border-0 bg-[#e5e8e3]" />
+              <TeamMemberRow member={member} readOnly onRole={() => {}} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </RecruiterSettingsCard>
+    <RecruiterSettingsCard title={ROLES_CARD.title}>
+      {ROLES.filter((r) => ['admin', 'recruiter'].includes(r.value)).map((role) => (
+        <RecruiterSettingsRow key={role.value} title={role.label} description={role.can} />
+      ))}
+    </RecruiterSettingsCard>
+  </>
+);
+
 const TeamTab = ({ settings }) => {
+  const team = useLiveTeam();
+  if (team.status !== 'demo') return <LiveTeam team={team} />;
+  return <DemoTeamTab settings={settings} />;
+};
+
+const DemoTeamTab = ({ settings }) => {
   const [members, setMembers] = useState(TEAM_MEMBERS);
   const modal = settings.modal;
   const toastKind = settings.get('toast');

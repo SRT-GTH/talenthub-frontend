@@ -15,7 +15,59 @@ import {
   RETENTION_OPTIONS,
 } from '../security/securityData.js';
 
+import {
+  downloadMyData,
+  savePreferences,
+  settingsError,
+} from '../../../../services/settings.api.js';
+import { fetchReceivedApplications } from '../../../../services/recruiterPipeline.api.js';
+import { snapshotOf } from '../../applicationPipeline/pipelineLive.js';
+import { useLiveSettingsOverview } from '../account/useLiveSettingsOverview.js';
+
 const log = debug('RecruiterLanguageTab');
+
+const STAGE_NAMES = {
+  submitted: 'Applied',
+  under_review: 'Screening',
+  shortlisted: 'Shortlisted',
+  interview_scheduled: 'Interview scheduled',
+  interviewed: 'Interviewed',
+  offer_pending: 'Offer pending',
+  offer_extended: 'Offer extended',
+  accepted: 'Hired',
+  rejected: 'Not progressed',
+  withdrawn: 'Withdrew',
+};
+const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+
+/* Export CSV (signed in): your received applications, names and stages only (no contact details). */
+const downloadCandidatesCsv = async () => {
+  const apps = await fetchReceivedApplications();
+  const rows = [
+    ['Candidate', 'Posting', 'Stage', 'Applied on'],
+    ...apps.map((a) => {
+      const s = snapshotOf(a);
+      return [
+        [s.firstName, s.lastName].filter(Boolean).join(' ') || 'Candidate',
+        a.resourceTitle || '',
+        STAGE_NAMES[a.currentStage] || a.currentStage,
+        (a.appliedAt || a.createdAt || '').slice(0, 10),
+      ];
+    }),
+  ];
+  const blob = new Blob([rows.map((r) => r.map(csvCell).join(',')).join('\r\n')], {
+    type: 'text/csv',
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `gth-candidates-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return apps.length;
+};
 
 /*
  * LanguageTab - recruiter Settings `?tab=language` (Figma SR-17 "Settings · Language and data" 10161:83001, SR-18 "Data · export requested (toast)" 10161:83309).
@@ -62,6 +114,14 @@ const LanguageTab = ({ settings }) => {
   const hiringPause = useHiringPause(settings);
   const [values, setValues] = useState(LANGUAGE_DEFAULTS);
   const { language, data, pause, exportToast } = LANGUAGE_COPY;
+  // Signed in: retention is saved to your preferences; Export CSV and Request download produce real files.
+  const live = useLiveSettingsOverview();
+  const isLive = live.status !== 'demo';
+  const [liveNote, setLiveNote] = useState(null);
+  const storedRetention = live.overview?.preferences?.language?.retention;
+  useEffect(() => {
+    if (storedRetention) setValues((prev) => ({ ...prev, retention: storedRetention }));
+  }, [storedRetention]);
 
   useEffect(() => {
     log('mount', { toast });
@@ -70,11 +130,37 @@ const LanguageTab = ({ settings }) => {
   const closeToast = useCallback(() => update({ toast: null }, { replace: true }), [update]);
   const requestExport = (what) => {
     log('dispatch export requested', { what });
+    if (isLive) {
+      setLiveNote(null);
+      const job = what === 'candidates-csv' ? downloadCandidatesCsv() : downloadMyData();
+      job
+        .then((n) =>
+          setLiveNote({
+            tone: 'ok',
+            text:
+              what === 'candidates-csv'
+                ? `Downloaded ${n} application${n === 1 ? '' : 's'} as CSV.`
+                : 'Your data was downloaded as a JSON file.',
+          })
+        )
+        .catch((err) =>
+          setLiveNote({
+            tone: 'error',
+            text: settingsError(err, 'The download didn’t work. Try again.'),
+          })
+        );
+      return;
+    }
     update({ toast: 'export-requested' });
   };
   const pick = (key) => (value) => {
     log('select', { key, value });
     setValues((prev) => ({ ...prev, [key]: value }));
+    if (isLive && key === 'retention') {
+      savePreferences({ language: { retention: value } })
+        .then(() => setLiveNote({ tone: 'ok', text: 'Saved.' }))
+        .catch((err) => setLiveNote({ tone: 'error', text: settingsError(err) }));
+    }
   };
 
   return (
@@ -149,6 +235,15 @@ const LanguageTab = ({ settings }) => {
           }
         />
       </SettingsCard>
+
+      {liveNote ? (
+        <p
+          role={liveNote.tone === 'error' ? 'alert' : 'status'}
+          className={`m-0 font-sans text-[14px] leading-[20px] ${liveNote.tone === 'error' ? 'text-[#c0392b]' : 'text-[#2a5730]'}`}
+        >
+          {liveNote.text}
+        </p>
+      ) : null}
 
       <SettingsCard title={pause.title} description={pause.description}>
         <SettingLine

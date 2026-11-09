@@ -53,16 +53,20 @@ const SkillsWidget = ({
   footnote = SKILLS.footnote,
   onSwitchNational,
   onClearIndustry,
+  // Live: bands from GET /opportunities/stats/demand and its subtitle.
+  liveBands = null,
+  subtitle = null,
+  stateCopy = null,
 }) => {
-  const bands = bandsFor(national);
-  const copy = state ? SKILLS_STATES[state] : null;
+  const bands = liveBands || bandsFor(national);
+  const copy = state ? { ...SKILLS_STATES[state], ...(stateCopy || {}) } : null;
   return (
     <WidgetCard
       id="dash-skills"
       radius={16}
       icon={dashIcons.tileSkillsFlame}
       title={SKILLS.title}
-      subtitle={copy ? copy.subtitle : SKILLS.subtitle}
+      subtitle={copy ? copy.subtitle : subtitle || SKILLS.subtitle}
       controls={
         <>
           {filters}

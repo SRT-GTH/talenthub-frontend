@@ -18,6 +18,15 @@ export const isRecruiterCommunityPath = (pathname = '') =>
 /** `base` + a path that starts with '/' or '?' (or is empty): `communityHref('/recruiter/community', '?view=all')`. */
 export const communityHref = (base, rest = '') => `${base}${rest}`;
 
+/** `/community…` or `/recruiter/community…` for the page being shown (read when called: links and navigate()). */
+export const communityPath = (rest = '') =>
+  communityHref(
+    typeof window !== 'undefined' && isRecruiterCommunityPath(window.location.pathname)
+      ? RECRUITER_COMMUNITY_BASE
+      : TALENT_COMMUNITY_BASE,
+    rest
+  );
+
 export const useCommunityVariant = () => {
   const { pathname } = useLocation();
   const isRecruiter = isRecruiterCommunityPath(pathname);

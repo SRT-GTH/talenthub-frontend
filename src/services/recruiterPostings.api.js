@@ -26,8 +26,20 @@ export const fetchPostingPipeline = async (id) => {
   return { stages: out?.stages || {}, total: Number(out?.totalApplications) || 0 };
 };
 
-export const updatePosting = async (id, updates) => {
-  const out = unwrap(await api.put(`/opportunities/${id}`, { updates }));
+/** notify: { changes: ['Pay', ...] } tells applicants still in the process what changed. */
+export const updatePosting = async (id, updates, notify = null) => {
+  const out = unwrap(
+    await api.put(`/opportunities/${id}`, {
+      updates,
+      ...(notify
+        ? {
+            notifyApplicants: true,
+            changeSummary: notify.changes || [],
+            ...(notify.askToConfirm ? { askToConfirm: true } : {}),
+          }
+        : {}),
+    })
+  );
   log('updated', id, Object.keys(updates));
   return out?.opportunity || out;
 };

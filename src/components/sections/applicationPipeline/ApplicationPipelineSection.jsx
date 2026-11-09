@@ -189,7 +189,8 @@ const ApplicationPipelineSection = () => {
   const isLive = pipe.status !== 'demo';
   // The legacy board (older design, frames 7249:*) stays for the `sidebar=collapsed` schedule frames, the screening hand-off and signed-in data; every other demo URL is the new board.
   // Signed in, the new board draws the recruiter's own applications (livePipelineBoard.js).
-  const legacy = urlState.sidebarCollapsed || handoff !== null;
+  // Signed in, the hand-off only adds its toast to the live board (the screening page moved real applicants to Screening).
+  const legacy = urlState.sidebarCollapsed || (handoff !== null && !isLive);
   useScopedRoundedFont('data-recruiter-ui', handoff !== null || !legacy);
   const navigate = useNavigate();
   // Several writes can land in one tick (e.g. pick an option, then close the list), and
@@ -211,6 +212,17 @@ const ApplicationPipelineSection = () => {
   const [pending, setPending] = useState(null); // { card, action }
   // Live drawer / dialogs: { kind: drawer | bulk-move | not-progressing | extend-offer | interview-completed, id | ids }
   const [liveModal, setLiveModal] = useState(null);
+  // Home "Leave feedback" links here with ?feedback=<applicationId>: open the interview feedback dialog once.
+  const feedbackParam = searchParams.get('feedback');
+  useEffect(() => {
+    if (pipe.status !== 'live' || !feedbackParam) return;
+    if (pipe.applications.some((a) => String(a._id) === feedbackParam))
+      setLiveModal({ kind: 'interview-completed', id: feedbackParam });
+    const next = new URLSearchParams(latestParamsRef.current);
+    next.delete('feedback');
+    latestParamsRef.current = next;
+    setSearchParams(next, { replace: true });
+  }, [pipe.status, pipe.applications, feedbackParam, setSearchParams]);
   const [error, setError] = useState(null);
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
   // Live: open on the posting named in the URL ("View Pipeline" on /recruiter/job-postings passes ?posting=<id>).
@@ -693,9 +705,13 @@ const ApplicationPipelineSection = () => {
       {handoff !== null ? (
         <BannerToast
           tone="success"
-          title={HANDOFF_TOAST.title(handoff)}
-          message={HANDOFF_TOAST.message}
-          actionLabel={HANDOFF_TOAST.action}
+          title={
+            isLive
+              ? `Success - ${handoff} ${handoff === '1' ? 'applicant' : 'applicants'} moved to Screening`
+              : HANDOFF_TOAST.title(handoff)
+          }
+          message={isLive ? 'From your screening results.' : HANDOFF_TOAST.message}
+          actionLabel={isLive ? undefined : HANDOFF_TOAST.action}
           onClose={() => setUrlKeys({ handoff: null })}
           duration={0}
           placement="fixed top-[22px] left-1/2 z-[70] w-max max-w-[calc(100vw-32px)] -translate-x-1/2 max-md:top-[72px]"

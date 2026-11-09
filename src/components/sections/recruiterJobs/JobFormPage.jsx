@@ -420,10 +420,18 @@ const JobFormPage = ({ mode = 'job' }) => {
       });
   };
 
-  const saveEdits = () => {
+  // tell: send applicants a note naming the changes they'd notice (the confirm dialog's checkbox).
+  const saveEdits = (tell = false) => {
     setSaving(true);
     setPostError(null);
-    updatePosting(postingId, toPostingUpdates(withTypedLocation(), posting.raw))
+    const noticeable = (changes || [])
+      .filter((c) => c.notify)
+      .map((c) => c.label.split(':')[0].replace(/ changed$/, ''));
+    updatePosting(
+      postingId,
+      toPostingUpdates(withTypedLocation(), posting.raw),
+      tell ? { changes: noticeable, askToConfirm: ask } : null
+    )
       .then(() => navigate(`/recruiter/job-postings/${postingId}?saved=1`))
       .catch((err) => {
         log.error('save failed:', err?.response?.status, err?.response?.data?.type);
@@ -675,12 +683,33 @@ const JobFormPage = ({ mode = 'job' }) => {
         <ConfirmSaveDialog
           notify={notify}
           setNotify={setNotify}
+          {...(editLive
+            ? (() => {
+                const shown = (changes || []).filter((c) => c.notify);
+                const what = shown.map((c) =>
+                  c.label
+                    .split(':')[0]
+                    .replace(/ changed$/, '')
+                    .toLowerCase()
+                );
+                const n = posting.view.applicantCount;
+                return {
+                  copy: {
+                    body: shown.length
+                      ? `${shown.length} change${shown.length === 1 ? '' : 's'} affect what applicants applied for.`
+                      : 'These changes don’t affect what applicants applied for.',
+                    notify: `Notify ${n === 1 ? 'the applicant' : `all ${n} applicants`} still in your pipeline`,
+                    notifyHint: `“${posting.view.company || 'We'} updated the ${what.join(' and ') || 'posting'} for ${posting.view.title}.”`,
+                  },
+                };
+              })()
+            : {})}
           ask={ask}
           setAsk={setAsk}
           onKeep={() => update({ modal: null })}
           onSave={() =>
             editLive
-              ? saveEdits()
+              ? saveEdits(notify)
               : navigate(`/recruiter/job-postings/${postingId ?? 'senior-ux-designer'}?saved=1`)
           }
         />

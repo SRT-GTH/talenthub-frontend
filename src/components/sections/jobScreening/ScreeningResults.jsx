@@ -48,7 +48,10 @@ const Avatar = ({ initials, tone }) => (
   <span
     aria-hidden="true"
     className="flex size-[40px] shrink-0 items-center justify-center rounded-full font-sans text-[12px] leading-[20px] font-semibold tracking-[0.2px]"
-    style={{ backgroundColor: AVATAR_TONES[tone].bg, color: AVATAR_TONES[tone].fg }}
+    style={{
+      backgroundColor: (AVATAR_TONES[tone] || AVATAR_TONES.mint).bg,
+      color: (AVATAR_TONES[tone] || AVATAR_TONES.mint).fg,
+    }}
   >
     {initials}
   </span>
@@ -82,12 +85,13 @@ const StatCard = ({ stat, value, tone }) => (
 
 const STAT_TONES = { screened: '#111111', meet: '#2a5730', close: '#463409', dont: '#575755' };
 
-const ViewProfile = () => (
+const ViewProfile = ({ onOpen }) => (
   <a
     href="#view-profile"
     onClick={(event) => {
       event.preventDefault();
-      log('branch', { action: 'view-profile', wired: false });
+      log('branch', { action: 'view-profile', wired: Boolean(onOpen) });
+      onOpen?.();
     }}
     className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] whitespace-nowrap text-[#387440] no-underline hover:underline"
   >
@@ -109,21 +113,29 @@ const ScreeningResults = ({
   onApplySuggestion,
   onReviewClose,
   onInvite,
+  // Signed in: { rows: { meet, close, dont }, subtitle, busy, onMoveSelected(ids), onMoveAnyway(row), onViewProfile(row) }
+  live = null,
 }) => {
-  const [selected, setSelected] = useState(() => new Set(MEET_APPLICANTS.map((row) => row.id)));
+  const meetRows = live ? live.rows.meet : MEET_APPLICANTS;
+  const [selected, setSelected] = useState(() => new Set(meetRows.map((row) => row.id)));
   const rows = useMemo(() => {
-    const source = { meet: MEET_APPLICANTS, close: CLOSE_APPLICANTS, dont: DONT_APPLICANTS }[tab];
+    const source = live
+      ? live.rows[tab] || []
+      : { meet: MEET_APPLICANTS, close: CLOSE_APPLICANTS, dont: DONT_APPLICANTS }[tab];
     const needle = query.trim().toLowerCase();
     return needle ? source.filter((row) => row.name.toLowerCase().includes(needle)) : source;
-  }, [tab, query]);
+  }, [tab, query, live]);
+  const selectedMeet = meetRows.filter((row) => selected.has(row.id)).map((row) => row.id);
   const total = { meet: counts.meet, close: counts.close, dont: counts.dont }[tab];
   const columns = RESULTS_TEXT.columns[tab];
   const allSelected =
     tab === 'meet' && rows.length > 0 && rows.every((row) => selected.has(row.id));
   const waiting = mode === 'waiting';
-  const subtitle = waiting
-    ? WAITING_STATE.subtitle
-    : `${job.title} · ${job.criteriaName} · run just now`;
+  const subtitle = live
+    ? live.subtitle
+    : waiting
+      ? WAITING_STATE.subtitle
+      : `${job.title} · ${job.criteriaName} · run just now`;
   log('render', { tab, mode, rows: rows.length, counts });
 
   const toggleRow = (id) =>
@@ -169,8 +181,13 @@ const ScreeningResults = ({
               {WAITING_STATE.invite(job.invite)}
             </Button>
           ) : (
-            <Button variant="primary" size="sm" disabled={counts.meet === 0} onClick={onMove}>
-              {`Move ${counts.meet} to Pipeline`}
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={live ? selectedMeet.length === 0 || live.busy : counts.meet === 0}
+              onClick={() => (live ? live.onMoveSelected(selectedMeet) : onMove())}
+            >
+              {`Move ${live ? selectedMeet.length : counts.meet} to Pipeline`}
             </Button>
           )}
         </div>
@@ -371,7 +388,11 @@ const ScreeningResults = ({
 
             {rows.length === 0 ? (
               <p className="m-0 border-t border-solid border-[#e5e8e3] px-[16px] py-[32px] text-center font-sans text-[14px] leading-[24px] text-[#575755]">
-                {`No applicants match “${query}”`}
+                {query
+                  ? `No applicants match “${query}”`
+                  : tab === 'meet'
+                    ? 'No one meets all your criteria yet. Look at Close match, or adjust the criteria.'
+                    : 'No applicants here.'}
               </p>
             ) : null}
 
@@ -413,7 +434,7 @@ const ScreeningResults = ({
                           aria-hidden="true"
                           className="size-[12px]"
                         />
-                        {RESULTS_TEXT.skillsMet}
+                        {live ? row.skillsMet || 'No skills checked' : RESULTS_TEXT.skillsMet}
                       </span>
                       <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]">
                         {row.score}
@@ -441,13 +462,19 @@ const ScreeningResults = ({
                     </span>
                   )}
                   <div className="ml-auto flex items-center justify-end gap-[8px] lg:ml-0">
-                    <ViewProfile />
+                    <ViewProfile onOpen={live ? () => live.onViewProfile(row) : undefined} />
                     {tab === 'close' ? (
                       <Button
                         variant="tertiary"
-                        onClick={() =>
-                          log('branch', { action: 'move-anyway', id: row.id, wired: false })
-                        }
+                        disabled={Boolean(live?.busy)}
+                        onClick={() => {
+                          log('branch', {
+                            action: 'move-anyway',
+                            id: row.id,
+                            wired: Boolean(live),
+                          });
+                          live?.onMoveAnyway(row);
+                        }}
                       >
                         {RESULTS_TEXT.moveAnyway}
                       </Button>
@@ -476,6 +503,7 @@ const ScreeningResults = ({
               </span>
               <button
                 type="button"
+                hidden={Boolean(live)}
                 onClick={() => log('branch', { action: 'load-more', wired: false })}
                 className="cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
               >

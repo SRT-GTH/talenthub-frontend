@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
 import { fetchReceivedApplications } from '../../../services/recruiterPipeline.api.js';
 import { liveHero, liveJobs, livePipeline } from './liveDashboard.js';
+import { useLiveHomeExtras } from './useLiveHomeExtras.js';
 import { debug } from '../../../utils/debug.js';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
@@ -104,6 +105,18 @@ const RecruiterDashboardSection = () => {
     () => (isLive ? livePipeline(shell.applicantsByStage) : null),
     [isLive, shell]
   );
+  // Live Feedback / Recommended talents / In-demand skills (useLiveHomeExtras). Region "national" = all of Ghana.
+  const liveRegion = get('region', 'national');
+  const liveRegionName =
+    liveRegion === 'national'
+      ? ''
+      : SKILLS_REGIONS.options.find((o) => o.value === liveRegion)?.label || '';
+  const extras = useLiveHomeExtras({
+    isLive,
+    apps,
+    jobs: isLive ? shell.jobList : [],
+    region: liveRegionName,
+  });
   const switchTimer = useRef(null);
 
   useEffect(() => {
@@ -420,8 +433,18 @@ const RecruiterDashboardSection = () => {
                       log('invite recommended talents (scrolls to the talents widget)')
                     }
                   />
-                  {/* Feedback, recommended talents and the skills map have no backend yet: signed in they are left out rather than showing sample people. */}
-                  {isLive ? null : (
+                  {isLive ? (
+                    <FeedbackWidget
+                      live={{ pending: extras.pending }}
+                      tab="give"
+                      onLeaveFeedback={(id) => {
+                        const item = extras.pending.find((p) => p.id === id);
+                        navigate(
+                          `/recruiter/application-pipeline?posting=${item?.jobId || ''}&feedback=${id}`
+                        );
+                      }}
+                    />
+                  ) : (
                     <FeedbackWidget
                       readOnly={pending}
                       tab={get('feedback', 'give')}
@@ -433,6 +456,52 @@ const RecruiterDashboardSection = () => {
                   )}
                 </div>
 
+                {isLive && extras.openJobs.length ? (
+                  <TalentsWidget
+                    state={
+                      extras.talents.status === 'loading' || extras.talents.status === 'idle'
+                        ? 'loading'
+                        : extras.talents.status === 'empty'
+                          ? 'empty'
+                          : ''
+                    }
+                    cards={extras.talents.cards}
+                    canSave={false}
+                    groupLabel={`Top matches for ${extras.openJobs.find((j) => j.id === extras.jobId)?.title || 'your posting'}`}
+                    groupCount={`${extras.talents.cards.length} candidate${extras.talents.cards.length === 1 ? '' : 's'}`}
+                    seeAllTo={`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`}
+                    jobFilter={
+                      extras.openJobs.length > 1 ? (
+                        <FilterSelect
+                          label={`Job: ${extras.openJobs.find((j) => j.id === extras.jobId)?.title || ''}`}
+                          icon={dashIcons.briefcaseFilter}
+                          options={extras.openJobs.map((j) => ({
+                            value: j.id,
+                            label: j.title,
+                            icon: dashIcons.jobFilterOptionBriefcase,
+                          }))}
+                          value={extras.jobId}
+                          onChange={(value) => {
+                            extras.setTalentJobId(value);
+                            set({ menu: '' });
+                          }}
+                          open={get('menu') === 'talents'}
+                          onOpenChange={(open) => set({ menu: open ? 'talents' : '' })}
+                          menuLabel={TALENT_FILTER.label}
+                          width={260}
+                          ariaLabel="Recommended talents for which posting"
+                        />
+                      ) : null
+                    }
+                    onView={() =>
+                      navigate(`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`)
+                    }
+                    onInvite={() =>
+                      navigate(`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`)
+                    }
+                    onRefine={() => navigate(`/recruiter/job-postings/${extras.jobId}/edit`)}
+                  />
+                ) : null}
                 {isLive ? null : (
                   <TalentsWidget
                     readOnly={pending}
@@ -463,6 +532,38 @@ const RecruiterDashboardSection = () => {
                   />
                 )}
 
+                {isLive ? (
+                  <SkillsWidget
+                    liveBands={extras.skills.bands}
+                    subtitle={`Last 30 days · ${liveRegionName || 'All of Ghana'} · postings on Ghana Talent Hub by role`}
+                    state={
+                      extras.skills.status === 'live' && !extras.skills.bands.length ? 'sparse' : ''
+                    }
+                    stateCopy={{
+                      subtitle: `Last 30 days · ${liveRegionName || 'All of Ghana'}`,
+                      title: 'No postings to rank yet',
+                      body: `${liveRegionName || 'Ghana Talent Hub'} had no published postings in the last 30 days.`,
+                      ...(liveRegionName ? {} : { action: 'Refresh' }),
+                    }}
+                    footnote="Counts every employer’s published postings; pay is per month in GHS where posted."
+                    onSwitchNational={() => set({ region: '' })}
+                    filters={
+                      <FilterSelect
+                        label={liveRegionName || 'Ghana · National'}
+                        icon={dashIcons.mapPinRegion}
+                        options={regionOptions}
+                        value={liveRegion}
+                        onChange={(value) =>
+                          set({ region: value === 'national' ? '' : value, menu: '' })
+                        }
+                        open={get('menu') === 'region'}
+                        onOpenChange={(open) => set({ menu: open ? 'region' : '' })}
+                        width={260}
+                        ariaLabel="Region"
+                      />
+                    }
+                  />
+                ) : null}
                 {isLive ? null : (
                   <SkillsWidget
                     readOnly={pending}
