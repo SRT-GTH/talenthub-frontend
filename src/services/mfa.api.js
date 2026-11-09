@@ -15,6 +15,7 @@ const log = debug('mfa.api');
  *   GET    /security/mfa/staff-resets            super admin: { resets: [...] }
  *   POST   /security/mfa/staff-resets            super admin: { userId, reason } -> { approvalId, status, expiresAt }
  *   POST   /security/mfa/staff-resets/:id/decision   a different super admin: { decision: approve|reject, reason? }
+ *   POST   /security/step-up                     "Confirm it's you" (Phase 3): { password | code } -> { verified, aal, verifiedAt }
  *   POST   /auth/mfa/verify (public)             { email | phoneNumber, challengeId, code, method? } -> tokens (sign-in second step)
  *
  * The sign-in response's 2-step hint (verify-otp `mfaSetup`: { required, graceUntil, mustSetUpNow }) is kept in localStorage
@@ -60,6 +61,17 @@ export const removeMethod = async (id, { password, code } = {}) => {
 export const makeNewBackupCodes = async ({ code }) => {
   log('new backup codes');
   return unwrap(await api.post('/security/mfa/recovery-codes', { code: String(code).trim() }));
+};
+
+/** "Confirm it's you" before a sensitive action (MFA Phase 3; StepUpSheet). */
+export const confirmStepUp = async ({ password, code } = {}) => {
+  log('step-up', { with: code ? 'code' : 'password' });
+  return unwrap(
+    await api.post('/security/step-up', {
+      ...(password ? { password } : {}),
+      ...(code ? { code: String(code).trim() } : {}),
+    })
+  );
 };
 
 // ── Staff 2-step resets (two Super Admins) ─────────────────────────────────
@@ -167,6 +179,8 @@ export const MFA_ERRORS = {
   APPROVAL_ALREADY_RESOLVED: 'That request was already decided.',
   STAFF_NOT_FOUND: 'That staff account wasn’t found.',
   RATE_LIMITED: 'Too many attempts. Wait a few minutes and try again.',
+  SESSION_REQUIRED: 'Sign out and sign in again to do this.',
+  STEP_UP_REQUIRED: 'Confirm it’s you to continue.',
 };
 
 export const mfaErrorType = (err) => {
