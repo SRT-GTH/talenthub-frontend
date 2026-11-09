@@ -16,6 +16,7 @@ import {
 import { GroupCard, SettingRow, SettingsToggle, StatusPill, TextAction } from './SettingsBUi.jsx';
 import { SettingsToast } from './SettingsBDialogs.jsx';
 import { ChangePasswordDialog, TwoStepDialog } from './SettingsBSecurityDialogs.jsx';
+import TwoStepSettingsRow from '../twoStep/TwoStepSettingsRow.jsx';
 import { DEVICES, DEVICE_TOAST, SECURITY_COPY } from './talentSettingsBData.js';
 
 const log = debug('SettingsSecurity');
@@ -57,7 +58,8 @@ const SettingsSecurity = ({ settings }) => {
   const { state, update } = settings;
   const copy = SECURITY_COPY;
   // Live: real sign-in sessions + password change (GET/DELETE /settings/sessions, POST /settings/password).
-  // Two-step verification and Google sign-in are not built on the backend yet: hidden on live pages.
+  // Google sign-in is not built on the backend yet: hidden on live pages. 2-step verification (MFA Phase 2) is the live
+  // TwoStepSettingsRow, which opens /security/2-step.
   const live = settings?.live?.overview ? settings.live : null;
   const [twoStep, setTwoStep] = useState(true);
   const [removed, setRemoved] = useState([]);
@@ -189,7 +191,9 @@ const SettingsSecurity = ({ settings }) => {
             </Button>
           }
         />
-        {live ? null : (
+        {live ? (
+          <TwoStepSettingsRow />
+        ) : (
           <>
             <SettingRow
               title={copy.signIn.twoStep.title}

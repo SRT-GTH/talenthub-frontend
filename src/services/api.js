@@ -116,6 +116,16 @@ api.interceptors.response.use(
         perfResponse(error, true, { counted: true });
       }
     }
+    // 2-step gate (backend MFA Phase 2): this account must use 2-step verification, its grace period is over and this
+    // sign-in didn't use it. Only the 2-step page works now, so go there (once; the page itself only calls /security/mfa*).
+    if (response?.status === 403 && response?.data?.type === 'MFA_ENROLMENT_REQUIRED') {
+      const here = window.location.pathname;
+      if (!here.startsWith('/security/2-step')) {
+        const q = new URLSearchParams({ required: '1', next: `${here}${window.location.search}` });
+        log('2-step required: going to the set-up page');
+        window.location.assign(`/security/2-step?${q}`);
+      }
+    }
     log.error('×', response?.status, url, error.message);
     return Promise.reject(error);
   }
