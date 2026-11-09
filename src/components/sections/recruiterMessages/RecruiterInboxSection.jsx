@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardShell from '../dashboard/DashboardShell.jsx';
 import { renderWorkspaceSidebar } from '../recruiterDashboard/renderWorkspaceSidebar.jsx';
@@ -9,6 +9,7 @@ import { debug } from '../../../utils/debug.js';
 import { ARCHIVED, CONVERSATIONS, PAGE, TAB_COUNTS, TOASTS } from './recruiterInboxData.js';
 import RecruiterInboxList from './RecruiterInboxList.jsx';
 import RecruiterThreadView from './RecruiterThreadView.jsx';
+import { useLiveRecruiterInbox } from './useLiveRecruiterInbox.js';
 
 const log = debug('RecruiterInboxSection');
 
@@ -44,6 +45,11 @@ const RecruiterInboxSection = () => {
   const toastKind = params.get('toast');
   const menuOpen = params.get('menu') === 'thread';
   const threadOpen = params.get('thread') === 'open';
+  // Signed-in recruiter: their own conversations (demo frames otherwise).
+  const live = useLiveRecruiterInbox(
+    conversationParam && conversationParam !== 'none' ? conversationParam : null
+  );
+  const isLive = live.status !== 'demo';
 
   const update = useCallback(
     (patch, { push = false } = {}) => {
@@ -59,17 +65,25 @@ const RecruiterInboxSection = () => {
   );
 
   const inbox = useMemo(
-    () => (inboxState === 'empty' ? [] : CONVERSATIONS.filter((c) => !archivedIds.includes(c.id))),
-    [inboxState, archivedIds]
+    () =>
+      isLive
+        ? live.items
+        : inboxState === 'empty'
+          ? []
+          : CONVERSATIONS.filter((c) => !archivedIds.includes(c.id)),
+    [isLive, live.items, inboxState, archivedIds]
   );
+  // Live: GET /talent-messages/conversations?folder=archived (a reply from either side brings one back).
   const archivedItems = useMemo(
     () =>
-      inboxState === 'empty'
-        ? []
-        : [...CONVERSATIONS.filter((c) => archivedIds.includes(c.id)), ...ARCHIVED].filter(
-            (c, i, all) => all.findIndex((x) => x.id === c.id) === i
-          ),
-    [inboxState, archivedIds]
+      isLive
+        ? live.archived
+        : inboxState === 'empty'
+          ? []
+          : [...CONVERSATIONS.filter((c) => archivedIds.includes(c.id)), ...ARCHIVED].filter(
+              (c, i, all) => all.findIndex((x) => x.id === c.id) === i
+            ),
+    [isLive, live.archived, inboxState, archivedIds]
   );
 
   const items = archivedView
@@ -82,8 +96,14 @@ const RecruiterInboxSection = () => {
           : inbox.filter((c) => c.applicant)
         : inbox;
 
-  const counts =
-    inboxState === 'empty'
+  const pad = (n) => `(${String(n).padStart(2, '0')})`;
+  const counts = isLive
+    ? {
+        all: pad(inbox.length),
+        unread: pad(inbox.filter((c) => c.unread).length),
+        applicants: inbox.filter((c) => c.applicant).length,
+      }
+    : inboxState === 'empty'
       ? TAB_COUNTS.empty
       : tab === 'unread'
         ? TAB_COUNTS.unread
@@ -95,27 +115,69 @@ const RecruiterInboxSection = () => {
     conversationParam === 'none'
       ? null
       : (items.find((c) => c.id === conversationParam) ?? items[0] ?? null);
+  // Live: the first conversation opens by default; put it in the URL so its thread loads.
+  const selectedId = selected?.id;
+  useEffect(() => {
+    if (isLive && selectedId && !conversationParam) update({ conversation: selectedId });
+  }, [isLive, selectedId, conversationParam, update]);
 
   let emptyKind = null;
   if (!items.length)
     emptyKind = archivedView ? 'archive' : tab === 'applicants' ? 'applicants' : 'inbox';
   let rightState = 'select';
   if (archivedView) rightState = 'select-archived';
-  else if (inboxState === 'empty') rightState = 'start';
+  else if (inboxState === 'empty' || (isLive && !inbox.length)) rightState = 'start';
   else if (inboxState === 'none') rightState = 'live';
 
   const archiveSelected = () => {
     if (!selected) return;
     log('branch', { archive: selected.id });
+    if (isLive) {
+      const id = selected.id;
+      live
+        .archive(id)
+        .then((ok) =>
+          ok ? update({ menu: null, thread: null, conversation: null, toast: 'archived' }) : null
+        );
+      return;
+    }
     setArchivedIds((prev) => [...prev, selected.id]);
     update({ menu: null, thread: null, conversation: null, toast: 'archived' });
   };
   const restore = (id) => {
     log('branch', { restore: id });
+    if (isLive) {
+      live
+        .unarchive(id)
+        .then((ok) =>
+          ok
+            ? update(
+                { archived: null, toast: 'unarchived', conversation: id, menu: null },
+                { push: true }
+              )
+            : null
+        );
+      return;
+    }
     setArchivedIds((prev) => prev.filter((x) => x !== id));
     update({ archived: null, toast: 'unarchived', conversation: null, menu: null }, { push: true });
   };
-  const toast = TOASTS[toastKind];
+  const toast =
+    isLive && toastKind === 'archived'
+      ? {
+          ...TOASTS.archived,
+          title: 'Success - Conversation archived',
+          message: 'Find it with the archive button next to search. A reply brings it back.',
+          actionLabel: undefined,
+        }
+      : isLive && toastKind === 'unarchived'
+        ? {
+            ...TOASTS.unarchived,
+            title: 'Success - Moved back to your inbox',
+            message: selected?.name || '',
+            actionLabel: undefined,
+          }
+        : TOASTS[toastKind];
 
   return (
     <DashboardShell
@@ -137,9 +199,9 @@ const RecruiterInboxSection = () => {
             >
               {PAGE.title}
             </h1>
-            {inboxState === 'empty' ? null : (
+            {inboxState === 'empty' || (isLive && !inbox.some((c) => c.unread)) ? null : (
               <span className="inline-flex h-[24px] items-center rounded-full border border-solid border-[#c1d4c4] bg-[#ebf1ec] px-[10px] font-sans text-[13px] leading-[16px] font-bold text-[#1f4a2b]">
-                {PAGE.newBadge}
+                {isLive ? `${inbox.filter((c) => c.unread).length} new` : PAGE.newBadge}
               </span>
             )}
           </div>
@@ -179,6 +241,15 @@ const RecruiterInboxSection = () => {
             onUnarchive={() => selected && restore(selected.id)}
             onBack={() => update({ thread: null, menu: null })}
             state={rightState}
+            {...(isLive
+              ? {
+                  liveThread:
+                    live.thread && live.thread.id === selected?.id ? live.thread : { groups: [] },
+                  onSend: live.send,
+                  sending: live.sending,
+                  error: live.error,
+                }
+              : {})}
             className={!threadOpen ? 'max-lg:hidden' : undefined}
           />
         </div>

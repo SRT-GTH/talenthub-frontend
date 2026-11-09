@@ -15,6 +15,14 @@ import {
   NOTIFICATION_ROWS,
 } from '../hiring/hiringData.js';
 
+import { isRecruiterSession } from '../../../../services/recruiterShell.api.js';
+import {
+  ROW_CATEGORY,
+  draftFromPreferences,
+  fetchNotificationPrefs,
+  saveNotificationPrefs,
+} from '../account/liveNotifications.js';
+
 const log = debug('NotificationsTab');
 
 const initialDraft = () => ({
@@ -35,6 +43,29 @@ const NotificationsTab = ({ settings }) => {
   const [draft, setDraft] = useState(initialDraft);
   const [status, setStatus] = useState(null);
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(draft), [saved, draft]);
+  // Signed in: the recruiter's stored preferences (liveNotifications.js).
+  const isLive = isRecruiterSession();
+  const [prefs, setPrefs] = useState(null);
+  useEffect(() => {
+    if (!isLive) return undefined;
+    let alive = true;
+    fetchNotificationPrefs()
+      .then((p) => {
+        if (!alive) return;
+        const next = draftFromPreferences(p, Object.keys(initialDraft().rows));
+        setPrefs(p);
+        setSaved(next);
+        setDraft(next);
+      })
+      .catch((err) => {
+        log.error('preferences failed:', err?.response?.status);
+        if (alive)
+          setStatus({ tone: 'error', text: 'We couldn’t load your notification settings.' });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isLive]);
 
   useEffect(() => {
     log('mount', { paused });
@@ -47,10 +78,18 @@ const NotificationsTab = ({ settings }) => {
   const setCell = (id, col, on) => {
     log('cell', { id, col, on });
     setStatus(null);
-    setDraft((d) => ({
-      ...d,
-      rows: { ...d.rows, [id]: d.rows[id].map((v, i) => (i === col ? on : v)) },
-    }));
+    setDraft((d) => {
+      // Live: rows stored on the same category switch together (New applicants and Offer responses).
+      const same =
+        isLive && ROW_CATEGORY[id]
+          ? Object.keys(d.rows).filter((r) => ROW_CATEGORY[r] === ROW_CATEGORY[id])
+          : [id];
+      const rows = { ...d.rows };
+      same.forEach((r) => {
+        rows[r] = d.rows[r].map((v, i) => (i === col ? on : v));
+      });
+      return { ...d, rows };
+    });
   };
 
   return (
@@ -148,7 +187,7 @@ const NotificationsTab = ({ settings }) => {
         saveDisabled={!dirty}
         status={status}
         leading={
-          !paused ? (
+          !paused && !isLive ? (
             <TextAction
               tone="grey"
               className="min-h-[24px]"
@@ -168,6 +207,19 @@ const NotificationsTab = ({ settings }) => {
         }}
         onSave={() => {
           log('save', { dirty });
+          if (isLive) {
+            saveNotificationPrefs(prefs, draft)
+              .then((p) => {
+                setPrefs(p);
+                setSaved(draft);
+                setStatus({ tone: 'ok', text: FOOTER_COPY.saved });
+              })
+              .catch((err) => {
+                log.error('save failed:', err?.response?.status);
+                setStatus({ tone: 'error', text: 'Not saved. Please try again.' });
+              });
+            return;
+          }
           setSaved(draft);
           setStatus({ tone: 'ok', text: FOOTER_COPY.saved });
         }}

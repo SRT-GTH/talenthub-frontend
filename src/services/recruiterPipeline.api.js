@@ -41,6 +41,45 @@ export const cancelApplicationInterview = async (applicationId, reason) =>
     await api.post(`/applications/${applicationId}/interview/cancel`, reason ? { reason } : {})
   );
 
+/* Candidate drawer, bulk moves, offers and interview feedback (live action layer). */
+
+/** One stage change with optional words to the candidate (they replace the generic update). */
+export const moveWithMessage = async (applicationId, stage, { notes, message } = {}) =>
+  unwrap(
+    await api.put(`/applications/${applicationId}/stage`, {
+      stage,
+      ...(notes ? { notes } : {}),
+      ...(message ? { message } : {}),
+    })
+  );
+
+/** POST /applications/bulk/change-stage -> { succeeded, failed } (each id keeps its own recipient check). */
+export const bulkMoveApplications = async (applicationIds, newStage, message) =>
+  unwrap(
+    await api.post('/applications/bulk/change-stage', {
+      applicationIds,
+      newStage,
+      ...(message ? { message } : {}),
+    })
+  );
+
+export const extendApplicationOffer = async (applicationId, { offerDetails, expiresAt, message }) =>
+  unwrap(
+    await api.post(`/applications/${applicationId}/extend-offer`, {
+      offerDetails,
+      expiresAt,
+      message,
+    })
+  );
+
+export const addApplicationNote = async (applicationId, content, noteType = 'general') =>
+  unwrap(await api.post(`/applications/${applicationId}/notes`, { content, noteType }));
+
+export const fetchApplicationNotes = async (applicationId) => {
+  const out = unwrap(await api.get(`/applications/${applicationId}/notes`));
+  return Array.isArray(out?.notes) ? out.notes : [];
+};
+
 /** Human copy for backend error codes on the board. */
 export const pipelineErrorText = (err) => {
   const type = err?.response?.data?.type || err?.response?.data?.code;
@@ -55,6 +94,10 @@ export const pipelineErrorText = (err) => {
       return 'Only the recruiter who received this application can change it.';
     case 'NO_OPEN_INTERVIEW':
       return 'This interview changed. Refresh to see the latest.';
+    case 'INVALID_STAGE_FOR_OFFER':
+      return 'Offers go to shortlisted or interviewed candidates.';
+    case 'INVALID_OFFER_EXPIRY':
+      return 'Pick an offer expiry in the future.';
     default:
       return 'That didn’t go through. Please try again.';
   }

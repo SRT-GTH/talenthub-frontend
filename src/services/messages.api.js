@@ -33,8 +33,14 @@ export const notifyMessagesChanged = () => {
   if (typeof window !== 'undefined') window.dispatchEvent(new Event(MESSAGES_CHANGED));
 };
 
-export const fetchConversations = async () => {
-  const data = unwrap(await api.get(`${base}/conversations`));
+/** folder: 'inbox' (default) | 'archived' (only the conversations you archived). */
+export const fetchConversations = async ({ folder } = {}) => {
+  const data = unwrap(
+    await api.get(
+      `${base}/conversations`,
+      folder === 'archived' ? { params: { folder } } : undefined
+    )
+  );
   log('inbox', { rows: data?.conversations?.length, counts: data?.counts });
   return data;
 };
@@ -61,6 +67,9 @@ export const muteConversation = async (id, muted) =>
   unwrap(await api.post(`${conv(id)}/mute`, { muted }));
 
 export const archiveConversation = async (id) => unwrap(await api.post(`${conv(id)}/archive`, {}));
+
+export const unarchiveConversation = async (id) =>
+  unwrap(await api.post(`${conv(id)}/unarchive`, {}));
 
 export const deleteConversation = async (id) => unwrap(await api.delete(conv(id)));
 

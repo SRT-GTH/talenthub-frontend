@@ -19,6 +19,8 @@ import {
   TemplateArrowRightIcon,
 } from './jobTemplatesIcons.jsx';
 import { debug } from '../../../utils/debug.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
+import { fetchMyTemplates } from '../../../services/recruiterPostings.api.js';
 import {
   PAGE_HEADING,
   PAGE_SUBHEADING,
@@ -182,6 +184,35 @@ const ScreeningCard = ({ item, onLoad }) => (
   </article>
 );
 
+/* Signed in: "My templates" are the recruiter's saved templates (GET /opportunities/templates?mine=true). */
+const TYPE_LABEL = {
+  'full-time-job': 'Full-Time',
+  internship: 'Internship',
+  'training-program': 'Training',
+  'government-program': 'National Service',
+};
+const liveTemplateCard = (t) => {
+  const f = t.defaultFields || {};
+  const when = t.createdAt
+    ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    : '';
+  return {
+    id: String(t.id || t._id),
+    iconTileColor: '#f3f8f4',
+    iconColor: '#2a5730',
+    icon: 'code',
+    title: t.name,
+    category: t.category || 'Saved',
+    type: TYPE_LABEL[f.type] || 'Job',
+    description:
+      t.description ||
+      String(f.shortDescription || f.description || '').slice(0, 140) ||
+      'No description saved.',
+    footnote: when ? `Saved ${when} by you` : 'Saved by you',
+    live: true,
+  };
+};
+
 const JobTemplatesSection = () => {
   useScopedRoundedFont('data-recruiter-ui'); // Figma draws the recruiter pages in SF Pro Rounded
   const [searchParams, setSearchParams] = useSearchParams();
@@ -190,10 +221,36 @@ const JobTemplatesSection = () => {
   const mine = searchParams.get('mine') === '1';
   const screeningView = searchParams.get('view') === 'screening';
   const toastKind = searchParams.get('toast');
-  const toast = TEMPLATE_TOASTS[toastKind];
+  const isLive = isRecruiterSession();
+  const [liveMine, setLiveMine] = useState(null);
+  useEffect(() => {
+    if (!isLive) return undefined;
+    let alive = true;
+    fetchMyTemplates()
+      .then((rows) => alive && setLiveMine(rows.map(liveTemplateCard)))
+      .catch((err) => {
+        log.error('templates failed:', err?.response?.status);
+        if (alive) setLiveMine([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isLive, toastKind]);
+  const savedName = searchParams.get('name');
+  const toast =
+    isLive && (toastKind === 'saved' || toastKind === 'copied')
+      ? {
+          tone: 'success',
+          title: 'Success - Saved as a template',
+          message: `${savedName || 'Your template'} is in My templates`,
+          actionLabel: liveMine && liveMine.length ? 'Use it now' : undefined,
+        }
+      : TEMPLATE_TOASTS[toastKind];
   const modal = searchParams.get('modal');
   const menuId = searchParams.get('menu');
-  const myList = [...(toastKind === 'copied' ? [MY_TEMPLATES.copied] : []), MY_TEMPLATES.saved];
+  const myList = isLive
+    ? liveMine || []
+    : [...(toastKind === 'copied' ? [MY_TEMPLATES.copied] : []), MY_TEMPLATES.saved];
   const patch = (changes) => {
     const next = new URLSearchParams(window.location.search);
     Object.entries(changes).forEach(([k, v]) => (v == null ? next.delete(k) : next.set(k, v)));
@@ -224,9 +281,9 @@ const JobTemplatesSection = () => {
         (!isFiltered || template.category === activeCategory) &&
         (!needle || template.title.toLowerCase().includes(needle))
     );
-    // myList only changes with toastKind
+    // myList only changes with toastKind (demo) or the loaded templates (live)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, isFiltered, searchText, mine, toastKind]);
+  }, [activeCategory, isFiltered, searchText, mine, toastKind, liveMine]);
 
   const selectCategory = (pill) => {
     log('branch', { category: pill });
@@ -321,7 +378,11 @@ const JobTemplatesSection = () => {
                 <TemplateCard
                   key={template.id}
                   template={template}
-                  onUse={(id) => patch({ modal: 'details', template: id, menu: null })}
+                  onUse={(id) =>
+                    template.live
+                      ? startFromTemplate(id)
+                      : patch({ modal: 'details', template: id, menu: null })
+                  }
                   menu={
                     mine && menuId === template.id ? (
                       <div
@@ -409,7 +470,11 @@ const JobTemplatesSection = () => {
           message={toast.message}
           actionLabel={toast.actionLabel}
           duration={0}
-          onAction={() => startFromTemplate(mine ? myList[0].id : 'product-designer')}
+          onAction={() =>
+            startFromTemplate(
+              isLive ? myList[0]?.id || '' : mine ? myList[0].id : 'product-designer'
+            )
+          }
           onClose={() => patch({ toast: null })}
         />
       )}

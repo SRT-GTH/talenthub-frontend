@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { debug } from '../../../../utils/debug.js';
 import Button from '../../../ui/Button.jsx';
 import PipelineToast from '../../applicationPipeline/actions/PipelineToast.jsx';
@@ -23,7 +24,26 @@ import {
   deviceToast,
 } from '../security/securityData.js';
 
+import {
+  changePassword,
+  logOutDevice as logOutSession,
+  settingsError,
+} from '../../../../services/settings.api.js';
+import { ageOf, useLiveSettingsOverview } from '../account/useLiveSettingsOverview.js';
+
 const log = debug('RecruiterSecurityTab');
+
+const whenSeen = (iso) => {
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return '';
+  const mins = Math.round((Date.now() - t) / 60000);
+  if (mins < 5) return 'now';
+  if (mins < 60) return `${mins} minutes ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+};
 
 /*
  * SecurityTab - recruiter Settings `?tab=security` (Figma SR-13 "Settings · Security and sign-in" 10161:81691) with its states SR-23 (change password), SR-24 (two-step code), SR-25 (device logged out toast) and
@@ -39,7 +59,21 @@ const SecurityTab = ({ settings }) => {
   const toast = settings.get('toast');
   const removed = settings.get('removed').split(',').filter(Boolean);
   const typed = settings.get('confirm');
-  const devices = DEVICES.filter((d) => !removed.includes(d.id));
+  // Signed in: real devices (GET /settings/sessions via the overview), password change and device log-out.
+  // Sign-in already asks for an emailed code every time, so two-step shows as on with nothing to manage.
+  const live = useLiveSettingsOverview();
+  const isLive = live.status !== 'demo';
+  const navigate = useNavigate();
+  const [liveError, setLiveError] = useState(null);
+  const [liveToast, setLiveToast] = useState(null);
+  const liveDevices = (live.overview?.sessions || []).map((s) => ({
+    id: s.id,
+    name: s.device,
+    city: '',
+    meta: s.thisDevice ? 'This browser · now' : `Last seen ${whenSeen(s.lastSeenAt)}`,
+    current: s.thisDevice,
+  }));
+  const devices = isLive ? liveDevices : DEVICES.filter((d) => !removed.includes(d.id));
   const otherDevices = devices.filter((d) => !d.current).length;
 
   useEffect(() => {
@@ -52,11 +86,38 @@ const SecurityTab = ({ settings }) => {
 
   const logOutDevice = (device) => {
     log('dispatch log out device', { id: device.id });
+    if (isLive) {
+      setLiveError(null);
+      logOutSession(device.id)
+        .then(() => live.reload())
+        .then(() =>
+          setLiveToast({
+            title: `Success - Logged out of ${device.name}`,
+            message: 'That device needs to sign in again.',
+          })
+        )
+        .catch((err) => setLiveError(settingsError(err, 'That device couldn’t be logged out.')));
+      return;
+    }
     update({ removed: [...removed, device.id].join(','), toast: 'device-logged-out' });
   };
 
-  const submitPassword = ({ logOutOthers }) => {
+  const submitPassword = ({ currentPassword, newPassword, logOutOthers }) => {
     log('dispatch password updated', { logOutOthers });
+    if (isLive) {
+      setLiveError(null);
+      changePassword({ currentPassword, newPassword, logOutOthers })
+        .then(() => live.reload())
+        .then(() => {
+          update({ modal: null });
+          setLiveToast(PASSWORD_COPY.updated);
+        })
+        .catch((err) => {
+          update({ modal: null });
+          setLiveError(settingsError(err, 'Your password wasn’t changed.'));
+        });
+      return;
+    }
     update({
       modal: null,
       toast: 'password-updated',
@@ -71,8 +132,9 @@ const SecurityTab = ({ settings }) => {
   const deviceToastDevice = DEVICES.find(
     (d) => d.id === (removed.at(-1) ?? DEVICE_TOAST_DEFAULT_ID)
   );
-  const toastView =
-    toast === 'device-logged-out'
+  const toastView = liveToast
+    ? liveToast
+    : toast === 'device-logged-out'
       ? deviceToast(deviceToastDevice)
       : toast === 'password-updated'
         ? PASSWORD_COPY.updated
@@ -84,10 +146,21 @@ const SecurityTab = ({ settings }) => {
 
   return (
     <div className="flex w-full flex-col gap-[20px]" data-settings-section="security">
+      {liveError ? (
+        <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-[#c0392b]">
+          {liveError}
+        </p>
+      ) : null}
       <SettingsCard title={signIn.title}>
         <SettingLine
           title={signIn.password.title}
-          description={signIn.password.description}
+          description={
+            isLive
+              ? live.overview?.passwordChangedAt
+                ? `Last changed ${ageOf(live.overview.passwordChangedAt)}`
+                : 'Not changed since you joined'
+              : signIn.password.description
+          }
           control={
             <Button
               variant="tertiary"
@@ -101,23 +174,31 @@ const SecurityTab = ({ settings }) => {
         />
         <SettingLine
           title={signIn.twoStep.title}
-          description={signIn.twoStep.description}
+          description={
+            isLive ? 'A code is emailed to you every time you sign in' : signIn.twoStep.description
+          }
           control={
-            <TwoStepStatus
-              chip={signIn.twoStep.chip}
-              manage={signIn.twoStep.manage}
-              onManage={() => update({ modal: 'two-step' })}
-            />
+            isLive ? (
+              <SettingsChip>{signIn.twoStep.chip}</SettingsChip>
+            ) : (
+              <TwoStepStatus
+                chip={signIn.twoStep.chip}
+                manage={signIn.twoStep.manage}
+                onManage={() => update({ modal: 'two-step' })}
+              />
+            )
           }
         />
-        <SettingLine
-          titleId="recruiter-sso-title"
-          title={signIn.sso.title}
-          description={signIn.sso.description}
-          control={
-            <SettingsSwitch labelledBy="recruiter-sso-title" checked={sso} onChange={setSso} />
-          }
-        />
+        {isLive ? null : (
+          <SettingLine
+            titleId="recruiter-sso-title"
+            title={signIn.sso.title}
+            description={signIn.sso.description}
+            control={
+              <SettingsSwitch labelledBy="recruiter-sso-title" checked={sso} onChange={setSso} />
+            }
+          />
+        )}
       </SettingsCard>
 
       <SettingsCard title={deviceCopy.title}>
@@ -142,39 +223,58 @@ const SecurityTab = ({ settings }) => {
         ))}
       </SettingsCard>
 
-      <SettingsCard title={danger.title}>
-        <SettingLine
-          title={danger.leave.title}
-          description={danger.leave.description}
-          control={
-            <Button
-              variant="tertiary"
-              className="!h-[40px] !py-0 max-sm:!px-[20px]"
-              onClick={() => log('leave organisation (no screen is drawn for it)')}
-            >
-              {danger.leave.cta}
-            </Button>
-          }
-        />
-        <SettingLine
-          title={danger.delete.title}
-          description={danger.delete.description}
-          control={
-            <Button
-              variant="danger"
-              size="sm"
-              className="!h-[40px] !py-0"
-              onClick={() => update({ modal: 'delete-account' })}
-              aria-haspopup="dialog"
-            >
-              {danger.delete.cta}
-            </Button>
-          }
-        />
-      </SettingsCard>
+      {isLive ? (
+        <SettingsCard title={danger.title}>
+          <SettingLine
+            title="Leave your organisation or close this account"
+            description="Your organisation keeps its jobs and candidate history. Our support team does this with you so nothing is lost."
+            control={
+              <Button
+                variant="tertiary"
+                className="!h-[40px] !py-0 max-sm:!px-[20px]"
+                onClick={() => navigate('/recruiter/help?help=contact')}
+              >
+                Contact support
+              </Button>
+            }
+          />
+        </SettingsCard>
+      ) : (
+        <SettingsCard title={danger.title}>
+          <SettingLine
+            title={danger.leave.title}
+            description={danger.leave.description}
+            control={
+              <Button
+                variant="tertiary"
+                className="!h-[40px] !py-0 max-sm:!px-[20px]"
+                onClick={() => log('leave organisation (no screen is drawn for it)')}
+              >
+                {danger.leave.cta}
+              </Button>
+            }
+          />
+          <SettingLine
+            title={danger.delete.title}
+            description={danger.delete.description}
+            control={
+              <Button
+                variant="danger"
+                size="sm"
+                className="!h-[40px] !py-0"
+                onClick={() => update({ modal: 'delete-account' })}
+                aria-haspopup="dialog"
+              >
+                {danger.delete.cta}
+              </Button>
+            }
+          />
+        </SettingsCard>
+      )}
 
       {modal === 'change-password' ? (
         <ChangePasswordDialog
+          blank={isLive}
           otherDevices={otherDevices}
           onClose={closeModal}
           onSubmit={submitPassword}
@@ -199,7 +299,10 @@ const SecurityTab = ({ settings }) => {
         <PipelineToast
           title={toastView.title}
           message={<ToastText>{toastView.message}</ToastText>}
-          onClose={closeToast}
+          onClose={() => {
+            setLiveToast(null);
+            closeToast();
+          }}
         />
       ) : null}
     </div>

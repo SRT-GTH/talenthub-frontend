@@ -1,4 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useRecruiterShell } from '../../../hooks/useRecruiterShell.js';
+import { fetchReceivedApplications } from '../../../services/recruiterPipeline.api.js';
+import { liveHero, liveJobs, livePipeline } from './liveDashboard.js';
+import { useLiveHomeExtras } from './useLiveHomeExtras.js';
 import { debug } from '../../../utils/debug.js';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
@@ -61,7 +66,57 @@ const RecruiterDashboardSection = () => {
   // Figma draws the dashboard in SF Pro Rounded (bundled as `GTH Parent Rounded`); scoped to this screen.
   useScopedRoundedFont('data-recruiter-ui');
   const state = useRecruiterDashboardState();
-  const { org, single, pending, noOrg, loading, panel, toast, set, get } = state;
+  const { loading, panel, toast, set, get } = state;
+  const navigate = useNavigate();
+  // Signed-in recruiter: the page shows their own organisation, jobs and counts (null = demo, the Figma states).
+  const shell = useRecruiterShell();
+  const isLive = Boolean(shell);
+  const [apps, setApps] = useState([]);
+  useEffect(() => {
+    if (!isLive) return undefined;
+    let alive = true;
+    fetchReceivedApplications()
+      .then((list) => alive && setApps(list))
+      .catch((err) => log.error('applications failed:', err?.response?.status || err?.message));
+    return () => {
+      alive = false;
+    };
+  }, [isLive]);
+  const liveOrg = isLive
+    ? {
+        id: shell.orgId || 'live',
+        name: shell.orgName || '\u2014',
+        meta: `Recruiter \u00b7 ${shell.plan?.label || 'Free'} plan`,
+        logo: 'personal',
+        logoUrl: shell.logoUrl,
+        status: 'active',
+      }
+    : null;
+  const org = liveOrg || state.org;
+  const single = isLive || state.single;
+  const pending = isLive ? false : state.pending;
+  const noOrg = isLive ? Boolean(shell.fullName) && !shell.orgName : state.noOrg;
+  const hero = useMemo(() => (isLive ? liveHero(shell, apps) : HERO), [isLive, shell, apps]);
+  const jobsLive = useMemo(
+    () => (isLive ? liveJobs(shell.jobList, apps) : null),
+    [isLive, shell, apps]
+  );
+  const pipelineLive = useMemo(
+    () => (isLive ? livePipeline(shell.applicantsByStage) : null),
+    [isLive, shell]
+  );
+  // Live Feedback / Recommended talents / In-demand skills (useLiveHomeExtras). Region "national" = all of Ghana.
+  const liveRegion = get('region', 'national');
+  const liveRegionName =
+    liveRegion === 'national'
+      ? ''
+      : SKILLS_REGIONS.options.find((o) => o.value === liveRegion)?.label || '';
+  const extras = useLiveHomeExtras({
+    isLive,
+    apps,
+    jobs: isLive ? shell.jobList : [],
+    region: liveRegionName,
+  });
   const switchTimer = useRef(null);
 
   useEffect(() => {
@@ -104,6 +159,15 @@ const RecruiterDashboardSection = () => {
 
   const handleRowAction = (action, jobId) => {
     log('branch: job row action', { action, jobId });
+    if (isLive) {
+      // The job postings page owns the live pause / close dialogs.
+      const modal = { pause: 'pause', close: 'close-applicants' }[action];
+      if (modal) navigate(`/recruiter/job-postings?modal=${modal}&posting=${jobId}`);
+      else if (action === 'view') navigate(`/recruiter/application-pipeline?posting=${jobId}`);
+      else if (action === 'edit') navigate(`/recruiter/job-postings/${jobId}/edit`);
+      set({ jobMenu: '' });
+      return;
+    }
     if (action === 'pause' || action === 'close') {
       set({ jobMenu: '', dialog: action, job: jobId });
     } else {
@@ -263,8 +327,17 @@ const RecruiterDashboardSection = () => {
             ) : null}
 
             <DashHero
-              summary={noOrg ? HERO.noOrg : HERO.summary(org.name)}
-              onQuickAction={(id) => log('quick action (no destination in this canvas):', id)}
+              data={hero}
+              summary={isLive ? hero.summary : noOrg ? HERO.noOrg : HERO.summary(org.name)}
+              onQuickAction={(id) => {
+                const to = {
+                  search: '/recruiter/talent-search',
+                  post: '/recruiter/job-postings/new',
+                  edit: '/recruiter/settings',
+                }[id];
+                if (isLive && to) navigate(to);
+                else log('quick action (no destination in this canvas):', id);
+              }}
               onCustomize={() => log('customize (no screen drawn in this canvas)')}
             />
 
@@ -279,6 +352,13 @@ const RecruiterDashboardSection = () => {
                 <div className="grid grid-cols-[minmax(0,900fr)_minmax(0,413fr)] items-stretch gap-[16px] max-xl:grid-cols-1">
                   <ActiveJobsWidget
                     org={org.name}
+                    {...(jobsLive
+                      ? {
+                          jobs: jobsLive,
+                          chip: `${jobsLive.length} active`,
+                          onViewAll: () => navigate('/recruiter/job-postings'),
+                        }
+                      : {})}
                     readOnly={pending}
                     sort={{
                       value: sortValue,
@@ -290,7 +370,7 @@ const RecruiterDashboardSection = () => {
                     onMenu={(id) => set({ jobMenu: id })}
                     onRowAction={handleRowAction}
                     pausedIds={pausedIds}
-                    jobsState={jobsState}
+                    jobsState={isLive && !jobsLive.length ? 'empty' : jobsState}
                     onStateAction={(kind) => {
                       log('state action (no destination in this canvas):', kind);
                       if (kind === 'error') set({ jobs: '' });
@@ -298,9 +378,16 @@ const RecruiterDashboardSection = () => {
                   />
                   <VerificationWidget
                     org={org.name}
+                    live={isLive ? shell.kyb || { documents: [] } : null}
                     readOnly={pending}
                     variant={
-                      ['verified', 'rejected', 'owner'].includes(get('verify')) ? get('verify') : ''
+                      isLive
+                        ? shell.kyb?.verified
+                          ? 'verified'
+                          : ''
+                        : ['verified', 'rejected', 'owner'].includes(get('verify'))
+                          ? get('verify')
+                          : ''
                     }
                     onUpload={() => set({ dialog: 'upload', step: 'choose' })}
                     onNotifyOwner={() =>
@@ -311,101 +398,207 @@ const RecruiterDashboardSection = () => {
 
                 <div className="grid grid-cols-[minmax(0,900fr)_minmax(0,413fr)] items-stretch gap-[16px] max-xl:grid-cols-1">
                   <PipelineWidget
+                    live={pipelineLive}
                     readOnly={pending}
-                    state={pipelineState}
+                    state={
+                      isLive
+                        ? !pipelineLive
+                          ? 'loading'
+                          : pipelineLive.empty
+                            ? 'empty'
+                            : ''
+                        : pipelineState
+                    }
                     selectedStage={get('stage')}
                     window={get('window', '30d')}
                     onWindowChange={(value) => set({ window: value === '30d' ? '' : value })}
                     jobFilter={
-                      <FilterSelect
-                        label={pipelineJobOption.label}
-                        icon={dashIcons.briefcaseFilter}
-                        options={pipelineOptions}
-                        value={pipelineJob}
-                        onChange={(value) => set({ pipelineJob: value === 'all' ? '' : value })}
-                        open={get('menu') === 'pipeline'}
-                        onOpenChange={(open) => set({ menu: open ? 'pipeline' : '' })}
-                        menuLabel={PIPELINE_FILTER.label}
-                        width={260}
-                        ariaLabel="Filter pipeline by opportunity"
-                      />
+                      isLive ? null : (
+                        <FilterSelect
+                          label={pipelineJobOption.label}
+                          icon={dashIcons.briefcaseFilter}
+                          options={pipelineOptions}
+                          value={pipelineJob}
+                          onChange={(value) => set({ pipelineJob: value === 'all' ? '' : value })}
+                          open={get('menu') === 'pipeline'}
+                          onOpenChange={(open) => set({ menu: open ? 'pipeline' : '' })}
+                          menuLabel={PIPELINE_FILTER.label}
+                          width={260}
+                          ariaLabel="Filter pipeline by opportunity"
+                        />
+                      )
                     }
                     onStage={(id) => set({ stage: get('stage') === id ? '' : id })}
                     onInvite={() =>
                       log('invite recommended talents (scrolls to the talents widget)')
                     }
                   />
-                  <FeedbackWidget
-                    readOnly={pending}
-                    tab={get('feedback', 'give')}
-                    onTabChange={(value) => set({ feedback: value === 'give' ? '' : value })}
-                    mine={<MyFeedbackPanel />}
-                    withdrewId={get('withdrew')}
-                    onLeaveFeedback={(id) => set({ dialog: 'feedback', candidate: id })}
-                  />
+                  {isLive ? (
+                    <FeedbackWidget
+                      live={{ pending: extras.pending }}
+                      tab="give"
+                      onLeaveFeedback={(id) => {
+                        const item = extras.pending.find((p) => p.id === id);
+                        navigate(
+                          `/recruiter/application-pipeline?posting=${item?.jobId || ''}&feedback=${id}`
+                        );
+                      }}
+                    />
+                  ) : (
+                    <FeedbackWidget
+                      readOnly={pending}
+                      tab={get('feedback', 'give')}
+                      onTabChange={(value) => set({ feedback: value === 'give' ? '' : value })}
+                      mine={<MyFeedbackPanel />}
+                      withdrewId={get('withdrew')}
+                      onLeaveFeedback={(id) => set({ dialog: 'feedback', candidate: id })}
+                    />
+                  )}
                 </div>
 
-                <TalentsWidget
-                  readOnly={pending}
-                  state={talentsState}
-                  savedIds={savedIds}
-                  hintId={get('hint')}
-                  onHint={(id) => set({ hint: id })}
-                  jobFilter={
-                    <FilterSelect
-                      label={`Job: ${talentsJobOption.label}`}
-                      icon={dashIcons.briefcaseFilter}
-                      options={talentOptions}
-                      value={talentsJob}
-                      onChange={(value) =>
-                        set({ talentsJob: value === 'junior-accountant' ? '' : value })
-                      }
-                      open={get('menu') === 'talents'}
-                      onOpenChange={(open) => set({ menu: open ? 'talents' : '' })}
-                      menuLabel={TALENT_FILTER.label}
-                      width={260}
-                      ariaLabel="Filter recommended talents by job"
-                    />
-                  }
-                  onInvite={(id) => set({ dialog: 'invite', talent: id })}
-                  onSave={handleSave}
-                  onView={(id) => log('view talent (profile screen is not in this canvas):', id)}
-                  onRefine={() => log('edit job descriptions (no screen drawn in this canvas)')}
-                />
-
-                <SkillsWidget
-                  readOnly={pending}
-                  national={region === 'national'}
-                  state={skillsState}
-                  onSwitchNational={() => set({ region: 'national' })}
-                  onClearIndustry={() => set({ industry: '' })}
-                  filters={
-                    <>
+                {isLive && extras.openJobs.length ? (
+                  <TalentsWidget
+                    state={
+                      extras.talents.status === 'loading' || extras.talents.status === 'idle'
+                        ? 'loading'
+                        : extras.talents.status === 'empty'
+                          ? 'empty'
+                          : ''
+                    }
+                    cards={extras.talents.cards}
+                    canSave={false}
+                    groupLabel={`Top matches for ${extras.openJobs.find((j) => j.id === extras.jobId)?.title || 'your posting'}`}
+                    groupCount={`${extras.talents.cards.length} candidate${extras.talents.cards.length === 1 ? '' : 's'}`}
+                    seeAllTo={`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`}
+                    jobFilter={
+                      extras.openJobs.length > 1 ? (
+                        <FilterSelect
+                          label={`Job: ${extras.openJobs.find((j) => j.id === extras.jobId)?.title || ''}`}
+                          icon={dashIcons.briefcaseFilter}
+                          options={extras.openJobs.map((j) => ({
+                            value: j.id,
+                            label: j.title,
+                            icon: dashIcons.jobFilterOptionBriefcase,
+                          }))}
+                          value={extras.jobId}
+                          onChange={(value) => {
+                            extras.setTalentJobId(value);
+                            set({ menu: '' });
+                          }}
+                          open={get('menu') === 'talents'}
+                          onOpenChange={(open) => set({ menu: open ? 'talents' : '' })}
+                          menuLabel={TALENT_FILTER.label}
+                          width={260}
+                          ariaLabel="Recommended talents for which posting"
+                        />
+                      ) : null
+                    }
+                    onView={() =>
+                      navigate(`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`)
+                    }
+                    onInvite={() =>
+                      navigate(`/recruiter/talent-search?job=${extras.jobId}&tab=top-matches`)
+                    }
+                    onRefine={() => navigate(`/recruiter/job-postings/${extras.jobId}/edit`)}
+                  />
+                ) : null}
+                {isLive ? null : (
+                  <TalentsWidget
+                    readOnly={pending}
+                    state={talentsState}
+                    savedIds={savedIds}
+                    hintId={get('hint')}
+                    onHint={(id) => set({ hint: id })}
+                    jobFilter={
                       <FilterSelect
-                        label={regionLabel}
+                        label={`Job: ${talentsJobOption.label}`}
+                        icon={dashIcons.briefcaseFilter}
+                        options={talentOptions}
+                        value={talentsJob}
+                        onChange={(value) =>
+                          set({ talentsJob: value === 'junior-accountant' ? '' : value })
+                        }
+                        open={get('menu') === 'talents'}
+                        onOpenChange={(open) => set({ menu: open ? 'talents' : '' })}
+                        menuLabel={TALENT_FILTER.label}
+                        width={260}
+                        ariaLabel="Filter recommended talents by job"
+                      />
+                    }
+                    onInvite={(id) => set({ dialog: 'invite', talent: id })}
+                    onSave={handleSave}
+                    onView={(id) => log('view talent (profile screen is not in this canvas):', id)}
+                    onRefine={() => log('edit job descriptions (no screen drawn in this canvas)')}
+                  />
+                )}
+
+                {isLive ? (
+                  <SkillsWidget
+                    liveBands={extras.skills.bands}
+                    subtitle={`Last 30 days · ${liveRegionName || 'All of Ghana'} · postings on Ghana Talent Hub by role`}
+                    state={
+                      extras.skills.status === 'live' && !extras.skills.bands.length ? 'sparse' : ''
+                    }
+                    stateCopy={{
+                      subtitle: `Last 30 days · ${liveRegionName || 'All of Ghana'}`,
+                      title: 'No postings to rank yet',
+                      body: `${liveRegionName || 'Ghana Talent Hub'} had no published postings in the last 30 days.`,
+                      ...(liveRegionName ? {} : { action: 'Refresh' }),
+                    }}
+                    footnote="Counts every employer’s published postings; pay is per month in GHS where posted."
+                    onSwitchNational={() => set({ region: '' })}
+                    filters={
+                      <FilterSelect
+                        label={liveRegionName || 'Ghana · National'}
                         icon={dashIcons.mapPinRegion}
                         options={regionOptions}
-                        value={region}
-                        onChange={(value) => set({ region: value === 'accra' ? '' : value })}
+                        value={liveRegion}
+                        onChange={(value) =>
+                          set({ region: value === 'national' ? '' : value, menu: '' })
+                        }
                         open={get('menu') === 'region'}
                         onOpenChange={(open) => set({ menu: open ? 'region' : '' })}
                         width={260}
                         ariaLabel="Region"
                       />
-                      <FilterSelect
-                        label={industryLabel}
-                        icon={dashIcons.buildingIndustry}
-                        options={industryOptions}
-                        value={industry}
-                        onChange={(value) => set({ industry: value === 'all' ? '' : value })}
-                        open={get('menu') === 'industry'}
-                        onOpenChange={(open) => set({ menu: open ? 'industry' : '' })}
-                        width={220}
-                        ariaLabel="Industry"
-                      />
-                    </>
-                  }
-                />
+                    }
+                  />
+                ) : null}
+                {isLive ? null : (
+                  <SkillsWidget
+                    readOnly={pending}
+                    national={region === 'national'}
+                    state={skillsState}
+                    onSwitchNational={() => set({ region: 'national' })}
+                    onClearIndustry={() => set({ industry: '' })}
+                    filters={
+                      <>
+                        <FilterSelect
+                          label={regionLabel}
+                          icon={dashIcons.mapPinRegion}
+                          options={regionOptions}
+                          value={region}
+                          onChange={(value) => set({ region: value === 'accra' ? '' : value })}
+                          open={get('menu') === 'region'}
+                          onOpenChange={(open) => set({ menu: open ? 'region' : '' })}
+                          width={260}
+                          ariaLabel="Region"
+                        />
+                        <FilterSelect
+                          label={industryLabel}
+                          icon={dashIcons.buildingIndustry}
+                          options={industryOptions}
+                          value={industry}
+                          onChange={(value) => set({ industry: value === 'all' ? '' : value })}
+                          open={get('menu') === 'industry'}
+                          onOpenChange={(open) => set({ menu: open ? 'industry' : '' })}
+                          width={220}
+                          ariaLabel="Industry"
+                        />
+                      </>
+                    }
+                  />
+                )}
               </>
             )}
           </>

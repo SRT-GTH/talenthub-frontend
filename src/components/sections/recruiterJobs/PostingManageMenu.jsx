@@ -55,9 +55,13 @@ const PostingManageMenu = ({ onAction, deleteDisabledReason, hoverId }) => (
     <button
       type="button"
       role="menuitem"
-      aria-disabled="true"
-      disabled
-      className="flex w-full items-start gap-[10px] border-0 bg-transparent px-[14px] py-[6px] text-left font-sans text-[14px] leading-[20px] text-[#babab7]"
+      aria-disabled={deleteDisabledReason ? 'true' : undefined}
+      disabled={Boolean(deleteDisabledReason)}
+      onClick={() => onAction('delete')}
+      className={classNames(
+        'flex w-full items-start gap-[10px] border-0 bg-transparent px-[14px] py-[6px] text-left font-sans text-[14px] leading-[20px]',
+        deleteDisabledReason ? 'text-[#babab7]' : 'cursor-pointer text-[#c0392b] hover:bg-[#f6f6f6]'
+      )}
     >
       <TrashGlyph size={18} />
       <span className="flex flex-col">

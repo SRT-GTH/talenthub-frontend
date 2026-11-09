@@ -6,6 +6,7 @@ import PipelineToast from '../../applicationPipeline/actions/PipelineToast.jsx';
 import { GroupCard, SettingRow, SettingsToggle } from '../../talentSettings/SettingsBUi.jsx';
 import AutoMessageDialog from '../hiring/AutoMessageDialog.jsx';
 import SettingsFooter from '../hiring/SettingsFooter.jsx';
+import { useLiveHiring } from '../hiring/useLiveHiring.js';
 import {
   AUTO_MESSAGES,
   HIRING_COPY as COPY,
@@ -27,6 +28,10 @@ const withClosedOff = (base) => ({
   messages: { ...base.messages, closed: { ...base.messages.closed, on: false } },
 });
 
+// Row preview in live mode: company / name / reply time filled, candidate tokens left as written.
+const fillTokensLive = (text, sample = {}) =>
+  Object.entries(sample).reduce((out, [token, value]) => out.split(token).join(value), text || '');
+
 const SettingsEditLink = ({ onClick, label }) => (
   <button
     type="button"
@@ -44,12 +49,39 @@ const SettingsEditLink = ({ onClick, label }) => (
  * Draft vs saved: any change makes the footer say "You have unsaved changes"; Cancel restores the saved values; Save changes stores them and shows `?toast=saved` ("Success - Hiring preferences saved").
  * URL: modal=auto-message (+ message=<id>), toast=saved. Mock only, nothing is sent.
  */
+const withValue = (value, options) => [...new Set([value, ...options].filter(Boolean))];
+
 const HiringTab = ({ settings }) => {
+  const hiring = useLiveHiring();
+  if (hiring.status === 'loading')
+    return <p className="m-0 text-[14px] text-[#575755]">Loading your hiring preferences…</p>;
+  if (hiring.status === 'error')
+    return (
+      <p className="m-0 text-[14px] text-[#575755]">
+        We couldn’t load your hiring preferences. Refresh the page to try again.
+      </p>
+    );
+  return <HiringForm settings={settings} hiring={hiring} />;
+};
+
+const HiringForm = ({ settings, hiring }) => {
+  const live = hiring.status === 'live';
   const savedToast = settings.get('toast') === 'saved';
   const [saved, setSaved] = useState(() =>
-    savedToast ? withClosedOff(HIRING_DEFAULTS) : HIRING_DEFAULTS
+    live ? hiring.settings : savedToast ? withClosedOff(HIRING_DEFAULTS) : HIRING_DEFAULTS
   );
-  const [draft, setDraft] = useState(() => withClosedOff(HIRING_DEFAULTS));
+  const [draft, setDraft] = useState(() =>
+    live ? hiring.settings : withClosedOff(HIRING_DEFAULTS)
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const sample = live
+    ? {
+        '{company}': hiring.company || 'your company',
+        '{your name}': hiring.yourName || 'you',
+        '{reply within}': draft.replyWithin,
+      }
+    : undefined;
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(draft), [saved, draft]);
   const messageId = AUTO_MESSAGES.some((m) => m.id === settings.get('message'))
     ? settings.get('message')
@@ -71,10 +103,26 @@ const HiringTab = ({ settings }) => {
   const setMessage = (id, next) =>
     setDraft((d) => ({ ...d, messages: { ...d.messages, [id]: { ...d.messages[id], ...next } } }));
 
-  const onSave = () => {
-    log('save changes', { dirty });
-    setSaved(draft);
-    settings.update({ toast: 'saved' });
+  const onSave = async () => {
+    log('save changes', { dirty, live });
+    if (!live) {
+      setSaved(draft);
+      settings.update({ toast: 'saved' });
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      const next = await hiring.save(draft);
+      setSaved(next);
+      setDraft(next);
+      settings.update({ toast: 'saved' });
+    } catch (err) {
+      log.error('save failed:', err?.response?.status);
+      setError(err?.response?.data?.message || 'Could not save. Try again.');
+    } finally {
+      setSaving(false);
+    }
   };
   const onCancel = () => {
     log('cancel: back to the saved values');
@@ -100,7 +148,8 @@ const HiringTab = ({ settings }) => {
             className="md:min-h-[103px]"
             label={COPY.defaults.location}
             value={draft.location}
-            options={LOCATION_OPTIONS}
+            placeholder="Choose a location"
+            options={withValue(draft.location, LOCATION_OPTIONS)}
             onChange={(location) => patch({ location })}
           />
           <Select
@@ -111,7 +160,8 @@ const HiringTab = ({ settings }) => {
             className="md:min-h-[103px]"
             label={COPY.defaults.screening}
             value={draft.screening}
-            options={SCREENING_OPTIONS}
+            placeholder="Choose screening"
+            options={withValue(draft.screening, SCREENING_OPTIONS)}
             onChange={(screening) => patch({ screening })}
           />
         </div>
@@ -152,7 +202,9 @@ const HiringTab = ({ settings }) => {
               title={m.title}
               description={
                 <span className="block max-w-full truncate">
-                  {msg.edited ? `“${msg.text}”` : m.summary}
+                  {live || msg.edited
+                    ? `“${live ? fillTokensLive(msg.text, sample) : msg.text}”`
+                    : m.summary}
                 </span>
               }
               control={
@@ -189,7 +241,7 @@ const HiringTab = ({ settings }) => {
         <SettingRow
           recruiter
           title={COPY.goal.row}
-          description={COPY.goal.average}
+          description={live ? 'Used in your “When someone applies” message' : COPY.goal.average}
           nowrapControl={false}
           className="md:min-h-[103px]"
           control={
@@ -208,13 +260,20 @@ const HiringTab = ({ settings }) => {
         />
       </GroupCard>
 
-      <SettingsFooter dirty={dirty} onCancel={onCancel} onSave={onSave} />
+      {error ? (
+        <p role="alert" className="m-0 text-[14px] text-[#c0392b]">
+          {error}
+        </p>
+      ) : null}
+      <SettingsFooter dirty={dirty && !saving} onCancel={onCancel} onSave={onSave} />
 
       {settings.modal === 'auto-message' ? (
         <AutoMessageDialog
           key={messageId}
           id={messageId}
           text={draft.messages[messageId].text}
+          defaultText={live ? hiring.defaults[messageId] : undefined}
+          sample={sample}
           onCancel={closeDialog}
           onSave={(id, text) => {
             setMessage(id, { text, edited: true });

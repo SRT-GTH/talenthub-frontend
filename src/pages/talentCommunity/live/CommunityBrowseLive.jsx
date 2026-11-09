@@ -4,6 +4,7 @@ import { debug } from '../../../utils/debug.js';
 import CommunityCard from '../../../components/sections/talentCommunity/CommunityCard.jsx';
 import CommunityDialogs from '../../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../../components/sections/talentCommunity/CommunityFrame.jsx';
+import { communityPath } from '../../../components/sections/talentCommunity/communityVariant.js';
 import {
   BrowseGrid,
   BrowseHeader,
@@ -35,7 +36,7 @@ import { LiveError } from './LiveStates.jsx';
 const log = debug('CommunityBrowseLive');
 
 /*
- * CommunityBrowseLive: `/community` on the API (GET /api/community, paged). Same parts and URL keys as the drawn page
+ * CommunityBrowseLive: communityPath() on the API (GET /api/community, paged). Same parts and URL keys as the drawn page
  * (CommunityBrowsePage demo): `?cat`, `?q`, `?view=all`, `?menu=joined`.
  *   default      "Your communities" (when you have joined any) + "Picked for you" = the first 8 not-joined
  *   ?view=all    "Your communities" + "All communities", a page at a time ("Show more")
@@ -85,7 +86,7 @@ const CommunityBrowseLive = ({ community }) => {
   const onJoin = async (c) => {
     log('join', c.id);
     const ok = await browse.join(c.id);
-    if (ok) navigate(`/community/${c.id}?welcome=1`);
+    if (ok) navigate(communityPath(`/${c.id}?welcome=1`));
   };
 
   const visible = filtering ? cards : [...mine, ...cards];
@@ -108,13 +109,13 @@ const CommunityBrowseLive = ({ community }) => {
       joined={c.joined}
       muted={isMuted(c.id)}
       menuOpen={c.joined && openId === c.id}
-      to={`/community/${c.id}`}
+      to={communityPath(`/${c.id}`)}
       faces={null}
       onJoin={onJoin}
       onToggleMenu={toggleMenu}
       onCloseMenu={closeMenu}
       onMute={(item) => toggleMute(item.id)}
-      onLeave={(item) => navigate(`/community/${item.id}?modal=leave`)}
+      onLeave={(item) => navigate(communityPath(`/${item.id}?modal=leave`))}
       {...extra}
     />
   );

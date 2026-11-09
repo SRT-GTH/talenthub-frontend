@@ -77,8 +77,20 @@ const MemberMenu = ({ member, open, onToggle, onPick }) => {
  * then the role select + "…" menu, or - for an invite not accepted yet - the "Invite pending" chip, "Resend" and the menu.
  * Rows with a role select are 103px high (the design-system dropdown reserves a 21px label slot above and a 15px hint line below); the "you" row is 80px (disabled Admin, no hint line).
  */
-const TeamMemberRow = ({ member, menuOpen, onMenu, onMenuPick, onRole, onResend }) => {
+const TeamMemberRow = ({
+  member,
+  menuOpen,
+  onMenu,
+  onMenuPick,
+  onRole,
+  onResend,
+  readOnly = false,
+  // Live: the roles on offer (Admin, Recruiter) and, for someone asking to join, { chip, approve, decline, busy, onApprove, onDecline }.
+  roleOptions = ROLES,
+  requestActions = null,
+}) => {
   const pending = member.status === 'pending';
+  const request = member.status === 'request';
   log('render', { id: member.id, role: member.role, pending, menuOpen });
   return (
     <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[10px]">
@@ -103,18 +115,45 @@ const TeamMemberRow = ({ member, menuOpen, onMenu, onMenuPick, onRole, onResend 
         </div>
       </div>
       <div className="flex items-center gap-[10px] max-sm:w-full">
-        {pending ? (
+        {request ? (
+          <>
+            <Chip tone="amber">
+              <ClockGlyph size={12} />
+              {requestActions?.chip || 'Asked to join'}
+            </Chip>
+            {requestActions ? (
+              <>
+                <RecruiterSettingsLink
+                  onClick={requestActions.onApprove}
+                  disabled={requestActions.busy}
+                  aria-label={`${requestActions.approve} ${member.name}`}
+                >
+                  {requestActions.approve}
+                </RecruiterSettingsLink>
+                <RecruiterSettingsLink
+                  onClick={requestActions.onDecline}
+                  disabled={requestActions.busy}
+                  aria-label={`${requestActions.decline} ${member.name}`}
+                >
+                  {requestActions.decline}
+                </RecruiterSettingsLink>
+              </>
+            ) : null}
+          </>
+        ) : pending ? (
           <>
             <Chip tone="amber">
               <ClockGlyph size={12} />
               {TEAM_CARD.pendingChip}
             </Chip>
-            <RecruiterSettingsLink
-              onClick={onResend}
-              aria-label={`${TEAM_CARD.resend} invite to ${member.email}`}
-            >
-              {TEAM_CARD.resend}
-            </RecruiterSettingsLink>
+            {readOnly ? null : (
+              <RecruiterSettingsLink
+                onClick={onResend}
+                aria-label={`${TEAM_CARD.resend} invite to ${member.email}`}
+              >
+                {TEAM_CARD.resend}
+              </RecruiterSettingsLink>
+            )}
           </>
         ) : (
           <div
@@ -126,13 +165,15 @@ const TeamMemberRow = ({ member, menuOpen, onMenu, onMenuPick, onRole, onResend 
             <RoleSelect
               ariaLabel={TEAM_CARD.roleLabel(member.name)}
               value={member.role}
-              options={ROLES}
-              disabled={member.isYou}
+              options={roleOptions}
+              disabled={member.isYou || readOnly}
               onChange={onRole}
             />
           </div>
         )}
-        <MemberMenu member={member} open={menuOpen} onToggle={onMenu} onPick={onMenuPick} />
+        {readOnly || request ? null : (
+          <MemberMenu member={member} open={menuOpen} onToggle={onMenu} onPick={onMenuPick} />
+        )}
       </div>
     </div>
   );

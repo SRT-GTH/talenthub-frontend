@@ -41,10 +41,14 @@ export const PauseDialog = ({ title, applicants, awaiting, onKeep, onPause }) =>
   );
 };
 
-export const DeleteDraftDialog = ({ title, onCancel, onDelete }) => (
+export const DeleteDraftDialog = ({ title, onCancel, onDelete, isDraft = true }) => (
   <CenterDialog
-    title="Delete this draft?"
-    body={`“${title}” will be deleted for good. Nobody has seen it yet, so no one will be notified.`}
+    title={isDraft ? 'Delete this draft?' : 'Delete this posting?'}
+    body={
+      isDraft
+        ? `“${title}” will be deleted for good. Nobody has seen it yet, so no one will be notified.`
+        : `“${title}” will be deleted for good. Nobody has applied, so no one will be notified.`
+    }
     onClose={onCancel}
     widthClassName="!max-w-[500px]"
     footer={
@@ -53,7 +57,7 @@ export const DeleteDraftDialog = ({ title, onCancel, onDelete }) => (
           Cancel
         </JobButton>
         <JobButton tone="danger" onClick={onDelete}>
-          Delete draft
+          {isDraft ? 'Delete draft' : 'Delete posting'}
         </JobButton>
       </>
     }

@@ -48,7 +48,52 @@ import {
   POSTING_TOASTS,
 } from './jobPostingsData.js';
 
+import { useLivePostings } from './useLivePostings.js';
+import { saveTemplate } from '../../../services/recruiterPostings.api.js';
+
 const log = debug('JobPostingsSection');
+
+/* Signed-in toasts: the posting's real title and counts, no demo numbers. */
+const liveToast = (kind, posting) => {
+  const title = posting?.title || 'Posting';
+  if (kind === 'paused')
+    return {
+      tone: 'warning',
+      title: `Warning - Applications paused for ${title}`,
+      message: 'Your pipeline is unchanged',
+      actionLabel: 'Undo',
+    };
+  if (kind === 'closed')
+    return {
+      tone: 'success',
+      title: `Success - ${title} is closed`,
+      message: 'It no longer accepts applications and is hidden from talent search.',
+      actionLabel: 'Reopen',
+    };
+  if (kind === 'deleted')
+    return {
+      tone: 'success',
+      title:
+        posting?.status && posting.status !== 'Draft'
+          ? 'Success - Posting deleted'
+          : 'Success - Draft deleted',
+      message: title,
+    };
+  if (kind === 'published')
+    return {
+      tone: 'success',
+      title: 'Success',
+      message: `${title} is live. Talent can now find it in Opportunities`,
+    };
+  if (kind === 'drafted')
+    return {
+      tone: 'warning',
+      title: `${title} was saved as a draft`,
+      message:
+        'It goes live once your organisation approves your affiliation, or after a content review.',
+    };
+  return null;
+};
 
 /*
  * URL state (route /recruiter/job-postings) — every Figma frame is reachable:
@@ -125,7 +170,9 @@ const PostingCard = ({
         {isMenuOpen && manageMenu ? (
           <PostingManageMenu
             hoverId={forcedHoverItemId}
-            deleteDisabledReason={DELETE_BLOCKED_NOTE}
+            deleteDisabledReason={
+              posting.live && !posting.applicantCount ? null : DELETE_BLOCKED_NOTE
+            }
             onAction={(id) => onManageAction(posting.id, id)}
           />
         ) : null}
@@ -257,6 +304,10 @@ const JobPostingsSection = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
+  const live = useLivePostings();
+  const isLive = live.status !== 'demo';
+  // Remembers the title of a posting acted on, for its toast (a deleted draft is gone from the list).
+  const [lastActed, setLastActed] = useState(null);
   // Local, URL-seeded state: the toast frames (JM-09 / JM-11 / JM-13 / JT-11) open with the change already applied.
   const [overrides, setOverrides] = useState(() => {
     const q = new URLSearchParams(window.location.search);
@@ -302,7 +353,7 @@ const JobPostingsSection = () => {
 
   const postings = useMemo(
     () =>
-      [...(published ? [NEW_POSTING] : []), ...POSTINGS]
+      (isLive ? live.postings : [...(published ? [NEW_POSTING] : []), ...POSTINGS])
         .filter((p) => !deletedIds.includes(p.id))
         .map((p) => {
           const status = overrides[p.id];
@@ -315,7 +366,7 @@ const JobPostingsSection = () => {
                 : p.action;
           return { ...p, status, action };
         }),
-    [overrides, deletedIds, published]
+    [overrides, deletedIds, published, isLive, live.postings]
   );
 
   const visible = postings.filter(
@@ -329,7 +380,10 @@ const JobPostingsSection = () => {
     pill.id === activeStatus
       ? {
           ...pill,
-          count: pill.fixedCount && !deletedIds.length ? pill.fixedCount : `(${visible.length})`,
+          count:
+            pill.fixedCount && !deletedIds.length && !isLive
+              ? pill.fixedCount
+              : `(${visible.length})`,
         }
       : { id: pill.id, label: pill.label }
   );
@@ -346,9 +400,13 @@ const JobPostingsSection = () => {
 
   const closeDialog = () => updateUrl({ modal: null, posting: null });
   const modalKind = searchParams.get('modal');
-  const modalPosting = postings.find((p) => p.id === searchParams.get('posting')) ?? postings[0];
+  const modalPosting =
+    postings.find((p) => p.id === searchParams.get('posting')) ??
+    (isLive ? { id: '', title: '', totalApplicants: '0', awaiting: '0' } : postings[0]);
   const toastKind = searchParams.get('toast');
-  const toast = POSTING_TOASTS[toastKind];
+  const toast = isLive
+    ? liveToast(toastKind, postings.find((p) => p.id === searchParams.get('posting')) || lastActed)
+    : POSTING_TOASTS[toastKind];
   const manageMenu = searchParams.get('menuKind') === 'manage';
   const toastPosting = searchParams.get('posting');
 
@@ -360,13 +418,19 @@ const JobPostingsSection = () => {
     log('branch', { manage: action, posting: id });
     const base = { menu: null, menuKind: null, menuItem: null };
     if (action === 'view') navigate(`/recruiter/job-postings/${id}`);
-    else if (action === 'pipeline') navigate('/recruiter/application-pipeline');
+    else if (action === 'pipeline')
+      navigate(
+        isLive ? `/recruiter/application-pipeline?posting=${id}` : '/recruiter/application-pipeline'
+      );
     else if (action === 'edit') navigate(`/recruiter/job-postings/${id}/edit`);
     else if (action === 'duplicate') updateUrl({ ...base, modal: 'save-template', posting: id });
     else if (action === 'pause') updateUrl({ ...base, modal: 'pause', posting: id });
     else if (action === 'close') updateUrl({ ...base, modal: 'close-applicants', posting: id });
+    else if (action === 'delete') updateUrl({ ...base, modal: 'delete-draft', posting: id });
     else {
-      navigator.clipboard?.writeText?.(`gth.com/jobs/silver-rock/${id}`);
+      navigator.clipboard?.writeText?.(
+        isLive ? `${window.location.origin}/jobs/${id}` : `gth.com/jobs/silver-rock/${id}`
+      );
       updateUrl(base);
     }
   };
@@ -415,6 +479,26 @@ const JobPostingsSection = () => {
               </p>
             )}
 
+            {isLive && live.status === 'loading' ? (
+              <p className="font-sans text-[14px] leading-5 text-[#959592]">
+                Loading your postings…
+              </p>
+            ) : null}
+            {isLive && live.status === 'error' ? (
+              <p role="alert" className="font-sans text-[14px] leading-5 text-[#c0392b]">
+                We couldn't load your postings. Refresh the page to try again.
+              </p>
+            ) : null}
+            {isLive && live.error ? (
+              <p role="alert" className="font-sans text-[14px] leading-5 text-[#c0392b]">
+                {live.error}
+              </p>
+            ) : null}
+            {isLive && live.status === 'live' && !postings.length ? (
+              <p className="font-sans text-[14px] leading-5 text-[#575755]">
+                You haven't posted a job yet. Use Create Post to publish your first role.
+              </p>
+            ) : null}
             {/* Figma 7249:75902 — HORIZONTAL, gap 16, 3 x 432.33 */}
             <div className="grid grid-cols-1 gap-[16px] max-md:gap-[10px] md:grid-cols-2 xl:grid-cols-3">
               {visible.map((posting) => (
@@ -429,12 +513,22 @@ const JobPostingsSection = () => {
                     updateUrl({
                       menu: openMenuId === id ? null : id,
                       menuItem: null,
-                      menuKind: id === 'senior-ux-designer' && openMenuId !== id ? 'manage' : null,
+                      menuKind:
+                        (isLive || id === 'senior-ux-designer') && openMenuId !== id
+                          ? 'manage'
+                          : null,
                     })
                   }
                   onMenuItem={handleMenuItem}
                   onAction={(id, action) => {
                     log('branch', { posting: id, action });
+                    if (isLive) {
+                      if (action === 'Resume applications') live.resume(id);
+                      else if (action === 'Continue Editing')
+                        navigate(`/recruiter/job-postings/${id}/edit`);
+                      else navigate(`/recruiter/application-pipeline?posting=${id}`);
+                      return;
+                    }
                     if (action === 'Resume applications') {
                       setOverrides((prev) => ({ ...prev, [id]: undefined }));
                     } else if (action === 'Continue Editing') {
@@ -481,6 +575,11 @@ const JobPostingsSection = () => {
                   type="button"
                   onClick={() => {
                     log('branch', { action: 'confirm-close-posting', posting: closingPostingId });
+                    if (isLive) {
+                      const id = closingPostingId;
+                      live.close(id).then((ok) => (ok ? finishWith('closed', id) : closeDialog()));
+                      return;
+                    }
                     setOverrides((prev) => ({ ...prev, [closingPostingId]: 'Closed' }));
                     closeDialog();
                   }}
@@ -508,9 +607,14 @@ const JobPostingsSection = () => {
         <PauseDialog
           title={modalPosting.title}
           applicants={modalPosting.totalApplicants}
-          awaiting={72}
+          awaiting={isLive ? Number(modalPosting.awaiting) || 0 : 72}
           onKeep={closeDialog}
           onPause={() => {
+            if (isLive) {
+              const id = modalPosting.id;
+              live.pause(id).then((ok) => (ok ? finishWith('paused', id) : closeDialog()));
+              return;
+            }
             setOverrides((prev) => ({ ...prev, [modalPosting.id]: 'Paused' }));
             finishWith('paused', modalPosting.id);
           }}
@@ -518,9 +622,14 @@ const JobPostingsSection = () => {
       )}
       {modalKind === 'close-applicants' && (
         <CloseWithMessageDialog
-          waiting={72}
+          waiting={isLive ? Number(modalPosting.awaiting) || 0 : 72}
           onCancel={closeDialog}
-          onClose={() => {
+          onClose={(tell) => {
+            if (isLive) {
+              const id = modalPosting.id;
+              live.close(id, tell).then((ok) => (ok ? finishWith('closed', id) : closeDialog()));
+              return;
+            }
             setOverrides((prev) => ({ ...prev, [modalPosting.id]: 'Closed' }));
             finishWith('closed', modalPosting.id);
           }}
@@ -529,8 +638,17 @@ const JobPostingsSection = () => {
       {modalKind === 'delete-draft' && (
         <DeleteDraftDialog
           title={modalPosting.title}
+          isDraft={!isLive || modalPosting.status === 'Draft'}
           onCancel={closeDialog}
           onDelete={() => {
+            if (isLive) {
+              const target = modalPosting;
+              setLastActed(target);
+              live
+                .remove(target.id)
+                .then((ok) => (ok ? finishWith('deleted', target.id) : closeDialog()));
+              return;
+            }
             setDeletedIds((prev) => [...prev, modalPosting.id]);
             finishWith('deleted', modalPosting.id);
           }}
@@ -540,7 +658,22 @@ const JobPostingsSection = () => {
         <DuplicateDialog
           title={modalPosting.title}
           onClose={closeDialog}
-          onSave={() => navigate('/recruiter/job-templates?mine=1&toast=copied')}
+          onSave={(name) => {
+            if (!isLive) {
+              navigate('/recruiter/job-templates?mine=1&toast=copied');
+              return;
+            }
+            saveTemplate({ name, fromOpportunityId: modalPosting.id })
+              .then(() =>
+                navigate(
+                  `/recruiter/job-templates?mine=1&toast=copied&name=${encodeURIComponent(name)}`
+                )
+              )
+              .catch((err) => {
+                log.error('save template failed:', err?.response?.status);
+                closeDialog();
+              });
+          }}
         />
       )}
       {modalKind === 'published' && (
@@ -562,6 +695,12 @@ const JobPostingsSection = () => {
           actionLabel={toast.actionLabel}
           duration={0}
           onAction={() => {
+            if (isLive) {
+              if (toastKind === 'paused') live.resume(toastPosting);
+              if (toastKind === 'closed') live.reopen(toastPosting);
+              updateUrl({ toast: null, posting: null });
+              return;
+            }
             if (toastKind === 'paused' || toastKind === 'closed')
               setOverrides((prev) => ({ ...prev, [toastPosting]: undefined }));
             if (toastKind === 'deleted')

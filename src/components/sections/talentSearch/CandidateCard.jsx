@@ -43,13 +43,25 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, c
       {/* ── Identity row — Figma 7249:74365, gap 24, py 20 ── */}
       <div className="flex items-center gap-[24px] py-[20px] max-sm:gap-[12px] max-sm:py-0">
         <div className="relative shrink-0">
-          <img
-            src={avatarSrc}
-            alt={candidate.name}
-            className="size-[74px] rounded-full object-cover max-sm:size-[52px]"
-          />
+          {avatarSrc || candidate.photo ? (
+            <img
+              src={avatarSrc || candidate.photo}
+              alt={candidate.name}
+              className="size-[74px] rounded-full object-cover max-sm:size-[52px]"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="grid size-[74px] place-items-center rounded-full border-2 border-[#1f6b3f] bg-[#ebf1ec] font-sans text-[22px] font-semibold text-[#2a5730] max-sm:size-[52px] max-sm:text-[17px]"
+            >
+              {candidate.initials}
+            </span>
+          )}
           {/* Match badge — 32x32, #387440, 2px white ring */}
-          <span className="absolute -bottom-[2px] -right-[2px] grid size-[32px] place-items-center rounded-full border-2 border-white bg-brand-green max-sm:-bottom-[4px] max-sm:-right-[10px] max-sm:flex max-sm:h-[24px] max-sm:w-auto max-sm:min-w-[24px] max-sm:items-center max-sm:justify-center max-sm:whitespace-nowrap max-sm:px-[6px]">
+          <span
+            hidden={candidate.matchPercent === null || candidate.matchPercent === undefined}
+            className="absolute -bottom-[2px] -right-[2px] grid size-[32px] place-items-center rounded-full border-2 border-white bg-brand-green max-sm:-bottom-[4px] max-sm:-right-[10px] max-sm:flex max-sm:h-[24px] max-sm:w-auto max-sm:min-w-[24px] max-sm:items-center max-sm:justify-center max-sm:whitespace-nowrap max-sm:px-[6px]"
+          >
             <span className="font-sans text-[10px] max-lg:text-[12px] font-bold leading-4 max-sm:leading-none max-sm:font-semibold max-sm:tabular-nums text-white">
               {candidate.matchPercent}%
             </span>
@@ -74,11 +86,15 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, c
             <span className="h-[6px] w-full overflow-hidden rounded-full bg-[#f0eee8]">
               <span
                 className="block h-full rounded-full bg-brand-green"
-                style={{ width: `${candidate.matchBarPercent ?? candidate.matchPercent}%` }}
+                style={{
+                  width: `${candidate.matchBarPercent ?? candidate.matchPercent ?? candidate.completion ?? 0}%`,
+                }}
               />
             </span>
             <span className="pt-[6px] font-sans text-[10px] max-lg:text-[12px] font-semibold leading-4 text-brand-green">
-              {CARD_LABELS.matchScore(candidate.matchPercent)}
+              {candidate.matchPercent === null || candidate.matchPercent === undefined
+                ? `Profile ${candidate.completion ?? 0}% complete`
+                : CARD_LABELS.matchScore(candidate.matchPercent)}
             </span>
           </div>
         </div>
@@ -137,7 +153,7 @@ const CandidateCard = ({ candidate, avatarSrc, onViewProfile, onInviteToApply, c
             <LightbulbIcon className="size-[20px] shrink-0 text-brand-green" />
             <div className="flex min-w-0 flex-col gap-[3.13px]">
               <p className="font-sans text-[14px] max-sm:sr-only font-semibold leading-5 text-brand-green">
-                {CARD_LABELS.matchExplanation}
+                {candidate.explanationTitle || CARD_LABELS.matchExplanation}
               </p>
               {/* whitespace-pre-line keeps Figma's hard line breaks in the body copy */}
               <ClampText

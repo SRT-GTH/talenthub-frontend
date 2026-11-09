@@ -22,6 +22,9 @@ import {
   ORG_DOMAIN,
 } from '../account/accountData.js';
 
+import { useLiveAccount } from '../account/useLiveAccount.js';
+import { useRecruiterShell } from '../../../../hooks/useRecruiterShell.js';
+
 const log = debug('AccountTab');
 
 const EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -47,6 +50,19 @@ const AccountTab = ({ settings }) => {
   );
   const [photo, setPhoto] = useState(profilePhoto);
   const [justSaved, setJustSaved] = useState(false);
+  // Signed in: the recruiter's own details (GET / PUT /users/me). Email is the sign-in address: read-only here.
+  const account = useLiveAccount();
+  const isLive = account.status !== 'demo';
+  const [liveError, setLiveError] = useState(null);
+  const shell = useRecruiterShell();
+  const [seeded, setSeeded] = useState(false);
+  useEffect(() => {
+    if (account.status === 'live' && !seeded) {
+      setSeeded(true);
+      setSaved(account.values);
+      setValues(account.values);
+    }
+  }, [account.status, account.values, seeded]);
 
   useEffect(() => {
     log('mount', { layout: photoInCard ? 'SR-01' : 'SR-20', state: settings?.state });
@@ -62,8 +78,9 @@ const AccountTab = ({ settings }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorFrame]);
 
-  const emailInvalid = !isWorkEmail(values.email);
-  const dirty = ACCOUNT_FIELDS.some((f) => values[f.id] !== saved[f.id]) || photo !== profilePhoto;
+  const emailInvalid = isLive ? false : !isWorkEmail(values.email);
+  const dirty =
+    ACCOUNT_FIELDS.some((f) => values[f.id] !== saved[f.id]) || (!isLive && photo !== profilePhoto);
   const requiredOk = Boolean(values.fullName.trim() && values.jobTitle.trim());
   const canSave = dirty && requiredOk && !emailInvalid;
 
@@ -91,6 +108,23 @@ const AccountTab = ({ settings }) => {
       return;
     }
     log('save', Object.keys(values));
+    if (isLive) {
+      setLiveError(null);
+      account
+        .save(values)
+        .then((next) => {
+          setSaved(next);
+          setValues(next);
+          setJustSaved(true);
+        })
+        .catch((err) => {
+          log.error('save failed:', err?.response?.status);
+          setLiveError(
+            err?.response?.data?.message || 'Your details weren’t saved. Please try again.'
+          );
+        });
+      return;
+    }
     setSaved(values);
     setJustSaved(true);
   };
@@ -106,6 +140,7 @@ const AccountTab = ({ settings }) => {
         type={def.type}
         autoComplete={def.autoComplete}
         value={values[def.id]}
+        disabled={isLive && isEmail}
         onChange={(event) => setField(def.id, event.target.value)}
         state={showError ? 'error' : undefined}
         aria-invalid={showError ? 'true' : undefined}
@@ -123,7 +158,17 @@ const AccountTab = ({ settings }) => {
     <>
       <RecruiterSettingsCard title={ACCOUNT_CARD.title} description={ACCOUNT_CARD.description}>
         <div className="flex flex-col gap-[10px]">
-          {photoInCard ? (
+          {isLive && account.status === 'loading' ? (
+            <p className="m-0 font-sans text-[14px] leading-[20px] text-[#575755]">
+              Loading your details…
+            </p>
+          ) : null}
+          {liveError || account.status === 'error' ? (
+            <p role="alert" className="m-0 font-sans text-[14px] leading-[20px] text-[#c0392b]">
+              {liveError || 'We couldn’t load your details. Refresh the page to try again.'}
+            </p>
+          ) : null}
+          {photoInCard && !isLive ? (
             <ImageUploadRow
               src={photo}
               alt="Your profile photo"
@@ -142,24 +187,35 @@ const AccountTab = ({ settings }) => {
 
       <RecruiterSettingsCard title={ACCOUNT_TYPE.title}>
         <RecruiterSettingsRow
-          title={ACCOUNT_TYPE.recruiterTitle}
-          description={ACCOUNT_TYPE.recruiterDescription}
+          title={
+            isLive
+              ? `Recruiter${shell?.orgName ? ` · ${shell.orgName}` : ''}`
+              : ACCOUNT_TYPE.recruiterTitle
+          }
+          description={
+            isLive ? 'Dedicated recruiter for one organisation.' : ACCOUNT_TYPE.recruiterDescription
+          }
         >
           {/* ⚠️ ASSUMPTION: "Change" (account type) is not specified; it opens the Organisation tab, where the recruiter's organisation lives. */}
           <RecruiterSettingsLink onClick={() => settings?.update?.({ tab: 'organisation' })}>
             {ACCOUNT_TYPE.change}
           </RecruiterSettingsLink>
         </RecruiterSettingsRow>
-        {!photoInCard ? <PhotoRow onChange={setPhoto} /> : null}
-        <RecruiterSettingsRow title={ACCOUNT_TYPE.publicTitle} description={ACCOUNT_TYPE.publicUrl}>
-          {/* ⚠️ ASSUMPTION: "Preview as talent" opens the recruiter's own profile page as a talent sees it (/recruiter/profile is not built yet, so it stays on a log). */}
-          <RecruiterSettingsLink
-            icon={<EyeGlyph size={16} />}
-            onClick={() => log('preview as talent')}
+        {!photoInCard && !isLive ? <PhotoRow onChange={setPhoto} /> : null}
+        {isLive ? null : (
+          <RecruiterSettingsRow
+            title={ACCOUNT_TYPE.publicTitle}
+            description={ACCOUNT_TYPE.publicUrl}
           >
-            {ACCOUNT_TYPE.preview}
-          </RecruiterSettingsLink>
-        </RecruiterSettingsRow>
+            {/* ⚠️ ASSUMPTION: "Preview as talent" opens the recruiter's own profile page as a talent sees it (/recruiter/profile is not built yet, so it stays on a log). */}
+            <RecruiterSettingsLink
+              icon={<EyeGlyph size={16} />}
+              onClick={() => log('preview as talent')}
+            >
+              {ACCOUNT_TYPE.preview}
+            </RecruiterSettingsLink>
+          </RecruiterSettingsRow>
+        )}
       </RecruiterSettingsCard>
 
       <SettingsFormFooter canSave={canSave} onCancel={cancel} onSave={save} saved={justSaved} />

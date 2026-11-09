@@ -12,6 +12,13 @@ import {
   FOOTER_COPY,
 } from '../hiring/hiringData.js';
 
+import { savePreferences, settingsError } from '../../../../services/settings.api.js';
+import {
+  a11yFromPrefs,
+  a11yToPrefs,
+  useLiveSettingsOverview,
+} from '../account/useLiveSettingsOverview.js';
+
 const log = debug('AccessibilityTab');
 
 /*
@@ -30,6 +37,18 @@ const AccessibilityTab = ({ settings }) => {
   const [status, setStatus] = useState(null);
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(draft), [saved, draft]);
   const urlState = settings.state;
+  // Signed in: the recruiter's stored accessibility preferences (PUT /settings/preferences).
+  const live = useLiveSettingsOverview();
+  const isLive = live.status !== 'demo';
+  const [seeded, setSeeded] = useState(false);
+  useEffect(() => {
+    if (live.status === 'live' && !seeded) {
+      setSeeded(true);
+      const stored = a11yFromPrefs(live.overview?.preferences?.accessibility, A11Y_DEFAULTS);
+      setSaved(stored);
+      setDraft(stored);
+    }
+  }, [live.status, live.overview, seeded]);
   const update = useRef(settings.update);
   update.current = settings.update;
 
@@ -125,6 +144,15 @@ const AccessibilityTab = ({ settings }) => {
         }}
         onSave={() => {
           log('save', draft);
+          if (isLive) {
+            savePreferences({ accessibility: a11yToPrefs(draft) })
+              .then(() => {
+                setSaved(draft);
+                setStatus({ tone: 'ok', text: FOOTER_COPY.saved });
+              })
+              .catch((err) => setStatus({ tone: 'error', text: settingsError(err) }));
+            return;
+          }
           setSaved(draft);
           setStatus({ tone: 'ok', text: FOOTER_COPY.saved });
         }}

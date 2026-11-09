@@ -33,7 +33,17 @@ const HiddenHint = ({ onClose }) => (
   </div>
 );
 
-const TalentCard = ({ card, readOnly, saved, hint, onSave, onView, onInvite, onHint }) => (
+const TalentCard = ({
+  card,
+  readOnly,
+  saved,
+  hint,
+  onSave,
+  onView,
+  onInvite,
+  onHint,
+  canSave = true,
+}) => (
   <li
     className={classNames(
       'relative flex min-w-0 flex-col gap-[10px] rounded-[16px] border border-solid p-[16px]',
@@ -85,18 +95,20 @@ const TalentCard = ({ card, readOnly, saved, hint, onSave, onView, onInvite, onH
     </ul>
     <hr className="m-0 h-px border-0 bg-[#e5e8e3]" />
     <div className="flex items-center gap-[6px]">
-      <button
-        type="button"
-        aria-label={`${saved ? 'Saved' : 'Save'} ${card.name}`}
-        aria-pressed={saved}
-        onClick={() => onSave?.(card.id)}
-        className={classNames(
-          'flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
-          saved ? 'border-[#387440] bg-[#ebf1ec]' : 'border-[#dbded9] bg-transparent'
-        )}
-      >
-        <img src={dashIcons.bookmarkSave} alt="" aria-hidden="true" className="size-[16px]" />
-      </button>
+      {canSave ? (
+        <button
+          type="button"
+          aria-label={`${saved ? 'Saved' : 'Save'} ${card.name}`}
+          aria-pressed={saved}
+          onClick={() => onSave?.(card.id)}
+          className={classNames(
+            'flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green',
+            saved ? 'border-[#387440] bg-[#ebf1ec]' : 'border-[#dbded9] bg-transparent'
+          )}
+        >
+          <img src={dashIcons.bookmarkSave} alt="" aria-hidden="true" className="size-[16px]" />
+        </button>
+      ) : null}
       <button
         type="button"
         onClick={() => onView?.(card.id)}
@@ -130,6 +142,11 @@ const TalentsWidget = ({
   onInvite,
   onHint,
   onRefine,
+  // Live: the chosen posting's title / count, no bookmarking (no saved-talent backend yet).
+  groupLabel = TALENTS.groupLabel,
+  groupCount = TALENTS.groupCount,
+  canSave = true,
+  seeAllTo = '/recruiter/talent-search',
 }) => (
   <WidgetCard
     id="dash-talents"
@@ -141,7 +158,7 @@ const TalentsWidget = ({
       <>
         {jobFilter}
         <Link
-          to="/recruiter/talent-search"
+          to={seeAllTo}
           className="inline-flex h-[32px] items-center gap-[3px] rounded-[10px] px-[12px] font-sans text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#387440] no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
         >
           {TALENTS.seeAll}
@@ -197,10 +214,10 @@ const TalentsWidget = ({
       <div className="flex flex-col gap-[12px]">
         <div className="flex flex-wrap items-center gap-[8px]">
           <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]">
-            {TALENTS.groupLabel}
+            {groupLabel}
           </span>
           <Chip tone="neutral" className="text-[12px]">
-            {TALENTS.groupCount}
+            {groupCount}
           </Chip>
         </div>
         <ul className="m-0 grid list-none grid-cols-5 gap-[16px] p-0 max-xl:grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
@@ -215,6 +232,7 @@ const TalentsWidget = ({
               onView={onView}
               onInvite={onInvite}
               onHint={onHint}
+              canSave={canSave}
             />
           ))}
         </ul>
