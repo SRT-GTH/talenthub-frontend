@@ -18,6 +18,7 @@ import {
 } from '../../../services/recruiterScreening.api.js';
 import ScreeningResults from './ScreeningResults.jsx';
 import {
+  AssessmentScoreIcon,
   CriteriaEducationIcon,
   CriteriaExperienceIcon,
   CriteriaSkillsIcon,
@@ -67,12 +68,15 @@ const REGIONS = [
   'Ahafo',
 ];
 
+const ASSESSMENT = [50, 60, 70, 80, 90];
+
 const BLANK = {
-  on: { experience: false, skills: true, education: false, location: false },
+  on: { experience: false, skills: true, education: false, location: false, assessment: false },
   experience: '2-5',
   skills: [],
   education: 'bachelors',
   region: '',
+  assessment: 70,
 };
 
 const expIdFor = (e) => {
@@ -93,6 +97,7 @@ const toCriteria = (s) => {
     ...(s.on.skills && s.skills.length ? { skills: s.skills } : {}),
     ...(s.on.education ? { education: s.education } : {}),
     ...(s.on.location && s.region ? { location: { region: s.region } } : {}),
+    ...(s.on.assessment ? { assessment: { min: Number(s.assessment) } } : {}),
   };
 };
 
@@ -103,11 +108,13 @@ const fromCriteria = (c = {}, fallbackRegion = '') => ({
     skills: Boolean(c.skills?.length),
     education: Boolean(c.education),
     location: Boolean(c.location),
+    assessment: Boolean(c.assessment),
   },
   experience: expIdFor(c.experience) || BLANK.experience,
   skills: c.skills || [],
   education: c.education || BLANK.education,
   region: c.location?.region || fallbackRegion,
+  assessment: c.assessment?.min ?? BLANK.assessment,
 });
 
 const describe = (c) => {
@@ -117,6 +124,7 @@ const describe = (c) => {
   if (c.skills) parts.push(`${c.skills.length} skill${c.skills.length === 1 ? '' : 's'}`);
   if (c.education) parts.push(EDUCATION.find((e) => e.id === c.education)?.label);
   if (c.location) parts.push(c.location.region);
+  if (c.assessment) parts.push(`Skills Lab ${c.assessment.min}%+`);
   return parts.join(' · ') || 'No criteria';
 };
 
@@ -507,6 +515,29 @@ const LiveJobScreening = () => {
                     {EDUCATION.map((x) => (
                       <option key={x.id} value={x.id}>
                         {x.label}
+                      </option>
+                    ))}
+                  </select>
+                </Card>
+
+                <Card
+                  icon={<AssessmentScoreIcon className="size-[20px]" />}
+                  title="Skills Lab score"
+                  description={`Average of the Skills Lab results applicants show on their profile${
+                    setup ? ` (${setup.withLabResults || 0} of ${setup.applicants} share any)` : ''
+                  }. No shared result counts as not met.`}
+                  on={form.on.assessment}
+                  onToggle={() => toggle('assessment')}
+                >
+                  <select
+                    className={`${FIELD} max-w-[240px]`}
+                    aria-label="Minimum Skills Lab score"
+                    value={form.assessment}
+                    onChange={(e) => set({ assessment: Number(e.target.value) })}
+                  >
+                    {ASSESSMENT.map((x) => (
+                      <option key={x} value={x}>
+                        {x}% or more
                       </option>
                     ))}
                   </select>
