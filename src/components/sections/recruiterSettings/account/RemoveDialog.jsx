@@ -15,7 +15,8 @@ const DIALOG_BUTTON = '!h-[48px] !py-0';
  * only when the teammate has open conversations), Cancel / red "Remove teammate".
  * Props: member, onClose, onConfirm({ reassign }).
  */
-const RemoveDialog = ({ member, onClose, onConfirm }) => {
+// Live: `body` replaces the demo copy (the real organisation name).
+const RemoveDialog = ({ member, onClose, onConfirm, body }) => {
   const first = member.name.split(' ')[0];
   const conversations = member.openConversations ?? 0;
   const [reassign, setReassign] = useState(true);
@@ -26,7 +27,7 @@ const RemoveDialog = ({ member, onClose, onConfirm }) => {
       icon={<TrashGlyph size={28} />}
       iconTileClassName="bg-[#f9ebea] text-[#c0392b]"
       title={REMOVE_DIALOG.title(member.name)}
-      body={REMOVE_DIALOG.body(first)}
+      body={body ?? REMOVE_DIALOG.body(first)}
       onClose={onClose}
       footer={
         <>

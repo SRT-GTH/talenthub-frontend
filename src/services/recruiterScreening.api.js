@@ -9,6 +9,7 @@ import api from './api.js';
  *   GET  /recruiter/screening-criteria            { saved: [{ name, criteria, jobId, isDefault }] }
  *   PUT  /recruiter/screening-criteria            { name, criteria, jobId, isDefault } | { remove: name }
  *   PUT  /applications/:id/stage                  { stage: 'under_review' }  "Move to pipeline" (Screening column)
+ *   POST /applications/:id/conversation           -> { conversationId }  the row's message button
  * criteria: { experience?: { min, max? }, skills?: [names], education?: 'diploma'|'bachelors'|'masters', location?: { region } }
  */
 
@@ -30,6 +31,10 @@ export const fetchSavedCriteria = async () =>
 
 export const saveCriteria = async (body) =>
   unwrap(await api.put('/recruiter/screening-criteria', body))?.saved || [];
+
+/** Open (or reuse) the direct conversation with an applicant -> conversationId. */
+export const openApplicantConversation = async (applicationId) =>
+  unwrap(await api.post(`/applications/${applicationId}/conversation`))?.conversationId;
 
 /** Move applications to Screening; returns how many moved. */
 export const moveToScreening = async (ids = []) => {

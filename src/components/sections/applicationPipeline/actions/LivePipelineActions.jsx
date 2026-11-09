@@ -15,6 +15,7 @@ import {
   pipelineErrorText,
 } from '../../../../services/recruiterPipeline.api.js';
 import { snapshotOf } from '../pipelineLive.js';
+import { openApplicantConversation } from '../../../../services/recruiterScreening.api.js';
 import { debug } from '../../../../utils/debug.js';
 
 const log = debug('LivePipelineActions');
@@ -187,7 +188,13 @@ const LivePipelineActions = ({
             });
         }}
         onLink={(linkId) => {
-          if (linkId === 'conversation') navigate('/recruiter/messages');
+          // Opens (or reuses) the direct conversation with this applicant.
+          if (linkId === 'conversation')
+            openApplicantConversation(modal.id)
+              .then((id) =>
+                navigate(id ? `/recruiter/messages?conversation=${id}` : '/recruiter/messages')
+              )
+              .catch(() => navigate('/recruiter/messages'));
         }}
       />
     );

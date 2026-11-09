@@ -5,6 +5,7 @@ import WorkspaceSidebar from '../recruiterDashboard/WorkspaceSidebar.jsx';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
 import { HANDOFF_TOAST } from '../jobScreening/screeningFlowData.js';
+import { openApplicantConversation } from '../../../services/recruiterScreening.api.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import PipelineMeetingCard, { SecondaryButton } from './PipelineMeetingCard.jsx';
 import PipelineBoard from './PipelineBoard.jsx';
@@ -223,6 +224,17 @@ const ApplicationPipelineSection = () => {
     latestParamsRef.current = next;
     setSearchParams(next, { replace: true });
   }, [pipe.status, pipe.applications, feedbackParam, setSearchParams]);
+  // Screening results "View profile" links here with ?open=<applicationId>: open that applicant's drawer once.
+  const openParam = searchParams.get('open');
+  useEffect(() => {
+    if (pipe.status !== 'live' || !openParam) return;
+    if (pipe.applications.some((a) => String(a._id) === openParam))
+      setLiveModal({ kind: 'drawer', id: openParam });
+    const next = new URLSearchParams(latestParamsRef.current);
+    next.delete('open');
+    latestParamsRef.current = next;
+    setSearchParams(next, { replace: true });
+  }, [pipe.status, pipe.applications, openParam, setSearchParams]);
   const [error, setError] = useState(null);
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
   // Live: open on the posting named in the URL ("View Pipeline" on /recruiter/job-postings passes ?posting=<id>).
@@ -441,7 +453,12 @@ const ApplicationPipelineSection = () => {
       if (row.moveTo) moveCardTo(card.id, row.moveTo);
       else if (row.id === 'schedule-interview') openSchedule(card.applicationId);
       else if (row.id === 'not-progressing') setLiveModal({ kind: 'not-progressing', id: card.id });
-      else if (row.id === 'message') navigate('/recruiter/messages');
+      else if (row.id === 'message')
+        openApplicantConversation(card.applicationId || card.id)
+          .then((id) =>
+            navigate(id ? `/recruiter/messages?conversation=${id}` : '/recruiter/messages')
+          )
+          .catch(() => navigate('/recruiter/messages'));
       else if (row.id === 'view-profile' || row.id === 'open-application')
         setLiveModal({ kind: 'drawer', id: card.id });
       else log('no live destination yet for menu item', row.id);

@@ -13,6 +13,7 @@ import {
   fetchSavedCriteria,
   fetchScreeningSetup,
   moveToScreening,
+  openApplicantConversation,
   runScreening,
   saveCriteria,
 } from '../../../services/recruiterScreening.api.js';
@@ -322,7 +323,23 @@ const LiveJobScreening = () => {
             busy,
             onMoveSelected: (ids) => move(ids),
             onMoveAnyway: (row) => move([row.id], { stay: true }),
-            onViewProfile: () => navigate(`/recruiter/application-pipeline?posting=${postingId}`),
+            // The applicant's drawer on the live pipeline (their profile as they applied, stage, notes).
+            onViewProfile: (row) =>
+              navigate(`/recruiter/application-pipeline?posting=${postingId}&open=${row.id}`),
+            onMessage: async (row) => {
+              setBusy(true);
+              try {
+                const conversationId = await openApplicantConversation(row.id);
+                navigate(`/recruiter/messages?conversation=${conversationId}`);
+              } catch (err) {
+                setToast({
+                  title: 'Couldn’t open a conversation',
+                  message: err?.response?.data?.message || 'Try again in a moment.',
+                });
+              } finally {
+                setBusy(false);
+              }
+            },
           }}
         />
         {toast ? (
