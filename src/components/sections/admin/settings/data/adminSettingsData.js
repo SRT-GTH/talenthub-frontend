@@ -40,6 +40,7 @@ const BASE = [
   { id: 'values', label: 'Platform values', icon: 'folder', to: '/admin/settings/values' },
   { id: 'integrations', label: 'Integrations', icon: 'globe', to: '/admin/settings#integration' },
   { id: 'security', label: 'Security', icon: 'lock', to: '/admin/settings/security' },
+  { id: 'two-step', label: 'My 2-step verification', icon: 'lock', to: '/admin/settings/two-step' },
   {
     id: 'staff',
     label: 'Staff accounts',

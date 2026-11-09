@@ -12,6 +12,9 @@ const FaqPage = lazy(() => import('./pages/landing/FaqPage.jsx'));
 const ComingSoonPage = lazy(() => import('./pages/landing/ComingSoonPage.jsx'));
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
+// 2-step verification (MFA Phase 2): set up / manage, and the forced set-up when an admin's grace period is over.
+const TwoStepPage = lazy(() => import('./pages/TwoStepPage.jsx'));
+const TwoStepReminder = lazy(() => import('./components/sections/twoStep/TwoStepReminder.jsx'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage.jsx'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage.jsx'));
 const GetStartedPage = lazy(() => import('./pages/GetStartedPage.jsx'));
@@ -352,6 +355,9 @@ function App() {
         <UiStyleProvider>
           <CareerBuddyRoleProvider>
             <DemoNavigator />
+            <Suspense fallback={null}>
+              <TwoStepReminder />
+            </Suspense>
             {perfEnabled() ? (
               <Suspense fallback={null}>
                 <PerfPanel />
@@ -419,6 +425,15 @@ function App() {
                       element={
                         <Suspense fallback={<RouteFallback />}>
                           <ResetPasswordPage />
+                        </Suspense>
+                      }
+                    />
+                    {/* 2-step verification for any signed-in account (?required=1: the forced set-up). */}
+                    <Route
+                      path={'/security/2-step'}
+                      element={
+                        <Suspense fallback={<RouteFallback />}>
+                          <TwoStepPage />
                         </Suspense>
                       }
                     />
