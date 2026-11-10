@@ -5,6 +5,8 @@ import Button from '../../../ui/Button.jsx';
 import { GroupCard, SettingRow } from '../../talentSettings/SettingsBUi.jsx';
 import { CalendarIcon, UploadArrowIcon } from '../hiring/hiringIcons.jsx';
 import { BILLING } from '../hiring/hiringData.js';
+import { billingV2Enabled } from '../../../../services/billing.api.js';
+import BillingInvoicesCard from './BillingInvoicesCard.jsx';
 
 const log = debug('BillingTab');
 
@@ -138,37 +140,41 @@ const BillingTab = () => {
         />
       </GroupCard>
 
-      <GroupCard recruiter title={BILLING.invoices.title} aria-label={BILLING.invoices.title}>
-        {BILLING.invoices.rows.map((row) => (
-          <SettingRow
-            key={row.id}
-            recruiter
-            title={row.date}
-            description={
-              <>
-                {row.plan}
-                <span className="font-medium" style={{ color: row.paidColor }}>
-                  {row.status}
-                </span>
-              </>
-            }
-            control={
-              <div className="flex shrink-0 items-center gap-[12px]">
-                <span className="text-[14px] leading-[24px] font-medium tracking-[0.2px] whitespace-nowrap text-[#111]">
-                  {row.amount}
-                </span>
-                <GreenLink
-                  label={`${BILLING.invoices.download} invoice ${row.date}`}
-                  onClick={() => log('download invoice (not drawn)', row.id)}
-                >
-                  <UploadArrowIcon className="size-[16px]" />
-                  {BILLING.invoices.download}
-                </GreenLink>
-              </div>
-            }
-          />
-        ))}
-      </GroupCard>
+      {billingV2Enabled() ? (
+        <BillingInvoicesCard />
+      ) : (
+        <GroupCard recruiter title={BILLING.invoices.title} aria-label={BILLING.invoices.title}>
+          {BILLING.invoices.rows.map((row) => (
+            <SettingRow
+              key={row.id}
+              recruiter
+              title={row.date}
+              description={
+                <>
+                  {row.plan}
+                  <span className="font-medium" style={{ color: row.paidColor }}>
+                    {row.status}
+                  </span>
+                </>
+              }
+              control={
+                <div className="flex shrink-0 items-center gap-[12px]">
+                  <span className="text-[14px] leading-[24px] font-medium tracking-[0.2px] whitespace-nowrap text-[#111]">
+                    {row.amount}
+                  </span>
+                  <GreenLink
+                    label={`${BILLING.invoices.download} invoice ${row.date}`}
+                    onClick={() => log('download invoice (not drawn)', row.id)}
+                  >
+                    <UploadArrowIcon className="size-[16px]" />
+                    {BILLING.invoices.download}
+                  </GreenLink>
+                </div>
+              }
+            />
+          ))}
+        </GroupCard>
+      )}
     </>
   );
 };
