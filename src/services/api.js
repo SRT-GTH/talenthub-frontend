@@ -2,6 +2,7 @@ import axios from 'axios';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
 import { perfRequest, perfResponse } from '../utils/perf.js';
+import { requestStepUp } from './stepUpBridge.js';
 
 const log = debug('api');
 
@@ -115,6 +116,24 @@ api.interceptors.response.use(
         // fall through with the original 401
         perfResponse(error, true, { counted: true });
       }
+    }
+    // "Confirm it's you" (backend MFA Phase 3): a sensitive request needs a recent proof on this session. The sheet
+    // (StepUpSheet) asks for it over the current page; once confirmed the same request is sent again, once.
+    if (
+      response?.status === 403 &&
+      response?.data?.type === 'STEP_UP_REQUIRED' &&
+      config &&
+      !config._stepUp
+    ) {
+      const ok = await requestStepUp(response.data.data || {});
+      if (ok) {
+        config._stepUp = true;
+        log('step-up done: retrying', url);
+        return api(config);
+      }
+      // Cancelled: pages that show the server's message get plain words instead of "Forbidden".
+      response.data.message =
+        'Confirm it’s you to continue: try again and enter your code or password.';
     }
     // 2-step gate (backend MFA Phase 2): this account must use 2-step verification, its grace period is over and this
     // sign-in didn't use it. Only the 2-step page works now, so go there (once; the page itself only calls /security/mfa*).

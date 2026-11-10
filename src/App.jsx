@@ -15,6 +15,8 @@ const LoginPage = lazy(() => import('./pages/LoginPage.jsx'));
 // 2-step verification (MFA Phase 2): set up / manage, and the forced set-up when an admin's grace period is over.
 const TwoStepPage = lazy(() => import('./pages/TwoStepPage.jsx'));
 const TwoStepReminder = lazy(() => import('./components/sections/twoStep/TwoStepReminder.jsx'));
+// "Confirm it's you" before sensitive actions (MFA Phase 3): opened by services/api.js on STEP_UP_REQUIRED.
+const StepUpSheet = lazy(() => import('./components/sections/twoStep/StepUpSheet.jsx'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage.jsx'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage.jsx'));
 const GetStartedPage = lazy(() => import('./pages/GetStartedPage.jsx'));
@@ -357,6 +359,7 @@ function App() {
             <DemoNavigator />
             <Suspense fallback={null}>
               <TwoStepReminder />
+              <StepUpSheet />
             </Suspense>
             {perfEnabled() ? (
               <Suspense fallback={null}>

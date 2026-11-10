@@ -47,6 +47,8 @@ const MESSAGES = {
   NETWORK: 'We could not reach the server. Check your connection and try again.',
   WAKING_UP: 'The server is starting up. Please try again in a minute.',
   RATE_LIMITED: 'Too many attempts. Please wait a few minutes and try again.',
+  // A sensitive action needs "Confirm it's you" (MFA Phase 3); shown when the sheet was cancelled.
+  STEP_UP_REQUIRED: 'Confirm it’s you to continue: try again and enter your code or password.',
 };
 
 export const getApiErrorCode = (error) => {
