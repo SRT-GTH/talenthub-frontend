@@ -4,6 +4,7 @@ import { TOPUP, WITHDRAW } from './walletData.js';
 import TopUpDialogs from './TopUpDialogs.jsx';
 import WithdrawDialogs from './WithdrawDialogs.jsx';
 import ReceiptDrawer from './ReceiptDrawer.jsx';
+import BillingReceiptDrawer from './BillingReceiptDrawer.jsx';
 import ActivatedDialog from './WalletActivated.jsx';
 import RedeemDialog from './RedeemDialog.jsx';
 import AlmostThereDialog from './AlmostThereDialog.jsx';
@@ -58,6 +59,8 @@ const WalletDialogs = ({ wallet }) => {
   else if (wallet.modal === 'redeem-short') dialog = <AlmostThereDialog wallet={wallet} />;
   else if (wallet.state === 'activated' && wallet.modal !== 'closed')
     dialog = <ActivatedDialog wallet={wallet} />;
+  else if (wallet.tx && String(wallet.tx).startsWith('rct:'))
+    dialog = <BillingReceiptDrawer receiptId={String(wallet.tx).slice(4)} wallet={wallet} />;
   else if (wallet.tx) dialog = <ReceiptDrawer txId={wallet.tx} wallet={wallet} />;
 
   return (
