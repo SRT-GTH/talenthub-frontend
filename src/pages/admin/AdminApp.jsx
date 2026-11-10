@@ -18,6 +18,8 @@ import { readStaffSession } from '../../services/adminSession.js';
  *   /admin/comms[/...]                     7.4 comms (+ message a user, bulk notification, templates)
  *   /admin/support[/:queryId]              7.7 support queries
  *   /admin/staff  /admin/settings[/...]    7.5.1-2 staff accounts, roles, feature flags and integrations
+ *   /admin/billing                         customer invoices and receipts (Super Admin, VITE_BILLING_V2)
+ *   /admin/ai-usage                        AI metering report (Super Admin, VITE_AI_METERING)
  *   /admin/audit-log[/:eventId]            7.5.3 audit log
  *   /admin/report                          7.3.1d v2 A4 report pages (no chrome)
  *   /admin/*                               not-found
@@ -38,6 +40,8 @@ const AdminCommsPage = lazy(() => import('./AdminCommsPage.jsx'));
 const AdminSupportPage = lazy(() => import('./AdminSupportPage.jsx'));
 const AdminSettingsPage = lazy(() => import('./AdminSettingsPage.jsx'));
 const AdminAuditPage = lazy(() => import('./AdminAuditPage.jsx'));
+const AdminBillingPage = lazy(() => import('./AdminBillingPage.jsx'));
+const AdminAiUsagePage = lazy(() => import('./AdminAiUsagePage.jsx'));
 const AdminReportPrintPage = lazy(() => import('./AdminReportPrintPage.jsx'));
 const AdminNotFoundPage = lazy(() => import('./AdminNotFoundPage.jsx'));
 
@@ -74,6 +78,8 @@ const AdminApp = () => (
         <Route path="site-copy/*" element={<AdminCopyArea area="site-copy" />} />
         <Route path="product-names/*" element={<AdminCopyArea area="product-names" />} />
         <Route path="media/*" element={<AdminCopyArea area="media" />} />
+        <Route path="billing" element={<AdminBillingPage />} />
+        <Route path="ai-usage" element={<AdminAiUsagePage />} />
         <Route path="audit-log" element={<AdminAuditPage />} />
         <Route path="audit-log/:eventId" element={<AdminAuditPage />} />
         <Route path="report" element={<AdminReportPrintPage />} />
