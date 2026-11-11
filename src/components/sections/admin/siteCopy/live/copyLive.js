@@ -15,8 +15,10 @@ import {
 } from '../../../../../services/siteCopy.api.js';
 import { readCopyKv, writeCopyKv } from '../useCopyKv.js';
 import { PRODUCT_NAMES } from '../names/productNamesData.js';
-import { copyManifest, manifestField } from './copyManifest.js';
+import { copyManifest, manifestField, registerManifestSection } from './copyManifest.js';
+import { registerRemoteSection } from '../../../../../copy/copyRegistry.js';
 import {
+  toSectionId as toSectionIdOf,
   NAME_TERMS,
   fromBackendValue,
   toBackendValue,
@@ -203,6 +205,38 @@ export const hydrateCopy = async ({ force = false } = {}) => {
       log('sections not on the backend yet', missing.length);
     }
     const rows = res.blocks ?? [];
+    // Sections only the backend declares (the designed emails): load their fields so the list and editor can show them.
+    const remote = rows.filter(
+      (r) =>
+        !manifest.byKey[r.key] && r.portal === 'emails' && r.section === 'content' && !r.retired
+    );
+    const remoteBlocks = await Promise.all(
+      remote.map((r) => getCopyBlock(r.key).catch(() => null))
+    );
+    remoteBlocks.filter(Boolean).forEach((b) => {
+      const page = b.key.split('.')[1];
+      const section = registerRemoteSection({
+        id: toSectionIdOf(b.key),
+        key: b.key,
+        portal: 'emails',
+        page,
+        pageLabel: b.label || page,
+        label: 'Email text',
+        shared: false,
+        remote: true,
+        preview: { email: page.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase() },
+        fields: (b.fields ?? []).map((f) => ({
+          key: f.path,
+          path: f.path,
+          dataPath: null,
+          label: f.label || f.path,
+          kind: 'text',
+          max: f.maxLength || 160,
+          original: f.default ?? '',
+        })),
+      });
+      registerManifestSection(section);
+    });
     rows.forEach((r) => {
       state.versions[r.key] = r.version ?? 0;
     });

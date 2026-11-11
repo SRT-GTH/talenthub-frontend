@@ -48,6 +48,13 @@ export const copyManifest = () => {
   return cached;
 };
 
+/** A backend-declared section joins the lookups (never the manifest the admin sends: the backend owns it). */
+export const registerManifestSection = (s) => {
+  const m = copyManifest();
+  rememberSection(s.id, s.fields);
+  m.byKey[s.key] = { sectionId: s.id, fields: s.fields };
+};
+
 /** The screen field (with its backend path) of a copy key + path. */
 export const manifestField = (key, path) =>
   copyManifest().byKey[key]?.fields.find((f) => f.path === path) ?? null;

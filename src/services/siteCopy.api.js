@@ -39,6 +39,11 @@ export const discardTermDrafts = async () => body(await api.post('/admin/copy/te
 export const publishTerms = async (reason) =>
   body(await api.post('/admin/copy/terms/publish', { reason }));
 
+// ── Emails (designed templates; the backend declares their sections) ─────────
+/** { subject, html } of a designed email with sample data; view 'draft' (default) or 'published'. */
+export const emailCopyPreview = async (name, view = 'draft') =>
+  body(await api.get(`/admin/copy/emails/${k(name)}/preview`, { params: { view } }));
+
 // ── Preview and manifest ─────────────────────────────────────────────────────
 export const copyPreviewToken = async () => body(await api.post('/admin/copy/preview-token', {}));
 /** Super admin / release pipeline only: upsert the editable sections the frontend knows about. */

@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import { PUBLIC_COPY_SECTIONS } from './landingHomeCopy.js';
 import { TALENT_COPY_SECTIONS } from './portals/talentCopy.js';
 import { TALENT_PAGES_COPY_SECTIONS } from './portals/talentPagesCopy.js';
@@ -21,6 +22,33 @@ export const COPY_SECTIONS = Object.fromEntries(
     ...AUTO_COPY_SECTIONS,
   ].map((s) => [s.id, s])
 );
+
+/**
+ * Add a section the backend declares and this build doesn't (the designed emails: srt-backend utils/emailCopy.js registers one
+ * block per email). Called by the admin's live loader (siteCopy/live/copyLive.js) with the backend block.
+ */
+let registryVersion = 0;
+const registrySubs = new Set();
+
+export const registerRemoteSection = (section) => {
+  if (!COPY_SECTIONS[section.id]) {
+    COPY_SECTIONS[section.id] = section;
+    registryVersion += 1;
+    registrySubs.forEach((fn) => fn());
+  }
+  return COPY_SECTIONS[section.id];
+};
+
+/** Re-render when backend-declared sections arrive (the editor and list then show them). */
+export const useCopyRegistryVersion = () =>
+  useSyncExternalStore(
+    (fn) => {
+      registrySubs.add(fn);
+      return () => registrySubs.delete(fn);
+    },
+    () => registryVersion,
+    () => registryVersion
+  );
 
 /** The pages of one portal, for the Site copy list: [{ id, label, sections: [section] }], shared sections apart. */
 export const copyPagesOf = (portal) => {
