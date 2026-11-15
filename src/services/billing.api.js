@@ -24,23 +24,47 @@ const unwrap = (res) => {
   return d && d.data && !d.type ? d.data : d;
 };
 
-export const listInvoices = async ({ limit = 20, status } = {}) => {
-  log('list invoices', { limit, status });
+// `customerId` (and the customer search) are for GTH staff (Super Admin) only: the backend answers 403 to anyone
+// else and writes every staff lookup to the audit log. Everybody else reads their own documents.
+const only = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v != null && v !== ''));
+
+export const listInvoices = async ({ limit = 20, status, customerId, cursor } = {}) => {
+  log('list invoices', { limit, status, staff: Boolean(customerId) });
   return unwrap(
-    await api.get('/billing/invoices', { params: { limit, ...(status ? { status } : {}) } })
+    await api.get('/billing/invoices', { params: only({ limit, status, customerId, cursor }) })
   );
 };
 
-export const getInvoice = async (id) =>
-  unwrap(await api.get(`/billing/invoices/${encodeURIComponent(id)}`));
+export const getInvoice = async (id, { customerId } = {}) =>
+  unwrap(
+    await api.get(`/billing/invoices/${encodeURIComponent(id)}`, {
+      params: only({ customerId }),
+    })
+  );
 
-export const listReceipts = async ({ limit = 20 } = {}) => {
-  log('list receipts', { limit });
-  return unwrap(await api.get('/billing/receipts', { params: { limit } }));
+export const listReceipts = async ({ limit = 20, customerId, cursor } = {}) => {
+  log('list receipts', { limit, staff: Boolean(customerId) });
+  return unwrap(
+    await api.get('/billing/receipts', { params: only({ limit, customerId, cursor }) })
+  );
 };
 
-export const getReceipt = async (id) =>
-  unwrap(await api.get(`/billing/receipts/${encodeURIComponent(id)}`));
+export const getReceipt = async (id, { customerId } = {}) =>
+  unwrap(
+    await api.get(`/billing/receipts/${encodeURIComponent(id)}`, {
+      params: only({ customerId }),
+    })
+  );
+
+/**
+ * Staff: find billing customers by email prefix or by any id (customer, user, entity, organisation).
+ * -> { customers: [{ id, email, currency, active, userId, entityId, organizationId, createdAt, invoices,
+ *      lastInvoiceAt, outstanding }], hasMore, nextCursor }
+ */
+export const searchBillingCustomers = async ({ q, limit = 20, cursor } = {}) => {
+  log('search customers', { hasQuery: Boolean(q) });
+  return unwrap(await api.get('/billing/customers', { params: only({ q, limit, cursor }) }));
+};
 
 /** 6000, 'GHS' -> 'GHS 60.00' */
 export const formatMoney = (minor, currency = 'GHS') => {
