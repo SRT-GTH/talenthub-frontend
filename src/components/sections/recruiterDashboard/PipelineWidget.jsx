@@ -26,10 +26,13 @@ const PipelineWidget = ({
   selectedStage = '',
   onStage,
   onInvite,
+  live = null,
 }) => {
-  const stages = stagesFor(activeWindow);
-  const subtitle =
-    state === 'empty'
+  // `live` (signed-in home): { stages, subtitle, rejected, withdrawn, insight } from livePipeline(); no time-window switch.
+  const stages = live ? live.stages : stagesFor(activeWindow);
+  const subtitle = live
+    ? live.subtitle
+    : state === 'empty'
       ? PIPELINE_STATES.empty.subtitle
       : state === 'loading'
         ? PIPELINE_STATES.loading.subtitle
@@ -45,6 +48,7 @@ const PipelineWidget = ({
         <>
           {jobFilter}
           <div
+            hidden={Boolean(live)}
             role="group"
             aria-label="Time window"
             className="flex gap-[2px] rounded-[10px] bg-[#fefefe] p-[3px]"
@@ -152,21 +156,22 @@ const PipelineWidget = ({
               {PIPELINE.outflowLabel}
             </span>
             <Chip tone="danger" icon={dashIcons.xCircleRejected}>
-              {PIPELINE.rejected}
+              {live ? live.rejected : PIPELINE.rejected}
             </Chip>
             <Chip tone="neutral" icon={dashIcons.undoWithdrawn}>
-              {PIPELINE.withdrawn}
+              {live ? live.withdrawn : PIPELINE.withdrawn}
             </Chip>
             <span
               aria-hidden="true"
               className="h-px min-w-[24px] flex-1 bg-[#e5e8e3] max-md:hidden"
             />
             <Chip
+              hidden={Boolean(live && !live.insight)}
               tone="amber"
               icon={dashIcons.sparklesInsight}
               className="py-[5px] pr-[12px] pl-[10px] text-[#463409] max-sm:max-w-full max-sm:shrink max-sm:rounded-[16px] max-sm:whitespace-normal"
             >
-              {PIPELINE.insight}
+              {live ? live.insight : PIPELINE.insight}
             </Chip>
           </div>
           <p className="m-0 font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">

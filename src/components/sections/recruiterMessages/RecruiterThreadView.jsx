@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MeatballMenuIcon } from '../jobPostings/jobPostingsIcons.jsx';
 import { classNames } from '../../../utils/classNames.js';
@@ -189,8 +190,14 @@ const RecruiterThreadView = ({
   onBack,
   state,
   className,
+  liveThread = null,
+  onSend,
+  sending = false,
+  error = null,
 }) => {
   const navigate = useNavigate();
+  // Signed in: the composer sends for real (onSend) and the thread is the API's messages (liveThread).
+  const [draft, setDraft] = useState('');
   const shell = classNames(
     'flex h-full min-w-0 flex-1 flex-col rounded-[24px] border border-solid border-[#00522b]/10 bg-white px-[22px] pt-[18px] pb-[14px]',
     'max-lg:rounded-none max-lg:border-0 max-lg:px-[12px] max-lg:pt-0',
@@ -203,9 +210,9 @@ const RecruiterThreadView = ({
       </section>
     );
   }
-  const thread = THREADS[conversation.thread] ?? THREADS.akosua;
+  const thread = liveThread || THREADS[conversation.thread] || THREADS.akosua;
   const showApplicantHeader =
-    Boolean(conversation.applicant) || conversation.id === 'akosua-quansah';
+    !liveThread && (Boolean(conversation.applicant) || conversation.id === 'akosua-quansah');
 
   return (
     <section className={shell}>
@@ -322,14 +329,26 @@ const RecruiterThreadView = ({
         ))}
       </div>
 
+      {error ? (
+        <p role="alert" className="m-0 mt-[8px] font-sans text-[13px] text-[#b42318]">
+          {error}
+        </p>
+      ) : null}
       <form
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!onSend || sending || !draft.trim()) return;
+          onSend(draft).then((ok) => ok && setDraft(''));
+        }}
         className="mt-[16px] flex h-[62px] shrink-0 items-center justify-between gap-[16px] rounded-full border-[1.5px] border-solid border-[#c1d4c4] bg-white py-[12px] pr-[12px] pl-[20px]"
       >
         <input
           type="text"
           placeholder={COMPOSER.placeholder}
           aria-label="Message"
+          {...(onSend
+            ? { value: draft, onChange: (event) => setDraft(event.target.value), disabled: sending }
+            : {})}
           className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[14px] leading-[18px] text-black outline-none placeholder:text-[#999]"
         />
         <span className="flex shrink-0 items-center gap-[10px]">

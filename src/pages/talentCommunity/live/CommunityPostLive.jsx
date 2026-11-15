@@ -8,6 +8,7 @@ import {
   ReportPostDialog,
 } from '../../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../../components/sections/talentCommunity/CommunityFrame.jsx';
+import { communityPath } from '../../../components/sections/talentCommunity/communityVariant.js';
 import {
   Composer,
   FeedToolbar,
@@ -45,7 +46,7 @@ import { LiveError, LiveLoading } from './LiveStates.jsx';
 const log = debug('CommunityPostLive');
 
 /*
- * CommunityPostLive — `/community/:communityId/post/:postId` on the API: the community page with the post open (expanded
+ * CommunityPostLive — communityPath(`/:communityId/post/:postId`) on the API: the community page with the post open (expanded
  * card + its real comment thread) above the rest of the feed. Visitors can read; commenting, liking and posting need a join.
  */
 const CommunityPostLive = ({ community }) => {
@@ -59,14 +60,14 @@ const CommunityPostLive = ({ community }) => {
   const [postError, setPostError] = useState(null);
   const [reportTarget, setReportTarget] = useState(null);
   const hideToast = useCallback(() => setToast(null), []);
-  const back = `/community/${communityId}`;
+  const back = communityPath(`/${communityId}`);
   const { detail, joined } = page;
 
   useEffect(() => {
     log('state', { communityId, postId, page: page.status, post: open.status });
   }, [communityId, postId, page.status, open.status]);
 
-  if (page.status === 'missing') return <Navigate to="/community" replace />;
+  if (page.status === 'missing') return <Navigate to={communityPath()} replace />;
   if (open.status === 'missing') return <Navigate to={back} replace />;
 
   const onPost = async (draft) => {

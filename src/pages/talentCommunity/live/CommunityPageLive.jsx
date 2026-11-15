@@ -7,6 +7,7 @@ import CommunityDialogs, {
   ReportPostDialog,
 } from '../../../components/sections/talentCommunity/CommunityDialogs.jsx';
 import CommunityFrame from '../../../components/sections/talentCommunity/CommunityFrame.jsx';
+import { communityPath } from '../../../components/sections/talentCommunity/communityVariant.js';
 import {
   Composer,
   EmptyFeed,
@@ -60,7 +61,7 @@ const log = debug('CommunityPageLive');
 const PURPOSE_FILTERS = ['All', ...POST_PURPOSES.map((p) => p.label)];
 
 /*
- * CommunityPageLive — `/community/:communityId` on the API. `joined` comes from the server (not `?joined=1`).
+ * CommunityPageLive — communityPath(`/:communityId`) on the API. `joined` comes from the server (not `?joined=1`).
  * URL keys kept from the drawn page: `?tab=about|members`, `?welcome=1` (house rules after joining), `?modal=create|report|leave`.
  * Create post: the post goes live at once and is put on top of the feed; when the backend flags it as off-purpose the toast
  * says a moderator will check it (⚠️ the drawn "pending review" card needs a moderation queue the backend doesn't expose yet).
@@ -91,7 +92,7 @@ const CommunityPageLive = ({ community }) => {
       update({ modal: null });
   }, [status, joined, modal, update]);
 
-  if (status === 'missing') return <Navigate to="/community" replace />;
+  if (status === 'missing') return <Navigate to={communityPath()} replace />;
 
   const onJoin = async () => {
     const ok = await page.join();
@@ -250,7 +251,7 @@ const CommunityPageLive = ({ community }) => {
                 key={post.id}
                 post={post}
                 locked={!joined}
-                onOpen={(p) => navigate(`/community/${communityId}/post/${p.id}`)}
+                onOpen={(p) => navigate(communityPath(`/${communityId}/post/${p.id}`))}
                 onLike={(p) => page.like(p.id)}
                 onMore={openReport}
                 onPurpose={
@@ -262,7 +263,9 @@ const CommunityPageLive = ({ community }) => {
                       }
                     : undefined
                 }
-                onShare={(p) => shareLink(`/community/${communityId}/post/${p.id}`, p.author.name)}
+                onShare={(p) =>
+                  shareLink(communityPath(`/${communityId}/post/${p.id}`), p.author.name)
+                }
               />
             )
           )
@@ -307,8 +310,8 @@ const CommunityPageLive = ({ community }) => {
               faces={detail.facesImages}
               onJoin={onJoin}
               onLeave={() => update({ modal: 'leave' })}
-              onShare={() => shareLink(`/community/${communityId}`, detail.name)}
-              onInvite={() => shareLink(`/community/${communityId}`, detail.name)}
+              onShare={() => shareLink(communityPath(`/${communityId}`), detail.name)}
+              onInvite={() => shareLink(communityPath(`/${communityId}`), detail.name)}
             />
             <CommunityTabs
               tabs={tabs}

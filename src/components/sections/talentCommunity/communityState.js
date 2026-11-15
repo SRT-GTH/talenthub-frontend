@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { isRecruiterCommunityPath } from './communityVariant.js';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import { debug } from '../../../utils/debug.js';
 
 const log = debug('communityState');
@@ -48,8 +49,10 @@ export const useCommunityState = () => {
   const a11yParam = params.get('a11y') === '1';
   // Demo = GubliAS's drawn mock (Figma states driven by the URL). Live data otherwise; the demo-only state keys switch it on
   // so every frame URL in wiki/talent-community.md keeps rendering the drawn screen.
+  // Recruiters use the same /api/community endpoints (2026-11-09), so a signed-in recruiter gets live clubs too;
+  // signed out, the recruiter screens stay the drawn mock.
   const demo =
-    isRecruiterCommunityPath(pathname) || // the recruiter screens are the drawn mock (no recruiter API yet)
+    (isRecruiterCommunityPath(pathname) && !isRecruiterSession()) ||
     params.get('demo') === '1' ||
     params.has('state') ||
     params.get('joined') === '1' ||

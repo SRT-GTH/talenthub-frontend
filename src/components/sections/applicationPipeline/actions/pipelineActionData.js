@@ -238,6 +238,23 @@ export const OVERALL_VERDICTS = [
   { value: 'strong-yes', label: 'Strong yes' },
 ];
 
+/* Live (signed-in) interview feedback rows: generic, not the Figma design-role ones. */
+export const LIVE_FEEDBACK_CRITERIA = [
+  { id: 'skills', label: 'Skills for the role', rating: 3 },
+  { id: 'problem-solving', label: 'Problem solving', rating: 3 },
+  { id: 'communication', label: 'Communication', rating: 3 },
+];
+
+/* Live offers: expiry choices dated from today (the Figma list has fixed dates). */
+export const liveExpiryOptions = (now = new Date()) =>
+  [3, 7, 14].map((days) => {
+    const d = new Date(now.getTime() + days * 864e5);
+    return {
+      value: `${days}-days`,
+      label: `${days} days · ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+    };
+  });
+
 export const FEEDBACK_CRITERIA = [
   { id: 'design-craft', label: 'Design craft', rating: 4 },
   { id: 'systems-thinking', label: 'Systems thinking', rating: 4 },

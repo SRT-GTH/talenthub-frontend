@@ -81,9 +81,13 @@ const JobFormFields = ({
   const open = (key) => menu === key;
   const toggle = (key) => (next) => setMenu(next ? key : '');
   const points = values.responsibilities.length;
-  const locationItems = LOCATIONS.filter((l) =>
-    l.label.toLowerCase().includes(query.trim().toLowerCase())
-  );
+  const typed = query.trim();
+  const suggested = LOCATIONS.filter((l) => l.label.toLowerCase().includes(typed.toLowerCase()));
+  // Any town works: what the recruiter typed is offered first when it isn't one of the suggestions.
+  const locationItems =
+    typed && !suggested.some((l) => l.value.toLowerCase() === typed.toLowerCase())
+      ? [{ value: typed, label: `Use “${typed}”`, description: 'Typed location' }, ...suggested]
+      : suggested;
   const skillPlaceholder = isTemplate
     ? TEMPLATE_SKILL_SEARCH_PLACEHOLDER
     : SKILL_SEARCH_PLACEHOLDER;

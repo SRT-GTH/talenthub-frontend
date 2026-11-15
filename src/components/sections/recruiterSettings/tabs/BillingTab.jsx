@@ -8,7 +8,44 @@ import { BILLING } from '../hiring/hiringData.js';
 import { billingV2Enabled } from '../../../../services/billing.api.js';
 import BillingInvoicesCard from './BillingInvoicesCard.jsx';
 
+import { useRecruiterShell } from '../../../../hooks/useRecruiterShell.js';
+
 const log = debug('BillingTab');
+
+/* Signed in: the recruiter's real plan and this month's usage (useRecruiterShell: plan tier + postings). */
+const PRICE = {
+  free: 'Free',
+  professional: 'GHS 450 / month · billed monthly',
+  enterprise: 'Custom pricing · billed yearly',
+};
+const liveBilling = (shell) => {
+  const plan = shell.plan || {};
+  const used = shell.jobs?.postedThisMonth ?? 0;
+  const limit = plan.jobPosts;
+  return {
+    name: plan.label || 'Free',
+    price: PRICE[shell.tier] || PRICE.free,
+    usage: [
+      {
+        id: 'job-posts',
+        label: 'Job posts',
+        used,
+        limit: limit ?? Math.max(used, 1),
+        unlimited: limit === null,
+        note: limit === null ? 'Unlimited on your plan · this month' : 'This month',
+        tone: limit !== null && used >= limit ? 'amber' : 'green',
+      },
+      {
+        id: 'active',
+        label: 'Active postings',
+        used: shell.jobs?.active ?? 0,
+        limit: Math.max(shell.jobs?.total ?? 0, 1),
+        note: `${shell.jobs?.total ?? 0} postings in all`,
+        tone: 'green',
+      },
+    ],
+  };
+};
 
 // The plan and payment screens are drawn in "Recruiter - Onboarding Screens" (R05 Plan, R06 Payment: built at /onboarding/recruiter/*);
 // the Settings frames wire no prototype links, so these hand-offs are ⚠️ ASSUMPTION (the only drawn plan / payment screens).
@@ -43,7 +80,7 @@ const UsageCard = ({ item }) => {
           {item.label}
         </p>
         <p className="m-0 text-[14px] leading-[24px] font-semibold tracking-[0.1px] whitespace-nowrap text-[#111]">
-          {item.used} / {item.limit}
+          {item.unlimited ? item.used : `${item.used} / ${item.limit}`}
         </p>
       </div>
       <div
@@ -72,6 +109,8 @@ const UsageCard = ({ item }) => {
  */
 const BillingTab = () => {
   const navigate = useNavigate();
+  const shell = useRecruiterShell();
+  const live = shell ? liveBilling(shell) : null;
   const go = (to, what) => {
     log('hand-off', what, '->', to);
     navigate(to);
@@ -87,15 +126,17 @@ const BillingTab = () => {
           <div className="flex min-w-0 flex-col gap-[4px]">
             <div className="flex flex-wrap items-center gap-[8px]">
               <p className="font-heading m-0 text-[26px] leading-[31px] font-semibold tracking-[-0.52px] text-[#111]">
-                {BILLING.plan.name}
+                {live ? live.name : BILLING.plan.name}
               </p>
-              <span className="inline-flex items-center gap-[4px] rounded-full bg-[#fefefe] px-[8px] py-[3px] text-[12px] leading-[20px] font-medium tracking-[0.2px] whitespace-nowrap text-[#575755]">
-                <CalendarIcon className="size-[12px]" />
-                {BILLING.plan.renews}
-              </span>
+              {live ? null : (
+                <span className="inline-flex items-center gap-[4px] rounded-full bg-[#fefefe] px-[8px] py-[3px] text-[12px] leading-[20px] font-medium tracking-[0.2px] whitespace-nowrap text-[#575755]">
+                  <CalendarIcon className="size-[12px]" />
+                  {BILLING.plan.renews}
+                </span>
+              )}
             </div>
             <p className="m-0 text-[14px] leading-[24px] tracking-[0.2px] text-[#575755]">
-              {BILLING.plan.price}
+              {live ? live.price : BILLING.plan.price}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-[10px]">
@@ -116,33 +157,58 @@ const BillingTab = () => {
           </div>
         </div>
         <div className="grid w-full grid-cols-3 gap-[16px] max-lg:grid-cols-1">
-          {BILLING.usage.map((item) => (
+          {(live ? live.usage : BILLING.usage).map((item) => (
             <UsageCard key={item.id} item={item} />
           ))}
         </div>
       </GroupCard>
 
-      <GroupCard recruiter title={BILLING.payment.title} aria-label={BILLING.payment.title}>
-        <SettingRow
-          recruiter
-          title={BILLING.payment.method}
-          description={BILLING.payment.holder}
-          control={
-            <div className="flex shrink-0 items-center gap-[12px]">
-              <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[8px] py-[3px] text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#2a5730]">
-                {BILLING.payment.badge}
-              </span>
-              <GreenLink onClick={() => go(PAYMENT_ROUTE, 'change payment method')}>
-                {BILLING.payment.change}
+      {live && !billingV2Enabled() ? (
+        <GroupCard recruiter title="Payments and invoices" aria-label="Payments and invoices">
+          <SettingRow
+            recruiter
+            title={
+              live.name === 'Free'
+                ? 'No payments on the Free plan'
+                : 'Payments are handled with our team'
+            }
+            description={
+              live.name === 'Free'
+                ? 'Upgrade to post more jobs and send more invites.'
+                : 'Online receipts aren’t available yet. Contact support for a copy of any invoice.'
+            }
+            control={
+              <GreenLink onClick={() => go('/recruiter/help?help=contact', 'billing support')}>
+                Contact support
               </GreenLink>
-            </div>
-          }
-        />
-      </GroupCard>
+            }
+          />
+        </GroupCard>
+      ) : null}
+      {live ? null : (
+        <GroupCard recruiter title={BILLING.payment.title} aria-label={BILLING.payment.title}>
+          <SettingRow
+            recruiter
+            title={BILLING.payment.method}
+            description={BILLING.payment.holder}
+            control={
+              <div className="flex shrink-0 items-center gap-[12px]">
+                <span className="inline-flex items-center rounded-full bg-[#ebf1ec] px-[8px] py-[3px] text-[12px] leading-[20px] font-medium tracking-[0.2px] text-[#2a5730]">
+                  {BILLING.payment.badge}
+                </span>
+                <GreenLink onClick={() => go(PAYMENT_ROUTE, 'change payment method')}>
+                  {BILLING.payment.change}
+                </GreenLink>
+              </div>
+            }
+          />
+        </GroupCard>
+      )}
 
+      {/* Real invoices when billing v2 is on; otherwise the drawn mock rows (demo only). */}
       {billingV2Enabled() ? (
         <BillingInvoicesCard />
-      ) : (
+      ) : live ? null : (
         <GroupCard recruiter title={BILLING.invoices.title} aria-label={BILLING.invoices.title}>
           {BILLING.invoices.rows.map((row) => (
             <SettingRow

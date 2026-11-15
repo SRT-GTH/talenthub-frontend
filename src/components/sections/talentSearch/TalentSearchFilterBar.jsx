@@ -17,7 +17,6 @@ import {
   SKILLS_FILTER,
   SORT_MENU,
 } from './talentSearchFilterData.js';
-import { listParam } from './useTalentSearchState.js';
 
 const log = debug('TalentSearchFilterBar');
 
@@ -164,7 +163,8 @@ const TalentSearchFilterBar = ({
                   <SkillsMenu
                     skills={filters.skills}
                     onChange={(next) =>
-                      onChange({ skills: listParam(next, SKILLS_FILTER.defaultSkills) })
+                      // Written explicitly: signed in, "no key" means no filter (not the Figma default).
+                      onChange({ skills: next.length ? next.join(',') : 'none' })
                     }
                   />
                 }
@@ -189,7 +189,7 @@ const TalentSearchFilterBar = ({
                     value={filters.expId}
                     onChange={(id) =>
                       onChange({
-                        exp: id === EXPERIENCE_FILTER.defaultId ? null : id,
+                        exp: id,
                         menu: null,
                       })
                     }
@@ -218,7 +218,7 @@ const TalentSearchFilterBar = ({
                     radius={filters.radius}
                     onChange={(id) =>
                       onChange({
-                        location: id === LOCATION_FILTER.defaultId ? null : id,
+                        location: id,
                         menu: null,
                       })
                     }

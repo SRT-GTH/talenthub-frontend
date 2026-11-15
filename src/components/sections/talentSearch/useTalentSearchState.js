@@ -35,7 +35,16 @@ const csv = (value, fallback) => {
   return value.split(',');
 };
 
-export const useTalentSearchState = () => {
+/* Signed in (live): no filter is on until the recruiter picks one (the Figma defaults are demo values). */
+const LIVE_DEFAULTS = {
+  skills: [],
+  expId: 'any',
+  locationId: 'any',
+  availability: [],
+  workSetup: [],
+};
+
+export const useTalentSearchState = ({ live = false } = {}) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const update = useCallback(
@@ -73,21 +82,29 @@ export const useTalentSearchState = () => {
       menu,
       pageState: ['loading', 'empty', 'first-visit'].includes(stateParam) ? stateParam : null,
       jobId: get('job'),
-      skills: csv(get('skills'), SKILLS_FILTER.defaultSkills),
+      skills: csv(get('skills'), live ? LIVE_DEFAULTS.skills : SKILLS_FILTER.defaultSkills),
       expId:
         expParam === 'any' || EXPERIENCE_FILTER.options.some((o) => o.id === expParam)
           ? expParam
-          : EXPERIENCE_FILTER.defaultId,
+          : live
+            ? LIVE_DEFAULTS.expId
+            : EXPERIENCE_FILTER.defaultId,
       locationId:
         locationParam === 'any' || LOCATION_FILTER.options.some((o) => o.id === locationParam)
           ? locationParam
-          : LOCATION_FILTER.defaultId,
+          : live
+            ? LIVE_DEFAULTS.locationId
+            : LOCATION_FILTER.defaultId,
       remote: get('remote') !== '0',
       radius: get('radius') === '1',
       sortId: SORT_MENU.options.some((o) => o.id === sortParam) ? sortParam : SORT_MENU.defaultId,
-      availability: csv(get('availability'), MORE_FILTERS.defaultAvailability),
-      workSetup: csv(get('setup'), MORE_FILTERS.defaultWorkSetup),
-      education: get('education') ?? MORE_FILTERS.education.defaultId,
+      availability: csv(
+        get('availability'),
+        live ? LIVE_DEFAULTS.availability : MORE_FILTERS.defaultAvailability
+      ),
+      workSetup: csv(get('setup'), live ? LIVE_DEFAULTS.workSetup : MORE_FILTERS.defaultWorkSetup),
+      // Signed in: no education filter until one is picked (the Figma default is a demo value).
+      education: get('education') ?? (live ? 'any' : MORE_FILTERS.education.defaultId),
       minScore: get('score') ?? MORE_FILTERS.minScore.defaultId,
       pay: get('pay') ?? MORE_FILTERS.pay.defaultId,
       verified: get('verified') !== '0',

@@ -17,6 +17,8 @@ const FeedbackWidget = ({
   onLeaveFeedback,
   mine,
   withdrewId = '',
+  // Live: { pending } interviewed candidates still waiting for your feedback; no "My feedback" tab (no ratings backend).
+  live = null,
 }) => (
   <WidgetCard
     id="dash-feedback"
@@ -43,10 +45,13 @@ const FeedbackWidget = ({
         aria-label="Feedback"
         className="flex gap-[4px] rounded-[10px] bg-[#fefefe] p-[3px]"
       >
-        {[
-          { id: 'give', label: FEEDBACK.tabs.give },
-          { id: 'mine', label: FEEDBACK.tabs.mine },
-        ].map((item) => {
+        {(live
+          ? [{ id: 'give', label: `Give feedback · ${live.pending.length}` }]
+          : [
+              { id: 'give', label: FEEDBACK.tabs.give },
+              { id: 'mine', label: FEEDBACK.tabs.mine },
+            ]
+        ).map((item) => {
           const active = item.id === tab;
           return (
             <button
@@ -68,11 +73,15 @@ const FeedbackWidget = ({
         })}
       </div>
 
-      {tab === 'mine' && mine ? (
+      {live && !live.pending.length ? (
+        <p className="m-0 font-sans text-[12px] leading-[20px] tracking-[0.2px] text-[#575755]">
+          No interviews are waiting for your feedback.
+        </p>
+      ) : tab === 'mine' && mine && !live ? (
         mine
       ) : (
         <ul className="m-0 flex list-none flex-col gap-[12px] p-0">
-          {FEEDBACK.pending.map((item) => {
+          {(live ? live.pending : FEEDBACK.pending).map((item) => {
             const withdrew = withdrewId === item.id;
             return (
               <li
