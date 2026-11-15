@@ -184,7 +184,7 @@ const AdminAiUsagePage = () => {
                 eyebrow="Compute credits"
                 eyebrowShort="Credits"
                 value={Number(r.credits).toLocaleString('en-GB', { maximumFractionDigits: 1 })}
-                sub={`Would warn ${r.userDaysWouldWarn} · would slow ${r.userDaysWouldDegrade} user-days`}
+                sub={`User-days that would be warned: ${r.userDaysWouldWarn} · slowed: ${r.userDaysWouldDegrade}`}
                 subShort={`Warn ${r.userDaysWouldWarn} · slow ${r.userDaysWouldDegrade}`}
               />
             </KpiStrip>
