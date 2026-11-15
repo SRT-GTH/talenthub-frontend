@@ -5,6 +5,9 @@
  * was added once support queries went live, 2026-10-31 — before that /admin/support was only reachable from the Support home).
  */
 
+import { billingV2Enabled } from '../../../services/billing.api.js';
+import { aiMeteringEnabled } from '../../../services/usage.api.js';
+
 export const ADMIN_BASE = '/admin';
 
 export const PRIMARY_NAV = [
@@ -113,11 +116,36 @@ export const COPY_NAV = [
   },
 ];
 
+/*
+ * Money and AI cost (Super Admin only, each behind its build flag): customer billing (VITE_BILLING_V2) and the AI metering
+ * report (VITE_AI_METERING). They sit before Live ops in the secondary group.
+ */
+export const SUPER_NAV = [
+  {
+    id: 'billing',
+    label: 'Billing',
+    to: `${ADMIN_BASE}/billing`,
+    icon: 'file-check',
+    match: [`${ADMIN_BASE}/billing`],
+    flag: 'billing',
+  },
+  {
+    id: 'ai-usage',
+    label: 'AI usage',
+    to: `${ADMIN_BASE}/ai-usage`,
+    icon: 'speedmeter',
+    match: [`${ADMIN_BASE}/ai-usage`],
+    flag: 'ai',
+  },
+];
+
+const defaultFlags = () => ({ billing: billingV2Enabled(), ai: aiMeteringEnabled() });
+
 /**
  * The two nav groups of a session: { primary, secondary }. Everybody gets the existing items; the Site copy items are added per
  * role (copyNavIds); the Content Editor sees Home + Site copy items | Settings only (7.8.0a).
  */
-export const navForRole = (role, copyIds = []) => {
+export const navForRole = (role, copyIds = [], flags = defaultFlags()) => {
   const copy = COPY_NAV.filter((i) => copyIds.includes(i.id));
   if (role === 'editor') {
     return {
@@ -125,7 +153,8 @@ export const navForRole = (role, copyIds = []) => {
       secondary: SECONDARY_NAV.filter((i) => i.id === 'settings'),
     };
   }
-  return { primary: [...PRIMARY_NAV, ...copy], secondary: SECONDARY_NAV };
+  const extra = role === 'super' ? SUPER_NAV.filter((i) => flags[i.flag]) : [];
+  return { primary: [...PRIMARY_NAV, ...copy], secondary: [...extra, ...SECONDARY_NAV] };
 };
 
 /** The nav item id that is active for a pathname (longest matching prefix; Home on /admin). */
@@ -134,7 +163,7 @@ export const activeNavId = (pathname) => {
   if (path === ADMIN_BASE) return 'home';
   let best = null;
   let bestLen = 0;
-  for (const item of [...PRIMARY_NAV, ...COPY_NAV, ...SECONDARY_NAV]) {
+  for (const item of [...PRIMARY_NAV, ...COPY_NAV, ...SUPER_NAV, ...SECONDARY_NAV]) {
     for (const prefix of item.match ?? []) {
       if ((path === prefix || path.startsWith(`${prefix}/`)) && prefix.length > bestLen) {
         best = item.id;

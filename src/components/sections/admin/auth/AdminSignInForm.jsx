@@ -103,7 +103,7 @@ const AdminSignInForm = ({ onSubmit, error = null, busy = false }) => {
               </span>
             </label>
             <Link
-              to="/forgot-password"
+              to="/forgot-password?for=staff"
               onClick={() => log('forgot password')}
               className="text-[12px] font-semibold leading-5 tracking-[0.1px] text-brand-green underline-offset-2 hover:underline"
             >

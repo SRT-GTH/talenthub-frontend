@@ -37,6 +37,8 @@ import {
   LoginOverlayCards,
 } from '../components/sections/talentAuth/TalentLoginPanelContent.jsx';
 import LoginTutorialModal from '../components/sections/talentAuth/LoginTutorialModal.jsx';
+import TwoStepSignInStep from '../components/sections/twoStep/TwoStepSignInStep.jsx';
+import { twoStepPath } from '../services/mfa.api.js';
 
 const log = debug('LoginPage');
 
@@ -211,11 +213,13 @@ const LoginOtpStep = ({ identity, maskedEmail, onBack }) => {
     setIsVerifying(true);
     setError('');
     try {
-      const { accessToken, user } = await verifyLoginOtp({ identity, otp: value });
+      const { accessToken, user, mfaSetup } = await verifyLoginOtp({ identity, otp: value });
       if (!accessToken) throw new Error('No token returned');
       const home = await resolveHomePath(user);
-      log('logged in; going to', home);
-      navigate(home, { replace: true });
+      // 2-step verification is required for this account and the grace period is over: set it up first.
+      const to = mfaSetup?.mustSetUpNow ? twoStepPath({ required: true, next: home }) : home;
+      log('logged in; going to', to);
+      navigate(to, { replace: true });
     } catch (err) {
       log.error('verify failed:', getApiErrorCode(err));
       const apiCode = getApiErrorCode(err);
@@ -324,6 +328,8 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
   const [passwordError, setPasswordError] = useState(null);
   const [apiError, setApiError] = useState('');
   const [otpStep, setOtpStep] = useState(null); // { identity, maskedEmail }
+  const [mfaStep, setMfaStep] = useState(null); // { identity, challengeId } — 2-step verification is on
+  const navigate = useNavigate();
 
   const identifierValue = method === 'phone' ? phone : email;
   const hasValues = identifierValue.trim().length > 0 && password.length > 0;
@@ -376,7 +382,13 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
     setApiError('');
     try {
       const res = await requestLoginOtp({ identity, password });
-      setOtpStep({ identity, maskedEmail: res?.maskedEmail || res?.data?.maskedEmail });
+      const d = res?.requiresMfa ? res : res?.data || res || {};
+      if (d.requiresMfa) {
+        log('2-step verification on: asking for the app code');
+        setMfaStep({ identity, challengeId: d.challengeId });
+      } else {
+        setOtpStep({ identity, maskedEmail: res?.maskedEmail || res?.data?.maskedEmail });
+      }
     } catch (err) {
       const code = getApiErrorCode(err);
       log.error('login failed:', code);
@@ -386,6 +398,25 @@ const LoginForm = ({ onAuthFailure, onClearAuthFailure }) => {
       setIsLoading(false);
     }
   };
+
+  if (mfaStep) {
+    return (
+      <TwoStepSignInStep
+        identity={mfaStep.identity}
+        challengeId={mfaStep.challengeId}
+        onSignedIn={async (user, opts) => {
+          const home = await resolveHomePath(user);
+          const to = opts?.to ? `${opts.to}?next=${encodeURIComponent(home)}` : home;
+          log('logged in with 2-step; going to', to);
+          navigate(to, { replace: true });
+        }}
+        onRestart={() => {
+          setMfaStep(null);
+          setPassword('');
+        }}
+      />
+    );
+  }
 
   if (otpStep) {
     return (

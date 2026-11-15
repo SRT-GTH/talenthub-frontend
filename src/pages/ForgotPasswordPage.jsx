@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { signInPathFromSearch } from './passwordResetPaths.js';
 import Button from '../components/ui/Button.jsx';
 import { COMPACT_PRIMARY_BUTTON } from '../components/ui/form/mobileScale.js';
 import { TextInput } from '../components/ui/form';
@@ -94,10 +95,10 @@ export const ResetStatusNote = ({ message }) =>
     </p>
   ) : null;
 
-export const BackToLogin = () => (
+export const BackToLogin = ({ to = '/login' }) => (
   <p className="text-center text-[14px] max-md:text-[13px] text-[#737373]">
     Remembered it?{' '}
-    <Link to="/login" className="font-semibold text-brand-green underline-offset-2 hover:underline">
+    <Link to={to} className="font-semibold text-brand-green underline-offset-2 hover:underline">
       Back to log in
     </Link>
   </p>
@@ -105,6 +106,8 @@ export const BackToLogin = () => (
 
 const ForgotPasswordPage = () => {
   log('mount');
+  const [searchParams] = useSearchParams();
+  const signInPath = signInPathFromSearch(searchParams);
   const [email, setEmail] = useState('');
   const [fieldError, setFieldError] = useState(null);
   const [failure, setFailure] = useState('');
@@ -203,7 +206,7 @@ const ForgotPasswordPage = () => {
             </button>
           </div>
 
-          <BackToLogin />
+          <BackToLogin to={signInPath} />
         </div>
       </PasswordResetShell>
     );
@@ -258,7 +261,7 @@ const ForgotPasswordPage = () => {
           {isSending ? 'Sending Link' : 'Send Reset Link'}
         </Button>
 
-        <BackToLogin />
+        <BackToLogin to={signInPath} />
       </form>
     </PasswordResetShell>
   );

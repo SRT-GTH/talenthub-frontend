@@ -1,11 +1,13 @@
 import api from './api.js';
 import { STORAGE_KEYS } from '../constants/storageKeys.js';
 import { debug } from '../utils/debug.js';
+import { clearSetupHint, saveSetupHint } from './mfa.api.js';
 
 const log = debug('auth.api');
 
 /*
- * Login is always two-step on the backend:
+ * Login is always two-step on the backend (accounts with 2-step verification on answer { requiresMfa, challengeId } instead of
+ * emailing a code; the second step is mfa.api verifyMfaSignIn, POST /auth/mfa/verify):
  *   POST /auth/login      { email | phoneNumber, password } -> code emailed (15 min)
  *   POST /auth/verify-otp { email | phoneNumber, otp }      -> { accessToken, refreshToken, user }
  *   POST /auth/resend-otp { email | phoneNumber }
@@ -35,7 +37,12 @@ export const LOGIN_MODE = (() => {
 
 const pickTokens = (data) => {
   const d = data?.data || data || {};
-  return { accessToken: d.accessToken, refreshToken: d.refreshToken, user: d.user };
+  return {
+    accessToken: d.accessToken,
+    refreshToken: d.refreshToken,
+    user: d.user,
+    mfaSetup: d.mfaSetup || null,
+  };
 };
 
 // `identity` is { email } or { phoneNumber } (E.164, e.g. +233241234567).
@@ -51,14 +58,16 @@ export const requestLoginOtp = async ({ identity, password }) => {
 export const verifyLoginOtp = async ({ identity, otp }) => {
   log('verify-otp via', describe(identity));
   const { data } = await api.post('/auth/verify-otp', { ...identity, otp: String(otp) });
-  const { accessToken, refreshToken, user } = pickTokens(data);
+  const { accessToken, refreshToken, user, mfaSetup } = pickTokens(data);
   log('verify-otp: token received:', Boolean(accessToken));
   if (accessToken) {
     localStorage.setItem(STORAGE_KEYS.authToken, accessToken);
     if (refreshToken) localStorage.setItem(STORAGE_KEYS.refreshToken, refreshToken);
     if (user) localStorage.setItem(STORAGE_KEYS.userProfile, JSON.stringify(user));
+    // Accounts that must use 2-step and haven't set it up: { required, graceUntil, mustSetUpNow } (the reminder banner).
+    saveSetupHint(mfaSetup);
   }
-  return { accessToken, refreshToken, user };
+  return { accessToken, refreshToken, user, mfaSetup };
 };
 
 /**
@@ -120,6 +129,7 @@ export const logout = () => {
   localStorage.removeItem(STORAGE_KEYS.authToken);
   localStorage.removeItem(STORAGE_KEYS.refreshToken);
   localStorage.removeItem(STORAGE_KEYS.userProfile);
+  clearSetupHint();
 };
 
 // Site copy → Preview (`?copyPreview=`): pages show their sample account, never the staff member's own session.

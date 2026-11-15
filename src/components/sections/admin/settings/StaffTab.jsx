@@ -9,6 +9,7 @@ import { classNames } from '../../../../utils/classNames.js';
 import AdminConfirmDialog from '../ui/AdminConfirmDialog.jsx';
 import { useAdminData, useAdminToast } from '../useAdminData.js';
 import AdminLoadNotice from '../AdminLoadNotice.jsx';
+import { ResetTwoStepDialog, TwoStepResetsCard } from './TwoStepResets.jsx';
 import {
   adminError,
   createStaff,
@@ -27,6 +28,8 @@ const log = debug('StaffTab');
  * StaffTab — Settings › Staff accounts (Figma 7.5.1a list, 7.5.1b create form, 7.5.1c deactivate, 7.5.1d last Super Admin).
  * Backend (services/admin.api.js): GET /admin/staff (Senior Admin and above), POST /admin/staff (Super Admin: email, name, phoneNumber, role, password?),
  * PATCH /admin/staff/:id { role }, POST /admin/staff/:id/deactivate { reason }, POST /admin/staff/:id/reactivate.
+ * 2-step resets (MFA Phase 2, TwoStepResets.jsx): "Reset 2-step" on a row asks for a second Super Admin's approval; the waiting requests list
+ * below the staff list is where the second Super Admin approves or rejects.
  * The backend sends no set-up link: a new staff member sets their password with "Forgot password?" on the sign-in page, unless a temporary password
  * is given here. Deactivating the last Super Admin is refused by the backend (LAST_SUPER_ADMIN_GUARD) and shows the 7.5.1d notice.
  * Props: creating (bool), onClose() (closes the create form), session ({ role, entityId, user }).
@@ -45,7 +48,8 @@ const PREVIEW = {
   content_moderator: 'Flag queue, community posts, warnings and escalations',
 };
 
-const staffName = (s) => s.metadata?.displayName || [s.firstName, s.lastName].filter(Boolean).join(' ') || s.email;
+const staffName = (s) =>
+  s.metadata?.displayName || [s.firstName, s.lastName].filter(Boolean).join(' ') || s.email;
 const isSelf = (s, session) => {
   const me = session?.user || {};
   return docId(s) === String(me._id || me.id || '') || (me.email && s.email === me.email);
@@ -58,7 +62,9 @@ const Pill = ({ children, selected, onClick }) => (
     onClick={onClick}
     className={classNames(
       'inline-flex cursor-pointer items-center rounded-full border border-solid px-[14px] py-[8px] font-sans text-[14px] leading-[17px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#387440]',
-      selected ? 'border-[#1c2a21] bg-[#1c2a21] text-white' : 'border-[#1c2a21]/60 bg-white text-[#1c2a21]',
+      selected
+        ? 'border-[#1c2a21] bg-[#1c2a21] text-white'
+        : 'border-[#1c2a21]/60 bg-white text-[#1c2a21]'
     )}
   >
     {children}
@@ -66,12 +72,21 @@ const Pill = ({ children, selected, onClick }) => (
 );
 
 const CreateForm = ({ onDone, onCancel }) => {
-  const [form, setForm] = useState({ name: '', email: '', phoneNumber: '', role: 'support_agent', password: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    role: 'support_agent',
+    password: '',
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const ready =
-    form.name.trim().length > 1 && /\S+@\S+\.\S+/.test(form.email) && form.phoneNumber.trim().length >= 9 && !busy;
+    form.name.trim().length > 1 &&
+    /\S+@\S+\.\S+/.test(form.email) &&
+    form.phoneNumber.trim().length >= 9 &&
+    !busy;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -98,13 +113,26 @@ const CreateForm = ({ onDone, onCancel }) => {
   return (
     <GroupCard title="Create a staff account">
       <p className="m-0 font-sans text-[14px] leading-[21px] text-[#595959]">
-        They sign in at /admin with 2-step sign-in. Leave the password empty and they set one with “Forgot password?”.
+        They sign in at /admin with 2-step sign-in. Leave the password empty and they set one with
+        “Forgot password?”.
       </p>
       <form className="flex w-full flex-col gap-[8px]" onSubmit={submit}>
         <div className="grid grid-cols-1 gap-[16px] sm:grid-cols-2">
           <TextInput label="Full name" required value={form.name} onChange={set('name')} />
-          <TextInput label="Work email" required type="email" value={form.email} onChange={set('email')} />
-          <TextInput label="Phone number" required placeholder="+233…" value={form.phoneNumber} onChange={set('phoneNumber')} />
+          <TextInput
+            label="Work email"
+            required
+            type="email"
+            value={form.email}
+            onChange={set('email')}
+          />
+          <TextInput
+            label="Phone number"
+            required
+            placeholder="+233…"
+            value={form.phoneNumber}
+            onChange={set('phoneNumber')}
+          />
           <TextInput
             label="Temporary password"
             optional
@@ -117,7 +145,11 @@ const CreateForm = ({ onDone, onCancel }) => {
         </div>
         <div className="flex flex-wrap gap-[8px] pt-[8px]" role="group" aria-label="Role">
           {STAFF_ROLES.map((r) => (
-            <Pill key={r.value} selected={form.role === r.value} onClick={() => setForm((f) => ({ ...f, role: r.value }))}>
+            <Pill
+              key={r.value}
+              selected={form.role === r.value}
+              onClick={() => setForm((f) => ({ ...f, role: r.value }))}
+            >
               {r.label}
             </Pill>
           ))}
@@ -138,7 +170,9 @@ const CreateForm = ({ onDone, onCancel }) => {
           >
             Cancel
           </button>
-          <span className="font-sans text-[13px] leading-[16px] text-[#595959]">Can do: {PREVIEW[form.role]}</span>
+          <span className="font-sans text-[13px] leading-[16px] text-[#595959]">
+            Can do: {PREVIEW[form.role]}
+          </span>
         </div>
       </form>
     </GroupCard>
@@ -148,7 +182,8 @@ const CreateForm = ({ onDone, onCancel }) => {
 const StaffTab = ({ creating, onClose, session }) => {
   const staff = useAdminData(() => listStaff({ limit: 200 }), []);
   const [toastEl, toast] = useAdminToast();
-  const [dialog, setDialog] = useState(null); // { kind: 'role' | 'deactivate' | 'reactivate' | 'last-super', row }
+  const [dialog, setDialog] = useState(null); // { kind: 'role' | 'deactivate' | 'reactivate' | 'last-super' | 'two-step', row }
+  const [resetsKey, setResetsKey] = useState(0);
   const [value, setValue] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -181,7 +216,8 @@ const StaffTab = ({ creating, onClose, session }) => {
   return (
     <>
       <p className="m-0 flex items-center gap-[12px] rounded-[16px] bg-[#faf4e8] p-[16px] font-sans text-[14px] leading-[20px] font-medium text-[#463409]">
-        Only Super Admins create, change or deactivate staff. Every change is logged under your name.
+        Only Super Admins create, change or deactivate staff. Every change is logged under your
+        name.
       </p>
       {creating && canEdit ? (
         <CreateForm
@@ -191,7 +227,7 @@ const StaffTab = ({ creating, onClose, session }) => {
               'Staff account created',
               withPassword
                 ? `${res?.email} can sign in with the temporary password.`
-                : `${res?.email} sets a password with “Forgot password?”.`,
+                : `${res?.email} sets a password with “Forgot password?”.`
             );
             onClose();
             staff.reload();
@@ -199,7 +235,12 @@ const StaffTab = ({ creating, onClose, session }) => {
         />
       ) : null}
       <GroupCard title={`Staff · ${records.length}`} gap="gap-0">
-        <AdminLoadNotice loading={staff.loading} error={staff.error} status={staff.status} onRetry={staff.reload}>
+        <AdminLoadNotice
+          loading={staff.loading}
+          error={staff.error}
+          status={staff.status}
+          onRetry={staff.reload}
+        >
           {records.map((r, i) => {
             const active = r.status === 'active';
             const self = isSelf(r, session);
@@ -207,9 +248,15 @@ const StaffTab = ({ creating, onClose, session }) => {
             return (
               <div
                 key={docId(r)}
-                className={classNames('flex w-full flex-wrap items-center gap-[14px] py-[14px]', i > 0 && 'border-t border-[rgba(28,42,33,0.08)]')}
+                className={classNames(
+                  'flex w-full flex-wrap items-center gap-[14px] py-[14px]',
+                  i > 0 && 'border-t border-[rgba(28,42,33,0.08)]'
+                )}
               >
-                <span aria-hidden="true" className="grid size-[44px] shrink-0 place-items-center rounded-[13px] bg-[#ffd86b]">
+                <span
+                  aria-hidden="true"
+                  className="grid size-[44px] shrink-0 place-items-center rounded-[13px] bg-[#ffd86b]"
+                >
                   <AdminStaffUserIcon className="size-[21px] text-[#1c2a21]" />
                 </span>
                 <div className="flex min-w-[220px] flex-1 flex-col gap-[2px]">
@@ -224,11 +271,14 @@ const StaffTab = ({ creating, onClose, session }) => {
                   </p>
                   <p className="m-0 font-sans text-[13px] leading-[16px] text-[#595959]">
                     {r.email}
-                    {self ? ' · you' : ''} · {last ? `last sign-in ${timeAgo(last)}` : 'never signed in'}
+                    {self ? ' · you' : ''} ·{' '}
+                    {last ? `last sign-in ${timeAgo(last)}` : 'never signed in'}
                   </p>
                 </div>
                 {self ? (
-                  <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#387440] underline">You</span>
+                  <span className="font-sans text-[14px] leading-[17px] font-semibold text-[#387440] underline">
+                    You
+                  </span>
                 ) : canEdit ? (
                   <div className="flex items-center gap-[14px]">
                     {active ? (
@@ -238,6 +288,9 @@ const StaffTab = ({ creating, onClose, session }) => {
                         </TextAction>
                         <TextAction tone="green" onClick={() => open('deactivate', r)}>
                           Deactivate
+                        </TextAction>
+                        <TextAction tone="green" onClick={() => open('two-step', r)}>
+                          Reset 2-step
                         </TextAction>
                       </>
                     ) : (
@@ -256,6 +309,7 @@ const StaffTab = ({ creating, onClose, session }) => {
           })}
         </AdminLoadNotice>
       </GroupCard>
+      {canEdit ? <TwoStepResetsCard reloadKey={resetsKey} onToast={toast} /> : null}
       <GroupCard title="Super Admins" gap="gap-0">
         <SettingRow
           title={`${supers.length} active Super Admin${supers.length === 1 ? '' : 's'}`}
@@ -274,11 +328,22 @@ const StaffTab = ({ creating, onClose, session }) => {
           onPrimary={() =>
             !busy &&
             value !== dialog.row.entityType &&
-            run(() => updateStaff(docId(dialog.row), { role: value }), 'Role changed', `${staffName(dialog.row)} is now ${entityLabel(value)}.`)
+            run(
+              () => updateStaff(docId(dialog.row), { role: value }),
+              'Role changed',
+              `${staffName(dialog.row)} is now ${entityLabel(value)}.`
+            )
           }
           onClose={() => setDialog(null)}
         >
-          <Select label="Role" required options={STAFF_ROLES} value={value} onChange={setValue} error={error || undefined} />
+          <Select
+            label="Role"
+            required
+            options={STAFF_ROLES}
+            value={value}
+            onChange={setValue}
+            error={error || undefined}
+          />
         </AdminConfirmDialog>
       ) : null}
       {dialog?.kind === 'deactivate' ? (
@@ -290,7 +355,11 @@ const StaffTab = ({ creating, onClose, session }) => {
           onPrimary={() =>
             !busy &&
             value.trim().length >= 3 &&
-            run(() => deactivateStaff(docId(dialog.row), value.trim()), 'Staff deactivated', `${staffName(dialog.row)} can no longer sign in.`)
+            run(
+              () => deactivateStaff(docId(dialog.row), value.trim()),
+              'Staff deactivated',
+              `${staffName(dialog.row)} can no longer sign in.`
+            )
           }
           onClose={() => setDialog(null)}
         >
@@ -311,12 +380,32 @@ const StaffTab = ({ creating, onClose, session }) => {
           primary={{ label: busy ? 'Reactivating…' : 'Reactivate', arrow: true }}
           secondary="Cancel"
           onPrimary={() =>
-            !busy && run(() => reactivateStaff(docId(dialog.row)), 'Staff reactivated', `${staffName(dialog.row)} can sign in again.`)
+            !busy &&
+            run(
+              () => reactivateStaff(docId(dialog.row)),
+              'Staff reactivated',
+              `${staffName(dialog.row)} can sign in again.`
+            )
           }
           onClose={() => setDialog(null)}
         >
           {error ? <p className="m-0 text-[14px] text-[#902b20]">{error}</p> : null}
         </AdminConfirmDialog>
+      ) : null}
+      {dialog?.kind === 'two-step' ? (
+        <ResetTwoStepDialog
+          person={docId(dialog.row)}
+          name={staffName(dialog.row)}
+          onClose={() => setDialog(null)}
+          onDone={() => {
+            toast(
+              'Reset requested',
+              `A second Super Admin must approve resetting ${staffName(dialog.row)}’s 2-step verification.`
+            );
+            setDialog(null);
+            setResetsKey((k) => k + 1);
+          }}
+        />
       ) : null}
       {dialog?.kind === 'last-super' ? (
         <AdminConfirmDialog

@@ -3,6 +3,7 @@ import { debug } from '../../../utils/debug.js';
 import { FOCUS_RING } from '../talentSettings/helpUi.jsx';
 import { MONTH_SUMMARY, STATEMENTS, TRANSACTIONS, TRANSACTION_FILTERS } from './walletData.js';
 import { HEADING, PLAIN_CARD, TxRow } from './walletUi.jsx';
+import { useBillingReceiptRows } from './useBillingReceiptRows.js';
 
 const log = debug('WalletTransactions');
 
@@ -42,7 +43,9 @@ const SideCard = ({ title, children }) => (
  */
 const WalletTransactions = ({ wallet }) => {
   const filter = TRANSACTION_FILTERS.includes(wallet.filter) ? wallet.filter : 'All';
-  const rows = TRANSACTIONS.filter(FILTERS[filter]);
+  // Billing receipts (VITE_BILLING_V2=1) come first, newest first; the drawn wallet rows follow.
+  const billingRows = useBillingReceiptRows();
+  const rows = [...billingRows, ...TRANSACTIONS].filter(FILTERS[filter]);
   const groups = groupByMonth(rows);
   log('render', { filter, rows: rows.length });
 

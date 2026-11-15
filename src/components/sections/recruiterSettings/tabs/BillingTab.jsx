@@ -5,6 +5,8 @@ import Button from '../../../ui/Button.jsx';
 import { GroupCard, SettingRow } from '../../talentSettings/SettingsBUi.jsx';
 import { CalendarIcon, UploadArrowIcon } from '../hiring/hiringIcons.jsx';
 import { BILLING } from '../hiring/hiringData.js';
+import { billingV2Enabled } from '../../../../services/billing.api.js';
+import BillingInvoicesCard from './BillingInvoicesCard.jsx';
 
 import { useRecruiterShell } from '../../../../hooks/useRecruiterShell.js';
 
@@ -161,7 +163,7 @@ const BillingTab = () => {
         </div>
       </GroupCard>
 
-      {live ? (
+      {live && !billingV2Enabled() ? (
         <GroupCard recruiter title="Payments and invoices" aria-label="Payments and invoices">
           <SettingRow
             recruiter
@@ -203,7 +205,10 @@ const BillingTab = () => {
         </GroupCard>
       )}
 
-      {live ? null : (
+      {/* Real invoices when billing v2 is on; otherwise the drawn mock rows (demo only). */}
+      {billingV2Enabled() ? (
+        <BillingInvoicesCard />
+      ) : live ? null : (
         <GroupCard recruiter title={BILLING.invoices.title} aria-label={BILLING.invoices.title}>
           {BILLING.invoices.rows.map((row) => (
             <SettingRow
