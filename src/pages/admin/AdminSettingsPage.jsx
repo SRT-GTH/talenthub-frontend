@@ -13,6 +13,7 @@ import AgenciesTab from '../../components/sections/admin/settings/AgenciesTab.js
 import SystemNotificationsTab from '../../components/sections/admin/settings/SystemNotificationsTab.jsx';
 import ReferenceDataTab from '../../components/sections/admin/settings/ReferenceDataTab.jsx';
 import StaffTab from '../../components/sections/admin/settings/StaffTab.jsx';
+import TwoStepPanel from '../../components/sections/twoStep/TwoStepPanel.jsx';
 import OverviewTab from '../../components/sections/admin/settings/insights/OverviewTab.jsx';
 import SecurityTab from '../../components/sections/admin/settings/insights/SecurityTab.jsx';
 import AccessibilityTab from '../../components/sections/admin/settings/insights/AccessibilityTab.jsx';
@@ -29,6 +30,7 @@ const log = debug('AdminSettingsPage');
  *   /admin/settings/staff                     Staff accounts (7.5.1a) · ?create=1 → create form (7.5.1b); deactivate / last-Super-Admin dialogs are in StaffTab
  *   /admin/settings/staff-data                old link: shows Staff accounts (deactivating is done from a staff row there)
  *   /admin/settings/overview | security | accessibility   live figures (adminInsights; Senior and Super Admin)
+ *   /admin/settings/two-step                  My 2-step verification (MFA Phase 2): the signed-in staff member's own authenticator apps and backup codes
  *   /admin/settings/roles                     Roles and permissions (7.5.1e)
  *   /admin/settings/values                    Platform values: the platformEnum lists in the database (PlatformValuesTab)
  *   /admin/settings  (= /admin/settings/platform)   platform config groups; #feature_flag / #integration scroll to a group (nav: Feature flags / Integrations)
@@ -66,6 +68,11 @@ const AdminSettingsPage = () => {
         session={session}
       />
     );
+  } else if (tab === 'two-step') {
+    active = 'two-step';
+    subtitle =
+      'Your own 2-step verification. Staff need it to use the console; every change is emailed to you and logged.';
+    body = <TwoStepPanel />;
   } else if (tab === 'onboarding') {
     active = 'onboarding';
     subtitle =

@@ -5,10 +5,12 @@ import WorkspaceSidebar from '../recruiterDashboard/WorkspaceSidebar.jsx';
 import useScopedRoundedFont from '../../../hooks/useScopedRoundedFont.js';
 import BannerToast from '../../ui/BannerToast.jsx';
 import { HANDOFF_TOAST } from '../jobScreening/screeningFlowData.js';
+import { openApplicantConversation } from '../../../services/recruiterScreening.api.js';
 import RecruiterPageHeading from '../recruiterShared/RecruiterPageHeading.jsx';
 import PipelineMeetingCard, { SecondaryButton } from './PipelineMeetingCard.jsx';
 import PipelineBoard from './PipelineBoard.jsx';
 import PipelineActionLayer from './actions/PipelineActionLayer.jsx';
+import LivePipelineActions from './actions/LivePipelineActions.jsx';
 import { ACTION_SCENARIOS } from './actions/pipelineActionScenarios.js';
 import { BASE_BOARD, EMPTY_BOARD } from './pipelineBoardData.js';
 import { moveCard } from './pipelineBoardModel.js';
@@ -16,6 +18,7 @@ import ScheduleInterviewModal from './ScheduleInterviewModal.jsx';
 import InterviewConfirmModal from './InterviewConfirmModal.jsx';
 import ScheduleSelect from './ScheduleSelect.jsx';
 import { useLivePipeline } from './useLivePipeline.js';
+import { liveBoard, MOVE_STAGE } from './livePipelineBoard.js';
 import { ACTION_LABELS, ACTION_STAGE, buildPipelineColumns, candidateFor } from './pipelineLive.js';
 import { pipelineErrorText } from '../../../services/recruiterPipeline.api.js';
 import { CandidateClockIcon, CandidateRatingStarIcon } from './pipelineBoardIcons.jsx';
@@ -186,7 +189,9 @@ const ApplicationPipelineSection = () => {
   const pipe = useLivePipeline();
   const isLive = pipe.status !== 'demo';
   // The legacy board (older design, frames 7249:*) stays for the `sidebar=collapsed` schedule frames, the screening hand-off and signed-in data; every other demo URL is the new board.
-  const legacy = isLive || urlState.sidebarCollapsed || handoff !== null;
+  // Signed in, the new board draws the recruiter's own applications (livePipelineBoard.js).
+  // Signed in, the hand-off only adds its toast to the live board (the screening page moved real applicants to Screening).
+  const legacy = urlState.sidebarCollapsed || (handoff !== null && !isLive);
   useScopedRoundedFont('data-recruiter-ui', handoff !== null || !legacy);
   const navigate = useNavigate();
   // Several writes can land in one tick (e.g. pick an option, then close the list), and
@@ -206,8 +211,39 @@ const ApplicationPipelineSection = () => {
   // Live: which application the modal is for, and a pending confirmation.
   const [scheduleFor, setScheduleFor] = useState(null);
   const [pending, setPending] = useState(null); // { card, action }
+  // Live drawer / dialogs: { kind: drawer | bulk-move | not-progressing | extend-offer | interview-completed, id | ids }
+  const [liveModal, setLiveModal] = useState(null);
+  // Home "Leave feedback" links here with ?feedback=<applicationId>: open the interview feedback dialog once.
+  const feedbackParam = searchParams.get('feedback');
+  useEffect(() => {
+    if (pipe.status !== 'live' || !feedbackParam) return;
+    if (pipe.applications.some((a) => String(a._id) === feedbackParam))
+      setLiveModal({ kind: 'interview-completed', id: feedbackParam });
+    const next = new URLSearchParams(latestParamsRef.current);
+    next.delete('feedback');
+    latestParamsRef.current = next;
+    setSearchParams(next, { replace: true });
+  }, [pipe.status, pipe.applications, feedbackParam, setSearchParams]);
+  // Screening results "View profile" links here with ?open=<applicationId>: open that applicant's drawer once.
+  const openParam = searchParams.get('open');
+  useEffect(() => {
+    if (pipe.status !== 'live' || !openParam) return;
+    if (pipe.applications.some((a) => String(a._id) === openParam))
+      setLiveModal({ kind: 'drawer', id: openParam });
+    const next = new URLSearchParams(latestParamsRef.current);
+    next.delete('open');
+    latestParamsRef.current = next;
+    setSearchParams(next, { replace: true });
+  }, [pipe.status, pipe.applications, openParam, setSearchParams]);
   const [error, setError] = useState(null);
   const selectedJob = pipe.jobs.find((j) => jobIdOf(j) === pipe.jobId) || null;
+  // Live: open on the posting named in the URL ("View Pipeline" on /recruiter/job-postings passes ?posting=<id>).
+  const urlPosting = searchParams.get('posting');
+  const { jobs: liveJobs, setJobId: setLiveJobId } = pipe;
+  useEffect(() => {
+    if (isLive && urlPosting && liveJobs.some((j) => jobIdOf(j) === urlPosting))
+      setLiveJobId(urlPosting);
+  }, [isLive, urlPosting, liveJobs, setLiveJobId]);
   // Signed in, the board never shows the Figma demo people — empty columns while loading.
   const columns = isLive
     ? buildPipelineColumns(COLUMNS, pipe.status === 'live' ? pipe.applications : [], pipe.jobId)
@@ -334,11 +370,46 @@ const ApplicationPipelineSection = () => {
   const baseBoard = urlState.pipelineEmpty ? EMPTY_BOARD : BASE_BOARD;
   const movedBoard = urlState.moved.reduce((acc, [id, to]) => moveCard(acc, id, to), baseBoard);
   const scenario = urlState.scenario ? ACTION_SCENARIOS[urlState.scenario] : null;
-  const board = scenario ? scenario(movedBoard) : movedBoard;
+  const board = isLive
+    ? liveBoard(pipe.status === 'live' ? pipe.applications : [], selectedJob)
+    : scenario
+      ? scenario(movedBoard)
+      : movedBoard;
+
+  // Live: the schedule modal for one application, a confirmation, or a straight stage change.
+  const openSchedule = (appId) => {
+    setScheduleFor(appId);
+    setUrlKeys({ [PIPELINE_URL_KEYS.modal]: 'schedule-interview' });
+  };
+  const liveBoardAction = (card, action, ids) => {
+    log('live board action', { app: card?.applicationId, action, ids });
+    if (['schedule-interview', 'Schedule interview', 'Reschedule'].includes(action))
+      openSchedule(card.applicationId);
+    else if (action === 'Mark as Completed')
+      setLiveModal({ kind: 'interview-completed', id: card.applicationId });
+    else if (action === 'View Details' || action === 'View Meeting')
+      setLiveModal({ kind: 'drawer', id: card.applicationId });
+    else if (action === 'Cancel interview') setPending({ card, action: 'cancel-interview' });
+    else if (action === 'bulk-not-progressing')
+      runLive(Promise.all(ids.map((id) => pipe.move(id, 'rejected'))));
+    else if (action === 'bulk-move' || action === 'bulk-message') {
+      if (action === 'bulk-message') navigate('/recruiter/messages');
+      else setLiveModal({ kind: 'bulk-move', ids });
+    } else log('no live destination yet for', action);
+  };
 
   const moveCardTo = (cardId, toStage) => {
     const found = board.stages.find((st) => st.cards.some((c) => c.id === cardId));
     if (!found || found.id === toStage) return;
+    if (isLive) {
+      log('live move', { app: cardId, from: found.id, to: toStage });
+      if (toStage === 'interview') openSchedule(cardId);
+      else if (toStage === 'not-progressed') setLiveModal({ kind: 'not-progressing', id: cardId });
+      else if (toStage === 'offer-extended') setLiveModal({ kind: 'extend-offer', id: cardId });
+      else if (MOVE_STAGE[toStage]) runLive(pipe.move(cardId, MOVE_STAGE[toStage]));
+      else setError('A hire is recorded when the candidate accepts your offer.');
+      return;
+    }
     log('move', { cardId, from: found.id, to: toStage });
     const moved = [...urlState.moved.map((pair) => pair.join(':')), `${cardId}:${toStage}`].join(
       ','
@@ -356,6 +427,10 @@ const ApplicationPipelineSection = () => {
 
   const handleBoardAction = (card, action, ids) => {
     log('board action', { card: card?.id, action, ids });
+    if (isLive) {
+      liveBoardAction(card, action, ids);
+      return;
+    }
     if (action === 'schedule-interview' || action === 'Reschedule') {
       setUrlKeys({ modal: 'schedule-interview', candidate: card.id });
     } else if (action === 'Mark as Completed') {
@@ -374,6 +449,21 @@ const ApplicationPipelineSection = () => {
   const handleBoardMenuItem = (card, row) => {
     log('menu item', { card: card.id, item: row.id });
     setUrlKeys({ menu: null, menuItem: null });
+    if (isLive) {
+      if (row.moveTo) moveCardTo(card.id, row.moveTo);
+      else if (row.id === 'schedule-interview') openSchedule(card.applicationId);
+      else if (row.id === 'not-progressing') setLiveModal({ kind: 'not-progressing', id: card.id });
+      else if (row.id === 'message')
+        openApplicantConversation(card.applicationId || card.id)
+          .then((id) =>
+            navigate(id ? `/recruiter/messages?conversation=${id}` : '/recruiter/messages')
+          )
+          .catch(() => navigate('/recruiter/messages'));
+      else if (row.id === 'view-profile' || row.id === 'open-application')
+        setLiveModal({ kind: 'drawer', id: card.id });
+      else log('no live destination yet for menu item', row.id);
+      return;
+    }
     if (row.id === 'view-profile' || row.id === 'open-application') {
       setUrlKeys({ drawer: card.id });
     } else if (row.id === 'message') navigate('/recruiter/messages');
@@ -438,10 +528,12 @@ const ApplicationPipelineSection = () => {
     <DashboardShell
       defaultSidebarCollapsed={urlState.sidebarCollapsed}
       renderSidebar={
-        legacy && handoff === null
+        legacy && !isLive && handoff === null
           ? undefined
           : ({ collapsed, onToggle }) =>
-              collapsed ? null : <WorkspaceSidebar onToggle={onToggle} showSettings={!legacy} />
+              collapsed ? null : (
+                <WorkspaceSidebar onToggle={onToggle} showSettings={!legacy || isLive} />
+              )
       }
     >
       <div className="flex w-full flex-col gap-[28px] py-[32px] pl-[clamp(16px,2.3vw,40px)] pr-[clamp(16px,3.24vw,56px)] max-md:gap-[12px] max-md:py-[12px]">
@@ -566,7 +658,9 @@ const ApplicationPipelineSection = () => {
             setUrlKeys={setUrlKeys}
             onCardAction={handleBoardAction}
             onMenuItem={handleBoardMenuItem}
-            onOpenDetails={(id) => setUrlKeys({ drawer: id })}
+            onOpenDetails={(id) =>
+              isLive ? setLiveModal({ kind: 'drawer', id }) : setUrlKeys({ drawer: id })
+            }
             onMove={moveCardTo}
             onInvite={() => navigate('/recruiter/talent-search')}
           />
@@ -604,7 +698,20 @@ const ApplicationPipelineSection = () => {
           : {})}
       />
 
-      {isLive ? null : <PipelineActionLayer board={board} />}
+      {isLive ? (
+        <LivePipelineActions
+          board={board}
+          applications={pipe.applications}
+          jobTitle={selectedJob?.title || ''}
+          modal={liveModal}
+          setModal={setLiveModal}
+          reload={pipe.reload}
+          onSchedule={openSchedule}
+          onError={setError}
+        />
+      ) : (
+        <PipelineActionLayer board={board} />
+      )}
 
       <InterviewConfirmModal
         open={Boolean(pending)}
@@ -615,9 +722,13 @@ const ApplicationPipelineSection = () => {
       {handoff !== null ? (
         <BannerToast
           tone="success"
-          title={HANDOFF_TOAST.title(handoff)}
-          message={HANDOFF_TOAST.message}
-          actionLabel={HANDOFF_TOAST.action}
+          title={
+            isLive
+              ? `Success - ${handoff} ${handoff === '1' ? 'applicant' : 'applicants'} moved to Screening`
+              : HANDOFF_TOAST.title(handoff)
+          }
+          message={isLive ? 'From your screening results.' : HANDOFF_TOAST.message}
+          actionLabel={isLive ? undefined : HANDOFF_TOAST.action}
           onClose={() => setUrlKeys({ handoff: null })}
           duration={0}
           placement="fixed top-[22px] left-1/2 z-[70] w-max max-w-[calc(100vw-32px)] -translate-x-1/2 max-md:top-[72px]"

@@ -12,7 +12,7 @@ import { ORGS, ORG_SWITCHER } from './recruiterDashboardData.js';
  */
 const Mark = ({ org, size }) => (
   <img
-    src={orgMarks[org.logo]}
+    src={org.logoUrl || orgMarks[org.logo]}
     alt=""
     aria-hidden="true"
     style={{ width: size, height: size }}

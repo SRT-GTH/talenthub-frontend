@@ -9,8 +9,8 @@ import { AUTO_MESSAGE_DIALOG as COPY, AUTO_MESSAGES } from './hiringData.js';
 const log = debug('AutoMessageDialog');
 
 // Fill the {tokens} with the sample candidate / recruiter of the preview ("AS AMA SEES IT").
-const fillTokens = (text) =>
-  Object.entries(COPY.sample).reduce((out, [token, value]) => out.split(token).join(value), text);
+const fillTokens = (text, sample = COPY.sample) =>
+  Object.entries(sample).reduce((out, [token, value]) => out.split(token).join(value), text);
 
 /*
  * AutoMessageDialog - "When someone applies" editor (Figma SR-09 10161:80292, "Modal · When someone applies" 10161:80627), on `ui/IconTileDialog` (600px, #0b1a0f 45 % scrim, the message tile).
@@ -19,8 +19,11 @@ const fillTokens = (text) =>
  * Props: id (a key of AUTO_MESSAGES), text (the message now), onCancel, onSave(id, text).
  * ⚠️ ASSUMPTION: only "applied" is drawn; the other three messages open this same dialog with their own title, subtitle and default text (hiringData.js).
  */
-const AutoMessageDialog = ({ id, text, onCancel, onSave }) => {
-  const meta = AUTO_MESSAGES.find((m) => m.id === id) ?? AUTO_MESSAGES[0];
+// Live: `defaultText` is the backend's default for "Reset to default"; `sample` fills the preview with the real company and name.
+const AutoMessageDialog = ({ id, text, onCancel, onSave, defaultText, sample }) => {
+  const found = AUTO_MESSAGES.find((m) => m.id === id) ?? AUTO_MESSAGES[0];
+  const meta = defaultText ? { ...found, text: defaultText } : found;
+  const previewSample = sample ? { ...COPY.sample, ...sample } : COPY.sample;
   const [value, setValue] = useState(text);
   const areaRef = useRef(null);
   const canSave = value.trim().length > 0 && value.length <= COPY.maxLength;
@@ -114,7 +117,7 @@ const AutoMessageDialog = ({ id, text, onCancel, onSave }) => {
           {COPY.preview}
         </h3>
         <p className="m-0 text-[14px] leading-[24px] tracking-[0.2px] text-[#111]">
-          {fillTokens(value)}
+          {fillTokens(value, previewSample)}
         </p>
       </section>
     </IconTileDialog>

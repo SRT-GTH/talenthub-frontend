@@ -35,12 +35,17 @@ const boxClass =
   '!rounded-[10px] !border !border-[#dbded9] !bg-white !shadow-[0_3px_0_0_rgba(34,70,38,0.8)]';
 const areaClass = '!resize-none !px-[16px] !pt-[12px] !pb-[8px] !leading-[24px]';
 
-export const ExtendOfferDialog = ({ candidate, jobTitleShort, onCancel, onConfirm }) => {
+/*
+ * defaults (live): { salary, startDate, expires, employment, expiryOptions, hideLetter } replace the Figma values
+ * (GBP 62,000, Sarah's offer letter).
+ */
+export const ExtendOfferDialog = ({ candidate, jobTitleShort, onCancel, onConfirm, defaults }) => {
   const first = firstName(candidate.name);
-  const [salary, setSalary] = useState(OFFER_DEFAULTS.salary);
-  const [startDate, setStartDate] = useState(OFFER_DEFAULTS.startDate);
-  const [expires, setExpires] = useState(OFFER_DEFAULTS.expires);
-  const [employment, setEmployment] = useState(OFFER_DEFAULTS.employment);
+  const base = { ...OFFER_DEFAULTS, ...(defaults || {}) };
+  const [salary, setSalary] = useState(base.salary);
+  const [startDate, setStartDate] = useState(base.startDate);
+  const [expires, setExpires] = useState(base.expires);
+  const [employment, setEmployment] = useState(base.employment);
   const [message, setMessage] = useState(OFFER_COPY.defaultMessage(first, jobTitleShort));
   const canSend = salary.trim() && startDate.trim() && message.trim();
   log('render', { candidate: candidate.id, expires, employment, length: message.length });
@@ -100,7 +105,7 @@ export const ExtendOfferDialog = ({ candidate, jobTitleShort, onCancel, onConfir
             label={OFFER_COPY.expiresLabel}
             value={expires}
             onChange={setExpires}
-            options={OFFER_EXPIRY_OPTIONS}
+            options={base.expiryOptions || OFFER_EXPIRY_OPTIONS}
           />
         </div>
         <div className="pb-[23px]">
@@ -115,19 +120,21 @@ export const ExtendOfferDialog = ({ candidate, jobTitleShort, onCancel, onConfir
           />
         </div>
       </div>
-      <div className="flex items-center gap-[12px] rounded-[16px] border border-solid border-[#e5e8e3] bg-white p-[16px]">
-        <OfferLetterFileIcon className="size-[20px] shrink-0 text-[#387440]" />
-        <p className="m-0 min-w-0 flex-1 truncate font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]">
-          {`${OFFER_DEFAULTS.letter.name} · ${OFFER_DEFAULTS.letter.size}`}
-        </p>
-        <button
-          type="button"
-          onClick={() => log('replace offer letter (mock, no file picker)')}
-          className="min-h-[24px] shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-        >
-          {OFFER_COPY.replace}
-        </button>
-      </div>
+      {base.hideLetter ? null : (
+        <div className="flex items-center gap-[12px] rounded-[16px] border border-solid border-[#e5e8e3] bg-white p-[16px]">
+          <OfferLetterFileIcon className="size-[20px] shrink-0 text-[#387440]" />
+          <p className="m-0 min-w-0 flex-1 truncate font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]">
+            {`${OFFER_DEFAULTS.letter.name} · ${OFFER_DEFAULTS.letter.size}`}
+          </p>
+          <button
+            type="button"
+            onClick={() => log('replace offer letter (mock, no file picker)')}
+            className="min-h-[24px] shrink-0 cursor-pointer border-0 bg-transparent p-0 font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#387440] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+          >
+            {OFFER_COPY.replace}
+          </button>
+        </div>
+      )}
       <Textarea
         label={OFFER_COPY.messageLabel}
         maxLength={OFFER_COPY.maxLength}
@@ -173,13 +180,21 @@ const StarRating = ({ label, value, onChange }) => (
   </div>
 );
 
-export const InterviewCompletedDialog = ({ candidate, onCancel, onSaveForLater, onSave }) => {
+/* criteria / defaultNotes (live): LIVE_FEEDBACK_CRITERIA and an empty note instead of the Figma design ones. */
+export const InterviewCompletedDialog = ({
+  candidate,
+  onCancel,
+  onSaveForLater,
+  onSave,
+  criteria = FEEDBACK_CRITERIA,
+  defaultNotes = INTERVIEW_FEEDBACK_COPY.defaultNotes,
+}) => {
   const first = firstName(candidate.name);
   const [overall, setOverall] = useState('yes');
   const [ratings, setRatings] = useState(
-    Object.fromEntries(FEEDBACK_CRITERIA.map((item) => [item.id, item.rating]))
+    Object.fromEntries(criteria.map((item) => [item.id, item.rating]))
   );
-  const [notes, setNotes] = useState(INTERVIEW_FEEDBACK_COPY.defaultNotes);
+  const [notes, setNotes] = useState(defaultNotes);
   const [nextStep, setNextStep] = useState('extend-offer');
   log('render', { candidate: candidate.id, overall, nextStep });
 
@@ -243,7 +258,7 @@ export const InterviewCompletedDialog = ({ candidate, onCancel, onSaveForLater, 
           );
         })}
       </div>
-      {FEEDBACK_CRITERIA.map((criterion) => (
+      {criteria.map((criterion) => (
         <StarRating
           key={criterion.id}
           label={criterion.label}

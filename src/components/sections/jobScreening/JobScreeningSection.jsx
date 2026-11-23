@@ -24,6 +24,8 @@ import Chip from '../../ui/Chip.jsx';
 import { debug } from '../../../utils/debug.js';
 import useScreeningFlowParams from './useScreeningFlowParams.js';
 import AdjustCriteriaDrawer from './AdjustCriteriaDrawer.jsx';
+import LiveJobScreening from './LiveJobScreening.jsx';
+import { isRecruiterSession } from '../../../services/recruiterShell.api.js';
 import ScreeningResults from './ScreeningResults.jsx';
 import { EducationLevelMenu, SavedCriteriaMenu, SkillSearchPopover } from './ScreeningMenus.jsx';
 import { MoveToPipelineDialog, ProcessingRunner, SaveCriteriaDialog } from './ScreeningDialogs.jsx';
@@ -110,7 +112,11 @@ const CONTEXT_ICONS = { gauge: AssessmentScoreIcon, location: LocationMatchIcon 
  * "Move N to Pipeline" → /recruiter/application-pipeline?handoff=N (JS-11).
  */
 
-const JobScreeningSection = () => {
+// Signed in: the live criteria builder and results (LiveJobScreening); otherwise the Figma demo below.
+const JobScreeningSection = () =>
+  isRecruiterSession() ? <LiveJobScreening /> : <DemoJobScreening />;
+
+const DemoJobScreening = () => {
   useScopedRoundedFont('data-recruiter-ui'); // Figma draws the recruiter pages in SF Pro Rounded
   const { searchParams, patch } = useScreeningFlowParams();
   const navigate = useNavigate();

@@ -127,6 +127,7 @@ const ActiveJobsWidget = ({
   jobsState = '',
   onStateAction,
   onViewAll,
+  chip = JOBS_WIDGET.chip,
 }) => {
   const inState = Boolean(jobsState);
   return (
@@ -137,7 +138,7 @@ const ActiveJobsWidget = ({
       titleChip={
         inState ? null : (
           <Chip tone="mint" className="py-[2px]">
-            {JOBS_WIDGET.chip}
+            {chip}
           </Chip>
         )
       }

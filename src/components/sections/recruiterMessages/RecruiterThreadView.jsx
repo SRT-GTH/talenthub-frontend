@@ -194,10 +194,16 @@ const RecruiterThreadView = ({
   onBack,
   state,
   className,
+  liveThread = null,
+  onSend,
+  sending = false,
+  error = null,
 }) => {
   const navigate = useNavigate();
   // Messages sent in this session, per conversation (mock: no messaging API is called; they go when the page reloads).
   const [sent, setSent] = useState({});
+  // Signed in: the composer sends for real (onSend) and the thread is the API's messages (liveThread).
+  const [draft, setDraft] = useState('');
   const shell = classNames(
     'flex h-full min-w-0 flex-1 flex-col rounded-[24px] border border-solid border-[#00522b]/10 bg-white px-[22px] pt-[18px] pb-[14px]',
     'max-lg:rounded-none max-lg:border-0 max-lg:px-[12px] max-lg:pt-0',
@@ -210,9 +216,9 @@ const RecruiterThreadView = ({
       </section>
     );
   }
-  const thread = THREADS[conversation.thread] ?? THREADS.akosua;
+  const thread = liveThread || THREADS[conversation.thread] || THREADS.akosua;
   const showApplicantHeader =
-    Boolean(conversation.applicant) || conversation.id === 'akosua-quansah';
+    !liveThread && (Boolean(conversation.applicant) || conversation.id === 'akosua-quansah');
 
   return (
     <section className={shell}>
@@ -342,12 +348,25 @@ const RecruiterThreadView = ({
         ))}
       </div>
 
+      {error ? (
+        <p role="alert" className="m-0 mt-[8px] font-sans text-[13px] text-[#b42318]">
+          {error}
+        </p>
+      ) : null}
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          if (onSend) {
+            // Signed in: send through the API; the thread refreshes from liveThread.
+            if (sending || !draft.trim()) return;
+            log('send (live)', { conversation: conversation.id, length: draft.trim().length });
+            onSend(draft).then((ok) => ok && setDraft(''));
+            return;
+          }
+          // Demo: show the message in this thread for this session (no API).
           const input = event.currentTarget.elements.message;
           const text = input.value.trim();
-          log('send', { conversation: conversation.id, length: text.length });
+          log('send (demo)', { conversation: conversation.id, length: text.length });
           if (!text) return;
           setSent((all) => ({
             ...all,
@@ -365,6 +384,9 @@ const RecruiterThreadView = ({
           placeholder={COMPOSER.placeholder}
           name="message"
           aria-label="Message"
+          {...(onSend
+            ? { value: draft, onChange: (event) => setDraft(event.target.value), disabled: sending }
+            : {})}
           className="min-w-0 flex-1 border-0 bg-transparent p-0 font-sans text-[14px] leading-[18px] text-black outline-none placeholder:text-[#999]"
         />
         <span className="flex shrink-0 items-center gap-[10px]">

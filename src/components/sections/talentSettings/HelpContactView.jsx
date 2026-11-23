@@ -139,7 +139,8 @@ const HelpContactView = ({ settings, sent }) => {
         type: topic,
         subject: subject.trim(),
         body: details.trim(),
-        page: '/settings/help',
+        // The help page the request was sent from (/settings/help for talent, /recruiter/help for recruiters).
+        page: typeof window !== 'undefined' ? window.location.pathname : '/settings/help',
       });
       log('sent', res?.ref);
       setReference(res?.ref || null);

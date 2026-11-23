@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Button from '../../../ui/Button.jsx';
 import Modal from '../../../ui/Modal.jsx';
 import {
@@ -41,8 +42,24 @@ const SectionTitle = ({ children }) => (
   </h3>
 );
 
-const CandidateDrawer = ({ card, stageId, detail, onClose, onNotProgressing, onMove, onLink }) => {
+/*
+ * Live extras: notes ([{ id, content, at }]) and onAddNote(text) -> Promise make Team notes real; busy disables the buttons.
+ */
+const CandidateDrawer = ({
+  card,
+  stageId,
+  detail,
+  onClose,
+  onNotProgressing,
+  onMove,
+  onLink,
+  notes,
+  onAddNote,
+  busy,
+}) => {
   const nextStage = NEXT_STAGE[stageId];
+  const [draft, setDraft] = useState('');
+  const [saving, setSaving] = useState(false);
   const screening = detail.screening;
   log('render', { card: card.id, stageId, nextStage });
 
@@ -91,7 +108,10 @@ const CandidateDrawer = ({ card, stageId, detail, onClose, onNotProgressing, onM
         ) : null}
 
         <div className="grid grid-cols-3 gap-[12px] max-sm:grid-cols-1">
-          <StatBox label={DRAWER_COPY.match} value={`${card.matchPercent}%`} />
+          <StatBox
+            label={DRAWER_COPY.match}
+            value={typeof card.matchPercent === 'number' ? `${card.matchPercent}%` : '—'}
+          />
           <StatBox label={DRAWER_COPY.stage} value={STAGE_LABELS[stageId] ?? ''} />
           <StatBox label={DRAWER_COPY.applied} value={detail.appliedAt} />
         </div>
@@ -165,15 +185,49 @@ const CandidateDrawer = ({ card, stageId, detail, onClose, onNotProgressing, onM
           <span className="font-sans text-[14px] leading-[24px] font-medium tracking-[0.2px] text-[#111]">
             {DRAWER_COPY.teamNotes}
           </span>
+          {notes && notes.length ? (
+            <ul className="m-0 flex list-none flex-col gap-[8px] p-0">
+              {notes.map((n) => (
+                <li
+                  key={n.id}
+                  className="rounded-[10px] bg-[#f6f6f4] px-[12px] py-[8px] font-sans text-[12px] leading-[20px] text-[#111]"
+                >
+                  <span className="whitespace-pre-wrap">{n.content}</span>
+                  <span className="block text-[#575755]">{n.at}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <textarea
             rows={1}
+            {...(onAddNote ? { value: draft, onChange: (e) => setDraft(e.target.value) } : {})}
             placeholder={DRAWER_COPY.notesPlaceholder}
             className="min-h-[60px] w-full resize-none rounded-[10px] border border-solid border-[#dbded9] bg-white px-[16px] py-[12px] font-sans text-[14px] leading-[24px] tracking-[0.2px] text-[#111] shadow-[0_3px_0_0_rgba(34,70,38,0.8)] outline-none placeholder:text-[#babab7]"
           />
         </label>
+        {onAddNote ? (
+          <Button
+            variant="tertiary"
+            className="!h-[36px] w-fit !py-0"
+            disabled={!draft.trim() || saving}
+            onClick={() => {
+              setSaving(true);
+              Promise.resolve(onAddNote(draft.trim()))
+                .then(() => setDraft(''))
+                .finally(() => setSaving(false));
+            }}
+          >
+            {saving ? 'Saving…' : 'Save note'}
+          </Button>
+        ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-[10px]">
-          <Button variant="tertiary" className="!h-[40px] !py-0" onClick={onNotProgressing}>
+          <Button
+            variant="tertiary"
+            className="!h-[40px] !py-0"
+            disabled={Boolean(busy)}
+            onClick={onNotProgressing}
+          >
             {DRAWER_COPY.notProgressing}
           </Button>
           {nextStage ? (
@@ -181,6 +235,7 @@ const CandidateDrawer = ({ card, stageId, detail, onClose, onNotProgressing, onM
               variant="primary"
               size="sm"
               className="!h-[40px] !py-0"
+              disabled={Boolean(busy)}
               onClick={() => onMove(nextStage)}
             >
               {DRAWER_COPY.moveTo(STAGE_LABELS[nextStage])}

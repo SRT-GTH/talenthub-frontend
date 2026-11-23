@@ -19,10 +19,11 @@ const log = debug('ChangePasswordDialog');
 const DIALOG_BUTTON = '!h-[48px] !py-0';
 const isStrong = (value) => value.length >= 12 && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
 
-const ChangePasswordDialog = ({ otherDevices, onClose, onSubmit }) => {
-  const [current, setCurrent] = useState(PASSWORD_SEED.current);
-  const [next, setNext] = useState(PASSWORD_SEED.next);
-  const [confirm, setConfirm] = useState(PASSWORD_SEED.confirm);
+/* blank (signed in): empty fields instead of the frame's seeded dots. */
+const ChangePasswordDialog = ({ otherDevices, onClose, onSubmit, blank = false }) => {
+  const [current, setCurrent] = useState(blank ? '' : PASSWORD_SEED.current);
+  const [next, setNext] = useState(blank ? '' : PASSWORD_SEED.next);
+  const [confirm, setConfirm] = useState(blank ? '' : PASSWORD_SEED.confirm);
   const [logOutOthers, setLogOutOthers] = useState(true);
   const nextRef = useRef(null);
   const copy = PASSWORD_COPY;

@@ -94,10 +94,11 @@ export const useLivePipeline = () => {
       applications,
       busy,
       retry: () => setAttempt((n) => n + 1),
+      reload: load,
       move,
       schedule,
       cancelInterview,
     }),
-    [status, live, jobs, jobId, applications, busy, move, schedule, cancelInterview]
+    [status, live, jobs, jobId, applications, busy, move, schedule, cancelInterview, load]
   );
 };
