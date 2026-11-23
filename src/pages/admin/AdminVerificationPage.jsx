@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AdminFrame from '../../components/sections/admin/AdminFrame.jsx';
 import AdminLoadNotice from '../../components/sections/admin/AdminLoadNotice.jsx';
 import { useAdminState } from '../../components/sections/admin/adminState.js';
@@ -23,6 +23,7 @@ import {
   verifGet,
   verifQueue,
 } from '../../services/admin.api.js';
+import { adminAccreditationQueue } from '../../services/institutionPortal.api.js';
 import { debug } from '../../utils/debug.js';
 
 const log = debug('AdminVerificationPage');
@@ -33,7 +34,7 @@ const log = debug('AdminVerificationPage');
  *   /admin/verification/:id?kind=…      review · ?modal=approve | info (KYB only) | reject
  * Two kinds exist today, both on the recruiter's record: KYB documents, and a request to post under an organisation's name.
  * Approve / reject go through the recruiter-affiliation actions (the recruiter is notified, the audit log records it);
- * "Ask for more info" sends the KYB back to the recruiter with your message. Institution accreditation, agency MoUs,
+ * "Ask for more info" sends the KYB back to the recruiter with your message. Institution accreditation is reviewed in Settings › Organisations: the subtitle links there with its waiting count. Agency MoUs,
  * data requests and appeals have no submissions yet, so they don't appear.
  */
 
@@ -41,6 +42,9 @@ const Queue = ({ data }) => {
   const tab = data.tab ?? 'all';
   const chip = data.params.get('chip') ?? 'waiting';
   const q = useAdminData(() => verifQueue({ kind: tab, state: chip }), [tab, chip]);
+  // Institution accreditation has its own review (Settings › Organisations); say how many are waiting so staff find it.
+  const inst = useAdminData(() => adminAccreditationQueue(), []);
+  const instWaiting = (inst.data?.items ?? []).filter((a) => a.status === 'under-review').length;
   if (q.loading || q.error) {
     return (
       <div className="flex flex-col gap-[16px] pt-[4px]">
@@ -56,8 +60,20 @@ const Queue = ({ data }) => {
   const config = {
     title: 'Verification',
     sticker: `${d.counts.all} waiting`,
-    subtitle:
-      'Recruiter KYB documents and requests to post under an organisation’s name. Target: decide within 2 working days.',
+    subtitle: (
+      <>
+        Recruiter KYB documents and requests to post under an organisation’s name. Target: decide
+        within 2 working days.{' '}
+        <Link
+          to="/admin/settings/organisations"
+          className="font-semibold text-[#1f4a2b] underline underline-offset-2"
+        >
+          {instWaiting
+            ? `${instWaiting} institution accreditation ${instWaiting === 1 ? 'review is' : 'reviews are'} waiting in Settings › Organisations.`
+            : 'Institution accreditation is reviewed in Settings › Organisations.'}
+        </Link>
+      </>
+    ),
     tabs: VERIF_TABS.map((t) => ({ ...t, count: String(d.counts[t.id] ?? 0) })),
     tabTone: 'ink',
     defaultTab: tab,
